@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.67
 
 - Will embed spells in magic items if using magic-items-2 module. (Character imports only).
 - Refactoring some code for future improvements.
