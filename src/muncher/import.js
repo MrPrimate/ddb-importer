@@ -144,7 +144,7 @@ async function deleteCreateCompendiumItem(compendium, updateItem, existingItem) 
   DDBMuncher.munchNote(`Removing and Recreating ${updateItem.name} compendium entry`);
   logger.debug(`Removing and Recreating ${updateItem.name} compendium entry`);
   await existingItem.delete();
-  let newItem = createCompendiumItem(updateItem.type, compendium, updateItem);
+  let newItem = await createCompendiumItem(updateItem.type, compendium, updateItem);
   return newItem;
 }
 
@@ -182,7 +182,8 @@ async function createCompendiumItems(type, compendium, inputItems, index, matchF
     const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
     // we have a single match
     if (existingItems.length === 0) {
-      let newItem = createCompendiumItem(type, compendium, item);
+      // eslint-disable-next-line no-await-in-loop
+      let newItem = await createCompendiumItem(type, compendium, item);
       promises.push(newItem);
     }
   };
@@ -256,6 +257,10 @@ export async function updateCompendium(type, documents, updateExisting = false, 
   logger.debug(`Getting compendium for update of ${type} documents (checking ${documents[type].length} docs)`);
   const compendium = await CompendiumHelper.getCompendiumType(type);
   compendium.configure({ locked: false });
+
+  if (compendium.metadata.type === "Item" && game.settings.get(SETTINGS.MODULE_ID, "munching-policy-delete-during-update")) {
+    await Item.deleteDocuments([], { pack: compendium.metadata.id, deleteAll: true });
+  }
 
   if (game.user.isGM) {
     const initialIndex = await compendium.getIndex();
