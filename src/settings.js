@@ -980,7 +980,10 @@ const SETTINGS = {
         },
         MUNCH: {
           "munching-policy-update-existing": {
-            scope: "player",
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-delete-during-update": {
             type: Boolean,
             default: false,
           },
