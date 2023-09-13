@@ -369,7 +369,7 @@ function parseItemsWithSpellsModule(item, data, itemSpells, characterItem) {
 }
 
 export function parseMagicItem(item, data, itemSpells, characterItem = true) {
-  if (game.modules.get("magicitems")?.active) {
+  if (game.modules.get("magicitems")?.active || game.modules.get("magic-items-2")?.active) {
     item.flags.magicitems = parseMagicItemsModule(data, itemSpells, characterItem);
   } else if (game.modules.get("items-with-spells-5e")?.active) {
     item = parseItemsWithSpellsModule(item, data, itemSpells, characterItem);
