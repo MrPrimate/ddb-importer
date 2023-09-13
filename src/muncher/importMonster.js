@@ -1,11 +1,12 @@
 import logger from "../logger.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import FileHelper from "../lib/FileHelper.js";
-import { updateIcons, addActorEffectIcons, getCompendiumItems, getSRDImageLibrary, copySRDIcons, compendiumFoldersV10, addCompendiumFolderIds } from "./import.js";
+import { getCompendiumItems, compendiumFoldersV10, addCompendiumFolderIds } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { migrateItemsDAESRD } from "./dae.js";
 import SETTINGS from "../settings.js";
 import utils from "../lib/utils.js";
+import Iconizer from "../lib/Iconizer.js";
 
 // check items to see if retaining item, img or resources
 async function existingItemRetentionCheck(currentItems, newItems, checkId = true) {
@@ -369,8 +370,8 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
 
   logger.debug("Importing Icons");
   // eslint-disable-next-line require-atomic-updates
-  data.items = await updateIcons(data.items, false, true, data.name);
-  data = addActorEffectIcons(data);
+  data.items = await Iconizer.updateIcons(data.items, false, true, data.name);
+  data = Iconizer.addActorEffectIcons(data);
   data = await linkResourcesConsumption(data);
 
   if (handleBuild) {
@@ -424,7 +425,7 @@ export function addNPC(data, bulkImport, type) {
 export async function useSRDMonsterImages(monsters) {
   // eslint-disable-next-line require-atomic-updates
   if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) {
-    const srdImageLibrary = await getSRDImageLibrary();
+    const srdImageLibrary = await Iconizer.getSRDImageLibrary();
     DDBMuncher.munchNote(`Updating SRD Monster Images`, true);
 
     monsters.forEach((monster) => {
@@ -474,14 +475,14 @@ export async function generateIconMap(monsters) {
   const srdIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons");
   // eslint-disable-next-line require-atomic-updates
   if (srdIcons) {
-    const srdImageLibrary = await getSRDImageLibrary();
+    const srdImageLibrary = await Iconizer.getSRDImageLibrary();
     DDBMuncher.munchNote(`Updating SRD Icons`, true);
     let itemMap = [];
 
     monsters.forEach((monster) => {
       DDBMuncher.munchNote(`Processing ${monster.name}`);
       promises.push(
-        copySRDIcons(monster.items, srdImageLibrary, itemMap).then((items) => {
+        Iconizer.copySRDIcons(monster.items, srdImageLibrary, itemMap).then((items) => {
           monster.items = items;
         })
       );

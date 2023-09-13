@@ -6,7 +6,7 @@ import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import SETTINGS from "../settings.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
-import { srdFiddling, getCompendiumItems, removeItems, preFetchDDBIconImages } from "../muncher/import.js";
+import { srdFiddling, getCompendiumItems, removeItems } from "../muncher/import.js";
 
 // targets for migration
 import {
@@ -16,6 +16,7 @@ import {
   // addNPCsToCompendium,
   useSRDMonsterImages
 } from "../muncher/importMonster.js";
+import Iconizer from "../lib/Iconizer.js";
 
 export default class DDBMonsterFactory {
 
@@ -202,7 +203,7 @@ export default class DDBMonsterFactory {
     this.munchNote(`Checking existing image files...`);
     CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.clear();
     CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.clear();
-    await preFetchDDBIconImages();
+    await Iconizer.preFetchDDBIconImages();
     await FileHelper.generateCurrentFiles(uploadDirectory);
     await FileHelper.generateCurrentFiles("[data] modules/ddb-importer/data");
 

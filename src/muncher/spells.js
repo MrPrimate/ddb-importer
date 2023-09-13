@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling, daeFiddling, preFetchDDBIconImages } from "./import.js";
+import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 import FileHelper from "../lib/FileHelper.js";
@@ -12,6 +12,7 @@ import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import { configureDependencies } from "../effects/macros.js";
+import Iconizer from "../lib/Iconizer.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
@@ -120,7 +121,7 @@ export async function parseSpells(ids = null) {
     logger.error("Failed spell parsing", results);
   }
 
-  await preFetchDDBIconImages();
+  await Iconizer.preFetchDDBIconImages();
 
   let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
   const srdSpells = await srdFiddling(uniqueSpells, "spells");

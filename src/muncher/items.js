@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling, daeFiddling, preFetchDDBIconImages } from "./import.js";
+import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import utils from "../lib/utils.js";
 import FileHelper from "../lib/FileHelper.js";
@@ -13,6 +13,7 @@ import DDBCharacter from "../parser/DDBCharacter.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import { configureDependencies } from "../effects/macros.js";
+import Iconizer from "../lib/Iconizer.js";
 
 async function getCharacterInventory(items) {
   return items.map((item) => {
@@ -196,7 +197,7 @@ export async function parseItems(ids = null) {
     await addMagicItemSpells(items, itemSpells, updateBool);
   }
 
-  await preFetchDDBIconImages();
+  await Iconizer.preFetchDDBIconImages();
 
   const srdItems = await srdFiddling(items, "inventory");
   const filteredItems = (ids !== null && ids.length > 0)

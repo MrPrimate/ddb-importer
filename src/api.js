@@ -14,7 +14,7 @@ import { checkCobalt } from "./lib/Secrets.js";
 // import { base64Check } from "./lib/base64Check.js";
 import { getFeats } from "./muncher/feats/feats.js";
 import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS } from "./effects/macros.js";
-import { iconPath, generateIcon } from "./lib/Iconizer.js";
+import Iconizer from "./lib/Iconizer.js";
 import { loadSRDRules, importCacheLoad } from "./lib/DDBTemplateStrings.js";
 import { getNPCImage } from "./muncher/importMonster.js";
 import PatreonHelper from "./lib/PatreonHelper.js";
@@ -143,9 +143,9 @@ export function registerApi() {
     updateDDBCharacter,
     updateWorldMonsters,
 
-    getIconPath: iconPath,
-    iconPath,
-    generateIcon,
+    getIconPath: Iconizer.iconPath,
+    iconPath: Iconizer.iconPath,
+    generateIcon: Iconizer.generateIcon,
 
     loadSRDRules,
     importCacheLoad,

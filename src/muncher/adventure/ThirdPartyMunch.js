@@ -1,7 +1,7 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
 import logger from "../../logger.js";
 import { generateAdventureConfig } from "../adventure.js";
-import { generateIcon } from "../../lib/Iconizer.js";
+import Iconizer from "../../lib/Iconizer.js";
 import AdventureMunch from "./AdventureMunch.js";
 import { PageFinder } from "./PageFinder.js";
 import SETTINGS from "../../settings.js";
@@ -350,7 +350,7 @@ export default class ThirdPartyMunch extends FormApplication {
           logger.info(`Found note "${note.label}" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
           note.flags.ddb.journalId = noteJournal.id;
           // eslint-disable-next-line require-atomic-updates
-          note.icon = await generateIcon(this.adventureMunch, note.label);
+          note.icon = await Iconizer.generateIcon(this.adventureMunch, note.label);
           if (noJournalPinNotes) {
             note.flags.ddb.labelName = `${note.label}`;
             note.flags.ddb.slugLink = note.label.replace(/[^\w\d]+/g, "").replace(/^([a-zA-Z]?)0+/, "$1");

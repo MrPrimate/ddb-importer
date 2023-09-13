@@ -10,17 +10,10 @@ import {
   addMagicItemSpells,
   getCompendiumItems,
   getSRDCompendiumItems,
-  copySRDIcons,
-  getDDBEquipmentIcons,
-  getDDBSpellSchoolIcons,
-  getDDBGenericItemIcons,
-  addItemEffectIcons,
-  retainExistingIcons,
   getIndividualOverrideItems,
-  preFetchDDBIconImages,
 } from "../muncher/import.js";
 import { addItemsDAESRD } from "../muncher/dae.js";
-import { copyInbuiltIcons } from "../lib/Iconizer.js";
+import Iconizer from "../lib/Iconizer.js";
 import { updateDDBCharacter } from "../updater/character.js";
 import { generateCharacterExtras } from "../parser/DDBExtras.js";
 import DICTIONARY from "../dictionary.js";
@@ -682,7 +675,7 @@ export default class DDBCharacterManager extends FormApplication {
     const daeMidiInstalled = game.modules.get("midi-srd")?.active;
     const daeInstalled = game.modules.get("dae")?.active;
 
-    await preFetchDDBIconImages();
+    await Iconizer.preFetchDDBIconImages();
 
     // if we still have items to add, add them
     if (items.length > 0) {
@@ -691,27 +684,27 @@ export default class DDBCharacterManager extends FormApplication {
 
       if (ddbItemIcons) {
         this.showCurrentTask("Fetching DDB Inventory Images");
-        items = await getDDBEquipmentIcons(items, true);
+        items = await Iconizer.getDDBEquipmentIcons(items, true);
       }
 
       if (useInbuiltIcons) {
         this.showCurrentTask("Adding SRD Icons");
-        items = await copyInbuiltIcons(items);
+        items = await Iconizer.copyInbuiltIcons(items);
       }
 
       if (useSRDCompendiumIcons && !useSRDCompendiumItems) {
         this.showCurrentTask("Adding SRD Icons");
-        items = await copySRDIcons(items);
+        items = await Iconizer.copySRDIcons(items);
       }
 
       if (ddbSpellIcons) {
         this.showCurrentTask("Fetching DDB Spell School Images");
-        items = await getDDBSpellSchoolIcons(items, true);
+        items = await Iconizer.getDDBSpellSchoolIcons(items, true);
       }
 
       if (ddbGenericItemIcons) {
         this.showCurrentTask("Fetching DDB Generic Item Images");
-        items = await getDDBGenericItemIcons(items, true);
+        items = await Iconizer.getDDBGenericItemIcons(items, true);
       }
 
       if (this.settings.activeEffectCopy) {
@@ -725,10 +718,10 @@ export default class DDBCharacterManager extends FormApplication {
       }
 
       if (daeInstalled && (this.settings.addItemEffects || this.settings.addCharacterEffects)) {
-        items = await addItemEffectIcons(items);
+        items = await Iconizer.addItemEffectIcons(items);
       }
 
-      items = await retainExistingIcons(items);
+      items = await Iconizer.retainExistingIcons(items);
     }
 
     items = items.map((item) => {
