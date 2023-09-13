@@ -1,13 +1,5 @@
-import utils from "../../lib/utils.js";
-
-function getBookName(bookId) {
-  const book = CONFIG.DDB.sources.find((source) => source.name.toLowerCase() == bookId.toLowerCase());
-  if (book) {
-    return book.description;
-  } else {
-    return "";
-  }
-}
+import DDBHelper from "../../lib/DDBHelper.js";
+import FolderHelper from "../../lib/FolderHelper.js";
 
 export function imageToChat(src) {
   const content = `<img class="ddbimporter-chat-image" data-src="${src}" src="${src}">`;
@@ -18,9 +10,9 @@ export function imageToChat(src) {
 }
 
 async function getJournal(bookCode) {
-  const folder = await utils.getFolder("journal", "", "Player Handouts", "#515fc8", "#515fc8", false);
+  const folder = await FolderHelper.getFolder("journal", "", "Player Handouts", "#515fc8", "#515fc8", false);
   const journalName = bookCode
-    ? getBookName(bookCode)
+    ? DDBHelper.getBookName(bookCode)
     : "Handout Pages";
   const existingJournal = game.journal.find((journal) =>
     journal.name === journalName && journal.folder.id === folder.id

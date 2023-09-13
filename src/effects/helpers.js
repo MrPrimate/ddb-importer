@@ -1,5 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import DICTIONARY from "../dictionary.js";
+import FolderHelper from "../lib/FolderHelper.js";
 import utils from "../lib/utils.js";
 import logger from "../logger.js";
 import { addExtraEffects, fixFeatures } from "../parser/features/special.js";
@@ -364,7 +365,7 @@ export async function createJB2aActors(subFolderName, name) {
     // eslint-disable-next-line no-continue
     if (!pack) continue;
     const actors = pack.index.filter((f) => f.name.includes(name));
-    const subFolder = await utils.getFolder("npc", subFolderName, "JB2A Actors", "#ceb180", "#cccc00", false);
+    const subFolder = await FolderHelper.getFolder("npc", subFolderName, "JB2A Actors", "#ceb180", "#cccc00", false);
 
     for (const actor of actors) {
       if (!game.actors.find((a) => a.name === actor.name && a.folder?.id === subFolder.id)) {

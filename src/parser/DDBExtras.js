@@ -1,10 +1,10 @@
 import logger from "../logger.js";
-import utils from "../lib/utils.js";
 import DDBMonsterFactory from "./DDBMonsterFactory.js";
 import { getAbilityMods } from "./monster/helpers.js";
 import DICTIONARY from "../dictionary.js";
 import SETTINGS from "../settings.js";
 import DDBCompanionFactory from "./companions/DDBCompanionFactory.js";
+import FolderHelper from "../lib/FolderHelper.js";
 
 function getCustomValue(ddbCharacter, typeId, valueId, valueTypeId) {
   const characterValues = ddbCharacter.characterValues;
@@ -541,7 +541,7 @@ export async function generateCharacterExtras(html, ddbCharacter, actor) {
     logger.debug("ddbCharacter", ddbCharacter);
     if (ddbCharacter.source.ddb.character.creatures.length === 0) return;
 
-    const folder = await utils.getOrCreateFolder(actor.folder, "Actor", `[Extras] ${actor.name}`);
+    const folder = await FolderHelper.getOrCreateFolder(actor.folder, "Actor", `[Extras] ${actor.name}`);
 
     const extractedCreatures = ddbCharacter.source.ddb.character.creatures
       .map((creature) => transformExtraToMonsterData(ddbCharacter, actor, creature))

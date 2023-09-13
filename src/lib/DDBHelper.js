@@ -4,6 +4,15 @@ import { getEffectExcludedModifiers } from "../effects/effects.js";
 
 const DDBHelper = {
 
+  getBookName: (bookId) => {
+    const book = CONFIG.DDB.sources.find((source) => source.name.toLowerCase() == bookId.toLowerCase());
+    if (book) {
+      return book.description;
+    } else {
+      return "";
+    }
+  },
+
   getDamageType: (data) => {
     if (data.definition.damageType) {
       const damageTypeReplace = data.definition.grantedModifiers.find((mod) =>

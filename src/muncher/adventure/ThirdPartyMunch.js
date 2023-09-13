@@ -5,6 +5,8 @@ import { generateIcon } from "../../lib/Iconizer.js";
 import AdventureMunch from "./AdventureMunch.js";
 import { PageFinder } from "./PageFinder.js";
 import SETTINGS from "../../settings.js";
+import utils from "../../lib/utils.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 
 const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
 const RAW_BASE_URL = `https://raw.githubusercontent.com/${MR_PRIMATES_THIRD_PARTY_REPO}`;
@@ -114,7 +116,7 @@ export default class ThirdPartyMunch extends FormApplication {
       });
 
       if (missingBooks.length > 0) {
-        const bookString = missingBooks.map((bookCode) => ThirdPartyMunch._getDDBBookName(bookCode)).join(", ");
+        const bookString = missingBooks.map((bookCode) => DDBHelper.getBookName(bookCode)).join(", ");
         message += `<p>You need to use Adventure Muncher to load the following books first: ${bookString}</p>`;
       }
 
@@ -189,7 +191,7 @@ export default class ThirdPartyMunch extends FormApplication {
         let totalCount = scenes.length;
         let currentCount = 0;
 
-        await AdventureMunchHelpers.asyncForEach(scenes, async (obj) => {
+        await utils.asyncForEach(scenes, async (obj) => {
           try {
             let updatedData = {};
             switch (obj.documentName) {
@@ -241,11 +243,6 @@ export default class ThirdPartyMunch extends FormApplication {
     return folder ? folder : ThirdPartyMunch._createFolder(label, type);
   }
 
-  static _getDDBBookName(bookCode) {
-    const selection = CONFIG.DDB.sources.find((source) => bookCode.toLowerCase() === source.name.toLowerCase());
-    return selection.description;
-  }
-
   static _generateMockAdventure(scene) {
     const monsters = scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens
       ? scene.flags.ddb.tokens
@@ -254,7 +251,7 @@ export default class ThirdPartyMunch extends FormApplication {
       : [];
     return {
       id: randomID(),
-      name: ThirdPartyMunch._getDDBBookName(scene.flags.ddb.bookCode),
+      name: DDBHelper.getBookName(scene.flags.ddb.bookCode),
       description: "",
       system: "dnd5e",
       modules: [],
@@ -430,12 +427,12 @@ export default class ThirdPartyMunch extends FormApplication {
     const adjustedScenes = this._scenePackage.scenes
       .filter((scene) => scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens);
 
-    await AdventureMunchHelpers.asyncForEach(adjustedScenes, async(scene) => {
+    await utils.asyncForEach(adjustedScenes, async(scene) => {
       logger.debug(`Adjusting scene ${scene.name}`);
       const mockAdventure = ThirdPartyMunch._generateMockAdventure(scene);
       if (scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens) {
         await this._checkForMissingData(mockAdventure, []);
-        const bookName = ThirdPartyMunch._getDDBBookName(scene.flags.ddb.bookCode);
+        const bookName = DDBHelper.getBookName(scene.flags.ddb.bookCode);
         const actorFolder = await ThirdPartyMunch._findFolder(bookName, "Actor");
         scene.tokens = scene.flags.ddb.tokens.map((token) => {
           token.flags.actorFolderId = actorFolder.id;
@@ -470,7 +467,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
     const processedScenes = [];
 
-    await AdventureMunchHelpers.asyncForEach(filteredScenes, async(scene) => {
+    await utils.asyncForEach(filteredScenes, async(scene) => {
       logger.debug(`Processing scene ${scene.name} with DDB Updates`);
       const compendiumId = scene.flags.ddbimporter.export.compendium;
       const compendium = game.packs.get(compendiumId);
@@ -564,7 +561,7 @@ export default class ThirdPartyMunch extends FormApplication {
       const adventureLabels = [...new Set(this._scenePackage.scenes
         .filter((scene) => scene.flags?.ddb?.bookCode)
         .map((scene) => {
-          return ThirdPartyMunch._getDDBBookName(scene.flags.ddb.bookCode);
+          return DDBHelper.getBookName(scene.flags.ddb.bookCode);
         }))]
         .map((label) => {
           return ThirdPartyMunch._findFolder(label, "Actor");
@@ -582,7 +579,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
       logger.debug("About to generate Token Actors");
       // load token actors into world
-      await AdventureMunchHelpers.asyncForEach(adjustedScenes, async(scene) => {
+      await utils.asyncForEach(adjustedScenes, async(scene) => {
         logger.debug(`Generating scene actors for ${scene.name}`);
         await this.adventureMunch.generateTokenActors(scene);
         logger.debug(`Finished scene actors for ${scene.name}`);

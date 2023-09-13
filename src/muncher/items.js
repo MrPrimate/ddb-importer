@@ -208,12 +208,14 @@ export async function parseItems(ids = null) {
 
   const finalCount = finalItems.length;
   DDBMuncher.munchNote(`Importing ${finalCount} items!`, true);
+  logger.time("Item Import Time");
 
   const updateResults = await updateCompendium("inventory", { inventory: finalItems }, updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
   logger.debug({ finalItems, updateResults, updatePromiseResults });
   DDBMuncher.munchNote("");
+  logger.timeEnd("Item Import Time");
   return updateResults;
 }
 

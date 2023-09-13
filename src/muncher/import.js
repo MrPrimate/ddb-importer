@@ -1,4 +1,3 @@
-import utils from "../lib/utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import SETTINGS from "../settings.js";
@@ -8,6 +7,8 @@ import DDBMuncher from "../apps/DDBMuncher.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../lib/Iconizer.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
+import NameMatcher from "../lib/NameMatcher.js";
+import FolderHelper from "../lib/FolderHelper.js";
 
 /**
  * Removes items
@@ -29,32 +30,6 @@ export async function removeItems(items, itemsToRemove, matchDDBId = false) {
   });
 }
 
-function getCharacterUpdatePolicyTypes() {
-  let itemTypes = [];
-  itemTypes.push("class");
-  if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
-  if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
-  if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
-    itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
-  if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
-  return itemTypes;
-}
-
-/**
- * Returns a combined array of all items to process, filtered by the user's selection on what to skip and what to include
- * @param {object} result object containing all character items sectioned as individual properties
- * @param {array[string]} sections an array of object properties which should be filtered
- */
-export function filterItemsByUserSelection(result, sections) {
-  let items = [];
-  const validItemTypes = getCharacterUpdatePolicyTypes();
-
-  for (const section of sections) {
-    items = items.concat(result[section]).filter((item) => validItemTypes.includes(item.type));
-  }
-  return items;
-};
-
 function copyFlagGroup(flagGroup, originalItem, targetItem) {
   if (targetItem.flags === undefined) targetItem.flags = {};
   // if we have generated effects we dont want to copy some flag groups. mostly for AE on spells
@@ -74,131 +49,6 @@ export function copySupportedItemFlags(originalItem, targetItem) {
   SETTINGS.SUPPORTED_FLAG_GROUPS.forEach((flagGroup) => {
     copyFlagGroup(flagGroup, originalItem, targetItem);
   });
-}
-
-function getMonsterNames(name) {
-  let magicNames = [name, name.toLowerCase()];
-
-  // +2 sword
-  let frontPlus = name.match(/^(\+\d*)\s*(.*)/);
-  if (frontPlus) {
-    magicNames.push(`${frontPlus[2].trim()}, ${frontPlus[1]}`.toLowerCase().trim());
-  }
-
-  // sword +2
-  let backPlus = name.match(/(.*)\s*(\+\d*)$/);
-  if (backPlus) {
-    magicNames.push(`${backPlus[1].trim()}, ${backPlus[2]}`.toLowerCase().trim());
-  }
-
-  return magicNames;
-}
-
-function getLooseNames(name, extraNames = []) {
-  let looseNames = extraNames;
-  looseNames.push(name.toLowerCase());
-  let refactNameArray = name.split("(")[0].trim().split(", ");
-  refactNameArray.unshift(refactNameArray.pop());
-  const refactName = refactNameArray.join(" ").trim();
-  looseNames.push(refactName, refactName.toLowerCase());
-  looseNames.push(refactName.replace(/\+\d*\s*/, "").trim().toLowerCase());
-  looseNames.push(refactName.replace(/\+\d*\s*/, "").trim().toLowerCase().replace(/s$/, ""));
-
-  let refactNamePlusArray = name.replace(/\+\d*\s*/, "").trim().split("(")[0].trim().split(", ");
-  refactNamePlusArray.unshift(refactNamePlusArray.pop());
-  const refactNamePlus = refactNamePlusArray.join(" ").trim();
-  looseNames.push(refactNamePlus.toLowerCase());
-
-  let deconNameArray = name.replace("(", "").replace(")", "").trim().split(",");
-  deconNameArray.unshift(deconNameArray.pop());
-  const deconName = deconNameArray.join(" ").trim();
-  looseNames.push(deconName, deconName.toLowerCase());
-
-  // word smart quotes are the worst
-  looseNames.push(name.replace("'", "’").toLowerCase());
-  looseNames.push(name.replace("’", "'").toLowerCase());
-  looseNames.push(name.replace(/s$/, "").toLowerCase()); // trim s, e.g. crossbow bolt(s)
-  looseNames.push(name.replace(",", "").toLowerCase()); // +1 weapons etc
-  looseNames.push(`${name} attack`.toLowerCase()); // Claw Attack
-  looseNames.push(name.split(",")[0].toLowerCase());
-
-  return looseNames;
-}
-
-// The monster setting is less vigorous!
-export async function looseItemNameMatch(item, items, loose = false, monster = false, magicMatch = false) {
-  // first pass is a strict match
-  let matchingItem = items.find((matchItem) => {
-    let activationMatch = false;
-    const alternativeNames = matchItem.flags?.ddbimporter?.dndbeyond?.alternativeNames;
-    const extraNames = (alternativeNames) ? matchItem.flags.ddbimporter.dndbeyond.alternativeNames : [];
-
-    const itemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, 'activation');
-    const matchItemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, 'activation');
-
-    if (itemActivationProperty && item.system?.activation?.type == "") {
-      activationMatch = true;
-    } else if (matchItemActivationProperty && itemActivationProperty) {
-      // I can't remember why I added this. Maybe I was concerned about identical named items with
-      // different activation times?
-      // maybe I just want to check it exists?
-      // causing issues so changed.
-      // activationMatch = matchItem.system.activation.type === item.system.activation.type;
-      activationMatch = matchItemActivationProperty && itemActivationProperty;
-    } else if (!itemActivationProperty) {
-      activationMatch = true;
-    }
-
-    const nameMatch = item.name === matchItem.name || extraNames.includes(item.name);
-    const isMatch = nameMatch && item.type === matchItem.type && activationMatch;
-    return isMatch;
-  });
-
-  if (!matchingItem && monster) {
-    matchingItem = items.find(
-      (matchItem) => {
-        const monsterNames = getMonsterNames(matchItem.name);
-        const monsterMatch = (monsterNames.includes(item.name.toLowerCase()))
-          && DICTIONARY.types.monster.includes(matchItem.type)
-          && DICTIONARY.types.inventory.includes(item.type);
-        return monsterMatch;
-      });
-  }
-
-  if (!matchingItem && magicMatch) {
-    // is this an inverse match for updates?
-    // if so strip out the non-magic names, we want to match on the magic names
-    const magicName = item.name.replace(/(.*)\s+(\+\d*)\s*/, "$1, $2").trim().toLowerCase();
-    matchingItem = items.find(
-      (matchItem) => matchItem.name.trim().toLowerCase() == magicName
-    );
-  }
-
-  if (!matchingItem && loose) {
-    const looseNames = getLooseNames(item.name)
-      .filter((name) => {
-        if (!magicMatch) return true;
-        const removeMagicName = name.replace(/\+\d*\s*/, "").trim();
-        if (name === removeMagicName) return false;
-        return true;
-      });
-    // lets go loosey goosey on matching equipment, we often get types wrong
-    matchingItem = items.find(
-      (matchItem) =>
-        (looseNames.includes(matchItem.name.toLowerCase()) || looseNames.includes(matchItem.name.toLowerCase().replace(" armor", "")))
-        && DICTIONARY.types.inventory.includes(item.type)
-        && DICTIONARY.types.inventory.includes(matchItem.type)
-    );
-
-    // super loose name match!
-    if (!matchingItem) {
-      // still no matching item, lets do a final pass
-      matchingItem = items.find(
-        (matchItem) => looseNames.includes(matchItem.name.split("(")[0].trim().toLowerCase())
-      );
-    }
-  }
-  return matchingItem;
 }
 
 function flagMatch(item1, item2, matchFlags) {
@@ -278,14 +128,24 @@ async function createCompendiumItem(type, compendium, item) {
 
 async function updateCompendiumItem(compendium, updateItem, existingItem) {
   // purge existing active effects on this item
-  // if (existingItem.results) await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
-  // if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+  if (existingItem.results) await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
+  if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
   if (existingItem.flags) copySupportedItemFlags(existingItem, updateItem);
   DDBMuncher.munchNote(`Updating ${updateItem.name} compendium entry`);
   logger.debug(`Updating ${updateItem.name} compendium entry`);
 
-  const update = existingItem.update(updateItem, { pack: compendium.metadata.id, recursive: false, render: false });
+  const update = existingItem.update(updateItem, { pack: compendium.metadata.id, render: false });
+  // const update = existingItem.update(updateItem, { pack: compendium.metadata.id, recursive: false, render: false });
   return update;
+}
+
+async function deleteCreateCompendiumItem(compendium, updateItem, existingItem) {
+  if (existingItem.flags) copySupportedItemFlags(existingItem, updateItem);
+  DDBMuncher.munchNote(`Removing and Recreating ${updateItem.name} compendium entry`);
+  logger.debug(`Removing and Recreating ${updateItem.name} compendium entry`);
+  await existingItem.delete();
+  let newItem = createCompendiumItem(updateItem.type, compendium, updateItem);
+  return newItem;
 }
 
 async function updateCompendiumItems(compendium, inputItems, index, matchFlags) {
@@ -299,11 +159,11 @@ async function updateCompendiumItems(compendium, inputItems, index, matchFlags) 
       // eslint-disable-next-line require-atomic-updates
       item._id = existingItem._id;
 
-      if (item.type !== existingItem.type) {
-        logger.warn(`Item type mismatch ${item.name} from ${existingItem.type} to ${item.type}. DDB Importer will delete and recreate this item from scratch. You can most likely ignore this message.`);
-        // eslint-disable-next-line no-await-in-loop
-        await existingItem.delete();
-        let newItem = createCompendiumItem(item.type, compendium, item);
+      if (item.type !== existingItem.type || game.settings.get(SETTINGS.MODULE_ID, "munching-policy-delete-during-update")) {
+        if (item.type !== existingItem.type) {
+          logger.warn(`Item type mismatch ${item.name} from ${existingItem.type} to ${item.type}. DDB Importer will delete and recreate this item from scratch. You can most likely ignore this message.`);
+        }
+        let newItem = deleteCreateCompendiumItem(compendium, item, existingItem);
         results.push(newItem);
       } else {
         let update = updateCompendiumItem(compendium, item, existingItem);
@@ -314,7 +174,6 @@ async function updateCompendiumItems(compendium, inputItems, index, matchFlags) 
 
   return Promise.all(results);
 }
-
 
 async function createCompendiumItems(type, compendium, inputItems, index, matchFlags) {
   let promises = [];
@@ -363,7 +222,7 @@ export async function updateMidiFlags() {
 
 export async function compendiumFoldersV10(document, type) {
   // using compendium folders?
-  const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
+  const compendiumFolderAdd = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
 
   if (compendiumFolderAdd) {
     // we create the compendium folder before import
@@ -376,7 +235,7 @@ export async function compendiumFoldersV10(document, type) {
 }
 
 export async function addCompendiumFolderIds(documents, type) {
-  const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
+  const compendiumFolderAdd = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
   if (compendiumFolderAdd && isNewerVersion(game.version, 11)) {
     const compendiumFolders = new DDBCompendiumFolders(type);
     await compendiumFolders.loadCompendium(type);
@@ -478,7 +337,7 @@ export async function copySRDIcons(items, srdImageLibrary = null, nameMatchList 
       if (nameMatch) {
         item.img = nameMatch.img;
       } else {
-        looseItemNameMatch(item, srdImageLibrary, true).then((match) => {
+        NameMatcher.looseItemNameMatch(item, srdImageLibrary, true).then((match) => {
           if (match) {
             srdImageLibrary.push({ name: item.name, img: match.img });
             item.img = match.img;
@@ -507,8 +366,8 @@ export async function retainExistingIcons(items) {
 
 async function getDDBItemImages(items, download) {
   DDBMuncher.munchNote(`Fetching DDB Item Images`);
-  const downloadImages = (download) ? true : game.settings.get("ddb-importer", "munching-policy-download-images");
-  const remoteImages = game.settings.get("ddb-importer", "munching-policy-remote-images");
+  const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
+  const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
   const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
   const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
@@ -687,10 +546,10 @@ export async function getDDBEquipmentIcons(items, download) {
 
 
 export async function updateMagicItemImages(items) {
-  const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
-  const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
-  const inbuiltIcons = game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons");
-  const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
+  const useSRDCompendiumIcons = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-srd-icons");
+  const ddbSpellIcons = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-spell-icons");
+  const inbuiltIcons = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-inbuilt-icons");
+  const ddbItemIcons = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-item-icons");
 
   // if we still have items to add, add them
   if (items.length > 0) {
@@ -723,110 +582,6 @@ export async function preFetchDDBIconImages() {
   await getDDBSchoolSpellImages(true);
 }
 
-/**
- * Updates game folder items
- * @param {*} type
- */
-async function updateFolderItems(type, input, update = true) {
-  if (type === "itemSpells") {
-    // eslint-disable-next-line require-atomic-updates
-    input[type] = await updateMagicItemImages(input[type]);
-  }
-
-  const folderLookup = SETTINGS.GAME_FOLDER_LOOKUPS.find((c) => c.type == type);
-  const itemFolderNames = [...new Set(input[type]
-    .filter((item) => item.flags?.ddbimporter?.dndbeyond?.lookupName)
-    .map((item) => item.flags.ddbimporter.dndbeyond.lookupName))];
-
-  const getSubFolders = async () => {
-    return Promise.all(
-      itemFolderNames.map((name) => {
-        return utils.getFolder(folderLookup.folder, name);
-      })
-    );
-  };
-
-  const subFolders = await getSubFolders();
-
-  const defaultItemsFolder = await utils.getFolder(folderLookup.folder);
-  const existingItems = await game.items.entities.filter((item) => {
-    const itemFolder = subFolders.find((folder) =>
-      item.flags?.ddbimporter?.dndbeyond?.lookupName
-      && folder.name === item.flags.ddbimporter.dndbeyond.lookupName
-    );
-    return itemFolder && item.type === folderLookup.itemType && item.folder === itemFolder._id;
-  });
-
-  // update or create folder items
-  const updateItems = async () => {
-    return Promise.all(
-      input[type]
-        .filter((item) => existingItems.some((idx) => idx.name === item.name))
-        .map(async (item) => {
-          const existingItem = await existingItems.find((existing) => item.name === existing.name);
-          item._id = existingItem._id;
-          logger.info(`Updating ${type} ${item.name}`);
-          copySupportedItemFlags(existingItem, item);
-          await Item.update(item);
-          return item;
-        })
-    );
-  };
-
-  const createItems = async () => {
-    return Promise.all(
-      input[type]
-        .filter((item) => !existingItems.some((idx) => idx.name === item.name))
-        .map(async (item) => {
-          if (!game.user.can("ITEM_CREATE")) {
-            ui.notifications.warn(`Cannot create ${folderLookup.type} ${item.name} for ${type}`);
-          } else {
-            logger.info(`Creating ${type} ${item.name}`);
-            const itemsFolder = subFolders.find((folder) =>
-              item.flags?.ddbimporter?.dndbeyond?.lookupName
-              && folder.name === item.flags.ddbimporter.dndbeyond.lookupName
-            );
-            item.folder = (itemsFolder) ? itemsFolder._id : defaultItemsFolder._id;
-            await Item.create(item);
-          }
-          return item;
-        })
-    );
-  };
-
-  if (update) await updateItems();
-  await createItems();
-
-  // lets generate our compendium info like id, pack and img for use
-  // by things like magicitems
-  const folderIds = [defaultItemsFolder._id, ...subFolders.map((f) => f._id)];
-  const items = Promise.all(
-    game.items.entities
-      .filter((item) => item.type === folderLookup.itemType && folderIds.includes(item.folder))
-      .map((result) => {
-        const subFolder = (result.flags.ddbimporter?.dndbeyond?.lookupName)
-          ? result.flags.ddbimporter.dndbeyond.lookupName
-          : null;
-        return {
-          magicItem: {
-            _id: result._id,
-            id: result._id,
-            pack: "world",
-            img: result.img,
-            name: result.name,
-            subFolder: subFolder,
-            flatDc: result.flags?.ddbimporter?.dndbeyond?.overrideDC,
-            dc: result.flags?.ddbimporter?.dndbeyond?.dc,
-          },
-          _id: result._id,
-          name: result.name,
-          compendium: false,
-        };
-      })
-  );
-  return items;
-}
-
 export function updateCharacterItemFlags(itemData, replaceData) {
   if (itemData.flags?.ddbimporter?.importId) setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
   if (itemData.system.quantity) replaceData.system.quantity = itemData.system.quantity;
@@ -855,7 +610,7 @@ export async function updateMatchingItems(oldItems, newItems,
 
     const matched = overrideId
       ? oldItems.find((oldItem) => getProperty(oldItem, "flags.ddbimporter.overrideId") == item._id)
-      : await looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
+      : await NameMatcher.looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
 
     if (matched) {
       const match = duplicate(matched);
@@ -934,10 +689,10 @@ export async function loadPassedItemsFromCompendium(compendium, items, type,
         ? orig.flags.ddbimporter.dndbeyond.alternativeNames
         : [];
       if (looseMatch) {
-        const looseNames = getLooseNames(orig.name, extraNames);
+        const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
       } else if (monsterMatch) {
-        const monsterNames = getMonsterNames(orig.name);
+        const monsterNames = NameMatcher.getMonsterNames(orig.name);
         // console.log(magicNames)
         if (i.name === orig.name) {
           return true;
@@ -1021,7 +776,7 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
         ? orig.flags.ddbimporter.dndbeyond.alternativeNames
         : [];
       if (looseMatch) {
-        const looseNames = getLooseNames(orig.name, extraNames);
+        const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
       } else {
         return i.name === orig.name || extraNames.includes(i.name);
@@ -1089,37 +844,22 @@ export function addActorEffectIcons(actor) {
   return actor;
 }
 
-/**
- * TO DO : This function should do something.
- * @param {*} effects
- */
-export function addACEffectIcons(effects) {
-  logger.debug("Adding Icons to AC effects");
-
-  // effects.forEach((item) => {
-  //   if (!effect.icon || effect.icon === "" || effect.icon === CONST.DEFAULT_TOKEN) {
-  //     effect.icon = item.img;
-  //   }
-  // });
-  return effects;
-}
-
 export async function updateIcons(items, srdIconUpdate = true, monster = false, monsterName = "") {
   // this will use ddb item icons as a fall back
-  const ddbItemIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-item-icons");
+  const ddbItemIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-item-icons");
   if (ddbItemIcons) {
     logger.debug("DDB Equipment Icon Match");
     items = await getDDBEquipmentIcons(items);
   }
 
-  const inBuiltIcons = game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons");
+  const inBuiltIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-inbuilt-icons");
   if (inBuiltIcons) {
     logger.debug(`Inbuilt icon matching (Monster? ${monster ? monsterName : monster})`);
     items = await copyInbuiltIcons(items, monster, monsterName);
   }
 
   // check for SRD icons
-  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
+  const srdIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons");
   // eslint-disable-next-line require-atomic-updates
   if (srdIcons && srdIconUpdate) {
     logger.debug("SRD Icon Matching");
@@ -1127,21 +867,21 @@ export async function updateIcons(items, srdIconUpdate = true, monster = false, 
   }
 
   // this will use ddb spell school icons as a fall back
-  const ddbSpellIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-spell-icons");
+  const ddbSpellIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-spell-icons");
   if (ddbSpellIcons) {
     logger.debug("DDB Spell School Icon Match");
     items = await getDDBSpellSchoolIcons(items, true);
   }
 
   // this will use ddb generic icons as a fall back
-  const ddbGenericItemIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-generic-item-icons");
+  const ddbGenericItemIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-generic-item-icons");
   if (ddbGenericItemIcons) {
     logger.debug("DDB Generic Item Icon Match");
     items = await getDDBGenericItemIcons(items, true);
   }
 
   // update any generated effects
-  const addEffects = game.settings.get("ddb-importer", "munching-policy-add-effects");
+  const addEffects = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-effects");
   if (addEffects) {
     items = addItemEffectIcons(items);
   }
@@ -1150,8 +890,8 @@ export async function updateIcons(items, srdIconUpdate = true, monster = false, 
 }
 
 export async function srdFiddling(items, type) {
-  const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-  const useSrd = game.settings.get("ddb-importer", "munching-policy-use-srd");
+  const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
+  const useSrd = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd");
 
   if (useSrd && type == "monsters") {
     const srdItems = await getSRDCompendiumItems(items, type);
@@ -1183,7 +923,7 @@ export async function srdFiddling(items, type) {
 
 
 export async function daeFiddling(items) {
-  const fiddle = game.settings.get("ddb-importer", "munching-policy-use-dae-effects");
+  const fiddle = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-dae-effects");
   const installed = game.modules.get("dae")?.active
     && (game.modules.get("Dynamic-Effects-SRD")?.active || game.modules.get("midi-srd")?.active);
 
@@ -1231,10 +971,10 @@ export async function addMagicItemSpells(input) {
   const [compendiumSpells, compendiumItemSpells] = await getCompendiumItemSpells(input.itemSpells);
   // if spells not found create world version
   const remainingSpells = {
-    itemSpells: await removeItems(input.itemSpells, compendiumSpells),
+    itemSpells: await updateMagicItemImages(await removeItems(input.itemSpells, compendiumSpells)),
   };
   const worldSpells = remainingSpells.length > 0
-    ? await updateFolderItems("itemSpells", remainingSpells)
+    ? await FolderHelper.updateFolderItems("itemSpells", remainingSpells)
     : [];
   const itemSpells = worldSpells.concat(compendiumItemSpells);
 

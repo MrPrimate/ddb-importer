@@ -88,9 +88,10 @@ async function addNPCToCompendium(npc, type = "monster") {
         npcBasic.items = await existingItemRetentionCheck(existingItems, monsterTaggedItems, false);
 
         logger.debug("NPC Update Data", duplicate(npcBasic));
-        // await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
-        // await existingNPC.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-        compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.collection, recursive: false, render: false, keepId: true });
+        await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
+        await existingNPC.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+        // compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.collection, recursive: false, render: false, keepId: true });
+        compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.collection, render: false, keepId: true });
         if (!compendiumNPC) {
           logger.debug("No changes made to base character", npcBasic);
           compendiumNPC = existingNPC;

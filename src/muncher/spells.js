@@ -133,12 +133,14 @@ export async function parseSpells(ids = null) {
 
   const finalCount = finalSpells.length;
   DDBMuncher.munchNote(`Importing ${finalCount} spells...`, true);
+  logger.time("Spell Import Time");
 
   const updateResults = await updateCompendium("spells", { spells: finalSpells }, updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
   logger.debug({ finalSpells, updateResults, updatePromiseResults });
   DDBMuncher.munchNote("");
+  logger.timeEnd("Spell Import Time");
   return updateResults;
 }
 

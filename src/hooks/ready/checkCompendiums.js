@@ -1,6 +1,6 @@
 import SETTINGS from '../../settings.js';
 import CompendiumHelper from '../../lib/CompendiumHelper.js';
-import utils from '../../lib/utils.js';
+import FolderHelper from '../../lib/FolderHelper.js';
 
 export default async function () {
   if (game.settings.get(SETTINGS.MODULE_ID, "auto-create-compendium")) {
@@ -17,7 +17,7 @@ export default async function () {
         && game.settings.get(SETTINGS.MODULE_ID, "top-level-compendium-folder");
       const compendiumFolder = createCompendiumFolder
         // eslint-disable-next-line no-await-in-loop
-        ? await utils.getFolder("compendium", "", "D&D Beyond", "#6f0006", "#98020a", false)
+        ? await FolderHelper.getFolder("compendium", "", "D&D Beyond", "#6f0006", "#98020a", false)
         : null;
       if (createCompendiumFolder) compendiumData.folder = compendiumFolder._id;
 

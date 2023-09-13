@@ -1,3 +1,4 @@
+import FolderHelper from "../../lib/FolderHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import { copySupportedItemFlags, srdFiddling } from "../../muncher/import.js";
@@ -84,10 +85,10 @@ export default class DDBCompanionFactory {
   }
 
   async #generateCompanionFolders(rootFolderName = "DDB Companions") {
-    const rootFolder = await utils.getOrCreateFolder(null, "Actor", rootFolderName);
+    const rootFolder = await FolderHelper.getOrCreateFolder(null, "Actor", rootFolderName);
     for (const companion of this.companions) {
       // eslint-disable-next-line no-await-in-loop
-      const folder = await utils.getOrCreateFolder(rootFolder, "Actor", utils.capitalize(companion.type ?? "other"));
+      const folder = await FolderHelper.getOrCreateFolder(rootFolder, "Actor", utils.capitalize(companion.type ?? "other"));
       companion.data.folder = folder._id;
       this.folderIds.add(folder._id);
     }

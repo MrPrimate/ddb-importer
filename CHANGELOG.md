@@ -1,3 +1,9 @@
+# NEXT UP
+
+- Will embed spells in magic items if using magic-items-2 module. (Character imports only).
+- Refactoring some code for future improvements.
+- Reverted tweaks to import process, based on timings and oddities from some users.
+
 # 3.4.66
 
 - Venom troll, venom spray correction.

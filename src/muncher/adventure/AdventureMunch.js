@@ -261,7 +261,7 @@ export default class AdventureMunch extends FormApplication {
   }
 
   async importFolder(folders, folderList) {
-    await AdventureMunchHelpers.asyncForEach(folders, async (f) => {
+    await utils.asyncForEach(folders, async (f) => {
       let folderData = f;
 
       let newFolder = game.folders.find((folder) =>
@@ -505,7 +505,7 @@ export default class AdventureMunch extends FormApplication {
     logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
     const deadTokenIds = [];
 
-    await AdventureMunchHelpers.asyncForEach(scene.tokens, async (token) => {
+    await utils.asyncForEach(scene.tokens, async (token) => {
       if (token.actorId) {
         const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
         delete sceneToken.scale;
@@ -562,7 +562,7 @@ export default class AdventureMunch extends FormApplication {
         let totalCount = this._itemsToRevisit.length;
         let currentCount = 0;
 
-        await AdventureMunchHelpers.asyncForEach(this._itemsToRevisit, async (itemUuid) => {
+        await utils.asyncForEach(this._itemsToRevisit, async (itemUuid) => {
           const toTimer = setTimeout(() => {
             logger.warn(`Reference update timed out.`);
             this._renderCompleteDialog();
@@ -648,7 +648,7 @@ export default class AdventureMunch extends FormApplication {
 
     let fileData = [];
 
-    await AdventureMunchHelpers.asyncForEach(dataFiles, async (file) => {
+    await utils.asyncForEach(dataFiles, async (file) => {
       const raw = await this.zip.file(file.name).async("text");
       const json = JSON.parse(raw);
       const existingScene = await game.scenes.find((item) => item.id === json._id);
@@ -786,7 +786,7 @@ export default class AdventureMunch extends FormApplication {
     logger.debug("Trying to import actors from compendium", neededActors);
     const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
     const results = [];
-    await AdventureMunchHelpers.asyncForEach(neededActors, async (actor) => {
+    await utils.asyncForEach(neededActors, async (actor) => {
       let worldActor = this._getWorldActor(actor.actorId);
       if (!worldActor) {
         logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
@@ -828,7 +828,7 @@ export default class AdventureMunch extends FormApplication {
     const monsterIndex = await AdventureMunchHelpers.getCompendiumIndex("monster");
 
     logger.debug("Checking for the following actors in world", data);
-    await AdventureMunchHelpers.asyncForEach(data, async (actorData) => {
+    await utils.asyncForEach(data, async (actorData) => {
       logger.debug(`Checking for ${actorData.ddbId}`, actorData);
       let worldActor = this._getWorldActor(actorData.actorId);
 
@@ -924,7 +924,7 @@ export default class AdventureMunch extends FormApplication {
     }
 
     if (data?.items?.length) {
-      await AdventureMunchHelpers.asyncForEach(data.items, async (item) => {
+      await utils.asyncForEach(data.items, async (item) => {
         if (item.img) {
           // eslint-disable-next-line require-atomic-updates
           item.img = await this.importImage(item.img);
@@ -933,7 +933,7 @@ export default class AdventureMunch extends FormApplication {
     }
 
     if (data?.pages?.length) {
-      await AdventureMunchHelpers.asyncForEach(data.pages, async (page) => {
+      await utils.asyncForEach(data.pages, async (page) => {
         if (page.src) {
           // eslint-disable-next-line require-atomic-updates
           page.src = await this.importImage(page.src);
@@ -949,14 +949,14 @@ export default class AdventureMunch extends FormApplication {
         data.flags["perfect-vision"] = {};
       }
     } else if (importType === "Playlist") {
-      await AdventureMunchHelpers.asyncForEach(data.sounds, async (sound) => {
+      await utils.asyncForEach(data.sounds, async (sound) => {
         if (sound.path) {
           // eslint-disable-next-line require-atomic-updates
           sound.path = await this.importImage(sound.path);
         }
       });
     } else if (importType === "RollTable") {
-      await AdventureMunchHelpers.asyncForEach(data.results, async (result) => {
+      await utils.asyncForEach(data.results, async (result) => {
         if (result.img) {
           // eslint-disable-next-line require-atomic-updates
           result.img = await this.importImage(result.img);
@@ -969,7 +969,7 @@ export default class AdventureMunch extends FormApplication {
         data.text = this.foundryCompendiumReplace(data.text);
       });
     } else if (importType === "JournalEntry" && data.pages) {
-      await AdventureMunchHelpers.asyncForEach(data.pages, async (page) => {
+      await utils.asyncForEach(data.pages, async (page) => {
         if (page.text.content) {
           const journalImages = AdventureMunchHelpers.reMatchAll(
             /(src|href)="(?!http(?:s*):\/\/)([\w0-9\-._~%!$&'()*+,;=:@/]*)"/,
@@ -977,7 +977,7 @@ export default class AdventureMunch extends FormApplication {
           );
           if (journalImages) {
             logger.debug(`Updating Image links for ${page.name}`);
-            await AdventureMunchHelpers.asyncForEach(journalImages, async (result) => {
+            await utils.asyncForEach(journalImages, async (result) => {
               const path = await this.importImage(result[2]);
               page.text.content = page.text.content.replace(result[0], `${result[1]}="${path}"`);
             });
@@ -1091,7 +1091,7 @@ export default class AdventureMunch extends FormApplication {
     logger.info(`Importing ${this.adventure.name} - Compendium (${dataFiles.length} items)`);
     totalCount = dataFiles.length;
 
-    await AdventureMunchHelpers.asyncForEach(dataFiles, async (file) => {
+    await utils.asyncForEach(dataFiles, async (file) => {
       const rawData = await this.zip.file(file.name).async("text");
       const data = JSON.parse(rawData);
 
@@ -1099,7 +1099,7 @@ export default class AdventureMunch extends FormApplication {
       await pack.getIndex();
 
       totalCount += data.items.length;
-      await AdventureMunchHelpers.asyncForEach(data.items, async (item) => {
+      await utils.asyncForEach(data.items, async (item) => {
         let obj;
         let entry = pack.index.find((e) => e.name === item.name);
 
@@ -1152,7 +1152,7 @@ export default class AdventureMunch extends FormApplication {
   // import a scene file
   async _importRenderedSceneFile(data, overwriteEntity) {
     if (!AdventureMunchHelpers.findEntityByImportId("scenes", data._id) || overwriteEntity || this.importToAdventureCompendium) {
-      await AdventureMunchHelpers.asyncForEach(data.tokens, async (token) => {
+      await utils.asyncForEach(data.tokens, async (token) => {
         // eslint-disable-next-line require-atomic-updates
         if (token.img) token.img = await this.importImage(token.img);
         if (token.prototypeToken?.texture?.src) {
@@ -1161,19 +1161,19 @@ export default class AdventureMunch extends FormApplication {
         }
       });
 
-      await AdventureMunchHelpers.asyncForEach(data.sounds, async (sound) => {
+      await utils.asyncForEach(data.sounds, async (sound) => {
         // eslint-disable-next-line require-atomic-updates
         sound.path = await this.importImage(sound.path);
       });
 
-      await AdventureMunchHelpers.asyncForEach(data.notes, async (note) => {
+      await utils.asyncForEach(data.notes, async (note) => {
         // eslint-disable-next-line require-atomic-updates
         if (note.icon) note.icon = await this.importImage(note.icon, true);
         // eslint-disable-next-line require-atomic-updates
         if (note.texture?.src) note.texture.src = await this.importImage(note.texture.src, true);
       });
 
-      await AdventureMunchHelpers.asyncForEach(data.tiles, async (tile) => {
+      await utils.asyncForEach(data.tiles, async (tile) => {
         // eslint-disable-next-line require-atomic-updates
         if (tile.img) tile.img = await this.importImage(tile.img);
         // eslint-disable-next-line require-atomic-updates
@@ -1268,7 +1268,7 @@ export default class AdventureMunch extends FormApplication {
     let fileData = [];
     let hasVersions = false;
 
-    await AdventureMunchHelpers.asyncForEach(dataFiles, async (file) => {
+    await utils.asyncForEach(dataFiles, async (file) => {
       const raw = await this.zip.file(file.name).async("text");
       const json = JSON.parse(raw);
       if (!hasVersions && json?.flags?.ddb?.versions) {
@@ -1370,7 +1370,7 @@ export default class AdventureMunch extends FormApplication {
       if (filesToUpload.length > 0) {
         let currentCount = 1;
 
-        await AdventureMunchHelpers.asyncForEach(filesToUpload, async (file) => {
+        await utils.asyncForEach(filesToUpload, async (file) => {
           await this.importImage(file.name);
           currentCount += 1;
           AdventureMunch._updateProgress(filesToUpload.length, currentCount, "Token Image");
@@ -1405,7 +1405,7 @@ export default class AdventureMunch extends FormApplication {
     totalCount = dataFiles.length;
 
     // eslint-disable-next-line complexity
-    await AdventureMunchHelpers.asyncForEach(dataFiles, async (file) => {
+    await utils.asyncForEach(dataFiles, async (file) => {
       const rawData = await this.zip.file(file.name).async("text");
       let data = JSON.parse(rawData);
       let needRevisit = false;

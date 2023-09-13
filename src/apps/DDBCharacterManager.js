@@ -888,7 +888,7 @@ export default class DDBCharacterManager extends FormApplication {
   }
 
   async fetchCharacterItems() {
-    const magicItemsInstalled = game.modules.get("magicitems")?.active;
+    const magicItemsInstalled = game.modules.get("magicitems")?.active || game.modules.get("magic-items-2")?.active;
     const itemsWithSpellsInstalled = game.modules.get("items-with-spells-5e")?.active;
     // items for actor
     let items = [];

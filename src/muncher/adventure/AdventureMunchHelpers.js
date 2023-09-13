@@ -11,19 +11,6 @@ import DDBMuncher from "../../apps/DDBMuncher.js";
 export default class AdventureMunchHelpers {
 
   /**
-   * Async for each loop
-   *
-   * @param  {array} array - Array to loop through
-   * @param  {function} callback - Function to apply to each array item loop
-   */
-  static async asyncForEach(array, callback) {
-    for (let index = 0; index < array.length; index += 1) {
-      // eslint-disable-next-line callback-return, no-await-in-loop
-      await callback(array[index], index, array);
-    }
-  }
-
-  /**
    * Find an entity by the import key.
    * @param  {string} type - Entity type to search for
    * @param  {string} id - Entity Id
@@ -31,7 +18,6 @@ export default class AdventureMunchHelpers {
    */
   static findEntityByImportId(type, id) {
     return game.data[type].find((item) => item._id === id);
-    // item.flags.importid === id
   }
 
 

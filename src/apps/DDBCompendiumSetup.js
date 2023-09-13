@@ -11,7 +11,18 @@ export default class DDBCompendiumSetup extends FormApplication {
 
   static getCompendiumLookups(type, selected) {
     const excludedCompendiumPackages = [
-      "dnd5e", "dae", "midiqol", "magicitems", "midi-srd", "dae-srd", "midi-qol",
+      "dnd5e",
+      "dae",
+      "midiqol",
+      "magicitems",
+      "midi-srd",
+      "dae-srd",
+      "midi-qol",
+      "magic-items-2",
+      "chris-premades",
+      "ATL",
+      "ActiveAuras",
+      "token-attacher",
     ];
 
     const selections = game.packs

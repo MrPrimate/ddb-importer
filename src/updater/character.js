@@ -5,13 +5,13 @@ import DICTIONARY from "../dictionary.js";
 import SETTINGS from "../settings.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";
 import { getCampaignId } from "../lib/DDBCampaigns.js";
-import { looseItemNameMatch } from "../muncher/import.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getActorConditionStates, getCondition } from "../parser/special/conditions.js";
 import { getItemCollectionItems } from "../parser/special/itemCollections.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
+import NameMatcher from "../lib/NameMatcher.js";
 
 function getFoundryItems(actor) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
@@ -49,7 +49,7 @@ async function getUpdateItemIndex() {
 
 async function getCompendiumItemInfo(item) {
   const index = await getUpdateItemIndex();
-  const match = await looseItemNameMatch(item, index, true, false, true);
+  const match = await NameMatcher.looseItemNameMatch(item, index, true, false, true);
   return match;
 }
 

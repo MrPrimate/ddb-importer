@@ -338,7 +338,7 @@ export function getMidiCEOnFlags(midiFlags = {}) {
 }
 
 export function forceItemEffect(document) {
-  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
+  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro") || hasProperty(document.flags, "midi-qol.onUseMacroName")) {
     setProperty(document, "flags.ddbimporter.effectsApplied", true);
     setProperty(document, "flags.midi-qol.forceCEOff", true);
   }
@@ -1474,7 +1474,7 @@ export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendi
     // no default
   }
 
-  if (foundryItem.effects?.length > 0 || hasProperty(foundryItem.flags, "itemacro")) {
+  if (foundryItem.effects?.length > 0 || hasProperty(foundryItem.flags, "itemacro") || hasProperty(document.flags, "midi-qol.onUseMacroName")) {
     logger.debug(`${type} effect ${foundryItem.name}:`, duplicate(foundryItem));
     setProperty(foundryItem, "flags.ddbimporter.effectsApplied", true);
   }

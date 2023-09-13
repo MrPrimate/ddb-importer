@@ -1,5 +1,4 @@
 import logger from "../logger.js";
-import utils from "../lib/utils.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import MuncherSettings from "../lib/MuncherSettings.js";
@@ -9,6 +8,7 @@ import { importCharacterById } from "./DDBCharacterManager.js";
 import SETTINGS from "../settings.js";
 import DDBEncounters from "../parser/DDBEncounters.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
+import FolderHelper from "../lib/FolderHelper.js";
 
 export default class DDBEncounterMunch extends Application {
 
@@ -212,7 +212,7 @@ export default class DDBEncounterMunch extends Application {
     });
     this.encounter.monsterData = Object.values(journalMonsterInfo);
 
-    const encounterMonsterFolder = await utils.getFolder(
+    const encounterMonsterFolder = await FolderHelper.getFolder(
       "npc",
       this.encounter.name,
       "D&D Beyond Encounters",
@@ -272,7 +272,7 @@ export default class DDBEncounterMunch extends Application {
 
     const importJournal = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-journal");
     if (importJournal) {
-      const journalFolder = await utils.getFolder(
+      const journalFolder = await FolderHelper.getFolder(
         "journal",
         this.encounter.name,
         "D&D Beyond Encounters",
@@ -328,7 +328,7 @@ export default class DDBEncounterMunch extends Application {
 
 
   async createNewScene() {
-    this.folders["scene"] = await utils.getFolder(
+    this.folders["scene"] = await FolderHelper.getFolder(
       "scene",
       this.encounter.name,
       "D&D Beyond Encounters",
