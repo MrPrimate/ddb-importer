@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Effect: Frightful Presence (Dragons) improvements.
+
 # 3.4.67
 
 - Will embed spells in magic items if using magic-items-2 module. (Character imports only).

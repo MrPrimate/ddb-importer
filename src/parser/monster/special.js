@@ -4,7 +4,7 @@ export function specialCases(monster) {
   switch (monster.name) {
     case "Reduced-threat Aboleth":
     case "Aboleth": {
-      monster.items.forEach(function(item, index) {
+      monster.items.forEach(function (item, index) {
         if (item.name === "Tentacle") {
           this[index].system.formula = item.system.damage.parts[1][0];
           this[index].system.damage.parts.splice(1, 1);
@@ -13,7 +13,7 @@ export function specialCases(monster) {
       break;
     }
     case "Dullahan": {
-      monster.items.forEach(function(item, index) {
+      monster.items.forEach(function (item, index) {
         if (item.name === "Battleaxe") {
           this[index].system.damage.versatile += " + 2d10[necrotic]";
           this[index].system.damage.parts.push(["2d10[necrotic]", "necrotic"]);
@@ -22,7 +22,7 @@ export function specialCases(monster) {
           this[index].system.consume = {
             type: "attribute",
             target: "resources.legact.value",
-            amount: 1
+            amount: 1,
           };
           this[index].system.activation.cost = 1;
         } else if (item.name.startsWith("Headless Wail")) {
@@ -31,14 +31,14 @@ export function specialCases(monster) {
           this[index].system.consume = {
             type: "attribute",
             target: "resources.legact.value",
-            amount: 2
+            amount: 2,
           };
         }
       }, monster.items);
       break;
     }
     case "Duergar Warlord": {
-      monster.items.forEach(function(item, index) {
+      monster.items.forEach(function (item, index) {
         if (item.name === "Psychic-Attuned Hammer") {
           this[index].system.damage.parts.push(["1d10[psychic]", "psychic"]);
         }
@@ -47,7 +47,7 @@ export function specialCases(monster) {
     }
     // flumph tendrils have weird syntax for damage over time.
     case "Flumph": {
-      monster.items.forEach(function(item, index) {
+      monster.items.forEach(function (item, index) {
         if (item.name === "Tendrils") {
           if (item.system.damage.parts.length > 2) {
             this[index].system.formula = item.system.damage.parts[2][0];
@@ -66,7 +66,7 @@ export function specialCases(monster) {
     }
     case "Nilbog (Legacy)":
     case "Nilbog": {
-      monster.items.forEach(function(item, index) {
+      monster.items.forEach(function (item, index) {
         if (item.name === "Reversal of Fortune") {
           this[index].system.actionType = "heal";
         }
@@ -74,7 +74,7 @@ export function specialCases(monster) {
       break;
     }
     case "Nosferatu": {
-      monster.items.forEach(function(item, index) {
+      monster.items.forEach(function (item, index) {
         if (item.name === "Bite") {
           this[index].system.damage.versatile = `${item.system.damage.parts[0][0]} + ${item.system.damage.parts[2][0]}`;
           this[index].system.damage.parts.splice(2, 1);
@@ -85,6 +85,28 @@ export function specialCases(monster) {
     case "Sephek Kaltro": {
       monster.flags.monsterMunch.spellList.innate = [{ name: "Misty Step", type: "day", value: 3 }];
       monster.flags.monsterMunch.spellList.material = false;
+      break;
+    }
+    // no default
+  }
+
+  switch (monster.system.details.type.value) {
+    case "dragon": {
+      monster.items.forEach(function (item, index) {
+        if (item.name === "Frightful Presence") {
+          this[index].system.duration = {
+            value: "1",
+            units: "minute",
+          };
+          this[index].system.range.units = "self";
+          this[index].system.target = {
+            value: 120,
+            width: null,
+            units: "ft",
+            type: "sphere",
+          };
+        }
+      }, monster.items);
       break;
     }
     // no default

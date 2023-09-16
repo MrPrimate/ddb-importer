@@ -143,6 +143,18 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     // no default
   }
 
+  switch (npc.system.details.type.value) {
+    case "dragon": {
+      npc.items.forEach(function (item, index) {
+        if (item.name === "Frightful Presence") {
+          this[index].effects[0].duration.rounds = 10;
+        }
+      }, npc.items);
+      break;
+    }
+    // no default
+  }
+
   npc = transferEffectsToActor(npc);
   return npc;
 }
