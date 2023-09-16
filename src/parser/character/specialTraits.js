@@ -21,8 +21,10 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() 
   };
 
   // powerful build/equine build
-  this.raw.character.flags.dnd5e.powerfulBuild = this.source.ddb.character.race.racialTraits.some(
-    (trait) => trait.definition.name === "Equine Build" || trait.definition.name === "Powerful Build"
+  this.raw.character.flags.dnd5e.powerfulBuild = this.source.ddb.character.race.racialTraits.some((trait) =>
+    trait.definition.name === "Equine Build"
+    || trait.definition.name === "Powerful Build"
+    || trait.definition.name === "Hippo Build"
   );
 
   // savage attacks

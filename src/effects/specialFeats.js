@@ -60,6 +60,7 @@ import { patientDefenseEffect } from "./feats/patientDefense.js";
 import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
 import { pactMagicEffect } from "./feats/pactMagic.js";
 import { dauntingRoarEffect } from "./feats/dauntingRoar.js";
+import { powerfulBuild } from "./feats/powerfulBuild.js";
 
 export function baseFeatEffect(document, label) {
   let effect = {
@@ -237,6 +238,12 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Potent Cantrip": {
         document = potentCantripEffect(document);
+        break;
+      }
+      case "Equine Build":
+      case "Hippo Build":
+      case "Powerful Build": {
+        document = powerfulBuild(document);
         break;
       }
       case "Celestial Revelation (Radiant Soul)":
