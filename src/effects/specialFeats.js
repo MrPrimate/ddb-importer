@@ -61,6 +61,7 @@ import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
 import { pactMagicEffect } from "./feats/pactMagic.js";
 import { dauntingRoarEffect } from "./feats/dauntingRoar.js";
 import { powerfulBuild } from "./feats/powerfulBuild.js";
+import { deftStrikeEffect } from "./feats/deftStike.js";
 
 export function baseFeatEffect(document, label) {
   let effect = {
@@ -353,6 +354,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Crusher: Critical": {
       document = await crusherCriticalEffect(document);
+      break;
+    }
+    case "Deft Strike": {
+      document = await deftStrikeEffect(document);
       break;
     }
     case "Favored Foe": {

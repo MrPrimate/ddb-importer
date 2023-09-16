@@ -9371,5 +9371,19 @@
     "class": "Monk",
     "subclass": "Way of the Kensei",
     "path": "icons/weapons/thrown/dagger-ringed-engraved-green.webp"
+  },
+  {
+    "name": "Magic Kensei Weapons",
+    "class_feature": "Magic Kensei Weapons",
+    "class": "Monk",
+    "subclass": "Way of the Kensei",
+    "path": "icons/weapons/thrown/daggers-kunai-purple.webp"
+  },
+  {
+    "name": "Deft Strike",
+    "class_feature": "Deft Strike",
+    "class": "Monk",
+    "subclass": "Way of the Kensei",
+    "path": "icons/skills/melee/strike-spear-red.webp"
   }
 ]
