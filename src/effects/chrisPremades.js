@@ -101,6 +101,51 @@ function getType(doc, isMonster = false) {
   return doc.type;
 }
 
+// matchedProperties = { "system.activation.type": "bonus" }
+function matchProperties(document, matchedProperties = {}) {
+  for (const [key, value] of Object.entries(matchedProperties)) {
+    if (getProperty(document, key) !== value) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// matchedProperties = { "system.activation.type": "bonus" }
+async function getItemFromCompendium(key, name, ignoreNotFound, folderId, matchedProperties = {}) {
+  const gamePack = game.packs.get(key);
+  if (!gamePack) {
+    ui.notifications.warn('Invalid compendium specified!');
+    return false;
+  }
+
+  const packIndex = isNewerVersion(11, game.version)
+    ? await gamePack.getIndex({ fields: ['name', 'type', 'flags.cf.id'].concat(Object.keys(matchedProperties)) })
+    : await gamePack.getIndex({ fields: ['name', 'type', 'folder'].concat(Object.keys(matchedProperties)) });
+
+  const match = isNewerVersion(11, game.version)
+    ? packIndex.find((item) =>
+      item.name === name
+      && (!folderId || (folderId && item.flags.cf?.id === folderId))
+      && (Object.keys(matchedProperties).length === 0 || matchProperties(item, matchedProperties))
+    )
+    : packIndex.find((item) =>
+      item.name === name
+      && (!folderId || (folderId && item.folder === folderId))
+      && (Object.keys(matchedProperties).length === 0 || matchProperties(item, matchedProperties))
+    );
+
+  if (match) {
+    return (await gamePack.getDocument(match._id))?.toObject();
+  } else {
+    if (!ignoreNotFound) {
+      ui.notifications.warn(`Item not found in compendium ${key} with name ${name}! Check spelling?`);
+      logger.warn(`Item not found in compendium ${key} with name ${name}! Check spelling?`, { key, name, folderId, matchedProperties });
+    }
+    return undefined;
+  }
+}
+
 export async function applyChrisPremadeEffect({ document, type, folderName = null, chrisNameOverride = null } = {}) {
   if (!game.modules.get("chris-premades")?.active) return document;
   if (getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true) {
@@ -126,7 +171,8 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
   }
 
   logger.debug(`CP Effect: Attempting to fetch ${document.name} from ${compendiumName} with folderID ${folderId}`);
-  const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, chrisName, true, folderId);
+  // const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, chrisName, true, folderId);
+  const chrisDoc = await getItemFromCompendium(compendiumName, chrisName, true, folderId);
   if (!chrisDoc) {
     logger.debug(`No CP Effect found for ${document.name} from ${compendiumName} with folderID ${folderId}`);
     return document;
@@ -253,6 +299,13 @@ export async function restrictedItemReplacer(actor, folderName = null) {
       }
     }
 
+    if (restrictedItem.requiredFeatures) {
+      for (const requiredFeature of restrictedItem.requiredFeatures) {
+        const itemMatch = documents.some((d) => ddbName === requiredFeature && d.type === "feat");
+        if (!itemMatch) continue;
+      }
+    }
+
     // now replace the matched item with the replaced Item
     if (restrictedItem.replacedItemName && restrictedItem.replacedItemName !== "") {
       logger.debug(`Replacing item data for ${ddbName}, using restricted data from ${restrictedItem.key}`);
@@ -280,7 +333,8 @@ export async function restrictedItemReplacer(actor, folderName = null) {
 
         for (const newItemName of restrictedItem.additionalItems) {
           logger.debug(`Adding new item ${newItemName}`);
-          const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, newItemName, true, folderId);
+          // const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, newItemName, true, folderId);
+          const chrisDoc = await getItemFromCompendium(compendiumName, newItemName, true, folderId);
           // eslint-disable-next-line max-depth
           if (!chrisDoc) {
             logger.error(`DDB Importer expected to find an item in Chris's Premades for ${newItemName} but did not`, {
@@ -346,7 +400,8 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
 
       for (const newItemName of newItemNames) {
         logger.debug(`Adding new item ${newItemName}`);
-        const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, newItemName, true, folderId);
+        // const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, newItemName, true, folderId);
+        const chrisDoc = await getItemFromCompendium(compendiumName, newItemName, true, folderId);
         if (!chrisDoc) {
           logger.error(`DDB Importer expected to find an item in Chris's Premades for ${newItemName} but did not`, {
             ddbName,
