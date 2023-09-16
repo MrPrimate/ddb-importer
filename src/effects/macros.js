@@ -132,10 +132,7 @@ export async function createMacro({ name, content, img, isGM, isTemp }) {
   if (existingMacro) data._id = existingMacro.id;
   const macro = existingMacro
     ? existingMacro.update(data)
-    : Macro.create(data, {
-      temporary: isTemp,
-      displaySheet: false,
-    });
+    : new CONFIG.Macro.documentClass(data, { displaySheet: false, temporary: isTemp });
 
   return macro;
 
