@@ -51,6 +51,7 @@ import {
 } from "./effects/chrisPremades.js";
 import SETTINGS from "./settings.js";
 import DICTIONARY from "./dictionary.js";
+import logger from "./logger.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -74,6 +75,14 @@ function debugStart() {
 
 function debugStop() {
   CONFIG.debug.ddbimporter.download();
+}
+
+function test(testName) {
+  logger.debug(`generating test function: ${testName}`, testName);
+  const print = (...params) => {
+    logger.warn(`test function "${testName}" called with params`, { params });
+  };
+  return print;
 }
 
 export function registerApi() {
@@ -179,6 +188,7 @@ export function registerApi() {
     debug: {
       start: debugStart,
       stop: debugStop,
+      test,
     },
   };
 
