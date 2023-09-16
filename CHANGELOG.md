@@ -1,6 +1,8 @@
 # NEXT UP
 
 - Effect: Frightful Presence (Dragons) improvements.
+- Giff will now get Powerful Build special trait.
+
 
 # 3.4.67
 
