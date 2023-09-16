@@ -3,6 +3,7 @@
 - Effect: Frightful Presence (Dragons) improvements.
 - Giff will now get Powerful Build special trait.
 - Effect: Deft Strike effect.
+- Vision 5e improvements to setting Vision for monsters when Vision 5e is installed.
 
 # 3.4.67
 

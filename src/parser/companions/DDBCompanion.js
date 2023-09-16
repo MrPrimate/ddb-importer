@@ -381,7 +381,7 @@ export default class DDBCompanion {
         const value = parseInt(match[2]);
         this.npc.system.attributes.senses[match[1].toLowerCase()] = value;
 
-        const senseType = DICTIONARY.senseMap[match[1].toLowerCase()];
+        const senseType = DICTIONARY.senseMap()[match[1].toLowerCase()];
 
         if (value > 0 && value > this.npc.prototypeToken.sight.range && hasProperty(CONFIG.Canvas.visionModes, senseType)) {
           setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);

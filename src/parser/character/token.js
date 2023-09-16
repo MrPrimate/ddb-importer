@@ -29,8 +29,8 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
     // truesight: 0,
 
     for (const [key, value] of Object.entries(senses)) {
-      if (value > 0 && value > tokenData.sight.range && hasProperty(DICTIONARY.senseMap, key)) {
-        const visionMode = DICTIONARY.senseMap[key];
+      if (value > 0 && value > tokenData.sight.range && hasProperty(DICTIONARY.senseMap(), key)) {
+        const visionMode = DICTIONARY.senseMap()[key];
         setProperty(tokenData, "sight.visionMode", visionMode);
         setProperty(tokenData, "sight.range", value);
         tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes[visionMode].vision.defaults);
@@ -54,7 +54,10 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
 
     // devilsight? we set the vision mode back to basic
     const devilSight = senses.special.includes("You can see normally in darkness");
-    if (devilSight) {
+    if (devilSight && game.modules.get("vision-5e")?.active) {
+      setProperty(tokenData, "sight.visionMode", "devilsSight");
+      tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes.devilsSight.vision.defaults);
+    } else if (devilSight) {
       setProperty(tokenData, "sight.visionMode", "basic");
       tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes.basic.vision.defaults);
     }

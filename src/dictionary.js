@@ -81,12 +81,23 @@ const DICTIONARY = {
     { id: 4, value: "charges" },
   ],
   // CONFIG.Canvas.visionModes
-  senseMap: {
+  senseMapDefault: {
     blindsight: "basic",
     darkvision: "darkvision",
     // tremorsense: "tremorsense",
     truesight: "basic",
     unknown: "basic",
+  },
+  senseMapVision5e: {
+    blindsight: "blindsight",
+    darkvision: "darkvision",
+    tremorsense: "tremorsense",
+    truesight: "truesight",
+    unknown: "basic"
+  },
+  senseMap: () => {
+    if (game.modules.get("vision-5e")?.active) return DICTIONARY.senseMapVision5e;
+    return DICTIONARY.senseMapDefault;
   },
   // CONFIG.Canvas.detectionModes
   detectionMap: {

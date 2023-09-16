@@ -33,7 +33,7 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
   this.source.senses.forEach((sense) => {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
     if (senseMatch && sense.notes) {
-      const senseType = DICTIONARY.senseMap[senseMatch.name.toLowerCase()];
+      const senseType = DICTIONARY.senseMap()[senseMatch.name.toLowerCase()];
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
         const value = parseInt(rangeMatch[1]);
