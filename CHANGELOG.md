@@ -2,6 +2,7 @@
 
 - Effect: Frightful Presence (Dragons) improvements.
 - Giff will now get Powerful Build special trait.
+- Effect: Deft Strike effect.
 
 
 # 3.4.67
