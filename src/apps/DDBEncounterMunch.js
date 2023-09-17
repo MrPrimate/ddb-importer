@@ -3,7 +3,6 @@ import CompendiumHelper from "../lib/CompendiumHelper.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import MuncherSettings from "../lib/MuncherSettings.js";
 import { getAvailableCampaigns } from "../lib/DDBCampaigns.js";
-import AdventureMunchHelpers from "../muncher/adventure/AdventureMunchHelpers.js";
 import { importCharacterById } from "./DDBCharacterManager.js";
 import SETTINGS from "../settings.js";
 import DDBEncounters from "../parser/DDBEncounters.js";
