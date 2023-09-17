@@ -1,2 +1,9 @@
-console.warn(args);
-console.warn("TEST MACRO RUN");
+console.warn("TEST MACRO RUN", {
+  actor,
+  token,
+  item,
+  speaker,
+  scope,
+  args,
+  workflow,
+});

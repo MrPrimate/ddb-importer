@@ -74,9 +74,9 @@ export async function loadMacroFile(type, fileName, forceLoad = false, forceDDB 
     data = `
 // Execute DDB Importer dynamic macro
 if (isNewerVersion(11, game.version)) {
-  return game.modules.get("ddb-importer")?.api.executeDDBMacro("${type}", "${fileName}", ...args);
+  return game.modules.get("ddb-importer")?.api.macro.executeMacro("${type}", "${fileName}", ...args);
 } else {
-  return game.modules.get("ddb-importer")?.api.executeDDBMacro("${type}", "${fileName}", scope);
+  return game.modules.get("ddb-importer")?.api.macro.executeMacro("${type}", "${fileName}", scope);
 }
 `;
   } else if (!fileExists) {
@@ -224,18 +224,23 @@ async function loadDDBMacroToConfig(type, name, fileName) {
 }
 
 
-async function getMacro(type, name, fileName) {
-  // console.warn(`getMacro(${type}, ${name}, ${fileName})`);
-  const macro = CONFIG.DDBI.MACROS[type]?.[name] ?? (await loadDDBMacroToConfig(type, name, fileName));
-  // console.warn("macro", { macro });
+export async function getMacro(type, name) {
+  const strippedName = name.split(".js")[0]; // sanitise name
+  const fileName = `${strippedName}.js`;
+  const macro = CONFIG.DDBI.MACROS[type]?.[strippedName] ?? (await loadDDBMacroToConfig(type, strippedName, fileName));
   return macro;
 }
 
 export async function executeDDBMacro(type, name, ...params) {
-  const strippedName = name.split(".js")[0]; // sanitise name
-  const fileName = `${strippedName}.js`;
-  const macro = await getMacro(type, strippedName, fileName);
-  logger.debug(`Calling (${type}) ${fileName} with spread params`, ...params);
+  const macro = await getMacro(type, name);
+  logger.debug(`Calling (${type}) macro "${name}" with spread params`, ...params);
   return macro.execute(...params);
 }
 
+export async function getMacroFunction(type, name) {
+  const macroFunction = async (...params) => {
+    const macro = await getMacro(type, name);
+    return macro.execute(...params);
+  };
+  return macroFunction;
+}

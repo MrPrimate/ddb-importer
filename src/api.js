@@ -13,7 +13,7 @@ import DDBCharacterManager, { importCharacter, importCharacterById } from "./app
 import { checkCobalt } from "./lib/Secrets.js";
 // import { base64Check } from "./lib/base64Check.js";
 import { getFeats } from "./muncher/feats/feats.js";
-import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS } from "./effects/macros.js";
+import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS, getMacro, getMacroFunction } from "./effects/macros.js";
 import Iconizer from "./lib/Iconizer.js";
 import { loadSRDRules, importCacheLoad } from "./lib/DDBTemplateStrings.js";
 import { getNPCImage } from "./muncher/importMonster.js";
@@ -77,12 +77,16 @@ function debugStop() {
   CONFIG.debug.ddbimporter.download();
 }
 
-function test(testName) {
+function testFunction(testName) {
   logger.debug(`generating test function: ${testName}`, testName);
   const print = (...params) => {
     logger.warn(`test function "${testName}" called with params`, { params });
   };
   return print;
+}
+
+function simpleTest(...params) {
+  logger.warn(`running simple test with params`, { params });
 }
 
 export function registerApi() {
@@ -130,12 +134,6 @@ export function registerApi() {
     resetProxy: DDBProxy.resetProxy,
     resetSecrets,
 
-    // macro tools
-    createMacro,
-    executeDDBMacro,
-    loadMacroFile,
-    macros: MACROS,
-
     generateAdventureConfig,
     downloadAdventureConfig,
 
@@ -180,6 +178,16 @@ export function registerApi() {
       getRemainingDuration,
       createJB2aActors,
     },
+    executeDDBMacro,
+    // macro tools
+    macros: {
+      createMacro,
+      executeMacro: executeDDBMacro,
+      getMacroFunction: getMacroFunction,
+      loadMacroFile,
+      macros: MACROS,
+      getMacro,
+    },
     chris: {
       generateEffect: applyChrisPremadeEffect,
       generateEffects: applyChrisPremadeEffects,
@@ -188,7 +196,8 @@ export function registerApi() {
     debug: {
       start: debugStart,
       stop: debugStop,
-      test,
+      test: testFunction,
+      simpleTest: simpleTest,
     },
   };
 

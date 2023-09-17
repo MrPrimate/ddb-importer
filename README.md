@@ -92,7 +92,6 @@ If you want to add spell effects, and high levels of automation you will need:
 - [About Time](https://foundryvtt.com/packages/about-time)
 - [Times Up](https://foundryvtt.com/packages/times-up/).
 - [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects)
-- [Advanced Macros](https://foundryvtt.com/packages/advanced-macros)
 
 For super high automation:
 - [Chris's Premades](https://foundryvtt.com/packages/chris-premades) includes a lot of more advanced effects, but has a lot of module dependencies.
