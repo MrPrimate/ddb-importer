@@ -1,3 +1,7 @@
+# 3.4.69
+
+- Encounter Muncher would not run.
+
 # 3.4.68
 
 - Effect: Frightful Presence (Dragons) improvements.
