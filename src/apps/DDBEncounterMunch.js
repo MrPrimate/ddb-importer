@@ -9,6 +9,7 @@ import SETTINGS from "../settings.js";
 import DDBEncounters from "../parser/DDBEncounters.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import FolderHelper from "../lib/FolderHelper.js";
+import utils from "../lib/utils.js";
 
 export default class DDBEncounterMunch extends Application {
 
@@ -222,7 +223,7 @@ export default class DDBEncounterMunch extends Application {
     );
 
     logger.debug("Trying to import monsters from compendium", monstersToAddToWorld);
-    await AdventureMunchHelpers.asyncForEach(monstersToAddToWorld, async (actor) => {
+    await utils.asyncForEach(monstersToAddToWorld, async (actor) => {
       let worldActor = game.actors.find(
         (a) => a.folder?.id == encounterMonsterFolder.id && a.flags?.ddbimporter?.id == actor.ddbId
       );
@@ -253,7 +254,7 @@ export default class DDBEncounterMunch extends Application {
   async importCharacters(html) {
     const importCharacters = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-characters");
     if (importCharacters && this.encounter.missingCharacters) {
-      await AdventureMunchHelpers.asyncForEach(this.encounter.missingCharacterData, async (character) => {
+      await utils.asyncForEach(this.encounter.missingCharacterData, async (character) => {
         await importCharacterById(character.ddbId, html);
       });
     }
