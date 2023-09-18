@@ -6,7 +6,7 @@ export async function incendiaryCloudEffect(document) {
   // we require active auras for this effect
   if (!effectModules().activeAurasInstalled) return document;
 
-  const itemMacroText = await loadMacroFile("generic", MACROS.AA_DAMAGE_ON_ENTRY.file);
+  const itemMacroText = await loadMacroFile("generic", MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file);
   document = generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);

@@ -9,7 +9,7 @@ export async function heroesFeastEffect(document) {
   );
   const itemMacroText = await loadMacroFile("spell", "heroesFeast.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@damage", 0));
+  effect.changes.push(generateMacroChange("@damage", { priority: 0 }));
   document.effects.push(effect);
 
   return document;

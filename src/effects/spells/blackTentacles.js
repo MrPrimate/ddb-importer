@@ -13,7 +13,7 @@ export async function blackTentaclesEffect(document) {
 
 
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await loadMacroFile(MACROS.AA_ON_ENTRY.type, MACROS.AA_ON_ENTRY.file);
+  const itemMacroText = await loadMacroFile(MACROS.ACTIVE_AURAS.AA_ON_ENTRY.type, MACROS.ACTIVE_AURAS.AA_ON_ENTRY.file);
   document = generateItemMacroFlag(document, itemMacroText);
   effect.flags["ActiveAuras"] = {
     isAura: true,

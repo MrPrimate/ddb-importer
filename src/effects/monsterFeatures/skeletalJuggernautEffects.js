@@ -40,7 +40,7 @@ async function disassembleEffect(document) {
 
   const itemMacroText = await loadMacroFile("monsterFeature", "disassemble.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange("", 0));
+  effect.changes.push(generateMacroChange("", { priority: 0 }));
   effect.transfer = true;
   setProperty(effect, "flags.dae.specialDuration", ["zeroHP"]);
   document.effects.push(effect);

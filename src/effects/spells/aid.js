@@ -11,7 +11,7 @@ export async function aidEffect(document) {
   });
   const itemMacroText = await loadMacroFile("spell", "aid.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@spellLevel", 0));
+  effect.changes.push(generateMacroChange("@spellLevel", { priority: 0 }));
   document.effects.push(effect);
   document.system.damage = { parts: [], versatile: "", value: "" };
 

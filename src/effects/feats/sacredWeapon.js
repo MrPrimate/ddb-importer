@@ -8,7 +8,7 @@ export async function sacredWeaponEffect(document) {
 
   const itemMacroText = await loadMacroFile("feat", "sacredWeapon.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@abilities.cha.mod", 0));
+  effect.changes.push(generateMacroChange("@abilities.cha.mod", { priority: 0 }));
 
   // effect.changes.push(
   //   {
