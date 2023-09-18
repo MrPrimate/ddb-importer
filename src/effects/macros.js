@@ -98,14 +98,34 @@ export function generateItemMacroFlag(document, macroText) {
   return document;
 }
 
-export function generateMacroChange(macroValues, priority = 20, local = false) {
-  const macroKey = local ? "macro.itemMacro.local" : "macro.itemMacro";
+export function generateMacroChange(macroValues, { priority = 20, keyPostfix = "" } = {}) {
+  const macroKey = "macro.itemMacro";
   return {
-    key: macroKey,
+    key: `${macroKey}${keyPostfix}`,
     value: macroValues,
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: priority,
   };
+}
+
+export function generateOnUseMacroChange(macroValues, macroPass, { priority = 20 } = {}) {
+  return {
+    key: "flags.midi-qol.onUseMacroName",
+    value: `${macroValues},${macroPass}`,
+    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+    priority: priority,
+  };
+}
+
+function generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints = []) {
+  const useDDBFunctions = false;
+  const valueContent = (useDDBFunctions) ? `function.DDBImporter.macros.getMacro("${macroType}", "${macroName}")` : "ItemMacro";
+  return `[${triggerPoints.join(",")}]${valueContent}`;
+}
+
+export function setMidiOnUseMacroFlag(document, macroType, macroName, triggerPoints = []) {
+  const value = generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints);
+  setProperty(document, "flags.midi-qol.onUseMacroName", value);
 }
 
 export async function createMacro({ name, content, img, isGM, isTemp }) {
@@ -139,61 +159,65 @@ export async function createMacro({ name, content, img, isGM, isTemp }) {
 }
 
 export const MACROS = {
-  AA_ONLY: {
-    name: "Active Aura Only (Generic)",
-    type: "generic",
-    file: "activeAuraOnly.js",
-    isGM: false,
-    img: null,
-    world: true,
+  WORLD: {
+    DARKNESS_GM: {
+      name: "Darkness (DDB - GM)",
+      type: "gm",
+      file: "darkness.js",
+      isGM: true,
+      img: "icons/magic/unholy/orb-glowing-yellow-purple.webp",
+      world: true,
+    },
+    CHILL_TOUCH: {
+      name: "Chill Touch (Target effect)",
+      type: "spell",
+      file: "chillTouchWorld.js",
+      isGM: false,
+      img: "icons/magic/fire/flame-burning-hand-purple.webp",
+      world: true,
+    },
   },
-  AA_ON_ENTRY: {
-    name: "Active Aura Damage and Condition On Entry (Generic)",
-    type: "generic",
-    file: "activeAuraDamageAndConditionOnEntry.js",
-    isGM: false,
-    img: null,
-    world: true,
+  ACTIVE_AURAS: {
+    AA_ONLY: {
+      name: "Active Aura Only (Generic)",
+      type: "generic",
+      file: "activeAuraOnly.js",
+      isGM: false,
+      img: null,
+      world: true,
+    },
+    AA_ON_ENTRY: {
+      name: "Active Aura Damage and Condition On Entry (Generic)",
+      type: "generic",
+      file: "activeAuraDamageAndConditionOnEntry.js",
+      isGM: false,
+      img: null,
+      world: true,
+    },
+    AA_CONDITION_ON_ENTRY: {
+      name: "Active Aura Condition On Entry (Generic)",
+      type: "generic",
+      file: "activeAuraConditionOnEntry.js",
+      isGM: false,
+      img: null,
+      world: true,
+    },
+    AA_DAMAGE_ON_ENTRY: {
+      name: "Active Aura Damage On Entry (Generic)",
+      type: "generic",
+      file: "activeAuraDamageOnEntry.js",
+      isGM: false,
+      img: null,
+      world: true,
+    },
   },
-  AA_CONDITION_ON_ENTRY: {
-    name: "Active Aura Condition On Entry (Generic)",
-    type: "generic",
-    file: "activeAuraConditionOnEntry.js",
-    isGM: false,
-    img: null,
-    world: true,
-  },
-  AA_DAMAGE_ON_ENTRY: {
-    name: "Active Aura Damage On Entry (Generic)",
-    type: "generic",
-    file: "activeAuraDamageOnEntry.js",
-    isGM: false,
-    img: null,
-    world: true,
-  },
-  DARKNESS_GM: {
-    name: "Darkness (DDB - GM)",
-    type: "gm",
-    file: "darkness.js",
-    isGM: true,
-    img: "icons/magic/unholy/orb-glowing-yellow-purple.webp",
-    world: true,
-  },
-  CHILL_TOUCH: {
-    name: "Chill Touch (Target effect)",
-    type: "spell",
-    file: "chillTouchWorld.js",
-    isGM: false,
-    img: "icons/magic/fire/flame-burning-hand-purple.webp",
-    world: true,
-  }
 };
 
-export async function createGMMacros() {
+export async function createWorldMacros() {
   if (game.user.isGM) {
     await checkMacroFolder();
 
-    for (const macro of Object.values(MACROS).filter((m) => m.world)) {
+    for (const macro of Object.values([].concat(MACROS.WORLD, MACROS.ACTIVE_AURAS)).filter((m) => m.world)) {
       // eslint-disable-next-line no-await-in-loop
       const macroFile = await loadMacroFile(macro.type, macro.file, true);
       if (macroFile) {
