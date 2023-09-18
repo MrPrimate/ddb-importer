@@ -285,7 +285,7 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   static async _linkSceneTokens(scene) {
-    logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
+    logger.info(`Linking ${scene.name}, ${scene.tokens.length} tokens`);
     const tokens = await Promise.all(scene.tokens.map(async (token) => {
       if (token.actorId) {
         const worldActor = game.actors.get(token.actorId);
@@ -294,12 +294,14 @@ export default class ThirdPartyMunch extends FormApplication {
           // world specific things like img paths and scales etc
           const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
           delete sceneToken.scale;
-          const tokenData = await worldActor.getTokenDocument();
-          delete tokenData.y;
-          delete tokenData.x;
-          const jsonTokenData = duplicate(tokenData);
-          const newToken = mergeObject(jsonTokenData, sceneToken);
-          logger.debug(`${token.name} token data for id ${token.actorId}`, newToken);
+
+          const newToken = AdventureMunch._getTokenUpdateData(worldActor, sceneToken, token);
+          // const tokenData = await worldActor.getTokenDocument();
+          // delete tokenData.y;
+          // delete tokenData.x;
+          // const jsonTokenData = duplicate(tokenData);
+          // const newToken = mergeObject(jsonTokenData, sceneToken);
+          // logger.debug(`${token.name} token data for id ${token.actorId}`, newToken);
           return newToken;
         }
       }
@@ -453,6 +455,41 @@ export default class ThirdPartyMunch extends FormApplication {
     return adjustedScenes;
   }
 
+  async _getScene(scene) {
+    const compendiumId = scene.flags.ddbimporter.export.compendium;
+    const compendium = game.packs.get(compendiumId);
+    const folderName = this._scenePackage.folder ? this._scenePackage.folder : compendium.metadata.label;
+    const folder = await ThirdPartyMunch._findFolder(folderName, "Scene");
+    const compendiumScene = compendium.index.find((s) => s.name === scene.name);
+
+    const existingScene = game.scenes.find((s) =>
+      s.name === scene.name
+      && (s.folder?.id === folder.id || s.folder?.ancestors?.some((f) => f.id === folder.id))
+    );
+
+    logger.debug("Third Party Scene Processing", {
+      existingScene,
+      scene,
+      folder,
+      folderName,
+      compendiumScene
+    });
+
+    // if scene already exists, update
+    if (existingScene) {
+      logger.info(`Updating ${scene.name}`);
+      logger.debug(`${scene.name}update data`, { scene, existingScene });
+      await existingScene.update(scene);
+      return existingScene;
+    } else {
+      scene.folder = folder.id;
+      const worldScene = await game.scenes.importFromCompendium(compendium, compendiumScene._id, scene, { keepId: true });
+      logger.info(`Scene: ${scene.name} folder:`, folder);
+      logger.debug("worldScene:", worldScene);
+      return worldScene;
+    }
+  }
+
   async _updateScenes(scenes) {
     logger.debug("Processing scenes!", scenes);
     const filteredScenes = scenes
@@ -469,38 +506,19 @@ export default class ThirdPartyMunch extends FormApplication {
 
     await utils.asyncForEach(filteredScenes, async(scene) => {
       logger.debug(`Processing scene ${scene.name} with DDB Updates`);
-      const compendiumId = scene.flags.ddbimporter.export.compendium;
-      const compendium = game.packs.get(compendiumId);
-      const folderName = this._scenePackage.folder ? this._scenePackage.folder : compendium.metadata.label;
-      const folder = await ThirdPartyMunch._findFolder(folderName, "Scene");
-      const compendiumScene = compendium.index.find((s) => s.name === scene.name);
+      const tokenUpdates = duplicate(scene.tokens);
+      logger.debug("tokenUpdates", tokenUpdates);
+      scene.tokens = [];
+      const worldScene = await this._getScene(scene);
 
-      const existingScene = game.scenes.find((s) =>
-        s.name === scene.name
-        && (s.folder?.id === folder.id || s.folder?.ancestors?.some((f) => f.id === folder.id))
-      );
+      logger.debug("World scene to add tokens to", worldScene);
+      const existingTokens = tokenUpdates.filter((t) => worldScene.tokens.some((wT) => t._id === wT._id));
+      logger.debug("existingTokens", existingTokens);
+      await worldScene.updateEmbeddedDocuments("Token", existingTokens, { keepId: true, keepEmbeddedIds: true });
+      const newTokens = tokenUpdates.filter((t) => !worldScene.tokens.some((wT) => t._id === wT._id));
+      logger.debug("newTokens", newTokens);
+      await worldScene.createEmbeddedDocuments("Token", newTokens, { keepId: true, keepEmbeddedIds: true });
 
-      logger.debug("Third Party Scene Processing", {
-        existingScene,
-        scene,
-        folder,
-        folderName,
-        compendiumScene
-      });
-
-      // if scene already exists, update
-      if (existingScene) {
-        logger.info(`Updating ${scene.name}`);
-        logger.debug(`${scene.name}update data`, { scene, existingScene });
-        await existingScene.update(scene);
-        processedScenes.push(existingScene);
-      } else {
-        scene.folder = folder.id;
-        const worldScene = await game.scenes.importFromCompendium(compendium, compendiumScene._id, scene, { keepId: true });
-        logger.info(`Scene: ${scene.name} folder:`, folder);
-        logger.debug("worldScene:", worldScene);
-        processedScenes.push(worldScene);
-      }
       logger.debug(`Finished scene DDB update ${scene.name}`);
     });
     return processedScenes;
@@ -588,7 +606,7 @@ export default class ThirdPartyMunch extends FormApplication {
       // link tokens on scene to imported actors
       const tokenAdjustedScenes = await Promise.all(adjustedScenes
         .map(async (scene) => {
-          logger.debug(`Updating scene tokens for ${scene.name}`);
+          logger.debug(`Generating scene tokens for ${scene.name}`);
           const newScene = duplicate(scene);
           newScene.tokens = await ThirdPartyMunch._linkSceneTokens(scene);
           return newScene;

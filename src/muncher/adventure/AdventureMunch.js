@@ -486,12 +486,12 @@ export default class AdventureMunch extends FormApplication {
     if (sceneToken.flags.ddbImages?.keepAvatar)
       setProperty(jsonTokenData, "actorData.img", sceneToken.flags.ddbImages.avatarImage);
 
-    const updateData = mergeObject(jsonTokenData, sceneToken);
-
-    if (isNewerVersion(game.version, 11) && hasProperty(updateData, "actorData")) {
-      setProperty(updateData, "delta", deepClone(updateData.actorData));
-      delete updateData.actorData;
+    if (isNewerVersion(game.version, 11) && hasProperty(sceneToken, "actorData")) {
+      setProperty(sceneToken, "delta", deepClone(sceneToken.actorData));
+      delete sceneToken.actorData;
     }
+
+    const updateData = mergeObject(jsonTokenData, sceneToken);
 
     logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
     return updateData;
@@ -513,12 +513,6 @@ export default class AdventureMunch extends FormApplication {
         if (worldActor) {
           const updateData = await AdventureMunch._getTokenUpdateData(worldActor, sceneToken, token);
           tokenUpdates.push(updateData);
-          // if (this.importToAdventureCompendium) {
-          //   await document.updateSource({ tokens: updateData });
-          //   tokenUpdates.push(updateData);
-          // } else {
-          //   await document.updateEmbeddedDocuments("Token", [updateData], { keepId: true, keepEmbeddedIds: true });
-          // }
         } else {
           deadTokenIds.push(token._id);
         }
