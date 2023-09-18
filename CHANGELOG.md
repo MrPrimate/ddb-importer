@@ -1,3 +1,7 @@
+# 3.4.70
+
+- For some Third Party Adventure enhancements, tokens would not link correctly.
+
 # 3.4.69
 
 - Encounter Muncher would not run.
