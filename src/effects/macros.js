@@ -74,9 +74,9 @@ export async function loadMacroFile(type, fileName, forceLoad = false, forceDDB 
     data = `
 // Execute DDB Importer dynamic macro
 if (isNewerVersion(11, game.version)) {
-  return game.modules.get("ddb-importer")?.api.macro.executeMacro("${type}", "${fileName}", ...args);
+  return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${fileName}", ...args);
 } else {
-  return game.modules.get("ddb-importer")?.api.macro.executeMacro("${type}", "${fileName}", scope);
+  return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${fileName}", scope);
 }
 `;
   } else if (!fileExists) {
