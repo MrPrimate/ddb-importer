@@ -14,10 +14,23 @@ const lastArg = args[args.length - 1];
 //   isOnUse: args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects",
 //   lastArgs: lastArg.tag === "OnUse" && lastArg.macroPass === "preActiveEffects",
 //   lastArg,
+//   actor
 // })
 
 if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
+  const safeName = lastArg.itemData.name.replace(/\s|'|\.|’/g, "_");
+  const dataTracker = {
+    origin: lastArg.itemUuid,
+    randomId: randomID(),
+    targetUuids: lastArg.targetUuids,
+    startRound: game.combat.round,
+    startTurn: game.combat.turn,
+  };
+  await DAE.unsetFlag(lastArg.actor, `${safeName}ItemTracker`);
+  await DAE.setFlag(lastArg.actor, `${safeName}ItemTracker`, dataTracker);
+
   return game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
+
 }
 
 
@@ -59,7 +72,7 @@ async function applySpikeGrowthDamage() {
 }
 
 function getDamageTestString(token, flags) {
-  console.warn("getDamageTestString", token)
+  // console.warn("getDamageTestString", token)
   return `${flags.origin}-${flags.round}-${flags.turn}-${flags.randomId}-${token.x}-${token.y}-${token.document?.elevation ?? token.elevation}`;
 }
 
@@ -67,7 +80,6 @@ if (args[0] === "on") {
   const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const item = await fromUuid(lastArg.efData.origin);
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}ItemTracker`);
-  // console.warn("token tracker on", targetItemTracker);
   const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);
   const target = canvas.tokens.get(lastArg.tokenId);
   const targetTokenTrackerFlag = DAE.getFlag(target, `${safeName}Tracker`);
@@ -95,7 +107,6 @@ if (args[0] === "on") {
 
   targetTokenTracker["testString"] = testString;
   await DAE.setFlag(target, `${safeName}Tracker`, targetTokenTracker);
-  console.warn("taget", target);
 }
 
 
@@ -104,9 +115,9 @@ if (args[0] === "off") {
   const target = canvas.tokens.get(lastArg.tokenId);
   const targetTrackerFlag = DAE.getFlag(target, `${safeName}Tracker`);
 
-  const token = await fromUuid(lastArg.tokenUuid);
-  targetTrackerFlag["testString"] = getDamageTestString(token, targetTrackerFlag);
+  const tToken = await fromUuid(lastArg.tokenUuid);
+  targetTrackerFlag["testString"] = getDamageTestString(tToken, targetTrackerFlag);
 
-  await DAE.setFlag(token, `${safeName}Tracker`, targetTrackerFlag);
-  await game.modules.get("ActiveAuras").api.ActiveAuras.MainAura(token, "movement update", token.parent.id);
+  await DAE.setFlag(tToken.actor, `${safeName}Tracker`, targetTrackerFlag);
+  await game.modules.get("ActiveAuras").api.ActiveAuras.MainAura(tToken, "movement update", tToken.parent.id);
 }

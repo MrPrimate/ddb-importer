@@ -1,6 +1,8 @@
 # NEXT UP
 
 - Improvements to Fire Shield effect to automate damage based on macro by @thatlonelybugbear
+- Spike Growth Macro improvements.
+- Some Macro effect generation code refactor.
 
 # 3.4.70
 
