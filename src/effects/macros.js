@@ -111,7 +111,7 @@ export function generateMacroChange(macroValues, { priority = 20, keyPostfix = "
 function generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints = []) {
   const useDDBFunctions = false;
   const valueContent = (useDDBFunctions) ? `function.DDBImporter.macros.getMacro("${macroType}","${macroName}")` : "ItemMacro";
-  return triggerPoints.map((t) => `[${t}]${valueContent})`).join(",");
+  return triggerPoints.map((t) => `[${t}]${valueContent}`).join(",");
 }
 
 export function setMidiOnUseMacroFlag(document, macroType, macroName, triggerPoints = []) {
