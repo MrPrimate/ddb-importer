@@ -1,9 +1,9 @@
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function mantleOfInspirationEffect(document) {
   const itemMacroText = await loadMacroFile("feat", "mantleOfInspiration.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
+  setMidiOnUseMacroFlag(document, "feat", "mantleOfInspiration.js", ["preTargeting"]);
 
   return document;
 }

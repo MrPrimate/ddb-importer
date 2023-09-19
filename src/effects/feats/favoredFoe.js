@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 // this one is a bit different, the macro is triggered by midi-qol and applies effects to the actor
 // the Marked effect gets applied to the target
@@ -31,7 +31,7 @@ export async function favoredFoeEffect(document) {
 
   const itemMacroText = await loadMacroFile("feat", "favoredFoe.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "feat", "favoredFoe.js", ["postActiveEffects"]);
 
   setProperty(document, "system.actionType", "util");
   document.system.damage.parts = [];

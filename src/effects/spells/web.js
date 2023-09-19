@@ -1,5 +1,5 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS, setMidiOnUseMacroFlag } from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function webEffect(document) {
@@ -34,7 +34,8 @@ export async function webEffect(document) {
   };
   setProperty(effect, "duration.seconds", 3600);
   setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.type, MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file, ["preActiveEffects"]);
+
   setProperty(document, "flags.ddbimporter.effect", {
     applyStart: true,
     applyEntry: true,

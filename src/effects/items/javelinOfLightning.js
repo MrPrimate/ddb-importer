@@ -1,5 +1,5 @@
 import { baseItemEffect } from "../effects.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function javelinOfLightningEffect(document) {
   let effect = baseItemEffect(document, `${document.name}: Used Effect Tracker`);
@@ -12,7 +12,7 @@ export async function javelinOfLightningEffect(document) {
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);
 
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro,[postDamageRoll]ItemMacro,[preAttackRoll]ItemMacro");
+  setMidiOnUseMacroFlag(document, "item", "javelinOfLightning.js", ["postActiveEffects", "postDamageRoll", "preAttackRoll"]);
 
   // setProperty(document.effects[0], "flags.dae.specialDuration", ["isDamaged"]);
   document.system.uses = {

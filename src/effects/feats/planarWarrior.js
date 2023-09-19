@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function planarWarriorEffect(document) {
   const itemMacroText = await loadMacroFile("feat", "planarWarrior.js");
@@ -8,7 +8,7 @@ export async function planarWarriorEffect(document) {
   let effect = baseFeatEffect(document, "Marked by Planar Warrior");
 
   setProperty(effect, "duration.turns", 1);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preItemRoll]ItemMacro,[preActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "feat", "planarWarrior.js", ["preItemRoll", "preActiveEffects"]);
 
   document.effects.push(effect);
 

@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function darknessEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -9,6 +9,6 @@ export async function darknessEffect(document) {
   document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "darkness.js", ["preTargeting"]);
   return document;
 }

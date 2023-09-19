@@ -1,5 +1,5 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS, setMidiOnUseMacroFlag } from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function greaseEffect(document) {
@@ -26,7 +26,7 @@ export async function greaseEffect(document) {
 
   const itemMacroText = await loadMacroFile(MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.type, MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file);
   document = generateItemMacroFlag(document, itemMacroText);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.type, MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file, ["preActiveEffects"]);
   effect.changes.push(generateMacroChange("@item.level @attributes.spelldc"));
 
   // effect.changes.push(generateMacroChange("@item.level @attributes.spelldc"));

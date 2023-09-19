@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function callLightningEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -11,7 +11,7 @@ export async function callLightningEffect(document) {
   document.effects.push(effect);
   setProperty(document, "system.actionType", "other");
   document.system.save.ability = "";
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "callLightning.js", ["preTargeting"]);
 
   return document;
 }

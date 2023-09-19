@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function ensnaringStrikeEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -19,7 +19,7 @@ export async function ensnaringStrikeEffect(document) {
   document.system.damage = { parts: [], versatile: "", value: "" };
   document.system.actionType = null;
   document.system.save.ability = "";
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "ensnaringStrike.js", ["preTargeting"]);
 
   return document;
 }

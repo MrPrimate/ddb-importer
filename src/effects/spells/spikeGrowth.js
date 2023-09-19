@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function spikeGrowthEffect(document) {
@@ -36,7 +36,7 @@ export async function spikeGrowthEffect(document) {
   };
   setProperty(effect, "duration.seconds", 600);
   setProperty(effect, "flags.dae.specialDuration", ["isMoved"]);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "spikeGrowth.js", ["preActiveEffects"]);
 
   document.effects.push(effect);
   return document;

@@ -1,9 +1,9 @@
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function iceKnifeEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "iceKnife.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "iceKnife.js", ["postActiveEffects"]);
   document.system.damage = { parts: [["1d10", "piercing"]], versatile: "", value: "" };
   document.system.scaling = { mode: "none", formula: "" };
   document.system.target = {

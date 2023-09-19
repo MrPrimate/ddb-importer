@@ -1,5 +1,5 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function silenceEffect(document) {
@@ -44,7 +44,7 @@ export async function silenceEffect(document) {
     displayTemp: true,
   };
   setProperty(effect, "duration.seconds", 600);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "generic", "activeAuraOnly.js", ["preActiveEffects"]);
 
   const limits = {
     sight: {

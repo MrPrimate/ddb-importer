@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS, setMidiOnUseMacroFlag } from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function incendiaryCloudEffect(document) {
@@ -37,7 +37,7 @@ export async function incendiaryCloudEffect(document) {
   };
   setProperty(effect, "duration.seconds", 60);
   // setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "generic", MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file, ["preActiveEffects"]);
   setProperty(document, "flags.ddbimporter.effect", {
     dice: document.system.damage.parts[0][0],
     damageType: document.system.damage.parts[0][1],

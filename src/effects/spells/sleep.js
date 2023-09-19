@@ -1,10 +1,10 @@
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function sleepEffect(document) {
 
   const itemMacroText = await loadMacroFile("spell", "sleep.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "sleep.js", ["postActiveEffects"]);
   document.system.damage = { parts: [["5d8", "midi-none"]], versatile: "", value: "" };
 
   return document;

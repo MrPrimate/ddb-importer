@@ -1,4 +1,4 @@
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 import { checkJB2a } from "../helpers.js";
 import { effectModules } from "../effects.js";
 
@@ -9,7 +9,7 @@ export async function dancingLightsEffect(document) {
 
   const itemMacroText = await loadMacroFile("spell", "dancingLights.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "dancingLights.js", ["postActiveEffects"]);
   return document;
 
 }

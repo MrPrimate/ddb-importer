@@ -1,9 +1,9 @@
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function tolltheDeadEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "tolltheDead.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "tolltheDead.js", ["postActiveEffects"]);
 
   document.system.damage = { parts: [], versatile: "", value: "" };
   return document;

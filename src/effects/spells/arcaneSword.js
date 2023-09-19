@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function arcaneSwordEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -13,7 +13,7 @@ export async function arcaneSwordEffect(document) {
   document.system.actionType = "other";
 
   document.effects.push(effect);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "arcaneSword.js", ["preTargeting"]);
 
   return document;
 }

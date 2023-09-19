@@ -2,7 +2,7 @@ import {
   baseItemEffect,
 } from "./effects.js";
 
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "./macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "./macros.js";
 
 async function woundingWeaponEffect(document) {
   let effect = baseItemEffect(document, document.name);
@@ -32,7 +32,7 @@ async function lifeStealingEffect(document) {
   let effect = baseItemEffect(document, document.name);
   const itemMacroText = await loadMacroFile("item", "lifeStealing.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "item", "lifeStealing.js", ["postActiveEffects"]);
   document.effects.push(effect);
   return document;
 }

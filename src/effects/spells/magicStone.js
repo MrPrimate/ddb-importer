@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function magicStoneEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "magicStone.js");
@@ -11,8 +11,7 @@ export async function magicStoneEffect(document) {
   document.system.damage.parts = [];
   document.system.actionType = "other";
   document.system.target.type = "self";
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
-
+  setMidiOnUseMacroFlag(document, "spell", "magicStone.js", ["postActiveEffects"]);
   let effect = baseSpellEffect(document, document.name);
   setProperty(effect, "duration.seconds", 60);
   document.effects.push(effect);

@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function shillelaghEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -11,7 +11,7 @@ export async function shillelaghEffect(document) {
   document.system.actionType = "other";
   document.effects.push(effect);
   document.system.damage = { parts: [], versatile: "", value: "" };
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "shillelagh.js", ["preTargeting"]);
 
   return document;
 }

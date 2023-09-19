@@ -1,4 +1,4 @@
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export async function brandingSmiteEffect(document) {
@@ -26,7 +26,6 @@ export async function brandingSmiteEffect(document) {
   document.system.target.type = "self";
   document.system.damage.parts = [];
   document.effects.push(effect);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
-
+  setMidiOnUseMacroFlag(document, "spell", "brandingSmite.js", ["postActiveEffects"]);
   return document;
 }

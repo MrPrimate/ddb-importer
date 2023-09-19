@@ -1,10 +1,10 @@
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export async function absorbElementsEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "absorbElements.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "absorbElements.js", ["postActiveEffects"]);
 
   const effect = baseSpellEffect(document, `${document.name} - Extra Damage`);
   effect.changes.push(

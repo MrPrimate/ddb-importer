@@ -20,7 +20,6 @@ export async function hailOfThornsEffect(document) {
   document.system.actionType = null;
   document.system.save.ability = "";
   document.system.target.type = "self";
-  // setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
 
   return document;
 }

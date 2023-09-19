@@ -1,4 +1,4 @@
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function greenFlameBladeEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "greenFlameBlade.js");
@@ -8,6 +8,6 @@ export async function greenFlameBladeEffect(document) {
   document.system.range = { value: null, units: "self", long: null };
   document.system.actionType = "other";
   document.system.save.ability = "";
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "greenFlameBlade.js", ["postActiveEffects"]);
   return document;
 }

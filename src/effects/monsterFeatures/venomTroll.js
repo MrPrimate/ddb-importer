@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import { forceItemEffect, generateStatusEffectChange } from "../effects.js";
-import { generateItemMacroFlag, loadMacroFile } from "../macros.js";
+import { generateItemMacroFlag, generateOnUseMacroChange, loadMacroFile, setMidiOnUseMacroFlag } from "../macros.js";
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 
 
@@ -24,18 +24,13 @@ export async function venomTrollEffects(npc) {
 
       const itemMacroText = await loadMacroFile("monsterFeature", "venomSpray.js");
       item = generateItemMacroFlag(item, itemMacroText);
-      setProperty(item, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+      setMidiOnUseMacroFlag(item, "monsterFeature", "venomSpray.js", ["postActiveEffects"]);
 
       item.effects.push(effect);
     } else if (item.name === "Poison Splash") {
       let effect = baseMonsterFeatureEffect(item, item.name);
       effect.changes.push(
-        {
-          key: "flags.midi-qol.onUseMacroName",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          value: "ItemMacro,isDamaged",
-          priority: "20",
-        },
+        generateOnUseMacroChange("monsterFeature", "venomSpray.js", "isDamaged"),
       );
       effect.transfer = true;
       setProperty(effect, "flags.dae.stackable", "noneName");

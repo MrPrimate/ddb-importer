@@ -1,4 +1,4 @@
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export async function thunderousSmiteEffect(document) {
@@ -27,7 +27,7 @@ export async function thunderousSmiteEffect(document) {
   document.system.save.ability = "";
   document.system.actionType = "other";
   document.effects.push(effect);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro,[preTargeting]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "thunderousSmite.js", ["postActiveEffects", "preTargeting"]);
 
   return document;
 }

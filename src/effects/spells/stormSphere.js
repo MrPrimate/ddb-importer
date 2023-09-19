@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function stormSphereEffect(document) {
@@ -42,7 +42,7 @@ export async function stormSphereEffect(document) {
   setProperty(effect, "duration.seconds", 60);
   setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
   effect.changes.push(generateMacroChange(""));
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "stormSphere.js", ["preActiveEffects"]);
 
   document.effects.push(effect);
 

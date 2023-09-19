@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS, setMidiOnUseMacroFlag } from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function createBonfireEffect(document) {
@@ -37,7 +37,7 @@ export async function createBonfireEffect(document) {
   setProperty(effect, "duration.seconds", 60);
   setProperty(effect, "duration.rounds", 10);
   effect.changes.push(generateMacroChange(""));
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "generic", MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file, ["preActiveEffects"]);
 
   document.effects.push(effect);
 

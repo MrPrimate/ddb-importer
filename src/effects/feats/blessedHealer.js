@@ -1,5 +1,5 @@
 import { baseItemEffect } from "../effects.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function blessedHealerEffect(document) {
   let effect = baseItemEffect(document, document.name);
@@ -12,7 +12,7 @@ export async function blessedHealerEffect(document) {
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: "20",
   });
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "feat", "blessedHealer.js", ["postActiveEffects"]);
 
   document.effects.push(effect);
   return document;

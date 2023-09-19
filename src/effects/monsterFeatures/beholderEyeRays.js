@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 // import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
 
 export async function beholderEyeRaysEffect(document) {
@@ -11,7 +11,7 @@ export async function beholderEyeRaysEffect(document) {
   let effect = baseFeatEffect(document, document.name);
   const itemMacroText = await loadMacroFile("monsterFeature", "beholderEyeRay.js");
   document = generateItemMacroFlag(document, itemMacroText);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "monsterFeature", "beholderEyeRay.js", ["postActiveEffects"]);
   // effect.changes.push(generateMacroChange(""));
   effect.transfer = false;
 

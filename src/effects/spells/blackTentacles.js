@@ -1,5 +1,5 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS, setMidiOnUseMacroFlag } from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function blackTentaclesEffect(document) {
@@ -33,7 +33,7 @@ export async function blackTentaclesEffect(document) {
   setProperty(effect, "duration.seconds", 60);
   setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
   effect.changes.push(generateMacroChange(""));
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, MACROS.ACTIVE_AURAS.AA_ON_ENTRY.type, MACROS.ACTIVE_AURAS.AA_ON_ENTRY.file, ["preActiveEffects"]);
 
   const aaMacroFlags = {
     applyStart: true,

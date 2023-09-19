@@ -1,4 +1,4 @@
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
 
 export async function boomingBladeEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "boomingBlade.js");
@@ -6,6 +6,6 @@ export async function boomingBladeEffect(document) {
   document.system.damage = { parts: [], versatile: "", value: "" };
   document.system['target']['type'] = "self";
   document.system.range = { value: null, units: "self", long: null };
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setMidiOnUseMacroFlag(document, "spell", "boomingBlade.js", ["postActiveEffects"]);
   return document;
 }
