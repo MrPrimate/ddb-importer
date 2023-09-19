@@ -108,25 +108,32 @@ export function generateMacroChange(macroValues, { priority = 20, keyPostfix = "
   };
 }
 
-export function generateOnUseMacroChange(macroValues, macroPass, { priority = 20 } = {}) {
-  return {
-    key: "flags.midi-qol.onUseMacroName",
-    value: `${macroValues},${macroPass}`,
-    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-    priority: priority,
-  };
-}
-
 function generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints = []) {
   const useDDBFunctions = false;
-  const valueContent = (useDDBFunctions) ? `function.DDBImporter.macros.getMacro("${macroType}", "${macroName}")` : "ItemMacro";
-  return `[${triggerPoints.join(",")}]${valueContent}`;
+  const valueContent = (useDDBFunctions) ? `function.DDBImporter.macros.getMacro("${macroType}","${macroName}")` : "ItemMacro";
+  return triggerPoints.map((t) => `[${t}]${valueContent})`).join(",");
 }
 
 export function setMidiOnUseMacroFlag(document, macroType, macroName, triggerPoints = []) {
   const value = generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints);
   setProperty(document, "flags.midi-qol.onUseMacroName", value);
 }
+
+export function generateOnUseMacroChange(macroType, macroName, macroPass, { priority = 20 } = {}) {
+  const useDDBFunctions = false;
+  const valueContent = (useDDBFunctions)
+    ? `function.DDBImporter.macros.getMacro("${macroType}","${macroName}")`
+    : `ItemMacro,${macroPass}`;
+
+  return {
+    key: "flags.midi-qol.onUseMacroName",
+    value: valueContent,
+    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+    priority: priority,
+  };
+}
+
+
 
 export async function createMacro({ name, content, img, isGM, isTemp }) {
   const macroFolder = isTemp
@@ -261,7 +268,7 @@ export async function executeDDBMacro(type, name, ...params) {
   return macro.execute(...params);
 }
 
-export async function getMacroFunction(type, name) {
+export function getMacroFunction(type, name) {
   const macroFunction = async (...params) => {
     const macro = await getMacro(type, name);
     return macro.execute(...params);

@@ -430,6 +430,13 @@ const SETTINGS = {
           type: Boolean,
           default: true,
         },
+        "no-item-macros": {
+          name: "ddb-importer.settings.no-item-macros.name",
+          hint: "ddb-importer.settings.no-item-macros.hint",
+          config: true,
+          type: Boolean,
+          default: false,
+        },
         "add-description-to-chat": {
           name: "ddb-importer.settings.add-description-to-chat.name",
           hint: "ddb-importer.settings.add-description-to-chat.hint",

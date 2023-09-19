@@ -5,5 +5,5 @@ console.warn("TEST MACRO RUN", {
   speaker,
   scope,
   args,
-  workflow,
+  workflow: (typeof workflow !== 'undefined') ? workflow : undefined,
 });
