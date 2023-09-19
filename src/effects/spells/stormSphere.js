@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function stormSphereEffect(document) {
@@ -22,8 +22,8 @@ export async function stormSphereEffect(document) {
       priority: "20",
     }
   );
-  const itemMacroText = await loadMacroFile("spell", "stormSphere.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "stormSphere.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",
@@ -41,8 +41,8 @@ export async function stormSphereEffect(document) {
   };
   setProperty(effect, "duration.seconds", 60);
   setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  effect.changes.push(generateMacroChange(""));
-  setMidiOnUseMacroFlag(document, "spell", "stormSphere.js", ["preActiveEffects"]);
+  effect.changes.push(DDBMacros.generateMacroChange(""));
+  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "stormSphere.js", ["preActiveEffects"]);
 
   document.effects.push(effect);
 

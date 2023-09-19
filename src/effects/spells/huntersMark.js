@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 // this one is a bit different, the macro is triggered by midi-qol and applies effects to the actor
 // the Marked effect gets applied to the target
@@ -28,8 +28,8 @@ export async function huntersMarkEffect(document) {
   setProperty(damageBonusEffect, "flags.dae.transfer", true);
   document.effects.push(damageBonusEffect);
 
-  const itemMacroText = await loadMacroFile("spell", "huntersMark.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "huntersMark.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "system.actionType", "util");
 
   return document;

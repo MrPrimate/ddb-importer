@@ -1,13 +1,13 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function spikeGrowthEffect(document) {
   // we require active auras for this effect
   if (!effectModules().activeAurasInstalled) return document;
 
-  const itemMacroText = await loadMacroFile("spell", "spikeGrowth.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "spikeGrowth.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
@@ -18,7 +18,7 @@ export async function spikeGrowthEffect(document) {
       priority: 30,
     },
   );
-  effect.changes.push(generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange(""));
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",
@@ -36,7 +36,7 @@ export async function spikeGrowthEffect(document) {
   };
   setProperty(effect, "duration.seconds", 600);
   setProperty(effect, "flags.dae.specialDuration", ["isMoved"]);
-  setMidiOnUseMacroFlag(document, "spell", "spikeGrowth.js", ["preActiveEffects"]);
+  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "spikeGrowth.js", ["preActiveEffects"]);
 
   document.effects.push(effect);
   return document;

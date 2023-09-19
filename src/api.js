@@ -13,7 +13,7 @@ import DDBCharacterManager, { importCharacter, importCharacterById } from "./app
 import { checkCobalt } from "./lib/Secrets.js";
 // import { base64Check } from "./lib/base64Check.js";
 import { getFeats } from "./muncher/feats/feats.js";
-import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS, getMacro, getMacroFunction } from "./effects/macros.js";
+import DDBMacros from "./effects/macros.js";
 import Iconizer from "./lib/Iconizer.js";
 import { loadSRDRules, importCacheLoad } from "./lib/DDBTemplateStrings.js";
 import { getNPCImage } from "./muncher/importMonster.js";
@@ -123,6 +123,7 @@ export function registerApi() {
       CompendiumHelper,
       FileHelper,
       DirectoryPicker,
+      DDBMacros,
     },
     settings: {
       muncherSettings: MuncherSettings.getMuncherSettings,
@@ -158,7 +159,7 @@ export function registerApi() {
     importCacheLoad,
     getNPCImage,
     resetCompendiumActorImages,
-    generateItemMacroFlag,
+    generateItemMacroFlag: DDBMacros.generateItemMacroFlag,
     effects: {
       addSaveAdvantageToTarget,
       configureCustomAAForCondition,
@@ -178,15 +179,15 @@ export function registerApi() {
       getRemainingDuration,
       createJB2aActors,
     },
-    executeDDBMacro,
+    executeDDBMacro: DDBMacros.executeDDBMacro,
     // macro tools
     macros: {
-      createMacro,
-      executeMacro: executeDDBMacro,
-      getMacroFunction: getMacroFunction,
-      loadMacroFile,
-      macros: MACROS,
-      getMacro,
+      createMacro: DDBMacros.createMacro,
+      executeMacro: DDBMacros.executeDDBMacro,
+      getMacroFunction: DDBMacros.getMacroFunction,
+      loadMacroFile: DDBMacros.loadMacroFile,
+      macros: DDBMacros.MACROS,
+      getMacro: DDBMacros.getMacro,
     },
     chris: {
       generateEffect: applyChrisPremadeEffect,

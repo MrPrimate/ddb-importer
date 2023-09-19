@@ -29,7 +29,7 @@ import {
   addChrisEffectsToActorDocuments,
   // restrictedItemReplacer
 } from "../effects/chrisPremades.js";
-import { configureDependencies } from "../effects/macros.js";
+import DDBMacros from "../effects/macros.js";
 
 export default class DDBCharacterManager extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {
@@ -1200,7 +1200,7 @@ export default class DDBCharacterManager extends FormApplication {
     this.getSettings();
     if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
       // eslint-disable-next-line require-atomic-updates
-      CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await configureDependencies();
+      CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
     }
     this.result = duplicate(this.ddbCharacter.data);
 

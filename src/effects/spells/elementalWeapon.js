@@ -1,11 +1,11 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function elementalWeaponEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await loadMacroFile("spell", "elementalWeapon.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@item.level", { priority: 0 }));
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "elementalWeapon.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange("@item.level", { priority: 0 }));
   document.effects.push(effect);
 
   document.system.damage.parts = [];

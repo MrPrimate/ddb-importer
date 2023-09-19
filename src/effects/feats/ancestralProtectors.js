@@ -1,13 +1,13 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { loadMacroFile, generateItemMacroFlag, generateOnUseMacroChange } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function ancestralProtectorsEffect(document) {
-  const itemMacroText = await loadMacroFile("feat", "ancestralProtectors.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("feat", "ancestralProtectors.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseFeatEffect(document, document.name);
   effect.changes.push(
-    generateOnUseMacroChange({ macroPass: "postAttackRoll", macroType: "spell", macroName: "ancestralProtectors.js", document }),
+    DDBMacros.generateOnUseMacroChange({ macroPass: "postAttackRoll", macroType: "spell", macroName: "ancestralProtectors.js", document }),
   );
 
 

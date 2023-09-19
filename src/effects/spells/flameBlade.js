@@ -1,17 +1,17 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function flameBladeEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await loadMacroFile("spell", "flameBlade.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@spellLevel"));
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "flameBlade.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange("@spellLevel"));
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.system.actionType = "other";
   document.effects.push(effect);
   document.system.damage = { parts: [], versatile: "", value: "" };
-  setMidiOnUseMacroFlag(document, "spell", "flameBlade.js", ["preTargeting"]);
+  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "flameBlade.js", ["preTargeting"]);
 
   return document;
 }

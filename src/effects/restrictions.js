@@ -2,7 +2,7 @@ import {
   baseItemEffect,
 } from "./effects.js";
 
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "./macros.js";
+import DDBMacros from "./macros.js";
 
 async function woundingWeaponEffect(document) {
   let effect = baseItemEffect(document, document.name);
@@ -20,9 +20,9 @@ async function woundingWeaponEffect(document) {
     startTurn: null,
   };
 
-  const itemMacroText = await loadMacroFile("item", "wounding.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange());
+  const itemMacroText = await DDBMacros.loadMacroFile("item", "wounding.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange());
   document.effects.push(effect);
 
   return document;
@@ -30,9 +30,9 @@ async function woundingWeaponEffect(document) {
 
 async function lifeStealingEffect(document) {
   let effect = baseItemEffect(document, document.name);
-  const itemMacroText = await loadMacroFile("item", "lifeStealing.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  setMidiOnUseMacroFlag(document, "item", "lifeStealing.js", ["postActiveEffects"]);
+  const itemMacroText = await DDBMacros.loadMacroFile("item", "lifeStealing.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  DDBMacros.setMidiOnUseMacroFlag(document, "item", "lifeStealing.js", ["postActiveEffects"]);
   document.effects.push(effect);
   return document;
 }

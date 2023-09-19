@@ -1,11 +1,11 @@
-import { loadMacroFile, generateItemMacroFlag, generateMacroChange } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export async function arcaneRecoveryEffect(document) {
   let effect = baseFeatEffect(document, document.name);
-  const itemMacroText = await loadMacroFile("feat", "arcaneRecovery.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange(""));
+  const itemMacroText = await DDBMacros.loadMacroFile("feat", "arcaneRecovery.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange(""));
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);

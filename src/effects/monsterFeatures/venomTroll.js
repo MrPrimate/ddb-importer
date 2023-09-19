@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import { forceItemEffect, generateStatusEffectChange } from "../effects.js";
-import { generateItemMacroFlag, generateOnUseMacroChange, loadMacroFile, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 
 
@@ -22,21 +22,21 @@ export async function venomTrollEffects(npc) {
       setProperty(effect, "duration.rounds", 10);
       setProperty(effect, "flags.dae.stackable", "noneName");
 
-      const itemMacroText = await loadMacroFile("monsterFeature", "venomSpray.js");
-      item = generateItemMacroFlag(item, itemMacroText);
-      setMidiOnUseMacroFlag(item, "monsterFeature", "venomSpray.js", ["postActiveEffects"]);
+      const itemMacroText = await DDBMacros.loadMacroFile("monsterFeature", "venomSpray.js");
+      item = DDBMacros.generateItemMacroFlag(item, itemMacroText);
+      DDBMacros.setMidiOnUseMacroFlag(item, "monsterFeature", "venomSpray.js", ["postActiveEffects"]);
 
       item.effects.push(effect);
     } else if (item.name === "Poison Splash") {
       let effect = baseMonsterFeatureEffect(item, item.name);
       effect.changes.push(
-        generateOnUseMacroChange({ macroPass: "isDamaged", macroType: "monsterFeature", macroName: "venomSpray.js" }),
+        DDBMacros.generateOnUseMacroChange({ macroPass: "isDamaged", macroType: "monsterFeature", macroName: "venomSpray.js" }),
       );
       effect.transfer = true;
       setProperty(effect, "flags.dae.stackable", "noneName");
 
-      const itemMacroText = await loadMacroFile("monsterFeature", "poisonSplash.js");
-      item = generateItemMacroFlag(item, itemMacroText);
+      const itemMacroText = await DDBMacros.loadMacroFile("monsterFeature", "poisonSplash.js");
+      item = DDBMacros.generateItemMacroFlag(item, itemMacroText);
 
       item.effects.push(effect);
 

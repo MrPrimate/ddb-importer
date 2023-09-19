@@ -1,11 +1,11 @@
 import { baseItemEffect } from "../effects.js";
-import { loadMacroFile, generateItemMacroFlag, generateMacroChange } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function squireOfSolamniaEffect(document) {
   let effect = baseItemEffect(document, document.name);
-  const itemMacroText = await loadMacroFile("feat", "squireOfSolamnia.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange(`"${document.name}"`));
+  const itemMacroText = await DDBMacros.loadMacroFile("feat", "squireOfSolamnia.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange(`"${document.name}"`));
   effect.transfer = false;
 
   effect.changes.push(

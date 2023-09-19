@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function armorOfAgathysEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -16,8 +16,8 @@ export async function armorOfAgathysEffect(document) {
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);
 
-  const itemMacroText = await loadMacroFile("spell", "armorOfAgathys.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "armorOfAgathys.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "system.actionType", "util");
 
   return document;

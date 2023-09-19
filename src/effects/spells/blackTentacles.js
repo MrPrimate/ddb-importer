@@ -1,5 +1,5 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function blackTentaclesEffect(document) {
@@ -13,8 +13,8 @@ export async function blackTentaclesEffect(document) {
 
 
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await loadMacroFile(MACROS.ACTIVE_AURAS.AA_ON_ENTRY.type, MACROS.ACTIVE_AURAS.AA_ON_ENTRY.file);
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_ON_ENTRY.file);
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",
@@ -32,8 +32,8 @@ export async function blackTentaclesEffect(document) {
   };
   setProperty(effect, "duration.seconds", 60);
   setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  effect.changes.push(generateMacroChange(""));
-  setMidiOnUseMacroFlag(document, MACROS.ACTIVE_AURAS.AA_ON_ENTRY.type, MACROS.ACTIVE_AURAS.AA_ON_ENTRY.file, ["preActiveEffects"]);
+  effect.changes.push(DDBMacros.generateMacroChange(""));
+  DDBMacros.setMidiOnUseMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_ON_ENTRY.file, ["preActiveEffects"]);
 
   const aaMacroFlags = {
     applyStart: true,

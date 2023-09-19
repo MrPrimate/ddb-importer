@@ -1,10 +1,10 @@
 
 import { baseFeatEffect } from "../specialFeats.js";
-import { loadMacroFile, generateItemMacroFlag, generateOnUseMacroChange } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 async function commonPiercer(document) {
-  const itemMacroText = await loadMacroFile("feat", "piercer.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("feat", "piercer.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   document.system.target = {
     value: null,
     width: null,
@@ -44,7 +44,7 @@ export async function piercerRerollEffect(document) {
   const effect = baseFeatEffect(document, document.name);
 
   effect.changes.push(
-    generateOnUseMacroChange({ macroPass: "postDamageRoll", macroType: "feat", macroName: "piercer.js", document }),
+    DDBMacros.generateOnUseMacroChange({ macroPass: "postDamageRoll", macroType: "feat", macroName: "piercer.js", document }),
   );
   effect.transfer = true;
 

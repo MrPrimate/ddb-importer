@@ -1,11 +1,11 @@
 import { baseItemEffect } from "../effects.js";
-import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function fontOfMagicEffect(document) {
   let effect = baseItemEffect(document, document.name);
-  const itemMacroText = await loadMacroFile("feat", "fontOfMagic.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  setMidiOnUseMacroFlag(document, "feat", "fontOfMagic.js", ["preItemRoll"]);
+  const itemMacroText = await DDBMacros.loadMacroFile("feat", "fontOfMagic.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  DDBMacros.setMidiOnUseMacroFlag(document, "feat", "fontOfMagic.js", ["preItemRoll"]);
 
   document.effects.push(effect);
   document.system.activation.type = "bonus";

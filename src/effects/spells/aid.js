@@ -1,4 +1,4 @@
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export async function aidEffect(document) {
@@ -9,9 +9,9 @@ export async function aidEffect(document) {
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     priority: 20,
   });
-  const itemMacroText = await loadMacroFile("spell", "aid.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@spellLevel", { priority: 0 }));
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "aid.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange("@spellLevel", { priority: 0 }));
   document.effects.push(effect);
   document.system.damage = { parts: [], versatile: "", value: "" };
 

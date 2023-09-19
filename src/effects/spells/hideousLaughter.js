@@ -1,5 +1,5 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function hideousLaughterEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -14,10 +14,10 @@ export async function hideousLaughterEffect(document) {
     priority: "20",
   });
 
-  const itemMacroText = await loadMacroFile("spell", "hideousLaughter.js");
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "hideousLaughter.js");
 
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange(""));
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange(""));
   document.effects.push(effect);
 
   let proneEffect = baseSpellEffect(document, `${document.name} (Prone)`);

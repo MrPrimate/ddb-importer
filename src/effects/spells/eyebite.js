@@ -1,12 +1,12 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function eyebiteEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await loadMacroFile("spell", "eyebite.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "eyebite.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   effect.flags.dae.macroRepeat = "startEveryTurn";
-  effect.changes.push(generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange(""));
   document.effects.push(effect);
   setProperty(document, "system.actionType", "other");
   setProperty(document, "system.save.ability", "");

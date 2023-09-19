@@ -1,6 +1,6 @@
 
 import { baseFeatEffect } from "../specialFeats.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function slasherCriticalEffect(document) {
   const effect = baseFeatEffect(document, document.name);
@@ -17,8 +17,8 @@ export async function slasherCriticalEffect(document) {
   setProperty(effect, "flags.dae.transfer", true);
   document.effects.push(effect);
 
-  const itemMacroText = await loadMacroFile("feat", "slasherCritical.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("feat", "slasherCritical.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   document.system.actionType = null;
 
   return document;

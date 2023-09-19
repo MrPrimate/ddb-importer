@@ -1,14 +1,14 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { generateATLChange } from "../effects.js";
 
 export async function sacredWeaponEffect(document) {
   if (document.system.actionType === null) return document;
   let effect = baseFeatEffect(document, document.name);
 
-  const itemMacroText = await loadMacroFile("feat", "sacredWeapon.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@abilities.cha.mod", { priority: 0 }));
+  const itemMacroText = await DDBMacros.loadMacroFile("feat", "sacredWeapon.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange("@abilities.cha.mod", { priority: 0 }));
 
   // effect.changes.push(
   //   {

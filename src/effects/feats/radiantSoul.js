@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function radiantSoulEffect(document) {
 
@@ -59,8 +59,8 @@ export async function radiantSoulEffect(document) {
     );
     effect.transfer = true;
 
-    const itemMacroText = await loadMacroFile("feat", "radiantSoul.js");
-    document = generateItemMacroFlag(document, itemMacroText);
+    const itemMacroText = await DDBMacros.loadMacroFile("feat", "radiantSoul.js");
+    document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
     setProperty(document, "system.activation.type", "special");
 
     document.effects.push(effect);

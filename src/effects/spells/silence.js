@@ -1,5 +1,5 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function silenceEffect(document) {
@@ -9,8 +9,8 @@ export async function silenceEffect(document) {
   }
 
   // if we have active auras use a more advanced macro
-  const itemMacroText = await loadMacroFile("generic", "activeAuraOnly.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("generic", "activeAuraOnly.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(generateStatusEffectChange("Deafened", 20, true));
@@ -44,7 +44,7 @@ export async function silenceEffect(document) {
     displayTemp: true,
   };
   setProperty(effect, "duration.seconds", 600);
-  setMidiOnUseMacroFlag(document, "generic", "activeAuraOnly.js", ["preActiveEffects"]);
+  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraOnly.js", ["preActiveEffects"]);
 
   const limits = {
     sight: {

@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 // this one is a bit different, the macro is triggered by midi-qol and applies effects to the actor
 // the Marked effect gets applied to the target
@@ -29,9 +29,9 @@ export async function slayersPreyEffect(document) {
   setProperty(damageBonusEffect, "flags.dae.transfer", true);
   document.effects.push(damageBonusEffect);
 
-  const itemMacroText = await loadMacroFile("feat", "slayersPrey.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  setMidiOnUseMacroFlag(document, "feat", "slayersPrey.js", ["postActiveEffects"]);
+  const itemMacroText = await DDBMacros.loadMacroFile("feat", "slayersPrey.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  DDBMacros.setMidiOnUseMacroFlag(document, "feat", "slayersPrey.js", ["postActiveEffects"]);
 
   setProperty(document, "system.actionType", "util");
   document.system.damage.parts = [];

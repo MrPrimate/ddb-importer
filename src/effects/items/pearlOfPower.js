@@ -1,11 +1,11 @@
 import { baseItemEffect } from "../effects.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function pearlOfPowerEffect(document) {
   let effect = baseItemEffect(document, document.name);
-  const itemMacroText = await loadMacroFile("item", "pearlOfPower.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange(`"${document.name}"`));
+  const itemMacroText = await DDBMacros.loadMacroFile("item", "pearlOfPower.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange(`"${document.name}"`));
   effect.transfer = false;
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);

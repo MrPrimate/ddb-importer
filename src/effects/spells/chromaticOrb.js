@@ -1,9 +1,9 @@
-import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function chromaticOrbEffect(document) {
-  const itemMacroText = await loadMacroFile("spell", "chromaticOrb.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  setMidiOnUseMacroFlag(document, "spell", "chromaticOrb.js", ["postDamageRoll"]);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "chromaticOrb.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "chromaticOrb.js", ["postDamageRoll"]);
 
   return document;
 }

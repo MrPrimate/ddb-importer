@@ -1,6 +1,6 @@
 import { baseFeatEffect } from "../specialFeats.js";
 import { generateATLChange, effectModules } from "../effects.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function runeCarverEffect(document) {
 
@@ -67,9 +67,9 @@ export async function runeCarverEffect(document) {
           generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
         );
       } else {
-        const itemMacroText = await loadMacroFile("spell", "darkvision.js");
-        document = generateItemMacroFlag(document, itemMacroText);
-        baseEffect.changes.push(generateMacroChange(""));
+        const itemMacroText = await DDBMacros.loadMacroFile("spell", "darkvision.js");
+        document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+        baseEffect.changes.push(DDBMacros.generateMacroChange(""));
       }
       break;
     }

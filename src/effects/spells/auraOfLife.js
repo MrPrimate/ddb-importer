@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function auraOfLifeEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -18,8 +18,8 @@ export async function auraOfLifeEffect(document) {
     // }
   );
 
-  const itemMacroText = await loadMacroFile("spell", "auraOfLife.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "auraOfLife.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "Allies",
@@ -36,7 +36,7 @@ export async function auraOfLifeEffect(document) {
   };
   // setProperty(effect, "duration.seconds", 600);
   setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  effect.changes.push(generateMacroChange("@token"));
+  effect.changes.push(DDBMacros.generateMacroChange("@token"));
   document.system.actionType = "other";
   document.system.damage.parts = [];
   document.system.range = { value: null, units: "self", long: null };

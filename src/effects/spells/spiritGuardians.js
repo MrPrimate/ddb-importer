@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function spiritGuardiansEffect(document) {
@@ -22,8 +22,8 @@ export async function spiritGuardiansEffect(document) {
       priority: "20",
     }
   );
-  const itemMacroText = await loadMacroFile("spell", "spiritGuardians.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "spiritGuardians.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "Enemy",
@@ -37,7 +37,7 @@ export async function spiritGuardiansEffect(document) {
     onlyOnce: false,
     displayTemp: true,
   };
-  effect.changes.push(generateMacroChange("@token @spellLevel @attributes.spelldc"));
+  effect.changes.push(DDBMacros.generateMacroChange("@token @spellLevel @attributes.spelldc"));
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);

@@ -1,11 +1,11 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function arcaneSwordEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await loadMacroFile("spell", "arcaneSword.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange(""));
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "arcaneSword.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange(""));
 
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
@@ -13,7 +13,7 @@ export async function arcaneSwordEffect(document) {
   document.system.actionType = "other";
 
   document.effects.push(effect);
-  setMidiOnUseMacroFlag(document, "spell", "arcaneSword.js", ["preTargeting"]);
+  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "arcaneSword.js", ["preTargeting"]);
 
   return document;
 }

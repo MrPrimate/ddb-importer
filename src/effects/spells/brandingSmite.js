@@ -1,4 +1,4 @@
-import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export async function brandingSmiteEffect(document) {
@@ -19,13 +19,13 @@ export async function brandingSmiteEffect(document) {
   );
   setProperty(effect, "flags.dae.specialDuration", ["1Hit:rwak", "1Hit:mwak"]);
 
-  const itemMacroText = await loadMacroFile("spell", "brandingSmite.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "brandingSmite.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
 
   document.system.actionType = "other";
   document.system.target.type = "self";
   document.system.damage.parts = [];
   document.effects.push(effect);
-  setMidiOnUseMacroFlag(document, "spell", "brandingSmite.js", ["postActiveEffects"]);
+  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "brandingSmite.js", ["postActiveEffects"]);
   return document;
 }

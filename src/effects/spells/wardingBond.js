@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function wardingBondEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -8,9 +8,9 @@ export async function wardingBondEffect(document) {
     { key: "system.traits.dr.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "1", priority: "20" },
     { key: "system.bonuses.abilities.save", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "1", priority: "20" }
   );
-  const itemMacroText = await loadMacroFile("spell", "wardingBond.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange(""));
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "wardingBond.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange(""));
   document.effects.push(effect);
 
   return document;

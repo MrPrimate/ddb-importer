@@ -1,6 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
-// import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function beholderEyeRaysEffect(document) {
   setProperty(document, "system.target", { value: 3, width: null, units: "", type: "creature" });
@@ -9,10 +8,10 @@ export async function beholderEyeRaysEffect(document) {
   setProperty(document, "system.activation.type", "action");
 
   let effect = baseFeatEffect(document, document.name);
-  const itemMacroText = await loadMacroFile("monsterFeature", "beholderEyeRay.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  setMidiOnUseMacroFlag(document, "monsterFeature", "beholderEyeRay.js", ["postActiveEffects"]);
-  // effect.changes.push(generateMacroChange(""));
+  const itemMacroText = await DDBMacros.loadMacroFile("monsterFeature", "beholderEyeRay.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  DDBMacros.setMidiOnUseMacroFlag(document, "monsterFeature", "beholderEyeRay.js", ["postActiveEffects"]);
+  // effect.changes.push(DDBMacros.generateMacroChange(""));
   effect.transfer = false;
 
   document.effects.push(effect);

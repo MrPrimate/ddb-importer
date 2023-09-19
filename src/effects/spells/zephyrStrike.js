@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function zephyrStrikeEffect(document) {
   let effect = baseSpellEffect(document, `${document.name}`);
@@ -52,8 +52,8 @@ export async function zephyrStrikeEffect(document) {
   document.effects.push(effect);
   document.system.damage.parts = [];
 
-  const itemMacroText = await loadMacroFile("spell", "zephyrStrike.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "zephyrStrike.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
 
   return document;
 }

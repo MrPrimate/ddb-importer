@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function irresistibleDanceEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -24,9 +24,9 @@ export async function irresistibleDanceEffect(document) {
   });
 
   effect.flags.dae.macroRepeat = "startEveryTurn";
-  const itemMacroText = await loadMacroFile("spell", "irresistibleDance.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange(""));
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "irresistibleDance.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange(""));
   document.effects.push(effect);
 
   return document;

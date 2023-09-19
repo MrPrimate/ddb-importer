@@ -1,12 +1,12 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function witchBoltEffect(document) {
   let effect = baseSpellEffect(document, document.name);
 
-  const itemMacroText = await loadMacroFile("spell", "witchBolt.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  setMidiOnUseMacroFlag(document, "spell", "witchBolt.js", ["postActiveEffects"]);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "witchBolt.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "witchBolt.js", ["postActiveEffects"]);
   document.effects.push(effect);
 
   return document;

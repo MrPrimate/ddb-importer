@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function heroismEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -10,9 +10,9 @@ export async function heroismEffect(document) {
     priority: 20,
   });
   effect.flags.dae.macroRepeat = "startEveryTurn";
-  const itemMacroText = await loadMacroFile("spell", "heroism.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@damage", { priority: 0 }));
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "heroism.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange("@damage", { priority: 0 }));
   document.effects.push(effect);
 
   return document;

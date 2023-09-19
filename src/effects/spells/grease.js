@@ -1,5 +1,5 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function greaseEffect(document) {
@@ -19,17 +19,17 @@ export async function greaseEffect(document) {
     {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: `turn=end,label=${document.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true,macro=${MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.name}`,
+      value: `turn=end,label=${document.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true,macro=${DDBMacros.MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.name}`,
       priority: "20",
     },
   );
 
-  const itemMacroText = await loadMacroFile(MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.type, MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file);
-  document = generateItemMacroFlag(document, itemMacroText);
-  setMidiOnUseMacroFlag(document, MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.type, MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file, ["preActiveEffects"]);
-  effect.changes.push(generateMacroChange("@item.level @attributes.spelldc"));
+  const itemMacroText = await DDBMacros.loadMacroFile("generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file);
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  DDBMacros.setMidiOnUseMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file, ["preActiveEffects"]);
+  effect.changes.push(DDBMacros.generateMacroChange("@item.level @attributes.spelldc"));
 
-  // effect.changes.push(generateMacroChange("@item.level @attributes.spelldc"));
+  // effect.changes.push(DDBMacros.generateMacroChange("@item.level @attributes.spelldc"));
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",

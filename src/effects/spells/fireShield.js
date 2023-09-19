@@ -1,14 +1,14 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateItemMacroFlag, generateOnUseMacroChange, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function fireShieldEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await loadMacroFile("spell", "fireShield.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "fireShield.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(
-    generateOnUseMacroChange({ macroPass: "isDamaged", macroType: "spell", macroName: "fireShield.js" }),
+    DDBMacros.generateOnUseMacroChange({ macroPass: "isDamaged", macroType: "spell", macroName: "fireShield.js" }),
   );
-  setMidiOnUseMacroFlag(document, "spell", "fireShield.js", ["postActiveEffects"]);
+  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "fireShield.js", ["postActiveEffects"]);
 
   effect.duration.seconds = 600;
   effect.duration.rounds = 60;

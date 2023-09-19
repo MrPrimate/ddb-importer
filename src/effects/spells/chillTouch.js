@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-// import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+// import DDBMacros from "../macros.js";
 
 export async function chillTouchEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -17,9 +17,9 @@ export async function chillTouchEffect(document) {
       priority: "30",
     },
   );
-  // const itemMacroText = await loadMacroFile("spell", "chillTouch.js");
-  // document = generateItemMacroFlag(document, itemMacroText);
-  // effect.changes.push(generateMacroChange(""));
+  // const itemMacroText = await DDBMacros.loadMacroFile("spell", "chillTouch.js");
+  // document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  // effect.changes.push(DDBMacros.generateMacroChange(""));
   setProperty(effect, "flags.dae.specialDuration", ["turnEndSource"]);
   document.effects.push(effect);
 

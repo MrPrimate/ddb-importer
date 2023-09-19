@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import { forceItemEffect, generateStatusEffectChange } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
-import { generateItemMacroFlag, generateMacroChange, loadMacroFile } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 function avalancheOfBonesEffect(document) {
   setProperty(document, "system.duration", { value: null, units: "special" });
@@ -38,9 +38,9 @@ function fallingApartEffect(document) {
 async function disassembleEffect(document) {
   let effect = baseFeatEffect(document, document.name);
 
-  const itemMacroText = await loadMacroFile("monsterFeature", "disassemble.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange("", { priority: 0 }));
+  const itemMacroText = await DDBMacros.loadMacroFile("monsterFeature", "disassemble.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange("", { priority: 0 }));
   effect.transfer = true;
   setProperty(effect, "flags.dae.specialDuration", ["zeroHP"]);
   document.effects.push(effect);

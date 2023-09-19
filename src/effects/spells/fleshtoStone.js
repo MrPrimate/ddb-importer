@@ -1,13 +1,13 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function fleshtoStoneEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(generateStatusEffectChange("Restrained"));
-  const itemMacroText = await loadMacroFile("spell", "fleshtoStone.js");
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "fleshtoStone.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   effect.flags.dae.macroRepeat = "endEveryTurn";
-  effect.changes.push(generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange(""));
   document.effects.push(effect);
 
   return document;

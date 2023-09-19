@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function spiritShroudEffect(document) {
@@ -35,9 +35,9 @@ export async function spiritShroudEffect(document) {
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
 
-  const itemMacroText = await loadMacroFile("spell", "spiritShroud.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  setMidiOnUseMacroFlag(document, "spell", "spiritShroud.js", ["preActiveEffects"]);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "spiritShroud.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "spiritShroud.js", ["preActiveEffects"]);
 
   document.system.damage = { parts: [], versatile: "", value: "" };
   document.system['target']['type'] = "self";

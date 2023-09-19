@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function blindnessDeafnessEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -9,9 +9,9 @@ export async function blindnessDeafnessEffect(document) {
     value: "label=Blindness/Deafness (End of Turn),turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true,killAnim=true",
     priority: "20",
   });
-  const itemMacroText = await loadMacroFile("spell", "blindnessDeafness.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange(""));
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "blindnessDeafness.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange(""));
   document.effects.push(effect);
 
   return document;

@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function confusionEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -10,9 +10,9 @@ export async function confusionEffect(document) {
     priority: "20",
   });
   effect.flags.dae.macroRepeat = "startEveryTurn";
-  const itemMacroText = await loadMacroFile("spell", "confusion.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange(""));
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "confusion.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange(""));
   document.effects.push(effect);
 
   return document;

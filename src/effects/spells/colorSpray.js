@@ -1,10 +1,10 @@
-import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function colorSprayEffect(document) {
 
-  const itemMacroText = await loadMacroFile("spell", "colorSpray.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  setMidiOnUseMacroFlag(document, "spell", "colorSpray.js", ["postActiveEffects"]);
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "colorSpray.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "colorSpray.js", ["postActiveEffects"]);
   document.system.damage = { parts: [["6d10", "midi-none"]], versatile: "", value: "" };
 
   return document;

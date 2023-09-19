@@ -1,13 +1,13 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function insectPlagueEffect(document) {
   // we require active auras for this effect
   if (!effectModules().activeAurasInstalled) return document;
 
-  const itemMacroText = await loadMacroFile("generic", MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file);
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file);
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
@@ -19,7 +19,7 @@ export async function insectPlagueEffect(document) {
       priority: "20",
     },
   );
-  effect.changes.push(generateMacroChange("@item.level"));
+  effect.changes.push(DDBMacros.generateMacroChange("@item.level"));
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",
@@ -37,7 +37,7 @@ export async function insectPlagueEffect(document) {
   };
   setProperty(effect, "duration.seconds", 600);
   // setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  setMidiOnUseMacroFlag(document, "generic", MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file, ["preActiveEffects"]);
+  DDBMacros.setMidiOnUseMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file, ["preActiveEffects"]);
   setProperty(document, "flags.ddbimporter.effect", {
     dice: document.system.damage.parts[0][0],
     damageType: document.system.damage.parts[0][1],

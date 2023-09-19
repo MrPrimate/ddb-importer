@@ -1,6 +1,6 @@
 import { baseFeatEffect } from "../specialFeats.js";
 import { generateStatusEffectChange } from "../effects.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import logger from "../../logger.js";
 
 // eslint-disable-next-line complexity
@@ -247,9 +247,9 @@ export async function maneuversEffect(ddb, character, document) {
       break;
     }
     case "Maneuvers: Rally": {
-      const itemMacroText = await loadMacroFile("feat", "maneuversRally.js");
-      document = generateItemMacroFlag(document, itemMacroText);
-      effect.changes.push(generateMacroChange(`${diceString} @abilities.cha.mod`));
+      const itemMacroText = await DDBMacros.loadMacroFile("feat", "maneuversRally.js");
+      document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+      effect.changes.push(DDBMacros.generateMacroChange(`${diceString} @abilities.cha.mod`));
       document.effects.push(effect);
       break;
     }

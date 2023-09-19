@@ -1,13 +1,13 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function contagionEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.flags.dae.macroRepeat = "endEveryTurn";
   effect.changes.push(generateStatusEffectChange("Poisoned"));
-  const itemMacroText = await loadMacroFile("spell", "contagion.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange(""));
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "contagion.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange(""));
   document.effects.push(effect);
 
   return document;

@@ -1,9 +1,9 @@
-import { loadMacroFile, generateItemMacroFlag, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function mantleOfInspirationEffect(document) {
-  const itemMacroText = await loadMacroFile("feat", "mantleOfInspiration.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  setMidiOnUseMacroFlag(document, "feat", "mantleOfInspiration.js", ["preTargeting"]);
+  const itemMacroText = await DDBMacros.loadMacroFile("feat", "mantleOfInspiration.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  DDBMacros.setMidiOnUseMacroFlag(document, "feat", "mantleOfInspiration.js", ["preTargeting"]);
 
   return document;
 }

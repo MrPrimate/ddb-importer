@@ -1,6 +1,6 @@
 import { effectModules, generateATLChange } from "../effects.js";
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 
 export async function crownofStarsEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -12,9 +12,9 @@ export async function crownofStarsEffect(document) {
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
 
-  const itemMacroText = await loadMacroFile("spell", "crownofStars.js");
-  document = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@spellLevel"));
+  const itemMacroText = await DDBMacros.loadMacroFile("spell", "crownofStars.js");
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  effect.changes.push(DDBMacros.generateMacroChange("@spellLevel"));
   document.system.damage = { parts: [], versatile: "", value: "" };
   document.system.actionType = "other";
   document.effects.push(effect);

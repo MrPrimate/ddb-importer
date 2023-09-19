@@ -12,7 +12,7 @@ import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
-import { configureDependencies } from "../effects/macros.js";
+import DDBMacros from "../effects/macros.js";
 import Iconizer from "../lib/Iconizer.js";
 
 async function getCharacterInventory(items) {
@@ -176,7 +176,7 @@ export async function parseItems(ids = null) {
 
   if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
     // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await configureDependencies();
+    CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
   }
 
   DDBMuncher.munchNote("Downloading item data..");

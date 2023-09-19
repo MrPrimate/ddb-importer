@@ -13,7 +13,7 @@ import { downloadAdventureConfig } from "../muncher/adventure.js";
 import AdventureMunch from "../muncher/adventure/AdventureMunch.js";
 import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
 import MuncherSettings from "../lib/MuncherSettings.js";
-import { createWorldMacros } from "../effects/macros.js";
+import DDBMacros from "../effects/macros.js";
 import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools.js";
 import { parseBackgrounds } from "../muncher/backgrounds.js";
@@ -268,7 +268,7 @@ export default class DDBMuncher extends Application {
     try {
       logger.info("Munching spells!");
       // await DDBMuncher.generateCompendiumFolders("spells");
-      if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects")) await createWorldMacros("spells");
+      if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects")) await DDBMacros.createWorldMacros("spells");
       await parseSpells();
       await DDBMuncher.cleanupCompendiumFolders("spells");
       DDBMuncher.munchNote(`Finished importing spells!`, true);

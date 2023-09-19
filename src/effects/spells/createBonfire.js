@@ -1,13 +1,13 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS, setMidiOnUseMacroFlag } from "../macros.js";
+import DDBMacros from "../macros.js";
 import { effectModules } from "../effects.js";
 
 export async function createBonfireEffect(document) {
   // we require active auras for this effect
   if (!effectModules().activeAurasInstalled) return document;
 
-  const itemMacroText = await loadMacroFile("generic", MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file);
-  document = generateItemMacroFlag(document, itemMacroText);
+  const itemMacroText = await DDBMacros.loadMacroFile("generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file);
+  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
@@ -36,8 +36,8 @@ export async function createBonfireEffect(document) {
   };
   setProperty(effect, "duration.seconds", 60);
   setProperty(effect, "duration.rounds", 10);
-  effect.changes.push(generateMacroChange(""));
-  setMidiOnUseMacroFlag(document, "generic", MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file, ["preActiveEffects"]);
+  effect.changes.push(DDBMacros.generateMacroChange(""));
+  DDBMacros.setMidiOnUseMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file, ["preActiveEffects"]);
 
   document.effects.push(effect);
 
