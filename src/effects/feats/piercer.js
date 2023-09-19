@@ -1,6 +1,6 @@
 
 import { baseFeatEffect } from "../specialFeats.js";
-import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag, generateOnUseMacroChange } from "../macros.js";
 
 async function commonPiercer(document) {
   const itemMacroText = await loadMacroFile("feat", "piercer.js");
@@ -44,12 +44,7 @@ export async function piercerRerollEffect(document) {
   const effect = baseFeatEffect(document, document.name);
 
   effect.changes.push(
-    {
-      key: "flags.midi-qol.onUseMacroName",
-      value: `ItemMacro.${document.name},postDamageRoll`,
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      priority: 20,
-    },
+    generateOnUseMacroChange({ macroPass: "postDamageRoll", macroType: "feat", macroName: "piercer.js", document }),
   );
   effect.transfer = true;
 

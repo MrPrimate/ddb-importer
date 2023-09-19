@@ -30,7 +30,7 @@ export async function venomTrollEffects(npc) {
     } else if (item.name === "Poison Splash") {
       let effect = baseMonsterFeatureEffect(item, item.name);
       effect.changes.push(
-        generateOnUseMacroChange("monsterFeature", "venomSpray.js", "isDamaged"),
+        generateOnUseMacroChange({ macroPass: "isDamaged", macroType: "monsterFeature", macroName: "venomSpray.js" }),
       );
       effect.transfer = true;
       setProperty(effect, "flags.dae.stackable", "noneName");

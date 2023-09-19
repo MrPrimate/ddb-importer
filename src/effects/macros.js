@@ -119,11 +119,12 @@ export function setMidiOnUseMacroFlag(document, macroType, macroName, triggerPoi
   setProperty(document, "flags.midi-qol.onUseMacroName", value);
 }
 
-export function generateOnUseMacroChange(macroType, macroName, macroPass, { priority = 20 } = {}) {
+export function generateOnUseMacroChange({ macroPass, macroType = null, macroName = null, priority = 20, document = null } = {}) {
   const useDDBFunctions = false;
+  const docMacroName = (document && !useDDBFunctions) ? `.${document.name}` : "";
   const valueContent = (useDDBFunctions)
     ? `function.DDBImporter.macros.getMacro("${macroType}","${macroName}")`
-    : `ItemMacro,${macroPass}`;
+    : `ItemMacro${docMacroName},${macroPass}`;
 
   return {
     key: "flags.midi-qol.onUseMacroName",
@@ -132,8 +133,6 @@ export function generateOnUseMacroChange(macroType, macroName, macroPass, { prio
     priority: priority,
   };
 }
-
-
 
 export async function createMacro({ name, content, img, isGM, isTemp }) {
   const macroFolder = isTemp
