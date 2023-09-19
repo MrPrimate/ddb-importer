@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Improvements to Fire Shield effect to automate damage based on macro by @thatlonelybugbear
+
 # 3.4.70
 
 - For some Third Party Adventure enhancements, tokens would not link correctly.

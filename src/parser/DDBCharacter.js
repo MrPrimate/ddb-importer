@@ -2,7 +2,7 @@ import getActions from "./features/actions.js";
 import { getClasses } from "./classes/index.js";
 import CharacterSpellFactory from "./spells/CharacterSpellFactory.js";
 import logger from "../logger.js";
-import { createGMMacros } from "../effects/macros.js";
+import { createWorldMacros } from "../effects/macros.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/DDBCampaigns.js";
@@ -167,7 +167,7 @@ export default class DDBCharacter {
    */
   async _parseCharacter() {
     try {
-      if (game.settings.get("ddb-importer", "character-update-policy-add-spell-effects")) await createGMMacros();
+      if (game.settings.get("ddb-importer", "character-update-policy-add-spell-effects")) await createWorldMacros();
       logger.debug("Starting core character parse", { thisDDB: this.source.ddb });
       await this._generateCharacter();
       if (this.resourceSelection) {
