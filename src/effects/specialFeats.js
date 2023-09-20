@@ -62,6 +62,7 @@ import { pactMagicEffect } from "./feats/pactMagic.js";
 import { dauntingRoarEffect } from "./feats/dauntingRoar.js";
 import { powerfulBuild } from "./feats/powerfulBuild.js";
 import { deftStrikeEffect } from "./feats/deftStike.js";
+import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
 
 export function baseFeatEffect(document, label) {
   let effect = {
@@ -219,6 +220,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Giant's Might": {
         document = giantsMightEffect(document);
+        break;
+      }
+      case "Hadozee Dodge": {
+        document = hadozeDodgeEffect(document);
         break;
       }
       case "Heavy Armor Master": {

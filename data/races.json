@@ -1748,5 +1748,12 @@
     "race": "Aasimar",
     "subrace": "",
     "path": "icons/magic/control/buff-flight-wings-runes-purple-orange.webp"
+  },
+  {
+    "name": "Hadozee Dodge",
+    "racial_trait": "Hadozee Dodge",
+    "race": "Hadozee",
+    "subrace": "",
+    "path": "icons/skills/movement/figure-running-gray.webp"
   }
 ]
