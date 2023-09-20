@@ -242,6 +242,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
         break;
       }
       case "Equine Build":
+      case "Little Giant":
       case "Hippo Build":
       case "Powerful Build": {
         document = powerfulBuild(document);

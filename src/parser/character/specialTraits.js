@@ -22,9 +22,7 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() 
 
   // powerful build/equine build
   this.raw.character.flags.dnd5e.powerfulBuild = this.source.ddb.character.race.racialTraits.some((trait) =>
-    trait.definition.name === "Equine Build"
-    || trait.definition.name === "Powerful Build"
-    || trait.definition.name === "Hippo Build"
+    ["Equine Build", "Powerful Build, Hippo Build", "Little Giant"].includes(trait.definition.name)
   );
 
   // savage attacks
