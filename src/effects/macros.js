@@ -155,8 +155,12 @@ export default class DDBMacros {
     return document;
   }
 
-  static generateMacroChange(macroValues, { priority = 20, keyPostfix = "" } = {}) {
-    const macroKey = "macro.itemMacro";
+  static generateMacroChange({ macroValues = "", macroType = null, macroName = null, keyPostfix = "", priority = 20 } = {}) {
+    const useDDBFunctions = false;
+    const macroKey = (useDDBFunctions)
+      ? `macro.execute.function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")`
+      : "macro.itemMacro";
+
     return {
       key: `${macroKey}${keyPostfix}`,
       value: macroValues,
@@ -167,7 +171,7 @@ export default class DDBMacros {
 
   static generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints = []) {
     const useDDBFunctions = false;
-    const valueContent = (useDDBFunctions) ? `function.DDBImporter.macros.getMacro("${macroType}","${macroName}")` : "ItemMacro";
+    const valueContent = (useDDBFunctions) ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")` : "ItemMacro";
     return triggerPoints.map((t) => `[${t}]${valueContent}`).join(",");
   }
 
@@ -176,12 +180,12 @@ export default class DDBMacros {
     setProperty(document, "flags.midi-qol.onUseMacroName", value);
   }
 
-  static generateOnUseMacroChange({ macroPass, macroType = null, macroName = null, priority = 20, document = null } = {}) {
+  static generateOnUseMacroChange({ macroPass, macroType = null, macroName = null, priority = 20, document = null, macroParams = "" } = {}) {
     const useDDBFunctions = false;
     const docMacroName = (document && !useDDBFunctions) ? `.${document.name}` : "";
     const valueContent = (useDDBFunctions)
-      ? `function.DDBImporter.macros.getMacro("${macroType}","${macroName}")`
-      : `ItemMacro${docMacroName},${macroPass}`;
+      ? `function.DDBImporter.macros.getMacro("${macroType}","${macroName}") ${macroParams}`.trim()
+      : `ItemMacro${docMacroName},${macroPass} ${macroParams}`.trim();
 
     return {
       key: "flags.midi-qol.onUseMacroName",
@@ -276,5 +280,14 @@ export default class DDBMacros {
     };
     return macroFunction;
   }
+
+  static macroFunction = {
+    spell: (name) => DDBMacros.getMacroFunction("spell", name),
+    feat: (name) => DDBMacros.getMacroFunction("feat", name),
+    gm: (name) => DDBMacros.getMacroFunction("gm", name),
+    item: (name) => DDBMacros.getMacroFunction("item", name),
+    monsterFeature: (name) => DDBMacros.getMacroFunction("monsterFeature", name),
+    generic: (name) => DDBMacros.getMacroFunction("generic", name),
+  };
 
 }

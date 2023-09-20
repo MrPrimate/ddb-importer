@@ -8,7 +8,7 @@ export async function enlargeReduceEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "enlargeReduce.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange("", { priority: 0 }));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "enlargeReduce.js", priority: 0 }));
   document.effects.push(effect);
 
   return document;

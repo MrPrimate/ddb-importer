@@ -40,7 +40,7 @@ async function disassembleEffect(document) {
 
   const itemMacroText = await DDBMacros.loadMacroFile("monsterFeature", "disassemble.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange("", { priority: 0 }));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "monsterFeature", macroName: "disassemble.js", priority: 0 }));
   effect.transfer = true;
   setProperty(effect, "flags.dae.specialDuration", ["zeroHP"]);
   document.effects.push(effect);

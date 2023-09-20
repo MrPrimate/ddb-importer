@@ -11,7 +11,7 @@ export async function rayofEnfeeblementEffect(document) {
   });
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "rayofEnfeeblement.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "rayofEnfeeblement.js" }));
   document.effects.push(effect);
 
   return document;

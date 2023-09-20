@@ -36,7 +36,7 @@ export async function createBonfireEffect(document) {
   };
   setProperty(effect, "duration.seconds", 60);
   setProperty(effect, "duration.rounds", 10);
-  effect.changes.push(DDBMacros.generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "generic", macroName: DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file }));
   DDBMacros.setMidiOnUseMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file, ["preActiveEffects"]);
 
   document.effects.push(effect);

@@ -5,7 +5,7 @@ export async function javelinOfLightningEffect(document) {
   let effect = baseItemEffect(document, `${document.name}: Used Effect Tracker`);
   const itemMacroText = await DDBMacros.loadMacroFile("item", "javelinOfLightning.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange(`"${document.name}"`));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: `"${document.name}"`, macroType: "item", macroName: "javelinOfLightning.js" }));
   effect.transfer = false;
   setProperty(effect, "flags.dae.specialDuration", ["newDay", "longRest"]);
   setProperty(effect, "flags.dae.selfTarget", true);

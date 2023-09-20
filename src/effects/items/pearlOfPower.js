@@ -5,7 +5,7 @@ export async function pearlOfPowerEffect(document) {
   let effect = baseItemEffect(document, document.name);
   const itemMacroText = await DDBMacros.loadMacroFile("item", "pearlOfPower.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange(`"${document.name}"`));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: `"${document.name}"`, macroType: "item", macroName: "pearlOfPower.js" }));
   effect.transfer = false;
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);

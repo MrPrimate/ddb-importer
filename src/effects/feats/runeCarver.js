@@ -69,7 +69,7 @@ export async function runeCarverEffect(document) {
       } else {
         const itemMacroText = await DDBMacros.loadMacroFile("spell", "darkvision.js");
         document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-        baseEffect.changes.push(DDBMacros.generateMacroChange(""));
+        baseEffect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "darkvision.js" }));
       }
       break;
     }

@@ -18,7 +18,7 @@ export async function spikeGrowthEffect(document) {
       priority: 30,
     },
   );
-  effect.changes.push(DDBMacros.generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "spikeGrowth.js" }));
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",

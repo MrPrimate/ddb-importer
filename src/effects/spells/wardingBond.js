@@ -10,7 +10,7 @@ export async function wardingBondEffect(document) {
   );
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "wardingBond.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "wardingBond.js" }));
   document.effects.push(effect);
 
   return document;

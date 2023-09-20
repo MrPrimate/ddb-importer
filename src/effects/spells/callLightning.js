@@ -5,7 +5,7 @@ export async function callLightningEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "callLightning.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange("@spellLevel"));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "callLightning.js" }));
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);

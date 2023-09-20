@@ -14,7 +14,7 @@ export async function crownofStarsEffect(document) {
 
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "crownofStars.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange("@spellLevel"));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "crownofStars.js" }));
   document.system.damage = { parts: [], versatile: "", value: "" };
   document.system.actionType = "other";
   document.effects.push(effect);

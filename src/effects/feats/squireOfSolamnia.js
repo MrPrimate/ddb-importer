@@ -5,7 +5,7 @@ export async function squireOfSolamniaEffect(document) {
   let effect = baseItemEffect(document, document.name);
   const itemMacroText = await DDBMacros.loadMacroFile("feat", "squireOfSolamnia.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange(`"${document.name}"`));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: `"${document.name}"`, macroType: "feat", macroName: "squireOfSolamnia.js" }));
   effect.transfer = false;
 
   effect.changes.push(

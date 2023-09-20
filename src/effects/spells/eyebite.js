@@ -6,7 +6,7 @@ export async function eyebiteEffect(document) {
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "eyebite.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   effect.flags.dae.macroRepeat = "startEveryTurn";
-  effect.changes.push(DDBMacros.generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "eyebite.js" }));
   document.effects.push(effect);
   setProperty(document, "system.actionType", "other");
   setProperty(document, "system.save.ability", "");

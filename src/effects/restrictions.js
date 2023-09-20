@@ -22,7 +22,7 @@ async function woundingWeaponEffect(document) {
 
   const itemMacroText = await DDBMacros.loadMacroFile("item", "wounding.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange());
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "item", macroName: "wounding.js" }));
   document.effects.push(effect);
 
   return document;

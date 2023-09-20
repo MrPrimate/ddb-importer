@@ -14,7 +14,7 @@ export async function faerieFireEffect(document) {
   if (game.modules.get("ATL")?.active) {
     const itemMacroText = await DDBMacros.loadMacroFile("spell", "faerieFire.js");
     document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-    effect.changes.push(DDBMacros.generateMacroChange(""));
+    effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "faerieFire.js" }));
   }
 
   if (effectModules().tokenMagicInstalled) {

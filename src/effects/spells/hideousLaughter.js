@@ -17,7 +17,7 @@ export async function hideousLaughterEffect(document) {
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "hideousLaughter.js");
 
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "hideousLaughter.js" }));
   document.effects.push(effect);
 
   let proneEffect = baseSpellEffect(document, `${document.name} (Prone)`);

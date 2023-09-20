@@ -16,7 +16,7 @@ export async function webEffect(document) {
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);
-  effect.changes.push(DDBMacros.generateMacroChange("@item.level @attributes.spelldc"));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@item.level @attributes.spelldc", macroType: "generic", macroName: DDBMacros.MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file }));
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",

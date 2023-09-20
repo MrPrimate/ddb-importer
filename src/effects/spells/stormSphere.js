@@ -41,7 +41,7 @@ export async function stormSphereEffect(document) {
   };
   setProperty(effect, "duration.seconds", 60);
   setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  effect.changes.push(DDBMacros.generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "stormSphere.js" }));
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "stormSphere.js", ["preActiveEffects"]);
 
   document.effects.push(effect);

@@ -11,7 +11,7 @@ export async function aidEffect(document) {
   });
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "aid.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange("@spellLevel", { priority: 0 }));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "aid.js", priority: 0 }));
   document.effects.push(effect);
   document.system.damage = { parts: [], versatile: "", value: "" };
 

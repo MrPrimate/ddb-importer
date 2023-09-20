@@ -19,7 +19,7 @@ export async function darkvisionEffect(document) {
   } else {
     const itemMacroText = await DDBMacros.loadMacroFile("spell", "darkvision.js");
     document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-    effect.changes.push(DDBMacros.generateMacroChange(""));
+    effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "darkvision.js" }));
   }
 
   document.effects.push(effect);

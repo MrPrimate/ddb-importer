@@ -37,7 +37,7 @@ export async function spiritGuardiansEffect(document) {
     onlyOnce: false,
     displayTemp: true,
   };
-  effect.changes.push(DDBMacros.generateMacroChange("@token @spellLevel @attributes.spelldc"));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@token @spellLevel @attributes.spelldc", macroType: "spell", macroName: "spiritGuardians.js" }));
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);

@@ -12,7 +12,7 @@ export async function confusionEffect(document) {
   effect.flags.dae.macroRepeat = "startEveryTurn";
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "confusion.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "confusion.js" }));
   document.effects.push(effect);
 
   return document;

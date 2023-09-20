@@ -7,7 +7,7 @@ export async function darknessEffect(document) {
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "darkness.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "darkness.js" }));
   document.effects.push(effect);
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "darkness.js", ["preTargeting"]);
   return document;

@@ -9,7 +9,7 @@ export async function heroesFeastEffect(document) {
   );
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "heroesFeast.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange("@damage", { priority: 0 }));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@damage", macroType: "spell", macroName: "heroesFeast.js", priority: 0 }));
   document.effects.push(effect);
 
   return document;

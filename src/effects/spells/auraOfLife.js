@@ -36,7 +36,7 @@ export async function auraOfLifeEffect(document) {
   };
   // setProperty(effect, "duration.seconds", 600);
   setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  effect.changes.push(DDBMacros.generateMacroChange("@token"));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@token", macroType: "spell", macroName: "auraOfLife.js" }));
   document.system.actionType = "other";
   document.system.damage.parts = [];
   document.system.range = { value: null, units: "self", long: null };

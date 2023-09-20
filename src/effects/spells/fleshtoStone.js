@@ -7,7 +7,7 @@ export async function fleshtoStoneEffect(document) {
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "fleshtoStone.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   effect.flags.dae.macroRepeat = "endEveryTurn";
-  effect.changes.push(DDBMacros.generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "fleshtoStone.js" }));
   document.effects.push(effect);
 
   return document;

@@ -19,7 +19,7 @@ export async function cloudkillEffect(document) {
       priority: "20",
     },
   );
-  effect.changes.push(DDBMacros.generateMacroChange("@item.level"));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@item.level", macroType: "generic", macroName: DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file }));
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",

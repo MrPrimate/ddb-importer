@@ -11,7 +11,7 @@ export async function blindnessDeafnessEffect(document) {
   });
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "blindnessDeafness.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange(""));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "blindnessDeafness.js" }));
   document.effects.push(effect);
 
   return document;

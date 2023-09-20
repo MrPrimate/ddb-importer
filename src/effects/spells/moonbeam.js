@@ -6,7 +6,7 @@ export async function moonbeamEffect(document) {
   effect.flags.dae.macroRepeat = "startEveryTurn";
   const itemMacroText = await DDBMacros.loadMacroFile("spell", "moonbeam.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange("@spellLevel"));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "moonbeam.js" }));
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);

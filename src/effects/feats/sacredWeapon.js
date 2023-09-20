@@ -8,7 +8,7 @@ export async function sacredWeaponEffect(document) {
 
   const itemMacroText = await DDBMacros.loadMacroFile("feat", "sacredWeapon.js");
   document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(DDBMacros.generateMacroChange("@abilities.cha.mod", { priority: 0 }));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@abilities.cha.mod", macroType: "feat", macroName: "sacredWeapon.js", priority: 0 }));
 
   // effect.changes.push(
   //   {
