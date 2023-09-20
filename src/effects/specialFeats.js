@@ -222,6 +222,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
         document = giantsMightEffect(document);
         break;
       }
+      case "Glide (Reaction)": {
+        setProperty(document, "system.activation.type", "reactionmanual");
+        break;
+      }
       case "Hadozee Dodge": {
         document = hadozeDodgeEffect(document);
         break;
