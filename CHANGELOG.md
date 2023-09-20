@@ -2,7 +2,10 @@
 
 - Improvements to Fire Shield effect to automate damage based on macro by @thatlonelybugbear
 - Spike Growth Macro improvements.
-- Some Macro effect generation code refactor.
+- Lots of Macro effect generation code refactor.
+- Little Giant now applies Powerful build
+- Some races with variable sizes, like the Hadozee, would not import the small size.
+- Hadozee Dodge effect.
 
 # 3.4.70
 
