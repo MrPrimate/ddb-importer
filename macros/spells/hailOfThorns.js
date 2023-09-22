@@ -61,8 +61,6 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     DDBImporter.lib.DDBMacros.generateMidiOnUseMacroFlagValue("spell", "hailOfThorns.js", ["preItemRoll", "preambleComplete", "preActiveEffects"], macroData.sourceItemUuid)
   );
 
-  console.warn(areaSpellData)
-
   const areaSpell = new CONFIG.Item.documentClass(areaSpellData, {
     parent: macroData.actor,
     temporary: true,
