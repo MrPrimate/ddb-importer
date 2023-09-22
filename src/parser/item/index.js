@@ -31,7 +31,7 @@ import parseConsumable from "./consumable.js";
 import parseLoot from "./loot.js";
 import parseCustomItem from "./custom.js";
 
-import { getAttunement, getBaseItem } from "./common.js";
+import { getAttunement, getBaseItem, getPrice } from "./common.js";
 
 const CLOTHING_ITEMS = [
   "Helm",
@@ -231,7 +231,7 @@ export function parseItem(ddb, ddbItem, character, flags) {
     setProperty(item, "system.baseItem", baseItem.baseItem);
     setProperty(item, "system.toolType", baseItem.toolType);
     item.system.attunement = getAttunement(ddbItem);
-    if (ddbItem.definition.cost) item.system.price = ddbItem.definition.cost;
+    item.system.price = getPrice(ddbItem);
 
     item = addExtraDDBFlags(ddbItem, item);
     item = DDBHelper.addCustomValues(ddb, item);

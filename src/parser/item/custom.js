@@ -1,5 +1,5 @@
 import utils from "../../lib/utils.js";
-import { getItemRarity, getEquipped, getSingleItemWeight, getQuantity } from "./common.js";
+import { getItemRarity, getEquipped, getSingleItemWeight, getQuantity, getPrice } from "./common.js";
 
 export default function parseCustomItem(data) {
   let customItem = {
@@ -34,7 +34,7 @@ export default function parseCustomItem(data) {
   customItem.system.source = "Custom item";
   customItem.system.quantity = getQuantity(data);
   customItem.system.weight = getSingleItemWeight(data);
-  customItem.system.price = data.definition.cost ? data.definition.cost : 0;
+  customItem.system.price = getPrice(data);
   customItem.system.equipped = getEquipped(data);
   customItem.system.identified = true;
   customItem.system.rarity = getItemRarity(data);

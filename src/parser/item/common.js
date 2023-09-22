@@ -16,6 +16,16 @@ export function getDescription(data) {
   };
 }
 
+export function getPrice(data) {
+  const value = data.definition.cost ? Number.parseFloat(data.definition.cost) : 0;
+  const price = {
+    "value": Number.isInteger(value) ? value : (value * 100),
+    "denomination": Number.isInteger(value) ? "gp" : "sp"
+  };
+
+  return price;
+}
+
 export function getItemRarity(data) {
   const tmpRarity = data.definition.rarity;
   const isMundaneItem = data.definition?.rarity === "Common" && !data.definition.magic;
