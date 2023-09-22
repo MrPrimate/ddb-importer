@@ -156,8 +156,11 @@ export default class DDBMacros {
   }
 
   static async setItemMacroFlag(document, macroType, macroName) {
-    const itemMacroText = await DDBMacros.loadMacroFile(macroType, macroName);
-    document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
+    if (!useDDBFunctions) {
+      const itemMacroText = await DDBMacros.loadMacroFile(macroType, macroName);
+      document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+    }
     return document;
   }
 
