@@ -7,8 +7,7 @@ export async function heroesFeastEffect(document) {
     { key: "system.traits.di.value", value: "poison", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20 },
     { key: "system.traits.ci.value", value: "frightened", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20 }
   );
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "heroesFeast.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "heroesFeast.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@damage", macroType: "spell", macroName: "heroesFeast.js", priority: 0 }));
   document.effects.push(effect);
 

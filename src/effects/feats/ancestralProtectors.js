@@ -2,8 +2,7 @@ import { baseFeatEffect } from "../specialFeats.js";
 import DDBMacros from "../macros.js";
 
 export async function ancestralProtectorsEffect(document) {
-  const itemMacroText = await DDBMacros.loadMacroFile("feat", "ancestralProtectors.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "feat", "ancestralProtectors.js");
 
   let effect = baseFeatEffect(document, document.name);
   effect.changes.push(

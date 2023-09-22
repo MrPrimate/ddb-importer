@@ -12,12 +12,11 @@ export async function crownofStarsEffect(document) {
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "crownofStars.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "crownofStars.js" }));
   document.system.damage = { parts: [], versatile: "", value: "" };
   document.system.actionType = "other";
   document.effects.push(effect);
 
+  await DDBMacros.setItemMacroFlag(document, "spell", "crownofStars.js");
   return document;
 }

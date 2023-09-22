@@ -6,8 +6,7 @@ export async function insectPlagueEffect(document) {
   // we require active auras for this effect
   if (!effectModules().activeAurasInstalled) return document;
 
-  const itemMacroText = await DDBMacros.loadMacroFile("generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file);
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file);
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(

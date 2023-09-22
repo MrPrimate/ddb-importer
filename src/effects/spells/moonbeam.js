@@ -4,8 +4,7 @@ import DDBMacros from "../macros.js";
 export async function moonbeamEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.flags.dae.macroRepeat = "startEveryTurn";
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "moonbeam.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "moonbeam.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "moonbeam.js" }));
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);

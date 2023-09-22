@@ -3,8 +3,7 @@ import DDBMacros from "../macros.js";
 
 export async function mistyStepEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "mistyStep.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "mistyStep.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@target", macroType: "spell", macroName: "mistyStep.js" }));
   document.effects.push(effect);
 

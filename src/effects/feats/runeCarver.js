@@ -67,8 +67,7 @@ export async function runeCarverEffect(document) {
           generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
         );
       } else {
-        const itemMacroText = await DDBMacros.loadMacroFile("spell", "darkvision.js");
-        document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+        await DDBMacros.setItemMacroFlag(document, "feat", "darkvision.js");
         baseEffect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "darkvision.js" }));
       }
       break;

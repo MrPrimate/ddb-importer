@@ -1,8 +1,7 @@
 import DDBMacros from "../macros.js";
 
 export async function iceKnifeEffect(document) {
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "iceKnife.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "iceKnife.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "iceKnife.js", ["postActiveEffects"]);
   document.system.damage = { parts: [["1d10", "piercing"]], versatile: "", value: "" };
   document.system.scaling = { mode: "none", formula: "" };

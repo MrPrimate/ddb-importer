@@ -28,8 +28,7 @@ export async function huntersMarkEffect(document) {
   setProperty(damageBonusEffect, "flags.dae.transfer", true);
   document.effects.push(damageBonusEffect);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "huntersMark.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "huntersMark.js");
   setProperty(document, "system.actionType", "util");
 
   return document;

@@ -14,9 +14,7 @@ export async function hideousLaughterEffect(document) {
     priority: "20",
   });
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "hideousLaughter.js");
-
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "hideousLaughter.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "hideousLaughter.js" }));
   document.effects.push(effect);
 

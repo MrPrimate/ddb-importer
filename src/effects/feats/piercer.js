@@ -3,8 +3,6 @@ import { baseFeatEffect } from "../specialFeats.js";
 import DDBMacros from "../macros.js";
 
 async function commonPiercer(document) {
-  const itemMacroText = await DDBMacros.loadMacroFile("feat", "piercer.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   document.system.target = {
     value: null,
     width: null,
@@ -16,6 +14,7 @@ async function commonPiercer(document) {
     long: null,
     units: "self",
   };
+  await DDBMacros.setItemMacroFlag(document, "feat", "piercer.js");
   return document;
 };
 

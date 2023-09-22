@@ -9,8 +9,7 @@ export async function aidEffect(document) {
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     priority: 20,
   });
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "aid.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "aid.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "aid.js", priority: 0 }));
   document.effects.push(effect);
   document.system.damage = { parts: [], versatile: "", value: "" };

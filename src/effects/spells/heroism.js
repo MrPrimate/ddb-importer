@@ -10,8 +10,7 @@ export async function heroismEffect(document) {
     priority: 20,
   });
   effect.flags.dae.macroRepeat = "startEveryTurn";
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "heroism.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "heroism.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@damage", macroType: "spell", macroName: "heroism.js", priority: 0 }));
   document.effects.push(effect);
 

@@ -8,8 +8,7 @@ export async function beholderEyeRaysEffect(document) {
   setProperty(document, "system.activation.type", "action");
 
   let effect = baseFeatEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("monsterFeature", "beholderEyeRay.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "monsterFeature", "beholderEyeRay.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "monsterFeature", "beholderEyeRay.js", ["postActiveEffects"]);
   // effect.changes.push(DDBMacros.generateMacroChange({ macroValues: `"${document.name}"`, macroType: "monsterFeature", macroName: "beholderEyeRay.js" }));
   effect.transfer = false;

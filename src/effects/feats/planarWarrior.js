@@ -2,8 +2,7 @@ import { baseFeatEffect } from "../specialFeats.js";
 import DDBMacros from "../macros.js";
 
 export async function planarWarriorEffect(document) {
-  const itemMacroText = await DDBMacros.loadMacroFile("feat", "planarWarrior.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "feat", "planarWarrior.js");
 
   let effect = baseFeatEffect(document, "Marked by Planar Warrior");
 

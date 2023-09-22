@@ -7,8 +7,7 @@ export async function dancingLightsEffect(document) {
   if (!checkJB2a(true, true, false)) return document;
   // await createJB2aActors("Dancing Lights", "Dancing light");
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "dancingLights.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "dancingLights.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "dancingLights.js", ["postActiveEffects"]);
   return document;
 

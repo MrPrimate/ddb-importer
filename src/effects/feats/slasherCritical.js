@@ -16,10 +16,8 @@ export async function slasherCriticalEffect(document) {
 
   setProperty(effect, "flags.dae.transfer", true);
   document.effects.push(effect);
-
-  const itemMacroText = await DDBMacros.loadMacroFile("feat", "slasherCritical.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   document.system.actionType = null;
+  await DDBMacros.setItemMacroFlag(document, "feat", "slasherCritical.js");
 
   return document;
 }

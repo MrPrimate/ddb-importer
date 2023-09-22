@@ -38,8 +38,7 @@ function fallingApartEffect(document) {
 async function disassembleEffect(document) {
   let effect = baseFeatEffect(document, document.name);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("monsterFeature", "disassemble.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "monsterFeature", "disassemble.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "monsterFeature", macroName: "disassemble.js", priority: 0 }));
   effect.transfer = true;
   setProperty(effect, "flags.dae.specialDuration", ["zeroHP"]);

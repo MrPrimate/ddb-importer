@@ -17,8 +17,9 @@ export async function crusherEffect(document) {
   setProperty(effect, "flags.dae.transfer", true);
   document.effects.push(effect);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("feat", "crusher.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   document.system.actionType = null;
+
+  await DDBMacros.setItemMacroFlag(document, "feat", "crusher.js");
+
   return document;
 }

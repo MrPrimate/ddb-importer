@@ -2,8 +2,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../macros.js";
 
 export async function magicStoneEffect(document) {
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "magicStone.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "magicStone.js");
   setProperty(document, "flags.ddbimporter.effect", {
     dice: document.system.damage.parts[0][0],
     damageType: document.system.damage.parts[0][1],

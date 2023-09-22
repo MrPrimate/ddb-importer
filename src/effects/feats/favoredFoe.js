@@ -29,8 +29,7 @@ export async function favoredFoeEffect(document) {
   setProperty(damageBonusEffect, "flags.dae.transfer", true);
   document.effects.push(damageBonusEffect);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("feat", "favoredFoe.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "feat", "favoredFoe.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "feat", "favoredFoe.js", ["postActiveEffects"]);
 
   setProperty(document, "system.actionType", "util");

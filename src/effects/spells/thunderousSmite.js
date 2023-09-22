@@ -21,13 +21,13 @@ export async function thunderousSmiteEffect(document) {
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "thunderousSmite.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+
   document.system.damage.parts = [];
   document.system.save.ability = "";
   document.system.actionType = "other";
   document.effects.push(effect);
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "thunderousSmite.js", ["postActiveEffects", "preTargeting"]);
+  await DDBMacros.setItemMacroFlag(document, "spell", "thunderousSmite.js");
 
   return document;
 }

@@ -6,8 +6,7 @@ import DDBMacros from "../macros.js";
 export async function hexEffect(document) {
   let effect = baseSpellEffect(document, "Marked");
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "hex.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "hex.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "hex.js", ["postActiveEffects"]);
   setProperty(document, "system.actionType", "util");
 

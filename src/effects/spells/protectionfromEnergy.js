@@ -3,8 +3,7 @@ import DDBMacros from "../macros.js";
 
 export async function protectionfromEnergyEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "protectionfromEnergy.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "protectionfromEnergy.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "protectionfromEnergy.js", priority: 0 }));
   document.effects.push(effect);
 

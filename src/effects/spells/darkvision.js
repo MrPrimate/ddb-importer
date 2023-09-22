@@ -17,8 +17,7 @@ export async function darkvisionEffect(document) {
       generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
     );
   } else {
-    const itemMacroText = await DDBMacros.loadMacroFile("spell", "darkvision.js");
-    document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+    await DDBMacros.setItemMacroFlag(document, "spell", "darkvision.js");
     effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "darkvision.js" }));
   }
 

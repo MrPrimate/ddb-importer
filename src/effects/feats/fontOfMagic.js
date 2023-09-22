@@ -3,8 +3,7 @@ import DDBMacros from "../macros.js";
 
 export async function fontOfMagicEffect(document) {
   let effect = baseItemEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("feat", "fontOfMagic.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "feat", "fontOfMagic.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "feat", "fontOfMagic.js", ["preItemRoll"]);
 
   document.effects.push(effect);

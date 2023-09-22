@@ -3,8 +3,7 @@ import DDBMacros from "../macros.js";
 
 export async function divineWordEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "divineWord.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "divineWord.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "divineWord.js" }));
   document.effects.push(effect);
 

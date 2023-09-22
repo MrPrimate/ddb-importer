@@ -3,8 +3,7 @@ import DDBMacros from "../macros.js";
 
 export async function blessedHealerEffect(document) {
   let effect = baseItemEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("feat", "blessedHealer.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "feat", "blessedHealer.js");
 
   effect.changes.push(
     DDBMacros.generateOnUseMacroChange({ macroPass: "postActiveEffects", macroType: "feat", macroName: "blessedHealer.js", document }),

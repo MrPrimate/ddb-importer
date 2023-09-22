@@ -22,8 +22,7 @@ export async function venomTrollEffects(npc) {
       setProperty(effect, "duration.rounds", 10);
       setProperty(effect, "flags.dae.stackable", "noneName");
 
-      const itemMacroText = await DDBMacros.loadMacroFile("monsterFeature", "venomSpray.js");
-      item = DDBMacros.generateItemMacroFlag(item, itemMacroText);
+      await DDBMacros.setItemMacroFlag(item, "monsterFeature", "venomSpray.js");
       DDBMacros.setMidiOnUseMacroFlag(item, "monsterFeature", "venomSpray.js", ["postActiveEffects"]);
 
       item.effects.push(effect);
@@ -35,8 +34,7 @@ export async function venomTrollEffects(npc) {
       effect.transfer = true;
       setProperty(effect, "flags.dae.stackable", "noneName");
 
-      const itemMacroText = await DDBMacros.loadMacroFile("monsterFeature", "poisonSplash.js");
-      item = DDBMacros.generateItemMacroFlag(item, itemMacroText);
+      await DDBMacros.setItemMacroFlag(item, "monsterFeature", "poisonSplash.js");
 
       item.effects.push(effect);
 

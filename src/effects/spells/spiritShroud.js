@@ -35,8 +35,7 @@ export async function spiritShroudEffect(document) {
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "spiritShroud.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "spiritShroud.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "spiritShroud.js", ["preActiveEffects"]);
 
   document.system.damage = { parts: [], versatile: "", value: "" };

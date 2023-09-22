@@ -20,8 +20,7 @@ async function woundingWeaponEffect(document) {
     startTurn: null,
   };
 
-  const itemMacroText = await DDBMacros.loadMacroFile("item", "wounding.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "item", "wounding.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "item", macroName: "wounding.js" }));
   document.effects.push(effect);
 
@@ -30,8 +29,7 @@ async function woundingWeaponEffect(document) {
 
 async function lifeStealingEffect(document) {
   let effect = baseItemEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("item", "lifeStealing.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "item", "lifeStealing.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "item", "lifeStealing.js", ["postActiveEffects"]);
   document.effects.push(effect);
   return document;

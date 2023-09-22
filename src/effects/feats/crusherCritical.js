@@ -16,10 +16,9 @@ export async function crusherCriticalEffect(document) {
 
   setProperty(effect, "flags.dae.transfer", true);
   document.effects.push(effect);
-
-  const itemMacroText = await DDBMacros.loadMacroFile("feat", "crusherCritical.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
   document.system.actionType = null;
+
+  await DDBMacros.setItemMacroFlag(document, "feat", "crusherCritical.js");
 
   return document;
 }

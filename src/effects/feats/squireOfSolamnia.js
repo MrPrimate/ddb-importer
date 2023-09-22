@@ -3,8 +3,7 @@ import DDBMacros from "../macros.js";
 
 export async function squireOfSolamniaEffect(document) {
   let effect = baseItemEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("feat", "squireOfSolamnia.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "feat", "squireOfSolamnia.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: `"${document.name}"`, macroType: "feat", macroName: "squireOfSolamnia.js" }));
   effect.transfer = false;
 

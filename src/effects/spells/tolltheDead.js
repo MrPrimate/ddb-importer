@@ -1,8 +1,7 @@
 import DDBMacros from "../macros.js";
 
 export async function tolltheDeadEffect(document) {
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "tolltheDead.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "tolltheDead.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "tolltheDead.js", ["postActiveEffects"]);
 
   document.system.damage = { parts: [], versatile: "", value: "" };

@@ -29,8 +29,7 @@ export async function slayersPreyEffect(document) {
   setProperty(damageBonusEffect, "flags.dae.transfer", true);
   document.effects.push(damageBonusEffect);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("feat", "slayersPrey.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "feat", "slayersPrey.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "feat", "slayersPrey.js", ["postActiveEffects"]);
 
   setProperty(document, "system.actionType", "util");

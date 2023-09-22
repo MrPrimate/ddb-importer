@@ -4,8 +4,7 @@ import DDBMacros from "../macros.js";
 export async function witchBoltEffect(document) {
   let effect = baseSpellEffect(document, document.name);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "witchBolt.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "witchBolt.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "witchBolt.js", ["postActiveEffects"]);
   document.effects.push(effect);
 

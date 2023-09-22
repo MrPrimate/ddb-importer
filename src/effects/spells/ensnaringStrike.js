@@ -4,8 +4,7 @@ import DDBMacros from "../macros.js";
 export async function ensnaringStrikeEffect(document) {
   let effect = baseSpellEffect(document, document.name);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "ensnaringStrike.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "ensnaringStrike.js");
   effect.changes.push(
     DDBMacros.generateOnUseMacroChange({ macroPass: "postActiveEffects", macroType: "spell", macroName: "ensnaringStrike.js", document }),
   );

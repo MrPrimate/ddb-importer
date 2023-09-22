@@ -9,8 +9,7 @@ export async function silenceEffect(document) {
   }
 
   // if we have active auras use a more advanced macro
-  const itemMacroText = await DDBMacros.loadMacroFile("generic", "activeAuraOnly.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraOnly.js");
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(generateStatusEffectChange("Deafened", 20, true));

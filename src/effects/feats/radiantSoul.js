@@ -59,8 +59,7 @@ export async function radiantSoulEffect(document) {
     );
     effect.transfer = true;
 
-    const itemMacroText = await DDBMacros.loadMacroFile("feat", "radiantSoul.js");
-    document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+    await DDBMacros.setItemMacroFlag(document, "feat", "radiantSoul.js");
     setProperty(document, "system.activation.type", "special");
 
     document.effects.push(effect);

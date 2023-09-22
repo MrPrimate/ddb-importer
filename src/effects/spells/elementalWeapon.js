@@ -3,8 +3,7 @@ import DDBMacros from "../macros.js";
 
 export async function elementalWeaponEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "elementalWeapon.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "elementalWeapon.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@item.level", macroType: "spell", macroName: "elementalWeapon.js", priority: 0 }));
   document.effects.push(effect);
 

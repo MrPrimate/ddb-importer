@@ -9,8 +9,7 @@ export async function blindnessDeafnessEffect(document) {
     value: "label=Blindness/Deafness (End of Turn),turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true,killAnim=true",
     priority: "20",
   });
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "blindnessDeafness.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "blindnessDeafness.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "blindnessDeafness.js" }));
   document.effects.push(effect);
 

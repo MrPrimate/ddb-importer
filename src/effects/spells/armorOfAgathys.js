@@ -16,8 +16,7 @@ export async function armorOfAgathysEffect(document) {
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "armorOfAgathys.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "armorOfAgathys.js");
   setProperty(document, "system.actionType", "util");
 
   return document;

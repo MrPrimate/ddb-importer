@@ -22,8 +22,7 @@ export async function stormSphereEffect(document) {
       priority: "20",
     }
   );
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "stormSphere.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "stormSphere.js");
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",

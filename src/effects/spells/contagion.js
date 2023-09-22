@@ -5,8 +5,7 @@ export async function contagionEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.flags.dae.macroRepeat = "endEveryTurn";
   effect.changes.push(generateStatusEffectChange("Poisoned"));
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "contagion.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "contagion.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "contagion.js" }));
   document.effects.push(effect);
 

@@ -4,8 +4,7 @@ import DDBMacros from "../macros.js";
 export async function hailOfThornsEffect(document) {
   let effect = baseSpellEffect(document, document.name);
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "hailOfThorns.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "hailOfThorns.js");
   effect.changes.push(
     DDBMacros.generateOnUseMacroChange({ macroPass: "postActiveEffects", macroType: "spell", macroName: "hailOfThorns.js", document }),
   );

@@ -1,3 +1,4 @@
+/* eslint-disable require-atomic-updates */
 import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../macros.js";
 
@@ -18,8 +19,7 @@ export async function auraOfLifeEffect(document) {
     // }
   );
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "auraOfLife.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "auraOfLife.js");
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "Allies",

@@ -3,8 +3,7 @@ import DDBMacros from "../macros.js";
 
 export async function fireShieldEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "fireShield.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "fireShield.js");
   effect.changes.push(
     DDBMacros.generateOnUseMacroChange({ macroPass: "isDamaged", macroType: "spell", macroName: "fireShield.js" }),
   );

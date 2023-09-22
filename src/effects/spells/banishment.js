@@ -3,8 +3,7 @@ import DDBMacros from "../macros.js";
 
 export async function banishmentEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "banishment.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "banishment.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@token", macroType: "spell", macroName: "banishment.js", priority: 0 }));
   document.effects.push(effect);
 

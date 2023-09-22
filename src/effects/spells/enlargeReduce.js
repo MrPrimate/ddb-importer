@@ -6,8 +6,7 @@ export async function enlargeReduceEffect(document) {
   if (!effectModules().atlInstalled) return document;
 
   let effect = baseSpellEffect(document, document.name);
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "enlargeReduce.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "enlargeReduce.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "enlargeReduce.js", priority: 0 }));
   document.effects.push(effect);
 

@@ -24,8 +24,7 @@ export async function irresistibleDanceEffect(document) {
   });
 
   effect.flags.dae.macroRepeat = "startEveryTurn";
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "irresistibleDance.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "irresistibleDance.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "irresistibleDance.js" }));
   document.effects.push(effect);
 

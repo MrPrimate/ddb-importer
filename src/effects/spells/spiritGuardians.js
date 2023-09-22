@@ -22,8 +22,7 @@ export async function spiritGuardiansEffect(document) {
       priority: "20",
     }
   );
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "spiritGuardians.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "spiritGuardians.js");
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "Enemy",

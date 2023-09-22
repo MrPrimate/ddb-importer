@@ -9,8 +9,7 @@ export async function rayofEnfeeblementEffect(document) {
     value: `label=${document.name} (End of Turn),turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true,killAnim=true`,
     priority: "20",
   });
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "rayofEnfeeblement.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "rayofEnfeeblement.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "rayofEnfeeblement.js" }));
   document.effects.push(effect);
 

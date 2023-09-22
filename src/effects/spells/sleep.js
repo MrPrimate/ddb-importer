@@ -2,8 +2,7 @@ import DDBMacros from "../macros.js";
 
 export async function sleepEffect(document) {
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "sleep.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "sleep.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "sleep.js", ["postActiveEffects"]);
   document.system.damage = { parts: [["5d8", "midi-none"]], versatile: "", value: "" };
 

@@ -6,8 +6,7 @@ export async function spikeGrowthEffect(document) {
   // we require active auras for this effect
   if (!effectModules().activeAurasInstalled) return document;
 
-  const itemMacroText = await DDBMacros.loadMacroFile("spell", "spikeGrowth.js");
-  document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
+  await DDBMacros.setItemMacroFlag(document, "spell", "spikeGrowth.js");
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
