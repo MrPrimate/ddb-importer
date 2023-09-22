@@ -55,7 +55,13 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
       duration: { units: "inst" },
     },
   };
-  setMidiOnUseMacroFlag(areaSpellData, "spell", "hailOfThorns.js", ["preItemRoll", "preambleComplete", "preActiveEffects"])
+  setProperty(
+    areaSpellData,
+    "flags.midi-qol.onUseMacroName",
+    DDBImporter.lib.DDBMacros.generateMidiOnUseMacroFlagValue("spell", "hailOfThorns.js", ["preItemRoll", "preambleComplete", "preActiveEffects"], macroData.sourceItemUuid)
+  );
+
+  console.warn(areaSpellData)
 
   const areaSpell = new CONFIG.Item.documentClass(areaSpellData, {
     parent: macroData.actor,

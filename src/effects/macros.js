@@ -156,7 +156,7 @@ export default class DDBMacros {
   }
 
   static generateMacroChange({ macroValues = "", macroType = null, macroName = null, keyPostfix = "", priority = 20 } = {}) {
-    const useDDBFunctions = false;
+    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
     const macroKey = (useDDBFunctions)
       ? `macro.execute.function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")`
       : "macro.itemMacro";
@@ -169,9 +169,10 @@ export default class DDBMacros {
     };
   }
 
-  static generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints = []) {
-    const useDDBFunctions = false;
-    const valueContent = (useDDBFunctions) ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")` : "ItemMacro";
+  static generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints = [], macroUuid = null) {
+    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
+    const docMacroName = (macroUuid && !useDDBFunctions) ? `.${macroUuid}` : "";
+    const valueContent = (useDDBFunctions) ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")` : `ItemMacro${docMacroName}`;
     return triggerPoints.map((t) => `[${t}]${valueContent}`).join(",");
   }
 
@@ -181,7 +182,7 @@ export default class DDBMacros {
   }
 
   static generateItemMacroValue({ macroType = null, macroName = null, document = null } = {}) {
-    const useDDBFunctions = false;
+    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
     const docMacroName = (document && !useDDBFunctions) ? `.${document.name}` : "";
     const valueContent = (useDDBFunctions)
       ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")`.trim()
