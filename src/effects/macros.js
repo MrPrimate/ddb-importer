@@ -180,12 +180,19 @@ export default class DDBMacros {
     setProperty(document, "flags.midi-qol.onUseMacroName", value);
   }
 
-  static generateOnUseMacroChange({ macroPass, macroType = null, macroName = null, priority = 20, document = null, macroParams = "" } = {}) {
+  static generateItemMacroValue({ macroType = null, macroName = null, document = null } = {}) {
     const useDDBFunctions = false;
     const docMacroName = (document && !useDDBFunctions) ? `.${document.name}` : "";
     const valueContent = (useDDBFunctions)
-      ? `function.DDBImporter.macros.getMacro("${macroType}","${macroName}") ${macroParams}`.trim()
-      : `ItemMacro${docMacroName},${macroPass} ${macroParams}`.trim();
+      ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")`.trim()
+      : `ItemMacro${docMacroName}`.trim();
+    return valueContent;
+  }
+
+
+  static generateOnUseMacroChange({ macroPass, macroType = null, macroName = null, priority = 20, document = null, macroParams = "" } = {}) {
+    const valueStub = DDBMacros.generateItemMacroValue({ macroType, macroName, document });
+    const valueContent = `${valueStub},${macroPass} ${macroParams}`.trim();
 
     return {
       key: "flags.midi-qol.onUseMacroName",

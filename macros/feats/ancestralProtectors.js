@@ -32,7 +32,10 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
   if (!hasEffectApplied(rageEffectName, actor)) return;
   // The Barbarian must be in Rage
 
-  if (actor.getFlag("world", "ancestralProtectors.targetUuid")) return;
+  if (actor.getFlag("world", "ancestralProtectors.targetUuid")) {
+    console.warn("There is already a marked target")
+    return;
+  }
   // There is already a marked target
 
   const inCombat = game.combat;
@@ -72,19 +75,9 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
   const targetEffectData = {
     changes: [
       // macro to set disadvantage or not before attack made by marked target
-      {
-        key: "flags.midi-qol.onUseMacroName",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: `ItemMacro.${macroData.sourceItemUuid},preAttackRoll`,
-        priority: 15,
-      },
+      DDBImporter.lib.DDBMacros.generateOnUseMacroChange({ macroPass: "preAttackRoll", macroType: "feat", macroName: "ancestralProtectors.js", priority: 15, document: { name: macroData.sourceItemUuid } }),
       // macro to set damage resistance or not
-      {
-        key: "flags.midi-qol.onUseMacroName",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: `ItemMacro.${macroData.sourceItemUuid},preDamageApplication`,
-        priority: 20,
-      },
+      DDBImporter.lib.DDBMacros.generateOnUseMacroChange({ macroPass: "preDamageApplication", macroType: "feat", macroName: "ancestralProtectors.js", priority: 20, document: { name: macroData.sourceItemUuid } }),
       // flag to indicate who marked this actor
       {
         key: "flags.world.ancestralProtectors.sourceTokenUuid",

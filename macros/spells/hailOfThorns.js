@@ -55,11 +55,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
       duration: { units: "inst" },
     },
   };
-  setProperty(
-    areaSpellData,
-    "flags.midi-qol.onUseMacroName",
-    `[preItemRoll]ItemMacro.${macroData.sourceItemUuid},[preambleComplete]ItemMacro.${macroData.sourceItemUuid},[preActiveEffects]ItemMacro.${macroData.sourceItemUuid}`
-  );
+  setMidiOnUseMacroFlag(areaSpellData, "spell", "hailOfThorns.js", ["preItemRoll", "preambleComplete", "preActiveEffects"])
 
   const areaSpell = new CONFIG.Item.documentClass(areaSpellData, {
     parent: macroData.actor,

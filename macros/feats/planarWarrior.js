@@ -61,17 +61,12 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
         priority: 20,
       },
       // macro to change damage type if target is valid on next attack that hits
-      {
-        key: "flags.midi-qol.onUseMacroName",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: `ItemMacro.${macroData.item.name},preDamageRoll`,
-        priority: 20,
-      },
+      DDBImporter.lib.DDBMacros.generateOnUseMacroChange({ macroPass: "preDamageRoll", macroType: "feat", macroName: "planarWarrior.js", priority: 15, document: { name: macroData.item.name } }),
       // macro to apply the damage
       {
         key: "flags.dnd5e.DamageBonusMacro",
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: `ItemMacro.${macroData.item.name}`,
+        value: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "planarWarrior.js", document: { name: `ItemMacro.${macroData.item.name}` }),
         priority: 20,
       },
     ],
