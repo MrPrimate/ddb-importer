@@ -673,7 +673,10 @@ function getGenericConditionAffect(modifiers, condition, typeId) {
       const entry = DICTIONARY.character.damageAdjustments.find(
         (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType
       );
+
+      // change
       return entry ? entry.foundryValue || entry.value : undefined;
+
     });
 
   return result;
@@ -699,8 +702,8 @@ function addDamageConditions(modifiers) {
   let charges = [];
 
   const damageImmunities = getGenericConditionAffect(modifiers, "immunity", 2);
-  const damageResistances = getGenericConditionAffect(modifiers, "resistance", 2);
-  const damageVulnerability = getGenericConditionAffect(modifiers, "vulnerability", 2);
+  const damageResistances = getGenericConditionAffect(modifiers, "resistance", 1);
+  const damageVulnerability = getGenericConditionAffect(modifiers, "vulnerability", 3);
 
   damageImmunities.forEach((type) => {
     charges.push(generateCustomChange(type, 1, "system.traits.di.value"));
@@ -712,7 +715,7 @@ function addDamageConditions(modifiers) {
     charges.push(generateCustomChange(type, 1, "system.traits.dv.value"));
   });
 
-  const conditionImmunities = getGenericConditionAffect(modifiers, "immunity", 1);
+  const conditionImmunities = getGenericConditionAffect(modifiers, "immunity", 4);
 
   conditionImmunities.forEach((type) => {
     charges.push(generateCustomChange(type, 1, "system.traits.ci.value"));

@@ -119,7 +119,7 @@ function generateConditionEffect(effect, text) {
     // group 4 condition - .e.g. "DC 18 Strength saving throw or be knocked prone"
     const group4Condition = match[4]
       ? DICTIONARY.character.damageAdjustments
-        .filter((type) => type.type === 1)
+        .filter((type) => type.type === 4)
         .find((type) => type.name.toLowerCase() === match[4].toLowerCase() || type.value.toLowerCase() === match[4].toLowerCase())
       : undefined;
     if (group4Condition) {

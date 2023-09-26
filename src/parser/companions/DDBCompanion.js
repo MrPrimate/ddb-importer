@@ -271,13 +271,15 @@ export default class DDBCompanion {
   static getDamageAdjustments(data) {
     const values = [];
     const custom = [];
+    const bypasses = [];
     const damageTypes = DICTIONARY.actions.damageType.filter((d) => d.name !== null).map((d) => d.name);
 
     data.forEach((adj) => {
       if (damageTypes.includes(adj.toLowerCase())) {
         values.push(adj.toLowerCase());
       } else if (adj.includes("physical")) {
-        values.push("physical");
+        values.push("bludgeoning", "piercing", "slashing");
+        bypasses.push("mgc");
       } else {
         custom.push(adj);
       }
@@ -285,6 +287,7 @@ export default class DDBCompanion {
 
     const adjustments = {
       value: values,
+      bypasses,
       custom: custom.join("; "),
     };
 

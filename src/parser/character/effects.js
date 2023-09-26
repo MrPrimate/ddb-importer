@@ -29,6 +29,7 @@ DDBCharacter.prototype.getGenericConditionAffect = function getGenericConditionA
       const entry = DICTIONARY.character.damageAdjustments.find(
         (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType
       );
+      // TODO
       return entry ? entry.foundryValue || entry.value : undefined;
     });
 
@@ -42,6 +43,7 @@ DDBCharacter.prototype.getGenericConditionAffect = function getGenericConditionA
             && type.type === adjustment.type
             && type.kind === condition
         );
+        // TODO
         return entry ? entry.foundryValue || entry.value : undefined;
       })
       .filter((adjustment) => adjustment !== undefined)
@@ -57,14 +59,14 @@ DDBCharacter.prototype._generateConditions = function _generateConditions() {
   };
   this.raw.character.system.traits.dr = {
     custom: "",
-    value: this.getGenericConditionAffect("resistance", 2),
+    value: this.getGenericConditionAffect("resistance", 1),
   };
   this.raw.character.system.traits.dv = {
     custom: "",
-    value: this.getGenericConditionAffect("vulnerability", 2),
+    value: this.getGenericConditionAffect("vulnerability", 3),
   };
   this.raw.character.system.traits.ci = {
     custom: "",
-    value: this.getGenericConditionAffect("immunity", 1),
+    value: this.getGenericConditionAffect("immunity", 4),
   };
 };
