@@ -82,6 +82,11 @@ for (let i = 0; i < 4; i++) {
         },
       },
     },
+    flags: {
+      'mid-qol': {
+        neverTarget: true,
+      }
+    }
   };
 
   const callbacks = {
@@ -102,7 +107,7 @@ for (let i = 0; i < 4; i++) {
     },
   };
 
-  const options = { controllingActor: actor };
+  const options = { controllingActor: caster };
   const ids = await warpgate.spawn(
     await choice.getTokenDocument(),
     updates,

@@ -6,6 +6,7 @@
 - Little Giant now applies Powerful build
 - Some races with variable sizes, like the Hadozee, would not import the small size.
 - Hadozee Dodge effect.
+- Dancing Lights effect tweak (thanks @tminz)
 
 # 3.4.70
 
