@@ -502,6 +502,11 @@ export default class DDBFeature {
       this.actionInfo.weaponType = "simpleR";
     }
 
+    if (this.strippedHtml.includes("is a magic weapon attack")) {
+      this.actionInfo.properties["mgc"] = true;
+      setProperty(this.feature, "flags.midiProperties.magicdam", true);
+    }
+
     if (this.spellAttack) {
       initialAbilities = spellAbilities;
     } else if (this.weaponAttack) {
