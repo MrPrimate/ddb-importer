@@ -110,5 +110,9 @@ export default function parseArmor(data, character, flags) {
   armor.system.identified = true;
   armor.system.uses = getUses(data);
 
+  if (!armor.name.toLowerCase().includes("armor")) {
+    setProperty(armor, "flags.ddbimporter.dndbeyond.alternativeNames", [`${armor.name} Armor`]);
+  }
+
   return armor;
 }
