@@ -7,6 +7,7 @@
 - Some races with variable sizes, like the Hadozee, would not import the small size.
 - Hadozee Dodge effect.
 - Dancing Lights effect tweak (thanks @tminz)
+- Support Tavern Brawler special trait
 
 # 3.4.70
 

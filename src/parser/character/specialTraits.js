@@ -18,11 +18,17 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() 
     meleeCriticalDamageDice: 0,
     wildMagic: false,
     spellSniper: false,
+    tavernBrawlerFeat: false,
   };
 
   // powerful build/equine build
   this.raw.character.flags.dnd5e.powerfulBuild = this.source.ddb.character.race.racialTraits.some((trait) =>
     ["Equine Build", "Powerful Build, Hippo Build", "Little Giant"].includes(trait.definition.name)
+  );
+
+  // tavern brawler feat
+  this.raw.character.flags.dnd5e.tavernBrawlerFeat = this.source.ddb.character.feats.some(
+    (trait) => trait.definition.name === "Tavern Brawler"
   );
 
   // savage attacks
