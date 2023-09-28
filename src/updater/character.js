@@ -49,7 +49,7 @@ async function getUpdateItemIndex() {
 
 async function getCompendiumItemInfo(item) {
   const index = await getUpdateItemIndex();
-  const match = await NameMatcher.looseItemNameMatch(item, index, true, false, true);
+  const match = NameMatcher.looseItemNameMatch(item, index, true, false, true);
   return match;
 }
 
@@ -916,7 +916,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
           description: getCustomItemDescription(item.system.description.value),
           // revist these need to be ints
           // weight: `${item.data.weight}`,
-          // cost: ${item.data.price},
+          // cost: item.data.price.value,
           cost: null,
           weight: Number.isInteger(item.system.weight) ? parseInt(item.system.weight) : 0,
           quantity: parseInt(item.system.quantity),

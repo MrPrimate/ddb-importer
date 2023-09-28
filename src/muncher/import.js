@@ -331,7 +331,7 @@ export async function updateMatchingItems(oldItems, newItems,
 
     const matched = overrideId
       ? oldItems.find((oldItem) => getProperty(oldItem, "flags.ddbimporter.overrideId") == item._id)
-      : await NameMatcher.looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
+      : NameMatcher.looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
 
     if (matched) {
       const match = duplicate(matched);
@@ -406,9 +406,7 @@ export async function loadPassedItemsFromCompendium(compendium, items, type,
   const index = compendium.index;
   const firstPassItems = await index.filter((i) =>
     items.some((orig) => {
-      const extraNames = (orig.flags?.ddbimporter?.dndbeyond?.alternativeNames)
-        ? orig.flags.ddbimporter.dndbeyond.alternativeNames
-        : [];
+      const extraNames = getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
       if (looseMatch) {
         const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
@@ -493,9 +491,7 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
 
   const matchedIds = index.filter((i) =>
     index.some((orig) => {
-      const extraNames = (orig.flags?.ddbimporter?.dndbeyond?.alternativeNames)
-        ? orig.flags.ddbimporter.dndbeyond.alternativeNames
-        : [];
+      const extraNames = getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
       if (looseMatch) {
         const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());

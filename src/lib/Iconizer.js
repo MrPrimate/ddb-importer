@@ -301,25 +301,21 @@ export default class Iconizer {
     // eslint-disable-next-line require-atomic-updates
     if (!srdImageLibrary) srdImageLibrary = await Iconizer.getSRDImageLibrary();
 
-    return new Promise((resolve) => {
-      const srdItems = items.map((item) => {
-        logger.debug(`Matching ${item.name}`);
-        const nameMatch = nameMatchList.find((m) => m.name === item.name);
-        if (nameMatch) {
-          item.img = nameMatch.img;
-        } else {
-          NameMatcher.looseItemNameMatch(item, srdImageLibrary, true).then((match) => {
-            if (match) {
-              srdImageLibrary.push({ name: item.name, img: match.img });
-              item.img = match.img;
-            }
-          });
+    const srdItems = items.map((item) => {
+      logger.debug(`Matching ${item.name}`);
+      const nameMatch = nameMatchList.find((m) => m.name === item.name);
+      if (nameMatch) {
+        item.img = nameMatch.img;
+      } else {
+        const match = NameMatcher.looseItemNameMatch(item, srdImageLibrary, true);
+        if (match) {
+          srdImageLibrary.push({ name: item.name, img: match.img });
+          item.img = match.img;
         }
-        return item;
-
-      });
-      resolve(srdItems);
+      }
+      return item;
     });
+    return srdItems;
   }
 
   static async retainExistingIcons(items) {

@@ -1,4 +1,5 @@
 import DICTIONARY from "../dictionary.js";
+import logger from "../logger.js";
 
 export default class NameMatcher {
 
@@ -20,60 +21,75 @@ export default class NameMatcher {
     return magicNames;
   }
 
-  static getLooseNames(name, extraNames = []) {
-    let looseNames = extraNames;
-    looseNames.push(name.toLowerCase());
+  static getLooseNames(name, extraNames = [], removeMagic = true) {
+    let looseNames = new Set(extraNames.map((name) => name.toLowerCase()));
+    looseNames.add(name.toLowerCase());
+    looseNames.add(name.replace(",", "").toLowerCase());
     let refactNameArray = name.split("(")[0].trim().split(", ");
     refactNameArray.unshift(refactNameArray.pop());
     const refactName = refactNameArray.join(" ").trim();
-    looseNames.push(refactName, refactName.toLowerCase());
-    looseNames.push(
-      refactName
-        .replace(/\+\d*\s*/, "")
-        .trim()
-        .toLowerCase()
-    );
-    looseNames.push(
-      refactName
-        .replace(/\+\d*\s*/, "")
-        .trim()
-        .toLowerCase()
-        .replace(/s$/, "")
-    );
-
-    let refactNamePlusArray = name
-      .replace(/\+\d*\s*/, "")
-      .trim()
-      .split("(")[0]
-      .trim()
-      .split(", ");
-    refactNamePlusArray.unshift(refactNamePlusArray.pop());
-    const refactNamePlus = refactNamePlusArray.join(" ").trim();
-    looseNames.push(refactNamePlus.toLowerCase());
+    looseNames.add(refactName.toLowerCase());
 
     let deconNameArray = name.replace("(", "").replace(")", "").trim().split(",");
     deconNameArray.unshift(deconNameArray.pop());
     const deconName = deconNameArray.join(" ").trim();
-    looseNames.push(deconName, deconName.toLowerCase());
+    looseNames.add(deconName.toLowerCase());
 
     // word smart quotes are the worst
-    looseNames.push(name.replace("'", "’").toLowerCase());
-    looseNames.push(name.replace("’", "'").toLowerCase());
-    looseNames.push(name.replace(/s$/, "").toLowerCase()); // trim s, e.g. crossbow bolt(s)
-    looseNames.push(name.replace(",", "").toLowerCase()); // +1 weapons etc
-    looseNames.push(`${name} attack`.toLowerCase()); // Claw Attack
-    looseNames.push(name.split(",")[0].toLowerCase());
+    looseNames.add(name.replace("'", "’").toLowerCase());
+    looseNames.add(name.replace("’", "'").toLowerCase());
+    looseNames.add(name.replace(" armor", "").toLowerCase());
+    looseNames.add(name.replace(/s$/, "").toLowerCase()); // trim s, e.g. crossbow bolt(s)
+    looseNames.add(name.replace(",", "").toLowerCase()); // +1 weapons etc
+    looseNames.add(`${name} attack`.toLowerCase()); // Claw Attack
+    looseNames.add(name.replace(" (1 day)", "").toLowerCase());
+    looseNames.add(name.replace(" (10-foot)", "").toLowerCase());
+    looseNames.add(name.replace(" (bag of 20)", "").toLowerCase());
+    looseNames.add(name.replace(" (bag of 1000)", "").toLowerCase());
+    looseNames.add(name.replace(" (per day)", "").toLowerCase());
+    looseNames.add(name.replace("(10 foot)", "(10-foot)").toLowerCase());
+    looseNames.add(name.replace("(10-foot)", "(10 foot)").toLowerCase());
+    looseNames.add(name.replace("(0 - Cantrip)", "Cantrip").toLowerCase());
+    looseNames.add(name.replace(/\((\d..) Level\)/, "$1 Level").toLowerCase());
 
-    return looseNames;
+    if (removeMagic || (!removeMagic && name.split(",")[0].length > 1 && !(/\+\d$/).test(name.trim()))) {
+      looseNames.add(name.split(",")[0].toLowerCase());
+    }
+
+    if (removeMagic) {
+      let refactNamePlusArray = name
+        .replace(/\+\d*\s*/, "")
+        .trim()
+        .split("(")[0]
+        .trim()
+        .split(", ");
+      refactNamePlusArray.unshift(refactNamePlusArray.pop());
+      const refactNamePlus = refactNamePlusArray.join(" ").trim();
+      looseNames.add(refactNamePlus.toLowerCase());
+      looseNames.add(
+        refactName
+          .replace(/\+\d*\s*/, "")
+          .trim()
+          .toLowerCase()
+      );
+      looseNames.add(
+        refactName
+          .replace(/\+\d*\s*/, "")
+          .trim()
+          .toLowerCase()
+          .replace(/s$/, "")
+      );
+    }
+
+    return Array.from(looseNames);
   }
 
   // The monster setting is less vigorous!
-  static async looseItemNameMatch(item, items, loose = false, monster = false, magicMatch = false) {
+  static looseItemNameMatch(item, items, loose = false, monster = false, magicMatch = false) {
     // first pass is a strict match
     let matchingItem = items.find((matchItem) => {
       let activationMatch = false;
-      const alternativeNames = matchItem.flags?.ddbimporter?.dndbeyond?.alternativeNames;
-      const extraNames = alternativeNames ? matchItem.flags.ddbimporter.dndbeyond.alternativeNames : [];
+      const extraNames = getProperty(matchItem, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
 
       const itemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, "activation");
       const matchItemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, "activation");
@@ -113,24 +129,30 @@ export default class NameMatcher {
         .replace(/(.*)\s+(\+\d*)\s*/, "$1, $2")
         .trim()
         .toLowerCase();
-      matchingItem = items.find((matchItem) => matchItem.name.trim().toLowerCase() == magicName);
+      const magicName2 = item.name
+        .replace(/(.*)\s+(\+\d*)\s*/, "$2 $1")
+        .trim()
+        .toLowerCase();
+      matchingItem = items.find((matchItem) => [magicName, magicName2].includes(matchItem.name.trim().toLowerCase()));
     }
 
     if (!matchingItem && loose) {
-      const looseNames = NameMatcher.getLooseNames(item.name).filter((name) => {
-        if (!magicMatch) return true;
-        const removeMagicName = name.replace(/\+\d*\s*/, "").trim();
-        if (name === removeMagicName) return false;
-        return true;
-      });
-      // lets go loosey goosey on matching equipment, we often get types wrong
-      matchingItem = items.find(
-        (matchItem) =>
-          (looseNames.includes(matchItem.name.toLowerCase())
-            || looseNames.includes(matchItem.name.toLowerCase().replace(" armor", "")))
-          && DICTIONARY.types.inventory.includes(item.type)
-          && DICTIONARY.types.inventory.includes(matchItem.type)
-      );
+      const extraNames = getProperty(item, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
+      const looseNames = NameMatcher.getLooseNames(item.name, extraNames, !magicMatch);
+      // console.warn("loose names", looseNames);
+      for (const looseName of looseNames) {
+        matchingItem = items.find((matchItem) => {
+          const looseItemMatch = (looseName === matchItem.name.toLowerCase()
+            || looseName === matchItem.name.toLowerCase().replace(" armor", ""))
+            && DICTIONARY.types.inventory.includes(item.type)
+            && DICTIONARY.types.inventory.includes(matchItem.type);
+          return looseItemMatch;
+        });
+        if (matchingItem) {
+          logger.debug(`Broke on ${looseName}`, matchingItem);
+          break;
+        }
+      }
 
       // super loose name match!
       if (!matchingItem) {
