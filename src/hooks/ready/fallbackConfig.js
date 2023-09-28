@@ -3616,6 +3616,15 @@ export const fallbackDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/36797/447/638301391860014579.jpeg",
       sourceURL: "sources/mcv4",
     },
+    {
+      id: 126,
+      name: "LKE",
+      description: "Lightning Keep",
+      sourceCategoryId: 15,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/36974/217/638309001082198146.jpeg",
+      sourceURL: "sources/lke",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },
