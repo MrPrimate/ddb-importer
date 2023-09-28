@@ -1,5 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
+import { getGenericConditionAffectData } from "../../effects/effects.js";
 import DDBHelper from "../../lib/DDBHelper.js";
+import logger from "../../logger.js";
 import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype._generateDeathSaves = function _generateDeathSaves () {
@@ -16,57 +18,57 @@ DDBCharacter.prototype._generateExhaustion = function _generateExhaustion() {
     : 0;
 };
 
-DDBCharacter.prototype.getGenericConditionAffect = function getGenericConditionAffect(condition, typeId) {
-  const damageTypes = DICTIONARY.character.damageAdjustments
-    .filter((type) => type.kind === condition && type.type === typeId)
-    .map((type) => type.value);
+DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getCharacterGenericConditionAffectData(condition, typeId) {
 
-  let result = DDBHelper
-    .filterBaseModifiers(this.source.ddb, condition)
-    .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType)
-      && (modifier.restriction === "" || !modifier.restriction))
-    .map((modifier) => {
-      const entry = DICTIONARY.character.damageAdjustments.find(
-        (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType
+  const modifiers = DDBHelper.filterBaseModifiers(this.source.ddb, condition, null, null);
+  const standardResults = getGenericConditionAffectData(modifiers, condition, typeId);
+
+  const customResults = this.source.ddb.character.customDefenseAdjustments
+    .filter((adjustment) => adjustment.type === (typeId === 4 ? 1 : 2))
+    .map((adjustment) => {
+      const entry = DICTIONARY.character.damageAdjustments.find((type) =>
+        type.id === adjustment.adjustmentId
+        && type.type === typeId
       );
-      // TODO
-      return entry ? entry.foundryValue || entry.value : undefined;
-    });
+      if (!entry) return undefined;
+      const valueData = hasProperty(entry, "foundryValues")
+        ? getProperty(entry, "foundryValues")
+        : hasProperty(entry, "foundryValue")
+          ? { value: entry.foundryValue }
+          : undefined;
+      return valueData;
+    })
+    .filter((adjustment) => adjustment !== undefined);
 
-  result = result.concat(
-    this.source.ddb.character.customDefenseAdjustments
-      .filter((adjustment) => adjustment.type === typeId)
-      .map((adjustment) => {
-        const entry = DICTIONARY.character.damageAdjustments.find(
-          (type) =>
-            (type.id === adjustment.id || type.id === adjustment.adjustmentId)
-            && type.type === adjustment.type
-            && type.kind === condition
-        );
-        // TODO
-        return entry ? entry.foundryValue || entry.value : undefined;
-      })
-      .filter((adjustment) => adjustment !== undefined)
-  );
+  const results = customResults.concat(standardResults).map((result) => {
+    if (game.modules.get("midi-qol")?.active && result.midiValues) {
+      return {
+        value: result.value.concat(result.midiValues),
+        bypass: result.bypass,
+      };
+    } else {
+      return result;
+    }
+  });
 
-  return result;
+  logger.debug(`Condition generation: ${condition}, typeId: ${typeId}`, {
+    modifiers,
+    standardResults,
+    customResults,
+    results,
+    customDefenseAdjustments: this.source.ddb.character.customDefenseAdjustments,
+  });
+
+  return {
+    custom: "",
+    value: [...new Set(results.map((result) => result.value).flat())],
+    bypasses: [...new Set(results.map((result) => result.bypass).flat())],
+  };
 };
 
 DDBCharacter.prototype._generateConditions = function _generateConditions() {
-  this.raw.character.system.traits.di = {
-    custom: "",
-    value: this.getGenericConditionAffect("immunity", 2),
-  };
-  this.raw.character.system.traits.dr = {
-    custom: "",
-    value: this.getGenericConditionAffect("resistance", 1),
-  };
-  this.raw.character.system.traits.dv = {
-    custom: "",
-    value: this.getGenericConditionAffect("vulnerability", 3),
-  };
-  this.raw.character.system.traits.ci = {
-    custom: "",
-    value: this.getGenericConditionAffect("immunity", 4),
-  };
+  this.raw.character.system.traits.di = this.getCharacterGenericConditionAffectData("immunity", 2);
+  this.raw.character.system.traits.dr = this.getCharacterGenericConditionAffectData("resistance", 1);
+  this.raw.character.system.traits.dv = this.getCharacterGenericConditionAffectData("vulnerability", 3);
+  this.raw.character.system.traits.ci = this.getCharacterGenericConditionAffectData("immunity", 4);
 };

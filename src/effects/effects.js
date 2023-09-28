@@ -649,12 +649,8 @@ function addGlobalDamageBonus(modifiers, name) {
 // *
 // Get list of generic conditions/damages
 //
-function getGenericConditionAffect(modifiers, condition, typeId) {
-  const damageTypes = DICTIONARY.character.damageAdjustments
-    .filter((type) => type.kind === condition && type.type === typeId)
-    .map((type) => type.value);
-
-  let restrictions = [
+export function getGenericConditionAffectData(modifiers, condition, typeId) {
+  const restrictions = [
     "",
     null,
     "While within 20 feet",
@@ -666,17 +662,41 @@ function getGenericConditionAffect(modifiers, condition, typeId) {
     "while holding",
     "While Held",
   ];
-  let result = DDBHelper
+  const result = DDBHelper
     .filterModifiers(modifiers, condition, null, restrictions)
-    .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType))
-    .map((modifier) => {
-      const entry = DICTIONARY.character.damageAdjustments.find(
-        (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType
+    .filter((modifier) => {
+      const ddbLookup = CONFIG.DDB.damageAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
+      if (!ddbLookup) return false;
+      return DICTIONARY.character.damageAdjustments.some((adj) =>
+        adj.type === typeId
+        && ddbLookup.id === adj.id
+        && (hasProperty(adj, "foundryValues") || hasProperty(adj, "foundryValue"))
       );
-
-      // change
-      return entry ? entry.foundryValue || entry.value : undefined;
-
+    })
+    .map((modifier) => {
+      const ddbLookup = CONFIG.DDB.damageAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
+      const entry = DICTIONARY.character.damageAdjustments.find((adj) =>
+        adj.type === typeId
+        && ddbLookup.id === adj.id
+      );
+      if (!entry) return undefined;
+      const valueData = hasProperty(entry, "foundryValues")
+        ? getProperty(entry, "foundryValues")
+        : hasProperty(entry, "foundryValue")
+          ? { value: entry.foundryValue }
+          : undefined;
+      return valueData;
+    })
+    .filter((adjustment) => adjustment !== undefined)
+    .map((result) => {
+      if (game.modules.get("midi-qol")?.active && result.midiValues) {
+        return {
+          value: result.value.concat(result.midiValues),
+          bypass: result.bypass,
+        };
+      } else {
+        return result;
+      }
     });
 
   return result;
@@ -701,24 +721,28 @@ function addCriticalHitImmunities(modifiers, name) {
 function addDamageConditions(modifiers) {
   let charges = [];
 
-  const damageImmunities = getGenericConditionAffect(modifiers, "immunity", 2);
-  const damageResistances = getGenericConditionAffect(modifiers, "resistance", 1);
-  const damageVulnerability = getGenericConditionAffect(modifiers, "vulnerability", 3);
+  const damageImmunityData = getGenericConditionAffectData(modifiers, "immunity", 2);
+  const damageResistanceData = getGenericConditionAffectData(modifiers, "resistance", 1);
+  const damageVulnerabilityData = getGenericConditionAffectData(modifiers, "vulnerability", 3);
 
-  damageImmunities.forEach((type) => {
-    charges.push(generateCustomChange(type, 1, "system.traits.di.value"));
+  damageImmunityData.forEach((data) => {
+    if (data.value && data.value.length > 0) charges.push(generateCustomChange(data.value, 1, "system.traits.di.value"));
+    if (data.bypass && data.bypass.length > 0) charges.push(generateCustomChange(data.bypass, 1, "system.traits.di.bypasses"));
   });
-  damageResistances.forEach((type) => {
-    charges.push(generateCustomChange(type, 1, "system.traits.dr.value"));
+  damageResistanceData.forEach((data) => {
+    if (data.value && data.value.length > 0) charges.push(generateCustomChange(data.value, 1, "system.traits.dr.value"));
+    if (data.bypass && data.bypass.length > 0) charges.push(generateCustomChange(data.bypass, 1, "system.traits.dr.bypasses"));
   });
-  damageVulnerability.forEach((type) => {
-    charges.push(generateCustomChange(type, 1, "system.traits.dv.value"));
+  damageVulnerabilityData.forEach((data) => {
+    if (data.value && data.value.length > 0) charges.push(generateCustomChange(data.value, 1, "system.traits.dv.value"));
+    if (data.bypass && data.bypass.length > 0) charges.push(generateCustomChange(data.bypass, 1, "system.traits.dv.bypasses"));
   });
 
-  const conditionImmunities = getGenericConditionAffect(modifiers, "immunity", 4);
+  const conditionImmunityData = getGenericConditionAffectData(modifiers, "immunity", 4);
 
-  conditionImmunities.forEach((type) => {
-    charges.push(generateCustomChange(type, 1, "system.traits.ci.value"));
+  conditionImmunityData.forEach((data) => {
+    if (data.value && data.value.length > 0) charges.push(generateCustomChange(data.value, 1, "system.traits.ci.value"));
+    if (data.bypass && data.bypass.length > 0) charges.push(generateCustomChange(data.bypass, 1, "system.traits.ci.bypasses"));
   });
 
   // system.traits.di.all
