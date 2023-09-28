@@ -28,36 +28,35 @@ DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(in
 
 
 DDBCharacter.prototype.getArmorProficiencies = function getArmorProficiencies(proficiencyArray) {
-  let values = [];
-  let custom = [];
+  const values = new Set();
+  const custom = [];
 
   // lookup the characters's proficiencies in the DICT
-  let allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Armor");
+  const allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Armor" && hasProperty(prof, "foundryValue"));
+
+  const processArmorProficiency = (prof) => {
+    if (prof.name === "Light Armor") values.add("lgt");
+    else if (prof.name === "Medium Armor") values.add("med");
+    else if (prof.name === "Heavy Armor") values.add("hvy");
+    else if (prof.name === "Shields") values.add("shl");
+    else {
+      const entry = allProficiencies.find((p) => p.name === prof.name);
+      if (entry) values.add(entry.foundryValue);
+    }
+  };
   proficiencyArray.forEach((prof) => {
-    if (prof.name === "Light Armor" && !values.includes("lgt")) {
-      values.push("lgt");
-    }
-    if (prof.name === "Medium Armor" && !values.includes("med")) {
-      values.push("med");
-    }
-    if (prof.name === "Heavy Armor" && !values.includes("hvy")) {
-      values.push("hvy");
-    }
-    if (prof.name === "Shields" && !values.includes("shl")) {
-      values.push("shl");
-    }
-    if (allProficiencies.find((p) => p.name === prof.name) !== undefined && !custom.includes(prof.name)) {
-      custom.push(prof.name);
-    }
+    processArmorProficiency(prof);
   });
 
   if (this.source?.ddb) {
     // load custom proficiencies in characterValues
     const customProfs = this._getCustomProficiencies("Armor");
-    custom = custom.concat(customProfs);
+    customProfs.forEach((prof) => {
+      processArmorProficiency({ name: prof });
+    });
   }
   return {
-    value: [...new Set(values)],
+    value: [...values],
     custom: [...new Set(custom)].join(";"),
   };
 };
@@ -77,28 +76,27 @@ DDBCharacter.prototype.getArmorProficiencies = function getArmorProficiencies(pr
 // };
 //
 DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(proficiencyArray) {
-  let values = [];
-  let custom = [];
+  const values = new Set();
+  const custom = new Set();
 
   // lookup the characters's proficiencies in the DICT
-  let allToolProficiencies = DICTIONARY.character.proficiencies
+  const allToolProficiencies = DICTIONARY.character.proficiencies
     .filter((prof) => prof.type === "Tool")
     .map((prof) => {
       return prof;
     });
 
-  proficiencyArray.forEach((prof) => {
-    // Some have values we can match too in foundry, others have to be custom imported
-    switch (prof.name) {
-      default: {
-        const allProfMatch = allToolProficiencies.find((allProf) => allProf.name === prof.name);
-        if (allProfMatch && allProfMatch.baseTool && allProfMatch.baseTool !== "") {
-          values.push(allProfMatch.baseTool);
-        } else if (allProfMatch) {
-          custom.push(prof.name);
-        }
-      }
+  const processToolProficiency = (prof) => {
+    const allProfMatch = allToolProficiencies.find((allProf) => allProf.name === prof.name);
+    if (allProfMatch && allProfMatch.baseTool && allProfMatch.baseTool !== "") {
+      values.add(allProfMatch.baseTool);
+    } else if (allProfMatch) {
+      custom.add(prof.name);
     }
+  };
+
+  proficiencyArray.forEach((prof) => {
+    processToolProficiency(prof);
   });
 
   if (this.source?.ddb) {
@@ -106,71 +104,76 @@ DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(prof
     this.source.ddb.character.customProficiencies.forEach((proficiency) => {
       if (proficiency.type === 2) {
         // type 2 is TOOL, 1 is SKILL, 3 is LANGUAGE
-        custom.push(proficiency.name);
+        processToolProficiency(proficiency);
       }
     });
 
     // load custom proficiencies in characterValues
     const customProfs = this._getCustomProficiencies("Tools");
-    custom = custom.concat(customProfs);
+    for (const prof of customProfs) {
+      processToolProficiency({ name: prof });
+    }
   }
 
   return {
-    value: [...new Set(values)],
-    custom: [...new Set(custom)].join(";"),
+    value: [...values],
+    custom: [...custom].join(";"),
   };
 };
 
 DDBCharacter.prototype.getWeaponProficiencies = function getWeaponProficiencies(proficiencyArray) {
-  let values = [];
-  let custom = [];
+  const values = new Set();
+  const custom = [];
 
   // lookup the characters's proficiencies in the DICT
   const allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Weapon");
-  proficiencyArray.forEach((prof) => {
-    if (prof.name === "Simple Weapons" && !values.includes("sim")) {
-      values.push("sim");
-    }
-    if (prof.name === "Martial Weapons" && !values.includes("mar")) {
-      values.push("mar");
-    }
-    // new  1.5
+
+  const processWeaponProficiency = (prof) => {
+    if (prof.name === "Simple Weapons") values.add("sim");
+    if (prof.name === "Martial Weapons") values.add("mar");
+
     const systemWeaponIds = CONFIG.DND5E.weaponIds;
     const dnd5eNameArray = prof.name.toLowerCase().split(",");
     const dnd5eName = dnd5eNameArray.length === 2
       ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`
       : prof.name.toLowerCase();
     if (systemWeaponIds && dnd5eName in systemWeaponIds) {
-      if (!values.includes(dnd5eName)) values.push(dnd5eName);
+      values.add(dnd5eName);
     } else if (allProficiencies.some((p) => p.name === prof.name) && !custom.includes(prof.name)) {
       custom.push(prof.name);
     }
+  };
+
+  proficiencyArray.forEach((prof) => {
+    processWeaponProficiency(prof);
   });
 
   if (this.source?.ddb) {
     // load custom proficiencies in characterValues
     const customProfs = this._getCustomProficiencies("Weapons");
-    custom = custom.concat(customProfs);
+    customProfs.forEach((prof) => {
+      processWeaponProficiency({ name: prof });
+    });
   }
 
   return {
-    value: [...new Set(values)],
+    value: Array.from(values),
     custom: [...new Set(custom)].join("; "),
   };
 };
 
 DDBCharacter.prototype.getLanguagesFromModifiers = function getLanguagesFromModifiers(modifiers) {
-  let languages = [];
-  let custom = [];
+  const languages = new Set();
+  const custom = new Set();
 
   modifiers
     .filter((mod) => mod.type === "language")
     .forEach((language) => {
-      let result = DICTIONARY.character.languages.find((lang) => lang.name === language.friendlySubtypeName);
+      const result = DICTIONARY.character.languages.find((lang) => lang.name === language.friendlySubtypeName);
       if (result) {
-        languages.push(result.value);
+        languages.add(result.value);
       } else if (language.friendlySubtypeName !== "Choose a Language") {
-        custom.push(language.friendlySubtypeName);
+        custom.add(language.friendlySubtypeName);
       }
     });
 
@@ -178,18 +181,30 @@ DDBCharacter.prototype.getLanguagesFromModifiers = function getLanguagesFromModi
     this.source.ddb.character.customProficiencies.forEach((proficiency) => {
       if (proficiency.type === 3) {
         // type 3 is LANGUAGE, 1 is SKILL, 2 is TOOL
-        custom.push(proficiency.name);
+        const result = DICTIONARY.character.languages.find((lang) => lang.name === proficiency.name);
+        if (result) {
+          languages.add(result.value);
+        } else {
+          custom.add(proficiency.name);
+        }
       }
     });
 
     // load custom proficiencies in characterValues
     const customProfs = this._getCustomProficiencies("Languages");
-    custom = custom.concat(customProfs);
+    for (const prof of customProfs) {
+      const result = DICTIONARY.character.languages.find((lang) => lang.name === prof);
+      if (result) {
+        languages.add(result.value);
+      } else {
+        custom.add(prof);
+      }
+    }
   }
 
   return {
-    value: languages,
-    custom: custom.map((entry) => utils.capitalize(entry)).join(";"),
+    value: Array.from(languages),
+    custom: Array.from(custom).map((entry) => utils.capitalize(entry)).join(";"),
   };
 };
 
