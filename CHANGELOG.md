@@ -9,6 +9,7 @@
 - Dancing Lights effect tweak (thanks @tminz)
 - Support Tavern Brawler special trait
 - Fixes to a handful of monsters with weird spell descriptions which no longer parsed. E.g. Faerie Dragon and  Sephek Kaltro.
+- Ensure transfer effects are transfered to actors when using Chris' Preades with the Monster Muncher.
 
 # 3.4.70
 

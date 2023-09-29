@@ -2,7 +2,7 @@
 
 import { newNPC } from "./monster/templates/monster.js";
 import { specialCases } from "./monster/special.js";
-import { monsterFeatureEffectAdjustment } from "../effects/specialMonsters.js";
+import { monsterFeatureEffectAdjustment, transferEffectsToActor } from "../effects/specialMonsters.js";
 
 import logger from '../logger.js';
 import CompendiumHelper from "../lib/CompendiumHelper.js";
@@ -300,6 +300,7 @@ export default class DDBMonster {
         await applyChrisPremadeEffect({ document: item, type: "monsterfeatures", folderName: this.npc.name });
       }
     }
+    this.npc = transferEffectsToActor(this.npc);
 
     this._generateTaggerFlags();
     this._generate3DModels();

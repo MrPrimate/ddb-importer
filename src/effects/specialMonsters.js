@@ -47,7 +47,7 @@ export function baseMonsterFeatureEffect(document, label) {
   return effect;
 }
 
-function transferEffectsToActor(document) {
+export function transferEffectsToActor(document) {
   if (!document.effects) document.effects = [];
   const compendiumLabel = CompendiumHelper.getCompendiumLabel("monsters");
 
@@ -155,6 +155,5 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     // no default
   }
 
-  npc = transferEffectsToActor(npc);
   return npc;
 }
