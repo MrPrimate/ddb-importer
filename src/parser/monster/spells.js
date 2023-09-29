@@ -329,7 +329,7 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
     }
     spell.name = `${spell.name} (${edgeCase.edge})`;
     // spell.system.description.chat = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.system.description.chat}`;
-    spell.system.description.value = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.system.description.value}`;
+    spell.system.description.value = `<p><b>Special Notes: ${edgeCase.edgeDescription ?? edgeCase.edge}.</b></p>\n\n${spell.system.description.value}`;
 
     const diceSearch = /(\d+)d(\d+)/;
     const diceMatch = edgeCase.edge.match(diceSearch);
@@ -366,7 +366,62 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
 
 };
 
+// temporary spell hints
+// these covercurrent gaps in teh parser, or blocks that are impossible to parse
+DDBMonster.prototype._addSpellHints = function() {
+  switch (this.name) {
+    case "Hypnos Magen": {
+      this.spellList.atwill = ["Suggestion"];
+      this.spellList.material = false;
+      this.spellcasting.spellcasting = "int";
+      break;
+    }
+    case "Sephek Kaltro": {
+      this.spellList.innate = [{ name: "Misty Step", type: "day", value: 3 }];
+      this.spellList.material = false;
+      break;
+    }
+    case " Faerie Dragon (Younger)": {
+      this.spellList.innate = [
+        { name: "Dancing Lights", type: "day", edge: "Red", value: 1, edgeDescription: "Available to Red, Orange, Yellow" },
+        { name: "Mage Hand", type: "day", edge: "Red", value: 1, edgeDescription: "Available to Red, Orange, Yellow" },
+        { name: "Minor Illusion", type: "day", edge: "Red", value: 1, edgeDescription: "Available to Red, Orange, Yellow" },
+        { name: "Color Spray", type: "day", edge: "Orange", value: 1, edgeDescription: "Available to Orange, Yellow" },
+        { name: "Mirror Image", type: "day", edge: "Yellow", value: 1, edgeDescription: "Available to Yellow" },
+      ];
+      this.spellList.edgeCases = deepClone(this.spellList.innate).map((s) => {
+        s.type = "innate";
+        return s;
+      });
+      this.spellList.material = false;
+      break;
+    }
+    case "Otto":
+    case " Faerie Dragon (Older)": {
+      this.spellList.innate = [
+        { name: "Dancing Lights", type: "day", edge: "Red", value: 1, edgeDescription: "Available to Red, Orange, Yellow, Green, Blue, Indigo and Violet" },
+        { name: "Mage Hand", type: "day", edge: "Red", value: 1, edgeDescription: "Available to Red, Orange, Yellow, Green, Blue, Indigo and Violet" },
+        { name: "Minor Illusion", type: "day", edge: "Red", value: 1, edgeDescription: "Available to Red, Orange, Yellow, Green, Blue, Indigo and Violet" },
+        { name: "Color Spray", type: "day", edge: "Orange", value: 1, edgeDescription: "Available to Orange, Yellow, Green, Blue, Indigo and Violet" },
+        { name: "Mirror Image", type: "day", edge: "Yellow", value: 1, edgeDescription: "Available to Yellow, Green, Blue, Indigo and Violet" },
+        { name: "Suggestion", type: "day", edge: "Green", value: 1, edgeDescription: "Available to Green, Blue, Indigo and Violet" },
+        { name: "Major Image", type: "day", edge: "Blue", value: 1, edgeDescription: "Available to Blue, Indigo and Violet" },
+        { name: "Hallucinatory Terrain", type: "day", edge: "Indigo", value: 1, edgeDescription: "Available to Indigo and Violet" },
+        { name: "Polymorph", type: "day", edge: "Violet", value: 1, edgeDescription: "Available to Indigo" },
+      ];
+      this.spellList.edgeCases = deepClone(this.spellList.innate).map((s) => {
+        s.type = "innate";
+        return s;
+      });
+      this.spellList.material = false;
+      break;
+    }
+    // no default
+  }
+};
+
 DDBMonster.prototype.addSpells = async function() {
+  this._addSpellHints();
   // check to see if we have munched flags to work on
   if (!this.spellList) {
     return;

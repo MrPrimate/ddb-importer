@@ -58,12 +58,6 @@ export function specialCases(monster) {
       }, monster.items);
       break;
     }
-    case "Hypnos Magen": {
-      monster.flags.monsterMunch.spellList.atwill = ["Suggestion"];
-      monster.flags.monsterMunch.spellList.material = false;
-      monster.system.attributes.spellcasting = "int";
-      break;
-    }
     case "Nilbog (Legacy)":
     case "Nilbog": {
       monster.items.forEach(function (item, index) {
@@ -80,11 +74,6 @@ export function specialCases(monster) {
           this[index].system.damage.parts.splice(2, 1);
         }
       }, monster.items);
-      break;
-    }
-    case "Sephek Kaltro": {
-      monster.flags.monsterMunch.spellList.innate = [{ name: "Misty Step", type: "day", value: 3 }];
-      monster.flags.monsterMunch.spellList.material = false;
       break;
     }
     // no default

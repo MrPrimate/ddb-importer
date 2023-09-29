@@ -8,6 +8,7 @@
 - Hadozee Dodge effect.
 - Dancing Lights effect tweak (thanks @tminz)
 - Support Tavern Brawler special trait
+- Fixes to a handful of monsters with weird spell descriptions which no longer parsed. E.g. Faerie Dragon and  Sephek Kaltro.
 
 # 3.4.70
 
