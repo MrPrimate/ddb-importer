@@ -528,6 +528,13 @@ async function updateItemsWithDDBInfo(itemsToAdd) {
   }));
 }
 
+function getValidContainer(actor, containerEntityId) {
+  if (!containerEntityId) return undefined;
+  if (parseInt(containerEntityId) === parseInt(actor.flags.ddbimporter.dndbeyond.characterId)) return true;
+  const containers = actor.items.filter((i) => getProperty(i, "flags.ddbimporter.dndbeyond.isContainer") === true);
+  return containers.find((c) => parseInt(getProperty(c, "flags.ddbimporter.id")) === parseInt(containerEntityId));
+}
+
 function generateItemsToAdd(actor, itemsToAdd) {
   const results = {
     items: [],
@@ -535,14 +542,17 @@ function generateItemsToAdd(actor, itemsToAdd) {
     custom: [],
   };
 
+  const characterId = parseInt(actor.flags.ddbimporter.dndbeyond.characterId);
+
   for (let i = 0; i < itemsToAdd.length; i++) {
     let item = itemsToAdd[i];
     if (item.flags.ddbimporter?.definitionId && item.flags.ddbimporter?.definitionEntityTypeId) {
-      const containerEntityId = hasProperty(item, "flags.ddbimporter.containerEntityId")
-        ? parseInt(item.flags.ddbimporter.containerEntityId)
-        : parseInt(actor.flags.ddbimporter.dndbeyond.characterId);
-      const containerEntityTypeId = hasProperty(item, "flags.ddbimporter.containerEntityTypeId")
-        ? parseInt(item.flags.ddbimporter.containerEntityTypeId)
+      const containerItem = getValidContainer(actor, hasProperty(item, "flags.ddbimporter.containerEntityId"));
+      const containerEntityId = containerItem
+        ? parseInt(getProperty(containerItem, "flags.ddbimporter.id"))
+        : characterId;
+      const containerEntityTypeId = containerItem && containerEntityId !== characterId
+        ? parseInt(getProperty(containerItem, "flags.ddbimporter.entityTypeId"))
         : parseInt("1581111423");
       results.toAdd.push({
         containerEntityId,
@@ -635,8 +645,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
   const ddbEnrichedItems = await updateItemsWithDDBInfo(itemsToAdd);
   const generatedItemsToAddData = generateItemsToAdd(actor, ddbEnrichedItems);
 
-  logger.debug(`Generated items data`, generatedItemsToAddData);
-  logger.debug(`Generated items data light`, generatedItemsToAddData.items.map((i) => {
+  const addDebugData = generatedItemsToAddData.items.map((i) => {
     return {
       name: i.name,
       definitionId: i.flags.ddbimporter.definitionId,
@@ -645,7 +654,10 @@ async function addDDBEquipment(actor, itemsToAdd) {
       containerEntityTypeId: i.flags.ddbimporter.containerEntityTypeId,
       entityTypeId: i.flags.ddbimporter.entityTypeId,
     };
-  }));
+  });
+
+  logger.debug(`Generated items data`, generatedItemsToAddData);
+  logger.debug(`Generated items data light`, addDebugData);
 
   const addItemData = {
     equipment: generatedItemsToAddData.toAdd,
@@ -715,6 +727,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
         logger.error(`Update payload:`, itemUpdates);
         logger.error(`Update custom payload:`, customItems);
         logger.error(`Update containerIds:`, containerIds);
+        logger.error("Update Item Information:", addDebugData);
       }
 
     } catch (err) {
@@ -724,6 +737,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
       logger.error(`equipmentToAdd`, generatedItemsToAddData);
       logger.error(`itemResults`, itemResults);
       logger.error(`customItems`, customItems);
+      logger.error("Update Item Information:", addDebugData);
     }
 
     return itemResults;

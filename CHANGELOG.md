@@ -12,6 +12,7 @@
 - Ensure transfer effects are transfered to actors when using Chris' Premades with the Monster Muncher.
 - Flesh to Stone effect fix.
 - Improve monster effect generation for features such as the Myconid Adult's Pacifying Spores. It will now set a round and seconds duration, and on the item/feature will adjust the duration if it had been parsed as an instantaneous effect.
+- Charater Updater to DDB: improve updates where items have been dragged from other characters, or container definitions are bad.
 
 # 3.4.70
 
