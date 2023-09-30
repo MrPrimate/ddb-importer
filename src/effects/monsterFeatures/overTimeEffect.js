@@ -120,7 +120,7 @@ function generateConditionEffect(effect, text) {
     const group4Condition = match[4]
       ? DICTIONARY.character.damageAdjustments
         .filter((type) => type.type === 4)
-        .find((type) => type.name.toLowerCase() === match[4].toLowerCase() || type.value.toLowerCase() === match[4].toLowerCase())
+        .find((type) => type.name.toLowerCase() === match[4].toLowerCase() || type.foundryValue === match[4].toLowerCase())
       : undefined;
     if (group4Condition) {
       results.condition = group4Condition.value;
@@ -186,6 +186,15 @@ export function generateOverTimeEffect(ddbMonster, actor, document) {
     ? getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
     : getDuration(document.system.description.value);
   setProperty(effect, "duration.seconds", durationSeconds);
+  const durationRounds = Number.parseInt(durationSeconds / 6);
+  setProperty(effect, "duration.rounds", durationRounds);
+
+  if (getProperty(document, "system.duration.units") === "inst") {
+    setProperty(document, "system.duration", {
+      units: "round",
+      value: durationRounds,
+    });
+  }
 
   const turn = startOrEnd(document.system.description.value);
   if (!turn) return effectCleanup(ddbMonster, document, actor, effect);

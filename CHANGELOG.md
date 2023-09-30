@@ -11,6 +11,7 @@
 - Fixes to a handful of monsters with weird spell descriptions which no longer parsed. E.g. Faerie Dragon and  Sephek Kaltro.
 - Ensure transfer effects are transfered to actors when using Chris' Premades with the Monster Muncher.
 - Flesh to Stone effect fix.
+- Improve monster effect generation for features such as the Myconid Adult's Pacifying Spores. It will now set a round and seconds duration, and on the item/feature will adjust the duration if it had been parsed as an instantaneous effect.
 
 # 3.4.70
 
