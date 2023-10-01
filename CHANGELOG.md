@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.71
 
 - Improvements to Fire Shield effect to automate damage based on macro by @thatlonelybugbear
 - Spike Growth Macro improvements.
