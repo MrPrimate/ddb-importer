@@ -1,8 +1,8 @@
+/* eslint-disable no-await-in-loop */
 import logger from "../../logger.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
-import { updateCompendium, srdFiddling } from "../import.js";
-import DDBMuncher from "../../apps/DDBMuncher.js";
 import DDBRace from "../../parser/race/DDBRace.js";
+import DDBItemImporter from "../../lib/DDBItemImporter.js";
 
 const FEATURE_DUP = [
   "Breath Weapon",
@@ -104,31 +104,19 @@ export async function getRaces(data) {
       });
     });
 
-  const fiddledRacialFeatures = await srdFiddling(racialFeatures, "traits");
-  DDBMuncher.munchNote(`Importing ${fiddledRacialFeatures.length} traits!`, true);
-  logger.debug("Generated Racial Traits", fiddledRacialFeatures);
-  await updateCompendium("traits", { traits: fiddledRacialFeatures }, updateBool, ["entityRaceId"]);
+  const traitHelper = await DDBItemImporter.buildHandler("traits", racialFeatures, updateBool, { chrisPremades: true, matchFlags: ["entityRaceId"] });
+  const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traitHelper.documents);
+  const filteredRaces = data.filter((race) => !excludeLegacy || (excludeLegacy && !race.isLegacy));
 
-  const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(fiddledRacialFeatures);
-
-  await Promise.allSettled(data
-    .filter((race) => !excludeLegacy || (excludeLegacy && !race.isLegacy))
-    .map(async (race) => {
-      logger.debug(`${race.fullName} race parsing started...`);
-      const ddbRace = new DDBRace(race, compendiumRacialTraits);
-      const builtRace = await ddbRace.buildRace();
-      races.push(builtRace);
-    })
-  );
+  for (const race of filteredRaces) {
+    logger.debug(`${race.fullName} race parsing started...`);
+    const ddbRace = new DDBRace(race, compendiumRacialTraits);
+    const builtRace = await ddbRace.buildRace();
+    races.push(builtRace);
+  }
 
   logger.debug("Pre-fiddled races", duplicate(races));
-
-  const fiddledRaces = await srdFiddling(races, "races");
-  DDBMuncher.munchNote(`Importing ${fiddledRaces.length} races!`, true);
-
-  logger.debug("Fiddled races", fiddledRaces);
-
-  await updateCompendium("races", { races: fiddledRaces }, updateBool, ["entityRaceId"]);
+  await DDBItemImporter.buildHandler("races", races, updateBool, { matchFlags: ["entityRaceId"] });
 
   return results;
 }

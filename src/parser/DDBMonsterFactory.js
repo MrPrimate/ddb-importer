@@ -6,7 +6,6 @@ import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import SETTINGS from "../settings.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
-import { srdFiddling, getCompendiumItems, removeItems } from "../muncher/import.js";
 
 // targets for migration
 import {
@@ -17,6 +16,7 @@ import {
   useSRDMonsterImages
 } from "../muncher/importMonster.js";
 import Iconizer from "../lib/Iconizer.js";
+import DDBItemImporter from "../lib/DDBItemImporter.js";
 
 export default class DDBMonsterFactory {
 
@@ -215,31 +215,33 @@ export default class DDBMonsterFactory {
     logger.info("Check complete getting monster data...");
     this.munchNote(`Getting monster data from DDB...`);
     await this.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(ids));
-    let monsterResults = await this.parse();
-    let monsters = monsterResults.actors;
+    const monsterResults = await this.parse();
+
+    const itemHandler = new DDBItemImporter("monsters", monsterResults.actors);
+    await itemHandler.init();
 
     if (!updateBool || !updateImages) {
       this.munchNote(`Calculating which monsters to update...`, true);
-      const existingMonsters = await getCompendiumItems(monsters, "npc", { keepDDBId: true });
+      const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents, "npc", { keepDDBId: true });
       const existingMonstersTotal = existingMonsters.length + 1;
       if (!updateBool) {
         logger.debug("Removing existing monsters from import list");
         logger.debug(`Matched ${existingMonstersTotal}`);
         this.munchNote(`Removing ${existingMonstersTotal} from update...`);
-        monsters = await removeItems(monsters, existingMonsters, true);
+        itemHandler.removeItems(existingMonsters, true);
       }
       if (!updateImages) {
         logger.debug("Copying monster images across...");
         this.munchNote(`Copying images for ${existingMonstersTotal} monsters...`);
-        monsters = copyExistingMonsterImages(monsters, existingMonsters);
+        itemHandler.documents = copyExistingMonsterImages(itemHandler.documents, existingMonsters);
       }
     }
     this.munchNote("");
     this.munchNote(`Fiddling with the SRD data...`, true);
-    const finalMonsters = await srdFiddling(monsters, "monsters");
+    await itemHandler.srdFiddling();
     this.munchNote(`Generating Icon Map..`, true);
-    await generateIconMap(finalMonsters);
-    await useSRDMonsterImages(finalMonsters);
+    await generateIconMap(itemHandler.documents);
+    await useSRDMonsterImages(itemHandler.documents);
 
     const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
     if (addToCompendiumFolder) {
@@ -250,9 +252,9 @@ export default class DDBMonsterFactory {
 
     let monstersParsed = [];
     let currentMonster = 1;
-    const monsterCount = finalMonsters.length;
+    const monsterCount = itemHandler.documents.length;
     this.munchNote(`Preparing dinner for ${monsterCount} monsters!`, true);
-    for (const monster of finalMonsters) {
+    for (const monster of itemHandler.documents) {
       if (bulkImport) {
         this.munchNote(`[${currentMonster}/${monsterCount}] Checking dietary requirements for ${monster.name}`, false, true);
       } else {

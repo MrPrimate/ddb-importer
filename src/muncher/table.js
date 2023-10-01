@@ -2,7 +2,7 @@ import { parseTable, getHeadings } from "../../vendor/parseTable.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import utils from "../lib/utils.js";
 import logger from "../logger.js";
-import { updateCompendium } from "./import.js";
+import DDBItemImporter from "../lib/DDBItemImporter.js";
 
 function diceRollMatcher(match, p1, p2, p3, p4, p5) {
   if (p5 && p5.toLowerCase() === "damage") {
@@ -251,7 +251,7 @@ export async function generateTable(parentName, html, updateExisting, type = "")
         if (!tableGenerated) {
           logger.debug(`Generated table`, builtTables);
           // eslint-disable-next-line no-await-in-loop
-          await updateCompendium("tables", { tables: builtTables }, updateExisting);
+          await DDBItemImporter.buildHandler("tables", builtTables, updateExisting, { srdFidding: false });
         }
 
         let tableData = {

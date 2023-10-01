@@ -1,7 +1,7 @@
 import FolderHelper from "../../lib/FolderHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
-import { copySupportedItemFlags, srdFiddling } from "../../muncher/import.js";
+import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
 import DDBCompanion from "./DDBCompanion.js";
 
@@ -129,8 +129,7 @@ export default class DDBCompanionFactory {
       companion.folder = existingCompanion.folder?.id;
       companion._id = existingCompanion._id;
       logger.info(`Updating companion ${companion.name}`);
-      // eslint-disable-next-line no-await-in-loop
-      copySupportedItemFlags(existingCompanion, companion);
+      DDBItemImporter.copySupportedItemFlags(existingCompanion, companion);
       // eslint-disable-next-line no-await-in-loop
       const npc = await buildNPC(companion, "monster", false, true, true);
       results.push(npc);
@@ -174,13 +173,15 @@ export default class DDBCompanionFactory {
       }
     }
 
-    let finalCompanions = await srdFiddling(companionData, "monsters");
-    await generateIconMap(finalCompanions);
+    const itemHandler = new DDBItemImporter("monsters", companionData);
+    await itemHandler.srdFiddling();
+
+    await generateIconMap(itemHandler.documents);
 
     if (this.updateCompanions) {
-      this.results.updated = await DDBCompanionFactory.updateCompanions(finalCompanions, existingCompanions);
+      this.results.updated = await DDBCompanionFactory.updateCompanions(itemHandler.documents, existingCompanions);
     }
-    this.results.created = await DDBCompanionFactory.createCompanions(finalCompanions, existingCompanions, folderOverride?.id);
+    this.results.created = await DDBCompanionFactory.createCompanions(itemHandler.documents, existingCompanions, folderOverride?.id);
 
     // add companions to automated evocations list
     if (this.actor && game.modules.get("automated-evocations")?.active) {

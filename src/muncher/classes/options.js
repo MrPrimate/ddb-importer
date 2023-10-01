@@ -1,8 +1,7 @@
 import logger from "../../logger.js";
 
 import { getClassFeature, NO_TRAITS } from "./shared.js";
-import { updateCompendium, srdFiddling } from "../import.js";
-import DDBMuncher from "../../apps/DDBMuncher.js";
+import DDBItemImporter from "../../lib/DDBItemImporter.js";
 
 export async function getClassOptions(data, className) {
   logger.debug("get options started");
@@ -28,10 +27,7 @@ export async function getClassOptions(data, className) {
     }
   }
 
-  const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
-  DDBMuncher.munchNote(`Importing ${fiddledClassFeatures.length} options!`, true);
-  await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
+  await DDBItemImporter.buildHandler("features", classFeatures, updateBool, { chrisPremades: true, deleteBeforeUpdate: false });
 
-  // return fiddledClassFeatures;
   return results;
 }

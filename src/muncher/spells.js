@@ -1,5 +1,4 @@
 // Main module class
-import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 import FileHelper from "../lib/FileHelper.js";
@@ -13,6 +12,7 @@ import { addVision5eStubs } from "../effects/vision5e.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBMacros from "../effects/macros.js";
 import Iconizer from "../lib/Iconizer.js";
+import DDBItemImporter from "../lib/DDBItemImporter.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
@@ -123,23 +123,23 @@ export async function parseSpells(ids = null) {
 
   await Iconizer.preFetchDDBIconImages();
 
-  let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
-  const srdSpells = await srdFiddling(uniqueSpells, "spells");
+  const uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
+  const itemHandler = new DDBItemImporter("spells", uniqueSpells);
+  await itemHandler.init();
+  await itemHandler.srdFiddling();
   const filteredSpells = (ids !== null && ids.length > 0)
-    ? srdSpells.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
-    : srdSpells;
-  const daeSpells = await daeFiddling(filteredSpells);
-  const visionSpells = addVision5eStubs(daeSpells);
-  const finalSpells = await applyChrisPremadeEffects({ documents: visionSpells, compendiumItem: true });
+    ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
+    : itemHandler.documents;
+  const visionSpells = addVision5eStubs(filteredSpells);
+  itemHandler.documents = await applyChrisPremadeEffects({ documents: visionSpells, compendiumItem: true });
 
-  const finalCount = finalSpells.length;
+  const finalCount = itemHandler.documents.length;
   DDBMuncher.munchNote(`Importing ${finalCount} spells...`, true);
   logger.time("Spell Import Time");
-
-  const updateResults = await updateCompendium("spells", { spells: finalSpells }, updateBool);
+  const updateResults = await itemHandler.updateCompendium(updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
-  logger.debug({ finalSpells, updateResults, updatePromiseResults });
+  logger.debug({ finalSpells: itemHandler.documents, updateResults, updatePromiseResults });
   DDBMuncher.munchNote("");
   logger.timeEnd("Spell Import Time");
   return updateResults;

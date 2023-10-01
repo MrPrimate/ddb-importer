@@ -1,9 +1,7 @@
 import logger from "../../logger.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
-import DDBMuncher from "../../apps/DDBMuncher.js";
-import { applyChrisPremadeEffects } from "../../effects/chrisPremades.js";
+import DDBItemImporter from "../../lib/DDBItemImporter.js";
 
 const FEAT_TEMPLATE = {
   "name": "",
@@ -79,12 +77,6 @@ export async function getFeats(data) {
     feats.push(parsedFeat);
   });
 
-  const fiddledFeats = await srdFiddling(feats, "feats");
-  const daeFeats = await daeFiddling(fiddledFeats);
-  const finalFeats = await applyChrisPremadeEffects({ documents: daeFeats, compendiumItem: true });
-
-  DDBMuncher.munchNote(`Importing ${finalFeats.length} feats!`, true);
-  await updateCompendium("feats", { feats: finalFeats }, updateBool);
-
-  return finalFeats;
+  const itemHandler = await DDBItemImporter.buildHandler("feats", feats, updateBool, { chrisPremades: true });
+  return itemHandler.documents;
 }

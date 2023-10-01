@@ -1,6 +1,5 @@
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
-import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import {
   addNPC,
@@ -15,6 +14,7 @@ import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
+import DDBItemImporter from "../lib/DDBItemImporter.js";
 
 /**
  *
@@ -115,15 +115,18 @@ export async function parseTransports(ids = null) {
   let vehicleJSON = await getVehicleData(ids);
   let vehicles = await processVehicleData(vehicleJSON);
 
+  const vehicleHandler = new DDBItemImporter("vehicles", vehicles);
+  await vehicleHandler.init();
+
   if (!updateBool || !updateImages) {
     DDBMuncher.munchNote(`Calculating which vehicles to update...`, true);
-    const existingVehicles = await getCompendiumItems(vehicles, "npc", { keepDDBId: true });
+    const existingVehicles = await DDBItemImporter.getCompendiumItems(vehicles, "vehicles", { keepDDBId: true });
     const existingVehiclesTotal = existingVehicles.length + 1;
     if (!updateBool) {
       logger.debug("Removing existing vehicles from import list");
       logger.debug(`Matched ${existingVehiclesTotal}`);
       DDBMuncher.munchNote(`Removing ${existingVehiclesTotal} from update...`);
-      vehicles = await removeItems(vehicles, existingVehicles, true);
+      vehicleHandler.removeItems(existingVehicles);
     }
     if (!updateImages) {
       logger.debug("Copying vehicle images across...");
@@ -133,10 +136,10 @@ export async function parseTransports(ids = null) {
   }
   DDBMuncher.munchNote("");
   DDBMuncher.munchNote(`Fiddling with the SRD data...`, true);
-  const finalVehicles = await srdFiddling(vehicles, "vehicles");
+  await vehicleHandler.srdFiddling();
 
   DDBMuncher.munchNote(`Generating Icon Map..`, true);
-  await generateIconMap(finalVehicles);
+  await generateIconMap(vehicleHandler.documents);
 
   // Compendium folders not yet in use for Vehicles
   const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
@@ -149,9 +152,9 @@ export async function parseTransports(ids = null) {
 
   let vehiclesParsed = [];
   let currentVehicle = 1;
-  const vehicleCount = finalVehicles.length;
+  const vehicleCount = vehicleHandler.documents.length;
   DDBMuncher.munchNote(`Preparing to wax ${vehicleCount} vehicles!`, true);
-  for (const vehicle of finalVehicles) {
+  for (const vehicle of vehicleHandler.documents) {
     if (bulkImport) {
       DDBMuncher.munchNote(`[${currentVehicle}/${vehicleCount}] Checking servicing requirements for ${vehicle.name}`, false, true);
     } else {

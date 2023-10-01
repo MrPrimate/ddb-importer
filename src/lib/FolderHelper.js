@@ -1,5 +1,5 @@
 import logger from "../logger.js";
-import { copySupportedItemFlags } from "../muncher/import.js";
+import DDBItemImporter from "./DDBItemImporter.js";
 import SETTINGS from "../settings.js";
 import utils from "./utils.js";
 
@@ -80,7 +80,7 @@ export default class FolderHelper {
             const existingItem = await existingItems.find((existing) => item.name === existing.name);
             item._id = existingItem._id;
             logger.info(`Updating ${type} ${item.name}`);
-            copySupportedItemFlags(existingItem, item);
+            DDBItemImporter.copySupportedItemFlags(existingItem, item);
             await Item.update(item);
             return item;
           })

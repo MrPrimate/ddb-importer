@@ -1,11 +1,10 @@
+/* eslint-disable no-await-in-loop */
 import logger from "../../logger.js";
 import { generateBackground } from "../../parser/character/bio.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
-import DDBMuncher from "../../apps/DDBMuncher.js";
 import { generateTable } from "../table.js";
-import { applyChrisPremadeEffects } from "../../effects/chrisPremades.js";
+import DDBItemImporter from "../../lib/DDBItemImporter.js";
 
 const BACKGROUND_TEMPLATE = {
   "name": "",
@@ -65,23 +64,12 @@ export async function getBackgrounds(data) {
 
   let backgrounds = [];
 
-  // console.warn(data);
-
   for (const background of data) {
     logger.debug(`${background.name} background parsing started...`);
-    // eslint-disable-next-line no-await-in-loop
     const parsedBackground = await buildBackground(background);
     backgrounds.push(parsedBackground);
   }
 
-  // console.warn("backgrounds", backgrounds);
-
-  const fiddledBackgrounds = await srdFiddling(backgrounds, "backgrounds");
-  const daeBackgrounds = await daeFiddling(fiddledBackgrounds);
-  const finalBackgrounds = await applyChrisPremadeEffects({ documents: daeBackgrounds, compendiumItem: true });
-
-  DDBMuncher.munchNote(`Importing ${finalBackgrounds.length} backgrounds!`, true);
-  await updateCompendium("backgrounds", { backgrounds: finalBackgrounds }, updateBool);
-
-  return finalBackgrounds;
+  const itemHandler = await DDBItemImporter.buildHandler("backgrounds", backgrounds, updateBool, { chrisPremades: true });
+  return itemHandler.documents;
 }

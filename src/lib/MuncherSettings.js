@@ -456,74 +456,7 @@ const MuncherSettings = {
       },
     ];
 
-    const extrasConfig = [
-      // {
-      //   name: "update-existing",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing"),
-      //   description: "Update existing things.",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "use-srd",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd"),
-      //   description: "Use SRD compendium things instead of importing.",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "use-inbuilt-icons",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-inbuilt-icons"),
-      //   description: "Use icons from the inbuilt dictionary. (High coverage of items, feats, and spells).",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "use-srd-icons",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons"),
-      //   description: "Use icons from the SRD compendiums.",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "download-images",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images"),
-      //   description: "Download D&D Beyond images (takes longer and needs space).",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "remote-images",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images"),
-      //   description: "Use D&D Beyond remote images (a lot quicker)",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "use-dae-effects",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-dae-effects"),
-      //   description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD module)",
-      //   enabled: daeInstalled,
-      // },
-      // {
-      //   name: "hide-description",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description"),
-      //   description: "Hide description from players?",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "monster-items",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-items"),
-      //   description: "[Experimental] Load items from DDB compendium instead of parsing action/attack?",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "update-images",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images"),
-      //   description: "Update images on existing items?",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "dae-copy",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-dae-copy"),
-      //   description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
-      //   enabled: daeInstalled,
-      // },
-    ];
+    const extrasConfig = [];
 
     const uploadDir = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
     const dataDirSet = !FileHelper.BAD_DIRS.includes(uploadDir);

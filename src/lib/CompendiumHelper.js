@@ -1,5 +1,5 @@
 import logger from "../logger.js";
-import { copySupportedItemFlags } from "../muncher/import.js";
+import DDBItemImporter from "./DDBItemImporter.js";
 import SETTINGS from '../settings.js';
 import utils from "./utils.js";
 
@@ -128,7 +128,7 @@ const CompendiumHelper = {
         foundryActor.system.details.biography = existingNPC.system.details.biography;
       }
 
-      copySupportedItemFlags(existingNPC.toObject(), foundryActor);
+      DDBItemImporter.copySupportedItemFlags(existingNPC.toObject(), foundryActor);
     }
 
     return foundryActor;

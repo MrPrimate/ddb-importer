@@ -1,5 +1,4 @@
 // Main module class
-import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import utils from "../lib/utils.js";
 import FileHelper from "../lib/FileHelper.js";
@@ -14,6 +13,7 @@ import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import DDBMacros from "../effects/macros.js";
 import Iconizer from "../lib/Iconizer.js";
+import DDBItemImporter from "../lib/DDBItemImporter.js";
 
 async function getCharacterInventory(items) {
   return items.map((item) => {
@@ -144,9 +144,11 @@ function getItemData(sourceFilter) {
   });
 }
 
-export async function addMagicItemSpells(items, spells, updateBool) {
+async function addMagicItemSpells(items, spells, updateBool) {
   if (spells.length === 0) return;
-  const itemSpells = await updateCompendium("itemspells", { itemspells: spells }, updateBool);
+  const itemHandler = new DDBItemImporter("itemspells", spells);
+  await itemHandler.init();
+  const itemSpells = await itemHandler.updateCompendium(updateBool);
   // scan the inventory for each item with spells and copy the imported data over
   items.forEach((item) => {
     if (item.flags.magicitems.spells) {
@@ -199,22 +201,23 @@ export async function parseItems(ids = null) {
 
   await Iconizer.preFetchDDBIconImages();
 
-  const srdItems = await srdFiddling(items, "inventory");
+  const itemHandler = new DDBItemImporter("items", items);
+  await itemHandler.init();
+  await itemHandler.srdFiddling();
   const filteredItems = (ids !== null && ids.length > 0)
-    ? srdItems.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
-    : srdItems;
-  const daeItems = await daeFiddling(filteredItems);
-  const vision5eItems = addVision5eStubs(daeItems);
-  const finalItems = await applyChrisPremadeEffects({ documents: vision5eItems, compendiumItem: true });
+    ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
+    : itemHandler.documents;
+  const vision5eItems = addVision5eStubs(filteredItems);
+  itemHandler.documents = await applyChrisPremadeEffects({ documents: vision5eItems, compendiumItem: true });
 
-  const finalCount = finalItems.length;
+  const finalCount = itemHandler.documents.length;
   DDBMuncher.munchNote(`Importing ${finalCount} items!`, true);
   logger.time("Item Import Time");
 
-  const updateResults = await updateCompendium("inventory", { inventory: finalItems }, updateBool);
+  const updateResults = await itemHandler.updateCompendium(updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
-  logger.debug({ finalItems, updateResults, updatePromiseResults });
+  logger.debug({ finalItems: itemHandler.documents, updateResults, updatePromiseResults });
   DDBMuncher.munchNote("");
   logger.timeEnd("Item Import Time");
   return updateResults;

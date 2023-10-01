@@ -142,11 +142,9 @@ const MUNCH_DEFAULTS = [
   { name: "munching-policy-use-srd-monster-images", needed: false },
   { name: "munching-policy-download-images", needed: true },
   { name: "munching-policy-remote-images", needed: false },
-  { name: "munching-policy-use-dae-effects", needed: false },
   { name: "munching-policy-hide-description", needed: false },
   { name: "munching-policy-monster-items", needed: false },
   { name: "munching-policy-update-images", needed: false },
-  { name: "munching-policy-dae-copy", needed: false },
 ];
 
 const FILTER_SECTIONS = ["classes", "race", "features", "actions", "inventory", "spells"];
@@ -1097,21 +1095,7 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "munching-policy-dae-copy": {
-            name: "ddb-importer.settings.munching-policy-dae-copy.name",
-            hint: "ddb-importer.settings.munching-policy-dae-copy.hint",
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "munching-policy-use-chris-premades": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "munching-policy-use-dae-effects": {
-            name: "ddb-importer.settings.munching-policy-use-dae-effects.name",
-            hint: "ddb-importer.settings.munching-policy-use-dae-effects.hint",
             scope: "player",
             type: Boolean,
             default: false,

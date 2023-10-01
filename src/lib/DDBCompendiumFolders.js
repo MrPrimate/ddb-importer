@@ -37,6 +37,16 @@ export class DDBCompendiumFolders {
 
   }
 
+  async addCompendiumFolderIds(documents) {
+    const results = documents.map(async (d) => {
+      const folderId = await this.getFolderId(d);
+      // eslint-disable-next-line require-atomic-updates
+      if (folderId) d.folder = folderId;
+      return d;
+    });
+    return Promise.all(results);
+  }
+
   async loadCompendium(type = null) {
     if (type) {
       this.packName = await CompendiumHelper.getCompendiumLabel(type);

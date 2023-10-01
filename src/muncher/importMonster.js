@@ -1,12 +1,11 @@
 import logger from "../logger.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import FileHelper from "../lib/FileHelper.js";
-import { getCompendiumItems, compendiumFoldersV10, addCompendiumFolderIds } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
-import { migrateItemsDAESRD } from "./dae.js";
 import SETTINGS from "../settings.js";
 import utils from "../lib/utils.js";
 import Iconizer from "../lib/Iconizer.js";
+import DDBItemImporter from "../lib/DDBItemImporter.js";
 
 // check items to see if retaining item, img or resources
 async function existingItemRetentionCheck(currentItems, newItems, checkId = true) {
@@ -59,17 +58,14 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 
 
 async function addNPCToCompendium(npc, type = "monster") {
-  const compendium = CompendiumHelper.getCompendiumType(type, false);
-  if (compendium) {
-    const npcBasic = (await addCompendiumFolderIds([duplicate(npc)], type))[0];
-
-    // unlock the compendium for update/create
-    compendium.configure({ locked: false });
+  const itemImporter = new DDBItemImporter(type, []);
+  if (itemImporter.compendium) {
+    const npcBasic = (await itemImporter.addCompendiumFolderIds([duplicate(npc)]))[0];
 
     let compendiumNPC;
-    if (hasProperty(npc, "_id") && compendium.index.has(npc._id)) {
+    if (hasProperty(npc, "_id") && itemImporter.compendium.index.has(npc._id)) {
       if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
-        const existingNPC = await compendium.getDocument(npc._id);
+        const existingNPC = await itemImporter.compendium.getDocument(npc._id);
 
         if (hasProperty(existingNPC, "prototypeToken.flags.tagger.tags")) {
           const newTags = [...new Set(npcBasic.prototypeToken.flags.tagger.tags, existingNPC.prototypeToken.flags.tagger.tags)];
@@ -92,7 +88,7 @@ async function addNPCToCompendium(npc, type = "monster") {
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
         await existingNPC.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
         // compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.collection, recursive: false, render: false, keepId: true });
-        compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.collection, render: false, keepId: true });
+        compendiumNPC = await existingNPC.update(npcBasic, { pack: itemImporter.compendium.collection, render: false, keepId: true });
         if (!compendiumNPC) {
           logger.debug("No changes made to base character", npcBasic);
           compendiumNPC = existingNPC;
@@ -103,7 +99,7 @@ async function addNPCToCompendium(npc, type = "monster") {
       logger.debug(`Creating NPC actor ${npcBasic.name}`);
       const options = {
         displaySheet: false,
-        pack: compendium.collection,
+        pack: itemImporter.compendium.collection,
         keepId: true,
       };
       logger.debug("NPC New Data", duplicate(npcBasic));
@@ -112,7 +108,7 @@ async function addNPCToCompendium(npc, type = "monster") {
 
     // using compendium folders v10?
     if (compendiumNPC && isNewerVersion(11, game.version)) {
-      await compendiumFoldersV10(compendiumNPC, "npc");
+      await itemImporter.compendiumFoldersV10(compendiumNPC);
       return compendiumNPC;
     }
   } else {
@@ -306,7 +302,7 @@ async function swapItems(data) {
     const getItemOptions = {
       monsterMatch: true,
     };
-    const updatedItems = await getCompendiumItems(data.items, "inventory", getItemOptions);
+    const updatedItems = await DDBItemImporter.getCompendiumItems(data.items, "inventory", getItemOptions);
     const itemsToRemove = updatedItems.map((item) => {
       logger.debug(`${item.name} to ${item.flags.ddbimporter.originalItemName}`);
       return { name: item.flags.ddbimporter.originalItemName, type: item.type };
@@ -357,16 +353,6 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
   await getNPCImage(data, { type });
   logger.debug("Checking Items");
   await swapItems(data);
-
-  // DAE
-  const daeInstalled = game.modules.get("dae")?.active
-    && (game.modules.get("Dynamic-Effects-SRD")?.active || game.modules.get("midi-srd")?.active);
-  const daeCopy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-dae-copy");
-  if (daeInstalled && daeCopy) {
-    DDBMuncher.munchNote(`Importing DAE Item for ${data.name}`);
-    // eslint-disable-next-line require-atomic-updates
-    data.items = await migrateItemsDAESRD(data.items);
-  }
 
   logger.debug("Importing Icons");
   // eslint-disable-next-line require-atomic-updates

@@ -1,7 +1,6 @@
 import logger from "../../logger.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import { loadPassedItemsFromCompendium } from "../../muncher/import.js";
 import DDBMonster from "../DDBMonster.js";
+import DDBItemImporter from "../../lib/DDBItemImporter.js";
 
 DDBMonster.prototype.BAD_AC_MONSTERS = [
   "arkhan the cruel"
@@ -73,8 +72,7 @@ DDBMonster.prototype._generateAC = async function _generateAC() {
   }
 
   logger.debug("Checking for items", itemsToCheck);
-  const compendium = await CompendiumHelper.getCompendiumType("inventory");
-  const unAttunedItems = await loadPassedItemsFromCompendium(compendium, itemsToCheck, "inventory", { monsterMatch: true });
+  const unAttunedItems = await DDBItemImporter.getCompendiumItems(itemsToCheck, "inventory", { monsterMatch: true });
   const attunedItems = unAttunedItems.map((item) => {
     if (item.system.attunement === 1) item.system.attunement = 2;
     return item;

@@ -2,7 +2,7 @@
 
 - Improvements to Fire Shield effect to automate damage based on macro by @thatlonelybugbear
 - Spike Growth Macro improvements.
-- Lots of Macro effect generation code refactor.
+- Macro effect generation code refactor, possibly breaking change (as in bugs introduced).
 - Little Giant now applies Powerful build
 - Some races with variable sizes, like the Hadozee, would not import the small size.
 - Hadozee Dodge effect.
@@ -12,7 +12,7 @@
 - Ensure transfer effects are transfered to actors when using Chris' Premades with the Monster Muncher.
 - Flesh to Stone effect fix.
 - Improve monster effect generation for features such as the Myconid Adult's Pacifying Spores. It will now set a round and seconds duration, and on the item/feature will adjust the duration if it had been parsed as an instantaneous effect.
-- Charater Updater to DDB: improve updates where items have been dragged from other characters, or container definitions are bad.
+- Character Updater to DDB: improve updates where items have been dragged from other characters, or container definitions are bad.
 
 # 3.4.70
 

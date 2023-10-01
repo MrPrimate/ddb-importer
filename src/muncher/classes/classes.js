@@ -1,11 +1,10 @@
+/* eslint-disable no-await-in-loop */
 import logger from "../../logger.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
-import { updateCompendium, srdFiddling } from "../import.js";
-import DDBMuncher from "../../apps/DDBMuncher.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 import { getHPAdvancement, addSRDAdvancements } from "../../parser/classes/index.js";
+import DDBItemImporter from "../../lib/DDBItemImporter.js";
 
 async function buildClass(klass, compendiumClassFeatures) {
   let result = await buildBaseClass(klass);
@@ -41,33 +40,25 @@ export async function getClasses(data) {
     }
   }
 
-  const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
-  DDBMuncher.munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
-  logger.debug(`Importing ${fiddledClassFeatures.length} features!`, classFeatures);
-  await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
-
-  const compendium = CompendiumHelper.getCompendiumType("features");
-  const index = await compendium.getIndex();
-  const firstPassFeatures = await index.filter((i) => fiddledClassFeatures.some((orig) => i.name === orig.name));
+  const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, { chrisPremades: true, deleteBeforeUpdate: false });
+  const firstPassFeatures = await featureHandler.compendiumIndex.filter((i) =>
+    featureHandler.documents.some((orig) => i.name === orig.name)
+  );
   let compendiumClassFeatures = [];
 
-  await Promise.all(firstPassFeatures.map(async (f) => {
-    const feature = await compendium.getDocument(f._id);
+  for (const f of firstPassFeatures) {
+    const feature = await featureHandler.compendium.getDocument(f._id);
     compendiumClassFeatures.push(feature.toJSON());
-  }));
+  }
 
-  await Promise.all(data.map(async (klass) => {
+  for (const klass of data) {
     logger.debug(`${klass.name} class parsing started...`);
     const builtClass = await buildClass(klass, compendiumClassFeatures);
     klasses.push(builtClass);
-  }));
+  }
 
   logger.debug("Class build finished", klasses);
-
-  const fiddledClasses = await srdFiddling(klasses, "classes");
-  DDBMuncher.munchNote(`Importing ${fiddledClasses.length} classes!`, true);
-
-  await updateCompendium("classes", { classes: fiddledClasses }, updateBool);
+  await DDBItemImporter.buildHandler("classes", klasses, updateBool);
 
   // return fiddledClasses.concat(fiddledClassFeatures);
   return results;

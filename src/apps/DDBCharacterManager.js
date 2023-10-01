@@ -5,14 +5,6 @@ import MuncherSettings from "../lib/MuncherSettings.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import logger from "../logger.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
-import {
-  copySupportedItemFlags,
-  addMagicItemSpells,
-  getCompendiumItems,
-  getSRDCompendiumItems,
-  getIndividualOverrideItems,
-} from "../muncher/import.js";
-import { addItemsDAESRD } from "../muncher/dae.js";
 import Iconizer from "../lib/Iconizer.js";
 import { updateDDBCharacter } from "../updater/character.js";
 import { generateCharacterExtras } from "../parser/DDBExtras.js";
@@ -30,6 +22,8 @@ import {
   // restrictedItemReplacer
 } from "../effects/chrisPremades.js";
 import DDBMacros from "../effects/macros.js";
+import DDBItemImporter from "../lib/DDBItemImporter.js";
+import { addMagicItemSpells } from "../parser/item/itemSpells.js";
 
 export default class DDBCharacterManager extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {
@@ -159,7 +153,7 @@ export default class DDBCharacterManager extends FormApplication {
         (originalItem) => item.name === originalItem.name && item.type === originalItem.type
       );
       if (originalItem) {
-        copySupportedItemFlags(originalItem, item);
+        DDBItemImporter.copySupportedItemFlags(originalItem, item);
       }
     });
   }
@@ -671,8 +665,6 @@ export default class DDBCharacterManager extends FormApplication {
     const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
     const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
     const ddbGenericItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-generic-item-icons");
-    const daeSRDInstalled = game.modules.get("Dynamic-Effects-SRD")?.active;
-    const daeMidiInstalled = game.modules.get("midi-srd")?.active;
     const daeInstalled = game.modules.get("dae")?.active;
 
     await Iconizer.preFetchDDBIconImages();
@@ -710,11 +702,6 @@ export default class DDBCharacterManager extends FormApplication {
       if (this.settings.activeEffectCopy) {
         this.showCurrentTask("Copying Item Active Effects");
         items = await this.copyCharacterItemEffects(items);
-      }
-
-      if (this.settings.daeEffectCopy && daeInstalled && (daeSRDInstalled || daeMidiInstalled)) {
-        this.showCurrentTask("Importing DAE Effects");
-        items = await addItemsDAESRD(items);
       }
 
       if (daeInstalled && (this.settings.addItemEffects || this.settings.addCharacterEffects)) {
@@ -781,6 +768,38 @@ export default class DDBCharacterManager extends FormApplication {
         }
       });
     }
+  }
+
+  static async getIndividualOverrideItems(overrideItems) {
+    const label = CompendiumHelper.getCompendiumLabel("custom");
+    const compendium = CompendiumHelper.getCompendium(label);
+
+    const compendiumItems = await Promise.all(overrideItems.map(async (item) => {
+      const compendiumItem = duplicate(await compendium.getDocument(item.flags.ddbimporter.overrideId));
+      setProperty(compendiumItem, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
+      if (hasProperty(item, "flags.ddbimporter.overrideItem")) {
+        setProperty(compendiumItem, "flags.ddbimporter.overrideItem", item.flags.ddbimporter.overrideItem);
+      } else {
+        setProperty(compendiumItem, "flags.ddbimporter.overrideItem", {
+          name: item.name,
+          type: item.type,
+          ddbId: item.flags.ddbimporter?.id
+        });
+      }
+
+      return compendiumItem;
+    }));
+
+    const matchingOptions = {
+      looseMatch: false,
+      monster: false,
+      keepId: true,
+      keepDDBId: true,
+      overrideId: true,
+    };
+    const remappedItems = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions);
+
+    return remappedItems;
   }
 
   static restoreDDBMatchedFlags(existingItem, item) {
@@ -937,7 +956,7 @@ export default class DDBCharacterManager extends FormApplication {
     });
 
     if (individualOverrideItems.length > 0) {
-      const individualOverrideCompendiumItems = await getIndividualOverrideItems(individualOverrideItems);
+      const individualOverrideCompendiumItems = await DDBCharacterManager.getIndividualOverrideItems(individualOverrideItems);
       individualCompendiumItems = individualOverrideCompendiumItems;
       // remove existing items from those to be imported
       logger.info("Removing matching Override compendium items");
@@ -949,7 +968,7 @@ export default class DDBCharacterManager extends FormApplication {
      */
     if (this.settings.useOverrideCompendiumItems) {
       logger.info("Removing matching Override compendium items");
-      const compendiumOverrideItems = await getCompendiumItems(items, "custom");
+      const compendiumOverrideItems = await DDBItemImporter.getCompendiumItems(items, "custom");
       overrideCompendiumItems = compendiumOverrideItems;
       // remove existing items from those to be imported
       items = await DDBCharacterManager.removeItems(items, overrideCompendiumItems);
@@ -960,9 +979,17 @@ export default class DDBCharacterManager extends FormApplication {
      */
     if (this.settings.useSRDCompendiumItems) {
       logger.info("Removing compendium items");
-      const compendiumFeatureItems = await getSRDCompendiumItems(items, "features");
-      const compendiumInventoryItems = await getSRDCompendiumItems(items, "inventory");
-      const compendiumSpellItems = await getSRDCompendiumItems(items, "spells");
+      const featureManager = new DDBItemImporter("features", items);
+      const inventoryManager = new DDBItemImporter("inventory", items);
+      const spellManager = new DDBItemImporter("spells", items);
+
+      await featureManager.init();
+      await inventoryManager.init();
+      await spellManager.init();
+
+      const compendiumFeatureItems = await featureManager.getSRDCompendiumItems();
+      const compendiumInventoryItems = await inventoryManager.getSRDCompendiumItems();
+      const compendiumSpellItems = await spellManager.getSRDCompendiumItems();
 
       srdCompendiumItems = compendiumItems.concat(
         compendiumInventoryItems,
@@ -975,14 +1002,14 @@ export default class DDBCharacterManager extends FormApplication {
 
     if (this.settings.useExistingCompendiumItems) {
       logger.info("Removing compendium items");
-      const compendiumFeatureItems = await getCompendiumItems(items, "features");
-      const compendiumInventoryItems = await getCompendiumItems(items, "inventory");
-      const compendiumSpellItems = await getCompendiumItems(items, "spells");
-      const compendiumClassItems = await getCompendiumItems(items, "classes");
-      const compendiumSubClassItems = await getCompendiumItems(items, "subclasses");
-      const compendiumRaceItems = await getCompendiumItems(items, "races");
-      const compendiumTraitsItems = await getCompendiumItems(items, "traits");
-      const compendiumBackgroundsItems = await getCompendiumItems(items, "backgrounds");
+      const compendiumFeatureItems = await DDBItemImporter.getCompendiumItems(items, "features");
+      const compendiumInventoryItems = await DDBItemImporter.getCompendiumItems(items, "inventory");
+      const compendiumSpellItems = await DDBItemImporter.getCompendiumItems(items, "spells");
+      const compendiumClassItems = await DDBItemImporter.getCompendiumItems(items, "classes");
+      const compendiumSubClassItems = await DDBItemImporter.getCompendiumItems(items, "subclasses");
+      const compendiumRaceItems = await DDBItemImporter.getCompendiumItems(items, "races");
+      const compendiumTraitsItems = await DDBItemImporter.getCompendiumItems(items, "traits");
+      const compendiumBackgroundsItems = await DDBItemImporter.getCompendiumItems(items, "backgrounds");
 
       compendiumItems = compendiumItems.concat(
         compendiumInventoryItems,

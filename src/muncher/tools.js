@@ -2,9 +2,9 @@ import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
-import { copySupportedItemFlags } from "./import.js";
 import { getNPCImage } from "./importMonster.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
+import DDBItemImporter from "../lib/DDBItemImporter.js";
 
 let totalTargets = 0;
 let count = 0;
@@ -52,7 +52,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
     actorUpdate.sort = targetActor.sort;
     actorUpdate.ownership = targetActor.ownership;
     // eslint-disable-next-line no-await-in-loop
-    copySupportedItemFlags(targetActor, actorUpdate);
+    DDBItemImporter.copySupportedItemFlags(targetActor, actorUpdate);
 
     // eslint-disable-next-line no-await-in-loop
     await targetActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
