@@ -251,7 +251,7 @@ const DICTIONARY = {
       { id: 13, type: 1, kind: "resistance", name: "Physical (Magical)", foundryValues: { value: ["bludgeoning", "piercing", "slashing"], bypass: ["mgc"] } },
       { id: 14, type: 1, kind: "resistance", name: "Physical (Silvered)", foundryValues: { value: ["bludgeoning", "piercing", "slashing"], bypass: ["sil"] } },
       { id: 15, type: 1, kind: "resistance", name: "Physical (Adamantine)", foundryValues: { value: ["bludgeoning", "piercing", "slashing"], bypass: ["ada"] } },
-      { id: 16, type: 1, kind: "resistance", name: "Physical (Adamantine)", foundryValues: { value: ["piercing", "slashing"], bypass: ["ada"] } },
+      { id: 16, type: 1, kind: "resistance", name: "Piercing and Slashing from Nonmagical Attacks that aren't Adamantine", foundryValues: { value: ["piercing", "slashing"], bypass: ["ada"] } },
       { id: 17, type: 2, kind: "immunity", name: "Bludgeoning", foundryValues: { value: ["bludgeoning"], bypass: [] } },
       { id: 18, type: 2, kind: "immunity", name: "Piercing", foundryValues: { value: ["piercing"], bypass: [] } },
       { id: 19, type: 2, kind: "immunity", name: "Slashing", foundryValues: { value: ["slashing"], bypass: [] } },
