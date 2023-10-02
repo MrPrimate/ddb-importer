@@ -39,10 +39,10 @@ DDBMonster.prototype.getDamageAdjustments = function getDamageAdjustments(type) 
     if (ddbValue?.foundryValues) {
       if (ddbValue.foundryValues.value.length > 0) ddbValue.foundryValues.value.forEach(values.add, values);
       if (ddbValue.foundryValues.bypass.length > 0) ddbValue.foundryValues.bypass.forEach(bypass.add, bypass);
-    } else {
       if (midiQolInstalled && ddbValue.midiValues) {
         values.add(ddbValue.midiValues);
       }
+    } else {
       custom.push(adjustment.name);
     }
 
