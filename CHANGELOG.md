@@ -1,3 +1,7 @@
+# 3.4.72
+
+- Emergency patch: class muncher only wanted to import clerics. All Cleric Party?
+
 # 3.4.71
 
 - Improvements to Fire Shield effect to automate damage based on macro by @thatlonelybugbear
