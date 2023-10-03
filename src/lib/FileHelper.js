@@ -235,7 +235,10 @@ const FileHelper = {
     try {
       const proxyEndpoint = DDBProxy.getCORSProxy();
       const urlEncode = game.settings.get(SETTINGS.MODULE_ID, "cors-encode");
-      const target = urlEncode ? encodeURIComponent(url) : url;
+      const stripProtocol = game.settings.get(SETTINGS.MODULE_ID, "cors-strip-protocol");
+      const corsPathPrefix = game.settings.get(SETTINGS.MODULE_ID, "cors-path-prefix");
+      const fiddledUrl = stripProtocol ? url.replace(/^https:\/\//, corsPathPrefix) : `${corsPathPrefix}${url}`;
+      const target = urlEncode ? encodeURIComponent(fiddledUrl) : fiddledUrl;
       url = useProxy ? proxyEndpoint + target : url;
       const data = await FileHelper.downloadImage(url);
       // hack as proxy returns ddb access denied as application/xml

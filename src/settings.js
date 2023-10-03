@@ -1271,6 +1271,14 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
+        "cors-strip-protocol": {
+          type: Boolean,
+          default: true,
+        },
+        "cors-path-prefix": {
+          type: String,
+          default: "ddb/",
+        },
         "beta-key": {
           type: String,
           default: "",
