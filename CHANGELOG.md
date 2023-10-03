@@ -1,3 +1,7 @@
+# 3.4.74
+
+- CORS proxy changes.
+
 # 3.4.73
 
 - Some creatues such as the Shadow Mastiff with odd damage resistances would fail to parse if Midi was active.
