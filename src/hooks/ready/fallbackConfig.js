@@ -3563,6 +3563,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/pbtso",
     },
     {
+      id: 114,
+      name: "PAitM",
+      description: "Planescape: Adventures in the Multiverse",
+      sourceCategoryId: 17,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/33644/785/638170881547396926.jpeg",
+      sourceURL: "sources/paitm",
+    },
+    {
       id: 115,
       name: "MCv3",
       description: "Monstrous Compendium Volume 3: Minecraft Creatures",
