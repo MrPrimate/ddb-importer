@@ -115,6 +115,8 @@ function addACSetEffect(modifiers, name, subType) {
         if (maxDexArray.length > 0) maxDexMod = Math.min(maxDexArray);
         if (ignoreDexMod) {
           effectString = `10 + ${bonuses}`;
+        } else if (maxDexMod === 99) {
+          effectString = `10 + ${bonuses} + @abilities.dex.mod`;
         } else {
           effectString = `@abilities.dex.mod > ${maxDexMod} ? 10 + ${bonuses} + ${maxDexMod} : 10 + ${bonuses} + @abilities.dex.mod`;
         }

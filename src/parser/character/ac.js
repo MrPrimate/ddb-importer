@@ -34,16 +34,17 @@ function getMinimumBaseAC(modifiers) {
   return baseAC;
 }
 
-function getBaseArmor(ac, armorType, name = "Racial") {
+function getBaseArmor(ac, armorType, name = "Racial", formula = null) {
   return {
     definition: {
       name: `Base Armor - ${name}`,
       type: armorType,
       armorClass: ac,
-      armorTypeId: DICTIONARY.equipment.armorType.find((id) => id.name === armorType).id,
+      armorTypeId: DICTIONARY.equipment.armorType.find((id) => id.name === armorType)?.id ?? 0,
       grantedModifiers: [],
       canAttune: false,
       filterType: "Armor",
+      formula,
     },
     isAttuned: false,
   };
@@ -163,6 +164,7 @@ function calculateACOptions(data, character, calculatedArmor) {
   // max holders
   let maxType = "Unarmored";
   let maxValue = actorBase;
+  let maxData = {};
 
   // the presumption here is that you can only wear a shield and a single
   // additional 'armor' piece. in DDB it's possible to equip multiple armor
@@ -294,6 +296,19 @@ function calculateACOptions(data, character, calculatedArmor) {
         effect = generateFixedACEffect(`${acCalc} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name} (Light): ${acValue.value}`);
         break;
       }
+      case "Custom": {
+        const acCalc = armorAC + calculatedArmor.gearAC + calculatedArmor.miscACBonus;
+        acValue = {
+          name: calculatedArmor.armors[armor].definition.name,
+          value: acCalc,
+          type: "Custom",
+          acCalc,
+          shieldMod,
+          formula: calculatedArmor.armors[armor].definition.formula,
+        };
+        effect = generateFixedACEffect(acValue.formula, `AC ${acValue.name}: ${acValue.value}`, false, 22);
+        break;
+      }
       default: {
         const acCalc = armorAC + calculatedArmor.gearAC + calculatedArmor.miscACBonus;
         acValue = {
@@ -316,6 +331,7 @@ function calculateACOptions(data, character, calculatedArmor) {
     if (acValue.value >= maxValue) {
       maxType = acValue.type;
       maxValue = acValue.value;
+      maxData = deepClone(acValue);
     }
   }
 
@@ -326,6 +342,7 @@ function calculateACOptions(data, character, calculatedArmor) {
     effects,
     maxType,
     maxValue,
+    maxData,
   };
 }
 
@@ -465,6 +482,11 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
       equippedArmor.push(getBaseArmor(baseAC, "Unarmored"));
   }
 
+  if (this.source.ddb.character.feats.some((f) => f.definition.name === "Dragon Hide")) {
+    baseAC = Math.max(getUnarmoredAC(this.source.ddb.character.modifiers.feat, this.raw.character));
+    equippedArmor.push(getBaseArmor(baseAC, "Custom", "Dragon Hide", "13 + @abilities.dex.mod"));
+  }
+
   const shields = equippedArmor.filter((shield) => shield.definition.armorTypeId === 4);
   const armors = equippedArmor.filter((armour) => armour.definition.armorTypeId !== 4);
 
@@ -485,7 +507,10 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
   };
   const results = calculateACOptions(this.source.ddb, this.raw.character, calculatedArmor);
 
-  logger.debug("Calculated AC Results:", results);
+  logger.debug("Calculated AC Results:", {
+    calculatedArmor,
+    results,
+  });
   // get the max AC we can use from our various computed values
   // const max = Math.max(...results.armorClassValues.map((type) => type.value));
 
@@ -500,6 +525,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
 
   let calc = "default";
   let flat = null;
+  let formula = "";
   if (classFeatures.some((kf) =>
     kf.className === "Sorcerer"
     && kf.subclassName === "Draconic Bloodline"
@@ -523,6 +549,11 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     flat = results.actorBase;
   }
 
+  if (results.maxType === "Custom") {
+    calc = "custom";
+    formula = results.maxData.formula;
+  }
+
   logger.debug("AC Results:", {
     fixed: {
       type: "Number",
@@ -540,14 +571,14 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     auto: {
       flat,
       calc,
-      formula: "",
+      formula,
     },
   });
 
   this.raw.character.system.attributes.ac = {
     flat,
     calc,
-    formula: "",
+    formula,
   };
   this.raw.character.effects = this.raw.character.effects.concat(bonusEffects);
 
