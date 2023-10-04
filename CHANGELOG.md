@@ -1,3 +1,9 @@
+# NEXT UP
+
+- Size fix for Harengon
+- Improve AC calculation for Dragon Hide feet.
+- Tweak to action sync to D&D Beyond to handle some edge cases.
+
 # 3.4.74
 
 - CORS proxy changes.
