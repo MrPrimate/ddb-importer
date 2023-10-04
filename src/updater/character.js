@@ -875,7 +875,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
   itemsToCharge.forEach((item) => {
     const itemData = {
       itemId: item.flags.ddbimporter.id,
-      charges: parseInt(item.system.uses.max) - parseInt(item.system.uses.value),
+      charges: Math.max(0, parseInt(item.system.uses.max) - parseInt(item.system.uses.value)),
     };
     if (Number.isInteger(itemData.charges)) {
       promises.push(updateCharacterCall(actor, "equipment/charges", itemData, { name: item.name }));
@@ -1067,7 +1067,7 @@ async function updateDDBActionUseStatus(actor, actions) {
     const actionData = {
       actionId: action.flags.ddbimporter.id,
       entityTypeId: action.flags.ddbimporter.entityTypeId,
-      uses: parseInt(action.system.uses.max) - parseInt(action.system.uses.value)
+      uses: Math.max(0, parseInt(action.system.uses.max) - parseInt(action.system.uses.value)),
     };
     promises.push(updateActionUseStatus(actor, actionData, action.name));
   });
