@@ -7,12 +7,20 @@ import SETTINGS from "../../../settings.js";
 export default class DDBFeature {
 
   #generateAdjustedName() {
+    this.originalName = `${this.name}`;
     if (!this.stripName) return;
-    const regex = /(.*)\s*\((:?costs \d actions|Recharges after a Short or Long Rest|\d\/day|recharge \d-\d)\)/i;
+    const regex = /(.*)\s*\((:?costs \d actions|Recharges after a (Short or Long|Long) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d-\d|Recharge \d)\)/i;
     const nameMatch = this.name.replace(/[–-–−]/g, "-").match(regex);
     if (nameMatch) {
       this.feature.name = nameMatch[1].trim();
       this.nameSplit = nameMatch[2];
+    } else {
+      const regex2 = /(.*)\s*\((.*); (:?costs \d actions|Recharges after a (Short or Long|Long) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d-\d|Recharge \d)\)/i;
+      const nameMatch2 = this.name.replace(/[–-–−]/g, "-").match(regex2);
+      if (nameMatch2) {
+        this.feature.name = `${nameMatch2[1].trim()} (${nameMatch2[2].trim()})`;
+        this.nameSplit = nameMatch2[3];
+      }
     }
   }
 
@@ -312,9 +320,9 @@ export default class DDBFeature {
       const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
       if (perMatch) uses.per = perMatch.value;
     } else {
-      const shortMatchesRegex = /(Recharges after a Short or Long Rest)/i;
-      if (shortMatchesRegex.test(this.name)) {
-        uses.per = "sr";
+      const rechargeMatch = this.name.match(/Recharges after a (Short or Long|Long) Rest|/i);
+      if (rechargeMatch) {
+        uses.per = rechargeMatch[1] === "Long" ? "lr" : "sr";
         uses.value = 1;
         uses.max = 1;
       }
@@ -324,7 +332,7 @@ export default class DDBFeature {
   }
 
   getRecharge() {
-    const matches = this.name.toLowerCase().match(/\(recharge ([0-9––−-]+)\)/);
+    const matches = this.name.toLowerCase().match(/(?:\(|; )recharge ([0-9––−-]+)\)/);
     if (matches) {
       const value = matches[1].replace(/[––−-]/, "-").split("-").shift();
       return {

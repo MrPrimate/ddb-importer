@@ -416,6 +416,15 @@ DDBMonster.prototype._addSpellHints = function() {
       this.spellList.material = false;
       break;
     }
+    case "Puppeteer Parasite": {
+      this.spellList.innate = [{ name: "Suggestion", type: "day", value: 1 }];
+      this.spellList.material = false;
+      break;
+    }
+    // case "Priest of Osybus (Deathly)": {
+    //   this.spellList.innate = [{ name: "Circle of Death", type: "charge", value: 1, recharge: "5" }];
+    //   break;
+    // }
     // no default
   }
 };

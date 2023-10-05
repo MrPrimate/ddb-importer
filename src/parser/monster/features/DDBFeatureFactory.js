@@ -140,9 +140,7 @@ export class DDBFeatureFactory {
       const query = pDom.querySelector("strong");
       if (!query) return;
       let name = query.textContent.trim().replace(/\./g, '');
-      if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
-        name = name.split(";").pop().trim();
-      }
+      name = DDBFeatureFactory.splitName(name, node.textContent);
       const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
       this.featureBlocks[type].push(action);
     });
@@ -158,9 +156,7 @@ export class DDBFeatureFactory {
         const query = pDom.querySelector("b");
         if (!query) return;
         let name = query.textContent.trim().replace(/\./g, '');
-        if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
-          name = name.split(";").pop().trim();
-        }
+        name = DDBFeatureFactory.splitName(name, node.textContent);
         const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
         this.featureBlocks[type].push(action);
       });
@@ -381,6 +377,23 @@ export class DDBFeatureFactory {
       });
   }
 
+  static splitName(name, nodeText) {
+    if (!name.includes("Spell;") && !name.includes("Psionics;") && !name.includes("Mythic Trait;")) {
+      const split = name.split(";");
+      if (split.length > 1 && split[0].includes("(") && !split[0].includes(")")) {
+        return name.trim();
+      } else if (split.length > 1) {
+        return split.pop().trim();
+      } else {
+        return name.trim();
+      }
+    } else if (name.includes("Spell;")) {
+      return nodeText.trim().split(".")[0];
+    } else {
+      return name.trim();
+    }
+  }
+
   #generateSpecialActions(type) {
     let splitActions = this.html[type].split("<h3>Roleplaying Information</h3>");
     if (splitActions.length > 1) {
@@ -399,9 +412,7 @@ export class DDBFeatureFactory {
       const query = pDom.querySelector("em");
       if (!query) return;
       let name = query.textContent.trim().replace(/\./g, '');
-      if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
-        name = name.split(";").pop().trim();
-      }
+      name = DDBFeatureFactory.splitName(name, node.textContent);
       if (name) {
         const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
         this.featureBlocks[type].push(action);
@@ -417,9 +428,7 @@ export class DDBFeatureFactory {
         const query = pDom.querySelector("strong");
         if (!query) return;
         let name = query.textContent.trim().replace(/\./g, '');
-        if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
-          name = name.split(";").pop().trim();
-        }
+        name = DDBFeatureFactory.splitName(name, node.textContent);
         if (name) {
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
           this.featureBlocks[type].push(action);
@@ -460,6 +469,7 @@ export class DDBFeatureFactory {
       const nodeName = node.textContent.split('.')[0].trim();
       let switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
       if (action.name.includes("; Recharges after a Short or Long Rest")) action.name = action.name.replace("; Recharges after a Short or Long Rest", "");
+      if (action.name.includes("; Recharges after a Long Rest")) action.name = action.name.replace("; Recharges after a Long Rest", "");
       if (!switchAction) {
         switchAction = this.featureBlocks[type].find((act) => node.textContent.startsWith(act.options.fullName));
       }

@@ -101,5 +101,16 @@ export function specialCases(monster) {
     // no default
   }
 
+  monster.items.forEach(function (item, index) {
+    if (item.name.startsWith("Sneak Attack")) {
+      this[index].system.uses = {
+        "value": null,
+        "max": "",
+        "per": null,
+        "recovery": ""
+      };
+    }
+  }, monster.items);
+
   return monster;
 }

@@ -3,6 +3,10 @@
 - Size fix for Harengon
 - Improve AC calculation for Dragon Hide feet.
 - Tweak to action sync to D&D Beyond to handle some edge cases.
+- Fix some misses when removing recharge uses from monster feature names.
+- Monster parsing: improve feature name detection where there where `;` in the names inbetween parenthesis.
+- Monster parsing: fix Priest of Osybus (Deathly), Circle of Death spell parsing (it parses as an action).
+- Monster parsing: improved recharge detection (e.g. web on  Drow Arachnomancer)
 
 # 3.4.74
 
