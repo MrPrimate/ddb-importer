@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.75
 
 - Size fix for Harengon
 - Improve AC calculation for Dragon Hide feet.
