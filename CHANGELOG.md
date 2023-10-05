@@ -7,6 +7,7 @@
 - Monster parsing: improve feature name detection where there where `;` in the names inbetween parenthesis.
 - Monster parsing: fix Priest of Osybus (Deathly), Circle of Death spell parsing (it parses as an action).
 - Monster parsing: improved recharge detection (e.g. web on  Drow Arachnomancer)
+- Monster parsing: creatures like the Oni with Magical Weapons will have their weapons marked as magical.
 
 # 3.4.74
 

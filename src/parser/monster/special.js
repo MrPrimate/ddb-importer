@@ -112,5 +112,14 @@ export function specialCases(monster) {
     }
   }, monster.items);
 
+  const magicWeapons = monster.items.some((item) => item.name === "Magic Weapons");
+  if (magicWeapons) {
+    monster.items.forEach(function (item, index) {
+      if (item.type === "weapon") {
+        this[index].system.properties.mgc = true;
+      }
+    }, monster.items);
+  }
+
   return monster;
 }
