@@ -22,6 +22,10 @@ export function fixItems(items) {
     prepItem(item);
     const name = item.flags.ddbimporter?.originalName ?? item.name;
     switch (name) {
+      case "Waterskin":
+        item.system.activation.type = "special";
+        item.system.uses = { value: 4, max: 4, per: "charges", autoDestroy: false, autoUse: true };
+        break;
       case "Potion of Healing":
         item.system.damage = { parts: [["2d4 + 2", "healing"]], versatile: "", value: "" };
         item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };

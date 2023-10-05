@@ -9,6 +9,7 @@
 - Monster parsing: improved recharge detection (e.g. web on  Drow Arachnomancer)
 - Monster parsing: creatures like the Oni with Magical Weapons will have their weapons marked as magical.
 - Character importer: features like the Hobgoblin "Fey Gift: Hospitality" will now attempt to use @prof instead of a hardcoded proficiency value.
+- Waterskin moved back to food consumable, and set to 4 charges.
 
 # 3.4.74
 

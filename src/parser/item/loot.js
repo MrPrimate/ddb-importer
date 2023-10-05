@@ -39,6 +39,11 @@ function getItemType(data, typeHint) {
       type: "consumable",
       consumableType: "trinket",
     };
+  } else if (["Waterskin"].includes(data.definition.name)) {
+    return {
+      type: "consumable",
+      consumableType: "food",
+    };
   }
 
   const itemTypes = data.definition.tags && Array.isArray(data.definition.tags)
