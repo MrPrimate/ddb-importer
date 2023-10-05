@@ -150,12 +150,15 @@ function getDamage(ddb, action, feat) {
   const meleeOrRangedAction = action.attackTypeRange || action.rangeId;
   const modBonus = (action.statId || action.abilityModifierStatId) && !action.isOffhand && meleeOrRangedAction ? " + @mod" : "";
   const die = action.dice ? action.dice : action.die ? action.die : undefined;
-  const fixedBonus = die?.fixedValue ? ` + ${die.fixedValue}` : "";
+  // const fixedBonus = die?.fixedValue ? ` + ${die.fixedValue}` : "";
+  const fixedBonus = die?.fixedValue
+    ? action.snippet.includes("{{proficiency#signed}}")
+      ? " + @prof"
+      : ` + ${die.fixedValue}`
+    : "";
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-
   const scaleValueLink = DDBHelper.getScaleValueString(ddb, action).value;
   const excludedScale = LEVEL_SCALE_EXCLUSION.includes(feat.name);
-
   const useScaleValueLink = !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
 
   if (die || useScaleValueLink) {
@@ -166,7 +169,14 @@ function getDamage(ddb, action, feat) {
         versatile: "",
       };
     } else if (die.diceString) {
-      const damageString = utils.parseDiceString(die.diceString, modBonus, damageTag).diceString;
+      const profBonus = CONFIG.DDB.levelProficiencyBonuses.find((b) => b.level === ddb.character.classes.reduce((p, c) => p + c.level, 0))?.bonus;
+      const replaceProf = action.snippet?.includes("{{proficiency#signed}}")
+        && Number.parseInt(die.fixedValue) === Number.parseInt(profBonus);
+      const diceString = replaceProf
+        ? die.diceString.replace(`+ ${profBonus}`, "")
+        : die.diceString;
+      const mods = replaceProf ? `${modBonus} + @prof` : modBonus;
+      const damageString = utils.parseDiceString(diceString, mods, damageTag).diceString;
       damage = {
         parts: [[damageString, damageType]],
         versatile: "",

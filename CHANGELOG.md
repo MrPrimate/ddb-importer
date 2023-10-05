@@ -8,6 +8,7 @@
 - Monster parsing: fix Priest of Osybus (Deathly), Circle of Death spell parsing (it parses as an action).
 - Monster parsing: improved recharge detection (e.g. web on  Drow Arachnomancer)
 - Monster parsing: creatures like the Oni with Magical Weapons will have their weapons marked as magical.
+- Character importer: features like the Hobgoblin "Fey Gift: Hospitality" will now attempt to use @prof instead of a hardcoded proficiency value.
 
 # 3.4.74
 
