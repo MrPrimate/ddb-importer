@@ -122,8 +122,8 @@ export default class DDBMonsterFactory {
           return data;
         })
         .then((data) => {
-          this.munchNote(`Retrieved ${data.data.length} monsters, starting parse...`, true, false);
-          logger.info(`Retrieved ${data.data.length} monsters`);
+          this.munchNote(`Retrieved ${data.data.length + 1} monsters, starting parse...`, true, false);
+          logger.info(`Retrieved ${data.data.length + 1} monsters`);
           this.source = data.data;
           resolve(this.source);
         })
@@ -145,22 +145,27 @@ export default class DDBMonsterFactory {
     const addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
     const addChrisPremades = game.settings.get("ddb-importer", "munching-policy-use-chris-premades");
 
+    const totalMonsters = this.source.length + 1;
+    let i = 1;
     logger.time("Monster Parsing");
     for (const monster of this.source) {
+      const name = `${monster.name}${monster.isLegacy ? " legacy" : ""}`;
       try {
-        logger.debug(`Attempting to parse ${monster.name}`);
-        logger.time(`Monster Parse ${monster.name}${monster.isLegacy ? " legacy" : ""}`);
+        this.munchNote(`Parsing ${i}/${totalMonsters} (${name})`, false, true);
+        i++;
+        logger.debug(`Attempting to parse ${i}/${totalMonsters} ${monster.name}`);
+        logger.time(`Monster Parse ${name}`);
         const ddbMonster = new DDBMonster(monster, { extra: this.extra, useItemAC, legacyName, addMonsterEffects, addChrisPremades });
         // eslint-disable-next-line no-await-in-loop
         await ddbMonster.parse();
         foundryActors.push(duplicate(ddbMonster.npc));
-        logger.timeEnd(`Monster Parse ${monster.name}${monster.isLegacy ? " legacy" : ""}`);
+        logger.timeEnd(`Monster Parse ${name}`);
         // logger.timeLog("Monster Parsing", monster.name);
       } catch (err) {
-        logger.error(`Failed parsing ${monster.name}${monster.isLegacy ? " legacy" : ""}`);
+        logger.error(`Failed parsing ${name}`);
         logger.error(err);
         logger.error(err.stack);
-        failedMonsterNames.push(monster.name);
+        failedMonsterNames.push(name);
       }
     }
 
@@ -215,6 +220,7 @@ export default class DDBMonsterFactory {
     logger.info("Check complete getting monster data...");
     this.munchNote(`Getting monster data from DDB...`);
     await this.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(ids));
+    this.munchNote("");
     const monsterResults = await this.parse();
 
     const itemHandler = new DDBItemImporter("monsters", monsterResults.actors);
