@@ -9,7 +9,7 @@ export default class DDBFeature {
   #generateAdjustedName() {
     this.originalName = `${this.name}`;
     if (!this.stripName) return;
-    const regex = /(.*)\s*\((:?costs \d actions|Recharges after a (Short or Long|Long) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d-\d|Recharge \d)\)/i;
+    const regex = /(.*)\s*\((:?costs? \d actions|Recharges after a (Short or Long|Long) Rest|(?!Spell;|Psionics;).*\d\/day|recharge \d ?- ?\d|Recharge \d)\)/i;
     const nameMatch = this.name.replace(/[–-–−]/g, "-").match(regex);
     if (nameMatch) {
       this.feature.name = nameMatch[1].trim();

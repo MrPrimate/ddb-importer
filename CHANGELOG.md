@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Monster parsing: a few more charge detection tweaks.
+
 # 3.4.75
 
 - Size fix for Harengon
