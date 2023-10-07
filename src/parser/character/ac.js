@@ -452,13 +452,15 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     const key = game.modules.get("dae")?.active
       ? "system.attributes.ac.value"
       : "system.attributes.ac.bonus";
-    effect.changes.push({
-      key,
-      value: custom.value,
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      priority: 30,
-    });
-    bonusEffects.push(effect);
+    if (custom.value && ((Number.isInteger(custom.value) && Number.parseInt(custom.value) !== 0) || `${custom.value}`.trim() !== "")) {
+      effect.changes.push({
+        key,
+        value: custom.value,
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        priority: 30,
+      });
+    }
+    if (effect.changes.length > 0) bonusEffects.push(effect);
   });
 
   miscACBonus += getDualWieldAC(this.source.ddb, miscModifiers);
