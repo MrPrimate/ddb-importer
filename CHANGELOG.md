@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Monster parsing: a few more charge detection tweaks.
+- Move custom name alteration to later in the parsing process for items, to prevent parsing issues for some items where a custom name has been applied, e.g. Waterskin. Issue #401.
 
 # 3.4.75
 

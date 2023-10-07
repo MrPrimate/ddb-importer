@@ -467,18 +467,19 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
 
   for (let ddbItem of this.source.ddb.character.inventory) {
     const originalName = ddbItem.definition.name;
-    ddbItem.definition.name = DDBHelper.getName(this.source.ddb, ddbItem, this.raw.character);
+    const adjustedName = DDBHelper.getName(this.source.ddb, ddbItem, this.raw.character);
     const flags = this.getItemFlags(ddbItem);
 
     const updateExisting = compendiumItem
       ? game.settings.get("ddb-importer", "munching-policy-update-existing")
       : false;
     // eslint-disable-next-line no-await-in-loop
-    ddbItem.definition.description = await generateTable(ddbItem.definition.name, ddbItem.definition.description, updateExisting);
+    ddbItem.definition.description = await generateTable(adjustedName, ddbItem.definition.description, updateExisting);
 
     let item = Object.assign({}, parseItem(this.source.ddb, ddbItem, this.raw.character, flags));
 
     if (item) {
+      item.name = adjustedName;
       item = parseMagicItem(item, ddbItem, this.raw.itemSpells);
       item.flags.ddbimporter.originalName = originalName;
       item.flags.ddbimporter.version = CONFIG.DDBI.version;
