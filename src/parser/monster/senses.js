@@ -35,6 +35,8 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
     if (senseMatch && sense.notes) {
       const senseType = DICTIONARY.senseMap()[senseMatch.name.toLowerCase()];
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
+      const blindBeyondMatch = sense.notes.trim().match(/blind beyond this radius/i);
+      const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
       if (rangeMatch) {
         const value = parseInt(rangeMatch[1]);
         if (value > 0 && value > this.npc.prototypeToken.sight.range && hasProperty(CONFIG.Canvas.visionModes, senseType)) {
@@ -48,13 +50,21 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
             range: value,
             enabled: true,
           };
-
-          const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
           // only add duplicate modes if they don't exist
           // don't add if vision 5e is installed, as it can handle these detection modes.
           if (!vision5eInstalled && !this.npc.prototypeToken.detectionModes.some((mode) => mode.id === detectionMode.id)) {
             this.npc.prototypeToken.detectionModes.push(detectionMode);
           }
+        }
+        // add these modes if supported by vision 5e
+        if (vision5eInstalled && blindBeyondMatch) {
+          this.npc.prototypeToken.detectionModes.push(
+            {
+              "id": "lightPerception",
+              "range": value,
+              "enabled": true
+            }
+          );
         }
       }
     }

@@ -2,6 +2,7 @@
 
 - Monster parsing: a few more charge detection tweaks.
 - Move custom name alteration to later in the parsing process for items, to prevent parsing issues for some items where a custom name has been applied, e.g. Waterskin. Issue #401.
+- If using Vision 5e monsters which are "blind beyond radius x" will have limited vision applied to their prototype token. @dineshm72
 
 # 3.4.75
 
