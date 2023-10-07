@@ -121,6 +121,10 @@ export class DDBFeatureFactory {
     return dom;
   }
 
+  static EM_STRONG_EXCEPTIONS = [
+    "Yeenoghu",
+  ];
+
   #generateActionActions(type) {
     let splitActions = this.html[type].split("<h3>Roleplaying Information</h3>");
     if (splitActions.length > 1) {
@@ -132,12 +136,11 @@ export class DDBFeatureFactory {
 
     // build out skeleton actions
     dom.querySelectorAll("p").forEach((node) => {
-
       let pDom = new DocumentFragment();
       $.parseHTML(node.outerHTML).forEach((element) => {
         pDom.appendChild(element);
       });
-      const query = pDom.querySelector("strong");
+      const query = pDom.querySelector("em strong");
       if (!query) return;
       let name = query.textContent.trim().replace(/\./g, '');
       name = DDBFeatureFactory.splitName(name, node.textContent);
