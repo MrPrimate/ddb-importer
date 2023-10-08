@@ -8838,5 +8838,33 @@
   {
     "name": "Zulkoon",
     "path": "icons/weapons/guns/rifle-fluted.webp"
+  },
+  {
+    "name": "Hoopak",
+    "path": "icons/weapons/staves/staff-forked-wood.webp"
+  },
+  {
+    "name": "Tearulai",
+    "path": "icons/skills/melee/blade-tip-smoke-green.webp"
+  },
+  {
+    "name": "Hoopak (Ranged)",
+    "path": "icons/weapons/staves/staff-forked-wood.webp"
+  },
+  {
+    "name": "Hither-Thither Staff",
+    "path": "icons/weapons/staves/staff-ornate-jeweled-blue.webp"
+  },
+  {
+    "name": "Nightbringer",
+    "path": "icons/weapons/maces/mace-spiked-skull.webp"
+  },
+  {
+    "name": "Nightbringer (Evil Alignment)",
+    "path": "icons/weapons/maces/mace-spiked-skull.webp"
+  },
+  {
+    "name": "Red Wizard Blade",
+    "path": "icons/weapons/swords/sword-guard-flanged.webp"
   }
 ]

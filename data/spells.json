@@ -2134,5 +2134,13 @@
   {
     "name": "Zone of Truth",
     "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
+  },
+  {
+    "name": "Freedom of the Winds",
+    "path": "icons/magic/control/debuff-energy-hold-blue-yellow.webp"
+  },
+  {
+    "name": "Freedom of the Waves",
+    "path": "icons/magic/control/debuff-energy-hold-teal-blue.webp"
   }
 ]
