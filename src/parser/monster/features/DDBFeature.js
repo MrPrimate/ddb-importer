@@ -196,7 +196,8 @@ export default class DDBFeature {
     // console.warn(hit);
     // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
     // eslint-disable-next-line no-useless-escape
-    const damageExpression = new RegExp(/((?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of|\son a failed save)?/gi);
+    const damageExpression = new RegExp(/((?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if (?:used|wielded) with )?(\s?two hands|\s?at the start of|\son a failed save)?/gi);
+
     const matches = [...hit.matchAll(damageExpression)];
     const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
     const regainMatch = hit.match(regainExpression);
@@ -321,7 +322,6 @@ export default class DDBFeature {
       if (perMatch) uses.per = perMatch.value;
     } else {
       const rechargeMatch = this.name.match(/Recharges after a (Short or Long|Long) Rest/i);
-      console.warn("recharge match", rechargeMatch);
       if (rechargeMatch) {
         uses.per = rechargeMatch[1] === "Long" ? "lr" : "sr";
         uses.value = 1;
