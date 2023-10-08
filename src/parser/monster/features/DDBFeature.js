@@ -320,7 +320,8 @@ export default class DDBFeature {
       const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
       if (perMatch) uses.per = perMatch.value;
     } else {
-      const rechargeMatch = this.name.match(/Recharges after a (Short or Long|Long) Rest|/i);
+      const rechargeMatch = this.name.match(/Recharges after a (Short or Long|Long) Rest/i);
+      console.warn("recharge match", rechargeMatch);
       if (rechargeMatch) {
         uses.per = rechargeMatch[1] === "Long" ? "lr" : "sr";
         uses.value = 1;

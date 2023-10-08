@@ -4,6 +4,8 @@
 - Move custom name alteration to later in the parsing process for items, to prevent parsing issues for some items where a custom name has been applied, e.g. Waterskin. Issue #401.
 - If using Vision 5e monsters which are "blind beyond radius x" will have limited vision applied to their prototype token. @dineshm72
 - Ensure removed custom AC effects no longer get added
+- Typo caused all monster actions to have charges set.
+- Overtime effect generation was adding a duration to all monster actions incorrectly.
 
 # 3.4.75
 

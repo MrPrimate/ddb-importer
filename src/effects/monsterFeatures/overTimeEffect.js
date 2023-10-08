@@ -165,6 +165,12 @@ function effectCleanup(ddbMonster, document, actor, effect) {
     overTimeFlags.push(document.name);
     setProperty(actor, "flags.monsterMunch.overTime", overTimeFlags);
     // console.warn(`ITEM OVER TIME EFFECT: ${actor.name}, ${document.name}`);
+    if (getProperty(document, "system.duration.units") === "inst") {
+      setProperty(document, "system.duration", {
+        units: "round",
+        value: effect.duration.rounds,
+      });
+    }
     logger.debug(`Generating damage over time effect for ${actor.name}, ${actor.name}`);
   }
   return { document, actor, ddbMonster };
@@ -188,13 +194,6 @@ export function generateOverTimeEffect(ddbMonster, actor, document) {
   setProperty(effect, "duration.seconds", durationSeconds);
   const durationRounds = Number.parseInt(durationSeconds / 6);
   setProperty(effect, "duration.rounds", durationRounds);
-
-  if (getProperty(document, "system.duration.units") === "inst") {
-    setProperty(document, "system.duration", {
-      units: "round",
-      value: durationRounds,
-    });
-  }
 
   const turn = startOrEnd(document.system.description.value);
   if (!turn) return effectCleanup(ddbMonster, document, actor, effect);
