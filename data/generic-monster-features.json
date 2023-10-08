@@ -7790,5 +7790,1645 @@
   {
     "name": "Flame Seed",
     "path": "icons/magic/fire/explosion-fireball-small-orange.webp"
+  },
+  {
+    "name": "Force Blast",
+    "path": "icons/magic/lightning/bolt-strike-forked-sparks-blue.webp"
+  },
+  {
+    "name": "Arcane Burst",
+    "path": "icons/magic/light/hand-sparks-smoke-teal.webp"
+  },
+  {
+    "name": "An Amethyst Dragon's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-island.webp"
+  },
+  {
+    "name": "A Crystal Dragon's Lair",
+    "path": "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp"
+  },
+  {
+    "name": "Starlight Strike",
+    "path": "icons/magic/light/beam-rays-blue-large.webp"
+  },
+  {
+    "name": "Scintillating Breath",
+    "path": "icons/creatures/abilities/dragon-ice-breath-blue.webp"
+  },
+  {
+    "name": "A Deep Dragon's Lair",
+    "path": "icons/magic/nature/plant-undersea-glow-green.webp"
+  },
+  {
+    "name": "Commanding Spores",
+    "path": "icons/magic/nature/plant-undersea-orb-purple.webp"
+  },
+  {
+    "name": "Spore Salvo",
+    "path": "icons/magic/nature/plant-undersea-seaweed-glow-green.webp"
+  },
+  {
+    "name": "Nightmare Breath",
+    "path": "icons/creatures/abilities/dragon-breath-purple.webp"
+  },
+  {
+    "name": "Shift Perception",
+    "path": "icons/environment/wilderness/cave-entrance-vulcano.webp"
+  },
+  {
+    "name": "An Emerald Dragon's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-vulcano.webp"
+  },
+  {
+    "name": "Emerald Embers",
+    "path": "icons/magic/fire/projectile-fireball-smoke-strong-green.webp"
+  },
+  {
+    "name": "Disorienting Breath",
+    "path": "icons/magic/water/projectile-water-rings.webp"
+  },
+  {
+    "name": "A Topaz Dragon's Lair",
+    "path": "icons/environment/wilderness/island.webp"
+  },
+  {
+    "name": "Essential Reduction",
+    "path": "icons/magic/earth/strike-body-stone-crumble.webp"
+  },
+  {
+    "name": "Fabricate",
+    "path": "icons/commodities/wood/framing-brace-reinforced.webp"
+  },
+  {
+    "name": "Desiccating Breath",
+    "path": "icons/creatures/abilities/dragon-fire-breath-orange.webp"
+  },
+  {
+    "name": "Arcane Bolt",
+    "path": "icons/magic/lightning/bolt-beam-strike-blue.webp"
+  },
+  {
+    "name": "Negate Spell",
+    "path": "icons/magic/defensive/shield-barrier-glowing-blue.webp"
+  },
+  {
+    "name": "Abyssal Rift",
+    "path": "icons/magic/unholy/barrier-fire-pink.webp"
+  },
+  {
+    "name": "Foment Confusion",
+    "path": "icons/magic/air/air-burst-spiral-teal-green.webp"
+  },
+  {
+    "name": "Whispers of Compulsion",
+    "path": "icons/magic/control/fear-fright-shadow-monster-red.webp"
+  },
+  {
+    "name": "Gem Awakening",
+    "path": "icons/magic/light/explosion-star-large-pink.webp"
+  },
+  {
+    "name": "Mass Telekinesis (Gem Awakening Only)",
+    "path": "icons/magic/control/silhouette-hold-change-green.webp"
+  },
+  {
+    "name": "Psychic Beam",
+    "path": "icons/magic/light/beam-rays-teal-large.webp"
+  },
+  {
+    "name": "Blinding Rot",
+    "path": "icons/magic/control/sihouette-hold-beam-green.webp"
+  },
+  {
+    "name": "Blessing of the Sea",
+    "path": "icons/magic/water/wave-water-explosion.webp"
+  },
+  {
+    "name": "Boiling Aura",
+    "path": "icons/magic/water/bubbles-air-water-light.webp"
+  },
+  {
+    "name": "Rime Breath",
+    "path": "icons/creatures/abilities/dragon-ice-breath-blue.webp"
+  },
+  {
+    "name": "Entrapping Rend",
+    "path": "icons/creatures/abilities/tail-strike-bone-orange.webp"
+  },
+  {
+    "name": "Chromatic Form",
+    "path": "icons/magic/symbols/elements-air-earth-fire-water.webp"
+  },
+  {
+    "name": "Putrid Aura (Acid and Poison Forms Only)",
+    "path": "icons/magic/air/fog-gas-smoke-dense-green.webp"
+  },
+  {
+    "name": "False Object",
+    "path": "icons/magic/control/debuff-chains-purple.webp"
+  },
+  {
+    "name": "Wildfire",
+    "path": "icons/magic/fire/flame-burning-embers-yellow.webp"
+  },
+  {
+    "name": "Quill's Fable",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Supreme Mockery",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Celestial Lances",
+    "path": "icons/magic/holy/projectiles-blades-salvo-yellow.webp"
+  },
+  {
+    "name": "Celestial Shield",
+    "path": "icons/magic/defensive/illusion-evasion-echo-purple.webp"
+  },
+  {
+    "name": "Exalting Breath",
+    "path": "icons/magic/light/explosion-beam-impact-silhouette.webp"
+  },
+  {
+    "name": "Platinum Breath",
+    "path": "icons/magic/light/beam-strike-village-yellow.webp"
+  },
+  {
+    "name": "Platinum Brilliance",
+    "path": "icons/magic/light/explosion-star-glow-blue-purple.webp"
+  },
+  {
+    "name": "Furious Bite",
+    "path": "icons/creatures/abilities/mouth-teeth-fire-orange.webp"
+  },
+  {
+    "name": "Chromatic Flames",
+    "path": "icons/magic/light/beam-strike-village-yellow.webp"
+  },
+  {
+    "name": "Chromatic Wrath",
+    "path": "icons/creatures/unholy/demon-horned-winged-laughing.webp"
+  },
+  {
+    "name": "Hurl Through Avernus",
+    "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
+  },
+  {
+    "name": "Chromatic Flare",
+    "path": "icons/magic/fire/explosion-flame-lightning-strike.webp"
+  },
+  {
+    "name": "Snare Ship",
+    "path": "icons/creatures/webs/web-sparse-pink.webp"
+  },
+  {
+    "name": "Aura of Command",
+    "path": "icons/sundries/flags/banner-symbol-claw.webp"
+  },
+  {
+    "name": "Energy Ray",
+    "path": "icons/magic/light/beam-rays-red.webp"
+  },
+  {
+    "name": "Noxious Breath",
+    "path": "icons/magic/air/fog-gas-smoke-dense-brown.webp"
+  },
+  {
+    "name": "Controlled Fall",
+    "path": "icons/creatures/abilities/wing-batlike-white-blue.webp"
+  },
+  {
+    "name": "Draconic Devotion",
+    "path": "icons/sundries/flags/banner-symbol-claw.webp"
+  },
+  {
+    "name": "Fiendish Magic",
+    "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
+  },
+  {
+    "name": "Cultists of Baphomet",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Soul Feeding",
+    "path": "icons/creatures/abilities/mouth-teeth-fire-orange.webp"
+  },
+  {
+    "name": "Control Weather",
+    "path": "icons/magic/water/snowflake-ice-snow-white.webp"
+  },
+  {
+    "name": "Frost Shard",
+    "path": "icons/magic/water/projectile-icecicle-glowing.webp"
+  },
+  {
+    "name": "Horrific Feast",
+    "path": "icons/creatures/abilities/mouth-teeth-rows-white.webp"
+  },
+  {
+    "name": "Arcane Spear",
+    "path": "icons/magic/holy/projectiles-blades-salvo-yellow.webp"
+  },
+  {
+    "name": "Chromatic Awakening",
+    "path": "icons/magic/light/explosion-star-large-teal-purple.webp"
+  },
+  {
+    "name": "Blaze Rod",
+    "path": "icons/weapons/wands/wand-gem-red.webp"
+  },
+  {
+    "name": "Fiery Doom",
+    "path": "icons/magic/fire/explosion-fireball-medium-red-orange.webp"
+  },
+  {
+    "name": "Heat Aura",
+    "path": "icons/creatures/unholy/demon-fanged-horned-yellow.webp"
+  },
+  {
+    "name": "Entrapping Pod",
+    "path": "icons/magic/nature/plant-maneater-purple.webp"
+  },
+  {
+    "name": "Podling Link",
+    "path": "icons/magic/nature/leaf-rune-glow-green.webp"
+  },
+  {
+    "name": "Vine Lash",
+    "path": "icons/magic/nature/root-vine-entangle-foot-green.webp"
+  },
+  {
+    "name": "Sticky Oil",
+    "path": "icons/creatures/slimes/slime-blob-pseudopods-green.webp"
+  },
+  {
+    "name": "Compression",
+    "path": "icons/creatures/slimes/slime-giant-face-eyes.webp"
+  },
+  {
+    "name": "Glide",
+    "path": "icons/creatures/abilities/wing-batlike-white-blue.webp"
+  },
+  {
+    "name": "Elemental Breath",
+    "path": "icons/magic/light/beam-strike-village-yellow.webp"
+  },
+  {
+    "name": "Metallic Awakening",
+    "path": "icons/magic/light/explosion-star-large-orange-purple.webp"
+  },
+  {
+    "name": "Sapping Breath",
+    "path": "icons/magic/air/fog-gas-smoke-swirling-yellow.webp"
+  },
+  {
+    "name": "Shattering Roar",
+    "path": "icons/creatures/abilities/dragon-breath-purple.webp"
+  },
+  {
+    "name": "Spell Deflection",
+    "path": "icons/magic/defensive/shield-barrier-deflect-teal.webp"
+  },
+  {
+    "name": "Limited Spell Immunity",
+    "path": "icons/magic/defensive/shield-barrier-glowing-blue.webp"
+  },
+  {
+    "name": "Divisive Whispers",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Larval Burst",
+    "path": "icons/environment/creatures/bug-worm-toothed-grey.webp"
+  },
+  {
+    "name": "Silver Needle",
+    "path": "icons/tools/hand/needle-grey.webp"
+  },
+  {
+    "name": "Soul Swap",
+    "path": "icons/magic/control/control-influence-puppet.webp"
+  },
+  {
+    "name": "Spectral Dagger",
+    "path": "icons/weapons/daggers/dagger-magical-glowing-blue.webp"
+  },
+  {
+    "name": "Rotating Saw",
+    "path": "icons/environment/traps/saw-steel-grey.webp"
+  },
+  {
+    "name": "Shutdown",
+    "path": "icons/commodities/tech/detonator-radio.webp"
+  },
+  {
+    "name": "Spelljamming Helm Interface",
+    "path": "icons/commodities/tech/motor-rotating.webp"
+  },
+  {
+    "name": "Spectral Weapon",
+    "path": "icons/skills/melee/strike-weapon-polearm-ice-blue.webp"
+  },
+  {
+    "name": "Wind Howl",
+    "path": "icons/magic/air/wind-tornado-cyclone-white.webp"
+  },
+  {
+    "name": "Cloud Step",
+    "path": "icons/magic/control/debuff-energy-snare-blue.webp"
+  },
+  {
+    "name": "Control Weather (8th-level Spell)",
+    "path": "icons/magic/water/snowflake-ice-snow-white.webp"
+  },
+  {
+    "name": "Telekinetic Strike",
+    "path": "icons/magic/lightning/fist-unarmed-strike-blue-green.webp"
+  },
+  {
+    "name": "Bubbles of Whimsy",
+    "path": "icons/magic/water/bubbles-air-water-pink.webp"
+  },
+  {
+    "name": "Gift of Speech",
+    "path": "icons/magic/light/orbs-firefly-hand-yellow.webp"
+  },
+  {
+    "name": "Digest",
+    "path": "icons/magic/nature/plant-maneater-purple.webp"
+  },
+  {
+    "name": "Reanimate",
+    "path": "icons/creatures/magical/humanoid-silhouette-green.webp"
+  },
+  {
+    "name": "Bizarre Physiology",
+    "path": "icons/creatures/magical/construct-stone-earth-gray.webp"
+  },
+  {
+    "name": "Creeper Head",
+    "path": "icons/equipment/head/mask-carved-wood-white.webp"
+  },
+  {
+    "name": "Destruction",
+    "path": "icons/commodities/tech/smoke-bomb-red-yellow.webp"
+  },
+  {
+    "name": "Electrical Charge",
+    "path": "icons/magic/lightning/projectile-tendrils-teal.webp"
+  },
+  {
+    "name": "Rejuvenating Seedpods",
+    "path": "icons/magic/nature/plant-sprout-snow-green.webp"
+  },
+  {
+    "name": "Beheaded Form",
+    "path": "icons/creatures/magical/spirit-fire-yellow.webp"
+  },
+  {
+    "name": "Gnashing Bite (Gnashing Head Only)",
+    "path": "icons/creatures/abilities/mouth-teeth-long-red.webp"
+  },
+  {
+    "name": "Mind-Bending Bite (Aberrant Head Only)",
+    "path": "icons/creatures/reptiles/lizard-mouth-glowing-red.webp"
+  },
+  {
+    "name": "Petrifying Bite (Petrifying Head Only)",
+    "path": "icons/magic/defensive/armor-stone-skin.webp"
+  },
+  {
+    "name": "Dancing Lights",
+    "path": "icons/magic/light/explosion-star-glow-yellow.webp"
+  },
+  {
+    "name": "Lair Traits",
+    "path": "icons/environment/wilderness/cave-entrance-vulcano.webp"
+  },
+  {
+    "name": "Trap Soul",
+    "path": "icons/magic/control/encase-creature-monster-hold.webp"
+  },
+  {
+    "name": "Cultists of Demogorgon",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Chromatic Beam",
+    "path": "icons/magic/light/beam-explosion-pink-purple.webp"
+  },
+  {
+    "name": "Overwhelming Revelation",
+    "path": "icons/magic/light/orb-shadow-blue.webp"
+  },
+  {
+    "name": "Dazzling Slam",
+    "path": "icons/magic/light/projectile-stars-blue.webp"
+  },
+  {
+    "name": "Delightful Light",
+    "path": "icons/magic/light/explosion-star-glow-purple.webp"
+  },
+  {
+    "name": "Fiery Rebuke",
+    "path": "icons/equipment/shield/buckler-wooden-boss-glowing-blue.webp"
+  },
+  {
+    "name": "Shaped Claw",
+    "path": "icons/creatures/claws/claw-bear-paw-swipe-red.webp"
+  },
+  {
+    "name": "Prismatic Breath",
+    "path": "icons/magic/sonic/projectile-sound-rings-wave.webp"
+  },
+  {
+    "name": "Serrated Sword",
+    "path": "icons/weapons/swords/sword-guard-serrated.webp"
+  },
+  {
+    "name": "Shape Theft",
+    "path": "icons/magic/control/debuff-energy-hold-green.webp"
+  },
+  {
+    "name": "Necrotic Ray",
+    "path": "icons/magic/unholy/beam-impact-purple.webp"
+  },
+  {
+    "name": "Magic Shield",
+    "path": "icons/equipment/shield/kite-wooden-oak-glow.webp"
+  },
+  {
+    "name": "Commanding Thought",
+    "path": "icons/creatures/eyes/humanoid-single-blue.webp"
+  },
+  {
+    "name": "Deflection",
+    "path": "icons/magic/defensive/shield-barrier-deflect-teal.webp"
+  },
+  {
+    "name": "Inhabit Object",
+    "path": "icons/weapons/wands/wand-gem-red.webp"
+  },
+  {
+    "name": "Telekinetic Rend",
+    "path": "icons/magic/unholy/hand-claw-fire-blue.webp"
+  },
+  {
+    "name": "Radiant Bolt",
+    "path": "icons/magic/lightning/bolt-strike-streak-yellow.webp"
+  },
+  {
+    "name": "Biting Rebuke",
+    "path": "icons/equipment/shield/buckler-wooden-boss-glowing-blue.webp"
+  },
+  {
+    "name": "Disarming Words",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Thunder Bolt",
+    "path": "icons/magic/lightning/bolt-strike-sparks-teal.webp"
+  },
+  {
+    "name": "Slime Breath",
+    "path": "icons/creatures/slimes/slime-movement-pseudopods-blue.webp"
+  },
+  {
+    "name": "Pinion",
+    "path": "icons/creatures/abilities/tail-strike-bone-orange.webp"
+  },
+  {
+    "name": "Heat Breath",
+    "path": "icons/creatures/abilities/dragon-fire-breath-orange.webp"
+  },
+  {
+    "name": "Mental Defense",
+    "path": "icons/magic/perception/third-eye-blue-red.webp"
+  },
+  {
+    "name": "Acid Belch",
+    "path": "icons/magic/air/fog-gas-smoke-swirling-green.webp"
+  },
+  {
+    "name": "Cloying Miasma",
+    "path": "icons/magic/air/fog-gas-smoke-swirling-green.webp"
+  },
+  {
+    "name": "Acid Retch",
+    "path": "icons/creatures/fish/fish-fangtooth-skeletal-green.webp"
+  },
+  {
+    "name": "Ensnaring Shriek",
+    "path": "icons/magic/control/debuff-energy-hold-pink.webp"
+  },
+  {
+    "name": "Ghastly Visions",
+    "path": "icons/magic/unholy/orb-hands-pink.webp"
+  },
+  {
+    "name": "Arcane Eruption",
+    "path": "icons/magic/lightning/bolt-strike-streak-yellow.webp"
+  },
+  {
+    "name": "Protective Shield",
+    "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
+  },
+  {
+    "name": "A Matron Mother's Lair",
+    "path": "icons/environment/settlement/temple-night.webp"
+  },
+  {
+    "name": "Divine Flame",
+    "path": "icons/magic/fire/beam-jet-stream-yellow.webp"
+  },
+  {
+    "name": "Control Corpse",
+    "path": "icons/magic/control/fear-fright-shadow-monster-green.webp"
+  },
+  {
+    "name": "Disorienting Words",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Inspiring Words",
+    "path": "icons/magic/control/buff-flight-wings-runes-blue.webp"
+  },
+  {
+    "name": "Reinforced Lute",
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
+  },
+  {
+    "name": "Barbed Proboscis",
+    "path": "icons/creatures/claws/claw-curved-poison-purple.webp"
+  },
+  {
+    "name": "Rapid Adaptation",
+    "path": "icons/magic/defensive/barrier-shield-dome-pink.webp"
+  },
+  {
+    "name": "Torpor Spores",
+    "path": "icons/magic/nature/plant-undersea-seaweed-glow-green.webp"
+  },
+  {
+    "name": "Egg Tooth",
+    "path": "icons/magic/water/strike-ice-blade-fang.webp"
+  },
+  {
+    "name": "Rapid Movement",
+    "path": "icons/environment/creatures/bug-worm-pincer-pink.webp"
+  },
+  {
+    "name": "Shatter Concentration",
+    "path": "icons/creatures/magical/spirit-fear-energy-pink.webp"
+  },
+  {
+    "name": "Tadpole Brine Breath",
+    "path": "icons/creatures/slimes/slime-movement-pseudopods-blue.webp"
+  },
+  {
+    "name": "Far Realm Parasite",
+    "path": "icons/environment/creatures/bug-worm-toothed-green.webp"
+  },
+  {
+    "name": "Far Realm Step",
+    "path": "icons/magic/control/debuff-energy-snare-green.webp"
+  },
+  {
+    "name": "Parasitic Tentacle",
+    "path": "icons/creatures/tentacles/tentacle-eyes-yellow-pink.webp"
+  },
+  {
+    "name": "Psychic Whisper",
+    "path": "icons/magic/control/fear-fright-shadow-monster-purple.webp"
+  },
+  {
+    "name": "Alter Shape",
+    "path": "icons/magic/control/debuff-energy-hold-green.webp"
+  },
+  {
+    "name": "Calescent Aura",
+    "path": "icons/magic/air/fog-gas-smoke-swirling-orange.webp"
+  },
+  {
+    "name": "Firestorm Breath",
+    "path": "icons/creatures/abilities/dragon-fire-breath-orange.webp"
+  },
+  {
+    "name": "Pursuit",
+    "path": "icons/commodities/biological/wing-lizard-pink-purple.webp"
+  },
+  {
+    "name": "Searing Bite",
+    "path": "icons/creatures/abilities/mouth-teeth-fire-orange.webp"
+  },
+  {
+    "name": "Beating Wings",
+    "path": "icons/commodities/biological/wing-green.webp"
+  },
+  {
+    "name": "Dragon Egg",
+    "path": "icons/magic/unholy/orb-glowing-purple.webp"
+  },
+  {
+    "name": "Harmful Breath",
+    "path": "icons/magic/acid/pouring-gas-smoke-liquid.webp"
+  },
+  {
+    "name": "Evasive Teleportation",
+    "path": "icons/magic/control/debuff-energy-snare-purple-pink.webp"
+  },
+  {
+    "name": "Implosion",
+    "path": "icons/commodities/gems/pearl-purple-dark.webp"
+  },
+  {
+    "name": "Sculpted Explosion",
+    "path": "icons/magic/light/hand-sparks-glow-yellow.webp"
+  },
+  {
+    "name": "Exethanter's Lair",
+    "path": "icons/environment/wilderness/wall-ruins.webp"
+  },
+  {
+    "name": "2: Debilitating Ray",
+    "path": "icons/magic/lightning/bolt-strike-sparks-purple.webp"
+  },
+  {
+    "name": "3: Repulsion Ray",
+    "path": "icons/magic/light/projectile-flare-expliosion-yellow.webp"
+  },
+  {
+    "name": "Antimagic Breath",
+    "path": "icons/creatures/abilities/mouth-teeth-fire-orange.webp"
+  },
+  {
+    "name": "Bewitching Bolt",
+    "path": "icons/magic/lightning/bolt-strike-smoke-yellow.webp"
+  },
+  {
+    "name": "Duplicitous Movement",
+    "path": "icons/magic/defensive/illusion-evasion-echo-purple.webp"
+  },
+  {
+    "name": "Forge Hammer",
+    "path": "icons/weapons/hammers/hammer-double-glowing-yellow.webp"
+  },
+  {
+    "name": "Furnace Armor (Requires Fire Rune)",
+    "path": "icons/magic/defensive/armor-shield-barrier-steel.webp"
+  },
+  {
+    "name": "Heated Rock",
+    "path": "icons/magic/earth/projectile-boulder-yellow.webp"
+  },
+  {
+    "name": "Magma Wave (Requires Fire Rune)",
+    "path": "icons/magic/earth/explosion-lava-stone-red.webp"
+  },
+  {
+    "name": "Searing Scepter",
+    "path": "icons/weapons/staves/staff-ornate-red.webp"
+  },
+  {
+    "name": "Erupting Briars",
+    "path": "icons/magic/nature/root-vine-entwined-thorns.webp"
+  },
+  {
+    "name": "Master of Beasts",
+    "path": "icons/creatures/mammals/unicorn-horned-white.webp"
+  },
+  {
+    "name": "Moon Bolt",
+    "path": "icons/magic/light/beam-rays-blue-small.webp"
+  },
+  {
+    "name": "Duty-Bound",
+    "path": "icons/sundries/flags/banner-sword-blue.webp"
+  },
+  {
+    "name": "Phantasmic Battalion",
+    "path": "icons/magic/light/hand-sparks-smoke-teal.webp"
+  },
+  {
+    "name": "Spectral Polearm",
+    "path": "icons/skills/melee/strike-weapon-polearm-ice-blue.webp"
+  },
+  {
+    "name": "Disarming Charm",
+    "path": "icons/equipment/back/cape-layered-red.webp"
+  },
+  {
+    "name": "Double-Cross",
+    "path": "icons/skills/melee/hand-grip-sword-strike-orange.webp"
+  },
+  {
+    "name": "Extradimensional Touch",
+    "path": "icons/magic/light/explosion-glow-spiral-teal.webp"
+  },
+  {
+    "name": "Mirrored Damage",
+    "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
+  },
+  {
+    "name": "Scrying Focus",
+    "path": "icons/magic/water/orb-water-transparent.webp"
+  },
+  {
+    "name": "Two-Dimensionality",
+    "path": "icons/magic/symbols/triangle-glow-purple.webp"
+  },
+  {
+    "name": "Cultists of Fraz-Urb'luu",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Fraz-Urb'luu's Lair",
+    "path": "icons/environment/settlement/wizard-castle.webp"
+  },
+  {
+    "name": "Phantasmal Terror",
+    "path": "icons/magic/control/fear-fright-monster-grin-green.webp"
+  },
+  {
+    "name": "Blinding Spores",
+    "path": "icons/magic/nature/plant-undersea-seaweed-glow-green.webp"
+  },
+  {
+    "name": "Air Envelope",
+    "path": "icons/magic/water/vortex-water-whirlpool.webp"
+  },
+  {
+    "name": "Wrap",
+    "path": "icons/magic/nature/barrier-shield-wood-vines.webp"
+  },
+  {
+    "name": "Divination Senses",
+    "path": "icons/magic/perception/orb-eye-scrying.webp"
+  },
+  {
+    "name": "Foretelling Touch",
+    "path": "icons/magic/control/fear-fright-shadow-monster-red.webp"
+  },
+  {
+    "name": "Suffering Echoes",
+    "path": "icons/magic/unholy/orb-hands-pink.webp"
+  },
+  {
+    "name": "2: Enervation Ray",
+    "path": "icons/magic/unholy/beam-ringed-impact-purple.webp"
+  },
+  {
+    "name": "5: Pushing Ray",
+    "path": "icons/magic/light/projectile-flare-expliosion-yellow.webp"
+  },
+  {
+    "name": "6: Sleep Ray",
+    "path": "icons/magic/light/beam-rays-blue-small.webp"
+  },
+  {
+    "name": "3: Frost Ray",
+    "path": "icons/magic/lightning/bolt-beam-strike-blue.webp"
+  },
+  {
+    "name": "4: Telekinetic Ray",
+    "path": "icons/magic/light/projectiles-star-purple.webp"
+  },
+  {
+    "name": "Amethyst",
+    "path": "icons/commodities/gems/gem-rough-navette-purple.webp"
+  },
+  {
+    "name": "Emerald",
+    "path": "icons/commodities/gems/gem-raw-rough-green-yellow.webp"
+  },
+  {
+    "name": "Protective Link",
+    "path": "icons/magic/defensive/barrier-shield-dome-deflect-blue.webp"
+  },
+  {
+    "name": "Topaz",
+    "path": "icons/commodities/gems/gem-rough-cushion-orange-red.webp"
+  },
+  {
+    "name": "Sapphire",
+    "path": "icons/commodities/gems/gem-rough-round-blue.webp"
+  },
+  {
+    "name": "Cultists of Geryon",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Terrifying Breath",
+    "path": "icons/magic/death/undead-mammal-fire-breath-pink.webp"
+  },
+  {
+    "name": "Force Grenade",
+    "path": "icons/weapons/thrown/bomb-spiked-purple.webp"
+  },
+  {
+    "name": "Steady as She Goes",
+    "path": "icons/commodities/biological/foot-black-grey.webp"
+  },
+  {
+    "name": "Alternate Forms",
+    "path": "icons/creatures/magical/spirit-mischief-fire-ice-blue.webp"
+  },
+  {
+    "name": "Telekinetic Bolt",
+    "path": "icons/magic/lightning/bolt-strike-sparks-yellow.webp"
+  },
+  {
+    "name": "Float",
+    "path": "icons/magic/nature/leaf-glow-orange.webp"
+  },
+  {
+    "name": "Scintillating Eye",
+    "path": "icons/magic/light/explosion-star-glow-blue.webp"
+  },
+  {
+    "name": "Abyssal Magic",
+    "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
+  },
+  {
+    "name": "Cultists of Graz'zt",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Graz'zt's Lair",
+    "path": "icons/environment/settlement/palast.webp"
+  },
+  {
+    "name": "Cataclysmic Rush",
+    "path": "icons/creatures/abilities/wing-batlike-purple-blue.webp"
+  },
+  {
+    "name": "Cataclysmic Breath",
+    "path": "icons/magic/death/undead-mammal-fire-breath-pink.webp"
+  },
+  {
+    "name": "Mind Cloud",
+    "path": "icons/magic/unholy/orb-swirling-teal.webp"
+  },
+  {
+    "name": "Unearthly Bile",
+    "path": "icons/creatures/slimes/slime-giant-face-eyes.webp"
+  },
+  {
+    "name": "Lashing Maw",
+    "path": "icons/creatures/abilities/mouth-teeth-misshapen-pink.webp"
+  },
+  {
+    "name": "Fiendish Claw",
+    "path": "icons/magic/unholy/hand-claw-fog-green.webp"
+  },
+  {
+    "name": "Magic Allergy",
+    "path": "icons/magic/control/fear-fright-monster-grin-red-orange.webp"
+  },
+  {
+    "name": "Caustic Mist",
+    "path": "icons/magic/air/fog-gas-smoke-dense-green.webp"
+  },
+  {
+    "name": "Scale Dust",
+    "path": "icons/magic/light/orbs-smoke-pink.webp"
+  },
+  {
+    "name": "Devastating Bolt",
+    "path": "icons/magic/lightning/bolt-strike-beam-purple.webp"
+  },
+  {
+    "name": "Darksteel Greataxe",
+    "path": "icons/weapons/axes/axe-broad-engraved-chipped-blue.webp"
+  },
+  {
+    "name": "Improvised Weapon",
+    "path": "icons/weapons/clubs/club-barbed-square-black.webp"
+  },
+  {
+    "name": "Wrestle",
+    "path": "icons/skills/melee/unarmed-punch-fist.webp"
+  },
+  {
+    "name": "Booming Scales",
+    "path": "icons/magic/sonic/explosion-shock-sound-wave.webp"
+  },
+  {
+    "name": "Ghostly Binding",
+    "path": "icons/magic/control/debuff-chains-shackles-movement-blue.webp"
+  },
+  {
+    "name": "Reconstruction",
+    "path": "icons/magic/life/heart-cross-strong-purple-orange.webp"
+  },
+  {
+    "name": "Sapping Presence",
+    "path": "icons/magic/air/fog-gas-smoke-swirling-gray.webp"
+  },
+  {
+    "name": "Inquisitor's Command",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Mind Fire",
+    "path": "icons/magic/unholy/hand-grasping-green.webp"
+  },
+  {
+    "name": "Silver Longsword",
+    "path": "icons/weapons/swords/greatsword-crossguard-silver.webp"
+  },
+  {
+    "name": "Blink Step",
+    "path": "icons/magic/control/debuff-energy-snare-brown.webp"
+  },
+  {
+    "name": "Metabolic Control",
+    "path": "icons/magic/life/heart-cross-strong-blue.webp"
+  },
+  {
+    "name": "Force Bolt",
+    "path": "icons/magic/lightning/bolt-strike-forked-sparks-blue.webp"
+  },
+  {
+    "name": "Implode",
+    "path": "icons/magic/unholy/silhouette-light-fire-blue.webp"
+  },
+  {
+    "name": "Veil Walk",
+    "path": "icons/magic/control/debuff-energy-snare-blue.webp"
+  },
+  {
+    "name": "Augment Physicality",
+    "path": "icons/creatures/magical/construct-iron-stomping-yellow.webp"
+  },
+  {
+    "name": "Mirage Flare",
+    "path": "icons/magic/light/orb-hands-humanoid-yellow.webp"
+  },
+  {
+    "name": "Obscuring Mist",
+    "path": "icons/magic/air/fog-gas-smoke-blue-gray.webp"
+  },
+  {
+    "name": "Nepenthe",
+    "path": "icons/weapons/swords/sword-runed-glowing.webp"
+  },
+  {
+    "name": "Crystalline Spit",
+    "path": "icons/magic/lightning/projectile-orb-blue.webp"
+  },
+  {
+    "name": "Consume Energy",
+    "path": "icons/magic/unholy/strike-body-life-soul-purple.webp"
+  },
+  {
+    "name": "Jiangshi Weaknesses",
+    "path": "icons/magic/control/fear-fright-monster-purple-blue.webp"
+  },
+  {
+    "name": "Susceptible to Holy Symbols",
+    "path": "icons/commodities/treasure/token-gold-cross.webp"
+  },
+  {
+    "name": "Cultists of Juiblex",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Flame Burst",
+    "path": "icons/magic/fire/projectile-fireball-orange-yellow.webp"
+  },
+  {
+    "name": "Dragon Queen's Favor",
+    "path": "icons/magic/unholy/strike-hand-glow-pink.webp"
+  },
+  {
+    "name": "Hoopak",
+    "path": "icons/weapons/staves/staff-forked-wood.webp"
+  },
+  {
+    "name": "Sacred Fire",
+    "path": "icons/magic/fire/beam-jet-stream-yellow.webp"
+  },
+  {
+    "name": "Chromatic Bolt",
+    "path": "icons/magic/lightning/bolt-strike-beam-yellow.webp"
+  },
+  {
+    "name": "A Kraken's Lair",
+    "path": "icons/magic/water/water-iceberg-bubbles.webp"
+  },
+  {
+    "name": "Aberrant Rejuvenation",
+    "path": "icons/creatures/magical/humanoid-silhouette-glowing-pink.webp"
+  },
+  {
+    "name": "A Lich's Lair",
+    "path": "icons/environment/wilderness/wall-ruins.webp"
+  },
+  {
+    "name": "Fire Storm",
+    "path": "icons/magic/air/wind-tornado-cyclone-red-orange.webp"
+  },
+  {
+    "name": "Poison Prick",
+    "path": "icons/magic/nature/beam-hand-leaves-green.webp"
+  },
+  {
+    "name": "Sap Life",
+    "path": "icons/magic/unholy/strike-body-life-soul-green.webp"
+  },
+  {
+    "name": "Blood-Chilling Roar",
+    "path": "icons/creatures/abilities/lion-roar-yellow.webp"
+  },
+  {
+    "name": "Miasma",
+    "path": "icons/magic/air/fog-gas-smoke-purple.webp"
+  },
+  {
+    "name": "Noxious Rebuke",
+    "path": "icons/equipment/shield/buckler-wooden-boss-glowing-blue.webp"
+  },
+  {
+    "name": "Toxic Mastery",
+    "path": "icons/magic/perception/silhouette-stealth-shadow.webp"
+  },
+  {
+    "name": "Withering Blast",
+    "path": "icons/magic/fire/projectile-fireball-smoke-teal.webp"
+  },
+  {
+    "name": "Cataclysmic Fire",
+    "path": "icons/magic/fire/flame-burning-skeleton-explosion.webp"
+  },
+  {
+    "name": "Forsaken Brand",
+    "path": "icons/magic/death/skull-humanoid-crown-white-blue.webp"
+  },
+  {
+    "name": "Implacable Maneuver",
+    "path": "icons/environment/people/charge.webp"
+  },
+  {
+    "name": "Word of Death",
+    "path": "icons/magic/death/projectile-skull-flaming-yellow.webp"
+  },
+  {
+    "name": "Swipe",
+    "path": "icons/creatures/claws/claw-bear-paw-swipe-red.webp"
+  },
+  {
+    "name": "Plane Shift",
+    "path": "icons/skills/targeting/target-glowing-yellow.webp"
+  },
+  {
+    "name": "Calming Mist",
+    "path": "icons/magic/control/buff-luck-fortune-rainbow.webp"
+  },
+  {
+    "name": "X-Ray Vision",
+    "path": "icons/magic/perception/orb-eye-scrying.webp"
+  },
+  {
+    "name": "3: Psychic Ray",
+    "path": "icons/magic/unholy/beam-ringed-impact-purple.webp"
+  },
+  {
+    "name": "4: Slowing Ray",
+    "path": "icons/magic/lightning/projectile-tendrils-red.webp"
+  },
+  {
+    "name": "5: Stunning Ray",
+    "path": "icons/magic/light/beam-rays-teal-large.webp"
+  },
+  {
+    "name": "6: Telekinetic Ray",
+    "path": "icons/magic/light/projectiles-star-purple.webp"
+  },
+  {
+    "name": "Deathly Ray",
+    "path": "icons/magic/unholy/beam-impact-green.webp"
+  },
+  {
+    "name": "Blood Puppeteering",
+    "path": "icons/creatures/slimes/slime-movement-splashing-red.webp"
+  },
+  {
+    "name": "Necrotic Bolt",
+    "path": "icons/magic/lightning/bolt-strike-pink.webp"
+  },
+  {
+    "name": "Flash Powder",
+    "path": "icons/magic/light/hand-sparks-smoke-teal.webp"
+  },
+  {
+    "name": "Flying Fangtrap",
+    "path": "icons/commodities/tech/metal-claws.webp"
+  },
+  {
+    "name": "Thunderscream Gadget",
+    "path": "icons/tools/instruments/megaphone.webp"
+  },
+  {
+    "name": "Always Thinking Ahead",
+    "path": "icons/sundries/books/book-stack.webp"
+  },
+  {
+    "name": "Chattergrab",
+    "path": "icons/commodities/tech/metal-jaws.webp"
+  },
+  {
+    "name": "Clockwork Claw",
+    "path": "icons/commodities/tech/claw-mechanical.webp"
+  },
+  {
+    "name": "Generate Gadget",
+    "path": "icons/commodities/tech/blueprint.webp"
+  },
+  {
+    "name": "Phasmoball",
+    "path": "icons/commodities/tech/smoke-bomb-yellow.webp"
+  },
+  {
+    "name": "Thunderscream",
+    "path": "icons/tools/instruments/horn-red-brown.webp"
+  },
+  {
+    "name": "Frightful Howl",
+    "path": "icons/magic/death/undead-mammal-fire-breath-pink.webp"
+  },
+  {
+    "name": "Mocking Word",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Shadow Strikes",
+    "path": "icons/creatures/magical/humanoid-silhouette-dashing-blue.webp"
+  },
+  {
+    "name": "Shard of Shadow",
+    "path": "icons/magic/earth/projectile-stone-bullet-pink.webp"
+  },
+  {
+    "name": "Storm of Shattered Glass",
+    "path": "icons/magic/water/projectiles-ice-faceted-shard-salvo-gray.webp"
+  },
+  {
+    "name": "Blood Disgorge",
+    "path": "icons/skills/wounds/blood-spurt-spray-red.webp"
+  },
+  {
+    "name": "Driven Tracker",
+    "path": "icons/magic/perception/eye-ringed-glow-angry-teal.webp"
+  },
+  {
+    "name": "Conjure Undead",
+    "path": "icons/magic/death/skull-horned-goat-pentagram-red.webp"
+  },
+  {
+    "name": "Cultists of Orcus",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Wand Spellcasting",
+    "path": "icons/weapons/staves/staff-animal-skull-feathers.webp"
+  },
+  {
+    "name": "Blindness",
+    "path": "icons/magic/light/explosion-star-glow-orange.webp"
+  },
+  {
+    "name": "Brass Crossbow",
+    "path": "icons/weapons/crossbows/handcrossbow-black.webp"
+  },
+  {
+    "name": "Concussion",
+    "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
+  },
+  {
+    "name": "Entanglement",
+    "path": "icons/commodities/materials/material-webbing.webp"
+  },
+  {
+    "name": "Tracking",
+    "path": "icons/magic/perception/eye-ringed-glow-angry-teal.webp"
+  },
+  {
+    "name": "Semblance of Life",
+    "path": "icons/magic/control/silhouette-hold-change-green.webp"
+  },
+  {
+    "name": "Blazing Boon",
+    "path": "icons/magic/symbols/rune-sigil-rough-white-teal.webp"
+  },
+  {
+    "name": "Circle of Death (Spell)",
+    "path": "icons/magic/lightning/barrier-shield-crackling-orb-pink.webp"
+  },
+  {
+    "name": "Deathly Boon",
+    "path": "icons/magic/symbols/rune-sigil-black-pink.webp"
+  },
+  {
+    "name": "Boon of Dread",
+    "path": "icons/magic/symbols/mask-metal-silver-white.webp"
+  },
+  {
+    "name": "Ectoplasmic Boon",
+    "path": "icons/creatures/slimes/slime-blob-pseudopods-green.webp"
+  },
+  {
+    "name": "Spectral Boon",
+    "path": "icons/magic/symbols/rune-sigil-rough-white-teal.webp"
+  },
+  {
+    "name": "Vampiric Boon",
+    "path": "icons/magic/symbols/rune-sigil-rough-white-teal.webp"
+  },
+  {
+    "name": "Tattoo of Osybus",
+    "path": "icons/magic/death/undead-skeleton-worn-blue.webp"
+  },
+  {
+    "name": "Soul Tattoo",
+    "path": "icons/magic/unholy/hand-marked-pink.webp"
+  },
+  {
+    "name": "Firestorm Tattoo",
+    "path": "icons/magic/fire/barrier-wall-flame-ring-yellow.webp"
+  },
+  {
+    "name": "Mindlink Tattoo",
+    "path": "icons/magic/perception/orb-crystal-ball-scrying-blue.webp"
+  },
+  {
+    "name": "Readiness",
+    "path": "icons/skills/movement/feet-winged-sandals-tan.webp"
+  },
+  {
+    "name": "River Tattoo",
+    "path": "icons/magic/fire/explosion-flame-blue.webp"
+  },
+  {
+    "name": "Shroud Tattoo",
+    "path": "icons/magic/defensive/shield-barrier-blue.webp"
+  },
+  {
+    "name": "Tattooed Strike",
+    "path": "icons/skills/melee/unarmed-punch-fist.webp"
+  },
+  {
+    "name": "Cling",
+    "path": "icons/creatures/fish/deepsea-creature-glowing-blue.webp"
+  },
+  {
+    "name": "Fiery Wings",
+    "path": "icons/magic/fire/projectile-feathers-embers-gold.webp"
+  },
+  {
+    "name": "Glitterstorm",
+    "path": "icons/magic/light/projectile-smoke-pink.webp"
+  },
+  {
+    "name": "Haloed Horn Burst",
+    "path": "icons/magic/sonic/projectile-sound-rings-wave.webp"
+  },
+  {
+    "name": "Ember Lance",
+    "path": "icons/skills/melee/strike-polearm-light-orange.webp"
+  },
+  {
+    "name": "Explosive Hand Crossbow",
+    "path": "icons/weapons/ammunition/arrow-broadhead-glowing-orange.webp"
+  },
+  {
+    "name": "Deadly Shaping",
+    "path": "icons/skills/melee/strike-scythe-fire-green.webp"
+  },
+  {
+    "name": "Executioner's Pick",
+    "path": "icons/weapons/sickles/scythe-wrapped-worn-red.webp"
+  },
+  {
+    "name": "Flying Stone",
+    "path": "icons/magic/earth/projectile-boulder-dust.webp"
+  },
+  {
+    "name": "Implacable Advance",
+    "path": "icons/creatures/magical/humanoid-silhouette-dashing-blue.webp"
+  },
+  {
+    "name": "Rapid Shaping",
+    "path": "icons/skills/melee/strike-weapons-orange.webp"
+  },
+  {
+    "name": "Scything Shrapnel",
+    "path": "icons/skills/ranged/tracers-triple-orange.webp"
+  },
+  {
+    "name": "Shrouded Presence",
+    "path": "icons/magic/unholy/silhouette-evil-horned-giant.webp"
+  },
+  {
+    "name": "Slice",
+    "path": "icons/skills/melee/strike-sword-blood-red.webp"
+  },
+  {
+    "name": "Immobilizing Fear",
+    "path": "icons/creatures/unholy/demons-horned-glowing-pink.webp"
+  },
+  {
+    "name": "Electrified Chassis",
+    "path": "icons/commodities/tech/tube-chamber-lightning.webp"
+  },
+  {
+    "name": "Eye Beam",
+    "path": "icons/magic/light/beam-rays-teal.webp"
+  },
+  {
+    "name": "Wires",
+    "path": "icons/commodities/tech/cable-end.webp"
+  },
+  {
+    "name": "Riptide Breath",
+    "path": "icons/creatures/abilities/dragon-ice-breath-blue.webp"
+  },
+  {
+    "name": "Superspeed",
+    "path": "icons/skills/movement/ball-spinning-blue.webp"
+  },
+  {
+    "name": "Shadow Dagger",
+    "path": "icons/weapons/daggers/dagger-simple-black.webp"
+  },
+  {
+    "name": "Blueberry Fling",
+    "path": "icons/weapons/ammunition/bullet-ice-blue.webp"
+  },
+  {
+    "name": "Jetstream Breath",
+    "path": "icons/magic/fire/beam-jet-stream-blue.webp"
+  },
+  {
+    "name": "Space Dweller",
+    "path": "icons/magic/water/bubbles-air-water-pink.webp"
+  },
+  {
+    "name": "Wind Dash",
+    "path": "icons/magic/air/air-wave-gust-blue.webp"
+  },
+  {
+    "name": "Whispers of Violence",
+    "path": "icons/magic/control/fear-fright-shadow-monster-red.webp"
+  },
+  {
+    "name": "Chaos Bolt",
+    "path": "icons/magic/lightning/bolt-strike-sparks-purple.webp"
+  },
+  {
+    "name": "Sheltering Shield",
+    "path": "icons/magic/defensive/barrier-shield-dome-blue-purple.webp"
+  },
+  {
+    "name": "Enervating Blade",
+    "path": "icons/magic/unholy/hand-weapon-glow-black-green.webp"
+  },
+  {
+    "name": "Throwing Axe",
+    "path": "icons/weapons/axes/axe-broad-worn.webp"
+  },
+  {
+    "name": "Good Parent",
+    "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
+  },
+  {
+    "name": "Necrotic Strike",
+    "path": "icons/magic/unholy/hand-claw-fire-blue.webp"
+  },
+  {
+    "name": "Aura of Shrieks",
+    "path": "icons/creatures/abilities/mouth-teeth-rows-needles-purple.webp"
+  },
+  {
+    "name": "Eldritch Bolt",
+    "path": "icons/magic/lightning/bolt-strike-purple-pink.webp"
+  },
+  {
+    "name": "Ravenous Children",
+    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
+  },
+  {
+    "name": "Stirge Telepathy",
+    "path": "icons/magic/perception/eye-slit-red-orange.webp"
+  },
+  {
+    "name": "False Objects",
+    "path": "icons/magic/control/debuff-chains-purple.webp"
+  },
+  {
+    "name": "Spell Redirection",
+    "path": "icons/magic/control/fear-fright-monster-grin-red-orange.webp"
+  },
+  {
+    "name": "Ravenous Bites",
+    "path": "icons/environment/creatures/bug-beetle-gold-green.webp"
+  },
+  {
+    "name": "Skeletonize",
+    "path": "icons/commodities/bones/bones-fish-brown.webp"
+  },
+  {
+    "name": "Grasping Limbs",
+    "path": "icons/commodities/biological/hand-gnarled-purple.webp"
+  },
+  {
+    "name": "Undead Mass",
+    "path": "icons/commodities/biological/hand-gnarled-green.webp"
+  },
+  {
+    "name": "Bone Harpoon",
+    "path": "icons/weapons/polearms/glaive-simple-hooked.webp"
+  },
+  {
+    "name": "Giant-sized +1 Battleaxe",
+    "path": "icons/skills/melee/strike-axe-energy-pink.webp"
+  },
+  {
+    "name": "Nature's Wrath",
+    "path": "icons/magic/symbols/elements-air-earth-fire-water.webp"
+  },
+  {
+    "name": "Flaming Carnage",
+    "path": "icons/creatures/unholy/demon-fire-horned-winged-roar.webp"
+  },
+  {
+    "name": "Violent Retaliation",
+    "path": "icons/equipment/shield/heater-stone-orange.webp"
+  },
+  {
+    "name": "Beguiling Hex",
+    "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
+  },
+  {
+    "name": "Bile Body (Oozing Organs Only)",
+    "path": "icons/creatures/slimes/slime-movement-splashing-yellow.webp"
+  },
+  {
+    "name": "Bile Hex",
+    "path": "icons/magic/acid/projectile-faceted-glob.webp"
+  },
+  {
+    "name": "Bone Blade",
+    "path": "icons/creatures/claws/claw-curved-jagged-gray.webp"
+  },
+  {
+    "name": "Corrosive Pseudopod",
+    "path": "icons/creatures/slimes/slime-movement-pseudopods-blue.webp"
+  },
+  {
+    "name": "Formed by the Mists",
+    "path": "icons/creatures/magical/spirit-undead-ghost-tan-teal.webp"
+  },
+  {
+    "name": "Hex Blast",
+    "path": "icons/magic/lightning/projectile-tendrils-red.webp"
+  },
+  {
+    "name": "Limbs",
+    "path": "icons/creatures/claws/claw-hooked-barbed.webp"
+  },
+  {
+    "name": "Petrifying Hex",
+    "path": "icons/magic/defensive/armor-stone-skin.webp"
+  },
+  {
+    "name": "Poisonous Limb",
+    "path": "icons/creatures/claws/claw-curved-poison-purple.webp"
+  },
+  {
+    "name": "Reality-Stealing Hex",
+    "path": "icons/magic/lightning/bolt-strike-purple.webp"
+  },
+  {
+    "name": "Valin Sarnaster’s Lair",
+    "path": "icons/environment/wilderness/tomb-entrance.webp"
+  },
+  {
+    "name": "Disrupt Psyche",
+    "path": "icons/magic/control/fear-fright-monster-grin-purple-blue.webp"
+  },
+  {
+    "name": "Drink Sapience",
+    "path": "icons/commodities/biological/tentacle-purple-white.webp"
+  },
+  {
+    "name": "Abyssal Curse",
+    "path": "icons/creatures/magical/spirit-fear-energy-pink.webp"
+  },
+  {
+    "name": "Cane",
+    "path": "icons/weapons/staves/staff-ornate-hook.webp"
+  },
+  {
+    "name": "Draconic Command",
+    "path": "icons/sundries/flags/banner-symbol-claw.webp"
+  },
+  {
+    "name": "Fervent Strike",
+    "path": "icons/weapons/maces/mace-spiked-skull.webp"
+  },
+  {
+    "name": "Malediction",
+    "path": "icons/magic/fire/beam-jet-stream-yellow.webp"
+  },
+  {
+    "name": "Nightbringer",
+    "path": "icons/weapons/maces/mace-spiked-skull.webp"
+  },
+  {
+    "name": "Tactical Movement",
+    "path": "icons/sundries/gaming/chess-knight-white.webp"
+  },
+  {
+    "name": "Bewildering Word",
+    "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
+  },
+  {
+    "name": "Fiendish Rebuke",
+    "path": "icons/equipment/shield/buckler-wooden-boss-glowing-blue.webp"
+  },
+  {
+    "name": "Acid Spit",
+    "path": "icons/magic/acid/projectiles-trio-salvo.webp"
+  },
+  {
+    "name": "Banner Pike",
+    "path": "icons/sundries/flags/banner-standard-tattered-red.webp"
+  },
+  {
+    "name": "Terrifying Litany",
+    "path": "icons/magic/control/fear-fright-monster-grin-purple-blue.webp"
+  },
+  {
+    "name": "Raxivort's Bite",
+    "path": "icons/magic/unholy/projectile-missile-green.webp"
+  },
+  {
+    "name": "Confusion",
+    "path": "icons/magic/air/air-burst-spiral-teal-green.webp"
+  },
+  {
+    "name": "Cultists of Yeenoghu",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Cavities",
+    "path": "icons/magic/nature/stealth-hide-eyes-pink.webp"
+  },
+  {
+    "name": "Xanathar's Guide to Everything",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Type 1:",
+    "path": "icons/creatures/fish/fish-fangtooth-skeletal-green.webp"
+  },
+  {
+    "name": "Type 2:",
+    "path": "icons/creatures/reptiles/snake-fangs-bite-green.webp"
+  },
+  {
+    "name": "Type 3",
+    "path": "icons/commodities/biological/tail-scaled-green.webp"
+  },
+  {
+    "name": "Spectral Fangs",
+    "path": "icons/magic/water/strike-ice-blade-fang.webp"
+  },
+  {
+    "name": "Cultists of Zariel",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Deathly Stench",
+    "path": "icons/magic/air/fog-gas-smoke-swirling-green.webp"
+  },
+  {
+    "name": "Flesh Entomb",
+    "path": "icons/magic/nature/root-vine-entangled-hand.webp"
+  },
+  {
+    "name": "Viral Aura",
+    "path": "icons/creatures/magical/humanoid-silhouette-green.webp"
+  },
+  {
+    "name": "Virulent Miasma",
+    "path": "icons/magic/air/fog-gas-smoke-swirling-green.webp"
+  },
+  {
+    "name": "Cultists of Zuggtmoy",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
   }
 ]

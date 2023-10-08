@@ -8866,5 +8866,45 @@
   {
     "name": "Red Wizard Blade",
     "path": "icons/weapons/swords/sword-guard-flanged.webp"
+  },
+  {
+    "name": "Fargab",
+    "path": "icons/commodities/tech/antenna-powered-purple.webp"
+  },
+  {
+    "name": "Narycrash",
+    "path": "icons/containers/bags/pack-engraved-leather-blue.webp"
+  },
+  {
+    "name": "End Crystal",
+    "path": "icons/commodities/gems/gem-cut-faceted-square-purple.webp"
+  },
+  {
+    "name": "Ender Pearl",
+    "path": "icons/magic/control/debuff-energy-snare-purple-pink.webp"
+  },
+  {
+    "name": "Flying Citadel Helm",
+    "path": "icons/tools/nautical/steering-wheel.webp"
+  },
+  {
+    "name": "Kagonesti Forest Shroud",
+    "path": "icons/equipment/back/cloak-fur-brown.webp"
+  },
+  {
+    "name": "Mirror of Reflected Pasts",
+    "path": "icons/commodities/treasure/token-silver-blue.webp"
+  },
+  {
+    "name": "Orcus Figurine",
+    "path": "icons/commodities/treasure/statuette-gargoyle-green-gold.webp"
+  },
+  {
+    "name": "Tablet of Reawakening",
+    "path": "icons/commodities/treasure/token-runed-wyn-grey.webp"
+  },
+  {
+    "name": "Tan Bag of Tricks",
+    "path": "icons/containers/bags/sack-cloth-tan.webp"
   }
 ]

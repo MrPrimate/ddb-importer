@@ -6,6 +6,7 @@
 - Ensure removed custom AC effects no longer get added
 - Typo caused all monster actions to have charges set.
 - Overtime effect generation was adding a duration to all monster actions incorrectly.
+- Lots of new monster feature icons from T-Whiz
 
 # 3.4.75
 
