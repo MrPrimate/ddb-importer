@@ -312,7 +312,12 @@ export default class DDBFeature {
     };
 
     const usesSearch = name ? /(\d+)\/(\w+)\)/ : /\((\d+)\/(\w+)\)/;
-    const usesMatch = name ? this.titleHTML.match(usesSearch) : this.strippedHtml.match(usesSearch);
+    const matchString = name
+      ? this.titleHTML
+        ? this.titleHTML
+        : this.name
+      : this.strippedHtml;
+    const usesMatch = matchString.match(usesSearch);
     // console.log(usesMatch);
     if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
       uses.value = Number.parseInt(usesMatch[1]);
@@ -321,7 +326,8 @@ export default class DDBFeature {
       const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
       if (perMatch) uses.per = perMatch.value;
     } else {
-      const rechargeMatch = this.name.match(/Recharges after a (Short or Long|Long) Rest/i);
+      const shortLongRegex = (/Recharges after a (Short or Long|Long) Rest/i);
+      const rechargeMatch = matchString.match(shortLongRegex);
       if (rechargeMatch) {
         uses.per = rechargeMatch[1] === "Long" ? "lr" : "sr";
         uses.value = 1;

@@ -1,3 +1,7 @@
+# 3.4.77
+
+- Small monster parsing fix for custom monsters with slight variations in formating. @sami1737
+
 # 3.4.76
 
 - Monster parsing: a few more charge detection tweaks.
