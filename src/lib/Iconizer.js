@@ -46,7 +46,7 @@ const FILE_MAP = {
 };
 
 function sanitiseName(name) {
-  return name.replace("’", "'").toLowerCase();
+  return name.replaceAll("’", "'").toLowerCase();
 }
 
 async function loadDataFile(fileName) {
