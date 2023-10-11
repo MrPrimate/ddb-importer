@@ -140,13 +140,30 @@ export class DDBFeatureFactory {
       $.parseHTML(node.outerHTML).forEach((element) => {
         pDom.appendChild(element);
       });
-      const query = pDom.querySelector("em strong");
+      const query = pDom.querySelector("em strong") ?? pDom.querySelector("strong em");
       if (!query) return;
       let name = query.textContent.trim().replace(/\./g, '');
       name = DDBFeatureFactory.splitName(name, node.textContent);
       const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
       this.featureBlocks[type].push(action);
     });
+
+    // there is inconsistent formatting
+    if (this.featureBlocks[type].length == 0) {
+      dom.querySelectorAll("p").forEach((node) => {
+
+        let pDom = new DocumentFragment();
+        $.parseHTML(node.outerHTML).forEach((element) => {
+          pDom.appendChild(element);
+        });
+        const query = pDom.querySelector("strong");
+        if (!query) return;
+        let name = query.textContent.trim().replace(/\./g, '');
+        name = DDBFeatureFactory.splitName(name, node.textContent);
+        const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
+        this.featureBlocks[type].push(action);
+      });
+    }
 
     // there is inconsistent formatting
     if (this.featureBlocks[type].length == 0) {

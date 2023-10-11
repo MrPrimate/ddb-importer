@@ -2,6 +2,7 @@
 
 - HP will no longer set max, will generate effects for hp bonuses like Toughness and Draconic Resilience when using effects.
 - Some features with double ''s in them would not get an icon.
+- MOre improvements to feature parsing in monsters.
 
 # 3.4.77
 
