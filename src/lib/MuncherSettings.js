@@ -9,6 +9,34 @@ import { effectModules } from "../effects/effects.js";
 
 const MuncherSettings = {
 
+  disableCharacterActiveEffectSettings: (html) => {
+    $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
+    $(html).find("#character-import-policy-add-spell-effects").prop("checked", false);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects", false);
+    $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
+    $(html).find("#character-import-policy-add-item-effects").prop("checked", false);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects", false);
+    $(html).find("#character-import-policy-add-character-effects").prop("checked", false);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects", false);
+    $(html).find("#character-import-policy-generate-ac-feature-effects").prop("checked", false);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-generate-ac-feature-effects", false);
+    $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
+    $(html).find("#character-update-policy-use-chris-premades").prop("checked", false);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades", false);
+
+    ["class", "race", "background", "feat"].forEach((type) => {
+      $(html).find(`#character-import-policy-effect-${type}-speed`).prop("checked", false);
+      game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-speed`, false);
+      $(html).find(`#character-import-policy-effect-${type}-senses`).prop("checked", false);
+      game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-senses`, false);
+      $(html).find(`#character-import-policy-effect-${type}-damages`).prop("checked", false);
+      game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-damages`, false);
+    });
+  },
+
   setRecommendedCharacterActiveEffectSettings: (html) => {
     $(html).find("#character-import-policy-dae-effect-copy").prop("checked", !effectModules().hasCore);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", !effectModules().hasCore);
@@ -24,14 +52,14 @@ const MuncherSettings = {
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-generate-ac-feature-effects", true);
     $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
+    $(html).find("#character-update-policy-use-chris-premades").prop("checked", !effectModules().chrisInstalled);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades", !effectModules().chrisInstalled);
 
     ["class", "race", "background", "feat"].forEach((type) => {
       $(html).find(`#character-import-policy-effect-${type}-speed`).prop("checked", false);
       game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-speed`, false);
       $(html).find(`#character-import-policy-effect-${type}-senses`).prop("checked", false);
       game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-senses`, false);
-      $(html).find(`#character-import-policy-effect-${type}-hp`).prop("checked", false);
-      game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-hp`, false);
       $(html).find(`#character-import-policy-effect-${type}-damages`).prop("checked", false);
       game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-damages`, false);
     });
@@ -289,12 +317,6 @@ const MuncherSettings = {
           enabled: true,
         },
         {
-          name: "effect-class-hp",
-          title: "HP",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-class-hp"),
-          enabled: true,
-        },
-        {
           name: "effect-class-damages",
           title: "Imm/Res/Vuln",
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-class-damages"),
@@ -312,12 +334,6 @@ const MuncherSettings = {
           name: "effect-race-senses",
           title: "Senses",
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-race-senses"),
-          enabled: true,
-        },
-        {
-          name: "effect-race-hp",
-          title: "HP",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-race-hp"),
           enabled: true,
         },
         {
@@ -341,12 +357,6 @@ const MuncherSettings = {
           enabled: true,
         },
         {
-          name: "effect-background-hp",
-          title: "HP",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-background-hp"),
-          enabled: true,
-        },
-        {
           name: "effect-background-damages",
           title: "Imm/Res/Vuln",
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-background-damages"),
@@ -364,12 +374,6 @@ const MuncherSettings = {
           name: "effect-feat-senses",
           title: "Senses",
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-feat-senses"),
-          enabled: true,
-        },
-        {
-          name: "effect-feat-hp",
-          title: "HP",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-feat-hp"),
           enabled: true,
         },
         {

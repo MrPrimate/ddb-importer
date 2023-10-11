@@ -518,11 +518,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-effect-race-hp": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "character-update-policy-effect-class-damages": {
             scope: "player",
             type: Boolean,
@@ -538,17 +533,7 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-effect-class-hp": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "character-update-policy-effect-feat-proficiencies": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-feat-languages": {
             scope: "player",
             type: Boolean,
             default: false,
@@ -568,26 +553,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-effect-feat-hp": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-feat-ability-bonus": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-background-proficiencies": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-background-languages": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "character-update-policy-effect-background-damages": {
             scope: "player",
             type: Boolean,
@@ -599,16 +564,6 @@ const SETTINGS = {
             default: false,
           },
           "character-update-policy-effect-background-senses": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-background-hp": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-background-ability-bonus": {
             scope: "player",
             type: Boolean,
             default: false,

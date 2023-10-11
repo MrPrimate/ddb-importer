@@ -101,10 +101,9 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   { type: "bonus", subType: "spell-attacks" },
   { type: "bonus", subType: "warlock-spell-save-dc" },
   { type: "bonus", subType: "warlock-spell-attacks" },
-  { type: "bonus", subType: "spell-group-healing" } // system.bonuses.heal.damage
-];
+  { type: "bonus", subType: "spell-group-healing" }, // system.bonuses.heal.damage
 
-const EFFECT_EXCLUDED_HP_MODIFIERS = [
+  // hp modifiers
   { type: "bonus", subType: "hit-points-per-level" },
   { type: "bonus", subType: "hit-points" },
 ];
@@ -191,7 +190,6 @@ export function getEffectExcludedModifiers(type, features, ac) {
     // these are the effect tweaks, and mostly excessive
     const speedEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-speed`);
     const senseEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-senses`);
-    const hpEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-hp`);
     const damageEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-damages`);
 
     // features represent core non ac features
@@ -200,7 +198,6 @@ export function getEffectExcludedModifiers(type, features, ac) {
       if (["feat", "background", "race", "class"].includes(type)) {
         if (speedEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS);
         if (senseEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
-        if (hpEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
         if (damageEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
       }
       if (["class"].includes(type)) {
@@ -226,7 +223,6 @@ export function getEffectExcludedModifiers(type, features, ac) {
       EFFECT_EXCLUDED_PROFICIENCY_BONUSES,
       EFFECT_EXCLUDED_ALL_SPEED_MODIFIERS,
       EFFECT_EXCLUDED_SENSE_MODIFIERS,
-      EFFECT_EXCLUDED_HP_MODIFIERS,
       AC_EFFECTS,
       AC_BONUS_MODIFIERS,
     );
@@ -1036,10 +1032,10 @@ function addHPEffect(ddb, modifiers, name, consumable) {
     const cls = DDBHelper.findClassByFeatureId(ddb, bonus.componentId);
     if (cls) {
       logger.debug(`Generating HP Per Level effects for ${name} for class ${cls.definition.name}`);
-      changes.push(generateAddChange(`${bonus.value} * @classes.${cls.definition.name.toLowerCase()}.levels`, 14, "system.attributes.hp.max"));
+      changes.push(generateAddChange(`${bonus.value} * @classes.${cls.definition.name.toLowerCase()}.levels`, 14, "system.attributes.hp.bonuses.overall"));
     } else {
       logger.debug(`Generating HP Per Level effects for ${name} for all levels`);
-      changes.push(generateAddChange(`${bonus.value} * @details.level`, 14, "system.attributes.hp.max"));
+      changes.push(generateAddChange(bonus.value, 14, "system.attributes.hp.bonuses.level"));
     }
   });
 
@@ -1051,7 +1047,7 @@ function addHPEffect(ddb, modifiers, name, consumable) {
       if (hpBonus !== "") hpBonus += " + ";
       hpBonus += hpParse;
     });
-    changes.push(generateCustomChange(`${hpBonus}`, 14, "system.attributes.hp.max"));
+    changes.push(generateCustomChange(`${hpBonus}`, 14, "system.attributes.hp.bonuses.overall"));
   }
 
   return changes;

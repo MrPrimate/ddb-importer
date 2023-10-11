@@ -1,3 +1,7 @@
+# NEXT UP
+
+- HP will no longer set max, will generate effects for hp bonuses like Toughness and Draconic Resilience when using effects.
+
 # 3.4.77
 
 - Small monster parsing fix for custom monsters with slight variations in formating. @sami1737

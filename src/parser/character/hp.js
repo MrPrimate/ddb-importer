@@ -35,18 +35,54 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   // sum up the bonus HP per class level
   const totalBonusHitPoints = bonusHitPointValues.reduce((prev, cur) => prev + cur, 0);
   const totalBonusHPWithEffects = bonusHitPointValuesWithEffects.reduce((prev, cur) => prev + cur, 0);
-  const bonusHPEffectDiff = totalBonusHPWithEffects - totalBonusHitPoints;
+
+  const bonusPerLevelValue = bonusHitPointFeatures.map((bonus) => {
+    const cls = DDBHelper.findClassByFeatureId(this.source.ddb, bonus.componentId);
+    // console.warn("cls hp", { bonus, cls});
+    if (!cls) {
+      return bonus.value;
+    } else {
+      return 0;
+    }
+  }).reduce((prev, cur) => prev + cur, 0);
+
+  // const bonusHPEffectDiff = totalBonusHPWithEffects - totalBonusHitPoints - bonusPerLevelValue;
+  const overallBonus = totalBonusHitPoints - (bonusPerLevelValue * this.raw.character.flags.ddbimporter.dndbeyond.totalLevels);
+
+  // console.warn("hp data", {
+  //   bonusHitPointValues,
+  //   bonusHitPointValuesWithEffects,
+  //   totalBonusHPWithEffects,
+  //   totalBonusHitPoints,
+  //   bonusPerLevelValue,
+  //   overallBonus,
+  // });
 
   const maxHitPoints = overrideHitPoints === 0
-    ? constitutionHP + baseHitPoints + totalBonusHitPoints
+    ? constitutionHP + baseHitPoints + totalBonusHPWithEffects
     : overrideHitPoints;
 
   this.raw.character.system.attributes.hp = {
-    value: maxHitPoints + tempMaxHitPoints - removedHitPoints + bonusHPEffectDiff,
-    max: maxHitPoints,
+    value: maxHitPoints + tempMaxHitPoints - removedHitPoints,
+    max: overrideHitPoints !== 0 ? overrideHitPoints : null,
     temp: temporaryHitPoints !== 0 ? temporaryHitPoints : null,
     tempmax: tempMaxHitPoints !== 0 ? tempMaxHitPoints : null,
+    bonuses: {
+      level: bonusPerLevelValue !== 0 ? bonusPerLevelValue : "",
+      overall: overallBonus !== 0 ? overallBonus : "",
+    },
   };
+
+  // "hp": {
+  //   "value": 23,
+  //   "max": null,
+  //   "temp": null,
+  //   "tempmax": null,
+  //   "bonuses": {
+  //     "level": "1",
+  //     "overall": "2"
+  //   }
+  // },
 };
 
 DDBCharacter.prototype._generateHitDice = function _generateHitDice() {
