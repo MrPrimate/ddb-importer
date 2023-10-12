@@ -45,7 +45,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
   //  - the first to set the target of the item
   //  - the second to set the flag for an onUseMacro to validate if the attack is valid for the feat
   //  - the third to set the flag for the macro to be called for extra damage
-  let effect = await actor.effects.find((e) => (e.data.name ?? e.data.label) === macroData.item.name);
+  let effect = await actor.effects.find((e) => (e.name ?? e.label) === macroData.item.name);
   if (effect) {
     console.error(`${sourceItemName}: Effect already on actor`);
     return;
@@ -66,7 +66,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
       {
         key: "flags.dnd5e.DamageBonusMacro",
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "planarWarrior.js", document: { name: `ItemMacro.${macroData.item.name}` }),
+        value: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "planarWarrior.js", document: { name: `ItemMacro.${macroData.item.name}` }}),
         priority: 20,
       },
     ],
