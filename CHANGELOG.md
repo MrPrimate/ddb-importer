@@ -4,6 +4,8 @@
 - Some features with double ''s in them would not get an icon.
 - More improvements to feature parsing in monsters.
 - Fixes for Planar Warrior Macro
+- World Macros not created, which were needed for some spells.
+- World Macro permissions set correctly.
 
 # 3.4.77
 

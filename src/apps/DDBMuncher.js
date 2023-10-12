@@ -267,8 +267,9 @@ export default class DDBMuncher extends Application {
   static async parseSpells() {
     try {
       logger.info("Munching spells!");
-      // await DDBMuncher.generateCompendiumFolders("spells");
-      if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects")) await DDBMacros.createWorldMacros("spells");
+      if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects")) {
+        await DDBMacros.createWorldMacros("spells");
+      }
       await parseSpells();
       await DDBMuncher.cleanupCompendiumFolders("spells");
       DDBMuncher.munchNote(`Finished importing spells!`, true);

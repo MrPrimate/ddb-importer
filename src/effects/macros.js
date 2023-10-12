@@ -68,7 +68,7 @@ export default class DDBMacros {
         color: "#FF0000",
         name: "DDB Macros",
         parent: null,
-        type: "Macro"
+        type: "Macro",
       });
     }
   }
@@ -218,25 +218,28 @@ export default class DDBMacros {
       : game.folders.find((folder) => folder.name === "DDB Macros" && folder.type === "Macro");
 
     const data = {
-      "name": name,
-      "type": "script",
-      "img": img ? img : "icons/svg/dice-target.svg",
-      "scope": "global",
-      "command": content,
-      "folder": macroFolder ? macroFolder.id : undefined,
-      "flags": {
+      name: name,
+      type: "script",
+      img: img ? img : "icons/svg/dice-target.svg",
+      scope: "global",
+      command: content,
+      folder: macroFolder ? macroFolder.id : undefined,
+      flags: {
         "advanced-macros": {
-          "runAsGM": isGM,
-          "runForSpecificUser": "",
+          runAsGM: isGM,
+          runForSpecificUser: "",
         },
-      }
+      },
+      ownership: {
+        default: isGM ? 0 : 2,
+      },
     };
 
     const existingMacro = game.macros.find((m) => m.name == name);
     if (existingMacro) data._id = existingMacro.id;
     const macro = existingMacro
       ? existingMacro.update(data)
-      : new CONFIG.Macro.documentClass(data, { displaySheet: false, temporary: isTemp });
+      : Macro.create(data, { displaySheet: false, temporary: isTemp });
 
     return macro;
 
@@ -246,9 +249,15 @@ export default class DDBMacros {
     if (game.user.isGM) {
       await DDBMacros.checkMacroFolder();
 
-      for (const macro of Object.values([].concat(DDBMacros.MACROS.WORLD, DDBMacros.MACROS.ACTIVE_AURAS)).filter((m) => m.world)) {
+      const worldMacros = [].concat(
+        Object.values(DDBMacros.MACROS.WORLD),
+        Object.values(DDBMacros.MACROS.ACTIVE_AURAS)
+      ).filter((m) => m.world);
+
+      for (const macro of worldMacros) {
         // eslint-disable-next-line no-await-in-loop
         const macroFile = await DDBMacros.loadMacroFile(macro.type, macro.file, true);
+
         if (macroFile) {
           // eslint-disable-next-line no-await-in-loop
           await DDBMacros.createMacro({ name: macro.name, content: macroFile, img: macro.img, isGM: macro.isGM, isTemp: false });
