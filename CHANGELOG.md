@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.78
 
 - HP will no longer set max, will generate effects for hp bonuses like Toughness and Draconic Resilience when using effects.
 - Some features with double ''s in them would not get an icon.
