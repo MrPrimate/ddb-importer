@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.5.0
 
 - Fix for adventure importing in newer Foundry v11 where ActorDelta could end up null and no synthetic actors would be created.
 
