@@ -295,13 +295,9 @@ export default class ThirdPartyMunch extends FormApplication {
           const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
           delete sceneToken.scale;
 
-          const newToken = AdventureMunch._getTokenUpdateData(worldActor, sceneToken, token);
-          // const tokenData = await worldActor.getTokenDocument();
-          // delete tokenData.y;
-          // delete tokenData.x;
-          // const jsonTokenData = duplicate(tokenData);
-          // const newToken = mergeObject(jsonTokenData, sceneToken);
-          // logger.debug(`${token.name} token data for id ${token.actorId}`, newToken);
+          const newToken = isNewerVersion(game.version, 11)
+            ? await AdventureMunch._getTokenUpdateDataV11(worldActor, sceneToken)
+            : await AdventureMunch._getTokenUpdateDataV10(worldActor, sceneToken, token);
           return newToken;
         }
       }

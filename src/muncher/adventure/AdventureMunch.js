@@ -436,7 +436,7 @@ export default class AdventureMunch extends FormApplication {
       : game.actors.get(actorId);
   }
 
-  static async _getTokenUpdateData(worldActor, sceneToken, token) {
+  static async _getTokenUpdateDataV10(worldActor, sceneToken, token) {
     const tokenData = await worldActor.getTokenDocument();
     delete tokenData.y;
     delete tokenData.x;
@@ -486,24 +486,110 @@ export default class AdventureMunch extends FormApplication {
     if (sceneToken.flags.ddbImages?.keepAvatar)
       setProperty(jsonTokenData, "actorData.img", sceneToken.flags.ddbImages.avatarImage);
 
-    if (isNewerVersion(game.version, 11) && hasProperty(sceneToken, "actorData")) {
-      setProperty(sceneToken, "delta", deepClone(sceneToken.actorData));
-      delete sceneToken.actorData;
-    }
-
     const updateData = mergeObject(jsonTokenData, sceneToken);
-
     logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
     return updateData;
   }
 
-  async _revisitScene(document) {
-    let updatedData = {};
-    const tokenUpdates = [];
-    const scene = duplicate(document);
-    // this is a scene we need to update links to all items
-    logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
+
+  static async _getTokenUpdateDataV11(worldActor, sceneToken) {
+    const items = [];
+    const ddbItems = sceneToken.flags.ddbItems ?? [];
+    for (const item of ddbItems) {
+      if (item.customItem) {
+        items.push(item.data);
+      } else {
+        const ddbId = getProperty(item, "ddbId");
+        if (Number.isInteger(ddbId)) {
+          // fetch ddbItem
+          const compendium = CompendiumHelper.getCompendiumType(item.type);
+          const itemRef = compendium.index.find((i) => i.name === item.name && i.type === item.type);
+          if (itemRef) {
+            // eslint-disable-next-line no-await-in-loop
+            const compendiumItem = await compendium.getDocument(itemRef._id);
+            const jsonItem = compendiumItem.toObject();
+            delete jsonItem._id;
+            items.push(jsonItem);
+          } else {
+            logger.error(`Unable to find compendium item ${item.name}`, { item, sceneToken });
+          }
+        } else {
+          // fetch actor item here
+          const actorItem = worldActor.items.find((i) => i.name === item.name && i.type === item.type);
+          if (actorItem) {
+            const jsonItem = actorItem.toObject();
+            delete jsonItem._id;
+            items.push(jsonItem);
+          } else {
+            logger.error(`Unable to find monster feature/item ${item.name}`, { item, sceneToken, worldActor });
+          }
+        }
+      }
+    }
+
+    const tokenStub = { };
+
+    if (hasProperty(sceneToken, "actorData")) {
+      const data = deepClone(sceneToken.actorData);
+      if (data.data) {
+        setProperty(tokenStub, "delta.system", deepClone(data.data));
+        if (data.name) setProperty(tokenStub, "delta.name", deepClone(data.name));
+      } else {
+        setProperty(tokenStub, "delta", deepClone(sceneToken.actorData));
+      }
+      delete sceneToken.actorData;
+    }
+
+    if (items.length > 0) {
+      setProperty(tokenStub, "delta.items", items);
+    }
+    if (sceneToken.flags.ddbImages?.keepToken)
+      setProperty(tokenStub, "texture.src", sceneToken.flags.ddbImages.tokenImage);
+    if (sceneToken.flags.ddbImages?.keepAvatar)
+      setProperty(tokenStub, "delta.img", sceneToken.flags.ddbImages.avatarImage);
+
+    const updateData = mergeObject(tokenStub, sceneToken);
+    if (updateData.name !== worldActor.name && !hasProperty(updateData, "delta.name")) {
+      setProperty(updateData, "delta.name", updateData.name);
+    }
+
+    const tokenData = await worldActor.getTokenDocument(updateData);
+
+    logger.debug(`${sceneToken.name} token data for id ${sceneToken.actorId}`, tokenData);
+    return tokenData.toObject();
+  }
+
+  async _getSceneTokensV11(scene, tokens) {
+    const tokenResults = [];
+    const deadTokens = [];
+
+    for (const token of tokens) {
+      if (token.actorId && !token.actorLink) {
+        const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === getProperty(token, "flags.ddbActorFlags.tokenLinkId"));
+        delete sceneToken.scale;
+        const worldActor = this._getWorldActor(token.actorId);
+        if (worldActor) {
+          // eslint-disable-next-line no-await-in-loop
+          const updateData = await AdventureMunch._getTokenUpdateDataV11(worldActor, sceneToken);
+          tokenResults.push(updateData);
+        } else {
+          deadTokens.push(token._id);
+        }
+      } else {
+        deadTokens.push(token);
+      }
+    }
+
+    if (deadTokens.length > 0) {
+      logger.warn(`Removing ${scene.name} tokens with no world actors`, deadTokens);
+    }
+
+    return tokenResults;
+  }
+
+  async _revisitSceneV10(scene) {
     const deadTokenIds = [];
+    const tokenUpdates = [];
 
     await utils.asyncForEach(scene.tokens, async (token) => {
       if (token.actorId) {
@@ -511,7 +597,7 @@ export default class AdventureMunch extends FormApplication {
         delete sceneToken.scale;
         const worldActor = this._getWorldActor(token.actorId);
         if (worldActor) {
-          const updateData = await AdventureMunch._getTokenUpdateData(worldActor, sceneToken, token);
+          const updateData = await AdventureMunch._getTokenUpdateDataV10(worldActor, sceneToken, token);
           tokenUpdates.push(updateData);
         } else {
           deadTokenIds.push(token._id);
@@ -521,7 +607,10 @@ export default class AdventureMunch extends FormApplication {
       }
     });
 
-    logger.debug(`Updating ${document.name} tokens with updates`, tokenUpdates);
+    logger.debug(`Updating ${document.name} tokens with updates`, {
+      tokenUpdates: deepClone(tokenUpdates),
+    });
+
     if (this.importToAdventureCompendium) {
       await document.updateSource({ tokens: tokenUpdates }, { recursive: false });
     } else {
@@ -532,6 +621,18 @@ export default class AdventureMunch extends FormApplication {
     if (!this.importToAdventureCompendium && deadTokenIds.length > 0) {
       logger.warn(`Removing ${scene.name} tokens with no world actors`, deadTokenIds);
       await document.deleteEmbeddedDocuments("Token", deadTokenIds);
+    }
+  }
+
+  async _revisitScene(document) {
+    let updatedData = {};
+    const scene = duplicate(document);
+    // this is a scene we need to update links to all items
+    logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
+
+    if (!isNewerVersion(game.version, 11)) {
+      // in v10 we need to revisit all tokens
+      await this._revisitSceneV10(scene);
     }
 
     if (!this.importToAdventureCompendium) {
@@ -1147,6 +1248,7 @@ export default class AdventureMunch extends FormApplication {
   async _importRenderedSceneFile(data, overwriteEntity) {
     if (!AdventureMunchHelpers.findEntityByImportId("scenes", data._id) || overwriteEntity || this.importToAdventureCompendium) {
       await utils.asyncForEach(data.tokens, async (token) => {
+        setProperty(token, "flags.ddbActorFlags.tokenLinkId", token._id);
         // eslint-disable-next-line require-atomic-updates
         if (token.img) token.img = await this.importImage(token.img);
         if (token.prototypeToken?.texture?.src) {
@@ -1182,7 +1284,15 @@ export default class AdventureMunch extends FormApplication {
 
       if (overwriteEntity) await Scene.deleteDocuments([data._id]);
       const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
+      logger.debug(`Creating Scene ${data.name}`, deepClone(data));
+      const tokens = deepClone(data.tokens);
+      data.tokens = [];
       const scene = await Scene.create(data, options);
+      logger.debug(`Created Scene ${data.name}`, scene);
+      const tokenUpdates = await this._getSceneTokensV11(scene, tokens);
+      logger.debug(`Token Updates for ${data.name}`, tokenUpdates);
+      const sceneTokens = await scene.createEmbeddedDocuments("Token", tokenUpdates, { keepId: false, temporary: this.importToAdventureCompendium });
+      logger.debug(`Token update response for ${data.name}`, sceneTokens);
       this._itemsToRevisit.push(`Scene.${scene.id}`);
       if (this.importToAdventureCompendium) this.temporary.scenes.push(scene);
     }
@@ -1194,15 +1304,6 @@ export default class AdventureMunch extends FormApplication {
     const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
     switch (typeName) {
       case "Scene": {
-        if (isNewerVersion(game.version, 11)) {
-          data.tokens = data.tokens.map((t) => {
-            if (hasProperty(t, "actorData")) {
-              setProperty(t, "delta", deepClone(t.actorData));
-              delete t.actorData;
-            }
-            return t;
-          });
-        }
         await this._importRenderedSceneFile(data, overwriteEntity);
         break;
       }

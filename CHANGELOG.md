@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Fix for adventure importing in newer Foundry v11 where ActorDelta could end up null and no synthetic actors would be created.
+
 # 3.4.78
 
 - HP will no longer set max, will generate effects for hp bonuses like Toughness and Draconic Resilience when using effects.
