@@ -2,6 +2,8 @@
 
 - Monster feature effects: improve parsing of invisibility to handle situations for things like the Poltergeist which are always invisible, and the Pixie which has Superior Invisibility.
 - Active Aura Effect fixes: Changes in DAE caused Active Aura effects to stop working correctly.
+- Monster feature effects: Reckless. @dineshm72
+- Adventures imported to compendiums would not have actors placed on scenes.
 
 # 3.5.0
 

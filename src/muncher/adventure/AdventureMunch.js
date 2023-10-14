@@ -718,7 +718,11 @@ export default class AdventureMunch extends FormApplication {
   async _importAdventureToCompendium() {
     try {
       const adventureData = await this._createAdventure();
+      logger.debug("adventureData to add to compendium", adventureData);
       await this._importAdventureCompendium(adventureData);
+    } catch (err) {
+      logger.error("Error importing to compendium", err);
+      throw err;
     } finally {
       const folderIds = [...this.remove.folderIds];
       if (folderIds.length > 0) {
@@ -864,6 +868,8 @@ export default class AdventureMunch extends FormApplication {
         $(".ddb-overlay").toggleClass("import-invalid");
         ui.notifications.error(`There was an error importing ${this.importFilename}`);
         logger.error(`Error importing file ${this.importFilename}`, err);
+        logger.error(err);
+        logger.error(err.stack);
         this.close();
       } finally {
         // eslint-disable-next-line require-atomic-updates
@@ -1094,8 +1100,11 @@ export default class AdventureMunch extends FormApplication {
     const itemData = await AdventureMunchHelpers.getDocuments("items", this.adventure.required.items ?? [], {}, true);
     const spellData = await AdventureMunchHelpers.getDocuments("spells", this.adventure.required.spells ?? [], {}, true);
 
+    logger.debug("Writing out Journals");
     await this._importFile("journal", [], true);
+    logger.debug("Cartographer is working on Scenes");
     await this._importFile("scene", [], true);
+    logger.debug("Performing some table calculations");
     await this._importFile("table", [], true);
     // await this._importFile("Macro", [], true);
     // await this._importFile("Card", [], true);
@@ -1118,7 +1127,6 @@ export default class AdventureMunch extends FormApplication {
       folders: this.temporary.folders.map((doc) => doc.toObject()),
       combats: [],
       items: itemData.concat(spellData).map((doc) => doc.toObject()),
-      // actors: actorData.map((doc) => doc.toObject()),
       actors: this.temporary.actors.map((doc) => doc.toObject()),
       journal: this.temporary.journals.map((doc) => doc.toObject()),
       scenes: this.temporary.scenes.map((doc) => doc.toObject()),
@@ -1283,7 +1291,7 @@ export default class AdventureMunch extends FormApplication {
       }
 
       if (overwriteEntity) await Scene.deleteDocuments([data._id]);
-      const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
+      const options = { keepId: true, keepEmbeddedIds: true, temporary: false };
       logger.debug(`Creating Scene ${data.name}`, deepClone(data));
       const tokens = deepClone(data.tokens);
       data.tokens = [];
@@ -1291,10 +1299,13 @@ export default class AdventureMunch extends FormApplication {
       logger.debug(`Created Scene ${data.name}`, scene);
       const tokenUpdates = await this._getSceneTokensV11(scene, tokens);
       logger.debug(`Token Updates for ${data.name}`, tokenUpdates);
-      const sceneTokens = await scene.createEmbeddedDocuments("Token", tokenUpdates, { keepId: false, temporary: this.importToAdventureCompendium });
+      const sceneTokens = await scene.createEmbeddedDocuments("Token", tokenUpdates, { keepId: false });
       logger.debug(`Token update response for ${data.name}`, sceneTokens);
       this._itemsToRevisit.push(`Scene.${scene.id}`);
-      if (this.importToAdventureCompendium) this.temporary.scenes.push(scene);
+      if (this.importToAdventureCompendium) {
+        this.temporary.scenes.push(scene);
+        scene.delete();
+      }
     }
   }
 

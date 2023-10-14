@@ -36,8 +36,8 @@ export class DDBAdventureImporter extends AdventureImporter {
   }
 
   /** @inheritDoc */
-  async _importContent(toCreate, toUpdate, documentCount) {
-    const importResult = await super._importContent(toCreate, toUpdate, documentCount);
+  async importContent(toCreate, toUpdate, documentCount) {
+    const importResult = await super.importContent(toCreate, toUpdate, documentCount);
     for (let [name, option] of Object.entries(this.importOptions || {})) {
       if (option.handler) {
         // eslint-disable-next-line no-await-in-loop
