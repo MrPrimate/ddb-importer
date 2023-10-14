@@ -90,7 +90,7 @@ export default class DDBMacros {
     // if dfreds status effects not added, add them
     if (game.modules.get("dfreds-convenient-effects")?.active && useCEConditions) {
       const convenientEffectStatusSettings = game.settings.get("dfreds-convenient-effects", "modifyStatusEffects");
-      if (!convenientEffectStatusSettings || convenientEffectStatusSettings === "none") {
+      if (convenientEffectStatusSettings && convenientEffectStatusSettings === "none") {
         game.settings.set("dfreds-convenient-effects", "modifyStatusEffects", "add");
       }
     } else if (useCEConditions) {
