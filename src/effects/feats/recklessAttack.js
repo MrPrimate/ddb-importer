@@ -1,11 +1,11 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
-export function recklessAttackEffect(document) {
-  let attackEffect = baseFeatEffect(document, `${document.name} (Attack)`);
+export function recklessAttackEffect(document, allMWAK = false) {
+  let attackEffect = baseFeatEffect(document, `${document.name} (Attack Effect)`);
 
   attackEffect.changes.push(
     {
-      key: "flags.midi-qol.advantage.attack.str",
+      key: allMWAK ? "flags.midi-qol.advantage.attack.mwak" : "flags.midi-qol.advantage.attack.str",
       value: `1`,
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 20,
@@ -17,7 +17,7 @@ export function recklessAttackEffect(document) {
 
   document.effects.push(attackEffect);
 
-  let defenseEffect = baseFeatEffect(document, `${document.name} (Defense)`);
+  let defenseEffect = baseFeatEffect(document, `${document.name} (Defense Effect)`);
 
   defenseEffect.changes.push(
     {

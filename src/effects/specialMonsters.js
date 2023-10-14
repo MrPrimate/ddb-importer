@@ -14,6 +14,7 @@ import { skeletalJuggernautEffects } from "./monsterFeatures/skeletalJuggernautE
 import { venomTrollEffects } from "./monsterFeatures/venomTroll.js";
 import { quasitEffects } from "./monsterFeatures/quasit.js";
 import { invisibilityFeatureEffect } from "./monsterFeatures/invisibility.js";
+import { recklessAttackEffect } from "./feats/recklessAttack.js";
 
 export function baseMonsterFeatureEffect(document, label) {
   let effect = {
@@ -84,27 +85,25 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     return npc;
   }
 
-  // const name = document.flags.ddbimporter?.originalName ?? document.name;
-
-  // absorbtion on monster
-  npc = absorptionEffect(npc);
-
   // damage over time effects
   npc.items.forEach(function(item, index) {
     // Legendary Resistance Effects
     if (item.name.startsWith("Legendary Resistance")) item = generateLegendaryEffect(item);
-    if (item.name.startsWith("Pack Tactics")) item = generatePackTacticsEffect(item);
-    if (item.name === "Reversal of Fortune") item = generateReversalOfFortuneEffect(item);
-    if (item.name === "Suave Defense") item = generateSuaveDefenseEffect(ddbMonster, item);
-    if (item.name === "Uncanny Dodge") item = uncannyDodgeEffect(item);
+    else if (item.name.startsWith("Pack Tactics")) item = generatePackTacticsEffect(item);
+    else if (item.name === "Reversal of Fortune") item = generateReversalOfFortuneEffect(item);
+    else if (item.name === "Suave Defense") item = generateSuaveDefenseEffect(ddbMonster, item);
+    else if (item.name === "Uncanny Dodge") item = uncannyDodgeEffect(item);
+    else if (item.name === "Reckless") item = recklessAttackEffect(item, true);
+    else if (["Shared Invisibility", "Fallible Invisibility", "Invisibility", "Superior Invisibility"].includes(item.name))
+      item = invisibilityFeatureEffect(item);
+    else if (item.name.includes("Absorption")) item = absorptionEffect(item);
+
     // auto overtime effect
     if (item.type !== "spell") {
       const overTimeResults = generateOverTimeEffect(ddbMonster, npc, item);
       this[index] = overTimeResults.document;
       npc = overTimeResults.actor;
     }
-    if (["Shared Invisibility", "Fallible Invisibility", "Invisibility", "Superior Invisibility"].includes(item.name))
-      item = invisibilityFeatureEffect(item);
 
     item = forceItemEffect(item);
   }, npc.items);
