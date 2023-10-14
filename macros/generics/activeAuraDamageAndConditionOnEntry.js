@@ -24,7 +24,7 @@ async function attemptRemoval(targetToken, condition, item) {
               ? game.modules.get("ddb-importer").api.effects.getHighestAbility(targetToken.actor, removalCheck)
               : game.modules.get("ddb-importer").api.effects.getHighestAbility(targetToken.actor, removalSave);
             const type = removalCheck ? "check" : "save";
-            const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;
+            const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability].label} ${type} vs DC${saveDc}`;
             const rollResult = removalCheck
               ? (await targetToken.actor.rollAbilityTest(ability, { flavor })).total
               : (await targetToken.actor.rollAbilitySave(ability, { flavor })).total;
@@ -151,8 +151,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   const item = await fromUuid(lastArg.itemUuid);
   // await item.update(dataTracker);
-  await DAE.unsetFlag(item, `${safeName}Tracker`);
-  await DAE.setFlag(item, `${safeName}Tracker`, dataTracker);
+  await DAE.unsetFlag(item.actor, `${safeName}Tracker`);
+  await DAE.setFlag(item.actor, `${safeName}Tracker`, dataTracker);
 
   const ddbEffectFlags = lastArg.item.flags.ddbimporter?.effect;
   if (ddbEffectFlags) {
@@ -214,7 +214,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
   const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);
   const target = canvas.tokens.get(lastArg.tokenId);
-  const targetTokenTrackerFlag = DAE.getFlag(target, `${safeName}Tracker`);
+  const targetTokenTrackerFlag = DAE.getFlag(target.actor, `${safeName}Tracker`);
   const targetedThisCombat = targetTokenTrackerFlag && targetItemTracker.randomId === targetTokenTrackerFlag.randomId;
   const targetTokenTracker = targetedThisCombat
     ? targetTokenTrackerFlag
@@ -269,7 +269,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   targetTokenTracker.turn = game.combat.turn;
   targetTokenTracker.round = game.combat.round;
-  await DAE.setFlag(target, `${safeName}Tracker`, targetTokenTracker);
+  await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
   const allowVsRemoveCondition = item.flags.ddbimporter.effect.allowVsRemoveCondition;
   const hasConditionAppliedEnd = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.document.uuid);
   const currentTokenCombatTurn = game.combat.current.tokenId === lastArg.tokenId;
@@ -280,7 +280,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 } else if (args[0] == "off") {
   const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const targetToken = await fromUuid(lastArg.tokenUuid);
-  const targetTokenTracker = await DAE.getFlag(targetToken, `${safeName}Tracker`);
+  const targetTokenTracker = await DAE.getFlag(targetToken.actor, `${safeName}Tracker`);
   const removeOnOff = hasProperty(lastArg, "efData.flags.ddbimporter.effect.removeOnOff")
     ? lastArg.efData.flags.ddbimporter.effect.removeOnOff
     : true;
@@ -292,6 +292,6 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   if (targetTokenTracker) {
     targetTokenTracker.hasLeft = true;
-    await DAE.setFlag(targetToken, `${safeName}Tracker`, targetTokenTracker);
+    await DAE.setFlag(targetToken.actor, `${safeName}Tracker`, targetTokenTracker);
   }
 }

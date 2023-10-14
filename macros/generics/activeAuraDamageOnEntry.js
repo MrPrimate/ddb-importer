@@ -89,8 +89,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   };
 
   const item = await fromUuid(lastArg.itemUuid);
-  await DAE.unsetFlag(item, `${safeName}Tracker`);
-  await DAE.setFlag(item, `${safeName}Tracker`, dataTracker);
+  await DAE.unsetFlag(item.actor, `${safeName}Tracker`);
+  await DAE.setFlag(item.actor, `${safeName}Tracker`, dataTracker);
 
   const ddbEffectFlags = lastArg.item.flags.ddbimporter?.effect;
 
@@ -126,7 +126,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
   const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);
   const target = canvas.tokens.get(lastArg.tokenId);
-  const targetTokenTrackerFlag = DAE.getFlag(target, `${safeName}Tracker`);
+  const targetTokenTrackerFlag = DAE.getFlag(target.actor, `${safeName}Tracker`);
   const targetedThisCombat = targetTokenTrackerFlag && targetItemTracker.randomId === targetTokenTrackerFlag.randomId;
   const targetTokenTracker = targetedThisCombat
     ? targetTokenTrackerFlag
@@ -152,16 +152,16 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     targetTokenTracker.hasLeft = false;
     await rollItemDamage(target, lastArg.efData.origin, targetItemTracker.spellLevel);
   }
-  await DAE.setFlag(target, `${safeName}Tracker`, targetTokenTracker);
+  await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
 } else if (args[0] == "off") {
   const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const target = canvas.tokens.get(lastArg.tokenId);
-  const targetTokenTracker = DAE.getFlag(target, `${safeName}Tracker`);
+  const targetTokenTracker = DAE.getFlag(target.actor, `${safeName}Tracker`);
 
   if (targetTokenTracker) {
     targetTokenTracker.hasLeft = true;
     targetTokenTracker.turn = game.combat.turn;
     targetTokenTracker.round = game.combat.round;
-    await DAE.setFlag(target, `${safeName}Tracker`, targetTokenTracker);
+    await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
   }
 }

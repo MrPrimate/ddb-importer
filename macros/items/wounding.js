@@ -33,7 +33,7 @@ if (args[0] === "on") {
   if (!woundCount) return;
   const saveType = "con";
   const DC = 15;
-  const flavor = `${CONFIG.DND5E.abilities[saveType]} DC${DC} ${item?.name || ""}`;
+  const flavor = `${CONFIG.DND5E.abilities[saveType].label} DC${DC} ${item?.name || ""}`;
   const save = (await targetActor.rollAbilitySave(saveType, { flavor, fastForward: true })).total;
   if (save >= DC) {
     ChatMessage.create({content: "Wounding Save was made"});

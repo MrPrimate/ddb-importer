@@ -19,7 +19,7 @@ try {
       ability: "str",
       options: {
         chatMessage: true,
-        flavor: `${CONFIG.DND5E.abilities["str"]} DC${spellDC} vs Thunderous Smite Stagger`,
+        flavor: `${CONFIG.DND5E.abilities["str"].label} DC${spellDC} vs Thunderous Smite Stagger`,
       },
     };
 

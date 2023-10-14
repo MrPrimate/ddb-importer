@@ -8,6 +8,11 @@ if(!game.modules.get("ActiveAuras")?.active) {
 
 const lastArg = args[args.length - 1];
 
+console.warn("ARGS", {
+  args,
+  lastArg,
+})
+
 async function attemptRemoval(targetToken, condition, item) {
   if (game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
     new Dialog({
@@ -22,7 +27,7 @@ async function attemptRemoval(targetToken, condition, item) {
             const removalSave = item.flags.ddbimporter.effect.removalSave;
             const ability = removalCheck ? removalCheck : removalSave;
             const type = removalCheck ? "check" : "save";
-            const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;
+            const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability].label} ${type} vs DC${saveDc}`;
             const rollResult = removalCheck
               ? (await targetToken.actor.rollAbilityTest(ability, { flavor })).total
               : (await targetToken.actor.rollAbilitySave(ability, { flavor })).total;
@@ -89,8 +94,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   const item = await fromUuid(lastArg.itemUuid);
   // await item.update(dataTracker);
-  await DAE.unsetFlag(item, `${safeName}Tracker`);
-  await DAE.setFlag(item, `${safeName}Tracker`, dataTracker);
+  await DAE.unsetFlag(item.actor, `${safeName}Tracker`);
+  await DAE.setFlag(item.actor, `${safeName}Tracker`, dataTracker);
 
   const sequencerFile = lastArg.item.flags.ddbimporter?.effect?.sequencerFile;
   if (sequencerFile) {
@@ -129,7 +134,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
   const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);
   const target = canvas.tokens.get(lastArg.tokenId);
-  const targetTokenTrackerFlag = DAE.getFlag(target, `${safeName}Tracker`);
+  const targetTokenTrackerFlag = DAE.getFlag(target.actor, `${safeName}Tracker`);
   const targetedThisCombat = targetTokenTrackerFlag && targetItemTracker.randomId === targetTokenTrackerFlag.randomId;
   const targetTokenTracker = targetedThisCombat
     ? targetTokenTrackerFlag
@@ -160,7 +165,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     targetTokenTracker.hasLeft = false;
     await applyCondition(targetTokenTracker.condition, target, item, targetItemTracker.spellLevel);
   }
-  await DAE.setFlag(target, `${safeName}Tracker`, targetTokenTracker);
+  await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
   const allowVsRemoveCondition = item.flags.ddbimporter.effect.allowVsRemoveCondition;
   const effectApplied = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.document.uuid);
   const currentTokenCombatTurn = game.combat.current.tokenId === lastArg.tokenId;
@@ -171,7 +176,12 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 } else if (args[0] == "off") {
   const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const targetToken = await fromUuid(lastArg.tokenUuid);
-  const targetTokenTracker = await DAE.getFlag(targetToken, `${safeName}Tracker`);
+  console.warn("off args", {
+    targetToken,
+    tokenUuid: lastArg.tokenUuid,
+  })
+  const targetTokenTracker = await DAE.getFlag(targetToken.actor, `${safeName}Tracker`);
+  console.warn("targetTokenTracker", targetTokenTracker);
   const removeOnOff = hasProperty(lastArg, "efData.flags.ddbimporter.effect.removeOnOff")
     ? lastArg.efData.flags.ddbimporter.effect.removeOnOff
     : true;
@@ -185,6 +195,6 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     targetTokenTracker.hasLeft = true;
     targetTokenTracker.turn = game.combat.turn;
     targetTokenTracker.round = game.combat.round;
-    await DAE.setFlag(targetToken, `${safeName}Tracker`, targetTokenTracker);
+    await DAE.setFlag(targetToken.actor, `${safeName}Tracker`, targetTokenTracker);
   }
 }
