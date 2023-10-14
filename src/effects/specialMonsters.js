@@ -103,7 +103,8 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       this[index] = overTimeResults.document;
       npc = overTimeResults.actor;
     }
-    if (item.name === "Invisibility") item = invisibilityFeatureEffect(item);
+    if (["Shared Invisibility", "Fallible Invisibility", "Invisibility", "Superior Invisibility"].includes(item.name))
+      item = invisibilityFeatureEffect(item);
 
     item = forceItemEffect(item);
   }, npc.items);

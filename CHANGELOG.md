@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Monster feature effects: improve parsing of invisibility to handle situations for things like the Poltergeist which are always invisible, and the Pixie which has Superior Invisibility.
+
 # 3.5.0
 
 - Fix for adventure importing in newer Foundry v11 where ActorDelta could end up null and no synthetic actors would be created.

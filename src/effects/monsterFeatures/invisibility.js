@@ -8,12 +8,18 @@ export function invisibilityFeatureEffect(document) {
 
   let effect = baseMonsterFeatureEffect(document, `${document.name} feature`);
   effect.changes.push(
-    generateStatusEffectChange("Invisibility", 20, true)
+    generateStatusEffectChange("Invisible", 20, true)
   );
   setProperty(effect, "flags.dae.stackable", "noneName");
 
+  const permanent = ["special"].includes(getProperty(document, "flags.monsterMunch.type"));
+  const improvedEffect = ["Superior Invisibility"].includes(document.name);
 
-  setProperty(effect, "flags.dae.specialDuration", ["1Action", "1Spell", "1Attack"]);
+  if (permanent) {
+    effect.transfer = true;
+  } else if (!improvedEffect) {
+    setProperty(effect, "flags.dae.specialDuration", ["1Action", "1Spell", "1Attack"]);
+  }
   document.effects.push(effect);
 
   document.system.actionType = "other";

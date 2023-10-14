@@ -39,6 +39,7 @@ export default class DDBFeature {
           titleHTML: this.titleHTML,
           fullName: this.fullName,
           actionCopy: this.actionCopy,
+          type: this.type,
         }
       },
     };
