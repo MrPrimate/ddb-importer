@@ -89,15 +89,29 @@ function generateScaleValueAdvancement(feature) {
   return scaleValue;
 }
 
-export function getHPAdvancement(klass) {
+export function getHPAdvancement(klass, character) {
   // const value = "value": {
   //   "1": "max",
   //   "2": "avg"
   // },
-  let value = {};
+  const value = {};
   if (klass) {
-    for (let i = 1; i <= klass.system.levels; i++) {
-      value[`${i}`] = i === 1 && getProperty(klass, "flags.ddbimporter.isStartingClass") === true ? "max" : "avg";
+    const rolledHP = getProperty(character, "flags.ddbimporter.rolledHP") ?? false;
+    const startingClass = getProperty(klass, "flags.ddbimporter.isStartingClass") === true;
+    const useMaxHP = game.settings.get("ddb-importer", "character-update-policy-use-hp-max-for-rolled-hp");
+    if (rolledHP && !useMaxHP) {
+      const baseHP = getProperty(character, "flags.ddbimporter.baseHitPoints");
+      const totalLevels = getProperty(character, "flags.ddbimporter.dndbeyond.totalLevels");
+      const hpPerLevel = Math.floor(baseHP / totalLevels);
+      const leftOvers = Math.floor(baseHP % totalLevels);
+
+      for (let i = 1; i <= klass.system.levels; i++) {
+        value[`${i}`] = i === 1 && startingClass ? (hpPerLevel + leftOvers) : hpPerLevel;
+      }
+    } else {
+      for (let i = 1; i <= klass.system.levels; i++) {
+        value[`${i}`] = i === 1 && startingClass ? "max" : "avg";
+      }
     };
   }
   return {
@@ -364,7 +378,7 @@ export async function getClasses(ddb, character) {
     klass.system.hitDiceUsed = characterClass.hitDiceUsed;
     // eslint-disable-next-line no-await-in-loop
     klass.system.advancement = await addSRDAdvancements([
-      getHPAdvancement(klass),
+      getHPAdvancement(klass, character),
       ...parseFeaturesForScaleValues(ddb, characterClass, characterClass.definition, subClassFeatureIds),
       // eslint-disable-next-line no-await-in-loop
       ...await generateFeatureAdvancements(ddb, characterClass, characterClass.definition, featuresIndex, subClassFeatureIds),

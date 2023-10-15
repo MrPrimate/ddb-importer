@@ -4,6 +4,7 @@
 - Updates to handle tool proficiencies changes in newer 5e versions.
 - Prevent Active Aura effects like Web asking for useage/consume resource dialogue when spell has uses/resource link. @turin8565
 - Fix HP total when using rolled HP on DDB.
+- If using rolled HP DDB Importer will use the average hp on the class levels, except the first level which will get the remainder as well. You can disable this functionality and force the HP to be placed into the Max HP Override instead by using the hidden setting `game.settings.get("ddb-importer", "character-update-policy-use-hp-max-for-rolled-hp")`. @dineshm72 @darkinsanities
 
 # 3.5.1
 

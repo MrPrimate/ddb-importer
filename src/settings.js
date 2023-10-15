@@ -484,6 +484,10 @@ const SETTINGS = {
       // character settings
       CHARACTER: {
         IMPORT: {
+          "character-update-policy-use-hp-max-for-rolled-hp": {
+            type: Boolean,
+            default: false,
+          },
           "character-update-policy-use-item-containers": {
             scope: "player",
             type: Boolean,

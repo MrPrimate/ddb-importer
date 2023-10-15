@@ -62,11 +62,13 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
     ? constitutionHP + baseHitPoints + totalBonusHPWithEffects
     : overrideHitPoints;
 
+  const rolledHP = getProperty(this.source, "ddb.character.preferences.hitPointType") === 2;
+
   this.raw.character.system.attributes.hp = {
     value: maxHitPoints + tempMaxHitPoints - removedHitPoints,
     max: overrideHitPoints !== 0
       ? overrideHitPoints
-      : getProperty(this.source, "ddb.character.preferences.hitPointType") === 2
+      : rolledHP && game.settings.get("ddb-importer", "character-update-policy-use-hp-max-for-rolled-hp")
         ? maxHitPoints
         : null,
     temp: temporaryHitPoints !== 0 ? temporaryHitPoints : null,
@@ -76,6 +78,9 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
       overall: overallBonus !== 0 ? overallBonus : "",
     },
   };
+
+  this.raw.character.flags.ddbimporter.rolledHP = rolledHP;
+  this.raw.character.flags.ddbimporter.baseHitPoints = baseHitPoints;
 
   // "hp": {
   //   "value": 23,
