@@ -55,6 +55,8 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
     workflowItemData.system.level = itemLevel;
     workflowItemData.system.duration = { value: null, units: "inst" };
     workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
+    workflowItemData.system.uses = { value: null, max: "", per: null, recovery: "", autoDestroy: false };
+    workflowItemData.system.consume = { "type": "", "target": null, "amount": null };
     workflowItemData.system.preparation.mode = "atwill";
     setProperty(workflowItemData, "flags.itemacro", {});
     setProperty(workflowItemData, "flags.midi-qol", {});
@@ -114,6 +116,8 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   workflowItemData.system.components.concentration = false;
   workflowItemData.system.level = itemLevel;
   workflowItemData.system.duration = { value: null, units: "inst" };
+  workflowItemData.system.uses = { value: null, max: "", per: null, recovery: "", autoDestroy: false };
+  workflowItemData.system.consume = { "type": "", "target": null, "amount": null };
   workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
 
   setProperty(workflowItemData, "flags.itemacro", {});

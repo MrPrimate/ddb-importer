@@ -2,6 +2,7 @@
 
 - D&D 5e minimum bumped to v2.2.1
 - Updates to handle tool proficiencies changes in newer 5e versions.
+- Prevent Active Aura effects like Web asking for useage/consume resource dialogue when spell has uses/resource link.
 
 # 3.5.1
 

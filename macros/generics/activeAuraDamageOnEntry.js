@@ -32,6 +32,8 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   workflowItemData.system.level = itemLevel;
   workflowItemData.system.duration = { value: null, units: "inst" };
   workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
+  workflowItemData.system.uses = { value: null, max: "", per: null, recovery: "", autoDestroy: false };
+  workflowItemData.system.consume = { "type": "", "target": null, "amount": null };
 
   setProperty(workflowItemData, "flags.itemacro", {});
   setProperty(workflowItemData, "flags.midi-qol", {});
