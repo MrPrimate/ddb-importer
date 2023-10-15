@@ -999,10 +999,10 @@ function addProficiencies(modifiers, name) {
   const weaponProf = ddbCharacter.getWeaponProficiencies(proficiencies);
   const armorProf = ddbCharacter.getArmorProficiencies(proficiencies);
 
-  toolProf.value.forEach((prof) => {
+  for (const key of Object.keys(toolProf)) {
     logger.debug(`Generating tool proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof, 8, "system.traits.toolProf.value"));
-  });
+    changes.push(generateCustomChange(1, 8, `system.tools.${key}.prof`));
+  }
   weaponProf.value.forEach((prof) => {
     logger.debug(`Generating weapon proficiencies for ${name}`);
     changes.push(generateCustomChange(prof, 8, "system.traits.weaponProf.value"));

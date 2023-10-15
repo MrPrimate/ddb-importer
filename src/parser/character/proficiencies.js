@@ -76,8 +76,7 @@ DDBCharacter.prototype.getArmorProficiencies = function getArmorProficiencies(pr
 // };
 //
 DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(proficiencyArray) {
-  const values = new Set();
-  const custom = new Set();
+  const results = {};
 
   // lookup the characters's proficiencies in the DICT
   const allToolProficiencies = DICTIONARY.character.proficiencies
@@ -86,39 +85,40 @@ DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(prof
       return prof;
     });
 
-  const processToolProficiency = (prof) => {
-    const allProfMatch = allToolProficiencies.find((allProf) => allProf.name === prof.name);
-    if (allProfMatch && allProfMatch.baseTool && allProfMatch.baseTool !== "") {
-      values.add(allProfMatch.baseTool);
-    } else if (allProfMatch) {
-      custom.add(prof.name);
-    }
-  };
-
   proficiencyArray.forEach((prof) => {
-    processToolProficiency(prof);
+    const profMatch = allToolProficiencies.find((allProf) => allProf.name === prof.name);
+    if (profMatch && profMatch.baseTool) {
+      results[profMatch.baseTool] = {
+        value: 1,
+        ability: profMatch.ability,
+        bonuses: {
+          check: ""
+        }
+      };
+    }
   });
 
-  if (this.source?.ddb) {
-    // Custom proficiencies!
-    this.source.ddb.character.customProficiencies.forEach((proficiency) => {
-      if (proficiency.type === 2) {
-        // type 2 is TOOL, 1 is SKILL, 3 is LANGUAGE
-        processToolProficiency(proficiency);
-      }
-    });
+  return results;
 
-    // load custom proficiencies in characterValues
-    const customProfs = this._getCustomProficiencies("Tools");
-    for (const prof of customProfs) {
-      processToolProficiency({ name: prof });
-    }
-  }
+  // tools no longer support easily modifiable custom tools, see
+  // https://github.com/foundryvtt/dnd5e/issues/2372
+  // use toolIds
+  // if (this.source?.ddb) {
+  //   // Custom proficiencies!
+  //   this.source.ddb.character.customProficiencies.forEach((proficiency) => {
+  //     if (proficiency.type === 2) {
+  //       // type 2 is TOOL, 1 is SKILL, 3 is LANGUAGE
+  //       processToolProficiency(proficiency);
+  //     }
+  //   });
 
-  return {
-    value: [...values],
-    custom: [...custom].join(";"),
-  };
+  //   // load custom proficiencies in characterValues
+  //   const customProfs = this._getCustomProficiencies("Tools");
+  //   for (const prof of customProfs) {
+  //     processToolProficiency({ name: prof });
+  //   }
+  // }
+
 };
 
 DDBCharacter.prototype.getWeaponProficiencies = function getWeaponProficiencies(proficiencyArray) {
@@ -231,6 +231,6 @@ DDBCharacter.prototype._generateProficiencies = function _generateProficiencies(
 
   this.raw.character.system.traits.weaponProf = this.getWeaponProficiencies(this.proficiencies);
   this.raw.character.system.traits.armorProf = this.getArmorProficiencies(this.proficiencies);
-  this.raw.character.system.traits.toolProf = this.getToolProficiencies(this.proficiencies);
+  this.raw.character.system.tools = this.getToolProficiencies(this.proficiencies);
   this._generateLanguages();
 };

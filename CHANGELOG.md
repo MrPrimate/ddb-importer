@@ -1,3 +1,8 @@
+# NEXT UP
+
+- D&D 5e minimum bumped to v2.2.1
+- Updates to handle tool proficiencies changes in newer 5e versions.
+
 # 3.5.1
 
 - Monster feature effects: improve parsing of invisibility to handle situations for things like the Poltergeist which are always invisible, and the Pixie which has Superior Invisibility.

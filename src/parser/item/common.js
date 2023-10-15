@@ -154,7 +154,7 @@ export function getBaseItem(data) {
       });
 
     const baseTool = toolProficiencies.find((allProf) => allProf.name.toLowerCase() === data.definition.name.toLowerCase());
-    if (baseTool && baseTool.baseTool && baseTool.baseTool !== "") {
+    if (baseTool && baseTool.baseTool) {
       baseItem = baseTool.baseTool;
       toolType = baseTool.toolType;
     }
