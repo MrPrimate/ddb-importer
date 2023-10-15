@@ -2,7 +2,8 @@
 
 - D&D 5e minimum bumped to v2.2.1
 - Updates to handle tool proficiencies changes in newer 5e versions.
-- Prevent Active Aura effects like Web asking for useage/consume resource dialogue when spell has uses/resource link.
+- Prevent Active Aura effects like Web asking for useage/consume resource dialogue when spell has uses/resource link. @turin8565
+- Fix HP total when using rolled HP on DDB.
 
 # 3.5.1
 

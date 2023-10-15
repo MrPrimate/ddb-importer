@@ -64,7 +64,11 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
 
   this.raw.character.system.attributes.hp = {
     value: maxHitPoints + tempMaxHitPoints - removedHitPoints,
-    max: overrideHitPoints !== 0 ? overrideHitPoints : null,
+    max: overrideHitPoints !== 0
+      ? overrideHitPoints
+      : getProperty(this.source, "ddb.character.preferences.hitPointType") === 2
+        ? maxHitPoints
+        : null,
     temp: temporaryHitPoints !== 0 ? temporaryHitPoints : null,
     tempmax: tempMaxHitPoints !== 0 ? tempMaxHitPoints : null,
     bonuses: {
