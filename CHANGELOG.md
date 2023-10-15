@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.5.2
 
 - D&D 5e minimum bumped to v2.2.1
 - Updates to handle tool proficiencies changes in newer 5e versions.
