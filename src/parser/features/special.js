@@ -91,9 +91,9 @@ export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
   if (daeInstalled && addCharacterEffects) {
     item = generateEffects(ddb, character, modifierItem, item, compendiumItem, "feat");
     // console.log(item);
+  } else {
+    item = generateBaseACItemEffect(ddb, character, modifierItem, item, compendiumItem);
   }
-
-  item = generateBaseACItemEffect(ddb, character, modifierItem, item, compendiumItem);
 
   return item;
 }

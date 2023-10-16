@@ -20,8 +20,6 @@ const MuncherSettings = {
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects", false);
     $(html).find("#character-import-policy-add-character-effects").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects", false);
-    $(html).find("#character-import-policy-generate-ac-feature-effects").prop("checked", false);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-generate-ac-feature-effects", false);
     $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
     $(html).find("#character-update-policy-use-chris-premades").prop("checked", false);
@@ -48,8 +46,6 @@ const MuncherSettings = {
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects", true);
     $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects", true);
-    $(html).find("#character-import-policy-generate-ac-feature-effects").prop("checked", true);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-generate-ac-feature-effects", true);
     $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
     $(html).find("#character-update-policy-use-chris-premades").prop("checked", !effectModules().chrisInstalled);
@@ -275,14 +271,6 @@ const MuncherSettings = {
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects") && daeInstalled,
         title: "Generate Effects for Character Features/Racial Traits/Feats/Backgrounds",
         description: featureEffectText,
-        enabled: daeInstalled,
-      },
-      {
-        name: "generate-ac-feature-effects",
-        isChecked:
-          game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-generate-ac-feature-effects") && daeInstalled,
-        title: "Generate Effects ACs for Character Features & Racial Traits",
-        description: "Add AC values as effects to features, this might not work as expected for some AC calculations. If unticked some ac bonuses will still be generated.",
         enabled: daeInstalled,
       },
       {

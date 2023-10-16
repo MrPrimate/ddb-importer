@@ -4,7 +4,7 @@ import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { equipmentEffectAdjustment } from "./specialEquipment.js";
 import { infusionEffectAdjustment } from "./specialInfusions.js";
-import { generateACEffectChangesForItem } from "./acEffects.js";
+import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEffects.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 // import { spellEffectAdjustment } from "./specialSpells.js";
 
@@ -700,6 +700,7 @@ export function getGenericConditionAffectData(modifiers, condition, typeId) {
 
 
 function addCriticalHitImmunities(modifiers, name) {
+  if (!game.modules.get("midi-qol")?.active) return [];
   const result = DDBHelper.filterModifiers(modifiers, "immunity", "critical-hits");
 
   if (result.length > 0) {
@@ -818,6 +819,7 @@ function addAbilityAdvantageEffect(modifiers, name, subType, type) {
   const bonuses = DDBHelper.filterModifiers(modifiers, "advantage", subType);
 
   let effects = [];
+  if (!game.modules.get("midi-qol")?.active) return effects;
   if (bonuses.length > 0) {
     logger.debug(`Generating ${subType} saving throw advantage for ${name}`);
     const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
@@ -1072,6 +1074,7 @@ function addSkillBonusEffect(modifiers, name, skill) {
 // requires midi
 //
 function addSkillMidiEffect(modifiers, name, skill, midiEffect = "advantage") {
+  if (!game.modules.get("midi-qol")?.active) return [];
   const allowedRestrictions = [
     "",
     null,
@@ -1156,6 +1159,7 @@ function addInitiativeBonuses(modifiers, name) {
 // midi only
 //
 function addAttackRollDisadvantage(modifiers, name) {
+  if (!game.modules.get("midi-qol")?.active) return [];
   let changes = [];
   const disadvantage = DDBHelper.filterModifiers(modifiers, "disadvantage", "attack-rolls-against-you", false);
   if (disadvantage.length > 0) {
@@ -1167,6 +1171,7 @@ function addAttackRollDisadvantage(modifiers, name) {
 
 // midi advantages on saving throws against spells and magical effects
 function addMagicalAdvantage(modifiers, name) {
+  if (!game.modules.get("midi-qol")?.active) return [];
   let changes = [];
   const restrictions = [
     "against spells and magical effects",
@@ -1312,7 +1317,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
 
   const label = labelOverride
     ? labelOverride
-    : `${foundryItem.name} - Constant Effects`;
+    : `${foundryItem.name} - Constant`;
 
   let effect = baseItemEffect(foundryItem, label);
 
@@ -1463,6 +1468,35 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   return [foundryItem, effect];
 }
 
+
+function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect, type) {
+  // console.warn("addACEffect", {
+  //   ddb,
+  //   character,
+  //   ddbItem: deepClone(ddbItem),
+  //   foundryItem: deepClone(foundryItem),
+  //   isCompendiumItem,
+  //   effect: deepClone(effect),
+  // });
+  switch (type) {
+    case "infusion":
+    case "equipment":
+    case "item":
+    case "feature":
+    case "feat": {
+      if (effect.transfer || type === "infusion") {
+        [foundryItem, effect] = generateACEffectChangesForItem(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect);
+      } else {
+        foundryItem = generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+      }
+      break;
+    }
+    // no default
+  }
+
+  return [foundryItem, effect];
+}
+
 export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, type) {
   let label;
 
@@ -1473,16 +1507,16 @@ export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendi
   }
 
   if (type == "infusion") {
-    label = `${foundryItem.name} - Infusion Effects`;
+    label = `${foundryItem.name} - Infusion`;
   }
   let effect;
   [foundryItem, effect] = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, label);
-  if (type == "infusion") {
-    [foundryItem, effect] = generateACEffectChangesForItem(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect);
-  }
+  [foundryItem, effect] = addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect, type);
+
   if (effect.changes?.length > 0) {
     foundryItem.effects.push(effect);
   }
+
   switch (type) {
     case "infusion": {
       foundryItem = infusionEffectAdjustment(foundryItem);

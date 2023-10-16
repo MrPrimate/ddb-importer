@@ -423,21 +423,6 @@ DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
   return flags;
 };
 
-// async function getIcon(item, ddbItem) {
-//   if (ddbItem.definition?.avatarUrl || ddbItem.definition?.largeAvatarUrl) {
-//     const url = ddbItem.definition?.avatarUrl ?? ddbItem.definition?.largeAvatarUrl;
-//     const downloadOptions = { type: "item", name: `custom-${item.name}`, download: true };
-//     const img = await FileHelper.getImagePath(url, downloadOptions);
-//     if (img) {
-//       // eslint-disable-next-line require-atomic-updates
-//       item.img = img;
-//       setProperty(item, "flags.ddbimporter.keepIcon", false);
-//     }
-//   }
-//   return item;
-// }
-
-
 // TO DO: revisit to break up item parsing
 // eslint-disable-next-line complexity
 DDBCharacter.prototype.getInventory = async function getInventory() {
@@ -461,9 +446,6 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
   const addEffects = (compendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
-  const generateArmorACEffect = (compendiumItem)
-    ? game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects")
-    : false;
 
   for (let ddbItem of this.source.ddb.character.inventory) {
     const originalName = ddbItem.definition.name;
@@ -486,14 +468,9 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       if (!item.effects) item.effects = [];
       if (!item.name || item.name === "") item.name = "Item";
 
-      if (daeInstalled && addEffects) item = generateEffects(this.source.ddb, this.raw.character, ddbItem, item, compendiumItem, "item");
-      // if this is a piece of armor and not generating effects don't generate ac
-      if (item.type === "equipment" && item.system.armor?.type && !["trinket", "clothing"].includes(item.system.armor.type)) {
-        if (daeInstalled && generateArmorACEffect) {
-          item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, compendiumItem);
-        }
+      if (addEffects && daeInstalled) {
+        item = generateEffects(this.source.ddb, this.raw.character, ddbItem, item, compendiumItem, "item");
       } else {
-        // always generate other item ac effects
         item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, compendiumItem);
       }
 

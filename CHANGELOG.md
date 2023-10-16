@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Character effects: Empty custom tool proficiency effects could be generated for some features.
+- Character and item effects: removal of some legacy AC effect generation, and some code clean up in this area. AC effects are always generated now, as they are supported "out the box", and generally expected in core.
 
 # 3.5.2
 

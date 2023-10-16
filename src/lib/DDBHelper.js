@@ -296,11 +296,8 @@ const DDBHelper = {
   getModifiers: (ddb, type, includeExcludedEffects = false, effectOnly = false) => {
     // are we adding effects to items?
     const featureEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
-    const acEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects");
-    const daeInstalled = game.modules.get("dae")?.active;
-    const excludedModifiers = ((featureEffects || acEffects) && daeInstalled
-      && (!includeExcludedEffects || (includeExcludedEffects && effectOnly)))
-      ? getEffectExcludedModifiers(type, featureEffects, acEffects)
+    const excludedModifiers = (!includeExcludedEffects || (includeExcludedEffects && effectOnly))
+      ? getEffectExcludedModifiers(type, featureEffects, true)
       : getEffectExcludedModifiers(type, false, false);
     // get items we are going to interact on
     let modifiers = [];

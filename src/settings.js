@@ -582,11 +582,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-generate-ac-feature-effects": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "character-update-policy-use-existing": {
             scope: "player",
             type: Boolean,
@@ -1038,11 +1033,6 @@ const SETTINGS = {
             default: false,
           },
           "munching-policy-add-monster-effects": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "munching-policy-add-ac-armor-effects": {
             scope: "player",
             type: Boolean,
             default: false,

@@ -1,7 +1,7 @@
 import DDBHelper from "../lib/DDBHelper.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { baseItemEffect, generateUpgradeChange, addAddEffect } from "./effects.js";
+import { baseItemEffect, addAddEffect } from "./effects.js";
 
 // // ac -
 // { type: "bonus", subType: "armor-class" },
@@ -61,14 +61,9 @@ export function generateFixedACEffect(formula, label, alwaysActive = false, prio
   effect.disabled = false;
   effect.origin = "AC";
 
-  const change = {
-    key: "system.attributes.ac.value",
-    value: formula,
-    mode,
-    priority,
-  };
-
-  effect.changes.push(change);
+  const formulaChange = { key: "system.attributes.ac.formula", value: formula, mode, priority };
+  const calcChange = { key: "system.attributes.ac.calc", value: "custom", mode, priority };
+  effect.changes.push(calcChange, formulaChange);
 
   return effect;
 }
@@ -129,11 +124,18 @@ function addACSetEffect(modifiers, name, subType) {
 
     logger.debug(`Generating ${subType} AC set for ${name}: ${effectString}`);
     effects.push(
-      generateUpgradeChange(
-        effectString,
-        15,
-        "system.attributes.ac.value"
-      )
+      {
+        key: "system.attributes.ac.formula",
+        value: effectString,
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        priority: 15,
+      },
+      {
+        key: "system.attributes.ac.calc",
+        value: "custom",
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        priority: 15,
+      },
     );
   }
   return effects;
@@ -164,16 +166,7 @@ function addACSets(modifiers, name) {
  */
 function addACBonusEffect(modifiers, name, subType, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
   const bonusModifiers = DDBHelper.filterModifiers(modifiers, "bonus", subType, restrictions);
-
-  // using bonus here adds them to the bonus field, but then items that add a bonsu don't get applied
-  // (e.g. bracers of defense) if wearing something like robi of archmage.
-  // this is set to value, and show up as separate line in ac calculation.
-  // we set this to bonus if dae is not installed as otherwise it is not applied.
-  const key = game.modules.get("dae")?.active
-    ? "system.attributes.ac.value"
-    : "system.attributes.ac.bonus";
-
-  const changes = addAddEffect(bonusModifiers, name, subType, key);
+  const changes = addAddEffect(bonusModifiers, name, subType, "system.attributes.ac.bonus");
   if (changes.length > 0) logger.debug(`Generating ${subType} bonus for ${name}`);
 
   return changes;
@@ -247,9 +240,7 @@ function generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCom
   logger.debug(`Generating supported AC changes for ${foundryItem.name} for effect ${effect.name ?? effect.label}`);
 
   // base ac from modifiers
-  const acSets = game.modules.get("dae")?.active
-    ? addACSets(ddbItem.definition.grantedModifiers, foundryItem.name)
-    : [];
+  const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   // ac bonus effects
   const acBonus = addACBonusEffect(
@@ -320,7 +311,7 @@ export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, i
   // console.error(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported AC effects for ${foundryItem.name}`);
 
-  let effect = baseItemEffect(foundryItem, `AC: ${foundryItem.name}`);
+  let effect = baseItemEffect(foundryItem, `${foundryItem.name} (AC)`);
 
   // generate flags for effect (e.g. checking attunement and equipped status)
   [foundryItem, effect] = generateACEffectChangesForItem(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect);
