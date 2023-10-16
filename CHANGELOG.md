@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Character effects: Empty custom tool proficiency effects could be generated for some features.
+
 # 3.5.2
 
 - D&D 5e minimum bumped to v2.2.1

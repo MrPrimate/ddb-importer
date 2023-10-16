@@ -1011,7 +1011,7 @@ function addProficiencies(modifiers, name) {
     logger.debug(`Generating armor proficiencies for ${name}`);
     changes.push(generateCustomChange(prof, 8, "system.traits.armorProf.value"));
   });
-  if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom, 8, "system.traits.toolProf.custom"));
+  // if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom, 8, "system.traits.toolProf.custom"));
   if (weaponProf?.custom != "")
     changes.push(generateCustomChange(weaponProf.custom, 8, "system.traits.weaponProf.custom"));
   if (armorProf?.custom != "") changes.push(generateCustomChange(armorProf.custom, 8, "system.traits.armorProf.custom"));
