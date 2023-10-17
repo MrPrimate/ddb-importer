@@ -195,26 +195,26 @@ export async function getNPCImage(npcData, { type = "monster", forceUpdate = fal
     return npcData;
   }
 
-  let ddbAvatarUrl = npcData.flags.monsterMunch.img;
-  let ddbTokenUrl = npcData.flags.monsterMunch.tokenImg;
   const isStock = npcData.flags.monsterMunch.isStockImg;
   const useAvatarAsToken = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image") || forceUseFullToken;
   const useTokenAsAvatar = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image") || forceUseTokenAvatar;
-  if (useAvatarAsToken) {
-    ddbTokenUrl = ddbAvatarUrl;
-  } else if (useTokenAsAvatar) {
-    ddbAvatarUrl = ddbTokenUrl;
-  }
 
-  const npcType = type.startsWith("vehicle") ? "vehicle" : npcData.system.details.type.value;
-  const genericNPCName = utils.referenceNameString(npcType);
-  const npcName = utils.referenceNameString(npcData.name);
+  let ddbAvatarUrl = useTokenAsAvatar
+    ? getProperty(npcData, "flags.monsterMunch.tokenImg")
+    : getProperty(npcData, "flags.monsterMunch.img");
+  let ddbTokenUrl = useAvatarAsToken
+    ? getProperty(npcData, "flags.monsterMunch.img")
+    : getProperty(npcData, "flags.monsterMunch.tokenImg");
 
   if (!ddbAvatarUrl && ddbTokenUrl) ddbAvatarUrl = ddbTokenUrl;
   if (!ddbTokenUrl && ddbAvatarUrl) ddbTokenUrl = ddbAvatarUrl;
 
   const hasAvatarProcessedAlready = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
   const hasTokenProcessedAlready = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
+
+  const npcType = type.startsWith("vehicle") ? "vehicle" : npcData.system.details.type.value;
+  const genericNPCName = utils.referenceNameString(npcType);
+  const npcName = utils.referenceNameString(npcData.name);
 
   const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
   const subType = getProperty(npcData, "system.details.type.value") ?? "other";

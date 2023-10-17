@@ -828,20 +828,6 @@ const MuncherSettings = {
     game.settings.set(SETTINGS.MODULE_ID, "munching-policy-" + selection, checked);
 
     switch (selection) {
-      case "use-full-token-image": {
-        if (checked) {
-          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image", false);
-          $("#munching-policy-use-token-avatar-image").prop("checked", false);
-        }
-        break;
-      }
-      case "use-token-avatar-image": {
-        if (checked) {
-          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image", false);
-          $("#munching-policy-use-full-token-image").prop("checked", false);
-        }
-        break;
-      }
       case "monster-homebrew": {
         if (!checked) {
           game.settings.set(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only", false);

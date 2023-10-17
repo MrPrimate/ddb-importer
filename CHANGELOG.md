@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Allow Avatar and Token swapping to both be enabled.
+
 # 3.5.3
 
 - Character effects: Empty custom tool proficiency effects could be generated for some features.
