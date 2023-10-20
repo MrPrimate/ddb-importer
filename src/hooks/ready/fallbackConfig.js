@@ -3626,6 +3626,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/mcv4",
     },
     {
+      id: 125,
+      name: "AATM",
+      description: "Adventure Atlas: The Mortuary",
+      sourceCategoryId: 17,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/36921/396/638306623652011464.jpeg",
+      sourceURL: "sources/aatm",
+    },
+    {
       id: 126,
       name: "LKE",
       description: "Lightning Keep",
@@ -3633,6 +3642,15 @@ export const fallbackDDBConfig = {
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/36974/217/638309001082198146.jpeg",
       sourceURL: "sources/lke",
+    },
+    {
+      id: 128,
+      name: "ItSI",
+      description: "Intro to Stormwreck Isle",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/37224/332/638319433931865291.jpeg",
+      sourceURL: "sources/itsi",
     },
   ],
   levelProficiencyBonuses: [
