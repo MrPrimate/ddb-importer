@@ -50,7 +50,7 @@ export function baseMonsterFeatureEffect(document, label) {
 
 export function transferEffectsToActor(document) {
   if (!document.effects) document.effects = [];
-  const compendiumLabel = CompendiumHelper.getCompendiumLabel("monsters");
+  // const compendiumLabel = CompendiumHelper.getCompendiumLabel("monsters");
 
   // loop over items and item effect and transfer any effects to the actor
   document.items.forEach((item) => {
@@ -61,8 +61,10 @@ export function transferEffectsToActor(document) {
         if (!hasProperty(effect, "_id")) effect._id = randomID();
         transferEffect._id = randomID();
         transferEffect.transfer = false;
-        transferEffect.origin = `Compendium.${compendiumLabel}.${document._id}.Item.${item._id}`;
+        // transferEffect.origin = `Compendium.${compendiumLabel}.Actor.${document._id}.Item.${item._id}`;
+        transferEffect.origin = `Actor.${document._id}.Item.${item._id}`;
         setProperty(transferEffect, "flags.ddbimporter.originName", item.name);
+        setProperty(transferEffect, "flags.ddbimporter.localOriginEffect", true);
         document.effects.push(transferEffect);
       }
     });

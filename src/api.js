@@ -53,6 +53,7 @@ import SETTINGS from "./settings.js";
 import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import NameMatcher from "./lib/NameMatcher.js";
+import OriginFixer from "./lib/OriginFixer.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -126,6 +127,7 @@ export function registerApi() {
       DirectoryPicker,
       DDBMacros,
       NameMatcher,
+      OriginFixer,
     },
     settings: {
       muncherSettings: MuncherSettings.getMuncherSettings,

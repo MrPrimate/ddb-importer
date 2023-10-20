@@ -14,6 +14,7 @@ import { itemSheets } from "./hooks/ready/items.js";
 import checkVersion from "./hooks/ready/checkVersion.js";
 import { loadDDBConfig } from "./hooks/ready/ddbConfig.js";
 import { anchorInjection } from "./hooks/ready/anchorInjection.js";
+import { setupUpdateCreatedOrigins } from "./hooks/ready/originFixing.js";
 
 // monster muncher
 import { earlySettings } from "./hooks/renderMuncher/earlySettings.js";
@@ -57,10 +58,11 @@ export async function onceReady() {
 
   // delay the startup just a tiny little bit
   setTimeout(() => {
+    checkVersion();
     // register the D&DBeyond Button on the character sheets
     registerSheets();
     itemSheets();
-    checkVersion();
+    setupUpdateCreatedOrigins();
     loadDDBConfig();
     activateUpdateHooks();
 
