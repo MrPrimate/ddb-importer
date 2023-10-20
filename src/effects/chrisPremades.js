@@ -59,7 +59,7 @@ async function getFolderId(name, compendiumName) {
 function getName(document) {
   const flagName = document.flags.ddbimporter?.originalName ?? document.name;
 
-  const regex = /(.*)\s*\((:?costs \d actions|Recharges after a Short or Long Rest|\d\/day|recharge \d-\d)\)/i;
+  const regex = /(.*)\s*\((:?costs \d actions|\d\/Turn|Recharges after a Short or Long Rest|\d\/day|recharge \d-\d)\)/i;
   const nameMatch = flagName.replace(/[–-–−]/g, "-").match(regex);
   if (nameMatch) {
     return nameMatch[1].trim();
