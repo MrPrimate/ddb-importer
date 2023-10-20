@@ -13,11 +13,6 @@ export default class OriginFixer {
   static TOKEN_ORIGIN_RE = /(Scene.[^.]+.Token.[^.]+.Actor\.[^.]+)(.*)$/g;
 
   static _getEffectOrigin(effect, actorUuid, compendium = false) {
-    console.warn("effect origin", {
-      effect,
-      actorUuid,
-      compendium
-    });
     if (compendium) {
       return effect.origin.replace(OriginFixer.COMPENDIUM_ORIGIN_RE, `${actorUuid}.$2$3`);
     } else if (effect.origin.match(OriginFixer.TOKEN_ORIGIN_RE)) {
@@ -28,42 +23,21 @@ export default class OriginFixer {
   }
 
   static async updateActorEffects(actor, compendiumOnly = false) {
-    console.warn("Actor", actor);
     if (!actor) return;
     const newEffects = [];
     const actorUuid = actor.uuid.replace("..", ".");
     let changesMade = false;
 
-    console.warn("actorUuid", actorUuid);
     for (const effect of actor.effects) {
       const newEffect = effect.toObject();
       const isDDBMonsterCompendium = effect.origin?.startsWith(`Compendium.${CompendiumHelper.getCompendiumLabel("monsters")}.`);
       const matchRe = compendiumOnly || isDDBMonsterCompendium ? OriginFixer.COMPENDIUM_ORIGIN_RE : OriginFixer.ORIGIN_RE;
-      console.warn("effect", {
-        effect,
-        isDDBMonsterCompendium,
-        matchRe,
-        match: effect.origin.match(matchRe),
-        cmatch: effect.origin.match(OriginFixer.COMPENDIUM_ORIGIN_RE),
-        omatch: effect.origin.match(OriginFixer.ORIGIN_RE),
-        compMatch: (!effect.origin.startsWith("Compendium") || isDDBMonsterCompendium),
-      });
       if (typeof effect.origin === "string"
         && effect.origin.match(matchRe)
         && (!effect.origin.startsWith("Compendium") || isDDBMonsterCompendium)
       ) {
         const testOrigin = OriginFixer._getEffectOrigin(effect, actorUuid, (compendiumOnly || isDDBMonsterCompendium));
-        console.warn("testOrigin", {
-          effect,
-          testOrigin
-        })
         const originLoaded = await fromUuid(testOrigin);
-
-        console.warn("Origins", {
-          effect,
-          testOrigin,
-          originLoaded
-        })
         if (originLoaded && testOrigin !== effect.origin) {
           changesMade = true;
           logger.debug(`${actor.name} effect ${effect.name} origin ${effect.origin} -> ${testOrigin} ${actorUuid}`);
@@ -73,7 +47,7 @@ export default class OriginFixer {
       newEffects.push(newEffect);
     }
     if (changesMade) {
-      console.warn("NewEffects", newEffects);
+      logger.debug(`Replacing effects on actor ${actor.name} [${actorUuid}]`, newEffects);
       await actor.updateEmbeddedDocuments("ActiveEffect", newEffects);
     }
   }
