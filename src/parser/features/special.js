@@ -417,6 +417,16 @@ export async function fixFeatures(features) {
         feature.system.consume.amount = 2;
         break;
       }
+      case "Mind Link Response": {
+        feature.system.target.value = 1;
+        feature.system.target.type = "creature";
+        feature.system.duration = {
+          value: 1,
+          units: "hour",
+        };
+        feature.system.range.units = "spec";
+        break;
+      }
       case "Momentary Stasis": {
         feature.system.actionType = "save";
         feature.system.save.ability = "con";

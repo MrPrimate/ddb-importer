@@ -63,6 +63,7 @@ import { dauntingRoarEffect } from "./feats/dauntingRoar.js";
 import { powerfulBuild } from "./feats/powerfulBuild.js";
 import { deftStrikeEffect } from "./feats/deftStike.js";
 import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
+import { mindLinkEffect } from "./feats/mindLink.js";
 
 export function baseFeatEffect(document, label) {
   let effect = {
@@ -129,6 +130,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Hill Rune": {
         document = hillRuneEffect(document);
+        break;
+      }
+      case "Mind Link Response": {
+        document = mindLinkEffect(document);
         break;
       }
       case "Momentary Stasis": {
