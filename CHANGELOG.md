@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.5.4
 
 - Allow Avatar and Token swapping to both be enabled.
 - Chris Premades Support: Sneak Attack would not match on Monsters.
