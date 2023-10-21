@@ -19,7 +19,7 @@ export function getDescription(data) {
 export function getPrice(data) {
   const value = data.definition.cost ? Number.parseFloat(data.definition.cost) : 0;
   const price = {
-    "value": Number.isInteger(value) ? value : (value * 100),
+    "value": Number.isInteger(value) ? value : (value * 10),
     "denomination": Number.isInteger(value) ? "gp" : "sp"
   };
 

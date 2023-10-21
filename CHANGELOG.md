@@ -3,7 +3,7 @@
 - Allow Avatar and Token swapping to both be enabled.
 - Chris Premades Support: Sneak Attack would not match on Monsters.
 - Chris Premades/Monster Item import: When monsters are moved from the DDB Compendium to the world, DDB Importer will attempt to fix the origins of effects it has generated, if possible.
-
+- Items with prices in silver pieces would be 10x more expensive than they were supposed to. Blame inflation.
 
 # 3.5.3
 
