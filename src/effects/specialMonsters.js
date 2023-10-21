@@ -1,5 +1,4 @@
 /* eslint-disable require-atomic-updates */
-import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { effectModules, forceItemEffect, generateStatusEffectChange } from "./effects.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 
@@ -49,9 +48,9 @@ export function baseMonsterFeatureEffect(document, label) {
 }
 
 export function transferEffectsToActor(document) {
+  // when legacy transferral gets removed, we don't need to do this.
+  if (isNewerVersion(game.version, 11) && !CONFIG.ActiveEffect.legacyTransferral) return document;
   if (!document.effects) document.effects = [];
-  // const compendiumLabel = CompendiumHelper.getCompendiumLabel("monsters");
-
   // loop over items and item effect and transfer any effects to the actor
   document.items.forEach((item) => {
     item.effects.forEach((effect) => {
@@ -61,7 +60,6 @@ export function transferEffectsToActor(document) {
         if (!hasProperty(effect, "_id")) effect._id = randomID();
         transferEffect._id = randomID();
         transferEffect.transfer = false;
-        // transferEffect.origin = `Compendium.${compendiumLabel}.Actor.${document._id}.Item.${item._id}`;
         transferEffect.origin = `Actor.${document._id}.Item.${item._id}`;
         setProperty(transferEffect, "flags.ddbimporter.originName", item.name);
         setProperty(transferEffect, "flags.ddbimporter.localOriginEffect", true);
