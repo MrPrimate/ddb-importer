@@ -589,42 +589,9 @@ function addLanguages(modifiers, name) {
 }
 
 
-/**
- * Generate global damage bonuses
-*/
-function addGlobalDamageBonus(modifiers, name) {
-  const meleeRestrictions = ["Melee Weapon Attacks"];
+function damageBonus(type, modifiers, name) {
   let changes = [];
-  const meleeBonus = DDBHelper.filterModifiers(modifiers, "damage", null, meleeRestrictions)
-    .filter((mod) => mod.dice || mod.die || mod.value)
-    .map((mod) => {
-      const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
-      if (die) {
-        return utils.parseDiceString(die.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
-      } else {
-        return utils.parseDiceString(mod.value, null, mod.subType ? `[${mod.subType}]` : null).diceString;
-      }
-    });
-  if (meleeBonus && meleeBonus.length > 0) {
-    logger.debug(`Generating melee damage for ${name}`);
-    changes.push(generateCustomChange(`${meleeBonus.join(" + ")}`, 18, "system.bonuses.mwak.damage"));
-  }
-  const rangedRestrictions = ["Ranged Weapon Attacks"];
-  const rangedBonus = DDBHelper.filterModifiers(modifiers, "damage", null, rangedRestrictions)
-    .filter((mod) => mod.dice || mod.die || mod.value)
-    .map((mod) => {
-      const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
-      if (die) {
-        return utils.parseDiceString(die.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
-      } else {
-        return utils.parseDiceString(mod.value, null, mod.subType ? `[${mod.subType}]` : null).diceString;
-      }
-    });
-  if (rangedBonus && rangedBonus.length > 0) {
-    logger.debug(`Generating ranged damage for ${name}`);
-    changes.push(generateCustomChange(`${rangedBonus.join(" + ")}`, 18, "system.bonuses.rwak.damage"));
-  }
-  const bonus = DDBHelper.filterModifiers(modifiers, "damage", null)
+  const bonus = modifiers
     .filter((mod) => mod.dice || mod.die || mod.value)
     .map((mod) => {
       const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
@@ -635,11 +602,140 @@ function addGlobalDamageBonus(modifiers, name) {
       }
     });
   if (bonus && bonus.length > 0) {
-    logger.debug(`Generating all damage for ${name}`);
-    changes.push(generateCustomChange(`${bonus.join(" + ")}`, 18, "system.bonuses.mwak.damage"));
-    changes.push(generateCustomChange(`${bonus.join(" + ")}`, 18, "system.bonuses.rwak.damage"));
+    logger.debug(`Generating ${type} damage for ${name}`);
+    const change = generateAddChange(`${bonus.join(" + ")}`, 22, `system.bonuses.${type}.damage`);
+    changes.push(change);
   }
   return changes;
+}
+
+/**
+ * Generate global damage bonuses
+*/
+function addGlobalDamageBonus(modifiers, name) {
+  let changes = [];
+  // melee restricted attacks
+  const meleeRestrictions = ["Melee Weapon Attacks"];
+  const meleeRestrictedMods = DDBHelper.filterModifiers(modifiers, "damage", null, meleeRestrictions);
+  const meleeBonuses = damageBonus("mwak", meleeRestrictedMods, name);
+  changes.push(...meleeBonuses);
+
+  const rangedRestrictions = ["Ranged Weapon Attacks"];
+  const rangedRestrictionMods = DDBHelper.filterModifiers(modifiers, "damage", null, rangedRestrictions);
+  const rangedBonuses = damageBonus("rwak", rangedRestrictionMods, name);
+  changes.push(...rangedBonuses);
+
+  const DAMAGE_SUBTYPE_MAP = {
+    "one-handed-melee-attacks": ["mwak"],
+  };
+
+  for (const [subtype, damageTypes] of Object.entries(DAMAGE_SUBTYPE_MAP)) {
+    const subTypeMods = DDBHelper.filterModifiers(modifiers, "damage", subtype);
+    for (const damageType of damageTypes) {
+      const bonus = damageBonus(damageType, subTypeMods, name);
+      changes.push(...bonus);
+    }
+  }
+
+  const allBonusMods = DDBHelper.filterModifiers(modifiers, "damage", null)
+    .filter((mod) => !Object.keys(DAMAGE_SUBTYPE_MAP).includes(mod.subType))
+    .filter((mod) => mod.dice || mod.die || mod.value);
+  if (allBonusMods.length > 0) {
+    logger.debug(`Generating all damage for ${name}`);
+    changes.push(...damageBonus("mwak", allBonusMods, name));
+    changes.push(...damageBonus("rwak", allBonusMods, name));
+  }
+  return changes;
+}
+
+function addWeaponAttackBonuses(modifiers, name) {
+  const meleeAttackBonus = addAddEffect(
+    modifiers,
+    name,
+    "melee-attacks",
+    "system.bonuses.mwak.attack"
+  );
+  const rangedAttackBonus = addAddEffect(
+    modifiers,
+    name,
+    "ranged-attacks",
+    "system.bonuses.rwak.attack"
+  );
+  const meleeWeaponAttackBonus = addAddEffect(
+    modifiers,
+    name,
+    "melee-weapon-attacks",
+    "system.bonuses.mwak.attack"
+  );
+  const rangedWeaponAttackBonus = addAddEffect(
+    modifiers,
+    name,
+    "ranged-weapon-attacks",
+    "system.bonuses.rwak.attack"
+  );
+  const weaponAttackMeleeBonus = addAddEffect(
+    modifiers,
+    name,
+    "weapon-attacks",
+    "system.bonuses.mwak.attack"
+  );
+  const weaponAttackRangedBonus = addAddEffect(
+    modifiers,
+    name,
+    "weapon-attacks",
+    "system.bonuses.rwak.attack"
+  );
+  return [
+    ...meleeAttackBonus,
+    ...rangedAttackBonus,
+    ...meleeWeaponAttackBonus,
+    ...rangedWeaponAttackBonus,
+    ...weaponAttackMeleeBonus,
+    ...weaponAttackRangedBonus,
+  ];
+}
+
+
+function addSpellAttackBonuses(modifiers, name) {
+  const spellAttackBonus = addCustomEffect(
+    modifiers,
+    name,
+    "spell-attacks",
+    "system.bonuses.spell.attack"
+  );
+  const spellDCBonus = addAddEffect(
+    modifiers,
+    name,
+    "spell-save-dc",
+    "system.bonuses.spell.dc"
+  );
+  const warlockSpellAttackBonus = addCustomEffect(
+    modifiers,
+    name,
+    "warlock-spell-attacks",
+    "system.bonuses.spell.attack"
+  );
+  const warlockSpellDCBonus = addAddEffect(
+    modifiers,
+    name,
+    "warlock-spell-save-dc",
+    "system.bonuses.spell.dc"
+  );
+  const healingSpellBonus = addCustomEffect(
+    modifiers,
+    name,
+    "spell-group-healing",
+    "system.bonuses.heal.damage",
+    " + @item.level"
+  );
+
+  return [
+    ...spellAttackBonus,
+    ...spellDCBonus,
+    ...warlockSpellAttackBonus,
+    ...warlockSpellDCBonus,
+    ...healingSpellBonus,
+  ];
 }
 
 // *
@@ -1345,37 +1441,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   const senses = addSenseBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
   const proficiencyBonus = addProficiencyBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
   const speedSets = addSetSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const spellAttackBonus = addCustomEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "spell-attacks",
-    "system.bonuses.spell.attack"
-  );
-  const spellDCBonus = addAddEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "spell-save-dc",
-    "system.bonuses.spell.dc"
-  );
-  const warlockSpellAttackBonus = addCustomEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "warlock-spell-attacks",
-    "system.bonuses.spell.attack"
-  );
-  const warlockSpellDCBonus = addAddEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "warlock-spell-save-dc",
-    "system.bonuses.spell.dc"
-  );
-  const healingSpellBonus = addCustomEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "spell-group-healing",
-    "system.bonuses.heal.damage",
-    " + @item.level"
-  );
+  const spellAttackBonuses = addSpellAttackBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
   const hp = addHPEffect(ddb, ddbItem.definition.grantedModifiers, foundryItem.name, ddbItem.definition.isConsumable);
@@ -1384,44 +1450,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   const disadvantageAgainst = addAttackRollDisadvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
   const magicalAdvantage = addMagicalAdvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
   const bonusSpeeds = addBonusSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name);
-
-  const meleeAttackBonus = addCustomEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "melee-attacks",
-    "system.bonuses.mwak.attack"
-  );
-  const rangedAttackBonus = addCustomEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "ranged-attacks",
-    "system.bonuses.rwak.attack"
-  );
-  const meleeWeaponAttackBonus = addCustomEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "melee-weapon-attacks",
-    "system.bonuses.mwak.attack"
-  );
-  const rangedWeaponAttackBonus = addCustomEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "ranged-weapon-attacks",
-    "system.bonuses.rwak.attack"
-  );
-  const weaponAttackMeleeBonus = addCustomEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "weapon-attacks",
-    "system.bonuses.mwak.attack"
-  );
-  const weaponAttackRangedBonus = addCustomEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "weapon-attacks",
-    "system.bonuses.rwak.attack"
-  );
-
+  const weaponAttackBonuses = addWeaponAttackBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const globalDamageBonus = addGlobalDamageBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
@@ -1436,10 +1465,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     ...senses,
     ...proficiencyBonus,
     ...speedSets,
-    ...spellAttackBonus,
-    ...warlockSpellAttackBonus,
-    ...spellDCBonus,
-    ...warlockSpellDCBonus,
+    ...spellAttackBonuses,
     ...profs,
     ...hp,
     ...skillBonus,
@@ -1447,13 +1473,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     ...disadvantageAgainst,
     ...magicalAdvantage,
     ...bonusSpeeds,
-    ...healingSpellBonus,
-    ...meleeAttackBonus,
-    ...rangedAttackBonus,
-    ...meleeWeaponAttackBonus,
-    ...rangedWeaponAttackBonus,
-    ...weaponAttackMeleeBonus,
-    ...weaponAttackRangedBonus,
+    ...weaponAttackBonuses,
     ...globalDamageBonus,
   ];
 
