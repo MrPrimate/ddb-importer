@@ -481,7 +481,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
     definitions: [],
   };
 
-  const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)?({{.*?}})(?:$|[., "')+<])/g;
+  const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)({{.*?}})(?:$|[., "')+<])/g;
   const fullMatches = [...new Set(Array.from(result.text.matchAll(fullMatchRegex), (m) => `${m[1] !== undefined ? m[1] : ""}${m[2]}`))];
   fullMatches.forEach((match) => {
     result.text = result.text.replace(match, `[[/roll ${match}]]`);
@@ -555,15 +555,22 @@ export default function parseTemplateString(ddb, character, text, feature) {
         } else {
           entry.parsed = getNumber(`${evalString}`, signed);
         }
-        entry.parsed = entry.parsed.replace("+ +", "+");
+        entry.parsed = entry.parsed.replaceAll("+ +", "+").replaceAll("++", "+").replaceAll("* +", "*");
         const isRoll = result.text.includes("[[/roll");
         // there are some edge cases here where some template string matches do not get the correct [[]] boxes because
         // they are not all [[/roll ]] boxes
         // I need to move the [[]] box addition to outside this process loop
         if (!isRoll && (/^\+\s/).test(entry.parsed.trim())) {
           entry.parsed = `${entry.parsed.trim().replace(/^\+\s/, "+ [[")}]]`;
-        } else if (!isRoll && [undefined, "unsigned"].includes(signed)) {
+        } else if (!isRoll && [undefined, null, "unsigned"].includes(signed)) {
           entry.parsed = `[[${entry.parsed.trim()}]]`;
+        } else {
+          logger.debug("template string odd match", {
+            result,
+            entry,
+            signed,
+            isRoll,
+          });
         }
         result.text = result.text.replace(entry.replacePattern, entry.parsed);
       } catch (err) {
@@ -583,5 +590,6 @@ export default function parseTemplateString(ddb, character, text, feature) {
   result.text = parseTags(result.text);
   character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
 
+  // console.warn(`${feature.name} tempalte`, result);
   return result;
 }
