@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Haste spell effect duration was set to 10 turns not rounds.
+- Keep Campaign ID when Campaign Loader fails when opening core settings.
+
 # 3.5.4
 
 - Allow Avatar and Token swapping to both be enabled.
