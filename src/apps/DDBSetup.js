@@ -65,6 +65,7 @@ export default class DDBSetup extends FormApplication {
     const setupComplete = isCobalt;
 
     return {
+      campaignId,
       cobalt: isCobalt,
       cobaltLocal,
       setupConfig,
