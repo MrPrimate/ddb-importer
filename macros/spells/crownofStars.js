@@ -30,7 +30,7 @@ if (args[0] === "on") {
         chatFlavor: "",
         critical: null,
         damage: { parts: [["4d12", "radiant"]], versatile: "" },
-        weaponType: "simpleR",
+        weaponType: "natural",
         proficient: true,
         equipped: true,
         description: DAEItem.system.description,

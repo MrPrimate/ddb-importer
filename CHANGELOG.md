@@ -2,6 +2,7 @@
 
 - Haste spell effect duration was set to 10 turns not rounds.
 - Keep Campaign ID when Campaign Loader fails when opening core settings.
+- Crown of Thorns Macro would not use the correct ability mod for attack.
 
 # 3.5.4
 

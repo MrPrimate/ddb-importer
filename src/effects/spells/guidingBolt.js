@@ -13,7 +13,7 @@ export function guidingBoltEffect(document) {
     startTime: null,
     seconds: null,
     rounds: 1,
-    turns: 1,
+    turns: null,
     startRound: null,
     startTurn: null,
   };

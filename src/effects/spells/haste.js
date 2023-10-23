@@ -15,7 +15,7 @@ export function hasteEffect(document) {
   effect.duration = {
     startTime: null,
     seconds: null,
-    turns: 10,
+    rounds: 10,
     startRound: null,
     startTurn: null,
   };
