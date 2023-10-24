@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.5.5
 
 - Haste spell effect duration was set to 10 turns not rounds.
 - Keep Campaign ID when Campaign Loader fails when opening core settings.
