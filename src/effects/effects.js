@@ -1488,7 +1488,6 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   return [foundryItem, effect];
 }
 
-
 function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect, type) {
   // console.warn("addACEffect", {
   //   ddb,
@@ -1497,6 +1496,9 @@ function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, eff
   //   foundryItem: deepClone(foundryItem),
   //   isCompendiumItem,
   //   effect: deepClone(effect),
+  //   equipment: foundryItem.type === "equipment",
+  //   transfer: effect.transfer,
+  //   ac: (foundryItem.system.armor?.type && ["trinket", "clothing"].includes(foundryItem.system.armor.type)),
   // });
   switch (type) {
     case "infusion":
@@ -1504,7 +1506,11 @@ function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, eff
     case "item":
     case "feature":
     case "feat": {
-      if (effect.transfer || type === "infusion") {
+      if (foundryItem.type === "equipment") {
+        if (foundryItem.system.armor?.type && ["trinket", "clothing"].includes(foundryItem.system.armor.type)) {
+          foundryItem = generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+        }
+      } else if (effect.transfer || type === "infusion") {
         [foundryItem, effect] = generateACEffectChangesForItem(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect);
       } else {
         foundryItem = generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem);
