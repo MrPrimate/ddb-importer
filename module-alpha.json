@@ -2,16 +2,17 @@
   "id": "ddb-importer",
   "author": "MrPrimate",
   "title": "[ALPHA] DDB-Importer: A D&D Beyond Integrator",
+  "license": "MIT License",
   "description": "ALPHA DDB-Importer",
-  "version": "2.10.21",
+  "version": "4.0.0",
   "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
   "readme": "https://github.com/MrPrimate/ddb-importer/blob/main/README.md",
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "compatibility": {
-    "minimum": "10.282",
-    "verified": "11"
+    "minimum": "11",
+    "verified": 11
   },
   "authors": [
     {
@@ -30,13 +31,47 @@
     }
   ],
   "relationships": {
-    "systems": [{
-      "id": "dnd5e",
-      "type": "system",
-      "compatibility": {
-        "verified": "2.3.0"
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "verified": "2.2.1"
+        }
       }
-    }]
+    ],
+    "recommends": [
+      {
+       "id": "dae",
+       "type": "module",
+       "reason": "Provides improvements to active effects"
+      },
+      {
+        "id": "foundryvtt-items-with-spells-5e",
+        "type": "module",
+        "reason": "Provides ability to embed items with spells"
+      },
+      {
+        "id": "link-item-resource-5e",
+        "type": "module",
+        "reason": "Links items and resources up, so consumption of one reduces the other"
+      },
+      {
+        "id": "arbron-summoner",
+        "type": "module",
+        "reason": "Provides the ability to summon creatures with Summon spells"
+      },
+      {
+        "id": "vision-5e",
+        "type": "module",
+        "reason": "Adds missing vision modes to 5e system"
+      },
+      {
+        "id": "dfreds-convenient-effects",
+        "type": "module",
+        "reason": "Adds some useful low touch effects and automated conditions"
+      }
+    ]
   },
   "scripts": [
     "./vendor/jszip/jszip.min.js"
