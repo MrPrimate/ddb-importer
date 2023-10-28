@@ -4,7 +4,7 @@
   "title": "[ALPHA] DDB-Importer: A D&D Beyond Integrator",
   "license": "MIT License",
   "description": "ALPHA DDB-Importer",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
@@ -42,12 +42,7 @@
     ],
     "recommends": [
       {
-       "id": "dae",
-       "type": "module",
-       "reason": "Provides improvements to active effects"
-      },
-      {
-        "id": "foundryvtt-items-with-spells-5e",
+        "id": "items-with-spells-5e",
         "type": "module",
         "reason": "Provides ability to embed items with spells"
       },
@@ -55,11 +50,6 @@
         "id": "link-item-resource-5e",
         "type": "module",
         "reason": "Links items and resources up, so consumption of one reduces the other"
-      },
-      {
-        "id": "arbron-summoner",
-        "type": "module",
-        "reason": "Provides the ability to summon creatures with Summon spells"
       },
       {
         "id": "vision-5e",
@@ -70,6 +60,11 @@
         "id": "dfreds-convenient-effects",
         "type": "module",
         "reason": "Adds some useful low touch effects and automated conditions"
+      },
+      {
+        "id": "arbron-summoner",
+        "type": "module",
+        "reason": "Provides the ability to summon creatures with Summon spells"
       }
     ]
   },
