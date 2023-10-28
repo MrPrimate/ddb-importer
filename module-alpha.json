@@ -11,7 +11,7 @@
   "readme": "https://github.com/MrPrimate/ddb-importer/blob/main/README.md",
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "compatibility": {
-    "minimum": "11",
+    "minimum": "11.313",
     "verified": 11
   },
   "authors": [
@@ -36,7 +36,7 @@
         "id": "dnd5e",
         "type": "system",
         "compatibility": {
-          "verified": "2.2.1"
+          "verified": "2.3.1"
         }
       }
     ],
