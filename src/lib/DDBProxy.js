@@ -22,7 +22,7 @@ const DDBProxy = {
   },
 
   getCORSProxy: () => {
-    if (DDBProxy.isCustom() || CONFIG.DDBI.DEV.enabled) return game.settings.get(SETTINGS.MODULE_ID, "cors-endpoint");
+    if (DDBProxy.isCustom() || CONFIG.DDBI.DEV.enabled || CONFIG.DDBI.DEV.customCors) return game.settings.get(SETTINGS.MODULE_ID, "cors-endpoint");
     return SETTINGS.URLS.CORS;
   },
 

@@ -242,7 +242,6 @@ export function effectModules() {
 
   const activeAurasInstalled = game.modules.get("ActiveAuras")?.active ?? false;
   const atlInstalled = game.modules.get("ATL")?.active ?? false;
-  const tokenAurasInstalled = game.modules.get("token-auras")?.active ?? false;
   const tokenMagicInstalled = game.modules.get("tokenmagic")?.active ?? false;
   const autoAnimationsInstalled = game.modules.get("autoanimations")?.active ?? false;
   const chrisInstalled = game.modules.get("chris-premades")?.active ?? false;
@@ -264,7 +263,6 @@ export function effectModules() {
     daeInstalled,
     convenientEffectsInstalled,
     atlInstalled,
-    tokenAurasInstalled,
     tokenMagicInstalled,
     activeAurasInstalled,
     autoAnimationsInstalled,
