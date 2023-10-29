@@ -1,15 +1,16 @@
 {
   "id": "ddb-importer",
+  "name": "ddb-importer",
   "author": "MrPrimate",
-  "title": "[ALPHA] DDB-Importer: A D&D Beyond Integrator",
+  "title": "DDB-Importer: A D&D Beyond Integrator (Automation Edition)",
   "license": "MIT License",
-  "description": "ALPHA DDB-Importer",
-  "version": "4.0.2",
-  "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
-  "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
-  "url": "https://github.com/mrprimate/ddb-importer",
+  "description": "Import your dndbeyond.com characters, spells, items, monsters, encounters, and adventures!",
+  "version": "VERSION",
+  "download": "https://github.com/mrprimate/ddb-importer/releases/download/VERSION/ddb-importer.zip",
+  "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/latest/module-automation.json",
   "readme": "https://github.com/MrPrimate/ddb-importer/blob/main/README.md",
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
+  "url": "https://github.com/mrprimate/ddb-importer",
   "compatibility": {
     "minimum": "11.313",
     "verified": 11
@@ -30,6 +31,7 @@
       "path": "lang/en.json"
     }
   ],
+  "system": ["dnd5e"],
   "relationships": {
     "systems": [
       {
