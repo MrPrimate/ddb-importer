@@ -1755,5 +1755,12 @@
     "race": "Hadozee",
     "subrace": "",
     "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Draconic Cry",
+    "racial_trait": "Draconic Cry",
+    "race": "Kobold",
+    "subrace": "",
+    "path": "icons/creatures/magical/spirit-fire-yellow.webp"
   }
 ]
