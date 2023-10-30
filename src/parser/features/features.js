@@ -99,7 +99,9 @@ function parseFeature(feat, ddb, character, source, type) {
       if (item.name === choice.label) return;
 
       choiceItem.name = choice.label
-        ? `${choiceItem.name}: ${choice.label}`
+        ? choice.label.startsWith(choiceItem.name.trim())
+          ? choice.label
+          : `${choiceItem.name}: ${choice.label}`
         : choiceItem.name;
       choiceItem.name = choiceItem.name.replace("’", "'");
       if (choice.wasOption && choice.description) {
