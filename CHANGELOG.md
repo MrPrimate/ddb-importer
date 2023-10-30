@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Some features with choices, such as Kobold Legacy feature would get feature name twice in feature name.
+
 # 3.5.5
 
 - Haste spell effect duration was set to 10 turns not rounds.
