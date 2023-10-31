@@ -730,7 +730,7 @@ export const fallbackDDBConfig = {
     { id: 97, name: "Nordmaarian" },
     { id: 98, name: "Ogre" },
     { id: 99, name: "Solamnic" },
-    { id: 100, name: "Thieves’ Cant", },
+    { id: 100, name: "Thieves’ Cant" },
   ],
   restoreTypes: [
     { id: 1, name: "Full", description: "Restore life with full HP" },
@@ -933,6 +933,74 @@ export const fallbackDDBConfig = {
     { id: 93, name: "Drow" },
     { id: 94, name: "Ogre" },
     { id: 95, name: "Monk" },
+    {
+      id: 96,
+      name: "Mind Flayer",
+    },
+    {
+      id: 97,
+      name: "Cattle",
+    },
+    {
+      id: 98,
+      name: "Dinosaur",
+    },
+    {
+      id: 99,
+      name: "Beholder",
+    },
+    {
+      id: 100,
+      name: "Myconid",
+    },
+    {
+      id: 101,
+      name: "Kender",
+    },
+    {
+      id: 102,
+      name: "Adult Chromatic",
+    },
+    {
+      id: 103,
+      name: "Unicorn",
+    },
+    {
+      id: 104,
+      name: "half-blue dragon",
+    },
+    {
+      id: 105,
+      name: "Archfey",
+    },
+    {
+      id: 106,
+      name: "any",
+    },
+    {
+      id: 107,
+      name: "half-giant",
+    },
+    {
+      id: 108,
+      name: "brown bear",
+    },
+    {
+      id: 109,
+      name: "Young Gem",
+    },
+    {
+      id: 110,
+      name: "Minotaur",
+    },
+    {
+      id: 111,
+      name: "Medusa",
+    },
+    {
+      id: 112,
+      name: "Moonstone",
+    },
   ],
   creatureGroupFlags: [
     { id: 1, name: "Armor Add Proficiency Bonus", key: "ACPB", value: null, valueContextId: null },
@@ -3525,6 +3593,15 @@ export const fallbackDDBConfig = {
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/31678/948/638097617627683009.jpeg",
       sourceURL: "sources/p13",
+    },
+    {
+      id: 109,
+      name: "TBoMT",
+      description: "The Book of Many Things ",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/34541/95/638205353415863412.jpeg",
+      sourceURL: "sources/tbomt",
     },
     {
       id: 110,
