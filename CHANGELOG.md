@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.5.6
 
 - Some features with choices, such as Kobold Legacy feature would get feature name twice in feature name.
 - Improve handling of Spell Scrolls when syncing back to DDB.
