@@ -510,6 +510,17 @@ export async function fixFeatures(features) {
         }
         break;
       }
+      case "Song of Rest": {
+        feature.system.activation = { type: "hour", cost: 1, condition: "" };
+        // feature.system.actionType = "other";
+        feature.system.actionType = "heal";
+        feature.system.target.type = "creature";
+        feature.system.range = { value: null, long: null, units: "special" };
+        feature.system.damage.parts[0][1] = "healing";
+        setProperty(feature, "flags.midiProperties.magicdam", true);
+        setProperty(feature, "flags.midiProperties.magiceffect", true);
+        break;
+      }
       case "Surprise Attack":
         feature.system.damage = { parts: [["2d6", ""]], versatile: "", value: "" };
         feature.system.activation.type = "special";
