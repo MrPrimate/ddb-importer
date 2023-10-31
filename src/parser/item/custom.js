@@ -2,10 +2,11 @@ import utils from "../../lib/utils.js";
 import { getItemRarity, getEquipped, getSingleItemWeight, getQuantity, getPrice } from "./common.js";
 
 export default function parseCustomItem(data) {
+  const type = data.definition.name.startsWith("Spell Scroll:") ? "consumable" : "loot";
   let customItem = {
     name: data.definition.name,
-    type: "loot",
-    system: JSON.parse(utils.getTemplate("loot")),
+    type,
+    system: JSON.parse(utils.getTemplate(type)),
     flags: {
       ddbimporter: {
         id: data.id,
@@ -16,6 +17,11 @@ export default function parseCustomItem(data) {
       },
     },
   };
+
+  if (data.definition.name.startsWith("Spell Scroll:")) {
+    customItem.type = "consumable";
+    customItem.system.consumableType = "scroll";
+  }
 
   let description = data.definition.description && data.definition.description !== "null"
     ? data.definition.description

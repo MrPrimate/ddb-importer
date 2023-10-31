@@ -807,7 +807,14 @@ export default class DDBCharacterManager extends FormApplication {
     logger.debug(`Item flags for ${ddbItemFlags}`, ddbItemFlags);
     // we retain some flags that might change the nature of the import for this item
     // these flags are used elsewhere
-    ["ignoreItemForChrisPremades", "ignoreItemImport", "ignoreItemUpdate", "overrideId", "overrideItem"].forEach((flag) => {
+    [
+      "ignoreItemForChrisPremades",
+      "ignoreItemImport",
+      "ignoreItemUpdate",
+      "overrideId",
+      "overrideItem",
+      "ddbCustomAdded",
+    ].forEach((flag) => {
       if (hasProperty(ddbItemFlags, flag)) {
         logger.debug(`Overriding ${flag} for ${item.name} to ${ddbItemFlags[flag]}`);
         setProperty(item, `flags.ddbimporter.${flag}`, ddbItemFlags[flag]);
@@ -830,6 +837,10 @@ export default class DDBCharacterManager extends FormApplication {
           setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
         }
       }
+    }
+    if (getProperty(ddbItemFlags, "ddbCustomAdded") ?? false) {
+      item.system = existingItem.system;
+      item.type = existingItem.type;
     }
     return item;
   }

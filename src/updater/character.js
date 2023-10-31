@@ -629,6 +629,7 @@ async function addDDBCustomItems(actor, itemsToAdd) {
     const result = updateCharacterCall(actor, "custom/item", customData, { name: item.name }).then((data) => {
       setProperty(item, "flags.ddbimporter.id", data.data.addItems[0].id);
       setProperty(item, "flags.ddbimporter.custom", true);
+      setProperty(item, "flags.ddbimporter.ddbCustomAdded", true);
       setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", true);
       setProperty(item, "flags.ddbimporter.definitionId", data.data.addItems[0].definition.id);
       setProperty(item, "flags.ddbimporter.containerEntityId", data.data.addItems[0].definition.containerEntityId);

@@ -65,6 +65,10 @@ export default class DDBItemImporter {
 
   static updateCharacterItemFlags(itemData, replaceData) {
     if (itemData.flags?.ddbimporter?.importId) setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
+    if (replaceData.flags?.ddbimporter?.ddbCustomAdded) {
+      replaceData.system = itemData.system;
+      replaceData.type = itemData.type;
+    }
     if (itemData.system.quantity) replaceData.system.quantity = itemData.system.quantity;
     if (itemData.system.attuned) replaceData.system.attuned = itemData.system.attuned;
     if (itemData.system.attunement) replaceData.system.attunement = itemData.system.attunement;

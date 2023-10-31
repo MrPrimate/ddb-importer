@@ -1,6 +1,6 @@
 import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription, getCapacity } from "./common.js";
+import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription, getCapacity, getPrice } from "./common.js";
 import DICTIONARY from "../../dictionary.js";
 
 
@@ -43,6 +43,11 @@ function getItemType(data, typeHint) {
     return {
       type: "consumable",
       consumableType: "food",
+    };
+  } else if (data.definition.name.startsWith("Spell Scroll:")) {
+    return {
+      type: "consumable",
+      consumableType: "scroll",
     };
   }
 
@@ -116,7 +121,7 @@ export default function parseLoot(data, itemType) {
   loot.system.equipped = getEquipped(data);
   loot.system.rarity = getItemRarity(data);
   loot.system.identified = true;
-  loot.system.cost = data.definition.cost;
+  loot.system.price = getPrice(data);
 
   if (type.type === "backpack") {
     loot.system.capacity = getCapacity(data);
