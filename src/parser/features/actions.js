@@ -614,7 +614,6 @@ export function getUnarmedStrike(ddb, character, overrides = {}) {
   const unarmedStrikeMock = CONFIG.DDB.naturalActions[0];
   unarmedStrikeMock.displayAsAttack = true;
   const strikeMock = Object.assign(unarmedStrikeMock, overrides);
-  console.warn(strikeMock);
   const unarmedStrike = getAttackAction(ddb, character, strikeMock);
   return unarmedStrike;
 }
