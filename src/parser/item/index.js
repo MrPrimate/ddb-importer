@@ -470,6 +470,10 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
 
       if (addEffects && daeInstalled) {
         item = generateEffects(this.source.ddb, this.raw.character, ddbItem, item, compendiumItem, "item");
+      } else if (item.type === "equipment") {
+        if (hasProperty(item, "system.armor.type") && ["trinket", "clothing"].includes(item.system.armor.type)) {
+          item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, compendiumItem);
+        }
       } else {
         item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, compendiumItem);
       }

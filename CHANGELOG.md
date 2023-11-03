@@ -1,3 +1,7 @@
+# NEXT UP
+
+- AC corrections if not using any effect modules.
+
 # 3.5.6
 
 - Some features with choices, such as Kobold Legacy feature would get feature name twice in feature name.
