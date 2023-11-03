@@ -64,6 +64,7 @@ import { powerfulBuild } from "./feats/powerfulBuild.js";
 import { deftStrikeEffect } from "./feats/deftStike.js";
 import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
 import { mindLinkEffect } from "./feats/mindLink.js";
+import { holdBreathEffect } from "./feats/holdBreath.js";
 
 export function baseFeatEffect(document, label) {
   let effect = {
@@ -126,6 +127,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Frost Rune": {
         document = frostRuneEffect(document);
+        break;
+      }
+      case "Hold Breath": {
+        document = holdBreathEffect(document);
         break;
       }
       case "Hill Rune": {

@@ -397,6 +397,12 @@ export async function fixFeatures(features) {
         feature.system.damage = { parts: [["1d6", "healing"]], versatile: "", value: "" };
         break;
       }
+      case "Hold Breath": {
+        feature.system.duration = { value: 1, units: "hour" };
+        feature.system["target"]["type"] = "self";
+        feature.system.range = { value: null, units: "self", long: null };
+        break;
+      }
       case "Hypnotic Gaze": {
         feature.system.uses = {
           value: null,
@@ -420,10 +426,7 @@ export async function fixFeatures(features) {
       case "Mind Link Response": {
         feature.system.target.value = 1;
         feature.system.target.type = "creature";
-        feature.system.duration = {
-          value: 1,
-          units: "hour",
-        };
+        feature.system.duration = { value: 1, units: "hour" };
         feature.system.range.units = "spec";
         break;
       }
