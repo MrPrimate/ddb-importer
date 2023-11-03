@@ -1,6 +1,8 @@
 # NEXT UP
 
 - AC corrections if not using any effect modules.
+- Loxodon Trunk feature can now be used as an unarmed attack, as nature intended.
+- Hold breath stub effect.
 
 # 3.5.6
 

@@ -610,37 +610,12 @@ function getAttackAction(ddb, character, action) {
  * Everyone has an Unarmed Strike
  * @param {*} ddb
  */
-function getUnarmedStrike(ddb, character) {
-  const unarmedStrikeMock = {
-    limitedUse: null,
-    name: "Unarmed Strike",
-    description: null,
-    snippet:
-      "Instead of using a weapon to make a melee weapon attack, you can use an unarmed strike: a punch, kick, head-butt, or similar forceful blow (none of which count as weapons). On a hit, an unarmed strike deals bludgeoning damage equal to 1 + your Strength modifier. You are proficient with your unarmed strikes.",
-    abilityModifierStatId: null,
-    attackTypeRange: 1,
-    actionType: 1,
-    attackSubtype: 3,
-    dice: null,
-    value: 1,
-    damageTypeId: 1,
-    isMartialArts: true,
-    isProficient: true,
-    displayAsAttack: true,
-    range: {
-      range: null,
-      longRange: null,
-      aoeType: null,
-      aoeSize: null,
-      hasAoeSpecialDescription: false,
-    },
-    activation: {
-      activationTime: 1,
-      activationType: 1,
-    },
-    id: "unarmedStrike",
-  };
-  const unarmedStrike = getAttackAction(ddb, character, unarmedStrikeMock);
+export function getUnarmedStrike(ddb, character, overrides = {}) {
+  const unarmedStrikeMock = CONFIG.DDB.naturalActions[0];
+  unarmedStrikeMock.displayAsAttack = true;
+  const strikeMock = Object.assign(unarmedStrikeMock, overrides);
+  console.warn(strikeMock);
+  const unarmedStrike = getAttackAction(ddb, character, strikeMock);
   return unarmedStrike;
 }
 

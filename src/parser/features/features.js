@@ -3,11 +3,28 @@ import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects, setLevelScales } from "./special.js";
 import DDBCharacter from "../DDBCharacter.js";
+import { getUnarmedStrike } from "./actions.js";
+
+const FORCE_UNARMED = ["Trunk"];
 
 function parseFeature(feat, ddb, character, source, type) {
   let features = [];
   // filter proficiencies and Ability Score Improvement
   const name = feat.definition ? feat.definition.name : feat.name;
+
+  if (FORCE_UNARMED.includes(name)) {
+    const override = {
+      name,
+      description: feat.definition.description,
+      snippet: feat.definition.snippet,
+      id: feat.definition.id,
+      entityTypeId: feat.definition.entityTypeId,
+      componentId: feat.definition.componentId,
+      componentTypeId: feat.definition.componentTypeId,
+    };
+    return [getUnarmedStrike(ddb, character, override)];
+  }
+
   let item = {
     name: name.replace("’", "'").trim(),
     type: "feat",
