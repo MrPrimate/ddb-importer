@@ -1762,5 +1762,47 @@
     "race": "Kobold",
     "subrace": "",
     "path": "icons/creatures/magical/spirit-fire-yellow.webp"
+  },
+  {
+    "name": "Chromatic Warding",
+    "racial_trait": "Chromatic Warding",
+    "race": "Dragonborn",
+    "subrace": "Chromatic Dragonborn",
+    "path": "icons/magic/symbols/rune-sigil-horned-blue.webp"
+  },
+  {
+    "name": "Acid Breath Weapon",
+    "racial_trait": "Acid Breath Weapon",
+    "race": "Dragonborn",
+    "subrace": "Chromatic Dragonborn",
+    "path": "icons/creatures/abilities/dragon-fire-breath-purple.webp"
+  },
+  {
+    "name": "Lightning Breath Weapon",
+    "racial_trait": "Lightning Breath Weapon",
+    "race": "Dragonborn",
+    "subrace": "Chromatic Dragonborn",
+    "path": "icons/creatures/abilities/dragon-fire-breath-blue.webp"
+  },
+  {
+    "name": "Poison Breath Weapon",
+    "racial_trait": "Poison Breath Weapon",
+    "race": "Dragonborn",
+    "subrace": "Chromatic Dragonborn",
+    "path": "icons/creatures/abilities/dragon-fire-breath-purple.webp"
+  },
+  {
+    "name": "Fire Breath Weapon",
+    "racial_trait": "Fire Breath Weapon",
+    "race": "Dragonborn",
+    "subrace": "Chromatic Dragonborn",
+    "path": "icons/creatures/abilities/dragon-fire-breath-orange.webp"
+  },
+  {
+    "name": "Cold Breath Weapon",
+    "racial_trait": "Lighting Breath Weapon",
+    "race": "Dragonborn",
+    "subrace": "Chromatic Dragonborn",
+    "path": "icons/creatures/abilities/dragon-fire-breath-blue.webp"
   }
 ]
