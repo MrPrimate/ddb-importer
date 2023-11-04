@@ -1775,21 +1775,21 @@
     "racial_trait": "Acid Breath Weapon",
     "race": "Dragonborn",
     "subrace": "Chromatic Dragonborn",
-    "path": "icons/creatures/abilities/dragon-fire-breath-purple.webp"
+    "path": "icons/creatures/abilities/dragon-breath-purple.webp"
   },
   {
     "name": "Lightning Breath Weapon",
     "racial_trait": "Lightning Breath Weapon",
     "race": "Dragonborn",
     "subrace": "Chromatic Dragonborn",
-    "path": "icons/creatures/abilities/dragon-fire-breath-blue.webp"
+    "path": "icons/creatures/abilities/dragon-ice-breath-blue.webp"
   },
   {
     "name": "Poison Breath Weapon",
     "racial_trait": "Poison Breath Weapon",
     "race": "Dragonborn",
     "subrace": "Chromatic Dragonborn",
-    "path": "icons/creatures/abilities/dragon-fire-breath-purple.webp"
+    "path": "icons/creatures/abilities/dragon-breath-purple.webp"
   },
   {
     "name": "Fire Breath Weapon",
@@ -1803,6 +1803,6 @@
     "racial_trait": "Lighting Breath Weapon",
     "race": "Dragonborn",
     "subrace": "Chromatic Dragonborn",
-    "path": "icons/creatures/abilities/dragon-fire-breath-blue.webp"
+    "path": "icons/creatures/abilities/dragon-ice-breath-blue.webp"
   }
 ]
