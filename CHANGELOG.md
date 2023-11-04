@@ -3,6 +3,8 @@
 - AC corrections if not using any effect modules.
 - Loxodon Trunk feature can now be used as an unarmed attack, as nature intended.
 - Hold breath stub effect.
+- Missing dragonborn feature icons.
+- Some improvements to dynamic value template parsing in DDB descriptions.
 
 # 3.5.6
 

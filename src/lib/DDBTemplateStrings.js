@@ -468,6 +468,8 @@ function fixRollables(text) {
 export default function parseTemplateString(ddb, character, text, feature) {
   if (!text) return text;
 
+  console.warn(`${feature.name} string parse`);
+
   text = text.replace(/\r\n•/g, "</p>\r\n<p>&bull;");
   let result = {
     id: feature.id,
@@ -511,7 +513,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
     const splitMatchAt = splitRemoveUnsigned.split("@");
     const parsedMatchData = parseMatch(ddb, character, splitRemoveUnsigned, feature);
     const parsedMatch = parsedMatchData.parsed;
-    result.displayStrings.push(parsedMatchData.displayString);
+    result.displayStrings.push(parsedMatchData);
     const dicePattern = /\d*d\d\d*/;
     const typeSplit = splitMatchAt[0].split(":");
     entry.type = typeSplit[0];
@@ -544,13 +546,26 @@ export default function parseTemplateString(ddb, character, text, feature) {
         for (let start = evalString.startsWith("("), end = evalString.endsWith(")"); start && end; start = evalString.startsWith("("), end = evalString.endsWith(")")) {
           evalString = evalString.replace(/^\(/, "").replace(/\)$/, "");
         }
+        entry.evalString = evalString;
+        // console.warn("evalString", {
+        //   evalString,
+        //   splitMatchAt,
+        // });
         if (splitMatchAt.length > 1) {
           let evalConstraint = `${evalString}`;
           for (let i = 1; i < splitMatchAt.length; i++) {
-            evalConstraint = Number.isInteger(Number.parseInt(evalConstraint))
+            // console.warn(`splitMatch ${i}`, {
+            //   evalConstraintPre: `${evalConstraint}`,
+            //   matchat: splitMatchAt[i],
+            //   isInt: Number.isInteger(Number.parseInt(evalConstraint)),
+            // });
+            evalConstraint = Number.isInteger(Number.parseInt(evalConstraint)) && !evalConstraint.includes("@")
               ? applyConstraint(evalConstraint, splitMatchAt[i])
               : addConstraintEvaluations(evalConstraint, splitMatchAt[i]);
+            // console.warn(`evalConstraint ${i} post`, `${evalConstraint}`);
           }
+          // console.warn("evalConstraint", evalConstraint);
+          entry.evalConstraint = evalConstraint;
           entry.parsed = getNumber(evalConstraint, signed);
         } else {
           entry.parsed = getNumber(`${evalString}`, signed);
@@ -579,7 +594,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
         logger.warn(err.stack);
       }
     }
-    if (entry.parsed) result.resultStrings.push(entry.parsed);
+    if (entry.parsed && !entry.parsed.includes("NaN")) result.resultStrings.push(entry.parsed);
     result.definitions.push(entry);
   });
 
