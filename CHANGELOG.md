@@ -5,7 +5,8 @@
 - Hold breath stub effect.
 - Missing dragonborn feature icons.
 - Some improvements to dynamic value template parsing in DDB descriptions.
-- Dragon Born Breath Weapoin corrections for Fizbans
+- Dragon Born Breath Weapoin corrections for Fizbans.
+- Hold Breath effect: toggle effect.
 
 # 3.5.6
 

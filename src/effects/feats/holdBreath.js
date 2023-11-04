@@ -7,5 +7,7 @@ export function holdBreathEffect(document) {
   document.system.range = { value: null, units: "self", long: null };
   document.effects.push(effect);
 
+  setProperty(document, "flags.midiProperties.toggleEffect", true);
+
   return document;
 }
