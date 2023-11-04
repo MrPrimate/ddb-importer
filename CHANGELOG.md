@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.5.7
 
 - AC corrections if not using any effect modules.
 - Loxodon Trunk feature can now be used as an unarmed attack, as nature intended.
