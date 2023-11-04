@@ -590,6 +590,8 @@ function getAttackAction(ddb, character, action) {
     feature.system.properties = getProperties(ddb, feature);
     setProperty(feature, "system.type.value", getSystemActionType(ddb, action));
 
+    if (["line", "cone"].includes(feature.system.target?.type)) setProperty(feature, "system.duration.units", "inst");
+
     feature = addFlagHints(ddb, character, action, feature);
     feature = addFeatEffects(ddb, character, action, feature);
     feature = getLevelScaleDice(ddb, character, action, feature);
