@@ -12,6 +12,7 @@ import { cloakOfDisplacementEffect } from "./items/cloakOfDisplacement.js";
 import { javelinOfLightningEffect } from "./items/javelinOfLightning.js";
 import { moonSickleEffect } from "./items/moonSickle.js";
 import { pearlOfPowerEffect } from "./items/pearlOfPower.js";
+import { hasteEffect } from "./spells/haste.js";
 
 
 export async function midiItemEffects(document) {
@@ -29,6 +30,10 @@ export async function midiItemEffects(document) {
     }
     case "Pearl of Power": {
       document = await pearlOfPowerEffect(document);
+      break;
+    }
+    case "Potion of Speed": {
+      document = hasteEffect(document);
       break;
     }
     // no default

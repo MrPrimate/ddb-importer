@@ -7,6 +7,7 @@
 - Some improvements to dynamic value template parsing in DDB descriptions.
 - Dragon Born Breath Weapoin corrections for Fizbans.
 - Hold Breath effect: toggle effect.
+- Potion of Speed: Effect.
 
 # 3.5.6
 
