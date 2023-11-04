@@ -569,6 +569,10 @@ export async function fixFeatures(features) {
       // no default
     }
 
+    if (name.endsWith(" Breath Weapon") && feature.system.target?.type === "line") {
+      feature.system.target.value = 30;
+    }
+
     // eslint-disable-next-line no-await-in-loop
     const tableDescription = await generateTable(feature.name, feature.system.description.value, true, feature.type);
     feature.system.description.value = tableDescription;
