@@ -1,5 +1,4 @@
-# NEXT UP
-
+# 3.5.8
 - Autumn Eladrin now have correct level spells for Cure Wounds.
 - Custom actions with no descriptions would cause import failure.
 - Link Adept Marksman resources for Gunslinger class.
