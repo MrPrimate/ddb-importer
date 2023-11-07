@@ -45,6 +45,15 @@ export function specialCases(monster) {
       }, monster.items);
       break;
     }
+    case "Autumn Eladrin (Legacy)":
+    case "Autumn Eladrin": {
+      monster.items.forEach(function (item, index) {
+        if (item.name.startsWith("Cure Wounds")) {
+          this[index].system.damage.parts[0][0] = "5d8[healing] + @mod";
+        }
+      }, monster.items);
+      break;
+    }
     // flumph tendrils have weird syntax for damage over time.
     case "Flumph": {
       monster.items.forEach(function (item, index) {
