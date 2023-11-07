@@ -468,8 +468,6 @@ function fixRollables(text) {
 export default function parseTemplateString(ddb, character, text, feature) {
   if (!text) return text;
 
-  console.warn(`${feature.name} string parse`);
-
   text = text.replace(/\r\n•/g, "</p>\r\n<p>&bull;");
   let result = {
     id: feature.id,
