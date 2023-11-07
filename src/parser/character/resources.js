@@ -284,6 +284,10 @@ const resourceFeatureLinkMap = {
     "Trick Shots:", "Bullying Shot", "Dazing Shot", "Deadeye Shot", "Disarming Shot",
     "Forceful Shot", "Piercing Shot", "Violent Shot", "Winging Shot",
   ],
+  "Adept Marksman": [
+    "Trick Shots:", "Bullying Shot", "Deadeye Shot", "Disarming Shot", "Piercing Shot", "Rapid Repair",
+    "Dazing Shot", "Forceful Shot", "Winging Shot", "Violent Shot"
+  ],
   "Psionic Power: Psionic Energy": [
     "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",
     "Psionic Power: Psi-Bolstered Knack", "Soul Blades: Homing Strikes", "Soul Blades: Psychic Teleportation",
