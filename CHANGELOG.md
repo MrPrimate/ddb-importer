@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Autumn Eladrin now have correct level spells for Cure Wounds.
+- Custom actions with no descriptions would cause import failure.
+
 # 3.5.7
 
 - AC corrections if not using any effect modules.

@@ -152,7 +152,7 @@ function getDamage(ddb, action, feat) {
   const die = action.dice ? action.dice : action.die ? action.die : undefined;
   // const fixedBonus = die?.fixedValue ? ` + ${die.fixedValue}` : "";
   const fixedBonus = die?.fixedValue
-    ? action.snippet.includes("{{proficiency#signed}}")
+    ? (action.snippet ?? action.description ?? "").includes("{{proficiency#signed}}")
       ? " + @prof"
       : ` + ${die.fixedValue}`
     : "";
