@@ -1,4 +1,3 @@
-
 if (args[0] === "each") {
 
   const lastArg = args[args.length - 1];
@@ -18,6 +17,7 @@ if (args[0] === "each") {
     name: `Cloak of Displacement - Enforced Disadvantage`,
   };
   setProperty(effectData, "flags.dae.specialDuration", ["isDamaged", "turnStartSource"]);
+  setProperty(effectData, "flags.dae.showIcon", true);
   await lastArg.actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
 
 }
