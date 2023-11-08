@@ -7,4 +7,12 @@ DDBCharacter.prototype._addSpecialAdditions = function _addSpecialAdditions() {
   if (divineSmite) {
     this.data.spells.push(getDivineSmiteSpell(divineSmite));
   }
+
+  const feyAncestry = checkList.find((f) => f.name === "Fey Ancestry" && f.type === "feat");
+  if (feyAncestry) {
+    const ci = ["Sleep"];
+    if (this.raw.character.system.traits.ci.custom && this.raw.character.system.traits.ci.custom.trim() !== "")
+      ci.push(this.raw.character.system.traits.ci.custom);
+    this.raw.character.system.traits.ci.custom = ci.join(";");
+  }
 };

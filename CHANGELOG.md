@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Sleep Spell Effect improvements for elfs and half-elfs
+-
+
 # 3.5.8
 
 - Autumn Eladrin now have correct level spells for Cure Wounds.

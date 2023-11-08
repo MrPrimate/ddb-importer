@@ -20,7 +20,7 @@ let sleepTarget = [];
 for (let target of targets) {
   const findTarget = await canvas.tokens.get(target.id);
   const immuneType = findTarget.actor.type === "character"
-    ? ["undead", "construct"].some((race) => (findTarget.actor.system.details.race || "").toLowerCase().includes(race))
+    ? ["undead", "construct", "elf", "half-elf"].some((race) => (findTarget.actor.system.details.race || "").toLowerCase().includes(race))
     : ["undead", "construct"].some((value) => (findTarget.actor.system.details.type.value || "").toLowerCase().includes(value));
   const immuneCI = findTarget.actor.system.traits.ci.custom.includes("Sleep");
   const sleeping = findTarget.actor.effects.find((i) => (i.name ?? i.label) === condition);
