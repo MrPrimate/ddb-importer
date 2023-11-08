@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable require-atomic-updates */
 import { effectModules, forceItemEffect, generateStatusEffectChange } from "./effects.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
@@ -14,6 +15,8 @@ import { venomTrollEffects } from "./monsterFeatures/venomTroll.js";
 import { quasitEffects } from "./monsterFeatures/quasit.js";
 import { invisibilityFeatureEffect } from "./monsterFeatures/invisibility.js";
 import { recklessAttackEffect } from "./feats/recklessAttack.js";
+import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
+import { deathlyChoirEffect } from "./monsterFeatures/deathlyChoir.js";
 
 export function baseMonsterFeatureEffect(document, label) {
   let effect = {
@@ -75,6 +78,7 @@ export function transferEffectsToActor(document) {
  * This function is mainly for effects that can't be dynamically generated
  * @param {*} document
  */
+// eslint-disable-next-line complexity
 export async function monsterFeatureEffectAdjustment(ddbMonster) {
   let npc = duplicate(ddbMonster.npc);
 
@@ -86,7 +90,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
   }
 
   // damage over time effects
-  npc.items.forEach(function(item, index) {
+  for (let [index, item] of npc.items.entries()) {
     // Legendary Resistance Effects
     if (item.name.startsWith("Legendary Resistance")) item = generateLegendaryEffect(item);
     else if (item.name.startsWith("Pack Tactics")) item = generatePackTacticsEffect(item);
@@ -97,16 +101,18 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     else if (["Shared Invisibility", "Fallible Invisibility", "Invisibility", "Superior Invisibility"].includes(item.name))
       item = invisibilityFeatureEffect(item);
     else if (item.name.includes("Absorption")) item = absorptionEffect(item);
+    else if (item.name === "Mask of the Wild") item = await maskOfTheWildEffect(item);
 
     // auto overtime effect
     if (item.type !== "spell") {
       const overTimeResults = generateOverTimeEffect(ddbMonster, npc, item);
-      this[index] = overTimeResults.document;
+      item = overTimeResults.document;
       npc = overTimeResults.actor;
     }
 
     item = forceItemEffect(item);
-  }, npc.items);
+    npc.items[index] = item;
+  };
 
   switch (npc.name) {
     case "Bard": {
@@ -130,6 +136,14 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     }
     case "Quasit": {
       npc = await quasitEffects(npc);
+      break;
+    }
+    case "Rahadin": {
+      for (let [index, item] of npc.items.entries()) {
+        if (item.name === "Deathly Choir") {
+          npc.items[index] = await deathlyChoirEffect(item);
+        }
+      }
       break;
     }
     case "Skeletal Juggernaut": {
