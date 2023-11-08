@@ -377,3 +377,25 @@ export async function createJB2aActors(subFolderName, name) {
   }
 
 }
+
+export function updateUserTargets(targets) {
+  game.user.updateTokenTargets(targets);
+}
+
+export function findEffect(actor, name) {
+  if (isNewerVersion(game.version, 11)) {
+    return actor.effects.getName(name);
+  } else {
+    return actor.effects.find((e) => e.label === name);
+  }
+}
+
+export function findEffects(actor, names) {
+  const results = [];
+  for (const name of names) {
+    if (findEffect(actor, name)) {
+      results.push(findEffect(actor, name));
+    }
+  }
+  return results;
+}

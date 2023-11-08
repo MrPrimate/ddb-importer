@@ -43,6 +43,9 @@ import {
   checkJB2a,
   getRemainingDuration,
   createJB2aActors,
+  findEffects,
+  findEffect,
+  updateUserTargets,
 } from "./effects/helpers.js";
 import {
   applyChrisPremadeEffect,
@@ -182,6 +185,9 @@ export function registerApi() {
       checkJB2a,
       getRemainingDuration,
       createJB2aActors,
+      findEffects,
+      findEffect,
+      updateUserTargets,
     },
     executeDDBMacro: DDBMacros.executeDDBMacro,
     // macro tools
