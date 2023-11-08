@@ -12,6 +12,7 @@ import { cloakOfDisplacementEffect } from "./items/cloakOfDisplacement.js";
 import { javelinOfLightningEffect } from "./items/javelinOfLightning.js";
 import { moonSickleEffect } from "./items/moonSickle.js";
 import { pearlOfPowerEffect } from "./items/pearlOfPower.js";
+import { stoneOfGoodLuckEffect } from "./items/stoneOfGoodLuck.js";
 import { hasteEffect } from "./spells/haste.js";
 
 
@@ -140,6 +141,12 @@ export function equipmentEffectAdjustment(document) {
         generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.msak"),
         generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.rsak")
       );
+      break;
+    }
+    case "Stone of Good Luck (Luckstone)":
+    case "Luckstone":
+    case "Stone of Good Luck": {
+      document = stoneOfGoodLuckEffect(document);
       break;
     }
     // no default
