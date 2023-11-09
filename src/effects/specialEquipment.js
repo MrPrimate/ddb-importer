@@ -37,6 +37,13 @@ export async function midiItemEffects(document) {
       document = hasteEffect(document);
       break;
     }
+    case "Spellguard Shield": {
+      document.effects[0].changes.push(
+        generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.msak"),
+        generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.rsak")
+      );
+      break;
+    }
     // no default
   }
 
@@ -134,13 +141,6 @@ export function equipmentEffectAdjustment(document) {
     case "Moon Sickle, +3":
     case "Moon Sickle": {
       document = moonSickleEffect(document);
-      break;
-    }
-    case "Spellguard Shield": {
-      document.effects[0].changes.push(
-        generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.msak"),
-        generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.rsak")
-      );
       break;
     }
     case "Stone of Good Luck (Luckstone)":

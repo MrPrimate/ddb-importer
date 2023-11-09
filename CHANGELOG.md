@@ -4,6 +4,7 @@
 - Stone of Good Luck no longer needs a initiative boosting effect separately to checks.
 - Mask of the Wild effect: PC's and NPC's will now roll stealth if this ability is clicked. (Thanks @MotoMoto)
 - Rahadin Deathly Choir effect exclusions (Thanks MotoMoto)
+- Item parsing failed if using DAE but not midi.
 
 # 3.5.8
 
