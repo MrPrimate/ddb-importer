@@ -229,6 +229,16 @@ export function findContainedTokensInTemplate(templateDoc) {
   return [...contained];
 }
 
+export function checkCollision(ray, types = ["sight", "move"], mode = "any") {
+  for (const type of types) {
+    const result = isNewerVersion(11, game.version)
+      ? canvas.walls.checkCollision(ray, { mode, type })
+      : CONFIG.Canvas.polygonBackends[type].testCollision(ray.A, ray.B, { mode, type });
+    if (result) return result;
+  }
+  return false;
+}
+
 export async function checkTargetInRange({ sourceUuid, targetUuid, distance }) {
   if (!game.modules.get("midi-qol")?.active) {
     ui.notifications.error("checkTargetInRange requires midiQoL, not checking");
@@ -240,7 +250,7 @@ export async function checkTargetInRange({ sourceUuid, targetUuid, distance }) {
   const targetsInRange = MidiQOL.findNearby(null, sourceUuid, distance);
   const isInRange = targetsInRange.reduce((result, possible) => {
     const collisionRay = new Ray(sourceToken, possible);
-    const collision = canvas.walls.checkCollision(collisionRay, { mode: "any", type: "sight" });
+    const collision = checkCollision(collisionRay, ["sight"]);
     if (possible.uuid === targetUuid && !collision) result = true;
     return result;
   }, false);

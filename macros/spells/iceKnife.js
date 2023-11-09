@@ -24,7 +24,7 @@ if (lastArg.targets.length > 0) {
     .findNearby(null, target, 5, { includeIncapacitated: true })
     .filter((possible) => {
       const collisionRay = new Ray(target, possible);
-      const collision = canvas.walls.checkCollision(collisionRay, { mode: "any", type: "sight" });
+      const collision = game.modules.get("ddb-importer").api.effects.checkCollision(collisionRay, ["sight"]);
       if (collision) return false;
       else return true;
     })

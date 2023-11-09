@@ -46,6 +46,7 @@ import {
   findEffects,
   findEffect,
   updateUserTargets,
+  checkCollision,
 } from "./effects/helpers.js";
 import {
   applyChrisPremadeEffect,
@@ -188,6 +189,7 @@ export function registerApi() {
       findEffects,
       findEffect,
       updateUserTargets,
+      checkCollision,
     },
     executeDDBMacro: DDBMacros.executeDDBMacro,
     // macro tools
