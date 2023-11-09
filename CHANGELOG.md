@@ -5,6 +5,8 @@
 - Mask of the Wild effect: PC's and NPC's will now roll stealth if this ability is clicked. (Thanks @MotoMoto)
 - Rahadin Deathly Choir effect exclusions (Thanks MotoMoto)
 - Item parsing failed if using DAE but not midi.
+- Effect: Ice Knife Collision Detection updates.
+- Switch to using DAE flag macros rather than itemacro if using newer versions of DAE.
 
 # 3.5.8
 

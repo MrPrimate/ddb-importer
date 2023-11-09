@@ -143,15 +143,15 @@ export default class DDBMacros {
   }
 
   static generateItemMacroFlag(document, macroText) {
+    const daeMacro = isNewerVersion((game.modules.get("dae")?.version ?? 0), "11.0.21");
     const data = {
-      macro: {
-        name: document.name,
-        type: "script",
-        scope: "global",
-        command: macroText,
-      },
+      name: document.name,
+      type: "script",
+      scope: "global",
+      command: macroText,
     };
-    setProperty(document, "flags.itemacro", data);
+    const flag = daeMacro ? "flags.dae.macro" : "flags.itemacro.macro";
+    setProperty(document, flag, data);
     return document;
   }
 
