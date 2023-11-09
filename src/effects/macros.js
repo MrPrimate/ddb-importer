@@ -82,8 +82,8 @@ export default class DDBMacros {
         game.settings.set("midi-qol", "ConfigSettings", midiQOLSettings);
       }
     } else {
-      logger.error("Midi-QOL needs to be installed for effects");
-      ui.notifications.warn("Midi-QOL needs to be installed for effects");
+      logger.warn("Midi-QOL needs to be installed for effects");
+      // ui.notifications.warn("Midi-QOL needs to be installed for effects");
     }
 
     const useCEConditions = game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce");
@@ -94,8 +94,8 @@ export default class DDBMacros {
         game.settings.set("dfreds-convenient-effects", "modifyStatusEffects", "add");
       }
     } else if (useCEConditions) {
-      logger.error("Convenient Effects needs to be installed for effects");
-      ui.notifications.warn("Convenient Effects needs to be installed for effects");
+      logger.warn("Convenient Effects needs to be installed for effects");
+      // ui.notifications.warn("Convenient Effects needs to be installed for effects");
     }
 
     if (game.modules.get("itemacro")?.active) {
@@ -104,8 +104,8 @@ export default class DDBMacros {
         game.settings.set("itemacro", "charsheet", false);
       }
     } else if (isNewerVersion(11, game.version)) {
-      logger.error("Item Macro is recommended to be installed for effects");
-      ui.notifications.warn("Item Macro is recommended to be installed for effects");
+      logger.warn("Item Macro is recommended to be installed for effects");
+      // ui.notifications.warn("Item Macro is recommended to be installed for effects");
     }
 
     if (game.modules.get("warpgate")?.active && checkJB2a(true, true, false)) {
