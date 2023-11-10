@@ -8,6 +8,15 @@ export function holdBreathEffect(document) {
   document.effects.push(effect);
 
   setProperty(document, "flags.midiProperties.toggleEffect", true);
+  document.system.activation = {
+    "type": "special",
+    "cost": 1,
+    "condition": ""
+  };
+
+  if (document.name === "Partially Amphibious") {
+    document.system.uses = { value: 1, max: "1", per: "lr", type: "" };
+  }
 
   return document;
 }

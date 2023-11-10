@@ -130,6 +130,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
         document = frostRuneEffect(document);
         break;
       }
+      case "Partially Amphibious":
       case "Hold Breath": {
         document = holdBreathEffect(document);
         break;
