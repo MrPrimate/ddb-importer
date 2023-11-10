@@ -7,6 +7,7 @@
 - Item parsing failed if using DAE but not midi.
 - Effect: Ice Knife Collision Detection updates.
 - Switch to using DAE flag macros rather than itemacro if using newer versions of DAE.
+- Effect: Strahd Zombie Loathsome Limbs
 
 # 3.5.8
 

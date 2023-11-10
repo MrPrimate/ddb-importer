@@ -17,6 +17,7 @@ import { invisibilityFeatureEffect } from "./monsterFeatures/invisibility.js";
 import { recklessAttackEffect } from "./feats/recklessAttack.js";
 import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
 import { deathlyChoirEffect } from "./monsterFeatures/deathlyChoir.js";
+import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
 
 export function baseMonsterFeatureEffect(document, label) {
   let effect = {
@@ -148,6 +149,10 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     }
     case "Skeletal Juggernaut": {
       npc = await skeletalJuggernautEffects(npc);
+      break;
+    }
+    case "Strahd Zombie": {
+      npc = await strahdZombieEffects(npc);
       break;
     }
     case "Venom Troll": {
