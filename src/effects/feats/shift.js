@@ -42,7 +42,7 @@ export function shiftEffect(ddb, character, document) {
     effect.changes.push(
       {
         key: "flags.midi-qol.advantage.ability.check.wis",
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         value: "1",
         priority: "20",
       },

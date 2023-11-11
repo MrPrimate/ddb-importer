@@ -66,6 +66,7 @@ import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
 import { mindLinkEffect } from "./feats/mindLink.js";
 import { holdBreathEffect } from "./feats/holdBreath.js";
 import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
+import { vedalkenDispassionEffect } from "./feats/vedalkenDispassion.js";
 
 export function baseFeatEffect(document, label) {
   let effect = {
@@ -330,6 +331,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Swiftstride Reaction": {
         document = forceManualReaction(document);
+        break;
+      }
+      case "Vedalken Dispassion": {
+        document = vedalkenDispassionEffect(document);
         break;
       }
       case "Visage of the Astral Self": {

@@ -9,6 +9,8 @@
 - Switch to using DAE flag macros rather than itemacro if using newer versions of DAE.
 - Effect: Strahd Zombie Loathsome Limbs
 - Effect stub: Partially Amphibious.
+- Shifter effect correction.
+- Vedalken Dispassion effect.
 
 # 3.5.8
 
