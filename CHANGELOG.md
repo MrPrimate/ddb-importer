@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.5.9
 
 - Sleep Spell Effect improvements for elfs and half-elfs
 - Stone of Good Luck no longer needs a initiative boosting effect separately to checks.
