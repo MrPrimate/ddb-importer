@@ -66,7 +66,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
       {
         key: "flags.dnd5e.DamageBonusMacro",
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "planarWarrior.js", document: { name: `ItemMacro.${macroData.item.name}` }}),
+        value: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "planarWarrior.js", document: { name: macroData.item.name }}),
         priority: 20,
       },
     ],
