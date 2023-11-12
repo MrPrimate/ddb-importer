@@ -5,6 +5,7 @@ import FileHelper from "../../lib/FileHelper.js";
 import SETTINGS from "../../settings.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import DICTIONARY from "../../dictionary.js";
 
 
 export default class DDBRace {
@@ -32,9 +33,17 @@ export default class DDBRace {
     }
   }
 
+  #fixups() {
+    // fixup
+    if (this.race.baseName === "Harengon") {
+      this.race.sizeId = 10;
+    }
+  }
+
   constructor(race, compendiumRacialTraits) {
     this.legacyMode = foundry.utils.isNewerVersion("2.4.0", game.system.version);
     this.race = race;
+    this.#fixups();
     this.compendiumRacialTraits = compendiumRacialTraits;
     this._generateDataStub();
     this.type = "humanoid";
@@ -73,6 +82,11 @@ export default class DDBRace {
     }
 
     this.#addWeightSpeeds();
+    this.#addSizeAdvancement();
+
+    this.abilityAdvancement = this.legacyMode
+      ? null
+      : (new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement());
 
   }
 
@@ -122,13 +136,12 @@ export default class DDBRace {
   }
 
   #typeCheck(trait) {
-    if (trait.name.trim() === "Creature Type") {
-      const typeRegex = /You are a (\S*)\./i;
-      const typeMatch = trait.description.match(typeRegex);
-      if (typeMatch) {
-        logger.debug(`Explicit type detected: ${typeMatch[1]}`, typeMatch);
-        this.type = typeMatch[1].toLowerCase();
-      }
+    if (trait.name.trim() !== "Creature Type") return;
+    const typeRegex = /You are a (\S*)\./i;
+    const typeMatch = trait.description.match(typeRegex);
+    if (typeMatch) {
+      logger.debug(`Explicit type detected: ${typeMatch[1]}`, typeMatch);
+      this.type = typeMatch[1].toLowerCase();
     }
   }
 
@@ -156,6 +169,21 @@ export default class DDBRace {
     }
   }
 
+  #addSizeAdvancement() {
+    if (this.legacyMode) return;
+    const advancement = new game.dnd5e.documents.advancement.SizeAdvancement();
+
+    const ddbSizeData = CONFIG.DDB.creatureSizes.find((s) => s.id === this.race.sizeId);
+    if (ddbSizeData.id === 10) {
+      advancement.updateSource({ configuration: { sizes: ["med", "sm"] } });
+    } else if (ddbSizeData !== 4) {
+      const size = DICTIONARY.character.actorSizes.find((s) => s.id === this.race.sizeId);
+      advancement.updateSource({ configuration: { sizes: [size.value] } });
+    }
+
+    this.data.system.advancement.push(advancement.toObject());
+  }
+
   #flightCheck(trait) {
     if (trait.name.trim() === "Flight" && getProperty(this.race, "weightSpeeds.normal.fly") === 0) {
       const typeRegex = /you have a flying speed equal to your walking speed/i;
@@ -167,6 +195,64 @@ export default class DDBRace {
     }
   }
 
+  #addAbilityScoreAdvancement(trait) {
+    if (!["Ability Score Increase", "Ability Score Increases"].includes(trait.name.trim())) return;
+    const pointMatchRegex = /Your ability scores each increase by 1|or increase three different scores by 1/i;
+    if (pointMatchRegex.test(trait.description)) {
+      this.abilityAdvancement.configuration.points = 3;
+      this.abilityAdvancement.updateSource({ configuration: { points: 3 } });
+    } else {
+      // Your Intelligence score increases by 2, and your Wisdom score increases by 1.
+      // Your Wisdom score increases by 2, and your Constitution score increases by 1.
+      // Your Strength score increases by 1.
+      // Your Constitution score increases by 2.
+      // Your Charisma score increases by 2, and          two other ability scores of your choice increase by 1.
+      // Your Charisma score increases by 2. In addition, one other ability score of your choice increases by 1.
+      // Your Constitution score increases by 2, and      one other ability score of your choice increases by 1.
+
+      const update = this.abilityAdvancement.configuration.toObject();
+      const fixedRegex = /Your (\w+) score increases by (\d)/i;
+      const fixedMatch = trait.description.match(fixedRegex);
+      if (fixedMatch) {
+        const ability = DICTIONARY.character.abilities.find((a) => a.long === fixedMatch[1].toLowerCase());
+        if (ability) {
+          update.fixed[ability.value] = parseInt(fixedMatch[2]);
+        }
+      }
+
+      const extraFixedRegex = /and your (\w+) score increases by (\d)/i;
+      const extraFixedMatch = trait.description.match(extraFixedRegex);
+      if (extraFixedMatch) {
+        const ability = DICTIONARY.character.abilities.find((a) => a.long === extraFixedMatch[1].toLowerCase());
+        if (ability) {
+          update.fixed[ability.value] = parseInt(extraFixedMatch[2]);
+        }
+      }
+      const wildCardRegex = /(\w+) other ability score of your choice increases by (\d)/i;
+      const wildCardMatch = trait.description.match(wildCardRegex);
+      if (wildCardMatch) {
+        const numb = DICTIONARY.numbers.find((n) => n.natural === wildCardMatch[1].toLowerCase());
+        const value = parseInt(wildCardMatch[2]);
+        if (numb && Number.isInteger(value)) {
+          update.points = (update.points ?? 0) + (value * numb.num);
+          update.cap = Math.max(value, (update.cap ?? 0));
+        }
+      }
+
+      this.abilityAdvancement.updateSource({ configuration: update });
+    }
+  }
+
+  #generateAbilityAdvancement() {
+    this.race.racialTraits.forEach((t) => {
+      const trait = t.definition;
+      if (!["Ability Score Increase", "Ability Score Increases"].includes(trait.name.trim())) return;
+      this.#addAbilityScoreAdvancement(trait);
+    });
+    this.data.system.advancement.push(this.abilityAdvancement.toObject());
+  }
+
+
   async build() {
     await this._generateRaceImage();
 
@@ -175,7 +261,10 @@ export default class DDBRace {
       this.#addFeatureDescription(trait);
       this.#typeCheck(trait);
       this.#flightCheck(trait);
+      this.#addAbilityScoreAdvancement(trait);
     });
+
+    this.#generateAbilityAdvancement();
 
     // set final type
     setProperty(this.data, "system.type.value", this.type);

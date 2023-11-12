@@ -179,12 +179,13 @@ const DICTIONARY = {
       { id: 9, name: "Chaotic Evil", value: "ce" },
     ],
     actorSizes: [
-      { id: 2, name: "Tiny", value: "tiny" }, // wild guess
-      { id: 3, name: "Small", value: "sm" }, // consistent
-      { id: 4, name: "Medium", value: "med" }, // consistent
-      { id: 5, name: "Large", value: "lg" }, // wild guess
-      { id: 6, name: "Huge", value: "huge" }, // wild guess
-      { id: 7, name: "Gargantuan", value: "grg" }, // wild guess
+      { id: 2, name: "Tiny", value: "tiny" },
+      { id: 3, name: "Small", value: "sm" },
+      { id: 4, name: "Medium", value: "med" },
+      { id: 5, name: "Large", value: "lg" },
+      { id: 6, name: "Huge", value: "huge" },
+      { id: 7, name: "Gargantuan", value: "grg" },
+      // { id: 10, entityTypeId: 127108918, name: "Medium or Small", weightType: 2 },
     ],
     senses: [
       { id: 1, name: "Blindsight" },
