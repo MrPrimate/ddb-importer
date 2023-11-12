@@ -20,6 +20,18 @@ const LOOT_ITEM = [
   "String",
 ];
 
+const LOOT_TYPES = {
+  "Gemstone": "gem",
+  "Gem": "gem",
+  "Art Object": "art",
+  "Art": "art",
+  "Material": "material",
+  "Resource": "resource",
+  "Treasure": "treasure",
+  "Adventuring Gear": "gear",
+  "Junk": "junk",
+};
+
 function getItemType(data, typeHint) {
   let result = {
     type: "loot"
@@ -123,7 +135,10 @@ export default function parseLoot(data, itemType) {
   loot.system.identified = true;
   loot.system.price = getPrice(data);
 
-  if (type.type === "backpack") {
+  if (type.type === "loot") {
+    const lookup = LOOT_TYPES[itemType];
+    if (lookup) setProperty(loot, "system.type.value", lookup);
+  } else if (type.type === "backpack") {
     loot.system.capacity = getCapacity(data);
   }
   return loot;

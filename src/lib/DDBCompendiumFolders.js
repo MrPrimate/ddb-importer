@@ -549,6 +549,7 @@ export class DDBCompendiumFolders {
           "system.weaponType",
           "system.rarity",
           "system.toolType",
+          "system.details.type.value",
         ];
       }
       case "monster":

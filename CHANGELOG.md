@@ -1,6 +1,8 @@
 # NEXT UP
 
 - Basic support for 5e 2.4 Races (creates a race and sets creature type)
+- Support for some loot type subtypes in 5e 2.4
+- Planar Warrior effect tweak to ensure extra damage after macro refactor.
 
 # 3.5.9
 
