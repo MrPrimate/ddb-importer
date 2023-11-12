@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Basic support for 5e 2.4 Races (creates a race and sets creature type)
+
 # 3.5.9
 
 - Sleep Spell Effect improvements for elfs and half-elfs
