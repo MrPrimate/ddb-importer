@@ -6,7 +6,7 @@ export function newComponent(name, type) {
   let feat = {
     name: name,
     type: type,
-    system: JSON.parse(utils.getTemplate(type)),
+    system: utils.getTemplate(type),
     flags: {
       ddbimporter: {
         dndbeyond: {

@@ -127,7 +127,7 @@ function getDamage(data, magicalDamageBonus) {
 }
 
 export default function parseStaff(data, character) {
-  let template = JSON.parse(utils.getTemplate("weapon"));
+  let template = utils.getTemplate("weapon");
   let staff = {
     name: data.definition.name,
     type: "weapon",

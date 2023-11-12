@@ -6,7 +6,7 @@ DDBCharacter.prototype._newPCSkeleton = async function _newPCSkeleton() {
   const name = (this.source.ddb.character.name === "") ? "Hero With No Name" : this.source.ddb.character.name;
 
   this.raw.character = {
-    system: JSON.parse(utils.getTemplate("character")),
+    system: utils.getTemplate("character"),
     type: "character",
     effects: [],
     name: name,

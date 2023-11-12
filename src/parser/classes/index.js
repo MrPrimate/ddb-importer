@@ -271,7 +271,7 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
   let subKlass = {
     name: characterClass.subclassDefinition.name,
     type: 'subclass',
-    system: JSON.parse(utils.getTemplate('subclass')),
+    system: utils.getTemplate('subclass'),
     flags: {
       ddbimporter: {
         subclassDefinitionId: characterClass.id,
@@ -338,7 +338,7 @@ export async function getClasses(ddb, character) {
     let klass = {
       name: characterClass.definition.name,
       type: 'class',
-      system: JSON.parse(utils.getTemplate('class')),
+      system: utils.getTemplate('class'),
       flags: {
         ddbimporter: {
           id: characterClass.id,

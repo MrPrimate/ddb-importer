@@ -60,7 +60,7 @@ export default function parseAmmunition(data, itemType) {
   /**
    * MAIN parseWeapon
    */
-  let template = JSON.parse(utils.getTemplate("consumable"));
+  let template = utils.getTemplate("consumable");
   let ammunition = {
     name: data.definition.name,
     type: "consumable",

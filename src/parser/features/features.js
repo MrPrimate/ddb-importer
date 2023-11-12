@@ -28,7 +28,7 @@ function parseFeature(feat, ddb, character, source, type) {
   let item = {
     name: name.replace("’", "'").trim(),
     type: "feat",
-    system: JSON.parse(utils.getTemplate("feat")),
+    system: utils.getTemplate("feat"),
     flags: {
       ddbimporter: {
         id: feat.definition?.id ? feat.definition.id : feat.id,

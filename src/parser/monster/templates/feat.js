@@ -4,7 +4,7 @@ export function newFeat(name) {
   let feat = {
     name: name,
     type: "feat",
-    system: JSON.parse(utils.getTemplate("feat")),
+    system: utils.getTemplate("feat"),
     effects: [],
     flags: {
       ddbimporter: {

@@ -22,7 +22,7 @@ import { parseTags } from "../../lib/DDBTemplateStrings.js";
 export async function parseSpell(data, character) {
   let spell = {
     type: "spell",
-    system: JSON.parse(utils.getTemplate("spell")),
+    system: utils.getTemplate("spell"),
     name: getName(data, character),
     flags: {
       ddbimporter: {

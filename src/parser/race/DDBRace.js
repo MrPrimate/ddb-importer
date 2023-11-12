@@ -3,40 +3,43 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import FileHelper from "../../lib/FileHelper.js";
 import SETTINGS from "../../settings.js";
+import utils from "../../lib/utils.js";
+import logger from "../../logger.js";
 
 
 export default class DDBRace {
 
+  _generateDataStub() {
+    this.data = {
+      name: "",
+      type: this.legacyMode ? "feat" : "race",
+      system: utils.getTemplate(this.legacyMode ? "feat" : "race"),
+      flags: {
+        ddbimporter: {
+          type: "race",
+        },
+        obsidian: {
+          source: {
+            type: "race"
+          },
+        },
+      },
+      img: null,
+    };
+
+    if (this.legacyMode) {
+      setProperty(this.data, "system.type.value", "race");
+    }
+
+  }
+
   constructor(race, compendiumRacialTraits) {
+    this.legacyMode = foundry.utils.isNewerVersion("2.4.0", game.system.version);
     this.race = race;
     this.compendiumRacialTraits = compendiumRacialTraits;
-    this.data = {
-      "name": "",
-      "type": "feat",
-      "system": {
-        "description": {
-          "value": "",
-          "chat": "",
-          "unidentified": ""
-        },
-        "source": "",
-        "type": {
-          "value": "race",
-        },
-      },
-      "sort": 2600000,
-      "flags": {
-        "ddbimporter": {
-          "type": "race",
-        },
-        "obsidian": {
-          "source": {
-            "type": "race"
-          }
-        },
-      },
-      "img": null
-    };
+    this._generateDataStub();
+    this.type = "humanoid";
+    this._compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");
   }
 
   buildBase() {
@@ -44,6 +47,7 @@ export default class DDBRace {
     this.data.system.description.value += `${this.race.description}\n\n`;
 
     this.data.flags.ddbimporter = {
+      type: "race",
       entityRaceId: this.race.entityRaceId,
       version: CONFIG.DDBI.version,
       sourceId: this.race.sources.length > 0 ? [0].sourceId : -1, // is homebrew
@@ -109,6 +113,27 @@ export default class DDBRace {
     return image;
   }
 
+  #typeCheck(feature) {
+    if (feature.name.trim() === "Creature Type") {
+      const typeRegex = /You are a (\S*)\./i;
+      const typeMatch = feature.description.match(typeRegex);
+      if (typeMatch) {
+        logger.debug(`Explicit type detected: ${typeMatch[1]}`, typeMatch);
+        this.type = typeMatch[1].toLowerCase();
+      }
+    }
+  }
+
+  #addFeatureDescription(feature) {
+    const featureMatch = this.compendiumRacialTraits.find((match) =>
+      hasProperty(match, "flags.ddbimporter.baseName") && hasProperty(match, "flags.ddbimporter.entityRaceId")
+      && feature.name.replace("’", "'") === match.flags.ddbimporter.baseName
+      && match.flags.ddbimporter.entityRaceId === feature.entityRaceId
+    );
+    const title = (featureMatch) ? `<p><b>@Compendium[${this._compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>` : `<p><b>${feature.name}</b></p>`;
+    this.data.system.description.value += `${title}\n${feature.description}\n\n`;
+  }
+
   async buildRace() {
     this.buildBase();
 
@@ -125,21 +150,19 @@ export default class DDBRace {
 
     await this._generateRaceImage();
 
-    const compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");
-
     this.race.racialTraits.forEach((f) => {
       const feature = f.definition;
-      const featureMatch = this.compendiumRacialTraits.find((match) =>
-        hasProperty(match, "flags.ddbimporter.baseName") && hasProperty(match, "flags.ddbimporter.entityRaceId")
-        && feature.name.replace("’", "'") === match.flags.ddbimporter.baseName
-        && match.flags.ddbimporter.entityRaceId === feature.entityRaceId
-      );
-      const title = (featureMatch) ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>` : `<p><b>${feature.name}</b></p>`;
-      this.data.system.description.value += `${title}\n${feature.description}\n\n`;
+      this.#addFeatureDescription(feature);
+      this.#typeCheck(feature);
     });
 
+    // set final type
+    setProperty(this.data, "system.type.value", this.type);
+
+    // finally a tag parse to update the description
     this.data.system.description.value = parseTags(this.data.system.description.value);
 
+    logger.debug("Race generated", { DDBRace: this });
     return this.data;
   }
 

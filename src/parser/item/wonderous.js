@@ -20,7 +20,7 @@ export default function parseWonderous(data, { ddbTypeOverride = null, armorType
   let item = {
     name: data.definition.name,
     type,
-    system: JSON.parse(utils.getTemplate(type)),
+    system: utils.getTemplate(type),
     flags: {
       ddbimporter: {
         dndbeyond: {

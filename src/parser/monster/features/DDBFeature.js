@@ -28,7 +28,7 @@ export default class DDBFeature {
     this.feature = {
       name: this.name,
       type: this.templateType,
-      system: JSON.parse(utils.getTemplate(this.templateType)),
+      system: utils.getTemplate(this.templateType),
       effects: [],
       flags: {
         ddbimporter: {

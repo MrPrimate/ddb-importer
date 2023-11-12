@@ -96,7 +96,7 @@ export default function parseConsumable(ddbItem, { consumableTypeOverride = null
   let item = {
     name: ddbItem.definition.name,
     type: "consumable",
-    system: JSON.parse(utils.getTemplate("consumable")),
+    system: utils.getTemplate("consumable"),
     flags: {
       ddbimporter: {
         dndbeyond: {

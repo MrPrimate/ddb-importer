@@ -8,4 +8,6 @@ DDBCharacter.prototype._generateRace = async function _generateRace() {
   const builtRace = await race.buildRace();
   delete builtRace.sort;
   this.raw.race = builtRace;
+
+  setProperty(this.raw.character, "system.details.type.value", this.raw.race.type);
 };

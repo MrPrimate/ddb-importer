@@ -60,7 +60,7 @@ export async function addDDBIEffectToDocument(document, { useChrisPremades = fal
       fixSpells(null, [data]);
     } else if (data.type === "feat") {
       const mockCharacter = {
-        system: JSON.parse(utils.getTemplate("character")),
+        system: utils.getTemplate("character"),
         type: "character",
         name: "",
         flags: {

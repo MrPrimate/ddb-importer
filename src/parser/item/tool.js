@@ -46,7 +46,7 @@ export default function parseTool(ddb, data, itemType) {
   let tool = {
     name: data.definition.name,
     type: "tool",
-    system: JSON.parse(utils.getTemplate("tool")),
+    system: utils.getTemplate("tool"),
     flags: {
       ddbimporter: {
         dndbeyond: {

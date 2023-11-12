@@ -270,7 +270,7 @@ const utils = {
     return data;
   },
 
-  getTemplate: (type) => {
+  getTemplateLegacy: (type) => {
     const templates = game.data.template;
     for (let entityType in templates) {
       if (
@@ -290,6 +290,46 @@ const utils = {
       }
     }
     return undefined;
+  },
+
+  getTemplate: (type) => {
+    switch (type.toLowerCase()) {
+      case "character":
+        return (new game.dnd5e.dataModels.actor.CharacterData()).toObject();
+      case "npc":
+        return (new game.dnd5e.dataModels.actor.NPCData()).toObject();
+      case "vehicle":
+        return (new game.dnd5e.dataModels.actor.VehicleData()).toObject();
+      case "class":
+        return (new game.dnd5e.dataModels.item.ClassData()).toObject();
+      case "background":
+        return (new game.dnd5e.dataModels.item.BackgroundData()).toObject();
+      case "consumable":
+        return (new game.dnd5e.dataModels.item.ConsumableData()).toObject();
+      case "backpack":
+      case "container":
+        return (new game.dnd5e.dataModels.item.ContainerData()).toObject();
+      case "equipment":
+        return (new game.dnd5e.dataModels.item.EquipmentData()).toObject();
+      case "feat":
+        return (new game.dnd5e.dataModels.item.FeatData()).toObject();
+      case "loot":
+        return (new game.dnd5e.dataModels.item.LootData()).toObject();
+      case "race":
+        return (new game.dnd5e.dataModels.item.RaceData()).toObject();
+      case "spell":
+        return (new game.dnd5e.dataModels.item.SpellData()).toObject();
+      case "subclass":
+        return (new game.dnd5e.dataModels.item.SubclassData()).toObject();
+      case "tool":
+        return (new game.dnd5e.dataModels.item.ToolData()).toObject();
+      case "weapon":
+        return (new game.dnd5e.dataModels.item.WeaponData()).toObject();
+      case "journalpage":
+        return (new game.dnd5e.dataModels.journal.ClassJournalPageData()).toObject();
+      default:
+        return undefined;
+    }
   },
 
   entityMap: () => {

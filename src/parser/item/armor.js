@@ -87,7 +87,7 @@ export default function parseArmor(data, character, flags) {
   let armor = {
     name: data.definition.name,
     type: "equipment",
-    system: JSON.parse(utils.getTemplate("equipment")),
+    system: utils.getTemplate("equipment"),
     flags: {
       ddbimporter: {
         dndbeyond: {

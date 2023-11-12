@@ -7,7 +7,7 @@ export default function parseScroll(data) {
   let scroll = {
     name: data.definition.name,
     type: "consumable",
-    system: JSON.parse(utils.getTemplate("consumable")),
+    system: utils.getTemplate("consumable"),
     flags: {
       ddbimporter: {
         dndbeyond: {
