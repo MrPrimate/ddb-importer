@@ -30,7 +30,6 @@ export default class DDBRace {
     if (this.legacyMode) {
       setProperty(this.data, "system.type.value", "race");
     }
-
   }
 
   constructor(race, compendiumRacialTraits) {
@@ -40,9 +39,7 @@ export default class DDBRace {
     this._generateDataStub();
     this.type = "humanoid";
     this._compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");
-  }
 
-  buildBase() {
     this.data.name = (this.race.fullName) ? this.race.fullName.replace("’", "'") : this.race.name.replace("’", "'");
     this.data.system.description.value += `${this.race.description}\n\n`;
 
@@ -51,7 +48,16 @@ export default class DDBRace {
       entityRaceId: this.race.entityRaceId,
       version: CONFIG.DDBI.version,
       sourceId: this.race.sources.length > 0 ? [0].sourceId : -1, // is homebrew
-      baseName: (this.race.fullName) ? this.race.fullName.replace("’", "'") : this.race.name.replace("’", "'")
+      baseName: this.race.baseName,
+      baseRaceId: this.race.baseRaceId,
+      baseRaceName: this.race.baseRaceName,
+      fullName: this.race.fullName,
+      subRaceShortName: this.race.subRaceShortName,
+      isHomebrew: this.race.isHomebrew,
+      isLegacy: this.race.isLegacy,
+      isSubRace: this.race.isSubRace,
+      moreDetailsUrl: this.race.moreDetailsUrl,
+      featIds: this.race.featIds,
     };
 
     if (this.race.moreDetailsUrl) {
@@ -65,7 +71,9 @@ export default class DDBRace {
     if (legacyName && this.race.isLegacy) {
       this.data.name += " (Legacy)";
     }
-    return this.data;
+
+    this.#addWeightSpeeds();
+
   }
 
   async _generateRaceImage() {
@@ -113,10 +121,10 @@ export default class DDBRace {
     return image;
   }
 
-  #typeCheck(feature) {
-    if (feature.name.trim() === "Creature Type") {
+  #typeCheck(trait) {
+    if (trait.name.trim() === "Creature Type") {
       const typeRegex = /You are a (\S*)\./i;
-      const typeMatch = feature.description.match(typeRegex);
+      const typeMatch = trait.description.match(typeRegex);
       if (typeMatch) {
         logger.debug(`Explicit type detected: ${typeMatch[1]}`, typeMatch);
         this.type = typeMatch[1].toLowerCase();
@@ -124,36 +132,49 @@ export default class DDBRace {
     }
   }
 
-  #addFeatureDescription(feature) {
+  #addFeatureDescription(trait) {
     const featureMatch = this.compendiumRacialTraits.find((match) =>
       hasProperty(match, "flags.ddbimporter.baseName") && hasProperty(match, "flags.ddbimporter.entityRaceId")
-      && feature.name.replace("’", "'") === match.flags.ddbimporter.baseName
-      && match.flags.ddbimporter.entityRaceId === feature.entityRaceId
+      && trait.name.replace("’", "'") === match.flags.ddbimporter.baseName
+      && match.flags.ddbimporter.entityRaceId === trait.entityRaceId
     );
-    const title = (featureMatch) ? `<p><b>@Compendium[${this._compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>` : `<p><b>${feature.name}</b></p>`;
-    this.data.system.description.value += `${title}\n${feature.description}\n\n`;
+    const title = (featureMatch) ? `<p><b>@Compendium[${this._compendiumLabel}.${featureMatch._id}]{${trait.name}}</b></p>` : `<p><b>${trait.name}</b></p>`;
+    this.data.system.description.value += `${title}\n${trait.description}\n\n`;
   }
 
-  async buildRace() {
-    this.buildBase();
+  #addWeightSpeeds() {
+    if (this.race.weightSpeeds?.normal) {
+      this.data.system.movement = {
+        burrow: this.race.weightSpeeds.normal.burrow ?? 0,
+        climb: this.race.weightSpeeds.normal.climb ?? 0,
+        fly: this.race.weightSpeeds.normal.fly ?? 0,
+        swim: this.race.weightSpeeds.normal.swim ?? 0,
+        walk: this.race.weightSpeeds.normal.walk ?? 0,
+        units: "ft",
+        hover: false,
+      };
+    }
+  }
 
-    this.data.flags.ddbimporter.baseRaceId = this.race.baseRaceId;
-    this.data.flags.ddbimporter.baseName = this.race.baseName;
-    this.data.flags.ddbimporter.baseRaceName = this.race.baseRaceName;
-    this.data.flags.ddbimporter.fullName = this.race.fullName;
-    this.data.flags.ddbimporter.subRaceShortName = this.race.subRaceShortName;
-    this.data.flags.ddbimporter.isHomebrew = this.race.isHomebrew;
-    this.data.flags.ddbimporter.isLegacy = this.race.isLegacy;
-    this.data.flags.ddbimporter.isSubRace = this.race.isSubRace;
-    this.data.flags.ddbimporter.moreDetailsUrl = this.race.moreDetailsUrl;
-    this.data.flags.ddbimporter.featIds = this.race.featIds;
+  #flightCheck(trait) {
+    if (trait.name.trim() === "Flight" && getProperty(this.race, "weightSpeeds.normal.fly") === 0) {
+      const typeRegex = /you have a flying speed equal to your walking speed/i;
+      const flightMatch = trait.description.match(typeRegex);
+      if (flightMatch) {
+        logger.debug(`Missing flight detected: ${flightMatch[1]}`, flightMatch);
+        this.data.system.movement.fly = this.data.system.movement.walk;
+      }
+    }
+  }
 
+  async build() {
     await this._generateRaceImage();
 
-    this.race.racialTraits.forEach((f) => {
-      const feature = f.definition;
-      this.#addFeatureDescription(feature);
-      this.#typeCheck(feature);
+    this.race.racialTraits.forEach((t) => {
+      const trait = t.definition;
+      this.#addFeatureDescription(trait);
+      this.#typeCheck(trait);
+      this.#flightCheck(trait);
     });
 
     // set final type
@@ -163,7 +184,6 @@ export default class DDBRace {
     this.data.system.description.value = parseTags(this.data.system.description.value);
 
     logger.debug("Race generated", { DDBRace: this });
-    return this.data;
   }
 
   static async getRacialTraitsLookup(racialTraits, fail = true) {
