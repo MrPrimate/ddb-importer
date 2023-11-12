@@ -76,6 +76,8 @@ You can log bugs here, or mention them in the [Discord channel](https://discord.
 
 ## Pre-requisites and recommendations
 
+Below are some recommended modules. If you munch without these it's likely you will need to remunch with them activated to generate the required effects.
+
 I'd strongly recommend installing:
 
 - [Magic Items](https://foundryvtt.com/packages/magicitems/) for attaching spells to magic items
