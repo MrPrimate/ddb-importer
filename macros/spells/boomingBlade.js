@@ -58,7 +58,8 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             transfer: false,
             flags: { targetUuid: target.uuid, casterUuid: caster.uuid, origin, cantripDice, damageType, dae: { specialDuration: ["turnStartSource", "isMoved"], transfer: false } },
           });
-          setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
+          if (hasProperty(sourceItemData, "flags.itemacro")) setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
+          if (hasProperty(sourceItemData, "flags.dae.macro")) setProperty(weaponCopy, "flags.dae.macro", duplicate(sourceItemData.flags.dae.macro));
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           attackItem.prepareData();

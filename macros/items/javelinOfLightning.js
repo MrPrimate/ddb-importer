@@ -102,6 +102,7 @@ if (args[0].macroPass === "postActiveEffects") {
     delete lightningBoltData.flags["midi-qol"].onUseMacroName;
     delete lightningBoltData.flags["midi-qol"].onUseMacroParts;
     delete lightningBoltData.flags.itemacro;
+    delete lightningBoltData.flags.dae.macro;
     lightningBoltData.name +=  ": Bolt";
     lightningBoltData.system.damage.parts = [["4d6[lightning]", "lightning"]];
     lightningBoltData.system.actionType = "save";

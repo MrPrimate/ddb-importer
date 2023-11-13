@@ -11,6 +11,7 @@ if (lastArg.targets.length > 0) {
   delete (areaSpellData.flags["midi-qol"].onUseMacroName);
   delete (areaSpellData.flags["midi-qol"].onUseMacroParts);
   delete (areaSpellData.flags.itemacro);
+  delete (areaSpellData.flags.dae.macro);
   areaSpellData.name = "Ice Knife: Explosion";
   areaSpellData.system.damage.parts = [[`${damageDice}d6[cold]`, "cold"]];
   areaSpellData.system.actionType = "save";

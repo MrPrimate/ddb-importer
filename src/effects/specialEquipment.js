@@ -152,7 +152,7 @@ export function equipmentEffectAdjustment(document) {
     // no default
   }
 
-  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro") || hasProperty(document.flags, "midi-qol.onUseMacroName")) {
+  if (document.effects.length > 0 || hasProperty(document.flags, "dae") || hasProperty(document.flags, "midi-qol.onUseMacroName")) {
     setProperty(document, "flags.ddbimporter.effectsApplied", true);
   }
 

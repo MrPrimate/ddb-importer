@@ -3,6 +3,8 @@
 - Basic support for 5e 2.4 Races (creates a race and sets creature type), ability and size advancement stubs.
 - Support for some loot type subtypes in 5e 2.4
 - Planar Warrior effect tweak to ensure extra damage after macro refactor.
+- Giants Might Effect: now does crit damage.
+- Some macro corrections for switching to DAE macro flag (mainly booming/green flame blade)
 
 # 3.5.9
 
