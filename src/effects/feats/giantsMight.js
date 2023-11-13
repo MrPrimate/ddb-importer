@@ -45,7 +45,13 @@ export function giantsMightEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: `${document.system.damage.parts[0][0]}`,
       priority: "5",
-    }
+    },
+    {
+      key: "flags.midi-qol.optional.giantsmight.criticalDamage",
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      value: "1",
+      priority: "5",
+    },
   );
 
   document.system.damage.parts = [];
