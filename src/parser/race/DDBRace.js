@@ -156,6 +156,7 @@ export default class DDBRace {
   }
 
   #addWeightSpeeds() {
+    if (this.legacyMode) return;
     if (this.race.weightSpeeds?.normal) {
       this.data.system.movement = {
         burrow: this.race.weightSpeeds.normal.burrow ?? 0,
@@ -185,6 +186,7 @@ export default class DDBRace {
   }
 
   #flightCheck(trait) {
+    if (this.legacyMode) return;
     if (trait.name.trim() === "Flight" && getProperty(this.race, "weightSpeeds.normal.fly") === 0) {
       const typeRegex = /you have a flying speed equal to your walking speed/i;
       const flightMatch = trait.description.match(typeRegex);
@@ -196,6 +198,7 @@ export default class DDBRace {
   }
 
   #addAbilityScoreAdvancement(trait) {
+    if (this.legacyMode) return;
     if (!["Ability Score Increase", "Ability Score Increases"].includes(trait.name.trim())) return;
     const pointMatchRegex = /Your ability scores each increase by 1|or increase three different scores by 1/i;
     if (pointMatchRegex.test(trait.description)) {
@@ -244,6 +247,7 @@ export default class DDBRace {
   }
 
   #generateAbilityAdvancement() {
+    if (this.legacyMode) return;
     this.race.racialTraits.forEach((t) => {
       const trait = t.definition;
       if (!["Ability Score Increase", "Ability Score Increases"].includes(trait.name.trim())) return;
@@ -261,7 +265,6 @@ export default class DDBRace {
       this.#addFeatureDescription(trait);
       this.#typeCheck(trait);
       this.#flightCheck(trait);
-      this.#addAbilityScoreAdvancement(trait);
     });
 
     this.#generateAbilityAdvancement();
