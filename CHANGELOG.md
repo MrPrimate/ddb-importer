@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.6.0
 
 - Basic support for 5e 2.4 Races (creates a race and sets creature type), ability and size advancement stubs.
 - Support for some loot type subtypes in 5e 2.4
