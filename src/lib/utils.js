@@ -295,38 +295,38 @@ const utils = {
   getTemplate: (type) => {
     switch (type.toLowerCase()) {
       case "character":
-        return (new game.dnd5e.dataModels.actor.CharacterData()).toObject();
+        return game.dnd5e.dataModels.actor.CharacterData.schema.initial();
       case "npc":
-        return (new game.dnd5e.dataModels.actor.NPCData()).toObject();
+        return game.dnd5e.dataModels.actor.NPCData.schema.initial();
       case "vehicle":
-        return (new game.dnd5e.dataModels.actor.VehicleData()).toObject();
+        return game.dnd5e.dataModels.actor.VehicleData.schema.initial();
       case "class":
-        return (new game.dnd5e.dataModels.item.ClassData()).toObject();
+        return game.dnd5e.dataModels.item.ClassData.schema.initial();
       case "background":
-        return (new game.dnd5e.dataModels.item.BackgroundData()).toObject();
+        return game.dnd5e.dataModels.item.BackgroundData.schema.initial();
       case "consumable":
-        return (new game.dnd5e.dataModels.item.ConsumableData()).toObject();
+        return game.dnd5e.dataModels.item.ConsumableData.schema.initial();
       case "backpack":
       case "container":
-        return (new game.dnd5e.dataModels.item.ContainerData()).toObject();
+        return game.dnd5e.dataModels.item.ContainerData.schema.initial();
       case "equipment":
-        return (new game.dnd5e.dataModels.item.EquipmentData()).toObject();
+        return game.dnd5e.dataModels.item.EquipmentData.schema.initial();
       case "feat":
-        return (new game.dnd5e.dataModels.item.FeatData()).toObject();
+        return game.dnd5e.dataModels.item.FeatData.schema.initial();
       case "loot":
-        return (new game.dnd5e.dataModels.item.LootData()).toObject();
+        return game.dnd5e.dataModels.item.LootData.schema.initial();
       case "race":
-        return (new game.dnd5e.dataModels.item.RaceData()).toObject();
+        return game.dnd5e.dataModels.item.RaceData.schema.initial();
       case "spell":
-        return (new game.dnd5e.dataModels.item.SpellData()).toObject();
+        return game.dnd5e.dataModels.item.SpellData.schema.initial();
       case "subclass":
-        return (new game.dnd5e.dataModels.item.SubclassData()).toObject();
+        return game.dnd5e.dataModels.item.SubclassData.schema.initial();
       case "tool":
-        return (new game.dnd5e.dataModels.item.ToolData()).toObject();
+        return game.dnd5e.dataModels.item.ToolData.schema.initial();
       case "weapon":
-        return (new game.dnd5e.dataModels.item.WeaponData()).toObject();
+        return game.dnd5e.dataModels.item.WeaponData.schema.initial();
       case "journalpage":
-        return (new game.dnd5e.dataModels.journal.ClassJournalPageData()).toObject();
+        return game.dnd5e.dataModels.journal.ClassJournalPageData.schema.initial();
       default:
         return undefined;
     }
