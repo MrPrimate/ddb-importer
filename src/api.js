@@ -37,6 +37,7 @@ import logger from "./logger.js";
 import NameMatcher from "./lib/NameMatcher.js";
 import OriginFixer from "./lib/OriginFixer.js";
 import DDBEffectHelper from "./effects/DDBEffectHelper.js";
+import DDBItemImporter from "./lib/DDBItemImporter.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -112,6 +113,7 @@ export function registerApi() {
       NameMatcher,
       OriginFixer,
       DDBEffectHelper,
+      DDBItemImporter,
     },
     settings: {
       muncherSettings: MuncherSettings.getMuncherSettings,

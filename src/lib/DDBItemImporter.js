@@ -12,7 +12,7 @@ import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 
 export default class DDBItemImporter {
 
-  constructor(type, documents, { matchFlags = [], deleteBeforeUpdate = null } = {}) {
+  constructor(type, documents, { matchFlags = [], deleteBeforeUpdate = null, indexFilter = {} } = {}) {
     this.type = type;
     this.documents = documents;
     this.useCompendiumFolders = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
@@ -21,14 +21,14 @@ export default class DDBItemImporter {
     this.compendium = CompendiumHelper.getCompendiumType(this.type);
     this.compendium.configure({ locked: false });
     this.compendiumIndex = null;
+    this.indexFilter = indexFilter;
 
     this.deleteBeforeUpdate = deleteBeforeUpdate ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-delete-during-update");
   }
 
   async buildIndex(indexFilter = {}) {
-    if (!Object.keys(indexFilter).length > 0) {
-      this.compendiumIndex = await this.compendium.getIndex(indexFilter);
-    }
+    this.indexFilter = indexFilter;
+    this.compendiumIndex = await this.compendium.getIndex(this.indexFilter);
   }
 
   async init() {
