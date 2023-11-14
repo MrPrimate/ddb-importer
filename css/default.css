@@ -102,3 +102,15 @@ h2.task-name.error {
 li.context-item i.active {
   color: #c5b631;
 }
+
+.ddb-button-dialog-row > section > div.dialog-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.ddb-button-dialog-column > section > div.dialog-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
