@@ -214,7 +214,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const item = await fromUuid(lastArg.efData.origin);
   const ddbEffectFlags = item.flags.ddbimporter.effect;
   // sometimes the round info has not updated, so we pause a bit
-  if (args[0] == "each") await DDBImporter?.EffectHelper.effects.wait(500);
+  if (args[0] == "each") await DDBImporter?.EffectHelper.wait(500);
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
   const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);
   const target = canvas.tokens.get(lastArg.tokenId);

@@ -6,5 +6,5 @@ if (args[0].macroPass === "preambleComplete") {
       if (nullEffects.length > 0) continue;
       validTargets.push(i.id);
     }
-    game.modules.get("ddb-importer").api.effects.updateTargets(validTargets);
+    DDBImporter?.EffectHelper.updateTargets(validTargets);
 }
