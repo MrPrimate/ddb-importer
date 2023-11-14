@@ -6,7 +6,7 @@ const defaultItemName = "Hail of Thorns";
 const debug = false;
 
 const dependencies = ["dae", "times-up", "midi-qol"];
-if (!game.modules.get("ddb-importer")?.api.effects.requirementsSatisfied(defaultItemName, dependencies)) {
+if (!DDBImporter?.EffectHelper.requirementsSatisfied(defaultItemName, dependencies)) {
   return;
 }
 
@@ -21,7 +21,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     // No target hit
     return;
   }
-  const rangedWeaponAttack = game.modules.get("ddb-importer")?.api.effects.isRangedWeaponAttack(macroData);
+  const rangedWeaponAttack = DDBImporter?.EffectHelper.isRangedWeaponAttack(macroData);
   if (!rangedWeaponAttack) {
     // Not a ranged weapon attack
     return;
@@ -126,7 +126,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   // Select targets
   const effectRange = 5;
   const targetToken = macroData.targets[0].object;
-  const aoeTargets = game.modules.get("ddb-importer")?.api.effects.selectTargetsWithinX(targetToken, effectRange, true);
+  const aoeTargets = DDBImporter?.EffectHelper.selectTargetsWithinX(targetToken, effectRange, true);
   if (debug) {
     console.log(`${defaultItemName} | Burst targets`, aoeTargets);
   }

@@ -22,7 +22,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
     ? 0
     : itemLevel - item.system.level;
   const upscaledDamage =  isCantrip
-    ? `${game.modules.get("ddb-importer").api.effects.getCantripDice(caster)}d${scalingDiceArray[1]}[${damageType}]`
+    ? `${DDBImporter?.EffectHelper.getCantripDice(caster)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
 
   const workflowItemData = duplicate(item);
@@ -100,10 +100,10 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     const sequencerFile = ddbEffectFlags.sequencerFile;
     if (sequencerFile) {
       const scale = ddbEffectFlags.sequencerScale ?? 1;
-      await game.modules.get("ddb-importer").api.effects.attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid, scale);
+      await DDBImporter?.EffectHelper.attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid, scale);
     }
     if (ddbEffectFlags.isCantrip) {
-      const cantripDice = game.modules.get("ddb-importer").api.effects.getCantripDice(lastArg.actor);
+      const cantripDice = DDBImporter?.EffectHelper.getCantripDice(lastArg.actor);
       args[0].spellLevel = cantripDice;
       ddbEffectFlags.cantripDice = cantripDice;
       let newEffects = args[0].item.effects.map((effect) => {

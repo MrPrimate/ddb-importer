@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Internal effect helper remaster to improve maintainability and use going forward
+
 # 3.6.0
 
 - Basic support for 5e 2.4 Races (creates a race and sets creature type), ability and size advancement stubs.

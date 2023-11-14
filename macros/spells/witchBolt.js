@@ -77,7 +77,7 @@ if (args[0].macroPass === "postActiveEffects") {
   const sourceItem = await fromUuid(lastArg.origin);
   const caster = sourceItem.parent;
   const options = DAE.getFlag(caster, "witchBoltSpell");
-  const isInRange = await game.modules.get("ddb-importer")?.api.effects.checkTargetInRange(options);
+  const isInRange = await DDBImporter?.EffectHelper.checkTargetInRange(options);
   if (isInRange) {
     const userIds = Object.entries(caster.ownership).filter((k) => k[1] === CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER).map((k) => k[0]);
     const mes = await ChatMessage.create({

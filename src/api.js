@@ -27,28 +27,6 @@ import DDBCompanion from "./parser/companions/DDBCompanion.js";
 import { DDBCompendiumFolders } from "./lib/DDBCompendiumFolders.js";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.js";
 import {
-  checkTargetInRange,
-  configureCustomAAForCondition,
-  addSaveAdvantageToTarget,
-  findContainedTokensInTemplate,
-  addDDBIEffectToDocument,
-  addDDBIEffectsToActorDocuments,
-  requirementsSatisfied,
-  selectTargetsWithinX,
-  isRangedWeaponAttack,
-  attachSequencerFileToTemplate,
-  getCantripDice,
-  wait,
-  getHighestAbility,
-  checkJB2a,
-  getRemainingDuration,
-  createJB2aActors,
-  findEffects,
-  findEffect,
-  updateUserTargets,
-  checkCollision,
-} from "./effects/helpers.js";
-import {
   applyChrisPremadeEffect,
   applyChrisPremadeEffects,
   addChrisEffectsToActorDocuments,
@@ -58,6 +36,7 @@ import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import NameMatcher from "./lib/NameMatcher.js";
 import OriginFixer from "./lib/OriginFixer.js";
+import DDBEffectHelper from "./effects/DDBEffectHelper.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -132,6 +111,7 @@ export function registerApi() {
       DDBMacros,
       NameMatcher,
       OriginFixer,
+      DDBEffectHelper,
     },
     settings: {
       muncherSettings: MuncherSettings.getMuncherSettings,
@@ -167,29 +147,31 @@ export function registerApi() {
     importCacheLoad,
     getNPCImage,
     resetCompendiumActorImages,
+
     generateItemMacroFlag: DDBMacros.generateItemMacroFlag,
+    EffectHelper: DDBEffectHelper,
     effects: {
-      addSaveAdvantageToTarget,
-      configureCustomAAForCondition,
-      findContainedTokensInTemplate,
-      checkTargetInRange,
-      selectTargetsWithinX,
-      addDDBIEffectToDocument,
-      addDDBIEffectsToActorDocuments,
+      helpers: DDBEffectHelper,
       addChrisEffectsToActorDocuments,
-      requirementsSatisfied,
-      isRangedWeaponAttack,
-      attachSequencerFileToTemplate,
-      getCantripDice,
-      wait,
-      getHighestAbility,
-      checkJB2a,
-      getRemainingDuration,
-      createJB2aActors,
-      findEffects,
-      findEffect,
-      updateUserTargets,
-      checkCollision,
+      addDDBIEffectsToActorDocuments: DDBEffectHelper.addDDBIEffectsToActorDocuments,
+      addDDBIEffectToDocument: DDBEffectHelper.addDDBIEffectToDocument,
+      // these are now in DDBEffectHelper, wrapped here for historical reasons
+      addSaveAdvantageToTarget: DDBEffectHelper.addSaveAdvantageToTarget,
+      attachSequencerFileToTemplate: DDBEffectHelper.attachSequencerFileToTemplate,
+      checkCollision: DDBEffectHelper.checkCollision,
+      checkJB2a: DDBEffectHelper.checkJB2a,
+      checkTargetInRange: DDBEffectHelper.checkTargetInRange,
+      configureCustomAAForCondition: DDBEffectHelper.configureCustomAAForCondition,
+      findContainedTokensInTemplate: DDBEffectHelper.findContainedTokensInTemplate,
+      findEffect: DDBEffectHelper.findEffect,
+      findEffects: DDBEffectHelper.findEffects,
+      getCantripDice: DDBEffectHelper.getCantripDice,
+      getHighestAbility: DDBEffectHelper.getHighestAbility,
+      getRemainingDuration: DDBEffectHelper.getRemainingDuration,
+      isRangedWeaponAttack: DDBEffectHelper.isRangedWeaponAttack,
+      requirementsSatisfied: DDBEffectHelper.requirementsSatisfied,
+      selectTargetsWithinX: DDBEffectHelper.selectTargetsWithinX,
+      wait: DDBEffectHelper.wait,
     },
     executeDDBMacro: DDBMacros.executeDDBMacro,
     // macro tools

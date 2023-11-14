@@ -2,12 +2,6 @@
 // uses convinient effects
 // Midi-qol "On Use"
 
-async function wait(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
 const sleepHp = await args[0].damageTotal;
 const condition = "Unconscious";
 console.log(`Sleep Spell => Available HP Pool [${sleepHp}] points`);
@@ -54,7 +48,7 @@ for (let target of targets) {
     sleepTarget.push(`<div class="midi-qol-flex-container"><div>misses</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${targetImg}" width="30" height="30" style="border:0px"></div></div>`);
   }
 }
-await wait(500);
+await DDBImporter?.EffectHelper.wait(500);
 const sleptResults = `<div><div class="midi-qol-nobox">${sleepTarget.join('')}</div></div>`;
 const chatMessage = game.messages.get(args[0].itemCardId);
 let content = duplicate(chatMessage.content);

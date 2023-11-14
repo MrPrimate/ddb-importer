@@ -80,7 +80,7 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
         icon,
         label: originItem.name,
         name: originItem.name,
-        duration: game.modules.get("ddb-importer")?.api.effects.getRemainingDuration(conEffect.duration),
+        duration: DDBImporter?.EffectHelper.getRemainingDuration(conEffect.duration),
       },
     ],
   };
@@ -144,12 +144,12 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
 
   // If AA has a special custom effect for the restrained condition, use it instead of standard one
   if (game.modules.get("autoanimations")?.active) {
-    game.modules.get("ddb-importer")?.api.effects.configureCustomAAForCondition("restrained", macroData, originItem.name, spell.uuid);
+    DDBImporter?.EffectHelper.configureCustomAAForCondition("restrained", macroData, originItem.name, spell.uuid);
   }
   // Check if target is large or larger and give it advantage on next save
   const targetActor = macroData.hitTargets[0].actor;
   if (dnd5e.config.tokenSizes[targetActor?.system.traits.size ?? "med"] >= dnd5e.config.tokenSizes["lg"]) {
-    await game.modules.get("ddb-importer")?.api.effects.addSaveAdvantageToTarget(targetActor, originItem, "str", " (Large Creature)");
+    await DDBImporter?.EffectHelper.addSaveAdvantageToTarget(targetActor, originItem, "str", " (Large Creature)");
   }
   const options = {
     createWorkflow: true,

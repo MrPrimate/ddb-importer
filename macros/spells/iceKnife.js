@@ -25,7 +25,7 @@ if (lastArg.targets.length > 0) {
     .findNearby(null, target, 5, { includeIncapacitated: true })
     .filter((possible) => {
       const collisionRay = new Ray(target, possible);
-      const collision = game.modules.get("ddb-importer").api.effects.checkCollision(collisionRay, ["sight"]);
+      const collision = DDBImporter?.EffectHelper.checkCollision(collisionRay, ["sight"]);
       if (collision) return false;
       else return true;
     })

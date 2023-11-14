@@ -102,11 +102,11 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const sequencerFile = lastArg.item.flags.ddbimporter?.effect?.sequencerFile;
   if (sequencerFile) {
     const scale = ddbEffectFlags.sequencerScale ?? 1;
-    await game.modules.get("ddb-importer").api.effects.attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid, scale);
+    await DDBImporter?.EffectHelper.attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid, scale);
   }
 
   if (lastArg.item.flags.ddbimporter?.effect?.applyImmediate) {
-    await game.modules.get("ddb-importer").api.effects.wait(500);
+    await DDBImporter?.EffectHelper.wait(500);
     const condition = lastArg.item.flags.ddbimporter.effect.condition;
     for (const token of lastArg.failedSaves) {
       if (!game.dfreds.effectInterface.hasEffectApplied(condition, token.actor.uuid)) {
@@ -132,7 +132,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const item = await fromUuid(lastArg.efData.origin);
   // sometimes the round info has not updated, so we pause a bit
-  if (args[0] == "each") await game.modules.get("ddb-importer").api.effects.wait(500);
+  if (args[0] == "each") await DDBImporter?.EffectHelper.wait(500);
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
   const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);
   const target = canvas.tokens.get(lastArg.tokenId);

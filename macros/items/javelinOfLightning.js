@@ -87,7 +87,7 @@ if (args[0].macroPass === "postActiveEffects") {
     actorUuid: sourceToken.actor.uuid,
     effects: [boltEffectData],
   });
-  const templateTokenIds = game.modules.get("ddb-importer")?.api.effects.findContainedTokensInTemplate(templateDoc);
+  const templateTokenIds = DDBImporter?.EffectHelper.findContainedTokensInTemplate(templateDoc) ?? [];
 
   const targetTokens = [];
   for (const i of templateTokenIds) {

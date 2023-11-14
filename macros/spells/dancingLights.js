@@ -1,12 +1,11 @@
-const checkJB2A = game.modules.get("ddb-importer")?.api.effects.checkJB2a(true, true, true);
-if (!checkJB2A) return false;
+if (!DDBImporter?.EffectHelper.checkJB2a(true, true, true)) return false;
 
 const summonType = 'Dancing light';
 const caster = game.actors.get(args[0].actor._id);
 const spawnedIds = [];
 
 // this is called when the item is created, you can run this manually if your actors are not created yet
-// await game.modules.get("ddb-importer")?.api.effects.createJB2aActors("Dancing Lights", "Dancing light");
+// await DDBImporter.EffectHelper._createJB2aActors("Dancing Lights", "Dancing light");
 
 const lightActors = game.actors.filter((f) =>f.name.includes(summonType));
 
@@ -92,11 +91,11 @@ for (let i = 0; i < 4; i++) {
   const callbacks = {
     pre: async (template, update) => {
       preEffects(template, update);
-      await warpgate.wait(500);
+      await DDBImporter?.EffectHelper.wait(500);
     },
     post: async (template, token, updates) => {
       postEffects(template, token);
-      await warpgate.wait(500);
+      await DDBImporter?.EffectHelper.wait(500);
       const sourceActorOrToken = fromUuidSync(
         updates.actor.flags.warpgate.control.actor
       );

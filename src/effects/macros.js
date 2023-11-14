@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 import SETTINGS from "../settings.js";
-import { checkJB2a, createJB2aActors } from "./helpers.js";
+import DDBEffectHelper from "./DDBEffectHelper.js";
 
 export default class DDBMacros {
 
@@ -108,8 +108,8 @@ export default class DDBMacros {
       // ui.notifications.warn("Item Macro is recommended to be installed for effects");
     }
 
-    if (game.modules.get("warpgate")?.active && checkJB2a(true, true, false)) {
-      await createJB2aActors("Dancing Lights", "Dancing light");
+    if (game.modules.get("warpgate")?.active && DDBEffectHelper.checkJB2a(true, true, false)) {
+      await DDBEffectHelper._createJB2aActors("Dancing Lights", "Dancing light");
     }
 
     return true;
