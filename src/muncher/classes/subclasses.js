@@ -62,7 +62,7 @@ export async function getSubClasses(data) {
   const featureHandler = new DDBItemImporter("features", [], { chrisPremades: true, deleteBeforeUpdate: false });
   await featureHandler.init();
   const fields = ["name", "flags.ddbimporter.classId", "flags.ddbimporter.class", "flags.ddbimporter.featureName", "flags.ddbimporter.subClass", "flags.ddbimporter.parentClassId"];
-  await featureHandler.buildIndex({ fields });
+  await featureHandler.buildIndex({ fields: fields });
 
   const classHandler = new DDBItemImporter("class", [], { deleteBeforeUpdate: false });
   await classHandler.init();
@@ -77,11 +77,28 @@ export async function getSubClasses(data) {
     logger.debug(`${subClass.name} feature parsing started...`);
     const filteredFeatures = subClass.classFeatures
       .filter((feature) =>
-        !featureHandler.compendiumIndex.some((i) => hasProperty(i, "flags.ddbimporter.classId")
-        && hasProperty(i, "flags.ddbimporter.featureName")
-        && feature.name === i.flags.ddbimporter.featureName
-        && subClass.parentClassId === i.flags.ddbimporter.classId)
+        !featureHandler.compendiumIndex.some((i) =>
+          hasProperty(i, "flags.ddbimporter.classId")
+          && hasProperty(i, "flags.ddbimporter.featureName")
+          && feature.name === i.flags.ddbimporter.featureName 
+          && subClass.parentClassId === i.flags.ddbimporter.classId
+        )
       );
+    // const matchedFeatures = subClass.classFeatures
+    //   .filter((feature) =>
+    //     featureHandler.compendiumIndex.some((i) =>
+    //       hasProperty(i, "flags.ddbimporter.classId")
+    //       && hasProperty(i, "flags.ddbimporter.featureName")
+    //       && feature.name === i.flags.ddbimporter.featureName 
+    //       && subClass.parentClassId === i.flags.ddbimporter.classId
+    //     )
+    //   );
+    // console.warn(`Features for ${subClass.name}:`, {
+    //   subClass,
+    //   filteredFeatures, matchedFeatures,
+    //   index: featureHandler.compendiumIndex,
+    //   parentClassId: subClass.parentClassId,
+    // });
     for (const feature of filteredFeatures) {
       const existingFeature = classFeatures.some((f) => f.name === feature.name);
       logger.debug(`${feature.name} feature starting...`);

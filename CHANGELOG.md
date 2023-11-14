@@ -1,6 +1,7 @@
 # NEXT UP
 
-- Internal effect helper remaster to improve maintainability and use going forward
+- Internal effect helper remaster to improve maintainability and use going forward.
+- Base class features were duplicated by subclasses during class/class feature generation.
 
 # 3.6.0
 
