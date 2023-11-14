@@ -11,7 +11,7 @@ import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
-import DDBMacros from "../effects/macros.js";
+import DDBMacros from "../effects/DDBMacros.js";
 import Iconizer from "../lib/Iconizer.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
 

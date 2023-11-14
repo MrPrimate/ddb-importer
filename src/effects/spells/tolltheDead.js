@@ -1,4 +1,4 @@
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 
 export async function tolltheDeadEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "spell", "tolltheDead.js");

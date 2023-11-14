@@ -1,5 +1,5 @@
 import { baseItemEffect } from "../effects.js";
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 
 export async function squireOfSolamniaEffect(document) {
   let effect = baseItemEffect(document, document.name);

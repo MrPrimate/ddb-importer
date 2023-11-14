@@ -1,6 +1,6 @@
 /* eslint-disable require-atomic-updates */
 import { baseSpellEffect } from "../specialSpells.js";
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 
 export async function auraOfLifeEffect(document) {
   let effect = baseSpellEffect(document, document.name);

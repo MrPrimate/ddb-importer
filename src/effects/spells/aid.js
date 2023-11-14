@@ -1,4 +1,4 @@
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export async function aidEffect(document) {

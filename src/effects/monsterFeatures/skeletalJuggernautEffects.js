@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import { forceItemEffect, generateStatusEffectChange } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 
 function avalancheOfBonesEffect(document) {
   setProperty(document, "system.duration", { value: null, units: "special" });

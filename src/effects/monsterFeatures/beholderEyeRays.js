@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 
 export async function beholderEyeRaysEffect(document) {
   setProperty(document, "system.target", { value: 3, width: null, units: "", type: "creature" });

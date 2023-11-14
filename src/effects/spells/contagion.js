@@ -1,5 +1,5 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 
 export async function contagionEffect(document) {
   let effect = baseSpellEffect(document, document.name);

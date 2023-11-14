@@ -1,6 +1,6 @@
 import { baseFeatEffect } from "../specialFeats.js";
 import { generateATLChange, effectModules } from "../effects.js";
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 
 export async function runeCarverEffect(document) {
 

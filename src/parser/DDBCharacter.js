@@ -2,7 +2,7 @@ import getActions from "./features/actions.js";
 import { getClasses } from "./classes/index.js";
 import CharacterSpellFactory from "./spells/CharacterSpellFactory.js";
 import logger from "../logger.js";
-import DDBMacros from "../effects/macros.js";
+import DDBMacros from "../effects/DDBMacros.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/DDBCampaigns.js";

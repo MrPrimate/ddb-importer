@@ -1,4 +1,4 @@
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 
 export async function boomingBladeEffect(document) {
   document.system.damage = { parts: [], versatile: "", value: "" };

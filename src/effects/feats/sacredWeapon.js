@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 import { generateATLChange } from "../effects.js";
 
 export async function sacredWeaponEffect(document) {

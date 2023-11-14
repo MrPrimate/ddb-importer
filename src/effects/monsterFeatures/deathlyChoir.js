@@ -1,4 +1,4 @@
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 
 export async function deathlyChoirEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "monsterFeature", "deathlyChoir.js");

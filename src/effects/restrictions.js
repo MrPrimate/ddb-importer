@@ -2,7 +2,7 @@ import {
   baseItemEffect,
 } from "./effects.js";
 
-import DDBMacros from "./macros.js";
+import DDBMacros from "./DDBMacros.js";
 
 async function woundingWeaponEffect(document) {
   let effect = baseItemEffect(document, document.name);

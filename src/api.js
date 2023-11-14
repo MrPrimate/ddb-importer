@@ -13,7 +13,7 @@ import DDBCharacterManager, { importCharacter, importCharacterById } from "./app
 import { checkCobalt } from "./lib/Secrets.js";
 // import { base64Check } from "./lib/base64Check.js";
 import { getFeats } from "./muncher/feats/feats.js";
-import DDBMacros from "./effects/macros.js";
+import DDBMacros from "./effects/DDBMacros.js";
 import Iconizer from "./lib/Iconizer.js";
 import { loadSRDRules, importCacheLoad } from "./lib/DDBTemplateStrings.js";
 import { getNPCImage } from "./muncher/importMonster.js";

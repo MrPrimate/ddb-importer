@@ -1,6 +1,6 @@
 import { baseFeatEffect } from "../specialFeats.js";
 import { generateStatusEffectChange } from "../effects.js";
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 import logger from "../../logger.js";
 
 // eslint-disable-next-line complexity

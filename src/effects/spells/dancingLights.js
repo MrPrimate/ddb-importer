@@ -1,4 +1,4 @@
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 import { effectModules } from "../effects.js";
 import DDBEffectHelper from "../DDBEffectHelper.js";
 

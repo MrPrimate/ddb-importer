@@ -1,4 +1,4 @@
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 
 export async function mantleOfInspirationEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "feat", "mantleOfInspiration.js");

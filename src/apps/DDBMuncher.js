@@ -13,7 +13,7 @@ import { downloadAdventureConfig } from "../muncher/adventure.js";
 import AdventureMunch from "../muncher/adventure/AdventureMunch.js";
 import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
 import MuncherSettings from "../lib/MuncherSettings.js";
-import DDBMacros from "../effects/macros.js";
+import DDBMacros from "../effects/DDBMacros.js";
 import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools.js";
 import { parseBackgrounds } from "../muncher/backgrounds.js";

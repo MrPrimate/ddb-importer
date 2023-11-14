@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import DDBMacros from "../macros.js";
+import DDBMacros from "../DDBMacros.js";
 
 export async function magicStoneEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "spell", "magicStone.js");

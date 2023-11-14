@@ -21,7 +21,7 @@ import {
   addChrisEffectsToActorDocuments,
   // restrictedItemReplacer
 } from "../effects/chrisPremades.js";
-import DDBMacros from "../effects/macros.js";
+import DDBMacros from "../effects/DDBMacros.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
 import { addMagicItemSpells } from "../parser/item/itemSpells.js";
 
