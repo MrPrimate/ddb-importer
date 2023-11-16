@@ -239,6 +239,18 @@ const utils = {
     return typeof str === 'string' || str instanceof String;
   },
 
+  isArray: (arr) => {
+    return Array.isArray(arr);
+  },
+
+  isBoolean: (bool) => {
+    return typeof bool === 'boolean';
+  },
+
+  isFunction: (func) => {
+    return func instanceof Function;
+  },
+
   mergeDeep: (target, source) => {
     let output = Object.assign({}, target);
     if (utils.isObject(target) && utils.isObject(source)) {
