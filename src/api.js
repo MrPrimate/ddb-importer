@@ -38,6 +38,7 @@ import NameMatcher from "./lib/NameMatcher.js";
 import OriginFixer from "./lib/OriginFixer.js";
 import DDBEffectHelper from "./effects/DDBEffectHelper.js";
 import DDBItemImporter from "./lib/DDBItemImporter.js";
+import DialogHelper from "./lib/DialogHelper.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -114,6 +115,7 @@ export function registerApi() {
       OriginFixer,
       DDBEffectHelper,
       DDBItemImporter,
+      DialogHelper,
     },
     settings: {
       muncherSettings: MuncherSettings.getMuncherSettings,
@@ -152,6 +154,7 @@ export function registerApi() {
 
     generateItemMacroFlag: DDBMacros.generateItemMacroFlag,
     EffectHelper: DDBEffectHelper,
+    DialogHelper,
     effects: {
       helpers: DDBEffectHelper,
       addChrisEffectsToActorDocuments,

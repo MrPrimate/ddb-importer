@@ -1,4 +1,5 @@
 /* eslint-disable no-await-in-loop */
+import DialogHelper from "../lib/DialogHelper.js";
 import DICTIONARY from "../dictionary.js";
 import FolderHelper from "../lib/FolderHelper.js";
 import utils from "../lib/utils.js";
@@ -179,49 +180,8 @@ export default class DDBEffectHelper {
     }
   }
 
-  /**
-   * Generates a dialog with buttons and options in the specified direction.
-   *
-   * @param {Object} options - An object containing the dialog options.
-   *   @param {string} options.title - The title of the dialog.
-   *   @param {string} options.content - The content of the dialog.
-   *   @param {Array} options.buttons - An array of buttons for the dialog.
-   *     @param {Object} button - An object representing a button.
-   *       @param {string} button.label - The label of the button.
-   *       @param {string} button.value - The value associated with the button.
-   *   @param {Object} options.options - Additional options to pass to the dialog.
-   * @param {string} direction - The direction of the dialog buttons.
-   * @return {Promise} A promise that resolves with the button value or rejects with an error.
-   */
-  static async buttonDialog({ title = "", content = "", buttons, options } = {}, direction = "row") {
-    // Example usage:
-    //  const selected = await DDBImporter.EffectHelper.buttonDialog(
-    //    {
-    //     buttons: [{ label: "Label1", value: "Value1"}, {label: "Label2", value: "Value2" }],
-    //     title: "A title",
-    //     content: "Some <b>bold</b> content"
-    //   },
-    //   'row'
-    //  );
-    //  console.warn(`You selected ${selected}`);
-    return new Promise((resolve) => {
-      new Dialog(
-        {
-          title,
-          content,
-          buttons: buttons.reduce((o, button) => ({
-            ...o,
-            [button.label]: { label: button.label, callback: () => resolve(button.value) }
-          }), {}),
-          close: () => resolve(this),
-        },
-        {
-          height: "100%",
-          classes: ["dialog", `ddb-button-dialog-${direction}`],
-          ...options,
-        }
-      ).render(true);
-    });
+  static async buttonDialog(config, direction) {
+    return DialogHelper.buttonDialog(config, direction);
   }
 
   static canSense(token, target) {
@@ -311,7 +271,7 @@ export default class DDBEffectHelper {
       if (!pack) continue;
       const actors = pack.index.filter((f) => f.name.includes(name));
       const subFolder = await FolderHelper.getFolder("npc", subFolderName, "JB2A Actors", "#ceb180", "#cccc00", false);
-  
+
       for (const actor of actors) {
         if (!game.actors.find((a) => a.name === actor.name && a.folder?.id === subFolder.id)) {
           await game.actors.importFromCompendium(pack, actor._id, {
@@ -371,7 +331,7 @@ export default class DDBEffectHelper {
       return actor.effects.find((e) => e.label === name);
     }
   }
-  
+
   static findEffects(actor, names) {
     const results = [];
     for (const name of names) {
