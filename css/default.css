@@ -114,3 +114,18 @@ li.context-item i.active {
   flex-direction: column;
   justify-content: center;
 }
+
+.ddb-advanced-dialog table.ddb-selection-table {
+  width: 100%;
+}
+
+.ddb-advanced-dialog table.ddb-selection-table td,
+.ddb-advanced-dialog table.ddb-selection-table th {
+  width: 50%;
+  text-align: center;
+  padding: 10px;
+}
+
+.ddb-advanced-dialog table.ddb-selection-table td.colspan2 {
+  column-span: 2;
+}
