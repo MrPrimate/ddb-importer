@@ -5,32 +5,32 @@ class AdvancedDialog {
   /**
    * A class that constructs a chooser dialog with the given prompt information and buttons.
    *
-   * @param {Object} options - An object containing the prompt information and buttons.
-   *   @param {Array} options.inputs - An array of input fields for the dialog.
-   *   @param {Array} options.buttons - An array of buttons for the dialog.
-   *     @param {Object} button - An object representing a button.
-   *       @param {string} button.label - The label of the button.
-   *       @param {string} button.value - The value associated with the button.
+   * @param {Array} inputs - An array of input fields for the dialog.
+   *   @param {string} input.label - The label of the input field.
+   *   @param {string} input.type - The type of the input field.
+   *   @param {Array} input.options - The options of the input field. This varies depending on the type, see notes below.
+   * @param {Array} buttons - An array of buttons for the dialog.
+   *   @param {string} button.label - The label of the button.
+   *   @param {string} button.value - The value associated with the button.
+   *   @param {function} button.callback - The (optional) callback function for the button.
    * @param {object} config - The configuration object for the dialog.
    *   @param {string} config.title - The title of the dialog.
    *   @param {string} config.defaultButton - The default button label.
    *   @param {function} config.close - The callback function for closing the dialog.
-   *   @param {boolean} config.checkedText - Boolean indicating if the text should be checked.
    *   @param {object} config.options - Additional options for the foundry Dialog.
    *   @param {function} config.render - Optional function to pass to render call for Dialog.
    */
-  constructor(
-    { inputs = [], buttons = [] } = {}, // prompt information
-    { title = "", defaultButton = "OK", close = (resolve) => resolve({ success: false }), checkedText = false, options = {}, render = null } = {}, // dialog config
+  constructor(inputs = [], buttons = [], // prompt information
+    { title = "", defaultButton = "OK", close = (resolve) => resolve({ success: false }), options = {}, render = null } = {}, // dialog config
   ) {
     this.inputs = inputs;
     this.buttons = buttons;
+    this.dialog = null;
 
     this.config = {
       title,
       defaultButtonLabel: defaultButton,
       close,
-      checkedText,
       options,
       render,
       classes: ["dialog", "ddb-advanced-dialog"],
@@ -122,14 +122,7 @@ class AdvancedDialog {
             return null;
           case "radio":
           case "checkbox": {
-            const element = html.find(`input#ddb-${idx}`)[0];
-            if (this.checkedText) {
-              return element.checked
-                ? html.find(`[for="ddb-${idx}"]`)[0].innerText
-                : "";
-            } else {
-              return element.checked;
-            }
+            return html.find(`input#ddb-${idx}`)[0].checked;
           }
           case "number":
             return html.find(`input#ddb-${idx}`)[0].valueAsNumber;
@@ -152,6 +145,86 @@ export class ChooserDialog extends AdvancedDialog {
    * Asynchronously waits for the dialog choices to be made or closed.
    *
    * @return {Promise} A promise that resolves when the action is completed.
+   * @example
+   *  let dialog = new DDBImporter.DialogHelper.ChooserDialog([{
+   *      label: 'Group 1 Radio Label 1',
+   *      type: 'radio',
+   *      options: {
+   *        group: 'group1',
+   *      },
+   *    }, {
+   *      label: 'Group 1 Radio Label 2',
+   *      type: 'radio',
+   *      options: {
+   *        group: 'group1',
+   *        checked: true,
+   *      },
+   *    },
+   *    {
+   *      label: 'Group 2 Radio Label 1',
+   *      type: 'radio',
+   *      options: {
+   *        group: 'group2',
+   *      },
+   *    },
+   *    {
+   *      label: 'Group 2 Radio Label 2',
+   *      type: 'radio',
+   *      options: {
+   *        group: 'group2',
+   *      },
+   *    },
+   *    {
+   *      label: 'Default Group Radio Label 1',
+   *      type: 'radio',
+   *    },
+   *    {
+   *      label: 'Default Group Radio Label 2',
+   *      type: 'radio',
+   *    },
+   *    {
+   *      label: 'Checkbox Label',
+   *      type: 'checkbox',
+   *      options: {
+   *        checked: true,
+   *      },
+   *    },{
+   *      type: 'select',
+   *      label: 'Select Dialog Label',
+   *      options: [
+   *          { label: 'String Option', value: "option1" },
+   *          { label: 'Map Option', value: { valuesCanBeObjects: true }, selected:true },
+   *          { label: 'Int Option', value: 3 },
+   *      ],
+   *    }],
+   *    [{
+   *      label: "Yes",
+   *      value: "yes",
+   *      callback: () => console.log("Yes was clicked"),
+   *    }, {
+   *      label: "No",
+   *      value: "no"
+   *    }, {
+   *      label: "<b>Callback Function</b>",
+   *      value: "html",
+   *      default: true,
+   *      callback: (results) => {
+   *        console.warn(results);
+   *        results.extra =  {
+   *          a: 1,
+   *          b: 2,
+   *        };
+   *        console.log("Adding some extra data");
+   *      },
+   *    }],
+   *    {
+   *     title: 'A wrapped choice dialog',
+   *      options: {
+   *        width: 450,
+   *      }
+   *    });
+   *
+   *  let result = await d.ask();
    */
   async ask() {
     return new Promise((resolve) => {
@@ -164,6 +237,7 @@ export class ChooserDialog extends AdvancedDialog {
             callback: (html) => {
               const results = {
                 results: this._parseSelectionResults(html),
+                inputs: this.inputs,
                 success: true,
               };
               if (utils.isFunction(button.callback)) button.callback(results, html);
@@ -177,12 +251,13 @@ export class ChooserDialog extends AdvancedDialog {
             label: this.config.defaultButtonLabel,
             callback: (html) =>
               resolve({
-                inputs: this._parseSelectionResults(html),
+                results: this._parseSelectionResults(html),
+                inputs: this.inputs,
                 success: true,
               }),
           }
         };
-      new Dialog(
+      this.dialog = new Dialog(
         {
           title: this.config.title,
           content: this._generateSelectionHtml(),
@@ -196,7 +271,8 @@ export class ChooserDialog extends AdvancedDialog {
           focus: true,
           ...this.config.options
         }
-      ).render(true);
+      );
+      this.dialog.render(true);
     });
   }
 }

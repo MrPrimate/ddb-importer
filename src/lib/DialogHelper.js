@@ -27,7 +27,7 @@ export default class DialogHelper {
      );
      console.warn(`You selected ${selected}`);
    */
-  static async buttonDialog({ title = "", content = "", buttons, options = { height: "100%" } } = {}, direction = "row") {
+  static async buttonDialog({ title = "", content = "", buttons, options = { height: "auto" } } = {}, direction = "row") {
 
     return new Promise((resolve) => {
       new Dialog(
