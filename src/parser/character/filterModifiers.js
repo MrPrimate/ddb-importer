@@ -96,8 +96,7 @@ function isStartingClass(data, className) {
 function getClassModifiers(data, classFeatures, isStartingClass = false) {
   const modifiers = data.modifiers.class.filter((classModifier) => {
     // check the class from which this modifier came
-    const componentId = classModifier.componentId;
-    const feature = classFeatures.find((feature) => feature.id === componentId);
+    const feature = classFeatures.find((feature) => feature.id === classModifier.componentId);
     if (feature !== undefined) {
       const isFeatureAvailable = classModifier.availableToMulticlass ? true : isStartingClass;
       logger.debug(
@@ -153,6 +152,7 @@ function filterModifiers(data, classInfo) {
 }
 
 export function fixCharacterLevels(data) {
+  data.originalClassModifiers = deepClone(data.character.modifiers.class);
   const classInfo = getClassInfo(data.character);
   const filteredClassInfo = filterModifiers(data.character, classInfo);
   let classModifiers = getClassOptionModifiers(data.character, classInfo);

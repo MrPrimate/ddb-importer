@@ -10,6 +10,7 @@ import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
+import { fixCharacterLevels } from "./character/filterModifiers.js";
 
 
 export default class DDBCharacter {
@@ -78,7 +79,12 @@ export default class DDBCharacter {
     const betaKey = game.settings.get("ddb-importer", "beta-key");
     const campaignId = getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
-    let body = { cobalt: cobaltCookie, betaKey, characterId: this.characterId, campaignId: proxyCampaignId };
+    let body = {
+      cobalt: cobaltCookie,
+      betaKey, characterId: this.characterId,
+      campaignId: proxyCampaignId,
+      filterModifiers: false,
+    };
     if (syncId) {
       body["updateId"] = syncId;
     }
@@ -94,6 +100,8 @@ export default class DDBCharacter {
       });
       this.source = await response.json();
       if (!this.source.success) return this.source;
+
+      this.source.ddb = fixCharacterLevels(this.source.ddb);
 
       // load some required content
       await importCacheLoad();
