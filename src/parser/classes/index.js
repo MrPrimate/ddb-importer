@@ -200,6 +200,116 @@ async function generateFeatureAdvancements(ddb, klass, klassDefinition, compendi
   return advancements;
 }
 
+function generateSkillAdvancements(ddb, klass, ddbKlass, isSubclass = false) {
+  // There class object supports skills granted by the class.
+  // Lets find and add them for future compatibility.
+  // const classFeatureIds = ddbKlass.definition.classFeatures
+  //   .map((feature) => feature.id)
+  //   .concat((ddbKlass.subclassDefinition)
+  //     ? ddbKlass.subclassDefinition.classFeatures.map((feature) => feature.id)
+  //     : []);
+
+  const classProficiencyFeatureIds = ddbKlass.definition.classFeatures
+    .filter((feature) => feature.name === "Proficiencies")
+    .map((feature) => feature.id)
+    .concat((ddbKlass.subclassDefinition)
+      ? ddbKlass.subclassDefinition.classFeatures
+        .filter((feature) => feature.name === "Proficiencies")
+        .map((feature) => feature.id)
+      : []);
+
+  // const classSkillSubType = `choose-a-${ddbKlass.definition.name.toLowerCase()}-skill`;
+  // const skillIds = DDBHelper.getChosenClassModifiers(ddb)
+  //   .filter((mod) => mod.subType === classSkillSubType && mod.type === "proficiency")
+  //   .map((mod) => mod.componentId);
+
+  // "subType": 1,
+  // "type": 2,
+
+  // There class object supports skills granted by the class.
+  let skillsChosen = [];
+  let skillChoices = [];
+  const choiceDefinitions = ddb.character.choices.choiceDefinitions;
+  ddb.character.choices.class.filter((choice) =>
+    classProficiencyFeatureIds.includes(choice.componentId)
+    && choice.subType === 1
+    && choice.type === 2
+  ).forEach((choice) => {
+    const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+    if (!optionChoice) return;
+    const option = optionChoice.options.find((option) => option.id === choice.optionValue);
+    if (!option) return;
+    const smallChosen = DICTIONARY.character.skills.find((skill) => skill.label === option.label);
+    if (smallChosen && !skillsChosen.includes(smallChosen.name)) {
+      skillsChosen.push(smallChosen.name);
+    }
+    const optionNames = optionChoice.options.filter((option) =>
+      DICTIONARY.character.skills.some((skill) => skill.label === option.label)
+      && choice.optionIds.includes(option.id)
+    ).map((option) =>
+      DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
+    );
+    optionNames.forEach((skill) => {
+      if (!skillChoices.includes(skill)) {
+        skillChoices.push(skill);
+      }
+    });
+  });
+
+  klass.system.skills = {
+    value: skillsChosen,
+    number: skillsChosen.length,
+    choices: skillChoices,
+  };
+
+  const updates = [];
+  const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+  advancement.updateSource({ classRestriction: "primary", configuration: { grants: updates } });
+
+  return [advancement.toObject()];
+}
+
+function generateSaveAdvancements(ddb, klassDefinition) {
+  if (foundry.utils.isNewerVersion("2.4.0", game.system.version)) return [];
+  const advancements = [];
+  for (let i = 0; i <= 20; i++) {
+    [true, false].forEach((availableToMulticlass) => {
+      const modFilters = {
+        includeExcludedEffects: true,
+        classId: klassDefinition.id,
+        exactLevel: i,
+        availableToMulticlass,
+      };
+      const mods = DDBHelper.getChosenClassModifiers(ddb, modFilters);
+      const updates = DICTIONARY.character.abilities
+        .filter((ability) => {
+          // return DDBHelper.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
+          const modsSum = DDBHelper.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
+          // console.warn("modsSum", { ability, modsSum });
+          return modsSum;
+        })
+        .map((ability) => `saves:${ability.value}`);
+      // create a leveled advancement
+      if (updates.length > 0) {
+        const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+        const update = {
+          classRestriction: availableToMulticlass ? "" : "primary",
+          configuration: { grants: updates },
+          level: i,
+          value: {
+            chosen: updates,
+          },
+        };
+        advancement.updateSource(update);
+        advancements.push(advancement.toObject());
+      }
+    });
+  }
+
+
+  return advancements;
+}
+
 function parseFeaturesForScaleValues(ddb, klass, klassDefinition, ignoreIds = []) {
   let specialFeatures = [];
   const advancements = getClassFeatures(ddb, klass, klassDefinition, ignoreIds)
@@ -320,10 +430,88 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
   subKlass.system.advancement = [
     ...parseFeaturesForScaleValues(ddb, characterClass, characterClass.subclassDefinition, baseClassFeatureIds),
     ...await generateFeatureAdvancements(ddb, characterClass, characterClass.subclassDefinition, featuresIndex, baseClassFeatureIds),
+    ...generateSaveAdvancements(ddb, characterClass.subclassDefinition),
   ];
 
   subKlass = classFixes(subKlass);
   return subKlass;
+}
+
+function setLegacySaves(ddb, klass) {
+  if (!foundry.utils.isNewerVersion("2.4.0", game.system.version)) return klass;
+  DICTIONARY.character.abilities.forEach((ability) => {
+    const mods = DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects: true });
+    const save = DDBHelper.filterModifiersOld(mods, "proficiency", `${ability.long}-saving-throws`, [null, ""], true).length > 0;
+    if (save) klass.system.saves.push(ability.value);
+  });
+
+  return klass;
+}
+
+function setLegacySkills(ddb, klass, ddbKlass) {
+  if (!foundry.utils.isNewerVersion("2.4.0", game.system.version)) return klass;
+  // There class object supports skills granted by the class.
+  // Lets find and add them for future compatibility.
+  // const classFeatureIds = characterClass.definition.classFeatures
+  //   .map((feature) => feature.id)
+  //   .concat((characterClass.subclassDefinition)
+  //     ? characterClass.subclassDefinition.classFeatures.map((feature) => feature.id)
+  //     : []);
+
+  const classProficiencyFeatureIds = ddbKlass.definition.classFeatures
+    .filter((feature) => feature.name === "Proficiencies")
+    .map((feature) => feature.id)
+    .concat((ddbKlass.subclassDefinition)
+      ? ddbKlass.subclassDefinition.classFeatures
+        .filter((feature) => feature.name === "Proficiencies")
+        .map((feature) => feature.id)
+      : []);
+
+  // const classSkillSubType = `choose-a-${characterClass.definition.name.toLowerCase()}-skill`;
+  // const skillIds = DDBHelper.getChosenClassModifiers(ddb)
+  //   .filter((mod) => mod.subType === classSkillSubType && mod.type === "proficiency")
+  //   .map((mod) => mod.componentId);
+
+  // "subType": 1,
+  // "type": 2,
+
+  // There class object supports skills granted by the class.
+  let skillsChosen = [];
+  let skillChoices = [];
+  const choiceDefinitions = ddb.character.choices.choiceDefinitions;
+  ddb.character.choices.class.filter((choice) =>
+    classProficiencyFeatureIds.includes(choice.componentId)
+    && choice.subType === 1
+    && choice.type === 2
+  ).forEach((choice) => {
+    const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+    if (!optionChoice) return;
+    const option = optionChoice.options.find((option) => option.id === choice.optionValue);
+    if (!option) return;
+    const smallChosen = DICTIONARY.character.skills.find((skill) => skill.label === option.label);
+    if (smallChosen && !skillsChosen.includes(smallChosen.name)) {
+      skillsChosen.push(smallChosen.name);
+    }
+    const optionNames = optionChoice.options.filter((option) =>
+      DICTIONARY.character.skills.some((skill) => skill.label === option.label)
+      && choice.optionIds.includes(option.id)
+    ).map((option) =>
+      DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
+    );
+    optionNames.forEach((skill) => {
+      if (!skillChoices.includes(skill)) {
+        skillChoices.push(skill);
+      }
+    });
+  });
+
+  klass.system.skills = {
+    value: skillsChosen,
+    number: skillsChosen.length,
+    choices: skillChoices,
+  };
+
+  return klass;
 }
 
 export async function getClasses(ddb, character) {
@@ -382,6 +570,7 @@ export async function getClasses(ddb, character) {
       ...parseFeaturesForScaleValues(ddb, characterClass, characterClass.definition, subClassFeatureIds),
       // eslint-disable-next-line no-await-in-loop
       ...await generateFeatureAdvancements(ddb, characterClass, characterClass.definition, featuresIndex, subClassFeatureIds),
+      ...generateSaveAdvancements(ddb, characterClass.definition, characterClass),
     ], klass);
 
 
@@ -446,12 +635,8 @@ export async function getClasses(ddb, character) {
       choices: skillChoices,
     };
 
-    klass.system.saves = [];
-    DICTIONARY.character.abilities.forEach((ability) => {
-      const mods = DDBHelper.getChosenClassModifiers(ddb, true);
-      const save = DDBHelper.filterModifiers(mods, "proficiency", `${ability.long}-saving-throws`, [null, ""], true).length > 0;
-      if (save) klass.system.saves.push(ability.value);
-    });
+    klass = setLegacySkills(ddb, klass, characterClass);
+    klass = setLegacySaves(ddb, klass);
 
     const castSpells = characterClass.definition.canCastSpells;
 

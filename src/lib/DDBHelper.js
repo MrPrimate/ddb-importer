@@ -293,7 +293,7 @@ const DDBHelper = {
     );
   },
 
-  getModifiers: (ddb, type, includeExcludedEffects = false, effectOnly = false) => {
+  getModifiers: (ddb, type, includeExcludedEffects = false, effectOnly = false, useUnfilteredModifiers = false) => {
     // are we adding effects to items?
     const featureEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
     const excludedModifiers = (!includeExcludedEffects || (includeExcludedEffects && effectOnly))
@@ -301,14 +301,17 @@ const DDBHelper = {
       : getEffectExcludedModifiers(type, false, false);
     // get items we are going to interact on
     let modifiers = [];
+    const baseMods = useUnfilteredModifiers
+      ? ddb.unfilteredModifiers[type]
+      : ddb.character.modifiers[type];
     if (effectOnly) {
-      modifiers = ddb.character.modifiers[type]
+      modifiers = baseMods
         .filter((mod) => excludedModifiers.some((exMod) =>
           mod.type === exMod.type
         && (mod.subType === exMod.subType || !exMod.subType))
         );
     } else {
-      modifiers = ddb.character.modifiers[type]
+      modifiers = baseMods
         .filter((mod) => !excludedModifiers.some((exMod) =>
           mod.type === exMod.type
         && (mod.subType === exMod.subType || !exMod.subType))
@@ -347,11 +350,12 @@ const DDBHelper = {
         (classId === null
           ? true
           : (classId === klass.definition?.id || classId === klass.subclassDefinition?.id))
-        && (requiredLevel === null || klass.level >= requiredLevel)
-        && (exactLevel === null || klass.level == exactLevel)
-      ).map((klass) =>
-        klass.classFeatures.map((feat) => feat.definition.id)
-      ).flat();
+      ).map((klass) => klass.classFeatures)
+      .flat()
+      .filter((feat) =>
+        (requiredLevel === null || feat.definition.requiredLevel >= requiredLevel)
+        && (exactLevel === null || feat.definition.requiredLevel == exactLevel)
+      ).map((feat) => feat.definition.id);
   },
 
   isModClassFeature: (ddb, mod, { classId = null, requiredLevel = null, exactLevel = null } = {}) => {
@@ -359,11 +363,11 @@ const DDBHelper = {
       (classId === null
         ? true
         : (classId === klass.definition?.id || classId === klass.subclassDefinition?.id))
-      && (requiredLevel === null || klass.level >= requiredLevel)
-      && (exactLevel === null || klass.level == exactLevel)
       && klass.classFeatures.some((feat) =>
         feat.definition.id == mod.componentId
         && feat.definition.entityTypeId == mod.componentTypeId
+        && (requiredLevel === null || feat.definition.requiredLevel >= requiredLevel)
+        && (exactLevel === null || feat.definition.requiredLevel == exactLevel)
         // make sure this class feature is not replaced
         && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == feat.definition.id)
       ));
@@ -442,19 +446,27 @@ const DDBHelper = {
     return isOptionalClassChoice;
   },
 
-  getChosenClassModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null } = {}) => {
+  getChosenClassModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null } = {}) => {
     const classFeatureIds = DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
     // get items we are going to interact on
     const modifiers = DDBHelper
-      .getModifiers(ddb, 'class', includeExcludedEffects, effectOnly)
-      .filter((mod) => DDBHelper.isModAChosenClassMod(ddb, mod, { classFeatureIds, classId, requiredLevel, exactLevel }));
+      .getModifiers(ddb, 'class', includeExcludedEffects, effectOnly, availableToMulticlass !== null)
+      .filter((mod) =>
+        (
+          availableToMulticlass === null
+          || mod.availableToMulticlass === undefined
+          || mod.availableToMulticlass === null
+          || mod.availableToMulticlass === availableToMulticlass
+        )
+        && DDBHelper.isModAChosenClassMod(ddb, mod, { classFeatureIds, classId, requiredLevel, exactLevel })
+      );
 
     return modifiers;
   },
 
-  filterBaseCharacterModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null } = {}) => {
+  filterBaseCharacterModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null } = {}) => {
     const modifiers = [
-      DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId }),
+      DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass }),
       DDBHelper.getModifiers(ddb, "race", includeExcludedEffects, effectOnly),
       DDBHelper.getModifiers(ddb, "background", includeExcludedEffects, effectOnly),
       DDBHelper.getModifiers(ddb, "feat", includeExcludedEffects, effectOnly),
@@ -465,9 +477,9 @@ const DDBHelper = {
 
   // I need to getChosenOriginFeatures from data.optionalOriginFeatures
 
-  filterBaseModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null } = {}) => {
+  filterBaseModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null } = {}) => {
     const modifiers = [
-      DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId }),
+      DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass }),
       DDBHelper.getModifiers(ddb, "race", includeExcludedEffects, effectOnly),
       DDBHelper.getModifiers(ddb, "background", includeExcludedEffects, effectOnly),
       DDBHelper.getModifiers(ddb, "feat", includeExcludedEffects, effectOnly),
