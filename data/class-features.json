@@ -5915,6 +5915,13 @@
     "path": "icons/sundries/books/book-face-blue.webp"
   },
   {
+    "name": "Create Pact Weapon",
+    "class_feature": "Create Pact Weapon",
+    "class": "Warlock",
+    "subclass": "",
+    "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
+  },
+  {
     "name": "Panache",
     "class_feature": "Panache",
     "class": "Rogue",
