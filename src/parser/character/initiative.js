@@ -2,7 +2,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype._generateInitiative = function _generateInitiative() {
-  const initMods = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", "initiative");
+  const initMods = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", { subType: "initiative" });
   // const initiativeBonus = DDBHelper.getModifierSum(initMods, this.raw.character);
 
   let initiativeBonus = DDBHelper.getValueFromModifiers(initMods, "initiative", "initiative", "bonus");

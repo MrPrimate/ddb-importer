@@ -24,7 +24,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace() {
           };
           DICTIONARY.character.abilities.forEach((ability) => {
             const bonus = DDBHelper
-              .filterModifiers(this.source.ddb.character.modifiers.race, "bonus", `${ability.long}-score`, [null, ""])
+              .filterModifiersOld(this.source.ddb.character.modifiers.race, "bonus", `${ability.long}-score`, [null, ""])
               .filter((mod) => mod.entityId === ability.id)
               .reduce((prev, cur) => prev + cur.value, 0);
             a.value.assignments[ability.value] = bonus;
@@ -32,10 +32,10 @@ DDBCharacter.prototype._generateRace = async function _generateRace() {
           break;
         }
         case "Size": {
-          const modSize = DDBHelper.filterModifiers(this.source.ddb.character.modifiers.race, "size");
+          const modSize = DDBHelper.filterModifiersOld(this.source.ddb.character.modifiers.race, "size");
           const size = a.configuration.sizes.length === 1
             ? a.configuration.sizes[0]
-            : modSize && modSize.length === 1 
+            : modSize && modSize.length === 1
               ? DICTIONARY.character.actorSizes.find((s) => modSize.subType === s.name.toLowerCase())?.value ?? `${this.raw.character.system.traits.size}`
               : `${this.raw.character.system.traits.size}`;
           a.value = {

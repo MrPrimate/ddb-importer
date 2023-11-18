@@ -37,7 +37,7 @@ let getEldritchInvocations = (ddb) => {
 };
 
 function getRangeAdjustmentMultiplier(ddb) {
-  const rangeAdjustmentMods = DDBHelper.filterBaseModifiers(ddb, "bonus", "spell-attack-range-multiplier").filter((modifier) => modifier.isGranted);
+  const rangeAdjustmentMods = DDBHelper.filterBaseModifiers(ddb, "bonus", { subType: "spell-attack-range-multiplier" }).filter((modifier) => modifier.isGranted);
 
   const multiplier = rangeAdjustmentMods.reduce((current, mod) => {
     if (Number.isInteger(mod.fixedValue) && mod.fixedValue > current) {

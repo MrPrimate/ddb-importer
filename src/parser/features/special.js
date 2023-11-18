@@ -14,7 +14,7 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
   if (ddbItem.grantedModifiers) return ddbItem;
   let modifierItem = duplicate(ddbItem);
   const modifiers = [
-    DDBHelper.getChosenClassModifiers(ddb, true, true),
+    DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects: true, effectOnly: true }),
     DDBHelper.getModifiers(ddb, "race", true, true),
     DDBHelper.getModifiers(ddb, "background", true, true),
     DDBHelper.getModifiers(ddb, "feat", true, true),

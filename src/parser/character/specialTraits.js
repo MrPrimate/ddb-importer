@@ -55,11 +55,11 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() 
 
   // advantage on initiative
   this.raw.character.flags.dnd5e.initiativeAdv
-    = DDBHelper.filterBaseModifiers(this.source.ddb, "advantage", "initiative").length > 0;
+    = DDBHelper.filterBaseModifiers(this.source.ddb, "advantage", { subType: "initiative" }).length > 0;
 
   // initiative half prof
   this.raw.character.flags.dnd5e.initiativeHalfProf
-    = DDBHelper.filterBaseModifiers(this.source.ddb, "half-proficiency", "initiative").length > 0;
+    = DDBHelper.filterBaseModifiers(this.source.ddb, "half-proficiency", { subType: "initiative" }).length > 0;
 
   // observant
   // we now just add this to the skill

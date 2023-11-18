@@ -45,13 +45,13 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
   }
 
   const bonusSpeed = DDBHelper
-    .filterBaseModifiers(this.source.ddb, "bonus", "speed", restriction)
+    .filterBaseModifiers(this.source.ddb, "bonus", { subType: "speed", restriction })
     .reduce((speed, feat) => speed + feat.value, 0);
 
   // speed bonuses
   for (let type in movementTypes) {
     let innateBonus = DDBHelper
-      .filterBaseModifiers(this.source.ddb, "bonus", `speed-${type}ing`, restriction)
+      .filterBaseModifiers(this.source.ddb, "bonus", { subType: `speed-${type}ing`, restriction })
       .reduce((speed, feat) => speed + feat.value, 0);
 
     // overwrite the (perhaps) changed value
@@ -74,7 +74,7 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
     const innateType = DICTIONARY.character.speeds.find((s) => s.type === type).innate;
     // is there a 'inntate-speed-[type]ing' race/class modifier?
     let innateSpeeds = DDBHelper
-      .filterBaseModifiers(this.source.ddb, "set", `innate-speed-${innateType}`, restriction);
+      .filterBaseModifiers(this.source.ddb, "set", { subType: `innate-speed-${innateType}`, restriction });
     let base = movementTypes[type];
 
     innateSpeeds.forEach((speed) => {

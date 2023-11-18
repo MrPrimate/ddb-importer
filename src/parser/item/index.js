@@ -264,7 +264,7 @@ export function parseItem(ddb, ddbItem, character, flags) {
  * @param {*} restrictions (array)
  */
 function getExtraDamage(ddb, restrictions) {
-  return DDBHelper.filterBaseModifiers(ddb, "damage", null, restrictions).map((mod) => {
+  return DDBHelper.filterBaseModifiers(ddb, "damage", { restriction: restrictions }).map((mod) => {
     const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
     if (die) {
       return [die.diceString, mod.subType];
@@ -377,12 +377,12 @@ DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
     classFeatures: getClassFeatures(ddb, ddbItem),
     martialArtsDie: getMartialArtsDie(ddb),
     maxMediumArmorDex: Math.max(
-      ...DDBHelper.filterBaseModifiers(ddb, "set", "ac-max-dex-armored-modifier", ["", null], true).map((mod) => mod.value),
-      ...DDBHelper.filterModifiers(ddbItem.definition?.grantedModifiers ?? ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-armored-modifier", ["", null], true).map((mod) => mod.value),
-      ...DDBHelper.filterModifiers(ddbItem.definition?.grantedModifiers ?? ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-modifier", ["", null], true).map((mod) => mod.value),
+      ...DDBHelper.filterBaseModifiers(ddb, "set", { subType: "ac-max-dex-armored-modifier", includeExcludedEffects: true }).map((mod) => mod.value),
+      ...DDBHelper.filterModifiersOld(ddbItem.definition?.grantedModifiers ?? ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-armored-modifier", ["", null], true).map((mod) => mod.value),
+      ...DDBHelper.filterModifiersOld(ddbItem.definition?.grantedModifiers ?? ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-modifier", ["", null], true).map((mod) => mod.value),
       2,
     ),
-    magicItemAttackInt: DDBHelper.filterBaseModifiers(ddb, "bonus", "magic-item-attack-with-intelligence").length > 0,
+    magicItemAttackInt: DDBHelper.filterBaseModifiers(ddb, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0,
   };
 
   if (flags.classFeatures.includes("Lifedrinker")) {

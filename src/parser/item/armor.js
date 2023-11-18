@@ -43,7 +43,7 @@ function getArmorType(data, character, flags) {
       break;
   }
 
-  const itemDexMaxAdjustment = DDBHelper.getModifierSum(DDBHelper.filterModifiers(data.definition.grantedModifiers, "set", "ac-max-dex-modifier"), character);
+  const itemDexMaxAdjustment = DDBHelper.getModifierSum(DDBHelper.filterModifiersOld(data.definition.grantedModifiers, "set", "ac-max-dex-modifier"), character);
   if (maxDexModifier !== null && Number.isInteger(itemDexMaxAdjustment) && itemDexMaxAdjustment > maxDexModifier) {
     maxDexModifier = itemDexMaxAdjustment;
   }

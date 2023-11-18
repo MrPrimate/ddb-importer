@@ -28,7 +28,7 @@ DDBCharacter.prototype.getSenses = function getSenses() {
 
   // Base senses
   for (const senseName in senses) {
-    DDBHelper.filterBaseModifiers(this.source.ddb, "set-base", senseName).forEach((sense) => {
+    DDBHelper.filterBaseModifiers(this.source.ddb, "set-base", { subType: senseName }).forEach((sense) => {
       if (Number.isInteger(sense.value) && sense.value > senses[senseName]) {
         senses[senseName] = parseInt(sense.value);
       }
@@ -36,10 +36,14 @@ DDBCharacter.prototype.getSenses = function getSenses() {
   }
 
   // Devils Sight gives bright light to 120 foot instead of normal darkvision
-  DDBHelper
-    .filterBaseModifiers(this.source.ddb, "set-base", "darkvision", [
+  const devilsSightFilters = {
+    subType: "darkvision",
+    restriction: [
       "You can see normally in darkness, both magical and nonmagical",
-    ])
+    ]
+  };
+  DDBHelper
+    .filterBaseModifiers(this.source.ddb, "set-base", devilsSightFilters)
     .forEach((sense) => {
       if (Number.isInteger(sense.value) && sense.value > senses['darkvision']) {
         senses['darkvision'] = parseInt(sense.value);
@@ -48,8 +52,12 @@ DDBCharacter.prototype.getSenses = function getSenses() {
     });
 
   // Magical bonuses and additional, e.g. Gloom Stalker
+  const magicalBonusFilters = {
+    subType: "darkvision",
+    restriction: ["", null, "plus 60 feet if wearer already has Darkvision"]
+  };
   DDBHelper
-    .filterBaseModifiers(this.source.ddb, "sense", "darkvision", ["", null, "plus 60 feet if wearer already has Darkvision"])
+    .filterBaseModifiers(this.source.ddb, "sense", magicalBonusFilters)
     .forEach((mod) => {
       const hasSense = mod.subType in senses;
       if (hasSense && mod.value && Number.isInteger(mod.value)) {

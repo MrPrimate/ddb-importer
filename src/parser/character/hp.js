@@ -9,11 +9,11 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   const removedHitPoints = this.source.ddb.character.removedHitPoints || 0;
   const temporaryHitPoints = this.source.ddb.character.temporaryHitPoints || 0;
 
-  // get all hit points features
-  const bonusHitPointFeatures = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", "hit-points-per-level");
-  const bonusHitPointFeaturesWithEffects = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", "hit-points-per-level", ["", null], true);
+  // get allvalues hit points features
+  const bonusHitPointFeatures = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", { subType: "hit-points-per-level" });
+  const bonusHitPointFeaturesWithEffects = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", { subType: "hit-points-per-level", includeExcludedEffects: true });
 
-  // get their values
+  // get their
   const bonusHitPointValues = bonusHitPointFeatures.map((bonus) => {
     const cls = DDBHelper.findClassByFeatureId(this.source.ddb, bonus.componentId);
     if (cls) {

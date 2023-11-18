@@ -23,7 +23,7 @@ export default class CharacterSpellFactory {
     logger.debug("Character spell lookups", this.lookups);
     this.characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
-    this.healingBoost = DDBHelper.filterBaseModifiers(ddb, "bonus", "spell-group-healing").reduce((a, b) => a + b.value, 0);
+    this.healingBoost = DDBHelper.filterBaseModifiers(ddb, "bonus", { subType: "spell-group-healing" }).reduce((a, b) => a + b.value, 0);
 
   }
 

@@ -318,7 +318,7 @@ const DDBHelper = {
     return modifiers;
   },
 
-  filterModifiers: (modifiers, type, subType = null, restriction = ["", null]) => {
+  filterModifiers: (modifiers, type, { subType = null, restriction = ["", null] } = {}) => {
     return modifiers
       .flat()
       .filter(
@@ -329,81 +329,152 @@ const DDBHelper = {
       );
   },
 
-  getChosenClassModifiers: (ddb, includeExcludedEffects = false, effectOnly = false) => {
-    // get items we are going to interact on
-    const modifiers = DDBHelper.getModifiers(ddb, 'class', includeExcludedEffects, effectOnly).filter((mod) => {
-      const isClassFeature = ddb.character.classes.some((klass) => klass.classFeatures.some((feat) =>
-        feat.definition.id == mod.componentId && feat.definition.entityTypeId == mod.componentTypeId
+  filterModifiersOld: (modifiers, type, subType = null, restriction = ["", null]) => {
+    return DDBHelper.filterModifiers(modifiers, type, { subType, restriction });
+  },
+
+  isComponentIdInClassFeatures: (ddb, componentId, classId) => {
+    return ddb.character.classes
+      .filter((klass) => classId === klass.definition?.id || classId === klass.subclassDefinition?.id)
+      .some((klass) =>
+        klass.classFeatures.some((feat) => feat.definition.id == componentId)
+      );
+  },
+
+  getClassFeatureIds(ddb, { classId = null, requiredLevel = null, exactLevel = null } = {}) {
+    return ddb.character.classes
+      .filter((klass) =>
+        (classId === null
+          ? true
+          : (classId === klass.definition?.id || classId === klass.subclassDefinition?.id))
+        && (requiredLevel === null || klass.level >= requiredLevel)
+        && (exactLevel === null || klass.level == exactLevel)
+      ).map((klass) =>
+        klass.classFeatures.map((feat) => feat.definition.id)
+      ).flat();
+  },
+
+  isModClassFeature: (ddb, mod, { classId = null, requiredLevel = null, exactLevel = null } = {}) => {
+    return ddb.character.classes.some((klass) =>
+      (classId === null
+        ? true
+        : (classId === klass.definition?.id || classId === klass.subclassDefinition?.id))
+      && (requiredLevel === null || klass.level >= requiredLevel)
+      && (exactLevel === null || klass.level == exactLevel)
+      && klass.classFeatures.some((feat) =>
+        feat.definition.id == mod.componentId
+        && feat.definition.entityTypeId == mod.componentTypeId
         // make sure this class feature is not replaced
         && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == feat.definition.id)
       ));
-      // generate a list to check in option check
-      const classFeatureIds = ddb.character.classes.map((klass) => klass.classFeatures.map((feat) => feat.definition.id)).flat();
-      const isClassOption = ddb.character.options.class.some((option) =>
-        // does this class option match a modifier?
-        ((option.componentTypeId == mod.componentTypeId && option.componentId == mod.componentId)
-        || (option.definition.entityTypeId == mod.componentTypeId && option.definition.id == mod.componentId))
-        // has this feature set been replacd by an optional class feature?
-        && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.componentId)
-        // has it been chosen?
-        && ddb.character.choices.class.some((choice) =>
-          choice.componentId == option.componentId && choice.componentTypeId == option.componentTypeId && choice.optionValue
-        )
-        // is this option actually part of the class list?
-        && classFeatureIds.includes(option.componentId)
-      );
-      // if it's been replaced by a class feature lets check that
-      const isOptionalClassOption = ddb.character.options.class.some((option) =>
-        ((option.componentTypeId == mod.componentTypeId && option.componentId == mod.componentId)
-        || (option.definition.entityTypeId == mod.componentTypeId && option.definition.id == mod.componentId))
-        // !data.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.definition.id) &&
-        && (
-          ddb.character.choices.class.some((choice) =>
-            choice.componentId == option.componentId && choice.componentTypeId == option.componentTypeId && choice.optionValue
-          )
-          || ddb.classOptions?.some((classOption) =>
-            classOption.id == option.componentId && classOption.entityTypeId == option.componentTypeId
-          )
-        )
-        && ddb.character.optionalClassFeatures?.some((f) => f.classFeatureId == option.componentId)
-      );
+  },
 
-      // new class feature choice
-      const isOptionalClassChoice = ddb.character.choices.class.some((choice) =>
-        choice.componentTypeId == mod.componentTypeId
-        && choice.componentId == mod.componentId
-        && ddb.character.optionalClassFeatures?.some((f) => f.classFeatureId == choice.componentId)
-      );
+  isModClassOption: (ddb, mod, { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null } = {}) => {
+    const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
+    return ddb.character.options.class.some((option) =>
+      // is this option actually part of the class list?
+      klassFeatureIds.includes(option.componentId)
+      // does this class option match a modifier?
+      && ((option.componentTypeId == mod.componentTypeId && option.componentId == mod.componentId)
+      || (option.definition.entityTypeId == mod.componentTypeId && option.definition.id == mod.componentId))
+      // has this feature set been replaced by an optional class feature?
+      && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.componentId)
+      // has it been chosen?
+      && ddb.character.choices.class.some((choice) =>
+        choice.componentId == option.componentId && choice.componentTypeId == option.componentTypeId && choice.optionValue
+      )
+    );
+  },
 
-      return isClassFeature || isClassOption || isOptionalClassOption || isOptionalClassChoice;
-    });
+  isModOptionalClassFeature: (ddb, mod, { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null } = {}) => {
+    const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
+    return ddb.character.options.class.some((option) =>
+      // is this option actually part of the class list?
+      klassFeatureIds.includes(option.componentId)
+      // does this modifier match a class option?
+      && ((option.componentTypeId == mod.componentTypeId && option.componentId == mod.componentId)
+        || (option.definition.entityTypeId == mod.componentTypeId && option.definition.id == mod.componentId))
+      // !data.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.definition.id) &&
+      && (
+        ddb.character.choices.class.some((choice) =>
+          choice.componentId == option.componentId
+          && choice.componentTypeId == option.componentTypeId
+          && choice.optionValue
+        )
+        || ddb.classOptions?.some((classOption) =>
+          classOption.id == option.componentId
+          && classOption.entityTypeId == option.componentTypeId
+          && (classId === null || classId === classOption.classId)
+        )
+      )
+      && ddb.character.optionalClassFeatures?.some((f) =>
+        f.classFeatureId == option.componentId
+      )
+    );
+  },
+
+  isModOptionalClassChoice(ddb, mod, { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null } = {}) {
+    const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
+    return ddb.character.choices.class.some((choice) =>
+      // is this option actually part of the class list?
+      // classFeatureIds.includes(choice.componentId)
+      choice.componentTypeId == mod.componentTypeId
+      && choice.componentId == mod.componentId
+      && ddb.character.optionalClassFeatures?.some((f) =>
+        f.classFeatureId == choice.componentId
+        && (!f.affectedClassFeatureId || klassFeatureIds.includes(f.affectedClassFeatureId))
+      )
+    );
+  },
+
+  isModAChosenClassMod: (ddb, mod, { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null } = {}) => {
+    const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
+    const isClassFeature = DDBHelper.isModClassFeature(ddb, mod, { classId, requiredLevel, exactLevel });
+    if (isClassFeature) return true;
+    const isClassOption = DDBHelper.isModClassOption(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
+    if (isClassOption) return true;
+    // if it's been replaced by a class feature lets check that
+    const isOptionalClassOption = DDBHelper.isModOptionalClassFeature(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
+    if (isOptionalClassOption) return true;
+    // new class feature choice
+    const isOptionalClassChoice = DDBHelper.isModOptionalClassChoice(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
+
+    return isOptionalClassChoice;
+  },
+
+  getChosenClassModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null } = {}) => {
+    const classFeatureIds = DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
+    // get items we are going to interact on
+    const modifiers = DDBHelper
+      .getModifiers(ddb, 'class', includeExcludedEffects, effectOnly)
+      .filter((mod) => DDBHelper.isModAChosenClassMod(ddb, mod, { classFeatureIds, classId, requiredLevel, exactLevel }));
 
     return modifiers;
   },
 
-  filterBaseCharacterModifiers: (ddb, type, subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false) => {
+  filterBaseCharacterModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null } = {}) => {
     const modifiers = [
-      DDBHelper.getChosenClassModifiers(ddb, includeExcludedEffects, effectOnly),
+      DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId }),
       DDBHelper.getModifiers(ddb, "race", includeExcludedEffects, effectOnly),
       DDBHelper.getModifiers(ddb, "background", includeExcludedEffects, effectOnly),
       DDBHelper.getModifiers(ddb, "feat", includeExcludedEffects, effectOnly),
     ];
 
-    return DDBHelper.filterModifiers(modifiers, type, subType, restriction);
+    return DDBHelper.filterModifiersOld(modifiers, type, subType, restriction);
   },
 
   // I need to getChosenOriginFeatures from data.optionalOriginFeatures
 
-  filterBaseModifiers: (ddb, type, subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false) => {
+  filterBaseModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null } = {}) => {
     const modifiers = [
-      DDBHelper.getChosenClassModifiers(ddb, includeExcludedEffects, effectOnly),
+      DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId }),
       DDBHelper.getModifiers(ddb, "race", includeExcludedEffects, effectOnly),
       DDBHelper.getModifiers(ddb, "background", includeExcludedEffects, effectOnly),
       DDBHelper.getModifiers(ddb, "feat", includeExcludedEffects, effectOnly),
       DDBHelper.getActiveItemModifiers(ddb, includeExcludedEffects),
     ];
 
-    return DDBHelper.filterModifiers(modifiers, type, subType, restriction);
+    return DDBHelper.filterModifiersOld(modifiers, type, subType, restriction);
   },
 
   stringIntAdder(one, two) {
@@ -793,7 +864,7 @@ const DDBHelper = {
 
   getValueFromModifiers(modifiers, name, modifierSubType, modifierType = "bonus") {
     let bonuses;
-    const bonusEffects = DDBHelper.filterModifiers(modifiers, modifierType, modifierSubType, null);
+    const bonusEffects = DDBHelper.filterModifiersOld(modifiers, modifierType, modifierSubType, null);
 
     if (bonusEffects.length > 0) {
       logger.debug(`Generating ${modifierSubType} ${modifierType} for ${name}`);

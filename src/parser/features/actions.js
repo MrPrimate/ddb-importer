@@ -263,7 +263,7 @@ function martialArtsDamage(ddb, action) {
   const damageType = DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name;
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
-  let damageBonus = DDBHelper.filterBaseModifiers(ddb, "damage", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
+  let damageBonus = DDBHelper.filterBaseModifiers(ddb, "damage", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
   if (damageBonus === 0) {
     damageBonus = "";
   } else {
@@ -484,7 +484,7 @@ function calculateActionAttackAbilities(ddb, character, action, weapon) {
   }
   if (action.isMartialArts) {
     weapon.system.damage = martialArtsDamage(ddb, action);
-    weapon.system.attackBonus = DDBHelper.filterBaseModifiers(ddb, "bonus", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
+    weapon.system.attackBonus = DDBHelper.filterBaseModifiers(ddb, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
   } else {
     weapon.system.damage = getDamage(ddb, action, weapon);
   }

@@ -165,7 +165,7 @@ function addACSets(modifiers, name) {
  * @param {*} subType
  */
 function addACBonusEffect(modifiers, name, subType, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
-  const bonusModifiers = DDBHelper.filterModifiers(modifiers, "bonus", subType, restrictions);
+  const bonusModifiers = DDBHelper.filterModifiersOld(modifiers, "bonus", subType, restrictions);
   const changes = addAddEffect(bonusModifiers, name, subType, "system.attributes.ac.bonus");
   if (changes.length > 0) logger.debug(`Generating ${subType} bonus for ${name}`);
 

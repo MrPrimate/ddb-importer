@@ -7,13 +7,13 @@ function isHalfProficiencyRoundedUp(data, ab) {
   const longAbility = DICTIONARY.character.abilities
     .filter((ability) => ab === ability.value)
     .map((ability) => ability.long)[0];
-  const roundUp = DDBHelper.filterBaseModifiers(data, "half-proficiency-round-up", `${longAbility}-ability-checks`);
+  const roundUp = DDBHelper.filterBaseModifiers(data, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks` });
   return Array.isArray(roundUp) && roundUp.length;
 }
 
 function getProficiency(data, toolName, ability) {
   const modifiers = [
-    DDBHelper.getChosenClassModifiers(data, true),
+    DDBHelper.getChosenClassModifiers(data, { includeExcludedEffects: true }),
     DDBHelper.getModifiers(data, "race", true),
     DDBHelper.getModifiers(data, "background", true),
     DDBHelper.getModifiers(data, "feat", true),

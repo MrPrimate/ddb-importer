@@ -20,7 +20,7 @@ DDBCharacter.prototype._generateExhaustion = function _generateExhaustion() {
 
 DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getCharacterGenericConditionAffectData(condition, typeId) {
 
-  const modifiers = DDBHelper.filterBaseModifiers(this.source.ddb, condition, null, null);
+  const modifiers = DDBHelper.filterBaseModifiers(this.source.ddb, condition, { restriction: null });
   const standardResults = getGenericConditionAffectData(modifiers, condition, typeId);
 
   const customResults = this.source.ddb.character.customDefenseAdjustments

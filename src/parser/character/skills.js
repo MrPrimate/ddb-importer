@@ -10,15 +10,15 @@ DDBCharacter.prototype._isHalfProficiencyRoundedUp = function _isHalfProficiency
     .map((ability) => ability.long)[0];
 
   const roundUp = (modifiers)
-    ? DDBHelper.filterModifiers(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
-    : DDBHelper.filterBaseModifiers(this.source?.ddb, "half-proficiency-round-up", `${longAbility}-ability-checks`, ["", null], true);
+    ? DDBHelper.filterModifiersOld(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
+    : DDBHelper.filterBaseModifiers(this.source?.ddb, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks`, includeExcludedEffects: true });
   return Array.isArray(roundUp) && roundUp.length;
 };
 
 DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill, modifiers = null) {
   if (!modifiers) {
     modifiers = [
-      DDBHelper.getChosenClassModifiers(this.source.ddb, true),
+      DDBHelper.getChosenClassModifiers(this.source.ddb, { includeExcludedEffects: true }),
       DDBHelper.getModifiers(this.source.ddb, "race", true),
       DDBHelper.getModifiers(this.source.ddb, "background", true),
       DDBHelper.getModifiers(this.source.ddb, "feat", true),
@@ -175,11 +175,11 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
 
     // Skill bonuses
     const skillModifierBonus = DDBHelper
-      .filterBaseModifiers(this.source.ddb, "bonus", skill.subType)
+      .filterBaseModifiers(this.source.ddb, "bonus", { subType: skill.subType })
       .map((skl) => skl.value)
       .reduce((a, b) => a + b, 0) ?? "";
     const passiveBonus = DDBHelper
-      .filterBaseModifiers(this.source.ddb, "bonus", `passive-${skill.subType}`)
+      .filterBaseModifiers(this.source.ddb, "bonus", { subType: `passive-${skill.subType}` })
       .map((skl) => skl.value)
       .reduce((a, b) => a + b, 0) ?? "";
     const customSkillBonus = this.getCustomSkillBonus(skill);

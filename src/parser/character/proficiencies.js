@@ -20,7 +20,7 @@ DDBCharacter.prototype._getCustomProficiencies = function _getCustomProficiencie
 
 DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(includeItemEffects = false) {
   return DDBHelper
-    .filterBaseModifiers(this.source.ddb, "proficiency", null, null, includeItemEffects)
+    .filterBaseModifiers(this.source.ddb, "proficiency", { restriction: null, includeExcludedEffects: includeItemEffects })
     .map((proficiency) => {
       return { name: proficiency.friendlySubtypeName };
     });

@@ -67,7 +67,7 @@ function getInfusionModifiers(infusionItemMap, infusionDetail) {
 }
 
 function addMagicBonus(character, item, modifiers) {
-  const filteredModifiers = DDBHelper.filterModifiers(modifiers, "bonus", "magic");
+  const filteredModifiers = DDBHelper.filterModifiersOld(modifiers, "bonus", "magic");
   const magicBonus = DDBHelper.getModifierSum(filteredModifiers, character);
 
   if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
@@ -167,7 +167,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
 
     // check to see if we need to fiddle attack modifiers on infused weapons
     if (foundryItem.type === "weapon") {
-      const intSwap = DDBHelper.filterBaseModifiers(ddb, "bonus", "magic-item-attack-with-intelligence").length > 0;
+      const intSwap = DDBHelper.filterBaseModifiers(ddb, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0;
       if (intSwap) {
         const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
         const mockAbility = foundryItem.system.ability === null
