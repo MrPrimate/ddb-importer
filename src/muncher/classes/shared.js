@@ -83,7 +83,7 @@ async function buildBase(data) {
 
   result.flags.ddbimporter = {
     id: data.id,
-    // data: data,
+    data: data,
     version: CONFIG.DDBI.version,
   };
 

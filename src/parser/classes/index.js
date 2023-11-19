@@ -5,7 +5,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from '../../lib/CompendiumHelper.js';
 import { getSpellCastingAbility } from "../spells/ability.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
-import { SPECIAL_ADVANCEMENTS, classFixes } from './special.js';
+import ClassAdvancementHelper from './ClassAdvancementHelper.js';
 
 /**
  * Fetches the sources and pages for class and subclass
@@ -30,102 +30,7 @@ function getSources(data) {
   return sources;
 }
 
-function generateScaleValueAdvancement(feature) {
-  // distance, number, dice, anything
-  let type = "string";
-  const die = feature.levelScales[0]?.dice ? feature.levelScales[0]?.dice : feature.levelScales[0]?.die ? feature.levelScales[0]?.die : undefined;
-
-  if (die?.diceString && (!die.fixedValue || die.fixedValue === "")) {
-    type = "dice";
-  } else if (feature.levelScales[0].fixedValue
-    && feature.levelScales[0].fixedValue !== ""
-    && Number.isInteger(feature.levelScales[0].fixedValue)
-  ) {
-    type = "number";
-  }
-
-  const scaleValue = {
-    _id: foundry.utils.randomID(),
-    type: "ScaleValue",
-    configuration: {
-      distance: { units: "" },
-      identifier: utils.referenceNameString(feature.name).toLowerCase(),
-      type,
-      scale: {},
-    },
-    value: {},
-    title: feature.name,
-    icon: "",
-    // classRestriction: "",
-  };
-
-  feature.levelScales.forEach((scale) => {
-    const die = scale.dice ? scale.dice : scale.die ? scale.die : undefined;
-    if (type === "dice") {
-      scaleValue.configuration.scale[scale.level] = {
-        n: die.diceCount,
-        die: die.diceValue,
-      };
-    } else if (type === "number") {
-      scaleValue.configuration.scale[scale.level] = {
-        value: scale.fixedValue,
-      };
-    } else {
-      let value = (die.diceString && die.diceString !== "")
-        ? die.diceString
-        : "";
-      if (die.fixedValue && die.fixedValue !== "") {
-        value += ` + ${die.fixedValue}`;
-      }
-      if (value === "") {
-        value = scale.description;
-      }
-      scaleValue.configuration.scale[scale.level] = {
-        value,
-      };
-    }
-  });
-
-  return scaleValue;
-}
-
-export function getHPAdvancement(klass, character) {
-  // const value = "value": {
-  //   "1": "max",
-  //   "2": "avg"
-  // },
-  const value = {};
-  if (klass) {
-    const rolledHP = getProperty(character, "flags.ddbimporter.rolledHP") ?? false;
-    const startingClass = getProperty(klass, "flags.ddbimporter.isStartingClass") === true;
-    const useMaxHP = game.settings.get("ddb-importer", "character-update-policy-use-hp-max-for-rolled-hp");
-    if (rolledHP && !useMaxHP) {
-      const baseHP = getProperty(character, "flags.ddbimporter.baseHitPoints");
-      const totalLevels = getProperty(character, "flags.ddbimporter.dndbeyond.totalLevels");
-      const hpPerLevel = Math.floor(baseHP / totalLevels);
-      const leftOvers = Math.floor(baseHP % totalLevels);
-
-      for (let i = 1; i <= klass.system.levels; i++) {
-        value[`${i}`] = i === 1 && startingClass ? (hpPerLevel + leftOvers) : hpPerLevel;
-      }
-    } else {
-      for (let i = 1; i <= klass.system.levels; i++) {
-        value[`${i}`] = i === 1 && startingClass ? "max" : "avg";
-      }
-    };
-  }
-  return {
-    _id: foundry.utils.randomID(),
-    type: "HitPoints",
-    configuration: {},
-    value,
-    title: "",
-    icon: "",
-    classRestriction: "",
-  };
-}
-
-function getClassFeatures(ddb, klass, klassDefinition, excludedIds = []) {
+export function getClassFeatures(ddb, klass, klassDefinition, excludedIds = []) {
   const excludedFeatures = ddb.character.optionalClassFeatures
     .filter((f) => f.affectedClassFeatureId)
     .map((f) => f.affectedClassFeatureId);
@@ -147,6 +52,7 @@ function getClassFeatures(ddb, klass, klassDefinition, excludedIds = []) {
     .sort((a, b) => a.displayOrder - b.displayOrder)
     .sort((a, b) => a.requiredLevel - b.requiredLevel);
 }
+
 
 function getFeatureCompendiumMatch(compendium, feature, klassDefinition) {
   return compendium.find((match) =>
@@ -200,123 +106,13 @@ async function generateFeatureAdvancements(ddb, klass, klassDefinition, compendi
   return advancements;
 }
 
-function generateSkillAdvancements(ddb, klass, ddbKlass, isSubclass = false) {
-  // There class object supports skills granted by the class.
-  // Lets find and add them for future compatibility.
-  // const classFeatureIds = ddbKlass.definition.classFeatures
-  //   .map((feature) => feature.id)
-  //   .concat((ddbKlass.subclassDefinition)
-  //     ? ddbKlass.subclassDefinition.classFeatures.map((feature) => feature.id)
-  //     : []);
-
-  const classProficiencyFeatureIds = ddbKlass.definition.classFeatures
-    .filter((feature) => feature.name === "Proficiencies")
-    .map((feature) => feature.id)
-    .concat((ddbKlass.subclassDefinition)
-      ? ddbKlass.subclassDefinition.classFeatures
-        .filter((feature) => feature.name === "Proficiencies")
-        .map((feature) => feature.id)
-      : []);
-
-  // const classSkillSubType = `choose-a-${ddbKlass.definition.name.toLowerCase()}-skill`;
-  // const skillIds = DDBHelper.getChosenClassModifiers(ddb)
-  //   .filter((mod) => mod.subType === classSkillSubType && mod.type === "proficiency")
-  //   .map((mod) => mod.componentId);
-
-  // "subType": 1,
-  // "type": 2,
-
-  // There class object supports skills granted by the class.
-  let skillsChosen = [];
-  let skillChoices = [];
-  const choiceDefinitions = ddb.character.choices.choiceDefinitions;
-  ddb.character.choices.class.filter((choice) =>
-    classProficiencyFeatureIds.includes(choice.componentId)
-    && choice.subType === 1
-    && choice.type === 2
-  ).forEach((choice) => {
-    const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-    if (!optionChoice) return;
-    const option = optionChoice.options.find((option) => option.id === choice.optionValue);
-    if (!option) return;
-    const smallChosen = DICTIONARY.character.skills.find((skill) => skill.label === option.label);
-    if (smallChosen && !skillsChosen.includes(smallChosen.name)) {
-      skillsChosen.push(smallChosen.name);
-    }
-    const optionNames = optionChoice.options.filter((option) =>
-      DICTIONARY.character.skills.some((skill) => skill.label === option.label)
-      && choice.optionIds.includes(option.id)
-    ).map((option) =>
-      DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
-    );
-    optionNames.forEach((skill) => {
-      if (!skillChoices.includes(skill)) {
-        skillChoices.push(skill);
-      }
-    });
-  });
-
-  klass.system.skills = {
-    value: skillsChosen,
-    number: skillsChosen.length,
-    choices: skillChoices,
-  };
-
-  const updates = [];
-  const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-  advancement.updateSource({ classRestriction: "primary", configuration: { grants: updates } });
-
-  return [advancement.toObject()];
-}
-
-function generateSaveAdvancements(ddb, klassDefinition) {
-  if (foundry.utils.isNewerVersion("2.4.0", game.system.version)) return [];
-  const advancements = [];
-  for (let i = 0; i <= 20; i++) {
-    [true, false].forEach((availableToMulticlass) => {
-      const modFilters = {
-        includeExcludedEffects: true,
-        classId: klassDefinition.id,
-        exactLevel: i,
-        availableToMulticlass,
-      };
-      const mods = DDBHelper.getChosenClassModifiers(ddb, modFilters);
-      const updates = DICTIONARY.character.abilities
-        .filter((ability) => {
-          // return DDBHelper.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
-          const modsSum = DDBHelper.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
-          // console.warn("modsSum", { ability, modsSum });
-          return modsSum;
-        })
-        .map((ability) => `saves:${ability.value}`);
-      // create a leveled advancement
-      if (updates.length > 0) {
-        const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-        const update = {
-          classRestriction: availableToMulticlass ? "" : "primary",
-          configuration: { grants: updates },
-          level: i,
-          value: {
-            chosen: updates,
-          },
-        };
-        advancement.updateSource(update);
-        advancements.push(advancement.toObject());
-      }
-    });
-  }
-
-
-  return advancements;
-}
-
 function parseFeaturesForScaleValues(ddb, klass, klassDefinition, ignoreIds = []) {
   let specialFeatures = [];
   const advancements = getClassFeatures(ddb, klass, klassDefinition, ignoreIds)
     .filter((feature) => feature.levelScales?.length > 0)
     .map((feature) => {
-      let advancement = generateScaleValueAdvancement(feature);
-      const specialLookup = SPECIAL_ADVANCEMENTS[advancement.title];
+      let advancement = ClassAdvancementHelper.generateScaleValueAdvancement(feature);
+      const specialLookup = ClassAdvancementHelper.SPECIAL_ADVANCEMENTS[advancement.title];
       if (specialLookup) {
         if (specialLookup.additionalAdvancements) {
           specialLookup.additionalFunctions.forEach((fn) => {
@@ -328,25 +124,6 @@ function parseFeaturesForScaleValues(ddb, klass, klassDefinition, ignoreIds = []
       return advancement;
     });
   return advancements.concat(specialFeatures);
-}
-
-export async function addSRDAdvancements(advancements, klass) {
-  const rulesCompendium = "dnd5e.classes";
-  const srdCompendium = CompendiumHelper.getCompendium(rulesCompendium);
-  await srdCompendium.getIndex();
-  const klassMatch = srdCompendium.index.find((k) => k.name === klass.name);
-  if (klassMatch) {
-    const srdKlass = await srdCompendium.getDocument(klassMatch._id);
-    const scaleAdvancements = srdKlass.system.advancement.filter((srdA) =>
-      srdA.type === "ScaleValue"
-      && !advancements.some((ddbA) => ddbA.configuration.identifier === srdA.configuration.identifier)
-    ).map((advancement) => {
-      return foundry.utils.isNewerVersion(game.system.version, "2.0.3") ? advancement.toObject() : advancement;
-    });
-    advancements.push(...scaleAdvancements);
-  }
-
-  return advancements;
 }
 
 
@@ -430,10 +207,10 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
   subKlass.system.advancement = [
     ...parseFeaturesForScaleValues(ddb, characterClass, characterClass.subclassDefinition, baseClassFeatureIds),
     ...await generateFeatureAdvancements(ddb, characterClass, characterClass.subclassDefinition, featuresIndex, baseClassFeatureIds),
-    ...generateSaveAdvancements(ddb, characterClass.subclassDefinition),
+    ...ClassAdvancementHelper.generateSaveAdvancements(ddb, characterClass.subclassDefinition),
   ];
 
-  subKlass = classFixes(subKlass);
+  subKlass = ClassAdvancementHelper.classFixes(subKlass);
   return subKlass;
 }
 
@@ -565,12 +342,12 @@ export async function getClasses(ddb, character) {
     klass.system.hitDice = `d${characterClass.definition.hitDice}`;
     klass.system.hitDiceUsed = characterClass.hitDiceUsed;
     // eslint-disable-next-line no-await-in-loop
-    klass.system.advancement = await addSRDAdvancements([
-      getHPAdvancement(klass, character),
+    klass.system.advancement = await ClassAdvancementHelper.addSRDAdvancements([
+      ClassAdvancementHelper.getHPAdvancement(klass, character),
       ...parseFeaturesForScaleValues(ddb, characterClass, characterClass.definition, subClassFeatureIds),
       // eslint-disable-next-line no-await-in-loop
       ...await generateFeatureAdvancements(ddb, characterClass, characterClass.definition, featuresIndex, subClassFeatureIds),
-      ...generateSaveAdvancements(ddb, characterClass.definition, characterClass),
+      ...ClassAdvancementHelper.generateSaveAdvancements(ddb, characterClass.definition, characterClass),
     ], klass);
 
 
@@ -665,7 +442,7 @@ export async function getClasses(ddb, character) {
 
     klass.system.description.value = parseTemplateString(ddb, character, klass.system.description.value, klass).text;
 
-    klass = classFixes(klass);
+    klass = ClassAdvancementHelper.classFixes(klass);
     items.push(klass);
   }
 

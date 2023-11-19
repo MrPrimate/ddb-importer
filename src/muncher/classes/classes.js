@@ -2,16 +2,15 @@
 import logger from "../../logger.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
-// import { buildClassFeatures } from "../../parser/classes/index.js";
-import { getHPAdvancement, addSRDAdvancements } from "../../parser/classes/index.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
+import ClassAdvancementHelper from "../../parser/classes/ClassAdvancementHelper.js";
 
 async function buildClass(klass, compendiumClassFeatures) {
   let result = await buildBaseClass(klass);
   result.system.description.value += await buildClassFeatures(klass, compendiumClassFeatures);
   result.system.description.value = parseTags(result.system.description.value);
-  result.system.advancement.push(getHPAdvancement(), ...(await generateFeatureAdvancements(klass, compendiumClassFeatures)));
-  result.system.advancement = await addSRDAdvancements(result.system.advancement, result);
+  result.system.advancement.push(ClassAdvancementHelper.getHPAdvancement(), ...(await generateFeatureAdvancements(klass, compendiumClassFeatures)));
+  result.system.advancement = await ClassAdvancementHelper.addSRDAdvancements(result.system.advancement, result);
   return result;
 }
 
