@@ -449,13 +449,10 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
   ).forEach((custom) => {
     const name = custom.notes && custom.notes.trim() !== "" ? custom.notes : "AC: Custom Bonus";
     const effect = generateBonusACEffect([], name, "custom", null);
-    const key = game.modules.get("dae")?.active
-      ? "system.attributes.ac.value"
-      : "system.attributes.ac.bonus";
     if (custom.value && ((Number.isInteger(custom.value) && Number.parseInt(custom.value) !== 0) || `${custom.value}`.trim() !== "")) {
       effect.changes.push({
-        key,
-        value: custom.value,
+        key: "system.attributes.ac.bonus",
+        value: `+ ${custom.value}`,
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
         priority: 30,
       });

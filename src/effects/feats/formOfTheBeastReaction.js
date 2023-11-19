@@ -6,7 +6,7 @@ export function formOfTheBeastReactionEffect(document) {
     {
       key: "system.attributes.ac.bonus",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: "1d8",
+      value: "+ 1d8",
       priority: "20",
     },
   );

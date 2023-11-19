@@ -12,7 +12,7 @@ export function bladesongEffect(document) {
   effect.changes.push(
     {
       key: "system.attributes.ac.bonus",
-      value: "max(@abilities.int.mod,1)",
+      value: "+ max(@abilities.int.mod,1)",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 20,
     },
@@ -31,7 +31,7 @@ export function bladesongEffect(document) {
     {
       key: "system.attributes.movement.walk",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: "10",
+      value: "+ 10",
       priority: "20",
     },
   );

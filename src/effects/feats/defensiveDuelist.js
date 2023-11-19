@@ -6,7 +6,7 @@ export function defensiveDuelistEffect(document) {
     {
       key: "system.attributes.ac.bonus",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: "@system.attributes.prof",
+      value: "+ @system.attributes.prof",
       priority: "20",
     },
   );

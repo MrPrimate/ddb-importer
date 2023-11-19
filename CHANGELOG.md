@@ -2,6 +2,8 @@
 
 - Internal effect helper remaster to improve maintainability and use going forward.
 - Base class features were duplicated by subclasses during class/class feature generation.
+- Support for Save Trait Advancements on Classes.
+- Fixes for AC bonus field changing to string when using the system without DAE.
 
 # 3.6.0
 
