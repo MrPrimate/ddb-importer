@@ -6,6 +6,15 @@ DDBMonster.prototype._generateSource = function _generateSource() {
   const sourceBook = (sourceObject)
     ? (fullSource) ? sourceObject.description : sourceObject.name
     : "Homebrew";
-  const page = (this.source.sourcePageNumber) ? ` pg ${this.source.sourcePageNumber}` : "";
-  this.npc.system.details.source = `${sourceBook}${page}`;
+  if (foundry.utils.isNewerVersion("2.4.0", game.system.version)) {
+    const page = (this.source.sourcePageNumber) ? ` pg ${this.source.sourcePageNumber}` : "";
+    this.npc.system.details.source = `${sourceBook}${page}`;
+  } else {
+    this.npc.system.details.source = {
+      book: sourceBook,
+      page: this.source.sourcePageNumber,
+      custom: "",
+      license: "",
+    };
+  }
 };
