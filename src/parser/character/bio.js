@@ -99,6 +99,7 @@ export function generateBackground(bg) {
     result.description += bg.shortDescription.replace("\r\n", "");
   }
   if (bg.definition) result.definition = bg.definition;
+  if (bg.sources) result.definition.sources = bg.sources;
 
   if (bg.isHomebrew === true) {
     if (bg.featuresBackground) {

@@ -213,40 +213,41 @@ const DDBHelper = {
    */
   getSourceData: (definition) => {
     const fullSource = game.settings.get("ddb-importer", "use-full-source");
-    const result = {
-      name: null,
-      page: null,
-    };
+    const results = [];
     if (definition.sources?.length > 0) {
-      result.name = CONFIG.DDB.sources
-        .filter((source) => definition.sources.some((ds) => source.id === ds.sourceId))
-        .map((source) => {
-          const dSource = definition.sources.find((ds) => source.id === ds.sourceId);
-          const page = dSource.pageNumber ? ` pg ${dSource.pageNumber}` : "";
-          const sourceBook = dSource ? (fullSource ? source.description : source.name) : "Homebrew";
-          return `${sourceBook}${page}`;
-        })
-        .join(", ");
-    } else {
-      if (definition.sourceIds) {
-        result.name = CONFIG.DDB.sources
-          .filter((source) => definition.sourceIds.includes(source.id))
-          .map((source) => source.description ?? "Homebrew")
-          .join();
-      } else if (definition.sourceId) {
-        result.name = CONFIG.DDB.sources
-          .filter((source) => source.id === definition.sourceId)
-          .map(
-            fullSource
-              ? ({ description }) => description ?? "Homebrew"
-              : ({ name }) => name ?? "Homebrew"
-          );
-      }
+      for (const ds of definition.sources) {
+        const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === ds.sourceId);
 
-      // add a page num if available
-      if (definition.sourcePageNumber) result.page = definition.sourcePageNumber;
+        results.push({
+          book: ddbSource ? (fullSource ? ddbSource.description : ddbSource.name) : "Homebrew",
+          page: ds.pageNumber ?? "",
+          license: "",
+          custom: "",
+          id: ddbSource ? ddbSource.id : 9999999,
+        });
+      }
+    } else if (definition.sourceIds) {
+      for (const sourceId of definition.sourceIds) {
+        const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === sourceId);
+        results.push({
+          book: ddbSource ? (fullSource ? ddbSource.description : ddbSource.name) : "Homebrew",
+          page: definition.sourcePageNumber ?? "",
+          license: "",
+          custom: "",
+          id: ddbSource ? ddbSource.id : 9999999,
+        });
+      }
+    } else if (definition.sourceId) {
+      const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === definition.sourceId);
+      results.push({
+        book: ddbSource ? (fullSource ? ddbSource.description : ddbSource.name) : "Homebrew",
+        page: definition.sourcePageNumber ?? "",
+        license: "",
+        custom: "",
+        id: ddbSource ? ddbSource.id : 9999999,
+      });
     }
-    return result;
+    return results;
   },
 
   /**
@@ -254,12 +255,28 @@ const DDBHelper = {
    * @param {obj} data item
    */
   parseSource: (definition) => {
-    const sourceData = DDBHelper.getSourceData(definition);
+    const sources = DDBHelper.getSourceData(definition);
+    const latestSource = sources.length > 0
+      ? sources.reduce((prev, current) => {
+        return prev.id > current.id ? prev : current;
+      })
+      : null;
 
-    let source = sourceData.name;
-    if (sourceData.page) source += ` (pg. ${sourceData.page})`;
-
-    return source;
+    if (foundry.utils.isNewerVersion("2.4.0", game.system.version)) {
+      if (!latestSource) return "";
+      let source = latestSource.book;
+      if (latestSource.page) source += ` (pg. ${latestSource.page})`;
+      return source;
+    } else {
+      if (!latestSource) return {
+        name: "",
+        page: "",
+        license: "",
+        custom: "",
+      };
+      delete latestSource.id;
+      return latestSource;
+    }
   },
 
   getActiveItemModifiers: (ddb, includeExcludedEffects = false) => {
