@@ -1,6 +1,6 @@
 if (this.targets.size != 1 || this.disadvantage) return;
 
-const type = this.actor.type === "npc" ? this.actor.system.details?.type?.value : this.actor.system.details?.race;
+const type = DDBImporter?.EffectHelper.getTypeOrRace(this.actor);
 if (type !== "undead") return;
 
 const effect = this.actor.effects.find((eff) => (eff.name ?? eff.label) === "Chill Touch");

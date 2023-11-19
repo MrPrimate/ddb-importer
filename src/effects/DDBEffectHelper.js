@@ -198,6 +198,15 @@ export default class DDBEffectHelper {
     return false;
   }
 
+  /**
+   * Checks the cover bonus for a given token, target, item, and displayName.
+   *
+   * @param {any} token - The token object.
+   * @param {any} target - The target object.
+   * @param {any} item - The item object.
+   * @param {string} displayName - The display name of the cover.
+   * @return {string|number} The cover bonus or the display name of the cover.
+   */
   static checkCover(token, target, item, displayName) {
     const cover = MidiQOL.computeCoverBonus(token, target, item);
     if (!displayName) return cover;
@@ -324,6 +333,13 @@ export default class DDBEffectHelper {
     return [...contained];
   }
 
+  /**
+   * Finds the effect with the specified name for the given actor.
+   *
+   * @param {Actor} actor - The actor to search for the effect.
+   * @param {string} name - The name of the effect to find.
+   * @return {Effect} - The effect with the specified name, or undefined if not found.
+   */
   static findEffect(actor, name) {
     if (isNewerVersion(game.version, 11)) {
       return actor.effects.getName(name);
@@ -332,6 +348,13 @@ export default class DDBEffectHelper {
     }
   }
 
+  /**
+   * Finds effects for the given actor and names.
+   *
+   * @param {Actor} actor - The actor to find effects for.
+   * @param {string[]} names - An array of effect names to search for.
+   * @return {object[]} - An array of effects matching the given names.
+   */
   static findEffects(actor, names) {
     const results = [];
     for (const name of names) {
@@ -342,6 +365,39 @@ export default class DDBEffectHelper {
     return results;
   }
 
+  /**
+   * Return actor from a UUID
+   *
+   * @param {string} uuid - The UUID of the actor.
+   * @return {object|null} - Returns the actor document or null if not found.
+   */
+  static fromActorUuid(uuid) {
+    const doc = fromUuidSync(uuid);
+    if (doc instanceof CONFIG.Token.documentClass) return doc.actor;
+    if (doc instanceof CONFIG.Actor.documentClass) return doc;
+    return null;
+  }
+
+  /**
+   * Returns the actor object associated with the given actor reference.
+   *
+   * @param {any} actorRef - The actor reference to retrieve the actor from.
+   * @return {Actor|null} The actor object associated with the given actor reference, or null if no actor is found.
+   */
+  static getActor(actorRef) {
+    if (actorRef instanceof Actor) return actorRef;
+    if (actorRef instanceof Token) return actorRef.actor;
+    if (actorRef instanceof TokenDocument) return actorRef.actor;
+    if (utils.isString(actorRef)) return DDBEffectHelper.fromActorUuid(actorRef);
+    return null;
+  }
+
+  /**
+   * Retrieves the number of cantrip dice based on the level of the actor.
+   *
+   * @param {Actor} actor - The actor object
+   * @return {number} The number of cantrip dice.
+   */
   static getCantripDice(actor) {
     const level = actor.type === "character"
       ? actor.system.details.level
@@ -349,6 +405,13 @@ export default class DDBEffectHelper {
     return 1 + Math.floor((level + 1) / 6);
   }
 
+  /**
+   * Returns the highest ability of an actor based on the given abilities.
+   *
+   * @param {Object} actor - The actor object.
+   * @param {Array|string} abilities - The abilities array or string.
+   * @return {string|undefined} - The highest ability or undefined if no abilities are provided.
+   */
   static getHighestAbility(actor, abilities) {
     if (typeof abilities === "string") {
       return abilities;
@@ -359,6 +422,83 @@ export default class DDBEffectHelper {
       }, abilities[0]);
     }
     return undefined;
+  }
+
+  /**
+   * Returns the race or type of the given entity.
+   *
+   * @param {object} entity - The entity for which to retrieve the race or type.
+   * @return {string} The race or type of the entity, in lowercase.
+   */
+  static getRaceOrType(entity) {
+    const actor = DDBEffectHelper.getActor(entity);
+    const systemData = actor?.system;
+    if (!systemData) return "";
+    if (systemData.details.race) {
+      return (systemData.details?.race?.name ?? systemData.details?.race)?.toLocaleLowerCase() ?? "";
+    }
+    return systemData.details.type?.value.toLocaleLowerCase() ?? "";
+  }
+
+  /**
+   * Retrieves the token based on the provided token reference.
+   *
+   * @param {any} tokenRef - The token reference to retrieve the token from.
+   * @return {Token|undefined} The retrieved token if it exists, otherwise undefined.
+   */
+  static getToken(tokenRef) {
+    if (!tokenRef) return undefined;
+    if (tokenRef instanceof Token) return tokenRef;
+    if (utils.isString(tokenRef)) return (fromUuidSync(tokenRef)?.object);
+    if (tokenRef instanceof TokenDocument) return tokenRef.object;
+    return undefined;
+  }
+
+  /**
+   * Retrieves the TokenDocument associated with the given token reference.
+   *
+   * @param {any} tokenRef - The token reference to retrieve the TokenDocument for.
+   * @return {TokenDocument|undefined} The TokenDocument associated with the token reference, or undefined if not found.
+   */
+  static getTokenDocument(tokenRef) {
+    if (!tokenRef) return undefined;
+    if (tokenRef instanceof TokenDocument) return tokenRef;
+    if (typeof tokenRef === "string") {
+      const document = fromUuidSync(tokenRef);
+      if (document instanceof TokenDocument) return document;
+      if (document instanceof Actor) return DDBEffectHelper.getTokenForActor(document)?.document;
+    }
+    if (tokenRef instanceof Token) return tokenRef.document;
+    return undefined;
+  }
+
+  /**
+   * Returns a token for the provided actor.
+   *
+   * @param {Actor} actor - The actor for which to retrieve the token.
+   * @return {Token|undefined} The token associated with the actor, or undefined if no token is found.
+   */
+  static getTokenForActor(actor) {
+    const tokens = actor.getActiveTokens();
+    if (!tokens.length) return undefined;
+    const controlled = tokens.filter((t) => t._controlled);
+    return controlled.length ? controlled.shift() : tokens.shift();
+  }
+
+  /**
+   * Retrieves the type or race of the given entity.
+   *
+   * @param {any} entity - The entity to retrieve the type or race from.
+   * @return {string} The type or race of the entity, in lowercase. If the type or race is not available, an empty string is returned.
+   */
+  static getTypeOrRace(entity) {
+    const actor = DDBEffectHelper.getActor(entity);
+    const systemData = actor?.system;
+    if (!systemData) return "";
+    if (systemData.details.type?.value) {
+      return systemData.details.type?.value.toLocaleLowerCase() ?? "";
+    }
+    return (systemData.details?.race?.name ?? systemData.details?.race)?.toLocaleLowerCase() ?? "";
   }
 
   /**

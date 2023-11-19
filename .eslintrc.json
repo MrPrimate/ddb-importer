@@ -68,9 +68,11 @@
     "Ray": true,
     "fromUuidSync": true,
     "Token": true,
+    "TokenDocument": true,
     "chrisPremades": true,
     "NoteConfig": true,
-    "globalThis": true
+    "globalThis": true,
+    "DDBImporter": true
   },
   "parserOptions": {
     "ecmaVersion": 2022,

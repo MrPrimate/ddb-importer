@@ -282,7 +282,9 @@ export async function restrictedItemReplacer(actor, folderName = null) {
       if (!subClassData) continue;
       if (subClassData.parent.name.toLowerCase() !== restrictedItem.requiredSubclass.toLowerCase()) continue;
     }
-    if (restrictedItem.requiredRace && restrictedItem.requiredRace !== rollData.details.race) continue;
+    if (restrictedItem.requiredRace
+      && restrictedItem.requiredRace.toLocaleLowerCase() !== (rollData.details.race?.name ?? rollData.details?.race)?.toLocaleLowerCase()
+    ) continue;
 
 
     if (restrictedItem.requiredEquipment) {
