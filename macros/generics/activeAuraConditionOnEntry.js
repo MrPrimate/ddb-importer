@@ -101,7 +101,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   const sequencerFile = lastArg.item.flags.ddbimporter?.effect?.sequencerFile;
   if (sequencerFile) {
-    const scale = ddbEffectFlags.sequencerScale ?? 1;
+    const scale = lastArg.item.flags.ddbimporter.effect.sequencerScale ?? 1;
     await DDBImporter?.EffectHelper.attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid, scale);
   }
 
