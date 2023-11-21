@@ -11,6 +11,7 @@ const CompendiumHelper = {
     { type: "spell", compendium: "entity-spell-compendium" },
     { type: "feats", compendium: "entity-feat-compendium" },
     { type: "features", compendium: "entity-feature-compendium" },
+    { type: "classfeatures", compendium: "entity-feature-compendium" },
     { type: "feature", compendium: "entity-feature-compendium" },
     { type: "feat", compendium: "entity-feature-compendium" },
     { type: "classes", compendium: "entity-class-compendium" },

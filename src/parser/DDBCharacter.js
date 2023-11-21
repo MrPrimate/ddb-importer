@@ -1,5 +1,4 @@
 import getActions from "./features/actions.js";
-import { getClasses } from "./classes/index.js";
 import CharacterSpellFactory from "./spells/CharacterSpellFactory.js";
 import logger from "../logger.js";
 import DDBMacros from "../effects/DDBMacros.js";
@@ -11,6 +10,7 @@ import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import { fixCharacterLevels } from "./character/filterModifiers.js";
+import CharacterClassFactory from "./classes/CharacterClassFactory.js";
 
 
 export default class DDBCharacter {
@@ -185,7 +185,7 @@ export default class DDBCharacter {
       logger.debug("Character parse complete");
       await this._generateRace();
       logger.debug("Race parse complete");
-      this.raw.classes = await getClasses(this.source.ddb, this.raw.character);
+      this.raw.classes = await CharacterClassFactory.processCharacter(this.source.ddb, this.raw.character);
       logger.debug("Classes parse complete");
       await this._generateFeatures();
       logger.debug("Feature parse complete");

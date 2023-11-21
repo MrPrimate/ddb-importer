@@ -3,7 +3,7 @@ import logger from "../../logger.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
-import ClassAdvancementHelper from "../../parser/classes/ClassAdvancementHelper.js";
+import ClassAdvancementHelper from "../../parser/advancements/AdvancementHelper.js";
 
 async function buildClass(klass, compendiumClassFeatures) {
   let result = await buildBaseClass(klass);

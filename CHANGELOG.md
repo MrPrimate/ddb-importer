@@ -5,6 +5,7 @@
 - Support for Save Trait Advancements on Classes.
 - Fixes for AC bonus field changing to string when using the system without DAE.
 - Active Aura Effects were not applied to Paladin Auras.
+- Correction to Grease style AA macros.
 
 # 3.6.0
 
