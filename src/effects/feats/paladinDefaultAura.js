@@ -1,6 +1,6 @@
 export function paladinDefaultAuraEffect(document) {
   document.effects.forEach((effect) => {
-    if ((effect.name ?? effect.label).includes("Constant Effects")) {
+    if ((effect.name ?? effect.label).includes(" - Constant")) {
       const distance = document.flags.ddbimporter?.dndbeyond?.levelScale?.fixedValue ?? 10;
       effect.flags.ActiveAuras = {
         aura: "Allies",
