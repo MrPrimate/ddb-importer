@@ -382,10 +382,6 @@ DDBCharacter.prototype._generateFeatures = async function _generateFeatures() {
   logger.debug("Parsing backgrounds");
   const backgroundFeature = this.getBackgroundData();
   const backgroundSource = DDBHelper.parseSource(backgroundFeature.definition);
-  console.warn("backgroundFeature", {
-    backgroundFeature,
-    backgroundSource,
-  });
   const backgroundFeat = parseFeature(backgroundFeature, ddb, character, backgroundSource, "background");
   backgroundFeat.forEach((item) => {
     items.push(item);
