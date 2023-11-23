@@ -67,6 +67,14 @@ export function specialCases(monster) {
       }, monster.items);
       break;
     }
+    case "Living Blade of Disaster": {
+      monster.items.forEach(function (item, index) {
+        if (item.name === "Force Blade") {
+          this[index].system.critical.threshold = 18;
+        }
+      }, monster.items);
+      break;
+    }
     case "Nilbog (Legacy)":
     case "Nilbog": {
       monster.items.forEach(function (item, index) {
