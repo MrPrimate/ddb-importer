@@ -76,8 +76,10 @@ function tableReplacer(htmlDocument, tableNum, compendiumTables, compendiumLabel
 
   if (tablePoint) {
     compendiumTables.slice().reverse().forEach((table) => {
-      logger.debug(`Updating table reference for: ${table.name}`);
-      tablePoint.insertAdjacentHTML("afterend", `<div id="table-link">@Compendium[${compendiumLabel}.${table.name}]{Open RollTable ${table.name}}</div>`);
+      const link = table.uuid
+        ? `@UUID[${table.uuid}]`
+        : `@Compendium[${compendiumLabel}.${table.name}]`;
+      tablePoint.insertAdjacentHTML("afterend", `<div id="table-link">${link}{Open RollTable ${table.name}}</div>`);
     });
   }
 
@@ -198,6 +200,14 @@ function buildTable(parsedTable, keys, diceKeys, tableName, parentName) {
   return generatedTables;
 }
 
+
+async function buildAndImportTable(parsedTable, keys, diceKeys, finalName, name, updateExisting) {
+  const data = buildTable(parsedTable, keys, diceKeys, finalName, name);
+
+  const handler = await DDBItemImporter.buildHandler("tables", data, updateExisting, { srdFidding: false });
+  return handler.results;
+}
+
 export async function generateTable(parentName, html, updateExisting, type = "") {
   let name = `${parentName}`;
   const document = utils.htmlToDoc(html);
@@ -243,16 +253,12 @@ export async function generateTable(parentName, html, updateExisting, type = "")
     });
 
     const builtTables = tableGenerated
-      ? [tableGenerated.toObject()]
-      : buildTable(parsedTable, keys, diceKeys, finalName, name);
+      ? [tableGenerated]
+      // eslint-disable-next-line no-await-in-loop
+      : await buildAndImportTable(parsedTable, keys, diceKeys, finalName, name, updateExisting);
 
     if (builtTables.length > 0) {
       try {
-        if (!tableGenerated) {
-          logger.debug(`Generated table`, builtTables);
-          // eslint-disable-next-line no-await-in-loop
-          await DDBItemImporter.buildHandler("tables", builtTables, updateExisting, { srdFidding: false });
-        }
 
         let tableData = {
           nameGuess,
@@ -260,6 +266,7 @@ export async function generateTable(parentName, html, updateExisting, type = "")
           parentName,
           name,
           tableNum,
+          uuids: builtTables.map((t) => t.uuid),
           length: parsedTable.length,
           keys: keys,
           diceKeys: diceKeys,
@@ -267,7 +274,7 @@ export async function generateTable(parentName, html, updateExisting, type = "")
           multiDiceKeys: diceKeys.length > 1,
           diceKeysNumber: diceKeys.length,
           totalKeys: keys.length,
-          builtTables,
+          builtTables: builtTables.map((t) => t.toObject()),
         };
         tablesMatched.push(tableData);
         updatedDocument = tableReplacer(updatedDocument, tableNum, builtTables, tableCompendiumLabel);

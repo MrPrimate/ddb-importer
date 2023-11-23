@@ -23,6 +23,8 @@ export default class DDBItemImporter {
     this.compendiumIndex = null;
     this.indexFilter = indexFilter;
 
+    this.results = [];
+
     this.deleteBeforeUpdate = deleteBeforeUpdate ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-delete-during-update");
   }
 
@@ -343,13 +345,13 @@ export default class DDBItemImporter {
     // v11 compendium folders - just add to doc before creation/update
     const inputItems = await this.addCompendiumFolderIds(filterItems);
 
-    let updateResults = [];
+    let results = [];
     // update existing items
     DDBMuncher.munchNote(`Creating and updating ${inputItems.length} ${this.type} items in compendium...`, true);
 
     if (updateExisting) {
-      updateResults = await this.updateCompendiumItems(inputItems);
-      logger.debug(`Updated ${updateResults.length} existing ${this.type} items in compendium`);
+      results = await this.updateCompendiumItems(inputItems);
+      logger.debug(`Updated ${results.length} existing ${this.type} items in compendium`);
     }
 
     // create new items
@@ -364,8 +366,8 @@ export default class DDBItemImporter {
       });
     }
 
-    this.updateResults = createResults.concat(updateResults);
-    return new Promise((resolve) => resolve(this.updateResults));
+    this.results = createResults.concat(results);
+    return new Promise((resolve) => resolve(this.results));
   }
 
   async loadPassedItemsFromCompendium(items,
