@@ -6,6 +6,8 @@
 - Fixes for AC bonus field changing to string when using the system without DAE.
 - Active Aura Effects were not applied to Paladin Auras.
 - Correction to Grease style AA macros.
+- Monsters display legendary resources on bar2? (Like the SRD Monsters) did not set the setting due to typo. Can't believe none of you spotted this till now!
+- Improved table linking to compendium to use UUID over name where possible.
 
 # 3.6.0
 
