@@ -664,7 +664,7 @@ const MuncherSettings = {
         enabled: true,
       },
       {
-        name: "munching-policy-monster-set-legendary-resource-bar",
+        name: "monster-set-legendary-resource-bar",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-set-legendary-resource-bar"),
         description: "Monsters display legendary resources on bar2? (Like the SRD Monsters)",
         enabled: true,
