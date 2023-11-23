@@ -71,6 +71,8 @@ export function specialCases(monster) {
       monster.items.forEach(function (item, index) {
         if (item.name === "Force Blade") {
           this[index].system.critical.threshold = 18;
+          this[index].system.critical.damage = "8d12";
+          this[index].system.damage.parts.splice(1, 1);
         }
       }, monster.items);
       break;
