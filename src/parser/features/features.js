@@ -112,6 +112,7 @@ function parseFeature(feat, ddb, character, source, type) {
     choices.forEach((choice) => {
       logger.debug(`Adding choice ${choice.label}`);
       let choiceItem = duplicate(item);
+      choiceItem._id = foundry.utils.randomID();
       let choiceFeat = feat.definition ? duplicate(feat.definition) : duplicate(feat);
 
       if (item.name === choice.label) return;
