@@ -210,7 +210,7 @@ export default class DDBCharacter {
 
       this._filterActionFeatures();
 
-      classParser.LinkFeatures();
+      classParser.linkFeatures();
 
       // this adds extras like a Divine Smite spell to this.data
       this._addSpecialAdditions();

@@ -5,10 +5,10 @@ import DDBSubClass from "./DDBSubClass.js";
 
 export default class CharacterClassFactory {
 
-  constructor(ddb) {
-    this.ddb = ddb;
-    this.character = this.ddb.raw.character;
-    this.source = this.ddb.source.ddb;
+  constructor(ddbCharacter) {
+    this.ddbCharacter = ddbCharacter;
+    this.character = this.ddbCharacter.raw.character;
+    this.source = this.ddbCharacter.source.ddb;
     this.ddbClasses = {
     };
   }
@@ -24,6 +24,7 @@ export default class CharacterClassFactory {
       if (characterClass.subclassDefinition && characterClass.subclassDefinition.name) {
         const ddbSubClass = new DDBSubClass(this.source, characterClass.definition.id);
         await ddbSubClass.generateFromCharacter(this.character);
+        this.ddbClasses[ddbSubClass.data.name] = ddbSubClass;
         documents.push(deepClone(ddbSubClass.data));
       }
     }
@@ -34,11 +35,23 @@ export default class CharacterClassFactory {
   }
 
 
+  // "flags": {
+  //   "dnd5e": {
+  //     "sourceId": "Compendium.dnd5e.classfeatures.Item.jTXHaK0vvT5DV3uO",
+  //     "advancementOrigin": "hRWd6muKtSmlop3n.SikU7aSV7VqT2FPB"
+  //   }
+  // },
+
   linkFeatures() {
-    this.data.classes.forEach((klass) => {
-      const ddbClass = this.this.ddbClasses[klass.name];
-      klass.system.advancements.forEach((a) => {
-        if (a.type === "ItemGrant" && a.level <= this.ddbClassDefinition.level) {
+    console.warn("this", {
+      this: this
+    })
+    this.ddbCharacter.data.classes.forEach((klass) => {
+      console.warn("klass", klass)
+      const ddbClass = this.ddbClasses[klass.name];
+      console.warn("ddbclass", ddbClass)
+      klass.system.advancement.forEach((a) => {
+        if (a.type === "ItemGrant" && a.level <= ddbClass.ddbClass.level) {
           // "added": {
           //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
           //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
@@ -46,7 +59,10 @@ export default class CharacterClassFactory {
           const aData = ddbClass._advancementMatches.features[a._id];
           const added = {};
           for (const [advancementFeatureName, uuid] of Object.entries(aData)) {
-            const feature = this.ddb.data.actions.find((f) => {
+            const feature = this.ddbCharacter.data.actions.find((f) => {
+              const name = f.flags.ddbimporter?.originalName ?? f.name;
+              return name === advancementFeatureName;
+            }) ?? this.ddbCharacter.data.features.find((f) => {
               const name = f.flags.ddbimporter?.originalName ?? f.name;
               return name === advancementFeatureName;
             });

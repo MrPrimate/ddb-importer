@@ -318,7 +318,7 @@ export default class DDBClass {
             advancements.push(advancement.toObject());
           } else {
             advancements[levelAdvancement].configuration.items.push(featureMatch.uuid);
-            this._advancementMatches.features[levelAdvancement._id][featureMatch.name] = featureMatch.uuid;
+            this._advancementMatches.features[advancements[levelAdvancement]._id][featureMatch.name] = featureMatch.uuid;
           }
         }
       });
@@ -470,18 +470,11 @@ export default class DDBClass {
 
     const choiceDefinitions = this.ddb.character.choices.choiceDefinitions;
 
-    console.warn("classProficiencyFeatureIds", {
-      classProficiencyFeatureIds: this._proficiencyFeatureIds,
-      classProficiencyFeatures: this._proficiencyFeatures,
-      choiceDefinitions,
-    });
-
     this.ddb.character.choices.class.filter((choice) =>
       this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
       && choice.subType === 1
       && choice.type === 2
     ).forEach((choice) => {
-      console.warn("choice", choice);
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
@@ -542,20 +535,20 @@ export default class DDBClass {
             ? this.dictionary.mulitclassSkill
             : skillMods.length;
 
-        console.warn("SKILL PARSING", {
-          parsedSkills,
-          chosenSkills,
-          skillMods,
-          skillExplicitMods,
-          skillChooseMods,
-          i,
-          availableToMulticlass,
-          modFilters,
-          mods,
+        // console.warn("SKILL PARSING", {
+        //   parsedSkills,
+        //   chosenSkills,
+        //   skillMods,
+        //   skillExplicitMods,
+        //   skillChooseMods,
+        //   i,
+        //   availableToMulticlass,
+        //   modFilters,
+        //   mods,
 
-          proficiencyFeature,
-          this: this,
-        });
+        //   proficiencyFeature,
+        //   this: this,
+        // });
         if (skillCount === 0) return;
 
         const initialUpdate = {
