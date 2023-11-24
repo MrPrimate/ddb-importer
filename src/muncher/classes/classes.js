@@ -3,14 +3,69 @@ import logger from "../../logger.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
-import ClassAdvancementHelper from "../../parser/advancements/AdvancementHelper.js";
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
+
+function getHPAdvancement(klass, character) {
+  // const value = "value": {
+  //   "1": "max",
+  //   "2": "avg"
+  // },
+  const value = {};
+  if (klass) {
+    const rolledHP = getProperty(character, "flags.ddbimporter.rolledHP") ?? false;
+    const startingClass = getProperty(klass, "flags.ddbimporter.isStartingClass") === true;
+    const useMaxHP = game.settings.get("ddb-importer", "character-update-policy-use-hp-max-for-rolled-hp");
+    if (rolledHP && !useMaxHP) {
+      const baseHP = getProperty(character, "flags.ddbimporter.baseHitPoints");
+      const totalLevels = getProperty(character, "flags.ddbimporter.dndbeyond.totalLevels");
+      const hpPerLevel = Math.floor(baseHP / totalLevels);
+      const leftOvers = Math.floor(baseHP % totalLevels);
+
+      for (let i = 1; i <= klass.system.levels; i++) {
+        value[`${i}`] = i === 1 && startingClass ? (hpPerLevel + leftOvers) : hpPerLevel;
+      }
+    } else {
+      for (let i = 1; i <= klass.system.levels; i++) {
+        value[`${i}`] = i === 1 && startingClass ? "max" : "avg";
+      }
+    };
+  }
+  return {
+    _id: foundry.utils.randomID(),
+    type: "HitPoints",
+    configuration: {},
+    value,
+    title: "",
+    icon: "",
+    classRestriction: "",
+  };
+}
+
+async function addSRDAdvancements(advancements, klass) {
+  const rulesCompendium = "dnd5e.classes";
+  const srdCompendium = CompendiumHelper.getCompendium(rulesCompendium);
+  await srdCompendium.getIndex();
+  const klassMatch = srdCompendium.index.find((k) => k.name === klass.name);
+  if (klassMatch) {
+    const srdKlass = await srdCompendium.getDocument(klassMatch._id);
+    const scaleAdvancements = srdKlass.system.advancement.filter((srdA) =>
+      srdA.type === "ScaleValue"
+      && !advancements.some((ddbA) => ddbA.configuration.identifier === srdA.configuration.identifier)
+    ).map((advancement) => {
+      return foundry.utils.isNewerVersion(game.system.version, "2.0.3") ? advancement.toObject() : advancement;
+    });
+    advancements.push(...scaleAdvancements);
+  }
+
+  return advancements;
+}
 
 async function buildClass(klass, compendiumClassFeatures) {
   let result = await buildBaseClass(klass);
   result.system.description.value += await buildClassFeatures(klass, compendiumClassFeatures);
   result.system.description.value = parseTags(result.system.description.value);
-  result.system.advancement.push(ClassAdvancementHelper.getHPAdvancement(), ...(await generateFeatureAdvancements(klass, compendiumClassFeatures)));
-  result.system.advancement = await ClassAdvancementHelper.addSRDAdvancements(result.system.advancement, result);
+  result.system.advancement.push(getHPAdvancement(), ...(await generateFeatureAdvancements(klass, compendiumClassFeatures)));
+  result.system.advancement = await addSRDAdvancements(result.system.advancement, result);
   return result;
 }
 
