@@ -143,12 +143,12 @@ async function updateDDBSpellSlotsPact(actor) {
   });
 }
 
-async function spellSlotsPact(actor, ddbData) {
+async function spellSlotsPact(actor, ddbCharacter) {
   return new Promise((resolve) => {
     if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-spells-slots")) resolve();
     if (
       actor.system.spells.pact.max > 0
-      && ddbData.character.character.system.spells.pact.value !== actor.system.spells.pact.value
+      && ddbCharacter.data.character.system.spells.pact.value !== actor.system.spells.pact.value
     ) {
       resolve(updateDDBSpellSlotsPact(actor));
     } else {
@@ -176,14 +176,14 @@ async function updateDynamicDDBSpellSlots(actor, update) {
   });
 }
 
-async function spellSlots(actor, ddbData) {
+async function spellSlots(actor, ddbCharacter) {
   return new Promise((resolve) => {
     if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-spells-slots")) resolve();
 
     let spellSlotData = { spellslots: {}, update: false };
     for (let i = 1; i <= 9; i++) {
       let spellData = actor.system.spells[`spell${i}`];
-      if (spellData.max > 0 && ddbData.character.character.system.spells[`spell${i}`].value !== spellData.value) {
+      if (spellData.max > 0 && ddbCharacter.data.character.system.spells[`spell${i}`].value !== spellData.value) {
         const used = spellData.max - spellData.value;
         spellSlotData.spellslots[`level${i}`] = used;
         spellSlotData["update"] = true;
@@ -212,7 +212,7 @@ async function updateDDBCurrency(actor) {
   });
 }
 
-async function currency(actor, ddbData) {
+async function currency(actor, ddbCharacter) {
   return new Promise((resolve) => {
     if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency")) resolve();
 
@@ -224,7 +224,7 @@ async function currency(actor, ddbData) {
       cp: Number.isInteger(actor.system.currency.cp) ? actor.system.currency.cp : 0,
     };
 
-    const same = isEqual(ddbData.character.character.system.currency, value);
+    const same = isEqual(ddbCharacter.data.character.system.currency, value);
 
     if (!same) {
       resolve(updateCharacterCall(actor, "currency", value));
@@ -241,10 +241,10 @@ async function updateDDBXP(actor) {
   });
 }
 
-async function xp(actor, ddbData) {
+async function xp(actor, ddbCharacter) {
   return new Promise((resolve) => {
     if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-xp")) resolve();
-    const same = ddbData.character.character.system.details.xp.value === actor.system.details.xp.value;
+    const same = ddbCharacter.data.character.system.details.xp.value === actor.system.details.xp.value;
 
     if (!same) {
       resolve(updateDDBXP(actor));
@@ -278,18 +278,18 @@ async function updateTempMaxDDBHitPoints(actor) {
 }
 
 
-async function hitPoints(actor, ddbData) {
+async function hitPoints(actor, ddbCharacter) {
   if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-hitpoints")) return [];
   let promises = [];
   const same
-    = ddbData.character.character.system.attributes.hp.value === (actor.system.attributes.hp.value ?? 0)
-    && (ddbData.character.character.system.attributes.hp.temp ?? 0) === (actor.system.attributes.hp.temp ?? 0);
+    = ddbCharacter.data.character.system.attributes.hp.value === (actor.system.attributes.hp.value ?? 0)
+    && (ddbCharacter.data.character.system.attributes.hp.temp ?? 0) === (actor.system.attributes.hp.temp ?? 0);
 
   if (!same) {
     promises.push(updateDDBHitPoints(actor));
   }
 
-  const hpSame = ddbData.character.character.system.attributes.hp.tempmax === (actor.system.attributes.hp.tempmax ?? 0);
+  const hpSame = ddbCharacter.data.character.system.attributes.hp.tempmax === (actor.system.attributes.hp.tempmax ?? 0);
 
   if (!hpSame) {
     promises.push(updateTempMaxDDBHitPoints(actor));
@@ -307,10 +307,10 @@ async function updateDDBInspiration(actor) {
   });
 }
 
-async function inspiration(actor, ddbData) {
+async function inspiration(actor, ddbCharacter) {
   return new Promise((resolve) => {
     if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-inspiration")) resolve();
-    const same = ddbData.character.character.system.attributes.inspiration === actor.system.attributes.inspiration;
+    const same = ddbCharacter.data.character.system.attributes.inspiration === actor.system.attributes.inspiration;
 
     if (!same) {
       resolve(updateDDBInspiration(actor));
@@ -336,10 +336,10 @@ async function updateDDBExhaustion(actor) {
 }
 
 
-async function exhaustion(actor, ddbData) {
+async function exhaustion(actor, ddbCharacter) {
   return new Promise((resolve) => {
     if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-condition")) resolve();
-    const same = ddbData.character.character.system.attributes.exhaustion === actor.system.attributes.exhaustion;
+    const same = ddbCharacter.data.character.system.attributes.exhaustion === actor.system.attributes.exhaustion;
 
     if (!same) {
       resolve(updateDDBExhaustion(actor));
@@ -363,12 +363,12 @@ async function updateDDBCondition(actor, condition) {
   });
 }
 
-async function conditions(actor, ddbData) {
+async function conditions(actor, ddbCharacter) {
   return new Promise((resolve) => {
     const dfConditionsOn = game.modules.get("dfreds-convenient-effects")?.active;
     const useCEConditions = game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce");
     if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-condition") || !dfConditionsOn || !useCEConditions) resolve([]);
-    getActorConditionStates(actor, ddbData.ddb).then((conditions) => {
+    getActorConditionStates(actor, ddbCharacter.source.ddb).then((conditions) => {
       let results = [];
       conditions.forEach((condition) => {
         // exhaustion handled separately
@@ -391,10 +391,10 @@ async function updateDDBDeathSaves(actor) {
   });
 }
 
-async function deathSaves(actor, ddbData) {
+async function deathSaves(actor, ddbCharacter) {
   return new Promise((resolve) => {
     if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-deathsaves")) resolve();
-    const same = isEqual(ddbData.character.character.system.attributes.death, actor.system.attributes.death);
+    const same = isEqual(ddbCharacter.data.character.system.attributes.death, actor.system.attributes.death);
 
     if (!same) {
       resolve(updateDDBDeathSaves(actor));
@@ -419,11 +419,11 @@ async function updateDDBHitDice(actor, klass, update) {
   });
 }
 
-async function hitDice(actor, ddbData) {
+async function hitDice(actor, ddbCharacter) {
   return new Promise((resolve) => {
     if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-hitdice")) resolve();
 
-    const ddbClasses = ddbData.character.classes;
+    const ddbClasses = ddbCharacter.data.classes;
 
     const klasses = actor.items.filter(
       (item) => item.type === "class" && item.flags.ddbimporter.id && item.flags.ddbimporter.definitionId
@@ -485,9 +485,9 @@ async function updateDDBSpellsPrepared(actor, spells) {
   return Promise.all(promises);
 }
 
-async function spellsPrepared(actor, ddbData) {
+async function spellsPrepared(actor, ddbCharacter) {
   if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-spells-prepared")) return [];
-  const ddbSpells = ddbData.character.spells;
+  const ddbSpells = ddbCharacter.data.spells;
 
   const preparedSpells = actor.items.filter((item) => {
     const spellMatch = ddbSpells.find((s) =>
@@ -747,10 +747,10 @@ async function addDDBEquipment(actor, itemsToAdd) {
   }
 }
 
-async function addEquipment(actor, ddbData) {
+async function addEquipment(actor, ddbCharacter) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment")) return [];
-  const ddbItems = ddbData.character.inventory;
+  const ddbItems = ddbCharacter.data.inventory;
 
   const items = getFoundryItems(actor);
   const itemsToAdd = items.filter((item) =>
@@ -792,10 +792,10 @@ async function updateDDBCustomNames(actor, items) {
 }
 
 // updates names of items and actions
-async function updateCustomNames(actor, ddbData) {
+async function updateCustomNames(actor, ddbCharacter) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment")) return [];
-  const ddbItems = ddbData.character.inventory;
+  const ddbItems = ddbCharacter.data.inventory;
 
   const foundryItems = getFoundryItems(actor);
 
@@ -830,10 +830,10 @@ async function removeDDBEquipment(actor, itemsToRemove) {
   return Promise.all(promises);
 }
 
-async function removeEquipment(actor, ddbData) {
+async function removeEquipment(actor, ddbCharacter) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment")) return [];
-  const ddbItems = ddbData.character.inventory;
+  const ddbItems = ddbCharacter.data.inventory;
 
   const items = getFoundryItems(actor);
   const itemsToRemove = ddbItems.filter((item) =>
@@ -944,12 +944,12 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
 }
 
 
-async function equipmentStatus(actor, ddbData, addEquipmentResults) {
+async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment")) return [];
   // reload the actor following potential updates to equipment
-  let ddbItems = ddbData.ddb.character.inventory;
-  let customDDBItems = ddbData.ddb.character.customItems;
+  let ddbItems = ddbCharacter.source.ddb.character.inventory;
+  let customDDBItems = ddbCharacter.source.ddb.character.customItems;
   if (addEquipmentResults?.system) {
     actor = game.actors.get(actor.id);
     ddbItems = ddbItems.concat(addEquipmentResults.system.addItems);
@@ -1075,11 +1075,11 @@ async function updateDDBActionUseStatus(actor, actions) {
   return Promise.all(promises);
 }
 
-async function actionUseStatus(actor, ddbData) {
+async function actionUseStatus(actor, ddbCharacter) {
   const syncActionReady = actor.flags.ddbimporter?.syncActionReady;
   if (syncActionReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-action-use")) return [];
 
-  let ddbActions = ddbData.character.actions;
+  let ddbActions = ddbCharacter.data.actions;
 
   const foundryItems = getFoundryItems(actor);
 
@@ -1125,37 +1125,37 @@ export async function updateDDBCharacter(actor) {
   const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
   const activeUpdateState = ddbCharacter.getCurrentDynamicUpdateState();
   await ddbCharacter.disableDynamicUpdates();
-  let ddbData = await ddbCharacter.getCharacterData(getOptions);
+  await ddbCharacter.getCharacterData(getOptions);
 
   if (!ddbCharacter.source.ddb.character.canEdit) {
-    logger.debug("Update DDB", { ddbCharacter, ddbData });
+    logger.debug("Update DDB", { ddbCharacter, source: ddbCharacter.source });
     throw new Error("User is not allowed to edit character on D&D Beyond.");
   }
 
   logger.debug("Current actor:", duplicate(actor));
-  logger.debug("DDB Parsed data:", ddbData);
+  logger.debug("DDB Parsed data:", { data: ddbCharacter.data, source: ddbCharacter.source });
 
   let singlePromises = []
     .concat(
-      currency(actor, ddbData),
-      hitDice(actor, ddbData),
-      spellSlots(actor, ddbData),
-      spellSlotsPact(actor, ddbData),
-      inspiration(actor, ddbData),
-      exhaustion(actor, ddbData),
-      deathSaves(actor, ddbData),
-      xp(actor, ddbData),
+      currency(actor, ddbCharacter),
+      hitDice(actor, ddbCharacter),
+      spellSlots(actor, ddbCharacter),
+      spellSlotsPact(actor, ddbCharacter),
+      inspiration(actor, ddbCharacter),
+      exhaustion(actor, ddbCharacter),
+      deathSaves(actor, ddbCharacter),
+      xp(actor, ddbCharacter),
     ).flat();
 
   const singleResults = await Promise.all(singlePromises);
-  const hpResults = await hitPoints(actor, ddbData);
-  const spellsPreparedResults = await spellsPrepared(actor, ddbData);
-  const actionStatusResults = await actionUseStatus(actor, ddbData);
-  const nameUpdateResults = await updateCustomNames(actor, ddbData);
-  const addEquipmentResults = await addEquipment(actor, ddbData);
-  const removeEquipmentResults = await removeEquipment(actor, ddbData);
-  const equipmentStatusResults = await equipmentStatus(actor, ddbData, addEquipmentResults);
-  const conditionResults = await conditions(actor, ddbData);
+  const hpResults = await hitPoints(actor, ddbCharacter);
+  const spellsPreparedResults = await spellsPrepared(actor, ddbCharacter);
+  const actionStatusResults = await actionUseStatus(actor, ddbCharacter);
+  const nameUpdateResults = await updateCustomNames(actor, ddbCharacter);
+  const addEquipmentResults = await addEquipment(actor, ddbCharacter);
+  const removeEquipmentResults = await removeEquipment(actor, ddbCharacter);
+  const equipmentStatusResults = await equipmentStatus(actor, ddbCharacter, addEquipmentResults);
+  const conditionResults = await conditions(actor, ddbCharacter);
   // if a known/choice spellcaster
   // and new spell/ spells removed
   // for each spell add or remove, e.g.

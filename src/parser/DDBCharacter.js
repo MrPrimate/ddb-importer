@@ -116,9 +116,8 @@ export default class DDBCharacter {
           this.data.character.name = undefined;
           this.data.character.prototypeToken.name = undefined;
         }
-        this.source["character"] = this.data;
-        logger.debug("finalParsedData", duplicate(this.source));
-        return this.source;
+        logger.debug("finalParsedData", duplicate({ source: this.source, data: this.data }));
+        return this.data;
       } catch (error) {
         if (game.settings.get("ddb-importer", "debug-json")) {
           FileHelper.download(JSON.stringify(this.source), `${this.characterId}-raw.json`, "application/json");
@@ -185,7 +184,8 @@ export default class DDBCharacter {
       logger.debug("Character parse complete");
       await this._generateRace();
       logger.debug("Race parse complete");
-      this.raw.classes = await CharacterClassFactory.processCharacter(this.source.ddb, this.raw.character);
+      const classParser = new CharacterClassFactory(this);
+      this.raw.classes = await classParser.processCharacter();
       logger.debug("Classes parse complete");
       await this._generateFeatures();
       logger.debug("Feature parse complete");
@@ -197,7 +197,7 @@ export default class DDBCharacter {
       await this._generateInventory();
       logger.debug("Inventory generation complete");
 
-      this.data = {
+      this.data = deepClone({
         character: this.raw.character,
         features: this.raw.features,
         race: this.raw.race,
@@ -206,9 +206,11 @@ export default class DDBCharacter {
         spells: this.raw.spells,
         actions: this.raw.actions,
         itemSpells: this.raw.itemSpells,
-      };
+      });
 
       this._filterActionFeatures();
+
+      classParser.LinkFeatures();
 
       // this adds extras like a Divine Smite spell to this.data
       this._addSpecialAdditions();
@@ -218,8 +220,7 @@ export default class DDBCharacter {
         await this.generateCompanions();
       }
 
-      await this._addVision5eEffects();
-      // await this._applyChrisPremades();
+      this._addVision5eEffects();
 
     } catch (error) {
       logger.error(error);

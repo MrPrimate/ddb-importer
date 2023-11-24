@@ -420,7 +420,7 @@ export default class DDBCharacterManager extends FormApplication {
           };
           this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
           await this.ddbCharacter.getCharacterData(getOptions);
-          logger.debug("import.js getCharacterData result", this.ddbCharacter.source);
+          logger.debug("import.js getCharacterData result", this.ddbCharacter);
           if (game.settings.get("ddb-importer", "debug-json")) {
             FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${characterId}.json`, "application/json");
           }
@@ -580,19 +580,19 @@ export default class DDBCharacterManager extends FormApplication {
             localCobaltPostFix: this.actor.id,
           };
           this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
-          const characterData = await this.ddbCharacter.getCharacterData(getOptions);
-          logger.debug("import.js getCharacterData result", characterData);
+          await this.ddbCharacter.getCharacterData(getOptions);
+          logger.debug("import.js getCharacterData result", this.ddbCharacter);
           const debugJson = game.settings.get("ddb-importer", "debug-json");
           if (debugJson) {
-            FileHelper.download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
+            FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${characterId}.json`, "application/json");
           }
-          if (characterData.success) {
+          if (this.ddbCharacter.source?.success) {
             await generateCharacterExtras(html, this.ddbCharacter, this.actor);
             this.showCurrentTask("Loading Extras", "Done.", false);
             $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
             this.close();
           } else {
-            this.showCurrentTask(characterData.message, null, true);
+            this.showCurrentTask(this.ddbCharacter.source.message, null, true);
             return false;
           }
         } catch (error) {

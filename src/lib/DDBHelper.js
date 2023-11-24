@@ -463,11 +463,11 @@ const DDBHelper = {
     return isOptionalClassChoice;
   },
 
-  getChosenClassModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null } = {}) => {
+  getChosenClassModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {}) => {
     const classFeatureIds = DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
     // get items we are going to interact on
     const modifiers = DDBHelper
-      .getModifiers(ddb, 'class', includeExcludedEffects, effectOnly, availableToMulticlass !== null)
+      .getModifiers(ddb, 'class', includeExcludedEffects, effectOnly, useUnfilteredModifiers)
       .filter((mod) =>
         (
           availableToMulticlass === null
@@ -481,12 +481,12 @@ const DDBHelper = {
     return modifiers;
   },
 
-  filterBaseCharacterModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null } = {}) => {
+  filterBaseCharacterModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {}) => {
     const modifiers = [
-      DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass }),
-      DDBHelper.getModifiers(ddb, "race", includeExcludedEffects, effectOnly),
-      DDBHelper.getModifiers(ddb, "background", includeExcludedEffects, effectOnly),
-      DDBHelper.getModifiers(ddb, "feat", includeExcludedEffects, effectOnly),
+      DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass, useUnfilteredModifiers }),
+      DDBHelper.getModifiers(ddb, "race", includeExcludedEffects, effectOnly, useUnfilteredModifiers),
+      DDBHelper.getModifiers(ddb, "background", includeExcludedEffects, effectOnly, useUnfilteredModifiers),
+      DDBHelper.getModifiers(ddb, "feat", includeExcludedEffects, effectOnly, useUnfilteredModifiers),
     ];
 
     return DDBHelper.filterModifiersOld(modifiers, type, subType, restriction);
@@ -494,12 +494,12 @@ const DDBHelper = {
 
   // I need to getChosenOriginFeatures from data.optionalOriginFeatures
 
-  filterBaseModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null } = {}) => {
+  filterBaseModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {}) => {
     const modifiers = [
-      DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass }),
-      DDBHelper.getModifiers(ddb, "race", includeExcludedEffects, effectOnly),
-      DDBHelper.getModifiers(ddb, "background", includeExcludedEffects, effectOnly),
-      DDBHelper.getModifiers(ddb, "feat", includeExcludedEffects, effectOnly),
+      DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass, useUnfilteredModifiers }),
+      DDBHelper.getModifiers(ddb, "race", includeExcludedEffects, effectOnly, useUnfilteredModifiers),
+      DDBHelper.getModifiers(ddb, "background", includeExcludedEffects, effectOnly, useUnfilteredModifiers),
+      DDBHelper.getModifiers(ddb, "feat", includeExcludedEffects, effectOnly, useUnfilteredModifiers),
       DDBHelper.getActiveItemModifiers(ddb, includeExcludedEffects),
     ];
 

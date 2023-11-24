@@ -73,6 +73,9 @@ export function specialCases(monster) {
           this[index].system.critical.threshold = 18;
           this[index].system.critical.damage = "8d12";
           this[index].system.damage.parts.splice(1, 1);
+
+        } else if (item.name === "Preemptive Strike" && game.modules.get("midi-qol")?.active) {
+          this[index].system.activation.type = "reactionmanual";
         }
       }, monster.items);
       break;

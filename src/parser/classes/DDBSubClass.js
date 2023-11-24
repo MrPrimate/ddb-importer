@@ -29,6 +29,7 @@ export default class DDBSubClass extends DDBClass {
     super(ddb, classId);
 
     this.ddbClassDefinition = this.ddbClass.subclassDefinition;
+    this._isSubClass = true;
   }
 
 

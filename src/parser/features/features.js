@@ -26,6 +26,7 @@ function parseFeature(feat, ddb, character, source, type) {
   }
 
   let item = {
+    _id: foundry.utils.randomID(),
     name: name.replace("’", "'").trim(),
     type: "feat",
     system: utils.getTemplate("feat"),

@@ -11,8 +11,8 @@ DDBCharacter.prototype._addSpecialAdditions = function _addSpecialAdditions() {
   const feyAncestry = checkList.find((f) => f.name === "Fey Ancestry" && f.type === "feat");
   if (feyAncestry) {
     const ci = ["Sleep"];
-    if (this.raw.character.system.traits.ci.custom && this.raw.character.system.traits.ci.custom.trim() !== "")
-      ci.push(this.raw.character.system.traits.ci.custom);
-    this.raw.character.system.traits.ci.custom = ci.join(";");
+    if (this.data.character.system.traits.ci.custom && this.data.character.system.traits.ci.custom.trim() !== "")
+      ci.push(this.data.character.system.traits.ci.custom);
+    this.data.character.system.traits.ci.custom = ci.join(";");
   }
 };

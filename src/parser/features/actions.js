@@ -543,6 +543,7 @@ function getAttackAction(ddb, character, action) {
     ? "feat"
     : "weapon";
   let feature = {
+    _id: foundry.utils.randomID(),
     name: DDBHelper.getName(ddb, action, character),
     type: actionType,
     system: utils.getTemplate(actionType),
@@ -676,6 +677,7 @@ function getOtherActions(ddb, character, parsedActions) {
     .map((action) => {
       logger.debug(`Getting Other Action ${action.name}`);
       let feature = {
+        _id: foundry.utils.randomID(),
         name: DDBHelper.getName(ddb, action, character),
         type: "feat",
         system: utils.getTemplate("feat"),
