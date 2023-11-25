@@ -1,3 +1,4 @@
+import DICTIONARY from '../../dictionary.js';
 import utils from '../../lib/utils.js';
 
 export default class AdvancementHelper {
@@ -106,5 +107,72 @@ export default class AdvancementHelper {
 
     return advancement.toObject();
   }
+
+  static parseHTMLSaves(description) {
+    const results = [];
+
+    let dom = new DocumentFragment();
+    $.parseHTML(description).forEach((element) => {
+      dom.appendChild(element);
+    });
+
+    // get class saves
+    const savingText = dom.textContent.toLowerCase().split("saving throws:").pop().split("\n")[0].split("The")[0].split(".")[0].split("skills:")[0].trim();
+    const saveRegex = /(.*)(?:$|The|\.$|\w+:)/im;
+    const saveMatch = savingText.match(saveRegex);
+
+    if (saveMatch) {
+      const saveNames = saveMatch[1].replace('and', ',').split(',').map((ab) => ab.trim());
+      const saves = saveNames
+        .filter((name) => DICTIONARY.character.abilities.some((ab) => ab.long.toLowerCase() === name.toLowerCase()))
+        .map((name) => {
+          const dictAbility = DICTIONARY.character.abilities.find((ab) => ab.long.toLowerCase() === name.toLowerCase());
+          return dictAbility.value;
+        });
+      results.push(...saves);
+    }
+    return results;
+  }
+
+  static parseHTMLSkills(description) {
+    const parsedSkills = {
+      choices: [],
+      number: 0,
+    };
+
+    let dom = new DocumentFragment();
+    $.parseHTML(description).forEach((element) => {
+      dom.appendChild(element);
+    });
+
+    // Choose any three
+    // Skills: Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival
+    const skillText = dom.textContent.toLowerCase().split("skills:").pop().split("\n")[0].split("The")[0].split(".")[0].trim();
+    const allSkillRegex = /Skills: Choose any (\w+)(.*)($|\.$|\w+:)/im;
+    const allMatch = dom.textContent.match(allSkillRegex);
+    const skillRegex = /choose (\w+)(?:\sskills)* from (.*)($|The|\.$|\w+:)/im;
+    const skillMatch = skillText.match(skillRegex);
+
+    if (allMatch) {
+      const skills = DICTIONARY.character.skills.map((skill) => skill.name);
+      const numberSkills = DICTIONARY.numbers.find((num) => allMatch[1].toLowerCase() === num.natural);
+      // eslint-disable-next-line require-atomic-updates
+      parsedSkills.number = numberSkills ? numberSkills.num : 2;
+      parsedSkills.choices = skills;
+    } else if (skillMatch) {
+      const skillNames = skillMatch[2].replace('and', ',').split(',').map((skill) => skill.trim());
+      const skills = skillNames.filter((name) => DICTIONARY.character.skills.some((skill) => skill.label.toLowerCase() === name.toLowerCase()))
+        .map((name) => {
+          const dictSkill = DICTIONARY.character.skills.find((skill) => skill.label.toLowerCase() === name.toLowerCase());
+          return dictSkill.name;
+        });
+      const numberSkills = DICTIONARY.numbers.find((num) => skillMatch[1].toLowerCase() === num.natural);
+      parsedSkills.number = numberSkills ? numberSkills.num : 2;
+      parsedSkills.choices = skills;
+    }
+
+    return parsedSkills;
+  }
+
 
 }
