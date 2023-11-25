@@ -1,10 +1,10 @@
 export function paladinDefaultAuraEffect(document) {
   document.effects.forEach((effect) => {
     if ((effect.name ?? effect.label).includes(" - Constant")) {
-      const distance = document.flags.ddbimporter?.dndbeyond?.levelScale?.fixedValue ?? 10;
+      // const distance = document.flags.ddbimporter?.dndbeyond?.levelScale?.fixedValue ?? 10;
       effect.flags.ActiveAuras = {
         aura: "Allies",
-        radius: distance,
+        radius: `@scale.paladin.${document.name.toLowerCase().replaceAll(" ", "-")}`,
         isAura: true,
         inactive: false,
         hidden: false,

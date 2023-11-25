@@ -1,32 +1,50 @@
 import { effectModules, forceItemEffect, forceManualReaction } from "./effects.js";
 
 // effect loads
+import { alertEffect } from "./feats/alert.js";
 import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
+import { arcaneRecoveryEffect } from "./feats/arcaneRecovery.js";
 import { arcaneWardEffect } from "./feats/arcaneWard.js";
+import { auraOfHateEffect } from "./feats/auraOfHate.js";
 import { bardicInspirationEffect } from "./feats/bardicInspiration.js";
 import { bladesongEffect } from "./feats/bladesong.js";
 import { blessedHealerEffect } from "./feats/blessedHealer.js";
 import { blessedStrikesEffect } from "./feats/blessedStrikes.js";
 import { cloudRuneEffect } from "./feats/cloudRune.js";
 import { crossbowExpertEffect } from "./feats/crossbowExpert.js";
+import { crusherCriticalEffect } from "./feats/crusherCritical.js";
+import { crusherEffect } from "./feats/crusher.js";
+import { dauntingRoarEffect } from "./feats/dauntingRoar.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
+import { deflectMissilesAttackEffect } from "./feats/deflectMissilesAttack.js";
 import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
+import { deftStrikeEffect } from "./feats/deftStike.js";
+import { evasionEffect } from "./feats/evasion.js";
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
 import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { fireRuneEffect } from "./feats/fireRune.js";
 import { fontOfMagicEffect } from "./feats/fontOfMagic.js";
+import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js";
 import { frostRuneEffect } from "./feats/frostRune.js";
 import { giantsMightEffect } from "./feats/giantsMight.js";
+import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
 import { heavyArmorMasterEffect } from "./feats/heavyArmorMaster.js";
 import { hillRuneEffect } from "./feats/hillRune.js";
+import { holdBreathEffect } from "./feats/holdBreath.js";
 import { indomitableEffect } from "./feats/indomitable.js";
 import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
+import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
+import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
+import { mindLinkEffect } from "./feats/mindLink.js";
 import { momentaryStasis } from "./feats/momentaryStasis.js";
+import { pactMagicEffect } from "./feats/pactMagic.js";
 import { paladinDefaultAuraEffect } from "./feats/paladinDefaultAura.js";
+import { patientDefenseEffect } from "./feats/patientDefense.js";
 import { piercerCriticalEffect, piercerRerollEffect } from "./feats/piercer.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
 import { potentCantripEffect } from "./feats/potentCantrip.js";
+import { powerfulBuild } from "./feats/powerfulBuild.js";
 import { radiantSoulEffect } from "./feats/radiantSoul.js";
 import { rageEffect } from "./feats/rage.js";
 import { recklessAttackEffect } from "./feats/recklessAttack.js";
@@ -36,37 +54,20 @@ import { savageAttackerEffect } from "./feats/savageAttacker.js";
 import { sculptSpellsEffect } from "./feats/sculptSpells.js";
 import { sharpShooterEffect } from "./feats/sharpShooter.js";
 import { shiftEffect } from "./feats/shift.js";
+import { slasherCriticalEffect } from "./feats/slasherCritical.js";
+import { slasherReduceSpeedEffect } from "./feats/slasherReduceSpeed.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
+import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
 import { steadyAimEffect } from "./feats/steadyAim.js";
 import { stoneRuneEffect } from "./feats/stoneRune.js";
 import { stonesEnduranceEffect } from "./feats/stonesEndurance.js";
 import { stormRuneEffect } from "./feats/stormRune.js";
 import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
+import { vedalkenDispassionEffect } from "./feats/vedalkenDispassion.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { warCasterEffect } from "./feats/warCaster.js";
-import { crusherEffect } from "./feats/crusher.js";
-import { crusherCriticalEffect } from "./feats/crusherCritical.js";
-import { slasherReduceSpeedEffect } from "./feats/slasherReduceSpeed.js";
-import { slasherCriticalEffect } from "./feats/slasherCritical.js";
-import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
-import { arcaneRecoveryEffect } from "./feats/arcaneRecovery.js";
-import { alertEffect } from "./feats/alert.js";
-import { evasionEffect } from "./feats/evasion.js";
-import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js";
-import { deflectMissilesAttackEffect } from "./feats/deflectMissilesAttack.js";
-import { patientDefenseEffect } from "./feats/patientDefense.js";
-import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
-import { pactMagicEffect } from "./feats/pactMagic.js";
-import { dauntingRoarEffect } from "./feats/dauntingRoar.js";
-import { powerfulBuild } from "./feats/powerfulBuild.js";
-import { deftStrikeEffect } from "./feats/deftStike.js";
-import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
-import { mindLinkEffect } from "./feats/mindLink.js";
-import { holdBreathEffect } from "./feats/holdBreath.js";
-import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
-import { vedalkenDispassionEffect } from "./feats/vedalkenDispassion.js";
 
 export function baseFeatEffect(document, label) {
   let effect = {
@@ -121,6 +122,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       case "Aura of Courage":
       case "Aura of Protection": {
         document = paladinDefaultAuraEffect(document);
+        break;
+      }
+      case "Aura of Hate": {
+        document = auraOfHateEffect(document);
         break;
       }
       case "Defensive Duelist": {
