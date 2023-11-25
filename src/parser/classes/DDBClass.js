@@ -593,7 +593,7 @@ export default class DDBClass {
       // eslint-disable-next-line no-continue
       if (!isAbilityAdvancement) continue;
       const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
-      advancement.updateSource({ configuration: { points: 2 }, value: { type: "asi" } });
+      advancement.updateSource({ configuration: { points: 2 }, level: i, value: { type: "asi" } });
 
       // if advancement has taken ability improvements
       const modFilters = {
