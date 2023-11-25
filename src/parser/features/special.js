@@ -217,7 +217,9 @@ export function setLevelScales(classes, features) {
 // eslint-disable-next-line complexity
 export async function fixFeatures(features) {
   for (let feature of features) {
-    const name = feature.flags.ddbimporter?.originalName ?? feature.name;
+    const name = getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+    // eslint-disable-next-line no-continue
+    if (getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
       case "Action Surge": {
         feature.system.damage = { parts: [], versatile: "", value: "" };
@@ -515,7 +517,6 @@ export async function fixFeatures(features) {
       }
       case "Song of Rest": {
         feature.system.activation = { type: "hour", cost: 1, condition: "" };
-        // feature.system.actionType = "other";
         feature.system.actionType = "heal";
         feature.system.target.type = "creature";
         feature.system.range = { value: null, long: null, units: "special" };

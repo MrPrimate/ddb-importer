@@ -120,6 +120,8 @@ function getCustomActions(ddb, displayedAsAttack) {
         activationType: action.activationType,
       };
 
+      action.isCustomAction = true;
+
       return action;
     });
 
@@ -556,6 +558,7 @@ function getAttackAction(ddb, character, action) {
         componentTypeId: action.componentTypeId,
         originalName: DDBHelper.getName(ddb, action, character, false),
         type: "other",
+        isCustomAction: action.isCustomAction,
       },
       infusions: { infused: false },
       obsidian: {
@@ -688,6 +691,7 @@ function getOtherActions(ddb, character, parsedActions) {
             componentId: action.componentId,
             componentTypeId: action.componentTypeId,
             type: "other",
+            isCustomAction: action.isCustomAction,
           },
           infusions: { infused: false },
           obsidian: {
