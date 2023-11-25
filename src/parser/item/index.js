@@ -386,7 +386,7 @@ DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
   };
 
   if (flags.classFeatures.includes("Lifedrinker")) {
-    flags.damage.parts.push(["@mod", "necrotic"]);
+    flags.damage.parts.push(["@abilities.cha.mod", "necrotic"]);
   }
   // const addItemEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
   const addCharacterEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
