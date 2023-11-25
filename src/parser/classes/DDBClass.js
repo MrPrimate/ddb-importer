@@ -10,20 +10,7 @@ import AdvancementHelper from '../advancements/AdvancementHelper.js';
 
 export default class DDBClass {
 
-  static SPECIAL_ADVANCEMENTS = {
-    "Combat Superiority": {
-      fix: true,
-      fixFunction: AdvancementHelper.renameTotal,
-      additionalAdvancements: true,
-      additionalFunctions: [AdvancementHelper.addAdditionalUses, AdvancementHelper.addSingularDie],
-    },
-    "Rune Carver": {
-      fix: true,
-      fixFunction: AdvancementHelper.renameTotal,
-      additionalAdvancements: false,
-      additionalFunctions: [],
-    },
-  };
+  static SPECIAL_ADVANCEMENTS = {};
 
   _generateSource() {
     const classSource = DDBHelper.parseSource(this.ddbClassDefinition);
@@ -32,12 +19,13 @@ export default class DDBClass {
 
   _fleshOutCommonDataStub() {
     this.data.system.identifier = utils.referenceNameString(this.ddbClassDefinition.name.toLowerCase());
-    this._proficiencyFeatureIds = this.ddbClassDefinition.classFeatures
+    this._determineClassFeatures();
+    this._proficiencyFeatureIds = this.classFeatures
       .filter((feature) => feature.name === "Proficiencies")
       .map((feature) => feature.id);
-    this._proficiencyFeatures = this.ddbClass.classFeatures
-      .filter((feature) => this._proficiencyFeatureIds.includes(feature.definition.id))
-      .map((f) => f.definition);
+    this._proficiencyFeatures = this.classFeatures
+      .filter((feature) => this._proficiencyFeatureIds.includes(feature.id));
+
     this._generateSource();
   }
 
@@ -63,13 +51,12 @@ export default class DDBClass {
       },
       img: null,
     };
-
   }
 
-  _generateSpellCastingProgression(isSubClass = false) {
+  _generateSpellCastingProgression() {
     if (this.ddbClassDefinition.canCastSpells) {
       const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.ddbClass.definition.name);
-      const spellCastingAbility = getSpellCastingAbility(this.ddbClass, isSubClass, isSubClass);
+      const spellCastingAbility = getSpellCastingAbility(this.ddbClass, this._isSubClass, this._isSubClass);
       if (spellProgression) {
         this.data.system.spellcasting = {
           progression: spellProgression.value,
@@ -95,11 +82,11 @@ export default class DDBClass {
   //   // await this._buildCompendiumIndex("subclasses");
   // }
 
-  async _generateDescriptionStub(character, exclusionIds = []) {
+  async _generateDescriptionStub(character) {
     this.data.system.description.value = "<h1>Description</h1>";
     this.data.system.description.value += this.ddbClass.definition.description;
     // this excludes the subclass features
-    this.data.system.description.value += await this._buildClassFeaturesDescription(exclusionIds);
+    this.data.system.description.value += await this._buildClassFeaturesDescription();
     // not all classes have equipment descriptions
     if (this.ddbClass.definition.equipmentDescription) {
       // eslint-disable-next-line require-atomic-updates
@@ -168,6 +155,15 @@ export default class DDBClass {
 
   }
 
+  // this excludes any class/sub class features
+  _determineClassFeatures() {
+    this._excludedFeatureIds = this._isSubClass
+      ? this.classFeatureIds
+      : this.subClassFeatureIds;
+
+    this.classFeatures = this.getClassFeatures(this._excludedFeatureIds);
+  }
+
   /**
    * Retrieves the class features, excluding the ones specified by their IDs.
    *
@@ -217,15 +213,15 @@ export default class DDBClass {
     );
   }
 
-  async _buildClassFeaturesDescription(ignoreIds = []) {
+  async _buildClassFeaturesDescription() {
     logger.debug(`Parsing ${this.ddbClassDefinition.name} features`);
     let description = "<h1>Class Features</h1>\n\n";
     let classFeatures = [];
 
-    this.getClassFeatures(ignoreIds).forEach((feature) => {
+    this.classFeatures.forEach((feature) => {
       const classFeaturesAdded = classFeatures.some((f) => f === feature.name);
 
-      if (!classFeaturesAdded && !ignoreIds.includes(feature.id)) {
+      if (!classFeaturesAdded && !this._excludedFeatureIds.includes(feature.id)) {
         const featureMatch = this.getFeatureCompendiumMatch(feature);
         const title = (featureMatch)
           ? `<p><b>@UUID[${featureMatch.uuid}]{${feature.name}}</b></p>`
@@ -287,12 +283,28 @@ export default class DDBClass {
 
   // ADVANCEMENT FUNCTIONS
 
-  async _generateFeatureAdvancements(ignoreIds = []) {
+  // don't generate advancements for these features
+  static EXCLUDED_FEATURE_ADVANCEMENTS = [
+    "Ability Score Improvement",
+    "Expertise",
+    "Bonus Proficiencies",
+    "Bonus Proficiency",
+    "Tool Proficiency",
+
+    "Speed",
+    "Size",
+    "Feat",
+    "Languages",
+    "Hit Points",
+    "Proficiencies",
+  ];
+
+  async _generateFeatureAdvancements() {
     logger.debug(`Parsing ${this.ddbClass.name} features for advancement`);
 
     const advancements = [];
-    this.getClassFeatures(ignoreIds)
-      .filter((feature) => !ignoreIds.includes(feature.id))
+    this.classFeatures
+      .filter((feature) => this.legacyMode || (!this.legacyMode && !DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS.includes(feature.name)))
       .forEach((feature) => {
         const featureMatch = this.getFeatureCompendiumMatch(feature);
 
@@ -326,9 +338,9 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
-  _generateScaleValueAdvancementsFromFeatures(ignoreIds = []) {
+  _generateScaleValueAdvancementsFromFeatures() {
     let specialFeatures = [];
-    const advancements = this.getClassFeatures(ignoreIds)
+    const advancements = this.classFeatures
       .filter((feature) => feature.levelScales?.length > 0)
       .map((feature) => {
         let advancement = AdvancementHelper.generateScaleValueAdvancement(feature);
@@ -347,32 +359,6 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements, specialFeatures);
   }
 
-  static parseHTMLSaves(description) {
-    const results = [];
-
-    let dom = new DocumentFragment();
-    $.parseHTML(description).forEach((element) => {
-      dom.appendChild(element);
-    });
-
-    // get class saves
-    const savingText = dom.textContent.toLowerCase().split("saving throws:").pop().split("\n")[0].split("The")[0].split(".")[0].split("skills:")[0].trim();
-    const saveRegex = /(.*)(?:$|The|\.$|\w+:)/im;
-    const saveMatch = savingText.match(saveRegex);
-
-    if (saveMatch) {
-      const saveNames = saveMatch[1].replace('and', ',').split(',').map((ab) => ab.trim());
-      const saves = saveNames
-        .filter((name) => DICTIONARY.character.abilities.some((ab) => ab.long.toLowerCase() === name.toLowerCase()))
-        .map((name) => {
-          const dictAbility = DICTIONARY.character.abilities.find((ab) => ab.long.toLowerCase() === name.toLowerCase());
-          return dictAbility.value;
-        });
-      results.push(...saves);
-    }
-    return results;
-  }
-
   _generateHTMLSaveAdvancement() {
     const advancements = [];
     // TODO: Add what to do if no mods supplied
@@ -388,6 +374,9 @@ export default class DDBClass {
     const advancements = [];
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
+        const proficiencyFeature = this._proficiencyFeatures.find((f) => f.requiredLevel === i);
+        if (!proficiencyFeature) return;
+
         const modFilters = {
           includeExcludedEffects: true,
           classId: this.ddbClassDefinition.id,
@@ -422,46 +411,6 @@ export default class DDBClass {
     }
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
-  }
-
-  static parseHTMLSkills(description) {
-    const parsedSkills = {
-      choices: [],
-      number: 0,
-    };
-
-    let dom = new DocumentFragment();
-    $.parseHTML(description).forEach((element) => {
-      dom.appendChild(element);
-    });
-
-    // Choose any three
-    // Skills: Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival
-    const skillText = dom.textContent.toLowerCase().split("skills:").pop().split("\n")[0].split("The")[0].split(".")[0].trim();
-    const allSkillRegex = /Skills: Choose any (\w+)(.*)($|\.$|\w+:)/im;
-    const allMatch = dom.textContent.match(allSkillRegex);
-    const skillRegex = /choose (\w+)(?:\sskills)* from (.*)($|The|\.$|\w+:)/im;
-    const skillMatch = skillText.match(skillRegex);
-
-    if (allMatch) {
-      const skills = DICTIONARY.character.skills.map((skill) => skill.name);
-      const numberSkills = DICTIONARY.numbers.find((num) => allMatch[1].toLowerCase() === num.natural);
-      // eslint-disable-next-line require-atomic-updates
-      parsedSkills.number = numberSkills ? numberSkills.num : 2;
-      parsedSkills.choices = skills;
-    } else if (skillMatch) {
-      const skillNames = skillMatch[2].replace('and', ',').split(',').map((skill) => skill.trim());
-      const skills = skillNames.filter((name) => DICTIONARY.character.skills.some((skill) => skill.label.toLowerCase() === name.toLowerCase()))
-        .map((name) => {
-          const dictSkill = DICTIONARY.character.skills.find((skill) => skill.label.toLowerCase() === name.toLowerCase());
-          return dictSkill.name;
-        });
-      const numberSkills = DICTIONARY.numbers.find((num) => skillMatch[1].toLowerCase() === num.natural);
-      parsedSkills.number = numberSkills ? numberSkills.num : 2;
-      parsedSkills.choices = skills;
-    }
-
-    return parsedSkills;
   }
 
   _parseSkillChoicesFromOptions(level) {
@@ -504,7 +453,10 @@ export default class DDBClass {
 
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
-        if (availableToMulticlass && this.dictionary.mulitclassSkill === 0) return;
+        if (availableToMulticlass && this.dictionary.multiclassSkill === 0) return;
+        const proficiencyFeature = this._proficiencyFeatures.find((f) => f.requiredLevel === i);
+        if (!proficiencyFeature) return;
+
         const modFilters = {
           includeExcludedEffects: true,
           classId: this.ddbClassDefinition.id,
@@ -518,21 +470,17 @@ export default class DDBClass {
           && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
         );
         const skillChooseMods = DDBHelper.filterModifiers(mods, "proficiency", { subType: `choose-a-${this.ddbClassDefinition.name.toLowerCase()}-skill` });
-
         const skillMods = skillChooseMods.concat(skillExplicitMods);
-        const proficiencyFeature = this._proficiencyFeatures.find((f) => f.requiredLevel === i);
-
-        if (!proficiencyFeature) return;
 
         const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
-        const parsedSkills = DDBClass.parseHTMLSkills(proficiencyFeature.description);
+        const parsedSkills = AdvancementHelper.parseHTMLSkills(proficiencyFeature.description);
         const chosenSkills = this._parseSkillChoicesFromOptions(i);
 
         const skillCount = this.options.noMods
           ? parsedSkills.number
           : availableToMulticlass
-            ? this.dictionary.mulitclassSkill
+            ? this.dictionary.multiclassSkill
             : skillMods.length;
 
         // console.warn("SKILL PARSING", {
@@ -559,7 +507,7 @@ export default class DDBClass {
               count: this.options.noMods
                 ? parsedSkills.number
                 : availableToMulticlass
-                  ? this.dictionary.mulitclassSkill
+                  ? this.dictionary.multiclassSkill
                   : skillMods.length,
               pool: parsedSkills.choices.map((skill) => `skills:${skill}`),
             }],
@@ -631,12 +579,91 @@ export default class DDBClass {
     }
   }
 
+  _generateAbilityScoreAdvancement() {
+    if (this.legacyMode) return;
+    const advancements = [];
+
+    for (let i = 0; i <= 20; i++) {
+      const isAbilityAdvancement = this.classFeatures.find((f) => f.name === "Ability Score Improvement" && f.requiredLevel === i);
+
+      console.warn("Ability Advancement", {
+        isAbilityAdvancement,
+        i,
+      });
+      // eslint-disable-next-line no-continue
+      if (!isAbilityAdvancement) continue;
+      const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
+      advancement.updateSource({ configuration: { points: 2 }, value: { type: "asi" } });
+
+      // if advancement has taken ability improvements
+      const modFilters = {
+        includeExcludedEffects: true,
+        classId: this.ddbClassDefinition.id,
+        exactLevel: i,
+        useUnfilteredModifiers: true,
+      };
+      const mods = DDBHelper.getChosenClassModifiers(this.ddb, modFilters);
+      const improvements = DICTIONARY.character.abilities
+        .filter((ability) => {
+          return DDBHelper.filterModifiers(mods, "bonus", { subType: `${ability.long}-score` }).length > 0;
+        })
+        .map((ability) => ability.value);
+
+
+      console.warn("Ability Advancement 2", {
+        isAbilityAdvancement,
+        i,
+        modFilters,
+        mods,
+        improvements,
+        advancement,
+      });
+
+      // create a leveled advancement
+      if (improvements.length > 0) {
+        const update = {
+          value: {
+            assignments: {},
+          },
+        };
+        DICTIONARY.character.abilities.forEach((ability) => {
+          const count = improvements.filter((u) => u === ability.value).length;
+          if (count > 0) update.value.assignments[ability.value] = count;
+        });
+        advancement.updateSource(update);
+      } else {
+        const update = {
+          value: {
+            type: "feat",
+            feat: {
+            },
+          },
+        }
+        // TODO: check for feats
+        // "type": "feat",
+        // "feat": {
+        //   "vu8kJ2iTCEiGQ1mv": "Compendium.world.ddb-test2-ddb-feats.Item.3mfeQMT6Fh1VRubU"
+        // }
+        advancement.updateSource(update);
+        const featureMatch = this.getFeatureCompendiumMatch(isAbilityAdvancement);
+        this._advancementMatches.features[advancement._id] = {};
+        this._advancementMatches.features[advancement._id][featureMatch.name] = featureMatch.uuid;
+      }
+
+      advancements.push(advancement.toObject());
+    }
+
+
+    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+  }
+
 
   async _generateCommonAdvancements() {
-    this._generateScaleValueAdvancementsFromFeatures(this.subClassFeatureIds);
-    await this._generateFeatureAdvancements(this.subClassFeatureIds);
+    this._generateScaleValueAdvancementsFromFeatures();
+    await this._generateFeatureAdvancements();
     this._generateSaveAdvancements();
     this._generateSkillAdvancements();
+    this._generateSpellCastingProgression();
     await this._addSRDAdvancements();
   }
 
@@ -651,23 +678,23 @@ export default class DDBClass {
 
   async generateFromCharacter(character) {
     await this._buildCompendiumIndex("features");
-
-    this._fleshOutCommonDataStub();
     this._setClassLevel();
+    this._fleshOutCommonDataStub();
+
+    // these are class specific
+    this._generateHPAdvancement(character);
+    await this._generateCommonAdvancements();
     this._generateHitDice();
-    this._generateSpellCastingProgression();
+    this._generateAbilityScoreAdvancement();
 
     // if pre 2.4 generate skills and saves as data not advancements
     this._setLegacySkills();
     this._setLegacySaves();
 
-    await this._generateDescriptionStub(character, this.subClassFeatureIds);
-    this._generateHPAdvancement(character);
-    await this._generateCommonAdvancements();
+    // finally a description
+    await this._generateDescriptionStub(character);
 
     this._fixes();
-
   }
-
 
 }

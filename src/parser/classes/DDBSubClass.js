@@ -1,7 +1,31 @@
 import utils from '../../lib/utils.js';
+import AdvancementHelper from '../advancements/AdvancementHelper.js';
 import DDBClass from './DDBClass.js';
 
 export default class DDBSubClass extends DDBClass {
+
+  // these are advancement helpers
+  static SPECIAL_ADVANCEMENTS = {
+    "Combat Superiority": {
+      fix: true,
+      fixFunction: AdvancementHelper.renameTotal,
+      additionalAdvancements: true,
+      additionalFunctions: [AdvancementHelper.addAdditionalUses, AdvancementHelper.addSingularDie],
+    },
+    "Rune Carver": {
+      fix: true,
+      fixFunction: AdvancementHelper.renameTotal,
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+  };
+
+  _fleshOutCommonDataStub() {
+    super._fleshOutCommonDataStub();
+    // add parent class identifier
+    this.data.system.classIdentifier = utils.referenceNameString(this.ddbClass.definition.name.toLowerCase());
+
+  }
 
   _generateDataStub() {
     this.data = {
@@ -87,19 +111,10 @@ export default class DDBSubClass extends DDBClass {
 
   async generateFromCharacter(character) {
     await this._buildCompendiumIndex("features");
-
     this._fleshOutCommonDataStub();
-
-    // add parent class identifier
-    this.data.system.classIdentifier = utils.referenceNameString(this.ddbClass.definition.name.toLowerCase());
-
-    this._generateSpellCastingProgression(true);
-
-    await this._generateDescriptionStub(character, this.classFeatureIds);
     await this._generateCommonAdvancements();
-
+    await this._generateDescriptionStub(character);
     this._fixes();
-
   }
 
 }

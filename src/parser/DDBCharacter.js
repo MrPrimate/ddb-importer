@@ -155,7 +155,10 @@ export default class DDBCharacter {
     this.data.features = this.raw.features
       .filter((feature) =>
         actionAndFeature
-        || !this.data.actions.some((action) => action.name.trim().toLowerCase() === feature.name.trim().toLowerCase())
+        || !this.data.actions.some((action) =>
+          action.name.trim().toLowerCase() === feature.name.trim().toLowerCase()
+          && getProperty(action, "flags.ddbimporter.isCustomAction") !== true
+        )
       )
       .map((feature) => {
         const actionMatch = actionAndFeature && this.data.actions.some((action) => feature.name === action.name);
@@ -184,13 +187,13 @@ export default class DDBCharacter {
       logger.debug("Character parse complete");
       await this._generateRace();
       logger.debug("Race parse complete");
-      const classParser = new CharacterClassFactory(this);
-      this.raw.classes = await classParser.processCharacter();
+      this._classParser = new CharacterClassFactory(this);
+      this.raw.classes = await this._classParser.processCharacter();
       logger.debug("Classes parse complete");
       await this._generateFeatures();
       logger.debug("Feature parse complete");
-      const spellParser = new CharacterSpellFactory(this.source.ddb, this.raw.character);
-      this.raw.spells = await spellParser.getCharacterSpells();
+      this._spellParser = new CharacterSpellFactory(this.source.ddb, this.raw.character);
+      this.raw.spells = await this._spellParser.getCharacterSpells();
       logger.debug("Character Spells parse complete");
       this.raw.actions = await getActions(this.source.ddb, this.raw.character, this.raw.classes);
       logger.debug("Action parse complete");
@@ -210,7 +213,7 @@ export default class DDBCharacter {
 
       this._filterActionFeatures();
 
-      classParser.linkFeatures();
+      this._classParser.linkFeatures();
 
       // this adds extras like a Divine Smite spell to this.data
       this._addSpecialAdditions();
