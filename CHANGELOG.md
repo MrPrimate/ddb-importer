@@ -10,6 +10,7 @@
 - Improved table linking to compendium to use UUID over name where possible.
 - Aura of Hate Effect.
 - Lifedrinker Warlock pact feature would apply `@mod` instead of charisma damage as a bonus, which was wrong if your str/dex is higher than your cha.
+- Character Import: if a custom action had the same name as a feature, it could cause parsing issues.
 
 # 3.6.0
 
