@@ -2,7 +2,10 @@
 
 - Internal effect helper remaster to improve maintainability and use going forward.
 - Base class features were duplicated by subclasses during class/class feature generation.
-- Support for Save Trait Advancements on Classes.
+- Massive rework of class parsing in the muncher. This helps support 2.4 and also improved class/feature parsing in the future.
+- Support for Save Trait Advancements on Classes in 5e 2.4.
+- Support for Skill Trait Advancements on Classes in 5e 2.4.
+- Support for Ability Score Advancements on Classes in 5e 2.4.
 - Fixes for AC bonus field changing to string when using the system without DAE.
 - Active Aura Effects were not applied to Paladin Auras.
 - Correction to Grease style AA macros.
@@ -11,6 +14,7 @@
 - Aura of Hate Effect.
 - Lifedrinker Warlock pact feature would apply `@mod` instead of charisma damage as a bonus, which was wrong if your str/dex is higher than your cha.
 - Character Import: if a custom action had the same name as a feature, it could cause parsing issues.
+- Ice knife macro fix for v10.
 
 # 3.6.0
 

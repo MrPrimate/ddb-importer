@@ -1,4 +1,3 @@
-// Midi-qol "on use"
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const casterActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
@@ -6,12 +5,12 @@ const casterActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 if (lastArg.targets.length > 0) {
   let areaSpellData = duplicate(lastArg.item);
   const damageDice = 1 + lastArg.spellLevel;
-  delete (areaSpellData.effects);
-  delete (areaSpellData.id);
-  delete (areaSpellData.flags["midi-qol"].onUseMacroName);
-  delete (areaSpellData.flags["midi-qol"].onUseMacroParts);
-  delete (areaSpellData.flags.itemacro);
-  delete (areaSpellData.flags.dae.macro);
+  delete areaSpellData.effects;
+  delete areaSpellData.id;
+  delete areaSpellData.flags["midi-qol"].onUseMacroName;
+  delete areaSpellData.flags["midi-qol"].onUseMacroParts;
+  if (hasProperty(areaSpellData, "flags.itemacro")) delete areaSpellData.flags.itemacro;
+  if (hasProperty(areaSpellData, "flags.dae.macro")) delete areaSpellData.flags.dae.macro;
   areaSpellData.name = "Ice Knife: Explosion";
   areaSpellData.system.damage.parts = [[`${damageDice}d6[cold]`, "cold"]];
   areaSpellData.system.actionType = "save";
@@ -40,9 +39,6 @@ if (lastArg.targets.length > 0) {
     versatile: false,
     consumeResource: false,
     consumeSlot: false,
-    // workflowOptions: {
-    //   autoRollDamage: 'always'
-    // }
   };
 
   await MidiQOL.completeItemUse(areaSpell, {}, options);
