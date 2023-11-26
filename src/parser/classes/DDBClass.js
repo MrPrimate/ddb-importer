@@ -586,10 +586,6 @@ export default class DDBClass {
     for (let i = 0; i <= 20; i++) {
       const isAbilityAdvancement = this.classFeatures.find((f) => f.name === "Ability Score Improvement" && f.requiredLevel === i);
 
-      console.warn("Ability Advancement", {
-        isAbilityAdvancement,
-        i,
-      });
       // eslint-disable-next-line no-continue
       if (!isAbilityAdvancement) continue;
       const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
@@ -603,33 +599,20 @@ export default class DDBClass {
         useUnfilteredModifiers: true,
       };
       const mods = DDBHelper.getChosenClassModifiers(this.ddb, modFilters);
-      const improvements = DICTIONARY.character.abilities
-        .filter((ability) => {
-          return DDBHelper.filterModifiers(mods, "bonus", { subType: `${ability.long}-score` }).length > 0;
-        })
-        .map((ability) => ability.value);
 
-
-      console.warn("Ability Advancement 2", {
-        isAbilityAdvancement,
-        i,
-        modFilters,
-        mods,
-        improvements,
-        advancement,
+      const assignments = {};
+      DICTIONARY.character.abilities.forEach((ability) => {
+        const count = DDBHelper.filterModifiers(mods, "bonus", { subType: `${ability.long}-score` }).length;
+        if (count > 0) assignments[ability.value] = count;
       });
 
       // create a leveled advancement
-      if (improvements.length > 0) {
+      if (Object.keys(assignments).length > 0) {
         const update = {
           value: {
-            assignments: {},
+            assignments,
           },
         };
-        DICTIONARY.character.abilities.forEach((ability) => {
-          const count = improvements.filter((u) => u === ability.value).length;
-          if (count > 0) update.value.assignments[ability.value] = count;
-        });
         advancement.updateSource(update);
       } else {
         const update = {
@@ -638,8 +621,8 @@ export default class DDBClass {
             feat: {
             },
           },
-        }
-        // TODO: check for feats
+        };
+        // feat id selection happens later once features have been generated
         // "type": "feat",
         // "feat": {
         //   "vu8kJ2iTCEiGQ1mv": "Compendium.world.ddb-test2-ddb-feats.Item.3mfeQMT6Fh1VRubU"
@@ -652,7 +635,6 @@ export default class DDBClass {
 
       advancements.push(advancement.toObject());
     }
-
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
