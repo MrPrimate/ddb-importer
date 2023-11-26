@@ -37,7 +37,7 @@ export default class DDBAction {
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
-      name: DDBHelper.getName(this.ddbData, this.ddbData, this.rawCharacter),
+      name: DDBHelper.getName(this.ddbData, this.ddbAction, this.rawCharacter),
       type: this.actionType,
       system: utils.getTemplate(this.actionType),
       flags: {

@@ -18,6 +18,11 @@ export default class CharacterFeatureFactory {
       // features: [],
     };
 
+    this.processed = {
+      actions: [],
+      // features: [],
+    };
+
     this.data = [];
   }
 
@@ -63,7 +68,7 @@ export default class CharacterFeatureFactory {
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, overrides);
 
-    const unarmedStrikeAction = new DDBAttackAction(this.ddbData, this.rawCharacter, strikeMock);
+    const unarmedStrikeAction = new DDBAttackAction(this.ddbData, strikeMock, this.rawCharacter);
     unarmedStrikeAction.build();
 
     console.warn(`unarmedStrikeAction for Unarmed strike`, unarmedStrikeAction);
@@ -87,7 +92,7 @@ export default class CharacterFeatureFactory {
       .flat()
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
       .map((action) => {
-        const ddbAttackAction = new DDBAttackAction(this.ddbData, this.rawCharacter, action);
+        const ddbAttackAction = new DDBAttackAction(this.ddbData, action, this.rawCharacter);
         ddbAttackAction.build();
 
         console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);
@@ -138,14 +143,14 @@ export default class CharacterFeatureFactory {
     this.parsed.actions = this.parsed.actions.concat(otherActions);
   }
 
-  async process() {
+  async processActions() {
     this._generateAttackActions();
     this._generateUnarmedStrikeAction();
     this._generateOtherActions();
 
-    this.data = duplicate(this.parsed.actions);
+    this.processed.actions = duplicate(this.parsed.actions);
 
-    this.data.sort().sort((a, b) => {
+    this.processed.actions.sort().sort((a, b) => {
       if (!a.system.activation.activationType) {
         return 1;
       } else if (!b.system.activation.activationType) {
@@ -167,8 +172,13 @@ export default class CharacterFeatureFactory {
       }
     });
 
-    await fixFeatures(this.data);
-    this.data = await addExtraEffects(this.ddbData, this.data, this.rawCharacter);
+    await fixFeatures(this.processed.actions);
+    this.processed.actions = await addExtraEffects(this.ddbData, this.processed.actions, this.rawCharacter);
+  }
+
+  async process() {
+    await this.processActions();
+    this.data = [...this.processed.actions];
   }
 
 }
