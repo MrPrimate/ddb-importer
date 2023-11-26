@@ -1,7 +1,10 @@
 const lastArg = args[args.length - 1];
 
-// Check when applying the effect - if the token is not the caster and it IS the tokens turn they take damage
-if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.combat?.current.tokenId) {
+// Check when applying the effect
+if (args[0] === "on"
+  && args[1] !== lastArg.tokenId // if the token is not the caster
+  && lastArg.tokenId === game.combat?.current.tokenId // and it IS the tokens turn they take damage
+) {
   const sourceItem = await fromUuid(lastArg.origin);
   const tokenOrActor = await fromUuid(lastArg.actorUuid);
   const theActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
@@ -9,7 +12,7 @@ if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.
   const damageType = getProperty(DAEItem, "flags.ddbimporter.damageType") || "radiant";
 
   const itemData = mergeObject(
-    duplicate(sourceItem.data),
+    sourceItem.toObject(),
     {
       type: "weapon",
       effects: [],
@@ -19,7 +22,7 @@ if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.
           onUseMacroName: null, //
         },
       },
-      data: {
+      system: {
         equipped: true,
         actionType: "save",
         save: { dc: Number.parseInt(args[3]), ability: "wis", scaling: "flat" },
@@ -35,6 +38,8 @@ if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.
   itemData.system.target.type = "self";
   setProperty(itemData.flags, "autoanimations.killAnim", true);
   const item = new CONFIG.Item.documentClass(itemData, { parent: theActor });
+  item.prepareData();
+  item.prepareFinalAttributes();
   const options = { showFullCard: false, createWorkflow: true, versatile: false, configureDialog: false };
   await MidiQOL.completeItemUse(item, {}, options);
 }
