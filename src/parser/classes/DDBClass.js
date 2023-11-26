@@ -95,7 +95,7 @@ export default class DDBClass {
 
     if (character) {
       this.data.system.description.value = parseTemplateString(
-        this.ddb,
+        this.ddbData,
         character,
         this.data.system.description.value,
         this.data
@@ -103,7 +103,7 @@ export default class DDBClass {
     }
   }
 
-  constructor(ddb, classId, { noMods = false } = {}) {
+  constructor(ddbData, classId, { noMods = false } = {}) {
     this.legacyMode = foundry.utils.isNewerVersion("2.4.0", game.system.version);
     this._indexFilter = {
       features: {
@@ -120,8 +120,8 @@ export default class DDBClass {
     };
 
     // setup ddb source
-    this.ddb = ddb;
-    this.ddbClass = ddb.character.classes.find((c) => c.definition.id === classId);
+    this.ddbData = ddbData;
+    this.ddbClass = ddbData.character.classes.find((c) => c.definition.id === classId);
     this.ddbClassDefinition = this.ddbClass.definition;
 
     // quick helpers
@@ -164,6 +164,10 @@ export default class DDBClass {
     this.classFeatures = this.getClassFeatures(this._excludedFeatureIds);
   }
 
+  isMartialArtist() {
+    return this.classFeatures.some((feature) => feature.name === "Martial Arts");
+  }
+
   /**
    * Retrieves the class features, excluding the ones specified by their IDs.
    *
@@ -171,12 +175,12 @@ export default class DDBClass {
    * @return {Array} An array of class features
    */
   getClassFeatures(excludedIds = []) {
-    const excludedFeatures = this.ddb.character.optionalClassFeatures
+    const excludedFeatures = this.ddbData.character.optionalClassFeatures
       .filter((f) => f.affectedClassFeatureId)
       .map((f) => f.affectedClassFeatureId);
 
-    const optionFeatures = this.ddb.classOptions
-      ? this.ddb.classOptions
+    const optionFeatures = this.ddbData.classOptions
+      ? this.ddbData.classOptions
         .filter((feature) => feature.classId === this.ddbClassDefinition.id && !excludedIds.includes(feature.id))
       : [];
 
@@ -255,7 +259,7 @@ export default class DDBClass {
   _setLegacySaves() {
     if (!this.legacyMode) return;
     DICTIONARY.character.abilities.forEach((ability) => {
-      const mods = DDBHelper.getChosenClassModifiers(this.ddb);
+      const mods = DDBHelper.getChosenClassModifiers(this.ddbData);
       const save = DDBHelper.filterModifiersOld(mods, "proficiency", `${ability.long}-saving-throws`, [null, ""], true).length > 0;
       if (save) this.data.system.saves.push(ability.value);
     });
@@ -384,7 +388,7 @@ export default class DDBClass {
           availableToMulticlass,
           useUnfilteredModifiers: true,
         };
-        const mods = DDBHelper.getChosenClassModifiers(this.ddb, modFilters);
+        const mods = DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
         const updates = DICTIONARY.character.abilities
           .filter((ability) => {
             return DDBHelper.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
@@ -417,9 +421,9 @@ export default class DDBClass {
     const skillsChosen = new Set();
     const skillChoices = new Set();
 
-    const choiceDefinitions = this.ddb.character.choices.choiceDefinitions;
+    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
-    this.ddb.character.choices.class.filter((choice) =>
+    this.ddbData.character.choices.class.filter((choice) =>
       this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
       && choice.subType === 1
       && choice.type === 2
@@ -464,7 +468,7 @@ export default class DDBClass {
           availableToMulticlass: availableToMulticlass === false ? null : true,
           useUnfilteredModifiers: true,
         };
-        const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddb, modFilters);
+        const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
         const skillExplicitMods = mods.filter((mod) =>
           mod.type === "proficiency"
           && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
@@ -598,7 +602,7 @@ export default class DDBClass {
         exactLevel: i,
         useUnfilteredModifiers: true,
       };
-      const mods = DDBHelper.getChosenClassModifiers(this.ddb, modFilters);
+      const mods = DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
 
       const assignments = {};
       DICTIONARY.character.abilities.forEach((ability) => {
