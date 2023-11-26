@@ -4,13 +4,13 @@ import DICTIONARY from "../dictionary.js";
 import FolderHelper from "../lib/FolderHelper.js";
 import utils from "../lib/utils.js";
 import logger from "../logger.js";
-import { addExtraEffects, fixFeatures } from "../parser/features/special.js";
 import { fixItems } from "../parser/item/special.js";
 import { fixSpells } from "../parser/spells/special.js";
 import { applyChrisPremadeEffects } from "./chrisPremades.js";
 import { equipmentEffectAdjustment, midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
+import { fixFeatures, addExtraEffects } from "../parser/features/fixes.js";
 
 export default class DDBEffectHelper {
 
