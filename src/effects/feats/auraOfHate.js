@@ -3,15 +3,7 @@ import { baseItemEffect } from "../effects.js";
 
 export function auraOfHateEffect(document) {
 
-  let alliesEffect = baseItemEffect(document, `${document.name} (Allies) - Constant`);
-  alliesEffect.flags.ActiveAuras = {
-    aura: "Allies",
-    radius: "@scale.oathbreaker.aura-of-hate",
-    isAura: true,
-    inactive: false,
-    hidden: false,
-    displayTemp: true,
-  };
+  let alliesEffect = baseItemEffect(document, `${document.name} (Self) - Constant`);
   alliesEffect.changes.push({
     "key": "system.bonuses.mwak.damage",
     "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
