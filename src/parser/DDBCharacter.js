@@ -270,4 +270,10 @@ export default class DDBCharacter {
     this.data.actions = addVision5eStubs(this.data.actions);
   }
 
+  isMartialArtist() {
+    return this.source.ddb.character.classes.some((cls) =>
+      cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts")
+    );
+  }
+
 }
