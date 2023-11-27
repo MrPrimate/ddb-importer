@@ -30,7 +30,7 @@ export default class DDBAttackAction extends DDBAction {
       this._generateLimitedUse();
       this._generateResourceConsumption();
       this._generateProperties();
-      this._generateSystemActionType();
+      this._generateSystemType();
 
       if (["line", "cone"].includes(this.data.system.target?.type)) {
         setProperty(this.data, "system.duration.units", "inst");

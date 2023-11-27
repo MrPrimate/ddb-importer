@@ -31,6 +31,7 @@ export default class DDBAction {
 
   _init() {
     this.actionType = "feat";
+    this.tagType = "other";
     logger.debug(`Generating Action ${this.ddbAction.name}`);
   }
 
@@ -48,43 +49,20 @@ export default class DDBAction {
           componentId: this.ddbAction.componentId,
           componentTypeId: this.ddbAction.componentTypeId,
           originalName: DDBHelper.getName(this.ddbData, this.ddbAction, this.rawCharacter, false),
-          type: "other",
+          type: this.tagType,
           isCustomAction: this.ddbAction.isCustomAction,
         },
         infusions: { infused: false },
         obsidian: {
           source: {
-            type: "other",
+            type: this.tagType,
           },
         }
       },
     };
   }
 
-  displayAsAttack() {
-    const customDisplay = this.rawCharacter
-      ? DDBHelper.getCustomValueFromCharacter(this.ddbAction, this.rawCharacter, 16)
-      : DDBHelper.getCustomValue(this.ddbAction, this.ddbData, 16);
-    if (typeof customDisplay == "boolean") {
-      return customDisplay;
-    } else if (hasProperty(this.ddbAction, "displayAsAttack")) {
-      return this.ddbAction.displayAsAttack;
-    } else {
-      return false;
-    }
-  }
-
-  constructor(ddbData, ddbAction, rawCharacter = null) {
-    this.ddbData = ddbData;
-    this.rawCharacter = rawCharacter;
-    this.ddbAction = ddbAction.definition ?? ddbAction;
-    this.name = this.ddbAction.name;
-    this._init();
-
-    // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
-
-    this._generateDataStub();
-
+  _prepare() {
     if (this.ddbAction.infusionFlags) {
       setProperty(this.data, "flags.infusions", this.ddbAction.infusionFlags);
     }
@@ -109,9 +87,36 @@ export default class DDBAction {
     };
   }
 
+  displayAsAttack() {
+    const customDisplay = this.rawCharacter
+      ? DDBHelper.getCustomValueFromCharacter(this.ddbAction, this.rawCharacter, 16)
+      : DDBHelper.getCustomValue(this.ddbAction, this.ddbData, 16);
+    if (typeof customDisplay == "boolean") {
+      return customDisplay;
+    } else if (hasProperty(this.ddbAction, "displayAsAttack")) {
+      return this.ddbAction.displayAsAttack;
+    } else {
+      return false;
+    }
+  }
+
+  constructor({ ddbData, ddbAction, rawCharacter = null, type = "action" } = {}) {
+    this.ddbData = ddbData;
+    this.rawCharacter = rawCharacter;
+    this.ddbAction = ddbAction.definition ?? ddbAction;
+    this.name = this.ddbAction.name;
+    this.type = type;
+    this._init();
+
+    // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
+
+    this._generateDataStub();
+    this._prepare();
+  }
+
   build() {
     try {
-      this._generateSystemActionType();
+      this._generateSystemType();
       this._generateActivation();
       this._generateDescription();
       this._generateLimitedUse();
@@ -137,7 +142,7 @@ export default class DDBAction {
     }
   }
 
-  _generateSystemActionType() {
+  _generateSystemType() {
     if (this.ddbData.character.actions.class.some((a) =>
       a.name === this.ddbAction.name
       || (hasProperty(a, "definition.name") && a.definition.name === this.ddbAction.definition?.name)

@@ -15,12 +15,12 @@ export default class CharacterFeatureFactory {
 
     this.parsed = {
       actions: [],
-      // features: [],
+      features: [],
     };
 
     this.processed = {
       actions: [],
-      // features: [],
+      features: [],
     };
 
     this.data = [];
@@ -68,7 +68,7 @@ export default class CharacterFeatureFactory {
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, overrides);
 
-    const unarmedStrikeAction = new DDBAttackAction(this.ddbData, strikeMock, this.rawCharacter);
+    const unarmedStrikeAction = new DDBAttackAction({ ddbData: this.ddbData, ddbAction: strikeMock, rawCharacter: this.rawCharacter });
     unarmedStrikeAction.build();
 
     console.warn(`unarmedStrikeAction for Unarmed strike`, unarmedStrikeAction);
@@ -92,7 +92,7 @@ export default class CharacterFeatureFactory {
       .flat()
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
       .map((action) => {
-        const ddbAttackAction = new DDBAttackAction(this.ddbData, action, this.rawCharacter);
+        const ddbAttackAction = new DDBAttackAction({ ddbData: this.ddbData, ddbAction: action, rawCharacter: this.rawCharacter });
         ddbAttackAction.build();
 
         console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);
@@ -132,7 +132,7 @@ export default class CharacterFeatureFactory {
       .map((action) => {
         logger.debug(`Getting Other Action ${action.name}`);
 
-        const ddbAction = new DDBAction(this.ddbData, action, this.rawCharacter);
+        const ddbAction = new DDBAction({ ddbData: this.ddbData, ddbAction: action, rawCharacter: this.rawCharacter });
         ddbAction.build();
         console.warn(`ddbAction for ${action.name}`, ddbAction);
 
@@ -174,11 +174,19 @@ export default class CharacterFeatureFactory {
 
     await fixFeatures(this.processed.actions);
     this.processed.actions = await addExtraEffects(this.ddbData, this.processed.actions, this.rawCharacter);
+    this.data.push(...this.processed.actions);
+  }
+
+  async processFeatures() {
+    const feature = {};
+    if (feature.include) this.processed.features.push(feature);
+
+    this.data.push(...this.processed.features);
   }
 
   async process() {
     await this.processActions();
-    this.data = [...this.processed.actions];
+    await this.processFeatures();
   }
 
 }

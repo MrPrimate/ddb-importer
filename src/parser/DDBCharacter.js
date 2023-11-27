@@ -1,4 +1,3 @@
-import getActions from "./features/actions.js";
 import CharacterSpellFactory from "./spells/CharacterSpellFactory.js";
 import logger from "../logger.js";
 import DDBMacros from "../effects/DDBMacros.js";
@@ -11,6 +10,7 @@ import SETTINGS from "../settings.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import { fixCharacterLevels } from "./character/filterModifiers.js";
 import CharacterClassFactory from "./classes/CharacterClassFactory.js";
+import CharacterFeatureFactory from "./features/CharacterFeatureFactory.js";
 
 
 export default class DDBCharacter {
@@ -195,7 +195,9 @@ export default class DDBCharacter {
       this._spellParser = new CharacterSpellFactory(this.source.ddb, this.raw.character);
       this.raw.spells = await this._spellParser.getCharacterSpells();
       logger.debug("Character Spells parse complete");
-      this.raw.actions = await getActions(this.source.ddb, this.raw.character, this.raw.classes);
+      const characterFeatureFactory = new CharacterFeatureFactory(this.source.ddb, this.raw.character);
+      await characterFeatureFactory.processActions();
+      this.raw.actions = characterFeatureFactory.processed.actions;
       logger.debug("Action parse complete");
       await this._generateInventory();
       logger.debug("Inventory generation complete");
