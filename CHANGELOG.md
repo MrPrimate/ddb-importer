@@ -15,6 +15,7 @@
 - Lifedrinker Warlock pact feature would apply `@mod` instead of charisma damage as a bonus, which was wrong if your str/dex is higher than your cha.
 - Character Import: if a custom action had the same name as a feature, it could cause parsing issues.
 - Ice knife macro fix for v10.
+- Improvements to template string parsing, these are the dynamic blocks in descriptions, e.g. the dice value for sneak attack is evaluated.
 
 # 3.6.0
 
