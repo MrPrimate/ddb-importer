@@ -19,6 +19,8 @@ if (lastArg.targets.length > 0) {
   areaSpellData.system.preparation.mode = "atwill";
   areaSpellData.system.target.value = 99;
   const areaSpell = new CONFIG.Item.documentClass(areaSpellData, { parent: casterActor });
+  areaSpell.prepareData();
+  areaSpell.prepareFinalAttributes();
   const target = canvas.tokens.get(lastArg.targets[0].id);
   const aoeTargets = MidiQOL
     .findNearby(null, target, 5, { includeIncapacitated: true })
