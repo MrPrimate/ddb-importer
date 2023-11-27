@@ -459,6 +459,11 @@ function fixRollables(text) {
   return text;
 }
 
+function rollMatch(text, matchString) {
+  const rollMatch = new RegExp(`(?:^|[ "'(+>])(\\d*d\\d\\d*\\s)({{${matchString}}})(?:$|[., "')+<])`, "g");
+  return text.replace(rollMatch, (m) => `[[/roll ${m[1] !== undefined ? m[1] : ""}${m[2]}]`);
+}
+
 /**
  * This will parse a snippet/description with template boilerplate in from DDB.
  * e.g. Each creature in the area must make a DC {{savedc:con}} saving throw.
@@ -481,11 +486,11 @@ export default function parseTemplateString(ddb, character, text, feature) {
     definitions: [],
   };
 
-  const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)({{.*?}})(?:$|[., "')+<])/g;
-  const fullMatches = [...new Set(Array.from(result.text.matchAll(fullMatchRegex), (m) => `${m[1] !== undefined ? m[1] : ""}${m[2]}`))];
-  fullMatches.forEach((match) => {
-    result.text = result.text.replace(match, `[[/roll ${match}]]`);
-  });
+  // const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)({{.*?}})(?:$|[., "')+<])/g;
+  // // const fullMatches = [...new Set(Array.from(result.text.matchAll(fullMatchRegex), (m) => `${m[1] !== undefined ? m[1] : ""}${m[2]}`))];
+  // // fullMatches.forEach((match) => {
+  // //   result.text = result.text.replace(match, `[[/roll ${match}]]`);
+  // // });
 
   const regexp = /{{(.*?)}}/g;
   // creates array from match groups and dedups
@@ -497,9 +502,15 @@ export default function parseTemplateString(ddb, character, text, feature) {
       parsed: null,
       match,
       replacePattern: new RegExp(`{{${escapeRegExp(match)}}}`, "g"),
+      rollMatch: new RegExp(`(?:^|[ "'(+>])(\\d*d\\d\\d*\\s)({{${match}}})(?:$|[., "')+<])`, "g"),
+      rollMatchTest: false,
       type: null,
       subType: null,
     };
+
+    entry.rollMatchTest = entry.rollMatch.test(result.text);
+
+    console.warn("parseTemplateString", {text: duplicate(text), feature, entry, match});
 
     const splitSigned = match.split("#");
     const splitRemoveUnsigned = splitSigned[0];
@@ -527,6 +538,17 @@ export default function parseTemplateString(ddb, character, text, feature) {
           entry.parsed = addConstraintEvaluations(entry.parsed, splitMatchAt[i]);
         }
       }
+      console.warn("entry", {
+        entry,
+        replacePattern: entry.replacePattern.test(result.text),
+        match: entry.rollMatch.test(result.text),
+      });
+      if (entry.rollMatchTest) {
+        entry.parsed = rollMatch(text, entry.parsed);
+      } else {
+        entry.parsed = `[[/roll ${entry.parsed}]]`;
+      }
+
       result.text = result.text.replace(entry.replacePattern, entry.parsed);
     } else {
       // we try and eval the expression!
@@ -545,22 +567,22 @@ export default function parseTemplateString(ddb, character, text, feature) {
           evalString = evalString.replace(/^\(/, "").replace(/\)$/, "");
         }
         entry.evalString = evalString;
-        // console.warn("evalString", {
-        //   evalString,
-        //   splitMatchAt,
-        // });
+        console.warn("evalString", {
+          evalString,
+          splitMatchAt,
+        });
         if (splitMatchAt.length > 1) {
           let evalConstraint = `${evalString}`;
           for (let i = 1; i < splitMatchAt.length; i++) {
-            // console.warn(`splitMatch ${i}`, {
-            //   evalConstraintPre: `${evalConstraint}`,
-            //   matchat: splitMatchAt[i],
-            //   isInt: Number.isInteger(Number.parseInt(evalConstraint)),
-            // });
+            console.warn(`splitMatch ${i}`, {
+              evalConstraintPre: `${evalConstraint}`,
+              matchat: splitMatchAt[i],
+              isInt: Number.isInteger(Number.parseInt(evalConstraint)),
+            });
             evalConstraint = Number.isInteger(Number.parseInt(evalConstraint)) && !evalConstraint.includes("@")
               ? applyConstraint(evalConstraint, splitMatchAt[i])
               : addConstraintEvaluations(evalConstraint, splitMatchAt[i]);
-            // console.warn(`evalConstraint ${i} post`, `${evalConstraint}`);
+            console.warn(`evalConstraint ${i} post`, `${evalConstraint}`);
           }
           // console.warn("evalConstraint", evalConstraint);
           entry.evalConstraint = evalConstraint;
@@ -569,7 +591,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
           entry.parsed = getNumber(`${evalString}`, signed);
         }
         entry.parsed = entry.parsed.replaceAll("+ +", "+").replaceAll("++", "+").replaceAll("* +", "*");
-        const isRoll = result.text.includes("[[/roll");
+        const isRoll = entry.rollMatchTest;
         // there are some edge cases here where some template string matches do not get the correct [[]] boxes because
         // they are not all [[/roll ]] boxes
         // I need to move the [[]] box addition to outside this process loop
@@ -578,6 +600,11 @@ export default function parseTemplateString(ddb, character, text, feature) {
         } else if (!isRoll && [undefined, null, "unsigned"].includes(signed)) {
           entry.parsed = `[[${entry.parsed.trim()}]]`;
         } else {
+          if (entry.rollMatchTest) {
+            entry.parsed = rollMatch(text, entry.parsed);
+          } else {
+            entry.parsed = `[[${entry.parsed}]]`;
+          }
           logger.debug("template string odd match", {
             result,
             entry,
