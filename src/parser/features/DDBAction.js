@@ -228,11 +228,19 @@ export default class DDBAction {
 
     const description = this.ddbAction.description && this.ddbAction.description !== ""
       ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbAction.description, this.ddbAction).text
-      : this.getClassFeatureDescription();
+      : this._getClassFeatureDescription();
 
     const snippet = utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
-    const fullDescription = DDBAction._buildFullDescription(description, snippet);
+    const fullDescription = DDBAction.buildFullDescription(description, snippet);
     const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
+
+    console.warn("final descriptions", {
+      description,
+      rawSnippet,
+      snippet,
+      fullDescription,
+      value
+    });
 
     this.data.system.description = {
       value: value,
