@@ -313,10 +313,7 @@ export async function buildBaseClass(klass) {
     && feature.requiredLevel === 1
   );
 
-  let dom = new DocumentFragment();
-  $.parseHTML(proficiencyOption.description).forEach((element) => {
-    dom.appendChild(element);
-  });
+  const dom = utils.htmlToDocumentFragment(proficiencyOption.description);
 
   // Choose any three
   // Skills: Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival
