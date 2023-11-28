@@ -1,7 +1,7 @@
 import DDBAttackAction from "./DDBAttackAction.js";
 
 function getAttackAction(ddb, character, action) {
-  const ddbAttackAction = new DDBAttackAction({ ddbData: ddb, ddbAction: action, rawCharacter: character });
+  const ddbAttackAction = new DDBAttackAction({ ddbData: ddb, ddbDefinition: action, rawCharacter: character });
   ddbAttackAction.build();
 
   return ddbAttackAction.data;

@@ -7,10 +7,11 @@ export default class DDBAttackAction extends DDBAction {
   static EXCLUDED_ACTION_FEATURES = ["Unarmed Strike"];
 
   _init() {
-    this.actionType = !DDBAttackAction.EXCLUDED_ACTION_FEATURES.includes(this.ddbAction.name)
+    this.isAction = true;
+    this.documentType = !DDBAttackAction.EXCLUDED_ACTION_FEATURES.includes(this.ddbDefinition.name)
       ? "feat"
       : "weapon";
-    logger.debug(`Generating Attack Action ${this.ddbAction.name}`);
+    logger.debug(`Generating Attack Action ${this.ddbDefinition.name}`);
   }
 
   build() {
@@ -18,7 +19,7 @@ export default class DDBAttackAction extends DDBAction {
       if (this.ddbData.isMartialArts) {
         setProperty(this.data, "flags.ddbimporter.dndbeyond.type", "Martial Arts");
       };
-      this.data.system.proficient = this.ddbAction.isProficient ? 1 : 0;
+      this.data.system.proficient = this.ddbDefinition.isProficient ? 1 : 0;
       this._generateDescription();
       this.data.system.equipped = true;
       this.data.system.rarity = "";
@@ -38,7 +39,7 @@ export default class DDBAttackAction extends DDBAction {
 
       this._generateFlagHints();
       this._generateResourceFlags();
-      this._addFeatEffects();
+      this._addEffects();
       this._generateLevelScaleDice();
 
       this._addCustomValues();

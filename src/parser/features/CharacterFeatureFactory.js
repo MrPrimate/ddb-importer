@@ -68,7 +68,7 @@ export default class CharacterFeatureFactory {
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, overrides);
 
-    const unarmedStrikeAction = new DDBAttackAction({ ddbData: this.ddbData, ddbAction: strikeMock, rawCharacter: this.rawCharacter });
+    const unarmedStrikeAction = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: strikeMock, rawCharacter: this.rawCharacter });
     unarmedStrikeAction.build();
 
     console.warn(`unarmedStrikeAction for Unarmed strike`, unarmedStrikeAction);
@@ -92,7 +92,7 @@ export default class CharacterFeatureFactory {
       .flat()
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
       .map((action) => {
-        const ddbAttackAction = new DDBAttackAction({ ddbData: this.ddbData, ddbAction: action, rawCharacter: this.rawCharacter });
+        const ddbAttackAction = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: action, rawCharacter: this.rawCharacter });
         ddbAttackAction.build();
 
         console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);
@@ -132,7 +132,7 @@ export default class CharacterFeatureFactory {
       .map((action) => {
         logger.debug(`Getting Other Action ${action.name}`);
 
-        const ddbAction = new DDBAction({ ddbData: this.ddbData, ddbAction: action, rawCharacter: this.rawCharacter });
+        const ddbAction = new DDBAction({ ddbData: this.ddbData, ddbDefinition: action, rawCharacter: this.rawCharacter });
         ddbAction.build();
         console.warn(`ddbAction for ${action.name}`, ddbAction);
 
@@ -184,9 +184,14 @@ export default class CharacterFeatureFactory {
     this.data.push(...this.processed.features);
   }
 
+  updateFeatureIds() {
+    // TODO
+  }
+
   async process() {
     await this.processActions();
     await this.processFeatures();
+    this.updateFeatureIds();
   }
 
 }
