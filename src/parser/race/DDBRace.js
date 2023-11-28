@@ -265,6 +265,10 @@ export default class DDBRace {
       this.#addFeatureDescription(trait);
       this.#typeCheck(trait);
       this.#flightCheck(trait);
+
+      // TODO: skills, e.g. variant human
+      // TODO: feat e.g. variant human
+      // TODO: languages
     });
 
     this.#generateAbilityAdvancement();
