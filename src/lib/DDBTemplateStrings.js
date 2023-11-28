@@ -510,7 +510,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
 
     entry.rollMatchTest = entry.rollMatch.test(result.text);
 
-    console.warn("parseTemplateString", {text: duplicate(text), feature, entry, match});
+    // console.warn("parseTemplateString", {text: duplicate(text), feature, entry, match});
 
     const splitSigned = match.split("#");
     const splitRemoveUnsigned = splitSigned[0];
@@ -538,11 +538,11 @@ export default function parseTemplateString(ddb, character, text, feature) {
           entry.parsed = addConstraintEvaluations(entry.parsed, splitMatchAt[i]);
         }
       }
-      console.warn("entry", {
-        entry,
-        replacePattern: entry.replacePattern.test(result.text),
-        match: entry.rollMatch.test(result.text),
-      });
+      // console.warn("entry", {
+      //   entry,
+      //   replacePattern: entry.replacePattern.test(result.text),
+      //   match: entry.rollMatch.test(result.text),
+      // });
       if (entry.rollMatchTest) {
         entry.parsed = rollMatch(text, entry.parsed);
       } else {
@@ -567,22 +567,22 @@ export default function parseTemplateString(ddb, character, text, feature) {
           evalString = evalString.replace(/^\(/, "").replace(/\)$/, "");
         }
         entry.evalString = evalString;
-        console.warn("evalString", {
-          evalString,
-          splitMatchAt,
-        });
+        // console.warn("evalString", {
+        //   evalString,
+        //   splitMatchAt,
+        // });
         if (splitMatchAt.length > 1) {
           let evalConstraint = `${evalString}`;
           for (let i = 1; i < splitMatchAt.length; i++) {
-            console.warn(`splitMatch ${i}`, {
-              evalConstraintPre: `${evalConstraint}`,
-              matchat: splitMatchAt[i],
-              isInt: Number.isInteger(Number.parseInt(evalConstraint)),
-            });
+            // console.warn(`splitMatch ${i}`, {
+            //   evalConstraintPre: `${evalConstraint}`,
+            //   matchat: splitMatchAt[i],
+            //   isInt: Number.isInteger(Number.parseInt(evalConstraint)),
+            // });
             evalConstraint = Number.isInteger(Number.parseInt(evalConstraint)) && !evalConstraint.includes("@")
               ? applyConstraint(evalConstraint, splitMatchAt[i])
               : addConstraintEvaluations(evalConstraint, splitMatchAt[i]);
-            console.warn(`evalConstraint ${i} post`, `${evalConstraint}`);
+            // console.warn(`evalConstraint ${i} post`, `${evalConstraint}`);
           }
           // console.warn("evalConstraint", evalConstraint);
           entry.evalConstraint = evalConstraint;
