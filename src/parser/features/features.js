@@ -1,26 +1,35 @@
 import logger from "../../logger.js";
 import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import { fixFeatures, getDescription, addFeatEffects, addExtraEffects, setLevelScales } from "./special.js";
+import { getDescription, addFeatEffects, setLevelScales } from "./special.js";
 import DDBCharacter from "../DDBCharacter.js";
 import { getUnarmedStrike } from "./actions.js";
+import { addExtraEffects, fixFeatures } from "./fixes.js";
 
 const FORCE_UNARMED = ["Trunk"];
 
-function parseFeature(feat, ddb, character, source, type) {
+function parseFeature(ddbFeat, ddb, character, source, type) {
   let features = [];
   // filter proficiencies and Ability Score Improvement
-  const name = feat.definition ? feat.definition.name : feat.name;
+  const name = ddbFeat.definition ? ddbFeat.definition.name : ddbFeat.name;
+
+  console.warn(`Has definition ${ddbFeat.definition !== undefined}, type ${type}, ${name}`, {
+    feat: ddbFeat,
+    ddb,
+    character,
+    source,
+    type,
+  });
 
   if (FORCE_UNARMED.includes(name)) {
     const override = {
       name,
-      description: feat.definition.description,
-      snippet: feat.definition.snippet,
-      id: feat.definition.id,
-      entityTypeId: feat.definition.entityTypeId,
-      componentId: feat.definition.componentId,
-      componentTypeId: feat.definition.componentTypeId,
+      description: ddbFeat.definition.description,
+      snippet: ddbFeat.definition.snippet,
+      id: ddbFeat.definition.id,
+      entityTypeId: ddbFeat.definition.entityTypeId,
+      componentId: ddbFeat.definition.componentId,
+      componentTypeId: ddbFeat.definition.componentTypeId,
     };
     return [getUnarmedStrike(ddb, character, override)];
   }
@@ -32,13 +41,13 @@ function parseFeature(feat, ddb, character, source, type) {
     system: utils.getTemplate("feat"),
     flags: {
       ddbimporter: {
-        id: feat.definition?.id ? feat.definition.id : feat.id,
+        id: ddbFeat.definition?.id ? ddbFeat.definition.id : ddbFeat.id,
         type: type,
-        entityTypeId: feat.definition?.entityTypeId ? feat.definition.entityTypeId : feat.entityTypeId,
+        entityTypeId: ddbFeat.definition?.entityTypeId ? ddbFeat.definition.entityTypeId : ddbFeat.entityTypeId,
         dndbeyond: {
-          requiredLevel: feat.requiredLevel,
+          requiredLevel: ddbFeat.requiredLevel,
           displayOrder:
-            feat.definition && feat.definition.displayOrder ? feat.definition.displayOrder : feat.displayOrder,
+            ddbFeat.definition && ddbFeat.definition.displayOrder ? ddbFeat.definition.displayOrder : ddbFeat.displayOrder,
         },
       },
       obsidian: {
@@ -53,7 +62,7 @@ function parseFeature(feat, ddb, character, source, type) {
 
   logger.debug(`Getting Feature ${item.name}`);
 
-  const klassAction = DDBHelper.findComponentByComponentId(ddb, feat.id);
+  const klassAction = DDBHelper.findComponentByComponentId(ddb, ddbFeat.id);
   if (klassAction) {
     setProperty(item.flags, "ddbimporter.dndbeyond.levelScale", klassAction.levelScale);
     setProperty(item.flags, "ddbimporter.dndbeyond.levelScales", klassAction.definition?.levelScales);
@@ -63,7 +72,7 @@ function parseFeature(feat, ddb, character, source, type) {
   if (!klassAction) {
     const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
       .flat()
-      .find((option) => option.definition.id === feat.componentId);
+      .find((option) => option.definition.id === ddbFeat.componentId);
     if (classOption) {
       const classOptionLink = DDBHelper.findComponentByComponentId(ddb, classOption.componentId);
       if (classOptionLink) {
@@ -74,31 +83,31 @@ function parseFeature(feat, ddb, character, source, type) {
     }
   }
 
-  if (feat?.requiredLevel) {
+  if (ddbFeat?.requiredLevel) {
     const klass = ddb.character.classes.find((klass) =>
-      (feat.classId && (klass.definition.id === feat.classId || klass.subclassDefinition?.id === feat.classId))
-      || (feat.className && klass.definition.name === feat.className
-        && ((!feat.subclassName || feat.subclassName === "")
-          || (feat.subclassName && klass.subclassDefinition?.name === feat.subclassName))
+      (ddbFeat.classId && (klass.definition.id === ddbFeat.classId || klass.subclassDefinition?.id === ddbFeat.classId))
+      || (ddbFeat.className && klass.definition.name === ddbFeat.className
+        && ((!ddbFeat.subclassName || ddbFeat.subclassName === "")
+          || (ddbFeat.subclassName && klass.subclassDefinition?.name === ddbFeat.subclassName))
       )
     );
-    if (klass && feat.requiredLevel > klass.level) return [];
+    if (klass && ddbFeat.requiredLevel > klass.level) return [];
   }
 
   logger.debug(`Searching for ${name} choices`);
 
   // Add choices to the textual description of that feat
-  let choices = DDBHelper.getChoices(ddb, type, feat);
+  let choices = DDBHelper.getChoices(ddb, type, ddbFeat);
 
   if (type === "background") {
-    logger.debug(`Found background ${feat.name}`);
+    logger.debug(`Found background ${ddbFeat.name}`);
     logger.debug(`Found ${choices.map((c) => c.label).join(",")}`);
-    item.system.description = getDescription(ddb, character, feat, true);
+    item.system.description = getDescription(ddb, character, ddbFeat, true);
     item.system.description.value += `<h3>Choices</h3><ul>`;
     item.system.source = source;
     choices.forEach((choice) => {
       let choiceItem = duplicate(item);
-      item = addFeatEffects(ddb, character, feat, choiceItem, choice, type);
+      item = addFeatEffects(ddb, character, ddbFeat, choiceItem, choice, type);
       item.system.description.value += `<li>${choice.label}</li>`;
     });
     item.system.description.value += `</ul>`;
@@ -113,7 +122,7 @@ function parseFeature(feat, ddb, character, source, type) {
       logger.debug(`Adding choice ${choice.label}`);
       let choiceItem = duplicate(item);
       choiceItem._id = foundry.utils.randomID();
-      let choiceFeat = feat.definition ? duplicate(feat.definition) : duplicate(feat);
+      let choiceFeat = ddbFeat.definition ? duplicate(ddbFeat.definition) : duplicate(ddbFeat);
 
       if (item.name === choice.label) return;
 
@@ -155,13 +164,13 @@ function parseFeature(feat, ddb, character, source, type) {
         type: choice.type,
       };
 
-      choiceItem = addFeatEffects(ddb, character, feat, choiceItem, choice, type);
+      choiceItem = addFeatEffects(ddb, character, ddbFeat, choiceItem, choice, type);
       features.push(choiceItem);
     });
   } else {
-    item.system.description = getDescription(ddb, character, feat, true);
+    item.system.description = getDescription(ddb, character, ddbFeat, true);
     item.system.source = source;
-    item = addFeatEffects(ddb, character, feat, item, undefined, type);
+    item = addFeatEffects(ddb, character, ddbFeat, item, undefined, type);
 
     features.push(item);
   }
@@ -182,11 +191,14 @@ const SKIPPED_FEATURES = [
   "Languages",
   "Bonus Proficiency",
   "Speed",
+  "Skills",
+  // "Feat",
 ];
 function includedFeatureNameCheck(featName) {
   const nameAllowed = !featName.startsWith("Proficiencies")
     && !featName.startsWith("Ability Score")
     && !featName.startsWith("Size")
+    // && !featName.startsWith("Skills")
     && !SKIPPED_FEATURES.includes(featName);
 
   return nameAllowed;
