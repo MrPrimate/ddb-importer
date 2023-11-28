@@ -62,6 +62,14 @@ const utils = {
     return parser.parseFromString(text, "text/html");
   },
 
+  htmlToDocumentFragment: (text) => {
+    const dom = new DocumentFragment();
+    $.parseHTML(text).forEach((element) => {
+      dom.appendChild(element);
+    });
+    return dom;
+  },
+
   replaceHtmlSpaces: (str) => {
     return str.replace(/&nbsp;/g, ' ').replace(/\xA0/g, ' ').replace(/\s\s+/g, ' ').trim();
   },
