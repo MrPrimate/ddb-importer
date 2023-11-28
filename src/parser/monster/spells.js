@@ -4,6 +4,7 @@ import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import SETTINGS from "../../settings.js";
 import DDBMonster from "../DDBMonster.js";
 import DICTIONARY from "../../dictionary.js";
+import utils from "../../lib/utils.js";
 
 
 DDBMonster.prototype.getSpellcasting = function(text) {
@@ -229,16 +230,12 @@ DDBMonster.prototype._generateSpells = function() {
     innateMatch: false,
   };
 
-  let dom = new DocumentFragment();
-
   // some monsters have poor spell formating, reported and might be able to remove in future
   // https://www.dndbeyond.com/forums/d-d-beyond-general/bugs-support/91228-sir-godfrey-gwilyms-spell-statblock
   const possibleSpellSources = this.source.specialTraitsDescription + this.source.actionsDescription;
   let specialTraits = possibleSpellSources.replace(/<br \/>/g, "</p><p>");
 
-  $.parseHTML(specialTraits).forEach((element) => {
-    dom.appendChild(element);
-  });
+  const dom = utils.htmlToDocumentFragment(specialTraits);
 
   dom.childNodes.forEach((node) => {
     if (node.textContent == "\n") {

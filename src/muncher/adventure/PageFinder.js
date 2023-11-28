@@ -1,12 +1,10 @@
+import utils from "../../lib/utils.js";
 
 export class PageFinder {
 
   generateContentLinks() {
     for (const page of this.journal.pages.filter((p) => p.type === "text")) {
-      const dom = new DocumentFragment();
-      $.parseHTML(page.text.content).forEach((element) => {
-        dom.appendChild(element);
-      });
+      const dom = utils.htmlToDocumentFragment(page.text.content);
       const chunkElements = dom.querySelectorAll("[data-content-chunk-id]");
       const chunkIds = new Set();
       chunkElements.forEach((chunk) => {

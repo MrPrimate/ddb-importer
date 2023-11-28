@@ -109,10 +109,7 @@ export class DDBFeatureFactory {
   }
 
   #buildDom(type) {
-    let dom = new DocumentFragment();
-    $.parseHTML(this.html[type]).forEach((element) => {
-      dom.appendChild(element);
-    });
+    const dom = utils.htmlToDocumentFragment(this.html[type]);
     dom.childNodes.forEach((node) => {
       if (node.textContent == "\n" || node.textContent == "\r\n") {
         dom.removeChild(node);
@@ -136,10 +133,7 @@ export class DDBFeatureFactory {
 
     // build out skeleton actions
     dom.querySelectorAll("p").forEach((node) => {
-      let pDom = new DocumentFragment();
-      $.parseHTML(node.outerHTML).forEach((element) => {
-        pDom.appendChild(element);
-      });
+      const pDom = utils.htmlToDocumentFragment(node.outerHTML);
       const query = pDom.querySelector("em strong") ?? pDom.querySelector("strong em");
       if (!query) return;
       let name = query.textContent.trim().replace(/\./g, '');
@@ -151,11 +145,7 @@ export class DDBFeatureFactory {
     // there is inconsistent formatting
     if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("p").forEach((node) => {
-
-        let pDom = new DocumentFragment();
-        $.parseHTML(node.outerHTML).forEach((element) => {
-          pDom.appendChild(element);
-        });
+        const pDom = utils.htmlToDocumentFragment(node.outerHTML);
         const query = pDom.querySelector("strong");
         if (!query) return;
         let name = query.textContent.trim().replace(/\./g, '');
@@ -168,11 +158,7 @@ export class DDBFeatureFactory {
     // there is inconsistent formatting
     if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("p").forEach((node) => {
-
-        let pDom = new DocumentFragment();
-        $.parseHTML(node.outerHTML).forEach((element) => {
-          pDom.appendChild(element);
-        });
+        const pDom = utils.htmlToDocumentFragment(node.outerHTML);
         const query = pDom.querySelector("b");
         if (!query) return;
         let name = query.textContent.trim().replace(/\./g, '');
@@ -186,11 +172,7 @@ export class DDBFeatureFactory {
     // there is inconsistent formatting
     if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("p").forEach((node) => {
-
-        let pDom = new DocumentFragment();
-        $.parseHTML(node.outerHTML).forEach((element) => {
-          pDom.appendChild(element);
-        });
+        const pDom = utils.htmlToDocumentFragment(node.outerHTML);
         const title = pDom.textContent.split('.')[0];
         const name = title.trim();
         if (name && name.length > 0) {
@@ -204,11 +186,7 @@ export class DDBFeatureFactory {
     // homebrew fun
     if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("div").forEach((node) => {
-
-        let pDom = new DocumentFragment();
-        $.parseHTML(node.outerHTML).forEach((element) => {
-          pDom.appendChild(element);
-        });
+        const pDom = utils.htmlToDocumentFragment(node.outerHTML);
         const title = pDom.textContent.split('.')[0];
         const name = title.trim();
         if (name && name.length > 0) {
@@ -250,11 +228,7 @@ export class DDBFeatureFactory {
         if (switchAction && startFlag) {
           const replaceName = getProperty(action, "fullName") ?? nodeName;
           outerHTML = outerHTML.replace(replaceName, "");
-
-          const titleDom = new DocumentFragment();
-          $.parseHTML(outerHTML).forEach((element) => {
-            titleDom.appendChild(element);
-          });
+          const titleDom = utils.htmlToDocumentFragment(outerHTML);
           if (titleDom.textContent.startsWith(".")) outerHTML = outerHTML.replace(".", "");
         }
         action.options.html += outerHTML;
@@ -425,10 +399,7 @@ export class DDBFeatureFactory {
 
     // build out skeleton actions
     dom.querySelectorAll("p").forEach((node) => {
-      let pDom = new DocumentFragment();
-      $.parseHTML(node.outerHTML).forEach((element) => {
-        pDom.appendChild(element);
-      });
+      const pDom = utils.htmlToDocumentFragment(node.outerHTML);
       const query = pDom.querySelector("em");
       if (!query) return;
       let name = query.textContent.trim().replace(/\./g, '');
@@ -441,10 +412,7 @@ export class DDBFeatureFactory {
 
     if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("p").forEach((node) => {
-        let pDom = new DocumentFragment();
-        $.parseHTML(node.outerHTML).forEach((element) => {
-          pDom.appendChild(element);
-        });
+        const pDom = utils.htmlToDocumentFragment(node.outerHTML);
         const query = pDom.querySelector("strong");
         if (!query) return;
         let name = query.textContent.trim().replace(/\./g, '');
@@ -510,10 +478,7 @@ export class DDBFeatureFactory {
             outerHTML = outerHTML.replace(nodeName, "");
           }
         }
-        const titleDom = new DocumentFragment();
-        $.parseHTML(outerHTML).forEach((element) => {
-          titleDom.appendChild(element);
-        });
+        const titleDom = utils.htmlToDocumentFragment(outerHTML);
         if (titleDom.textContent.startsWith(". ")) outerHTML = outerHTML.replace(". ", "");
         action.options.html += outerHTML;
       }
