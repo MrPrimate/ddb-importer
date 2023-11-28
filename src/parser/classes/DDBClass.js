@@ -297,7 +297,7 @@ export default class DDBClass {
 
   // ADVANCEMENT FUNCTIONS
 
-  // don't generate advancements for these features
+  // don't generate feature advancements for these features
   static EXCLUDED_FEATURE_ADVANCEMENTS = [
     "Ability Score Improvement",
     "Expertise",
@@ -314,7 +314,7 @@ export default class DDBClass {
   ];
 
   async _generateFeatureAdvancements() {
-    logger.debug(`Parsing ${this.ddbClass.name} features for advancement`);
+    logger.debug(`Parsing ${this.ddbClass.definition.name} features for advancement`);
 
     const advancements = [];
     this.classFeatures
@@ -389,6 +389,7 @@ export default class DDBClass {
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
         const proficiencyFeature = this._proficiencyFeatures.find((f) => f.requiredLevel === i);
+        if (!availableToMulticlass && i > 1) return;
         if (!proficiencyFeature) return;
 
         const modFilters = {
@@ -408,7 +409,7 @@ export default class DDBClass {
         if (updates.length > 0) {
           const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
           const update = {
-            classRestriction: availableToMulticlass ? "" : "primary",
+            classRestriction: i > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
             configuration: {
               grants: updates,
               allowReplacements: false,
@@ -481,7 +482,7 @@ export default class DDBClass {
       const smallChosenSkill = DICTIONARY.character.skills.find((skill) => skill.label === option.label);
       if (smallChosenSkill) skillsChosen.add(smallChosenSkill.name);
       const smallChosenTool = DICTIONARY.character.proficiencies.find((p) => p.type === "Tool" && p.name === option.label);
-      if (smallChosenTool) toolsChosen.add(smallChosenTool.name);
+      if (smallChosenTool) toolsChosen.add(smallChosenTool.baseTool);
 
       const skillOptionNames = optionChoice.options.filter((option) =>
         DICTIONARY.character.skills.some((skill) => skill.label === option.label)
@@ -523,6 +524,7 @@ export default class DDBClass {
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
         if (availableToMulticlass && this.dictionary.multiclassSkill === 0) return;
+        if (!availableToMulticlass && i > 1) return;
         const proficiencyFeature = this._proficiencyFeatures.find((f) => f.requiredLevel === i);
         if (!proficiencyFeature) return;
 
@@ -552,32 +554,15 @@ export default class DDBClass {
             ? this.dictionary.multiclassSkill
             : skillMods.length;
 
-        // console.warn("SKILL PARSING", {
-        //   parsedSkills,
-        //   chosenSkills,
-        //   skillMods,
-        //   skillExplicitMods,
-        //   skillChooseMods,
-        //   i,
-        //   availableToMulticlass,
-        //   modFilters,
-        //   mods,
-
-        //   proficiencyFeature,
-        //   this: this,
-        // });
         if (skillCount === 0) return;
 
         const initialUpdate = {
-          classRestriction: availableToMulticlass ? "secondary" : "primary",
+          title: "Skills",
+          classRestriction: i > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
           configuration: {
             allowReplacements: false,
             choices: [{
-              count: this.options.noMods
-                ? parsedSkills.number
-                : availableToMulticlass
-                  ? this.dictionary.multiclassSkill
-                  : skillMods.length,
+              count: skillCount,
               pool: parsedSkills.choices.map((skill) => `skills:${skill}`),
             }],
           },
@@ -596,6 +581,65 @@ export default class DDBClass {
 
         advancements.push(advancement.toObject());
       });
+    }
+
+    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+  }
+
+  _generateExpertiseAdvancements() {
+    if (this.legacyMode) return;
+    const advancements = [];
+
+    for (let i = 0; i <= 20; i++) {
+      const expertiseFeature = this._expertiseFeatures.find((f) => f.requiredLevel === i);
+
+      // eslint-disable-next-line no-continue
+      if (!expertiseFeature) continue;
+
+      const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+      const expertiseOptions = this._parseExpertiseChoicesFromOptions(i);
+
+      console.warn("EXPERTISE PARSING", {
+        expertiseOptions,
+        i,
+        expertiseFeature,
+        this: this,
+      });
+      // if (expertiseCount === 0) return;
+
+      const pool = this.ddbClass.definition.name === "Rogue"
+        ? ["skills:*", "tool:thief"]
+        : ["skills:*"];
+
+      const initialUpdate = {
+        title: "Expertise",
+        classRestriction: "",
+        configuration: {
+          allowReplacements: false,
+          mode: "expertise",
+          choices: [{
+            count: 2,
+            // pool: parsedExpertise.choices,
+            pool,
+          }],
+        },
+        level: i,
+      };
+
+      advancement.updateSource(initialUpdate);
+
+      const chosenSkills = expertiseOptions.skills.chosen.map((skill) => `skills:${skill}`);
+      const chosenTools = expertiseOptions.tools.chosen.map((tool) => `tool:${tool}`);
+      const finalChoices = [].concat(chosenSkills, chosenTools);
+      if (finalChoices.length > 0) {
+        advancement.updateSource({
+          value: {
+            chosen: finalChoices
+          },
+        });
+      }
+
+      advancements.push(advancement.toObject());
     }
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
@@ -714,6 +758,8 @@ export default class DDBClass {
     await this._generateFeatureAdvancements();
     this._generateSaveAdvancements();
     this._generateSkillAdvancements();
+    this._generateExpertiseAdvancements();
+    // TODO: Language advancemets
     this._generateSpellCastingProgression();
     await this._addSRDAdvancements();
   }
