@@ -111,10 +111,7 @@ export default class AdvancementHelper {
   static parseHTMLSaves(description) {
     const results = [];
 
-    let dom = new DocumentFragment();
-    $.parseHTML(description).forEach((element) => {
-      dom.appendChild(element);
-    });
+    const dom = utils.htmlToDocumentFragment(description);
 
     // get class saves
     const savingText = dom.textContent.toLowerCase().split("saving throws:").pop().split("\n")[0].split("The")[0].split(".")[0].split("skills:")[0].trim();
@@ -139,11 +136,7 @@ export default class AdvancementHelper {
       choices: [],
       number: 0,
     };
-
-    let dom = new DocumentFragment();
-    $.parseHTML(description).forEach((element) => {
-      dom.appendChild(element);
-    });
+    const dom = utils.htmlToDocumentFragment(description);
 
     // Choose any three
     // Skills: Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival
