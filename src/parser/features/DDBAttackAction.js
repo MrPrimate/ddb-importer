@@ -49,6 +49,7 @@ export default class DDBAttackAction extends DDBAction {
         `Unable to Generate Attack Action: ${this.name}, please log a bug report. Err: ${err.message}`,
         "extension"
       );
+      logger.error("Error", err);
     }
   }
 

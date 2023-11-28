@@ -280,34 +280,6 @@ export default class DDBBaseFeature {
     }
   }
 
-  _generateFlagHints() {
-    // obsidian and klass names (used in effect enrichment)
-    if (this._actionType.class) {
-      const klass = DDBHelper.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
-      setProperty(this.data.flags, "obsidian.source.type", "class");
-      setProperty(this.data.flags, "ddbimporter.type", "class");
-      setProperty(this.data.flags, "obsidian.source.text", klass.definition.name);
-      setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
-      const subClassName = hasProperty(klass, "subclassDefinition.name") ? klass.subclassDefinition.name : undefined;
-      setProperty(this.data.flags, "ddbimporter.subclass", subClassName);
-    } else if (this._actionType.race) {
-      setProperty(this.data.flags, "obsidian.source.type", "race");
-      setProperty(this.data.flags, "ddbimporter.type", "race");
-    } else if (this._actionType.feat) {
-      setProperty(this.data.flags, "obsidian.source.type", "feat");
-      setProperty(this.data.flags, "ddbimporter.type", "feat");
-    }
-
-    // scaling details
-    const klassActionComponent = DDBHelper.findComponentByComponentId(this.ddbData, this.ddbAction.id)
-      ?? DDBHelper.findComponentByComponentId(this.ddbData, this.ddbAction.componentId);
-    if (klassActionComponent) {
-      setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
-      setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
-      setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
-    }
-  }
-
   _getFeatModifierItem(choice, type) {
     if (this.ddbDefinition.grantedModifiers) return this.ddbDefinition;
     let modifierItem = duplicate(this.ddbDefinition);
