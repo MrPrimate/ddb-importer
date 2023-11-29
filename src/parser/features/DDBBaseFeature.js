@@ -55,6 +55,7 @@ export default class DDBBaseFeature {
     this.isAction = false;
     this.documentType = "feat";
     this.tagType = "other";
+    this.data = {};
     this._init();
 
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
