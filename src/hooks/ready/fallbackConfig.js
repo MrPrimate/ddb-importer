@@ -3738,6 +3738,15 @@ export const fallbackDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/37957/430/638350488745211592.jpeg",
       sourceURL: "sources/hfscm",
     },
+    {
+      id: 130,
+      name: "LoE",
+      description: "Lairs of Etharis",
+      sourceCategoryId: 18,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/38227/385/638361857871304044.jpeg",
+      sourceURL: "sources/loe",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },
