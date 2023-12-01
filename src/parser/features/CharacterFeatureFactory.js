@@ -4,6 +4,7 @@ import logger from "../../logger.js";
 import { getInfusionActionData } from "../item/infusions.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
+import DDBFeature from "./DDBFeature.js";
 import { addExtraEffects, fixFeatures } from "./fixes.js";
 
 
@@ -71,7 +72,7 @@ export default class CharacterFeatureFactory {
     const unarmedStrikeAction = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: strikeMock, rawCharacter: this.rawCharacter });
     unarmedStrikeAction.build();
 
-    console.warn(`unarmedStrikeAction for Unarmed strike`, unarmedStrikeAction);
+    // console.warn(`unarmedStrikeAction for Unarmed strike`, unarmedStrikeAction);
     return unarmedStrikeAction.data;
   }
 
@@ -177,11 +178,19 @@ export default class CharacterFeatureFactory {
     this.data.push(...this.processed.actions);
   }
 
-  async processFeatures() {
-    const feature = {};
-    if (feature.include) this.processed.features.push(feature);
 
-    this.data.push(...this.processed.features);
+  async processFeatures() {
+    // const feature = new DDBFeature({
+    //   ddbData: this.ddbData,
+    //   ddbDefinition: this.ddbDefinition,
+    //   type: this.type,
+    //   rawCharacter: this.rawCharacter,
+    // });
+
+
+    // if (feature.include) this.processed.features.push(feature);
+
+    // this.data.push(...this.processed.features);
   }
 
   updateFeatureIds() {

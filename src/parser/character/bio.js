@@ -131,46 +131,15 @@ export function generateBackground(bg) {
     result.description += bg.featureDescription.replace("\r\n", "");
   }
   if (bg.spellListIds) result.spellListIds = bg.spellListIds;
+
+  // update definition
   result.definition.name = result.name;
   result.description = utils.replaceHtmlSpaces(result.description);
   result.definition.description = result.description;
+  result.definition.id = result.id;
+  result.definition.spellListIds = result.spellListIds;
   return result;
 }
-
-// WIP, not used
-DDBCharacter.prototype.getBackgroundFeature = function getBackgroundFeature(bg) {
-  let result = getBackgroundTemplate();
-  result.name = "Background Feature";
-
-  if (bg.isHomebrew === true) {
-    if (bg.featuresBackground) {
-      result.name = bg.featuresBackground.featureName;
-      result.description += bg.featuresBackground.featureDescription.replace("\r\n", "");
-      result.featuresId = bg.featuresBackground.id;
-      result.id = bg.featuresBackground.id;
-      result.featuresEntityTypeId = bg.featuresBackground.entityTypeId;
-      result.definition = bg.featuresBackground;
-    }
-    if (
-      bg.characteristicsBackground
-      && bg.featuresBackground
-      && bg.featuresBackground.entityTypeId != bg.characteristicsBackground.entityTypeId
-    ) {
-      result.name = bg.characteristicsBackground.featureName;
-      result.description += bg.characteristicsBackground.featureDescription.replace("\r\n", "");
-      result.characteristicsId = bg.characteristicsBackground.id;
-      result.characteristicsEntityTypeId = bg.characteristicsBackground.entityTypeId;
-    }
-  }
-
-  if (bg.featureName) {
-    result.name = bg.featureName;
-    result.description += bg.featureDescription.replace("\r\n", "");
-  }
-
-  return result;
-
-};
 
 DDBCharacter.prototype.getBackgroundData = function getBackgroundData() {
   let bg = null;

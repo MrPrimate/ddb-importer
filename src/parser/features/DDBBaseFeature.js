@@ -46,12 +46,13 @@ export default class DDBBaseFeature {
     }
   }
 
-  constructor({ ddbData, ddbDefinition, type, rawCharacter = null } = {}) {
+  constructor({ ddbData, ddbDefinition, type, source, rawCharacter = null } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
     this.name = this.ddbDefinition.name;
     this.type = type;
+    this.source = source;
     this.isAction = false;
     this.documentType = "feat";
     this.tagType = "other";
@@ -62,6 +63,7 @@ export default class DDBBaseFeature {
 
     this._generateDataStub();
     this._prepare();
+    this.data.system.source = this.source;
   }
 
   _generateActivation() {
@@ -142,13 +144,13 @@ export default class DDBBaseFeature {
     const fullDescription = DDBBaseFeature.buildFullDescription(description, snippet);
     const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
 
-    console.warn("final descriptions", {
-      description,
-      rawSnippet,
-      snippet,
-      fullDescription,
-      value
-    });
+    // console.warn("final descriptions", {
+    //   description,
+    //   rawSnippet,
+    //   snippet,
+    //   fullDescription,
+    //   value
+    // });
 
     this.data.system.description = {
       value: value,
@@ -367,5 +369,14 @@ export default class DDBBaseFeature {
     DDBHelper.addCustomValues(this.ddbData, this.data);
   }
 
+  _generateSystemType() {
+    setProperty(this.data, "system.type.value", this.type);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  build() {
+    // override this feature
+    return false;
+  }
 
 }
