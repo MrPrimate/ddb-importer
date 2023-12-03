@@ -1,4 +1,5 @@
 import DDBHelper from "../../lib/DDBHelper.js";
+import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBFeature from "./DDBFeature.js";
 
@@ -52,7 +53,7 @@ export default class DDBChoiceFeature extends DDBFeature {
           ? choice.label
           : `${this.data.name}: ${choice.label}`
         : this.data.name;
-      this.data.name = this.data.name.replace("’", "'");
+      this.data.name = utils.nameString(this.data.name);
       if (choice.wasOption && choice.description) {
         this.ddbDefinition.description = choice.description;
         this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";

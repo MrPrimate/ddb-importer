@@ -335,13 +335,13 @@ function findMatchingTagInIndex(type, tag) {
     return tag;
   }
   const strippedTag = utils.stripHtml(tag);
-  const match = index.find((entry) => entry.name.replace("’", "'").toLowerCase() === strippedTag.replace("’", "'").replace("&nbsp;", " ").toLowerCase());
+  const match = index.find((entry) => utils.nameString(entry.name).toLowerCase() === utils.nameString(strippedTag).replace("&nbsp;", " ").toLowerCase());
   if (match) {
     const label = getProperty(CONFIG.DDBI, `compendium.label.${type}`);
     return `@Compendium[${label}.${match._id}]{${tag}}`;
   } else if (strippedTag.includes(";")) {
-    const tagSplit = strippedTag.replace("&nbsp;", " ").replace("’", "'").split(";")[0];
-    const splitMatch = index.find((entry) => entry.name.replace("’", "'").toLowerCase() === tagSplit.toLowerCase());
+    const tagSplit = utils.nameString(strippedTag.replace("&nbsp;", " ")).split(";")[0];
+    const splitMatch = index.find((entry) => utils.nameString(entry.name).toLowerCase() === tagSplit.toLowerCase());
     if (splitMatch) {
       const label = getProperty(CONFIG.DDBI, `compendium.label.${type}`);
       return `@Compendium[${label}.${splitMatch._id}]{${tagSplit}}`;
@@ -373,7 +373,7 @@ function replaceTag(match, p1, p2, p3, offset, string) {
     return `@Compendium[dnd5e.rules.${lookup._id}${pageLink}${linkStub}]{${p2}}`;
   } else {
     const srdMatch = CONFIG.DDBI.SRD_LOOKUP.fullPageMap.find((page) => page.name.toLowerCase() === strippedP2.toLowerCase().split(";")[0]
-      || page.name.replace("’", "'").toLowerCase() === strippedP2.replace("’", "'").toLowerCase().split("ing")[0].split(";")[0]
+      || utils.nameString(page.name).toLowerCase() === utils.nameString(strippedP2).toLowerCase().split("ing")[0].split(";")[0]
     );
     if (srdMatch) {
       const pageLink = srdMatch.pageId ? `.JournalEntryPage.${srdMatch.pageId}` : "";

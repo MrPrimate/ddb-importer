@@ -5,6 +5,7 @@ import SETTINGS from "../settings.js";
 import CompendiumHelper from "./CompendiumHelper.js";
 import FileHelper from "./FileHelper.js";
 import NameMatcher from "./NameMatcher.js";
+import utils from "./utils.js";
 
 // const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
 
@@ -46,7 +47,7 @@ const FILE_MAP = {
 };
 
 function sanitiseName(name) {
-  return name.replaceAll("’", "'").toLowerCase();
+  return utils.nameString(name).toLowerCase();
 }
 
 async function loadDataFile(fileName) {

@@ -23,33 +23,6 @@ export default class DDBClassFeatures {
       .map((f) => f.affectedClassFeatureId);
   }
 
-  // static SKIPPED_FEATURES = [
-  //   "Hit Points",
-  //   "Languages",
-  //   "Bonus Proficiency",
-  //   "Speed",
-  //   "Skills",
-  //   // "Feat",
-  // ];
-
-  // static isDuplicateFeature(items, item) {
-  //   return items.some((dup) => dup.name === item.name && dup.system.description.value === item.system.description.value);
-  // }
-
-  // static getNameMatchedFeature(items, item) {
-  //   return items.find((dup) => dup.name === item.name && item.flags.ddbimporter.type === dup.flags.ddbimporter.type);
-  // }
-
-  // static includedFeatureNameCheck(featName) {
-  //   const nameAllowed = !featName.startsWith("Proficiencies")
-  //     && !featName.startsWith("Ability Score")
-  //     && !featName.startsWith("Size")
-  //     // && !featName.startsWith("Skills")
-  //     && !DDBClassFeatures.SKIPPED_FEATURES.includes(featName);
-
-  //   return nameAllowed;
-  // }
-
   _getFeatures(featureDefinition, type, source, filterByLevel = true) {
     const feature = new DDBFeature({
       ddbData: this.ddbData,

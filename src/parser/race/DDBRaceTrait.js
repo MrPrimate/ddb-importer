@@ -66,7 +66,8 @@ export default class DDBRaceTrait {
     this._generateDataStub();
     this._compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");
 
-    this.data.name = (this.trait.fullName) ? this.trait.fullName.replace("’", "'") : this.trait.name.replace("’", "'");
+    const name = (this.trait.fullName) ? utils.nameString(this.trait.fullName) : utils.nameString(this.trait.name);
+    this.data.name = name;
     this.data.system.description.value += `${this.trait.description}\n\n`;
 
     this.data.flags.ddbimporter = {
@@ -74,7 +75,7 @@ export default class DDBRaceTrait {
       entityRaceId: this.trait.entityRaceId,
       version: CONFIG.DDBI.version,
       sourceId: this.trait.sources.length > 0 ? [0].sourceId : -1, // is homebrew
-      baseName: (this.trait.fullName) ? this.trait.fullName.replace("’", "'") : this.trait.name.replace("’", "'"),
+      baseName: name,
       spellListIds: this.trait.spellListIds,
       definitionKey: this.trait.definitionKey,
       race: this.raceName,
@@ -93,8 +94,10 @@ export default class DDBRaceTrait {
       logger.debug(`Trait name ${this.data.name} is legacy`);
     }
 
-    const duplicateFeature = DDBRaceTrait.DUPPLICATES.includes(this.data.name.replace("’", "'"));
-    this.data.name = (duplicateFeature) ? `${this.data.name} (${this.raceName})` : this.data.name;
+    const duplicateFeature = DDBRaceTrait.DUPPLICATES.includes(name);
+    if (duplicateFeature) {
+      this.data.name = `${name} (${this.raceName})`;
+    }
 
     this.data.system.requirements = this.raceName;
     this.data.system.type = {

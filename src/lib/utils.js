@@ -44,6 +44,10 @@ const utils = {
       .trim();
   },
 
+  nameString: (str) => {
+    return str.replaceAll(("’", "'")).trim();
+  },
+
   stripHtml: (html) => {
     let tmp = document.createElement("DIV");
     tmp.innerHTML = html;

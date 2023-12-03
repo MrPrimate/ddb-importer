@@ -38,7 +38,7 @@ export default class DDBFeature extends DDBBaseFeature {
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
-      name: this.ddbDefinition.name.replace("’", "'").trim(),
+      name: utils.nameString(this.ddbDefinition.name),
       type: this.documentType,
       system: utils.getTemplate(this.documentType),
       flags: {

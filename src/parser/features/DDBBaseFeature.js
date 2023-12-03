@@ -50,7 +50,7 @@ export default class DDBBaseFeature {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
-    this.name = this.ddbDefinition.name;
+    this.name = utils.nameString(this.ddbDefinition.name);
     this.type = type;
     this.source = source;
     this.isAction = false;
@@ -168,10 +168,9 @@ export default class DDBBaseFeature {
       const resetType = DICTIONARY.resets.find((type) => type.id === this.ddbDefinition.limitedUse.resetType);
       let maxUses = (this.ddbDefinition.limitedUse.maxUses && this.ddbDefinition.limitedUse.maxUses !== -1) ? this.ddbDefinition.limitedUse.maxUses : 0;
 
-      if (hasProperty(this.ddbDefinition, "limitedUse.statModifierUsesId")) {
-        const ability = DICTIONARY.character.abilities.find(
-          (ability) => ability.id === this.ddbDefinition.limitedUse.statModifierUsesId
-        ).value;
+      const statModifierUsesId = getProperty(this.ddbDefinition, "limitedUse.statModifierUsesId");
+      if (statModifierUsesId) {
+        const ability = DICTIONARY.character.abilities.find((ability) => ability.id === statModifierUsesId).value;
 
         if (maxUses === 0) {
           maxUses = `@abilities.${ability}.mod`;
@@ -187,7 +186,8 @@ export default class DDBBaseFeature {
         }
       }
 
-      if (hasProperty(this.ddbDefinition, "limitedUse.useProficiencyBonus")) {
+      const useProficiencyBonus = getProperty(this.ddbDefinition, "limitedUse.useProficiencyBonus");
+      if (useProficiencyBonus) {
         if (maxUses === 0) {
           maxUses = `@prof`;
         } else {

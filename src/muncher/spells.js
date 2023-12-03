@@ -13,6 +13,7 @@ import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBMacros from "../effects/DDBMacros.js";
 import Iconizer from "../lib/Iconizer.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
+import utils from "../lib/utils.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
@@ -112,7 +113,7 @@ export async function parseSpells(ids = null) {
   const spells = rawSpells
     .filter((spell) => spell?.name)
     .map((spell) => {
-      spell.name = spell.name.replace(/’/g, "'");
+      spell.name = utils.nameString(spell.name);
       return spell;
     });
 

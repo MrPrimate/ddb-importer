@@ -49,7 +49,7 @@ export default class DDBRace {
     this.type = "humanoid";
     this._compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");
 
-    this.data.name = (this.race.fullName) ? this.race.fullName.replace("’", "'") : this.race.name.replace("’", "'");
+    this.data.name = (this.race.fullName) ? utils.nameString(this.race.fullName) : utils.nameString(this.race.name);
     this.data.system.description.value += `${this.race.description}\n\n`;
 
     this.data.flags.ddbimporter = {
@@ -148,7 +148,7 @@ export default class DDBRace {
   #addFeatureDescription(trait) {
     const featureMatch = this.compendiumRacialTraits.find((match) =>
       hasProperty(match, "flags.ddbimporter.baseName") && hasProperty(match, "flags.ddbimporter.entityRaceId")
-      && trait.name.replace("’", "'") === match.flags.ddbimporter.baseName
+      && utils.nameString(trait.name) === utils.nameString(match.flags.ddbimporter.baseName)
       && match.flags.ddbimporter.entityRaceId === trait.entityRaceId
     );
     const title = (featureMatch) ? `<p><b>@Compendium[${this._compendiumLabel}.${featureMatch._id}]{${trait.name}}</b></p>` : `<p><b>${trait.name}</b></p>`;

@@ -1,6 +1,7 @@
 import DICTIONARY from "../dictionary.js";
 import logger from "../logger.js";
 import { getEffectExcludedModifiers } from "../effects/effects.js";
+import utils from "./utils.js";
 
 const DDBHelper = {
 
@@ -821,11 +822,11 @@ const DDBHelper = {
       ? DDBHelper.getCustomValueFromCharacter(item, character, 8)
       : DDBHelper.getCustomValue(item, ddb, 8);
     if (customName && allowCustom) {
-      return customName.replace("’", "'").trim();
+      return utils.nameString(customName);
     } else if (item.definition?.name) {
-      return item.definition.name.replace("’", "'").trim();
+      return utils.nameString(item.definition.name);
     } else if (item.name) {
-      return item.name.replace("’", "'").trim();
+      return utils.nameString(item.name);
     } else {
       logger.error("Unable to determine name for:", item);
       return "Unknown thing.";

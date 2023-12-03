@@ -1,3 +1,5 @@
+import utils from "../../lib/utils.js";
+
 function getCustomName(data, character) {
   if (!character || (character && !hasProperty(character, "flags.ddbimporter.dndbeyond.characterValues"))) return null;
   const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
@@ -20,10 +22,10 @@ export function getName(data, character) {
   // spell name
   const customName = getCustomName(data, character);
   if (customName) {
-    return customName;
+    return utils.nameString(customName);
   } else if (data.flags.ddbimporter.dndbeyond.nameOverride !== undefined) {
-    return data.flags.ddbimporter.dndbeyond.nameOverride;
+    return utils.nameString(data.flags.ddbimporter.dndbeyond.nameOverride);
   } else {
-    return data.definition.name.replace("’", "'");
+    return utils.nameString(data.definition.name);
   }
 }

@@ -244,7 +244,7 @@ DDBMonster.prototype._generateSpells = function() {
   });
 
   dom.childNodes.forEach((node) => {
-    const spellText = node.textContent.replace(/’/g, "'");
+    const spellText = utils.nameString(node.textContent);
     const trimmedText = spellText.trim();
 
     const spellCastingRegEx = new RegExp(/^Spellcasting/);

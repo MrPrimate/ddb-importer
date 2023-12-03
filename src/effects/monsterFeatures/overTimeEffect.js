@@ -105,7 +105,7 @@ function generateConditionEffect(effect, text) {
     success: false,
     effect,
   };
-  text = text.replace("’", "'");
+  text = utils.nameString(text);
   const conditionSearch = /DC (\d+) (\w+) saving throw(?:,)? or (be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(\w+)?\s?(?:for (\d+) (minute))?(.*)?(?:.|$)/;
   const match = text.match(conditionSearch);
   // console.warn("condition status", match);

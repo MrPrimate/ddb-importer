@@ -30,7 +30,7 @@ export async function parseSpell(data, character) {
         definitionId: data.definition.id,
         entityTypeId: data.entityTypeId,
         dndbeyond: data.flags.ddbimporter.dndbeyond,
-        originalName: data.definition.name.replace(/’/g, "'"),
+        originalName: utils.nameString(data.definition.name),
         sources: data.definition.sources,
         tags: data.definition.tags,
         version: CONFIG.DDBI.version,
