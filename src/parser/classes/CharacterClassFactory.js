@@ -2,6 +2,7 @@
 import DDBClass from "./DDBClass.js";
 import logger from '../../logger.js';
 import DDBSubClass from "./DDBSubClass.js";
+import utils from "../../lib/utils.js";
 
 export default class CharacterClassFactory {
 
@@ -39,7 +40,7 @@ export default class CharacterClassFactory {
       const index = this.ddbCharacter.data[featureType].findIndex((f) => {
         const name = f.flags.ddbimporter?.originalName ?? f.name;
         const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
-        return name === featureName && !isCustomAction;
+        return utils.nameString(name) === utils.nameString(featureName) && !isCustomAction;
       });
       if (index !== -1) {
         logger.debug(`Found ${featureType} : ${featureName}`);

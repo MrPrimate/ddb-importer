@@ -176,14 +176,14 @@ export default class CharacterFeatureFactory {
 
     await fixFeatures(this.processed.actions);
     this.processed.actions = await addExtraEffects(this.ddbData, this.processed.actions, this.rawCharacter);
+    this.updateIds("actions");
     this.data.push(...this.processed.actions);
   }
 
-
-  updateFeatureIds() {
+  updateIds(type) {
     const possibleFeatures = this.ddbCharacter.currentActor.getEmbeddedCollection("Item");
     const matchedFeatures = [];
-    this.processed.features.forEach((feature) => {
+    this.processed[type].forEach((feature) => {
       const itemMatch = DDBHelper.findMatchedDDBItem(feature, possibleFeatures, matchedFeatures);
       if (itemMatch) {
         feature._id = itemMatch._id;
@@ -201,7 +201,7 @@ export default class CharacterFeatureFactory {
 
     await ddbFeatures.build();
     this.processed.features = ddbFeatures.data;
-    this.updateFeatureIds();
+    this.updateIds("features");
     this.data.push(...ddbFeatures.data);
   }
 
