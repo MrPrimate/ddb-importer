@@ -190,12 +190,13 @@ export default class DDBCharacter {
       this._classParser = new CharacterClassFactory(this);
       this.raw.classes = await this._classParser.processCharacter();
       logger.debug("Classes parse complete");
-      await this._generateFeatures();
+      const characterFeatureFactory = new CharacterFeatureFactory(this);
+      await characterFeatureFactory.processFeatures();
+      this.raw.features = characterFeatureFactory.processed.features;
       logger.debug("Feature parse complete");
       this._spellParser = new CharacterSpellFactory(this.source.ddb, this.raw.character);
       this.raw.spells = await this._spellParser.getCharacterSpells();
       logger.debug("Character Spells parse complete");
-      const characterFeatureFactory = new CharacterFeatureFactory(this.source.ddb, this.raw.character);
       await characterFeatureFactory.processActions();
       this.raw.actions = characterFeatureFactory.processed.actions;
       logger.debug("Action parse complete");

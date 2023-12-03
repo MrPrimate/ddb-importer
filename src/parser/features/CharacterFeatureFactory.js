@@ -4,15 +4,16 @@ import logger from "../../logger.js";
 import { getInfusionActionData } from "../item/infusions.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
-import DDBFeature from "./DDBFeature.js";
+import DDBFeatures from "./DDBFeatures.js";
 import { addExtraEffects, fixFeatures } from "./fixes.js";
 
 
 export default class CharacterFeatureFactory {
 
-  constructor(ddbData, rawCharacter = null) {
-    this.ddbData = ddbData;
-    this.rawCharacter = rawCharacter;
+  constructor(ddbCharacter) {
+    this.ddbCharacter = ddbCharacter;
+    this.ddbData = ddbCharacter.source.ddb;
+    this.rawCharacter = ddbCharacter.raw.character;
 
     this.parsed = {
       actions: [],
@@ -96,7 +97,7 @@ export default class CharacterFeatureFactory {
         const ddbAttackAction = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: action, rawCharacter: this.rawCharacter });
         ddbAttackAction.build();
 
-        console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);
+        // console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);
         return ddbAttackAction.data;
       });
     logger.debug("attack actions", attackActions);
@@ -135,7 +136,7 @@ export default class CharacterFeatureFactory {
 
         const ddbAction = new DDBAction({ ddbData: this.ddbData, ddbDefinition: action, rawCharacter: this.rawCharacter });
         ddbAction.build();
-        console.warn(`ddbAction for ${action.name}`, ddbAction);
+        // console.warn(`ddbAction for ${action.name}`, ddbAction);
 
         return ddbAction.data;
       });
@@ -179,28 +180,35 @@ export default class CharacterFeatureFactory {
   }
 
 
-  async processFeatures() {
-    // const feature = new DDBFeature({
-    //   ddbData: this.ddbData,
-    //   ddbDefinition: this.ddbDefinition,
-    //   type: this.type,
-    //   rawCharacter: this.rawCharacter,
-    // });
-
-
-    // if (feature.include) this.processed.features.push(feature);
-
-    // this.data.push(...this.processed.features);
-  }
-
   updateFeatureIds() {
-    // TODO
+    const possibleFeatures = this.ddbCharacter.currentActor.getEmbeddedCollection("Item");
+    const matchedFeatures = [];
+    this.processed.features.forEach((feature) => {
+      const itemMatch = DDBHelper.findMatchedDDBItem(feature, possibleFeatures, matchedFeatures);
+      if (itemMatch) {
+        feature._id = itemMatch._id;
+        matchedFeatures.push(itemMatch);
+      }
+    });
   }
 
-  async process() {
-    await this.processActions();
-    await this.processFeatures();
+  async processFeatures() {
+    const ddbFeatures = new DDBFeatures({
+      ddbCharacter: this.ddbCharacter,
+      ddbData: this.ddbData,
+      rawCharacter: this.rawCharacter,
+    });
+
+    await ddbFeatures.build();
+    this.processed.features = ddbFeatures.data;
     this.updateFeatureIds();
+    this.data.push(...ddbFeatures.data);
   }
+
+  // async process() {
+  //   await this.processActions();
+  //   await this.processFeatures();
+  //   this.updateFeatureIds();
+  // }
 
 }

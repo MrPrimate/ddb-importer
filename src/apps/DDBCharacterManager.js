@@ -24,6 +24,7 @@ import {
 import DDBMacros from "../effects/DDBMacros.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
 import { addMagicItemSpells } from "../parser/item/itemSpells.js";
+import DDBHelper from "../lib/DDBHelper.js";
 
 export default class DDBCharacterManager extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {
@@ -854,35 +855,36 @@ export default class DDBCharacterManager extends FormApplication {
       let matchedItems = [];
 
       for (let item of items) {
-        let existingItem = ownedItems.find((owned) => {
-          // have we already matched against this id? lets not double dip
-          const existingMatch = matchedItems.find((matched) => {
-            return getProperty(owned, "flags.ddbimporter.id") === getProperty(matched, "flags.ddbimporter.id");
-          });
-          if (existingMatch) return false;
-          // the simple match
-          const simpleMatch
-            = item.name === owned.name
-            && item.type === owned.type
-            && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
-          // account for choices in ddb
-          const isChoice
-            = hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
-            && hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
-          const choiceMatch = isChoice
-            ? item.flags.ddbimporter.dndbeyond.choice.choiceId
-              === owned.flags.ddbimporter.dndbeyond.choice.choiceId
-            : true;
-          // force an override
-          const overrideDetails = getProperty(owned, "flags.ddbimporter.overrideItem");
-          const overrideMatch
-            = overrideDetails
-            && item.name === overrideDetails.name
-            && item.type === overrideDetails.type
-            && item.flags?.ddbimporter?.id === overrideDetails.ddbId;
+        let existingItem = DDBHelper.findMatchedDDBItem(item, ownedItems, matchedItems);
+        // let existingItem = ownedItems.find((owned) => {
+        //   // have we already matched against this id? lets not double dip
+        //   const existingMatch = matchedItems.find((matched) => {
+        //     return getProperty(owned, "flags.ddbimporter.id") === getProperty(matched, "flags.ddbimporter.id");
+        //   });
+        //   if (existingMatch) return false;
+        //   // the simple match
+        //   const simpleMatch
+        //     = item.name === owned.name
+        //     && item.type === owned.type
+        //     && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
+        //   // account for choices in ddb
+        //   const isChoice
+        //     = hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
+        //     && hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
+        //   const choiceMatch = isChoice
+        //     ? item.flags.ddbimporter.dndbeyond.choice.choiceId
+        //       === owned.flags.ddbimporter.dndbeyond.choice.choiceId
+        //     : true;
+        //   // force an override
+        //   const overrideDetails = getProperty(owned, "flags.ddbimporter.overrideItem");
+        //   const overrideMatch
+        //     = overrideDetails
+        //     && item.name === overrideDetails.name
+        //     && item.type === overrideDetails.type
+        //     && item.flags?.ddbimporter?.id === overrideDetails.ddbId;
 
-          return (simpleMatch && choiceMatch) || overrideMatch;
-        });
+        //   return (simpleMatch && choiceMatch) || overrideMatch;
+        // });
 
         logger.debug(`Checking ${item.name} for existing match`, existingItem);
 

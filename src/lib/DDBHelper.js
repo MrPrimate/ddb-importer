@@ -919,6 +919,38 @@ const DDBHelper = {
     return bonuses;
   },
 
+  findMatchedDDBItem(item, ownedItems, existingMatchedItems = []) {
+    return ownedItems.find((owned) => {
+      // have we already matched against this id? lets not double dip
+      const existingMatch = existingMatchedItems.find((matched) => {
+        return getProperty(owned, "flags.ddbimporter.id") === getProperty(matched, "flags.ddbimporter.id");
+      });
+      if (existingMatch) return false;
+      // the simple match
+      const simpleMatch
+        = item.name === owned.name
+        && item.type === owned.type
+        && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
+      // account for choices in ddb
+      const isChoice
+        = hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
+        && hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
+      const choiceMatch = isChoice
+        ? item.flags.ddbimporter.dndbeyond.choice.choiceId
+          === owned.flags.ddbimporter.dndbeyond.choice.choiceId
+        : true;
+      // force an override
+      const overrideDetails = getProperty(owned, "flags.ddbimporter.overrideItem");
+      const overrideMatch
+        = overrideDetails
+        && item.name === overrideDetails.name
+        && item.type === overrideDetails.type
+        && item.flags?.ddbimporter?.id === overrideDetails.ddbId;
+
+      return (simpleMatch && choiceMatch) || overrideMatch;
+    });
+  }
+
 };
 
 export default DDBHelper;
