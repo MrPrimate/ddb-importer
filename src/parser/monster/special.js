@@ -109,12 +109,13 @@ export function specialCases(monster) {
             value: "1",
             units: "minute",
           };
+          this[index].system.range.value = 120;
           this[index].system.range.units = "self";
           this[index].system.target = {
             value: 120,
             width: null,
-            units: "ft",
-            type: "sphere",
+            units: "",
+            type: "enemy",
           };
         }
       }, monster.items);
