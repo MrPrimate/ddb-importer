@@ -737,6 +737,11 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "character-update-include-versatile-features": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
         },
         SYNC: {
           "sync-policy-currency": {
