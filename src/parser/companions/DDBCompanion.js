@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import DDBMonster from "../DDBMonster.js";
-import { DDBFeatureFactory } from "../monster/features/DDBFeatureFactory.js";
+import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFactory.js";
 import { newNPC } from "../monster/templates/monster.js";
 
 export default class DDBCompanion {
@@ -463,7 +463,7 @@ export default class DDBCompanion {
     ddbMonster.npc = duplicate(this.npc);
     ddbMonster.abilities = ddbMonster.npc.system.abilities;
     ddbMonster.proficiencyBonus = 0;
-    const featureFactory = new DDBFeatureFactory({ ddbMonster, hideDescription: false, updateExisting: false });
+    const featureFactory = new DDBMonsterFeatureFactory({ ddbMonster, hideDescription: false, updateExisting: false });
     await featureFactory.generateActions(text, type);
     logger.debug("Generating companion feature", { text, type, featureFactory });
     const toHitRegex = /(your spell attack modifier to hit)/i;
