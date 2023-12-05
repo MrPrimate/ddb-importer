@@ -32,7 +32,7 @@ export default class DDBFeature extends DDBBaseFeature {
     this._choices = DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition);
     this.isChoiceFeature = this._choices.length > 0;
     this.include = !this.isChoiceFeature;
-    this.hasRequiredLevel = !this._class || (this._class && this.ddbDefinition.requiredLevel > this._class.level);
+    this.hasRequiredLevel = !this._class || (this._class && this._class.level >= this.ddbDefinition.requiredLevel);
   }
 
   _generateDataStub() {
