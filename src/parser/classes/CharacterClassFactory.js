@@ -95,8 +95,6 @@ export default class CharacterClassFactory {
       });
       console.warn("Processed advancements", klass.system.advancement);
 
-      // TODO: update feature advancement ids/import existing doc ids
-
       // TODO: choose ability score advancement data here for feats chosen
     });
   }
