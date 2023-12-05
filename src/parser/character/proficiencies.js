@@ -3,6 +3,17 @@ import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBCharacter from "../DDBCharacter.js";
 
+DDBCharacter.prototype._isHalfProficiencyRoundedUp = function _isHalfProficiencyRoundedUp(skill, modifiers = null) {
+  const longAbility = DICTIONARY.character.abilities
+    .filter((ability) => skill.ability === ability.value)
+    .map((ability) => ability.long)[0];
+
+  const roundUp = (modifiers)
+    ? DDBHelper.filterModifiersOld(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
+    : DDBHelper.filterBaseModifiers(this.source?.ddb, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks`, includeExcludedEffects: true });
+  return Array.isArray(roundUp) && roundUp.length;
+};
+
 DDBCharacter.prototype._getCustomProficiencies = function _getCustomProficiencies(type) {
   const profGroup = CONFIG.DDB.proficiencyGroups.find((group) => group.label == type);
   const profCharacterValues = this.source.ddb.character.characterValues.filter(
@@ -85,11 +96,41 @@ DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(prof
       return prof;
     });
 
+  const mods = this.source?.ddb ? DDBHelper.getAllModifiers(this.source.ddb, { includeExcludedEffects: true }) : [];
+
   proficiencyArray.forEach((prof) => {
     const profMatch = allToolProficiencies.find((allProf) => allProf.name === prof.name);
     if (profMatch && profMatch.baseTool) {
+      const modifiers = mods
+        .filter((modifier) => modifier.friendlySubtypeName === profMatch.name)
+        .map((mod) => mod.type);
+
+      const defaultAbility = profMatch?.ability ?? "dex";
+
+      const halfProficiency = this.source?.ddb
+        ? DDBHelper.getChosenClassModifiers(this.source.ddb).find(
+          (modifier) =>
+            // Jack of All trades/half-rounded down
+            (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
+            // e.g. champion for specific ability checks
+            || this._isHalfProficiencyRoundedUp({ ability: defaultAbility })
+        ) !== undefined
+          ? 0.5
+          : 0
+        : 0;
+
+      const proficient = modifiers.includes("expertise") ? 2 : modifiers.includes("proficiency") ? 1 : halfProficiency;
+
+      console.warn("TOOLS", {
+        prof,
+        profMatch,
+        modifiers,
+        defaultAbility,
+        halfProficiency,
+        proficient,
+      });
       results[profMatch.baseTool] = {
-        value: 1,
+        value: proficient,
         ability: profMatch.ability,
         bonuses: {
           check: ""

@@ -4,26 +4,9 @@ import { generateBaseSkillEffect } from "../../effects/effects.js";
 import logger from "../../logger.js";
 import DDBCharacter from "../DDBCharacter.js";
 
-DDBCharacter.prototype._isHalfProficiencyRoundedUp = function _isHalfProficiencyRoundedUp (skill, modifiers = null) {
-  const longAbility = DICTIONARY.character.abilities
-    .filter((ability) => skill.ability === ability.value)
-    .map((ability) => ability.long)[0];
-
-  const roundUp = (modifiers)
-    ? DDBHelper.filterModifiersOld(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
-    : DDBHelper.filterBaseModifiers(this.source?.ddb, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks`, includeExcludedEffects: true });
-  return Array.isArray(roundUp) && roundUp.length;
-};
-
 DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill, modifiers = null) {
   if (!modifiers) {
-    modifiers = [
-      DDBHelper.getChosenClassModifiers(this.source.ddb, { includeExcludedEffects: true }),
-      DDBHelper.getModifiers(this.source.ddb, "race", true),
-      DDBHelper.getModifiers(this.source.ddb, "background", true),
-      DDBHelper.getModifiers(this.source.ddb, "feat", true),
-      DDBHelper.getActiveItemModifiers(this.source.ddb, true),
-    ].flat();
+    modifiers = DDBHelper.getAllModifiers(this.source.ddb, { includeExcludedEffects: true });
   }
 
   const skillMatches = modifiers
