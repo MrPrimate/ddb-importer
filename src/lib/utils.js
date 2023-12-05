@@ -45,7 +45,7 @@ const utils = {
   },
 
   nameString: (str) => {
-    return str.replaceAll(("’", "'")).trim();
+    return str.replaceAll("’", "'").trim();
   },
 
   stripHtml: (html) => {
