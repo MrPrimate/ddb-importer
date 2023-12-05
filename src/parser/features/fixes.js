@@ -371,7 +371,10 @@ export async function fixFeatures(features) {
     const tableDescription = await generateTable(feature.name, feature.system.description.value, true, feature.type);
     feature.system.description.value = tableDescription;
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
-    feature.system.description.chat = chatAdd ? tableDescription : "";
+    if (chatAdd && feature.system.description.chat !== "") {
+      // eslint-disable-next-line no-await-in-loop
+      feature.system.description.chat = await generateTable(feature.name, feature.system.description.chat, true, feature.type);
+    }
   }
 }
 
