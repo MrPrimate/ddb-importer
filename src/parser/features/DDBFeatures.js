@@ -1,6 +1,7 @@
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import SETTINGS from "../../settings.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBClassFeatures from "./DDBClassFeatures.js";
 import DDBFeature from "./DDBFeature.js";
@@ -24,13 +25,27 @@ export default class DDBFeatures {
     this.data = [];
   }
 
-  static SKIPPED_FEATURES = [
+  static LEGACY_SKIPPED_FEATURES = [
     "Hit Points",
     "Languages",
     "Bonus Proficiency",
     "Speed",
     "Skills",
-    // "Feat",
+    "Feat",
+    "Primal Knowledge",
+  ];
+
+  static TASHA_VERSATILE = [
+    "Martial Versatility",
+    "Bardic Versatility",
+    "Cantrip Versatility",
+    "Sorcerous Versatility",
+    "Eldritch Versatility",
+  ];
+
+  static SKIPPED_FEATURES = [
+    "Expertise",
+    "Darkvision",
   ];
 
   static isDuplicateFeature(items, item) {
@@ -42,11 +57,16 @@ export default class DDBFeatures {
   }
 
   static includedFeatureNameCheck(featName) {
+    const legacyMode = foundry.utils.isNewerVersion("2.4.0", game.system.version);
+    const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-include-versatile-features");
+
     const nameAllowed = !featName.startsWith("Proficiencies")
       && !featName.startsWith("Ability Score")
       && !featName.startsWith("Size")
       // && !featName.startsWith("Skills")
-      && !DDBFeatures.SKIPPED_FEATURES.includes(featName);
+      && (includeTashaVersatile || (!includeTashaVersatile && !DDBFeatures.TASHA_VERSATILE.includes(featName)))
+      && !DDBFeatures.LEGACY_SKIPPED_FEATURES.includes(featName)
+      && (legacyMode || (!legacyMode && !DDBFeatures.SKIPPED_FEATURES.includes(featName)));
 
     return nameAllowed;
   }
@@ -96,6 +116,7 @@ export default class DDBFeatures {
     logger.debug("Parsing optional class features");
     if (this.ddbData.classOptions) {
       this.ddbData.classOptions
+        .filter((feat) => DDBFeatures.includedFeatureNameCheck(feat.name))
         .forEach((feat) => {
           logger.debug(`Parsing Optional Feature ${feat.name}`);
           const feats = this.getFeaturesFromDefinition(feat, "class");
