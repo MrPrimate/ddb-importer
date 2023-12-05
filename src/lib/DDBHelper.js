@@ -493,6 +493,16 @@ const DDBHelper = {
     return DDBHelper.filterModifiersOld(modifiers, type, subType, restriction);
   },
 
+  getAllModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {}) => {
+    return [
+      DDBHelper.getChosenClassModifiers(ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass, useUnfilteredModifiers }),
+      DDBHelper.getModifiers(ddb, "race", includeExcludedEffects, effectOnly, useUnfilteredModifiers),
+      DDBHelper.getModifiers(ddb, "background", includeExcludedEffects, effectOnly, useUnfilteredModifiers),
+      DDBHelper.getModifiers(ddb, "feat", includeExcludedEffects, effectOnly, useUnfilteredModifiers),
+      DDBHelper.getActiveItemModifiers(ddb, includeExcludedEffects),
+    ].flat();
+  },
+
   // I need to getChosenOriginFeatures from data.optionalOriginFeatures
 
   filterBaseModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {}) => {
