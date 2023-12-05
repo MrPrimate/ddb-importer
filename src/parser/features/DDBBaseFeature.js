@@ -47,6 +47,7 @@ export default class DDBBaseFeature {
   }
 
   constructor({ ddbData, ddbDefinition, type, source, rawCharacter = null } = {}) {
+    this.legacyMode = foundry.utils.isNewerVersion("2.4.0", game.system.version);
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
@@ -140,23 +141,26 @@ export default class DDBBaseFeature {
       ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbDefinition).text
       : this._getClassFeatureDescription();
 
-    const snippet = utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
-    const fullDescription = DDBBaseFeature.buildFullDescription(description, snippet);
-    const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
+    if (this.legacyMode || !chatAdd) {
+      const snippet = utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
+      const fullDescription = DDBBaseFeature.buildFullDescription(description, snippet);
+      const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
 
-    // console.warn("final descriptions", {
-    //   description,
-    //   rawSnippet,
-    //   snippet,
-    //   fullDescription,
-    //   value
-    // });
+      this.data.system.description = {
+        value: value,
+        chat: chatAdd ? snippet : "",
+        unidentified: "",
+      };
+    } else {
+      const snippet = utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
 
-    this.data.system.description = {
-      value: value,
-      chat: chatAdd ? snippet : "",
-      unidentified: "",
-    };
+      this.data.system.description = {
+        value: description,
+        chat: snippet,
+        unidentified: "",
+      };
+    }
+
   }
 
   // eslint-disable-next-line complexity
