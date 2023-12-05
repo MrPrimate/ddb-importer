@@ -6,7 +6,7 @@ import { monsterFeatureEffectAdjustment, transferEffectsToActor } from "../effec
 
 import logger from '../logger.js';
 import CompendiumHelper from "../lib/CompendiumHelper.js";
-import { DDBFeatureFactory } from "./monster/features/DDBFeatureFactory.js";
+import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory.js";
 import SETTINGS from "../settings.js";
 
 import FileHelper from "../lib/FileHelper.js";
@@ -66,7 +66,7 @@ export default class DDBMonster {
     }
     this.stockImage = false;
 
-    this.featureFactory = new DDBFeatureFactory({ ddbMonster: this });
+    this.featureFactory = new DDBMonsterFeatureFactory({ ddbMonster: this });
   }
 
   static STOCK_TYPE_IMAGES = [

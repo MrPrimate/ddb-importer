@@ -4,7 +4,7 @@ import DICTIONARY from "../../../dictionary.js";
 import { generateTable } from "../../../muncher/table.js";
 import SETTINGS from "../../../settings.js";
 
-export default class DDBFeature {
+export default class DDBMonsterFeature {
 
   #generateAdjustedName() {
     this.originalName = `${this.name}`;

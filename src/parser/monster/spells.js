@@ -325,8 +325,11 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
       // no default
     }
     spell.name = `${spell.name} (${edgeCase.edge})`;
-    // spell.system.description.chat = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.system.description.chat}`;
     spell.system.description.value = `<p><b>Special Notes: ${edgeCase.edgeDescription ?? edgeCase.edge}.</b></p>\n\n${spell.system.description.value}`;
+
+    if (spell.system.description.chat !== "") {
+      spell.system.description.chat = `<p><b>Special Notes: ${edgeCase.edgeDescription ?? edgeCase.edge}.</b></p>\n\n${spell.system.description.chat}`;
+    }
 
     const diceSearch = /(\d+)d(\d+)/;
     const diceMatch = edgeCase.edge.match(diceSearch);

@@ -3,7 +3,7 @@ import utils from "../../lib/utils.js";
 import DICTIONARY from "../../dictionary.js";
 import { generateStatusEffectChange } from "../effects.js";
 import logger from "../../logger.js";
-import DDBFeature from "../../parser/monster/features/DDBFeature.js";
+import DDBMonsterFeature from "../../parser/monster/features/DDBMonsterFeature.js";
 
 const DEFAULT_DURATION = 60;
 
@@ -150,7 +150,7 @@ function overTimeSaveEnd(document, effect, save, text) {
 function getOvertimeDamage(text) {
   if (text.includes("taking") && (text.includes("on a failed save") || text.includes("damage on a failure"))) {
     const damageText = text.split("taking")[1];
-    const feature = new DDBFeature("overTimeFeature", { html: damageText });
+    const feature = new DDBMonsterFeature("overTimeFeature", { html: damageText });
     feature.prepare();
     feature.generateExtendedDamageInfo();
     return feature.actionInfo.damage;
@@ -198,7 +198,7 @@ export function generateOverTimeEffect(ddbMonster, actor, document) {
   const turn = startOrEnd(document.system.description.value);
   if (!turn) return effectCleanup(ddbMonster, document, actor, effect);
 
-  const saveFeature = new DDBFeature("overTimeSaveFeature", { html: document.system.description.value });
+  const saveFeature = new DDBMonsterFeature("overTimeSaveFeature", { html: document.system.description.value });
   saveFeature.prepare();
   const save = saveFeature.getFeatSave();
   if (!Number.isInteger(Number.parseInt(save.dc))) return effectCleanup(ddbMonster, document, actor, effect);

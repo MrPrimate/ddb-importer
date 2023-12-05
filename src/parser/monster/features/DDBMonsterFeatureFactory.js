@@ -1,8 +1,8 @@
 import utils from "../../../lib/utils.js";
 import logger from "../../../logger.js";
-import DDBFeature from "./DDBFeature.js";
+import DDBMonsterFeature from "./DDBMonsterFeature.js";
 
-export class DDBFeatureFactory {
+export default class DDBMonsterFeatureFactory {
 
   // some monsters now have [rollable] tags - if these exist we need to parse them out
   // in the future we may be able to use them, but not consistent yet
@@ -137,7 +137,7 @@ export class DDBFeatureFactory {
       const query = pDom.querySelector("em strong") ?? pDom.querySelector("strong em");
       if (!query) return;
       let name = query.textContent.trim().replace(/\./g, '');
-      name = DDBFeatureFactory.splitName(name, node.textContent);
+      name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
       const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
       this.featureBlocks[type].push(action);
     });
@@ -149,7 +149,7 @@ export class DDBFeatureFactory {
         const query = pDom.querySelector("strong");
         if (!query) return;
         let name = query.textContent.trim().replace(/\./g, '');
-        name = DDBFeatureFactory.splitName(name, node.textContent);
+        name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
         const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
         this.featureBlocks[type].push(action);
       });
@@ -162,7 +162,7 @@ export class DDBFeatureFactory {
         const query = pDom.querySelector("b");
         if (!query) return;
         let name = query.textContent.trim().replace(/\./g, '');
-        name = DDBFeatureFactory.splitName(name, node.textContent);
+        name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
         const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
         this.featureBlocks[type].push(action);
       });
@@ -325,7 +325,7 @@ export class DDBFeatureFactory {
       );
 
       if (actionMatch) {
-        const dupFeature = new DDBFeature(name, { ddbMonster: this.ddbMonster, html: actionMatch.html, type, actionCopy: true });
+        const dupFeature = new DDBMonsterFeature(name, { ddbMonster: this.ddbMonster, html: actionMatch.html, type, actionCopy: true });
         dupFeature.feature = duplicate(actionMatch.feature);
         dupFeature.feature.name = action.name; // fix up name to make sure things like Attack are included
         this.features[type].push(dupFeature);
@@ -403,7 +403,7 @@ export class DDBFeatureFactory {
       const query = pDom.querySelector("em");
       if (!query) return;
       let name = query.textContent.trim().replace(/\./g, '');
-      name = DDBFeatureFactory.splitName(name, node.textContent);
+      name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
       if (name) {
         const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
         this.featureBlocks[type].push(action);
@@ -416,7 +416,7 @@ export class DDBFeatureFactory {
         const query = pDom.querySelector("strong");
         if (!query) return;
         let name = query.textContent.trim().replace(/\./g, '');
-        name = DDBFeatureFactory.splitName(name, node.textContent);
+        name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
         if (name) {
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
           this.featureBlocks[type].push(action);
@@ -501,7 +501,7 @@ export class DDBFeatureFactory {
   async generateActions(html, type = "action") {
     if (!html || html.trim() == "") return;
 
-    this.html[type] = DDBFeatureFactory.replaceRollable(utils.replaceHtmlSpaces(`${html}`))
+    this.html[type] = DDBMonsterFeatureFactory.replaceRollable(utils.replaceHtmlSpaces(`${html}`))
       .replace(/<\/strong> <strong>/g, "")
       .replace(/<\/strong><strong>/g, "")
       .replace(/&shy;/g, "");
@@ -537,7 +537,7 @@ export class DDBFeatureFactory {
     for (const feature of this.featureBlocks[type].filter((feature) => !feature.options.actionCopy)) {
       feature.options["hideDescription"] = this.hideDescription;
       feature.options["updateExisting"] = this.updateExisting;
-      const ddbFeature = new DDBFeature(feature.name, feature.options);
+      const ddbFeature = new DDBMonsterFeature(feature.name, feature.options);
       // eslint-disable-next-line no-await-in-loop
       await ddbFeature.parse();
       this.features[type].push(ddbFeature);
