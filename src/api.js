@@ -39,6 +39,7 @@ import OriginFixer from "./lib/OriginFixer.js";
 import DDBEffectHelper from "./effects/DDBEffectHelper.js";
 import DDBItemImporter from "./lib/DDBItemImporter.js";
 import DialogHelper from "./lib/DialogHelper.js";
+import utils from "./lib/utils.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -198,6 +199,7 @@ export function registerApi() {
       stop: debugStop,
       test: testFunction,
       simpleTest: simpleTest,
+      utils,
     },
   };
 
