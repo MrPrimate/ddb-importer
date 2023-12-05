@@ -12,6 +12,16 @@ export default class DDBClass {
 
   static SPECIAL_ADVANCEMENTS = {};
 
+  static PROFICIENCY_FEATURES = [
+    "Proficiencies",
+    "Primal Knowledge",
+  ];
+
+  static EXPERTISE_FEATURES = [
+    "Expertise",
+    // "Tool Expertise", // revisit,this doesn't work the same way
+  ];
+
   _generateSource() {
     const classSource = DDBHelper.parseSource(this.ddbClassDefinition);
     this.data.system.source = classSource;
@@ -22,16 +32,13 @@ export default class DDBClass {
     this._determineClassFeatures();
 
     this._proficiencyFeatureIds = this.classFeatures
-      .filter((feature) => feature.name === "Proficiencies")
+      .filter((feature) => DDBClass.PROFICIENCY_FEATURES.includes(feature.name))
       .map((feature) => feature.id);
     this._proficiencyFeatures = this.classFeatures
       .filter((feature) => this._proficiencyFeatureIds.includes(feature.id));
 
     this._expertiseFeatureIds = this.classFeatures
-      .filter((feature) => [
-        "Expertise",
-        // "Tool Expertise", // revisit,this doesn't work the same way
-      ].includes(feature.name))
+      .filter((feature) => DDBClass.EXPERTISE_FEATURES.includes(feature.name))
       .map((feature) => feature.id);
     this._expertiseFeatures = this.classFeatures
       .filter((feature) => this._expertiseFeatureIds.includes(feature.id));
@@ -137,9 +144,9 @@ export default class DDBClass {
     // quick helpers
     this.classFeatureIds = this.ddbClass.definition.classFeatures.map((f) => f.id);
     this.subClassFeatureIds = this.ddbClass.subclassDefinition && this.ddbClass.subclassDefinition.name
-      ? this.ddbClass.subclassDefinition.classFeatures.filter((f) =>
-        f.id === this.ddbClass.subclassDefinition.id).map((f) => f.id
-      )
+      ? this.ddbClass.classFeatures
+        .filter((f) => f.definition.classId === this.ddbClass.subclassDefinition.id)
+        .map((f) => f.definition.id)
       : [];
 
     // compendium
@@ -311,6 +318,10 @@ export default class DDBClass {
     "Languages",
     "Hit Points",
     "Proficiencies",
+
+    // tashas
+    "Primal Knowledge",
+    "Martial Versatility",
   ];
 
   async _generateFeatureAdvancements() {
@@ -557,7 +568,7 @@ export default class DDBClass {
         if (skillCount === 0) return;
 
         const initialUpdate = {
-          title: "Skills",
+          title: proficiencyFeature.name !== "Proficiencies" ? proficiencyFeature.name : "Skills",
           classRestriction: i > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
           configuration: {
             allowReplacements: false,
@@ -759,7 +770,10 @@ export default class DDBClass {
     this._generateSaveAdvancements();
     this._generateSkillAdvancements();
     this._generateExpertiseAdvancements();
-    // TODO: Language advancemets
+    // TODO: Language advancements
+    // TODO: Armor and weapons
+    // TODO: Tools
+    // Equipment? (for backgrounds)
     this._generateSpellCastingProgression();
     await this._addSRDAdvancements();
   }
