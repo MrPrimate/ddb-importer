@@ -473,6 +473,40 @@ export default class DDBClass {
     };
   }
 
+  _parseLanguageChoicesFromOptions(level) {
+    const languagesChosen = new Set();
+    const languageChoices = new Set();
+
+    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
+
+    this.ddbData.character.choices.class.filter((choice) =>
+      this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
+      && choice.subType === 3
+      && choice.type === 2
+    ).forEach((choice) => {
+      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+      if (!optionChoice) return;
+      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
+      if (!option) return;
+      const smallChosen = DICTIONARY.character.languages.find((lang) => lang.name === option.label);
+      if (smallChosen) languagesChosen.add(smallChosen.value);
+      const optionNames = optionChoice.options.filter((option) =>
+        DICTIONARY.character.languages.find((lang) => lang.name === option.label)
+        && choice.optionIds.includes(option.id)
+      ).map((option) =>
+        DICTIONARY.character.languages.find((lang) => lang.name === option.label).value
+      );
+      optionNames.forEach((skill) => {
+        languageChoices.add(skill);
+      });
+    });
+
+    return {
+      chosen: Array.from(languagesChosen),
+      choices: Array.from(languageChoices),
+    };
+  }
+
   _parseExpertiseChoicesFromOptions(level) {
     const skillsChosen = new Set();
     const skillChoices = new Set();
@@ -593,6 +627,71 @@ export default class DDBClass {
         advancements.push(advancement.toObject());
       });
     }
+
+    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+  }
+
+  _generateLanguageAdvancements() {
+    if (this.legacyMode) return;
+    const advancements = [];
+
+    for (let i = 0; i <= 20; i++) {
+      [true, false].forEach((availableToMulticlass) => {
+        if (availableToMulticlass && this.dictionary.multiclassSkill === 0) return;
+        if (!availableToMulticlass && i > 1) return;
+        const proficiencyFeature = this._proficiencyFeatures.find((f) => f.requiredLevel === i);
+        if (!proficiencyFeature) return;
+
+        const modFilters = {
+          includeExcludedEffects: true,
+          classId: this.ddbClassDefinition.id,
+          exactLevel: i,
+          availableToMulticlass: availableToMulticlass === false ? null : true,
+          useUnfilteredModifiers: true,
+        };
+        const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+        const languagesMods = DDBHelper.filterModifiers(mods, "language");
+
+        const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+
+        const parsedLanguages = AdvancementHelper.parseHTMLLanguages(proficiencyFeature.description);
+        const chosenLanguages = this._parseLanguageChoicesFromOptions(i);
+
+        const languageCount = this.options.noMods
+          ? parsedLanguages.number
+          : availableToMulticlass
+            ? this.dictionary.multiclassSkill
+            : languagesMods.length;
+
+        if (languageCount === 0) return;
+
+        const initialUpdate = {
+          title: proficiencyFeature.name !== "Proficiencies" ? proficiencyFeature.name : "Languages",
+          classRestriction: i > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
+          configuration: {
+            allowReplacements: false,
+            choices: [{
+              count: languageCount,
+              pool: parsedLanguages.choices.map((choice) => `languages:${choice}`),
+            }],
+          },
+          level: i,
+        };
+
+        advancement.updateSource(initialUpdate);
+
+        if (chosenLanguages.chosen.length > 0) {
+          advancement.updateSource({
+            value: {
+              chosen: chosenLanguages.chosen.map((choice) => `languages:${choice}`),
+            },
+          });
+        }
+
+        advancements.push(advancement.toObject());
+      });
+    }
+
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
