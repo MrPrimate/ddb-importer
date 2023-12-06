@@ -140,11 +140,14 @@ export default class AdvancementHelper {
 
     // Choose any three
     // Skills: Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival
+    // You gain proficiency in an additional skill or learn a new language of your choice.
     const skillText = dom.textContent.toLowerCase().split("skills:").pop().split("\n")[0].split("The")[0].split(".")[0].trim();
     const allSkillRegex = /Skills: Choose any (\w+)(.*)($|\.$|\w+:)/im;
     const allMatch = dom.textContent.match(allSkillRegex);
     const skillRegex = /choose (\w+)(?:\sskills)* from (.*)($|The|\.$|\w+:)/im;
     const skillMatch = skillText.match(skillRegex);
+    const additionalMatchRefext = /You gain proficiency in an additional skill/i;
+    const additionalMatch = dom.textContent.match(additionalMatchRefext);
 
     if (allMatch) {
       const skills = DICTIONARY.character.skills.map((skill) => skill.name);
@@ -162,9 +165,24 @@ export default class AdvancementHelper {
       const numberSkills = DICTIONARY.numbers.find((num) => skillMatch[1].toLowerCase() === num.natural);
       parsedSkills.number = numberSkills ? numberSkills.num : 2;
       parsedSkills.choices = skills;
+    } else if (additionalMatch) {
+      parsedSkills.number = 1;
     }
 
     return parsedSkills;
+  }
+
+  static parseHTMLLanguages(description) {
+    const parsedLanguages = {
+      choices: [],
+      number: 0,
+    };
+    const dom = utils.htmlToDocumentFragment(description);
+
+    // you learn one language of your choice.
+    // You gain proficiency in an additional skill or learn a new language of your choice.
+
+    return parsedLanguages;
   }
 
   // static parseHTMLExpertises(description) {
