@@ -467,8 +467,11 @@ function rollMatch(text, matchString) {
 /**
  * This will parse a snippet/description with template boilerplate in from DDB.
  * e.g. Each creature in the area must make a DC {{savedc:con}} saving throw.
- * @param {*} ddb
- * @param {*} text
+ * @param {object} ddb - The ddb object.
+ * @param {object} character - The character object.
+ * @param {string} text - The template string to parse.
+ * @param {object} feature - The feature object.
+ * @return {object} - The parsed template string result object.
  */
 export default function parseTemplateString(ddb, character, text, feature) {
   if (!text) return text;
@@ -480,17 +483,11 @@ export default function parseTemplateString(ddb, character, text, feature) {
     componentId: feature.componentId ? feature.componentId : null,
     componentTypeId: feature.componentTypeId ? feature.componentTypeId : null,
     damageTypeId: feature.damageTypeId ? feature.damageTypeId : null,
-    text: text,
+    text,
     resultStrings: [],
     displayStrings: [],
     definitions: [],
   };
-
-  // const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)({{.*?}})(?:$|[., "')+<])/g;
-  // // const fullMatches = [...new Set(Array.from(result.text.matchAll(fullMatchRegex), (m) => `${m[1] !== undefined ? m[1] : ""}${m[2]}`))];
-  // // fullMatches.forEach((match) => {
-  // //   result.text = result.text.replace(match, `[[/roll ${match}]]`);
-  // // });
 
   const regexp = /{{(.*?)}}/g;
   // creates array from match groups and dedups
@@ -510,7 +507,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
 
     entry.rollMatchTest = entry.rollMatch.test(result.text);
 
-    // console.warn("parseTemplateString", {text: duplicate(text), feature, entry, match});
+    // console.warn("parseTemplateString", { text: duplicate(text), feature, entry, match });
 
     const splitSigned = match.split("#");
     const splitRemoveUnsigned = splitSigned[0];

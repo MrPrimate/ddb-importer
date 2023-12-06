@@ -15,6 +15,9 @@ export default class DDBAction extends DDBBaseFeature {
     "Frost Rune",
     "Hill Rune",
     "Storm Rune",
+    "Drake Companion: Summon",
+    "Drake Companion: Command",
+    "Drake Companion",
   ];
 
   static LEVEL_SCALE_INFUSIONS = [
