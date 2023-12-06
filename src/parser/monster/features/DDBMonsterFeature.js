@@ -53,7 +53,7 @@ export default class DDBMonsterFeature {
     this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
 
     const matches = this.strippedHtml.match(
-      /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)\s+to\s+hit/i
+      /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)\s+(plus PB\s|\+ PB\s)?to\s+hit/i
     );
 
     const healingRegex = /(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i;
@@ -61,6 +61,7 @@ export default class DDBMonsterFeature {
 
     // set calc flags
     this.isAttack = matches ? matches[1] !== undefined : false;
+    this.pbToAttack = matches ? matches[4] !== undefined : false;
     this.weaponAttack = matches
       ? (matches[2].toLowerCase() === "weapon" || matches[2] === "")
       : false;
@@ -217,10 +218,10 @@ export default class DDBMonsterFeature {
       }
       // check for other
       if (dmg[5] && dmg[5].trim() == "at the start of") other = true;
-      const profBonus = dmg[3]?.includes(" + PB") ? "@prof" : "";
+      const profBonus = dmg[3]?.includes(" + PB") || dmg[3]?.includes(" plus PB") ? "@prof" : "";
       const levelBonus = dmg[3] && (/the spell[’']s level/i).test(dmg[3]) ? "@summoner.item.level" : "";
       const damage = profBonus !== "" || levelBonus !== ""
-        ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
+        ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" plus PB").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
         : dmg[3] ?? dmg[2];
 
       // Make sure we did match a damage

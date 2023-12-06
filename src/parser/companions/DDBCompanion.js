@@ -313,7 +313,11 @@ export default class DDBCompanion {
       const results = state
         .split("and")
         .map((s) => {
-          return s.split("(")[0].trim().toLowerCase();
+          if (s.includes("determined by the")) {
+            return this.options.subType.toLowerCase();
+          } else {
+            return s.split("(")[0].trim().toLowerCase();
+          }
         });
       conditions.push(...results);
     });
@@ -382,6 +386,7 @@ export default class DDBCompanion {
 
       if (match) {
         const value = parseInt(match[2]);
+        this.npc.system.attributes.senses["units"] = "ft";
         this.npc.system.attributes.senses[match[1].toLowerCase()] = value;
 
         const senseType = DICTIONARY.senseMap()[match[1].toLowerCase()];
@@ -549,6 +554,29 @@ export default class DDBCompanion {
   //       }
   //     ]
   //   }
+
+  // #extraFeatures() {
+  // if (this.name === "Drake Companion") {
+  //   this.npc.flags["arbron-summoner"].config.actorChanges.push(
+  //     {
+  //       "key": "system.traits.size",
+  //       "value": `@classes.ranger.levels > 6 ? "med" : "${sizeData.value}"`,
+  //     },
+  //     {
+  //       "key": "prototypeToken.width",
+  //       "value": `@classes.ranger.levels > 6 ? 1 : ${this.npc.prototypeToken.width}`,
+  //     },
+  //     {
+  //       "key": "prototypeToken.height",
+  //       "value": `@classes.ranger.levels > 6 ? 1 : ${this.npc.prototypeToken.height}`,
+  //     },
+  //     {
+  //       "key": "prototypeToken.scale",
+  //       "value": `@classes.ranger.levels > 6 ? 1 : ${this.npc.prototypeToken.scale}`,
+  //     },
+  //   );
+  // }
+  // }
 
   async parse() {
     // console.warn("PARSE COMPANION", { block: this.block, aThis: this });
