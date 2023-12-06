@@ -121,14 +121,6 @@ DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(prof
 
       const proficient = modifiers.includes("expertise") ? 2 : modifiers.includes("proficiency") ? 1 : halfProficiency;
 
-      console.warn("TOOLS", {
-        prof,
-        profMatch,
-        modifiers,
-        defaultAbility,
-        halfProficiency,
-        proficient,
-      });
       results[profMatch.baseTool] = {
         value: proficient,
         ability: profMatch.ability,
