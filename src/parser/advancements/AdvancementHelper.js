@@ -216,15 +216,55 @@ export default class AdvancementHelper {
 
   static parseHTMLLanguages(description) {
     const parsedLanguages = {
+      granted: [],
       choices: [],
       number: 0,
     };
     const dom = utils.htmlToDocumentFragment(description);
 
     // you learn one language of your choice.
+    // You also learn two languages of your choice.
     // You gain proficiency in an additional skill or learn a new language of your choice.
+    const ofYourChoiceRegex = /learn (\w+?|a new) language(?:s)? of your choice/i;
+    const ofYourChoiceMatch = dom.textContent.match(ofYourChoiceRegex);
+
+    if (ofYourChoiceMatch) {
+      const number = DICTIONARY.numbers.find((num) => ofYourChoiceMatch[1].toLowerCase() === num.natural);
+      parsedLanguages.number = number ? number.num : 2;
+      parsedLanguages.choices = ["*"];
+      return parsedLanguages;
+    }
+
+    // You can speak, read, and write Common and Dwarvish.
+    // You can speak, read, and write Common and Elvish.
+    // You can speak, read, and write Common and one extra language of your choice
+    // Your character can speak, read, and write Common and one other language that
+    // You learn to speak, read, and write Sylvan.
+    // You gain proficiency with smith’s tools, and you learn to speak, read, and write Giant.
+    const speakReadAndWriteRegex = /speak, read, and write (.*?)(?:\.|$)/i;
+    const speakReadAndWriteMatch = dom.textContent.match(speakReadAndWriteRegex);
+
+    if (speakReadAndWriteMatch) {
+      const languages = speakReadAndWriteMatch[1].replace(",", " and").split("and").map((skill) => skill.trim());
+      parsedLanguages.number = 0;
+      languages.forEach((grant) => {
+        if (grant.includes("other language") || grant.includes("of your choice")) {
+          parsedLanguages.number++;
+          parsedLanguages.choices = ["*"];
+        } else {
+          const dictMatch = DICTIONARY.character.languages.find((l) => l.name.toLowerCase() === grant.toLowerCase());
+          if (dictMatch) {
+            const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+            parsedLanguages.grants = [language];
+          }
+        }
+
+      });
+      return parsedLanguages;
+    }
 
     return parsedLanguages;
+  }
   }
 
   // static parseHTMLExpertises(description) {
