@@ -98,6 +98,14 @@ DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(prof
 
   const mods = this.source?.ddb ? DDBHelper.getAllModifiers(this.source.ddb, { includeExcludedEffects: true }) : [];
 
+  const toolExpertise = this.source?.ddb
+    ? this.source.ddb.character.classes.some((cls) =>
+      cls.classFeatures.some((feature) => feature.definition.name === "Tool Expertise" && cls.level >= feature.definition.requiredLevel)
+    )
+      ? 2
+      : 1
+    : 1;
+
   proficiencyArray.forEach((prof) => {
     const profMatch = allToolProficiencies.find((allProf) => allProf.name === prof.name);
     if (profMatch && profMatch.baseTool) {
@@ -119,7 +127,7 @@ DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(prof
           : 0
         : 0;
 
-      const proficient = modifiers.includes("expertise") ? 2 : modifiers.includes("proficiency") ? 1 : halfProficiency;
+      const proficient = modifiers.includes("expertise") ? 2 : modifiers.includes("proficiency") ? toolExpertise : halfProficiency;
 
       results[profMatch.baseTool] = {
         value: proficient,

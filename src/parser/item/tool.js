@@ -17,6 +17,14 @@ function getProficiency(data, toolName, ability) {
     .filter((modifier) => modifier.friendlySubtypeName === toolName)
     .map((mod) => mod.type);
 
+  const toolExpertise = data.character?.classes
+    ? data.character.classes.some((cls) =>
+      cls.classFeatures.some((feature) => feature.definition.name === "Tool Expertise" && cls.level >= feature.definition.requiredLevel)
+    )
+      ? 2
+      : 1
+    : 1;
+
   const halfProficiency
     = DDBHelper.getChosenClassModifiers(data).find(
       (modifier) =>
@@ -28,7 +36,11 @@ function getProficiency(data, toolName, ability) {
       ? 0.5
       : 0;
 
-  const proficient = modifiers.includes("expertise") ? 2 : modifiers.includes("proficiency") ? 1 : halfProficiency;
+  const proficient = modifiers.includes("expertise")
+    ? 2
+    : modifiers.includes("proficiency")
+      ? toolExpertise
+      : halfProficiency;
 
   return proficient;
 }
