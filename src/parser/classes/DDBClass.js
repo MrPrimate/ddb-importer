@@ -562,6 +562,34 @@ export default class DDBClass {
     };
   }
 
+  static _advancementUpdate(advancement, pool, chosen, count) {
+    if ((pool.length === chosen.length || (pool.length === 1 && chosen.length > 1))
+        && chosen.length > 0
+    ) {
+      advancement.updateSource({
+        configuration: {
+          grants: pool,
+        }
+      });
+    } else {
+      advancement.updateSource({
+        configuration: {
+          choices: [{
+            count,
+            pool,
+          }],
+        }
+      });
+    }
+
+    if (chosen.length > 0) {
+      advancement.updateSource({
+        value: {
+          chosen,
+        },
+      });
+    }
+  }
   _generateSkillAdvancements() {
     if (this.legacyMode) return;
     const advancements = [];
