@@ -15,13 +15,70 @@ export default class DDBClass {
   static PROFICIENCY_FEATURES = [
     "Proficiencies",
     "Primal Knowledge",
+    "Master of Intrigue",
+    "Implements of Mercy",
+    "Bonus Proficiencies",
+    "Otherworldly Glamour",
+    "Survivalist",
+    "Training in War and Song",
   ];
 
   static EXPERTISE_FEATURES = [
     "Expertise",
+    "Canny",
+    "Deft Explorer",
+    "Survivalist",
     // "Tool Expertise", // revisit,this doesn't work the same way
   ];
 
+  static PROFICIENCY_OR_EXPERTISE_FEATURES = [
+    "Mystical Erudition",
+    "Mystical Erudition (Additional)",
+  ];
+
+  static LANGUAGE_FEATURES = [
+    "Proficiencies",
+    "Primal Knowledge",
+    "Master of Intrigue",
+    "Thieves' Cant",
+    "Druidic",
+    "Giant's Power",
+    "Blessings of Knowledge",
+    "Mystical Erudition",
+    "Draconic Disciple",
+    "Tongue of Dragons",
+    "Wind Speaker",
+    "Master of Intrigue",
+    "Favored Enemy",
+    "Deft Explorer",
+    "Canny",
+    "Draconic Gift",
+    "Speech of the Woods",
+  ];
+
+  // you gain proficiency in one of the following skills of your choice: Animal Handling, History, Insight, Performance, or Persuasion. Alternatively, you learn one language of your choice.
+  static LANGUAGE_OR_SKILL_FEATURE = [
+    "Bonus Proficiency",
+  ];
+
+  static TOOL_FEATURES = [
+    "Tool Proficiency",
+    "Tools of the Trade",
+    "Student of War",
+    "Gunsmith",
+    "Implements of Mercy",
+    "Master of Intrigue",
+  ];
+
+  static ARMOR_FEATURES = [
+    "Tools of the Trade",
+    "Training in War and Song",
+  ];
+
+  static WEAPON_FEATURES = [
+    "Firearm Proficiency",
+    "Training in War and Song",
+  ];
   _generateSource() {
     const classSource = DDBHelper.parseSource(this.ddbClassDefinition);
     this.data.system.source = classSource;
