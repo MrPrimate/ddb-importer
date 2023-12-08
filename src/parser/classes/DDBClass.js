@@ -654,16 +654,22 @@ export default class DDBClass {
       });
     }
   }
+
   _generateSkillAdvancements() {
     if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
-        if (availableToMulticlass && this.dictionary.multiclassSkill === 0) return;
         if (!availableToMulticlass && i > 1) return;
         const proficiencyFeature = this._proficiencyFeatures.find((f) => f.requiredLevel === i);
         if (!proficiencyFeature) return;
+
+        const baseProficiency = proficiencyFeature.name === "Proficiencies";
+        if (availableToMulticlass
+          && baseProficiency
+          && this.dictionary.multiclassSkill === 0
+        ) return;
 
         const modFilters = {
           includeExcludedEffects: true,
@@ -680,41 +686,47 @@ export default class DDBClass {
         const skillChooseMods = DDBHelper.filterModifiers(mods, "proficiency", { subType: `choose-a-${this.ddbClassDefinition.name.toLowerCase()}-skill` });
         const skillMods = skillChooseMods.concat(skillExplicitMods);
 
+        const skillsFromMods = skillMods
+          .filter((mod) =>
+            DICTIONARY.character.skills.find((s) => s.label === mod.friendlySubtypeName)
+          )
+          .map((mod) =>
+            DICTIONARY.character.skills.find((s) => s.label === mod.friendlySubtypeName).name
+          );
+
         const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
         const parsedSkills = AdvancementHelper.parseHTMLSkills(proficiencyFeature.description);
         const chosenSkills = this._parseSkillChoicesFromOptions(i);
 
-        const skillCount = this.options.noMods
+        const count = this.options.noMods
           ? parsedSkills.number
-          : availableToMulticlass
+          : baseProficiency && availableToMulticlass
             ? this.dictionary.multiclassSkill
             : skillMods.length;
 
         if (skillCount === 0) return;
 
-        const initialUpdate = {
+        if (count === 0) return;
+
+        advancement.updateSource({
           title: proficiencyFeature.name !== "Proficiencies" ? proficiencyFeature.name : "Skills",
           classRestriction: i > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
           configuration: {
             allowReplacements: false,
-            choices: [{
-              count: skillCount,
-              pool: parsedSkills.choices.map((skill) => `skills:${skill}`),
-            }],
           },
           level: i,
-        };
+        });
 
-        advancement.updateSource(initialUpdate);
+        const pool = this.options.noMods || parsedSkills.choices.length > 0
+          ? parsedSkills.choices.map((skill) => `skills:${skill}`)
+          : skillsFromMods.map((choice) => `skills:${choice}`);
 
-        if (chosenSkills.chosen.length > 0) {
-          advancement.updateSource({
-            value: {
-              chosen: chosenSkills.chosen.map((skill) => `skills:${skill}`),
-            },
-          });
-        }
+        const chosen = this.options.noMods || chosenSkills.chosen.length > 0
+          ? chosenSkills.chosen.map((choice) => `skills:${choice}`)
+          : skillsFromMods.map((choice) => `skills:${choice}`);
+
+        DDBClass._advancementUpdate(advancement, pool, chosen, count);
 
         advancements.push(advancement.toObject());
       });
