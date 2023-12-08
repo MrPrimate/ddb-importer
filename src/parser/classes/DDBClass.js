@@ -544,7 +544,7 @@ export default class DDBClass {
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices.class.filter((choice) =>
-      this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
+      this._languageFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
       && choice.subType === 3
       && choice.type === 2
     ).forEach((choice) => {
