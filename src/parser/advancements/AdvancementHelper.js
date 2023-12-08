@@ -134,6 +134,7 @@ export default class AdvancementHelper {
   static parseHTMLSkills(description) {
     const parsedSkills = {
       choices: [],
+      grants: [],
       number: 0,
       allowReplacements: false,
     };
@@ -142,6 +143,15 @@ export default class AdvancementHelper {
     // Choose any three e.g. bard
     const anySkillRegex = /Skills: Choose any (\w+)(.*)($|\.$|\w+:)/im;
     const anyMatch = dom.textContent.match(anySkillRegex);
+
+    if (anyMatch) {
+      // const skills = DICTIONARY.character.skills.map((skill) => skill.name);
+      const numberSkills = DICTIONARY.numbers.find((num) => anyMatch[1].toLowerCase() === num.natural);
+      // eslint-disable-next-line require-atomic-updates
+      parsedSkills.number = numberSkills ? numberSkills.num : 2;
+      parsedSkills.choices = ["*"];
+      return parsedSkills;
+    }
 
     // most other class profs
     // Skills: Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival
@@ -155,16 +165,7 @@ export default class AdvancementHelper {
     const oneOffRegex = /you gain proficiency (?:in|with) (\w+) of the following skills of your choice: (.*?)(\.|$)/im;
     const oneOffMatch = dom.textContent.match(oneOffRegex);
 
-    // no more matches, return.
-    if (!anyMatch && !skillMatch && !dom.textContent.includes("proficiency")) return parsedSkills;
-
-    if (anyMatch) {
-      // const skills = DICTIONARY.character.skills.map((skill) => skill.name);
-      const numberSkills = DICTIONARY.numbers.find((num) => anyMatch[1].toLowerCase() === num.natural);
-      // eslint-disable-next-line require-atomic-updates
-      parsedSkills.number = numberSkills ? numberSkills.num : 2;
-      parsedSkills.choices = ["*"];
-    } else if (skillMatch || oneOffMatch) {
+    if (skillMatch || oneOffMatch) {
       const match = skillMatch ?? oneOffMatch;
       const skillNames = match[2].replace('and', ',').split(',').map((skill) => skill.trim());
       const skills = skillNames
@@ -176,31 +177,40 @@ export default class AdvancementHelper {
       const numberSkills = DICTIONARY.numbers.find((num) => match[1].toLowerCase() === num.natural);
       parsedSkills.number = numberSkills ? numberSkills.num : 2;
       parsedSkills.choices = skills;
-    } else {
-      // You gain proficiency in one skill of your choice.
-      // You gain proficiency in an additional skill or learn a new language of your choice.
-      const additionalMatchRegex = /You gain proficiency in (?:an additional skill|one skill of your choice)/i;
-      const additionalMatch = dom.textContent.match(additionalMatchRegex);
-      // You gain proficiency in the Intimidation skill.
-      // You gain proficiency in the Insight and Medicine skills, and you
-      // you gain proficiency in the Performance skill if you don’t already have it.
-      const explicitSkillGrantRegex = /You gain proficiency in the (.*) skill( if you don’t already have it)?/i;
-      const explicitSkillGrantMatch = dom.textContent.match(explicitSkillGrantRegex);
-
-      if (additionalMatch) {
-        parsedSkills.number = 1;
-        parsedSkills.choices = ["*"];
-      } else if (explicitSkillGrantMatch) {
-        const skills = explicitSkillGrantMatch.replace(",", " and").split("and").map((skill) => skill.trim());
-        parsedSkills.number = skills.length;
-        skills.forEach((grant) => {
-          const dictSkill = DICTIONARY.character.skills
-            .find((skill) => skill.label.toLowerCase() === grant.toLowerCase());
-          if (dictSkill) parsedSkills.choices = [dictSkill.name];
-        });
-      }
+      return parsedSkills;
     }
 
+    // no more matches, return.
+    if (!dom.textContent.includes("proficiency")) return parsedSkills;
+
+    // You gain proficiency in one skill of your choice.
+    // You gain proficiency in an additional skill or learn a new language of your choice.
+    const additionalMatchRegex = /You gain proficiency in (?:an additional skill|one skill of your choice)/i;
+    const additionalMatch = dom.textContent.match(additionalMatchRegex);
+
+    if (additionalMatch) {
+      parsedSkills.number = 1;
+      parsedSkills.choices = ["*"];
+      return parsedSkills;
+    }
+
+    // You gain proficiency in the Intimidation skill.
+    // You gain proficiency in the Insight and Medicine skills, and you
+    // you gain proficiency in the Performance skill if you don’t already have it.
+    const explicitSkillGrantRegex = /You gain proficiency in the (.*) skill( if you don’t already have it)?/i;
+    const explicitSkillGrantMatch = dom.textContent.match(explicitSkillGrantRegex);
+
+    if (explicitSkillGrantMatch) {
+      const skills = explicitSkillGrantMatch[1].replace(",", " and").split("and").map((skill) => skill.trim());
+      skills.forEach((grant) => {
+        const dictSkill = DICTIONARY.character.skills
+          .find((skill) => skill.label.toLowerCase() === grant.toLowerCase());
+        if (dictSkill) parsedSkills.grants.push(dictSkill.name);
+      });
+      return parsedSkills;
+    }
+
+    // not matches, so return empty parsed set
     return parsedSkills;
   }
 
