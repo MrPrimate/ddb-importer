@@ -801,12 +801,48 @@ export default class DDBClass {
         level: i,
           });
           });
+          });
+          });
+        }
+      });
+        }
+      });
+          });
+        }
+      });
+        }
+      });
+          });
+          });
+        }
+      });
+        }
+      });
+          });
         }
       });
         }
 
       DDBClass._advancementUpdate(advancement, pool, chosen, languageCount);
         advancements.push(advancement.toObject());
+        advancements.push(advancement.toObject());
+        advancements.push(advancement.toObject());
+        advancements.push(advancement.toObject());
+      });
+      advancements.push(advancement.toObject());
+      });
+      advancements.push(advancement.toObject());
+        advancements.push(advancement.toObject());
+      });
+      advancements.push(advancement.toObject());
+      });
+      advancements.push(advancement.toObject());
+        advancements.push(advancement.toObject());
+        advancements.push(advancement.toObject());
+      });
+      advancements.push(advancement.toObject());
+      });
+      advancements.push(advancement.toObject());
         advancements.push(advancement.toObject());
       });
       advancements.push(advancement.toObject());
