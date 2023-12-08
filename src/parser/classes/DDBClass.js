@@ -968,6 +968,8 @@ export default class DDBClass {
     // TODO: Armor and weapons
     // TODO: Tools
     // Equipment? (for backgrounds)
+    // to do mixed skill or language features such as Bonus Proficiency
+    // todo: immunities/resistances etc e,g, warlock Oceanic Soul
     this._generateSpellCastingProgression();
     await this._addSRDAdvancements();
   }
