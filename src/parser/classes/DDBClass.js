@@ -825,17 +825,13 @@ export default class DDBClass {
         ? ["skills:*", "tool:thief"]
         : ["skills:*"];
 
+      const expertiseCount = 2;
+
       const initialUpdate = {
         title: "Expertise",
-        classRestriction: "",
         configuration: {
           allowReplacements: false,
           mode: "expertise",
-          choices: [{
-            count: 2,
-            // pool: parsedExpertise.choices,
-            pool,
-          }],
         },
         level: i,
       };
@@ -844,14 +840,9 @@ export default class DDBClass {
 
       const chosenSkills = expertiseOptions.skills.chosen.map((skill) => `skills:${skill}`);
       const chosenTools = expertiseOptions.tools.chosen.map((tool) => `tool:${tool}`);
-      const finalChoices = [].concat(chosenSkills, chosenTools);
-      if (finalChoices.length > 0) {
-        advancement.updateSource({
-          value: {
-            chosen: finalChoices
-          },
-        });
-      }
+      const chosen = [].concat(chosenSkills, chosenTools);
+
+      DDBClass._advancementUpdate(advancement, pool, chosen, expertiseCount);
 
       advancements.push(advancement.toObject());
     }
