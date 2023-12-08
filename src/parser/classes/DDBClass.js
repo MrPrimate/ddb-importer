@@ -762,7 +762,8 @@ export default class DDBClass {
       const languagesFromMods = languagesMods
         .filter((mod) => DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName))
         .map((mod) => {
-          return DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName).value;
+          const language = DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName);
+          return language.advancement ? `${language.advancement}:${language.value}` : language.value;
         });
 
       const languageCount = this.options.noMods
