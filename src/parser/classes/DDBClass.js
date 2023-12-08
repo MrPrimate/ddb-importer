@@ -978,7 +978,7 @@ export default class DDBClass {
     this._generateSaveAdvancements();
     this._generateSkillAdvancements();
     this._generateExpertiseAdvancements();
-    // TODO: Language advancements
+    this._generateLanguageAdvancements();
     // TODO: Armor and weapons
     // TODO: Tools
     // Equipment? (for backgrounds)
