@@ -752,10 +752,22 @@ export function getGenericConditionAffectData(modifiers, condition, typeId) {
     "while holding",
     "While Held",
   ];
+
+  const ddbAdjustments = typeId === 4
+    ? CONFIG.DDB.conditions.map((a) => {
+      return {
+        id: a.definition.id,
+        type: 4,
+        name: a.definition.name,
+        slug: a.definition.slug,
+      };
+    })
+    : CONFIG.DDB.damageAdjustments;
+
   const result = DDBHelper
     .filterModifiersOld(modifiers, condition, null, restrictions)
     .filter((modifier) => {
-      const ddbLookup = CONFIG.DDB.damageAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
+      const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
       if (!ddbLookup) return false;
       return DICTIONARY.character.damageAdjustments.some((adj) =>
         adj.type === typeId
@@ -764,7 +776,7 @@ export function getGenericConditionAffectData(modifiers, condition, typeId) {
       );
     })
     .map((modifier) => {
-      const ddbLookup = CONFIG.DDB.damageAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
+      const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
       const entry = DICTIONARY.character.damageAdjustments.find((adj) =>
         adj.type === typeId
         && ddbLookup.id === adj.id

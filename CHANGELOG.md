@@ -17,6 +17,8 @@
 - Ice knife macro fix for v10.
 - Improvements to template string parsing, these are the dynamic blocks in descriptions, e.g. the dice value for sneak attack is evaluated.
 - Improve Frightful Presence (thanks @MotoMoto)
+- Condition immunities on characters did not always parse correctly.
+- Fix tool proficiency and tool expertise on characters.
 
 # 3.6.0
 
