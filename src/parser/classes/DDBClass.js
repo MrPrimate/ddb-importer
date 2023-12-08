@@ -740,62 +740,77 @@ export default class DDBClass {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      [true, false].forEach((availableToMulticlass) => {
-        if (availableToMulticlass && this.dictionary.multiclassSkill === 0) return;
-        if (!availableToMulticlass && i > 1) return;
-        const proficiencyFeature = this._proficiencyFeatures.find((f) => f.requiredLevel === i);
-        if (!proficiencyFeature) return;
+      const languageFeature = this._languageFeatures.find((f) => f.requiredLevel === i);
 
-        const modFilters = {
-          includeExcludedEffects: true,
-          classId: this.ddbClassDefinition.id,
-          exactLevel: i,
-          availableToMulticlass: availableToMulticlass === false ? null : true,
-          useUnfilteredModifiers: true,
-        };
-        const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
-        const languagesMods = DDBHelper.filterModifiers(mods, "language");
+      // eslint-disable-next-line no-continue
+      if (!languageFeature) continue;
 
-        const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+      const modFilters = {
+        includeExcludedEffects: true,
+        classId: this.ddbClassDefinition.id,
+        exactLevel: i,
+        useUnfilteredModifiers: true,
+      };
+      const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+      const languagesMods = DDBHelper.filterModifiers(mods, "language");
 
-        const parsedLanguages = AdvancementHelper.parseHTMLLanguages(proficiencyFeature.description);
-        const chosenLanguages = this._parseLanguageChoicesFromOptions(i);
+      const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
-        const languageCount = this.options.noMods
+      const parsedLanguages = AdvancementHelper.parseHTMLLanguages(languageFeature.description);
+      const chosenLanguages = this._parseLanguageChoicesFromOptions(i);
+
+      const languagesFromMods = languagesMods
+        .filter((mod) => DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName))
+        .map((mod) => {
+          return DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName).value;
+        });
+
+      const languageCount = this.options.noMods
+        ? parsedLanguages.number !== 0
           ? parsedLanguages.number
-          : availableToMulticlass
-            ? this.dictionary.multiclassSkill
-            : languagesMods.length;
+          : 1
+        : languagesMods.length;
 
-        if (languageCount === 0) return;
+      // console.warn(`Languages`, {
+      //   i,
+      //   languageFeature,
+      //   mods,
+      //   languagesMods,
+      //   parsedLanguages,
+      //   chosenLanguages,
+      //   languagesFromMods,
+      //   languageCount,
+      // })
 
-        const initialUpdate = {
-          title: proficiencyFeature.name !== "Proficiencies" ? proficiencyFeature.name : "Languages",
-          classRestriction: i > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
-          configuration: {
-            allowReplacements: false,
-            choices: [{
-              count: languageCount,
-              pool: parsedLanguages.choices.map((choice) => `languages:${choice}`),
-            }],
-          },
-          level: i,
-        };
+      if (languageCount === 0) return;
 
-        advancement.updateSource(initialUpdate);
+      const pool = this.options.noMods || parsedLanguages.choices.length > 0
+        ? parsedLanguages.choices.map((choice) => `languages:${choice}`)
+        : languagesFromMods.map((choice) => `languages:${choice}`);
 
-        if (chosenLanguages.chosen.length > 0) {
-          advancement.updateSource({
-            value: {
-              chosen: chosenLanguages.chosen.map((choice) => `languages:${choice}`),
-            },
+      const chosen = this.options.noMods || chosenLanguages.chosen.length > 0
+        ? chosenLanguages.chosen.map((choice) => `languages:${choice}`)
+        : languagesFromMods.map((choice) => `languages:${choice}`);
+
+      advancement.updateSource({
+        title: languageFeature.name !== "Proficiencies" ? languageFeature.name : "Languages",
+        configuration: {
+          allowReplacements: false,
+        },
+        level: i,
+          });
           });
         }
+      });
+        }
 
+      DDBClass._advancementUpdate(advancement, pool, chosen, languageCount);
+        advancements.push(advancement.toObject());
         advancements.push(advancement.toObject());
       });
+      advancements.push(advancement.toObject());
+      });
     }
-
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
