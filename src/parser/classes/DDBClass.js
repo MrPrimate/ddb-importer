@@ -626,16 +626,14 @@ export default class DDBClass {
     };
   }
 
-  static _advancementUpdate(advancement, pool, chosen, count) {
-    if ((pool.length === chosen.length || (pool.length === 1 && chosen.length > 1))
-        && chosen.length > 0
-    ) {
+  static _advancementUpdate(advancement, { pool = [], chosen = [], count = 0, grants = [] } = {}) {
+    if (grants.length > 0) {
       advancement.updateSource({
         configuration: {
-          grants: pool,
+          grants,
         }
       });
-    } else {
+    } else if (pool.length > 0) {
       advancement.updateSource({
         configuration: {
           choices: [{
@@ -660,6 +658,7 @@ export default class DDBClass {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
+      // eslint-disable-next-line complexity
       [true, false].forEach((availableToMulticlass) => {
         if (!availableToMulticlass && i > 1) return;
         const proficiencyFeature = this._proficiencyFeatures.find((f) => f.requiredLevel === i);
@@ -718,7 +717,7 @@ export default class DDBClass {
           level: i,
         });
 
-        const pool = this.options.noMods || parsedSkills.choices.length > 0
+        const pool = this.options.noMods || parsedSkills.choices.length > 0 || parsedSkills.grants.length > 0
           ? parsedSkills.choices.map((skill) => `skills:${skill}`)
           : skillsFromMods.map((choice) => `skills:${choice}`);
 
@@ -726,7 +725,12 @@ export default class DDBClass {
           ? chosenSkills.chosen.map((choice) => `skills:${choice}`)
           : skillsFromMods.map((choice) => `skills:${choice}`);
 
-        DDBClass._advancementUpdate(advancement, pool, chosen, count);
+        DDBClass._advancementUpdate(advancement, {
+          pool,
+          chosen,
+          count,
+          grants: parsedSkills.grants,
+        });
 
         advancements.push(advancement.toObject());
       });
@@ -785,7 +789,7 @@ export default class DDBClass {
 
       if (languageCount === 0) return;
 
-      const pool = this.options.noMods || parsedLanguages.choices.length > 0
+      const pool = this.options.noMods || parsedLanguages.choices.length > 0 || parsedLanguages.granted.length > 0
         ? parsedLanguages.choices.map((choice) => `languages:${choice}`)
         : languagesFromMods.map((choice) => `languages:${choice}`);
 
@@ -799,54 +803,15 @@ export default class DDBClass {
           allowReplacements: false,
         },
         level: i,
-          });
-          });
-          });
-          });
-        }
       });
-        }
-      });
-          });
-        }
-      });
-        }
-      });
-          });
-          });
-        }
-      });
-        }
-      });
-          });
-        }
-      });
-        }
 
-      DDBClass._advancementUpdate(advancement, pool, chosen, languageCount);
-        advancements.push(advancement.toObject());
-        advancements.push(advancement.toObject());
-        advancements.push(advancement.toObject());
-        advancements.push(advancement.toObject());
+      DDBClass._advancementUpdate(advancement, {
+        pool,
+        chosen,
+        count: languageCount,
+        grants: parsedLanguages.grants,
       });
       advancements.push(advancement.toObject());
-      });
-      advancements.push(advancement.toObject());
-        advancements.push(advancement.toObject());
-      });
-      advancements.push(advancement.toObject());
-      });
-      advancements.push(advancement.toObject());
-        advancements.push(advancement.toObject());
-        advancements.push(advancement.toObject());
-      });
-      advancements.push(advancement.toObject());
-      });
-      advancements.push(advancement.toObject());
-        advancements.push(advancement.toObject());
-      });
-      advancements.push(advancement.toObject());
-      });
     }
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
@@ -864,14 +829,6 @@ export default class DDBClass {
 
       const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
       const expertiseOptions = this._parseExpertiseChoicesFromOptions(i);
-
-      console.warn("EXPERTISE PARSING", {
-        expertiseOptions,
-        i,
-        expertiseFeature,
-        this: this,
-      });
-      // if (expertiseCount === 0) return;
 
       const pool = this.ddbClass.definition.name === "Rogue"
         ? ["skills:*", "tool:thief"]
@@ -894,7 +851,12 @@ export default class DDBClass {
       const chosenTools = expertiseOptions.tools.chosen.map((tool) => `tool:${tool}`);
       const chosen = [].concat(chosenSkills, chosenTools);
 
-      DDBClass._advancementUpdate(advancement, pool, chosen, expertiseCount);
+      DDBClass._advancementUpdate(advancement, {
+        pool,
+        chosen,
+        count: expertiseCount,
+        grants: [],
+      });
 
       advancements.push(advancement.toObject());
     }
