@@ -79,6 +79,7 @@ export default class DDBClass {
     "Firearm Proficiency",
     "Training in War and Song",
   ];
+
   _generateSource() {
     const classSource = DDBHelper.parseSource(this.ddbClassDefinition);
     this.data.system.source = classSource;
@@ -89,16 +90,22 @@ export default class DDBClass {
     this._determineClassFeatures();
 
     this._proficiencyFeatureIds = this.classFeatures
-      .filter((feature) => DDBClass.PROFICIENCY_FEATURES.includes(feature.name))
+      .filter((feature) => DDBClass.PROFICIENCY_FEATURES.includes(utils.nameString(feature.name)))
       .map((feature) => feature.id);
     this._proficiencyFeatures = this.classFeatures
       .filter((feature) => this._proficiencyFeatureIds.includes(feature.id));
 
     this._expertiseFeatureIds = this.classFeatures
-      .filter((feature) => DDBClass.EXPERTISE_FEATURES.includes(feature.name))
+      .filter((feature) => DDBClass.EXPERTISE_FEATURES.includes(utils.nameString(feature.name)))
       .map((feature) => feature.id);
     this._expertiseFeatures = this.classFeatures
       .filter((feature) => this._expertiseFeatureIds.includes(feature.id));
+
+    this._languageFeatureIds = this.classFeatures
+      .filter((feature) => DDBClass.LANGUAGE_FEATURES.includes(utils.nameString(feature.name)))
+      .map((feature) => feature.id);
+    this._languageFeatures = this.classFeatures
+      .filter((feature) => this._languageFeatureIds.includes(feature.id));
 
     this._generateSource();
   }
