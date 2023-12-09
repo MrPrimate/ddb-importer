@@ -464,8 +464,12 @@ const DDBHelper = {
     return isOptionalClassChoice;
   },
 
-  getChosenClassModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {}) => {
-    const classFeatureIds = DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
+  getChosenClassModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null, filterOnFeatureIds = [] } = {}) => {
+    const classFeatureIds = DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel })
+      .filter((id) => {
+        if (filterOnFeatureIds.length === 0) return true;
+        return filterOnFeatureIds.includes(id);
+      });
     // get items we are going to interact on
     const modifiers = DDBHelper
       .getModifiers(ddb, 'class', includeExcludedEffects, effectOnly, useUnfilteredModifiers)
