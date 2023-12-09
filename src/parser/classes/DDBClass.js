@@ -454,6 +454,45 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
+  _generateSaveAdvancement(feature, availableToMulticlass, level) {
+    const modFilters = {
+      includeExcludedEffects: true,
+      classId: this.ddbClassDefinition.id,
+      exactLevel: level,
+      availableToMulticlass,
+      useUnfilteredModifiers: true,
+      filterOnFeatureIds: [feature.id],
+    };
+    const mods = DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+    const updates = DICTIONARY.character.abilities
+      .filter((ability) => {
+        return DDBHelper.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
+      })
+      .map((ability) => `saves:${ability.value}`);
+
+    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+    advancement.updateSource({
+      classRestriction: level > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
+      configuration: {
+        grants: updates,
+        allowReplacements: false,
+      },
+      level: level,
+    });
+
+    // add selection
+    if (updates.length > 0) {
+      advancement.updateSource({
+        value: {
+          chosen: updates,
+        },
+      });
+    }
+
+    return advancement;
+
+  }
+
   _generateSaveAdvancements() {
     if (this.legacyMode) return;
     if (this.options.noMods) {
@@ -463,38 +502,11 @@ export default class DDBClass {
     const advancements = [];
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
-        const proficiencyFeature = this._proficiencyFeatures.find((f) => f.requiredLevel === i);
         if (!availableToMulticlass && i > 1) return;
-        if (!proficiencyFeature) return;
+        const proficiencyFeatures = this._proficiencyFeatures.filter((f) => f.requiredLevel === i);
 
-        const modFilters = {
-          includeExcludedEffects: true,
-          classId: this.ddbClassDefinition.id,
-          exactLevel: i,
-          availableToMulticlass,
-          useUnfilteredModifiers: true,
-        };
-        const mods = DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
-        const updates = DICTIONARY.character.abilities
-          .filter((ability) => {
-            return DDBHelper.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
-          })
-          .map((ability) => `saves:${ability.value}`);
-        // create a leveled advancement
-        if (updates.length > 0) {
-          const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-          const update = {
-            classRestriction: i > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
-            configuration: {
-              grants: updates,
-              allowReplacements: false,
-            },
-            level: i,
-            value: {
-              chosen: updates,
-            },
-          };
-          advancement.updateSource(update);
+        for (const proficiencyFeature of proficiencyFeatures) {
+          const advancement = this._generateSaveAdvancement(proficiencyFeature, availableToMulticlass, i);
           advancements.push(advancement.toObject());
         }
       });
