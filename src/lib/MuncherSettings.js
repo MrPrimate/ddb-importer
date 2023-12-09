@@ -190,6 +190,12 @@ const MuncherSettings = {
         enabled: true,
       },
       {
+        name: "add-description-to-chat",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "add-description-to-chat"),
+        description: "If using D&D System 2.4 or greater, add the snippet to the chat card (otherwise will use description).",
+        enabled: !foundry.utils.isNewerVersion("2.4.0", game.system.version),
+      },
+      {
         name: "use-actions-as-features",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features"),
         description:
@@ -471,21 +477,40 @@ const MuncherSettings = {
     return result;
   },
 
+  toggleByName(name, value = null) {
+    const checkbox = document.querySelector(`input[type="checkbox"][name="${name}"]`);
+    if (value === null) checkbox.checked = !checkbox.checked;
+    else checkbox.checked = value;
+  },
+
   updateActorSettings: (html, event) => {
     const selection = event.currentTarget.dataset.section;
     const checked = event.currentTarget.checked;
 
     logger.debug(`Updating munching-policy-${selection} to ${checked}`);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-" + selection, checked);
+    if (selection === "add-description-to-chat") {
+      game.settings.set(SETTINGS.MODULE_ID, "add-description-to-chat", checked);
+      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-full-description", false);
+      MuncherSettings.toggleByName("character-import-policy-use-full-description", false);
+      // $(html).find("#character-import-policy-use-full-description").prop("checked", false);
+    } else {
+      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-" + selection, checked);
+    }
 
-    if (selection === "dae-copy" && checked) {
-      $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
-      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
-    } else if (selection === "dae-effect-copy" && checked) {
-      $(html).find("#character-import-policy-add-item-effects").prop("checked", true);
-      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects", true);
-      $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
-      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects", true);
+    // if (selection === "dae-copy" && checked) {
+    //   $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
+    //   game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
+    // } else if (selection === "dae-effect-copy" && checked) {
+    //   $(html).find("#character-import-policy-add-item-effects").prop("checked", true);
+    //   game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects", true);
+    //   $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
+    //   game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects", true);
+    // }
+
+    if (selection === "use-full-description") {
+      game.settings.set(SETTINGS.MODULE_ID, "add-description-to-chat", false);
+      // $(html).find("#character-import-policy-add-description-to-chat").prop("checked", false);
+      MuncherSettings.toggleByName("character-import-policy-add-description-to-chat", false);
     }
   },
 

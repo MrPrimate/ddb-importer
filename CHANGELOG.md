@@ -19,6 +19,7 @@
 - Improve Frightful Presence (thanks @MotoMoto)
 - Condition immunities on characters did not always parse correctly.
 - Fix tool proficiency and tool expertise on characters.
+- In 2.4 you can now use the new chat description functionality to add the snippet there.
 
 # 3.6.0
 
