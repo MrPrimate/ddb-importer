@@ -21,6 +21,7 @@ export default class DDBClass {
     "Otherworldly Glamour",
     "Survivalist",
     "Training in War and Song",
+    "Elegant Courtier", // this is a you get a thing or otherwise choose from two others
   ];
 
   static EXPERTISE_FEATURES = [
