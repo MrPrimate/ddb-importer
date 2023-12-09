@@ -424,6 +424,43 @@ export default class DDBClass {
         }
       });
 
+    // TODO: for choice features such as fighting styles:
+
+    // {
+    //   "type": "ItemChoice",
+    //   "configuration": {
+    //     "hint": "Choose one of the following options. You can’t take a Fighting Style option more than once, even if you later get to choose again.",
+    //     "choices": {
+    //       "2": 1
+    //     },
+    //     "allowDrops": true,
+    //     "type": "feat",
+    //     "pool": [
+    //       "Compendium.dnd5e.classfeatures.8YwPFv3UAPjWVDNf",
+    //       "Compendium.dnd5e.classfeatures.zSlV0O2rQMdoq6pB",
+    //       "Compendium.dnd5e.classfeatures.hCop9uJrWhF1QPb4",
+    //       "Compendium.dnd5e.classfeatures.mHcSjcHJ8oZu3hkb"
+    //     ],
+    //     "spell": {
+    //       "ability": "",
+    //       "preparation": "",
+    //       "uses": {
+    //         "max": "",
+    //         "per": ""
+    //       }
+    //     },
+    //     "restriction": {
+    //       "type": "class",
+    //       "subtype": "fightingStyle",
+    //       "level": ""
+    //     }
+    //   },
+    //   "value": {},
+    //   "title": "Fighting Style",
+    //   "icon": "systems/dnd5e/icons/svg/item-choice.svg",
+    //   "_id": "ih8WlydEZdg3rCPh"
+    // },
+
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
@@ -470,6 +507,8 @@ export default class DDBClass {
       })
       .map((ability) => `saves:${ability.value}`);
 
+    if (updates.length === 0) return null;
+
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
     advancement.updateSource({
       classRestriction: level > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
@@ -507,7 +546,7 @@ export default class DDBClass {
 
         for (const proficiencyFeature of proficiencyFeatures) {
           const advancement = this._generateSaveAdvancement(proficiencyFeature, availableToMulticlass, i);
-          advancements.push(advancement.toObject());
+          if (advancement) advancements.push(advancement.toObject());
         }
       });
     }
@@ -718,6 +757,8 @@ export default class DDBClass {
     //   skillsFromMods,
     // });
 
+    if (count === 0 && parsedSkills.grants.length === 0) return null;
+
     advancement.updateSource({
       title: proficiencyFeature.name !== "Proficiencies" ? proficiencyFeature.name : "Skills",
       classRestriction: i > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
@@ -763,7 +804,7 @@ export default class DDBClass {
           // eslint-disable-next-line no-continue
           ) continue;
           const advancement = this._generateSkillAdvancement(feature, availableToMulticlass, i);
-          advancements.push(advancement.toObject());
+          if (advancement) advancements.push(advancement.toObject());
         }
       });
     }
@@ -771,79 +812,85 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
+  _generateLanguageAdvancement(feature, level) {
+    const modFilters = {
+      includeExcludedEffects: true,
+      classId: this.ddbClassDefinition.id,
+      exactLevel: level,
+      useUnfilteredModifiers: true,
+      filterOnFeatureIds: [feature.id],
+    };
+    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+    const languagesMods = DDBHelper.filterModifiers(mods, "language");
+
+    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+
+    const parsedLanguages = AdvancementHelper.parseHTMLLanguages(feature.description);
+    const chosenLanguages = this._parseLanguageChoicesFromOptions(level);
+
+    const languagesFromMods = languagesMods
+      .filter((mod) => DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName))
+      .map((mod) => {
+        const language = DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName);
+        return language.advancement ? `${language.advancement}:${language.value}` : language.value;
+      });
+
+    const count = this.options.noMods
+      ? parsedLanguages.number !== 0
+        ? parsedLanguages.number
+        : 1
+      : languagesMods.length;
+
+    console.warn(`Languages`, {
+      i: level,
+      languageFeature: feature,
+      mods,
+      languagesMods,
+      parsedLanguages,
+      chosenLanguages,
+      languagesFromMods,
+      languageCount: count,
+    });
+
+    if (count === 0 && parsedLanguages.grants.length === 0) return null;
+
+    const pool = this.options.noMods || parsedLanguages.choices.length > 0 || parsedLanguages.grants.length > 0
+      ? parsedLanguages.choices.map((choice) => `languages:${choice}`)
+      : languagesFromMods.map((choice) => `languages:${choice}`);
+
+    const chosen = this.options.noMods || chosenLanguages.chosen.length > 0
+      ? chosenLanguages.chosen.map((choice) => `languages:${choice}`)
+      : languagesFromMods.map((choice) => `languages:${choice}`);
+
+    advancement.updateSource({
+      title: feature.name !== "Proficiencies" ? feature.name : "Languages",
+      configuration: {
+        allowReplacements: false,
+      },
+      level: level,
+    });
+
+    DDBClass._advancementUpdate(advancement, {
+      pool,
+      chosen,
+      count: count,
+      grants: parsedLanguages.grants,
+    });
+
+    return advancement;
+  }
+
   _generateLanguageAdvancements() {
     if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      const languageFeature = this._languageFeatures.find((f) => f.requiredLevel === i);
+      const languageFeatures = this._languageFeatures.filter((f) => f.requiredLevel === i);
 
-      // eslint-disable-next-line no-continue
-      if (!languageFeature) continue;
-
-      const modFilters = {
-        includeExcludedEffects: true,
-        classId: this.ddbClassDefinition.id,
-        exactLevel: i,
-        useUnfilteredModifiers: true,
-      };
-      const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
-      const languagesMods = DDBHelper.filterModifiers(mods, "language");
-
-      const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-
-      const parsedLanguages = AdvancementHelper.parseHTMLLanguages(languageFeature.description);
-      const chosenLanguages = this._parseLanguageChoicesFromOptions(i);
-
-      const languagesFromMods = languagesMods
-        .filter((mod) => DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName))
-        .map((mod) => {
-          const language = DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName);
-          return language.advancement ? `${language.advancement}:${language.value}` : language.value;
-        });
-
-      const languageCount = this.options.noMods
-        ? parsedLanguages.number !== 0
-          ? parsedLanguages.number
-          : 1
-        : languagesMods.length;
-
-      // console.warn(`Languages`, {
-      //   i,
-      //   languageFeature,
-      //   mods,
-      //   languagesMods,
-      //   parsedLanguages,
-      //   chosenLanguages,
-      //   languagesFromMods,
-      //   languageCount,
-      // })
-
-      if (languageCount === 0) return;
-
-      const pool = this.options.noMods || parsedLanguages.choices.length > 0 || parsedLanguages.granted.length > 0
-        ? parsedLanguages.choices.map((choice) => `languages:${choice}`)
-        : languagesFromMods.map((choice) => `languages:${choice}`);
-
-      const chosen = this.options.noMods || chosenLanguages.chosen.length > 0
-        ? chosenLanguages.chosen.map((choice) => `languages:${choice}`)
-        : languagesFromMods.map((choice) => `languages:${choice}`);
-
-      advancement.updateSource({
-        title: languageFeature.name !== "Proficiencies" ? languageFeature.name : "Languages",
-        configuration: {
-          allowReplacements: false,
-        },
-        level: i,
-      });
-
-      DDBClass._advancementUpdate(advancement, {
-        pool,
-        chosen,
-        count: languageCount,
-        grants: parsedLanguages.grants,
-      });
-      advancements.push(advancement.toObject());
+      for (const feature of languageFeatures) {
+        const advancement = this._generateLanguageAdvancement(feature, i);
+        if (advancement) advancements.push(advancement.toObject());
+      }
     }
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
@@ -855,7 +902,7 @@ export default class DDBClass {
 
     for (let i = 0; i <= 20; i++) {
       const expertiseFeature = this._expertiseFeatures.find((f) => f.requiredLevel === i);
-
+      // filterOnFeatureIds: [expertiseFeature.id],
       // eslint-disable-next-line no-continue
       if (!expertiseFeature) continue;
 
@@ -866,6 +913,7 @@ export default class DDBClass {
         ? ["skills:*", "tool:thief"]
         : ["skills:*"];
 
+      // TODO: parse out expertise count, for survivalist, and adjust the pool above
       const expertiseCount = 2;
 
       const initialUpdate = {

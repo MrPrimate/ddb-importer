@@ -216,7 +216,7 @@ export default class AdvancementHelper {
 
   static parseHTMLLanguages(description) {
     const parsedLanguages = {
-      granted: [],
+      grants: [],
       choices: [],
       number: 0,
     };
@@ -225,6 +225,7 @@ export default class AdvancementHelper {
     // you learn one language of your choice.
     // You also learn two languages of your choice.
     // You gain proficiency in an additional skill or learn a new language of your choice.
+    // learn one language of your choice that is spoken by your
     const ofYourChoiceRegex = /learn (\w+?|a new) language(?:s)? of your choice/i;
     const ofYourChoiceMatch = dom.textContent.match(ofYourChoiceRegex);
 
@@ -265,6 +266,7 @@ export default class AdvancementHelper {
 
     return parsedLanguages;
   }
+
   }
 
   // static parseHTMLExpertises(description) {
