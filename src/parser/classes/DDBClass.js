@@ -63,6 +63,7 @@ export default class DDBClass {
   ];
 
   static TOOL_FEATURES = [
+    "Proficiencies",
     "Tool Proficiency",
     "Tools of the Trade",
     "Student of War",
@@ -72,11 +73,13 @@ export default class DDBClass {
   ];
 
   static ARMOR_FEATURES = [
+    "Proficiencies",
     "Tools of the Trade",
     "Training in War and Song",
   ];
 
   static WEAPON_FEATURES = [
+    "Proficiencies",
     "Firearm Proficiency",
     "Training in War and Song",
   ];
