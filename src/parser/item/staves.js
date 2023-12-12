@@ -99,8 +99,10 @@ function getDamage(data, magicalDamageBonus) {
   // first damage part
   // blowguns and other weapons rely on ammunition that provides the damage parts
   if (weaponBehavior.damage && weaponBehavior.damage.diceString && weaponBehavior.damageType) {
+    const diceString = utils.parseDiceString(weaponBehavior.damage.diceString + `+${magicalDamageBonus}`).diceString;
+
     parts.push([
-      utils.parseDiceString(weaponBehavior.damage.diceString + `+${magicalDamageBonus}`).diceString,
+      `${diceString} +@mod`,
       weaponBehavior.damageType.toLowerCase(),
     ]);
   }
@@ -109,7 +111,11 @@ function getDamage(data, magicalDamageBonus) {
   data.definition.grantedModifiers
     .filter((mod) => mod.type === "damage")
     .forEach((mod) => {
-      const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+      const die = mod.dice
+        ? mod.dice
+        : mod.die
+          ? mod.die
+          : undefined;
       if (die?.diceString) {
         parts.push([die.diceString, mod.subType]);
       } else if (mod.value) {
