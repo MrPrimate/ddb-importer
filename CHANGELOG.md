@@ -3,9 +3,10 @@
 - Internal effect helper remaster to improve maintainability and use going forward.
 - Base class features were duplicated by subclasses during class/class feature generation.
 - Massive rework of class parsing in the muncher. This helps support 2.4 and also improved class/feature parsing in the future.
-- Support for Save Trait Advancements on Classes in 5e 2.4.
-- Support for Skill Trait Advancements on Classes in 5e 2.4.
-- Support for Ability Score Advancements on Classes in 5e 2.4.
+- Character Import: Support for Save Trait Advancements on Classes in 5e 2.4.
+- Character Import: Support for Skill Trait Advancements on Classes in 5e 2.4.
+- Character Import: Support for Ability Score Advancements on Classes in 5e 2.4.
+- Character Import: Support for Expertise Advancements on Classes in 5e 2.4.
 - Fixes for AC bonus field changing to string when using the system without DAE.
 - Active Aura Effects were not applied to Paladin Auras.
 - Correction to Grease style AA macros.
@@ -20,6 +21,8 @@
 - Condition immunities on characters did not always parse correctly.
 - Fix tool proficiency and tool expertise on characters.
 - In 2.4 you can now use the new chat description functionality to add the snippet there.
+- Effect: Blindness/Deafness Macro fix.
+- Magical Staves now have `+ @mod` added to their damage calculation.
 
 # 3.6.0
 
