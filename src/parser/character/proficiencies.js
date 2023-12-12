@@ -91,10 +91,7 @@ DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(prof
 
   // lookup the characters's proficiencies in the DICT
   const allToolProficiencies = DICTIONARY.character.proficiencies
-    .filter((prof) => prof.type === "Tool")
-    .map((prof) => {
-      return prof;
-    });
+    .filter((prof) => prof.type === "Tool");
 
   const mods = this.source?.ddb ? DDBHelper.getAllModifiers(this.source.ddb, { includeExcludedEffects: true }) : [];
 
