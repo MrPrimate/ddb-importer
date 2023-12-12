@@ -10,7 +10,7 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 function effectAppliedAndActive(conditionName) {
   return targetActor.effects.some(
     (activeEffect) =>
-      activeEffect?flags?.isConvenient &&
+      activeEffect?.flags?.isConvenient &&
       (activeEffect?.name ?? activeEffect?.label) == conditionName &&
       !activeEffect?.disabled
   );
