@@ -1,5 +1,6 @@
 import DICTIONARY from '../../dictionary.js';
 import utils from '../../lib/utils.js';
+import logger from '../../logger.js';
 
 export default class AdvancementHelper {
 
@@ -155,8 +156,8 @@ export default class AdvancementHelper {
 
     // most other class profs
     // Skills: Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival
-    const skillText = dom.textContent.toLowerCase().split("skills:").pop().split("\n")[0].split("The")[0].split(".")[0].trim();
-    const skillRegex = /choose (\w+)(?:\sskills)* from (.*)($|The|\.$|\w+:)/im;
+    const skillText = dom.textContent.toLowerCase().split("skills:").pop().split("\n")[0].split("the")[0].split(".")[0].trim();
+    const skillRegex = /choose (\w+)(?:\sskills)* from (.*)($|The|\.|\w+:)/im;
     const skillMatch = skillText.match(skillRegex);
 
     // common feature choice
