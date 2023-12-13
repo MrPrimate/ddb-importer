@@ -48,9 +48,12 @@ const utils = {
     return str.replaceAll("’", "'").trim();
   },
 
-  stripHtml: (html) => {
+  stripHtml: (html, preferInnerText = false) => {
     let tmp = document.createElement("DIV");
     tmp.innerHTML = html;
+    if (preferInnerText) {
+      return tmp.innerText ?? tmp.textContent ?? "";
+    }
     return tmp.textContent || tmp.innerText || "";
   },
 
