@@ -80,7 +80,7 @@ Below are some recommended modules. If you munch without these it's likely you w
 
 I'd strongly recommend installing:
 
-- [Magic Items](https://foundryvtt.com/packages/magicitems/) for attaching spells to magic items
+- [Items with Spells DnD5e](https://foundryvtt.com/packages/items-with-spells-5e) for attaching spells to magic items
 - [DAE](https://foundryvtt.com/packages/dae/) for skill bonuses and basic effects
 - [Link Item and Resource DnD5e module](https://foundryvtt.com/packages/link-item-resource-5e ) for good resource linking
 - [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects) for proper condition management
