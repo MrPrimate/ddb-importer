@@ -267,6 +267,150 @@ export default class AdvancementHelper {
     return parsedLanguages;
   }
 
+  static TOOL_GROUPS = {
+    "musical instrument": "music",
+    "gaming set": "game",
+    "artisan's tools": "art",
+    "vehicle": "vehicle",
+  };
+
+  static getToolGroup(text) {
+    for (const [key, value] of Object.entries(AdvancementHelper.TOOL_GROUPS)) {
+      if (text.toLowerCase().includes(key)) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  static getDictionaryTool(name) {
+    const directMatch = DICTIONARY.character.proficiencies.find((tool) =>
+      tool.name.toLowerCase() === name.toLowerCase() && tool.type === "Tool"
+    );
+    if (directMatch) return directMatch;
+
+    const dictionaryTools = DICTIONARY.character.proficiencies.find((tool) => tool.type === "Tool");
+    for (const tool of dictionaryTools) {
+      if (name.toLowerCase().includes(tool.name.toLowerCase())) {
+        return tool;
+      }
+    }
+    return null;
+  }
+
+  // eslint-disable-next-line complexity
+  static parseHTMLTools(description) {
+    const parsedTools = {
+      choices: [],
+      grants: [],
+      number: 0,
+    };
+
+    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+
+    // Tools: None
+    if (textDescription.includes("Tools: None")) return parsedTools;
+
+    // Tools: Choose one type of artisan’s tools or one musical instrument
+    const anyToolsRegex = /^Tools:\sChoose (\w+) type of (.*)($|\.|\w+:)/im;
+    const anyMatch = textDescription.match(anyToolsRegex);
+    // Tools: Three musical instruments of your choice
+    const anyToolsRegex2 = /^Tools:\s(\w+)\s(.*) of your choice($|\.|\w+:)/im;
+    const anyMatch2 = textDescription.match(anyToolsRegex2);
+
+    if (anyMatch || anyMatch2) {
+      const match = anyMatch ?? anyMatch2;
+      // const skills = DICTIONARY.character.skills.map((skill) => skill.name);
+      const numberTools = DICTIONARY.numbers.find((num) => match[1].toLowerCase() === num.natural);
+      parsedTools.number = numberTools ? numberTools.num : 2;
+      const toolArray = match[2].split("or");
+      for (const toolString of toolArray) {
+        const toolGroup = AdvancementHelper.getToolGroup(toolString);
+        if (toolGroup) {
+          parsedTools.choices.push(`${toolGroup}:*`);
+        } else {
+          logger.error(`Could not find tool group for ${toolString}, please log an issue`);
+        }
+      }
+      return parsedTools;
+    }
+
+    // Tools: Thieves' tools, tinker's tools, one type of artisan's tools of your choice
+    // Tools: Herbalism kit
+    const toolGrantsRegex = /^Tools:\s(.*?)($|\.|\w+:)/im;
+    const toolGrantsMatch = textDescription.match(toolGrantsRegex);
+
+    const toolChoiceRegex = /(\w+) type of (.*)($|\.|\w+:)/i;
+    if (toolGrantsMatch) {
+      const grantsArray = toolGrantsMatch[1].split(",").map((grant) => grant.trim());
+      for (const toolString of grantsArray) {
+        const toolChoiceMatch = toolString.match(toolChoiceRegex);
+        if (toolChoiceMatch) {
+          const numberTools = DICTIONARY.numbers.find((num) => toolChoiceMatch[1].toLowerCase() === num.natural);
+          parsedTools.number = numberTools ? numberTools.num : 1;
+          const toolGroup = AdvancementHelper.getToolGroup(toolChoiceMatch[2]);
+          if (toolGroup) {
+            parsedTools.choices.push(`${toolGroup}:*`);
+          }
+        } else {
+          const toolLookup = AdvancementHelper.getDictionaryTool(toolString);
+          if (toolLookup) {
+            const toolStub = toolLookup.toolType === ""
+              ? toolLookup.baseTool
+              : `${toolLookup.toolType}:${toolLookup.baseTool}`;
+            parsedTools.grants.push(toolStub);
+          }
+        }
+      }
+      return parsedTools;
+    }
+
+    // no more matches, return.
+    if (!textDescription.includes("proficiency")) return parsedTools;
+
+
+    // You gain proficiency with alchemist’s supplies. If you already have this proficiency, you gain proficiency with one other type of artisan’s tools of your choice.
+    // You also gain proficiency with smith’s tools.
+    // You gain proficiency with woodcarver’s tools.
+    // you gain proficiency with heavy armor and smith’s tools
+    // you gain proficiency with one type of artisan’s tools of your choice.
+    // You gain proficiency with smith’s tools, and you learn to speak, read, and write Giant.
+    // and you gain proficiency with the herbalism kit.
+    // You also gain proficiency with brewer’s supplies if you don’t already have it.
+    // you gain proficiency with the disguise kit and the poisoner’s kit.
+    // you gain proficiency with the disguise kit, the forgery kit, and one gaming set of your choice.
+    // you gain proficiency with Tinker’s Tools
+
+    const additionalMatchRegex = /You gain proficiency with (.*?)($|\.|\w+:)/i;
+    const additionalMatch = textDescription.match(additionalMatchRegex);
+
+    if (additionalMatch) {
+      const additionalMatches = additionalMatch[2].replace(",", " and").split("and").map((skill) => skill.trim());
+      for (const match of additionalMatches) {
+        const toolChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
+        const choiceMatch = textDescription.match(toolChoiceRegex);
+        if (choiceMatch) {
+          const numberTools = DICTIONARY.numbers.find((num) => choiceMatch[1].toLowerCase() === num.natural);
+          parsedTools.number = numberTools ? numberTools.num : 1;
+          const toolGroup = AdvancementHelper.getToolGroup(choiceMatch[2]);
+          if (toolGroup) {
+            parsedTools.choices.push(`${toolGroup}:*`);
+          }
+        } else {
+          const toolLookup = AdvancementHelper.getDictionaryTool(match);
+          if (toolLookup) {
+            const toolStub = toolLookup.toolType === ""
+              ? toolLookup.baseTool
+              : `${toolLookup.toolType}:${toolLookup.baseTool}`;
+            parsedTools.grants.push(toolStub);
+          }
+        }
+      }
+
+      return parsedTools;
+    }
+
+    return parsedTools;
   }
 
   // static parseHTMLExpertises(description) {
