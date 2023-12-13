@@ -111,6 +111,12 @@ export default class DDBClass {
     this._languageFeatures = this.classFeatures
       .filter((feature) => this._languageFeatureIds.includes(feature.id));
 
+    this._toolFeatureIds = this.classFeatures
+      .filter((feature) => DDBClass.TOOL_FEATURES.includes(utils.nameString(feature.name)))
+      .map((feature) => feature.id);
+    this._toolFeatures = this.classFeatures
+      .filter((feature) => this._toolFeatureIds.includes(feature.id));
+
     this._generateSource();
   }
 
@@ -592,6 +598,50 @@ export default class DDBClass {
     };
   }
 
+  _parseToolChoicesFromOptions(level) {
+    const toolsChosen = new Set();
+    const toolChoices = new Set();
+
+    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
+
+    this.ddbData.character.choices.class.filter((choice) =>
+      this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
+      && choice.subType === 1
+      && choice.type === 2
+    ).forEach((choice) => {
+      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+      if (!optionChoice) return;
+      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
+      if (!option) return;
+      const smallChosen = DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === option.label);
+      if (smallChosen) {
+        const toolStub = smallChosen.toolType === ""
+          ? smallChosen.baseTool
+          : `${smallChosen.toolType}:${smallChosen.baseTool}`;
+        toolsChosen.add(toolStub);
+      }
+      const optionNames = optionChoice.options
+        .filter((option) =>
+          DICTIONARY.character.proficiencies.some((prof) => prof.type === "Tool" && prof.name === option.label)
+          && choice.optionIds.includes(option.id)
+        )
+        .map((option) =>
+          DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === option.label)
+        );
+      optionNames.forEach((tool) => {
+        const toolStub = tool.toolType === ""
+          ? tool.baseTool
+          : `${tool.toolType}:${tool.baseTool}`;
+        toolChoices.add(toolStub);
+      });
+    });
+
+    return {
+      chosen: Array.from(toolsChosen),
+      choices: Array.from(toolChoices),
+    };
+  }
+
   _parseLanguageChoicesFromOptions(level) {
     const languagesChosen = new Set();
     const languageChoices = new Set();
@@ -688,7 +738,8 @@ export default class DDBClass {
           grants,
         }
       });
-    } else if (pool.length > 0) {
+    }
+    if (pool.length > 0) {
       advancement.updateSource({
         configuration: {
           choices: [{
@@ -741,7 +792,7 @@ export default class DDBClass {
     const parsedSkills = AdvancementHelper.parseHTMLSkills(proficiencyFeature.description);
     const chosenSkills = this._parseSkillChoicesFromOptions(i);
 
-    const count = this.options.noMods
+    const count = this.options.noMods || parsedSkills.number > 0 || parsedSkills.grants.length > 0
       ? parsedSkills.number
       : baseProficiency && availableToMulticlass
         ? this.dictionary.multiclassSkill
@@ -777,14 +828,14 @@ export default class DDBClass {
       : skillsFromMods.map((choice) => `skills:${choice}`);
 
     const chosen = this.options.noMods || chosenSkills.chosen.length > 0
-      ? chosenSkills.chosen.map((choice) => `skills:${choice}`)
+      ? chosenSkills.chosen.map((choice) => `skills:${choice}`).concat(parsedSkills.grants.map((grant) => `skills:${grant}`))
       : skillsFromMods.map((choice) => `skills:${choice}`);
 
     DDBClass._advancementUpdate(advancement, {
       pool,
       chosen,
       count,
-      grants: parsedSkills.grants,
+      grants: parsedSkills.grants.map((grant) => `skills:${grant}`),
     });
 
     return advancement;
@@ -839,22 +890,22 @@ export default class DDBClass {
         return language.advancement ? `${language.advancement}:${language.value}` : language.value;
       });
 
-    const count = this.options.noMods
+    const count = this.options.noMods || parsedLanguages.number > 0 || parsedLanguages.grants.length > 0
       ? parsedLanguages.number !== 0
         ? parsedLanguages.number
         : 1
       : languagesMods.length;
 
-    console.warn(`Languages`, {
-      i: level,
-      languageFeature: feature,
-      mods,
-      languagesMods,
-      parsedLanguages,
-      chosenLanguages,
-      languagesFromMods,
-      languageCount: count,
-    });
+    // console.warn(`Languages`, {
+    //   i: level,
+    //   languageFeature: feature,
+    //   mods,
+    //   languagesMods,
+    //   parsedLanguages,
+    //   chosenLanguages,
+    //   languagesFromMods,
+    //   languageCount: count,
+    // });
 
     if (count === 0 && parsedLanguages.grants.length === 0) return null;
 
@@ -863,7 +914,7 @@ export default class DDBClass {
       : languagesFromMods.map((choice) => `languages:${choice}`);
 
     const chosen = this.options.noMods || chosenLanguages.chosen.length > 0
-      ? chosenLanguages.chosen.map((choice) => `languages:${choice}`)
+      ? chosenLanguages.chosen.map((choice) => `languages:${choice}`).concat(parsedLanguages.grants.map((grant) => `languages:${grant}`))
       : languagesFromMods.map((choice) => `languages:${choice}`);
 
     advancement.updateSource({
@@ -878,7 +929,7 @@ export default class DDBClass {
       pool,
       chosen,
       count: count,
-      grants: parsedLanguages.grants,
+      grants: parsedLanguages.grants.map((grant) => `languages:${grant}`),
     });
 
     return advancement;
@@ -893,6 +944,105 @@ export default class DDBClass {
 
       for (const feature of languageFeatures) {
         const advancement = this._generateLanguageAdvancement(feature, i);
+        if (advancement) advancements.push(advancement.toObject());
+      }
+    }
+
+    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+  }
+
+
+  _generateToolAdvancement(feature, level) {
+    const modFilters = {
+      includeExcludedEffects: true,
+      classId: this.ddbClassDefinition.id,
+      exactLevel: level,
+      useUnfilteredModifiers: true,
+      filterOnFeatureIds: [feature.id],
+    };
+    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+    const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
+    const toolMods = proficiencyMods
+      .filter((mod) =>
+        DICTIONARY.character.proficiencies
+          .some((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName)
+      );
+
+    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+
+    const parsedTools = AdvancementHelper.parseHTMLTools(feature.description);
+    const chosenTools = this._parseToolChoicesFromOptions(level);
+
+    const toolsFromMods = toolMods.map((mod) => {
+      const tool = DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName);
+      return tool.toolType === ""
+        ? tool.baseTool
+        : `${tool.toolType}:${tool.baseTool}`;
+    });
+
+    const count = this.options.noMods || parsedTools.number > 0 || parsedTools.grants.length > 0
+      ? parsedTools.number > 0
+        ? parsedTools.number
+        : 1
+      : toolMods.length;
+
+    // console.warn(`Tools`, {
+    //   level,
+    //   feature,
+    //   mods,
+    //   proficiencyMods,
+    //   toolMods,
+    //   parsedTools,
+    //   chosenTools,
+    //   toolsFromMods,
+    //   count,
+    // });
+
+    if (count === 0 && parsedTools.grants.length === 0) return null;
+
+    const pool = this.options.noMods || parsedTools.choices.length > 0 || parsedTools.grants.length > 0
+      ? parsedTools.choices.map((choice) => `tool:${choice}`)
+      : toolsFromMods.map((choice) => `tool:${choice}`);
+
+
+    const chosen = this.options.noMods || chosenTools.chosen.length > 0
+      ? chosenTools.chosen.map((choice) => `tool:${choice}`).concat(parsedTools.grants.map((grant) => `tool:${grant}`))
+      : toolsFromMods.map((choice) => `tool:${choice}`);
+
+    advancement.updateSource({
+      title: feature.name !== "Proficiencies" ? feature.name : "Tool Proficiency",
+      configuration: {
+        allowReplacements: false,
+      },
+      level: level,
+    });
+
+    // console.warn("tools", {
+    //   pool,
+    //   chosen,
+    //   count,
+    //   grants: parsedTools.grants.map((grant) => `tool:${grant}`),
+    // });
+
+    DDBClass._advancementUpdate(advancement, {
+      pool,
+      chosen,
+      count,
+      grants: parsedTools.grants.map((grant) => `tool:${grant}`),
+    });
+
+    return advancement;
+  }
+
+  _generateToolAdvancements() {
+    if (this.legacyMode) return;
+    const advancements = [];
+
+    for (let i = 0; i <= 20; i++) {
+      const toolFeatures = this._toolFeatures.filter((f) => f.requiredLevel === i);
+
+      for (const feature of toolFeatures) {
+        const advancement = this._generateToolAdvancement(feature, i);
         if (advancement) advancements.push(advancement.toObject());
       }
     }
@@ -1063,8 +1213,8 @@ export default class DDBClass {
     this._generateSkillAdvancements();
     this._generateExpertiseAdvancements();
     this._generateLanguageAdvancements();
+    this._generateToolAdvancements();
     // TODO: Armor and weapons
-    // TODO: Tools
     // Equipment? (for backgrounds)
     // to do mixed skill or language features such as Bonus Proficiency
     // todo: immunities/resistances etc e,g, warlock Oceanic Soul
