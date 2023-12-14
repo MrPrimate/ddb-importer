@@ -117,6 +117,18 @@ export default class DDBClass {
     this._toolFeatures = this.classFeatures
       .filter((feature) => this._toolFeatureIds.includes(feature.id));
 
+    this._armorFeatureIds = this.classFeatures
+      .filter((feature) => DDBClass.ARMOR_FEATURES.includes(utils.nameString(feature.name)))
+      .map((feature) => feature.id);
+    this._armorFeatures = this.classFeatures
+      .filter((feature) => DDBClass.ARMOR_FEATURES.includes(utils.nameString(feature.name)));
+
+    this._weaponFeatureIds = this.classFeatures
+      .filter((feature) => DDBClass.WEAPON_FEATURES.includes(utils.nameString(feature.name)))
+      .map((feature) => feature.id);
+    this._weaponFeatures = this.classFeatures
+      .filter((feature) => DDBClass.WEAPON_FEATURES.includes(utils.nameString(feature.name)));
+
     this._generateSource();
   }
 
@@ -642,6 +654,50 @@ export default class DDBClass {
     };
   }
 
+  _parseArmorChoicesFromOptions(level) {
+    const armorChosen = new Set();
+    const armorChoices = new Set();
+
+    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
+
+    this.ddbData.character.choices.class.filter((choice) =>
+      this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
+      && choice.subType === 1
+      && choice.type === 2
+    ).forEach((choice) => {
+      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+      if (!optionChoice) return;
+      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
+      if (!option) return;
+      const smallChosen = DICTIONARY.character.proficiencies.find((prof) => prof.type === "Armor" && prof.name === option.label);
+      if (smallChosen) {
+        const stub = smallChosen.advancement === ""
+          ? smallChosen.foundryValue
+          : `${smallChosen.advancement}:${smallChosen.foundryValue}`;
+        armorChosen.add(stub);
+      }
+      const optionNames = optionChoice.options
+        .filter((option) =>
+          DICTIONARY.character.proficiencies.some((prof) => prof.type === "Armor" && prof.name === option.label)
+          && choice.optionIds.includes(option.id)
+        )
+        .map((option) =>
+          DICTIONARY.character.proficiencies.find((prof) => prof.type === "Armor" && prof.name === option.label)
+        );
+      optionNames.forEach((prof) => {
+        const stub = prof.advancement === ""
+          ? prof.foundryValue
+          : `${prof.advancement}:${prof.foundryValue}`;
+        armorChoices.add(stub);
+      });
+    });
+
+    return {
+      chosen: Array.from(armorChosen),
+      choices: Array.from(armorChoices),
+    };
+  }
+
   _parseLanguageChoicesFromOptions(level) {
     const languagesChosen = new Set();
     const languageChoices = new Set();
@@ -1010,7 +1066,7 @@ export default class DDBClass {
       : toolsFromMods.map((choice) => `tool:${choice}`);
 
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "Tool Proficiency",
+      title: feature.name !== "Proficiencies" ? feature.name : "Tool Proficiencies",
       configuration: {
         allowReplacements: false,
       },
@@ -1050,6 +1106,105 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
+  _generateArmorAdvancement(feature, level) {
+    const modFilters = {
+      includeExcludedEffects: true,
+      classId: this.ddbClassDefinition.id,
+      exactLevel: level,
+      useUnfilteredModifiers: true,
+      filterOnFeatureIds: [feature.id],
+    };
+    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+    const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
+    const armorMods = proficiencyMods
+      .filter((mod) =>
+        DICTIONARY.character.proficiencies
+          .some((prof) => prof.type === "Armor" && prof.name === mod.friendlySubtypeName)
+      );
+
+    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+
+    const parsedArmors = AdvancementHelper.parseHTMLArmorProficiencies(feature.description);
+    const chosenArmors = this._parseArmorChoicesFromOptions(level);
+
+    const armorsFromMods = armorMods.map((mod) => {
+      const armor = DICTIONARY.character.proficiencies
+        .find((prof) => prof.type === "Armor" && prof.name === mod.friendlySubtypeName);
+      return armor.advancement === ""
+        ? armor.foundryValue
+        : `${armor.advancement}:${armor.foundryValue}`;
+    });
+
+    const count = this.options.noMods || parsedArmors.number > 0 || parsedArmors.grants.length > 0
+      ? parsedArmors.number > 0
+        ? parsedArmors.number
+        : 1
+      : armorMods.length;
+
+    console.warn(`Armor`, {
+      level,
+      feature,
+      mods,
+      proficiencyMods,
+      toolMods: armorMods,
+      parsedArmors,
+      chosenArmors,
+      armorsFromMods,
+      count,
+    });
+
+    if (count === 0 && parsedArmors.grants.length === 0) return null;
+
+    const pool = this.options.noMods || parsedArmors.choices.length > 0 || parsedArmors.grants.length > 0
+      ? parsedArmors.choices.map((choice) => `armor:${choice}`)
+      : armorsFromMods.map((choice) => `armor:${choice}`);
+
+
+    const chosen = this.options.noMods || chosenArmors.chosen.length > 0
+      ? chosenArmors.chosen.map((choice) => `armor:${choice}`).concat(parsedArmors.grants.map((grant) => `armor:${grant}`))
+      : armorsFromMods.map((choice) => `armor:${choice}`);
+
+    advancement.updateSource({
+      title: feature.name !== "Proficiencies" ? feature.name : "Armor Proficiencies",
+      configuration: {
+        allowReplacements: false,
+      },
+      level: level,
+    });
+
+    // console.warn("tools", {
+    //   pool,
+    //   chosen,
+    //   count,
+    //   grants: parsedTools.grants.map((grant) => `tool:${grant}`),
+    // });
+
+    DDBClass._advancementUpdate(advancement, {
+      pool,
+      chosen,
+      count,
+      grants: parsedArmors.grants.map((grant) => `armor:${grant}`),
+    });
+
+    return advancement;
+  }
+
+  _generateArmorAdvancements() {
+    if (this.legacyMode) return;
+    const advancements = [];
+
+    for (let i = 0; i <= 20; i++) {
+      const toolFeatures = this._armorFeatures.filter((f) => f.requiredLevel === i);
+
+      for (const feature of toolFeatures) {
+        const advancement = this._generateArmorAdvancement(feature, i);
+        if (advancement) advancements.push(advancement.toObject());
+      }
+    }
+
+    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+  }
+
   _generateExpertiseAdvancements() {
     if (this.legacyMode) return;
     const advancements = [];
@@ -1068,7 +1223,7 @@ export default class DDBClass {
         : ["skills:*"];
 
       // TODO: parse out expertise count, for survivalist, and adjust the pool above
-      const expertiseCount = 2;
+      const expertiseCount = expertiseOptions.length > 0 ? expertiseOptions.length : 2;
 
       const initialUpdate = {
         title: "Expertise",
@@ -1214,6 +1369,7 @@ export default class DDBClass {
     this._generateExpertiseAdvancements();
     this._generateLanguageAdvancements();
     this._generateToolAdvancements();
+    this._generateArmorAdvancements();
     // TODO: Armor and weapons
     // Equipment? (for backgrounds)
     // to do mixed skill or language features such as Bonus Proficiency
