@@ -378,7 +378,7 @@ export default class AdvancementHelper {
     // you gain proficiency with the disguise kit, the forgery kit, and one gaming set of your choice.
     // you gain proficiency with Tinker’s Tools
 
-    const additionalMatchRegex = /You gain proficiency with (.*?)($|\.|\w+:)/i;
+    const additionalMatchRegex = /You gain proficiency with (.*?)($|\.|\w+:)/im;
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
@@ -408,6 +408,93 @@ export default class AdvancementHelper {
     }
 
     return parsedTools;
+  }
+
+  static ARMOR_GROUPS = DICTIONARY.character.proficiencies
+    .filter((prof) => prof.type === "Armor" && hasProperty(prof, "foundryValue") && prof.advancement === "")
+    .reduce((acc, prof) => {
+      acc[prof.name.toLowerCase()] = prof.foundryValue;
+      return acc;
+    }, {});
+
+  static getArmorGroup(text) {
+    for (const [key, value] of Object.entries(AdvancementHelper.ARMOR_GROUPS)) {
+      if (utils.nameString(text).toLowerCase().includes(key)) return value;
+    }
+    return null;
+  }
+
+  static getDictionaryArmor(name) {
+    const directMatch = DICTIONARY.character.proficiencies.find((prof) =>
+      prof.name.toLowerCase() === utils.nameString(name).toLowerCase()
+      && prof.type === "Armor" && hasProperty(prof, "foundryValue")
+    );
+    if (directMatch) return directMatch;
+
+    const dictionaryProfs = DICTIONARY.character.proficiencies.filter((prof) =>
+      prof.type === "Armor" && hasProperty(prof, "foundryValue")
+    );
+    for (const prof of dictionaryProfs) {
+      if (utils.nameString(name).toLowerCase().includes(prof.name.toLowerCase())) return prof;
+    }
+    return null;
+  }
+
+  static parseHTMLArmorProficiencies(description) {
+    const parsedArmorProficiencies = {
+      choices: [],
+      grants: [],
+      number: 0,
+    };
+    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+
+    // Armor: None
+    if (textDescription.includes("Armor: None")) return parsedArmorProficiencies;
+
+    // Armor: Light armor, medium armor, shields
+    // Armor: Light armor, medium armor, shields
+    // Armor: All armor, shields
+    const grantsRegex = /^Armor:\s(.*?)($|\.|\w+:)/im;
+    const grantsMatch = textDescription.match(grantsRegex);
+
+    if (grantsMatch) {
+      const grantsArray = grantsMatch[1].split(",").map((grant) => grant.trim());
+      for (const grant of grantsArray) {
+        const lookup = AdvancementHelper.getDictionaryArmor(grant);
+        if (lookup) {
+          const stub = lookup.advancement
+            ? `${lookup.advancement}:${lookup.foundryValue}`
+            : lookup.foundryValue;
+          parsedArmorProficiencies.grants.push(stub);
+        }
+      }
+      return parsedArmorProficiencies;
+    }
+
+    // no more matches, return.
+    if (!textDescription.includes("proficiency")) return parsedArmorProficiencies;
+
+    // You gain proficiency with heavy armor.
+    // you gain proficiency with heavy armor and smith’s tools
+    // You gain proficiency with light armor, and you gain proficiency with one type of one-handed melee weapon of your choice.
+
+    const additionalMatchRegex = /You gain proficiency with (.*?)($|\.|\w+:)/im;
+    const additionalMatch = textDescription.match(additionalMatchRegex);
+
+    if (additionalMatch) {
+      const additionalMatches = additionalMatch[2].replace(",", " and").split("and").map((m) => m.trim());
+      for (const grant of additionalMatches) {
+        const lookup = AdvancementHelper.getDictionaryArmor(grant);
+        if (lookup) {
+          const stub = lookup.advancement
+            ? `${lookup.advancement}:${lookup.foundryValue}`
+            : lookup.foundryValue;
+          parsedArmorProficiencies.grants.push(stub);
+        }
+      }
+    }
+
+    return parsedArmorProficiencies;
   }
 
   // static parseHTMLExpertises(description) {
