@@ -277,24 +277,20 @@ export default class AdvancementHelper {
 
   static getToolGroup(text) {
     for (const [key, value] of Object.entries(AdvancementHelper.TOOL_GROUPS)) {
-      if (text.toLowerCase().includes(key)) {
-        return value;
-      }
+      if (utils.nameString(text).toLowerCase().includes(key)) return value;
     }
     return null;
   }
 
   static getDictionaryTool(name) {
     const directMatch = DICTIONARY.character.proficiencies.find((tool) =>
-      tool.name.toLowerCase() === name.toLowerCase() && tool.type === "Tool"
+      tool.name.toLowerCase() === utils.nameString(name).toLowerCase() && tool.type === "Tool"
     );
     if (directMatch) return directMatch;
 
-    const dictionaryTools = DICTIONARY.character.proficiencies.find((tool) => tool.type === "Tool");
+    const dictionaryTools = DICTIONARY.character.proficiencies.filter((tool) => tool.type === "Tool");
     for (const tool of dictionaryTools) {
-      if (name.toLowerCase().includes(tool.name.toLowerCase())) {
-        return tool;
-      }
+      if (utils.nameString(name).toLowerCase().includes(tool.name.toLowerCase())) return tool;
     }
     return null;
   }
