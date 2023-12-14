@@ -140,14 +140,29 @@ export default class DDBCharacter {
 
     this.data.actions = this.raw.actions.map((action) => {
       const featureMatch = this.raw.features.find((feature) => feature.name === action.name);
-      if (featureMatch
-        && action.effects && action.effects.length === 0
-        && featureMatch.effects && featureMatch.effects.length > 0
-      ) {
-        action.effects = featureMatch.effects;
-        const newFlags = duplicate(featureMatch.flags);
-        delete newFlags.ddbimporter;
-        mergeObject(action.flags, newFlags, { overwrite: true, insertKeys: true, insertValues: true });
+      if (featureMatch) {
+        console.warn(`Removing duplicate feature ${featureMatch.name} from action ${action.name}`, {
+          action,
+          feature: featureMatch,
+        });
+        if (action.system.description.value === "") {
+          action.system.description.value = featureMatch.system.description.value;
+        }
+
+        if (action.system.description.chat === "") {
+          action.system.description.chat = featureMatch.system.description.chat;
+        }
+
+        if (action.effects && action.effects.length === 0
+          && featureMatch.effects && featureMatch.effects.length > 0
+        ) {
+
+          action.effects = featureMatch.effects;
+          const newFlags = duplicate(featureMatch.flags);
+
+          delete newFlags.ddbimporter;
+          mergeObject(action.flags, newFlags, { overwrite: true, insertKeys: true, insertValues: true });
+        }
       }
       return action;
     });
