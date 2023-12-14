@@ -103,6 +103,7 @@ export default class DDBAction extends DDBBaseFeature {
   }
 
   _generateSystemType() {
+    if (this.documentType === "weapon") return;
     if (this.ddbData.character.actions.class.some((a) =>
       a.name === this.ddbDefinition.name
       || (hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
@@ -207,7 +208,7 @@ export default class DDBAction extends DDBBaseFeature {
     // are we dealing with martial arts?
     if (this.isMartialArtist()) {
       const dies = this.ddbData.character.classes
-        .filter((klass) => this.isMartialArtist([klass]))
+        .filter((klass) => this.isMartialArtist(klass))
         .map((klass) => {
           const feature = klass.classFeatures.find((feature) => feature.definition.name === "Martial Arts");
           const levelScaleDie = feature?.levelScale?.dice ? feature.levelScale.dice : feature?.levelScale.die ? feature.levelScale.die : undefined;

@@ -104,6 +104,24 @@ export default class DDBBaseFeature {
     return "";
   }
 
+
+  _getRaceFeatureDescription() {
+    const componentId = this.ddbDefinition.componentId;
+    const componentTypeId = this.ddbDefinition.componentTypeId;
+
+    const feature = this.ddbData.character.race.racialTraits
+      .find((trait) =>
+        trait.definition.id == componentId
+        && trait.definition.entityTypeId == componentTypeId
+      );
+
+    if (feature) {
+      return parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbDefinition).text;
+    }
+    return "";
+
+  }
+
   static buildFullDescription(main, summary, title) {
     let result = "";
 
@@ -139,7 +157,9 @@ export default class DDBBaseFeature {
 
     const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
       ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbDefinition).text
-      : this._getClassFeatureDescription();
+      : this.type === "race"
+        ? this._getRaceFeatureDescription()
+        : this._getClassFeatureDescription();
 
     if (this.legacyMode || !chatAdd) {
       const snippet = utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
@@ -152,7 +172,7 @@ export default class DDBBaseFeature {
         unidentified: "",
       };
     } else {
-      const snippet = utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
+      const snippet = description !== "" && utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
 
       this.data.system.description = {
         value: description,

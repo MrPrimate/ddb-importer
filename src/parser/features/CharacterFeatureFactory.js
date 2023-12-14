@@ -85,16 +85,27 @@ export default class CharacterFeatureFactory {
   _generateAttackActions() {
     const attackActions = [
       // do class options here have a class id, needed for optional class features
-      this.ddbData.character.actions.class.filter((action) => DDBHelper.findClassByFeatureId(this.ddbData, action.componentId)),
-      this.ddbData.character.actions.race,
-      this.ddbData.character.actions.feat,
+      this.ddbData.character.actions.class
+        .filter((action) => DDBHelper.findClassByFeatureId(this.ddbData, action.componentId))
+        .map((t) => {
+          t.actionType = "class";
+          return t;
+        }),
+      this.ddbData.character.actions.race.map((t) => {
+        t.actionType = "race";
+        return t;
+      }),
+      this.ddbData.character.actions.feat.map((t) => {
+        t.actionType = "feat";
+        return t;
+      }),
       this._getCustomActions(true),
       getInfusionActionData(this.ddbData),
     ]
       .flat()
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
       .map((action) => {
-        const ddbAttackAction = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: action, rawCharacter: this.rawCharacter });
+        const ddbAttackAction = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: action, rawCharacter: this.rawCharacter, type: action.actionType });
         ddbAttackAction.build();
 
         // console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);

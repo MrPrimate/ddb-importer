@@ -7,7 +7,7 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 
 export default class DDBFeature extends DDBBaseFeature {
 
-  static FORCE_UNARMED = ["Trunk"];
+  static FORCE_UNARMED = ["Trunk", "Claws"];
 
   static DOC_TYPE = {
     class: "feat",
@@ -88,7 +88,8 @@ export default class DDBFeature extends DDBBaseFeature {
     const ddbAttackAction = new DDBAttackAction({
       ddbData: this.ddbData,
       ddbDefinition: strikeMock,
-      rawCharacter: this.rawCharacter
+      rawCharacter: this.rawCharacter,
+      type: this.type,
     });
     ddbAttackAction.build();
 
