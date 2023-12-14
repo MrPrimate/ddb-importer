@@ -8,6 +8,7 @@
 - Character Import: Support for Ability Score Advancements on Classes in 5e 2.4.
 - Character Import: Support for Expertise Advancements on Classes in 5e 2.4.
 - Character Import: Support for Tool Advancements on Classes in 5e 2.4.
+- Character Import: Support for Armor Advancements on Classes in 5e 2.4.
 - Fixes for AC bonus field changing to string when using the system without DAE.
 - Active Aura Effects were not applied to Paladin Auras.
 - Correction to Grease style AA macros.
