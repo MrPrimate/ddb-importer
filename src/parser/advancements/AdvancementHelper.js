@@ -4,6 +4,9 @@ import logger from '../../logger.js';
 
 export default class AdvancementHelper {
 
+  // Feats with multichoices
+  // You gain proficiency in any combination of three skills or tools of your choice.
+
   static convertToSingularDie(advancement) {
     advancement.title += ` (Die)`;
     for (const key of Object.keys(advancement.configuration.scale)) {
@@ -112,10 +115,10 @@ export default class AdvancementHelper {
   static parseHTMLSaves(description) {
     const results = [];
 
-    const dom = utils.htmlToDocumentFragment(description);
+    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
 
     // get class saves
-    const savingText = dom.textContent.toLowerCase().split("saving throws:").pop().split("\n")[0].split("The")[0].split(".")[0].split("skills:")[0].trim();
+    const savingText = textDescription.toLowerCase().split("saving throws:").pop().split("\n")[0].split("The")[0].split(".")[0].split("skills:")[0].trim();
     const saveRegex = /(.*)(?:$|The|\.$|\w+:)/im;
     const saveMatch = savingText.match(saveRegex);
 
@@ -139,11 +142,11 @@ export default class AdvancementHelper {
       number: 0,
       allowReplacements: false,
     };
-    const dom = utils.htmlToDocumentFragment(description);
+    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
 
     // Choose any three e.g. bard
-    const anySkillRegex = /Skills: Choose any (\w+)(.*)($|\.$|\w+:)/im;
-    const anyMatch = dom.textContent.match(anySkillRegex);
+    const anySkillRegex = /Skills:\sChoose any (\w+)(.*)($|\.$|\w+:)/im;
+    const anyMatch = textDescription.match(anySkillRegex);
 
     if (anyMatch) {
       // const skills = DICTIONARY.character.skills.map((skill) => skill.name);
@@ -156,7 +159,7 @@ export default class AdvancementHelper {
 
     // most other class profs
     // Skills: Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival
-    const skillText = dom.textContent.toLowerCase().split("skills:").pop().split("\n")[0].split("the")[0].split(".")[0].trim();
+    const skillText = textDescription.toLowerCase().split("skills:").pop().split("\n")[0].split("the")[0].split(".")[0].trim();
     const skillRegex = /choose (\w+)(?:\sskills)* from (.*)($|The|\.|\w+:)/im;
     const skillMatch = skillText.match(skillRegex);
 
@@ -164,7 +167,7 @@ export default class AdvancementHelper {
     // you gain proficiency in one of the following skills of your choice: Deception, Performance, or Persuasion.
     // you gain proficiency with two of the following skills of your choice: Deception, Insight, Intimidation
     const oneOffRegex = /you gain proficiency (?:in|with) (\w+) of the following skills of your choice: (.*?)(\.|$)/im;
-    const oneOffMatch = dom.textContent.match(oneOffRegex);
+    const oneOffMatch = textDescription.match(oneOffRegex);
 
     if (skillMatch || oneOffMatch) {
       const match = skillMatch ?? oneOffMatch;
@@ -182,12 +185,13 @@ export default class AdvancementHelper {
     }
 
     // no more matches, return.
-    if (!dom.textContent.includes("proficiency")) return parsedSkills;
+    if (!textDescription.includes("proficiency")) return parsedSkills;
 
     // You gain proficiency in one skill of your choice.
     // You gain proficiency in an additional skill or learn a new language of your choice.
-    const additionalMatchRegex = /You gain proficiency in (?:an additional skill|one skill of your choice)/i;
-    const additionalMatch = dom.textContent.match(additionalMatchRegex);
+    // You gain one skill proficiency of your choice, one tool proficiency of your choice, and fluency in one language of your choice.
+    const additionalMatchRegex = /You gain (?:one skill proficiency of your choice|proficiency in (?:an additional skill|one skill of your choice|))/i;
+    const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
       parsedSkills.number = 1;
@@ -199,7 +203,7 @@ export default class AdvancementHelper {
     // You gain proficiency in the Insight and Medicine skills, and you
     // you gain proficiency in the Performance skill if you don’t already have it.
     const explicitSkillGrantRegex = /You gain proficiency in the (.*) skill( if you don’t already have it)?/i;
-    const explicitSkillGrantMatch = dom.textContent.match(explicitSkillGrantRegex);
+    const explicitSkillGrantMatch = textDescription.match(explicitSkillGrantRegex);
 
     if (explicitSkillGrantMatch) {
       const skills = explicitSkillGrantMatch[1].replace(",", " and").split("and").map((skill) => skill.trim());
@@ -221,14 +225,14 @@ export default class AdvancementHelper {
       choices: [],
       number: 0,
     };
-    const dom = utils.htmlToDocumentFragment(description);
+    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
 
     // you learn one language of your choice.
     // You also learn two languages of your choice.
     // You gain proficiency in an additional skill or learn a new language of your choice.
     // learn one language of your choice that is spoken by your
-    const ofYourChoiceRegex = /learn (\w+?|a new) language(?:s)? of your choice/i;
-    const ofYourChoiceMatch = dom.textContent.match(ofYourChoiceRegex);
+    const ofYourChoiceRegex = /learn (\w+?|a new) language(?:s)? of your choice/im;
+    const ofYourChoiceMatch = textDescription.match(ofYourChoiceRegex);
 
     if (ofYourChoiceMatch) {
       const number = DICTIONARY.numbers.find((num) => ofYourChoiceMatch[1].toLowerCase() === num.natural);
@@ -243,8 +247,8 @@ export default class AdvancementHelper {
     // Your character can speak, read, and write Common and one other language that
     // You learn to speak, read, and write Sylvan.
     // You gain proficiency with smith’s tools, and you learn to speak, read, and write Giant.
-    const speakReadAndWriteRegex = /speak, read, and write (.*?)(?:\.|$)/i;
-    const speakReadAndWriteMatch = dom.textContent.match(speakReadAndWriteRegex);
+    const speakReadAndWriteRegex = /speak, read, and write (.*?)(?:\.|$)/im;
+    const speakReadAndWriteMatch = textDescription.match(speakReadAndWriteRegex);
 
     if (speakReadAndWriteMatch) {
       const languages = speakReadAndWriteMatch[1].replace(",", " and").split("and").map((skill) => skill.trim());
@@ -262,6 +266,16 @@ export default class AdvancementHelper {
         }
 
       });
+      return parsedLanguages;
+    }
+
+    // You gain one skill proficiency of your choice, one tool proficiency of your choice, and fluency in one language of your choice.
+    const featMatchRegex = /fluency in (\w+) language(?:s)? of your choice/i;
+    const featMatch = textDescription.match(featMatchRegex);
+
+    if (featMatch) {
+      parsedLanguages.number = 1;
+      parsedLanguages.choices = ["*"];
       return parsedLanguages;
     }
 
@@ -284,13 +298,25 @@ export default class AdvancementHelper {
 
   static getDictionaryTool(name) {
     const directMatch = DICTIONARY.character.proficiencies.find((tool) =>
-      tool.name.toLowerCase() === utils.nameString(name).toLowerCase() && tool.type === "Tool"
+      tool.type === "Tool"
+      && tool.name.toLowerCase() === utils.nameString(name).toLowerCase()
     );
     if (directMatch) return directMatch;
 
     const dictionaryTools = DICTIONARY.character.proficiencies.filter((tool) => tool.type === "Tool");
     for (const tool of dictionaryTools) {
       if (utils.nameString(name).toLowerCase().includes(tool.name.toLowerCase())) return tool;
+    }
+    return null;
+  }
+
+  static getToolAdvancementValue(text) {
+    const match = AdvancementHelper.getDictionaryTool(text);
+    if (match) {
+      const stub = match.toolType === ""
+        ? match.baseTool
+        : `${match.toolType}:${match.baseTool}`;
+      return stub;
     }
     return null;
   }
@@ -350,12 +376,9 @@ export default class AdvancementHelper {
             parsedTools.choices.push(`${toolGroup}:*`);
           }
         } else {
-          const toolLookup = AdvancementHelper.getDictionaryTool(toolString);
-          if (toolLookup) {
-            const toolStub = toolLookup.toolType === ""
-              ? toolLookup.baseTool
-              : `${toolLookup.toolType}:${toolLookup.baseTool}`;
-            parsedTools.grants.push(toolStub);
+          const stub = AdvancementHelper.getToolAdvancementValue(toolString);
+          if (stub) {
+            parsedTools.grants.push(stub);
           }
         }
       }
@@ -394,16 +417,23 @@ export default class AdvancementHelper {
             parsedTools.choices.push(`${toolGroup}:*`);
           }
         } else {
-          const toolLookup = AdvancementHelper.getDictionaryTool(match);
-          if (toolLookup) {
-            const toolStub = toolLookup.toolType === ""
-              ? toolLookup.baseTool
-              : `${toolLookup.toolType}:${toolLookup.baseTool}`;
-            parsedTools.grants.push(toolStub);
+          const stub = AdvancementHelper.getToolAdvancementValue(match);
+          if (stub) {
+            parsedTools.grants.push(stub);
           }
         }
       }
 
+      return parsedTools;
+    }
+
+    // You gain one skill proficiency of your choice, one tool proficiency of your choice, and fluency in one language of your choice.
+    const featMatchRegex = /(\w*) tool proficiency of your choice/i;
+    const featMatch = textDescription.match(featMatchRegex);
+
+    if (featMatch) {
+      parsedTools.number = 1;
+      parsedTools.choices = ["*"];
       return parsedTools;
     }
 
@@ -426,8 +456,8 @@ export default class AdvancementHelper {
 
   static getDictionaryArmor(name) {
     const directMatch = DICTIONARY.character.proficiencies.find((prof) =>
-      prof.name.toLowerCase() === utils.nameString(name).toLowerCase()
-      && prof.type === "Armor" && hasProperty(prof, "foundryValue")
+      prof.type === "Armor" && hasProperty(prof, "foundryValue")
+      && prof.name.toLowerCase() === utils.nameString(name).toLowerCase()
     );
     if (directMatch) return directMatch;
 
@@ -436,6 +466,17 @@ export default class AdvancementHelper {
     );
     for (const prof of dictionaryProfs) {
       if (utils.nameString(name).toLowerCase().includes(prof.name.toLowerCase())) return prof;
+    }
+    return null;
+  }
+
+  static getArmorAdvancementValue(text) {
+    const match = AdvancementHelper.getDictionaryArmor(text);
+    if (match) {
+      const stub = match.advancement === ""
+        ? match.foundryValue
+        : `${match.advancement}:${match.foundryValue}`;
+      return stub;
     }
     return null;
   }
@@ -460,11 +501,8 @@ export default class AdvancementHelper {
     if (grantsMatch) {
       const grantsArray = grantsMatch[1].split(",").map((grant) => grant.trim());
       for (const grant of grantsArray) {
-        const lookup = AdvancementHelper.getDictionaryArmor(grant);
-        if (lookup) {
-          const stub = lookup.advancement
-            ? `${lookup.advancement}:${lookup.foundryValue}`
-            : lookup.foundryValue;
+        const stub = AdvancementHelper.getArmorAdvancementValue(grant);
+        if (stub) {
           parsedArmorProficiencies.grants.push(stub);
         }
       }
@@ -484,11 +522,8 @@ export default class AdvancementHelper {
     if (additionalMatch) {
       const additionalMatches = additionalMatch[2].replace(",", " and").split("and").map((m) => m.trim());
       for (const grant of additionalMatches) {
-        const lookup = AdvancementHelper.getDictionaryArmor(grant);
-        if (lookup) {
-          const stub = lookup.advancement
-            ? `${lookup.advancement}:${lookup.foundryValue}`
-            : lookup.foundryValue;
+        const stub = AdvancementHelper.getArmorAdvancementValue(grant);
+        if (stub) {
           parsedArmorProficiencies.grants.push(stub);
         }
       }
@@ -497,9 +532,164 @@ export default class AdvancementHelper {
     return parsedArmorProficiencies;
   }
 
+  static WEAPON_GROUPS = DICTIONARY.character.proficiencies
+    .filter((prof) =>
+      prof.type === "Weapon"
+      && getProperty(prof, "foundryValue") !== ""
+      && prof.advancement === ""
+    )
+    .reduce((acc, prof) => {
+      acc[prof.name.toLowerCase()] = prof.foundryValue;
+      return acc;
+    }, {});
+
+  static getWeaponGroup(text) {
+    for (const [key, value] of Object.entries(AdvancementHelper.WEAPON_GROUPS)) {
+      if (utils.nameString(text).toLowerCase().includes(key)) return value;
+    }
+    return null;
+  }
+
+  static getDictionaryWeapon(name) {
+    const match = DICTIONARY.character.proficiencies.find((prof) =>
+      prof.type === "Weapon"
+      && getProperty(prof, "foundryValue") !== ""
+      && (prof.name.toLowerCase() === utils.nameString(name).toLowerCase()
+        || `${prof.name.toLowerCase()}s` === utils.nameString(name).toLowerCase()
+        || `the ${prof.name.toLowerCase()}` === utils.nameString(name).toLowerCase())
+    );
+    if (match) return match;
+    return null;
+  }
+
+  static getWeaponAdvancementValue(text) {
+    const match = AdvancementHelper.getDictionaryWeapon(text);
+    if (match) {
+      const stub = match.advancement === ""
+        ? match.foundryValue
+        : `${match.advancement}:${match.foundryValue}`;
+      return stub;
+    }
+    return null;
+  }
+
+  // eslint-disable-next-line complexity
+  static parseHTMLWeaponsProficiencies(description) {
+    const parsedWeaponsProficiencies = {
+      choices: [],
+      grants: [],
+      number: 0,
+    };
+
+
+    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+
+    // Weapons: None
+    if (textDescription.includes("Weapons: None")) return parsedWeaponsProficiencies;
+
+    // Weapons: Simple weapons, martial weapons
+    // Weapons: Simple weapons
+    // Weapons: Simple weapons, hand crossbows, longswords, rapiers, shortswords
+    const weaponGrantsRegex = /^Weapons:\s(.*?)($|\.|\w+:)/im;
+    const weaponGrantsMatch = textDescription.match(weaponGrantsRegex);
+
+    const weaponChoiceRegex = /(\w+) type of (.*)($|\.|\w+:)/i;
+    if (weaponGrantsMatch) {
+      const grantsArray = weaponGrantsMatch[1].split(",").map((grant) => grant.trim());
+      for (const toolString of grantsArray) {
+        const weaponChoiceMatch = toolString.match(weaponChoiceRegex);
+        if (weaponChoiceMatch) {
+          const number = DICTIONARY.numbers.find((num) => weaponChoiceMatch[1].toLowerCase() === num.natural);
+          parsedWeaponsProficiencies.number = number ? number.num : 1;
+          const group = AdvancementHelper.getWeaponGroup(weaponChoiceMatch[2]);
+          if (group) {
+            parsedWeaponsProficiencies.choices.push(`${group}:*`);
+          }
+        } else {
+          const stub = AdvancementHelper.getWeaponAdvancementValue(toolString);
+          if (stub) {
+            parsedWeaponsProficiencies.grants.push(stub);
+          }
+        }
+      }
+      return parsedWeaponsProficiencies;
+    }
+
+    // no more matches, return.
+    if (!textDescription.includes("proficiency")) return parsedWeaponsProficiencies;
+
+    // you gain proficiency with medium armor and the scimitar.
+    // You gain proficiency with martial weapons.
+    // At 1st level, you gain proficiency with martial weapons and heavy armor.
+    // You gain proficiency with light armor, and you gain proficiency with one type of one-handed melee weapon of your choice.
+    // You gain proficiency with four weapons of your choice. Each one must be a simple or a martial weapon.
+    const additionalMatchRegex = /You gain proficiency with (.*?)($|\.|\w+:)/im;
+    const additionalMatch = textDescription.match(additionalMatchRegex);
+
+    if (additionalMatch) {
+      const additionalMatches = additionalMatch[2].replace(",", " and").split("and").map((skill) => skill.trim());
+      for (const match of additionalMatches) {
+        const toolChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
+        const choiceMatch = textDescription.match(toolChoiceRegex);
+        if (choiceMatch) {
+          const numberTools = DICTIONARY.numbers.find((num) => choiceMatch[1].toLowerCase() === num.natural);
+          parsedWeaponsProficiencies.number = numberTools ? numberTools.num : 1;
+          const toolGroup = AdvancementHelper.getWeaponGroup(choiceMatch[2]);
+          if (toolGroup) {
+            parsedWeaponsProficiencies.choices.push(`${toolGroup}:*`);
+            // eslint-disable-next-line max-depth
+          } else if (choiceMatch[2].toLowerCase().includes("one-handed melee weapon")) {
+            const weapons = DICTIONARY.character.proficiencies.filter((prof) =>
+              prof.type === "Weapon"
+              && getProperty(prof, "foundryValue") !== ""
+              && getProperty(prof, "properties.two") !== true
+              && getProperty(prof, "melee") === true
+            ).map((prof) => {
+              const stub = prof.advancement === ""
+                ? prof.foundryValue
+                : `${prof.advancement}:${prof.foundryValue}`;
+              return stub;
+            });
+            parsedWeaponsProficiencies.choices.push(...weapons);
+          } else {
+            logger.warn(`unknown weapon group choices ${choiceMatch[2]}`);
+          }
+        } else {
+          const stub = AdvancementHelper.getWeaponAdvancementValue(match);
+          if (stub) {
+            parsedWeaponsProficiencies.grants.push(stub);
+          }
+        }
+      }
+
+      return parsedWeaponsProficiencies;
+    }
+
+    // Choose two types of weapons to be your kensei weapons: one melee weapon and one ranged weapon.
+    const kenseiRegex = /Choose two types of weapons to be your kensei weapons/im;
+    if (kenseiRegex.test(textDescription)) {
+      parsedWeaponsProficiencies.number = 2;
+      const weapons = DICTIONARY.character.proficiencies.filter((prof) =>
+        prof.type === "Weapon"
+        && getProperty(prof, "foundryValue") !== ""
+        && getProperty(prof, "properties.spc") !== true
+        && (getProperty(prof, "properties.hvy") !== true || prof.name === "Longbow")
+      ).map((prof) => {
+        const stub = prof.advancement === ""
+          ? prof.foundryValue
+          : `${prof.advancement}:${prof.foundryValue}`;
+        return stub;
+      });
+      parsedWeaponsProficiencies.choices.push(...weapons);
+    }
+
+    return parsedWeaponsProficiencies;
+  }
+
   // static parseHTMLExpertises(description) {
   //   const parsedExpertises = {
   //     choices: [],
+  //     grants: [],
   //     number: 2,
   //   };
 
@@ -509,9 +699,38 @@ export default class AdvancementHelper {
   //   // At 6th level, you can choose two more of your proficiencies (in skills or with thieves’ tools) to gain this benefit.
   //   // At 3rd level, choose two of your skill proficiencies. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.
   //   // At 6th level, choose two more of your skill proficiencies, or one more of your skill proficiencies and your proficiency with thieves’ tools. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.
+  // // Choose one skill in which you have proficiency. You gain expertise with that skill,
 
+  // TODO : parse expertises
 
   //   return parsedExpertises;
   // }
+
+  static parseHTMLEquipment(description) {
+    const parsedEquipment = {
+      choices: [],
+      grants: [],
+      number: 0,
+    };
+    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+
+    // You start with the following equipment, in addition to the equipment granted by your background:
+    // any two simple weapons of your choice
+    // a light crossbow and 20 bolts
+    // your choice of studded leather armor or scale mail
+    // thieves’ tools and a dungeoneer’s pack
+
+    // You start with the following equipment, in addition to the equipment granted by your background:
+
+    // (a) a greataxe or (b) any martial melee weapon
+    // (a) two handaxes or (b) any simple weapon
+    // An explorer’s pack and four javelins
+
+
+
+    // TODO : parse equipment
+
+    return parsedEquipment;
+  }
 
 }
