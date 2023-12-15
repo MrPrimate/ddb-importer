@@ -574,7 +574,7 @@ export default class AdvancementHelper {
   }
 
   // eslint-disable-next-line complexity
-  static parseHTMLWeaponsProficiencies(description) {
+  static parseHTMLWeaponProficiencies(description) {
     const parsedWeaponsProficiencies = {
       choices: [],
       grants: [],
