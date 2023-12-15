@@ -141,10 +141,10 @@ export default class DDBCharacter {
     this.data.actions = this.raw.actions.map((action) => {
       const featureMatch = this.raw.features.find((feature) => feature.name === action.name);
       if (featureMatch) {
-        console.warn(`Removing duplicate feature ${featureMatch.name} from action ${action.name}`, {
-          action,
-          feature: featureMatch,
-        });
+        // console.warn(`Removing duplicate feature ${featureMatch.name} from action ${action.name}`, {
+        //   action,
+        //   feature: featureMatch,
+        // });
         if (action.system.description.value === "") {
           action.system.description.value = featureMatch.system.description.value;
         }
