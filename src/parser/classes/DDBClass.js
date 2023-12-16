@@ -129,6 +129,12 @@ export default class DDBClass {
     this._weaponFeatures = this.classFeatures
       .filter((feature) => DDBClass.WEAPON_FEATURES.includes(utils.nameString(feature.name)));
 
+    this._languageOrSkillFeatureIds = this.classFeatures.concat(this._languageFeatures)
+      .filter((feature) => DDBClass.LANGUAGE_OR_SKILL_FEATURE.includes(utils.nameString(feature.name)))
+      .map((feature) => feature.id);
+    this._languageOrSkillFeatures = this.classFeatures
+      .filter((feature) => DDBClass.LANGUAGE_OR_SKILL_FEATURE.includes(utils.nameString(feature.name)));
+
     this._generateSource();
   }
 
@@ -1007,6 +1013,39 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
+  _generateSkillOrLanguageAdvancements() {
+    if (this.legacyMode) return;
+    const advancements = [];
+
+    for (let i = 0; i <= 20; i++) {
+      const skillFeatures = this._languageOrSkillFeatures.filter((f) => f.requiredLevel === i);
+
+      for (const feature of skillFeatures) {
+        const skillAdvancement = this._generateSkillAdvancement(feature, true, i);
+        const languageAdvancement = this._generateLanguageAdvancement(feature, i);
+        // console.warn(`SkillOrLanguageAdvancements`, {
+        //   i,
+        //   feature,
+        //   skillAdvancement,
+        //   languageAdvancement,
+        // });
+        if (skillAdvancement && languageAdvancement) {
+          const advancement = skillAdvancement.toObject();
+          advancement.configuration.choices[0].pool.push(...languageAdvancement.toObject().configuration.choices[0].pool);
+          advancements.push(advancement);
+        } else {
+          logger.error(`Failed Skill or Lanugage Advancement Generation`, {
+            i,
+            feature,
+            skillAdvancement,
+            languageAdvancement,
+          });
+        }
+      }
+    }
+
+    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+  }
 
   _generateToolAdvancement(feature, level) {
     const modFilters = {
@@ -1470,8 +1509,8 @@ export default class DDBClass {
     this._generateToolAdvancements();
     this._generateArmorAdvancements();
     this._generateWeaponAdvancements();
-    // Equipment? (for backgrounds)
-    // to do mixed skill or language features such as Bonus Proficiency
+    // todo: Equipment? (for backgrounds)
+    this._generateSkillOrLanguageAdvancements();
     // todo: immunities/resistances etc e,g, warlock Oceanic Soul
     this._generateSpellCastingProgression();
     await this._addSRDAdvancements();
