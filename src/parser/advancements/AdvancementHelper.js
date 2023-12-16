@@ -123,7 +123,7 @@ export default class AdvancementHelper {
     const saveMatch = savingText.match(saveRegex);
 
     if (saveMatch) {
-      const saveNames = saveMatch[1].replace('and', ',').split(',').map((ab) => ab.trim());
+      const saveNames = saveMatch[1].replace(' and ', ',').split(',').map((ab) => ab.trim());
       const saves = saveNames
         .filter((name) => DICTIONARY.character.abilities.some((ab) => ab.long.toLowerCase() === name.toLowerCase()))
         .map((name) => {
@@ -142,7 +142,7 @@ export default class AdvancementHelper {
       number: 0,
       allowReplacements: false,
     };
-    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true).replace(/\s/g, " ");
 
     // Choose any three e.g. bard
     const anySkillRegex = /Skills:\sChoose any (\w+)(.*)($|\.$|\w+:)/im;
@@ -166,12 +166,12 @@ export default class AdvancementHelper {
     // common feature choice
     // you gain proficiency in one of the following skills of your choice: Deception, Performance, or Persuasion.
     // you gain proficiency with two of the following skills of your choice: Deception, Insight, Intimidation
-    const oneOffRegex = /you gain proficiency (?:in|with) (\w+) of the following skills of your choice: (.*?)(\.|$)/im;
+    const oneOffRegex = /you gain proficiency (?:in|with) (\w+) of the following skills of your choice:\s(.*?)(\.|$)/im;
     const oneOffMatch = textDescription.match(oneOffRegex);
 
     if (skillMatch || oneOffMatch) {
       const match = skillMatch ?? oneOffMatch;
-      const skillNames = match[2].replace('and', ',').split(',').map((skill) => skill.trim());
+      const skillNames = match[2].replace(' and ', ',').replace(" or ", " ").split(',').map((skill) => skill.trim());
       const skills = skillNames
         .filter((name) => DICTIONARY.character.skills.some((skill) => skill.label.toLowerCase() === name.toLowerCase()))
         .map((name) => {
@@ -190,7 +190,7 @@ export default class AdvancementHelper {
     // You gain proficiency in one skill of your choice.
     // You gain proficiency in an additional skill or learn a new language of your choice.
     // You gain one skill proficiency of your choice, one tool proficiency of your choice, and fluency in one language of your choice.
-    const additionalMatchRegex = /You gain (?:one skill proficiency of your choice|proficiency in (?:an additional skill|one skill of your choice|))/i;
+    const additionalMatchRegex = /You gain (?:one skill proficiency of your choice|proficiency in (?:an additional skill|one skill of your choice))/im;
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
@@ -206,7 +206,7 @@ export default class AdvancementHelper {
     const explicitSkillGrantMatch = textDescription.match(explicitSkillGrantRegex);
 
     if (explicitSkillGrantMatch) {
-      const skills = explicitSkillGrantMatch[1].replace(",", " and").split("and").map((skill) => skill.trim());
+      const skills = explicitSkillGrantMatch[1].replace(",", " and").split(" and ").map((skill) => skill.trim());
       skills.forEach((grant) => {
         const dictSkill = DICTIONARY.character.skills
           .find((skill) => skill.label.toLowerCase() === grant.toLowerCase());
@@ -251,7 +251,7 @@ export default class AdvancementHelper {
     const speakReadAndWriteMatch = textDescription.match(speakReadAndWriteRegex);
 
     if (speakReadAndWriteMatch) {
-      const languages = speakReadAndWriteMatch[1].replace(",", " and").split("and").map((skill) => skill.trim());
+      const languages = speakReadAndWriteMatch[1].replace(",", " and").split(" and ").map((skill) => skill.trim());
       parsedLanguages.number = 0;
       languages.forEach((grant) => {
         if (grant.includes("other language") || grant.includes("of your choice")) {
@@ -346,7 +346,7 @@ export default class AdvancementHelper {
       // const skills = DICTIONARY.character.skills.map((skill) => skill.name);
       const numberTools = DICTIONARY.numbers.find((num) => match[1].toLowerCase() === num.natural);
       parsedTools.number = numberTools ? numberTools.num : 2;
-      const toolArray = match[2].split("or");
+      const toolArray = match[2].split(" or ");
       for (const toolString of toolArray) {
         const toolGroup = AdvancementHelper.getToolGroup(toolString);
         if (toolGroup) {
@@ -405,7 +405,7 @@ export default class AdvancementHelper {
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
-      const additionalMatches = additionalMatch[2].replace(",", " and").split("and").map((skill) => skill.trim());
+      const additionalMatches = additionalMatch[2].replace(",", " and").split(" and ").map((skill) => skill.trim());
       for (const match of additionalMatches) {
         const toolChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
         const choiceMatch = textDescription.match(toolChoiceRegex);
@@ -520,7 +520,7 @@ export default class AdvancementHelper {
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
-      const additionalMatches = additionalMatch[2].replace(",", " and").split("and").map((m) => m.trim());
+      const additionalMatches = additionalMatch[2].replace(",", " and").split(" and ").map((m) => m.trim());
       for (const grant of additionalMatches) {
         const stub = AdvancementHelper.getArmorAdvancementValue(grant);
         if (stub) {
@@ -627,7 +627,7 @@ export default class AdvancementHelper {
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
-      const additionalMatches = additionalMatch[2].replace(",", " and").split("and").map((skill) => skill.trim());
+      const additionalMatches = additionalMatch[2].replace(",", " and").split(" and ").map((skill) => skill.trim());
       for (const match of additionalMatches) {
         const toolChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
         const choiceMatch = textDescription.match(toolChoiceRegex);
