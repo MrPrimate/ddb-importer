@@ -739,7 +739,7 @@ function addSpellAttackBonuses(modifiers, name) {
 // *
 // Get list of generic conditions/damages
 //
-export function getGenericConditionAffectData(modifiers, condition, typeId) {
+export function getGenericConditionAffectData(modifiers, condition, typeId, forceNoMidi = false) {
   const restrictions = [
     "",
     null,
@@ -791,7 +791,7 @@ export function getGenericConditionAffectData(modifiers, condition, typeId) {
     })
     .filter((adjustment) => adjustment !== undefined)
     .map((result) => {
-      if (game.modules.get("midi-qol")?.active && result.midiValues) {
+      if (game.modules.get("midi-qol")?.active && result.midiValues && !forceNoMidi) {
         return {
           value: result.value.concat(result.midiValues),
           bypass: result.bypass,
