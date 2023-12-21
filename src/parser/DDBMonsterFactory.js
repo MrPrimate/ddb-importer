@@ -226,6 +226,7 @@ export default class DDBMonsterFactory {
     const itemHandler = new DDBItemImporter("monsters", monsterResults.actors);
     await itemHandler.init();
 
+    logger.debug("Item Importer Loaded");
     if (!updateBool || !updateImages) {
       this.munchNote(`Calculating which monsters to update...`, true);
       const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents, "npc", { keepDDBId: true });
