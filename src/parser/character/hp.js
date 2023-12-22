@@ -49,6 +49,12 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   // const bonusHPEffectDiff = totalBonusHPWithEffects - totalBonusHitPoints - bonusPerLevelValue;
   const overallBonus = totalBonusHitPoints - (bonusPerLevelValue * this.raw.character.flags.ddbimporter.dndbeyond.totalLevels);
 
+  const maxHitPoints = overrideHitPoints === 0
+    ? constitutionHP + baseHitPoints + totalBonusHPWithEffects
+    : overrideHitPoints;
+
+  const rolledHP = getProperty(this.source, "ddb.character.preferences.hitPointType") === 2;
+
   // console.warn("hp data", {
   //   bonusHitPointValues,
   //   bonusHitPointValuesWithEffects,
@@ -56,13 +62,9 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   //   totalBonusHitPoints,
   //   bonusPerLevelValue,
   //   overallBonus,
+  //   maxHitPoints,
+  //   rolledHP,
   // });
-
-  const maxHitPoints = overrideHitPoints === 0
-    ? constitutionHP + baseHitPoints + totalBonusHPWithEffects
-    : overrideHitPoints;
-
-  const rolledHP = getProperty(this.source, "ddb.character.preferences.hitPointType") === 2;
 
   this.raw.character.system.attributes.hp = {
     value: maxHitPoints + tempMaxHitPoints - removedHitPoints,
