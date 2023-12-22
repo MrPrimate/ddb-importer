@@ -319,7 +319,7 @@ export default class DDBBaseFeature {
 
     if (!modifierItem.definition) modifierItem.definition = {};
     modifierItem.definition.grantedModifiers = modifiers.filter((mod) => {
-      if (mod.componentId === this.ddbDefinition.definition?.id && mod.componentTypeId === this.ddbDefinition.definition?.entityTypeId)
+      if (mod.componentId === this.ddbDefinition?.id && mod.componentTypeId === this.ddbDefinition?.entityTypeId)
         return true;
       if (choice && this.ddbData.character.options[type]?.length > 0) {
         // if it is a choice option, try and see if the mod matches
@@ -341,7 +341,7 @@ export default class DDBBaseFeature {
         if (mod.id == choiceIdSplit) return true;
       }
 
-      if (mod.componentId === this.ddbDefinition.id || mod.componentId === this.ddbDefinition.definition?.id) {
+      if (mod.componentId === this.ddbDefinition.id) {
         if (type === "class") {
           // logger.log("Class check - feature effect parsing");
           const classFeatureMatch = this.ddbData.character.classes.some((klass) =>
@@ -360,7 +360,7 @@ export default class DDBBaseFeature {
             (t) =>
               t.definition.entityTypeId == mod.componentTypeId
               && t.definition.id == mod.componentId
-              && t.definition.id == this.ddbDefinition.definition.id
+              && t.definition.id == this.ddbDefinition.id
           );
           if (traitMatch) return true;
         }
