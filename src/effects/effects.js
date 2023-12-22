@@ -754,14 +754,19 @@ export function getGenericConditionAffectData(modifiers, condition, typeId, forc
   ];
 
   const ddbAdjustments = typeId === 4
-    ? CONFIG.DDB.conditions.map((a) => {
-      return {
-        id: a.definition.id,
-        type: 4,
-        name: a.definition.name,
-        slug: a.definition.slug,
-      };
-    })
+    ? [
+      { id: 11, type: 4, name: "Poisoned", slug: "poison" },
+      { id: 16, type: 4, name: "Diseased", slug: "diseased" },
+      { id: 16, type: 4, name: "Diseased", slug: "disease" },
+    ]
+      .concat(CONFIG.DDB.conditions.map((a) => {
+        return {
+          id: a.definition.id,
+          type: 4,
+          name: a.definition.name,
+          slug: a.definition.slug,
+        };
+      }))
     : CONFIG.DDB.damageAdjustments;
 
   const result = DDBHelper
