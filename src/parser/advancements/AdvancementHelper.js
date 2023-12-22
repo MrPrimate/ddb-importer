@@ -795,12 +795,16 @@ export default class AdvancementHelper {
       const immuneRegex = /(?:you have|and|you are|makes you) (?:immune|immunity) to (.*?)($|\.|and you have advantage|\w+:)/im;
       const immuneMatch = textDescription.match(immuneRegex);
       if (immuneMatch) {
+        let addPoisonDI = false;
         const additionalMatches = immuneMatch[1]
           .replace(",", " and")
           .split(" and ")
           .map((dmg) => {
             const result = dmg.trim().toLowerCase();
-            if (dmg === "poison") return "poisoned";
+            if (dmg === "poison") {
+              addPoisonDI = true;
+              return "poisoned";
+            }
             else if (dmg === "disease") return "diseased";
             else return result;
           });
@@ -812,6 +816,8 @@ export default class AdvancementHelper {
           );
           if (conditionMapping) {
             grants.add(`ci:${conditionMapping.foundryValue}`);
+            // eslint-disable-next-line max-depth
+            if (addPoisonDI && conditionMapping.foundryValue === "poisoned") grants.add("di:poison");
           }
         }
       }
