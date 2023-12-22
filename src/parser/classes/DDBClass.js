@@ -6,6 +6,7 @@ import CompendiumHelper from '../../lib/CompendiumHelper.js';
 import { getSpellCastingAbility } from "../spells/ability.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
+import { getGenericConditionAffectData } from '../../effects/effects.js';
 
 
 export default class DDBClass {
@@ -84,6 +85,51 @@ export default class DDBClass {
     "Training in War and Song",
   ];
 
+  static CONDITION_FEATURES = [
+    "Inured to Undeath",
+    "Elemental Gift",
+    "Thought Shield",
+    "Necrotic Husk",
+    "Radiant Soul",
+    "Oceanic Soul",
+    "Fathomless Soul",
+    "Psychic Defenses",
+    "Heart of the Storm",
+    "Wind Soul",
+    "Beguiling Defenses",
+    "Emissary of Redemption",
+    "Aura of Warding",
+    "Supernatural Resistance",
+    "Guarded Mind",
+    "Soul of the Forge",
+    "Avatar of Battle",
+    "Saint of Forge and Fire",
+    "Divine Health",
+    "Purity of Body",
+    "Storm Soul",
+    // "Desert",
+    // "Sea",
+    // "Tundra"
+    "Chemical Mastery",
+    "Poison Resilience",
+    "Poison Immunity",
+    "Constructed Resilience",
+    "Natural Resilience",
+    "Mechanical Nature",
+    "Acid Resistance",
+    "Necrotic Resistance",
+    "Mountain Born",
+    "Fire Resistance",
+    "Psychic Resilience",
+    "Gnomish Magic Resistance",
+    "Dwarven Resilience",
+    "Lightning Resistance",
+    "Celestial Resistance",
+    "Draconic Resistance",
+    "Hellish Resistance",
+    "Magic Resistance",
+  ];
+
   _generateSource() {
     const classSource = DDBHelper.parseSource(this.ddbClassDefinition);
     this.data.system.source = classSource;
@@ -134,6 +180,12 @@ export default class DDBClass {
       .map((feature) => feature.id);
     this._languageOrSkillFeatures = this.classFeatures
       .filter((feature) => DDBClass.LANGUAGE_OR_SKILL_FEATURE.includes(utils.nameString(feature.name)));
+
+    this._conditionFeatureIds = this.classFeatures
+      .filter((feature) => DDBClass.CONDITION_FEATURES.includes(utils.nameString(feature.name)))
+      .map((feature) => feature.id);
+    this._conditionFeatures = this.classFeatures
+      .filter((feature) => DDBClass.CONDITION_FEATURES.includes(utils.nameString(feature.name)));
 
     this._generateSource();
   }
@@ -700,11 +752,16 @@ export default class DDBClass {
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
-    this.ddbData.character.choices.class.filter((choice) =>
-      this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
-      && choice.subType === 1
-      && choice.type === 2
-    ).forEach((choice) => {
+    this.ddbData.character.choices.class.filter((choice) => {
+      const features = type === "Armor"
+        ? this._armorFeatures
+        : type === "Weapon"
+          ? this._weaponFeatures
+          : this._proficiencyFeatures;
+      return features.some((f) => f.id === choice.componentId && f.requiredLevel === level)
+        && choice.subType === 1
+        && choice.type === 2;
+    }).forEach((choice) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
@@ -1391,6 +1448,110 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
+  static CONDITION_MAPPING = {
+    1: "dr",
+    2: "di",
+    3: "dv",
+    4: "ci",
+  };
+
+  _generateConditionAdvancement(feature, level) {
+
+    const modFilters = {
+      includeExcludedEffects: true,
+      classId: this.ddbClassDefinition.id,
+      exactLevel: level,
+      useUnfilteredModifiers: true,
+      filterOnFeatureIds: [feature.id],
+    };
+    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+
+    const conditionsFromMods = [];
+    ["resistance", "immunity", "vulnerability", "immunity"].forEach((condition, i) => {
+      const proficiencyMods = DDBHelper.filterModifiers(mods, condition, { restriction: null });
+      const conditionId = i + 1;
+      const conditionData = getGenericConditionAffectData(proficiencyMods, condition, conditionId, true);
+      const conditionValues = new Set(conditionData.map((result) => `${DDBClass.CONDITION_MAPPING[conditionId]}:${result.value}`));
+      // console.warn("Individual Parse", {
+      //   proficiencyMods,
+      //   condition,
+      //   conditionId,
+      //   conditionData,
+      //   conditionValues,
+      // });
+      conditionsFromMods.push(...conditionValues);
+    });
+
+    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+
+    const parsedConditions = AdvancementHelper.parseHTMLConditions(feature.description);
+
+    const count = this.options.noMods || parsedConditions.number > 0 || parsedConditions.grants.length > 0
+      ? parsedConditions.number > 0
+        ? parsedConditions.number
+        : 1
+      : conditionsFromMods.length;
+
+    // console.warn(`Conditions`, {
+    //   level,
+    //   feature,
+    //   mods,
+    //   conditionsFromMods,
+    //   parsedConditions,
+    //   count,
+    // });
+
+    if (count === 0 && parsedConditions.grants.length === 0) return null;
+
+    const pool = this.options.noMods || parsedConditions.choices.length > 0 || parsedConditions.grants.length > 0
+      ? parsedConditions.choices.map((choice) => choice)
+      : conditionsFromMods.map((choice) => choice);
+
+    const chosen = this.options.noMods
+      ? parsedConditions.grants.map((grant) => grant)
+      : conditionsFromMods.map((choice) => choice);
+
+    advancement.updateSource({
+      title: feature.name !== "Proficiencies" ? feature.name : "",
+      configuration: {
+        allowReplacements: false,
+        hint: parsedConditions.hint,
+      },
+      level: level,
+    });
+
+    // console.warn("conditions", {
+    //   pool,
+    //   chosen,
+    //   count,
+    //   grants: parsedConditions.grants.map((grant) => grant),
+    // });
+
+    DDBClass._advancementUpdate(advancement, {
+      pool,
+      chosen,
+      count,
+      grants: parsedConditions.grants.map((grant) => grant),
+    });
+
+    return advancement;
+  }
+
+  _generateConditionAdvancements() {
+    if (this.legacyMode) return;
+    const advancements = [];
+
+    for (let i = 0; i <= 20; i++) {
+      const conditionAdvancements = this._conditionFeatures.filter((f) => f.requiredLevel === i);
+      for (const feature of conditionAdvancements) {
+        const advancement = this._generateConditionAdvancement(feature, i);
+        if (advancement) advancements.push(advancement.toObject());
+      }
+    }
+
+    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+  }
+
   _generateHPAdvancement(character) {
     // const value = "value": {
     //   "1": "max",
@@ -1512,6 +1673,7 @@ export default class DDBClass {
     // todo: Equipment? (for backgrounds)
     this._generateSkillOrLanguageAdvancements();
     // todo: immunities/resistances etc e,g, warlock Oceanic Soul
+    this._generateConditionAdvancements();
     this._generateSpellCastingProgression();
     await this._addSRDAdvancements();
   }

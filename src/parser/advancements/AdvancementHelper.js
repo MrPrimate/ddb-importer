@@ -701,7 +701,7 @@ export default class AdvancementHelper {
   //   // At 6th level, choose two more of your skill proficiencies, or one more of your skill proficiencies and your proficiency with thieves’ tools. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.
   // // Choose one skill in which you have proficiency. You gain expertise with that skill,
 
-  // TODO : parse expertises
+  // parse expertises
 
   //   return parsedExpertises;
   // }
@@ -804,8 +804,7 @@ export default class AdvancementHelper {
             if (dmg === "poison") {
               addPoisonDI = true;
               return "poisoned";
-            }
-            else if (dmg === "disease") return "diseased";
+            } else if (dmg === "disease") return "diseased";
             else return result;
           });
         for (const match of additionalMatches) {
@@ -826,7 +825,7 @@ export default class AdvancementHelper {
 
     // These are special types
     // You have resistance to the damage type associated with your * Ancestry.
-    const dragonMatch = textDescription.match(/resistance to the damage type associated with your (\w*) Ancestry/i);
+    const dragonMatch = textDescription.match(/resistance to the damage type associated with your (\w*) Ancestry/mi);
     if (dragonMatch) {
       parsedConditions.count = 1;
       parsedConditions.hint = textDescription;

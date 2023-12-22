@@ -10,6 +10,7 @@
 - Character Import: Support for Tool Advancements on Classes in 5e 2.4.
 - Character Import: Support for Armor Advancements on Classes in 5e 2.4.
 - Character Import: Support for Weapon Advancements on Classes in 5e 2.4.
+- Character Import: Support for Damage Resistance/Vulnerability/Immunity/Conditions Advancements on Classes in 5e 2.4.
 - Fixes for AC bonus field changing to string when using the system without DAE.
 - Active Aura Effects were not applied to Paladin Auras.
 - Correction to Grease style AA macros.
@@ -26,6 +27,8 @@
 - In 2.4 you can now use the new chat description functionality to add the snippet there.
 - Effect: Blindness/Deafness Macro fix.
 - Magical Staves now have `+ @mod` added to their damage calculation.
+- Character import conditions: Immunity to Disease was not always detected.
+
 
 # 3.6.0
 
