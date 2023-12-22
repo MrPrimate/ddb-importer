@@ -706,6 +706,192 @@ export default class AdvancementHelper {
   //   return parsedExpertises;
   // }
 
+  static CONDITION_MAPPING = {
+    "resistance": "dr",
+    "immunity": "di",
+    "immune": "di",
+    "vulnerability": "dv",
+    // "condition": "ci",
+  };
+
+  // eslint-disable-next-line complexity
+  static parseHTMLConditions(description) {
+    const grants = new Set();
+    const choices = new Set();
+    const parsedConditions = {
+      choices: [],
+      grants: [],
+      number: 0,
+      hint: "",
+    };
+
+    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true).toLowerCase();
+
+    // quick and dirty damage matches, 90 % of use cases
+    const isObviousDamage = textDescription.includes("damage");
+    const adjustedText = textDescription.replaceAll(" damage", "");
+
+    if (isObviousDamage) {
+      // You have resistance to psychic damage
+      // You have resistance to necrotic damage and radiant damage.
+      // you gain resistance to lightning and thunder damage
+      // You gain immunity to fire damage.
+      // you gain immunity to lightning and thunder damage.
+      // You also have resistance to psychic damage
+      // and you have resistance to poison damage.
+      // You have resistance to poison damage and immunity to disease, and you have advantage on saving throws against being paralyzed or poisoned.
+      // you gain resistance to bludgeoning, piercing, and slashing damage from nonmagical attacks.
+      // the paladin gains resistance to bludgeoning, piercing, and slashing damage from nonmagical weapons.
+      // You gain resistance to acid damage and poison damage,
+      // You also have resistance to poison damage.
+      // You are immune to poison damage and the poisoned condition.
+      // You have resistance to acid and poison damage, and you have advantage on saving throws against being poisoned.
+      const damageRegex = /(?:you|the paladin) (?:also have|have|gains*|are) ([^advantage].*) to (.*?)($|\.|and you have advantage|\w+:)/im;
+      const damageMatch = adjustedText.match(damageRegex);
+      if (damageMatch) {
+        const additionalMatches = damageMatch[2]
+          .replace(",", " and").split(" and ")
+          .map((dmg) => dmg.trim().toLowerCase());
+        for (const match of additionalMatches) {
+          const conditionKind = damageMatch[1].toLowerCase().trim();
+          const damageMapping = DICTIONARY.character.damageAdjustments.find((a) =>
+            a.kind === conditionKind // only match the kind
+            && a.type !== 4 // don't include conditions
+            && match === a.name.toLowerCase()
+          );
+          if (damageMapping) {
+            const type = AdvancementHelper.CONDITION_MAPPING[conditionKind];
+            const valueData = hasProperty(damageMapping, "foundryValues")
+              ? getProperty(damageMapping, "foundryValues")
+              : hasProperty(damageMapping, "foundryValue")
+                ? { value: damageMapping.foundryValue }
+                : undefined;
+            // eslint-disable-next-line max-depth, no-continue
+            if (!valueData) continue;
+            const midiValues = game.modules.get("midi-qol")?.active && valueData.midiValues
+              ? valueData.midiValues
+              : [];
+            const mappingValueArray = midiValues.concat(valueData.value).map((value) => value.toLowerCase());
+            mappingValueArray.forEach((value) => {
+              if (type) grants.add(`${type}:${value}`);
+              if (type === "di" && value === "poison") {
+                grants.add("ci:poisoned");
+              }
+            });
+          }
+        }
+      }
+    }
+
+    const isImmunity = textDescription.includes("immunity") || textDescription.includes("immune");
+    // You have resistance to poison damage and immunity to disease,
+    // You are immune to being charmed,
+    // you makes you immune to disease.
+    // you makes you immune to disease and poison.
+    // and you are immune to the poisoned condition.
+    // You are immune to poison damage and the poisoned condition.
+    // You are immune to disease.
+    if (isImmunity) {
+      const immuneRegex = /(?:you have|and|you are|makes you) (?:immune|immunity) to (.*?)($|\.|and you have advantage|\w+:)/im;
+      const immuneMatch = textDescription.match(immuneRegex);
+      if (immuneMatch) {
+        const additionalMatches = immuneMatch[1]
+          .replace(",", " and")
+          .split(" and ")
+          .map((dmg) => {
+            const result = dmg.trim().toLowerCase();
+            if (dmg === "poison") return "poisoned";
+            else if (dmg === "disease") return "diseased";
+            else return result;
+          });
+        for (const match of additionalMatches) {
+          const conditionMapping = DICTIONARY.character.damageAdjustments.find((a) =>
+            a.kind === "immunity" // only match the immunity kind
+            && a.type === 4 // dont include damage adjustments
+            && match === a.name.toLowerCase()
+          );
+          if (conditionMapping) {
+            grants.add(`ci:${conditionMapping.foundryValue}`);
+          }
+        }
+      }
+
+    }
+
+    // These are special types
+    // You have resistance to the damage type associated with your * Ancestry.
+    const dragonMatch = textDescription.match(/resistance to the damage type associated with your (\w*) Ancestry/i);
+    if (dragonMatch) {
+      parsedConditions.count = 1;
+      parsedConditions.hint = textDescription;
+      switch (dragonMatch[1].toLowerCase()) {
+        case "metallic": {
+          ["fire", "lightning", "acid", "cold"].forEach((dr) => {
+            if (textDescription.includes(dr)) {
+              choices.add(`dr:${dr}`);
+            }
+          });
+          break;
+        }
+        case "chromatic": {
+          ["acid", "lightning", "poison", "fire", "cold"].forEach((dr) => {
+            if (textDescription.includes(dr)) {
+              choices.add(`dr:${dr}`);
+            }
+          });
+          break;
+        }
+        case "gem": {
+          ["force", "radiant", "psychic", "thunder", "necrotic"].forEach((dr) => {
+            if (textDescription.includes(dr)) {
+              choices.add(`dr:${dr}`);
+            }
+          });
+          break;
+        }
+        default: {
+          ["acid", "lightning", "poison", "fire", "acid", "cold"].forEach((dr) => {
+            if (textDescription.includes(dr)) {
+              choices.add(`dr:${dr}`);
+            }
+          });
+          break;
+        }
+      }
+    }
+
+    // You now have resistance to a damage type determined by your patron’s kind:
+    if (textDescription.includes("resistance to a damage type determined by your patron’s kind:")) {
+      parsedConditions.count = 1;
+      parsedConditions.hint = textDescription;
+      ["bludgeoning", "thunder", "fire", "cold"].forEach((dr) => {
+        if (textDescription.includes(dr)) {
+          choices.add(`dr:${dr}`);
+        }
+      });
+    }
+
+    // You have resistance to all damage dealt by other creatures (their attacks, spells, and other effects).
+    if (textDescription.includes("resistance to all damage dealt by other creatures")) {
+      grants.add("dr:all");
+      Object.keys(CONFIG.DND5E.damageResistanceTypes).forEach((dr) => {
+        grants.add(`dr:${dr}`);
+      });
+    }
+
+    // NOT IMPLEMENTED: Foundry doesn't support these kind of things they are not really condition resistances etc
+    // and you have advantage on saving throws against being poisoned.
+    // You and friendly creatures within 10 feet of you have resistance to damage from spells.
+    // You have advantage on Intelligence, Wisdom, and Charisma saving throws against spells.
+    // You have advantage on saving throws you make to avoid or end the poisoned condition on yourself.
+    // You have advantage on saving throws against spells and other magical effects.
+    // and you have advantage on saving throws against being paralyzed or poisoned.
+
+    parsedConditions.grants = Array.from(grants);
+    parsedConditions.choices = Array.from(choices);
+    return parsedConditions;
+  }
+
   static parseHTMLEquipment(description) {
     const parsedEquipment = {
       choices: [],
