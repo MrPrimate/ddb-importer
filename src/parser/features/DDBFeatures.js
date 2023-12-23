@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
@@ -71,7 +72,7 @@ export default class DDBFeatures {
     return nameAllowed;
   }
 
-  getFeaturesFromDefinition(featDefinition, type) {
+  async getFeaturesFromDefinition(featDefinition, type) {
     const source = DDBHelper.parseSource(featDefinition);
     const ddbFeature = new DDBFeature({
       ddbData: this.ddbData,
@@ -82,6 +83,10 @@ export default class DDBFeatures {
     });
 
     ddbFeature.build();
+    // only background features get advancements for now
+    if (type === "background") {
+      await ddbFeature.generateAdvancements();
+    }
     if (ddbFeature.isChoiceFeature) {
       return DDBChoiceFeature.buildChoiceFeatures(ddbFeature);
     } else {
@@ -89,52 +94,51 @@ export default class DDBFeatures {
     }
   }
 
-  _buildRacialTraits() {
+  async _buildRacialTraits() {
     logger.debug("Parsing racial traits");
-    this.ddbData.character.race.racialTraits
+    const traits = this.ddbData.character.race.racialTraits
       .filter(
         (trait) => DDBFeatures.includedFeatureNameCheck(trait.definition.name)
           && !trait.definition.hideInSheet
           && !this.excludedOriginFeatures.includes(trait.definition.id)
-      )
-      .forEach((feat) => {
-        const features = this.getFeaturesFromDefinition(feat.definition, "race");
-        features.forEach((item) => {
-          const existingFeature = DDBFeatures.getNameMatchedFeature(this.parsed, item);
-          const duplicateFeature = DDBFeatures.isDuplicateFeature(this.parsed, item);
-          if (existingFeature && !duplicateFeature) {
-            existingFeature.system.description.value += `<h3>Racial Trait Addition</h3>${item.system.description.value}`;
-          } else if (!existingFeature) {
-            this.parsed.push(item);
-          }
-        });
+      );
+
+    for (const feat of traits) {
+      const features = await this.getFeaturesFromDefinition(feat.definition, "race");
+      features.forEach((item) => {
+        const existingFeature = DDBFeatures.getNameMatchedFeature(this.parsed, item);
+        const duplicateFeature = DDBFeatures.isDuplicateFeature(this.parsed, item);
+        if (existingFeature && !duplicateFeature) {
+          existingFeature.system.description.value += `<h3>Racial Trait Addition</h3>${item.system.description.value}`;
+        } else if (!existingFeature) {
+          this.parsed.push(item);
+        }
       });
+    };
   }
 
-  _buildOptionalClassFeatures() {
+  async _buildOptionalClassFeatures() {
     // optional class features
     logger.debug("Parsing optional class features");
     if (this.ddbData.classOptions) {
-      this.ddbData.classOptions
-        .filter((feat) => DDBFeatures.includedFeatureNameCheck(feat.name))
-        .forEach((feat) => {
-          logger.debug(`Parsing Optional Feature ${feat.name}`);
-          const feats = this.getFeaturesFromDefinition(feat, "class");
-          feats.forEach((item) => {
-            this.parsed.push(item);
-          });
-        });
+      const options = this.ddbData.classOptions
+        .filter((feat) => DDBFeatures.includedFeatureNameCheck(feat.name));
+      for (const feat of options) {
+        logger.debug(`Parsing Optional Feature ${feat.name}`);
+        const feats = await this.getFeaturesFromDefinition(feat, "class");
+        this.parsed.push(...feats);
+      };
     }
   }
 
-  _buildClassFeatures() {
+  async _buildClassFeatures() {
     logger.debug("Parsing class and subclass features");
     const ddbClassFeature = new DDBClassFeatures({
       ddbData: this.ddbData,
       rawCharacter: this.rawCharacter,
     });
     ddbClassFeature.build();
-    this._buildOptionalClassFeatures();
+    await this._buildOptionalClassFeatures();
 
     // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
     logger.debug("Removing matching traits");
@@ -151,26 +155,20 @@ export default class DDBFeatures {
       });
   }
 
-  _addFeats() {
+  async _addFeats() {
     // add feats
     logger.debug("Parsing feats");
-    this.ddbData.character.feats
-      .forEach((feat) => {
-        const feats = this.getFeaturesFromDefinition(feat.definition, "feat");
-        feats.forEach((item) => {
-          this.parsed.push(item);
-        });
-      });
+    for (const feat of this.ddbData.character.feats) {
+      const feats = await this.getFeaturesFromDefinition(feat.definition, "feat");
+      this.parsed.push(...feats);
+    };
   }
 
-  _addBackground() {
+  async _addBackground() {
     logger.debug("Parsing background");
     const backgroundFeature = this.ddbCharacter.getBackgroundData();
-    const backgroundFeats = this.getFeaturesFromDefinition(backgroundFeature.definition, "background");
-
-    backgroundFeats.forEach((item) => {
-      this.parsed.push(item);
-    });
+    const backgroundFeats = await this.getFeaturesFromDefinition(backgroundFeature.definition, "background");
+    this.parsed.push(...backgroundFeats);
   }
 
   _setLevelScales() {
@@ -193,10 +191,10 @@ export default class DDBFeatures {
   }
 
   async build() {
-    this._buildRacialTraits();
-    this._buildClassFeatures();
-    this._addFeats();
-    this._addBackground();
+    await this._buildRacialTraits();
+    await this._buildClassFeatures();
+    await this._addFeats();
+    await this._addBackground();
 
     this._setLevelScales();
 
