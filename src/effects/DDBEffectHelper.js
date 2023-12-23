@@ -348,6 +348,15 @@ export default class DDBEffectHelper {
     }
   }
 
+  static effectConditionAppliedAndActive(conditionName, actor) {
+    return actor.effects.some(
+      (activeEffect) =>
+        activeEffect?.flags?.isConvenient
+        && (activeEffect?.name ?? activeEffect?.label) == conditionName
+        && !activeEffect?.disabled
+    );
+  }
+
   /**
    * Finds effects for the given actor and names.
    *
