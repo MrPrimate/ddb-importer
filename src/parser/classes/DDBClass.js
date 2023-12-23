@@ -639,34 +639,6 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
-  static _advancementUpdate(advancement, { pool = [], chosen = [], count = 0, grants = [] } = {}) {
-    if (grants.length > 0) {
-      advancement.updateSource({
-        configuration: {
-          grants,
-        }
-      });
-    }
-    if (pool.length > 0) {
-      advancement.updateSource({
-        configuration: {
-          choices: [{
-            count,
-            pool,
-          }],
-        }
-      });
-    }
-
-    if (chosen.length > 0) {
-      advancement.updateSource({
-        value: {
-          chosen,
-        },
-      });
-    }
-  }
-
   _generateSkillAdvancement(feature, availableToMulticlass, i) {
 
     const baseProficiency = feature.name === "Proficiencies";
@@ -739,7 +711,7 @@ export default class DDBClass {
       ? chosenSkills.chosen.map((choice) => `skills:${choice}`).concat(parsedSkills.grants.map((grant) => `skills:${grant}`))
       : skillsFromMods.map((choice) => `skills:${choice}`);
 
-    DDBClass._advancementUpdate(advancement, {
+    AdvancementHelper.advancementUpdate(advancement, {
       pool,
       chosen,
       count,
@@ -833,7 +805,7 @@ export default class DDBClass {
       level: level,
     });
 
-    DDBClass._advancementUpdate(advancement, {
+    AdvancementHelper.advancementUpdate(advancement, {
       pool,
       chosen,
       count: count,
@@ -965,7 +937,7 @@ export default class DDBClass {
     //   grants: parsedTools.grants.map((grant) => `tool:${grant}`),
     // });
 
-    DDBClass._advancementUpdate(advancement, {
+    AdvancementHelper.advancementUpdate(advancement, {
       pool,
       chosen,
       count,
@@ -1064,7 +1036,7 @@ export default class DDBClass {
     //   grants: parsedTools.grants.map((grant) => `tool:${grant}`),
     // });
 
-    DDBClass._advancementUpdate(advancement, {
+    AdvancementHelper.advancementUpdate(advancement, {
       pool,
       chosen,
       count,
@@ -1163,7 +1135,7 @@ export default class DDBClass {
     //   grants: parsedWeapons.grants.map((grant) => `weapon:${grant}`),
     // });
 
-    DDBClass._advancementUpdate(advancement, {
+    AdvancementHelper.advancementUpdate(advancement, {
       pool,
       chosen,
       count,
@@ -1226,7 +1198,7 @@ export default class DDBClass {
     const chosenTools = expertiseOptions.tools.chosen.map((tool) => `tool:${tool}`);
     const chosen = [].concat(chosenSkills, chosenTools, grants);
 
-    DDBClass._advancementUpdate(advancement, {
+    AdvancementHelper.advancementUpdate(advancement, {
       chosen,
       count,
       grants,
@@ -1331,7 +1303,7 @@ export default class DDBClass {
     //   grants: parsedConditions.grants.map((grant) => grant),
     // });
 
-    DDBClass._advancementUpdate(advancement, {
+    AdvancementHelper.advancementUpdate(advancement, {
       pool,
       chosen,
       count,

@@ -228,6 +228,34 @@ export default class AdvancementHelper {
     };
   }
 
+  static advancementUpdate(advancement, { pool = [], chosen = [], count = 0, grants = [] } = {}) {
+    if (grants.length > 0) {
+      advancement.updateSource({
+        configuration: {
+          grants,
+        }
+      });
+    }
+    if (pool.length > 0) {
+      advancement.updateSource({
+        configuration: {
+          choices: [{
+            count,
+            pool,
+          }],
+        }
+      });
+    }
+
+    if (chosen.length > 0) {
+      advancement.updateSource({
+        value: {
+          chosen,
+        },
+      });
+    }
+  }
+
   // Feats with multichoices
   // You gain proficiency in any combination of three skills or tools of your choice.
 
