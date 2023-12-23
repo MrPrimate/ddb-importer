@@ -29,6 +29,8 @@
 - Magical Staves now have `+ @mod` added to their damage calculation.
 - Character import conditions: Immunity to Disease was not always detected.
 
+2.4 Note:
+Class Advancements are not yet generated through Class/Class Feature import, but the work here is a big step to enabling that. There are outstanding advancement improvements to come: Equipment and Feature Choices such as Fighting Style.
 
 # 3.6.0
 

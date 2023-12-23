@@ -1672,9 +1672,9 @@ export default class DDBClass {
     this._generateWeaponAdvancements();
     // todo: Equipment? (for backgrounds)
     this._generateSkillOrLanguageAdvancements();
-    // todo: immunities/resistances etc e,g, warlock Oceanic Soul
     this._generateConditionAdvancements();
     this._generateSpellCastingProgression();
+    // todo: choice options such as fighting styles
     await this._addSRDAdvancements();
   }
 
