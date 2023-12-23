@@ -6,7 +6,6 @@ import CompendiumHelper from '../../lib/CompendiumHelper.js';
 import { getSpellCastingAbility } from "../spells/ability.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
-import { getGenericConditionAffectData } from '../../effects/effects.js';
 
 
 export default class DDBClass {
@@ -317,6 +316,7 @@ export default class DDBClass {
     this.advancementHelper = new AdvancementHelper({
       ddbData,
       type: "class",
+      noMods: this.options.noMods,
     });
 
   }
@@ -586,34 +586,9 @@ export default class DDBClass {
       filterOnFeatureIds: [feature.id],
     };
     const mods = DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
-    const updates = DICTIONARY.character.abilities
-      .filter((ability) => {
-        return DDBHelper.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
-      })
-      .map((ability) => `saves:${ability.value}`);
 
-    if (updates.length === 0) return null;
 
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-    advancement.updateSource({
-      classRestriction: level > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
-      configuration: {
-        grants: updates,
-        allowReplacements: false,
-      },
-      level: level,
-    });
-
-    // add selection
-    if (updates.length > 0) {
-      advancement.updateSource({
-        value: {
-          chosen: updates,
-        },
-      });
-    }
-
-    return advancement;
+    return AdvancementHelper.getSaveAdvancement(mods, availableToMulticlass, level);
 
   }
 
@@ -640,8 +615,6 @@ export default class DDBClass {
   }
 
   _generateSkillAdvancement(feature, availableToMulticlass, i) {
-
-    const baseProficiency = feature.name === "Proficiencies";
     const classModFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
@@ -659,66 +632,7 @@ export default class DDBClass {
     const skillChooseMods = DDBHelper.filterModifiers(mods, "proficiency", filterModOptions);
     const skillMods = skillChooseMods.concat(skillExplicitMods);
 
-    const skillsFromMods = skillMods
-      .filter((mod) =>
-        DICTIONARY.character.skills.find((s) => s.label === mod.friendlySubtypeName)
-      )
-      .map((mod) =>
-        DICTIONARY.character.skills.find((s) => s.label === mod.friendlySubtypeName).name
-      );
-
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-
-    const parsedSkills = AdvancementHelper.parseHTMLSkills(feature.description);
-    const chosenSkills = this.advancementHelper.getSkillChoicesFromOptions(feature, i);
-
-    const count = this.options.noMods || parsedSkills.number > 0 || parsedSkills.grants.length > 0
-      ? parsedSkills.number
-      : baseProficiency && availableToMulticlass
-        ? this.dictionary.multiclassSkill
-        : skillMods.length;
-
-    // console.warn(`Parsing skill advancement for level ${i}`, {
-    //   availableToMulticlass,
-    //   i,
-    //   proficiencyFeature,
-    //   mods,
-    //   skillExplicitMods,
-    //   skillChooseMods,
-    //   skillMods,
-    //   parsedSkills,
-    //   chosenSkills,
-    //   skillCount: count,
-    //   skillsFromMods,
-    // });
-
-    if (count === 0 && parsedSkills.grants.length === 0) return null;
-
-    advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "Skills",
-      classRestriction: i > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
-      configuration: {
-        allowReplacements: false,
-      },
-      level: i,
-    });
-
-    const pool = this.options.noMods || parsedSkills.choices.length > 0 || parsedSkills.grants.length > 0
-      ? parsedSkills.choices.map((skill) => `skills:${skill}`)
-      : skillsFromMods.map((choice) => `skills:${choice}`);
-
-    const chosen = this.options.noMods || chosenSkills.chosen.length > 0
-      ? chosenSkills.chosen.map((choice) => `skills:${choice}`).concat(parsedSkills.grants.map((grant) => `skills:${grant}`))
-      : skillsFromMods.map((choice) => `skills:${choice}`);
-
-    AdvancementHelper.advancementUpdate(advancement, {
-      pool,
-      chosen,
-      count,
-      grants: parsedSkills.grants.map((grant) => `skills:${grant}`),
-    });
-
-    return advancement;
+    return this.advancementHelper.getSkillAdvancement(skillMods, feature, availableToMulticlass, i);
   }
 
   _generateSkillAdvancements() {
@@ -756,63 +670,8 @@ export default class DDBClass {
       filterOnFeatureIds: [feature.id],
     };
     const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
-    const languagesMods = DDBHelper.filterModifiers(mods, "language");
 
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-
-    const parsedLanguages = AdvancementHelper.parseHTMLLanguages(feature.description);
-    const chosenLanguages = this.advancementHelper.getLanguageChoicesFromOptions(feature, level);
-
-    const languagesFromMods = languagesMods
-      .filter((mod) => DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName))
-      .map((mod) => {
-        const language = DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName);
-        return language.advancement ? `${language.advancement}:${language.value}` : language.value;
-      });
-
-    const count = this.options.noMods || parsedLanguages.number > 0 || parsedLanguages.grants.length > 0
-      ? parsedLanguages.number !== 0
-        ? parsedLanguages.number
-        : 1
-      : languagesMods.length;
-
-    console.warn(`Languages`, {
-      i: level,
-      languageFeature: feature,
-      mods,
-      languagesMods,
-      parsedLanguages,
-      chosenLanguages,
-      languagesFromMods,
-      languageCount: count,
-    });
-
-    if (count === 0 && parsedLanguages.grants.length === 0) return null;
-
-    const pool = this.options.noMods || parsedLanguages.choices.length > 0 || parsedLanguages.grants.length > 0
-      ? parsedLanguages.choices.map((choice) => `languages:${choice}`)
-      : languagesFromMods.map((choice) => `languages:${choice}`);
-
-    const chosen = this.options.noMods || chosenLanguages.chosen.length > 0
-      ? chosenLanguages.chosen.map((choice) => `languages:${choice}`).concat(parsedLanguages.grants.map((grant) => `languages:${grant}`))
-      : languagesFromMods.map((choice) => `languages:${choice}`);
-
-    advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "Languages",
-      configuration: {
-        allowReplacements: false,
-      },
-      level: level,
-    });
-
-    AdvancementHelper.advancementUpdate(advancement, {
-      pool,
-      chosen,
-      count: count,
-      grants: parsedLanguages.grants.map((grant) => `languages:${grant}`),
-    });
-
-    return advancement;
+    return this.advancementHelper.getLanguageAdvancement(mods, feature, level);
   }
 
   _generateLanguageAdvancements() {
@@ -874,77 +733,7 @@ export default class DDBClass {
       filterOnFeatureIds: [feature.id],
     };
     const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
-    const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
-    const toolMods = proficiencyMods
-      .filter((mod) =>
-        DICTIONARY.character.proficiencies
-          .some((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName)
-      );
-
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-
-    const parsedTools = AdvancementHelper.parseHTMLTools(feature.description);
-    const chosenTools = this.advancementHelper.getToolChoicesFromOptions(feature, level);
-
-    const toolsFromMods = toolMods.map((mod) => {
-      const tool = DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName);
-      return tool.toolType === ""
-        ? tool.baseTool
-        : `${tool.toolType}:${tool.baseTool}`;
-    });
-
-    const count = this.options.noMods || parsedTools.number > 0 || parsedTools.grants.length > 0
-      ? parsedTools.number > 0
-        ? parsedTools.number
-        : 1
-      : toolMods.length;
-
-    // console.warn(`Tools`, {
-    //   level,
-    //   feature,
-    //   mods,
-    //   proficiencyMods,
-    //   toolMods,
-    //   parsedTools,
-    //   chosenTools,
-    //   toolsFromMods,
-    //   count,
-    // });
-
-    if (count === 0 && parsedTools.grants.length === 0) return null;
-
-    const pool = this.options.noMods || parsedTools.choices.length > 0 || parsedTools.grants.length > 0
-      ? parsedTools.choices.map((choice) => `tool:${choice}`)
-      : toolsFromMods.map((choice) => `tool:${choice}`);
-
-
-    const chosen = this.options.noMods || chosenTools.chosen.length > 0
-      ? chosenTools.chosen.map((choice) => `tool:${choice}`).concat(parsedTools.grants.map((grant) => `tool:${grant}`))
-      : toolsFromMods.map((choice) => `tool:${choice}`);
-
-    advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "Tool Proficiencies",
-      configuration: {
-        allowReplacements: false,
-      },
-      level: level,
-    });
-
-    // console.warn("tools", {
-    //   pool,
-    //   chosen,
-    //   count,
-    //   grants: parsedTools.grants.map((grant) => `tool:${grant}`),
-    // });
-
-    AdvancementHelper.advancementUpdate(advancement, {
-      pool,
-      chosen,
-      count,
-      grants: parsedTools.grants.map((grant) => `tool:${grant}`),
-    });
-
-    return advancement;
+    return this.advancementHelper.getToolAdvancement(mods, feature, level);
   }
 
   _generateToolAdvancements() {
@@ -972,78 +761,7 @@ export default class DDBClass {
       filterOnFeatureIds: [feature.id],
     };
     const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
-    const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
-    const armorMods = proficiencyMods
-      .filter((mod) =>
-        DICTIONARY.character.proficiencies
-          .some((prof) => prof.type === "Armor" && prof.name === mod.friendlySubtypeName)
-      );
-
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-
-    const parsedArmors = AdvancementHelper.parseHTMLArmorProficiencies(feature.description);
-    const chosenArmors = this.advancementHelper.getChoicesFromOptions(feature, "Armor", level);
-
-    const armorsFromMods = armorMods.map((mod) => {
-      const armor = DICTIONARY.character.proficiencies
-        .find((prof) => prof.type === "Armor" && prof.name === mod.friendlySubtypeName);
-      return armor.advancement === ""
-        ? armor.foundryValue
-        : `${armor.advancement}:${armor.foundryValue}`;
-    });
-
-    const count = this.options.noMods || parsedArmors.number > 0 || parsedArmors.grants.length > 0
-      ? parsedArmors.number > 0
-        ? parsedArmors.number
-        : 1
-      : armorMods.length;
-
-    // console.warn(`Armor`, {
-    //   level,
-    //   feature,
-    //   mods,
-    //   proficiencyMods,
-    //   toolMods: armorMods,
-    //   parsedArmors,
-    //   chosenArmors,
-    //   armorsFromMods,
-    //   count,
-    // });
-
-    if (count === 0 && parsedArmors.grants.length === 0) return null;
-
-    const pool = this.options.noMods || parsedArmors.choices.length > 0 || parsedArmors.grants.length > 0
-      ? parsedArmors.choices.map((choice) => `armor:${choice}`)
-      : armorsFromMods.map((choice) => `armor:${choice}`);
-
-
-    const chosen = this.options.noMods || chosenArmors.chosen.length > 0
-      ? chosenArmors.chosen.map((choice) => `armor:${choice}`).concat(parsedArmors.grants.map((grant) => `armor:${grant}`))
-      : armorsFromMods.map((choice) => `armor:${choice}`);
-
-    advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "Armor Proficiencies",
-      configuration: {
-        allowReplacements: false,
-      },
-      level: level,
-    });
-
-    // console.warn("tools", {
-    //   pool,
-    //   chosen,
-    //   count,
-    //   grants: parsedTools.grants.map((grant) => `tool:${grant}`),
-    // });
-
-    AdvancementHelper.advancementUpdate(advancement, {
-      pool,
-      chosen,
-      count,
-      grants: parsedArmors.grants.map((grant) => `armor:${grant}`),
-    });
-
-    return advancement;
+    return this.advancementHelper.getArmorAdvancement(mods, feature, level);
   }
 
   _generateArmorAdvancements() {
@@ -1071,78 +789,7 @@ export default class DDBClass {
       filterOnFeatureIds: [feature.id],
     };
     const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
-    const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
-    const weaponMods = proficiencyMods
-      .filter((mod) =>
-        DICTIONARY.character.proficiencies
-          .some((prof) => prof.type === "Weapon" && prof.name === mod.friendlySubtypeName)
-      );
-
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-
-    const parsedWeapons = AdvancementHelper.parseHTMLWeaponProficiencies(feature.description);
-    const chosenWeapons = this.advancementHelper.getChoicesFromOptions(feature, "Weapon", level);
-
-    const weaponsFromMods = weaponMods.map((mod) => {
-      const weapon = DICTIONARY.character.proficiencies
-        .find((prof) => prof.type === "Weapon" && prof.name === mod.friendlySubtypeName);
-      return weapon.advancement === ""
-        ? weapon.foundryValue
-        : `${weapon.advancement}:${weapon.foundryValue}`;
-    });
-
-    const count = this.options.noMods || parsedWeapons.number > 0 || parsedWeapons.grants.length > 0
-      ? parsedWeapons.number > 0
-        ? parsedWeapons.number
-        : 1
-      : weaponMods.length;
-
-    // console.warn(`Weapon`, {
-    //   level,
-    //   feature,
-    //   mods,
-    //   proficiencyMods,
-    //   armorMods: weaponMods,
-    //   parsedArmors: parsedWeapons,
-    //   chosenArmors: chosenWeapons,
-    //   armorsFromMods: weaponsFromMods,
-    //   count,
-    // });
-
-    if (count === 0 && parsedWeapons.grants.length === 0) return null;
-
-    const pool = this.options.noMods || parsedWeapons.choices.length > 0 || parsedWeapons.grants.length > 0
-      ? parsedWeapons.choices.map((choice) => `weapon:${choice}`)
-      : weaponsFromMods.map((choice) => `weapon:${choice}`);
-
-
-    const chosen = this.options.noMods || chosenWeapons.chosen.length > 0
-      ? chosenWeapons.chosen.map((choice) => `weapon:${choice}`).concat(parsedWeapons.grants.map((grant) => `weapon:${grant}`))
-      : weaponsFromMods.map((choice) => `weapon:${choice}`);
-
-    advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "Weapon Proficiencies",
-      configuration: {
-        allowReplacements: false,
-      },
-      level: level,
-    });
-
-    // console.warn("weapons", {
-    //   pool,
-    //   chosen,
-    //   count,
-    //   grants: parsedWeapons.grants.map((grant) => `weapon:${grant}`),
-    // });
-
-    AdvancementHelper.advancementUpdate(advancement, {
-      pool,
-      chosen,
-      count,
-      grants: parsedWeapons.grants.map((grant) => `weapon:${grant}`),
-    });
-
-    return advancement;
+    return this.advancementHelper.getWeaponAdvancement(mods, feature, level);
   }
 
   _generateWeaponAdvancements() {
@@ -1161,53 +808,6 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
-
-  _generateExpertiseAdvancement(feature, level) {
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-    const expertiseOptions = this.advancementHelper.getExpertiseChoicesFromOptions(feature, level);
-
-    // add HTML Parsing to improve this at a later date
-
-    const pool = feature.name === "Survivalist"
-      ? ["skills:prc", "skills:nat"]
-      : feature.name === "Expertise"
-        ? ["skills:*", "tool:thief"]
-        : ["skills:*"];
-
-    const grants = feature.name === "Survivalist"
-      ? pool
-      : [];
-
-    const count = feature.name === "Survivalist"
-      ? 0
-      : expertiseOptions.length > 0
-        ? expertiseOptions.length
-        : 2;
-
-    advancement.updateSource({
-      title: feature.name === "Survivalist" ? `${feature.name} (Expertise)` : `${feature.name}`,
-      configuration: {
-        allowReplacements: false,
-        pool,
-        mode: "expertise",
-      },
-      level: level,
-    });
-
-    const chosenSkills = expertiseOptions.skills.chosen.map((skill) => `skills:${skill}`);
-    const chosenTools = expertiseOptions.tools.chosen.map((tool) => `tool:${tool}`);
-    const chosen = [].concat(chosenSkills, chosenTools, grants);
-
-    AdvancementHelper.advancementUpdate(advancement, {
-      chosen,
-      count,
-      grants,
-    });
-
-    return advancement;
-
-  }
-
   _generateExpertiseAdvancements() {
     if (this.legacyMode) return;
     const advancements = [];
@@ -1217,22 +817,14 @@ export default class DDBClass {
       // eslint-disable-next-line no-continue
       if (!expertiseFeature) continue;
 
-      const advancement = this._generateExpertiseAdvancement(expertiseFeature, i);
+      const advancement = this.advancementHelper.getExpertiseAdvancement(expertiseFeature, i);
       if (advancement) advancements.push(advancement.toObject());
     }
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
-  static CONDITION_MAPPING = {
-    1: "dr",
-    2: "di",
-    3: "dv",
-    4: "ci",
-  };
-
   _generateConditionAdvancement(feature, level) {
-
     const modFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
@@ -1242,75 +834,7 @@ export default class DDBClass {
     };
     const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
 
-    const conditionsFromMods = [];
-    ["resistance", "immunity", "vulnerability", "immunity"].forEach((condition, i) => {
-      const proficiencyMods = DDBHelper.filterModifiers(mods, condition, { restriction: null });
-      const conditionId = i + 1;
-      const conditionData = getGenericConditionAffectData(proficiencyMods, condition, conditionId, true);
-      const conditionValues = new Set(conditionData.map((result) => `${DDBClass.CONDITION_MAPPING[conditionId]}:${result.value}`));
-      // console.warn("Individual Parse", {
-      //   proficiencyMods,
-      //   condition,
-      //   conditionId,
-      //   conditionData,
-      //   conditionValues,
-      // });
-      conditionsFromMods.push(...conditionValues);
-    });
-
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-
-    const parsedConditions = AdvancementHelper.parseHTMLConditions(feature.description);
-
-    const count = this.options.noMods || parsedConditions.number > 0 || parsedConditions.grants.length > 0
-      ? parsedConditions.number > 0
-        ? parsedConditions.number
-        : 1
-      : conditionsFromMods.length;
-
-    // console.warn(`Conditions`, {
-    //   level,
-    //   feature,
-    //   mods,
-    //   conditionsFromMods,
-    //   parsedConditions,
-    //   count,
-    // });
-
-    if (count === 0 && parsedConditions.grants.length === 0) return null;
-
-    const pool = this.options.noMods || parsedConditions.choices.length > 0 || parsedConditions.grants.length > 0
-      ? parsedConditions.choices.map((choice) => choice)
-      : conditionsFromMods.map((choice) => choice);
-
-    const chosen = this.options.noMods
-      ? parsedConditions.grants.map((grant) => grant)
-      : conditionsFromMods.map((choice) => choice);
-
-    advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "",
-      configuration: {
-        allowReplacements: false,
-        hint: parsedConditions.hint,
-      },
-      level: level,
-    });
-
-    // console.warn("conditions", {
-    //   pool,
-    //   chosen,
-    //   count,
-    //   grants: parsedConditions.grants.map((grant) => grant),
-    // });
-
-    AdvancementHelper.advancementUpdate(advancement, {
-      pool,
-      chosen,
-      count,
-      grants: parsedConditions.grants.map((grant) => grant),
-    });
-
-    return advancement;
+    return this.advancementHelper.getConditionAdvancement(mods, feature, level);
   }
 
   _generateConditionAdvancements() {
