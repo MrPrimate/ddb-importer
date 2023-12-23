@@ -115,6 +115,35 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._addCustomValues();
   }
 
+  async _generateFeatureAdvancements() {
+    // STUB
+  }
+
+  _generateSkillAdvancements() {
+    // STUB
+  }
+
+  _generateLanguageAdvancements() {
+    // STUB
+  }
+
+  _generateToolAdvancements() {
+    // STUB
+  }
+
+  _generateSkillOrLanguageAdvancements() {
+    // STUB
+  }
+
+  async generateAdvancements() {
+    await this._generateFeatureAdvancements();
+    this._generateSkillAdvancements();
+    this._generateLanguageAdvancements();
+    this._generateToolAdvancements();
+    // FUTURE: Equipment?  needs better handling in Foundry
+    this._generateSkillOrLanguageAdvancements();
+  }
+
   _buildBackground() {
     try {
       this._generateSystemType();
