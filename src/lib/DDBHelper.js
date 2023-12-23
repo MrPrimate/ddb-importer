@@ -377,7 +377,7 @@ const DDBHelper = {
       ).map((feat) => feat.definition.id);
   },
 
-  isModClassFeature: (ddb, mod, { classId = null, requiredLevel = null, exactLevel = null } = {}) => {
+  isModClassFeature: (ddb, mod, { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null } = {}) => {
     return ddb.character.classes.some((klass) =>
       (classId === null
         ? true
@@ -385,6 +385,7 @@ const DDBHelper = {
       && klass.classFeatures.some((feat) =>
         feat.definition.id == mod.componentId
         && feat.definition.entityTypeId == mod.componentTypeId
+        && (classFeatureIds === null || classFeatureIds.includes(feat.definition.id))
         && (requiredLevel === null || feat.definition.requiredLevel >= requiredLevel)
         && (exactLevel === null || feat.definition.requiredLevel == exactLevel)
         // make sure this class feature is not replaced
@@ -452,7 +453,7 @@ const DDBHelper = {
 
   isModAChosenClassMod: (ddb, mod, { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null } = {}) => {
     const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
-    const isClassFeature = DDBHelper.isModClassFeature(ddb, mod, { classId, requiredLevel, exactLevel });
+    const isClassFeature = DDBHelper.isModClassFeature(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
     if (isClassFeature) return true;
     const isClassOption = DDBHelper.isModClassOption(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
     if (isClassOption) return true;
