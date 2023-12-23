@@ -314,6 +314,11 @@ export default class DDBClass {
 
     this.dictionary = DICTIONARY.character.class.find((c) => c.name === this.ddbClassDefinition.name);
 
+    this.advancementHelper = new AdvancementHelper({
+      ddbData,
+      type: "class",
+    });
+
   }
 
   // this excludes any class/sub class features
@@ -435,7 +440,7 @@ export default class DDBClass {
   _setLegacySkills() {
     if (!this.legacyMode) return;
 
-    const skills = this._parseSkillChoicesFromOptions(null, 1);
+    const skills = this.advancementHelper.getSkillChoicesFromOptions(null, 1);
 
     this.data.system.skills = {
       value: skills.chosen,
@@ -634,224 +639,6 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
-  _parseSkillChoicesFromOptions(feature, level) {
-    const skillsChosen = new Set();
-    const skillChoices = new Set();
-
-    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
-
-    this.ddbData.character.choices.class.filter((choice) =>
-      // check all features
-      ((feature === null && this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level))
-      // check specific feature
-       || (feature.id === choice.componentId && feature.requiredLevel === level))
-      && choice.subType === 1
-      && choice.type === 2
-    ).forEach((choice) => {
-      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-      if (!optionChoice) return;
-      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
-      if (!option) return;
-      const smallChosen = DICTIONARY.character.skills.find((skill) => skill.label === option.label);
-      if (smallChosen) skillsChosen.add(smallChosen.name);
-      const optionNames = optionChoice.options.filter((option) =>
-        DICTIONARY.character.skills.some((skill) => skill.label === option.label)
-        && choice.optionIds.includes(option.id)
-      ).map((option) =>
-        DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
-      );
-      optionNames.forEach((skill) => {
-        skillChoices.add(skill);
-      });
-    });
-
-    return {
-      chosen: Array.from(skillsChosen),
-      choices: Array.from(skillChoices),
-    };
-  }
-
-  _parseToolChoicesFromOptions(feature, level) {
-    const toolsChosen = new Set();
-    const toolChoices = new Set();
-
-    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
-
-    this.ddbData.character.choices.class.filter((choice) =>
-      feature.id === choice.componentId
-      && feature.requiredLevel === level
-      && choice.subType === 1
-      && choice.type === 2
-    ).forEach((choice) => {
-      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-      if (!optionChoice) return;
-      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
-      if (!option) return;
-      const smallChosen = DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === option.label);
-      if (smallChosen) {
-        const toolStub = smallChosen.toolType === ""
-          ? smallChosen.baseTool
-          : `${smallChosen.toolType}:${smallChosen.baseTool}`;
-        toolsChosen.add(toolStub);
-      }
-      const optionNames = optionChoice.options
-        .filter((option) =>
-          DICTIONARY.character.proficiencies.some((prof) => prof.type === "Tool" && prof.name === option.label)
-          && choice.optionIds.includes(option.id)
-        )
-        .map((option) =>
-          DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === option.label)
-        );
-      optionNames.forEach((tool) => {
-        const toolStub = tool.toolType === ""
-          ? tool.baseTool
-          : `${tool.toolType}:${tool.baseTool}`;
-        toolChoices.add(toolStub);
-      });
-    });
-
-    return {
-      chosen: Array.from(toolsChosen),
-      choices: Array.from(toolChoices),
-    };
-  }
-
-  _parseLanguageChoicesFromOptions(feature, level) {
-    const languagesChosen = new Set();
-    const languageChoices = new Set();
-
-    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
-
-    this.ddbData.character.choices.class.filter((choice) =>
-      feature.id === choice.componentId
-      && feature.requiredLevel === level
-      && choice.subType === 3
-      && choice.type === 2
-    ).forEach((choice) => {
-      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-      if (!optionChoice) return;
-      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
-      if (!option) return;
-      const smallChosen = DICTIONARY.character.languages.find((lang) => lang.name === option.label);
-      if (smallChosen) languagesChosen.add(smallChosen.value);
-      const optionNames = optionChoice.options.filter((option) =>
-        DICTIONARY.character.languages.find((lang) => lang.name === option.label)
-        && choice.optionIds.includes(option.id)
-      ).map((option) =>
-        DICTIONARY.character.languages.find((lang) => lang.name === option.label).value
-      );
-      optionNames.forEach((skill) => {
-        languageChoices.add(skill);
-      });
-    });
-
-    return {
-      chosen: Array.from(languagesChosen),
-      choices: Array.from(languageChoices),
-    };
-  }
-
-  _parseChoicesFromOptions(feature, type, level) {
-    const chosen = new Set();
-    const choices = new Set();
-
-    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
-
-    this.ddbData.character.choices.class.filter((choice) => {
-      return feature.id === choice.componentId
-        && feature.requiredLevel === level
-        && choice.subType === 1
-        && choice.type === 2;
-    }).forEach((choice) => {
-      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-      if (!optionChoice) return;
-      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
-      if (!option) return;
-      const smallChosen = DICTIONARY.character.proficiencies.find((prof) => prof.type === type && prof.name === option.label);
-      if (smallChosen) {
-        const stub = smallChosen.advancement === ""
-          ? smallChosen.foundryValue
-          : `${smallChosen.advancement}:${smallChosen.foundryValue}`;
-        chosen.add(stub);
-      }
-      const optionNames = optionChoice.options
-        .filter((option) =>
-          DICTIONARY.character.proficiencies.some((prof) => prof.type === type && prof.name === option.label)
-          && choice.optionIds.includes(option.id)
-        )
-        .map((option) =>
-          DICTIONARY.character.proficiencies.find((prof) => prof.type === type && prof.name === option.label)
-        );
-      optionNames.forEach((prof) => {
-        const stub = prof.advancement === ""
-          ? prof.foundryValue
-          : `${prof.advancement}:${prof.foundryValue}`;
-        choices.add(stub);
-      });
-    });
-
-    return {
-      chosen: Array.from(chosen),
-      choices: Array.from(choices),
-    };
-  }
-
-  _parseExpertiseChoicesFromOptions(feature, level) {
-    const skillsChosen = new Set();
-    const skillChoices = new Set();
-    const toolsChosen = new Set();
-    const toolChoices = new Set();
-
-    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
-
-    this.ddbData.character.choices.class.filter((choice) =>
-      feature.id === choice.componentId
-      && feature.requiredLevel === level
-      && choice.subType === 2
-      && choice.type === 2
-    ).forEach((choice) => {
-      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-      if (!optionChoice) return;
-      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
-      if (!option) return;
-      const smallChosenSkill = DICTIONARY.character.skills.find((skill) => skill.label === option.label);
-      if (smallChosenSkill) skillsChosen.add(smallChosenSkill.name);
-      const smallChosenTool = DICTIONARY.character.proficiencies.find((p) => p.type === "Tool" && p.name === option.label);
-      if (smallChosenTool) toolsChosen.add(smallChosenTool.baseTool);
-
-      const skillOptionNames = optionChoice.options.filter((option) =>
-        DICTIONARY.character.skills.some((skill) => skill.label === option.label)
-        && choice.optionIds.includes(option.id)
-      ).map((option) =>
-        DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
-      );
-      skillOptionNames.forEach((skill) => {
-        skillChoices.add(skill);
-      });
-
-      const toolOptionNames = optionChoice.options.filter((option) =>
-        DICTIONARY.character.proficiencies.find((p) => p.type === "Tool" && p.name === option.label)
-        && choice.optionIds.includes(option.id)
-      ).map((option) =>
-        DICTIONARY.character.proficiencies.find((p) => p.type === "Tool" && p.name === option.label).baseTool
-      );
-      toolOptionNames.forEach((tool) => {
-        toolChoices.add(tool);
-      });
-    });
-
-    return {
-      skills: {
-        chosen: Array.from(skillsChosen),
-        choices: Array.from(skillChoices),
-      },
-      tools: {
-        chosen: Array.from(toolsChosen),
-        choices: Array.from(toolChoices),
-      },
-    };
-  }
-
   static _advancementUpdate(advancement, { pool = [], chosen = [], count = 0, grants = [] } = {}) {
     if (grants.length > 0) {
       advancement.updateSource({
@@ -911,7 +698,7 @@ export default class DDBClass {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedSkills = AdvancementHelper.parseHTMLSkills(feature.description);
-    const chosenSkills = this._parseSkillChoicesFromOptions(feature, i);
+    const chosenSkills = this.advancementHelper.getSkillChoicesFromOptions(feature, i);
 
     const count = this.options.noMods || parsedSkills.number > 0 || parsedSkills.grants.length > 0
       ? parsedSkills.number
@@ -1002,7 +789,7 @@ export default class DDBClass {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedLanguages = AdvancementHelper.parseHTMLLanguages(feature.description);
-    const chosenLanguages = this._parseLanguageChoicesFromOptions(feature, level);
+    const chosenLanguages = this.advancementHelper.getLanguageChoicesFromOptions(feature, level);
 
     const languagesFromMods = languagesMods
       .filter((mod) => DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName))
@@ -1125,7 +912,7 @@ export default class DDBClass {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedTools = AdvancementHelper.parseHTMLTools(feature.description);
-    const chosenTools = this._parseToolChoicesFromOptions(feature, level);
+    const chosenTools = this.advancementHelper.getToolChoicesFromOptions(feature, level);
 
     const toolsFromMods = toolMods.map((mod) => {
       const tool = DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName);
@@ -1223,7 +1010,7 @@ export default class DDBClass {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedArmors = AdvancementHelper.parseHTMLArmorProficiencies(feature.description);
-    const chosenArmors = this._parseChoicesFromOptions(feature, "Armor", level);
+    const chosenArmors = this.advancementHelper.getChoicesFromOptions(feature, "Armor", level);
 
     const armorsFromMods = armorMods.map((mod) => {
       const armor = DICTIONARY.character.proficiencies
@@ -1322,7 +1109,7 @@ export default class DDBClass {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedWeapons = AdvancementHelper.parseHTMLWeaponProficiencies(feature.description);
-    const chosenWeapons = this._parseChoicesFromOptions(feature, "Weapon", level);
+    const chosenWeapons = this.advancementHelper.getChoicesFromOptions(feature, "Weapon", level);
 
     const weaponsFromMods = weaponMods.map((mod) => {
       const weapon = DICTIONARY.character.proficiencies
@@ -1391,7 +1178,7 @@ export default class DDBClass {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      const weaponFeatures = this._armorFeatures.filter((f) => f.requiredLevel === i);
+      const weaponFeatures = this._weaponFeatures.filter((f) => f.requiredLevel === i);
 
       for (const feature of weaponFeatures) {
         const advancement = this._generateWeaponAdvancement(feature, i);
@@ -1405,7 +1192,7 @@ export default class DDBClass {
 
   _generateExpertiseAdvancement(feature, level) {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-    const expertiseOptions = this._parseExpertiseChoicesFromOptions(feature, level);
+    const expertiseOptions = this.advancementHelper.getExpertiseChoicesFromOptions(feature, level);
 
     // add HTML Parsing to improve this at a later date
 

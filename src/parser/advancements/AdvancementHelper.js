@@ -4,6 +4,230 @@ import logger from '../../logger.js';
 
 export default class AdvancementHelper {
 
+  constructor({ ddbData, type }) {
+    this.ddbData = ddbData;
+    this.type = type;
+  }
+
+
+  getSkillChoicesFromOptions(feature, level) {
+    const skillsChosen = new Set();
+    const skillChoices = new Set();
+
+    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
+
+    this.ddbData.character.choices[this.type].filter((choice) =>
+      // check all features
+      ((feature === null && this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level))
+      // check specific feature
+       || (feature.id === choice.componentId && feature.requiredLevel === level))
+      && choice.subType === 1
+      && choice.type === 2
+    ).forEach((choice) => {
+      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+      if (!optionChoice) return;
+      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
+      if (!option) return;
+      const smallChosen = DICTIONARY.character.skills.find((skill) => skill.label === option.label);
+      if (smallChosen) skillsChosen.add(smallChosen.name);
+      const optionNames = optionChoice.options.filter((option) =>
+        DICTIONARY.character.skills.some((skill) => skill.label === option.label)
+        && choice.optionIds.includes(option.id)
+      ).map((option) =>
+        DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
+      );
+      optionNames.forEach((skill) => {
+        skillChoices.add(skill);
+      });
+    });
+
+    return {
+      chosen: Array.from(skillsChosen),
+      choices: Array.from(skillChoices),
+    };
+  }
+
+  getToolChoicesFromOptions(feature, level) {
+    const toolsChosen = new Set();
+    const toolChoices = new Set();
+
+    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
+
+    this.ddbData.character.choices[this.type].filter((choice) =>
+      feature.id === choice.componentId
+      && feature.requiredLevel === level
+      && choice.subType === 1
+      && choice.type === 2
+    ).forEach((choice) => {
+      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+      if (!optionChoice) return;
+      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
+      if (!option) return;
+      const smallChosen = DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === option.label);
+      if (smallChosen) {
+        const toolStub = smallChosen.toolType === ""
+          ? smallChosen.baseTool
+          : `${smallChosen.toolType}:${smallChosen.baseTool}`;
+        toolsChosen.add(toolStub);
+      }
+      const optionNames = optionChoice.options
+        .filter((option) =>
+          DICTIONARY.character.proficiencies.some((prof) => prof.type === "Tool" && prof.name === option.label)
+          && choice.optionIds.includes(option.id)
+        )
+        .map((option) =>
+          DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === option.label)
+        );
+      optionNames.forEach((tool) => {
+        const toolStub = tool.toolType === ""
+          ? tool.baseTool
+          : `${tool.toolType}:${tool.baseTool}`;
+        toolChoices.add(toolStub);
+      });
+    });
+
+    return {
+      chosen: Array.from(toolsChosen),
+      choices: Array.from(toolChoices),
+    };
+  }
+
+  getLanguageChoicesFromOptions(feature, level) {
+    const languagesChosen = new Set();
+    const languageChoices = new Set();
+
+    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
+
+    this.ddbData.character.choices[this.type].filter((choice) =>
+      feature.id === choice.componentId
+      && feature.requiredLevel === level
+      && choice.subType === 3
+      && choice.type === 2
+    ).forEach((choice) => {
+      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+      if (!optionChoice) return;
+      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
+      if (!option) return;
+      const smallChosen = DICTIONARY.character.languages.find((lang) => lang.name === option.label);
+      if (smallChosen) languagesChosen.add(smallChosen.value);
+      const optionNames = optionChoice.options.filter((option) =>
+        DICTIONARY.character.languages.find((lang) => lang.name === option.label)
+        && choice.optionIds.includes(option.id)
+      ).map((option) =>
+        DICTIONARY.character.languages.find((lang) => lang.name === option.label).value
+      );
+      optionNames.forEach((skill) => {
+        languageChoices.add(skill);
+      });
+    });
+
+    return {
+      chosen: Array.from(languagesChosen),
+      choices: Array.from(languageChoices),
+    };
+  }
+
+  getChoicesFromOptions(feature, type, level) {
+    const chosen = new Set();
+    const choices = new Set();
+
+    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
+
+    this.ddbData.character.choices[this.type].filter((choice) => {
+      return feature.id === choice.componentId
+        && feature.requiredLevel === level
+        && choice.subType === 1
+        && choice.type === 2;
+    }).forEach((choice) => {
+      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+      if (!optionChoice) return;
+      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
+      if (!option) return;
+      const smallChosen = DICTIONARY.character.proficiencies.find((prof) => prof.type === type && prof.name === option.label);
+      if (smallChosen) {
+        const stub = smallChosen.advancement === ""
+          ? smallChosen.foundryValue
+          : `${smallChosen.advancement}:${smallChosen.foundryValue}`;
+        chosen.add(stub);
+      }
+      const optionNames = optionChoice.options
+        .filter((option) =>
+          DICTIONARY.character.proficiencies.some((prof) => prof.type === type && prof.name === option.label)
+          && choice.optionIds.includes(option.id)
+        )
+        .map((option) =>
+          DICTIONARY.character.proficiencies.find((prof) => prof.type === type && prof.name === option.label)
+        );
+      optionNames.forEach((prof) => {
+        const stub = prof.advancement === ""
+          ? prof.foundryValue
+          : `${prof.advancement}:${prof.foundryValue}`;
+        choices.add(stub);
+      });
+    });
+
+    return {
+      chosen: Array.from(chosen),
+      choices: Array.from(choices),
+    };
+  }
+
+  getExpertiseChoicesFromOptions(feature, level) {
+    const skillsChosen = new Set();
+    const skillChoices = new Set();
+    const toolsChosen = new Set();
+    const toolChoices = new Set();
+
+    const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
+
+    this.ddbData.character.choices[this.type].filter((choice) =>
+      feature.id === choice.componentId
+      && feature.requiredLevel === level
+      && choice.subType === 2
+      && choice.type === 2
+    ).forEach((choice) => {
+      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+      if (!optionChoice) return;
+      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
+      if (!option) return;
+      const smallChosenSkill = DICTIONARY.character.skills.find((skill) => skill.label === option.label);
+      if (smallChosenSkill) skillsChosen.add(smallChosenSkill.name);
+      const smallChosenTool = DICTIONARY.character.proficiencies.find((p) => p.type === "Tool" && p.name === option.label);
+      if (smallChosenTool) toolsChosen.add(smallChosenTool.baseTool);
+
+      const skillOptionNames = optionChoice.options.filter((option) =>
+        DICTIONARY.character.skills.some((skill) => skill.label === option.label)
+        && choice.optionIds.includes(option.id)
+      ).map((option) =>
+        DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
+      );
+      skillOptionNames.forEach((skill) => {
+        skillChoices.add(skill);
+      });
+
+      const toolOptionNames = optionChoice.options.filter((option) =>
+        DICTIONARY.character.proficiencies.find((p) => p.type === "Tool" && p.name === option.label)
+        && choice.optionIds.includes(option.id)
+      ).map((option) =>
+        DICTIONARY.character.proficiencies.find((p) => p.type === "Tool" && p.name === option.label).baseTool
+      );
+      toolOptionNames.forEach((tool) => {
+        toolChoices.add(tool);
+      });
+    });
+
+    return {
+      skills: {
+        chosen: Array.from(skillsChosen),
+        choices: Array.from(skillChoices),
+      },
+      tools: {
+        chosen: Array.from(toolsChosen),
+        choices: Array.from(toolChoices),
+      },
+    };
+  }
+
   // Feats with multichoices
   // You gain proficiency in any combination of three skills or tools of your choice.
 
