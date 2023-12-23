@@ -897,31 +897,29 @@ export default class AdvancementHelper {
     return parsedConditions;
   }
 
-  static parseHTMLEquipment(description) {
-    const parsedEquipment = {
-      choices: [],
-      grants: [],
-      number: 0,
-    };
-    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+  // static parseHTMLEquipment(description) {
+  //   const parsedEquipment = {
+  //     choices: [],
+  //     grants: [],
+  //     number: 0,
+  //   };
+  //   const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
 
-    // You start with the following equipment, in addition to the equipment granted by your background:
-    // any two simple weapons of your choice
-    // a light crossbow and 20 bolts
-    // your choice of studded leather armor or scale mail
-    // thieves’ tools and a dungeoneer’s pack
+  //   // You start with the following equipment, in addition to the equipment granted by your background:
+  //   // any two simple weapons of your choice
+  //   // a light crossbow and 20 bolts
+  //   // your choice of studded leather armor or scale mail
+  //   // thieves’ tools and a dungeoneer’s pack
 
-    // You start with the following equipment, in addition to the equipment granted by your background:
+  //   // You start with the following equipment, in addition to the equipment granted by your background:
 
-    // (a) a greataxe or (b) any martial melee weapon
-    // (a) two handaxes or (b) any simple weapon
-    // An explorer’s pack and four javelins
+  //   // (a) a greataxe or (b) any martial melee weapon
+  //   // (a) two handaxes or (b) any simple weapon
+  //   // An explorer’s pack and four javelins
 
+  //   // parse equipment here
 
-
-    // TODO : parse equipment
-
-    return parsedEquipment;
-  }
+  //   return parsedEquipment;
+  // }
 
 }

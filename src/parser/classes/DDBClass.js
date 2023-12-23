@@ -504,7 +504,7 @@ export default class DDBClass {
         }
       });
 
-    // TODO: for choice features such as fighting styles:
+    // TO DO: for choice features such as fighting styles:
 
     // {
     //   "type": "ItemChoice",
@@ -567,7 +567,7 @@ export default class DDBClass {
 
   _generateHTMLSaveAdvancement() {
     const advancements = [];
-    // TODO: Add what to do if no mods supplied
+    // FUTURE ENHANCEMENT FOR BULK: Add what to do if no mods supplied
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
@@ -795,7 +795,7 @@ export default class DDBClass {
     };
   }
 
-  _parseExpertiseChoicesFromOptions(level) {
+  _parseExpertiseChoicesFromOptions(feature, level) {
     const skillsChosen = new Set();
     const skillChoices = new Set();
     const toolsChosen = new Set();
@@ -804,7 +804,8 @@ export default class DDBClass {
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices.class.filter((choice) =>
-      this._expertiseFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
+      feature.id === choice.componentId
+      && feature.requiredLevel === level
       && choice.subType === 2
       && choice.type === 2
     ).forEach((choice) => {
@@ -1400,49 +1401,64 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
+
+  _generateExpertiseAdvancement(feature, level) {
+    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+    const expertiseOptions = this._parseExpertiseChoicesFromOptions(feature, level);
+
+    // add HTML Parsing to improve this at a later date
+
+    const pool = feature.name === "Survivalist"
+      ? ["skills:prc", "skills:nat"]
+      : feature.name === "Expertise"
+        ? ["skills:*", "tool:thief"]
+        : ["skills:*"];
+
+    const grants = feature.name === "Survivalist"
+      ? pool
+      : [];
+
+    const count = feature.name === "Survivalist"
+      ? 0
+      : expertiseOptions.length > 0
+        ? expertiseOptions.length
+        : 2;
+
+    advancement.updateSource({
+      title: feature.name === "Survivalist" ? `${feature.name} (Expertise)` : `${feature.name}`,
+      configuration: {
+        allowReplacements: false,
+        pool,
+        mode: "expertise",
+      },
+      level: level,
+    });
+
+    const chosenSkills = expertiseOptions.skills.chosen.map((skill) => `skills:${skill}`);
+    const chosenTools = expertiseOptions.tools.chosen.map((tool) => `tool:${tool}`);
+    const chosen = [].concat(chosenSkills, chosenTools, grants);
+
+    DDBClass._advancementUpdate(advancement, {
+      chosen,
+      count,
+      grants,
+    });
+
+    return advancement;
+
+  }
+
   _generateExpertiseAdvancements() {
     if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
       const expertiseFeature = this._expertiseFeatures.find((f) => f.requiredLevel === i);
-      // filterOnFeatureIds: [expertiseFeature.id],
       // eslint-disable-next-line no-continue
       if (!expertiseFeature) continue;
 
-      const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-      const expertiseOptions = this._parseExpertiseChoicesFromOptions(i);
-
-      const pool = this.ddbClass.definition.name === "Rogue"
-        ? ["skills:*", "tool:thief"]
-        : ["skills:*"];
-
-      // TODO: parse out expertise count, for survivalist, and adjust the pool above
-      const expertiseCount = expertiseOptions.length > 0 ? expertiseOptions.length : 2;
-
-      const initialUpdate = {
-        title: "Expertise",
-        configuration: {
-          allowReplacements: false,
-          mode: "expertise",
-        },
-        level: i,
-      };
-
-      advancement.updateSource(initialUpdate);
-
-      const chosenSkills = expertiseOptions.skills.chosen.map((skill) => `skills:${skill}`);
-      const chosenTools = expertiseOptions.tools.chosen.map((tool) => `tool:${tool}`);
-      const chosen = [].concat(chosenSkills, chosenTools);
-
-      DDBClass._advancementUpdate(advancement, {
-        pool,
-        chosen,
-        count: expertiseCount,
-        grants: [],
-      });
-
-      advancements.push(advancement.toObject());
+      const advancement = this._generateExpertiseAdvancement(expertiseFeature, i);
+      if (advancement) advancements.push(advancement.toObject());
     }
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
