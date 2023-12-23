@@ -435,7 +435,7 @@ export default class DDBClass {
   _setLegacySkills() {
     if (!this.legacyMode) return;
 
-    const skills = this._parseSkillChoicesFromOptions(1);
+    const skills = this._parseSkillChoicesFromOptions(null, 1);
 
     this.data.system.skills = {
       value: skills.chosen,
@@ -634,14 +634,17 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
-  _parseSkillChoicesFromOptions(level) {
+  _parseSkillChoicesFromOptions(feature, level) {
     const skillsChosen = new Set();
     const skillChoices = new Set();
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices.class.filter((choice) =>
-      this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
+      // check all features
+      ((feature === null && this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level))
+      // check specific feature
+       || (feature.id === choice.componentId && feature.requiredLevel === level))
       && choice.subType === 1
       && choice.type === 2
     ).forEach((choice) => {
@@ -668,14 +671,15 @@ export default class DDBClass {
     };
   }
 
-  _parseToolChoicesFromOptions(level) {
+  _parseToolChoicesFromOptions(feature, level) {
     const toolsChosen = new Set();
     const toolChoices = new Set();
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices.class.filter((choice) =>
-      this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
+      feature.id === choice.componentId
+      && feature.requiredLevel === level
       && choice.subType === 1
       && choice.type === 2
     ).forEach((choice) => {
@@ -712,14 +716,15 @@ export default class DDBClass {
     };
   }
 
-  _parseLanguageChoicesFromOptions(level) {
+  _parseLanguageChoicesFromOptions(feature, level) {
     const languagesChosen = new Set();
     const languageChoices = new Set();
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices.class.filter((choice) =>
-      this._languageFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level)
+      feature.id === choice.componentId
+      && feature.requiredLevel === level
       && choice.subType === 3
       && choice.type === 2
     ).forEach((choice) => {
@@ -746,19 +751,15 @@ export default class DDBClass {
     };
   }
 
-  _parseChoicesFromOptions(type, level) {
+  _parseChoicesFromOptions(feature, type, level) {
     const chosen = new Set();
     const choices = new Set();
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices.class.filter((choice) => {
-      const features = type === "Armor"
-        ? this._armorFeatures
-        : type === "Weapon"
-          ? this._weaponFeatures
-          : this._proficiencyFeatures;
-      return features.some((f) => f.id === choice.componentId && f.requiredLevel === level)
+      return feature.id === choice.componentId
+        && feature.requiredLevel === level
         && choice.subType === 1
         && choice.type === 2;
     }).forEach((choice) => {
@@ -879,16 +880,16 @@ export default class DDBClass {
     }
   }
 
-  _generateSkillAdvancement(proficiencyFeature, availableToMulticlass, i) {
+  _generateSkillAdvancement(feature, availableToMulticlass, i) {
 
-    const baseProficiency = proficiencyFeature.name === "Proficiencies";
+    const baseProficiency = feature.name === "Proficiencies";
     const classModFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
       exactLevel: i,
       availableToMulticlass: availableToMulticlass === false ? null : true,
       useUnfilteredModifiers: true,
-      filterOnFeatureIds: [proficiencyFeature.id],
+      filterOnFeatureIds: [feature.id],
     };
     const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, classModFilters);
     const skillExplicitMods = mods.filter((mod) =>
@@ -909,8 +910,8 @@ export default class DDBClass {
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
-    const parsedSkills = AdvancementHelper.parseHTMLSkills(proficiencyFeature.description);
-    const chosenSkills = this._parseSkillChoicesFromOptions(i);
+    const parsedSkills = AdvancementHelper.parseHTMLSkills(feature.description);
+    const chosenSkills = this._parseSkillChoicesFromOptions(feature, i);
 
     const count = this.options.noMods || parsedSkills.number > 0 || parsedSkills.grants.length > 0
       ? parsedSkills.number
@@ -935,7 +936,7 @@ export default class DDBClass {
     if (count === 0 && parsedSkills.grants.length === 0) return null;
 
     advancement.updateSource({
-      title: proficiencyFeature.name !== "Proficiencies" ? proficiencyFeature.name : "Skills",
+      title: feature.name !== "Proficiencies" ? feature.name : "Skills",
       classRestriction: i > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
       configuration: {
         allowReplacements: false,
@@ -1001,7 +1002,7 @@ export default class DDBClass {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedLanguages = AdvancementHelper.parseHTMLLanguages(feature.description);
-    const chosenLanguages = this._parseLanguageChoicesFromOptions(level);
+    const chosenLanguages = this._parseLanguageChoicesFromOptions(feature, level);
 
     const languagesFromMods = languagesMods
       .filter((mod) => DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName))
@@ -1016,16 +1017,16 @@ export default class DDBClass {
         : 1
       : languagesMods.length;
 
-    // console.warn(`Languages`, {
-    //   i: level,
-    //   languageFeature: feature,
-    //   mods,
-    //   languagesMods,
-    //   parsedLanguages,
-    //   chosenLanguages,
-    //   languagesFromMods,
-    //   languageCount: count,
-    // });
+    console.warn(`Languages`, {
+      i: level,
+      languageFeature: feature,
+      mods,
+      languagesMods,
+      parsedLanguages,
+      chosenLanguages,
+      languagesFromMods,
+      languageCount: count,
+    });
 
     if (count === 0 && parsedLanguages.grants.length === 0) return null;
 
@@ -1124,7 +1125,7 @@ export default class DDBClass {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedTools = AdvancementHelper.parseHTMLTools(feature.description);
-    const chosenTools = this._parseToolChoicesFromOptions(level);
+    const chosenTools = this._parseToolChoicesFromOptions(feature, level);
 
     const toolsFromMods = toolMods.map((mod) => {
       const tool = DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName);
@@ -1222,7 +1223,7 @@ export default class DDBClass {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedArmors = AdvancementHelper.parseHTMLArmorProficiencies(feature.description);
-    const chosenArmors = this._parseChoicesFromOptions("Armor", level);
+    const chosenArmors = this._parseChoicesFromOptions(feature, "Armor", level);
 
     const armorsFromMods = armorMods.map((mod) => {
       const armor = DICTIONARY.character.proficiencies
@@ -1321,7 +1322,7 @@ export default class DDBClass {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedWeapons = AdvancementHelper.parseHTMLWeaponProficiencies(feature.description);
-    const chosenWeapons = this._parseChoicesFromOptions("Weapon", level);
+    const chosenWeapons = this._parseChoicesFromOptions(feature, "Weapon", level);
 
     const weaponsFromMods = weaponMods.map((mod) => {
       const weapon = DICTIONARY.character.proficiencies
@@ -1686,11 +1687,11 @@ export default class DDBClass {
     this._generateToolAdvancements();
     this._generateArmorAdvancements();
     this._generateWeaponAdvancements();
-    // todo: Equipment? (for backgrounds)
+    // FUTURE: Equipment? (for backgrounds), needs better handling in Foundry
     this._generateSkillOrLanguageAdvancements();
     this._generateConditionAdvancements();
     this._generateSpellCastingProgression();
-    // todo: choice options such as fighting styles
+    // FUTURE: choice options such as fighting styles, this requires improved feature parsing
     await this._addSRDAdvancements();
   }
 
