@@ -615,7 +615,7 @@ export default class DDBClass {
   }
 
   _generateSkillAdvancement(feature, availableToMulticlass, i) {
-    const classModFilters = {
+    const modFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
       exactLevel: i,
@@ -623,7 +623,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, classModFilters);
+    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
       && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
@@ -640,7 +640,6 @@ export default class DDBClass {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      // eslint-disable-next-line complexity
       [true, false].forEach((availableToMulticlass) => {
         if (!availableToMulticlass && i > 1) return;
         const skillFeatures = this._proficiencyFeatures.filter((f) => f.requiredLevel === i);
