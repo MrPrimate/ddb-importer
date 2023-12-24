@@ -409,7 +409,7 @@ export default class AdvancementHelper {
       : languagesFromMods.map((choice) => `languages:${choice}`);
 
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "Languages",
+      title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "Languages",
       configuration: {
         allowReplacements: false,
       },
@@ -478,7 +478,7 @@ export default class AdvancementHelper {
       : toolsFromMods.map((choice) => `tool:${choice}`);
 
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "Tool Proficiencies",
+      title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "Tool Proficiencies",
       configuration: {
         allowReplacements: false,
       },
@@ -554,7 +554,7 @@ export default class AdvancementHelper {
       : armorsFromMods.map((choice) => `armor:${choice}`);
 
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "Armor Proficiencies",
+      title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "Armor Proficiencies",
       configuration: {
         allowReplacements: false,
       },
@@ -630,7 +630,7 @@ export default class AdvancementHelper {
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "Weapon Proficiencies",
+      title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "Weapon Proficiencies",
       configuration: {
         allowReplacements: false,
       },
@@ -754,7 +754,7 @@ export default class AdvancementHelper {
       : conditionsFromMods.map((choice) => choice);
 
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "",
+      title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "",
       configuration: {
         allowReplacements: false,
         hint: parsedConditions.hint,
