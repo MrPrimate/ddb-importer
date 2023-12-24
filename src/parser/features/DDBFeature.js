@@ -186,7 +186,7 @@ export default class DDBFeature extends DDBBaseFeature {
       logger.debug(`Found ${this._choices.map((c) => c.label).join(",")}`);
 
       this._generateDescription(true);
-      this.data.system.description.value += `<h3>Choices</h3><ul>`;
+      this.data.system.description.value += `<h3>Proficiencies</h3><ul>`;
       this._choices.forEach((choice) => {
         this._addEffects(choice, this.type);
         this.data.system.description.value += `<li>${choice.label}</li>`;
