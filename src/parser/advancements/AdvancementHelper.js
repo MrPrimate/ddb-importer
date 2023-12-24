@@ -328,13 +328,17 @@ export default class AdvancementHelper {
 
     if (count === 0 && parsedSkills.grants.length === 0) return null;
 
+    const classRestriction = Number.isInteger(Number.parseInt(level))
+      ? ""
+      : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
+
     advancement.updateSource({
       title: feature.name !== "Proficiencies" ? feature.name : "Skills",
-      classRestriction: level > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
+      classRestriction,
       configuration: {
         allowReplacements: false,
       },
-      level: level,
+      level,
     });
 
     const pool = this.noMods || parsedSkills.choices.length > 0 || parsedSkills.grants.length > 0
@@ -342,7 +346,8 @@ export default class AdvancementHelper {
       : skillsFromMods.map((choice) => `skills:${choice}`);
 
     const chosen = this.noMods || chosenSkills.chosen.length > 0
-      ? chosenSkills.chosen.map((choice) => `skills:${choice}`).concat(parsedSkills.grants.map((grant) => `skills:${grant}`))
+      ? chosenSkills.chosen.map((choice) => `skills:${choice}`)
+        .concat(parsedSkills.grants.map((grant) => `skills:${grant}`))
       : skillsFromMods.map((choice) => `skills:${choice}`);
 
     AdvancementHelper.advancementUpdate(advancement, {
@@ -395,7 +400,8 @@ export default class AdvancementHelper {
       : languagesFromMods.map((choice) => `languages:${choice}`);
 
     const chosen = this.noMods || chosenLanguages.chosen.length > 0
-      ? chosenLanguages.chosen.map((choice) => `languages:${choice}`).concat(parsedLanguages.grants.map((grant) => `languages:${grant}`))
+      ? chosenLanguages.chosen.map((choice) => `languages:${choice}`)
+        .concat(parsedLanguages.grants.map((grant) => `languages:${grant}`))
       : languagesFromMods.map((choice) => `languages:${choice}`);
 
     advancement.updateSource({
@@ -430,7 +436,8 @@ export default class AdvancementHelper {
     const chosenTools = this.getToolChoicesFromOptions(feature, level);
 
     const toolsFromMods = toolMods.map((mod) => {
-      const tool = DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName);
+      const tool = DICTIONARY.character.proficiencies
+        .find((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName);
       return tool.toolType === ""
         ? tool.baseTool
         : `${tool.toolType}:${tool.baseTool}`;
@@ -462,7 +469,8 @@ export default class AdvancementHelper {
 
 
     const chosen = this.noMods || chosenTools.chosen.length > 0
-      ? chosenTools.chosen.map((choice) => `tool:${choice}`).concat(parsedTools.grants.map((grant) => `tool:${grant}`))
+      ? chosenTools.chosen.map((choice) => `tool:${choice}`)
+        .concat(parsedTools.grants.map((grant) => `tool:${grant}`))
       : toolsFromMods.map((choice) => `tool:${choice}`);
 
     advancement.updateSource({
@@ -537,7 +545,8 @@ export default class AdvancementHelper {
 
 
     const chosen = this.noMods || chosenArmors.chosen.length > 0
-      ? chosenArmors.chosen.map((choice) => `armor:${choice}`).concat(parsedArmors.grants.map((grant) => `armor:${grant}`))
+      ? chosenArmors.chosen.map((choice) => `armor:${choice}`)
+        .concat(parsedArmors.grants.map((grant) => `armor:${grant}`))
       : armorsFromMods.map((choice) => `armor:${choice}`);
 
     advancement.updateSource({
@@ -612,7 +621,8 @@ export default class AdvancementHelper {
 
 
     const chosen = this.noMods || chosenWeapons.chosen.length > 0
-      ? chosenWeapons.chosen.map((choice) => `weapon:${choice}`).concat(parsedWeapons.grants.map((grant) => `weapon:${grant}`))
+      ? chosenWeapons.chosen.map((choice) => `weapon:${choice}`)
+        .concat(parsedWeapons.grants.map((grant) => `weapon:${grant}`))
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
     advancement.updateSource({
@@ -918,6 +928,20 @@ export default class AdvancementHelper {
       return parsedSkills;
     }
 
+    // Skill Proficiencies: Nature, Survival
+    const backgroundSkillRegex = /Skill Proficiencies:\s(\w+)(.*)($|\.$|\w+:)/im;
+    const backgroundMatch = textDescription.match(backgroundSkillRegex);
+
+    if (backgroundMatch) {
+      const skills = backgroundMatch[1].replace(",", " and").split(" and ").map((skill) => skill.trim());
+      skills.forEach((grant) => {
+        const dictSkill = DICTIONARY.character.skills
+          .find((skill) => skill.label.toLowerCase() === grant.toLowerCase());
+        if (dictSkill) parsedSkills.grants.push(dictSkill.name);
+      });
+      return parsedSkills;
+    }
+
     // most other class profs
     // Skills: Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival
     const skillText = textDescription.toLowerCase().split("skills:").pop().split("\n")[0].split("the")[0].split(".")[0].trim();
@@ -1121,7 +1145,7 @@ export default class AdvancementHelper {
 
     // Tools: Thieves' tools, tinker's tools, one type of artisan's tools of your choice
     // Tools: Herbalism kit
-    const toolGrantsRegex = /^Tools:\s(.*?)($|\.|\w+:)/im;
+    const toolGrantsRegex = /^(?:Tools|Tool Proficiencies):\s(.*?)($|\.|\w+:)/im;
     const toolGrantsMatch = textDescription.match(toolGrantsRegex);
 
     const toolChoiceRegex = /(\w+) type of (.*)($|\.|\w+:)/i;
