@@ -4,6 +4,7 @@
 - Base class features were duplicated by subclasses during class/class feature generation.
 - Massive rework of class parsing in the muncher. This helps support 2.4 and also improved class/feature parsing in the future.
 - Character Import: Support for Save Trait Advancements on Classes in 5e 2.4.
+- Character Import: Support for Language Advancements on Classes in 5e 2.4.
 - Character Import: Support for Skill Trait Advancements on Classes in 5e 2.4.
 - Character Import: Support for Ability Score Advancements on Classes in 5e 2.4.
 - Character Import: Support for Expertise Advancements on Classes in 5e 2.4.
@@ -11,6 +12,7 @@
 - Character Import: Support for Armor Advancements on Classes in 5e 2.4.
 - Character Import: Support for Weapon Advancements on Classes in 5e 2.4.
 - Character Import: Support for Damage Resistance/Vulnerability/Immunity/Conditions Advancements on Classes in 5e 2.4.
+- Character Import: Support for Skill, Tool and Language Advancements on Races in 5e 2.4.
 - Fixes for AC bonus field changing to string when using the system without DAE.
 - Active Aura Effects were not applied to Paladin Auras.
 - Correction to Grease style AA macros.
@@ -30,7 +32,7 @@
 - Character import conditions: Immunity to Disease was not always detected.
 
 2.4 Note:
-Class Advancements are not yet generated through Class/Class Feature import, but the work here is a big step to enabling that. There are outstanding advancement improvements to come: Equipment and Feature Choices such as Fighting Style.
+Class/Race/Background Advancements are not yet generated through direct Feature import, but the work here is a big step to enabling that. There are outstanding advancement improvements to come: Equipment and Feature Choices such as Fighting Style.
 
 # 3.6.0
 

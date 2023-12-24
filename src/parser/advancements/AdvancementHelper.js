@@ -328,12 +328,16 @@ export default class AdvancementHelper {
 
     if (count === 0 && parsedSkills.grants.length === 0) return null;
 
-    const classRestriction = Number.isInteger(Number.parseInt(level))
-      ? ""
+    const classRestriction = availableToMulticlass === undefined
+      ? undefined
       : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
 
+    const title = feature.name !== "Proficiencies" && !feature.name.startsWith("Background:")
+      ? feature.name
+      : "Skills";
+
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" ? feature.name : "Skills",
+      title,
       classRestriction,
       configuration: {
         allowReplacements: false,

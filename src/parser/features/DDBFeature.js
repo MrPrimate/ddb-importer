@@ -1,6 +1,8 @@
+import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import AdvancementHelper from "../advancements/AdvancementHelper.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBBaseFeature from "./DDBBaseFeature.js";
 
@@ -33,6 +35,12 @@ export default class DDBFeature extends DDBBaseFeature {
     this.isChoiceFeature = this._choices.length > 0;
     this.include = !this.isChoiceFeature;
     this.hasRequiredLevel = !this._class || (this._class && this._class.level >= this.ddbDefinition.requiredLevel);
+
+    this.advancementHelper = new AdvancementHelper({
+      ddbData: this.ddbData,
+      type: this.type,
+      noMods: false,
+    });
   }
 
   _generateDataStub() {
@@ -117,22 +125,46 @@ export default class DDBFeature extends DDBBaseFeature {
 
   async _generateFeatureAdvancements() {
     // STUB
+    logger.info(`Generating feature advancements for ${this.ddbDefinition.name} are not yet supported`);
   }
 
   _generateSkillAdvancements() {
-    // STUB
+    if (this.legacyMode) return;
+
+    const mods = this.advancementHelper.noMods
+      ? []
+      : DDBHelper.getModifiers(this.ddbData, this.type);
+    const skillExplicitMods = mods.filter((mod) =>
+      mod.type === "proficiency"
+      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
+    );
+    const advancement = this.advancementHelper.getSkillAdvancement(skillExplicitMods, this.ddbDefinition, undefined, 0);
+
+    if (advancement) this.data.system.advancement.push(advancement.toObject());
   }
 
   _generateLanguageAdvancements() {
-    // STUB
+    if (this.legacyMode) return;
+    const mods = this.advancementHelper.noMods
+      ? []
+      : DDBHelper.getModifiers(this.ddbData, this.type);
+
+    const advancement = this.advancementHelper.getLanguageAdvancement(mods, this.ddbDefinition, 0);
+    if (advancement) this.data.system.advancement.push(advancement.toObject());
   }
 
   _generateToolAdvancements() {
-    // STUB
+    if (this.legacyMode) return;
+    const mods = this.advancementHelper.noMods
+      ? []
+      : DDBHelper.getModifiers(this.ddbData, this.type);
+    const advancement = this.advancementHelper.getToolAdvancement(mods, this.ddbDefinition, 0);
+    if (advancement) this.data.system.advancement.push(advancement.toObject());
   }
 
   _generateSkillOrLanguageAdvancements() {
     // STUB
+    logger.info(`Generating skill or language advancements for ${this.ddbDefinition.name} are not yet supported`);
   }
 
   async generateAdvancements() {
