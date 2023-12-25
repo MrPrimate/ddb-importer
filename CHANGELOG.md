@@ -12,6 +12,7 @@
 - Character Import: Support for Armor Advancements on Classes in 5e 2.4.
 - Character Import: Support for Weapon Advancements on Classes in 5e 2.4.
 - Character Import: Support for Damage Resistance/Vulnerability/Immunity/Conditions Advancements on Classes in 5e 2.4.
+- Character Import: Support for Skill, Tool and Language Advancements on Backgrounds in 5e 2.4.
 - Character Import: Support for Skill, Tool and Language Advancements on Races in 5e 2.4.
 - Fixes for AC bonus field changing to string when using the system without DAE.
 - Active Aura Effects were not applied to Paladin Auras.
@@ -32,7 +33,7 @@
 - Character import conditions: Immunity to Disease was not always detected.
 
 2.4 Note:
-Class/Race/Background Advancements are not yet generated through direct Feature import, but the work here is a big step to enabling that. There are outstanding advancement improvements to come: Equipment and Feature Choices such as Fighting Style.
+Class/Race/Background Advancements are not yet generated through direct Feature import, but the work here is a big step to enabling that. There are outstanding advancement improvements to come: Equipment and Feature Choices such as Fighting Style, Granted Spells for some races, feats for some races/backgrounds.
 
 # 3.6.0
 
