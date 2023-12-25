@@ -6,6 +6,7 @@ import SETTINGS from "../../settings.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
+import AdvancementHelper from "../advancements/AdvancementHelper.js";
 
 
 export default class DDBRace {
@@ -40,8 +41,9 @@ export default class DDBRace {
     }
   }
 
-  constructor(race, compendiumRacialTraits) {
+  constructor(ddbData, race, compendiumRacialTraits) {
     this.legacyMode = foundry.utils.isNewerVersion("2.4.0", game.system.version);
+    this.ddbData = ddbData;
     this.race = race;
     this.#fixups();
     this.compendiumRacialTraits = compendiumRacialTraits;
@@ -88,6 +90,11 @@ export default class DDBRace {
       ? null
       : (new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement());
 
+    this.advancementHelper = new AdvancementHelper({
+      ddbData: this.ddbData,
+      type: "race",
+      noMods: ddbData === null,
+    });
   }
 
   async _generateRaceImage() {
@@ -256,6 +263,47 @@ export default class DDBRace {
     this.data.system.advancement.push(this.abilityAdvancement.toObject());
   }
 
+  // skills, e.g. variant human
+  #generateSkillAdvancement(trait) {
+    if (this.legacyMode) return;
+    if (!["Skills"].includes(trait.name.trim())) return;
+
+    const mods = this.advancementHelper.noMods
+      ? []
+      : DDBHelper.getModifiers(this.ddbData, "race");
+    const skillExplicitMods = mods.filter((mod) =>
+      mod.type === "proficiency"
+      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
+    );
+    const advancement = this.advancementHelper.getSkillAdvancement(skillExplicitMods, trait, undefined, 0);
+
+    if (advancement) this.data.system.advancement.push(advancement.toObject());
+  }
+
+  #generateLanguageAdvancement(trait) {
+    if (this.legacyMode) return;
+    if (!["Languages"].includes(trait.name.trim())) return;
+
+    const mods = this.advancementHelper.noMods
+      ? []
+      : DDBHelper.getModifiers(this.ddbData, "race");
+
+    const advancement = this.advancementHelper.getLanguageAdvancement(mods, trait, 0);
+    if (advancement) this.data.system.advancement.push(advancement.toObject());
+  }
+
+  #geneateToolAdvancement(trait) {
+    if (this.legacyMode) return;
+    if (!["Tools"].includes(trait.name.trim())) return;
+
+    const mods = this.advancementHelper.noMods
+      ? []
+      : DDBHelper.getModifiers(this.ddbData, "race");
+
+    const advancement = this.advancementHelper.getToolAdvancement(mods, trait, 0);
+    if (advancement) this.data.system.advancement.push(advancement.toObject());
+  }
+
 
   async build() {
     await this._generateRaceImage();
@@ -266,9 +314,10 @@ export default class DDBRace {
       this.#typeCheck(trait);
       this.#flightCheck(trait);
 
-      // TODO: skills, e.g. variant human
-      // TODO: feat e.g. variant human
-      // TODO: languages
+      this.#generateSkillAdvancement(trait);
+      this.#generateLanguageAdvancement(trait);
+      this.#geneateToolAdvancement(trait);
+      // FUTURE, spells (at various levels, when supported)
     });
 
     this.#generateAbilityAdvancement();

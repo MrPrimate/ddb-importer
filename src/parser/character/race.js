@@ -6,7 +6,7 @@ import DDBRace from "../race/DDBRace.js";
 DDBCharacter.prototype._generateRace = async function _generateRace() {
   const traits = this.source.ddb.character.race.racialTraits.map((r) => r.definition);
   const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traits, false);
-  const ddbRace = new DDBRace(this.source.ddb.character.race, compendiumRacialTraits);
+  const ddbRace = new DDBRace(this.source.ddb, this.source.ddb.character.race, compendiumRacialTraits);
   await ddbRace.build();
   this.raw.race = ddbRace.data;
   delete this.raw.race.sort;
@@ -15,6 +15,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace() {
   setProperty(this.raw.character, "system.details.type.value", this.raw.race.type);
 
   if (!ddbRace.legacyMode) {
+    console.warn("Race Advancement", JSON.parse(JSON.stringify(this.raw.race.system.advancement)));
     this.raw.race.system.advancement.forEach((a) => {
       switch (a.type) {
         case "AbilityScoreImprovement": {
