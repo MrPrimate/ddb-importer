@@ -927,26 +927,24 @@ export default class DDBClass {
 
       // create a leveled advancement
       if (Object.keys(assignments).length > 0) {
-        const update = {
+        advancement.updateSource({
           value: {
             assignments,
           },
-        };
-        advancement.updateSource(update);
+        });
       } else {
-        const update = {
-          value: {
-            type: "feat",
-            feat: {
-            },
-          },
-        };
         // feat id selection happens later once features have been generated
         // "type": "feat",
         // "feat": {
         //   "vu8kJ2iTCEiGQ1mv": "Compendium.world.ddb-test2-ddb-feats.Item.3mfeQMT6Fh1VRubU"
         // }
-        advancement.updateSource(update);
+        advancement.updateSource({
+          value: {
+            type: "feat",
+            feat: {
+            },
+          },
+        });
         const featureMatch = this.getFeatureCompendiumMatch(isAbilityAdvancement);
         this._advancementMatches.features[advancement._id] = {};
         this._advancementMatches.features[advancement._id][featureMatch.name] = featureMatch.uuid;
