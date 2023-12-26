@@ -40,6 +40,7 @@ import DDBEffectHelper from "./effects/DDBEffectHelper.js";
 import DDBItemImporter from "./lib/DDBItemImporter.js";
 import DialogHelper from "./lib/DialogHelper.js";
 import utils from "./lib/utils.js";
+import DDBHelper from "./lib/DDBHelper.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -117,6 +118,7 @@ export function registerApi() {
       DDBEffectHelper,
       DDBItemImporter,
       DialogHelper,
+      DDBHelper,
     },
     settings: {
       muncherSettings: MuncherSettings.getMuncherSettings,
