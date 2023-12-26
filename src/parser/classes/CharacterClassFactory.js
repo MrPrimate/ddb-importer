@@ -93,7 +93,7 @@ export default class CharacterClassFactory {
           }
         }
       });
-      console.warn("Processed advancements", klass.system.advancement);
+      console.warn("Processed class advancements", klass.system.advancement);
 
       // TODO: choose ability score advancement data here for feats chosen
     });

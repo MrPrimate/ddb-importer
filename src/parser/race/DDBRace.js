@@ -95,6 +95,12 @@ export default class DDBRace {
       type: "race",
       noMods: ddbData === null,
     });
+
+    this.featLink = {
+      advancementId: null,
+      name: null,
+      uuid: null,
+    };
   }
 
   async _generateRaceImage() {
@@ -304,6 +310,99 @@ export default class DDBRace {
     if (advancement) this.data.system.advancement.push(advancement.toObject());
   }
 
+  async #generateFeatAdvancement(trait) {
+    if (this.legacyMode) return;
+    if (!["Feats", "Feat"].includes(trait.name.trim())) return;
+
+    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+
+    const compendium = CompendiumHelper.getCompendiumType("feats");
+    const index = await compendium.getIndex();
+
+    advancement.updateSource({
+      title: "Feat",
+      configuration: {
+        allowDrops: true,
+        allowReplacements: false,
+        pool: index.map((i) => i.uuid),
+        choices: {
+          "0": 1,
+        },
+        restriction: {
+          type: "feat"
+        },
+      },
+    });
+
+    // only humans have feat (right now)
+    const feat = this.ddbData.character.feats.find((f) => f.componentId === 103 && f.componentTypeId === 1960452172);
+    if (!feat) return;
+    const featMatch = index.find((i) => i.name === feat.definition.name);
+    if (!featMatch) return;
+
+    this.featLink.advancementId = advancement._id;
+    this.featLink.name = feat.definition.name;
+    this.featLink.uuid = featMatch.uuid;
+
+    // const update = {
+    //   value: {
+    //     added: {
+    //       "0": {
+    //         // "IRs6OOXQk3AvK3GW": "Compendium.world.ddb-test2-ddb-feats.Item.cHie2wNgxBG9m62F"
+    //       },
+    //     },
+    //   },
+    // };
+
+    // advancement.updateSource(update);
+
+    this.data.system.advancement.push(advancement.toObject());
+  }
+
+
+  linkFeatures(ddbCharacter) {
+    logger.debug("Linking Advancements to Feats for Race", {
+      DDBRace: this,
+    });
+
+    ddbCharacter.data.race.system.advancement.forEach((a, idx, advancements) => {
+      if (a.type === "ItemChoice") {
+
+        const addedFeats = {};
+
+        for (const feat of ddbCharacter.data.features) {
+          const isMatch = feat.type === "feat"
+            && feat.system.type.value === "feat"
+            && feat.flags.ddbimporter.type === "feat"
+            && feat.name.startsWith(this.featLink.name);
+          // eslint-disable-next-line no-continue
+          if (!isMatch) continue;
+
+          logger.debug(`Advancement ${a._id} found Feature ${feat.name} (${this.featLink.uuid})`);
+          addedFeats[feat._id] = this.featLink.uuid;
+          setProperty(feat, "flags.dnd5e.sourceId", this.featLink.uuid);
+          setProperty(feat, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
+        }
+
+
+        if (Object.keys(addedFeats).length > 0) {
+          const added = {
+            "0": addedFeats,
+            // {
+            //   "IRs6OOXQk3AvK3GW": "Compendium.world.ddb-test2-ddb-feats.Item.cHie2wNgxBG9m62F"
+            // },
+          };
+
+          a.value = {
+            added,
+          };
+          advancements[idx] = a;
+        }
+      }
+    });
+    logger.debug("Processed race advancements", ddbCharacter.data.race.system.advancement);
+
+  }
 
   async build() {
     await this._generateRaceImage();
@@ -317,6 +416,7 @@ export default class DDBRace {
       this.#generateSkillAdvancement(trait);
       this.#generateLanguageAdvancement(trait);
       this.#geneateToolAdvancement(trait);
+      this.#generateFeatAdvancement(trait);
       // FUTURE, spells (at various levels, when supported)
     });
 
