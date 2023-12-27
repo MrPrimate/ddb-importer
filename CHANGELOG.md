@@ -33,7 +33,7 @@
 - Character import conditions: Immunity to Disease was not always detected.
 
 2.4 Note:
-Class/Race/Background Advancements are not yet generated through direct Feature import, but the work here is a big step to enabling that. There are outstanding advancement improvements to come: Equipment and Feature Choices such as Fighting Style, Granted Spells for some races, feats for some backgrounds, feats that come instead of an ASI.
+Class/Race/Background Advancements are not yet generated through direct Feature import, but the work here is a big step to enabling that. There are outstanding advancement improvements to come: Equipment and Feature Choices such as Fighting Style, Granted Spells for some races, feats for some backgrounds.
 
 # 3.6.0
 

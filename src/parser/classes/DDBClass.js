@@ -273,6 +273,13 @@ export default class DDBClass {
           "flags.ddbimporter.class",
           "flags.ddbimporter.subClass",
           "flags.ddbimporter.parentClassId",
+          "flags.ddbimporter.featureName",
+        ]
+      },
+      feats: {
+        fields: [
+          "name",
+          "flags.ddbimporter",
         ]
       },
       class: {},
@@ -295,6 +302,7 @@ export default class DDBClass {
     // compendium
     this._compendiums = {
       features: CompendiumHelper.getCompendiumType("classfeatures"),
+      feats: CompendiumHelper.getCompendiumType("feats"),
       // class: CompendiumHelper.getCompendiumType("class"),
       // subclasses: CompendiumHelper.getCompendiumType("subclasses"),
     };
@@ -383,6 +391,18 @@ export default class DDBClass {
     );
   }
 
+  getFeatCompendiumMatch(featName) {
+    const smallName = featName.trim().toLowerCase();
+    return this._compendiums.feats.index.find((match) =>
+      ((hasProperty(match, "flags.ddbimporter.featureName")
+        && smallName == match.flags.ddbimporter.featureName.trim().toLowerCase())
+        || (!hasProperty(match, "flags.ddbimporter.featureName")
+          && (smallName == match.name.trim().toLowerCase()
+          || smallName.split(":")[0].trim() == match.name.trim().toLowerCase()))
+      )
+    );
+  }
+
   async _buildClassFeaturesDescription() {
     logger.debug(`Parsing ${this.ddbClassDefinition.name} features`);
     let description = "<h1>Class Features</h1>\n\n";
@@ -393,14 +413,14 @@ export default class DDBClass {
 
       if (!classFeaturesAdded && !this._excludedFeatureIds.includes(feature.id)) {
         const featureMatch = this.getFeatureCompendiumMatch(feature);
-        const title = (featureMatch)
-          ? `<p><b>@UUID[${featureMatch.uuid}]{${feature.name}}</b></p>`
-          : `<p><b>${feature.name}</b></p>`;
-
-        description += `${title}\n${feature.description}\n\n`;
+        if (featureMatch) {
+          const title = (featureMatch)
+            ? `<p><b>@UUID[${featureMatch.uuid}]{${feature.name}}</b></p>`
+            : `<p><b>${feature.name}</b></p>`;
+          description += `${title}\n${feature.description}\n\n`;
+        }
         classFeatures.push(feature.name);
       }
-
     });
 
     return description;
@@ -903,10 +923,10 @@ export default class DDBClass {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      const isAbilityAdvancement = this.classFeatures.find((f) => f.name === "Ability Score Improvement" && f.requiredLevel === i);
+      const abilityAdvancementFeature = this.classFeatures.find((f) => f.name === "Ability Score Improvement" && f.requiredLevel === i);
 
       // eslint-disable-next-line no-continue
-      if (!isAbilityAdvancement) continue;
+      if (!abilityAdvancementFeature) continue;
       const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
       advancement.updateSource({ configuration: { points: 2 }, level: i, value: { type: "asi" } });
 
@@ -932,7 +952,7 @@ export default class DDBClass {
             assignments,
           },
         });
-      } else {
+      } else if (abilityAdvancementFeature.requiredLevel <= this.ddbClass.level) {
         // feat id selection happens later once features have been generated
         // "type": "feat",
         // "feat": {
@@ -945,9 +965,20 @@ export default class DDBClass {
             },
           },
         });
-        const featureMatch = this.getFeatureCompendiumMatch(isAbilityAdvancement);
-        this._advancementMatches.features[advancement._id] = {};
-        this._advancementMatches.features[advancement._id][featureMatch.name] = featureMatch.uuid;
+        // abilityAdvancementFeature.id: 313
+        // abilityAdvancementFeature.entityTypeId: 12168134
+        const featChoice = this.ddbData.character.feats.find((f) =>
+          f.componentId == abilityAdvancementFeature.id
+          && f.componentTypeId == abilityAdvancementFeature.entityTypeId
+        );
+        const featureMatch = featChoice ? this.getFeatCompendiumMatch(featChoice.definition.name) : null;
+        if (featureMatch) {
+          this._advancementMatches.features[advancement._id] = {};
+          this._advancementMatches.features[advancement._id][featureMatch.name] = featureMatch.uuid;
+        } else {
+          logger.info("Missing asi feat linking match for", { abilityAdvancementFeature, featChoice, this: this });
+        }
+
       }
 
       advancements.push(advancement.toObject());

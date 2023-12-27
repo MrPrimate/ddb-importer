@@ -35,8 +35,8 @@ export default class CharacterClassFactory {
     return documents;
   }
 
-  _getCharacterFeature(featureName) {
-    for (const featureType of ["actions", "features"]) {
+  _getCharacterFeature(featureName, featureTypes = ["actions", "features"]) {
+    for (const featureType of featureTypes) {
       const index = this.ddbCharacter.data[featureType].findIndex((f) => {
         const name = f.flags.ddbimporter?.originalName ?? f.name;
         const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
@@ -50,53 +50,96 @@ export default class CharacterClassFactory {
     return undefined;
   }
 
+  #itemGrantLink(ddbClass, klass, advancementIndex) {
+    // "added": {
+    //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
+    //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
+    // }
+    const advancement = klass.system.advancement[advancementIndex];
+    const aData = ddbClass._advancementMatches.features[advancement._id];
+    const added = {};
+    for (const [advancementFeatureName, uuid] of Object.entries(aData)) {
+      logger.debug(`Advancement ${advancement._id} searching for Feature ${advancementFeatureName} (${uuid})`, {
+        a: advancement,
+        ddbClass,
+        advancementFeatureName,
+        uuid,
+      });
+
+      const characterFeature = this._getCharacterFeature(advancementFeatureName);
+      if (characterFeature) {
+        logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
+        added[characterFeature._id] = uuid;
+        setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
+        setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${klass._id}.${advancement._id}`);
+      }
+    }
+
+    if (Object.keys(added).length > 0) {
+      advancement.value = {
+        added,
+      };
+      klass.system.advancement[advancementIndex] = advancement;
+    }
+  }
+
+  #abilityScoreFeatLink(ddbClass, klass, advancementIndex) {
+    // "value": {
+    //   "type": "feat",
+    //   "feat": {
+    //     "B09QLNujzaGh6zt7": "Compendium.world.ddb-test2-ddb-feats.Item.cHie2wNgxBG9m62F"
+    //   }
+    // }
+    const advancement = klass.system.advancement[advancementIndex];
+    const aData = ddbClass._advancementMatches.features[advancement._id];
+    const feats = {};
+
+    for (const [advancementFeatureName, uuid] of Object.entries(aData)) {
+      logger.debug(`Ability Score Advancement ${advancement._id} searching for Feat ${advancementFeatureName} (${uuid})`, {
+        a: advancement,
+        ddbClass,
+        advancementFeatureName,
+        uuid,
+      });
+
+      const characterFeature = this._getCharacterFeature(advancementFeatureName, ["features"]);
+      if (characterFeature) {
+        logger.debug(`Ability Score Advancement ${advancement._id} found Feat ${advancementFeatureName} (${uuid})`);
+        feats[characterFeature._id] = uuid;
+        setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
+        setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${klass._id}.${advancement._id}`);
+      }
+    }
+
+    if (Object.keys(feats).length > 0) {
+      // eslint-disable-next-line require-atomic-updates
+      klass.system.advancement[advancementIndex].value = {
+        type: "feat",
+        feat: feats,
+      };
+    }
+  }
+
   linkFeatures() {
     logger.debug("Linking Advancements to Features", {
       CharacterClassFactory: this,
     });
-    this.ddbCharacter.data.classes.forEach((klass) => {
+    for (const klass of this.ddbCharacter.data.classes) {
       const ddbClass = this.ddbClasses[klass.name];
       logger.debug("Linking Advancements to Features for Class", {
         klass,
         ddbClass,
       });
-      klass.system.advancement.forEach((a, idx, advancements) => {
+
+      for (let idx = 0; idx < klass.system.advancement.length; idx++) {
+        const a = klass.system.advancement[idx];
         if (a.type === "ItemGrant" && a.level <= ddbClass.ddbClass.level) {
-          // "added": {
-          //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
-          //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
-          // }
-          const aData = ddbClass._advancementMatches.features[a._id];
-          const added = {};
-          for (const [advancementFeatureName, uuid] of Object.entries(aData)) {
-            logger.debug(`Advancement ${a._id} searching for Feature ${advancementFeatureName} (${uuid})`, {
-              a,
-              ddbClass,
-              advancementFeatureName,
-              uuid,
-            });
-
-            const characterFeature = this._getCharacterFeature(advancementFeatureName);
-            if (characterFeature) {
-              logger.debug(`Advancement ${a._id} found Feature ${advancementFeatureName} (${uuid})`);
-              added[characterFeature._id] = uuid;
-              setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
-              setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${klass._id}.${a._id}`);
-            }
-          }
-
-          if (Object.keys(added).length > 0) {
-            a.value = {
-              added,
-            };
-            advancements[idx] = a;
-          }
+          this.#itemGrantLink(ddbClass, klass, idx);
+        } else if (a.type === "AbilityScoreImprovement" && a.value.type === "feat") {
+          this.#abilityScoreFeatLink(ddbClass, klass, idx);
         }
-      });
-      console.warn("Processed class advancements", klass.system.advancement);
-
-      // TODO: choose ability score advancement data here for feats chosen
-    });
+      }
+      logger.debug(`Processed ${klass.name} class advancements`, klass.system.advancement);
+    };
   }
-
 }
