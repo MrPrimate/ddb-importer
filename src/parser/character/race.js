@@ -15,7 +15,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace() {
   setProperty(this.raw.character, "system.details.type.value", this.raw.race.type);
 
   if (!this._ddbRace.legacyMode) {
-    console.warn("Race Advancement", JSON.parse(JSON.stringify(this.raw.race.system.advancement)));
+    // console.warn("Race Advancement", JSON.parse(JSON.stringify(this.raw.race.system.advancement)));
     this.raw.race.system.advancement.forEach((a) => {
       switch (a.type) {
         case "AbilityScoreImprovement": {
