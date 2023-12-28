@@ -509,7 +509,10 @@ export default function parseTemplateString(ddb, character, text, feature) {
 
     // console.warn("parseTemplateString", { text: duplicate(text), feature, entry, match });
 
-    const splitSigned = match.split("#");
+    const splitSignedBase = match.split("#");
+    const splitSigned = splitSignedBase.length > 1 && ["signed", "unsigned"].includes(splitSignedBase[1]) && !match.includes("@")
+      ? splitSignedBase
+      : [match.replace("#", "@")];
     const splitRemoveUnsigned = splitSigned[0];
     const signed = splitSigned.length > 1
       ? splitSigned[1]

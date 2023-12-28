@@ -31,6 +31,7 @@
 - Effect: Blindness/Deafness Macro fix.
 - Magical Staves now have `+ @mod` added to their damage calculation.
 - Character import conditions: Immunity to Disease was not always detected.
+- Parsing TemplateStrings for Elemental Cleaver is fixed.
 
 2.4 Note:
 Class/Race/Background Advancements are not yet generated through direct Feature import, but the work here is a big step to enabling that. There are outstanding advancement improvements to come: Equipment and Feature Choices such as Fighting Style, Granted Spells for some races, feats for some backgrounds.
