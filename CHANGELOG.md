@@ -1,6 +1,6 @@
 # 3.7.1
 
-- Fix for races/backgrounds failing to parse when using Feature Munching.
+- Fix for races failing to parse when using Feature Munching.
 
 # 3.7.0
 
