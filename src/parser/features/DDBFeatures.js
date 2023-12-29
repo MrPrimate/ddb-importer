@@ -86,6 +86,7 @@ export default class DDBFeatures {
     // only background features get advancements for now
     if (type === "background") {
       await ddbFeature.generateAdvancements();
+      await ddbFeature.buildBackgroundFeatAdvancements();
     }
     if (ddbFeature.isChoiceFeature) {
       return DDBChoiceFeature.buildChoiceFeatures(ddbFeature);

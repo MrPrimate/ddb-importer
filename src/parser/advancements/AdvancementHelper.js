@@ -453,17 +453,17 @@ export default class AdvancementHelper {
         : 1
       : toolMods.length;
 
-    console.warn(`Tools`, {
-      level,
-      feature,
-      mods,
-      proficiencyMods,
-      toolMods,
-      parsedTools,
-      chosenTools,
-      toolsFromMods,
-      count,
-    });
+    // console.warn(`Tools`, {
+    //   level,
+    //   feature,
+    //   mods,
+    //   proficiencyMods,
+    //   toolMods,
+    //   parsedTools,
+    //   chosenTools,
+    //   toolsFromMods,
+    //   count,
+    // });
 
     if (count === 0 && parsedTools.grants.length === 0) return null;
 
