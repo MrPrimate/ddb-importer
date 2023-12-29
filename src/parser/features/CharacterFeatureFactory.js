@@ -233,7 +233,7 @@ export default class CharacterFeatureFactory {
         uuid,
       });
 
-      const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName, ["features"]);
+      const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName);
       if (characterFeature) {
         logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
         added[characterFeature._id] = uuid;
@@ -250,7 +250,7 @@ export default class CharacterFeatureFactory {
     }
   }
 
-  linkFeatures(types = ["features"]) {
+  linkFeatures(types = ["actions", "features"]) {
     logger.debug("Linking Feature Factory Advancements to Features", {
       CharacterFeatureFactory: this,
       types,

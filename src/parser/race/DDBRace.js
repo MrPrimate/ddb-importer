@@ -334,11 +334,19 @@ export default class DDBRace {
       },
     });
 
+    this.data.system.advancement.push(advancement.toObject());
+
     // only humans have feat (right now)
     const feat = this.ddbData.character.feats.find((f) => f.componentId === 103 && f.componentTypeId === 1960452172);
-    if (!feat) return;
+    if (!feat) {
+      logger.warn(`Unable to link advancement to feat`, { advancement, this: this });
+      return;
+    };
     const featMatch = index.find((i) => i.name === feat.definition.name);
-    if (!featMatch) return;
+    if (!featMatch) {
+      logger.warn(`Unable to link advancement to feat ${feat.definition.name}`, { feat });
+      return;
+    }
 
     this.featLink.advancementId = advancement._id;
     this.featLink.name = feat.definition.name;
@@ -356,47 +364,50 @@ export default class DDBRace {
 
     // advancement.updateSource(update);
 
-    this.data.system.advancement.push(advancement.toObject());
+
   }
 
 
   linkFeatures(ddbCharacter) {
     logger.debug("Linking Advancements to Feats for Race", {
       DDBRace: this,
+      ddbCharacter,
     });
 
     ddbCharacter.data.race.system.advancement.forEach((a, idx, advancements) => {
       if (a.type === "ItemChoice") {
-
         const addedFeats = {};
 
-        for (const feat of ddbCharacter.data.features) {
-          const isMatch = feat.type === "feat"
-            && feat.system.type.value === "feat"
-            && feat.flags.ddbimporter.type === "feat"
-            && feat.name.startsWith(this.featLink.name);
-          // eslint-disable-next-line no-continue
-          if (!isMatch) continue;
+        for (const type of ["actions", "features"]) {
+          for (const feat of ddbCharacter.data[type]) {
+            const isMatch = feat.type === "feat"
+              && feat.system.type.value === "feat"
+              && feat.flags.ddbimporter.type === "feat"
+              && feat.name.startsWith(this.featLink.name);
 
-          logger.debug(`Advancement ${a._id} found Feature ${feat.name} (${this.featLink.uuid})`);
-          addedFeats[feat._id] = this.featLink.uuid;
-          setProperty(feat, "flags.dnd5e.sourceId", this.featLink.uuid);
-          setProperty(feat, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
-        }
+            // eslint-disable-next-line no-continue
+            if (!isMatch) continue;
+
+            logger.debug(`Advancement Race ${a._id} found Feature ${feat.name} (${this.featLink.uuid})`);
+            addedFeats[feat._id] = this.featLink.uuid;
+            setProperty(feat, "flags.dnd5e.sourceId", this.featLink.uuid);
+            setProperty(feat, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
+          }
 
 
-        if (Object.keys(addedFeats).length > 0) {
-          const added = {
-            "0": addedFeats,
-            // {
-            //   "IRs6OOXQk3AvK3GW": "Compendium.world.ddb-test2-ddb-feats.Item.cHie2wNgxBG9m62F"
-            // },
-          };
+          if (Object.keys(addedFeats).length > 0) {
+            const added = {
+              "0": addedFeats,
+              // {
+              //   "IRs6OOXQk3AvK3GW": "Compendium.world.ddb-test2-ddb-feats.Item.cHie2wNgxBG9m62F"
+              // },
+            };
 
-          a.value = {
-            added,
-          };
-          advancements[idx] = a;
+            a.value = {
+              added,
+            };
+            advancements[idx] = a;
+          }
         }
       }
     });
