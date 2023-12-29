@@ -453,17 +453,17 @@ export default class AdvancementHelper {
         : 1
       : toolMods.length;
 
-    // console.warn(`Tools`, {
-    //   level,
-    //   feature,
-    //   mods,
-    //   proficiencyMods,
-    //   toolMods,
-    //   parsedTools,
-    //   chosenTools,
-    //   toolsFromMods,
-    //   count,
-    // });
+    console.warn(`Tools`, {
+      level,
+      feature,
+      mods,
+      proficiencyMods,
+      toolMods,
+      parsedTools,
+      chosenTools,
+      toolsFromMods,
+      count,
+    });
 
     if (count === 0 && parsedTools.grants.length === 0) return null;
 
@@ -890,7 +890,7 @@ export default class AdvancementHelper {
   static parseHTMLSaves(description) {
     const results = [];
 
-    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
 
     // get class saves
     const savingText = textDescription.toLowerCase().split("saving throws:").pop().split("\n")[0].split("The")[0].split(".")[0].split("skills:")[0].trim();
@@ -917,7 +917,7 @@ export default class AdvancementHelper {
       number: 0,
       allowReplacements: false,
     };
-    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true).replace(/\s/g, " ");
+    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true).replace(/\s/g, " ");
 
     // Choose any three e.g. bard
     const anySkillRegex = /Skills:\sChoose any (\w+)(.*)($|\.$|\w+:)/im;
@@ -1014,7 +1014,7 @@ export default class AdvancementHelper {
       choices: [],
       number: 0,
     };
-    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
 
     // you learn one language of your choice.
     // You also learn two languages of your choice.
@@ -1118,7 +1118,7 @@ export default class AdvancementHelper {
       number: 0,
     };
 
-    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
 
     // Tools: None
     if (textDescription.includes("Tools: None")) return parsedTools;
@@ -1276,7 +1276,7 @@ export default class AdvancementHelper {
       grants: [],
       number: 0,
     };
-    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
 
     // Armor: None
     if (textDescription.includes("Armor: None")) return parsedArmorProficiencies;
@@ -1371,7 +1371,7 @@ export default class AdvancementHelper {
     };
 
 
-    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
 
     // Weapons: None
     if (textDescription.includes("Weapons: None")) return parsedWeaponsProficiencies;
@@ -1514,7 +1514,7 @@ export default class AdvancementHelper {
       hint: "",
     };
 
-    const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true).toLowerCase();
+    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true).toLowerCase();
 
     // quick and dirty damage matches, 90 % of use cases
     const isObviousDamage = textDescription.includes("damage");
@@ -1692,7 +1692,7 @@ export default class AdvancementHelper {
   //     grants: [],
   //     number: 0,
   //   };
-  //   const textDescription = utils.stripHtml(description.replaceAll("<br />", "<br />\n"), true);
+  //   const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
 
   //   // You start with the following equipment, in addition to the equipment granted by your background:
   //   // any two simple weapons of your choice
