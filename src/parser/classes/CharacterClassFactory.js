@@ -42,6 +42,16 @@ export default class CharacterClassFactory {
     const advancement = klass.system.advancement[advancementIndex];
     const aData = ddbClass._advancementMatches.features[advancement._id];
     const added = {};
+
+    if (!aData || !advancement) {
+      logger.warn(`Advancement for ${klass.name} (idx ${advancementIndex}) missing required data for linking`, {
+        advancement,
+        aData,
+        klass,
+        ddbClass,
+      });
+      return;
+    }
     for (const [advancementFeatureName, uuid] of Object.entries(aData)) {
       logger.debug(`Advancement ${advancement._id} searching for Feature ${advancementFeatureName} (${uuid})`, {
         a: advancement,
@@ -77,6 +87,16 @@ export default class CharacterClassFactory {
     const advancement = klass.system.advancement[advancementIndex];
     const aData = ddbClass._advancementMatches.features[advancement._id];
     const feats = {};
+
+    if (!aData || !advancement) {
+      logger.warn(`Advancement for ${klass.name} (idx ${advancementIndex}) missing required data for linking`, {
+        advancement,
+        aData,
+        klass,
+        ddbClass,
+      });
+      return;
+    }
 
     for (const [advancementFeatureName, uuid] of Object.entries(aData)) {
       logger.debug(`Ability Score Advancement ${advancement._id} searching for Feat ${advancementFeatureName} (${uuid})`, {

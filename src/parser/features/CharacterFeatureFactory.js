@@ -225,6 +225,15 @@ export default class CharacterFeatureFactory {
     const advancement = feature.system.advancement[advancementIndex];
     const dataLink = linkingData.find((d) => d._id === advancement._id);
 
+    if (!dataLink || !linkingData || !advancement) {
+      logger.warn(`Advancement for ${feature.name} (idx ${advancementIndex}) missing required data for linking`, {
+        advancement,
+        linkingData,
+        dataLink,
+      });
+      return;
+    }
+
     const added = {};
     for (const [advancementFeatureName, uuid] of Object.entries(dataLink.features)) {
       logger.debug(`Advancement ${advancement._id} searching for Feature ${advancementFeatureName} (${uuid})`, {
