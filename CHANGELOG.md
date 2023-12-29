@@ -1,3 +1,7 @@
+# 3.7.2
+
+- If the DDB Feats compendium was empty, classes, races or backgrounds which granted feats would cause the import to crash.
+
 # 3.7.1
 
 - Fix for races failing to parse when using Feature Munching.
