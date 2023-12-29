@@ -210,6 +210,7 @@ export default class DDBFeature extends DDBBaseFeature {
     feats.forEach((f) => {
       advancementData.features[f.name] = f.uuid;
     });
+    advancementLinkData.push(advancementData);
     setProperty(this.data, "flags.ddbimporter.advancementLink", advancementLinkData);
   }
 

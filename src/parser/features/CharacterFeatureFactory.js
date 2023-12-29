@@ -216,10 +216,63 @@ export default class CharacterFeatureFactory {
     this.data.push(...ddbFeatures.data);
   }
 
-  // async process() {
-  //   await this.processActions();
-  //   await this.processFeatures();
-  //   this.updateFeatureIds();
-  // }
+  #itemGrantLink(feature, advancementIndex) {
+    // "added": {
+    //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
+    //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
+    // }
+    const linkingData = getProperty(feature, "flags.ddbimporter.advancementLink");
+    const advancement = feature.system.advancement[advancementIndex];
+    const dataLink = linkingData.find((d) => d._id === advancement._id);
 
+    const added = {};
+    for (const [advancementFeatureName, uuid] of Object.entries(dataLink.features)) {
+      logger.debug(`Advancement ${advancement._id} searching for Feature ${advancementFeatureName} (${uuid})`, {
+        advancement,
+        advancementFeatureName,
+        uuid,
+      });
+
+      const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName, ["features"]);
+      if (characterFeature) {
+        logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
+        added[characterFeature._id] = uuid;
+        setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
+        setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${feature._id}.${advancement._id}`);
+      }
+    }
+
+    if (Object.keys(added).length > 0) {
+      advancement.value = {
+        added,
+      };
+      feature.system.advancement[advancementIndex] = advancement;
+    }
+  }
+
+  linkFeatures(types = ["features"]) {
+    logger.debug("Linking Feature Factory Advancements to Features", {
+      CharacterFeatureFactory: this,
+      types,
+    });
+    for (const type of types) {
+      for (const feature of this.ddbCharacter.data[type]) {
+        const linkingData = getProperty(feature, "flags.ddbimporter.advancementLink");
+        if (linkingData) {
+          logger.debug("Linking Advancements to Features", {
+            feature,
+            linkingData,
+          });
+          for (let idx = 0; idx < feature.system.advancement.length; idx++) {
+            const a = feature.system.advancement[idx];
+            const dataLink = linkingData.find((d) => d._id === a._id);
+            // eslint-disable-next-line max-depth
+            if (a.type === "ItemGrant" && dataLink) {
+              this.#itemGrantLink(feature, idx);
+            }
+          }
+        }
+      }
+    }
+  }
 }
