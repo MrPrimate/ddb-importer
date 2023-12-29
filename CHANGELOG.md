@@ -1,4 +1,7 @@
-# NEXT UP
+# 3.7.0
+
+WARNING, significant widesweeping changes to Character parsing!
+
 
 - Internal effect helper remaster to improve maintainability and use going forward.
 - Base class features were duplicated by subclasses during class/class feature generation.
