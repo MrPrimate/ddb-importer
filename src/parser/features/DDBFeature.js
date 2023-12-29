@@ -1,4 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
@@ -12,8 +13,8 @@ export default class DDBFeature extends DDBBaseFeature {
   static FORCE_UNARMED = ["Trunk", "Claws"];
 
   static DOC_TYPE = {
-    class: "feat",
-    subclass: "feat",
+    class: "feat", // class feature
+    subclass: "feat", // subclass feature
     race: "feat",
     background: "background",
     feat: "feat",
@@ -174,6 +175,42 @@ export default class DDBFeature extends DDBBaseFeature {
     this._generateToolAdvancements();
     // FUTURE: Equipment?  needs better handling in Foundry
     this._generateSkillOrLanguageAdvancements();
+  }
+
+  async buildBackgroundFeatAdvancements() {
+    const featIds = getProperty(this.ddbData.character, "background.definition.featList.featIds") ?? [];
+    if (featIds.length === 0) return;
+
+    const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+    const indexFilter = {
+      fields: [
+        "name",
+        "flags.ddbimporter.featId",
+      ],
+    };
+    const compendium = CompendiumHelper.getCompendiumType("feats");
+    await compendium.getIndex(indexFilter);
+
+    const feats = compendium.index.filter((f) => featIds.includes(getProperty(f, "flags.ddbimporter.featId")));
+
+    advancement.updateSource({
+      configuration: {
+        items: feats.map((f) => f.uuid),
+      },
+      title: "Feat",
+    });
+    this.data.system.advancement.push(advancement.toObject());
+
+    const advancementLinkData = getProperty(this.data, "flags.ddbimporter.advancementLink") ?? [];
+    const advancementData = {
+      _id: advancement._id,
+      features: {}
+    };
+    advancementData[advancement._id] = {};
+    feats.forEach((f) => {
+      advancementData.features[f.name] = f.uuid;
+    });
+    setProperty(this.data, "flags.ddbimporter.advancementLink", advancementLinkData);
   }
 
   _buildBackground() {
