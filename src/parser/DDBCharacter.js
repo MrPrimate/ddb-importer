@@ -253,12 +253,16 @@ export default class DDBCharacter {
     }
   }
 
-  getDataFeature(featureName, featureTypes = ["actions", "features"]) {
+  getDataFeature(featureName, { featureTypes = ["actions", "features"], hints = [] } = {}) {
     for (const featureType of featureTypes) {
       const index = this.data[featureType].findIndex((f) => {
-        const name = f.flags.ddbimporter?.originalName ?? f.name;
         const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
-        return utils.nameString(name) === utils.nameString(featureName) && !isCustomAction;
+        if (isCustomAction) return false;
+        const name = f.flags.ddbimporter?.originalName ?? f.name;
+        for (const hint of hints) {
+          if (utils.nameString(`${name} (${hint})`) === utils.nameString(featureName)) return true;
+        }
+        return utils.nameString(name) === utils.nameString(featureName);
       });
       if (index !== -1) {
         logger.debug(`Found ${featureType} : ${featureName}`);

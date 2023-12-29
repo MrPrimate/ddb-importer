@@ -50,7 +50,7 @@ export default class CharacterClassFactory {
         uuid,
       });
 
-      const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName);
+      const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName, { hints: [klass.name] });
       if (characterFeature) {
         logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
         added[characterFeature._id] = uuid;
@@ -86,7 +86,7 @@ export default class CharacterClassFactory {
         uuid,
       });
 
-      const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName, ["features"]);
+      const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName, { hints: [klass.name] });
       if (characterFeature) {
         logger.debug(`Ability Score Advancement ${advancement._id} found Feat ${advancementFeatureName} (${uuid})`);
         feats[characterFeature._id] = uuid;
