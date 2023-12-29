@@ -304,7 +304,9 @@ export default class AdvancementHelper {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedSkills = AdvancementHelper.parseHTMLSkills(feature.description);
-    const chosenSkills = this.getSkillChoicesFromOptions(feature, level);
+    const chosenSkills = this.noMods
+      ? { chosen: [], choices: [] }
+      : this.getSkillChoicesFromOptions(feature, level);
 
     const count = this.noMods || parsedSkills.number > 0 || parsedSkills.grants.length > 0
       ? parsedSkills.number
@@ -371,7 +373,9 @@ export default class AdvancementHelper {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedLanguages = AdvancementHelper.parseHTMLLanguages(feature.description);
-    const chosenLanguages = this.getLanguageChoicesFromOptions(feature, level);
+    const chosenLanguages = this.noMods
+      ? { chosen: [], choices: [] }
+      : this.getLanguageChoicesFromOptions(feature, level);
 
     const languagesFromMods = languagesMods
       .filter((mod) => DICTIONARY.character.languages.find((lang) => lang.name === mod.friendlySubtypeName))
@@ -437,7 +441,9 @@ export default class AdvancementHelper {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedTools = AdvancementHelper.parseHTMLTools(feature.description);
-    const chosenTools = this.getToolChoicesFromOptions(feature, level);
+    const chosenTools = this.noMods
+      ? { chosen: [], choices: [] }
+      : this.getToolChoicesFromOptions(feature, level);
 
     const toolsFromMods = toolMods.map((mod) => {
       const tool = DICTIONARY.character.proficiencies
@@ -513,7 +519,9 @@ export default class AdvancementHelper {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedArmors = AdvancementHelper.parseHTMLArmorProficiencies(feature.description);
-    const chosenArmors = this.getChoicesFromOptions(feature, "Armor", level);
+    const chosenArmors = this.noMods
+      ? { chosen: [], choices: [] }
+      : this.getChoicesFromOptions(feature, "Armor", level);
 
     const armorsFromMods = armorMods.map((mod) => {
       const armor = DICTIONARY.character.proficiencies
@@ -589,7 +597,9 @@ export default class AdvancementHelper {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedWeapons = AdvancementHelper.parseHTMLWeaponProficiencies(feature.description);
-    const chosenWeapons = this.getChoicesFromOptions(feature, "Weapon", level);
+    const chosenWeapons = this.noMods
+      ? { chosen: [], choices: [] }
+      : this.getChoicesFromOptions(feature, "Weapon", level);
 
     const weaponsFromMods = weaponMods.map((mod) => {
       const weapon = DICTIONARY.character.proficiencies
@@ -656,7 +666,9 @@ export default class AdvancementHelper {
 
   getExpertiseAdvancement(feature, level) {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-    const expertiseOptions = this.getExpertiseChoicesFromOptions(feature, level);
+    const expertiseOptions = this.noMods
+      ? { chosen: [], choices: [] }
+      : this.getExpertiseChoicesFromOptions(feature, level);
 
     // add HTML Parsing to improve this at a later date
 
