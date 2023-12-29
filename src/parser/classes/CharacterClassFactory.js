@@ -2,7 +2,6 @@
 import DDBClass from "./DDBClass.js";
 import logger from '../../logger.js';
 import DDBSubClass from "./DDBSubClass.js";
-import utils from "../../lib/utils.js";
 
 export default class CharacterClassFactory {
 
@@ -35,21 +34,6 @@ export default class CharacterClassFactory {
     return documents;
   }
 
-  _getCharacterFeature(featureName, featureTypes = ["actions", "features"]) {
-    for (const featureType of featureTypes) {
-      const index = this.ddbCharacter.data[featureType].findIndex((f) => {
-        const name = f.flags.ddbimporter?.originalName ?? f.name;
-        const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
-        return utils.nameString(name) === utils.nameString(featureName) && !isCustomAction;
-      });
-      if (index !== -1) {
-        logger.debug(`Found ${featureType} : ${featureName}`);
-        return this.ddbCharacter.data[featureType][index];
-      }
-    }
-    return undefined;
-  }
-
   #itemGrantLink(ddbClass, klass, advancementIndex) {
     // "added": {
     //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
@@ -66,7 +50,7 @@ export default class CharacterClassFactory {
         uuid,
       });
 
-      const characterFeature = this._getCharacterFeature(advancementFeatureName);
+      const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName);
       if (characterFeature) {
         logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
         added[characterFeature._id] = uuid;
@@ -102,7 +86,7 @@ export default class CharacterClassFactory {
         uuid,
       });
 
-      const characterFeature = this._getCharacterFeature(advancementFeatureName, ["features"]);
+      const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName, ["features"]);
       if (characterFeature) {
         logger.debug(`Ability Score Advancement ${advancement._id} found Feat ${advancementFeatureName} (${uuid})`);
         feats[characterFeature._id] = uuid;

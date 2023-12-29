@@ -251,6 +251,21 @@ export default class DDBCharacter {
     }
   }
 
+  getDataFeature(featureName, featureTypes = ["actions", "features"]) {
+    for (const featureType of featureTypes) {
+      const index = this.data[featureType].findIndex((f) => {
+        const name = f.flags.ddbimporter?.originalName ?? f.name;
+        const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
+        return utils.nameString(name) === utils.nameString(featureName) && !isCustomAction;
+      });
+      if (index !== -1) {
+        logger.debug(`Found ${featureType} : ${featureName}`);
+        return this.data[featureType][index];
+      }
+    }
+    return undefined;
+  }
+
   async disableDynamicUpdates() {
     this.currentActor.flags.ddbimporter.activeUpdate = false;
     const activeUpdateData = { flags: { ddbimporter: { activeUpdate: false } } };
