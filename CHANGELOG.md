@@ -1,3 +1,7 @@
+# 3.7.4
+
+- Some v10 compatibility improvements.
+
 # 3.7.3
 
 - Some small improvements to the campaign fallback UI to ensure that its obvious a campaign is still selected if the campaign list fails.

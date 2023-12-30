@@ -369,6 +369,7 @@ export default class DDBRace {
 
 
   linkFeatures(ddbCharacter) {
+    if (this.legacyMode) return;
     logger.debug("Linking Advancements to Feats for Race", {
       DDBRace: this,
       ddbCharacter,

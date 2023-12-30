@@ -460,7 +460,7 @@ export default class DDBClass {
   _setLegacySkills() {
     if (!this.legacyMode) return;
 
-    const skills = this.advancementHelper.getSkillChoicesFromOptions(null, 1);
+    const skills = this.advancementHelper.getSkillChoicesFromOptions(null, 1, this._proficiencyFeatures);
 
     this.data.system.skills = {
       value: skills.chosen,

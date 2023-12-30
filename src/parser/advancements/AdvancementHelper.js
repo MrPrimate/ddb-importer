@@ -13,7 +13,7 @@ export default class AdvancementHelper {
   }
 
 
-  getSkillChoicesFromOptions(feature, level) {
+  getSkillChoicesFromOptions(feature, level, proficiencyFeatures = []) {
     const skillsChosen = new Set();
     const skillChoices = new Set();
 
@@ -21,9 +21,9 @@ export default class AdvancementHelper {
 
     this.ddbData.character.choices[this.type].filter((choice) =>
       // check all features
-      ((feature === null && this._proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level))
+      ((feature === null && proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level))
       // check specific feature
-       || (feature.id === choice.componentId && feature.requiredLevel === level))
+       || (feature && feature.id === choice.componentId && feature.requiredLevel === level))
       && choice.subType === 1
       && choice.type === 2
     ).forEach((choice) => {
