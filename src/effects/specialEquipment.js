@@ -38,10 +38,12 @@ export async function midiItemEffects(document) {
       break;
     }
     case "Spellguard Shield": {
-      document.effects[0].changes.push(
-        generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.msak"),
-        generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.rsak")
-      );
+      if (document.effects && document.effects.length > 0) {
+        document.effects[0].changes.push(
+          generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.msak"),
+          generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.rsak")
+        );
+      }
       break;
     }
     // no default
