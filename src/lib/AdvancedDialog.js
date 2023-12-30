@@ -275,4 +275,9 @@ export class ChooserDialog extends AdvancedDialog {
       this.dialog.render(true);
     });
   }
+
+  static async Ask(...args) {
+    const dialog = new ChooserDialog(...args);
+    return dialog.ask();
+  }
 }

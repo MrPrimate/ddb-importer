@@ -23,6 +23,7 @@ import { addEncounterMuncher } from "./hooks/renderMuncher/addEncounterMuncher.j
 
 // socket messaging
 import { onSocketMessage } from "./hooks/socket/onSocketMessage.js";
+import { setupSocketlib } from "./hooks/socket/socketlib.js";
 
 // image hooks
 import { linkTables } from "./hooks/renderJournalSheet/linkTables.js";
@@ -73,15 +74,19 @@ export async function onceReady() {
 }
 
 export function onReady() {
-  game.socket.on("module.ddb-importer", (data) => {
-    if (data.sender === game.user.data._id) {
-      return;
-    }
+  if (game.modules.get("socketlib")?.active) {
+    setupSocketlib();
+  } else {
+    game.socket.on("module.ddb-importer", (data) => {
+      if (data.sender === game.user.data._id) {
+        return;
+      }
 
-    const sender = game.users.get(data.sender);
-    delete data.sender;
-    onSocketMessage(sender, data);
-  });
+      const sender = game.users.get(data.sender);
+      delete data.sender;
+      onSocketMessage(sender, data);
+    });
+  }
 }
 
 export function renderSidebarTab(app, html) {
