@@ -86,19 +86,33 @@ if (args[0].macroPass === "postActiveEffects") {
       speaker: caster.uuid,
       whisper: game.users.filter((u) => userIds.includes(u.id) || u.isGM),
     });
-    new Dialog({
-      title: sourceItem.name,
-      content: "<p>Use action to sustain Witch Bolt?</p>",
-      buttons: {
-        continue: {
-          label: "Yes, damage!",
-          callback: () => sustainedDamage({options, damageType, damageDice, sourceItem, caster} )
-        },
-        end: {
-          label: "No, end concentration",
-          callback: () => cancel(caster)
-        }
-      }
-    }).render(true);
+    // new Dialog({
+    //   title: sourceItem.name,
+    //   content: "<p>Use action to sustain Witch Bolt?</p>",
+    //   buttons: {
+    //     continue: {
+    //       label: "Yes, damage!",
+    //       callback: () => sustainedDamage({options, damageType, damageDice, sourceItem, caster} )
+    //     },
+    //     end: {
+    //       label: "No, end concentration",
+    //       callback: () => cancel(caster)
+    //     }
+    //   }
+    // }).render(true);
+    const result = await DDBImporter.DialogHelper.AskUserButtonDialog(options.userId, {
+      buttons: [
+        { label: "Yes, damage!", value: true},
+        { label: "No, end concentration", value: false }
+      ],
+      title: "Witch Bolt",
+      content: "<p>Use action to sustain Witch Bolt?</p>"
+    },
+    'column');
+    if (result) {
+      sustainedDamage({options, damageType, damageDice, sourceItem, caster} );
+    } else {
+      cancel(caster);
+    }
   }
 }
