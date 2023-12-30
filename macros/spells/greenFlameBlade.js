@@ -103,52 +103,68 @@ async function attackNearby(originToken, ignoreIds) {
   const sourceItem = await fromUuid(lastArg.efData.flags.origin);
   const caster = sourceItem.parent;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
-  const targetContent = potentialTargets.map((t) => `<option value="${t.id}">${t.name}</option>`).join("");
-  const content = `<div class="form-group"><label>Targets : </label><select name="secondaryTargetId"}>${targetContent}</select></div>`;
 
-  new Dialog({
-    title: "Green Flame Blade: Choose a secondary target to attack",
-    content,
-    buttons: {
-      Choose: {
-        label: "Choose",
-        callback: async (html) => {
-          const selectedId = html.find("[name=secondaryTargetId]")[0].value;
-          const targetToken = canvas.tokens.get(selectedId);
-          const sourceItem = await fromUuid(lastArg.efData.flags.origin);
-          const mod = caster.system.abilities[sourceItem.abilityMod].mod;
-          const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate({ async: true });
-          if (game.dice3d) game.dice3d.showForRoll(damageRoll);
-          const workflowItemData = duplicate(sourceItem);
-          workflowItemData.effects = [];
-          setProperty(workflowItemData, "flags.midi-qol", {});
-          workflowItemData.system.target = { value: 1, units: "", type: "creature" };
-          workflowItemData.system.range = { value: 5, long: null, units: "ft", };
-          delete workflowItemData._id;
-          workflowItemData.name = "Green Flame Blade: Secondary Damage";
+  const userId = DAE.getFlag(caster, "greenFlameBladeUserId") ?? game.userId;
 
-          await new MidiQOL.DamageOnlyWorkflow(
-            caster,
-            casterToken,
-            damageRoll.total,
-            damageType,
-            [targetToken],
-            damageRoll,
-            {
-              flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
-              itemCardId: "new",
-              itemData: workflowItemData,
-              isCritical: false,
-            }
-          );
-          sequencerEffect(targetToken, originToken);
-        },
+  console.warn({
+    caster, itemData: lastArg.itemData, sourceItem, userId: game.userId
+  });
+
+  // const userId = getProperty(sourceItem, "flags.userId") ?? game.userId;
+  const result = await DDBImporter.DialogHelper.AskUserChooserDialog(userId,
+    [{
+      type: 'select',
+      label: 'Secondary target',
+      options: potentialTargets.map((t) => ({ label: t.name, value: t.id })),
+    }],
+    [{
+      label: "Choose",
+      value: true,
+    }, {
+      label: "Cancel",
+      value: false,
+    }],
+    {
+      title: 'Green Flame Blade: Choose a secondary target to attack',
+      options: {
+        width: 450,
+        height: "auto",
       },
-      Cancel: {
-        label: "Cancel",
-      },
-    },
-  }).render(true);
+      checkedText: true,
+    }
+  );
+
+  if (hasProperty(result, "results") && result.results.length > 0) {
+    const selectedId = result.results[0];
+    const targetToken = canvas.tokens.get(selectedId);
+    const sourceItem = await fromUuid(lastArg.efData.flags.origin);
+    const mod = caster.system.abilities[sourceItem.abilityMod].mod;
+    const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate({ async: true });
+    if (game.dice3d) game.dice3d.showForRoll(damageRoll);
+    const workflowItemData = duplicate(sourceItem);
+    workflowItemData.effects = [];
+    setProperty(workflowItemData, "flags.midi-qol", {});
+    workflowItemData.system.target = { value: 1, units: "", type: "creature" };
+    workflowItemData.system.range = { value: 5, long: null, units: "ft", };
+    delete workflowItemData._id;
+    workflowItemData.name = "Green Flame Blade: Secondary Damage";
+
+    await new MidiQOL.DamageOnlyWorkflow(
+      caster,
+      casterToken,
+      damageRoll.total,
+      damageType,
+      [targetToken],
+      damageRoll,
+      {
+        flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
+        itemCardId: "new",
+        itemData: workflowItemData,
+        isCritical: false,
+      }
+    );
+    sequencerEffect(targetToken, originToken);
+  }
 }
 
 function weaponAttack(caster, sourceItemData, origin, target) {
@@ -177,6 +193,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const itemId = html.find("[name=weapons]")[0].value;
           const weaponItem = caster.getEmbeddedDocument("Item", itemId);
           DAE.setFlag(caster, "greenFlameBladeChoice", itemId);
+          DAE.setFlag(caster, "greenFlameBladeUserId", game.userId);
           const weaponCopy = duplicate(weaponItem);
           delete weaponCopy._id;
           if (cantripDice > 0) {
@@ -193,7 +210,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             name: sourceItemData.name,
             origin,
             transfer: false,
-            flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { specialDuration: ["1Action", "1Attack", "turnStartSource"], transfer: false } },
+            flags: { userId: game.userId, targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { specialDuration: ["1Action", "1Attack", "turnStartSource"], transfer: false } },
           });
           if (hasProperty(sourceItemData, "flags.itemacro")) setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
           if (hasProperty(sourceItemData, "flags.dae.macro")) setProperty(weaponCopy, "flags.dae.macro", duplicate(sourceItemData.flags.dae.macro));
@@ -203,7 +220,6 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             autoAnimationsAdjustments.primary.video.animation = weaponCopy.system.baseItem && !["longsword", "rapier"].includes(weaponCopy.system.baseItem)
               ? weaponCopy.system.baseItem
               : "shortsword";
-            console.warn(duplicate(weaponCopy.system.baseItem));
             const autoanimations = hasProperty(weaponCopy, "flags.autoanimations")
               ? mergeObject(getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)
               : autoAnimationsAdjustments;
@@ -213,7 +229,8 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           attackItem.prepareData();
           attackItem.prepareFinalAttributes();
           const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
-          await MidiQOL.completeItemUse(attackItem, {}, options);
+          const result = await MidiQOL.completeItemUse(attackItem, {}, options);
+          // console.warn("HERE6", {weaponCopy, sourceItemData, attackItem, options, result})
         },
       },
       Cancel: {
