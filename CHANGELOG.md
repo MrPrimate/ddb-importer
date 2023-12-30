@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Some small improvements to the campaign fallback UI to ensure that its obvious a campaign is still selected if the campaign list fails.
+
 # 3.7.2
 
 - If the DDB Feats compendium was empty, classes, races or backgrounds which granted feats would cause the import to crash.

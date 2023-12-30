@@ -64,10 +64,22 @@ export async function refreshCampaigns(cobalt = null) {
 export async function getAvailableCampaigns() {
   if (CONFIG.DDBI.CAMPAIGNS) return CONFIG.DDBI.CAMPAIGNS;
   const campaignId = getCampaignId();
-  // eslint-disable-next-line require-atomic-updates
-  CONFIG.DDBI.CAMPAIGNS = await getDDBCampaigns();
+  const campaigns = await getDDBCampaigns();
 
-  if (!CONFIG.DDBI.CAMPAIGNS) return [];
+  if (!campaigns || campaigns.length === 0) {
+    // eslint-disable-next-line require-atomic-updates
+    CONFIG.DDBI.CAMPAIGNS = [];
+    if (campaignId && campaignId.trim() !== "") {
+      // eslint-disable-next-line require-atomic-updates
+      CONFIG.DDBI.CAMPAIGNS = [
+        {
+          id: campaignId,
+          name: "Unable to fetch campaigns, showing only selected",
+          dmUsername: campaignId,
+        }
+      ];
+    }
+  }
 
   CONFIG.DDBI.CAMPAIGNS.forEach((campaign) => {
     const selected = campaign.id == campaignId;
