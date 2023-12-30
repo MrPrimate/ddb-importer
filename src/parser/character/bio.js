@@ -151,8 +151,14 @@ DDBCharacter.prototype.getBackgroundData = function getBackgroundData() {
   } else {
     bg = this.source.ddb.character.background.customBackground;
     let result = getBackgroundTemplate();
-    if (bg.id) result.id = bg.id;
-    if (bg.entityTypeId) result.entityTypeId = bg.entityTypeId;
+    if (bg.id) {
+      result.id = bg.id;
+      result.definition.id = bg.id;
+    }
+    if (bg.entityTypeId) {
+      result.entityTypeId = bg.entityTypeId;
+      result.definition.entityTypeId = bg.entityTypeId;
+    }
     return result;
   }
 

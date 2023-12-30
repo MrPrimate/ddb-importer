@@ -2,6 +2,7 @@
 
 - Some small improvements to the campaign fallback UI to ensure that its obvious a campaign is still selected if the campaign list fails.
 - Witch Bolt will now prompt the user who cast the spell rather than the GM if they wish to sustain the spell. (requires socketlib)
+- Some custom backgrounds would not parse.
 
 # 3.7.2
 
