@@ -4,7 +4,9 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 async function updateActor(kind) {
   DAE.setFlag(targetActor, 'enhanceAbility', { name: kind });
-  const effect = targetActor.effects.find((e) => (e.name ?? e.label) === (lastArg.efData.name ?? lastArg.efData.label));
+  // const effectName = lastArg.efData.name ?? lastArg.efData.label;
+  const effectName = lastArg.itemData.effects[0].name;
+  const effect = DDBImporter.lib.DDBEffectHelper.findEffect(targetActor, effectName);
   let changes = [];
   switch (kind) {
     case "bear": {
@@ -97,7 +99,7 @@ async function updateActor(kind) {
 /**
  * For each target select the effect (GM selection)
  */
-if (args[0] === "on") {
+if (lastArg.tag === "OnUse") {
   new Dialog({
     title: "Choose Enhance Ability option for " + targetActor.name,
     content: "<p>Choose option</p>",

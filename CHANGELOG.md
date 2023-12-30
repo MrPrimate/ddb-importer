@@ -4,7 +4,7 @@
 - Witch Bolt will now prompt the user who cast the spell rather than the GM if they wish to sustain the spell. (requires socketlib)
 - Green flame blade will once again prompt user who cast the spell for secondary target rather than GM.
 - Some custom backgrounds would not parse.
-
+- Enhanced Ability macro fix.
 
 # 3.7.2
 
