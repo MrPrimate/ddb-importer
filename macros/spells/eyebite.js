@@ -20,7 +20,7 @@ function effectAppliedAndActive(conditionName) {
 async function eyebite(type, dc) {
   for (let t of game.user.targets) {
     const flavor = `${CONFIG.DND5E.abilities["wis"].label} DC${dc} ${DAEItem?.name || ""}`;
-    const saveRoll = await targetActor.rollAbilitySave("wis", { flavor, fastFoward: true });
+    const saveRoll = await targetActor.rollAbilitySave("wis", { flavor, fastForward: true });
     if (saveRoll.total < dc) {
       ChatMessage.create({ content: `${t.name} failed the save with a ${saveRoll.total}` });
       switch (type) {

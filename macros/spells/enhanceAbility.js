@@ -6,12 +6,12 @@ async function updateActor(kind, targetActor) {
   const effectName = lastArg.itemData.effects[0].name;
   const effect = DDBImporter.lib.DDBEffectHelper.findEffect(targetActor, effectName);
 
-  console.warn("update actor", {
-    kind,
-    effectName,
-    effect,
-    targetActor,
-  })
+  // console.warn("update actor", {
+  //   kind,
+  //   effectName,
+  //   effect,
+  //   targetActor,
+  // })
   let changes = [];
   switch (kind) {
     case "bear": {
@@ -145,7 +145,7 @@ if (lastArg.tag === "OnUse") {
 }
 
 if (args[0] === "off") {
-  console.warn("off called", { args, scope })
+  // console.warn("off called", { args, scope })
   const tokenOrActor = await fromUuid(lastArg.actorUuid);
   const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
   const flag = await DAE.getFlag(targetActor, 'enhanceAbility');

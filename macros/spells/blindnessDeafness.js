@@ -30,6 +30,7 @@ if (lastArg.tag === "OnUse") {
             ];
             const effectName = lastArg.itemData.effects[0].name;
             const effect = DDBImporter.lib.DDBEffectHelper.findEffect(targetActor, effectName);
+            // console.warn("effect", {effect, effectName});
             effect.update({ changes: changes.concat(effect.changes) });
           });
         },
