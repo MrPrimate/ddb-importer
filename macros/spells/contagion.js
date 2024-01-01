@@ -4,20 +4,11 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 const DAEItem = lastArg.efData.flags.dae.itemData;
 
-function effectAppliedAndActive(conditionName) {
-  return targetActor.effects.some(
-    (activeEffect) =>
-      activeEffect?.flags?.isConvenient
-      && (activeEffect?.name ?? activeEffect?.label) == conditionName
-      && !activeEffect?.disabled
-  );
-}
-
 /**
  * Generates the GM client dialog for selecting final Effect, updates target effect with name, icon and new DAE effects.
  */
 async function applyContagion() {
-  if (effectAppliedAndActive("Poisoned", targetActor))
+  if (DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive("Poisoned", targetActor))
     game.dfreds.effectInterface.removeEffect({ effectName: "Poisoned", uuid: targetActor.uuid });
 
   new Dialog({

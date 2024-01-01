@@ -10,20 +10,12 @@ const saveDC = (saveData.dc === null || saveData.dc === "") && saveData.scaling 
 const dcString = saveDC && saveDC !== "" ? `DC${saveDC} ` : "";
 const flavor = `${CONFIG.DND5E.abilities["wis"].label} DC${dcString}${DAEItem?.name || ""}`;
 
-function effectAppliedAndActive(conditionName) {
-  return targetActor.effects.some(
-    (activeEffect) =>
-      activeEffect?.flags?.isConvenient
-      && (activeEffect?.name ?? activeEffect?.label) == conditionName
-      && !activeEffect?.disabled
-  );
-}
 
 async function cleanUp() {
   // cleanup conditions
-  const hasProne = effectAppliedAndActive("Prone", targetActor);
+  const hasProne = DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive("Prone", targetActor);
   if (hasProne) await game.dfreds.effectInterface.toggleEffect({ effectName: "Prone", uuid: targetActor.uuid });
-  const hasIncapacitated = effectAppliedAndActive("Incapacitated", targetActor);
+  const hasIncapacitated = DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive("Incapacitated", targetActor);
   if (hasIncapacitated) await game.dfreds.effectInterface.toggleEffect({ effectName: "Incapacitated", uuid: targetActor.uuid });
   // remove hook
   const flag = await DAE.getFlag(targetActor, "hideousLaughterHook");

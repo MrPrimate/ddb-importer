@@ -4,84 +4,151 @@ if (!game.modules.get("dfreds-convenient-effects")?.active) {
 }
 
 const lastArg = args[args.length - 1];
-const tokenOrActor = await fromUuid(lastArg.actorUuid);
-const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+
 const DAEItem = lastArg.efData.flags.dae.itemData;
 
-function effectAppliedAndActive(conditionName) {
-  return targetActor.effects.some(
-    (activeEffect) =>
-      activeEffect?.flags?.isConvenient &&
-      (activeEffect?.name ?? activeEffect?.label) == conditionName &&
-      !activeEffect?.disabled
-  );
+// console.warn("Details", {
+//   args,
+//   lastArg,
+//   actor,
+//   token,
+//   DAEItem
+// })
+
+const EFFECT_LOOKUP = {
+  "asleep": ["Unconscious"],
+  "panicked": ["Frightened"],
+  "sickened": ["Poisoned"],
+};
+
+async function eyebite(type, dc, targetActor) {
+  const flavor = `${CONFIG.DND5E.abilities["wis"].label} DC${dc} ${DAEItem?.name || ""}`;
+  const saveRoll = await targetActor.rollAbilitySave("wis", { flavor, fastForward: true });
+  if (dc > saveRoll.total) {
+    ChatMessage.create({ content: `${targetActor.name} failed the save with a ${saveRoll.total}` });
+    const conditions = EFFECT_LOOKUP[type];
+    conditions.forEach((condition) => {
+      game.dfreds.effectInterface.addEffect({ effectName: condition, uuid: targetActor.uuid, origin: lastArg.origin });
+    })
+    DAE.setFlag(targetActor, "eyebiteSpell", { conditions, dc, origin: lastArg.origin });
+  } else {
+    ChatMessage.create({ content: `${targetActor.name} passed the save with a ${saveRoll.total}` });
+  }
 }
 
-async function eyebite(type, dc) {
-  for (let t of game.user.targets) {
-    const flavor = `${CONFIG.DND5E.abilities["wis"].label} DC${dc} ${DAEItem?.name || ""}`;
-    const saveRoll = await targetActor.rollAbilitySave("wis", { flavor, fastForward: true });
-    if (saveRoll.total < dc) {
-      ChatMessage.create({ content: `${t.name} failed the save with a ${saveRoll.total}` });
-      switch (type) {
-        case "asleep":
-          game.dfreds.effectInterface.addEffect({ effectName: "Unconscious", uuid: t.actor.uuid });
-          break;
-        case "panicked":
-          game.dfreds.effectInterface.addEffect({ effectName: "Frightened", uuid: t.actor.uuid });
-          break;
-        case "sickened":
-          game.dfreds.effectInterface.addEffect({ effectName: "Poisoned", uuid: t.actor.uuid });
-          break;
-        // no default
-      }
-      DAE.setFlag(targetActor, "eyebiteSpell", { type, dc });
+async function eyebiteDialog(userId, dc, targetActor) {
+  const type = await DDBImporter.DialogHelper.AskUserButtonDialog(userId, {
+    buttons: [
+      { label: "Asleep", value: "asleep" },
+      { label: "Panicked", value: "panicked" },
+      { label: "Sickened", value: "sickened" },
+    ],
+    title: DAEItem.name ?? "Eyebite",
+    content: `<p>Choose effect for ${DAEItem.name} target</p>`,
+  },
+  'column');
+
+  if (!type) return;
+
+  await eyebite(type, dc, targetActor);
+}
+
+async function getTarget(userId, ignoreInitial = false) {
+  if (game.users.get(userId).targets.size === 1 && !ignoreInitial) {
+    return game.users.get(userId).targets.toObject()[0];
+  } else {
+    const result = await DDBImporter.DialogHelper.AskUserButtonDialog(userId, {
+      buttons: [
+        { label: "I have targeted", value: true },
+        { label: "Cancel", value: false },
+      ],
+      title: DAEItem.name ?? "Eyebite",
+      content: `<p>Choose a single target for ${DAEItem.name}</p>`,
+    },
+    'column');
+    if (result && game.users.get(userId).targets.size === 1) {
+      return game.users.get(userId).targets.toObject()[0];
+    } else if (result && getDamageImmunities.targets.size !== 0) {
+      return getTarget(userId, ignoreInitial);
     } else {
-      ChatMessage.create({ content: `${t.name} passed the save with a ${saveRoll.total}` });
+      return undefined;
     }
   }
 }
 
-function eyebiteDialog(dc) {
-  new Dialog({
-    title: "Eyebite options",
-    content: "<p>Target a token and select the effect</p>",
-    buttons: {
-      one: {
-        label: "Asleep",
-        callback: async () => await eyebite("asleep", dc),
-      },
-      two: {
-        label: "Panicked",
-        callback: async () => await eyebite("panicked", dc),
-      },
-      three: {
-        label: "Sickened",
-        callback: async () => await eyebite("sickened", dc),
-      },
-    },
-  }).render(true);
-}
-
 if (args[0] === "on") {
-  const saveData = DAEItem.system.save;
+  const saveData = deepClone(DAEItem.system.save);
   if (saveData.scaling === "spell") {
     const rollData = actor.getRollData();
     saveData.dc = rollData.attributes.spelldc;
   }
-  eyebiteDialog(saveData.dc);
-  ChatMessage.create({ content: `${targetActor.name} is blessed with Eyebite` });
+
+  const target = await getTarget(game.userId, false);
+
+  if (!target) return;
+
+  await eyebiteDialog(game.userId, saveData.dc, target.actor);
+  ChatMessage.create({ content: `${target.name} is blessed with Eyebite` });
+
+  const options = {
+    userId: game.userId,
+  };
+
+  DAE.setFlag(actor, "eyebiteSpell", options);
+} else if (args[0] === "each") {
+  const flag = DAE.getFlag(actor, "eyebiteSpell");
+  const userId = flag.userId ?? game.userId;
+
+  const again = await DDBImporter.DialogHelper.AskUserButtonDialog(userId, {
+    buttons: [
+      { label: "Yes", value: true },
+      { label: "No", value: false },
+    ],
+    title: DAEItem.name ?? "Eyebite",
+    content: `<p>Would you like to use your action to use ${DAEItem.name} again?</p>`,
+  },
+  'column');
+
+  if (!again) return;
+  const target = await getTarget(userId, true);
+  if (!target) return;
+
+  await eyebiteDialog(userId, flag.dc, target.actor);
 }
 
-if (args[0] === "each") {
-  const flag = DAE.getFlag(targetActor, "eyebiteSpell");
-  eyebiteDialog(flag.dc);
+else if (args[0] === "off") {
+  game.canvas.tokens.placeables.forEach((t) => {
+    const effects = DDBImporter.lib.DDBEffectHelper.getActorEffects(t.actor)
+      .filter((e => e.origin === lastArg.origin));
+    if (effects.length > 0) {
+      const flag = DAE.getFlag(t.actor, "eyebiteSpell") ?? { conditions: [] };
+      flag.conditions.forEach((condition) => {
+        if (DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive(condition, t.actor)) {
+          game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: t.actor.uuid });
+        }
+      });
+      DAE.unsetFlag(actor, "eyebiteSpell");
+    }
+  });
+  await DAE.unsetFlag(actor, "eyebiteSpell");
 }
 
-if (args[0] === "off") {
-  const flag = await DAE.getFlag(targetActor, "eyebiteSpell");
-  if (flag) {
-    if (effectAppliedAndActive(flag.type, targetActor)) game.dfreds.effectInterface.removeEffect({ effectName: flag.type, uuid: targetActor.uuid });
-    await DAE.unsetFlag(targetActor, "eyebiteSpell");
-  }
-}
+
+// game.canvas.tokens.placeables.forEach((t) => {
+//   const effects = DDBImporter.lib.DDBEffectHelper.getActorEffects(t.actor)
+//     .filter((e => e.origin === "Scene.UhmG3IpACRTbmGYN.Token.0Gv1q5oVLBVGtrDY.Actor.Cm0OMSdwV96NTOi7.Item.zDjWKeq9XeN91mMc"));
+//   console.warn(effects)
+//   effects.forEach(effect => {
+//     const flag = DAE.getFlag(t.actor, "eyebiteSpell") ?? { conditions: [] };
+//     console.warn(flag);
+//     console.warn(t.actor.uuid)
+//     flag.conditions.forEach((condition) => {
+//       const check = DDBImporter.lib.DDBEffectHelper.isEffectConditionEffectAppliedAndActive(condition,effect);
+//       console.warn(check)
+//       if (check) {
+//           console.warn("removing")
+//         game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: t.actor.uuid });
+//       }
+//     });
+//   });
+// });

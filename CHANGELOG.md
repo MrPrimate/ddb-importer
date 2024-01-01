@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Eyebite macro fixes
+
 # 3.7.4
 
 - Some v10 compatibility improvements.

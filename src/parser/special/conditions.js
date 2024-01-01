@@ -1,4 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
+import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 
@@ -15,20 +16,11 @@ export async function getActiveConditions(actor) {
   return conditions;
 }
 
-async function effectAppliedAndActive(condition, actor) {
-  return actor.effects.some(
-    (activeEffect) =>
-      activeEffect?.flags?.isConvenient
-      && (activeEffect?.name ?? activeEffect?.label) == condition.label
-      && !activeEffect?.disabled
-  );
-}
-
 export async function getActorConditionStates(actor, ddb, keepLocal = false) {
   const conditions = await Promise.all(DICTIONARY.conditions
     .filter((condition) => Number.isInteger(condition.ddbId)) // only ddb conditions
     .map(async (condition) => {
-      const conditionApplied = await effectAppliedAndActive(condition, actor);
+      const conditionApplied = DDBEffectHelper.isConditionEffectAppliedAndActive(condition.label, actor);
       const ddbCondition = ddb.character.conditions.some((conditionState) =>
         conditionState.id === condition.ddbId
         && conditionState.level === condition.levelId

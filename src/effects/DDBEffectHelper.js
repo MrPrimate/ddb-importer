@@ -348,6 +348,14 @@ export default class DDBEffectHelper {
     }
   }
 
+  static getActorEffects(actor) {
+    if (isNewerVersion(game.version, 11)) {
+      return Array.from(actor?.allApplicableEffects() ?? []);
+    } else {
+      return actor.effects;
+    }
+  }
+
   static effectConditionAppliedAndActive(conditionName, actor) {
     return actor.effects.some(
       (activeEffect) =>
@@ -599,5 +607,27 @@ export default class DDBEffectHelper {
       setTimeout(resolve, ms);
     });
   }
+
+  static isConditionEffectAppliedAndActive(condition, actor) {
+    return DDBEffectHelper.getActorEffects(actor).some(
+      (activeEffect) =>
+        (getProperty(activeEffect, "flags.dfreds-convenient-effects.isConvenient") || activeEffect?.flags?.isConvenient)
+        && (activeEffect?.name ?? activeEffect?.label) == condition
+        && !activeEffect?.disabled
+    );
+  }
+
+  static isEffectConditionEffectAppliedAndActive(condition, effect) {
+    return (getProperty(effect, "flags.dfreds-convenient-effect.isConvenient") || effect?.flags?.isConvenient)
+        && (effect?.name ?? effect?.label) === condition
+        && !effect?.disabled;
+  //   const isConvenient = (getProperty(effect, "flags.dfreds-convenient-effects.isConvenient") || effect?.flags?.isConvenient);
+  //   const isName = (effect?.name ?? effect?.label) === condition;
+  //   const isDisabled = !effect?.disabled;;
+  //   console.warn("effect eval", {
+  //     condition, effect, isConvenient, isName, isDisabled
+  //   });
+  //   return isConvenient && isName && isDisabled;
+  // }
 
 }

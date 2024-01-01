@@ -9,15 +9,6 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const DAEItem = lastArg.efData.flags.dae.itemData;
 const saveData = DAEItem.system.save;
 
-function effectAppliedAndActive(conditionName) {
-  return targetActor.effects.some(
-    (activeEffect) =>
-      activeEffect?.flags?.isConvenient &&
-      (activeEffect?.name ?? activeEffect?.label) == conditionName &&
-      !activeEffect?.disabled
-  );
-}
-
 if (args[0] === "on") {
   await DAE.setFlag(targetActor, "fleshToStoneSpell", {
     successes: 0,
@@ -36,7 +27,7 @@ async function checkPetrification(flag) {
 
     if (flag.failures === 3) {
       ChatMessage.create({ content: `Flesh To Stone on ${targetActor.name} is complete` });
-      if (!effectAppliedAndActive("Petrified")) {
+      if (!DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive("Petrified", targetActor)) {
         await game.dfreds.effectInterface.addEffect({ effectName: "Petrified", uuid: targetActor.uuid });
       }
     } else {
@@ -72,7 +63,7 @@ if (args[0] === "off") {
 
   const flag = await DAE.getFlag(targetActor, "fleshToStoneSpell");
   if (flag && flag.rounds < 10) {
-    if (effectAppliedAndActive("Petrified")) {
+    if (DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive("Petrified", targetActor)) {
       game.dfreds.effectInterface.removeEffect({ effectName: "Petrified", uuid: targetActor.uuid });
     }
   }

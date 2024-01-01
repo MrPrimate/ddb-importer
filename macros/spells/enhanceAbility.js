@@ -105,7 +105,7 @@ async function updateActor(kind, targetActor) {
 /**
  * For each target select the effect (GM selection)
  */
-if (lastArg.tag === "OnUse") {
+if (lastArg.tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
   if (lastArg.targets.length < 1) {
     ui.notifications.error("Enhance Ability: No target selected: unable to automate effect.");
     return;
