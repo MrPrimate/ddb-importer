@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Eyebite macro fixes
+- Reach weapon property is set incorrectly on a lot of monster parsed features and actions (for Mr Ponsney)
 
 # 3.7.4
 

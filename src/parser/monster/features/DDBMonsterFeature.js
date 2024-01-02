@@ -845,7 +845,11 @@ export default class DDBMonsterFeature {
 
     this.actionInfo.reach = this.getReach();
     this.actionInfo.range = this.getRange();
-    if (this.actionInfo.reach != "") this.actionInfo.properties.rch = true;
+    // On hindsight, reach is a weapon property, and probably shouldn't be present on most features
+    // it gets copied over to weapons elsewhere.
+    // if (this.actionInfo.reach != "" && Number.parseInt(this.actionInfo.reach) > 5) {
+    //   this.actionInfo.properties.rch = true;
+    // }
     this.actionInfo.recharge = this.getRecharge();
     this.actionInfo.activation = this.getActivation();
     this.actionInfo.save = this.getFeatSave();
