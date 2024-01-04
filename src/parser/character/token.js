@@ -6,22 +6,17 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
   try {
     // Default to the most basic token setup.
     // everything else can be handled by the user / Token Mold
-    let tokenData = {
+    const existingData = deepClone(this.currentActor.prototypeToken);
+    let tokenData = mergeObject(existingData, {
       actorLink: true,
       name: this.source.ddb.character.name,
       sight: {
         enabled: true,
         range: 0,
-        angle: 360,
-        color: null,
-        attenuation: 0,
-        brightness: 0,
-        saturation: 0,
-        contrast: 0,
         visionMode: "basic",
       },
       detectionModes: [],
-    };
+    });
     const senses = this.getSenses();
     // darkvision: 0,
     // blindsight: 0,

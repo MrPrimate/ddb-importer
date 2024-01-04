@@ -2,6 +2,8 @@
 
 - Eyebite macro fixes
 - Reach weapon property is set incorrectly on a lot of monster parsed features and actions (for Mr Ponsney)
+- Small macro tweaks
+- Retain more token data on characters when importing, if not relevant to import, such as Vision Angle. @rudecanine
 
 # 3.7.4
 
