@@ -56,19 +56,21 @@ function getDDBCampaigns(cobalt = null) {
 
 export async function refreshCampaigns(cobalt = null) {
   if (cobalt) {
-    CONFIG.DDBI.CAMPAIGNS = await getDDBCampaigns(cobalt);
+    const results = await getDDBCampaigns(cobalt);
+    console.warn("results", results);
+    CONFIG.DDBI.CAMPAIGNS = results;
   }
   return CONFIG.DDBI.CAMPAIGNS;
 }
 
 export async function getAvailableCampaigns() {
   if (CONFIG.DDBI.CAMPAIGNS) return CONFIG.DDBI.CAMPAIGNS;
+  // eslint-disable-next-line require-atomic-updates
+  CONFIG.DDBI.CAMPAIGNS = [];
   const campaignId = getCampaignId();
   const campaigns = await getDDBCampaigns();
 
   if (!campaigns || campaigns.length === 0) {
-    // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.CAMPAIGNS = [];
     if (campaignId && campaignId.trim() !== "") {
       // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.CAMPAIGNS = [
@@ -79,11 +81,15 @@ export async function getAvailableCampaigns() {
         }
       ];
     }
+  } else if (campaigns && campaigns.length > 0) {
+    // eslint-disable-next-line require-atomic-updates
+    CONFIG.DDBI.CAMPAIGNS = campaigns;
   }
 
   CONFIG.DDBI.CAMPAIGNS.forEach((campaign) => {
-    const selected = campaign.id == campaignId;
+    const selected = parseInt(campaign.id) === parseInt(campaignId);
     campaign.selected = selected;
   });
+
   return CONFIG.DDBI.CAMPAIGNS;
 }

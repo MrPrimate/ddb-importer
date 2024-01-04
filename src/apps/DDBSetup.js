@@ -50,6 +50,8 @@ export default class DDBSetup extends FormApplication {
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
     const availableCampaigns = isCobalt && cobaltStatus.success ? await getAvailableCampaigns() : [];
 
+    this.campaignFallback = false;
+
     availableCampaigns.forEach((campaign) => {
       const selected = campaign.id == campaignId;
       campaign.selected = selected;
@@ -92,6 +94,7 @@ export default class DDBSetup extends FormApplication {
       const list = html.find("#campaign-select");
       let campaignList = `<option value="">Select campaign:</option>`;
       if (!campaigns || (Array.isArray(campaigns) && campaigns.length === 0)) {
+        this.campaignFallback = true;
         const fallback = html.find("#ddb-campaign-fallback");
         list[0].classList.add("ddbimporter-none");
         fallback[0].classList.remove("ddbimporter-none");
@@ -151,9 +154,11 @@ export default class DDBSetup extends FormApplication {
     event.preventDefault();
     const campaignSelect = formData['campaign-select'];
     const fallbackCampaign = formData['campaign-fallback'];
-    const campaignId = fallbackCampaign && fallbackCampaign !== ""
-      ? fallbackCampaign ?? ""
-      : campaignSelect == 0 ? "" : campaignSelect;
+    const campaignId = this.campaignFallback && fallbackCampaign && fallbackCampaign !== ""
+      ? (fallbackCampaign ?? "")
+      : campaignSelect == 0
+        ? ""
+        : campaignSelect;
     const cobaltCookie = formData['cobalt-cookie'];
     const cobaltCookieLocal = formData['cobalt-cookie-local'];
     const currentKey = PatreonHelper.getPatreonKey();
