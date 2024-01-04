@@ -628,6 +628,6 @@ export default class DDBEffectHelper {
   //     condition, effect, isConvenient, isName, isDisabled
   //   });
   //   return isConvenient && isName && isDisabled;
-  // }
+  }
 
 }
