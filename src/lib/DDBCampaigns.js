@@ -57,7 +57,6 @@ function getDDBCampaigns(cobalt = null) {
 export async function refreshCampaigns(cobalt = null) {
   if (cobalt) {
     const results = await getDDBCampaigns(cobalt);
-    console.warn("results", results);
     CONFIG.DDBI.CAMPAIGNS = results;
   }
   return CONFIG.DDBI.CAMPAIGNS;

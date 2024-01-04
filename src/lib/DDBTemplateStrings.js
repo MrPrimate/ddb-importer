@@ -237,7 +237,7 @@ const applyConstraint = (value, constraint) => {
     }
     default: {
       logger.debug(`Missed match is ${match}`);
-      logger.warn(`ddb-importer does not know about template constraint {{@${constraint}}}. Please log a bug.`); // eslint-disable-line no-console
+      logger.warn(`ddb-importer does not know about template constraint {{@${constraint}}}. Please log a bug.`, { value, constraint });
     }
   }
 
@@ -298,7 +298,7 @@ const addConstraintEvaluations = (value, constraintList) => {
       }
       default: {
         logger.debug(`Missed match is ${match}`);
-        logger.warn(`ddb-importer does not know about template constraint {{@${constraint}}}. Please log a bug.`); // eslint-disable-line no-console
+        logger.warn(`ddb-importer does not know about template constraint {{@${constraint}}}. Please log a bug.`, { value, constraint });
       }
     }
 
@@ -507,12 +507,14 @@ export default function parseTemplateString(ddb, character, text, feature) {
 
     entry.rollMatchTest = entry.rollMatch.test(result.text);
 
-    // console.warn("parseTemplateString", { text: duplicate(text), feature, entry, match });
+    // console.warn("parseTemplateString", { text: duplicate(text), feature, entry, match, result });
 
     const splitSignedBase = match.split("#");
-    const splitSigned = splitSignedBase.length > 1 && ["signed", "unsigned"].includes(splitSignedBase[1]) && !match.includes("@")
+    const splitSigned = splitSignedBase.length > 1 && ["signed", "unsigned"].includes(splitSignedBase[1])
       ? splitSignedBase
-      : [match.replace("#", "@")];
+      : !match.includes("@")
+        ? [match.replace("#", "@")]
+        : splitSignedBase;
     const splitRemoveUnsigned = splitSigned[0];
     const signed = splitSigned.length > 1
       ? splitSigned[1]
@@ -520,6 +522,9 @@ export default function parseTemplateString(ddb, character, text, feature) {
         ? "signed"
         : null;
     const splitMatchAt = splitRemoveUnsigned.split("@");
+
+    // console.warn("splitMatchAt", { splitMatchAt, splitRemoveUnsigned, signed, splitSigned, splitSignedBase, match });
+
     const parsedMatchData = parseMatch(ddb, character, splitRemoveUnsigned, feature);
     const parsedMatch = parsedMatchData.parsed;
     result.displayStrings.push(parsedMatchData);
