@@ -1,10 +1,11 @@
-# NEXT UP
+# 3.7.5
 
 - Fixes for Campaign mapping causing issues opening core settings screen.
 - Eyebite macro fixes
 - Reach weapon property is set incorrectly on a lot of monster parsed features and actions (for Mr Ponsney)
 - Small macro tweaks
 - Retain more token data on characters when importing, if not relevant to import, such as Vision Angle. @rudecanine
+- Some template string improvements.
 
 # 3.7.4
 
