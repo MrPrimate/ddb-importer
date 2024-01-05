@@ -945,7 +945,7 @@ function addStatChanges(modifiers, name) {
   stats.forEach((stat) => {
     const ability = DICTIONARY.character.abilities.find((ab) => ab.long === stat);
     const statEffect = addStatSetEffect(modifiers, name, `${stat}-score`);
-    const savingThrowAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-saving-throw`, "save");
+    const savingThrowAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-saving-throws`, "save");
     const abilityCheckAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-ability-checks`, "check");
     const abilityBonusesSave = addAddEffect(modifiers, name, `${stat}-saving-throws`, `system.abilities.${ability.value}.bonuses.save`);
     const abilityBonusesCheck = addAddEffect(modifiers, name, `${stat}-ability-checks`, `system.abilities.${ability.value}.bonuses.check`);

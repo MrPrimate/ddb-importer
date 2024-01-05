@@ -2,6 +2,7 @@
 
 - Some modifiers were not always parsed when granted by a chosen class feature such as the Genie Kind resistance.
 - Simple or Martial Weapon proficiency would be added as a custom proficiency and a chosen one.
+- Auto effect generation that created advantage based saving throws would not create advantage saving throw changes.
 
 # 3.7.5
 
