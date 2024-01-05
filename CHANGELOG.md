@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.7.6
 
 - Some modifiers were not always parsed when granted by a chosen class feature such as the Genie Kind resistance.
 - Simple or Martial Weapon proficiency would be added as a custom proficiency and a chosen one.
