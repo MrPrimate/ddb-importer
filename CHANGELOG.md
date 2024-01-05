@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Some modifiers were not always parsed when granted by a chosen class feature such as the Genie Kind resistance.
+- Simple or Martial Weapon proficiency would be added as a custom proficiency and a chosen one.
+
 # 3.7.5
 
 - Fixes for Campaign mapping causing issues opening core settings screen.

@@ -404,8 +404,15 @@ const DDBHelper = {
       // has this feature set been replaced by an optional class feature?
       && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.componentId)
       // has it been chosen?
-      && ddb.character.choices.class.some((choice) =>
-        choice.componentId == option.componentId && choice.componentTypeId == option.componentTypeId && choice.optionValue
+      && (
+        ddb.character.choices.class.some((choice) =>
+          choice.componentId == option.componentId
+          && choice.componentTypeId == option.componentTypeId
+          && hasProperty(choice, "optionValue")
+        )
+        || !ddb.character.choices.class.some((choice) =>
+          choice.componentId == option.componentId
+          && choice.componentTypeId == option.componentTypeId)
       )
     );
   },
@@ -419,6 +426,9 @@ const DDBHelper = {
       && ((option.componentTypeId == mod.componentTypeId && option.componentId == mod.componentId)
         || (option.definition.entityTypeId == mod.componentTypeId && option.definition.id == mod.componentId))
       // !data.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.definition.id) &&
+      // optional class feature
+      && ddb.character.optionalClassFeatures?.some((f) => f.classFeatureId == option.componentId)
+      // has it been chosen?
       && (
         ddb.character.choices.class.some((choice) =>
           choice.componentId == option.componentId
@@ -430,9 +440,6 @@ const DDBHelper = {
           && classOption.entityTypeId == option.componentTypeId
           && (classId === null || classId === classOption.classId)
         )
-      )
-      && ddb.character.optionalClassFeatures?.some((f) =>
-        f.classFeatureId == option.componentId
       )
     );
   },
@@ -454,6 +461,7 @@ const DDBHelper = {
   isModAChosenClassMod: (ddb, mod, { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null } = {}) => {
     const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
     const isClassFeature = DDBHelper.isModClassFeature(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
+    // console.warn("isClassFeature", {isClassFeature, mod, klassFeatureIds, classId, requiredLevel, exactLevel});
     if (isClassFeature) return true;
     const isClassOption = DDBHelper.isModClassOption(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
     if (isClassOption) return true;
@@ -463,6 +471,7 @@ const DDBHelper = {
     // new class feature choice
     const isOptionalClassChoice = DDBHelper.isModOptionalClassChoice(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
 
+    // console.warn("isClassFeature2", {isClassFeature, mod, klassFeatureIds, classId, requiredLevel, exactLevel, isClassOption, isOptionalClassOption, isOptionalClassChoice});
     return isOptionalClassChoice;
   },
 
@@ -485,6 +494,7 @@ const DDBHelper = {
         && DDBHelper.isModAChosenClassMod(ddb, mod, { classFeatureIds, classId, requiredLevel, exactLevel })
       );
 
+    // console.warn("getChosenClassModifiers", {classFeatureIds, modifiers});
     return modifiers;
   },
 
