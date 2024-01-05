@@ -167,18 +167,21 @@ DDBCharacter.prototype.getWeaponProficiencies = function getWeaponProficiencies(
   const allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Weapon");
 
   const processWeaponProficiency = (prof) => {
-    if (prof.name === "Simple Weapons") values.add("sim");
-    if (prof.name === "Martial Weapons") values.add("mar");
-
-    const systemWeaponIds = CONFIG.DND5E.weaponIds;
-    const dnd5eNameArray = prof.name.toLowerCase().split(",");
-    const dnd5eName = dnd5eNameArray.length === 2
-      ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`
-      : prof.name.toLowerCase();
-    if (systemWeaponIds && dnd5eName in systemWeaponIds) {
-      values.add(dnd5eName);
-    } else if (allProficiencies.some((p) => p.name === prof.name) && !custom.includes(prof.name)) {
-      custom.push(prof.name);
+    if (prof.name === "Simple Weapons") {
+      values.add("sim");
+    } else if (prof.name === "Martial Weapons") {
+      values.add("mar");
+    } else {
+      const systemWeaponIds = CONFIG.DND5E.weaponIds;
+      const dnd5eNameArray = prof.name.toLowerCase().split(",");
+      const dnd5eName = dnd5eNameArray.length === 2
+        ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`
+        : prof.name.toLowerCase();
+      if (systemWeaponIds && dnd5eName in systemWeaponIds) {
+        values.add(dnd5eName);
+      } else if (allProficiencies.some((p) => p.name === prof.name) && !custom.includes(prof.name)) {
+        custom.push(prof.name);
+      }
     }
   };
 
