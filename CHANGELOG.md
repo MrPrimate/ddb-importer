@@ -5,6 +5,7 @@
 - Item and Resource 5e will now link if the Override compendium replaces a resource.
 - Feature Effect: Fury of the Small (both versions) @blackbeltblakey based on effects by @motomoto0295
 - Feature Effect: Intimidating Presence by @motomoto0295
+- Spell Effect: Confusion: update of macro by @gambit07
 
 # 3.7.6
 
