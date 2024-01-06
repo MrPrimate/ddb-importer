@@ -278,6 +278,15 @@ export async function fixFeatures(features) {
         };
         break;
       }
+      case "Raging Storm: Desert": {
+        feature.system.duration.units = "inst";
+        feature.system.target.value = 1;
+        feature.system.target.type = "creature";
+        feature.system.range.value = 10;
+        feature.system.damage.parts = [["floor(@classes.barbarian.levels / 2)", "fire"]];
+        feature.system.save.scaling = "con";
+        break;
+      }
       case "Second Wind":
         feature.system.damage = {
           parts: [["1d10[healing] + @classes.fighter.levels", "healing"]],
@@ -288,6 +297,13 @@ export async function fixFeatures(features) {
         feature.system.target.type = "self";
         feature.system.range.units = "self";
         break;
+      case "Storm Aura: Desert": {
+        feature.system.target = { value: 10, units: "ft", type: "creature" };
+        feature.system.range = { value: null, long: null, units: "spec" };
+        feature.system.duration.units = "inst";
+        feature.system.damage.parts = [["floor(2+(@classes.barbarian.levels/5))", "fire"]];
+        break;
+      }
       case "Shifting": {
         feature.system.actionType = "heal";
         feature.system.target.type = "self";
@@ -322,7 +338,7 @@ export async function fixFeatures(features) {
         feature.system.activation = { type: "hour", cost: 1, condition: "" };
         feature.system.actionType = "heal";
         feature.system.target.type = "creature";
-        feature.system.range = { value: null, long: null, units: "special" };
+        feature.system.range = { value: null, long: null, units: "spec" };
         feature.system.damage.parts[0][1] = "healing";
         setProperty(feature, "flags.midiProperties.magicdam", true);
         setProperty(feature, "flags.midiProperties.magiceffect", true);

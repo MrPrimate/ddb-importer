@@ -70,6 +70,8 @@ import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { warCasterEffect } from "./feats/warCaster.js";
 import { furyOfTheSmallEffect } from "./feats/furryOfTheSmall.js";
 import { intimidatingPresenceEffect } from "./feats/intimidatingPresence.js";
+import { shieldingStormEffect } from "./feats/sheildingStorm.js";
+import { stormSoulEffect } from "./feats/stormSoul.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -319,6 +321,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
         document = stormRuneEffect(document);
         break;
       }
+      case "Storm Soul": {
+        if (ddb) document = await stormSoulEffect(ddb, document);
+        break;
+      }
       case "Swiftstride Reaction": {
         document = forceManualReaction(document);
         break;
@@ -400,6 +406,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Planar Warrior": {
       document = await planarWarriorEffect(document);
+      break;
+    }
+    case "Shielding Storm": {
+      if (ddb) document = shieldingStormEffect(ddb, document);
       break;
     }
     case "Slasher: Reduce Speed": {

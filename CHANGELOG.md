@@ -6,6 +6,7 @@
 - Feature Effect: Fury of the Small (both versions) @blackbeltblakey based on effects by @motomoto0295
 - Feature Effect: Intimidating Presence by @motomoto0295
 - Spell Effect: Confusion: update of macro by @gambit07
+- Feature Effects: Many effects for the Path of the Storm Herald by @motomoto0295
 
 # 3.7.6
 
