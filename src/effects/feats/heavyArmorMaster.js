@@ -1,7 +1,7 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function heavyArmorMasterEffect(document) {
-  let effect = baseFeatEffect(document, `${document.name}`, true);
+  let effect = baseFeatEffect(document, `${document.name}`, { transfer: true });
   effect.changes.push(
     {
       key: "flags.midi-qol.DR.non-magical",
@@ -10,7 +10,6 @@ export function heavyArmorMasterEffect(document) {
       priority: "20",
     },
   );
-  effect.transfer = true;
   document.effects.push(effect);
   return document;
 }
