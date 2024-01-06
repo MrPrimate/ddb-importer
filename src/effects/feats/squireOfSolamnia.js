@@ -2,11 +2,9 @@ import { baseItemEffect } from "../effects.js";
 import DDBMacros from "../DDBMacros.js";
 
 export async function squireOfSolamniaEffect(document) {
-  let effect = baseItemEffect(document, document.name);
+  let effect = baseItemEffect(document, document.name, { transfer: false });
   await DDBMacros.setItemMacroFlag(document, "feat", "squireOfSolamnia.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: `"${document.name}"`, macroType: "feat", macroName: "squireOfSolamnia.js" }));
-  effect.transfer = false;
-
   effect.changes.push(
     {
       key: "flags.midi-qol.advantage.attack.mwak",

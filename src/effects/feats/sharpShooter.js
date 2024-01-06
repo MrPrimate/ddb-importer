@@ -1,7 +1,7 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function sharpShooterEffect(document) {
-  let effect = baseFeatEffect(document, `${document.name} - Range Adjustment`);
+  let effect = baseFeatEffect(document, `${document.name} - Range Adjustment`, { transfer: true });
 
   effect.changes.push(
     // changes range
@@ -18,9 +18,6 @@ export function sharpShooterEffect(document) {
       priority: 30,
     },
   );
-
-  effect.transfer = true;
-  effect.flags.dae.transfer = true;
 
   document.effects.push(effect);
   document.system.activation = {

@@ -1,7 +1,7 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function heavyArmorMasterEffect(document) {
-  let effect = baseFeatEffect(document, `${document.name}`);
+  let effect = baseFeatEffect(document, `${document.name}`, true);
   effect.changes.push(
     {
       key: "flags.midi-qol.DR.non-magical",

@@ -3,7 +3,7 @@ import { baseFeatEffect } from "../specialFeats.js";
 import DDBMacros from "../DDBMacros.js";
 
 export async function crusherCriticalEffect(document) {
-  const effect = baseFeatEffect(document, document.name);
+  const effect = baseFeatEffect(document, document.name, { transfer: true });
   effect.changes.push(
     {
       key: "flags.dnd5e.DamageBonusMacro",
@@ -12,9 +12,6 @@ export async function crusherCriticalEffect(document) {
       priority: 20,
     },
   );
-  effect.transfer = true;
-
-  setProperty(effect, "flags.dae.transfer", true);
   document.effects.push(effect);
   document.system.actionType = null;
 

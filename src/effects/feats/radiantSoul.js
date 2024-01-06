@@ -9,25 +9,25 @@ export async function radiantSoulEffect(document) {
     effect.changes.push(
       {
         key: "data.attributes.movement.fly",
-        mode: 4,
+        mode: CONST.ACTIVE_EFFECT_MODE.UPGRADE,
         value: "30",
         priority: "20",
       },
       {
         key: "flags.midi-qol.optional.radiantsoul.label",
-        mode: 0,
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         value: `${document.name} Bonus Damage`,
         priority: "20",
       },
       {
         key: "flags.midi-qol.optional.radiantsoul.count",
-        mode: 0,
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         value: "each-round",
         priority: "20",
       },
       {
         key: "flags.midi-qol.optional.radiantsoul.damage.all",
-        mode: 0,
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         value: document.name === "Celestial Revelation (Radiant Soul)" ? "+@prof[radiant]" : "+@details.level[radiant]",
         priority: "20",
       }
@@ -48,7 +48,7 @@ export async function radiantSoulEffect(document) {
     document.system.actionType = "other";
 
   } else if (document.flags.ddbimporter.type == "class") {
-    let effect = baseFeatEffect(document, document.name);
+    let effect = baseFeatEffect(document, document.name, { transfer: true });
     effect.changes.push(
       {
         key: "flags.dnd5e.DamageBonusMacro",
@@ -57,7 +57,6 @@ export async function radiantSoulEffect(document) {
         priority: "20",
       },
     );
-    effect.transfer = true;
 
     await DDBMacros.setItemMacroFlag(document, "feat", "radiantSoul.js");
     setProperty(document, "system.activation.type", "special");

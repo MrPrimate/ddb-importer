@@ -3,7 +3,7 @@ import { baseFeatEffect } from "../specialFeats.js";
 export function pactMagicEffect(document) {
 
   if (getProperty(document, "flags.ddbimporter.subclass")?.startsWith("Order of the Profane Soul")) {
-    const effect = baseFeatEffect(document, `${document.name} Level`);
+    const effect = baseFeatEffect(document, `${document.name} Level`, { transfer: true });
     effect.changes.push(
       {
         key: "system.spells.pact.level",
@@ -12,7 +12,6 @@ export function pactMagicEffect(document) {
         priority: "20",
       },
     );
-    effect.transfer = true;
     document.effects.push(effect);
 
   }

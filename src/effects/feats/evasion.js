@@ -1,7 +1,7 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function evasionEffect(document) {
-  let effect = baseFeatEffect(document, `${document.name}`);
+  let effect = baseFeatEffect(document, `${document.name}`, true);
 
   effect.changes.push(
     {
@@ -11,7 +11,6 @@ export function evasionEffect(document) {
       priority: 20,
     },
   );
-  effect.transfer = true;
   document.effects.push(effect);
   return document;
 }

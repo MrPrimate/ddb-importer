@@ -19,7 +19,7 @@ async function commonPiercer(document) {
 };
 
 export async function piercerCriticalEffect(document) {
-  const effect = baseFeatEffect(document, document.name);
+  const effect = baseFeatEffect(document, document.name, { transfer: true });
   effect.changes.push(
     {
       key: "flags.dnd5e.DamageBonusMacro",
@@ -28,9 +28,6 @@ export async function piercerCriticalEffect(document) {
       priority: 20,
     },
   );
-  effect.transfer = true;
-
-  setProperty(effect, "flags.dae.transfer", true);
   document.effects.push(effect);
 
   await commonPiercer(document);
@@ -40,14 +37,10 @@ export async function piercerCriticalEffect(document) {
 
 
 export async function piercerRerollEffect(document) {
-  const effect = baseFeatEffect(document, document.name);
-
+  const effect = baseFeatEffect(document, document.name, { transfer: true });
   effect.changes.push(
     DDBMacros.generateOnUseMacroChange({ macroPass: "postDamageRoll", macroType: "feat", macroName: "piercer.js", document }),
   );
-  effect.transfer = true;
-
-  setProperty(effect, "flags.dae.transfer", true);
   document.effects.push(effect);
 
   await commonPiercer(document);

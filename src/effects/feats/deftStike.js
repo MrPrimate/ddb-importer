@@ -1,7 +1,7 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function deftStrikeEffect(document) {
-  let effect = baseFeatEffect(document, document.name);
+  let effect = baseFeatEffect(document, document.name, { transfer: true });
 
   effect.changes.push(
     {
@@ -38,7 +38,6 @@ export function deftStrikeEffect(document) {
 
   document.system.damage.parts = [];
   document.system.actionType = null;
-  effect.transfer = true;
 
   document.effects.push(effect);
   return document;

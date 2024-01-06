@@ -2,7 +2,7 @@ import { baseFeatEffect } from "../specialFeats.js";
 
 export function savageAttackerEffect(document) {
   if (document.system.actionType === null) return document;
-  let effect = baseFeatEffect(document, document.name);
+  let effect = baseFeatEffect(document, document.name, { transfer: true });
 
   effect.changes.push(
     {
@@ -24,8 +24,6 @@ export function savageAttackerEffect(document) {
       priority: "5",
     },
   );
-
-  effect.transfer = true;
 
   document.effects.push(effect);
   return document;

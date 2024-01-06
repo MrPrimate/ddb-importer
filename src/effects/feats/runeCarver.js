@@ -4,8 +4,7 @@ import DDBMacros from "../DDBMacros.js";
 
 export async function runeCarverEffect(document) {
 
-  let baseEffect = baseFeatEffect(document, document.name);
-  baseEffect.transfer = true;
+  let baseEffect = baseFeatEffect(document, document.name, { transfer: true });
 
   switch (document.name) {
     case "Rune Carver: Cloud Rune": {
