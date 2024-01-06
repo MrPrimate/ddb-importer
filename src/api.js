@@ -203,6 +203,7 @@ export function registerApi() {
       simpleTest: simpleTest,
       utils,
     },
+    DICTIONARY,
   };
 
   globalThis['DDBImporter'] = API;
