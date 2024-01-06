@@ -563,6 +563,19 @@ export default class DDBEffectHelper {
   }
 
   /**
+   * Check if actor a is smaller than b based on their sizes.
+   *
+   * @param {type} a
+   * @param {type} b
+   * @return {boolean} true if a is smaller than b, false otherwise
+   */
+  static isSmaller (a, b) {
+    const sizeA = DICTIONARY.SIZES.find((s) => s.value === a.system.traits.size)?.size;
+    const sizeB = DICTIONARY.SIZES.find((s) => s.value === b.system.traits.size)?.size;
+    return sizeA < sizeB;
+  }
+
+  /**
    * If the requirements are met, returns true, false otherwise.
    *
    * @returns true if the requirements are met, false otherwise.
