@@ -265,7 +265,7 @@ function addOwnerSkillProficiencies(ddbCharacter, mock) {
 
   DICTIONARY.character.skills.forEach((skill) => {
     const existingSkill = mock.skills.find((mockSkill) => skill.valueId === mockSkill.skillId);
-    const characterProficient = ddbCharacter.source.character.character.system.skills[skill.name].value;
+    const characterProficient = ddbCharacter.data.character.system.skills[skill.name].value;
     const ability = DICTIONARY.character.abilities.find((ab) => ab.value === skill.ability);
     const stat = mock.stats.find((stat) => stat.statId === ability.id).value || 10;
     const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;

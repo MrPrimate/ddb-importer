@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Some variants of Wild Shape companion generation would fail. @ryn987
+
 # 3.7.6
 
 - Some modifiers were not always parsed when granted by a chosen class feature such as the Genie Kind resistance.
