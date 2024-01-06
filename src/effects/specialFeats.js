@@ -1,4 +1,4 @@
-import { effectModules, forceItemEffect, forceManualReaction } from "./effects.js";
+import { baseEffect, effectModules, forceItemEffect, forceManualReaction } from "./effects.js";
 
 // effect loads
 import { alertEffect } from "./feats/alert.js";
@@ -68,36 +68,12 @@ import { vedalkenDispassionEffect } from "./feats/vedalkenDispassion.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { warCasterEffect } from "./feats/warCaster.js";
+import { furyOfTheSmallEffect } from "./feats/furryOfTheSmall.js";
 
-export function baseFeatEffect(document, label) {
-  let effect = {
-    icon: document.img,
-    changes: [],
-    duration: {},
-    tint: "",
-    transfer: false,
-    disabled: false,
-    flags: {
-      dae: {
-        transfer: false,
-        stackable: "noneName",
-      },
-      ddbimporter: {
-        disabled: false,
-      },
-      "midi-qol": { // by default force CE effect usage to off
-        forceCEOff: true,
-      },
-      core: {},
-    },
-  };
-  if (isNewerVersion(game.version, 11)) {
-    effect.name = label;
-    effect.statuses = [];
-  } else {
-    effect.label = label;
-  }
-  return effect;
+export function baseFeatEffect(document, label,
+  { transfer = false, disabled = false } = {}
+) {
+  return baseEffect(document, label, { transfer, disabled });
 }
 
 /**
@@ -234,6 +210,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Form of the Beast: Tail (reaction)": {
         document = formOfTheBeastReactionEffect(document);
+        break;
+      }
+      case "Fury of the Small": {
+        document = await furyOfTheSmallEffect(document);
         break;
       }
       case "Giant's Might": {

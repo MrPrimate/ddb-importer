@@ -273,18 +273,9 @@ export function effectModules() {
   return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
 }
 
-/**
- *
- * Generate a base effect for an Item
- *
- * @param {*} formula
- * @param {*} mode
- * @param {*} itemData
- * @param {*} label
- * @param {*} origin
- */
-
-export function baseItemEffect(foundryItem, label) {
+export function baseEffect(foundryItem, label,
+  { transfer = true, disabled = false } = {}
+) {
   let effect = {
     icon: foundryItem.img,
     changes: [],
@@ -298,17 +289,17 @@ export function baseItemEffect(foundryItem, label) {
     //   startTurn: null,
     // },
     tint: "",
-    transfer: true,
-    disabled: false,
+    transfer,
+    disabled,
     // origin: origin,
     flags: {
       dae: {
-        transfer: true,
+        transfer,
         stackable: "noneName",
         // armorEffect: true
       },
       ddbimporter: {
-        disabled: false,
+        disabled,
       },
       "midi-qol": { // by default force CE effect usage to off
         forceCEOff: true,
@@ -323,6 +314,12 @@ export function baseItemEffect(foundryItem, label) {
     effect.label = label;
   }
   return effect;
+}
+
+export function baseItemEffect(foundryItem, label,
+  { transfer = true, disabled = false } = {}
+) {
+  return baseEffect(foundryItem, label, { transfer, disabled });
 }
 
 export function getMidiCEOnFlags(midiFlags = {}) {

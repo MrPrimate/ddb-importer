@@ -61,7 +61,7 @@ export function equipmentEffectAdjustment(document) {
   switch (name) {
     case "Armor of Invulnerability": {
       // this effect is 1/day, we have to add it
-      let effect = baseItemEffect(document, `${document.name} - Invulnerability`);
+      let effect = baseItemEffect(document, `${document.name} - Invulnerability`, { transfer: false, disabled: false });
       effect.changes.push(generateAddChange("physical", 20, "system.traits.di.value"));
       effect.duration = {
         startTime: null,
@@ -71,9 +71,6 @@ export function equipmentEffectAdjustment(document) {
         startRound: null,
         startTurn: null,
       };
-      effect.transfer = false;
-      effect.disabled = false;
-      effect.flags.dae.transfer = false;
       effect.flags.dae.stackable = false;
       document.system.uses = {
         value: 1,

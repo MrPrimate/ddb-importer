@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable require-atomic-updates */
-import { effectModules, forceItemEffect, generateStatusEffectChange } from "./effects.js";
+import { baseEffect, effectModules, forceItemEffect, generateStatusEffectChange } from "./effects.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
@@ -19,36 +19,10 @@ import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
 import { deathlyChoirEffect } from "./monsterFeatures/deathlyChoir.js";
 import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
 
-export function baseMonsterFeatureEffect(document, label) {
-  let effect = {
-    icon: document.img,
-    changes: [],
-    duration: {},
-    tint: "",
-    transfer: false,
-    disabled: false,
-    flags: {
-      dae: {
-        transfer: false,
-        stackable: "noneName",
-      },
-      ddbimporter: {
-        disabled: false,
-        originName: document.name,
-      },
-      "midi-qol": { // by default force CE effect usage to off
-        forceCEOff: true,
-      },
-      core: {},
-    },
-  };
-  if (isNewerVersion(game.version, 11)) {
-    effect.name = label;
-    effect.statuses = [];
-  } else {
-    effect.label = label;
-  }
-  return effect;
+export function baseMonsterFeatureEffect(document, label,
+  { transfer = false, disabled = false } = {}
+) {
+  return baseEffect(document, label, { transfer, disabled });
 }
 
 export function transferEffectsToActor(document) {

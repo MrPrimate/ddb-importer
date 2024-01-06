@@ -6,6 +6,7 @@ import {
   forceItemEffect,
   effectModules,
   forceManualReaction,
+  baseEffect,
 } from "./effects.js";
 
 // spell effects load start
@@ -131,35 +132,10 @@ import { witchBoltEffect } from "./spells/witchBolt.js";
 import { zephyrStrikeEffect } from "./spells/zephyrStrike.js";
 
 
-export function baseSpellEffect(document, label) {
-  let effect = {
-    icon: document.img,
-    changes: [],
-    duration: {},
-    tint: "",
-    transfer: false,
-    disabled: false,
-    flags: {
-      dae: {
-        transfer: false,
-        stackable: "noneName",
-      },
-      ddbimporter: {
-        disabled: false,
-      },
-      "midi-qol": { // by default force CE effect usage to off
-        forceCEOff: true,
-      },
-      core: {},
-    },
-  };
-  if (isNewerVersion(game.version, 11)) {
-    effect.name = label;
-    effect.statuses = [];
-  } else {
-    effect.label = label;
-  }
-  return effect;
+export function baseSpellEffect(document, label,
+  { transfer = false, disabled = false } = {}
+) {
+  return baseEffect(document, label, { transfer, disabled });
 }
 
 export function generateStatusEffectChange(statusName, priority = 20, macro = false) {
