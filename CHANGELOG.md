@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Some variants of Wild Shape companion generation would fail. @ryn987
+- Some use values were not calculated, if max uses was say `@prof` rather than a fixed int.
 
 # 3.7.6
 

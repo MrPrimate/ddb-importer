@@ -47,11 +47,13 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
 
   this.totalLevels = this.source.ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0);
   this.raw.character.flags.ddbimporter.dndbeyond.totalLevels = this.totalLevels;
+  // prettier-ignore
+  this.profBonus = Math.ceil(1 + (0.25 * this.totalLevels));
+  this.raw.character.flags.ddbimporter.dndbeyond.profBonus = this.profBonus;
   this._generateProficiencies();
 
   // proficiency
-  // prettier-ignore
-  this.raw.character.system.attributes.prof = Math.ceil(1 + (0.25 * this.totalLevels));
+  this.raw.character.system.attributes.prof = this.profBonus;
 
   // Get supported 5e feats and abilities
   // We do this first so we can check for them later

@@ -191,21 +191,24 @@ export default class DDBBaseFeature {
     ) {
       const resetType = DICTIONARY.resets.find((type) => type.id === this.ddbDefinition.limitedUse.resetType);
       let maxUses = (this.ddbDefinition.limitedUse.maxUses && this.ddbDefinition.limitedUse.maxUses !== -1) ? this.ddbDefinition.limitedUse.maxUses : 0;
-
+      let intMaxUses = maxUses;
       const statModifierUsesId = getProperty(this.ddbDefinition, "limitedUse.statModifierUsesId");
       if (statModifierUsesId) {
         const ability = DICTIONARY.character.abilities.find((ability) => ability.id === statModifierUsesId).value;
 
         if (maxUses === 0) {
           maxUses = `@abilities.${ability}.mod`;
+          intMaxUses = this.ddbData.abilities.withEffects[ability].mod;
         } else {
           switch (this.ddbDefinition.limitedUse.operator) {
             case 2:
               maxUses = `${maxUses} * @abilities.${ability}.mod`;
+              intMaxUses *= this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
               break;
             case 1:
             default:
               maxUses = `${maxUses} + @abilities.${ability}.mod`;
+              intMaxUses += this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
           }
         }
       }
@@ -214,14 +217,17 @@ export default class DDBBaseFeature {
       if (useProficiencyBonus) {
         if (maxUses === 0) {
           maxUses = `@prof`;
+          intMaxUses = this.rawCharacter.flags.ddbimporter.dndbeyond.profBonus;
         } else {
           switch (this.ddbDefinition.limitedUse.proficiencyBonusOperator) {
             case 2:
               maxUses = `${maxUses} * @prof`;
+              intMaxUses *= this.rawCharacter.flags.ddbimporter.dndbeyond.profBonus;
               break;
             case 1:
             default:
               maxUses = `${maxUses} + @prof`;
+              intMaxUses += this.rawCharacter.flags.ddbimporter.dndbeyond.profBonus;
           }
         }
       }
@@ -232,8 +238,10 @@ export default class DDBBaseFeature {
           : maxUses
         : null;
 
+      intMaxUses = Number.isInteger(intMaxUses) ? parseInt(intMaxUses) : null;
+
       this.data.system.uses = {
-        value: (finalMaxUses !== null && finalMaxUses != 0) ? maxUses - this.ddbDefinition.limitedUse.numberUsed : null,
+        value: (intMaxUses !== null && intMaxUses != 0) ? intMaxUses - this.ddbDefinition.limitedUse.numberUsed : null,
         max: (finalMaxUses != 0) ? finalMaxUses : null,
         per: resetType ? resetType.value : "",
       };
