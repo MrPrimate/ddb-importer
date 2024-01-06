@@ -2,6 +2,7 @@
 
 - Some variants of Wild Shape companion generation would fail. @ryn987
 - Some use values were not calculated, if max uses was say `@prof` rather than a fixed int.
+- Item and Resource 5e will now link if the Override compendium replaces a resource.
 
 # 3.7.6
 

@@ -88,7 +88,7 @@ export default class DDBItemImporter {
   }
 
   static updateMatchingItems(oldItems, newItems,
-    { looseMatch = false, monster = false, keepId = false, keepDDBId = false, overrideId = false } = {}
+    { looseMatch = false, monster = false, keepId = false, keepDDBId = false, overrideId = false, linkItemFlags = false } = {}
   ) {
     let results = [];
 
@@ -116,6 +116,9 @@ export default class DDBItemImporter {
         }
         setProperty(item, "flags.ddbimporter.originalItemName", match.name);
         setProperty(item, "flags.ddbimporter.replaced", true);
+        if (linkItemFlags && hasProperty(match, "flags.link-item-resource-5e")) {
+          setProperty(item, "flags.link-item-resource-5e", match.flags["link-item-resource-5e"]);
+        }
         item = DDBItemImporter.updateCharacterItemFlags(match, item);
 
         if (!keepId) delete item["_id"];
@@ -373,7 +376,7 @@ export default class DDBItemImporter {
   async loadPassedItemsFromCompendium(items,
     { looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true,
       indexFilter = {}, // { fields: ["name", "flags.ddbimporter.id"] }
-      keepDDBId = false } = {}
+      keepDDBId = false, linkItemFlags = false } = {}
   ) {
 
     await this.buildIndex(indexFilter);
@@ -423,6 +426,7 @@ export default class DDBItemImporter {
       monster: monsterMatch,
       keepId,
       keepDDBId,
+      linkItemFlags,
     };
 
     const results = await DDBItemImporter.updateMatchingItems(items, loadedItems, matchingOptions);
@@ -438,7 +442,8 @@ export default class DDBItemImporter {
    * @param {*} options
    */
   static async getCompendiumItems(items, type,
-    { looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true, keepDDBId = false } = {}
+    { looseMatch = false, monsterMatch = false, keepId = false,
+      deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false } = {}
   ) {
 
     const itemImporter = new DDBItemImporter(type, []);
@@ -450,6 +455,7 @@ export default class DDBItemImporter {
       keepId,
       keepDDBId,
       deleteCompendiumId,
+      linkItemFlags,
     };
     const results = await itemImporter.loadPassedItemsFromCompendium(items, loadOptions);
 

@@ -797,6 +797,7 @@ export default class DDBCharacterManager extends FormApplication {
       keepId: true,
       keepDDBId: true,
       overrideId: true,
+      linkItemFlags: true,
     };
     const remappedItems = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions);
 
@@ -981,7 +982,7 @@ export default class DDBCharacterManager extends FormApplication {
      */
     if (this.settings.useOverrideCompendiumItems) {
       logger.info("Removing matching Override compendium items");
-      const compendiumOverrideItems = await DDBItemImporter.getCompendiumItems(items, "custom");
+      const compendiumOverrideItems = await DDBItemImporter.getCompendiumItems(items, "custom", { linkItemFlags: true });
       overrideCompendiumItems = compendiumOverrideItems;
       // remove existing items from those to be imported
       items = await DDBCharacterManager.removeItems(items, overrideCompendiumItems);
