@@ -69,6 +69,7 @@ import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { warCasterEffect } from "./feats/warCaster.js";
 import { furyOfTheSmallEffect } from "./feats/furryOfTheSmall.js";
+import { intimidatingPresenceEffect } from "./feats/intimidatingPresence.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -234,6 +235,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Indomitable": {
         document = indomitableEffect(document);
+        break;
+      }
+      case "Intimidating Presence": {
+        document = intimidatingPresenceEffect(document);
         break;
       }
       case "Mantle of Inspiration": {

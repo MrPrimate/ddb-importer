@@ -198,6 +198,16 @@ export async function fixFeatures(features) {
         feature.system.range = { value: null, units: "self", long: null };
         break;
       }
+      case "Intimidating Presence": {
+        feature.system.duration = { value: 2, units: "turns" };
+        feature.system.target.value = 1;
+        feature.system.target.type = "creature";
+        feature.system.range = { value: 30, units: "ft", long: null };
+        feature.system.actionType = "save";
+        feature.system.save.ability = "wis";
+        feature.system.save.scaling = "cha";
+        break;
+      }
       case "Hypnotic Gaze": {
         feature.system.uses = {
           value: null,
