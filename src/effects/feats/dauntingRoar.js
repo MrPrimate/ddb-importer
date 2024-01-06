@@ -13,7 +13,7 @@ export function dauntingRoarEffect(document) {
   document.effects.push(effect);
   document.system.range = { value: null, units: "spec", long: null };
   document.system.target = { value: 10, width: null, units: "ft", type: "enemy" };
-  document.system.activation.condition = "!target.effects.some((e) => e.label.toLowerCase().includes('deafened'))";
+  document.system.activation.condition = "!target.effects.some((e) => e.name.toLowerCase().includes('deafened'))";
 
   setProperty(document.flags, "midi-qol.effectActivation", true);
 
