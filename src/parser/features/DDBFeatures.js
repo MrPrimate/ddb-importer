@@ -141,6 +141,11 @@ export default class DDBFeatures {
     ddbClassFeature.build();
     await this._buildOptionalClassFeatures();
 
+    logger.debug("ddbClassFeatures._buildClassFeatures", {
+      ddbClassFeature,
+      this: this,
+    });
+
     // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
     logger.debug("Removing matching traits");
     ddbClassFeature.data

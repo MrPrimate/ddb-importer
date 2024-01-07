@@ -34,6 +34,12 @@ export default class DDBClassFeatures {
     feature.build();
     const allowedByLevel = !filterByLevel || (filterByLevel && feature.hasRequiredLevel);
 
+    logger.debug.warn(`DDBClassFeatures._getFeatures: ${featureDefinition.name}`, {
+      featureDefinition,
+      feature,
+      this: this,
+    });
+
     if (!allowedByLevel) return [];
     if (feature.isChoiceFeature) {
       return DDBChoiceFeature.buildChoiceFeatures(feature);
