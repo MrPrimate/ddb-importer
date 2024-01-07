@@ -106,6 +106,99 @@ export default class DDBSubClass extends DDBClass {
       };
 
       this.data.system.advancement.push(slotsScaleValue, levelScaleValue);
+    } else if (this.data.name.startsWith("Path of the Storm Herald")) {
+      const desert = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `storm-aura-desert`,
+          type: "number",
+          scale: {
+            3: {
+              value: 2,
+            },
+            5: {
+              value: 3,
+            },
+            10: {
+              value: 4,
+            },
+            15: {
+              value: 5,
+            },
+            20: {
+              value: 6,
+            },
+          },
+        },
+        value: {},
+        title: `Storm Aura Desert`,
+        icon: null,
+      };
+
+      const sea = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `storm-aura-sea`,
+          type: "dice",
+          scale: {
+            3: {
+              number: 1,
+              faces: 6,
+            },
+            10: {
+              number: 2,
+              faces: 6,
+            },
+            15: {
+              number: 3,
+              faces: 6,
+            },
+            20: {
+              number: 4,
+              faces: 6,
+            },
+          },
+        },
+        value: {},
+        title: `Storm Aura Sea`,
+        icon: null,
+      };
+
+      const tundra = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `storm-aura-tundra`,
+          type: "number",
+          scale: {
+            3: {
+              value: 2,
+            },
+            5: {
+              value: 3,
+            },
+            10: {
+              value: 4,
+            },
+            15: {
+              value: 5,
+            },
+            20: {
+              value: 6,
+            },
+          },
+        },
+        value: {},
+        title: `Storm Aura Tundra`,
+        icon: null,
+      };
+
+      this.data.system.advancement.push(desert, sea, tundra);
     }
   }
 

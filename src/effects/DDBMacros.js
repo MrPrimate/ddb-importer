@@ -212,6 +212,20 @@ export default class DDBMacros {
     };
   }
 
+  static generateOptionalMacroChange({ optionPostfix, macroPass = null, macroType = null, macroName = null, priority = 20, document = null, macroParams = "" } = {}) {
+    const valueStub = DDBMacros.generateItemMacroValue({ macroType, macroName, document });
+    const valueContent = macroPass
+      ? `${valueStub},${macroPass} ${macroParams}`.trim()
+      : `${valueStub} ${macroParams}`.trim();
+
+    return {
+      key: `flags.midi-qol.optional.${optionPostfix}`,
+      value: valueContent,
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      priority: priority,
+    };
+  }
+
   static async createMacro({ name, content, img, isGM, isTemp }) {
     const macroFolder = isTemp
       ? undefined

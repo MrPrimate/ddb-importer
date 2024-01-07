@@ -72,6 +72,7 @@ import { furyOfTheSmallEffect } from "./feats/furryOfTheSmall.js";
 import { intimidatingPresenceEffect } from "./feats/intimidatingPresence.js";
 import { shieldingStormEffect } from "./feats/sheildingStorm.js";
 import { stormSoulEffect } from "./feats/stormSoul.js";
+import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -269,6 +270,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       case "Celestial Revelation (Radiant Soul)":
       case "Radiant Soul": {
         document = await radiantSoulEffect(document);
+        break;
+      }
+      case "Raging Storm: Sea": {
+        document = await ragingStormSeaEffect(document);
         break;
       }
       case "Reckless Attack": {
