@@ -73,6 +73,8 @@ import { intimidatingPresenceEffect } from "./feats/intimidatingPresence.js";
 import { shieldingStormEffect } from "./feats/sheildingStorm.js";
 import { stormSoulEffect } from "./feats/stormSoul.js";
 import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
+import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
+import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -276,6 +278,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
         document = await ragingStormSeaEffect(document);
         break;
       }
+      case "Raging Storm: Tundra": {
+        document = await ragingStormTundraEffect(document);
+        break;
+      }
       case "Reckless Attack": {
         document = recklessAttackEffect(document);
         break;
@@ -322,10 +328,17 @@ export async function featureEffectAdjustment(ddb, character, document) {
         document = stonesEnduranceEffect(document);
         break;
       }
+      case "Storm Aura: Tundra": {
+        document = await stormAuraTundraEffect(document);
+        break;
+      }
       case "Storm Rune": {
         document = stormRuneEffect(document);
         break;
       }
+      case "Storm Soul: Desert":
+      case "Storm Soul: Sea":
+      case "Storm Soul: Tundra":
       case "Storm Soul": {
         if (ddb) document = await stormSoulEffect(ddb, document);
         break;

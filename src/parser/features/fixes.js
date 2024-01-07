@@ -297,12 +297,13 @@ export async function fixFeatures(features) {
         break;
       }
       case "Raging Storm: Tundra": {
-        // feature.system.duration.units = "inst";
-        // feature.system.target.value = 1;
-        // feature.system.target.type = "creature";
-        // feature.system.range.value = 10;
-        // feature.system.damage.parts = [["floor(@classes.barbarian.levels / 2)", "fire"]];
-        // feature.system.save.scaling = "con";
+        feature.system.activation = { type: "special", cost: 0, condition: "" };
+        feature.system.actionType = "save";
+        feature.system.save = { ability: "str", dc: null, scaling: "con" };
+        feature.system.duration.units = "perm";
+        feature.system.target.value = 1;
+        feature.system.target.type = "creature";
+        feature.system.range.value = 10;
         break;
       }
       case "Second Wind":
@@ -323,17 +324,18 @@ export async function fixFeatures(features) {
         break;
       }
       case "Storm Aura: Sea": {
-        feature.system.target = { value: 10, units: "ft", type: "creature" };
-        feature.system.range = { value: null, long: null, units: "spec" };
+        feature.system.target = { value: 1, units: "", type: "creature" };
+        feature.system.range = { value: 10, long: null, units: "ft" };
         feature.system.duration.units = "inst";
         feature.system.damage.parts = [["@scale.path-of-the-storm-herald.storm-aura-sea", "lightning"]];
         break;
       }
       case "Storm Aura: Tundra": {
-        // feature.system.target = { value: 10, units: "ft", type: "creature" };
-        // feature.system.range = { value: null, long: null, units: "spec" };
-        // feature.system.duration.units = "inst";
-        // feature.system.damage.parts = [["@scale.path-of-the-storm-herald.storm-aura-tundra", "fire"]];
+        feature.system.actionType = "heal";
+        feature.system.target = { value: 10, units: "ft", type: "ally" };
+        feature.system.range = { value: null, long: null, units: "self" };
+        feature.system.duration.units = "inst";
+        feature.system.damage.parts = [["@scale.path-of-the-storm-herald.storm-aura-tundra", "temphp"]];
         break;
       }
       case "Shifting": {

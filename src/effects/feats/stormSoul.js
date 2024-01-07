@@ -1,9 +1,12 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export async function stormSoulEffect(ddb, document) {
-  const isDesert = ddb.character.actions.class.some((a) => a.name === "Storm Aura: Desert");
-  const isSea = ddb.character.actions.class.some((a) => a.name === "Storm Aura: Sea");
-  const isTundra = ddb.character.actions.class.some((a) => a.name === "Storm Aura: Tundra");
+  const isDesert = document.name.endsWith("Desert")
+    || ddb.character.actions.class.some((a) => a.name === "Storm Aura: Desert");
+  const isSea = document.name.endsWith("Sea")
+    || ddb.character.actions.class.some((a) => a.name === "Storm Aura: Sea");
+  const isTundra = document.name.endsWith("Tundra")
+    || ddb.character.actions.class.some((a) => a.name === "Storm Aura: Tundra");
 
   let effect = baseFeatEffect(document, `${document.name}`, { transfer: true });
 

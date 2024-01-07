@@ -1,13 +1,13 @@
 # NEXT UP
 
-- Characer Import: Some feature options that were nested choices such as Genie's Vessel: Genie's Wrath would not import since class feature refactor. (v3.7.0)
+- Characer Import: Some feature options that were nested choices such as Genie's Vessel: Genie's Wrath would not import since class feature refactor. (v3.7.0) @blackbeltblakey
 - Some variants of Wild Shape companion generation would fail. @ryn987
 - Some use values were not calculated, if max uses was say `@prof` rather than a fixed int.
 - Item and Resource 5e will now link if the Override compendium replaces a resource.
-- Feature Effect: Fury of the Small (both versions) @blackbeltblakey based on effects by @motomoto0295
+- Feature Effect: Fury of the Small (both versions) based on effects by @motomoto0295
 - Feature Effect: Intimidating Presence by @motomoto0295
 - Spell Effect: Confusion: update of macro by @gambit07
-- Feature Effects: Many effects for the Path of the Storm Herald by @motomoto0295
+- Feature Effects: Many, many effects for the Path of the Storm Herald by @motomoto0295
 
 # 3.7.6
 
