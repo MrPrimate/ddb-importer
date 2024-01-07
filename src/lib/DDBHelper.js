@@ -646,9 +646,11 @@ const DDBHelper = {
             .filter(
               (option) =>
                 // id match
-                !featDefinition.componentTypeId
-                && !featDefinition.entityTypeId
-                && id == option.componentId // && // the choice id matches the option componentID
+                (!featDefinition.componentTypeId && !featDefinition.entityTypeId && id == option.componentId)
+                || (!featDefinition.componentTypeId && hasProperty(featDefinition, "entityTypeId")
+                  && featDefinition.entityTypeId == option.componentTypeId && id == option.componentId
+                )
+                // && // the choice id matches the option componentID
                 // (featDefinition.componentTypeId == option.componentTypeId || // either the choice componenttype and optiontype match or
                 //   featDefinition.componentTypeId == option.definition.entityTypeId) && // the choice componentID matches the option definition entitytypeid
                 // option.componentTypeId == featDefinition.entityTypeId
