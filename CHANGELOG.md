@@ -1,6 +1,6 @@
 # NEXT UP
 
-- Characer Import: Some feature options that were nested choices such as Genie's Vessel: Genie's Wrath would not import since class feature refactor. (v3.7.0) @blackbeltblakey
+- Character Import: Some feature options that were nested choices such as Genie's Vessel: Genie's Wrath would not import since class feature refactor. (v3.7.0) @blackbeltblakey
 - Some variants of Wild Shape companion generation would fail. @ryn987
 - Some use values were not calculated, if max uses was say `@prof` rather than a fixed int.
 - Item and Resource 5e will now link if the Override compendium replaces a resource.
