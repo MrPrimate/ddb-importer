@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.7.7
 
 - Character Import: Some feature options that were nested choices such as Genie's Vessel: Genie's Wrath would not import since class feature refactor. (v3.7.0) @blackbeltblakey
 - Some variants of Wild Shape companion generation would fail. @ryn987
