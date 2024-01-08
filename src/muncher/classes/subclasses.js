@@ -80,7 +80,7 @@ export async function getSubClasses(data) {
         !featureHandler.compendiumIndex.some((i) =>
           hasProperty(i, "flags.ddbimporter.classId")
           && hasProperty(i, "flags.ddbimporter.featureName")
-          && feature.name === i.flags.ddbimporter.featureName 
+          && feature.name === i.flags.ddbimporter.featureName
           && subClass.parentClassId === i.flags.ddbimporter.classId
         )
       );
@@ -89,7 +89,7 @@ export async function getSubClasses(data) {
     //     featureHandler.compendiumIndex.some((i) =>
     //       hasProperty(i, "flags.ddbimporter.classId")
     //       && hasProperty(i, "flags.ddbimporter.featureName")
-    //       && feature.name === i.flags.ddbimporter.featureName 
+    //       && feature.name === i.flags.ddbimporter.featureName
     //       && subClass.parentClassId === i.flags.ddbimporter.classId
     //     )
     //   );
@@ -131,7 +131,7 @@ export async function getSubClasses(data) {
   logger.debug("Features fetched for classes", compendiumClassFeatures);
 
   for (const subClass of data) {
-    const classMatch = classDocs.find((i) => i.flags.ddbimporter['id'] == subClass.parentClassId);
+    const classMatch = classDocs.find((i) => getProperty(i, "flags.ddbimporter.id") == subClass.parentClassId);
     const builtClass = await buildSubClass(classMatch, subClass, compendiumClassFeatures);
     subClasses.push(builtClass);
   }
