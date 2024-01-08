@@ -1,3 +1,9 @@
+# NEXT UP
+
+- Tweak for handling cases where the classes compendium contains classes not imported from DDB.
+- Radiant Soul effect generation failed.
+- Some subclass features could not be matched for Template String replacements in descriptions, e.g. Draconic Resilience
+
 # 3.7.7
 
 - Character Import: Some feature options that were nested choices such as Genie's Vessel: Genie's Wrath would not import since class feature refactor. (v3.7.0) @blackbeltblakey
