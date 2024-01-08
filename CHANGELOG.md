@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.7.8
 
 - Tweak for handling cases where the classes compendium contains classes not imported from DDB.
 - Radiant Soul effect generation failed.
