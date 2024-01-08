@@ -108,7 +108,7 @@ function parseMatch(ddb, character, match, feature) {
 
     ability.forEach((ab) => {
       const abilityModifier = useScaleAll ? ` + @abilities.${ab}.mod` : `+ ${characterAbilities[ab].mod}`;
-      const abRegexp = RegExp(`modifier:${ab}`, "g");
+      const abRegexp = RegExp(`modifier:${ab}:*`, "g");
       result = result.replace(abRegexp, abilityModifier);
       linktext = result.replace(abRegexp, ` (${utils.capitalize(ab)} Modifier) `);
     });
@@ -118,7 +118,10 @@ function parseMatch(ddb, character, match, feature) {
   // (classlevel/2)@roundup
   if (result.includes("classlevel")) {
     const cls = feature.classId
-      ? ddb.character.classes.find((cls) => cls.definition.id == feature.classId)
+      ? ddb.character.classes.find((cls) =>
+        cls.definition.id == feature.classId
+        || feature.classId === cls.subclassDefinition?.id
+      )
       : DDBHelper.findClassByFeatureId(ddb, feature.componentId);
     if (cls) {
       const clsLevel = useScaleAll ? ` + @classes.${cls.definition.name.toLowerCase().replace(" ", "-")}.levels` : cls.level;
