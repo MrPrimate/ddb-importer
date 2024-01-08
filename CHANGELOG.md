@@ -3,6 +3,7 @@
 - Tweak for handling cases where the classes compendium contains classes not imported from DDB.
 - Radiant Soul effect generation failed.
 - Some subclass features could not be matched for Template String replacements in descriptions, e.g. Draconic Resilience
+- Infusion effect generation did not apply ac effect to shields/armor infused with Enhanced Defense.
 
 # 3.7.7
 

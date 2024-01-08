@@ -1519,7 +1519,10 @@ function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, eff
     case "feature":
     case "feat": {
       if (foundryItem.type === "equipment") {
-        if (foundryItem.system.armor?.type && ["trinket", "clothing"].includes(foundryItem.system.armor.type)) {
+        if (type === "infusion"
+          || (foundryItem.system.armor?.type
+            && ["trinket", "clothing"].includes(foundryItem.system.armor.type))
+        ) {
           foundryItem = generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem);
         }
       } else if (effect.transfer || type === "infusion") {
