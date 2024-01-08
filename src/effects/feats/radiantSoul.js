@@ -9,7 +9,7 @@ export async function radiantSoulEffect(document) {
     effect.changes.push(
       {
         key: "data.attributes.movement.fly",
-        mode: CONST.ACTIVE_EFFECT_MODE.UPGRADE,
+        mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
         value: "30",
         priority: "20",
       },
