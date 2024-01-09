@@ -1,6 +1,6 @@
 # NEXT UP
 
-- Some limited use features, such as Eyes of the Grave stopped parsing.
+- Some limited use features, such as Eyes of the Grave stopped parsing. @gandamir
 
 # 3.7.8
 
