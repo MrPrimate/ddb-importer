@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.7.9
 
 - Some limited use features, such as Eyes of the Grave stopped parsing. @gandamir
 
