@@ -344,7 +344,7 @@ export default class DDBRace {
     };
     const featMatch = index.find((i) => i.name === feat.definition.name);
     if (!featMatch) {
-      logger.warn(`Unable to link advancement to feat ${feat.definition.name}`, { feat });
+      logger.warn(`Unable to link advancement to feat ${feat.definition.name}, this is probably because the feats have not been munched to the compendium`, { feat });
       return;
     }
 

@@ -198,7 +198,7 @@ export default class DDBBaseFeature {
 
         if (maxUses === 0) {
           maxUses = `@abilities.${ability}.mod`;
-          intMaxUses = this.ddbData.abilities.withEffects[ability].mod;
+          intMaxUses = this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
         } else {
           switch (this.ddbDefinition.limitedUse.operator) {
             case 2:

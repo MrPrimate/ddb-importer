@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Some limited use features, such as Eyes of the Grave stopped parsing.
+
 # 3.7.8
 
 - Tweak for handling cases where the classes compendium contains classes not imported from DDB.
