@@ -336,10 +336,12 @@ export default class DDBRace {
 
     this.data.system.advancement.push(advancement.toObject());
 
-    // only humans have feat (right now)
-    const feat = this.ddbData.character.feats.find((f) => f.componentId === 103 && f.componentTypeId === 1960452172);
+    const feat = this.ddbData.character.feats.find((f) =>
+      f.componentId === trait.id
+      && f.componentTypeId === trait.entityTypeId
+    );
     if (!feat) {
-      logger.warn(`Unable to link advancement to feat`, { advancement, this: this });
+      logger.warn(`Unable to link advancement to feat`, { advancement, trait, this: this });
       return;
     };
     const featMatch = index.find((i) => i.name === feat.definition.name);
@@ -352,6 +354,8 @@ export default class DDBRace {
     this.featLink.name = feat.definition.name;
     this.featLink.uuid = featMatch.uuid;
 
+    // this update is done later, once everything is built
+    // we just add the hints to the feat here
     // const update = {
     //   value: {
     //     added: {

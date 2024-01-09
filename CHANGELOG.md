@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Feat Trait advancement for Custom Lineage when importing a character. @gandamir
+
 # 3.7.9
 
 - Some limited use features, such as Eyes of the Grave stopped parsing. @gandamir
