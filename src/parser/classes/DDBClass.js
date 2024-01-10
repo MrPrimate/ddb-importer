@@ -21,6 +21,7 @@ export default class DDBClass {
     "Otherworldly Glamour",
     "Survivalist",
     "Training in War and Song",
+    "Blessings of Knowledge",
     "Elegant Courtier", // this is a you get a thing or otherwise choose from two others
   ];
 
@@ -29,6 +30,7 @@ export default class DDBClass {
     "Canny",
     "Deft Explorer",
     "Survivalist",
+    "Blessings of Knowledge",
     // "Tool Expertise", // revisit,this doesn't work the same way
   ];
 
@@ -661,7 +663,8 @@ export default class DDBClass {
 
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
-        if (!availableToMulticlass && i > 1) return;
+        if ((!availableToMulticlass && i > 1)) return;
+        if (this._isSubClass && !availableToMulticlass) return;
         const skillFeatures = this._proficiencyFeatures.filter((f) => f.requiredLevel === i);
 
         for (const feature of skillFeatures) {

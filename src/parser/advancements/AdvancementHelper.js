@@ -314,17 +314,14 @@ export default class AdvancementHelper {
         ? this.dictionary.multiclassSkill
         : mods.length;
 
-    // console.warn(`Parsing skill advancement for level ${i}`, {
+    // console.warn(`Parsing skill advancement for level ${level}`, {
     //   availableToMulticlass,
-    //   i,
-    //   proficiencyFeature,
+    //   level,
+    //   feature,
     //   mods,
-    //   skillExplicitMods,
-    //   skillChooseMods,
-    //   skillMods,
     //   parsedSkills,
     //   chosenSkills,
-    //   skillCount: count,
+    //   count,
     //   skillsFromMods,
     // });
 
@@ -970,8 +967,12 @@ export default class AdvancementHelper {
     const oneOffRegex = /you gain proficiency (?:in|with) (\w+) of the following skills of your choice:\s(.*?)(\.|$)/im;
     const oneOffMatch = textDescription.match(oneOffRegex);
 
-    if (skillMatch || oneOffMatch) {
-      const match = skillMatch ?? oneOffMatch;
+    // You also become proficient in your choice of two of the following skills: Arcana, History, Nature, or Religion.
+    const twoRegex = /also become proficient in your choice of (\w+) of the following skills:\s(.*?)(\.|$)/im;
+    const twoMatch = textDescription.match(twoRegex);
+
+    if (skillMatch || oneOffMatch || twoMatch) {
+      const match = skillMatch ?? oneOffMatch ?? twoMatch;
       const skillNames = match[2].replace(' and ', ',').replace(" or ", " ").split(',').map((skill) => skill.trim());
       const skills = skillNames
         .filter((name) => DICTIONARY.character.skills.some((skill) => skill.label.toLowerCase() === name.toLowerCase()))
@@ -1501,6 +1502,7 @@ export default class AdvancementHelper {
   //   // At 3rd level, choose two of your skill proficiencies. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.
   //   // At 6th level, choose two more of your skill proficiencies, or one more of your skill proficiencies and your proficiency with thieves’ tools. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.
   // // Choose one skill in which you have proficiency. You gain expertise with that skill,
+  // Your proficiency bonus is doubled for any check you make with the chosen skills.
 
   // parse expertises
 
