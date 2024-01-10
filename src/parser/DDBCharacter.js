@@ -100,7 +100,7 @@ export default class DDBCharacter {
         body: JSON.stringify(body), // body data type must match "Content-Type" header
       });
       this.source = await response.json();
-      if (!this.source.success) return this.source;
+      if (!this.source.success) return;
 
       this.source.ddb = fixCharacterLevels(this.source.ddb);
 
@@ -117,8 +117,7 @@ export default class DDBCharacter {
           this.data.character.name = undefined;
           this.data.character.prototypeToken.name = undefined;
         }
-        logger.debug("finalParsedData", duplicate({ source: this.source, data: this.data }));
-        return this.data;
+        logger.debug("finalParsedData", duplicate({ source: this.source, data: deepClone(this.data) }));
       } catch (error) {
         if (game.settings.get("ddb-importer", "debug-json")) {
           FileHelper.download(JSON.stringify(this.source), `${this.characterId}-raw.json`, "application/json");

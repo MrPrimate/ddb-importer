@@ -259,7 +259,8 @@ export default class DDBCharacterManager extends FormApplication {
     return toRemove;
   }
 
-  async updateImage(data) {
+  async updateImage() {
+    const data = this.ddbCharacter.source.ddb;
     logger.debug("Checking if image needs updating");
     // updating the image?
     let imagePath = this.actor.img;
@@ -1243,7 +1244,7 @@ export default class DDBCharacterManager extends FormApplication {
       // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
     }
-    this.result = duplicate(this.ddbCharacter.data);
+    this.result = deepClone(this.ddbCharacter.data);
 
     // disable active sync
     const activeUpdateState = this.ddbCharacter.getCurrentDynamicUpdateState();
@@ -1265,7 +1266,7 @@ export default class DDBCharacterManager extends FormApplication {
       await this.processActiveEffects();
 
       // update image
-      await this.updateImage(this.ddbCharacter.source.ddb);
+      await this.updateImage();
 
       // manage updates of basic character data more intelligently
       // revert some data if update not wanted

@@ -1,3 +1,7 @@
+# NEXT UP
+
+- If not using Vision 5e, token settings were not always retained.
+
 # 3.7.10
 
 - Feat Trait advancement for Custom Lineage when importing a character. @gandamir
