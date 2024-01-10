@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Feat Trait advancement for Custom Lineage when importing a character. @gandamir
+- Optional Class Features would import without level restrictions since class feature refactor. (v3.7.0) @gandamir
 
 # 3.7.9
 

@@ -118,11 +118,18 @@ export default class DDBFeatures {
     };
   }
 
-  async _buildOptionalClassFeatures() {
+  async _buildOptionalClassFeatures({ requireLevel = true } = {}) {
     // optional class features
     logger.debug("Parsing optional class features");
     if (this.ddbData.classOptions) {
       const options = this.ddbData.classOptions
+        .filter((feat) => {
+          if (!requireLevel || !hasProperty(feat, "requiredLevel")) return true;
+          const requiredLevel = getProperty(feat, "requiredLevel");
+          const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === feat.classId
+            || cls.subclassDefinition?.id === feat.classId);
+          return klass.level >= requiredLevel;
+        })
         .filter((feat) => DDBFeatures.includedFeatureNameCheck(feat.name));
       for (const feat of options) {
         logger.debug(`Parsing Optional Feature ${feat.name}`);
@@ -134,21 +141,21 @@ export default class DDBFeatures {
 
   async _buildClassFeatures() {
     logger.debug("Parsing class and subclass features");
-    const ddbClassFeature = new DDBClassFeatures({
+    this._ddbClassFeatures = new DDBClassFeatures({
       ddbData: this.ddbData,
       rawCharacter: this.rawCharacter,
     });
-    ddbClassFeature.build();
+    this._ddbClassFeatures.build();
     await this._buildOptionalClassFeatures();
 
     logger.debug("ddbClassFeatures._buildClassFeatures", {
-      ddbClassFeature,
+      ddbClassFeature: this._ddbClassFeatures,
       this: this,
     });
 
     // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
     logger.debug("Removing matching traits");
-    ddbClassFeature.data
+    this._ddbClassFeatures.data
       .forEach((item) => {
         const existingFeature = DDBFeatures.getNameMatchedFeature(this.parsed, item);
         const duplicateFeature = DDBFeatures.isDuplicateFeature(this.parsed, item);
