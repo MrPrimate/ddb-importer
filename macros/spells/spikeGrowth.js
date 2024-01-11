@@ -41,7 +41,7 @@ async function applySpikeGrowthDamage() {
   const caster = item.parent;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
   const damageRoll = await new CONFIG.Dice.DamageRoll(`2d4[piercing]`).evaluate({ async: true });
-  if (game.dice3d) game.dice3d.showForRoll(damageRoll);
+  await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
   const workflowItemData = duplicate(item);
   workflowItemData.system.components.concentration = false;
   workflowItemData.system.duration = { value: null, units: "inst" };

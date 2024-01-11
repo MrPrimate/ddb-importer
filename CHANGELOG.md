@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Enable Manoeuvre effect generation for Martial Adept features.
+- Move most effects to use `MidiQOL.displayDSNForRoll` when rolling dice for effects.
+
 # 3.7.11
 
 - If not using Vision 5e, token settings were not always retained.

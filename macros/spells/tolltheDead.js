@@ -12,7 +12,7 @@ if (lastArg.failedSaveUuids.length > 0) {
   const casterLevel = casterActor.type === "character" ? casterActor.system.details.level : casterActor.system.details.spellLevel;
   const damageDiceNum = Math.floor((casterLevel + 1) / 6) + 1;
   const damageRoll = await new CONFIG.Dice.DamageRoll(`${damageDiceNum}d${damageDiceType}[${damageType}]`).evaluate({ async: true });
-  if (game.dice3d) game.dice3d.showForRoll(damageRoll);
+  await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
   await new MidiQOL.DamageOnlyWorkflow(
     casterActor,
     casterToken,

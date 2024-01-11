@@ -3,13 +3,20 @@ import { generateStatusEffectChange } from "../effects.js";
 import DDBMacros from "../DDBMacros.js";
 import logger from "../../logger.js";
 
+function dermineDiceString(ddb) {
+  const fighterClass = ddb.character.classes.find((klass) => klass.definition.name === "Fighter");
+  if (fighterClass) {
+    const combatSuperiority = fighterClass.classFeatures.find((feat) => feat.definition.name === "Combat Superiority");
+    if (combatSuperiority) {
+      return "@scale.battle-master.combat-superiority-die";
+    }
+  }
+  return "1d6";
+}
+
 // eslint-disable-next-line complexity
 export async function maneuversEffect(ddb, character, document) {
-  const fighterClass = ddb.character.classes.find((klass) => klass.definition.name === "Fighter");
-  if (!fighterClass) return document;
-  const combatSuperiority = fighterClass.classFeatures.find((feat) => feat.definition.name === "Combat Superiority");
-  if (!combatSuperiority) return document;
-  const diceString = "@scale.battle-master.combat-superiority-die";
+  const diceString = dermineDiceString(ddb);
 
   logger.debug(`Generating effect for ${document.name}`);
 

@@ -140,7 +140,7 @@ async function attackNearby(originToken, ignoreIds) {
     const sourceItem = await fromUuid(lastArg.efData.flags.origin);
     const mod = caster.system.abilities[sourceItem.abilityMod].mod;
     const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate({ async: true });
-    if (game.dice3d) game.dice3d.showForRoll(damageRoll);
+    await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
     const workflowItemData = duplicate(sourceItem);
     workflowItemData.effects = [];
     setProperty(workflowItemData, "flags.midi-qol", {});

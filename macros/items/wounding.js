@@ -40,7 +40,7 @@ if (args[0] === "on") {
     await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: targetActor.uuid, effects: [lastArg.effectId] })
   } else {
     const damageRoll = await new CONFIG.Dice.DamageRoll(`${woundCount}d4[necrotic]`).evaluate({ async: true });
-    if (game.dice3d) game.dice3d.showForRoll(damageRoll);
+    await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
     await new MidiQOL.DamageOnlyWorkflow(
       targetActor,
       targetToken,

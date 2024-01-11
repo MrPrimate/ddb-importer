@@ -109,7 +109,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
     scalingDiceNumber,
   })
   const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate({ async: true });
-  if (game.dice3d) game.dice3d.showForRoll(damageRoll);
+  await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
   const workflowItemData = duplicate(item);
   workflowItemData.system.target = { value: 1, units: "", type: "creature" };
   workflowItemData.system.save.ability = saveAbility;
