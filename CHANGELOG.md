@@ -1,6 +1,6 @@
 # NEXT UP
 
-- Enable Manoeuvre effect generation for Martial Adept features.
+- Enable Maneuver effect generation for Martial Adept features.
 - Move most effects to use `MidiQOL.displayDSNForRoll` when rolling dice for effects.
 
 # 3.7.11
