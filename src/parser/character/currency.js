@@ -8,4 +8,6 @@ DDBCharacter.prototype._generateCurrency = function _generateCurrency() {
     sp: this.source.ddb.character.currencies.sp,
     cp: this.source.ddb.character.currencies.cp,
   };
+
+  this._currency = deepClone(this.raw.character.system.currency);
 };

@@ -16,6 +16,16 @@ export function getDescription(data) {
   };
 }
 
+export function getCurrency(data) {
+  return {
+    cp: data.currency?.cp ?? 0,
+    sp: data.currency?.sp ?? 0,
+    ep: data.currency?.ep ?? 0,
+    gp: data.currency?.gp ?? 0,
+    pp: data.currency?.pp ?? 0,
+  };
+}
+
 export function getPrice(data) {
   const value = data.definition.cost ? Number.parseFloat(data.definition.cost) : 0;
   const price = {

@@ -8,6 +8,7 @@ import {
   getQuantity,
   getDescription,
   getCapacity,
+  getCurrency,
 } from "./common.js";
 
 export default function parseWonderous(data, { ddbTypeOverride = null, armorType = "trinket" } = {}) {
@@ -30,8 +31,9 @@ export default function parseWonderous(data, { ddbTypeOverride = null, armorType
     },
   };
 
-
-  if (!isContainer) {
+  if (isContainer) {
+    if (data.currency) item.system.currency = getCurrency(data);
+  } else {
     //
     // "armor": {
     // "type": "trinket",

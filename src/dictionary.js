@@ -5,6 +5,13 @@ const DICTIONARY = {
     inventory: ["equipment", "consumable", "tool", "loot", "backpack", "weapon"],
     monster: ["equipment", "consumable", "tool", "loot", "backpack", "weapon", "feat"],
   },
+  currency: {
+    cp: "copper",
+    sp: "silver",
+    ep: "electrum",
+    gp: "gold",
+    pp: "platinum",
+  },
   sizes: [
     { name: "Tiny", value: "tiny", size: 0.5 },
     { name: "Small", value: "sm", size: 0.8 },

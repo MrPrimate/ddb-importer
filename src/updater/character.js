@@ -216,15 +216,23 @@ async function currency(actor, ddbCharacter) {
   return new Promise((resolve) => {
     if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency")) resolve();
 
-    const value = {
-      pp: Number.isInteger(actor.system.currency.pp) ? actor.system.currency.pp : 0,
-      gp: Number.isInteger(actor.system.currency.gp) ? actor.system.currency.gp : 0,
-      ep: Number.isInteger(actor.system.currency.ep) ? actor.system.currency.ep : 0,
-      sp: Number.isInteger(actor.system.currency.sp) ? actor.system.currency.sp : 0,
-      cp: Number.isInteger(actor.system.currency.cp) ? actor.system.currency.cp : 0,
-    };
+    const value = game.modules.get("itemcollection")?.active
+      ? {
+        pp: Number.isInteger(actor.system.currency.pp) ? actor.system.currency.pp : 0,
+        gp: Number.isInteger(actor.system.currency.gp) ? actor.system.currency.gp : 0,
+        ep: Number.isInteger(actor.system.currency.ep) ? actor.system.currency.ep : 0,
+        sp: Number.isInteger(actor.system.currency.sp) ? actor.system.currency.sp : 0,
+        cp: Number.isInteger(actor.system.currency.cp) ? actor.system.currency.cp : 0,
+      }
+      : {
+        pp: Number.isInteger(actor.system.currency.pp) ? (actor.system.currency.pp - ddbCharacter._itemCurrency.pp) : 0,
+        gp: Number.isInteger(actor.system.currency.gp) ? (actor.system.currency.gp - ddbCharacter._itemCurrency.gp) : 0,
+        ep: Number.isInteger(actor.system.currency.ep) ? (actor.system.currency.ep - ddbCharacter._itemCurrency.ep) : 0,
+        sp: Number.isInteger(actor.system.currency.sp) ? (actor.system.currency.sp - ddbCharacter._itemCurrency.sp) : 0,
+        cp: Number.isInteger(actor.system.currency.cp) ? (actor.system.currency.cp - ddbCharacter._itemCurrency.cp) : 0,
+      };
 
-    const same = isEqual(ddbCharacter.data.character.system.currency, value);
+    const same = isEqual(ddbCharacter._currency, value);
 
     if (!same) {
       resolve(updateCharacterCall(actor, "currency", value));
@@ -234,6 +242,35 @@ async function currency(actor, ddbCharacter) {
 
   });
 }
+
+// async function itemCurrencyUpdate(actor, foundryItem, type, value) {
+//   return new Promise((resolve) => {
+//     const currency = {
+//       amount: value,
+//       characterId: actor.flags.ddbimporter.dndbeyond.characterId,
+//       destinationEntityId: foundryItem.id,
+//       destinationEntityTypeId: foundryItem.entityTypeId,
+//     };
+//     resolve(updateCharacterCall(actor, `currency/individual`, { type, currency }, `Currency - ${type}`));
+//   });
+// }
+
+// async function itemCurrency(actor, ddbItem, foundryItem) {
+//   if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency")) return [];
+//   if (!game.modules.get("itemcollection")?.active) return [];
+//   if (!hasProperty(foundryItem, "system.currency")) return [];
+
+//   const promises = [];
+
+//   ["pp", "gp", "ep", "sp", "cp"].forEach((type) => {
+//     const same = isEqual(foundryItem.system.currency[type], ddbItem.currency[type]);
+//     if (!same) {
+//       promises.push(itemCurrencyUpdate(actor, foundryItem, type, foundryItem.system.currency[type]));
+//     }
+//   });
+
+//   return Promise.all(promises);
+// }
 
 async function updateDDBXP(actor) {
   return new Promise((resolve) => {
@@ -854,6 +891,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
   const itemsToName = updateItemDetails.itemsToName || [];
   const customItems = updateItemDetails.customItems || [];
   const itemsToMove = updateItemDetails.itemsToMove || [];
+  const currencyItems = updateItemDetails.itemsToCurrency || [];
 
   let promises = [];
 
@@ -909,6 +947,30 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
     const flavor = { detail: "Updating Name", name: item.name, originalName: item.flags?.ddbimporter?.originalName };
     promises.push(updateCharacterCall(actor, "equipment/custom", customData, flavor));
   });
+
+  if (game.modules.get("itemcollection")?.active) {
+    for (const item of currencyItems) {
+      // eslint-disable-next-line no-continue
+      if (!hasProperty(item, "system.currency.gp")) continue;
+      const ddbItem = ddbItems.find((dItem) =>
+        item.flags.ddbimporter.id === dItem.id
+      );
+      // eslint-disable-next-line no-continue
+      if (ddbItem && !hasProperty(ddbItem, "currency.gp")) continue;
+      ["pp", "gp", "ep", "sp", "cp"].forEach((t) => {
+        if (!ddbItem || item.system.currency[t] !== ddbItem.currency[t]) {
+          const currency = {
+            amount: item.system.currency[t],
+            characterId: parseInt(actor.flags.ddbimporter.dndbeyond.characterId),
+            destinationEntityId: item.flags.ddbimporter.id,
+            destinationEntityTypeId: item.flags.ddbimporter.entityTypeId,
+          };
+          const type = DICTIONARY.currency[t];
+          promises.push(updateCharacterCall(actor, `currency/individual`, { type, currency }, `Currency - ${t}`));
+        }
+      });
+    }
+  }
 
   customItems
     .filter((item) => {
@@ -1042,6 +1104,19 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
       ))
     : [];
 
+  const itemsToCurrency = game.modules.get("itemcollection")?.active && game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency")
+    ? foundryItems.filter((item) =>
+      hasProperty(item, "flags.ddbimporter.id")
+      && hasProperty(item, "flags.ddbimporter.entityTypeId")
+      && !getProperty(item, "flags.ddbimporter.action")
+      && !getProperty(item, "flags.ddbimporter.custom")
+      && hasProperty(item, "system.currency.gp")
+      && ddbItems.some((dItem) =>
+        item.flags.ddbimporter.id === dItem.id
+        && !isEqual(dItem.currency, item.system.currency)
+      ))
+    : [];
+
   const itemsToUpdate = {
     itemsToEquip,
     itemsToAttune,
@@ -1050,6 +1125,7 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
     itemsToName,
     customItems,
     itemsToMove,
+    itemsToCurrency,
   };
 
   return updateDDBEquipmentStatus(actor, itemsToUpdate, ddbItems);
@@ -1268,6 +1344,7 @@ const DISABLE_FOUNDRY_UPGRADE = {
   promptAddFeatures: false,
 };
 
+// eslint-disable-next-line complexity
 async function generateDynamicItemChange(actor, document, update) {
   const updateItemDetails = {
     itemsToEquip: [],
@@ -1338,6 +1415,9 @@ async function generateDynamicItemChange(actor, document, update) {
 
       addDDBEquipment(actor, newItems);
       updateItemDetails.itemsToMove.push(...moveItems);
+    }
+    if (update.system?.currency && game.modules.get("itemcollection")?.active) {
+      updateItemDetails.itemsToCurrency.push(duplicate(document));
     }
   }
 
