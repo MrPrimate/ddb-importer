@@ -2,6 +2,8 @@
 
 - Featues which should be weapon attacks such as the Soul Knifes blades were coming in as Other features rather than weapons.
 - Tweaks to spell slot generation.
+- If using Item Containers, support import of currency in containers into item (otherwise will be added to character in Foundry..)
+- Support sync of currency for containers back to DDB if using Item Containers.
 
 # 3.7.12
 
