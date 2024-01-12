@@ -88,15 +88,15 @@ export default class CharacterFeatureFactory {
       this.ddbData.character.actions.class
         .filter((action) => DDBHelper.findClassByFeatureId(this.ddbData, action.componentId))
         .map((t) => {
-          t.actionType = "class";
+          t.actionSource = "class";
           return t;
         }),
       this.ddbData.character.actions.race.map((t) => {
-        t.actionType = "race";
+        t.actionSource = "race";
         return t;
       }),
       this.ddbData.character.actions.feat.map((t) => {
-        t.actionType = "feat";
+        t.actionSource = "feat";
         return t;
       }),
       this._getCustomActions(true),
@@ -105,7 +105,7 @@ export default class CharacterFeatureFactory {
       .flat()
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
       .map((action) => {
-        const ddbAttackAction = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: action, rawCharacter: this.rawCharacter, type: action.actionType });
+        const ddbAttackAction = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: action, rawCharacter: this.rawCharacter, type: action.actionSource });
         ddbAttackAction.build();
 
         // console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);

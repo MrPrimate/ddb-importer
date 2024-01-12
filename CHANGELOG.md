@@ -1,3 +1,9 @@
+# NEXT UP
+
+- Featues which should be weapon attacks such as the Soul Knifes blades were coming in as Other features rather than weapons.
+- Tweaks to spell slot generation.
+
+
 # 3.7.12
 
 - Enable Maneuver effect generation for Martial Adept features.
