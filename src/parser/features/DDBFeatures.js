@@ -128,6 +128,10 @@ export default class DDBFeatures {
           const requiredLevel = getProperty(feat, "requiredLevel");
           const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === feat.classId
             || cls.subclassDefinition?.id === feat.classId);
+          if (!klass) {
+            logger.info(`Unable to determine class for optional feature ${feat.name}, you might not have a suitable subclass`, { feat, this: this, requiredLevel });
+            return false;
+          }
           return klass.level >= requiredLevel;
         })
         .filter((feat) => DDBFeatures.includedFeatureNameCheck(feat.name));

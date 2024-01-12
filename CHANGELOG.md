@@ -4,6 +4,7 @@
 - Tweaks to spell slot generation.
 - If using Item Containers, support import of currency in containers into item (otherwise will be added to character in Foundry..)
 - Support sync of currency for containers back to DDB if using Item Containers.
+- Fix for some Tasha's optional character features causing import failure. @alpacacin0
 
 # 3.7.12
 
