@@ -150,11 +150,11 @@ DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots() {
     result = [casterInfo[0].cantrips, ...casterInfo[0].slots];
   }
 
-  for (let i = 0; i < result.length; i++) {
+  for (let i = 1; i < result.length; i++) {
     const currentSlots = this.source.ddb.character.spellSlots.filter((slot) => slot.level === i).map((slot) => slot.used) || 0;
     this.spellSlots["spell" + i] = {
-      value: result[i] - currentSlots,
-      max: result[i],
+      value: (result[i] - currentSlots) ?? 0,
+      max: result[i] ?? 0,
     };
   }
   this.raw.character.system.spells = this.spellSlots;
