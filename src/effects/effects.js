@@ -328,8 +328,15 @@ export function getMidiCEOnFlags(midiFlags = {}) {
   return midiFlags;
 }
 
+export function applyDefaultMidiFlags(document) {
+  setProperty(document, "flags.midi-qol.removeAttackDamageButtons", "default");
+  setProperty(document, "flags.midiProperties.confirmTargets", "default");
+  return document;
+}
+
 export function forceItemEffect(document) {
   if (document.effects.length > 0 || hasProperty(document.flags, "dae") || hasProperty(document.flags, "midi-qol.onUseMacroName")) {
+    document = applyDefaultMidiFlags(document);
     setProperty(document, "flags.ddbimporter.effectsApplied", true);
     setProperty(document, "flags.midi-qol.forceCEOff", true);
   }
@@ -1539,6 +1546,8 @@ function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, eff
 }
 
 export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, type) {
+  // set flags if using effects
+  foundryItem = applyDefaultMidiFlags(foundryItem);
   let label;
 
   if (type === "item" && hasProperty(ddbItem, "definition.grantedModifiers")) {

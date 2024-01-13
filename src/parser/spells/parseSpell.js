@@ -35,7 +35,11 @@ export async function parseSpell(data, character) {
         tags: data.definition.tags,
         version: CONFIG.DDBI.version,
       },
+      "midi-qol": {
+        removeAttackDamageButtons: "default",
+      },
       midiProperties: {
+        confirmTargets: "default",
         magicdam: true,
         magiceffect: true,
       },

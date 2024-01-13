@@ -9,7 +9,6 @@ export async function ragingStormSeaEffect(document) {
   const effect = baseFeatEffect(document, document.name);
   effect.changes.push(generateStatusEffectChange("Convenient Effect: Prone", 20, true));
   document.effects.push(effect);
-  // setProperty(document, "system.activation.type", "reactionmanual");
 
   const evaluationEffect = baseFeatEffect(document, `${document.name} (Trigger Checker)`, { transfer: true });
 

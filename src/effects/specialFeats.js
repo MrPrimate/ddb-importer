@@ -1,4 +1,4 @@
-import { baseEffect, effectModules, forceItemEffect, forceManualReaction } from "./effects.js";
+import { applyDefaultMidiFlags, baseEffect, effectModules, forceItemEffect, forceManualReaction } from "./effects.js";
 
 // effect loads
 import { alertEffect } from "./feats/alert.js";
@@ -160,6 +160,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
   }
 
   if (deps.daeInstalled && deps.midiQolInstalled) {
+    document = applyDefaultMidiFlags(document);
     switch (name) {
       case "Arcane Recovery": {
         document = await arcaneRecoveryEffect(document);
@@ -227,7 +228,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
         break;
       }
       case "Glide (Reaction)": {
-        setProperty(document, "system.activation.type", "reactionmanual");
+        document = forceManualReaction(document);
         break;
       }
       case "Hadozee Dodge": {

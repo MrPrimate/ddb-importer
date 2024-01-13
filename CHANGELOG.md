@@ -1,3 +1,7 @@
+# NEXT UP
+
+- If generating effects the MidiQoL Confirm Targets and Remove Chat card button settings will be set to "Midi Settings".
+
 # 3.7.13
 
 - Featues which should be weapon attacks such as the Soul Knifes blades were coming in as Other features rather than weapons.

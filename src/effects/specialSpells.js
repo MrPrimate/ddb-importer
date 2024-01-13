@@ -7,6 +7,7 @@ import {
   effectModules,
   forceManualReaction,
   baseEffect,
+  applyDefaultMidiFlags,
 } from "./effects.js";
 
 // spell effects load start
@@ -164,6 +165,8 @@ export async function spellEffectAdjustment(document) {
     logger.warn("Sorry, you're missing some required modules for spell effects. Please install them and try again.", deps);
     return document;
   }
+
+  document = applyDefaultMidiFlags(document);
 
   const name = document.flags.ddbimporter?.originalName ?? document.name;
   logger.debug(`Adding effects to ${name}`);

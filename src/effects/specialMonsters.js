@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable require-atomic-updates */
-import { baseEffect, effectModules, forceItemEffect, generateStatusEffectChange } from "./effects.js";
+import { applyDefaultMidiFlags, baseEffect, effectModules, forceItemEffect, generateStatusEffectChange } from "./effects.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
@@ -66,6 +66,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
 
   // damage over time effects
   for (let [index, item] of npc.items.entries()) {
+    item = applyDefaultMidiFlags(item);
     // Legendary Resistance Effects
     if (item.name.startsWith("Legendary Resistance")) item = generateLegendaryEffect(item);
     else if (item.name.startsWith("Pack Tactics")) item = generatePackTacticsEffect(item);

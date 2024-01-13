@@ -33,16 +33,12 @@ export function sharpShooterEffect(document) {
   const midiFlags = {
     "effectActivation": false,
     "forceCEOff": false,
-    "forceCEOn": true
+    "forceCEOn": true,
+    "removeAttackDamageButtons": "default",
   };
 
   setProperty(document, "flags.midi-qol", midiFlags);
-
-  const midiProperties = {
-    "toggleEffect": true,
-  };
-
-  setProperty(document, "flags.midiProperties", midiProperties);
+  setProperty(document, "flags.midiProperties.toggleEffect", true);
 
   return document;
 }

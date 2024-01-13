@@ -5,6 +5,7 @@ import {
   generateCustomChange,
   forceItemEffect,
   effectModules,
+  applyDefaultMidiFlags,
 } from "./effects.js";
 // load item effects
 import { bootsOfSpeedEffect } from "./items/bootsOfSpeed.js";
@@ -18,6 +19,7 @@ import { hasteEffect } from "./spells/haste.js";
 
 export async function midiItemEffects(document) {
   if (!effectModules().hasCore) return document;
+  document = applyDefaultMidiFlags(document);
   const name = document.flags.ddbimporter?.originalName || document.name;
   switch (name) {
     case "Cloak of Displacement": {

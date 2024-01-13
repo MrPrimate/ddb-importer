@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { generateStatusEffectChange } from "../effects.js";
+import { forceManualReaction, generateStatusEffectChange } from "../effects.js";
 import DDBMacros from "../DDBMacros.js";
 import logger from "../../logger.js";
 
@@ -112,7 +112,7 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Riposte":
     case "Maneuvers: Brace": {
       // manual reaction types
-      setProperty(document, "system.activation.type", "reactionmanual");
+      document = forceManualReaction(document);
       effect.changes.push(damageEffect);
       document.effects.push(effect);
       break;
