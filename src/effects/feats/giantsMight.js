@@ -11,9 +11,9 @@ export function giantsMightEffect(document) {
 
   effect.changes.push(
     {
-      key: "flags.midi-qol.advantage.ability.check.str",
+      key: "system.traits.size",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-      value: "system.traits.size",
+      value: "lg",
       priority: 25,
     },
     {
@@ -37,7 +37,7 @@ export function giantsMightEffect(document) {
     {
       key: "flags.midi-qol.optional.giantsmight.count",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: "each-round",
+      value: "turn",
       priority: "5",
     },
     {
