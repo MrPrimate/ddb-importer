@@ -2,6 +2,8 @@
 
 - If generating effects the MidiQoL Confirm Targets and Remove Chat card button settings will be set to "Midi Settings".
 - Small compatibility fix for use with Note Licker to prevent note number appending in some scenarios when DDB Importer and Note Licker are both active.
+- Giants Might effect tweaks.
+- When munching Class Features on v11 it will now create compendium folders for class and subclass features.
 
 # 3.7.13
 

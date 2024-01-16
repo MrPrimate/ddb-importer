@@ -61,24 +61,6 @@ export async function getSubClasses(subClassData, klassData) {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const isV10 = isNewerVersion(11, game.version);
 
-  const featureHandlerOptions = {
-    chrisPremades: true,
-    // deleteBeforeUpdate: false,
-    matchFlags: ["featureId"],
-  };
-
-  const featureHandler = new DDBItemImporter("features", [], featureHandlerOptions);
-  await featureHandler.init();
-  const fields = [
-    "name",
-    "flags.ddbimporter.classId",
-    "flags.ddbimporter.class",
-    "flags.ddbimporter.featureName",
-    "flags.ddbimporter.subClass",
-    "flags.ddbimporter.parentClassId"
-  ];
-  await featureHandler.buildIndex({ fields });
-
   const classHandler = new DDBItemImporter("class", [], { deleteBeforeUpdate: false });
   await classHandler.init();
   const classDocs = await classHandler.compendium.getDocuments();
@@ -97,20 +79,12 @@ export async function getSubClasses(subClassData, klassData) {
   for (const subClass of subClassData) {
     const classMatch = CONFIG.DDB.classConfigurations.find((k) => k.id === subClass.parentClassId);
     if (!compendiumFolders.isV10) await compendiumFolders.createSubClassFeatureFolder(subClass.name, classMatch.name);
-    logger.debug(`${subClass.name} feature parsing started...`, { subClass, classMatch, index: featureHandler.compendiumIndex });
+    logger.debug(`${subClass.name} feature parsing started...`, { subClass, classMatch });
     const filteredFeatures = subClass.classFeatures
       .filter((feature) =>
         !klassData.classFeatures.some((f) =>
           feature.id === f.id
         )
-        // !featureHandler.compendiumIndex.some((i) =>
-        //   feature.id === getProperty(i, "flags.ddbimporter.featureId")
-        //   // hasProperty(i, "flags.ddbimporter.classId")
-        //   // && hasProperty(i, "flags.ddbimporter.featureId")
-        //   // && feature.name === getProperty(i, "flags.ddbimporter.featureName")
-        //   // && feature.id === getProperty(i, "flags.ddbimporter.featureId")
-        //   // && subClass.parentClassId === getProperty(i, "flags.ddbimporter.classId")
-        // )
       );
     for (const feature of filteredFeatures) {
       const existingFeature = classFeatures.some((f) =>
@@ -126,13 +100,27 @@ export async function getSubClasses(subClassData, klassData) {
     }
   }
 
-  // eslint-disable-next-line require-atomic-updates
-  featureHandler.documents = classFeatures;
-  await featureHandler.srdFiddling(isV10);
-  DDBMuncher.munchNote(`Importing ${featureHandler.documents.length} features!`, true);
-  logger.debug(`Importing ${featureHandler.documents.length} features!`, featureHandler.documents);
-  await featureHandler.updateCompendium(updateBool, isV10);
-  await featureHandler.buildIndex({ fields });
+  const featureHandlerOptions = {
+    // srdFidding: false,
+    chrisPremades: true,
+    // deleteBeforeUpdate: false,
+    removeSRDDuplicates: isV10,
+    filterDuplicates: isV10,
+    matchFlags: ["featureId"],
+    indexFilter: {
+      fields: [
+        "name",
+        "flags.ddbimporter.classId",
+        "flags.ddbimporter.class",
+        "flags.ddbimporter.featureName",
+        "flags.ddbimporter.subClass",
+        "flags.ddbimporter.parentClassId"
+      ],
+    },
+  };
+
+  const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
+  await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
 
   const firstPassFeatures = await featureHandler.compendiumIndex.filter((i) =>
     featureHandler.documents.some((orig) => i.name === orig.name)
