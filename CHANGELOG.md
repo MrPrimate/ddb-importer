@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.7.14
 
 - If generating effects the MidiQoL Confirm Targets and Remove Chat card button settings will be set to "Midi Settings".
 - Small compatibility fix for use with Note Licker to prevent note number appending in some scenarios when DDB Importer and Note Licker are both active.
