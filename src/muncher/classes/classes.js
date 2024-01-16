@@ -4,6 +4,8 @@ import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generat
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import DDBMuncher from "../../apps/DDBMuncher.js";
+import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
 
 function getHPAdvancement(klass, character) {
   // const value = "value": {
@@ -71,30 +73,51 @@ async function buildClass(klass, compendiumClassFeatures) {
 
 export async function getClasses(data) {
   let results = [];
-  logger.debug("get clases started");
+  logger.debug("get clases started", { data });
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
   let klasses = [];
   let classFeatures = [];
 
+  const isV10 = isNewerVersion(11, game.version);
+
+  const compendiumFolders = new DDBCompendiumFolders("features");
+  if (!compendiumFolders.isV10) {
+    DDBMuncher.munchNote(`Checking compendium folders..`, true);
+    await compendiumFolders.loadCompendium("features");
+    DDBMuncher.munchNote("", true);
+  }
+
   for (const klass of data) {
-    logger.debug(`${klass.name} feature parsing started...`);
+    logger.debug(`${klass.name} feature parsing started...`, { klass });
     for (const feature of klass.classFeatures.sort((a, b) => a.requiredLevel - b.requiredLevel)) {
       const existingFeature = classFeatures.some((f) =>
         f.flags.ddbimporter.featureName === feature.name
         && f.flags.ddbimporter.classId === klass.id
       );
-      logger.debug(`${feature.name} feature starting...`);
+      logger.debug(`${feature.name} class feature starting...`, { existingFeature, feature });
       if (!NO_TRAITS.includes(feature.name) && !existingFeature) {
         // eslint-disable-next-line no-await-in-loop
         const parsedFeature = await getClassFeature(feature, klass);
+        // if (usingFolders) {
+        //   parsedFeature.folder = compendiumFolders.getFolderId(parsedFeature);
+        // }
         classFeatures.push(parsedFeature);
         results.push({ class: klass.name, subClass: "", feature: feature.name });
       }
     }
   }
 
-  const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, { chrisPremades: true, deleteBeforeUpdate: false });
+  const featureHandlerOptions = {
+    // srdFidding: false,
+    chrisPremades: true,
+    // deleteBeforeUpdate: false,
+    removeSRDDuplicates: isV10,
+    filterDuplicates: isV10,
+    matchFlags: ["featureId"],
+  };
+
+  const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
   const firstPassFeatures = await featureHandler.compendiumIndex.filter((i) =>
     featureHandler.documents.some((orig) => i.name === orig.name)
   );

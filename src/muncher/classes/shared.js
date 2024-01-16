@@ -185,7 +185,9 @@ export async function getClassFeature(feature, klass, subClassName = "", classNa
   result.flags.obsidian.source.text = klass.name;
 
   const duplicateFeature = FEATURE_DUP.includes(feature.name);
-  result.name = (duplicateFeature) ? `${feature.name} (${klass.name})` : feature.name;
+  result.name = (duplicateFeature && isNewerVersion(11, game.version))
+    ? `${feature.name} (${klass.name})`
+    : feature.name;
 
   result.flags.ddbimporter['featureId'] = feature.id;
   result.flags.ddbimporter['featureName'] = feature.name;

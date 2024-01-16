@@ -16,6 +16,8 @@ export class DDBCompendiumFolders {
     this.toolFolders = {};
     this.backpackFolders = {};
     this.validFolderIds = [];
+    this.classFolders = {};
+    this.subClassFolders = {};
   }
 
   constructor(type, packName) {
@@ -226,6 +228,33 @@ export class DDBCompendiumFolders {
     }
   }
 
+  async createClassFeatureFolders() {
+    const classNames = CONFIG.DDB.classConfigurations
+      .filter((c) => !c.name.includes("archived") && !c.name.includes("(UA)"))
+      .map((c) => c.name);
+
+    for (const className of classNames) {
+      logger.debug(`Checking for class folder '${className}'`);
+      const folder = this.getFolder(className)
+        ?? (await this.createCompendiumFolder({ name: className }));
+      this.validFolderIds.push(folder._id);
+      this.classFolders[className] = folder;
+      const flagTag = `optional/${className}`;
+      const optionalFolder = this.getFolder("Optional Features", flagTag)
+        ?? (await this.createCompendiumFolder({ name: "Optional Features", parentId: folder._id, color: "#222222", flagTag }));
+      this.validFolderIds.push(optionalFolder._id);
+    }
+  }
+
+  async createSubClassFeatureFolder(subclassName, parentClassName) {
+    const flagTag = `subclass/${subclassName}`;
+    logger.debug(`Checking for Subclass folder '${subclassName}' with Parent Class '${parentClassName}'`);
+
+    const folder = this.getFolder(subclassName, flagTag)
+      ?? (await this.createCompendiumFolder({ name: subclassName, parentId: this.classFolders[parentClassName]._id, color: "#222222", flagTag }));
+    this.subClassFolders[subclassName] = folder;
+    this.validFolderIds.push(folder._id);
+  }
 
   async createCompendiumFolders() {
     if (this.isV10) {
@@ -280,6 +309,10 @@ export class DDBCompendiumFolders {
             break;
           // no default
         }
+        break;
+      }
+      case "features": {
+        await this.createClassFeatureFolders();
         break;
       }
       // no default
@@ -426,9 +459,39 @@ export class DDBCompendiumFolders {
     return name;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  getClassFeatureFolderName(document) {
+    const result = {
+      name: undefined,
+      flagTag: "",
+    };
+    const subClassName = getProperty(document, "flags.ddbimporter.subClass");
+    const className = getProperty(document, "flags.ddbimporter.class");
+    const optional = getProperty(document, "flags.ddbimporter.optionalFeature");
+    if (optional) {
+      result.name = "Optional Features";
+      result.flagTag = `optional/${className}`;
+    } else if (subClassName && subClassName.trim() !== "") {
+      result.name = subClassName;
+      result.flagTag = `subclass/${subClassName}`;
+    } else if (className && className.trim() !== "") {
+      result.name = className;
+    } else {
+      result.name = "Unknown";
+    }
+
+    if (result.name) return result;
+    else return undefined;
+  }
+
+  // eslint-disable-next-line complexity
   getCompendiumFolderName(document) {
     let name;
     switch (this.type) {
+      case "features": {
+        name = this.getClassFeatureFolderName(document);
+        break;
+      }
       case "monsters":
       case "npc":
       case "monster": {
@@ -516,7 +579,7 @@ export class DDBCompendiumFolders {
 
     const folderName = this.getCompendiumFolderName(document);
     if (folderName) {
-      const folder = this.compendium.folders.find((f) => f.name == folderName);
+      const folder = this.compendium.folders.find((f) => f.name == (folderName.name ?? folderName));
       if (folder) {
         logger.info(`Moving ${this.type} ${document.name} to folder ${folder.name}`);
         await document.update({ folder: folder._id });
@@ -561,6 +624,14 @@ export class DDBCompendiumFolders {
           "system.details.cr",
         ];
       }
+      case "feature": {
+        return [
+          "name",
+          "flags.ddbimporter.class",
+          "flags.ddbimporter.subClass",
+          "flags.ddbimporter.optionalFeature",
+        ];
+      }
       default:
         return ["name"];
     }
@@ -582,10 +653,6 @@ export class DDBCompendiumFolders {
     const results = [];
     for (const i of index) {
       const folderId = this.getFolderId(i);
-      // console.warn(`Migrating ${i.name} to ${folderId}`, {
-      //   i,
-      //   folderId,
-      // });
       if (folderId) {
         results.push({
           _id: i._id,
@@ -597,6 +664,11 @@ export class DDBCompendiumFolders {
     logger.debug("Folder update results", results);
 
     switch (this.type) {
+      case "feature":
+      case "class":
+      case "classes":
+      case "subclass":
+      case "subclasses":
       case "inventory":
       case "items":
       case "item":

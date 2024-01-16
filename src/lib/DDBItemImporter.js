@@ -328,7 +328,7 @@ export default class DDBItemImporter {
     return Promise.all(promises);
   }
 
-  async updateCompendium(updateExisting = false) {
+  async updateCompendium(updateExisting = false, filterDuplicates = true) {
     if (!game.user.isGM) return [];
     logger.debug(`Getting compendium for update of ${this.type} documents (checking ${this.documents.length} docs)`);
 
@@ -337,13 +337,15 @@ export default class DDBItemImporter {
     }
 
     // remove duplicate items based on name and type
-    const filterItems = [...new Map(this.documents.map((item) => {
-      let filterItem = item["name"] + item["type"];
-      this.matchFlags.forEach((flag) => {
-        filterItem += item.flags.ddbimporter[flag];
-      });
-      return [filterItem, item];
-    })).values()];
+    const filterItems = filterDuplicates
+      ? [...new Map(this.documents.map((item) => {
+        let filterItem = item["name"] + item["type"];
+        this.matchFlags.forEach((flag) => {
+          filterItem += item.flags.ddbimporter[flag];
+        });
+        return [filterItem, item];
+      })).values()]
+      : this.documents;
 
     // v11 compendium folders - just add to doc before creation/update
     const inputItems = await this.addCompendiumFolderIds(filterItems);
@@ -462,13 +464,13 @@ export default class DDBItemImporter {
     return results;
   }
 
-  async srdFiddling() {
+  async srdFiddling(removeDuplicates = true, matchDDBId = false) {
     const useSrd = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd");
 
     if (useSrd) {
       logger.debug("Replacing SRD compendium items");
       const srdItems = await this.getSRDCompendiumItems();
-      this.removeItems(srdItems);
+      if (removeDuplicates) this.removeItems(srdItems, matchDDBId);
       this.documents = this.documents.concat(srdItems);
       this.documents = await Iconizer.updateIcons(this.documents);
     } else {
@@ -477,12 +479,12 @@ export default class DDBItemImporter {
   }
 
   static async buildHandler(type, documents, updateBool,
-    { srdFidding = true, ids = null, vision5e = false, chrisPremades = false, matchFlags = [],
-      deleteBeforeUpdate = null } = {}
+    { srdFidding = true, removeSRDDuplicates = true, ids = null, vision5e = false, chrisPremades = false, matchFlags = [],
+      deleteBeforeUpdate = null, filterDuplicates = true } = {}
   ) {
     const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate });
     await handler.init();
-    if (srdFidding) await handler.srdFiddling();
+    if (srdFidding) await handler.srdFiddling(removeSRDDuplicates);
     const filteredItems = (ids !== null && ids.length > 0)
       ? handler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
       : handler.documents;
@@ -493,8 +495,8 @@ export default class DDBItemImporter {
       handler.documents = await applyChrisPremadeEffects({ documents: handler.documents, compendiumItem: true });
     }
     DDBMuncher.munchNote(`Importing ${handler.documents.length} ${type} documents!`, true);
-    logger.debug(`Importing ${handler.documents.length} ${type} documents!`, documents);
-    await handler.updateCompendium(updateBool);
+    logger.debug(`Importing ${handler.documents.length} ${type} documents!`, deepClone(documents));
+    await handler.updateCompendium(updateBool, filterDuplicates);
     await handler.buildIndex();
     return handler;
   }

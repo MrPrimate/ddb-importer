@@ -37,8 +37,7 @@ function getSubClassesData(className) {
         }
         return data;
       })
-      .then((data) => getSubClasses(data.data))
-      .then((data) => resolve(data))
+      .then((data) => resolve(data.data))
       .catch((error) => reject(error));
   });
 }
@@ -70,8 +69,7 @@ function getClassOptionsData(className) {
         }
         return data;
       })
-      .then((data) => getClassOptions(data.data, className))
-      .then((data) => resolve(data))
+      .then((data) => resolve(data.data))
       .catch((error) => reject(error));
   });
 }
@@ -103,50 +101,43 @@ function getClassesData() {
         }
         return data;
       })
-      .then((data) => getClasses(data.data))
-      .then((data) => resolve(data))
+      .then((data) => resolve(data.data))
       .catch((error) => reject(error));
   });
 }
 
 export async function parseClasses() {
-  const classesResults = await getClassesData();
+  const classData = await getClassesData();
+  const classesResults = await getClasses(classData);
 
-  const subClassResults = await Promise.all([
-    getSubClassesData("Cleric"),
-    getSubClassesData("Druid"),
-    getSubClassesData("Sorcerer"),
-    getSubClassesData("Warlock"),
-    getSubClassesData("Wizard"),
-    getSubClassesData("Paladin"),
-    getSubClassesData("Ranger"),
-    getSubClassesData("Bard"),
-    getSubClassesData("Barbarian"),
-    getSubClassesData("Fighter"),
-    getSubClassesData("Artificer"),
-    getSubClassesData("Rogue"),
-    getSubClassesData("Monk"),
-    getSubClassesData("Blood Hunter"),
-  ]);
+  const classNames = CONFIG.DDB.classConfigurations
+    .filter((c) => !c.name.includes("archived") && !c.name.includes("(UA)"))
+    .map((c) => c.name);
 
-  const classOptionsResults = await Promise.all([
-    getClassOptionsData("Cleric"),
-    getClassOptionsData("Druid"),
-    getClassOptionsData("Sorcerer"),
-    getClassOptionsData("Warlock"),
-    getClassOptionsData("Wizard"),
-    getClassOptionsData("Paladin"),
-    getClassOptionsData("Ranger"),
-    getClassOptionsData("Bard"),
-    getClassOptionsData("Barbarian"),
-    getClassOptionsData("Fighter"),
-    getClassOptionsData("Rogue"),
-    getClassOptionsData("Monk"),
-    getClassOptionsData("Blood Hunter"),
-    getClassOptionsData("Artificer"),
-  ]);
+  const subClassResults = [];
+  for (const className of classNames) {
+    const klass = classData.find((c) => c.name === className);
+    // eslint-disable-next-line no-await-in-loop
+    const subClassData = await getSubClassesData(className);
+    // eslint-disable-next-line no-await-in-loop
+    const subClassResult = await getSubClasses(subClassData, klass);
+    subClassResults.push(...subClassResult);
+  }
 
-  const results = classesResults.concat(subClassResults.flat(), classOptionsResults.flat());
+  const classOptionsResults = [];
+  for (const className of classNames) {
+    // eslint-disable-next-line no-await-in-loop
+    const classOptionsData = await getClassOptionsData(className);
+    // eslint-disable-next-line no-await-in-loop
+    const classOptionsResult = await getClassOptions(classOptionsData, className);
+    classOptionsResults.push(...classOptionsResult);
+  }
+
+  const results = classesResults.concat(
+    subClassResults.flat(),
+    classOptionsResults.flat()
+    // [],
+  );
 
   // FileHelper.download(JSON.stringify(results), `classes-icon.json`, "application/json");
   return results;

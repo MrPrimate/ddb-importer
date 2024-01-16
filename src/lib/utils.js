@@ -386,6 +386,10 @@ const utils = {
     entityTypes.set("background", "Background");
     entityTypes.set("compendium", "Compendium");
     entityTypes.set("class", "Class");
+    entityTypes.set("subclass", "Subclass");
+    entityTypes.set("feature", "Item");
+    entityTypes.set("features", "Item");
+    entityTypes.set("classfeatures", "Item");
     return entityTypes;
   },
 
