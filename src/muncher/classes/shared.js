@@ -275,19 +275,14 @@ export async function buildBaseClass(klass) {
   // eslint-disable-next-line require-atomic-updates
   result.system.description.value += getProperty(result, "flags.ddbimporter.image");
 
-  // eslint-disable-next-line require-atomic-updates
   result.flags.ddbimporter['parentClassId'] = klass.parentClassId;
-  // eslint-disable-next-line require-atomic-updates
+  result.flags.ddbimporter['class'] = klass.name;
   result.flags.ddbimporter['hitDice'] = klass.hitDice;
-  // eslint-disable-next-line require-atomic-updates
   result.flags.ddbimporter['spellCastingAbilityId'] = klass.spellCastingAbilityId;
-  // eslint-disable-next-line require-atomic-updates
   result.flags.ddbimporter['canCastSpells'] = klass.canCastSpells;
 
   // setup data
-  // eslint-disable-next-line require-atomic-updates
   result.system.levels = 1;
-  // eslint-disable-next-line require-atomic-updates
   result.system.hitDice = `d${klass.hitDice}`;
 
   let spellcasting = {};

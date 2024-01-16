@@ -32,7 +32,9 @@ export default class FolderHelper {
     const folderName = game.i18n.localize(`ddb-importer.item-type.${kind}`);
     const entityType = entityTypes.get(kind);
     const baseFolder = await FolderHelper.getOrCreateFolder(null, entityType, baseFolderName, baseColor);
-    const entityFolder = typeFolder ? await FolderHelper.getOrCreateFolder(baseFolder, entityType, folderName, subColor) : baseFolder;
+    const entityFolder = typeFolder
+      ? await FolderHelper.getOrCreateFolder(baseFolder, entityType, folderName, subColor)
+      : baseFolder;
     if (subFolder !== "") {
       const subFolderName = subFolder.charAt(0).toUpperCase() + subFolder.slice(1);
       const typeFolder = await FolderHelper.getOrCreateFolder(entityFolder, entityType, subFolderName, subColor);

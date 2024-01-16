@@ -4,6 +4,7 @@
 - Small compatibility fix for use with Note Licker to prevent note number appending in some scenarios when DDB Importer and Note Licker are both active.
 - Giants Might effect tweaks.
 - When munching Class Features on v11 it will now create compendium folders for class and subclass features.
+- When munching classes and subclasses, subclasses will be placed into compendium folders (v11 only).
 
 # 3.7.13
 

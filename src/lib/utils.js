@@ -383,10 +383,12 @@ const utils = {
     entityTypes.set("page", "JournalEntry");
     entityTypes.set("journal", "JournalEntry");
     entityTypes.set("journalEntry", "JournalEntry");
-    entityTypes.set("background", "Background");
+    entityTypes.set("background", "Item");
     entityTypes.set("compendium", "Compendium");
-    entityTypes.set("class", "Class");
-    entityTypes.set("subclass", "Subclass");
+    entityTypes.set("class", "Item");
+    entityTypes.set("classes", "Item");
+    entityTypes.set("subclass", "Item");
+    entityTypes.set("subclasses", "Item");
     entityTypes.set("feature", "Item");
     entityTypes.set("features", "Item");
     entityTypes.set("classfeatures", "Item");

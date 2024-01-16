@@ -228,7 +228,7 @@ export class DDBCompendiumFolders {
     }
   }
 
-  async createClassFeatureFolders() {
+  async createClassFeatureFolders(includeOptions = true) {
     const classNames = CONFIG.DDB.classConfigurations
       .filter((c) => !c.name.includes("archived") && !c.name.includes("(UA)"))
       .map((c) => c.name);
@@ -239,10 +239,12 @@ export class DDBCompendiumFolders {
         ?? (await this.createCompendiumFolder({ name: className }));
       this.validFolderIds.push(folder._id);
       this.classFolders[className] = folder;
-      const flagTag = `optional/${className}`;
-      const optionalFolder = this.getFolder("Optional Features", flagTag)
-        ?? (await this.createCompendiumFolder({ name: "Optional Features", parentId: folder._id, color: "#222222", flagTag }));
-      this.validFolderIds.push(optionalFolder._id);
+      if (includeOptions) {
+        const flagTag = `optional/${className}`;
+        const optionalFolder = this.getFolder("Optional Features", flagTag)
+          ?? (await this.createCompendiumFolder({ name: "Optional Features", parentId: folder._id, color: "#222222", flagTag }));
+        this.validFolderIds.push(optionalFolder._id);
+      }
     }
   }
 
@@ -313,6 +315,11 @@ export class DDBCompendiumFolders {
       }
       case "features": {
         await this.createClassFeatureFolders();
+        break;
+      }
+      case "subclass":
+      case "subclasses": {
+        await this.createClassFeatureFolders(false);
         break;
       }
       // no default
@@ -484,12 +491,34 @@ export class DDBCompendiumFolders {
     else return undefined;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  getClassFolderName(document) {
+    const result = {
+      name: undefined,
+      flagTag: "",
+    };
+    const className = getProperty(document, "flags.ddbimporter.class");
+    if (className && className.trim() !== "") {
+      result.name = className;
+    } else {
+      result.name = "Unknown";
+    }
+
+    if (result.name) return result;
+    else return undefined;
+  }
+
   // eslint-disable-next-line complexity
   getCompendiumFolderName(document) {
     let name;
     switch (this.type) {
       case "features": {
         name = this.getClassFeatureFolderName(document);
+        break;
+      }
+      case "subclass":
+      case "subclasses": {
+        name = this.getClassFolderName(document);
         break;
       }
       case "monsters":
@@ -624,6 +653,10 @@ export class DDBCompendiumFolders {
           "system.details.cr",
         ];
       }
+      case "class":
+      case "subclass":
+      case "classes":
+      case "subclasses":
       case "feature": {
         return [
           "name",

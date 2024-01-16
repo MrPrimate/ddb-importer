@@ -69,16 +69,18 @@ export async function getSubClasses(subClassData, klassData) {
   let classFeatures = [];
   let results = [];
 
-  const compendiumFolders = new DDBCompendiumFolders("features");
-  if (!compendiumFolders.isV10) {
+  const featureCompendiumFolders = new DDBCompendiumFolders("features");
+  const subClassCompendiumFolders = new DDBCompendiumFolders("subclasses");
+  if (!featureCompendiumFolders.isV10) {
     DDBMuncher.munchNote(`Checking compendium folders..`, true);
-    await compendiumFolders.loadCompendium("features");
+    await featureCompendiumFolders.loadCompendium("features");
+    await subClassCompendiumFolders.loadCompendium("subclasses");
     DDBMuncher.munchNote("", true);
   }
 
   for (const subClass of subClassData) {
     const classMatch = CONFIG.DDB.classConfigurations.find((k) => k.id === subClass.parentClassId);
-    if (!compendiumFolders.isV10) await compendiumFolders.createSubClassFeatureFolder(subClass.name, classMatch.name);
+    if (!featureCompendiumFolders.isV10) await featureCompendiumFolders.createSubClassFeatureFolder(subClass.name, classMatch.name);
     logger.debug(`${subClass.name} feature parsing started...`, { subClass, classMatch });
     const filteredFeatures = subClass.classFeatures
       .filter((feature) =>
@@ -141,7 +143,7 @@ export async function getSubClasses(subClassData, klassData) {
   }
 
   logger.debug("Subclass build finished", subClasses);
-  await DDBItemImporter.buildHandler("subclasses", subClasses, updateBool, { deleteBeforeUpdate: false });
+  await DDBItemImporter.buildHandler("subclasses", subClasses, updateBool, { deleteBeforeUpdate: false, matchFlags: ["id"] });
 
   return results;
 }
