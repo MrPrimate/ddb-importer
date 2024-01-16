@@ -5,6 +5,7 @@
 - Giants Might effect tweaks.
 - When munching Class Features on v11 it will now create compendium folders for class and subclass features.
 - When munching classes and subclasses, subclasses will be placed into compendium folders (v11 only).
+- Support for new Kgar Tidy5e sheet.
 
 # 3.7.13
 
