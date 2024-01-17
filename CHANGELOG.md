@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Better handling of class identifiers for scaling values if they have non-alpha characters.
+
 # 3.7.14
 
 - If generating effects the MidiQoL Confirm Targets and Remove Chat card button settings will be set to "Midi Settings".

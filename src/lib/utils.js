@@ -41,7 +41,8 @@ const utils = {
   referenceNameString: (str) => {
     return str.replace(/[^a-zA-Z0-9]/g, "-")
       .replace(/-+/g, "-")
-      .trim();
+      .trim()
+      .replace(/-$/g, '');
   },
 
   nameString: (str) => {

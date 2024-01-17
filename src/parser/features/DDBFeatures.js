@@ -190,7 +190,7 @@ export default class DDBFeatures {
 
   _setLevelScales() {
     this.parsed.forEach((feature) => {
-      const featureName = utils.referenceNameString(feature.name.toLowerCase());
+      const featureName = utils.referenceNameString(feature.name).toLowerCase();
       const scaleKlass = this.ddbCharacter.raw.classes.find((klass) =>
         klass.system.advancement
           .some((advancement) => advancement.type === "ScaleValue"
@@ -198,10 +198,11 @@ export default class DDBFeatures {
           ));
 
       if (scaleKlass) {
+        const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
         if (hasProperty(feature, "system.damage.parts") && feature.system.damage.parts.length > 0) {
-          feature.system.damage.parts[0][0] = `@scale.${scaleKlass.system.identifier}.${featureName}`;
+          feature.system.damage.parts[0][0] = `@scale.${identifier}.${featureName}`;
         } else {
-          setProperty(feature, "system.damage.parts", [[`@scale.${scaleKlass.system.identifier}.${featureName}`]]);
+          setProperty(feature, "system.damage.parts", [[`@scale.${identifier}.${featureName}`]]);
         }
       }
     });
