@@ -2,6 +2,7 @@
 
 - Better handling of class identifiers for scaling values if they have non-alpha characters.
 - Prevent error when updating character as a player without filesystem browse permissions.
+- Divine Favor effect left in default damage.
 
 # 3.7.14
 
