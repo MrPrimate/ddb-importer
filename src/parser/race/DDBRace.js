@@ -421,7 +421,12 @@ export default class DDBRace {
   }
 
   async build() {
-    await this._generateRaceImage();
+    try {
+      await this._generateRaceImage();
+    } catch (e) {
+      logger.error("Error generating race image, probably because you don't have permission to browse the host file system.", { e });
+    }
+
 
     this.race.racialTraits.forEach((t) => {
       const trait = t.definition;
