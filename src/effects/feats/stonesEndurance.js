@@ -5,7 +5,7 @@ export function stonesEnduranceEffect(document) {
   let effect = baseFeatEffect(document, document.name);
   effect.changes.push({
     key: "flags.midi-qol.DR.all",
-    value: "[[1d10 + @abilities.con.mod]]",
+    value: "[[1d12 + @abilities.con.mod]]",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     priority: 20,
   });
