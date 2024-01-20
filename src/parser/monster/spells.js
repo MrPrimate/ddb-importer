@@ -122,38 +122,71 @@ DDBMonster.prototype.parseAdditionalAtWillSpells = function(text) {
  * @param text spell text block
  * @returns
  */
-DDBMonster.prototype.parseOutSpells = function(text) {
+// eslint-disable-next-line complexity
+DDBMonster.prototype.parseOutSpells = function(text, { pactText = null } = {}) {
   // console.log(text);
   const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*(?:Level|level))?(?:s)?\s+\((at will|at-will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
   const match = text.match(spellLevelSearch);
-  // console.log(match);
 
   const warlockLevelSearch = /^1st–(\d)(?:st|th|nd|rd)\s+level\s+\((\d)\s+(\d)(?:st|th|nd|rd)?\s*(?:Level|level|-level)\s*(?:slot|slots)?\):\s+(.*$)/;
   const warlockMatch = text.match(warlockLevelSearch);
 
-  if (!match && !warlockMatch) {
+  const otherWarlockSearch = /^(\d)\s*(?:st|th|nd|rd)?\s*(?:Level|level|-level):\s+(.*$)/i;
+  const otherWarlockMatch = text.match(otherWarlockSearch);
+
+  const pactSearchRegex = /has\s(\w*)\s(\d)(?:st|th|nd|rd)\s*(?:level|-level)\s+spell\s+slot/i;
+  const pactTextSlotsMatch = (otherWarlockMatch && pactText) ? pactText.match(pactSearchRegex) : null;
+
+  // console.warn("info", {
+  //   match,
+  //   warlockMatch,
+  //   otherWarlockMatch,
+  //   pactTextSlotsMatch,
+  //   expression: !match && (!warlockMatch || !pactTextSlotsMatch),
+  //   expression2: !match && !warlockMatch && !pactTextSlotsMatch,
+  //   warlock: !(warlockMatch || pactTextSlotsMatch),
+  //   expression3: !match && !(warlockMatch || pactTextSlotsMatch),
+  // });
+
+  if (!match && !(warlockMatch || pactTextSlotsMatch)) {
     this.parseOutInnateSpells(text);
     return;
   }
 
   const spellLevel = (match) ? match[1] : 'pact';
-  const slots = (match) ? match[2] : warlockMatch[2];
-  const spellMatches = (match) ? match[3] : warlockMatch[4];
+  const slots = (match)
+    ? match[2]
+    : (warlockMatch)
+      ? warlockMatch[2]
+      : DICTIONARY.numbers.find((n) => n.natural === pactTextSlotsMatch[1])?.num;
+  const spellMatches = (match)
+    ? match[3]
+    : (warlockMatch)
+      ? warlockMatch[4]
+      : otherWarlockMatch[2];
 
+  // console.warn("Processing spells", {
+  //   spellLevel,
+  //   slots,
+  //   spellMatches,
+  // });
   if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(parseInt(slots))) {
+    logger.debug("Spell level parsing");
     this.npc.system.spells[`spell${spellLevel}`]['value'] = parseInt(slots);
     this.npc.system.spells[`spell${spellLevel}`]['max'] = slots ?? "";
     this.npc.system.spells[`spell${spellLevel}`]['override'] = parseInt(slots) ?? null;
     const spellArray = spellMatches.split(",").map((spell) => spell.trim());
     this.spellList.class.push(...spellArray);
   } else if (spellLevel === 'pact' && Number.isInteger(parseInt(slots))) {
+    logger.debug("Spell pact parsing");
     this.npc.system.spells[spellLevel]['value'] = parseInt(slots);
     this.npc.system.spells[spellLevel]['max'] = slots ?? "";
     this.npc.system.spells[spellLevel]['override'] = parseInt(slots) ?? null;
-    this.npc.system.spells[spellLevel]['level'] = warlockMatch[3];
+    this.npc.system.spells[spellLevel]['level'] = warlockMatch ? warlockMatch[3] : pactTextSlotsMatch[2];
     const spellArray = spellMatches.split(",").map((spell) => spell.trim());
     this.spellList.pact.push(...spellArray);
   } else if (["at will", "at-will"].includes(slots)) {
+    logger.debug("Spell at-will parsing");
     // at will spells
     const spellArray = spellMatches.replace(/\*/g, '').split(",").map((spell) => spell.trim());
     this.spellList.atwill.push(...spellArray);
@@ -243,6 +276,10 @@ DDBMonster.prototype._generateSpells = function() {
     }
   });
 
+  const pactText = specialTraits.includes("knows the following warlock spells")
+    ? specialTraits
+    : null;
+
   dom.childNodes.forEach((node) => {
     const spellText = utils.nameString(node.textContent);
     const trimmedText = spellText.trim();
@@ -273,7 +310,7 @@ DDBMonster.prototype._generateSpells = function() {
       this.spellList.innateMatch = false;
     }
 
-    this.parseOutSpells(spellText);
+    this.parseOutSpells(spellText, { pactText });
     this.parseAdditionalAtWillSpells(spellText);
   });
 
@@ -370,17 +407,7 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
 // these covercurrent gaps in teh parser, or blocks that are impossible to parse
 DDBMonster.prototype._addSpellHints = function() {
   switch (this.name) {
-    case "Hypnos Magen": {
-      this.spellList.atwill = ["Suggestion"];
-      this.spellList.material = false;
-      this.spellcasting.spellcasting = "int";
-      break;
-    }
-    case "Sephek Kaltro": {
-      this.spellList.innate = [{ name: "Misty Step", type: "day", value: 3 }];
-      this.spellList.material = false;
-      break;
-    }
+    case "Faerie Dragon (Younger)":
     case " Faerie Dragon (Younger)": {
       this.spellList.innate = [
         { name: "Dancing Lights", type: "day", edge: "Red", value: 1, edgeDescription: "Available to Red, Orange, Yellow" },
@@ -396,8 +423,9 @@ DDBMonster.prototype._addSpellHints = function() {
       this.spellList.material = false;
       break;
     }
-    case "Otto":
-    case " Faerie Dragon (Older)": {
+    case "Faerie Dragon (Older)":
+    case " Faerie Dragon (Older)":
+    case "Otto": {
       this.spellList.innate = [
         { name: "Dancing Lights", type: "day", edge: "Red", value: 1, edgeDescription: "Available to Red, Orange, Yellow, Green, Blue, Indigo and Violet" },
         { name: "Mage Hand", type: "day", edge: "Red", value: 1, edgeDescription: "Available to Red, Orange, Yellow, Green, Blue, Indigo and Violet" },
@@ -416,8 +444,30 @@ DDBMonster.prototype._addSpellHints = function() {
       this.spellList.material = false;
       break;
     }
+    case "Fathomer": {
+      //   this.spellList.pact = [
+      //     { name: "armor of agathys", type: "" },
+      //     { name: "expeditious retreat", type: "" },
+      //     { name: "hex", type: "" },
+      //     { name: "invisibility", type: "" },
+      //     { name: "vampiric touch", type: "" },
+      // ];
+      this.spellList.atwill.push("Mage Armor");
+      break;
+    }
+    case "Hypnos Magen": {
+      this.spellList.atwill = ["Suggestion"];
+      this.spellList.material = false;
+      this.spellcasting.spellcasting = "int";
+      break;
+    }
     case "Puppeteer Parasite": {
       this.spellList.innate = [{ name: "Suggestion", type: "day", value: 1 }];
+      this.spellList.material = false;
+      break;
+    }
+    case "Sephek Kaltro": {
+      this.spellList.innate = [{ name: "Misty Step", type: "day", value: 3 }];
       this.spellList.material = false;
       break;
     }
@@ -432,11 +482,9 @@ DDBMonster.prototype._addSpellHints = function() {
 DDBMonster.prototype.addSpells = async function() {
   this._addSpellHints();
   // check to see if we have munched flags to work on
-  if (!this.spellList) {
-    return;
-  }
+  if (!this.spellList) return;
 
-  logger.debug(`Spell List for edgecases`, this.spellList);
+  logger.debug(`Adding Spell List`, this.spellList);
   const atWill = this.spellList.atwill;
   const klass = this.spellList.class;
   const innate = this.spellList.innate;
