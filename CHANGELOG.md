@@ -5,6 +5,8 @@
 - Divine Favor effect left in default damage.
 - Stones Endurance effect used a d10, instead of a d12.
 - Monster: Fathomer spell parsing.
+- Monster: Clay Golem Haste feature was parsed incorrectly as a bonus action.
+- Monster: Ankheg Acid Spray did not import as a 30ft line.
 
 # 3.7.14
 

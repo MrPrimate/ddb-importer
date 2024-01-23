@@ -616,7 +616,7 @@ export default class DDBMonsterFeature {
     // in a 90-foot cone
     const matchText = this.strippedHtml.replace(/[­––−-]/gu, "-").replace(/-+/g, "-");
     // console.warn(matchText);
-    const lineSearch = /(\d+)-foot line/;
+    const lineSearch = /(\d+)-foot line|line that is (\d+) feet/;
     const coneSearch = /(\d+)-foot cone/;
     const cubeSearch = /(\d+)-foot cube/;
     const sphereSearch = /(\d+)-foot-radius sphere/;
@@ -631,7 +631,7 @@ export default class DDBMonsterFeature {
       target.units = "ft";
       target.type = "cone";
     } else if (lineMatch) {
-      target.value = parseInt(lineMatch[1]);
+      target.value = parseInt(lineMatch[1] ?? lineMatch[2]);
       target.units = "ft";
       target.type = "line";
     } else if (cubeMatch) {

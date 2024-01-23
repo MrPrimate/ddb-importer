@@ -12,6 +12,14 @@ export function specialCases(monster) {
       }, monster.items);
       break;
     }
+    case "Clay Golem": {
+      monster.items.forEach(function (item, index) {
+        if (item.name.startsWith("Haste")) {
+          this[index].system.activation.type = "action";
+        }
+      }, monster.items);
+      break;
+    }
     case "Dullahan": {
       monster.items.forEach(function (item, index) {
         if (item.name === "Battleaxe") {
