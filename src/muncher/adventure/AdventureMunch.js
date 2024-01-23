@@ -1097,8 +1097,8 @@ export default class AdventureMunch extends FormApplication {
   async _createAdventure() {
     logger.debug("Packing up adventure");
     if (this.allMonsters) await this.importRemainingActors(this.adventure.required.monsterData, true);
-    const itemData = await AdventureMunchHelpers.getDocuments("items", this.adventure.required.items ?? [], {}, true);
-    const spellData = await AdventureMunchHelpers.getDocuments("spells", this.adventure.required.spells ?? [], {}, true);
+    const itemData = await AdventureMunchHelpers.getDocuments("items", (this.adventure.required.items ?? []), {}, true);
+    const spellData = await AdventureMunchHelpers.getDocuments("spells", (this.adventure.required.spells ?? []), {}, true);
 
     logger.debug("Writing out Journals");
     await this._importFile("journal", [], true);
