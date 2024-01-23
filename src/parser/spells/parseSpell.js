@@ -45,6 +45,7 @@ export async function parseSpell(data, character) {
       },
       // "spellbook-assistant-manager": data.flags["spellbook-assistant-manager"],
       "spell-class-filter-for-5e": data.flags["spell-class-filter-for-5e"],
+      "tidy5e-sheet-kgar": data.flags["tidy5e-sheet-kgar"],
     },
   };
 

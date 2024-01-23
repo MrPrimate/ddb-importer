@@ -85,6 +85,7 @@ const SUPPORTED_FLAG_GROUPS = [
   "obsidian",
   "siftoolkit",
   "spell-class-filter-for-5e",
+  "tidy5e-sheet-kgar",
   "spellbook-assistant-manager",
   "tagger",
   "tidy5e-sheet",

@@ -7,6 +7,7 @@
 - Monster: Fathomer spell parsing.
 - Monster: Clay Golem Haste feature was parsed incorrectly as a bonus action.
 - Monster: Ankheg Acid Spray did not import as a 30ft line.
+- Kgar Tidy 5e Sheet: add spells to class spellbook.
 
 # 3.7.14
 
