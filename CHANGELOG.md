@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.7.16
 
 - Fury of the Small, remove redundant macro.
 - Battle Master and Rune Knight did not get full dice advancements.
