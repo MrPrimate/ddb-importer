@@ -643,4 +643,25 @@ export default class DDBEffectHelper {
   //   return isConvenient && isName && isDisabled;
   }
 
+  static extractListItems(text, { type = "ol", titleType = "em" } = {}) {
+    const results = [];
+    const parsedDoc = utils.htmlToDoc(text);
+    const list = parsedDoc.body.querySelector(type);
+    if (list) {
+      const listItems = list.querySelectorAll('li');
+      listItems.forEach((item, index) => {
+        // console.log('Item ' + (index + 1) + ': ' + item.textContent);
+        const title = item.querySelector(titleType);
+        const content = title.nextSibling;
+        results.push({
+          number: index + 1,
+          title: title.textContent,
+          content: content.innerHTML ?? content.wholeText ?? content.textContent,
+          full: item.innerHTML,
+        });
+      });
+    }
+    return results;
+  }
+
 }
