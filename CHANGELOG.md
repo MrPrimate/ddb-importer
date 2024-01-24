@@ -1,3 +1,5 @@
+# NEXT UP
+
 # 3.7.15
 
 - Better handling of class identifiers for scaling values if they have non-alpha characters.

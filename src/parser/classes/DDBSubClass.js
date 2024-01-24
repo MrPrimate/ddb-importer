@@ -54,6 +54,7 @@ export default class DDBSubClass extends DDBClass {
 
     this.ddbClassDefinition = this.ddbClass.subclassDefinition;
     this._isSubClass = true;
+    this.SPECIAL_ADVANCEMENTS = DDBSubClass.SPECIAL_ADVANCEMENTS;
   }
 
 

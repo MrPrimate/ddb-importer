@@ -816,8 +816,9 @@ export default class AdvancementHelper {
     };
 
     for (const [key, value] of Object.entries(advancement.configuration.scale)) {
+      // console.warn("key", {key, value});
       update.configuration.scale[key] = {
-        value: value.n,
+        value: value.number,
       };
     }
     adv.updateSource(update);

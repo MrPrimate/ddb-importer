@@ -329,6 +329,8 @@ export default class DDBClass {
       noMods: this.options.noMods,
     });
 
+    this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
+
   }
 
   // this excludes any class/sub class features
@@ -577,7 +579,7 @@ export default class DDBClass {
       .filter((feature) => feature.levelScales?.length > 0)
       .map((feature) => {
         let advancement = AdvancementHelper.generateScaleValueAdvancement(feature);
-        const specialLookup = DDBClass.SPECIAL_ADVANCEMENTS[advancement.title];
+        const specialLookup = this.SPECIAL_ADVANCEMENTS[advancement.title];
         if (specialLookup) {
           if (specialLookup.additionalAdvancements) {
             specialLookup.additionalFunctions.forEach((fn) => {

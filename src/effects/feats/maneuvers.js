@@ -166,7 +166,7 @@ export async function maneuversEffect(ddb, character, document) {
       ["per", "itm", "prf"].forEach((skill) => {
         effect.changes.push(
           {
-            "key": `system.skills.${skill}.value`,
+            "key": `system.skills.${skill}.bonuses.check`,
             "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
             "value": `+ ${diceString}`,
             "priority": "20"
@@ -180,7 +180,7 @@ export async function maneuversEffect(ddb, character, document) {
       ["inv", "his", "ins"].forEach((skill) => {
         effect.changes.push(
           {
-            "key": `system.skills.${skill}.value`,
+            "key": `system.skills.${skill}.bonuses.check`,
             "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
             "value": `+ ${diceString}`,
             "priority": "20"
@@ -193,7 +193,7 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Ambush": {
       effect.changes.push(
         {
-          "key": "system.skills.ste.value",
+          "key": "system.skills.ste.bonuses.check",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": `+ ${diceString}`,
           "priority": "20"
@@ -224,7 +224,7 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Grappling Strike": {
       effect.changes.push(
         {
-          "key": "system.skills.ath.value",
+          "key": "system.skills.ath.bonuses.check",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": `+ ${diceString}`,
           "priority": "20"
