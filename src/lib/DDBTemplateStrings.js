@@ -196,6 +196,12 @@ function parseMatch(ddb, character, match, feature) {
     linktext = result.replace("limiteduse", ` (Has limited uses) `);
   }
 
+  if (result.includes("fixedvalue:")) {
+    const fvRegexp = /fixedvalue:(\d+)/g;
+    result = result.replace(fvRegexp, "$1");
+    linktext = result.replace(fvRegexp, "");
+  }
+
   return {
     parsed: result,
     linktext,
