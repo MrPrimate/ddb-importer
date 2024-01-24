@@ -4,9 +4,9 @@ import DDBMacros from "../DDBMacros.js";
 export async function furyOfTheSmallEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "feat", "furyOfTheSmall.js");
 
-  let macroEffect = baseFeatEffect(document, `${document.name} (Size Checker)`, { transfer: true });
+  // let macroEffect = baseFeatEffect(document, `${document.name} (Size Checker)`, { transfer: true });
   DDBMacros.setMidiOnUseMacroFlag(document, "feat", "furyOfTheSmall.js", ["preDamageRoll"]);
-  document.effects.push(macroEffect);
+  // document.effects.push(macroEffect);
 
   let effect = baseFeatEffect(document, document.name, { transfer: true });
   if (document.system.description.value.includes("once per turn")) {
