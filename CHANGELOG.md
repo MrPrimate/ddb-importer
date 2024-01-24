@@ -2,6 +2,8 @@
 
 - Fury of the Small, remove redundant macro.
 - Battle Master and Rune Knight did not get full dice advancements.
+- Some size effects for Giant Barbarian.
+- Some improvements to template string parsing for fixed values.
 
 # 3.7.15
 

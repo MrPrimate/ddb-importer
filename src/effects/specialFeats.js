@@ -75,6 +75,8 @@ import { stormSoulEffect } from "./feats/stormSoul.js";
 import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
 import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
 import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
+import { giantStatureEffect } from "./feats/giantStature.js";
+import { demiurgicColossusEffect } from "./feats/demiurgicColossus.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -406,8 +408,17 @@ export async function featureEffectAdjustment(ddb, character, document) {
       document = await deftStrikeEffect(document);
       break;
     }
+    case "Demiurgic Colossus": {
+      document = demiurgicColossusEffect(document);
+      break;
+    }
     case "Favored Foe": {
       document = await favoredFoeEffect(document);
+      break;
+    }
+    case "Giant Stature":
+    case "Giant's Havoc: Giant Stature": {
+      document = giantStatureEffect(document);
       break;
     }
     case "Piercer": {
