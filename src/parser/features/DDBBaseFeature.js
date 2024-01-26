@@ -403,6 +403,41 @@ export default class DDBBaseFeature {
 
   _generateSystemType() {
     setProperty(this.data, "system.type.value", this.type);
+
+    if (this.type === "class") {
+      let subType = null;
+      if (this.data.name.startsWith("Ki:")) subType = "Ki";
+      // many ki abilities do not start with ki
+      else if (this.data.name.startsWith("Channel Divinity:")) subType = "channelDivinity";
+      else if (this.data.name.startsWith("Artificer Infusion:")) subType = "artificerInfusion";
+      else if (this.data.name.startsWith("Invocation:")) subType = "eldritchInvocation";
+      else if (this.data.name.startsWith("Fighting Style:")) subType = "fightingStyle";
+      else if (this.data.name.startsWith("Battle Master Maneuver:")) subType = "maneuver";
+      else if (this.data.name.startsWith("Metamagic:")) subType = "metamagic";
+      else if (this.data.name.startsWith("Pact of the")) subType = "pact";
+      else if (this.data.name.startsWith("Rune Carver:")) subType = "rune";
+      else if (this.data.name.startsWith("Psionic Power:")) subType = "psionicPower";
+      else if (this.data.name.startsWith("Hunter's Prey:")) subType = "huntersPrey";
+      else if (this.data.name.startsWith("Defensive Tactics:")) subType = "defensiveTactic";
+      else if (this.data.name.startsWith("Superior Hunter's Defense:")) subType = "superiorHuntersDefense";
+      else if (this.data.name.startsWith("Arcane Shot Options:")) subType = "arcaneShot";
+      else if (this.data.name.startsWith("Elemental Disciplines:")) subType = "elementalDiscipline";
+      // missing: Arcane Shot : arcaneShot
+      // missing: defensiveTactic
+      // missing: elementalDiscipline
+      // missing: huntersPrey
+      // missing: multiattack
+      // missing: psionicPower
+      // missing: superiorHuntersDefense
+
+      if (subType) setProperty(this.data, "system.type.subtype", subType);
+
+      console.warn(`subType for ${this.data.name} is ${subType}`, {
+        data: this.data.system.type,
+        subType,
+        name: this.data.name,
+      });
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
