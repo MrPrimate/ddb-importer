@@ -107,6 +107,7 @@ export default class DDBFeature extends DDBBaseFeature {
 
   _buildBasic() {
     this._generateSystemType();
+    this._generateSystemSubType();
 
     // this._generateLimitedUse();
     // this._generateRange();
@@ -217,6 +218,7 @@ export default class DDBFeature extends DDBBaseFeature {
   _buildBackground() {
     try {
       this._generateSystemType();
+      this._generateSystemSubType();
 
       this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 

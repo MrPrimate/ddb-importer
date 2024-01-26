@@ -76,6 +76,7 @@ export default class DDBAction extends DDBBaseFeature {
   build() {
     try {
       this._generateSystemType();
+      this._generateSystemSubType();
       this._generateActivation();
       this._generateDescription();
       this._generateLimitedUse();

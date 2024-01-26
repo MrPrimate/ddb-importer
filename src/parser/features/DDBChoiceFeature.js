@@ -46,7 +46,10 @@ export default class DDBChoiceFeature extends DDBFeature {
 
       logger.debug(`Adding choice ${choice.label}`);
 
-      if (this.data.name === choice.label) return;
+      if (this.data.name === choice.label) {
+        this._generateSystemSubType();
+        return;
+      }
 
       this.data.name = choice.label
         ? choice.label.startsWith(this.data.name.trim())
@@ -54,6 +57,7 @@ export default class DDBChoiceFeature extends DDBFeature {
           : `${this.data.name}: ${choice.label}`
         : this.data.name;
       this.data.name = utils.nameString(this.data.name);
+      this._generateSystemSubType();
       if (choice.wasOption && choice.description) {
         this.ddbDefinition.description = choice.description;
         this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";

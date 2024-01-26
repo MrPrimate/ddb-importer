@@ -401,9 +401,7 @@ export default class DDBBaseFeature {
     DDBHelper.addCustomValues(this.ddbData, this.data);
   }
 
-  _generateSystemType() {
-    setProperty(this.data, "system.type.value", this.type);
-
+  _generateSystemSubType() {
     if (this.type === "class") {
       let subType = null;
       if (this.data.name.startsWith("Ki:")) subType = "Ki";
@@ -423,12 +421,7 @@ export default class DDBBaseFeature {
       else if (this.data.name.startsWith("Arcane Shot Options:")) subType = "arcaneShot";
       else if (this.data.name.startsWith("Elemental Disciplines:")) subType = "elementalDiscipline";
       // missing: Arcane Shot : arcaneShot
-      // missing: defensiveTactic
-      // missing: elementalDiscipline
-      // missing: huntersPrey
       // missing: multiattack
-      // missing: psionicPower
-      // missing: superiorHuntersDefense
 
       if (subType) setProperty(this.data, "system.type.subtype", subType);
 
@@ -438,6 +431,10 @@ export default class DDBBaseFeature {
         name: this.data.name,
       });
     }
+  }
+
+  _generateSystemType() {
+    setProperty(this.data, "system.type.value", this.type);
   }
 
   // eslint-disable-next-line class-methods-use-this
