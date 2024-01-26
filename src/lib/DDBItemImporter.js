@@ -84,6 +84,11 @@ export default class DDBItemImporter {
       if (itemData.system.ability) replaceData.system.ability = itemData.system.ability;
     }
     if (hasProperty(itemData, "system.levels")) replaceData.system.levels = itemData.system.levels;
+    if (getProperty(itemData, "flags.ddbimporter.price.xgte")) {
+      replaceData.system.price.value = itemData.system.price.value;
+      replaceData.system.price.denomination = itemData.system.price.denomination;
+      setProperty(replaceData, "flags.ddbimporter.price", itemData.flags.ddbimporter.price);
+    }
     return replaceData;
   }
 
