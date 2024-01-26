@@ -545,6 +545,14 @@ const DICTIONARY = {
       { name: "Magical Bonus", id: -3, value: "bonus" },
       { name: "Clothing", id: -4, value: "clothing" },
     ],
+    priceFormulas: {
+      "common": "1d6 * 10",
+      "uncommon": "1d6 * 100",
+      "rare": "2d10 * 1000",
+      "veryRare": "1d4 * 10000",
+      "legendary": "2d6 * 25000",
+      "artifact": "2d10 * 50000",
+    },
   },
   weapon: {
     weaponRange: [

@@ -41,6 +41,7 @@ import DDBItemImporter from "./lib/DDBItemImporter.js";
 import DialogHelper from "./lib/DialogHelper.js";
 import utils from "./lib/utils.js";
 import DDBHelper from "./lib/DDBHelper.js";
+import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -142,6 +143,10 @@ export function registerApi() {
     parseItems,
     parseSpells,
 
+    prices: {
+      generateXgtePrices: updateItemPrices,
+      calculateXgtePrice: calculatePrice,
+    },
 
     updateDDBCharacter,
     updateWorldMonsters,
