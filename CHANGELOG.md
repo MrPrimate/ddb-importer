@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Tool to add prices to items as per Xanathar's Guide on the Tools tab.
+- First pass at adding sub types to class features.
+
 # 3.7.16
 
 - Fury of the Small, remove redundant macro.
