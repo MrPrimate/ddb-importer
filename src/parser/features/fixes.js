@@ -250,6 +250,15 @@ export async function fixFeatures(features) {
         setProperty(feature, "system.consume.amount", -1);
         break;
       }
+      case "Psychic Blades: Attack (DEX)":
+      case "Psychic Blades: Attack (STR)":
+      case "Psychic Blades: Bonus Attack (DEX)":
+      case "Psychic Blades: Bonus Attack (STR)":
+      case "Psychic Blades: Bonus Attack":
+      case "Psychic Blades: Attack": {
+        feature.system.actionType = "mwak";
+        break;
+      }
       case "Quickened Healing": {
         feature.system.actionType = "heal";
         feature.system.target.type = "self";
