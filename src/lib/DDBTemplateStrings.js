@@ -57,10 +57,8 @@ export async function importCacheLoad() {
  */
 // eslint-disable-next-line complexity
 function parseMatch(ddb, character, match, feature) {
-  const useScaleAll = foundry.utils.isNewerVersion(game.system.version, "2.0.3");
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
-  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
   const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
     .flat()
     .find((option) => option.definition.id === feature.componentId);
@@ -85,16 +83,15 @@ function parseMatch(ddb, character, match, feature) {
       const saveDCs = saves
         .filter((save) => save)
         .map((save) => {
-          const abilityModifier = utils.calculateModifier(characterAbilities[save].value);
-          // not sure if we should add this, probably not.
-          // const bonus = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(ddb, "bonus", "spell-save-dc"), character);
-          const dc = 8 + character.system.attributes.prof + abilityModifier;
-          return useScaleAll
-            ? `8 + @abilities.${save}.mod + @prof`
-            : dc;
+          return `8 + @abilities.${save}.mod + @prof`;
         });
       const saveRegexp = RegExp(match[0], "g");
-      result = result.replace(saveRegexp, useScaleAll ? `max(${saveDCs.join(", ")})` : Math.max(...saveDCs));
+      if (saveDCs.length > 1) {
+        result = result.replace(saveRegexp, `max(${saveDCs.join(", ")})`);
+      } else {
+        result = result.replace(saveRegexp, saveDCs[0]);
+      }
+
       linktext = result.replace(saveRegexp, " (Save DC) ");
     });
   }
@@ -102,15 +99,27 @@ function parseMatch(ddb, character, match, feature) {
   // modifier:int@min:1
   // (modifier:cha)+1
   if (result.includes("modifier")) {
-    const regexp = /modifier:([a-z]{3})/g;
+    const regexp = /modifier:([a-z]{3})(?:,)?([a-z]{3})?/g;
     // creates array from match groups and dedups
-    const ability = [...new Set(Array.from(result.matchAll(regexp), (m) => m[1]))];
+    // const ability = [...new Set(Array.from(result.matchAll(regexp), (m) => m[1]))];
+    const matches = [...result.matchAll(regexp)];
 
-    ability.forEach((ab) => {
-      const abilityModifier = useScaleAll ? ` + @abilities.${ab}.mod` : `+ ${characterAbilities[ab].mod}`;
-      const abRegexp = RegExp(`modifier:${ab}:*`, "g");
-      result = result.replace(abRegexp, abilityModifier);
-      linktext = result.replace(abRegexp, ` (${utils.capitalize(ab)} Modifier) `);
+    matches.forEach((match) => {
+      const mods = match.slice(1);
+      const modValues = mods
+        .filter((mod) => mod)
+        .map((ab) => {
+          return ` + @abilities.${ab}.mod`;
+        });
+      const abRegexp = RegExp(match[0], "g");
+      if (modValues.length > 1) {
+        result = result.replace(abRegexp, `max(${modValues.join(", ")})`);
+        linktext = result.replace(abRegexp, " (Modifier) ");
+      } else {
+        result = result.replace(abRegexp, modValues[0]);
+        linktext = result.replace(abRegexp, ` (${utils.capitalize(modValues[0])} Modifier) `);
+      }
+
     });
   }
 
@@ -124,14 +133,14 @@ function parseMatch(ddb, character, match, feature) {
       )
       : DDBHelper.findClassByFeatureId(ddb, feature.componentId);
     if (cls) {
-      const clsLevel = useScaleAll ? ` + @classes.${cls.definition.name.toLowerCase().replace(" ", "-")}.levels` : cls.level;
+      const clsLevel = ` + @classes.${cls.definition.name.toLowerCase().replace(" ", "-")}.levels`;
       result = result.replace("classlevel", clsLevel);
       linktext = result.replace("classlevel", ` (${cls.definition.name} Level) `);
     } else if (classOption) {
       // still not found a cls? could be an option
       const optionCls = DDBHelper.findClassByFeatureId(ddb, classOption.componentId);
       if (optionCls) {
-        const clsLevel = useScaleAll ? ` + @classes.${optionCls.definition.name.toLowerCase().replace(" ", "-")}.levels` : optionCls.level;
+        const clsLevel = ` + @classes.${optionCls.definition.name.toLowerCase().replace(" ", "-")}.levels`;
         result = result.replace("classlevel", clsLevel);
         linktext = result.replace("classlevel", ` (${optionCls.definition.name} Level) `);
       } else {
@@ -148,14 +157,12 @@ function parseMatch(ddb, character, match, feature) {
   }
 
   if (result.includes("characterlevel")) {
-    const characterLevel = useScaleAll ? " + @details.level" : character.flags.ddbimporter.dndbeyond.totalLevels;
-    result = result.replace("characterlevel", characterLevel);
+    result = result.replace("characterlevel", " + @details.level");
     linktext = result.replace("characterlevel", ` (Character Level) `);
   }
 
   if (result.includes("proficiency")) {
-    const profBonus = useScaleAll ? " + @prof" : character.system.attributes.prof;
-    result = result.replace("proficiency", profBonus);
+    result = result.replace("proficiency", " + @prof");
     linktext = result.replace("proficiency", ` (Proficiency Bonus) `);
   }
 
@@ -166,11 +173,8 @@ function parseMatch(ddb, character, match, feature) {
     const ability = [...new Set(Array.from(result.matchAll(regexp), (m) => m[1]))];
 
     ability.forEach((ab) => {
-      const rollString = useScaleAll
-        ? ` + @abilities.${ab}.mod + @prof + @bonus.rsak.attack`
-        : `${characterAbilities[ab].mod} + ${character.system.attributes.prof}`;
       const abRegexp = RegExp(`spellattack:${ab}`, "g");
-      result = result.replace(abRegexp, rollString);
+      result = result.replace(abRegexp, ` + @abilities.${ab}.mod + @prof + @bonus.rsak.attack`);
       linktext = result.replace(abRegexp, ` (${utils.capitalize(ab)} Spell Attack) `);
     });
   }
@@ -182,9 +186,8 @@ function parseMatch(ddb, character, match, feature) {
     const ability = [...new Set(Array.from(result.matchAll(regexp), (m) => m[1]))];
 
     ability.forEach((ab) => {
-      const abilityScore = useScaleAll ? ` + @abilities.${ab}.value` : characterAbilities[ab].value;
       const abRegexp = RegExp(`abilityscore:${ab}`, "g");
-      result = result.replace(abRegexp, abilityScore);
+      result = result.replace(abRegexp, ` + @abilities.${ab}.value`);
       linktext = result.replace(abRegexp, ` (${utils.capitalize(ab)} Score) `);
     });
   }
