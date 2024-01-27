@@ -3,6 +3,23 @@ console.warn(args)
 const rayChoices = DDBImporter.EffectHelper.extractListItems(args[0].itemData.system.description.value);
 const workflow = args[0].workflow;
 
+function confusionRayEffect(document) {
+  let effect = DDBImporter.EffectHelper.baseEffect(document, document.name, { transfer: false, disabled: false });
+  effect.changes.push(
+    { key: "system.attributes.movement.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "* 0", priority: "20" },
+    {
+      key: "macro.CE",
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      value: "Reaction",
+      priority: "20"
+    },
+  );
+  setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
+  effect.duration.rounds = 2;
+  effect.duration.seconds = 12;
+
+  document.effects.push(effect);
+}
 
 function slowingRayEffect(document, dc, saveAbility) {
   let effect = DDBImporter.EffectHelper.baseEffect(document, document.name, { transfer: false, disabled: false });
@@ -12,6 +29,12 @@ function slowingRayEffect(document, dc, saveAbility) {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: `turn=end,label=Slow Ray (End of Turn),saveRemove=true,saveDC=${dc},saveAbility=${saveAbility},killAnim=true`,
+      priority: "20"
+    },
+    {
+      key: "macro.CE",
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      value: "Reaction",
       priority: "20"
     },
   );
@@ -114,6 +137,8 @@ async function createBaseRay(rayName, { description, saveAbility = "", saveDC = 
     await sleepRayEffect(rayData);
   } else if (rayName === "Petrification Ray") {
     await petrificationRayEffect(rayData);
+  } else if (rayName === "Confusion Ray") {
+    confusionRayEffect(document);
   }
 
   console.warn("Midi Options", {
