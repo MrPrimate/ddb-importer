@@ -27,7 +27,7 @@ async function checkPetrification(flag) {
 
     if (flag.failures === 3) {
       ChatMessage.create({ content: `Flesh To Stone on ${targetActor.name} is complete` });
-      if (!DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive("Petrified", targetActor)) {
+      if (!DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Petrified", targetActor)) {
         await game.dfreds.effectInterface.addEffect({ effectName: "Petrified", uuid: targetActor.uuid });
       }
     } else {
@@ -63,7 +63,7 @@ if (args[0] === "off") {
 
   const flag = await DAE.getFlag(targetActor, "fleshToStoneSpell");
   if (flag && flag.rounds < 10) {
-    if (DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive("Petrified", targetActor)) {
+    if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Petrified", targetActor)) {
       game.dfreds.effectInterface.removeEffect({ effectName: "Petrified", uuid: targetActor.uuid });
     }
   }

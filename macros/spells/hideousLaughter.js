@@ -13,9 +13,9 @@ const flavor = `${CONFIG.DND5E.abilities["wis"].label} DC${dcString}${DAEItem?.n
 
 async function cleanUp() {
   // cleanup conditions
-  const hasProne = DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive("Prone", targetActor);
+  const hasProne = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Prone", targetActor);
   if (hasProne) await game.dfreds.effectInterface.toggleEffect({ effectName: "Prone", uuid: targetActor.uuid });
-  const hasIncapacitated = DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive("Incapacitated", targetActor);
+  const hasIncapacitated = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Incapacitated", targetActor);
   if (hasIncapacitated) await game.dfreds.effectInterface.toggleEffect({ effectName: "Incapacitated", uuid: targetActor.uuid });
   // remove hook
   const flag = await DAE.getFlag(targetActor, "hideousLaughterHook");

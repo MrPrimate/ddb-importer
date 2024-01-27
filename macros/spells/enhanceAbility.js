@@ -4,7 +4,7 @@ async function updateActor(kind, targetActor) {
   DAE.setFlag(targetActor, 'enhanceAbility', { name: kind });
   // const effectName = lastArg.efData.name ?? lastArg.efData.label;
   const effectName = lastArg.itemData.effects[0].name;
-  const effect = DDBImporter.lib.DDBEffectHelper.findEffect(targetActor, effectName);
+  const effect = DDBImporter.EffectHelper.findEffect(targetActor, effectName);
 
   // console.warn("update actor", {
   //   kind,

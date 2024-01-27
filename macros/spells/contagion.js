@@ -8,7 +8,7 @@ const DAEItem = lastArg.efData.flags.dae.itemData;
  * Generates the GM client dialog for selecting final Effect, updates target effect with name, icon and new DAE effects.
  */
 async function applyContagion() {
-  if (DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive("Poisoned", targetActor))
+  if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Poisoned", targetActor))
     game.dfreds.effectInterface.removeEffect({ effectName: "Poisoned", uuid: targetActor.uuid });
 
   new Dialog({

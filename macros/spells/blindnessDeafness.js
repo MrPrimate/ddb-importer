@@ -29,7 +29,7 @@ if (lastArg.tag === "OnUse") {
               },
             ];
             const effectName = lastArg.itemData.effects[0].name;
-            const effect = DDBImporter.lib.DDBEffectHelper.findEffect(targetActor, effectName);
+            const effect = DDBImporter.EffectHelper.findEffect(targetActor, effectName);
             // console.warn("effect", {effect, effectName});
             effect.update({ changes: changes.concat(effect.changes) });
           });
@@ -54,10 +54,10 @@ if (args[0] === "off") {
   const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
   let flag = DAE.getFlag(targetActor, "DAEBlind");
   if (flag === "blind") {
-    if (DDBImporter.lib.DDBEffectHelper.effectConditionAppliedAndActive("Blinded", targetActor))
+    if (DDBImporter.EffectHelper.effectConditionAppliedAndActive("Blinded", targetActor))
       game.dfreds.effectInterface.removeEffect({ effectName: "Blinded", uuid: targetActor.uuid });
   } else if (flag === "deaf") {
-    if (DDBImporter.lib.DDBEffectHelper.effectConditionAppliedAndActive("Deafened", targetActor))
+    if (DDBImporter.EffectHelper.effectConditionAppliedAndActive("Deafened", targetActor))
       game.dfreds.effectInterface.removeEffect({ effectName: "Deafened", uuid: targetActor.uuid });
   }
   DAE.unsetFlag(targetActor, "DAEBlind");
