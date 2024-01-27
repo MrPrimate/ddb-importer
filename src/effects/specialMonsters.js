@@ -18,6 +18,7 @@ import { recklessAttackEffect } from "./feats/recklessAttack.js";
 import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
 import { deathlyChoirEffect } from "./monsterFeatures/deathlyChoir.js";
 import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
+import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
 
 export function baseMonsterFeatureEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -81,7 +82,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
 
     // auto overtime effect
     if (item.type !== "spell") {
-      const overTimeResults = generateOverTimeEffect(ddbMonster, npc, item);
+      const overTimeResults = generateOverTimeEffect(npc, item);
       item = overTimeResults.document;
       npc = overTimeResults.actor;
     }
@@ -98,6 +99,15 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
           item = forceItemEffect(item);
         }
       });
+      break;
+    }
+    case "Beholder": {
+      for (let [index, item] of npc.items.entries()) {
+        if (item.name === "Eye Rays") {
+          npc.items[index] = await beholderEyeRaysEffect(item);
+          npc.items[index] = forceItemEffect(item);
+        }
+      }
       break;
     }
     case "Carrion Crawler":
