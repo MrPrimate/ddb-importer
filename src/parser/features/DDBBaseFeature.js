@@ -424,12 +424,6 @@ export default class DDBBaseFeature {
       // missing: multiattack
 
       if (subType) setProperty(this.data, "system.type.subtype", subType);
-
-      console.warn(`subType for ${this.data.name} is ${subType}`, {
-        data: this.data.system.type,
-        subType,
-        name: this.data.name,
-      });
     }
   }
 
