@@ -34,7 +34,7 @@ export default class DDBClassFeatures {
     feature.build();
     const allowedByLevel = !filterByLevel || (filterByLevel && feature.hasRequiredLevel);
 
-    logger.debug(`DDBClassFeatures._getFeatures: ${featureDefinition.name}`, {
+    logger.debug(`DDBClassFeatures._getFeatures: ${feature.ddbDefinition.name}`, {
       featureDefinition,
       feature,
       this: this,
@@ -59,10 +59,10 @@ export default class DDBClassFeatures {
         classFeatureIds.includes(feat.definition.id)
         && DDBFeatures.includedFeatureNameCheck(feat.definition.name)
         && feat.definition.requiredLevel <= klass.level
-    ).map((f) => f.definition);
+    );
 
     const classFeatureList = classFeatures
-      .filter((feat) => !this.excludedFeatures.includes(feat.id))
+      .filter((feat) => !this.excludedFeatures.includes(feat.definition.id))
       .map((feat) => {
         let items = this._getFeatures(feat, "class", className);
         return items.map((item) => {
@@ -114,7 +114,7 @@ export default class DDBClassFeatures {
         && DDBFeatures.includedFeatureNameCheck(feat.definition.name)
         && feat.definition.requiredLevel <= klass.level
         && !this.excludedFeatures.includes(feat.definition.id)
-    ).map((f) => f.definition);
+    );
 
     const subClassFeatureList = subClassFeatures
       .map((feat) => {

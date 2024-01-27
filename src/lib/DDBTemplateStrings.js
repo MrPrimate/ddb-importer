@@ -68,8 +68,16 @@ function parseMatch(ddb, character, match, feature) {
   if (result.includes("scalevalue")) {
     let scaleValue = DDBHelper.getScaleValueString(ddb, feature);
     // if (scaleValue.value.startsWith("@")) scaleValue.value = `[[${scaleValue.value}]]{${scaleValue.name}}`;
-    result = result.replace("scalevalue", scaleValue.value);
-    linktext = result.replace("scalevalue", " (Scaled Value) ");
+    if (scaleValue && scaleValue.value) {
+      result = result.replace("scalevalue", scaleValue.value);
+      linktext = result.replace("scalevalue", " (Scaled Value) ");
+    } else {
+      logger.warn("Unable to parse scalevalue", {
+        ddb,
+        feature,
+        scaleValue,
+      });
+    }
   }
 
   // savedc:int
@@ -457,10 +465,11 @@ function replaceRoll(match, p1, p2) {
 }
 
 function fixRollables(text) {
-  const diceMatchRegex = /<strong>\+*\s*(\d*d\d\d*\s*\+*)\s*<\/strong>\+*\s*\[\[\/roll/g;
+  const diceMatchRegex = /(?:<strong>)?\+*\s*(\d*d\d\d*\s*\+*)\s*(?:<\/strong>)?\+*\s*\[\[(\/roll)?/g;
   const matches = text.match(diceMatchRegex);
   if (matches) {
-    text = text.replaceAll(diceMatchRegex, "[[/roll $1 ");
+    const replaceString = matches[2] ? "[[ $1 + " : "[[/roll $1 + ";
+    text = text.replaceAll(diceMatchRegex, replaceString);
   }
 
   const noRollRegex = /(\[\[\/roll)([\w\s.,@\d+-\\*/()]*(?![0-9]*d[0-9]+)(?!@scale\.)[\w\s.,@\d-+\\*/()]*)(\]\])/g;

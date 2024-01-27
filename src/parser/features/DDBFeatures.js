@@ -105,7 +105,7 @@ export default class DDBFeatures {
       );
 
     for (const feat of traits) {
-      const features = await this.getFeaturesFromDefinition(feat.definition, "race");
+      const features = await this.getFeaturesFromDefinition(feat, "race");
       features.forEach((item) => {
         const existingFeature = DDBFeatures.getNameMatchedFeature(this.parsed, item);
         const duplicateFeature = DDBFeatures.isDuplicateFeature(this.parsed, item);
@@ -176,7 +176,7 @@ export default class DDBFeatures {
     // add feats
     logger.debug("Parsing feats");
     for (const feat of this.ddbData.character.feats) {
-      const feats = await this.getFeaturesFromDefinition(feat.definition, "feat");
+      const feats = await this.getFeaturesFromDefinition(feat, "feat");
       this.parsed.push(...feats);
     };
   }
@@ -184,7 +184,7 @@ export default class DDBFeatures {
   async _addBackground() {
     logger.debug("Parsing background");
     const backgroundFeature = this.ddbCharacter.getBackgroundData();
-    const backgroundFeats = await this.getFeaturesFromDefinition(backgroundFeature.definition, "background");
+    const backgroundFeats = await this.getFeaturesFromDefinition(backgroundFeature, "background");
     this.parsed.push(...backgroundFeats);
   }
 

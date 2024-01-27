@@ -1,7 +1,11 @@
 # NEXT UP
 
 - Tool to add prices to items as per Xanathar's Guide on the Tools tab.
-- First pass at adding sub types to class features.
+- First pass at adding sub types to class features for imported characters.
+- Removed some dead code from template string parsing that is not needed in newer 5e system.
+- Caught an edge case in template strings where it wanted a max value between two modifiers, e.g. for Psychic Blades.
+- Psychic Blades attacks now import as Melee Weapon Attacks rather than ranged, as they are thrown weapons. Fix for midi-qol applying disadvantage when used in Melee.
+- Tweaks to class feature parsing when importing characters.
 
 # 3.7.16
 

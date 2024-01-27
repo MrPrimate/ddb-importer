@@ -50,6 +50,7 @@ export default class DDBBaseFeature {
     this.legacyMode = foundry.utils.isNewerVersion("2.4.0", game.system.version);
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
+    this.ddbFeature = ddbDefinition;
     this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
     this.name = utils.nameString(this.ddbDefinition.name);
     this.type = type;
@@ -98,7 +99,7 @@ export default class DDBBaseFeature {
           && feature.definition.entityTypeId == componentTypeId
         );
       if (feature) {
-        return parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbDefinition).text;
+        return parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
       }
     }
     return "";
@@ -116,7 +117,7 @@ export default class DDBBaseFeature {
       );
 
     if (feature) {
-      return parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbDefinition).text;
+      return parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
     }
     return "";
 
@@ -152,11 +153,11 @@ export default class DDBBaseFeature {
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
     const rawSnippet = this.ddbDefinition.snippet
-      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbDefinition).text
+      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text
       : "";
 
     const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbDefinition).text
+      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature).text
       : this.type === "race"
         ? this._getRaceFeatureDescription()
         : this._getClassFeatureDescription();
