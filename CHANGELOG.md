@@ -6,6 +6,7 @@
 - Caught an edge case in template strings where it wanted a max value between two modifiers, e.g. for Psychic Blades.
 - Psychic Blades attacks now import as Melee Weapon Attacks rather than ranged, as they are thrown weapons. Fix for midi-qol applying disadvantage when used in Melee.
 - Tweaks to class feature parsing when importing characters.
+- Javelin of Lightning effect fixes
 
 # 3.7.16
 

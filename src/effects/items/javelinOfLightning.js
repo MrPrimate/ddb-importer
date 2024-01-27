@@ -20,5 +20,7 @@ export async function javelinOfLightningEffect(document) {
     per: "",
   };
 
+  document.system.formula = "";
+
   return document;
 }

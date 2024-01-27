@@ -66,7 +66,9 @@ if (args[0].macroPass === "postActiveEffects") {
     },
   };
   const changes = await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [templateData]);
+  await DDBImporter?.EffectHelper.wait(500);
   const templateDoc = changes[0];
+  console.warn("TEMPLATE", templateDoc);
   const boltEffectData = {
     label: `${workflow.item.name}: Bolt Template`,
     name: `${workflow.item.name}: Bolt Template`,
@@ -101,8 +103,8 @@ if (args[0].macroPass === "postActiveEffects") {
     delete lightningBoltData._id;
     delete lightningBoltData.flags["midi-qol"].onUseMacroName;
     delete lightningBoltData.flags["midi-qol"].onUseMacroParts;
-    if (hasProperty(lightningBoltData, "flags.itemacro")) delete areaSpellData.flags.itemacro;
-    if (hasProperty(lightningBoltData, "flags.dae.macro")) delete areaSpellData.flags.dae.macro;
+    if (hasProperty(lightningBoltData, "flags.itemacro")) delete lightningBoltData.flags.itemacro;
+    if (hasProperty(lightningBoltData, "flags.dae.macro")) delete lightningBoltData.flags.dae.macro;
     lightningBoltData.name +=  ": Bolt";
     lightningBoltData.system.damage.parts = [["4d6[lightning]", "lightning"]];
     lightningBoltData.system.actionType = "save";
@@ -119,12 +121,19 @@ if (args[0].macroPass === "postActiveEffects") {
       consumeResource: false,
       consumeSlot: false,
     };
+
+    console.warn("Midi Options", {
+      areaSpell,
+      options,
+      targetTokens,
+      lightningBoltData,
+    })
     await MidiQOL.completeItemUse(areaSpell, {}, options);
   }
 } else if (args[0].macroPass === "postDamageRoll") {
   if (!workflow.item.flags.world?.useBolt) return;
   const diceNum = workflow.isCritical ? 8 : 4;
-  const formula = `${workflow.damageRoll._formula} + ${diceNum}d4[lightning]`;
+  const formula = `${workflow.damageRoll._formula} + ${diceNum}d6[lightning]`;
   const damageRoll = await new CONFIG.Dice.DamageRoll(formula).roll({ async: true });
   await workflow.setDamageRoll(damageRoll);
 } else if (args[0].macroPass === "preAttackRoll") {
