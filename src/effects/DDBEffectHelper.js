@@ -11,7 +11,7 @@ import { equipmentEffectAdjustment, midiItemEffects } from "./specialEquipment.j
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
 import { fixFeatures, addExtraEffects } from "../parser/features/fixes.js";
-import { generateOverTimeEffect, damageOverTimeEffect, getOvertimeDamage } from "./monsterFeatures/overTimeEffect.js";
+import { generateOverTimeEffect, damageOverTimeEffect, getOvertimeDamage, getMonsterFeatureDamage } from "./monsterFeatures/overTimeEffect.js";
 import { baseEffect, generateStatusEffectChange } from "./effects.js";
 
 export default class DDBEffectHelper {
@@ -21,6 +21,8 @@ export default class DDBEffectHelper {
   static generateOverTimeEffect = generateOverTimeEffect;
 
   static getOvertimeDamage = getOvertimeDamage;
+
+  static getMonsterFeatureDamage = getMonsterFeatureDamage;
 
   static damageOverTimeEffect = damageOverTimeEffect;
 

@@ -1,10 +1,11 @@
 const lastArg = args[args.length - 1];
+const gameRound = game.combat ? game.combat.round : 0;
 
 for (const target of lastArg.targets) {
 
   const targetRaceOrType = DDBImporter.EffectHelper.getRaceOrType(target.actor);
   const immuneType = ["undead", "construct", "elf", "half-elf"].some((race) => targetRaceOrType.includes(race));
-  const immuneCI = findTarget.actor.system.traits.ci.custom.includes("Sleep");
+  const immuneCI = target.actor.system.traits.ci.custom.includes("Sleep");
   if (immuneType || immuneCI) return;
 
   const effectData = {

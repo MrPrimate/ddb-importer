@@ -4,8 +4,8 @@ const rayChoices = DDBImporter.EffectHelper.extractListItems(args[0].itemData.sy
 const workflow = args[0].workflow;
 
 
-function slowRayEffect(document, dc, saveAbility) {
-  let effect = baseSpellEffect(document, document.name);
+function slowingRayEffect(document, dc, saveAbility) {
+  let effect = DDBImporter.EffectHelper.baseEffect(document, document.name, { transfer: false, disabled: false });
   effect.changes.push(
     { key: "system.attributes.movement.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "/2", priority: "20" },
     {
@@ -19,20 +19,23 @@ function slowRayEffect(document, dc, saveAbility) {
   document.effects.push(effect);
 }
 
-function damageRayEffect(document) {
-  const dmg = DDBImporter.EffectHelper.getOvertimeDamage(document.system.description.value);
+function damageRayEffect(document, nodam = false) {
+  const dmg = DDBImporter.EffectHelper.getMonsterFeatureDamage(document.system.description.value);
 
-  if (!dmg) return;
+  console.warn("damage", dmg);
+  if (nodam) {
+    setProperty(document, "flags.midiProperties.saveDamage", "nodam");
+  }
+  setProperty(document, "flags.midiProperties.magicdam", true);
 
-  setProperty(document, "flags.midiProperties.fulldam", false);
+  if (dmg) {
+    document.system.damage.parts = dmg.parts;
+  }
+}
 
-  // const damage = dmg.parts.reduce((total, current) => {
-  //     total = [total, `${current[0]}[${current[1]}]`].join(" + ");
-  //     return total;
-  //   }, "");
-  // const damageType =  dmg.parts.length > 0 ? dmg.parts[0][1] : "";
 
-  document.system.damage.parts = dmg.parts;
+function DisintegrationRayEffect(document) {
+
 }
 
 function telekineticRayEffect(document) {
@@ -45,48 +48,8 @@ function telekineticRayEffect(document) {
 }
 
 async function sleepRayEffect(document) {
-
-  // const effect = DDBImporter.EffectHelper.baseEffect(document, document.name, { transfer: false, disabled: false });
-//   const macroText = `
-// const lastArg = args[args.length - 1];
-// const tokenOrActor = await fromUuid(lastArg.actorUuid);
-// const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-// const targetRaceOrType = DDBImporter.EffectHelper.getRaceOrType(findTarget.actor);
-// const immuneType = ["undead", "construct", "elf", "half-elf"].some((race) => targetRaceOrType.includes(race));
-// const immuneCI = findTarget.actor.system.traits.ci.custom.includes("Sleep");
-
-// if (immuneType || immuneCI) return;
-
-// const effectData = {
-//   label: "Sleep Ray",
-//   name: "Sleep Ray",
-//   icon: "icons/svg/sleep.svg",
-//   origin: args[0].uuid,
-//   disabled: false,
-//   duration: { rounds: 10, seconds: 60, startRound: gameRound, startTime: game.time.worldTime },
-//   flags: { dae: { specialDuration: ["isDamaged"] } },
-//   changes: [
-//     { key: "macro.CE", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Unconscious", priority: 20 },
-//   ]
-// };
-
-// await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [effectData] });
-// `;
-
-  // await DDBImporter.lib.DDBMacros.generateItemMacroFlag(document, macroText);
-
-  // effect.changes.push({
-  //   key: "macro.itemMacro",
-  //   value: "",
-  //   mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-  //   priority: priority,
-  // });
-
   await DDBImporter.lib.DDBMacros.setItemMacroFlag(document, "monsterFeature", "sleep.js");
   DDBImporter.lib.DDBMacros.setMidiOnUseMacroFlag(document, "monsterFeature", "sleep.js", ["postActiveEffects"]);
-
-  // effect.duration.seconds = 60;
-  // document.effects.push(effect);
 }
 
 async function petrificationRayEffect(document) {
@@ -100,6 +63,9 @@ async function petrificationRayEffect(document) {
 }
 
 async function attackWithRay(documentData) {
+  console.warn("ATTACK RAY", {
+    documentData: deepClone(documentData),
+  })
   const rayItem = new CONFIG.Item.documentClass(documentData, { parent: workflow.actor });
   const workflowOptions = {
     showFullCard: false,
@@ -136,10 +102,12 @@ async function createBaseRay(rayName, { description, saveAbility = "", saveDC = 
 
   const overTimeEffects = DDBImporter.EffectHelper.generateOverTimeEffect(workflow.actor, rayData);
 
-  if (rayName === "Slow Ray") {
-    slowRayEffect(rayData, saveDC, saveAbility);
-  } else if (["Enervation Ray", "Disintegration Ray", "Death Ray"].includes(rayName)) {
-    damageRayEffect(rayData);
+  if (rayName === "Slowing Ray") {
+    slowingRayEffect(rayData, saveDC, saveAbility);
+  } else if (["Enervation Ray", "Wounding Ray"].includes(rayName)) {
+    damageRayEffect(rayData, false);
+  } else if (["Disintegration Ray", "Death Ray"].includes(rayName)) {
+    damageRayEffect(rayData, true);
   } else if (rayName === "Telekinetic Ray") {
     telekineticRayEffect(rayData);
   } else if (rayName === "Sleep Ray") {
@@ -154,6 +122,7 @@ async function createBaseRay(rayName, { description, saveAbility = "", saveDC = 
     lastArg: args[0],
     workflow,
   });
+  return rayData;
 }
 
 

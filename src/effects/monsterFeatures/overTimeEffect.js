@@ -147,13 +147,17 @@ function overTimeSaveEnd(document, effect, save, text) {
   }
 }
 
+export function getMonsterFeatureDamage(damageText) {
+  const feature = new DDBMonsterFeature("overTimeFeature", { html: damageText });
+  feature.prepare();
+  feature.generateExtendedDamageInfo();
+  return feature.actionInfo.damage;
+}
+
 export function getOvertimeDamage(text) {
   if (text.includes("taking") && (text.includes("on a failed save") || text.includes("damage on a failure"))) {
     const damageText = text.split("taking")[1];
-    const feature = new DDBMonsterFeature("overTimeFeature", { html: damageText });
-    feature.prepare();
-    feature.generateExtendedDamageInfo();
-    return feature.actionInfo.damage;
+    return getMonsterFeatureDamage(damageText);
   }
   return undefined;
 }

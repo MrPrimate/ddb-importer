@@ -104,7 +104,16 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     case "Beholder": {
       for (let [index, item] of npc.items.entries()) {
         if (item.name === "Eye Rays") {
-          npc.items[index] = await beholderEyeRaysEffect(item);
+          npc.items[index] = await beholderEyeRaysEffect(item, 3, 120);
+          npc.items[index] = forceItemEffect(item);
+        }
+      }
+      break;
+    }
+    case "Beholder Zombie": {
+      for (let [index, item] of npc.items.entries()) {
+        if (item.name === "Eye Ray") {
+          npc.items[index] = await beholderEyeRaysEffect(item, 1, 60);
           npc.items[index] = forceItemEffect(item);
         }
       }
@@ -134,6 +143,15 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     }
     case "Skeletal Juggernaut": {
       npc = await skeletalJuggernautEffects(npc);
+      break;
+    }
+    case "Spectator": {
+      for (let [index, item] of npc.items.entries()) {
+        if (item.name === "Eye Rays") {
+          npc.items[index] = await beholderEyeRaysEffect(item, 2, 90);
+          npc.items[index] = forceItemEffect(item);
+        }
+      }
       break;
     }
     case "Strahd Zombie": {

@@ -7,6 +7,7 @@
 - Psychic Blades attacks now import as Melee Weapon Attacks rather than ranged, as they are thrown weapons. Fix for midi-qol applying disadvantage when used in Melee.
 - Tweaks to class feature parsing when importing characters.
 - Javelin of Lightning effect fixes
+- Monster effect: Ray effects for Beholder, Zombie Beholder and Spectator. @tminz
 
 # 3.7.16
 
