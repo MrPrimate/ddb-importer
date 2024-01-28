@@ -129,14 +129,17 @@
 
   <!-- Effects Configuration Tab -->
   <section class="tab" data-tab="effects">
-    <p>This section adds automation effects to imported content. Please read the descriptions carefully. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a></p>
-    <button type="button" id="default-effects">Apply Recommended Active Effect (Automation) Settings</button>
+    <p class="notification info">This section adds Active Effects to imported content. Many of these are designed to work with <em>highly automated</em> games. Please read the descriptions carefully. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a></p>
+    <p>{{{localize "ddb-importer.settings.user-hint-setting"}}}</p>
+    <p>{{{localize "ddb-importer.settings.user-hint-animations"}}}</p>
+    <button type="button" id="default-effects">Apply Recommended Active Effect/Automation Settings for the installed modules</button>
     <hr>
     <h2>Active Effect Options</h2>
+    <p>{{{installedModulesText}}}</p>
     {{#each effectImportConfig}}
     <div class="effect-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
         name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}"
-        {{#if this.enabled}}enabled{{else}}disabled{{/if}}><b>{{this.title}}</b><p>{{{this.description}}}</p>
+        {{#if this.enabled}}enabled{{else}}disabled{{/if}}><b>{{this.title}}</b>{{#if this.description}}<p>{{{this.description}}}</p>{{/if}}
     </div>
     {{/each}}
     <hr>
