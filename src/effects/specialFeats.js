@@ -96,37 +96,62 @@ export async function featureEffectAdjustment(ddb, character, document) {
   // check that we can gen effects
   const deps = effectModules();
 
+  // effects to always apply
+  switch (name) {
+    // if using active auras add the aura effect
+    case "Aura of Courage":
+    case "Aura of Protection": {
+      document = paladinDefaultAuraEffect(document);
+      break;
+    }
+    case "Aura of Hate": {
+      document = auraOfHateEffect(document);
+      break;
+    }
+    case "Defensive Duelist": {
+      document = defensiveDuelistEffect(document);
+      break;
+    }
+    case "Frost Rune": {
+      document = frostRuneEffect(document);
+      break;
+    }
+    case "Partially Amphibious":
+    case "Hold Breath": {
+      document = holdBreathEffect(document);
+      break;
+    }
+    case "Hill Rune": {
+      document = hillRuneEffect(document);
+      break;
+    }
+    case "Pact Magic": {
+      document = pactMagicEffect(document);
+      break;
+    }
+    case "Rage": {
+      document = rageEffect(document);
+      break;
+    }
+    case "Unarmored Movement": {
+      document = unarmoredMovementEffect(document);
+      break;
+    }
+    case "Uncanny Dodge": {
+      document = uncannyDodgeEffect(document);
+      break;
+    }
+    case "Vigilant Blessing": {
+      document = vigilantBlessingEffect(document);
+      break;
+    }
+    // no default
+  }
+
   if (deps.daeInstalled) {
     switch (name) {
       case "Alert": {
         document = alertEffect(document);
-        break;
-      }
-      // if using active auras add the aura effect
-      case "Aura of Courage":
-      case "Aura of Protection": {
-        document = paladinDefaultAuraEffect(document);
-        break;
-      }
-      case "Aura of Hate": {
-        document = auraOfHateEffect(document);
-        break;
-      }
-      case "Defensive Duelist": {
-        document = defensiveDuelistEffect(document);
-        break;
-      }
-      case "Frost Rune": {
-        document = frostRuneEffect(document);
-        break;
-      }
-      case "Partially Amphibious":
-      case "Hold Breath": {
-        document = holdBreathEffect(document);
-        break;
-      }
-      case "Hill Rune": {
-        document = hillRuneEffect(document);
         break;
       }
       case "Mind Link Response": {
@@ -135,22 +160,6 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Momentary Stasis": {
         document = momentaryStasis(document);
-        break;
-      }
-      case "Pact Magic": {
-        document = pactMagicEffect(document);
-        break;
-      }
-      case "Rage": {
-        document = rageEffect(document);
-        break;
-      }
-      case "Unarmored Movement": {
-        document = unarmoredMovementEffect(document);
-        break;
-      }
-      case "Uncanny Dodge": {
-        document = uncannyDodgeEffect(document);
         break;
       }
       case "Vigilant Blessing": {
@@ -348,6 +357,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Swiftstride Reaction": {
         document = forceManualReaction(document);
+        break;
+      }
+      case "Uncanny Dodge": {
+        document = uncannyDodgeEffect(document);
         break;
       }
       case "Vedalken Dispassion": {
