@@ -386,6 +386,7 @@ export default class DDBMonsterFeature {
     const halfMatch = this.strippedHtml.match(halfSaveSearch);
     if (halfMatch) {
       setProperty(this.feature, "flags.midiProperties.halfdam", true);
+      setProperty(this.feature, "flags.midiProperties.saveDamage", "halfdam");
     }
 
     return this.actionInfo.save;
