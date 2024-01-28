@@ -680,7 +680,7 @@ Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasI
       {
         name: "monster-tokenize",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize"),
-        description: "Auto-Tokenize monsters token image? (Adds Tokenizer default token ring using the Tokenizer module).",
+        description: "Auto-Tokenize monsters token image? (Adds Tokenizer default token ring using the Tokenizer module.)",
         enabled: tokenizerReady,
       },
       {
