@@ -236,12 +236,20 @@ export class ChooserDialog extends AdvancedDialog {
             label: button.label,
             callback: (html) => {
               const results = {
+                button,
                 results: this._parseSelectionResults(html),
                 inputs: this.inputs,
                 success: true,
               };
-              if (utils.isFunction(button.callback)) button.callback(results, html);
-              return resolve(results);
+              if (utils.isFunction(button.callback)) {
+                // button.callback(results, html).then(() => {
+                //   console.warn("Callbacj resykts", results);
+                //   resolve(results);
+                // });
+                resolve(button.callback(results, html));
+              } else {
+                resolve(results);
+              }
             },
           }
         }), {})
@@ -251,12 +259,14 @@ export class ChooserDialog extends AdvancedDialog {
             label: this.config.defaultButtonLabel,
             callback: (html) =>
               resolve({
+                button: { value: "default", label: this.config.defaultButtonLabel },
                 results: this._parseSelectionResults(html),
                 inputs: this.inputs,
                 success: true,
               }),
           }
         };
+
       this.dialog = new Dialog(
         {
           title: this.config.title,

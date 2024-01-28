@@ -2,8 +2,9 @@
   "ddb-importer": {
     "module-name": "D&D Beyond Importer",
     "settings": {
-      "user-hint-setting": "If you are unaware of the purpose of a specific setting, it is recommended to leave it disabled. Several of the import settings rely on additional, external modules and are only recommended if you are already using, or plan to use, those modules.",
-      "user-hint-effects": "Several settings make mention of 'ActiveEffects'; be aware that this is different from and entirely unrelated to <em>animations</em>.",
+      "user-hint-setting": "If you are unaware of the purpose of a specific setting, it's recommended to leave it at the default value. Several of the settings rely on additional modules and are only recommended if you want to add that level of automation to your game.",
+      "user-hint-effects": "Several settings make mention of ActiveEffects. Please be aware that these are not <em>animation</em> effects.",
+      "user-hint-animations": "Please be aware that these are not <em>animation</em> effects.",
       "update-check.name": "Check for available updates?",
       "log-level.name": "Log Level",
       "log-level.hint": "The level of console log statements that should be displayed in the console.",

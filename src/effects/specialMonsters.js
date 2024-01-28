@@ -18,6 +18,8 @@ import { recklessAttackEffect } from "./feats/recklessAttack.js";
 import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
 import { deathlyChoirEffect } from "./monsterFeatures/deathlyChoir.js";
 import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
+import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
+import { spellReflectionEffect } from "./monsterFeatures/spellReflection.js";
 
 export function baseMonsterFeatureEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -78,10 +80,11 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       item = invisibilityFeatureEffect(item);
     else if (item.name.includes("Absorption")) item = absorptionEffect(item);
     else if (item.name === "Mask of the Wild") item = await maskOfTheWildEffect(item);
+    else if (item.name === "Spell Reflection") item = await spellReflectionEffect(item);
 
     // auto overtime effect
     if (item.type !== "spell") {
-      const overTimeResults = generateOverTimeEffect(ddbMonster, npc, item);
+      const overTimeResults = generateOverTimeEffect(npc, item);
       item = overTimeResults.document;
       npc = overTimeResults.actor;
     }
@@ -95,9 +98,24 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       npc.items.forEach((item) => {
         if (item.name === "Taunt") {
           item = generateTauntEffect(item);
-          item = forceItemEffect(item);
         }
       });
+      break;
+    }
+    case "Beholder": {
+      for (let [index, item] of npc.items.entries()) {
+        if (item.name === "Eye Rays") {
+          npc.items[index] = await beholderEyeRaysEffect(item, 3, 120);
+        }
+      }
+      break;
+    }
+    case "Beholder Zombie": {
+      for (let [index, item] of npc.items.entries()) {
+        if (item.name === "Eye Ray") {
+          npc.items[index] = await beholderEyeRaysEffect(item, 1, 60);
+        }
+      }
       break;
     }
     case "Carrion Crawler":
@@ -124,6 +142,14 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     }
     case "Skeletal Juggernaut": {
       npc = await skeletalJuggernautEffects(npc);
+      break;
+    }
+    case "Spectator": {
+      for (let [index, item] of npc.items.entries()) {
+        if (item.name === "Eye Rays") {
+          npc.items[index] = await beholderEyeRaysEffect(item, 2, 90);
+        }
+      }
       break;
     }
     case "Strahd Zombie": {

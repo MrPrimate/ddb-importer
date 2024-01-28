@@ -470,7 +470,6 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
   });
 
   // now parse all items
-  const daeInstalled = game.modules.get("dae")?.active;
   const compendiumItem = this.raw.character.flags.ddbimporter.compendium;
   const addEffects = (compendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
@@ -497,7 +496,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       if (!item.effects) item.effects = [];
       if (!item.name || item.name === "") item.name = "Item";
 
-      if (addEffects && daeInstalled) {
+      if (addEffects) {
         item = generateEffects(this.source.ddb, this.raw.character, ddbItem, item, compendiumItem, "item");
       } else if (item.type === "equipment") {
         if (hasProperty(item, "system.armor.type") && ["trinket", "clothing"].includes(item.system.armor.type)) {

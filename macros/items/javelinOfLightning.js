@@ -68,7 +68,7 @@ if (args[0].macroPass === "postActiveEffects") {
   const changes = await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [templateData]);
   await DDBImporter?.EffectHelper.wait(500);
   const templateDoc = changes[0];
-  console.warn("TEMPLATE", templateDoc);
+  // console.warn("TEMPLATE", templateDoc);
   const boltEffectData = {
     label: `${workflow.item.name}: Bolt Template`,
     name: `${workflow.item.name}: Bolt Template`,
@@ -122,12 +122,12 @@ if (args[0].macroPass === "postActiveEffects") {
       consumeSlot: false,
     };
 
-    console.warn("Midi Options", {
-      areaSpell,
-      options,
-      targetTokens,
-      lightningBoltData,
-    })
+    // console.warn("Midi Options", {
+    //   areaSpell,
+    //   options,
+    //   targetTokens,
+    //   lightningBoltData,
+    // })
     await MidiQOL.completeItemUse(areaSpell, {}, options);
   }
 } else if (args[0].macroPass === "postDamageRoll") {

@@ -37,7 +37,7 @@ export class DDBItemConfig extends FormApplication {
       {
         name: "ignoreItemForChrisPremades",
         isChecked: chris,
-        description: "Ignore this item when replacing ActiveEffects with those from Chris's Premades module? This is recommended if you use this module and its dependencies aimed at a highly automated game.",
+        description: "Ignore this item when replacing Active Effects with those from Chris's Premades module.",
       },
       {
         name: "ignoreIcon",

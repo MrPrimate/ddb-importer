@@ -72,7 +72,8 @@
     "chrisPremades": true,
     "NoteConfig": true,
     "globalThis": true,
-    "DDBImporter": true
+    "DDBImporter": true,
+    "VideoHelper": true
   },
   "parserOptions": {
     "ecmaVersion": 2022,

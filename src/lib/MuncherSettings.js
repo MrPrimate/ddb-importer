@@ -142,14 +142,17 @@ const MuncherSettings = {
     if (generateSpellEffects && !effectModulesAvailable.hasCore) {
       game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects", false);
     }
-    const daeInstalled = effectModulesAvailable.daeInstalled;
     const advancedMacrosText = isNewerVersion(11, game.version) ? ` Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")},` : "";
     const itemMacroText = isNewerVersion(11, game.version) ? ` Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}` : "";
-    const basicEffectsText = `Requires DAE${MuncherSettings.getInstalledIcon("daeInstalled")} due to legacy reasons. The following additional modules are recommended for higher degree automation but are otherwise not required: Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, ${advancedMacrosText}${itemMacroText}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}.`;
-    const featureEffectText = `Generate effects for a character. Some effects are always generated, some are optional (see below). ${basicEffectsText}`;
-    const spellEffectText = `Generate effects for spells. These require DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")},${advancedMacrosText}${itemMacroText} Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened: Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")} and  Warpgate${MuncherSettings.getInstalledIcon("warpgateInstalled")}.`;
-    const itemEffectText = `Generate ActiveEffects for a character's equipment. This setting will not include AC effects on armor, but will for things like the Ring of Protection. ${basicEffectsText}`;
+    const spellEffectText = `These are highly automated and required the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")},${advancedMacrosText}${itemMacroText} Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}. Optional, but recommended automation modules: Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, and Warpgate${MuncherSettings.getInstalledIcon("warpgateInstalled")}.`;
 
+    const installedModulesText = `
+<p>Some Active Effects do not require any external modules, many of these will be created regardless of what settings are checked here, some will need these options checked.</p>
+<p>Some Active Effects need DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, and although not required, it is <em>strongly recommended</em> if generating active effects with DDB Importer.</p>
+<p>The following modules are entirely optional but add useful features such as D&D conditions and their effects (Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}), others offer pretty animations for your spells and attacks (Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}). DAE${MuncherSettings.getInstalledIcon("daeInstalled")} offers several effect options that are useful but not provided by the core system. Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")} offers support for things like Paladin auras, as well as more automated effects for spells such as Spike Growth. Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")} allows for effects to change tokens size and vision.</p>
+<p>For games looking for high levels of automation, particularly around spells and more complex character features such as Battle Master Manoeuvres, then the "Midi-QOL" suite is required. This will allow varying degrees of automation from auto-calculating hit rolls, advantage damage, and even applying it for you (if desired).</p>
+<p>For high automation games you will need some additional modules, but are otherwise not required: Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")},${advancedMacrosText}${itemMacroText} Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}.</p>
+`;
     // const importExtras = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-extras");
 
     const importConfig = [
@@ -259,11 +262,18 @@ const MuncherSettings = {
 
     const effectImportConfig = [
       {
+        name: "add-character-effects",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects"),
+        title: "Generate Effects for Character Features/Racial Traits/Feats/Backgrounds",
+        description: null,
+        enabled: true,
+      },
+      {
         name: "add-item-effects",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects") && daeInstalled,
-        title: "Generate Effects for Equipment",
-        description: itemEffectText,
-        enabled: daeInstalled,
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects"),
+        title: "Generate Active Effects for Equipment",
+        description: null,
+        enabled: true,
       },
       {
         name: "add-spell-effects",
@@ -273,17 +283,10 @@ const MuncherSettings = {
         enabled: effectModulesAvailable.hasCore,
       },
       {
-        name: "add-character-effects",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects") && daeInstalled,
-        title: "Generate Effects for Character Features/Racial Traits/Feats/Backgrounds",
-        description: featureEffectText,
-        enabled: daeInstalled,
-      },
-      {
         name: "use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades"),
-        title: "Use ActiveEffects from Chris's Premades module for high automation?",
-        description: `Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module. These will replace any ActiveEffects created by DDB Importer and are recommended for games aiming for high automation.`,
+        title: "Use Active Effects from Chris's Premades module?",
+        description: `Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} offer even more automation for all aspects of D&D, but have even more pre-requisites. You should investigate and set up this module before importing with this option selected. Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module.<br>These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
       {
@@ -291,7 +294,7 @@ const MuncherSettings = {
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy"),
         title: "Retain Active Effects",
         description:
-          "Retain existing Effects, this will try and transfer any existing effects on the actor such as custom effects, effects from conditions or existing spells. Untick this option if you experience <i>odd</i> behaviour.",
+          "Retain existing Active Effects, this will try and transfer any existing effects on the actor such as custom effects, effects from conditions or existing spells. Untick this option if you experience <i>odd</i> behaviour.",
         enabled: true,
       },
     ];
@@ -462,6 +465,7 @@ const MuncherSettings = {
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
 
     const result = {
+      installedModulesText,
       importPolicies1,
       importPolicies2,
       importConfig,
@@ -536,7 +540,6 @@ const MuncherSettings = {
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
     const effectModulesAvailable = effectModules();
-    const daeInstalled = effectModulesAvailable.daeInstalled;
     const chrisInstalled = effectModulesAvailable.chrisInstalled;
     const compendiumFolderAdd = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
     const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
@@ -547,7 +550,11 @@ const MuncherSettings = {
     const compendiumFolderItemStyles = MuncherSettings.getCompendiumFolderLookups("item");
     const advancedMacrosText = version11OrHigher ? "" : ` Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")},`;
     const itemMacroText = version11OrHigher ? "" : ` Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}`;
-    const spellEffectText = `Create ActiveEffects on spells? These ActiveEffects require the following modules and are recommended for most complete results when or if you are aiming for a highly automated game. If you are not aware of what these modules do, this setting is not recommended; please familiarize yourself with the modules beforehand: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, ${advancedMacrosText}${itemMacroText} Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}.`;
+    const spellEffectText = `Create Active Effects for spell automation?<br>
+These effects automate a lot of common spells, but do require the use of a number of external modules, including "Midi-QOL", which potentially introduces a much higher level of automation and complexity above the base Foundry system.<br>
+These require the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")},${advancedMacrosText}${itemMacroText} Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum.<br>
+Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}.
+`;
 
     const generateSpellEffects = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects");
     if (generateSpellEffects && !effectModulesAvailable.hasCore) {
@@ -581,8 +588,8 @@ const MuncherSettings = {
       {
         name: "add-effects",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-effects"),
-        description: "Dynamically generate ActiveEffects (equipment only) for any equipment that modify properties of actors? (Requires DAE and is not recommended unless you are aiming for a highly automated game.)",
-        enabled: daeInstalled,
+        description: "Dynamically generate effects (equipment only).  (DAE module strongly recommended, but not required).",
+        enabled: true,
       },
       {
         name: "item-homebrew",
@@ -593,7 +600,7 @@ const MuncherSettings = {
       {
         name: "item-homebrew-only",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only"),
-        description: "Only homebrew items?",
+        description: "Only import homebrew items?",
         enabled: !sourcesSelected,
       },
     ];
@@ -620,7 +627,7 @@ const MuncherSettings = {
       {
         name: "spell-homebrew-only",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew-only"),
-        description: "Only homebrew spells?",
+        description: "Only import homebrew spells?",
         enabled: !sourcesSelected,
       },
     ];
@@ -697,7 +704,7 @@ const MuncherSettings = {
       {
         name: "add-monster-effects",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-monster-effects"),
-        description: `Generate ActiveEffects that rely on the 'Midi-QOL' module for monster attacks and features? This is only recommended if you use these modules and are aiming to set up a highly automated game: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}.`,
+        description: `Generate Active Effects that use Midi-QOL on monster attacks/features? <br>These are for a highly automated game, and are things such as managing abilities with conditions that have saves every round, or attacks which apply conditions such as frightened or prone.<br>Requires DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}.`,
         enabled: effectModulesAvailable.hasMonster,
       },
       // {
@@ -767,7 +774,7 @@ const MuncherSettings = {
       {
         name: "use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades"),
-        description: `Use ActiveEffects from the module "Chris's Premades"? (Requires "Chris's Premades" ${MuncherSettings.getInstalledIcon("chrisInstalled")} and all its dependencies). These will replace any ActiveEffects created by DDB Importer and are recommended for games aiming for high automation.`,
+        description: `Use Active Effects from Chris's Premades module? These provide high quality automations for spells, features, monsters, etc. (Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module).<br>These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
       {

@@ -118,12 +118,12 @@ if (args[0] === "on") {
 
 else if (args[0] === "off") {
   game.canvas.tokens.placeables.forEach((t) => {
-    const effects = DDBImporter.lib.DDBEffectHelper.getActorEffects(t.actor)
+    const effects = DDBImporter.EffectHelper.getActorEffects(t.actor)
       .filter((e => e.origin === lastArg.origin));
     if (effects.length > 0) {
       const flag = DAE.getFlag(t.actor, "eyebiteSpell") ?? { conditions: [] };
       flag.conditions.forEach((condition) => {
-        if (DDBImporter.lib.DDBEffectHelper.isConditionEffectAppliedAndActive(condition, t.actor)) {
+        if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, t.actor)) {
           game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: t.actor.uuid });
         }
       });
@@ -135,7 +135,7 @@ else if (args[0] === "off") {
 
 
 // game.canvas.tokens.placeables.forEach((t) => {
-//   const effects = DDBImporter.lib.DDBEffectHelper.getActorEffects(t.actor)
+//   const effects = DDBImporter.EffectHelper.getActorEffects(t.actor)
 //     .filter((e => e.origin === "Scene.UhmG3IpACRTbmGYN.Token.0Gv1q5oVLBVGtrDY.Actor.Cm0OMSdwV96NTOi7.Item.zDjWKeq9XeN91mMc"));
 //   console.warn(effects)
 //   effects.forEach(effect => {
@@ -143,7 +143,7 @@ else if (args[0] === "off") {
 //     console.warn(flag);
 //     console.warn(t.actor.uuid)
 //     flag.conditions.forEach((condition) => {
-//       const check = DDBImporter.lib.DDBEffectHelper.isEffectConditionEffectAppliedAndActive(condition,effect);
+//       const check = DDBImporter.EffectHelper.isEffectConditionEffectAppliedAndActive(condition,effect);
 //       console.warn(check)
 //       if (check) {
 //           console.warn("removing")

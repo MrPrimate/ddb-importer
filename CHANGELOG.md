@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.7.17
 
 - Tool to add prices to items as per Xanathar's Guide on the Tools tab.
 - First pass at adding sub types to class features for imported characters.
@@ -7,6 +7,9 @@
 - Psychic Blades attacks now import as Melee Weapon Attacks rather than ranged, as they are thrown weapons. Fix for midi-qol applying disadvantage when used in Melee.
 - Tweaks to class feature parsing when importing characters.
 - Javelin of Lightning effect fixes
+- Monster effect: Ray effects for Beholder, Zombie Beholder and Spectator. @tminz
+- Monster effect: Spell Reflection.
+- Language changes around Active Effect generation to sate Zhell's desire to not recommend Midi and co.
 
 # 3.7.16
 
