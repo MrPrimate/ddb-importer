@@ -8,6 +8,7 @@
 - Tweaks to class feature parsing when importing characters.
 - Javelin of Lightning effect fixes
 - Monster effect: Ray effects for Beholder, Zombie Beholder and Spectator. @tminz
+- Monster effect: Spell Reflection.
 
 # 3.7.16
 
