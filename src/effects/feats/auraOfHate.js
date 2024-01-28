@@ -20,6 +20,8 @@ export function auraOfHateEffect(document) {
   document.effects.push(alliesEffect);
 
 
+  if (!game.modules.get("ActiveAuras")?.active) return document;
+
   let otherEffect = baseItemEffect(document, `${document.name} (Fiends & Undead) - Constant`);
   otherEffect.flags.ActiveAuras = {
     aura: "All",
