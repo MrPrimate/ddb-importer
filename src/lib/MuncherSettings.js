@@ -282,8 +282,8 @@ const MuncherSettings = {
       {
         name: "use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades"),
-        title: "Use effects from Chris's Premades module?",
-        description: `Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module. These will replace any effects created by DDB Importer.`,
+        title: "Use ActiveEffects from Chris's Premades module for high automation?",
+        description: `Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module. These will replace any ActiveEffects created by DDB Importer and are recommended for games aiming for high automation.`,
         enabled: chrisInstalled,
       },
       {
@@ -547,7 +547,7 @@ const MuncherSettings = {
     const compendiumFolderItemStyles = MuncherSettings.getCompendiumFolderLookups("item");
     const advancedMacrosText = version11OrHigher ? "" : ` Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")},`;
     const itemMacroText = version11OrHigher ? "" : ` Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}`;
-    const spellEffectText = `Create active effects. These require the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")},${advancedMacrosText}${itemMacroText} Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}.`;
+    const spellEffectText = `Create ActiveEffects on spells? These ActiveEffects require the following modules and are recommended for most complete results when or if you are aiming for a highly automated game. If you are not aware of what these modules do, this setting is not recommended; please familiarize yourself with the modules beforehand: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, ${advancedMacrosText}${itemMacroText} Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}.`;
 
     const generateSpellEffects = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects");
     if (generateSpellEffects && !effectModulesAvailable.hasCore) {
@@ -581,7 +581,7 @@ const MuncherSettings = {
       {
         name: "add-effects",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-effects"),
-        description: "Dynamically generate effects (equipment only). (Requires DAE)",
+        description: "Dynamically generate ActiveEffects (equipment only) for any equipment that modify properties of actors? (Requires DAE and is not recommended unless you are aiming for a highly automated game.)",
         enabled: daeInstalled,
       },
       {
@@ -673,7 +673,7 @@ const MuncherSettings = {
       {
         name: "monster-tokenize",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize"),
-        description: "Auto-Tokenize monsters token image? (Adds Tokenizer default token ring)",
+        description: "Auto-Tokenize monsters token image? (Adds Tokenizer default token ring using the module of the same name.)",
         enabled: tokenizerReady,
       },
       {
@@ -697,7 +697,7 @@ const MuncherSettings = {
       {
         name: "add-monster-effects",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-monster-effects"),
-        description: `Generate Midi-QOL effects on monster attacks/features? Requires DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}`,
+        description: `Generate ActiveEffects that rely on the 'Midi-QOL' module for monster attacks and features? This is only recommended if you use these modules and are aiming to set up a highly automated game: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}.`,
         enabled: effectModulesAvailable.hasMonster,
       },
       // {
@@ -767,7 +767,7 @@ const MuncherSettings = {
       {
         name: "use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades"),
-        description: `Use effects from Chris's Premades module? (Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module). These will replace any effects created by DDB Importer.`,
+        description: `Use ActiveEffects from the module "Chris's Premades"? (Requires "Chris's Premades" ${MuncherSettings.getInstalledIcon("chrisInstalled")} and all its dependencies). These will replace any ActiveEffects created by DDB Importer and are recommended for games aiming for high automation.`,
         enabled: chrisInstalled,
       },
       {
