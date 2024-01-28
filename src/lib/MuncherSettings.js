@@ -673,7 +673,7 @@ const MuncherSettings = {
       {
         name: "monster-tokenize",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize"),
-        description: "Auto-Tokenize monsters token image? (Adds Tokenizer default token ring using the module of the same name.)",
+        description: "Auto-Tokenize monsters token image? (Adds Tokenizer default token ring using the Tokenizer module.)",
         enabled: tokenizerReady,
       },
       {
