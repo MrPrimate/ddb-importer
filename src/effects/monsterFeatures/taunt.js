@@ -1,5 +1,5 @@
 
-import { baseItemEffect } from "../effects.js";
+import { baseItemEffect, forceItemEffect } from "../effects.js";
 
 export function generateTauntEffect(document) {
   let effect = baseItemEffect(document, document.name);
@@ -17,5 +17,6 @@ export function generateTauntEffect(document) {
   effect.flags.dae.specialDuration = ["turnStart"];
 
   document.effects.push(effect);
+  document = forceItemEffect(document);
   return document;
 }

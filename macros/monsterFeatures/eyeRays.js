@@ -1,4 +1,3 @@
-console.warn(args)
 
 const rayChoices = DDBImporter.EffectHelper.extractListItems(args[0].itemData.system.description.value);
 const workflow = args[0].workflow;

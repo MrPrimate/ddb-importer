@@ -324,6 +324,20 @@ export default class DDBEffectHelper {
   }
 
   /**
+   * Display an item card on the screen.
+   *
+   * @param {Object} item - The item to display the card for
+   * @return {Promise} A promise that resolves when the card is displayed
+   */
+  static async displayItemCard(item) {
+    const msg = await item.displayCard({ createMessage: false });
+    const DIV = document.createElement("DIV");
+    DIV.innerHTML = msg.content;
+    DIV.querySelector("div.card-buttons").remove();
+    await ChatMessage.create({ content: DIV.innerHTML });
+  }
+
+  /**
    * Returns ids of tokens in template
    *
    * @param {*} templateDoc the templatedoc to check
@@ -368,6 +382,27 @@ export default class DDBEffectHelper {
     } else {
       return actor.effects;
     }
+  }
+
+  /**
+ * Asynchronously gets a new target and updates workflow data.
+ *
+ * @param {Object} item - The item to get the new target for
+ * @return {Token|undefined} The new target, or undefined if no new target is found
+ */
+  static async getNewMidiQOLWorkflowTarget(workflow, item, oldToken, targetTitle = undefined) {
+    workflow.targets.delete(oldToken);
+    workflow.saves.delete(oldToken);
+    workflow.hitTargets.delete(oldToken);
+    await DDBEffectHelper.displayItemCard(item);
+    await MidiQOL.resolveTargetConfirmation(item, { forceDisplay: true, title: targetTitle });
+
+    const newToken = game.user.targets.first();
+    if (!newToken) return undefined;
+    workflow.targets.add(newToken);
+    workflow.hitTargets.add(newToken);
+    workflow.saveResults = workflow.saveResults.filter((e) => e.data.tokenId !== oldToken.id);
+    return newToken;
   }
 
   static effectConditionAppliedAndActive(conditionName, actor) {
@@ -517,6 +552,24 @@ export default class DDBEffectHelper {
   }
 
   /**
+   * Get the image for the token.
+   *
+   * @param {object} token - The token for which to get the image.
+   * @return {string} The image URL for the token.
+   */
+  static async getTokenImage(token) {
+    const midiConfigSettings = game.settings.get("midi-qol", "ConfigSettings");
+    let img = token.document?.texture?.src ?? token.actor.img ?? "";
+    if (midiConfigSettings.usePlayerPortrait && token.actor.type === "character") {
+      img = token.actor?.img ?? token.document?.texture?.src ?? "";
+    }
+    if (VideoHelper.hasVideoExtension(img)) {
+      img = await game.video.createThumbnail(img, { width: 100, height: 100 });
+    }
+    return img;
+  }
+
+  /**
    * Retrieves the type or race of the given entity.
    *
    * @param {any} entity - The entity to retrieve the type or race from.
@@ -606,6 +659,36 @@ export default class DDBEffectHelper {
     });
     return !missingDep;
   }
+
+  /**
+   * Asynchronously rolls a saving throw for an item.
+   *
+   * @param {Object} item - The item for which the saving throw is rolled
+   * @param {Object} targetToken - The token representing the target of the saving throw
+   * @param {Object} [workflow=null] - The workflow for which the saving throw is rolled
+   * @return {Promise} A promise that resolves with the save result
+   */
+  static async rollSaveForItem(item, targetToken, workflow = null) {
+    const { ability, dc } = duplicate(item.system.save);
+    const userID = MidiQOL.playerForActor(targetToken.actor)?.active
+      ? MidiQOL.playerForActor(targetToken.actor).id
+      : game.users.activeGM.id;
+    const data = {
+      request: "save",
+      targetUuid: targetToken.document.uuid,
+      ability,
+      options: {
+        name: "Reflect",
+        skipDialogue: true,
+        targetValue: dc,
+      },
+    };
+
+    const save = await MidiQOL.socket().executeAsUser("rollAbility", userID, data);
+    if (workflow) workflow.saveResults.push(save);
+    return save;
+  }
+
 
   /**
    * Selects all the tokens that are within X distance of the source token for the current game user.

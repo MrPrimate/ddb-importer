@@ -19,6 +19,7 @@ import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
 import { deathlyChoirEffect } from "./monsterFeatures/deathlyChoir.js";
 import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
 import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
+import { spellReflectionEffect } from "./monsterFeatures/spellReflection.js";
 
 export function baseMonsterFeatureEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -79,6 +80,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       item = invisibilityFeatureEffect(item);
     else if (item.name.includes("Absorption")) item = absorptionEffect(item);
     else if (item.name === "Mask of the Wild") item = await maskOfTheWildEffect(item);
+    else if (item.name === "Spell Reflection") item = await spellReflectionEffect(item);
 
     // auto overtime effect
     if (item.type !== "spell") {
@@ -96,7 +98,6 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       npc.items.forEach((item) => {
         if (item.name === "Taunt") {
           item = generateTauntEffect(item);
-          item = forceItemEffect(item);
         }
       });
       break;
@@ -105,7 +106,6 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       for (let [index, item] of npc.items.entries()) {
         if (item.name === "Eye Rays") {
           npc.items[index] = await beholderEyeRaysEffect(item, 3, 120);
-          npc.items[index] = forceItemEffect(item);
         }
       }
       break;
@@ -114,7 +114,6 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       for (let [index, item] of npc.items.entries()) {
         if (item.name === "Eye Ray") {
           npc.items[index] = await beholderEyeRaysEffect(item, 1, 60);
-          npc.items[index] = forceItemEffect(item);
         }
       }
       break;
@@ -149,7 +148,6 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       for (let [index, item] of npc.items.entries()) {
         if (item.name === "Eye Rays") {
           npc.items[index] = await beholderEyeRaysEffect(item, 2, 90);
-          npc.items[index] = forceItemEffect(item);
         }
       }
       break;
