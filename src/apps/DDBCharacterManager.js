@@ -667,7 +667,6 @@ export default class DDBCharacterManager extends FormApplication {
     const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
     const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
     const ddbGenericItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-generic-item-icons");
-    const daeInstalled = game.modules.get("dae")?.active;
 
     await Iconizer.preFetchDDBIconImages();
 
@@ -706,10 +705,7 @@ export default class DDBCharacterManager extends FormApplication {
         items = await this.copyCharacterItemEffects(items);
       }
 
-      if (daeInstalled && (this.settings.addItemEffects || this.settings.addCharacterEffects)) {
-        items = await Iconizer.addItemEffectIcons(items);
-      }
-
+      items = await Iconizer.addItemEffectIcons(items);
       items = await Iconizer.retainExistingIcons(items);
     }
 
