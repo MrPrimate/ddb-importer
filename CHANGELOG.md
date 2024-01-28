@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.7.17
 
 - Tool to add prices to items as per Xanathar's Guide on the Tools tab.
 - First pass at adding sub types to class features for imported characters.
