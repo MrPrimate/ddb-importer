@@ -644,7 +644,7 @@ Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasI
       {
         name: "monster-items",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-items"),
-        description: "[Experimental] Load attack/weapon items from DDB compendium instead of parsing action/attack? (Poor success rate)",
+        description: "[Experimental] Load attack/weapon items from DDB compendium instead of parsing action/attack? (Poor success rate).",
         enabled: true,
       },
       {
@@ -656,13 +656,13 @@ Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasI
       {
         name: "use-full-token-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image"),
-        description: "Use avatar image for token rather than token image (full art)",
+        description: "Use avatar image for token rather than token image (full art).",
         enabled: true,
       },
       {
         name: "use-token-avatar-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image"),
-        description: "Use token image for avatar rather than avatar image (close up)",
+        description: "Use token image for avatar rather than avatar image (close up).",
         enabled: true,
       },
       {
@@ -698,7 +698,7 @@ Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasI
       {
         name: "monster-set-legendary-resource-bar",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-set-legendary-resource-bar"),
-        description: "Monsters display legendary resources on bar2? (Like the SRD Monsters)",
+        description: "Monsters display legendary resources on bar2? (Like the SRD Monsters).",
         enabled: true,
       },
       {
