@@ -9,7 +9,7 @@
 - Javelin of Lightning effect fixes
 - Monster effect: Ray effects for Beholder, Zombie Beholder and Spectator. @tminz
 - Monster effect: Spell Reflection.
-- Language changes around Active Effect generation to sate Zhell's desire to not recommend Midi and co.
+- Language changes around Active Effect generation.
 
 # 3.7.16
 
