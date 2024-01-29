@@ -338,7 +338,7 @@ export function forceItemEffect(document) {
   if (document.effects.length > 0 || hasProperty(document.flags, "dae") || hasProperty(document.flags, "midi-qol.onUseMacroName")) {
     document = applyDefaultMidiFlags(document);
     setProperty(document, "flags.ddbimporter.effectsApplied", true);
-    setProperty(document, "flags.midi-qol.forceCEOff", true);
+    if (!getProperty(document, "flags.midi-qol.forceCEOn")) setProperty(document, "flags.midi-qol.forceCEOff", true);
   }
   return document;
 }

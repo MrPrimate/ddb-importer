@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Great Weapon Master and Sharpshooter no longer rely on CE.
+
 # 3.7.17
 
 - Tool to add prices to items as per Xanathar's Guide on the Tools tab.

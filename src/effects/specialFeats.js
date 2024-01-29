@@ -77,6 +77,7 @@ import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
 import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
 import { giantStatureEffect } from "./feats/giantStature.js";
 import { demiurgicColossusEffect } from "./feats/demiurgicColossus.js";
+import { greatWeaponMasterEffect } from "./feats/greatWeaponMaster.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -114,6 +115,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Frost Rune": {
       document = frostRuneEffect(document);
+      break;
+    }
+    case "Great Weapon Master": {
+      document = greatWeaponMasterEffect(document);
       break;
     }
     case "Partially Amphibious":
