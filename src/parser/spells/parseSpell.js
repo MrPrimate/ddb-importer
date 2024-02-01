@@ -78,7 +78,7 @@ export async function parseSpell(data, character) {
   spell.system.description = {
     value: parseTags(data.definition.description),
     chat: "",
-    unidentified: data.definition.type,
+    // unidentified: data.definition.type,
   };
 
   spell.system.source = DDBHelper.parseSource(data.definition);

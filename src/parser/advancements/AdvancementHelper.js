@@ -1683,7 +1683,7 @@ export default class AdvancementHelper {
     // You have resistance to all damage dealt by other creatures (their attacks, spells, and other effects).
     if (textDescription.includes("resistance to all damage dealt by other creatures")) {
       grants.add("dr:all");
-      Object.keys(CONFIG.DND5E.damageResistanceTypes).forEach((dr) => {
+      Object.keys(CONFIG.DND5E.damageTypes).forEach((dr) => {
         grants.add(`dr:${dr}`);
       });
     }

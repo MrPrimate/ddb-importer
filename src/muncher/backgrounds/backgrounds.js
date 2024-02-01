@@ -13,7 +13,6 @@ const BACKGROUND_TEMPLATE = {
     "description": {
       "value": "",
       "chat": "",
-      "unidentified": ""
     },
     "type": {
       "value": "background",

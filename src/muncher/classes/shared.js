@@ -15,7 +15,6 @@ const CLASS_TEMPLATE = {
     "description": {
       "value": "",
       "chat": "",
-      "unidentified": ""
     },
     "source": "",
   },

@@ -10,7 +10,6 @@ const FEAT_TEMPLATE = {
     "description": {
       "value": "",
       "chat": "",
-      "unidentified": ""
     },
     "type": {
       "value": "feat",

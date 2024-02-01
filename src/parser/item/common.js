@@ -12,7 +12,7 @@ export function getDescription(data) {
   return {
     value: parseTags(data.definition.description + attunementText),
     chat: chatAdd ? parseTags(chatSnippet) : "",
-    unidentified: data.definition.type,
+    // unidentified: data.definition.type,
   };
 }
 

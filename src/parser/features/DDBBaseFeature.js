@@ -169,7 +169,6 @@ export default class DDBBaseFeature {
       this.data.system.description = {
         value: value,
         chat: chatAdd ? snippet : "",
-        unidentified: "",
       };
     } else {
       const snippet = description !== "" && utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
@@ -177,7 +176,6 @@ export default class DDBBaseFeature {
       this.data.system.description = {
         value: description,
         chat: snippet,
-        unidentified: "",
       };
     }
 

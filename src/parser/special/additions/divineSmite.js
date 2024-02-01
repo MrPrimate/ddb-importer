@@ -23,7 +23,6 @@ export function getDivineSmiteSpell(feature) {
       description: {
         value: feature.system.description.value,
         chat: "",
-        unidentified: ""
       },
       source: "PHB PG. 85",
       activation: {
