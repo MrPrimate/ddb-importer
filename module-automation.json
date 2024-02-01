@@ -12,7 +12,7 @@
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "url": "https://github.com/mrprimate/ddb-importer",
   "compatibility": {
-    "minimum": "11.313",
+    "minimum": "11.315",
     "verified": 11
   },
   "authors": [
@@ -38,7 +38,7 @@
         "id": "dnd5e",
         "type": "system",
         "compatibility": {
-          "verified": "2.3.1"
+          "verified": "3.0.0"
         }
       }
     ],
