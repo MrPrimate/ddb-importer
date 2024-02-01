@@ -42,7 +42,7 @@ function getItemType(data, typeHint) {
     || ["Vehicle", "Mount"].includes(typeHint)
   ) {
     return {
-      type: "backpack",
+      type: "container",
     };
   } else if (data.definition.name.startsWith("Lantern,")
     || ["Lamp", "Healer's Kit"].includes(data.definition.name)
@@ -69,7 +69,7 @@ function getItemType(data, typeHint) {
 
   let itemType = itemTypes
     .map((itemType) => {
-      if (itemType === "container") return "backpack";
+      if (itemType === "container") return "container";
       if (itemType === "consumable") return "consumable";
       return DICTIONARY.types.full.find((t) => t.indexOf(itemType) !== -1 || itemType.indexOf(t) !== -1);
     })
@@ -138,7 +138,7 @@ export default function parseLoot(data, itemType) {
   if (type.type === "loot") {
     const lookup = LOOT_TYPES[itemType];
     if (lookup) setProperty(loot, "system.type.value", lookup);
-  } else if (type.type === "backpack") {
+  } else if (type.type === "container") {
     loot.system.capacity = getCapacity(data);
     if (data.currency) loot.system.currency = getCurrency(data);
   }

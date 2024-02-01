@@ -13,7 +13,7 @@ export class DDBCompendiumFolders {
     this.consumableFolders = {};
     this.lootFolders = {};
     this.toolFolders = {};
-    this.backpackFolders = {};
+    this.containerFolders = {};
     this.validFolderIds = [];
     this.classFolders = {};
     this.subClassFolders = {};
@@ -216,12 +216,12 @@ export class DDBCompendiumFolders {
       this.validFolderIds.push(folder._id);
     }
 
-    for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.BACKPACK) {
-      const flagTag = `backpack/${folderName}`;
-      logger.debug(`Checking for Backpack folder '${folderName}'`);
+    for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.CONTAINER) {
+      const flagTag = `container/${folderName}`;
+      logger.debug(`Checking for Container folder '${folderName}'`);
       const folder = this.getFolder(folderName, flagTag)
-        ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["backpack"]._id, color: "#222222", flagTag }));
-      this.backpackFolders[folderName] = folder;
+        ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["container"]._id, color: "#222222", flagTag }));
+      this.containerFolders[folderName] = folder;
       this.validFolderIds.push(folder._id);
     }
   }
@@ -374,10 +374,10 @@ export class DDBCompendiumFolders {
             const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
             const isContainer = getProperty(document, "flags.ddbimporter.dndbeyond.isContainer") === true;
             result.name = isContainer
-              ? this.backpackFolders[ddbType].name
+              ? this.containerFolders[ddbType].name
               : this.trinketFolders[ddbType].name;
             result.flagTag = isContainer
-              ? `backpack/${result.name}`
+              ? `container/${result.name}`
               : `trinket/${result.name}`;
             break;
           }
@@ -410,11 +410,11 @@ export class DDBCompendiumFolders {
         }
         break;
       }
-      case "backpack": {
+      case "container": {
         const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
         if (ddbType) {
-          result.name = this.backpackFolders[ddbType].name;
-          result.flagTag = `backpack/${result.name}`;
+          result.name = this.containerFolders[ddbType].name;
+          result.flagTag = `container/${result.name}`;
         }
         break;
       }

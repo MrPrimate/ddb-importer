@@ -35,7 +35,7 @@ const CompendiumHelper = {
     { type: "consumable", compendium: "entity-item-compendium" },
     { type: "tool", compendium: "entity-item-compendium" },
     { type: "loot", compendium: "entity-item-compendium" },
-    { type: "backpack", compendium: "entity-item-compendium" },
+    { type: "container", compendium: "entity-item-compendium" },
     { type: "spell", compendium: "entity-spell-compendium" },
     { type: "equipment", compendium: "entity-item-compendium" },
     { type: "table", compendium: "entity-table-compendium" },

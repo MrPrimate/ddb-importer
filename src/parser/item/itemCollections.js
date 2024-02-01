@@ -8,9 +8,9 @@ export function fixForItemCollections(ddb, items) {
 
   items.forEach((item) => {
     if (getProperty(item, "flags.ddbimporter.dndbeyond.isContainer") === true) {
-      item.type = "backpack";
+      item.type = "container";
     }
-    if (item.type === "backpack") {
+    if (item.type === "container") {
       setProperty(item, "flags.itemcollection.bagWeight", item.system.weight);
       setProperty(item, "flags.itemcollection.bagPrice", item.system.cost);
       setProperty(item, "flags.core.sheetClass", "dnd5e.ItemSheet5eWithBags");

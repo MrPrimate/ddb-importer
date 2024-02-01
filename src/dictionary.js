@@ -1,9 +1,9 @@
 const DICTIONARY = {
   types: {
-    full: ["weapon", "equipment", "consumable", "tool", "loot", "class", "subclass", "background", "spell", "feat", "backpack"],
-    equipment: ["equipment", "consumable", "tool", "loot", "backpack"],
-    inventory: ["equipment", "consumable", "tool", "loot", "backpack", "weapon"],
-    monster: ["equipment", "consumable", "tool", "loot", "backpack", "weapon", "feat"],
+    full: ["weapon", "equipment", "consumable", "tool", "loot", "class", "subclass", "background", "spell", "feat", "container"],
+    equipment: ["equipment", "consumable", "tool", "loot", "container"],
+    inventory: ["equipment", "consumable", "tool", "loot", "container", "weapon"],
+    monster: ["equipment", "consumable", "tool", "loot", "container", "weapon", "feat"],
   },
   currency: {
     cp: "copper",
@@ -790,7 +790,7 @@ const DICTIONARY = {
       tool: "Tools",
       loot: "Loot",
       weapon: "Weapon",
-      backpack: "Backpack",
+      container: "Container",
       consumable: "Consumable",
     },
     EQUIPMENT: {
@@ -833,7 +833,7 @@ const DICTIONARY = {
       music: "Musical Instrument",
       game: "Gaming Set",
     },
-    BACKPACK: [
+    CONTAINER: [
       "Equipment Pack",
       "Adventuring Gear",
       "Vehicle",

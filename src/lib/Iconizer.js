@@ -18,7 +18,7 @@ const TYPE_MAP = {
   consumable: "items",
   tool: "items",
   loot: "items",
-  backpack: "items",
+  container: "items",
   inventory: "items",
   spells: "spells",
   spell: "spells",

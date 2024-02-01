@@ -14,7 +14,7 @@ import {
 export default function parseWonderous(data, { ddbTypeOverride = null, armorType = "trinket" } = {}) {
 
   const isContainer = data.definition.isContainer;
-  const type = isContainer ? "backpack" : "equipment";
+  const type = isContainer ? "container" : "equipment";
   /**
    * MAIN parseEquipment
    */

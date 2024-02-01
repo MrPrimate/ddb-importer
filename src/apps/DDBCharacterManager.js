@@ -233,7 +233,7 @@ export default class DDBCharacterManager extends FormApplication {
    * - feat
    * - weapon
    * - equipment
-   * - inventory: consumable, loot, tool and backpack
+   * - inventory: consumable, loot, tool and container
    * - spell
    */
   async clearItemsByUserSelection(excludedList = []) {

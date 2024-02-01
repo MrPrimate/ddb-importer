@@ -338,6 +338,7 @@ const utils = {
       case "container":
         return game.dnd5e.dataModels.item.ContainerData.schema.initial();
       case "equipment":
+      case "armor":
         return game.dnd5e.dataModels.item.EquipmentData.schema.initial();
       case "feat":
         return game.dnd5e.dataModels.item.FeatData.schema.initial();
@@ -373,6 +374,7 @@ const utils = {
     entityTypes.set("loot", "Item");
     entityTypes.set("class", "Item");
     entityTypes.set("backpack", "Item");
+    entityTypes.set("container", "Item");
     entityTypes.set("magic-items", "Item");
     entityTypes.set("magic-item-spells", "Item");
     entityTypes.set("npc", "Actor");
