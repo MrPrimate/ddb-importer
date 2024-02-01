@@ -250,7 +250,7 @@ export default class DDBClass {
     // this excludes the subclass features
     this.data.system.description.value += await this._buildClassFeaturesDescription();
     // not all classes have equipment descriptions
-    if (this.ddbClass.definition.equipmentDescription && !this._isSubClass ) {
+    if (this.ddbClass.definition.equipmentDescription && !this._isSubClass) {
       // eslint-disable-next-line require-atomic-updates
       this.data.system.description.value += `<h1>Starting Equipment</h1>\n${this.ddbClass.definition.equipmentDescription}\n\n`;
     }
