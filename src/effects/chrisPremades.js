@@ -46,14 +46,8 @@ export async function getChrisCompendium(type) {
 
 
 async function getFolderId(name, compendiumName) {
-  if (isNewerVersion(11, game.version)) {
-    const folderAPI = game.CF.FICFolderAPI;
-    const allFolders = await folderAPI.loadFolders(compendiumName);
-    return allFolders.find((f) => f.name === name)?.id;
-  } else {
-    const compendium = game.packs.get(compendiumName);
-    return compendium.folders.find((f) => f.name === name)?._id;
-  }
+  const compendium = game.packs.get(compendiumName);
+  return compendium.folders.find((f) => f.name === name)?._id;
 }
 
 function getName(document) {
@@ -119,21 +113,15 @@ async function getItemFromCompendium(key, name, ignoreNotFound, folderId, matche
     return false;
   }
 
-  const packIndex = isNewerVersion(11, game.version)
-    ? await gamePack.getIndex({ fields: ['name', 'type', 'flags.cf.id'].concat(Object.keys(matchedProperties)) })
-    : await gamePack.getIndex({ fields: ['name', 'type', 'folder'].concat(Object.keys(matchedProperties)) });
+  const packIndex = await gamePack.getIndex({
+    fields: ['name', 'type', 'folder'].concat(Object.keys(matchedProperties))
+  });
 
-  const match = isNewerVersion(11, game.version)
-    ? packIndex.find((item) =>
-      item.name === name
-      && (!folderId || (folderId && item.flags.cf?.id === folderId))
-      && (Object.keys(matchedProperties).length === 0 || matchProperties(item, matchedProperties))
-    )
-    : packIndex.find((item) =>
-      item.name === name
-      && (!folderId || (folderId && item.folder === folderId))
-      && (Object.keys(matchedProperties).length === 0 || matchProperties(item, matchedProperties))
-    );
+  const match = packIndex.find((item) =>
+    item.name === name
+    && (!folderId || (folderId && item.folder === folderId))
+    && (Object.keys(matchedProperties).length === 0 || matchProperties(item, matchedProperties))
+  );
 
   if (match) {
     return (await gamePack.getDocument(match._id))?.toObject();

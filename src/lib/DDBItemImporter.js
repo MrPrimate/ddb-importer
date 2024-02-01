@@ -192,20 +192,8 @@ export default class DDBItemImporter {
     return results;
   }
 
-  async compendiumFoldersV10(document) {
-    // using compendium folders?
-    if (this.useCompendiumFolders) {
-      // we create the compendium folder before import
-      DDBMuncher.munchNote(`Adding ${document.name} to compendium folder`);
-      logger.debug(`Adding ${document.name} to compendium folder`);
-      const compendiumFolders = new DDBCompendiumFolders(this.type);
-      await compendiumFolders.loadCompendium(this.type);
-      await compendiumFolders.addToCompendiumFolder(document);
-    }
-  }
-
   async addCompendiumFolderIds(documents) {
-    if (this.useCompendiumFolders && isNewerVersion(game.version, 11)) {
+    if (this.useCompendiumFolders) {
       const compendiumFolders = new DDBCompendiumFolders(this.type);
       await compendiumFolders.loadCompendium(this.type);
       const results = await compendiumFolders.addCompendiumFolderIds(documents);
@@ -368,13 +356,6 @@ export default class DDBItemImporter {
     const createResults = await this.createCompendiumItems(inputItems);
     logger.debug(`Created ${createResults.length} new ${this.type} items in compendium`);
     DDBMuncher.munchNote("", true);
-
-    // compendium folders for v10
-    if (isNewerVersion(11, game.version)) {
-      createResults.forEach(async (document) => {
-        await this.compendiumFoldersV10(document);
-      });
-    }
 
     this.results = createResults.concat(results);
     return new Promise((resolve) => resolve(this.results));

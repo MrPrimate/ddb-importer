@@ -59,7 +59,6 @@ async function buildSubClass(klass, subclass, compendiumSubClassFeatures) {
 export async function getSubClasses(subClassData, klassData) {
   logger.debug("get subclasses started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-  const isV10 = isNewerVersion(11, game.version);
 
   const classHandler = new DDBItemImporter("class", [], { deleteBeforeUpdate: false });
   await classHandler.init();
@@ -70,17 +69,16 @@ export async function getSubClasses(subClassData, klassData) {
   let results = [];
 
   const featureCompendiumFolders = new DDBCompendiumFolders("features");
+  DDBMuncher.munchNote(`Checking compendium folders..`, true);
+  await featureCompendiumFolders.loadCompendium("features");
   const subClassCompendiumFolders = new DDBCompendiumFolders("subclasses");
-  if (!featureCompendiumFolders.isV10) {
-    DDBMuncher.munchNote(`Checking compendium folders..`, true);
-    await featureCompendiumFolders.loadCompendium("features");
-    await subClassCompendiumFolders.loadCompendium("subclasses");
-    DDBMuncher.munchNote("", true);
-  }
+  await subClassCompendiumFolders.loadCompendium("subclasses");
+  DDBMuncher.munchNote("", true);
+
 
   for (const subClass of subClassData) {
     const classMatch = CONFIG.DDB.classConfigurations.find((k) => k.id === subClass.parentClassId);
-    if (!featureCompendiumFolders.isV10) await featureCompendiumFolders.createSubClassFeatureFolder(subClass.name, classMatch.name);
+    await featureCompendiumFolders.createSubClassFeatureFolder(subClass.name, classMatch.name);
     logger.debug(`${subClass.name} feature parsing started...`, { subClass, classMatch });
     const filteredFeatures = subClass.classFeatures
       .filter((feature) =>
@@ -106,8 +104,8 @@ export async function getSubClasses(subClassData, klassData) {
     // srdFidding: false,
     chrisPremades: true,
     // deleteBeforeUpdate: false,
-    removeSRDDuplicates: isV10,
-    filterDuplicates: isV10,
+    removeSRDDuplicates: false,
+    filterDuplicates: false,
     matchFlags: ["featureId"],
     indexFilter: {
       fields: [

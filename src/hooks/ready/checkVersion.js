@@ -6,7 +6,7 @@ const MODULE_NAME = "ddb-importer";
 const MODULE_AUTHOR = "MrPrimate";
 const _GITHUB_API_LATEST = `https://api.github.com/repos/${MODULE_AUTHOR}/${MODULE_NAME}/releases/latest`;
 const _GITHUB_MODULE_JSON_LATEST = `https://raw.githubusercontent.com/${MODULE_AUTHOR}/${MODULE_NAME}/master/module-template.json`;
-const MINIMUM_5E_VERSION = "2.2.0";
+const MINIMUM_5E_VERSION = "3.0.0";
 
 // eslint-disable-next-line consistent-return
 async function getLatestModuleVersion() {

@@ -436,63 +436,7 @@ export default class AdventureMunch extends FormApplication {
       : game.actors.get(actorId);
   }
 
-  static async _getTokenUpdateDataV10(worldActor, sceneToken, token) {
-    const tokenData = await worldActor.getTokenDocument();
-    delete tokenData.y;
-    delete tokenData.x;
-    const jsonTokenData = duplicate(tokenData);
-    const items = [];
-    const ddbItems = sceneToken.flags.ddbItems ?? [];
-    for (const item of ddbItems) {
-      if (item.customItem) {
-        items.push(item.data);
-      } else {
-        const ddbId = getProperty(item, "ddbId");
-        if (Number.isInteger(ddbId)) {
-          // fetch ddbItem
-          const compendium = CompendiumHelper.getCompendiumType(item.type);
-          const itemRef = compendium.index.find((i) => i.name === item.name && i.type === item.type);
-          if (itemRef) {
-            // eslint-disable-next-line no-await-in-loop
-            const compendiumItem = await compendium.getDocument(itemRef._id);
-            const jsonItem = compendiumItem.toObject();
-            delete jsonItem._id;
-            items.push(jsonItem);
-          } else {
-            logger.error(`Unable to find compendium item ${item.name}`, { item, sceneToken });
-          }
-        } else {
-          // fetch actor item here
-          const actorItem = worldActor.items.find((i) => i.name === item.name && i.type === item.type);
-          if (actorItem) {
-            const jsonItem = actorItem.toObject();
-            delete jsonItem._id;
-            items.push(jsonItem);
-          } else {
-            logger.error(`Unable to find monster feature/item ${item.name}`, { item, sceneToken, worldActor });
-          }
-        }
-      }
-    }
-
-    if (items.length > 0) {
-      jsonTokenData.actorData = {
-        items,
-      };
-    }
-
-    if (sceneToken.flags.ddbImages?.keepToken)
-      setProperty(jsonTokenData, "texture.src", sceneToken.flags.ddbImages.tokenImage);
-    if (sceneToken.flags.ddbImages?.keepAvatar)
-      setProperty(jsonTokenData, "actorData.img", sceneToken.flags.ddbImages.avatarImage);
-
-    const updateData = mergeObject(jsonTokenData, sceneToken);
-    logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
-    return updateData;
-  }
-
-
-  static async _getTokenUpdateDataV11(worldActor, sceneToken) {
+  static async _getTokenUpdateData(worldActor, sceneToken) {
     const items = [];
     const ddbItems = sceneToken.flags.ddbItems ?? [];
     for (const item of ddbItems) {
@@ -570,7 +514,7 @@ export default class AdventureMunch extends FormApplication {
         const worldActor = this._getWorldActor(token.actorId);
         if (worldActor) {
           // eslint-disable-next-line no-await-in-loop
-          const updateData = await AdventureMunch._getTokenUpdateDataV11(worldActor, sceneToken);
+          const updateData = await AdventureMunch._getTokenUpdateData(worldActor, sceneToken);
           tokenResults.push(updateData);
         } else {
           deadTokens.push(token._id);
@@ -629,11 +573,6 @@ export default class AdventureMunch extends FormApplication {
     const scene = duplicate(document);
     // this is a scene we need to update links to all items
     logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
-
-    if (!isNewerVersion(game.version, 11)) {
-      // in v10 we need to revisit all tokens
-      await this._revisitSceneV10(scene);
-    }
 
     if (!this.importToAdventureCompendium) {
       // In 0.8.x the thumbs don't seem to be generated.

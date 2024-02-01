@@ -23,11 +23,7 @@ function buildBaseOverrideEffect(label) {
       ddbimporter: { disabled: false, itemId: null, entityTypeId: null }
     },
   };
-  if (isNewerVersion(game.version, 11)) {
-    effect.name = label;
-  } else {
-    effect.label = label;
-  }
+  effect.name = label;
   return effect;
 }
 

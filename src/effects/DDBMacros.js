@@ -103,9 +103,6 @@ export default class DDBMacros {
       if (itemMacroSheet) {
         game.settings.set("itemacro", "charsheet", false);
       }
-    } else if (isNewerVersion(11, game.version)) {
-      logger.warn("Item Macro is recommended to be installed for effects");
-      // ui.notifications.warn("Item Macro is recommended to be installed for effects");
     }
 
     if (game.modules.get("warpgate")?.active && DDBEffectHelper.checkJB2a(true, true, false)) {
@@ -128,14 +125,9 @@ export default class DDBMacros {
       const response = await fetch(url, { method: "GET" });
       data = await response.text();
     } else if (fileExists && (!embedMacros || forceDDB)) {
-      data = `
-  // Execute DDB Importer dynamic macro
-  if (isNewerVersion(11, game.version)) {
-    return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${fileName}", ...args);
-  } else {
-    return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${fileName}", scope);
-  }
-  `;
+      data = `// Execute DDB Importer dynamic macro
+return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${fileName}", scope);
+`;
     } else if (!fileExists) {
       data = "// Unable to load the macro file";
     }

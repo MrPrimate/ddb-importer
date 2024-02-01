@@ -247,18 +247,11 @@ export function effectModules() {
   const chrisInstalled = game.modules.get("chris-premades")?.active ?? false;
   const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
   const warpgateInstalled = game.modules.get("warpgate")?.active ?? false;
-  // v10 only
-  const itemMacroInstalled = game.modules.get("itemacro")?.active ?? false;
-  const advancedMacrosInstalled = game.modules.get("advanced-macros")?.active ?? false;
 
-  const v10 = isNewerVersion(11, game.version);
   CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
-    hasCore: midiQolInstalled && timesUp && daeInstalled && convenientEffectsInstalled
-      && ((v10 && advancedMacrosInstalled && itemMacroInstalled) || !v10),
+    hasCore: midiQolInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
     hasMonster: midiQolInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
     midiQolInstalled,
-    itemMacroInstalled,
-    advancedMacrosInstalled,
     timesUp,
     daeInstalled,
     convenientEffectsInstalled,
@@ -307,12 +300,8 @@ export function baseEffect(foundryItem, label,
       core: {},
     },
   };
-  if (isNewerVersion(game.version, 11)) {
-    effect.name = label;
-    effect.statuses = [];
-  } else {
-    effect.label = label;
-  }
+  effect.name = label;
+  effect.statuses = [];
   return effect;
 }
 
@@ -1334,11 +1323,7 @@ function generateEffectDuration(foundryItem) {
 
 function consumableEffect(effect, ddbItem, foundryItem) {
   let label = `${foundryItem.name} - Consumable Effects`;
-  if (isNewerVersion(game.version, 11)) {
-    effect.name = label;
-  } else {
-    effect.label = label;
-  }
+  effect.name = label;
   effect.disabled = false;
   effect.transfer = false;
   setProperty(effect, "flags.ddbimporter.disabled", false);

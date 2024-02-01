@@ -185,7 +185,7 @@ export function collectSceneData(scene, bookCode) {
         elevation: token.elevation,
         hidden: token.hidden,
         tint: token.tint,
-        actorData: isNewerVersion(game.version, 11) ? token.delta.toObject() : token.actorData,
+        actorData: token.delta.toObject(),
         light: token.light,
       };
 

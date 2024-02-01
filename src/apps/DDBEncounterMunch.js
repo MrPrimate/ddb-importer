@@ -394,8 +394,6 @@ export default class DDBEncounterMunch extends Application {
       this.scene = worldScene;
     }
 
-    const delta = isNewerVersion(game.version, 11) ? "delta" : "actorData";
-
     if (sceneData) {
       let tokenData = [];
       const useDDBSave
@@ -428,8 +426,8 @@ export default class DDBEncounterMunch extends Application {
               if (useDDBSave) {
                 setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", character.initiative);
               }
-              setProperty(linkedToken, `${delta}.flags.ddbimporter.encounters`, true);
-              setProperty(linkedToken, `${delta}.flags.ddbimporter.encounterId`, this.encounter.id);
+              setProperty(linkedToken, `delta.flags.ddbimporter.encounters`, true);
+              setProperty(linkedToken, `delta.flags.ddbimporter.encounterId`, this.encounter.id);
               linkedToken.x = xStartPixelPC;
               const yOffsetChange = characterCount * sceneData.grid.size;
               linkedToken.y = yStartPixel + yOffsetChange;
@@ -454,12 +452,12 @@ export default class DDBEncounterMunch extends Application {
         }
 
         setProperty(linkedToken, "name", worldMonster.ddbName);
-        setProperty(linkedToken, `${delta}.name`, worldMonster.ddbName);
+        setProperty(linkedToken, `delta.name`, worldMonster.ddbName);
         setProperty(linkedToken, "flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
         setProperty(linkedToken, "flags.ddbimporter.encounterId", this.encounter.id);
-        setProperty(linkedToken, `${delta}.flags.ddbimporter.dndbeyond.uniqueId`, worldMonster.uniqueId);
-        setProperty(linkedToken, `${delta}.flags.ddbimporter.encounters`, true);
-        setProperty(linkedToken, `${delta}.flags.ddbimporter.encounterId`, this.encounter.id);
+        setProperty(linkedToken, `delta.flags.ddbimporter.dndbeyond.uniqueId`, worldMonster.uniqueId);
+        setProperty(linkedToken, `delta.flags.ddbimporter.encounters`, true);
+        setProperty(linkedToken, `delta.flags.ddbimporter.encounterId`, this.encounter.id);
         const xOffsetChange = sceneData.grid.size * monsterRows;
         const yOffsetChange = monsterDepth * sceneData.grid.size;
         linkedToken.x = xStartPixelMonster + xOffsetChange;
@@ -468,10 +466,10 @@ export default class DDBEncounterMunch extends Application {
           setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", worldMonster.initiative);
           // if no hp changes have been made on a monster on ddb it says 0 here
           if (worldMonster.maximumHitPoints !== 0) {
-            setProperty(linkedToken, `${delta}.system.attributes.hp.max`, worldMonster.maximumHitPoints);
+            setProperty(linkedToken, `delta.system.attributes.hp.max`, worldMonster.maximumHitPoints);
             setProperty(
               linkedToken,
-              `${delta}.system.attributes.hp.value`,
+              `delta.system.attributes.hp.value`,
               worldMonster.currentHitPoints + worldMonster.temporaryHitPoints
             );
           }

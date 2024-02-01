@@ -62,11 +62,7 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
     disabled: false,
     selectedKey: [],
   };
-  if (isNewerVersion(game.version, 11)) {
-    effect.name = "Beast Companion Effects";
-  } else {
-    effect.label = "Beast Companion Effects";
-  }
+  effect.name = "Beast Companion Effects";
   DICTIONARY.character.abilities.filter((ability) => extra.system.abilities[ability.value].proficient >= 1).forEach((ability) => {
     const boost = {
       key: `data.abilities.${ability.value}.save`,
@@ -123,11 +119,7 @@ function generateArtificerDamageEffect(actor, extra) {
     disabled: false,
     selectedKey: [],
   };
-  if (isNewerVersion(game.version, 11)) {
-    effect.name = "Artificer Extra Effects";
-  } else {
-    effect.label = "Artificer Extra Effects";
-  }
+  effect.name = "Artificer Extra Effects";
   extra.effects = [effect];
   return extra;
 }

@@ -15,12 +15,7 @@ export function stormRuneEffect(document) {
   let bonusEffect = baseFeatEffect(document, `${document.name} (Prophetic State)`);
   setProperty(bonusEffect, "duration.seconds", 60);
   setProperty(bonusEffect, "flags.dae.stackable", "noneName");
-
-  if (isNewerVersion(11, game.version)) {
-    setProperty(bonusEffect, "flags.core.statusId", "Prophetic State");
-  } else {
-    bonusEffect.statuses.push("Prophetic State");
-  }
+  bonusEffect.statuses.push("Prophetic State");
 
   // Missing effect for Prophetic State to enforce adv or disvantage
 

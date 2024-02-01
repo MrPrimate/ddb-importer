@@ -13,8 +13,7 @@ export default async function () {
         image: compendium.image,
       };
 
-      const createCompendiumFolder = isNewerVersion(game.version, 11)
-        && game.settings.get(SETTINGS.MODULE_ID, "top-level-compendium-folder");
+      const createCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "top-level-compendium-folder");
       const compendiumFolder = createCompendiumFolder
         // eslint-disable-next-line no-await-in-loop
         ? await FolderHelper.getFolder("compendium", "", "D&D Beyond", "#6f0006", "#98020a", false)

@@ -11,11 +11,7 @@ export function paladinDefaultAuraEffect(document) {
         hidden: false,
         displayTemp: true,
       };
-      if (isNewerVersion(11, game.version)) {
-        setProperty(effect, "flags.core.statusId", "1");
-      } else {
-        effect.statuses.push(effect.name);
-      }
+      effect.statuses.push(effect.name);
       setProperty(effect, "flags.dae.stackable", "noneName");
     }
   });

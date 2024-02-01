@@ -95,13 +95,7 @@ export default class DDBEffectHelper {
         || getProperty(data, "flags.ddbimporter.chrisEffectsApplied") === true
       ) {
         logger.debug("New effects generated, removing existing effects");
-        if (isNewerVersion(game.version, 11)) {
-          await document.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-        } else {
-          await document.update({
-            effects: [],
-          }, { ...document, recursive: false });
-        }
+        await document.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
         logger.debug(`Removal complete, adding effects to item ${document.name}`);
 
         logger.info(`Updating actor document ${document.name} with`, {
@@ -163,11 +157,7 @@ export default class DDBEffectHelper {
         },
       },
     };
-    if (isNewerVersion(game.version, 11)) {
-      effectData.name = `${originItem.name}${additionLabel}: Save Advantage`;
-    } else {
-      effectData.label = `${originItem.name}${additionLabel}: Save Advantage`;
-    }
+    effectData.name = `${originItem.name}${additionLabel}: Save Advantage`;
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [effectData] });
   }
 
@@ -204,9 +194,7 @@ export default class DDBEffectHelper {
 
   static checkCollision(ray, types = ["sight", "move"], mode = "any") {
     for (const type of types) {
-      const result = isNewerVersion(11, game.version)
-        ? canvas.walls.checkCollision(ray, { mode, type })
-        : CONFIG.Canvas.polygonBackends[type].testCollision(ray.A, ray.B, { mode, type });
+      const result = CONFIG.Canvas.polygonBackends[type].testCollision(ray.A, ray.B, { mode, type });
       if (result) return result;
     }
     return false;
@@ -259,11 +247,7 @@ export default class DDBEffectHelper {
           && data.item.origin === macroData.sourceItemUuid
         ) {
           data.recheckAnimation = true;
-          if (isNewerVersion(game.version, 11)) {
-            data.item.name = customStatusName;
-          } else {
-            data.item.label = customStatusName;
-          }
+          data.item.name = customStatusName;
           Hooks.off("AutomatedAnimations-WorkflowStart", aaHookId);
         }
       });
@@ -369,19 +353,11 @@ export default class DDBEffectHelper {
    * @return {Effect} - The effect with the specified name, or undefined if not found.
    */
   static findEffect(actor, name) {
-    if (isNewerVersion(game.version, 11)) {
-      return actor.effects.getName(name);
-    } else {
-      return actor.effects.find((e) => e.label === name);
-    }
+    return actor.effects.getName(name);
   }
 
   static getActorEffects(actor) {
-    if (isNewerVersion(game.version, 11)) {
-      return Array.from(actor?.allApplicableEffects() ?? []);
-    } else {
-      return actor.effects;
-    }
+    return Array.from(actor?.allApplicableEffects() ?? []);
   }
 
   /**

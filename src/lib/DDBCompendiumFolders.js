@@ -3,7 +3,6 @@ import DICTIONARY from "../dictionary.js";
 import logger from "../logger.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import utils from "./utils.js";
-import { addToCompendiumFolder, createCompendiumFolderStructure, migrateExistingCompendium } from "../muncher/compendiumFolders.js";
 
 export class DDBCompendiumFolders {
   resetFolderLookups() {
@@ -21,7 +20,6 @@ export class DDBCompendiumFolders {
   }
 
   constructor(type, packName) {
-    this.isV10 = isNewerVersion(11, game.version);
     this.type = type;
     this.packName = packName;
     this.resetFolderLookups();
@@ -259,9 +257,6 @@ export class DDBCompendiumFolders {
   }
 
   async createCompendiumFolders() {
-    if (this.isV10) {
-      return createCompendiumFolderStructure(this.type);
-    }
     logger.debug(`Checking and creating Compendium folder structure for ${this.type}`);
 
     switch (this.type) {
@@ -600,10 +595,6 @@ export class DDBCompendiumFolders {
   }
 
   async addToCompendiumFolder(document) {
-    if (this.isV10) {
-      await addToCompendiumFolder(this.type, document);
-      return;
-    }
     logger.debug(`Checking ${document.name} in ${this.packName}`);
 
     const folderName = this.getCompendiumFolderName(document);
@@ -671,9 +662,6 @@ export class DDBCompendiumFolders {
   }
 
   async migrateExistingCompendium() {
-    if (this.isV10) {
-      return migrateExistingCompendium(this.type);
-    }
     if (!this.compendium) return undefined;
 
     const foldersToRemove = this.compendium.folders.filter((f) => !this.validFolderIds.includes(f._id));
@@ -724,12 +712,10 @@ export class DDBCompendiumFolders {
   }
 
   async removeUnusedFolders() {
-    if (!this.isV10) {
-      const folderIds = this.compendium.folders
-        .filter((c) => c.contents.length === 0 && c.children.length === 0)
-        .map((f) => f.id);
-      logger.debug("Deleting compendium folders", folderIds);
-      await Folder.deleteDocuments(folderIds, { pack: this.packName });
-    }
+    const folderIds = this.compendium.folders
+      .filter((c) => c.contents.length === 0 && c.children.length === 0)
+      .map((f) => f.id);
+    logger.debug("Deleting compendium folders", folderIds);
+    await Folder.deleteDocuments(folderIds, { pack: this.packName });
   }
 }

@@ -29,7 +29,7 @@ export function baseMonsterFeatureEffect(document, label,
 
 export function transferEffectsToActor(document) {
   // when legacy transferral gets removed, we don't need to do this.
-  if (isNewerVersion(game.version, 11) && !CONFIG.ActiveEffect.legacyTransferral) return document;
+  if (!CONFIG.ActiveEffect.legacyTransferral) return document;
   if (!document.effects) document.effects = [];
   // loop over items and item effect and transfer any effects to the actor
   document.items.forEach((item) => {

@@ -79,14 +79,10 @@ export async function getClasses(data) {
   let klasses = [];
   let classFeatures = [];
 
-  const isV10 = isNewerVersion(11, game.version);
-
   const compendiumFolders = new DDBCompendiumFolders("features");
-  if (!compendiumFolders.isV10) {
-    DDBMuncher.munchNote(`Checking compendium folders..`, true);
-    await compendiumFolders.loadCompendium("features");
-    DDBMuncher.munchNote("", true);
-  }
+  DDBMuncher.munchNote(`Checking compendium folders..`, true);
+  await compendiumFolders.loadCompendium("features");
+  DDBMuncher.munchNote("", true);
 
   for (const klass of data) {
     logger.debug(`${klass.name} feature parsing started...`, { klass });
@@ -112,8 +108,8 @@ export async function getClasses(data) {
     // srdFidding: false,
     chrisPremades: true,
     // deleteBeforeUpdate: false,
-    removeSRDDuplicates: isV10,
-    filterDuplicates: isV10,
+    removeSRDDuplicates: false,
+    filterDuplicates: false,
     matchFlags: ["featureId"],
   };
 

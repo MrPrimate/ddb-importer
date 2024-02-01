@@ -8,11 +8,7 @@ export function stoneRuneEffect(document) {
   setProperty(document, "system.range.value", 30);
 
   let bonusEffect = baseFeatEffect(document, `${document.name} (Charm Effect)`);
-  if (isNewerVersion(11, game.version)) {
-    setProperty(bonusEffect, "flags.core.statusId", `${document.name} (Charm Effect)`);
-  } else {
-    bonusEffect.statuses.push(`${document.name} (Charm Effect)`);
-  }
+  bonusEffect.statuses.push(`${document.name} (Charm Effect)`);
   setProperty(bonusEffect, "duration.seconds", 60);
   bonusEffect.changes.push(generateStatusEffectChange("Charmed", 20, true));
   bonusEffect.changes.push(generateStatusEffectChange("Incapacitated", 20, true));

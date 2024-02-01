@@ -106,11 +106,6 @@ async function addNPCToCompendium(npc, type = "monster") {
       compendiumNPC = await Actor.create(npcBasic, options);
     }
 
-    // using compendium folders v10?
-    if (compendiumNPC && isNewerVersion(11, game.version)) {
-      await itemImporter.compendiumFoldersV10(compendiumNPC);
-      return compendiumNPC;
-    }
   } else {
     logger.error("Error opening compendium, check your settings");
   }

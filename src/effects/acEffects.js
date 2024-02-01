@@ -32,11 +32,7 @@ function buildBaseACEffect(label) {
     selectedKey: [],
     icon: "icons/svg/shield.svg",
   };
-  if (isNewerVersion(game.version, 11)) {
-    effect.name = label;
-  } else {
-    effect.label = label;
-  }
+  effect.name = label;
   return effect;
 }
 

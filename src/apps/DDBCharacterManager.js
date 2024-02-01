@@ -1108,12 +1108,7 @@ export default class DDBCharacterManager extends FormApplication {
       ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
     );
     const coreStatusEffects = this.effectBackup.filter((ae) => {
-      const statuses = isNewerVersion(11, game.version)
-        ? getProperty(ae, "flags.core.statusId")
-        : ae.statuses;
-      const isStatus = isNewerVersion(11, game.version)
-        ? statuses && String(statuses).trim() !== ""
-        : statuses.length > 0;
+      const isStatus = ae.statuses.length > 0;
       const itemEffect = ae.origin?.includes(".Item.");
       return isStatus && !itemEffect;
     });
@@ -1122,9 +1117,7 @@ export default class DDBCharacterManager extends FormApplication {
     const charEffects = this.effectBackup.filter((ae) =>
       !ignoredItemIds.some((id) => ae._id === id)
       && !ae.flags.ddbimporter?.characterEffect
-      && (isNewerVersion(11, game.version)
-        ? !ae.flags?.core?.statusId
-        : (!ae.statuses.length > 0))
+      && !ae.statuses.length > 0
       && !ae.origin?.includes(".Item.")
     );
     // effects that are added by the ddb importer that are not item effects
@@ -1174,6 +1167,7 @@ export default class DDBCharacterManager extends FormApplication {
   }
 
   fixUpCharacterEffects() {
+    // if (!CONFIG.ActiveEffect.legacyTransferral) return;
     let abilityOverrides = abilityOverrideEffects(this.result.character.flags.ddbimporter.dndbeyond.abilityOverrides);
     if (abilityOverrides.changes.length > 0) {
       this.result.character.effects = this.result.character.effects.concat(abilityOverrides);

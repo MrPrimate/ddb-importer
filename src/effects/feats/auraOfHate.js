@@ -10,11 +10,7 @@ export function auraOfHateEffect(document) {
     "value": "+@abilities.cha.mod",
     "priority": 20
   });
-  if (isNewerVersion(11, game.version)) {
-    setProperty(alliesEffect, "flags.core.statusId", "1");
-  } else {
-    alliesEffect.statuses.push(alliesEffect.name);
-  }
+  alliesEffect.statuses.push(alliesEffect.name);
   setProperty(alliesEffect, "flags.dae.stackable", "none");
 
   document.effects.push(alliesEffect);
@@ -39,11 +35,8 @@ export function auraOfHateEffect(document) {
     "value": "+@abilities.cha.mod",
     "priority": 20
   });
-  if (isNewerVersion(11, game.version)) {
-    setProperty(otherEffect, "flags.core.statusId", "1");
-  } else {
-    otherEffect.statuses.push(otherEffect.name);
-  }
+  otherEffect.statuses.push(otherEffect.name);
+
   setProperty(otherEffect, "flags.dae.stackable", "none");
 
   document.effects.push(otherEffect);
