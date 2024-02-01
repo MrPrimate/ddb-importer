@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Great Weapon Master and Sharpshooter no longer rely on CE.
+- DDB Importer v4.0.0 no longer supports Foundry 10, or 5e versions earlier than v3.0.0.
 
 # 3.7.17
 
