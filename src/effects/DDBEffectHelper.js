@@ -28,6 +28,8 @@ export default class DDBEffectHelper {
 
   static generateStatusEffectChange = generateStatusEffectChange;
 
+  static addStatusEffectChange = this.addStatusEffectChange;
+
   /**
    * Generates and applies DDBI effects to a document.
    *
