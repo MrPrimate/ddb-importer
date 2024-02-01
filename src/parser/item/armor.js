@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
+import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity, getDescription, getBaseItem } from "./common.js";
 
 /**
  * Gets the DND5E weapontype (simpleM, martialR etc.) as string
@@ -29,7 +29,11 @@ function getArmorType(data, character, flags) {
 
   // get the max dex modifier (Medium Armor: 2, Heavy: 0)
   let maxDexModifier;
-  const armorType = nameEntry !== undefined ? nameEntry.value : idEntry !== undefined ? idEntry.value : "medium";
+  const armorType = nameEntry !== undefined
+    ? nameEntry.value
+    : idEntry !== undefined
+      ? idEntry.value
+      : "medium";
 
   switch (armorType) {
     case "heavy":
@@ -87,7 +91,7 @@ export default function parseArmor(data, character, flags) {
   let armor = {
     name: data.definition.name,
     type: "equipment",
-    system: utils.getTemplate("equipment"),
+    system: utils.getTemplate("armor"),
     flags: {
       ddbimporter: {
         dndbeyond: {
@@ -97,9 +101,14 @@ export default function parseArmor(data, character, flags) {
     },
   };
 
-  armor.system.armor = getArmorType(data, character, flags);
+  const armorType = getArmorType(data, character, flags);
+
+  armor.system.armor.value = armorType.value;
+  armor.system.armor.dex = armorType.dex;
+  armor.system.type.value = armorType.type;
+  armor.system.type.baseItem = getBaseItem(data).baseItem;
   armor.system.strength = getStrength(data);
-  armor.system.stealth = getStealthPenalty(data);
+  armor.system.properties['getStealthPenalty'] = getStealthPenalty(data);
   armor.system.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
   armor.system.description = getDescription(data);
   armor.system.source = DDBHelper.parseSource(data.definition);

@@ -146,6 +146,12 @@ export function getAttunement(item) {
   }
 }
 
+/**
+ * Retrieves the base item and tool type based on the provided data definition.
+ *
+ * @param {Object} data - The data definition object
+ * @return {Object} An object containing the base item and tool type
+ */
 export function getBaseItem(data) {
   let baseItem = "";
   let toolType = "";
