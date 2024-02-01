@@ -266,7 +266,6 @@ export default class DDBClass {
   }
 
   constructor(ddbData, classId, { noMods = false } = {}) {
-    this.legacyMode = foundry.utils.isNewerVersion("2.4.0", game.system.version);
     this._indexFilter = {
       features: {
         fields: [
@@ -439,42 +438,6 @@ export default class DDBClass {
     this.data.system.levels = this.ddbClass.level;
   }
 
-  // LEGACY SETS
-
-  /**
-   * Sets saves if legacy mode is enabled.
-   *
-   * @return {undefined} - This function does not return a value.
-   */
-  _setLegacySaves() {
-    if (!this.legacyMode) return;
-    DICTIONARY.character.abilities.forEach((ability) => {
-      const mods = DDBHelper.getChosenClassModifiers(this.ddbData);
-      const save = DDBHelper.filterModifiersOld(mods, "proficiency", `${ability.long}-saving-throws`, [null, ""], true).length > 0;
-      if (save) this.data.system.saves.push(ability.value);
-    });
-  }
-
-
-  /**
-   * Sets the skills for the class if in legacy mode.
-   *
-   * @return {undefined} No return value.
-   */
-  _setLegacySkills() {
-    if (!this.legacyMode) return;
-
-    const skills = this.advancementHelper.getSkillChoicesFromOptions(null, 1, this._proficiencyFeatures);
-
-    this.data.system.skills = {
-      value: skills.chosen,
-      number: skills.chosen.length,
-      choices: skills.choices,
-    };
-
-  }
-
-
   // ADVANCEMENT FUNCTIONS
 
   // don't generate feature advancements for these features
@@ -502,7 +465,7 @@ export default class DDBClass {
 
     const advancements = [];
     this.classFeatures
-      .filter((feature) => this.legacyMode || (!this.legacyMode && !DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS.includes(feature.name)))
+      .filter((feature) => !DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS.includes(feature.name))
       .forEach((feature) => {
         const featureMatch = this.getFeatureCompendiumMatch(feature);
 
@@ -617,7 +580,6 @@ export default class DDBClass {
   }
 
   _generateSaveAdvancements() {
-    if (this.legacyMode) return;
     if (this.options.noMods) {
       this._generateHTMLSaveAdvancement();
       return;
@@ -660,7 +622,6 @@ export default class DDBClass {
   }
 
   _generateSkillAdvancements() {
-    if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
@@ -699,7 +660,6 @@ export default class DDBClass {
   }
 
   _generateLanguageAdvancements() {
-    if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
@@ -715,7 +675,6 @@ export default class DDBClass {
   }
 
   _generateSkillOrLanguageAdvancements() {
-    if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
@@ -761,7 +720,6 @@ export default class DDBClass {
   }
 
   _generateToolAdvancements() {
-    if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
@@ -789,7 +747,6 @@ export default class DDBClass {
   }
 
   _generateArmorAdvancements() {
-    if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
@@ -817,7 +774,6 @@ export default class DDBClass {
   }
 
   _generateWeaponAdvancements() {
-    if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
@@ -833,7 +789,6 @@ export default class DDBClass {
   }
 
   _generateExpertiseAdvancements() {
-    if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
@@ -862,7 +817,6 @@ export default class DDBClass {
   }
 
   _generateConditionAdvancements() {
-    if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
@@ -917,14 +871,13 @@ export default class DDBClass {
         srdA.type === "ScaleValue"
         && !this.data.system.advancement.some((ddbA) => ddbA.configuration.identifier === srdA.configuration.identifier)
       ).map((advancement) => {
-        return foundry.utils.isNewerVersion(game.system.version, "2.0.3") ? advancement.toObject() : advancement;
+        return advancement.toObject();
       });
       this.data.system.advancement.push(...scaleAdvancements);
     }
   }
 
   _generateAbilityScoreAdvancement() {
-    if (this.legacyMode) return;
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
@@ -1030,10 +983,6 @@ export default class DDBClass {
     await this._generateCommonAdvancements();
     this._generateHitDice();
     this._generateAbilityScoreAdvancement();
-
-    // if pre 2.4 generate skills and saves as data not advancements
-    this._setLegacySkills();
-    this._setLegacySaves();
 
     // finally a description
     await this._generateDescriptionStub(character);

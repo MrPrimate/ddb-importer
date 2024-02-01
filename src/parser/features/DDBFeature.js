@@ -131,8 +131,6 @@ export default class DDBFeature extends DDBBaseFeature {
   }
 
   _generateSkillAdvancements() {
-    if (this.legacyMode) return;
-
     const mods = this.advancementHelper.noMods
       ? []
       : DDBHelper.getModifiers(this.ddbData, this.type);
@@ -146,7 +144,6 @@ export default class DDBFeature extends DDBBaseFeature {
   }
 
   _generateLanguageAdvancements() {
-    if (this.legacyMode) return;
     const mods = this.advancementHelper.noMods
       ? []
       : DDBHelper.getModifiers(this.ddbData, this.type);
@@ -156,7 +153,6 @@ export default class DDBFeature extends DDBBaseFeature {
   }
 
   _generateToolAdvancements() {
-    if (this.legacyMode) return;
     const mods = this.advancementHelper.noMods
       ? []
       : DDBHelper.getModifiers(this.ddbData, this.type);

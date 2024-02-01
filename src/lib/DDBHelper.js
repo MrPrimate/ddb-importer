@@ -263,21 +263,14 @@ const DDBHelper = {
       })
       : null;
 
-    if (foundry.utils.isNewerVersion("2.4.0", game.system.version)) {
-      if (!latestSource) return "";
-      let source = latestSource.book;
-      if (latestSource.page) source += ` (pg. ${latestSource.page})`;
-      return source;
-    } else {
-      if (!latestSource) return {
-        name: "",
-        page: "",
-        license: "",
-        custom: "",
-      };
-      delete latestSource.id;
-      return latestSource;
-    }
+    if (!latestSource) return {
+      name: "",
+      page: "",
+      license: "",
+      custom: "",
+    };
+    delete latestSource.id;
+    return latestSource;
   },
 
   getActiveItemModifiers: (ddb, includeExcludedEffects = false) => {

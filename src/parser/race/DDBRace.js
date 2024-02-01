@@ -14,8 +14,8 @@ export default class DDBRace {
   _generateDataStub() {
     this.data = {
       name: "",
-      type: this.legacyMode ? "feat" : "race",
-      system: utils.getTemplate(this.legacyMode ? "feat" : "race"),
+      type: "race",
+      system: utils.getTemplate("race"),
       flags: {
         ddbimporter: {
           type: "race",
@@ -28,10 +28,6 @@ export default class DDBRace {
       },
       img: null,
     };
-
-    if (this.legacyMode) {
-      setProperty(this.data, "system.type.value", "race");
-    }
   }
 
   #fixups() {
@@ -42,7 +38,6 @@ export default class DDBRace {
   }
 
   constructor(ddbData, race, compendiumRacialTraits) {
-    this.legacyMode = foundry.utils.isNewerVersion("2.4.0", game.system.version);
     this.ddbData = ddbData;
     this.race = race;
     this.#fixups();
@@ -86,9 +81,7 @@ export default class DDBRace {
     this.#addWeightSpeeds();
     this.#addSizeAdvancement();
 
-    this.abilityAdvancement = this.legacyMode
-      ? null
-      : (new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement());
+    this.abilityAdvancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
 
     this.advancementHelper = new AdvancementHelper({
       ddbData: this.ddbData,
@@ -169,7 +162,6 @@ export default class DDBRace {
   }
 
   #addWeightSpeeds() {
-    if (this.legacyMode) return;
     if (this.race.weightSpeeds?.normal) {
       this.data.system.movement = {
         burrow: this.race.weightSpeeds.normal.burrow ?? 0,
@@ -184,7 +176,6 @@ export default class DDBRace {
   }
 
   #addSizeAdvancement() {
-    if (this.legacyMode) return;
     const advancement = new game.dnd5e.documents.advancement.SizeAdvancement();
 
     const ddbSizeData = CONFIG.DDB.creatureSizes.find((s) => s.id === this.race.sizeId);
@@ -199,7 +190,6 @@ export default class DDBRace {
   }
 
   #flightCheck(trait) {
-    if (this.legacyMode) return;
     if (trait.name.trim() === "Flight" && getProperty(this.race, "weightSpeeds.normal.fly") === 0) {
       const typeRegex = /you have a flying speed equal to your walking speed/i;
       const flightMatch = trait.description.match(typeRegex);
@@ -211,7 +201,6 @@ export default class DDBRace {
   }
 
   #addAbilityScoreAdvancement(trait) {
-    if (this.legacyMode) return;
     if (!["Ability Score Increase", "Ability Score Increases"].includes(trait.name.trim())) return;
     const pointMatchRegex = /Your ability scores each increase by 1|or increase three different scores by 1/i;
     if (pointMatchRegex.test(trait.description)) {
@@ -260,7 +249,6 @@ export default class DDBRace {
   }
 
   #generateAbilityAdvancement() {
-    if (this.legacyMode) return;
     this.race.racialTraits.forEach((t) => {
       const trait = t.definition;
       if (!["Ability Score Increase", "Ability Score Increases"].includes(trait.name.trim())) return;
@@ -271,7 +259,6 @@ export default class DDBRace {
 
   // skills, e.g. variant human
   #generateSkillAdvancement(trait) {
-    if (this.legacyMode) return;
     if (!["Skills"].includes(trait.name.trim())) return;
 
     const mods = this.advancementHelper.noMods
@@ -287,7 +274,6 @@ export default class DDBRace {
   }
 
   #generateLanguageAdvancement(trait) {
-    if (this.legacyMode) return;
     if (!["Languages"].includes(trait.name.trim())) return;
 
     const mods = this.advancementHelper.noMods
@@ -299,7 +285,6 @@ export default class DDBRace {
   }
 
   #geneateToolAdvancement(trait) {
-    if (this.legacyMode) return;
     if (!["Tools"].includes(trait.name.trim())) return;
 
     const mods = this.advancementHelper.noMods
@@ -311,7 +296,6 @@ export default class DDBRace {
   }
 
   async #generateFeatAdvancement(trait) {
-    if (this.legacyMode) return;
     if (!["Feats", "Feat"].includes(trait.name.trim())) return;
 
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
@@ -373,7 +357,6 @@ export default class DDBRace {
 
 
   linkFeatures(ddbCharacter) {
-    if (this.legacyMode) return;
     logger.debug("Linking Advancements to Feats for Race", {
       DDBRace: this,
       ddbCharacter,

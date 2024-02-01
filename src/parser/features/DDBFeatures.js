@@ -58,7 +58,6 @@ export default class DDBFeatures {
   }
 
   static includedFeatureNameCheck(featName) {
-    const legacyMode = foundry.utils.isNewerVersion("2.4.0", game.system.version);
     const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-include-versatile-features");
 
     const nameAllowed = !featName.startsWith("Proficiencies")
@@ -67,7 +66,7 @@ export default class DDBFeatures {
       // && !featName.startsWith("Skills")
       && (includeTashaVersatile || (!includeTashaVersatile && !DDBFeatures.TASHA_VERSATILE.includes(featName)))
       && !DDBFeatures.LEGACY_SKIPPED_FEATURES.includes(featName)
-      && (legacyMode || (!legacyMode && !DDBFeatures.SKIPPED_FEATURES.includes(featName)));
+      && !DDBFeatures.SKIPPED_FEATURES.includes(featName);
 
     return nameAllowed;
   }

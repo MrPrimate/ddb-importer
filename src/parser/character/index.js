@@ -83,9 +83,6 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this._generateDescription();
   this._generateAlignment();
   this._generateBiography();
-  if (foundry.utils.isNewerVersion("2.4.0", game.system.version)) {
-    this.raw.character.system.details.race = this.source.ddb.character.race.fullName;
-  }
   this._generateSize();
   // immunities, resistances, vuls and condition immunities
   this._generateConditions();

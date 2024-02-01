@@ -54,7 +54,7 @@ async function addSRDAdvancements(advancements, klass) {
       srdA.type === "ScaleValue"
       && !advancements.some((ddbA) => ddbA.configuration.identifier === srdA.configuration.identifier)
     ).map((advancement) => {
-      return foundry.utils.isNewerVersion(game.system.version, "2.0.3") ? advancement.toObject() : advancement;
+      return advancement.toObject();
     });
     advancements.push(...scaleAdvancements);
   }

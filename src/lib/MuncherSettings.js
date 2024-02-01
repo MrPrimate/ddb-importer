@@ -194,8 +194,8 @@ const MuncherSettings = {
       {
         name: "add-description-to-chat",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "add-description-to-chat"),
-        description: "If using D&D System 2.4 or greater, add the snippet to the chat card (otherwise will use description).",
-        enabled: !foundry.utils.isNewerVersion("2.4.0", game.system.version),
+        description: "Add the snippet to the chat card (otherwise will use description).",
+        enabled: true,
       },
       {
         name: "use-actions-as-features",

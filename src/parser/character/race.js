@@ -14,38 +14,36 @@ DDBCharacter.prototype._generateRace = async function _generateRace() {
   // update character race value with race type
   setProperty(this.raw.character, "system.details.type.value", this.raw.race.type);
 
-  if (!this._ddbRace.legacyMode) {
-    // console.warn("Race Advancement", JSON.parse(JSON.stringify(this.raw.race.system.advancement)));
-    this.raw.race.system.advancement.forEach((a) => {
-      switch (a.type) {
-        case "AbilityScoreImprovement": {
-          a.value = {
-            type: "asi",
-            assignments: {},
-          };
-          DICTIONARY.character.abilities.forEach((ability) => {
-            const bonus = DDBHelper
-              .filterModifiersOld(this.source.ddb.character.modifiers.race, "bonus", `${ability.long}-score`, [null, ""])
-              .filter((mod) => mod.entityId === ability.id)
-              .reduce((prev, cur) => prev + cur.value, 0);
-            a.value.assignments[ability.value] = bonus;
-          });
-          break;
-        }
-        case "Size": {
-          const modSize = DDBHelper.filterModifiersOld(this.source.ddb.character.modifiers.race, "size");
-          const size = a.configuration.sizes.length === 1
-            ? a.configuration.sizes[0]
-            : modSize && modSize.length === 1
-              ? DICTIONARY.character.actorSizes.find((s) => modSize.subType === s.name.toLowerCase())?.value ?? `${this.raw.character.system.traits.size}`
-              : `${this.raw.character.system.traits.size}`;
-          a.value = {
-            size,
-          };
-          break;
-        }
-        // no default
+  // console.warn("Race Advancement", JSON.parse(JSON.stringify(this.raw.race.system.advancement)));
+  this.raw.race.system.advancement.forEach((a) => {
+    switch (a.type) {
+      case "AbilityScoreImprovement": {
+        a.value = {
+          type: "asi",
+          assignments: {},
+        };
+        DICTIONARY.character.abilities.forEach((ability) => {
+          const bonus = DDBHelper
+            .filterModifiersOld(this.source.ddb.character.modifiers.race, "bonus", `${ability.long}-score`, [null, ""])
+            .filter((mod) => mod.entityId === ability.id)
+            .reduce((prev, cur) => prev + cur.value, 0);
+          a.value.assignments[ability.value] = bonus;
+        });
+        break;
       }
-    });
-  }
+      case "Size": {
+        const modSize = DDBHelper.filterModifiersOld(this.source.ddb.character.modifiers.race, "size");
+        const size = a.configuration.sizes.length === 1
+          ? a.configuration.sizes[0]
+          : modSize && modSize.length === 1
+            ? DICTIONARY.character.actorSizes.find((s) => modSize.subType === s.name.toLowerCase())?.value ?? `${this.raw.character.system.traits.size}`
+            : `${this.raw.character.system.traits.size}`;
+        a.value = {
+          size,
+        };
+        break;
+      }
+      // no default
+    }
+  });
 };

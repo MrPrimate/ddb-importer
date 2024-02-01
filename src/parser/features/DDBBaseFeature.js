@@ -47,7 +47,6 @@ export default class DDBBaseFeature {
   }
 
   constructor({ ddbData, ddbDefinition, type, source, rawCharacter = null } = {}) {
-    this.legacyMode = foundry.utils.isNewerVersion("2.4.0", game.system.version);
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbFeature = ddbDefinition;
@@ -162,7 +161,7 @@ export default class DDBBaseFeature {
         ? this._getRaceFeatureDescription()
         : this._getClassFeatureDescription();
 
-    if (this.legacyMode || !chatAdd) {
+    if (!chatAdd) {
       const snippet = utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
       const fullDescription = DDBBaseFeature.buildFullDescription(description, snippet);
       const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
