@@ -25,7 +25,11 @@ export function getDamage(data, actionType) {
         (mod) => mod.type === "bonus" && mod.subType === "hit-points"
       );
       if (healingModifier) {
-        const healingDie = healingModifier.dice ? healingModifier.dice : healingModifier.die ? healingModifier.die : undefined;
+        const healingDie = healingModifier.dice
+          ? healingModifier.dice
+          : healingModifier.die
+            ? healingModifier.die
+            : undefined;
         if (healingDie?.diceString) {
           damage.parts = [[healingDie.diceString + "[healing] ", "healing"]];
         } else if (healingModifier.fixedValue) {
@@ -36,9 +40,15 @@ export function getDamage(data, actionType) {
     }
     case "rsak": {
       // damage potion
-      const damageModifier = data.definition.grantedModifiers.find((mod) => mod.type === "damage" && (mod.dice || mod.die));
+      const damageModifier = data.definition.grantedModifiers.find((mod) =>
+        mod.type === "damage" && (mod.dice || mod.die)
+      );
       if (damageModifier) {
-        const damageDie = damageModifier.dice ? damageModifier.dice : damageModifier.die ? damageModifier.die : undefined;
+        const damageDie = damageModifier.dice
+          ? damageModifier.dice
+          : damageModifier.die
+            ? damageModifier.die
+            : undefined;
         if (damageDie?.diceString) {
           damage.parts = [[damageDie.diceString + `[${damageModifier.subType}] `, damageModifier.subType]];
         } else if (damageModifier.fixedValue) {
@@ -106,7 +116,7 @@ export default function parseConsumable(ddbItem, { consumableTypeOverride = null
     },
   };
 
-  item.system.consumableType = consumableTypeOverride?.toLowerCase() ?? ddbItem.definition.filterType.toLowerCase();
+  item.system.type.value = consumableTypeOverride?.toLowerCase() ?? ddbItem.definition.filterType.toLowerCase();
   item.system.uses = getConsumableUses(ddbItem);
   item.system.description = getDescription(ddbItem);
   item.system.source = DDBHelper.parseSource(ddbItem.definition);
@@ -119,7 +129,7 @@ export default function parseConsumable(ddbItem, { consumableTypeOverride = null
   item.system.duration = getDuration(ddbItem);
   item.system.actionType = getActionType(ddbItem);
 
-  if (item.system.consumableType === "potion") {
+  if (item.system.type.value === "potion") {
     item.system.damage = getDamage(ddbItem, getActionType(ddbItem));
   }
 

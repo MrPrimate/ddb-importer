@@ -123,7 +123,7 @@ export default function parseLoot(data, itemType) {
   };
 
   if (type.consumableType) {
-    loot.system.consumableType = type.consumableType;
+    loot.system.type.value = type.consumableType;
     loot.system.uses = getConsumableUses(data);
   }
   loot.system.description = getDescription(data);

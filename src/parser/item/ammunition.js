@@ -88,7 +88,7 @@ export default function parseAmmunition(data, itemType) {
   ammunition.system.actionType = "rwak";
   ammunition.system.attackBonus = getMagicalBonus(data);
   ammunition.system.damage = getDamage(data, getMagicalBonus(data));
-  ammunition.system.consumableType = "ammo";
+  ammunition.system.type.value = "ammo";
 
   return ammunition;
 }

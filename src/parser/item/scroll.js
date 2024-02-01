@@ -17,7 +17,7 @@ export default function parseScroll(data) {
     },
   };
 
-  scroll.system.consumableType = "scroll";
+  scroll.system.type.value = "scroll";
   scroll.system.uses = getConsumableUses(data);
   scroll.system.description = getDescription(data);
   scroll.system.source = DDBHelper.parseSource(data.definition);

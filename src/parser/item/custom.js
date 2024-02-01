@@ -20,7 +20,7 @@ export default function parseCustomItem(data) {
 
   if (data.definition.name.startsWith("Spell Scroll:")) {
     customItem.type = "consumable";
-    customItem.system.consumableType = "scroll";
+    customItem.system.type.value = "scroll";
   }
 
   let description = data.definition.description && data.definition.description !== "null"
