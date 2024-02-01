@@ -318,8 +318,10 @@ export function getMidiCEOnFlags(midiFlags = {}) {
 }
 
 export function applyDefaultMidiFlags(document) {
-  setProperty(document, "flags.midi-qol.removeAttackDamageButtons", "default");
-  setProperty(document, "flags.midiProperties.confirmTargets", "default");
+  if (effectModules().midiQolInstalled) {
+    setProperty(document, "flags.midi-qol.removeAttackDamageButtons", "default");
+    setProperty(document, "flags.midiProperties.confirmTargets", "default");
+  }
   return document;
 }
 
@@ -373,6 +375,16 @@ export function generateStatusEffectChange(statusName, priority = 20, macro = fa
     value: macro || value.startsWith("Convenient Effect:") ? value : `Convenient Effect: ${value}`,
     priority: priority,
   };
+}
+
+export function addStatusEffectChange(effect, statusName, priority = 20, macro = false) {
+  if (effectModules.convenientEffectsInstalled && effectModules.midiQolInstalled) {
+    const key = generateStatusEffectChange(statusName, priority, macro);
+    effect.changes.push(key);
+  } else {
+    effect.statuses.push(statusName.toLowerCase());
+  }
+  return effect;
 }
 
 export function generateTokenMagicFXChange(macroValue, priority = 20) {
