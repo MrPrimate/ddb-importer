@@ -143,7 +143,7 @@ const MuncherSettings = {
       game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects", false);
     }
 
-    const spellEffectText = `These are highly automated and required the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")},${advancedMacrosText}${itemMacroText} Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}. Optional, but recommended automation modules: Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, and Warpgate${MuncherSettings.getInstalledIcon("warpgateInstalled")}.`;
+    const spellEffectText = `These are highly automated and required the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}. Optional, but recommended automation modules: Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, and Warpgate${MuncherSettings.getInstalledIcon("warpgateInstalled")}.`;
 
     const installedModulesText = `
 <p>Some Active Effects do not require any external modules, many of these will be created regardless of what settings are checked here, some will need these options checked.</p>
@@ -773,9 +773,9 @@ Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasI
       },
       {
         name: "use-compendium-folders",
-        isChecked: compendiumFoldersEnabled ? compendiumFolderAdd : false,
+        isChecked: compendiumFolderAdd,
         description: "Generate compendium folders. You can migrate an existing DDB Compendium in the Tools tab.",
-        enabled: compendiumFoldersEnabled,
+        enabled: true,
       },
       {
         name: "use-srd",
@@ -828,7 +828,6 @@ Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasI
       worldUpdateConfig,
       beta: betaKey && cobalt,
       tiers,
-      compendiumFoldersEnabled,
       compendiumFolderMonsterStyles,
       compendiumFolderItemStyles,
       compendiumFolderSpellStyles,
@@ -836,7 +835,6 @@ Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasI
       sourceDescription,
       enableSources,
       version: CONFIG.DDBI.version,
-      version11OrHigher,
     };
 
     // console.warn(resultData);
