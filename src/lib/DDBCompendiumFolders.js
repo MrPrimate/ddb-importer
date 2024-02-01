@@ -382,7 +382,7 @@ export class DDBCompendiumFolders {
             break;
           }
           default: {
-            result.name = this.equipmentFolders[document.system.armor.type].name;
+            result.name = this.equipmentFolders[document.system.type.value].name;
             result.flagTag = `equipment/${result.name}`;
             break;
           }
