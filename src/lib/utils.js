@@ -505,7 +505,25 @@ const utils = {
       );
     }
     return true;
-  }
+  },
+
+  addToProperties: (properties, value) => {
+    const setProperties = utils.isArray(properties)
+      ? new Set(properties)
+      : properties;
+
+    setProperties.add(value);
+    return Array.from(setProperties);
+  },
+
+  removeFromProperties: (properties, value) => {
+    const setProperties = utils.isArray(properties)
+      ? new Set(properties)
+      : properties;
+
+    setProperties.delete(value);
+    return Array.from(setProperties);
+  },
 };
 
 export default utils;

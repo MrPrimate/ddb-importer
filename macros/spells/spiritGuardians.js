@@ -28,7 +28,7 @@ if (args[0] === "on"
         save: { dc: Number.parseInt(args[3]), ability: "wis", scaling: "flat" },
         damage: { parts: [[`${args[2]}d8`, damageType]] },
         "target.type": "self",
-        components: { concentration: false, material: false, ritual: false, somatic: false, value: "", vocal: false },
+        properties: [],
         duration: { units: "inst", value: undefined },
         type: {
           value: "improv",

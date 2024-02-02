@@ -34,6 +34,10 @@ export default class DDBEffectHelper {
 
   static generateATLChange = generateATLChange;
 
+  static addToProperties = utils.addToProperties;
+
+  static removeFromProperties = utils.removeFromProperties;
+
   /**
    * Generates and applies DDBI effects to a document.
    *

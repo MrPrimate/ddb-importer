@@ -43,7 +43,7 @@ async function applySpikeGrowthDamage() {
   const damageRoll = await new CONFIG.Dice.DamageRoll(`2d4[piercing]`).evaluate({ async: true });
   await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
   const workflowItemData = duplicate(item);
-  workflowItemData.system.components.concentration = false;
+  workflowItemData.system.properties = DDBImporter?.EffectHelper.removeFromProperties(workflowItemData.system.properties, "concentration") ?? [];
   workflowItemData.system.duration = { value: null, units: "inst" };
   workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
 

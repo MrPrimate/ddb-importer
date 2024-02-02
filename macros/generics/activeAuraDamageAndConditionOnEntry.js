@@ -51,7 +51,7 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
     const workflowItemData = duplicate(item);
     workflowItemData.system.target = { value: 1, units: "", type: "creature" };
     workflowItemData.system.save.ability = item.flags.ddbimporter.effect.save;
-    workflowItemData.system.components.concentration = false;
+    workflowItemData.system.properties = DDBImporter?.EffectHelper.removeFromProperties(workflowItemData.system.properties, "concentration") ?? [];
     workflowItemData.system.level = itemLevel;
     workflowItemData.system.duration = { value: null, units: "inst" };
     workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
@@ -113,7 +113,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const workflowItemData = duplicate(item);
   workflowItemData.system.target = { value: 1, units: "", type: "creature" };
   workflowItemData.system.save.ability = saveAbility;
-  workflowItemData.system.components.concentration = false;
+  workflowItemData.system.properties = DDBImporter?.EffectHelper.removeFromProperties(workflowItemData.system.properties, "concentration") ?? [];
   workflowItemData.system.level = itemLevel;
   workflowItemData.system.duration = { value: null, units: "inst" };
   workflowItemData.system.uses = { value: null, max: "", per: null, recovery: "", autoDestroy: false };

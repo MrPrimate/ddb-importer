@@ -65,7 +65,7 @@ export async function parseSpell(data, character) {
   /**
    * Gets the necessary spell components VSM + material
    */
-  spell.system.components = getComponents(data);
+  spell.system.system.properties = getComponents(data)?.properties ?? [];
   spell.system.materials = getMaterials(data);
   spell.system.preparation = getSpellPreparationMode(data);
 

@@ -398,7 +398,7 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
       cost: 0,
       supply: 0
     };
-    spell.system.components.material = false;
+    spell.system.properties = utils.removeFromProperties(spell.system.properties, "material");
   }
 
 };

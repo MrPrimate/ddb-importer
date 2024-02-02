@@ -73,14 +73,7 @@ export function getDivineSmiteSpell(feature) {
       },
       level: 1,
       school: "",
-      components: {
-        value: "",
-        vocal: false,
-        somatic: false,
-        material: false,
-        ritual: false,
-        concentration: false,
-      },
+      properties: [],
       materials: {
         value: "",
         consumed: false,

@@ -1,4 +1,15 @@
 export function getComponents (data) {
+  const properties = [];
+
+  if (data.definition.components.includes(1)) properties.push("vocal");
+  if (data.definition.components.includes(2)) properties.push("somatic");
+  if (data.definition.components.includes(3)
+    || getProperty(data, "flags.ddbimporter.dndbeyond.forceMaterial")
+  ) {
+    properties.push("material");
+  }
+  if (data.definition.ritual) properties.push("ritual");
+  if (data.definition.concentration) properties.push("concentration");
   return {
     value: data.definition.componentsDescription,
     vocal: data.definition.components.includes(1),
@@ -6,6 +17,7 @@ export function getComponents (data) {
     material: data.definition.components.includes(3) || getProperty(data, "flags.ddbimporter.dndbeyond.forceMaterial"),
     ritual: data.definition.ritual,
     concentration: data.definition.concentration,
+    properties,
   };
 }
 

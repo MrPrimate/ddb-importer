@@ -9,7 +9,7 @@ async function sustainedDamage({ options, damageType, damageDice, sourceItem, ca
   }));
   const casterToken = await fromUuid(options.sourceUuid);
   const itemData = sourceItem.toObject();
-  setProperty(itemData, "system.components.concentration", false);
+  itemData.system.properties = DDBImporter?.EffectHelper.removeFromProperties(itemData.system.properties, "concentration") ?? [];
   itemData.effects = [];
   delete itemData._id;
 
