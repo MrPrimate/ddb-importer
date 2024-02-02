@@ -1,5 +1,5 @@
-import { effectModules } from "../effects.js";
-import { baseSpellEffect, generateTokenMagicFXChange } from "../specialSpells.js";
+import { effectModules, generateTokenMagicFXChange } from "../effects.js";
+import { baseSpellEffect } from "../specialSpells.js";
 
 export function mirrorImageEffect(document) {
   let effect = baseSpellEffect(document, document.name);

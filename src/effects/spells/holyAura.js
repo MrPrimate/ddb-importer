@@ -1,4 +1,5 @@
-import { baseSpellEffect, generateATLChange } from "../specialSpells.js";
+import { generateATLChange } from "../effects.js";
+import { baseSpellEffect } from "../specialSpells.js";
 
 export function holyAuraEffect(document) {
   let effect = baseSpellEffect(document, document.name);

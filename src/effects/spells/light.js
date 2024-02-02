@@ -1,5 +1,5 @@
-import { effectModules } from "../effects.js";
-import { baseSpellEffect, generateATLChange } from "../specialSpells.js";
+import { effectModules, generateATLChange } from "../effects.js";
+import { baseSpellEffect } from "../specialSpells.js";
 
 export function lightEffect(document) {
   let effect = baseSpellEffect(document, document.name);

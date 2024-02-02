@@ -1,6 +1,6 @@
-import { baseSpellEffect, generateTokenMagicFXChange } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
-import { effectModules } from "../effects.js";
+import { effectModules, generateTokenMagicFXChange } from "../effects.js";
 
 export async function faerieFireEffect(document) {
   let effect = baseSpellEffect(document, document.name);

@@ -1,6 +1,6 @@
-import { baseSpellEffect, generateATLChange } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
-import { effectModules } from "../effects.js";
+import { effectModules, generateATLChange } from "../effects.js";
 
 export async function darkvisionEffect(document) {
   let effect = baseSpellEffect(document, document.name);

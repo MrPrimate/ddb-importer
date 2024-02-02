@@ -12,7 +12,7 @@ import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
 import { fixFeatures, addExtraEffects } from "../parser/features/fixes.js";
 import { generateOverTimeEffect, damageOverTimeEffect, getOvertimeDamage, getMonsterFeatureDamage } from "./monsterFeatures/overTimeEffect.js";
-import { baseEffect, generateStatusEffectChange } from "./effects.js";
+import { baseEffect, generateStatusEffectChange, addStatusEffectChange, generateTokenMagicFXChange, generateATLChange } from "./effects.js";
 
 export default class DDBEffectHelper {
 
@@ -28,7 +28,11 @@ export default class DDBEffectHelper {
 
   static generateStatusEffectChange = generateStatusEffectChange;
 
-  static addStatusEffectChange = this.addStatusEffectChange;
+  static addStatusEffectChange = addStatusEffectChange;
+
+  static generateTokenMagicFXChange = generateTokenMagicFXChange;
+
+  static generateATLChange = generateATLChange;
 
   /**
    * Generates and applies DDBI effects to a document.

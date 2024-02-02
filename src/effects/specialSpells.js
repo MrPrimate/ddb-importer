@@ -1,7 +1,5 @@
 import logger from "../logger.js";
 import {
-  generateTokenMagicFXChange as baseGenerateTokenMagicFXChange,
-  generateATLChange as baseGenerateATLChange,
   forceItemEffect,
   effectModules,
   forceManualReaction,
@@ -136,14 +134,6 @@ export function baseSpellEffect(document, label,
   { transfer = false, disabled = false } = {}
 ) {
   return baseEffect(document, label, { transfer, disabled });
-}
-
-export function generateTokenMagicFXChange(macroValue, priority = 20) {
-  return baseGenerateTokenMagicFXChange(macroValue, priority);
-}
-
-export function generateATLChange(atlKey, mode, value, priority = 20) {
-  return baseGenerateATLChange(atlKey, mode, value, priority);
 }
 
 /**
