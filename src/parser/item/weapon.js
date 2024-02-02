@@ -233,6 +233,7 @@ function getActionType(data) {
 
 export default function parseWeapon(data, character, flags) {
   let weapon = {
+    _id: foundry.utils.randomID(),
     name: data.definition.name,
     type: "weapon",
     system: utils.getTemplate("weapon"),

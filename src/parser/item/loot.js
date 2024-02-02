@@ -110,6 +110,7 @@ export default function parseLoot(data, itemType) {
   const type = getItemType(data, itemType);
 
   let loot = {
+    _id: foundry.utils.randomID(),
     name: data.definition.name,
     type: type.type,
     system: utils.getTemplate(type.type),

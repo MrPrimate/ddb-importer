@@ -104,6 +104,7 @@ export function getDuration(data) {
 
 export default function parseConsumable(ddbItem, { consumableTypeOverride = null, ddbTypeOverride = null } = {}) {
   let item = {
+    _id: foundry.utils.randomID(),
     name: ddbItem.definition.name,
     type: "consumable",
     system: utils.getTemplate("consumable"),

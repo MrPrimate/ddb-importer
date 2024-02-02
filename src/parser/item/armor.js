@@ -93,6 +93,7 @@ function getProficient(data, proficiencies) {
 
 export default function parseArmor(data, character, flags) {
   let armor = {
+    _id: foundry.utils.randomID(),
     name: data.definition.name,
     type: "equipment",
     system: utils.getTemplate("armor"),

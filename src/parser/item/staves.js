@@ -135,6 +135,7 @@ function getDamage(data, magicalDamageBonus) {
 export default function parseStaff(data, character) {
   let template = utils.getTemplate("weapon");
   let staff = {
+    _id: foundry.utils.randomID(),
     name: data.definition.name,
     type: "weapon",
     system: template,

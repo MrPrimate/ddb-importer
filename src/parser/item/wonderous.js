@@ -20,6 +20,7 @@ export default function parseWonderous(data, { ddbTypeOverride = null, armorType
    * MAIN parseEquipment
    */
   let item = {
+    _id: foundry.utils.randomID(),
     name: data.definition.name,
     type,
     system: utils.getTemplate(type),

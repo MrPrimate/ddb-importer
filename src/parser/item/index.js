@@ -18,9 +18,6 @@ import { midiItemEffects } from "../../effects/specialEquipment.js";
 // tables
 import { generateTable } from "../../muncher/table.js";
 
-// item collections
-import { fixForItemCollections } from "./itemCollections.js";
-
 import parseWeapon from "./weapon.js";
 import parseAmmunition from "./ammunition.js";
 import parseStaff from "./staves.js";
@@ -423,34 +420,17 @@ DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
   return flags;
 };
 
-
-DDBCharacter.prototype._sortContainerCurrency = function _sortContainerCurrency(item) {
-  if (!hasProperty(item, "system.currency")) return item;
-  this._itemCurrency.pp += item.system.currency.pp;
-  this._itemCurrency.gp += item.system.currency.gp;
-  this._itemCurrency.sp += item.system.currency.sp;
-  this._itemCurrency.cp += item.system.currency.cp;
-  this._itemCurrency.ep += item.system.currency.ep;
-
-  if (game.modules.get("itemcollection")?.active) {
-    return item;
-  } else {
-    this.raw.character.system.currency.pp += item.system.currency.pp;
-    this.raw.character.system.currency.gp += item.system.currency.gp;
-    this.raw.character.system.currency.sp += item.system.currency.sp;
-    this.raw.character.system.currency.cp += item.system.currency.cp;
-    this.raw.character.system.currency.ep += item.system.currency.ep;
-
-    item.system.currency = {
-      pp: 0,
-      gp: 0,
-      sp: 0,
-      cp: 0,
-      ep: 0,
-    };
-    return item;
-  }
-};
+function updateItemIds(currentActor, items) {
+  const possibleFeatures = currentActor.getEmbeddedCollection("Item");
+  const matchedFeatures = [];
+  items.forEach((item) => {
+    const itemMatch = DDBHelper.findMatchedDDBItem(item, possibleFeatures, matchedFeatures);
+    if (itemMatch) {
+      item._id = itemMatch._id;
+      matchedFeatures.push(itemMatch);
+    }
+  });
+}
 
 // TO DO: revisit to break up item parsing
 // eslint-disable-next-line complexity
@@ -514,14 +494,12 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       item = await midiItemEffects(item);
       // eslint-disable-next-line no-await-in-loop
       // item = await getIcon(item, ddbItem);
-      item = this._sortContainerCurrency(item);
 
       items.push(item);
     }
   }
 
   fixItems(items);
-
-  items = fixForItemCollections(this.source.ddb, items);
+  if (this.currentActor) updateItemIds(this.currentActor, items);
   return items;
 };

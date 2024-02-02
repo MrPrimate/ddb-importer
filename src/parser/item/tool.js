@@ -50,6 +50,7 @@ export default function parseTool(ddb, data, itemType) {
    * MAIN parseTool
    */
   let tool = {
+    _id: foundry.utils.randomID(),
     name: data.definition.name,
     type: "tool",
     system: utils.getTemplate("tool"),

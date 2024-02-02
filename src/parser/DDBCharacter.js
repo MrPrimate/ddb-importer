@@ -333,23 +333,27 @@ export default class DDBCharacter {
   }
 
   _linkItemsToContainers() {
-    const topLevelItems = this.data.inventory
+    const containerItems = this.data.inventory
       .filter((item) =>
-        hasProperty(item, "flags.ddbimporter.id")
+        item.type === "container"
+        && hasProperty(item, "flags.ddbimporter.id")
         && hasProperty(item, "flags.ddbimporter.containerEntityId")
-        && item.flags.ddbimporter.containerEntityId === this.source.ddb.character.id
-        && !item.flags.ddbimporter?.ignoreItemImport
+        && parseInt(item.flags.ddbimporter.containerEntityId) === parseInt(this.source.ddb.character.id)
+        && !getProperty(item, "flags.ddbimporter.ignoreItemImport")
       );
 
-    for (const topLevelItem of topLevelItems) {
-      this.data.inventory.forEach((item) => {
-        if (hasProperty(item, "flags.ddbimporter.containerEntityId")
-          && item.flags.ddbimporter.containerEntityId === topLevelItem.flags.ddbimporter.id
-        ) {
-          setProperty(item, "system.container", topLevelItem._id);
+    this.data.inventory.forEach((item) => {
+      if (hasProperty(item, "flags.ddbimporter.containerEntityId")
+        && parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(this.source.ddb.character.id)
+      ) {
+        const containerItem = containerItems.find((container) =>
+          parseInt(container.flags.ddbimporter.id) === parseInt(item.flags.ddbimporter.containerEntityId)
+        );
+        if (containerItem) {
+          setProperty(item, "system.container", containerItem._id);
         }
-      });
-    }
+      }
+    });
   }
 
 }

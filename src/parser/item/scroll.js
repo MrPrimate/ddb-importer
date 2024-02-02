@@ -5,6 +5,7 @@ import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, get
 
 export default function parseScroll(data) {
   let scroll = {
+    _id: foundry.utils.randomID(),
     name: data.definition.name,
     type: "consumable",
     system: utils.getTemplate("consumable"),

@@ -62,6 +62,7 @@ export default function parseAmmunition(data, itemType) {
    */
   let template = utils.getTemplate("consumable");
   let ammunition = {
+    _id: foundry.utils.randomID(),
     name: data.definition.name,
     type: "consumable",
     system: template,
