@@ -5,7 +5,7 @@ import DICTIONARY from "../../dictionary.js";
  * @param {*} data
  */
 let doesTargetCreature = (data) => {
-  const creature = /a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range/gi;
+  const creature = /You touch a creature|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range/gi;
   const creaturesRange = /(humanoid|monster|creature|target)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
   return data.definition.description.match(creature) || data.definition.description.match(creaturesRange);
 };
