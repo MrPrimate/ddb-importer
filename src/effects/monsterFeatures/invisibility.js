@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import { generateStatusEffectChange } from "../effects.js";
+import { addStatusEffectChange } from "../effects.js";
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 
 
@@ -7,9 +7,7 @@ export function invisibilityFeatureEffect(document) {
   if (document.type === "spell") return document;
 
   let effect = baseMonsterFeatureEffect(document, `${document.name} feature`);
-  effect.changes.push(
-    generateStatusEffectChange("Invisible", 20, true)
-  );
+  addStatusEffectChange(effect, "Invisible", 20, true);
   setProperty(effect, "flags.dae.stackable", "noneName");
 
   const permanent = ["special"].includes(getProperty(document, "flags.monsterMunch.type"));

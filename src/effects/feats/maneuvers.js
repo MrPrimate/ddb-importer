@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { forceManualReaction, generateStatusEffectChange } from "../effects.js";
+import { addStatusEffectChange, forceManualReaction } from "../effects.js";
 import DDBMacros from "../DDBMacros.js";
 import logger from "../../logger.js";
 
@@ -234,11 +234,11 @@ export async function maneuversEffect(ddb, character, document) {
       break;
     }
     case "Maneuvers: Menacing Attack": {
-      effect.changes.push(generateStatusEffectChange("Frightened"));
+      addStatusEffectChange(effect, "Frightened", 20, true);
       break;
     }
     case "Maneuvers: Trip Attack": {
-      effect.changes.push(generateStatusEffectChange("Prone"));
+      addStatusEffectChange(effect, "Prone", 20, true);
       break;
     }
     case "Maneuvers: Parry": {

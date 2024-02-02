@@ -1,12 +1,12 @@
-import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
-import { effectModules } from "../effects.js";
+import { addStatusEffectChange, effectModules } from "../effects.js";
 
 export async function greaseEffect(document) {
 
   if (!effectModules().activeAurasInstalled) {
     let effect = baseSpellEffect(document, document.name);
-    effect.changes.push(generateStatusEffectChange("Prone"));
+    addStatusEffectChange(effect, "Prone", 20, true);
     document.effects.push(effect);
 
     return document;
@@ -14,7 +14,6 @@ export async function greaseEffect(document) {
 
   // if we have active auras use a more advanced macro
   let effect = baseSpellEffect(document, document.name);
-  // effect.changes.push(generateStatusEffectChange("Prone", 20, true));
   effect.changes.push(
     {
       key: "flags.midi-qol.OverTime",

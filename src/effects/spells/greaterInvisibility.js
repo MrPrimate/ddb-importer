@@ -1,8 +1,9 @@
-import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
+import { addStatusEffectChange } from "../effects.js";
+import { baseSpellEffect } from "../specialSpells.js";
 
 export async function greaterInvisibilityEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  effect.changes.push(generateStatusEffectChange("Convenient Effect: Invisible"));
+  addStatusEffectChange(effect, "Invisible", 20, true);
   document.effects.push(effect);
 
   return document;

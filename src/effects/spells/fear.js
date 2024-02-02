@@ -1,8 +1,9 @@
-import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
+import { addStatusEffectChange } from "../effects.js";
+import { baseSpellEffect } from "../specialSpells.js";
 
 export function fearEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  effect.changes.push(generateStatusEffectChange("Frightened"));
+  addStatusEffectChange(effect, "Frightened", 20, true);
   document.effects.push(effect);
 
   return document;

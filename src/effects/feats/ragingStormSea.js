@@ -1,4 +1,4 @@
-import { generateStatusEffectChange } from "../effects.js";
+import { addStatusEffectChange } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
 import DDBMacros from "../DDBMacros.js";
 
@@ -7,7 +7,7 @@ export async function ragingStormSeaEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "feat", "ragingStormSea.js");
 
   const effect = baseFeatEffect(document, document.name);
-  effect.changes.push(generateStatusEffectChange("Convenient Effect: Prone", 20, true));
+  addStatusEffectChange(effect, "Prone", 20, true);
   document.effects.push(effect);
 
   const evaluationEffect = baseFeatEffect(document, `${document.name} (Trigger Checker)`, { transfer: true });

@@ -1,7 +1,7 @@
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 import utils from "../../lib/utils.js";
 import DICTIONARY from "../../dictionary.js";
-import { generateStatusEffectChange } from "../effects.js";
+import { addStatusEffectChange } from "../effects.js";
 import logger from "../../logger.js";
 import DDBMonsterFeature from "../../parser/monster/features/DDBMonsterFeature.js";
 
@@ -124,10 +124,10 @@ function generateConditionEffect(effect, text) {
       : undefined;
     if (group4Condition) {
       results.condition = group4Condition.value;
-      results.effect.changes.push(generateStatusEffectChange(group4Condition.name, 20, true));
+      addStatusEffectChange(results.effect, group4Condition.name, 20, true);
       effect = getSpecialDuration(results.effect, match);
     } else if (match[3] && match[3] === "die") {
-      results.effect.changes.push(generateStatusEffectChange("Dead"));
+      addStatusEffectChange(results.effect, "Dead", 20, true);
     }
   }
   return results;

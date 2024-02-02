@@ -1,4 +1,4 @@
-import { generateStatusEffectChange } from "../effects.js";
+import { addStatusEffectChange } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function horrifyingVisageEffect(document) {
@@ -15,7 +15,7 @@ export function horrifyingVisageEffect(document) {
       "priority": "20"
     },
   );
-  effect.changes.push(generateStatusEffectChange("Frightened", 20, true));
+  addStatusEffectChange(effect, "Frightened", 20, true);
   effect.transfer = false;
 
   document.effects.push(effect);

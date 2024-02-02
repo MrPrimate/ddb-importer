@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { generateStatusEffectChange } from "../effects.js";
+import { addStatusEffectChange } from "../effects.js";
 
 export function fireRuneEffect(document) {
   setProperty(document, "system.range.units", "");
@@ -9,7 +9,8 @@ export function fireRuneEffect(document) {
   let baseEffect = baseFeatEffect(document, document.name);
   setProperty(baseEffect, "duration.seconds", 60);
 
-  baseEffect.changes.push(generateStatusEffectChange("Restrained", 20, true));
+  addStatusEffectChange(baseEffect, "Restrained", 20, true);
+
   baseEffect.changes.push(
     {
       key: "flags.midi-qol.OverTime",

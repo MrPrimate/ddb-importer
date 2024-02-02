@@ -1,11 +1,10 @@
-import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
+import { addStatusEffectChange } from "../effects.js";
 
 export async function hideousLaughterEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  effect.changes.push(
-    generateStatusEffectChange("Incapacitated"),
-  );
+  addStatusEffectChange(effect, "Incapacitated", 20, true);
 
   effect.changes.push({
     key: "flags.midi-qol.OverTime",
@@ -19,9 +18,7 @@ export async function hideousLaughterEffect(document) {
   document.effects.push(effect);
 
   let proneEffect = baseSpellEffect(document, `${document.name} (Prone)`);
-  proneEffect.changes.push(
-    generateStatusEffectChange("Prone", 20, true),
-  );
+  addStatusEffectChange(proneEffect, "Prone", 20, true);
   document.effects.push(proneEffect);
 
   return document;

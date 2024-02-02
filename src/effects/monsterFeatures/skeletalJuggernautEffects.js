@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import { forceItemEffect, generateStatusEffectChange } from "../effects.js";
+import { forceItemEffect, addStatusEffectChange } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
 import DDBMacros from "../DDBMacros.js";
 
@@ -9,7 +9,7 @@ function avalancheOfBonesEffect(document) {
   setProperty(document, "system.range", { value: null, long: null, units: "self" });
 
   let effect = baseFeatEffect(document, document.name);
-  effect.changes.push(generateStatusEffectChange("Prone", 20, true));
+  addStatusEffectChange(effect, "Prone", 20, true);
   setProperty(effect, "duration.turns", 99);
   setProperty(effect, "duration.seconds", 9999);
   effect.transfer = false;

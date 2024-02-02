@@ -1,12 +1,12 @@
-import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
-import { effectModules } from "../effects.js";
+import { effectModules, addStatusEffectChange } from "../effects.js";
 
 export async function webEffect(document) {
 
   if (!effectModules().activeAurasInstalled) {
     let effectWebRestrained = baseSpellEffect(document, document.name);
-    effectWebRestrained.changes.push(generateStatusEffectChange("Restrained"));
+    addStatusEffectChange(effectWebRestrained, "Restrained", 20, true);
     document.effects.push(effectWebRestrained);
     return document;
   }

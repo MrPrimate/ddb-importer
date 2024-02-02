@@ -62,7 +62,7 @@ function DisintegrationRayEffect(document) {
 
 function telekineticRayEffect(document) {
   const effect = DDBImporter.EffectHelper.baseEffect(document, document.name, { transfer: false, disabled: false });
-  effect.changes.push(DDBImporter.EffectHelper.generateStatusEffectChange("Restrained"));
+  DDBImporter.EffectHelper.addStatusEffectChange(effect, "Restrained");
   setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
   effect.duration.rounds = 2;
   effect.duration.seconds = 12;

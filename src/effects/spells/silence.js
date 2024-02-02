@@ -1,6 +1,6 @@
-import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
-import { effectModules } from "../effects.js";
+import { addStatusEffectChange, effectModules } from "../effects.js";
 
 export async function silenceEffect(document) {
 
@@ -12,7 +12,7 @@ export async function silenceEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraOnly.js");
 
   let effect = baseSpellEffect(document, document.name);
-  effect.changes.push(generateStatusEffectChange("Deafened", 20, true));
+  addStatusEffectChange(effect, "Deafened", 20, true);
   effect.changes.push(
     {
       key: "flags.midi-qol.fail.spell.vocal",

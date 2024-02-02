@@ -1,10 +1,8 @@
 import DDBMacros from "../DDBMacros.js";
+import { effectModules } from "../effects.js";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export async function absorbElementsEffect(document) {
-  await DDBMacros.setItemMacroFlag(document, "spell", "absorbElements.js");
-  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "absorbElements.js", ["postActiveEffects"]);
-
   const effect = baseSpellEffect(document, `${document.name} - Extra Damage`);
   effect.changes.push(
     {
@@ -57,7 +55,12 @@ export async function absorbElementsEffect(document) {
     units: "self",
   };
   setProperty(document, "system.actionType", "util");
-  setProperty(document, "system.activation.type", "reactiondamage");
+
+  if (effectModules().midiQolInstalled) {
+    await DDBMacros.setItemMacroFlag(document, "spell", "absorbElements.js");
+    DDBMacros.setMidiOnUseMacroFlag(document, "spell", "absorbElements.js", ["postActiveEffects"]);
+    setProperty(document, "system.activation.type", "reactiondamage");
+  }
 
   return document;
 }

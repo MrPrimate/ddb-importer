@@ -1,8 +1,9 @@
-import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
+import { addStatusEffectChange } from "../effects.js";
+import { baseSpellEffect } from "../specialSpells.js";
 
 export function entangleEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  effect.changes.push(generateStatusEffectChange("Restrained"));
+  addStatusEffectChange(effect, "Restrained", 20, true);
 
   // not implemented as the target can choose to escape with it's action
   // effect.changes.push(

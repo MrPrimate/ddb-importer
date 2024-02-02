@@ -1,9 +1,9 @@
-import { generateStatusEffectChange } from "../effects.js";
+import { addStatusEffectChange } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function intimidatingPresenceEffect(document) {
   const effect = baseFeatEffect(document, document.name);
-  effect.changes.push(generateStatusEffectChange("Convenient Effect: Frightened", 20, true));
+  addStatusEffectChange(effect, "Frightened", 20, true);
   setProperty(effect, "flags.dae.specialDuration", ["turnEndSource"]);
   effect.duration.seconds = 12;
   effect.duration.turns = 2;

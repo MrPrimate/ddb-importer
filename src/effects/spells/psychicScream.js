@@ -1,8 +1,9 @@
-import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
+import { addStatusEffectChange } from "../effects.js";
+import { baseSpellEffect } from "../specialSpells.js";
 
 export function psychicScreamEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  effect.changes.push(generateStatusEffectChange("Stunned", 20, true));
+  addStatusEffectChange(effect, "Stunned", 20, true);
   effect.changes.push(
     {
       key: "flags.midi-qol.OverTime",

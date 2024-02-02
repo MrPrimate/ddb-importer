@@ -1,8 +1,9 @@
-import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
+import { addStatusEffectChange } from "../effects.js";
+import { baseSpellEffect } from "../specialSpells.js";
 
 export function holdMonsterEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  effect.changes.push(generateStatusEffectChange("Paralyzed"));
+  addStatusEffectChange(effect, "Paralyzed", 20, true);
   effect.changes.push({
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,

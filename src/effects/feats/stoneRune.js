@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { generateStatusEffectChange } from "../effects.js";
+import { addStatusEffectChange } from "../effects.js";
 
 export function stoneRuneEffect(document) {
   setProperty(document, "system.target.value", 1);
@@ -10,8 +10,8 @@ export function stoneRuneEffect(document) {
   let bonusEffect = baseFeatEffect(document, `${document.name} (Charm Effect)`);
   bonusEffect.statuses.push(`${document.name} (Charm Effect)`);
   setProperty(bonusEffect, "duration.seconds", 60);
-  bonusEffect.changes.push(generateStatusEffectChange("Charmed", 20, true));
-  bonusEffect.changes.push(generateStatusEffectChange("Incapacitated", 20, true));
+  addStatusEffectChange(bonusEffect, "Charmed", 20, true);
+  addStatusEffectChange(bonusEffect, "Incapacitated", 20, true);
   bonusEffect.changes.push(
     {
       key: "flags.midi-qol.OverTime",

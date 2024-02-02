@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import { forceItemEffect, generateStatusEffectChange } from "../effects.js";
+import { forceItemEffect, addStatusEffectChange } from "../effects.js";
 import DDBMacros from "../DDBMacros.js";
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 
@@ -15,8 +15,8 @@ export async function venomTrollEffects(npc) {
           value: "turn=end, saveAbility=con, saveDC=@abilities.str.dc, label=Poisoned by Venom Spray",
           priority: "20",
         },
-        generateStatusEffectChange("Poisoned", 20, true)
       );
+      addStatusEffectChange(effect, "Poisoned", 20, true);
 
       setProperty(effect, "duration.seconds", 60);
       setProperty(effect, "duration.rounds", 10);

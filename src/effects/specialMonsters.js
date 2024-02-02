@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable require-atomic-updates */
-import { applyDefaultMidiFlags, baseEffect, effectModules, forceItemEffect, generateStatusEffectChange } from "./effects.js";
+import { addStatusEffectChange, applyDefaultMidiFlags, baseEffect, effectModules, forceItemEffect } from "./effects.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
@@ -122,7 +122,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     case "Reduced-threat Carrion Crawler": {
       npc.items.forEach(function(item, index) {
         if (item.name === "Tentacles") {
-          this[index].effects[0].changes.push(generateStatusEffectChange("Paralyzed", 20, true));
+          addStatusEffectChange(this[index].effects[0], "Paralyzed", 20, true);
           this[index] = forceItemEffect(this[index]);
         }
       }, npc.items);

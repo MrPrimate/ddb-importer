@@ -1,11 +1,11 @@
-import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
-import { effectModules } from "../effects.js";
+import { effectModules, addStatusEffectChange } from "../effects.js";
 
 export async function blackTentaclesEffect(document) {
   if (!effectModules().activeAurasInstalled) {
     let effect = baseSpellEffect(document, document.name);
-    effect.changes.push(generateStatusEffectChange("Restrained"));
+    addStatusEffectChange(effect, "Restrained", 20, true);
     document.effects.push(effect);
 
     return document;

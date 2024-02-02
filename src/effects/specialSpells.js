@@ -1,6 +1,5 @@
 import logger from "../logger.js";
 import {
-  generateStatusEffectChange as baseGenerateStatusEffectChange,
   generateTokenMagicFXChange as baseGenerateTokenMagicFXChange,
   generateATLChange as baseGenerateATLChange,
   forceItemEffect,
@@ -139,10 +138,6 @@ export function baseSpellEffect(document, label,
   return baseEffect(document, label, { transfer, disabled });
 }
 
-export function generateStatusEffectChange(statusName, priority = 20, macro = false) {
-  return baseGenerateStatusEffectChange(statusName, priority, macro);
-}
-
 export function generateTokenMagicFXChange(macroValue, priority = 20) {
   return baseGenerateTokenMagicFXChange(macroValue, priority);
 }
@@ -159,29 +154,35 @@ export function generateATLChange(atlKey, mode, value, priority = 20) {
 export async function spellEffectAdjustment(document) {
   if (!document.effects) document.effects = [];
 
-  // check that we can gen effects
   const deps = effectModules();
-  if (!deps.hasCore) {
-    logger.warn("Sorry, you're missing some required modules for spell effects. Please install them and try again.", deps);
-    return document;
-  }
-
-  document = applyDefaultMidiFlags(document);
 
   const name = document.flags.ddbimporter?.originalName ?? document.name;
-  logger.debug(`Adding effects to ${name}`);
+  document = applyDefaultMidiFlags(document);
+
+  logger.debug(`Adding basic effects to ${name}`);
   switch (name) {
     case "Absorb Elements": {
       document = await absorbElementsEffect(document);
       break;
     }
+    case "Aid": {
+      document = await aidEffect(document);
+      break;
+    }
+    // no default
+  }
+
+  // check that we can gen effects
+  if (!deps.hasCore) {
+    logger.warn("Sorry, you're missing some required modules for advanced automation of spell effects. Please install them and try again.", deps);
+    return document;
+  }
+
+  logger.debug(`Adding effects to ${name}`);
+  switch (name) {
     case "Melf's Acid Arrow":
     case "Acid Arrow": {
       document = acidArrowEffect(document);
-      break;
-    }
-    case "Aid": {
-      document = await aidEffect(document);
       break;
     }
     case "Alter Self": {
