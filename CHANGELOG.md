@@ -1,8 +1,12 @@
 # NEXT UP
 
 - Great Weapon Master and Sharpshooter no longer rely on CE.
-- DDB Importer v4.0.0 no longer supports Foundry 10, or 5e versions earlier than v3.0.0.
 - Effect: Heroism updated to MidiQoL Overtime effect
+- DDB Importer v4.0.0 no longer supports Foundry 10, or 5e versions earlier than v3.0.0.
+- Item Containers/Collections module is no longer supported in favour of native Foundry containers.
+
+
+Note: There are still a number of improvements to come over the coming week(s) to the new rule referencing techniques in descriptions and journals.
 
 # 3.7.17
 
