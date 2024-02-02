@@ -381,7 +381,17 @@ function replaceTag(match, p1, p2, p3, offset, string) {
 
   if (INDEX_COMPENDIUMS.includes(p1)) {
     return findMatchingTagInIndex(p1, p2);
-  } else if (["total cover", "half cover", "three-quaters cover"].includes(strippedP2.toLowerCase())) {
+  }
+
+  const lowerCaseTag = utils.normalizeString(strippedP2);
+
+  if (CONFIG.DND5E.rules[lowerCaseTag]) {
+    return `&Reference[${lowerCaseTag}]{${p2}}`;
+  } else if (CONFIG.DND5E.abilities[lowerCaseTag]) {
+    return `&Reference[${lowerCaseTag}]{${p2}}`;
+  }
+
+  if (["total cover", "half cover", "three-quarters cover"].includes(strippedP2.toLowerCase())) {
     const coverMatch = CONFIG.DDBI.SRD_LOOKUP.fullPageMap.find((entry) => entry.name === "Cover");
     if (coverMatch) {
       return `@Compendium[dnd5e.rules.${coverMatch._id}.JournalEntryPage.${coverMatch.pageId}]{${p2}}`;
@@ -417,7 +427,7 @@ function parseSRDLinks(text) {
     CONFIG.DDBI.SRD_LOOKUP.lookups.skills,
     CONFIG.DDBI.SRD_LOOKUP.lookups.senses,
     // CONFIG.DDBI.SRD_LOOKUP.lookups.weaponproperties,
-  ].concat(useCEToggles ? [] : CONFIG.DDBI.SRD_LOOKUP.lookups.conditions).flat()
+  ]
     .flat()
     .forEach((entry) => {
       const linkRegEx = new RegExp(`(^| |\\(|\\[|>)(${entry.name})( |\\)|\\]|\\.|,|$|\n|<)`, "ig");

@@ -112,7 +112,7 @@ export default function parseArmor(data, character, flags) {
   armor.system.type.value = armorType.type;
   armor.system.type.baseItem = getBaseItem(data).baseItem;
   armor.system.strength = getStrength(data);
-  armor.system.properties['getStealthPenalty'] = getStealthPenalty(data);
+  if (getStealthPenalty(data)) armor.system.properties.push("stealthDisadvantage");
   armor.system.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
   armor.system.description = getDescription(data);
   armor.system.source = DDBHelper.parseSource(data.definition);

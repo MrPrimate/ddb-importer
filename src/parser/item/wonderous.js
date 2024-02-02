@@ -9,6 +9,7 @@ import {
   getDescription,
   getCapacity,
   getCurrency,
+  getWeightless,
 } from "./common.js";
 
 export default function parseWonderous(data, { ddbTypeOverride = null, armorType = "trinket" } = {}) {
@@ -33,6 +34,9 @@ export default function parseWonderous(data, { ddbTypeOverride = null, armorType
 
   if (isContainer) {
     if (data.currency) item.system.currency = getCurrency(data);
+    if (getWeightless(data)) {
+      utils.addToProperties(item.system.properties, "weightlessContents");
+    }
   } else {
     //
     // "armor": {
@@ -50,7 +54,7 @@ export default function parseWonderous(data, { ddbTypeOverride = null, armorType
     item.system.strength = 0;
 
     /* "stealth": false,*/
-    item.system.stealth = false;
+    utils.removeFromProperties(item.system.properties, "stealthDisadvantage");
     item.system.proficient = true;
   }
 

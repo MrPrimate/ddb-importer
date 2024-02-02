@@ -197,13 +197,17 @@ export function getSingleItemWeight(data) {
   return weight;
 }
 
+export function getWeightless(data) {
+  return data.definition.weightMultiplier === 0;
+}
+
 export function getCapacity(data) {
 
   const capacity = (data.definition.capacityWeight !== null)
     ? {
       "type": "weight",
       "value": data.definition.capacityWeight,
-      "weightless": data.definition.weightMultiplier === 0,
+      "weightless": getWeightless(data),
     }
     : {};
 

@@ -1,6 +1,6 @@
 import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription, getCapacity, getPrice, getCurrency } from "./common.js";
+import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription, getCapacity, getPrice, getCurrency, getWeightless } from "./common.js";
 import DICTIONARY from "../../dictionary.js";
 
 
@@ -141,6 +141,9 @@ export default function parseLoot(data, itemType) {
   } else if (type.type === "container") {
     loot.system.capacity = getCapacity(data);
     if (data.currency) loot.system.currency = getCurrency(data);
+    if (getWeightless(data)) {
+      utils.addToProperties(loot.system.properties, "weightlessContents");
+    }
   }
   return loot;
 }
