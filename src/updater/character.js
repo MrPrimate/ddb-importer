@@ -7,23 +7,53 @@ import { isEqual } from "../../vendor/lowdash/isequal.js";
 import { getCampaignId } from "../lib/DDBCampaigns.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getActorConditionStates, getCondition } from "../parser/special/conditions.js";
-import { getItemCollectionItems } from "../parser/special/itemCollections.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import NameMatcher from "../lib/NameMatcher.js";
 
-function getFoundryItems(actor) {
+function getContainerItems(actor) {
+  return actor.items
+    .filter((item) =>
+      hasProperty(item, "flags.ddbimporter.id")
+      && hasProperty(item, "flags.ddbimporter.containerEntityId")
+      && item.flags.ddbimporter.containerEntityId === parseInt(actor.flags.ddbimporter.dndbeyond.characterId)
+      && !item.flags.ddbimporter?.ignoreItemImport
+      && !item.system.container
+    );
+}
+
+function setContainerDetails(actor, item, containerItems = null) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
-  const itemCollections = getItemCollectionItems(actor);
-  const actorItems = duplicate(actor.items).map((item) => {
+  const ddbContainers = containerItems ?? getContainerItems(actor);
+
+  const containerItem = item.system.container
+    ? ddbContainers.find((container) => container._id === item.system.container)
+    : null;
+
+  if (containerItem) {
+    const containerId = getProperty(containerItem, "flags.ddbimporter.id");
+    const containerEntityTypeId = getProperty(containerItem, "flags.ddbimporter.entityTypeId");
+    setProperty(item, "flags.ddbimporter.containerEntityId", containerId);
+    setProperty(item, "flags.ddbimporter.containerEntityTypeId", containerEntityTypeId);
+  } else {
     // set the container entity id to the id of the character, if the character is the "container"
     setProperty(item, "flags.ddbimporter.containerEntityId", parseInt(characterId));
-    delete item.flags.ddbimporter.updateDocumentId;
-    return item;
-  });
+  }
+
+  return item;
+}
+
+function getFoundryItems(actor) {
+  const ddbContainers = getContainerItems(actor);
+
+  const actorItems = duplicate(actor.items)
+    .filter((item) => !(item.flags.ddbimporter?.ignoreItemUpdate ?? false))
+    .map((item) => {
+      return setContainerDetails(actor, item, ddbContainers);
+    });
   // don't return update ignored items
-  return (actorItems.concat(itemCollections)).filter((item) => !(item.flags.ddbimporter?.ignoreItemUpdate ?? false));
+  return actorItems;
 }
 
 function getCustomItemDescription(text) {
@@ -734,37 +764,16 @@ async function addDDBEquipment(actor, itemsToAdd) {
           return updatedItem;
         });
 
-      const characterItems = itemUpdates.filter((i) => !hasProperty(i, "flags.ddbimporter.updateDocumentId"));
-      const containerItems = itemUpdates.filter((i) => hasProperty(i, "flags.ddbimporter.updateDocumentId"));
-      const containerIds = [...new Set(containerItems.map((i) => i.flags.ddbimporter.updateDocumentId))];
-
-      logger.debug("Character item updates:", characterItems);
-      logger.debug("Container item updates:", containerItems);
+      logger.debug("Character item updates:", itemUpdates);
       logger.debug("Character custom item updates:", customItems);
 
       try {
-        if (characterItems.length > 0) await actor.updateEmbeddedDocuments("Item", characterItems);
+        if (itemUpdates.length > 0) await actor.updateEmbeddedDocuments("Item", itemUpdates);
         if (customItems.length > 0) await actor.updateEmbeddedDocuments("Item", customItems);
-        for (const containerId of containerIds) {
-          const containerItemsToUpdate = containerItems
-            .filter((i) => i.flags.ddbimporter.updateDocumentId === containerId)
-            .map((i) => {
-              delete i.flags.ddbimporter.updateDocumentId;
-              return i;
-            });
-          const containerDocument = actor.getEmbeddedDocument("Item", containerId);
-          // eslint-disable-next-line max-depth
-          if (containerItemsToUpdate.length > 0) {
-            logger.debug(`Updating container ${containerDocument.name} with items:`, containerItemsToUpdate);
-            // eslint-disable-next-line no-await-in-loop
-            await containerDocument.updateEmbeddedDocuments("Item", containerItemsToUpdate);
-          }
-        }
       } catch (err) {
         logger.error(`Unable to update character with equipment, got the error:`, err);
         logger.error(`Update payload:`, itemUpdates);
         logger.error(`Update custom payload:`, customItems);
-        logger.error(`Update containerIds:`, containerIds);
         logger.error("Update Item Information:", addDebugData);
       }
 
@@ -1093,16 +1102,14 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
     )
   );
 
-  const itemsToMove = game.modules.get("itemcollection")?.active
-    ? foundryItems.filter((item) =>
-      hasProperty(item, "flags.ddbimporter.id")
-      && !getProperty(item, "flags.ddbimporter.action")
-      && hasProperty(item, "flags.ddbimporter.containerEntityId")
-      && ddbItems.some((dItem) =>
-        item.flags.ddbimporter.id === dItem.id
-        && parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(dItem.containerEntityId)
-      ))
-    : [];
+  const itemsToMove = foundryItems.filter((item) =>
+    hasProperty(item, "flags.ddbimporter.id")
+    && !getProperty(item, "flags.ddbimporter.action")
+    && hasProperty(item, "flags.ddbimporter.containerEntityId")
+    && ddbItems.some((dItem) =>
+      item.flags.ddbimporter.id === dItem.id
+      && parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(dItem.containerEntityId)
+    ));
 
   const itemsToCurrency = game.modules.get("itemcollection")?.active && game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency")
     ? foundryItems.filter((item) =>
@@ -1399,24 +1406,12 @@ async function generateDynamicItemChange(actor, document, update) {
     if (update.name) {
       updateItemDetails.itemsToName.push(duplicate(document));
     }
-    if (update.flags?.itemcollection?.contentsData && hasProperty(document, "flags.ddbimporter.id")) {
-      const newItems = [];
-      const moveItems = [];
-      for (const item of update.flags.itemcollection.contentsData) {
-        setProperty(item, "flags.ddbimporter.containerEntityId", document.flags.ddbimporter.id);
-        setProperty(item, "flags.ddbimporter.containerEntityTypeId", document.flags.ddbimporter.entityTypeId);
-        if (parseInt(item.flags.ddbimporter.id) === 0) {
-          setProperty(item, "flags.ddbimporter.updateDocumentId", document.id);
-          newItems.push(item);
-        } else {
-          moveItems.push(item);
-        }
-      }
-
-      addDDBEquipment(actor, newItems);
-      updateItemDetails.itemsToMove.push(...moveItems);
+    if (update.system?.container) {
+      const containerisedDocument = duplicate(document);
+      setContainerDetails(actor, containerisedDocument);
+      updateItemDetails.itemsToMove.push(containerisedDocument);
     }
-    if (update.system?.currency && game.modules.get("itemcollection")?.active) {
+    if (update.system?.currency) {
       updateItemDetails.itemsToCurrency.push(duplicate(document));
     }
   }
@@ -1532,41 +1527,42 @@ async function activeUpdateAddOrDeleteItem(document, state) {
 
         switch (state) {
           case "CREATE": {
-            const characterId = parseInt(parentActor.flags.ddbimporter.dndbeyond.characterId);
-            const containerId = document.flags?.ddbimporter?.containerEntityId;
-            if (Number.isInteger(containerId) && characterId != parseInt(containerId)) {
-              // update item container
-              logger.debug(`Moving item from container`, document);
-              document.update({
-                "flags.ddbimporter.containerEntityId": characterId,
-              });
-              const itemData = {
-                itemId: parseInt(document.flags.ddbimporter.id),
-                containerEntityId: characterId,
-                containerEntityTypeId: 1581111423,
-              };
-              const flavor = { summary: "Moving item to character", name: document.name, containerId: duplicate(containerId) };
-              promises.push(updateCharacterCall(parentActor, "equipment/move", itemData, flavor));
-            } else {
-              logger.debug(`Creating item`, document);
-              promises.push(addDDBEquipment(parentActor, [document.toObject()]));
-            }
+            // const characterId = parseInt(parentActor.flags.ddbimporter.dndbeyond.characterId);
+            // const containerId = document.flags?.ddbimporter?.containerEntityId;
+            // if (Number.isInteger(containerId) && characterId != parseInt(containerId)) {
+            //   // update item container
+            //   logger.debug(`Moving item from container`, document);
+            //   document.update({
+            //     "flags.ddbimporter.containerEntityId": characterId,
+            //   });
+            //   const itemData = {
+            //     itemId: parseInt(document.flags.ddbimporter.id),
+            //     containerEntityId: characterId,
+            //     containerEntityTypeId: 1581111423,
+            //   };
+            //   const flavor = { summary: "Moving item to character", name: document.name, containerId: duplicate(containerId) };
+            //   promises.push(updateCharacterCall(parentActor, "equipment/move", itemData, flavor));
+            // } else {
+            logger.debug(`Creating item`, document);
+            promises.push(addDDBEquipment(parentActor, [document.toObject()]));
+            // }
             break;
           }
           case "DELETE": {
-            const collectionItems = getItemCollectionItems(parentActor);
-            const collectionItemDDBIds = collectionItems
-              .filter((item) => hasProperty(item, "flags.ddbimporter.id"))
-              .map((item) => item.flags.ddbimporter.id);
-            if (hasProperty(document, "flags.ddbimporter.id")
-              && collectionItemDDBIds.includes(document.flags.ddbimporter.id)
-            ) {
-              // we don't have to handle deletes as the item collection move is handled above
-              logger.debug(`Moving item to container`, document);
-            } else {
-              promises.push(removeDDBEquipment(parentActor, [document.toObject()]));
-            }
-            break;
+            // const collectionItems = getItemCollectionItems(parentActor);
+            // const collectionItemDDBIds = collectionItems
+            //   .filter((item) => hasProperty(item, "flags.ddbimporter.id"))
+            //   .map((item) => item.flags.ddbimporter.id);
+            // if (hasProperty(document, "flags.ddbimporter.id")
+            //   && collectionItemDDBIds.includes(document.flags.ddbimporter.id)
+            // ) {
+            //   // we don't have to handle deletes as the item collection move is handled above
+            //   logger.debug(`Moving item to container`, document);
+            // } else {
+            logger.debug(`Deleting item`, document);
+            promises.push(removeDDBEquipment(parentActor, [document.toObject()]));
+            // }
+            // break;
           }
           // no default
         }

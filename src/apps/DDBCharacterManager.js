@@ -14,7 +14,6 @@ import DDBCookie from "../apps/DDBCookie.js";
 import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/special/conditions.js";
-import { addContainerItemsToContainers, addContainerItemsToActor } from "../parser/special/itemCollections.js";
 import SETTINGS from "../settings.js";
 import {
   // addAndReplaceRedundantChrisDocuments,
@@ -1241,8 +1240,6 @@ export default class DDBCharacterManager extends FormApplication {
     await this.ddbCharacter.disableDynamicUpdates();
 
     try {
-      await addContainerItemsToActor(this.ddbCharacter.source.ddb, this.actor);
-
       this.importId = randomID();
       setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
       await this.addImportIdToItems();
@@ -1355,7 +1352,6 @@ export default class DDBCharacterManager extends FormApplication {
         // await addAndReplaceRedundantChrisDocuments(this.actor);
       }
       await setConditions(this.actor, this.ddbCharacter.source.ddb, this.settings.activeEffectCopy);
-      await addContainerItemsToContainers(this.ddbCharacter.source.ddb, this.actor);
 
     } catch (error) {
       logger.error("Error importing character: ", { error, ddbCharacter: this.ddbCharacter, result: this.result });

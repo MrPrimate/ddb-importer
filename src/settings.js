@@ -489,11 +489,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-use-item-containers": {
-            scope: "player",
-            type: Boolean,
-            default: true,
-          },
           "character-update-policy-create-companions": {
             scope: "player",
             type: Boolean,

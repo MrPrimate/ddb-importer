@@ -260,6 +260,7 @@ export default class DDBCharacter {
       }
 
       this._addVision5eEffects();
+      this._linkItemsToContainers();
 
     } catch (error) {
       logger.error(error);
@@ -329,6 +330,26 @@ export default class DDBCharacter {
     return this.source.ddb.character.classes.some((cls) =>
       cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts")
     );
+  }
+
+  _linkItemsToContainers() {
+    const topLevelItems = this.data.inventory
+      .filter((item) =>
+        hasProperty(item, "flags.ddbimporter.id")
+        && hasProperty(item, "flags.ddbimporter.containerEntityId")
+        && item.flags.ddbimporter.containerEntityId === this.source.ddb.character.id
+        && !item.flags.ddbimporter?.ignoreItemImport
+      );
+
+    for (const topLevelItem of topLevelItems) {
+      this.data.inventory.forEach((item) => {
+        if (hasProperty(item, "flags.ddbimporter.containerEntityId")
+          && item.flags.ddbimporter.containerEntityId === topLevelItem.flags.ddbimporter.id
+        ) {
+          setProperty(item, "system.container", topLevelItem._id);
+        }
+      });
+    }
   }
 
 }
