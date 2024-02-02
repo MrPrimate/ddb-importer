@@ -2,6 +2,7 @@
 
 - Great Weapon Master and Sharpshooter no longer rely on CE.
 - DDB Importer v4.0.0 no longer supports Foundry 10, or 5e versions earlier than v3.0.0.
+- Effect: Heroism updated to MidiQoL Overtime effect
 
 # 3.7.17
 
