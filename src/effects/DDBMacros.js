@@ -98,7 +98,7 @@ export default class DDBMacros {
       // ui.notifications.warn("Convenient Effects needs to be installed for effects");
     }
 
-    if (game.modules.get("itemacro")?.active) {
+    if (game.modules.get("itemacro")?.active && game.modules.get("dae")?.active) {
       const itemMacroSheet = game.settings.get("itemacro", "charsheet");
       if (itemMacroSheet) {
         game.settings.set("itemacro", "charsheet", false);
