@@ -30,7 +30,9 @@ if (args[0] === "on"
         "target.type": "self",
         components: { concentration: false, material: false, ritual: false, somatic: false, value: "", vocal: false },
         duration: { units: "inst", value: undefined },
-        weaponType: "improv",
+        type: {
+          value: "improv",
+        },
       },
     },
     { overwrite: true, inlace: true, insertKeys: true, insertValues: true }

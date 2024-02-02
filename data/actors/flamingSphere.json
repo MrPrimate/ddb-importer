@@ -57,7 +57,9 @@
         "actionType": "save",
         "damage": { "parts": [["2d6", "fire"]], "versatile": "" },
         "save": { "ability": "dex", "dc": 15, "scaling": "flat" },
-        "weaponType": "natural",
+        "type": {
+          "value": "natural"
+        },
         "properties": {
           "nodam": false,
           "fulldam": false,

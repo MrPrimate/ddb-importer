@@ -698,7 +698,7 @@ export default class DDBMonsterFeature {
 
     if (this.weaponAttack) {
       if (this.templateType !== "feat") {
-        this.feature.system.weaponType = this.actionInfo.weaponType;
+        this.feature.system.type.value = this.actionInfo.weaponType;
         this.feature.system.equipped = true;
       }
       // console.log(actionInfo.weaponAttack);

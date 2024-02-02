@@ -228,8 +228,8 @@ export function parseItem(ddb, ddbItem, character, flags) {
       item = parseCustomItem(ddbItem);
     }
     const baseItem = getBaseItem(ddbItem);
-    setProperty(item, "system.baseItem", baseItem.baseItem);
-    setProperty(item, "system.toolType", baseItem.toolType);
+    setProperty(item, "system.type.baseItem", baseItem.baseItem);
+    setProperty(item, "system.type.value", baseItem.toolType);
     item.system.attunement = getAttunement(ddbItem);
     item.system.price = getPrice(ddbItem);
 

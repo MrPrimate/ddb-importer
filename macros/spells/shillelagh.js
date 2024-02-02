@@ -10,7 +10,7 @@ const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 // we see if the equipped weapons have base weapon set and filter on that, otherwise we just get all weapons
 const filteredWeapons = target.items
-  .filter((i) => i.type === "weapon" && (i.system.baseItem === "club" || i.system.baseItem === "quarterstaff"));
+  .filter((i) => i.type === "weapon" && (i.system.type.baseItem === "club" || i.system.type.baseItem === "quarterstaff"));
 const weapons = (filteredWeapons.length > 0)
   ? filteredWeapons
   : target.items.filter((i) => i.type === "weapon");

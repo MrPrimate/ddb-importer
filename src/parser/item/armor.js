@@ -3,10 +3,14 @@ import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity, getDescription, getBaseItem } from "./common.js";
 
+
 /**
- * Gets the DND5E weapontype (simpleM, martialR etc.) as string
- * Supported Types only: Simple/Martial Melee/Ranged and Ammunition (Firearms in D&DBeyond)
- * @param {obj} data item data
+ * Get the armor type, armor class, and max dex modifier based on the provided data, character, and flags.
+ *
+ * @param {Object} data - The data object containing armor information.
+ * @param {Object} character - The character object.
+ * @param {Object} flags - The flags object for additional options.
+ * @return {Object} An object containing the armor type, combined armor class, and max dex modifier.
  */
 function getArmorType(data, character, flags) {
   // get the generic armor type

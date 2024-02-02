@@ -369,7 +369,7 @@ export class DDBCompendiumFolders {
 
     switch (document.type) {
       case "equipment": {
-        switch (document.system?.armor?.type) {
+        switch (document.system?.type?.value) {
           case "trinket": {
             const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
             const isContainer = getProperty(document, "flags.ddbimporter.dndbeyond.isContainer") === true;
@@ -390,7 +390,7 @@ export class DDBCompendiumFolders {
         break;
       }
       case "weapon": {
-        result.name = this.weaponFolders[document.system.weaponType].name;
+        result.name = this.weaponFolders[document.system.type.value].name;
         result.flagTag = `weapon/${result.name}`;
         break;
       }
@@ -419,7 +419,7 @@ export class DDBCompendiumFolders {
         break;
       }
       case "tool": {
-        const toolType = document.system.toolType;
+        const toolType = document.system.type.value;
         const instrument = document.flags?.ddbimporter?.dndbeyond?.tags.includes("Instrument");
         const ddbType = ["art", "music", "game"].includes(toolType);
         if (instrument) {
@@ -629,9 +629,9 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.dndbeyond.type",
           "flags.ddbimporter.dndbeyond.tags",
           "system.armor.type",
-          "system.weaponType",
+          "system.type.value",
           "system.rarity",
-          "system.toolType",
+          "system.type.value",
           "system.details.type.value",
         ];
       }

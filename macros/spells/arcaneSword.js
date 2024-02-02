@@ -78,7 +78,9 @@ if (args[0] === "on") {
         chatFlavor: "",
         critical: null,
         damage: { parts: [["3d10", "force"]], versatile: "" },
-        weaponType: "simpleM",
+        type: {
+          value: "simpleM",
+        },
         proficient: true,
         equipped: true,
       },

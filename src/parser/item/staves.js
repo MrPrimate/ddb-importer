@@ -147,9 +147,9 @@ export default function parseStaff(data, character) {
     },
   };
 
-  staff.system.weaponType = getWeaponType(data);
+  staff.system.type.value = getWeaponType(data);
   staff.system.properties = getProperties(data);
-  staff.system.proficient = getWeaponProficient(data, staff.system.weaponType, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
+  staff.system.proficient = getWeaponProficient(data, staff.system.type.value, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
   staff.system.description = getDescription(data);
   staff.system.source = DDBHelper.parseSource(data.definition);
   staff.system.quantity = getQuantity(data);

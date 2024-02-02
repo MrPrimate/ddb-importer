@@ -325,7 +325,7 @@ async function linkResourcesConsumption(actor) {
         item._id = itemID;
         if (item.type === "weapon") {
           item.type = "feat";
-          delete item.system.weaponType;
+          delete item.system.type.value;
           item.system.type = {
             value: "monster",
             subtype: "",

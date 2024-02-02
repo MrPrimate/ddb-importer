@@ -250,14 +250,14 @@ export default function parseWeapon(data, character, flags) {
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
   const characterProficiencies = character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects;
 
-  weapon.system.weaponType = getWeaponType(data);
+  weapon.system.type.value = getWeaponType(data);
   weapon.system.properties = getProperties(data);
 
   const proficientFeatures = ["pactWeapon", "kensaiWeapon"];
   if (flags.classFeatures.some((feat) => proficientFeatures.includes(feat))) {
     weapon.system.proficient = true;
   } else {
-    weapon.system.proficient = getWeaponProficient(data, weapon.system.weaponType, characterProficiencies);
+    weapon.system.proficient = getWeaponProficient(data, weapon.system.type.value, characterProficiencies);
   }
 
   weapon.system.description = getDescription(data);

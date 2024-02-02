@@ -217,8 +217,8 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
           if (game.modules.get("sequencer")?.active && Sequencer.Database.entryExists(patreonPrimary)) {
             const autoAnimationsAdjustments = duplicate(baseAutoAnimation);
-            autoAnimationsAdjustments.primary.video.animation = weaponCopy.system.baseItem && !["longsword", "rapier"].includes(weaponCopy.system.baseItem)
-              ? weaponCopy.system.baseItem
+            autoAnimationsAdjustments.primary.video.animation = weaponCopy.system.type.baseItem && !["longsword", "rapier"].includes(weaponCopy.system.type.baseItem)
+              ? weaponCopy.system.type.baseItem
               : "shortsword";
             const autoanimations = hasProperty(weaponCopy, "flags.autoanimations")
               ? mergeObject(getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)

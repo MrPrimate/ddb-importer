@@ -367,7 +367,7 @@ export default class DDBAction extends DDBBaseFeature {
   _generateWeaponType() {
     const entry = DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === this.ddbDefinition.attackSubtype);
     const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === this.ddbDefinition.attackTypeRange);
-    this.data.system.weaponType = entry
+    this.data.system.type.value = entry
       ? entry.value
       : range
         ? `simple${range.value}`

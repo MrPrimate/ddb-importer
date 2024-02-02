@@ -15,12 +15,6 @@ const TYPE_MAPPING = {
   // "loot": loot
 };
 
-// function getWeaponType(action) {
-//   const entry = DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === action.attackSubtype);
-//   const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === action.attackTypeRange);
-//   return entry ? entry.value : range ? `simple${range.value}` : "simpleM";
-// }
-
 function getActivation(action, crew = false) {
   const actionType = DICTIONARY.actions.activationTypes.find((type) => type.id === action.activation?.activationType);
   const activation = {
@@ -114,8 +108,8 @@ function getWeaponProperties(action, weapon) {
   if (action.fixedToHit !== null) {
     weapon.system.attackBonus = `${action.fixedToHit}`;
   }
-  // weapon.system.weaponType = getWeaponType(action);
-  weapon.system.weaponType = "siege";
+
+  weapon.system.type.value = "siege";
   weapon.system.target = {
     "value": 1,
     "width": null,
