@@ -93,11 +93,7 @@ export async function getClasses(data) {
       );
       logger.debug(`${feature.name} class feature starting...`, { existingFeature, feature });
       if (!NO_TRAITS.includes(feature.name) && !existingFeature) {
-        // eslint-disable-next-line no-await-in-loop
         const parsedFeature = await getClassFeature(feature, klass);
-        // if (usingFolders) {
-        //   parsedFeature.folder = compendiumFolders.getFolderId(parsedFeature);
-        // }
         classFeatures.push(parsedFeature);
         results.push({ class: klass.name, subClass: "", feature: feature.name });
       }
@@ -105,14 +101,18 @@ export async function getClasses(data) {
   }
 
   const featureHandlerOptions = {
-    // srdFidding: false,
     chrisPremades: true,
-    // deleteBeforeUpdate: false,
+    deleteBeforeUpdate: false,
     removeSRDDuplicates: false,
     filterDuplicates: false,
     matchFlags: ["featureId"],
   };
 
+  logger.debug(`Creating class features`, {
+    classFeatures,
+    featureHandlerOptions,
+    updateBool
+  });
   const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
   const firstPassFeatures = await featureHandler.compendiumIndex.filter((i) =>
     featureHandler.documents.some((orig) => i.name === orig.name)
@@ -133,6 +133,5 @@ export async function getClasses(data) {
   logger.debug("Class build finished", klasses);
   await DDBItemImporter.buildHandler("classes", klasses, updateBool);
 
-  // return fiddledClasses.concat(fiddledClassFeatures);
   return results;
 }

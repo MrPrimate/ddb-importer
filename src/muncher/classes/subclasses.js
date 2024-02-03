@@ -101,11 +101,10 @@ export async function getSubClasses(subClassData, klassData) {
   }
 
   const featureHandlerOptions = {
-    // srdFidding: false,
     chrisPremades: true,
-    // deleteBeforeUpdate: false,
     removeSRDDuplicates: false,
     filterDuplicates: false,
+    deleteBeforeUpdate: false,
     matchFlags: ["featureId"],
     indexFilter: {
       fields: [
@@ -119,6 +118,11 @@ export async function getSubClasses(subClassData, klassData) {
     },
   };
 
+  logger.debug(`Creating ${klassData.name} subclass features`, {
+    classFeatures,
+    featureHandlerOptions,
+    updateBool
+  });
   const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
   await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
 

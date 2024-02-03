@@ -28,7 +28,14 @@ export async function getClassOptions(data, className) {
     }
   }
 
-  await DDBItemImporter.buildHandler("features", classFeatures, updateBool, { chrisPremades: true, deleteBeforeUpdate: false });
+  const options = {
+    chrisPremades: true,
+    deleteBeforeUpdate: false,
+    removeSRDDuplicates: false,
+    filterDuplicates: false,
+    matchFlags: ["featureId"],
+  };
+  await DDBItemImporter.buildHandler("features", classFeatures, updateBool, options);
 
   return results;
 }
