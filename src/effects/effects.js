@@ -265,6 +265,33 @@ export function effectModules() {
   return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
 }
 
+function generateEffectDuration(foundryItem) {
+  let duration = {
+    seconds: null,
+    startTime: null,
+    rounds: null,
+    turns: null,
+    startRound: null,
+    startTurn: null,
+  };
+  switch (foundryItem.system.duration.units) {
+    case "turn":
+      duration.turns = foundryItem.system.duration.value;
+      break;
+    case "round":
+      duration.rounds = foundryItem.system.duration.value;
+      break;
+    case "hour":
+      duration.seconds = foundryItem.system.duration.value * 60 * 60;
+      break;
+    case "minute":
+      duration.rounds = foundryItem.system.duration.value * 10;
+      break;
+    // no default
+  }
+  return duration;
+}
+
 export function baseEffect(foundryItem, label,
   { transfer = true, disabled = false } = {}
 ) {
@@ -301,6 +328,7 @@ export function baseEffect(foundryItem, label,
   };
   effect.name = label;
   effect.statuses = [];
+  effect.duration = generateEffectDuration(foundryItem);
   return effect;
 }
 
@@ -1303,33 +1331,6 @@ function addMagicalAdvantage(modifiers, name) {
     // changes.push(generateCustomChange("magic-resistant", 5, "system.traits.dr.custom"));
   }
   return changes;
-}
-
-function generateEffectDuration(foundryItem) {
-  let duration = {
-    seconds: null,
-    startTime: null,
-    rounds: null,
-    turns: null,
-    startRound: null,
-    startTurn: null,
-  };
-  switch (foundryItem.system.duration.units) {
-    case "turn":
-      duration.turns = foundryItem.system.duration.value;
-      break;
-    case "round":
-      duration.rounds = foundryItem.system.duration.value;
-      break;
-    case "hour":
-      duration.seconds = foundryItem.system.duration.value * 60 * 60;
-      break;
-    case "minute":
-      duration.rounds = foundryItem.system.duration.value * 10;
-      break;
-    // no default
-  }
-  return duration;
 }
 
 function consumableEffect(effect, ddbItem, foundryItem) {
