@@ -38,7 +38,7 @@
   {{/if}}
     <a class="item" data-tab="sync"><i class="fas fa-arrow-alt-circle-up"></i> Update D&DBeyond</a>
   {{#if importAllowed}}
-    <a class="item" data-tab="effects"><i class="fas fa-dna"></i> Active Effects</a>
+    <a class="item" data-tab="effects"><i class="fas fa-dna"></i> Automation</a>
     <a class="item" data-tab="config"><i class="fas fa-cogs"></i> Advanced</a>
   {{/if}}
     <a class="item" data-tab="help"><i class="fas fa-info-circle"></i> Help</a>
@@ -129,12 +129,12 @@
 
   <!-- Effects Configuration Tab -->
   <section class="tab" data-tab="effects">
-    <p class="notification info">This section adds Active Effects to imported content. Many of these are designed to work with <em>highly automated</em> games. Please read the descriptions carefully. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a></p>
+    <p class="notification info">This section adds extra Automation Active Effects to imported content. Many of these are designed to work with <em>highly automated</em> games. Please read the descriptions carefully. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a></p>
     <p>{{{localize "ddb-importer.settings.user-hint-setting"}}}</p>
     <p>{{{localize "ddb-importer.settings.user-hint-animations"}}}</p>
     <button type="button" id="default-effects">Apply Recommended Active Effect/Automation Settings for the installed modules</button>
     <hr>
-    <h2>Active Effect Options</h2>
+    <h2>Automation Options</h2>
     <p>{{{installedModulesText}}}</p>
     {{#each effectImportConfig}}
     <div class="effect-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
