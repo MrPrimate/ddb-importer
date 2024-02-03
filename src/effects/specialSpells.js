@@ -136,18 +136,10 @@ export function baseSpellEffect(document, label,
   return baseEffect(document, label, { transfer, disabled });
 }
 
-/**
- * This function is mainly for effects that can't be dynamically generated
- * @param {*} document
- */
+
 // eslint-disable-next-line complexity
-export async function spellEffectAdjustment(document) {
-  if (!document.effects) document.effects = [];
-
-  const deps = effectModules();
-
+async function basicSpellEffects(document) {
   const name = document.flags.ddbimporter?.originalName ?? document.name;
-  document = applyDefaultMidiFlags(document);
 
   logger.debug(`Adding basic effects to ${name}`);
   switch (name) {
@@ -159,8 +151,227 @@ export async function spellEffectAdjustment(document) {
       document = await aidEffect(document);
       break;
     }
+    case "Animal Friendship": {
+      document = animalFriendshipEffect(document);
+      break;
+    }
+    case "Aura of Life": {
+      document = await auraOfLifeEffect(document);
+      break;
+    }
+    case "Bane": {
+      document = baneEffect(document);
+      break;
+    }
+    case "Barkskin": {
+      document = barkskinEffect(document);
+      break;
+    }
+    case "Evard's Black Tentacles":
+    case "Black Tentacles": {
+      document = await blackTentaclesEffect(document);
+      break;
+    }
+    case "Bless": {
+      document = blessEffect(document);
+      break;
+    }
+    case "Blindness/Deafness": {
+      document = await blindnessDeafnessEffect(document);
+      break;
+    }
+    case "Charm Person": {
+      document = charmPersonEffect(document);
+      break;
+    }
+    case "Chill Touch": {
+      document = await chillTouchEffect(document);
+      break;
+    }
+    case "Contagion": {
+      document = await contagionEffect(document);
+      break;
+    }
+    case "Crown of Madness": {
+      document = crownofMadnessEffect(document);
+      break;
+    }
+    case "Darkvision": {
+      document = await darkvisionEffect(document);
+      break;
+    }
+    case "Divine Favor": {
+      document = divineFavorEffect(document);
+      break;
+    }
+    case "Dominate Beast": {
+      document = dominateBeastEffect(document);
+      break;
+    }
+    case "Dominate Monster": {
+      document = dominateMonsterEffect(document);
+      break;
+    }
+    case "Dominate Person": {
+      document = dominatePersonEffect(document);
+      break;
+    }
+    case "Ensnaring Strike": {
+      document = await ensnaringStrikeEffect(document);
+      break;
+    }
+    case "Entangle": {
+      document = entangleEffect(document);
+      break;
+    }
+    case "Fear": {
+      document = fearEffect(document);
+      break;
+    }
+    case "Feeblemind": {
+      document = feeblemindEffect(document);
+      break;
+    }
+    case "Fire Shield": {
+      document = await fireShieldEffect(document);
+      break;
+    }
+    case "Flesh to Stone": {
+      document = await fleshtoStoneEffect(document);
+      break;
+    }
+    case "Fly": {
+      document = flyEffect(document);
+      break;
+    }
+    case "Geas": {
+      document = geasEffect(document);
+      break;
+    }
+    case "Grease": {
+      document = await greaseEffect(document);
+      break;
+    }
+    case "Greater Invisibility": {
+      document = await greaterInvisibilityEffect(document);
+      break;
+    }
+    case "Haste": {
+      document = hasteEffect(document);
+      break;
+    }
+    case "Heroes' Feast": {
+      document = await heroesFeastEffect(document);
+      break;
+    }
+    case "Heroism": {
+      document = await heroismEffect(document);
+      break;
+    }
+    case "Tasha's Hideous Laughter":
+    case "Hideous Laughter": {
+      document = await hideousLaughterEffect(document);
+      break;
+    }
+    case "Hold Monster": {
+      document = holdMonsterEffect(document);
+      break;
+    }
+    case "Hold Person": {
+      document = holdPersonEffect(document);
+      break;
+    }
+    case "Hypnotic Pattern": {
+      document = hypnoticPatternEffect(document);
+      break;
+    }
+    case "Invisibility": {
+      document = await invisibilityEffect(document);
+      break;
+    }
+    case "Light": {
+      document = lightEffect(document);
+      break;
+    }
+    case "Mage Armor": {
+      document = mageArmorEffect(document);
+      break;
+    }
+    case "Mass Suggestion": {
+      document = massSuggestionEffect(document);
+      break;
+    }
+    case "Mind Blank": {
+      document = mindBlankEffect(document);
+      break;
+    }
+    case "Mirror Image": {
+      document = mirrorImageEffect(document);
+      break;
+    }
+    case "Pass Without Trace": {
+      document = passWithoutTraceEffect(document);
+      break;
+    }
+    case "Protection from Poison": {
+      document = protectionfromPoisonEffect(document);
+      break;
+    }
+    case "Psychic Scream": {
+      document = psychicScreamEffect(document);
+      break;
+    }
+    case "Shield": {
+      document = shieldEffect(document);
+      break;
+    }
+    case "Shield of Faith": {
+      document = shieldofFaithEffect(document);
+      break;
+    }
+    case "Sleep": {
+      document = await sleepEffect(document);
+      break;
+    }
+    case "Slow": {
+      document = slowEffect(document);
+      break;
+    }
+    case "Spider Climb": {
+      document = spiderClimbEffect(document);
+      break;
+    }
+    case "Stoneskin": {
+      document = stoneskinEffect(document);
+      break;
+    }
+    case "Sunbeam": {
+      document = sunbeamEffect(document);
+      break;
+    }
+    case "Warding Bond": {
+      document = await wardingBondEffect(document);
+      break;
+    }
+    case "Web": {
+      document = await webEffect(document);
+      break;
+    }
     // no default
   }
+
+  return document;
+}
+
+/**
+ * This function is for effects that can't be dynamically generated
+ * @param {*} document
+ */
+// eslint-disable-next-line complexity
+async function midiEffectAdjustment(document) {
+  const deps = effectModules();
+  const name = document.flags.ddbimporter?.originalName ?? document.name;
+  document = applyDefaultMidiFlags(document);
 
   // check that we can gen effects
   if (!deps.hasCore) {
@@ -179,10 +390,6 @@ export async function spellEffectAdjustment(document) {
       document = alterSelfEffect(document);
       break;
     }
-    case "Animal Friendship": {
-      document = animalFriendshipEffect(document);
-      break;
-    }
     case "Mordenkainen's Sword":
     case "Arcane Sword": {
       document = await arcaneSwordEffect(document);
@@ -192,41 +399,16 @@ export async function spellEffectAdjustment(document) {
       document = await armorOfAgathysEffect(document);
       break;
     }
-    case "Aura of Life": {
-      document = await auraOfLifeEffect(document);
-      break;
-    }
-    case "Bane": {
-      document = baneEffect(document);
-      break;
-    }
     case "Banishment": {
       document = await banishmentEffect(document);
-      break;
-    }
-    case "Barkskin": {
-      document = barkskinEffect(document);
       break;
     }
     case "Beacon of Hope": {
       document = beaconofHopeEffect(document);
       break;
     }
-    case "Evard's Black Tentacles":
-    case "Black Tentacles": {
-      document = await blackTentaclesEffect(document);
-      break;
-    }
-    case "Bless": {
-      document = blessEffect(document);
-      break;
-    }
     case "Blur": {
       document = blurEffect(document);
-      break;
-    }
-    case "Blindness/Deafness": {
-      document = await blindnessDeafnessEffect(document);
       break;
     }
     case "Booming Blade": {
@@ -239,14 +421,6 @@ export async function spellEffectAdjustment(document) {
     }
     case "Call Lightning": {
       document = await callLightningEffect(document);
-      break;
-    }
-    case "Charm Person": {
-      document = charmPersonEffect(document);
-      break;
-    }
-    case "Chill Touch": {
-      document = await chillTouchEffect(document);
       break;
     }
     case "Chromatic Orb": {
@@ -273,20 +447,12 @@ export async function spellEffectAdjustment(document) {
       document = await confusionEffect(document);
       break;
     }
-    case "Contagion": {
-      document = await contagionEffect(document);
-      break;
-    }
     case "Counterspell": {
       document = forceManualReaction(document);
       break;
     }
     case "Crown of Stars": {
       document = await crownofStarsEffect(document);
-      break;
-    }
-    case "Crown of Madness": {
-      document = crownofMadnessEffect(document);
       break;
     }
     case "Create Bonfire": {
@@ -301,28 +467,8 @@ export async function spellEffectAdjustment(document) {
       document = await darknessEffect(document);
       break;
     }
-    case "Darkvision": {
-      document = await darkvisionEffect(document);
-      break;
-    }
-    case "Divine Favor": {
-      document = divineFavorEffect(document);
-      break;
-    }
     case "Divine Word": {
       document = await divineWordEffect(document);
-      break;
-    }
-    case "Dominate Beast": {
-      document = dominateBeastEffect(document);
-      break;
-    }
-    case "Dominate Monster": {
-      document = dominateMonsterEffect(document);
-      break;
-    }
-    case "Dominate Person": {
-      document = dominatePersonEffect(document);
       break;
     }
     case "Elemental Weapon": {
@@ -337,14 +483,6 @@ export async function spellEffectAdjustment(document) {
       document = await enlargeReduceEffect(document);
       break;
     }
-    case "Ensnaring Strike": {
-      document = await ensnaringStrikeEffect(document);
-      break;
-    }
-    case "Entangle": {
-      document = entangleEffect(document);
-      break;
-    }
     case "Eyebite": {
       document = await eyebiteEffect(document);
       break;
@@ -353,48 +491,16 @@ export async function spellEffectAdjustment(document) {
       document = await faerieFireEffect(document);
       break;
     }
-    case "Fear": {
-      document = fearEffect(document);
-      break;
-    }
     case "Feather Fall": {
       document = forceManualReaction(document);
-      break;
-    }
-    case "Feeblemind": {
-      document = feeblemindEffect(document);
-      break;
-    }
-    case "Fire Shield": {
-      document = await fireShieldEffect(document);
       break;
     }
     case "Flame Blade": {
       document = await flameBladeEffect(document);
       break;
     }
-    case "Flesh to Stone": {
-      document = await fleshtoStoneEffect(document);
-      break;
-    }
-    case "Fly": {
-      document = flyEffect(document);
-      break;
-    }
     case "Frostbite": {
       document = frostbiteEffect(document);
-      break;
-    }
-    case "Geas": {
-      document = geasEffect(document);
-      break;
-    }
-    case "Grease": {
-      document = await greaseEffect(document);
-      break;
-    }
-    case "Greater Invisibility": {
-      document = await greaterInvisibilityEffect(document);
       break;
     }
     case "Green-Flame Blade": {
@@ -413,33 +519,8 @@ export async function spellEffectAdjustment(document) {
       document = await hailOfThornsEffect(document);
       break;
     }
-    case "Haste": {
-      document = hasteEffect(document);
-      break;
-    }
-    case "Heroes' Feast": {
-      document = await heroesFeastEffect(document);
-      break;
-    }
-    case "Heroism": {
-      document = await heroismEffect(document);
-      break;
-    }
     case "Hex": {
       document = await hexEffect(document);
-      break;
-    }
-    case "Tasha's Hideous Laughter":
-    case "Hideous Laughter": {
-      document = await hideousLaughterEffect(document);
-      break;
-    }
-    case "Hold Monster": {
-      document = holdMonsterEffect(document);
-      break;
-    }
-    case "Hold Person": {
-      document = holdPersonEffect(document);
       break;
     }
     case "Holy Aura": {
@@ -448,10 +529,6 @@ export async function spellEffectAdjustment(document) {
     }
     case "Hunter's Mark": {
       document = await huntersMarkEffect(document);
-      break;
-    }
-    case "Hypnotic Pattern": {
-      document = hypnoticPatternEffect(document);
       break;
     }
     case "Ice Knife": {
@@ -466,41 +543,17 @@ export async function spellEffectAdjustment(document) {
       document = await insectPlagueEffect(document);
       break;
     }
-    case "Invisibility": {
-      document = await invisibilityEffect(document);
-      break;
-    }
     case "Otto's Irresistible Dance":
     case "Irresistible Dance": {
       document = await irresistibleDanceEffect(document);
-      break;
-    }
-    case "Light": {
-      document = lightEffect(document);
       break;
     }
     case "Longstrider": {
       document = longstriderEffect(document);
       break;
     }
-    case "Mage Armor": {
-      document = mageArmorEffect(document);
-      break;
-    }
     case "Magic Weapon": {
       document = await magicWeaponEffect(document);
-      break;
-    }
-    case "Mass Suggestion": {
-      document = massSuggestionEffect(document);
-      break;
-    }
-    case "Mind Blank": {
-      document = mindBlankEffect(document);
-      break;
-    }
-    case "Mirror Image": {
-      document = mirrorImageEffect(document);
       break;
     }
     case "Misty Step": {
@@ -513,10 +566,6 @@ export async function spellEffectAdjustment(document) {
       document = await moonbeamEffect(document);
       break;
     }
-    case "Pass Without Trace": {
-      document = passWithoutTraceEffect(document);
-      break;
-    }
     case "Phantasmal Killer": {
       document = phantasmalKillerEffect(document);
       break;
@@ -527,14 +576,6 @@ export async function spellEffectAdjustment(document) {
     }
     case "Protection from Energy": {
       document = await protectionfromEnergyEffect(document);
-      break;
-    }
-    case "Protection from Poison": {
-      document = protectionfromPoisonEffect(document);
-      break;
-    }
-    case "Psychic Scream": {
-      document = psychicScreamEffect(document);
       break;
     }
     case "Ray of Enfeeblement": {
@@ -558,32 +599,12 @@ export async function spellEffectAdjustment(document) {
       document = resistanceEffect(document);
       break;
     }
-    case "Shield": {
-      document = shieldEffect(document);
-      break;
-    }
-    case "Shield of Faith": {
-      document = shieldofFaithEffect(document);
-      break;
-    }
     case "Shillelagh": {
       document = await shillelaghEffect(document);
       break;
     }
     case "Silence": {
       document = await silenceEffect(document);
-      break;
-    }
-    case "Sleep": {
-      document = await sleepEffect(document);
-      break;
-    }
-    case "Slow": {
-      document = slowEffect(document);
-      break;
-    }
-    case "Spider Climb": {
-      document = spiderClimbEffect(document);
       break;
     }
     case "Spike Growth": {
@@ -604,14 +625,6 @@ export async function spellEffectAdjustment(document) {
     }
     case "Storm Sphere": {
       document = await stormSphereEffect(document);
-      break;
-    }
-    case "Stoneskin": {
-      document = stoneskinEffect(document);
-      break;
-    }
-    case "Sunbeam": {
-      document = sunbeamEffect(document);
       break;
     }
     case "Sword Burst": {
@@ -642,14 +655,6 @@ export async function spellEffectAdjustment(document) {
       document = await vitriolicSphereEffect(document);
       break;
     }
-    case "Warding Bond": {
-      document = await wardingBondEffect(document);
-      break;
-    }
-    case "Web": {
-      document = await webEffect(document);
-      break;
-    }
     case "Witch Bolt": {
       document = await witchBoltEffect(document);
       break;
@@ -660,6 +665,15 @@ export async function spellEffectAdjustment(document) {
     }
     // no default
   }
+
+  return document;
+}
+
+
+export async function spellEffectAdjustment(document, midiEffects = false) {
+  if (!document.effects) document.effects = [];
+  document = await basicSpellEffects(document);
+  if (midiEffects) document = await midiEffectAdjustment(document);
   try {
     document = forceItemEffect(document);
   } catch (err) {

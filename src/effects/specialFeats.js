@@ -89,7 +89,7 @@ export function baseFeatEffect(document, label,
  * These are effects that can't be generated dynamically and have extra requirements
  */
 // eslint-disable-next-line complexity
-export async function featureEffectAdjustment(ddb, character, document) {
+export async function featureEffectAdjustment(ddb, character, document, midiEffects = false) {
   if (!document.effects) document.effects = [];
 
   const name = document.flags.ddbimporter?.originalName ?? document.name;
@@ -175,7 +175,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
   }
 
-  if (deps.daeInstalled && deps.midiQolInstalled) {
+  if (deps.midiQolInstalled && midiEffects) {
     document = applyDefaultMidiFlags(document);
     switch (name) {
       case "Arcane Recovery": {
@@ -385,7 +385,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
   }
 
-  if (!deps.hasCore) {
+  if (!deps.hasCore || !midiEffects) {
     return forceItemEffect(document);
   }
 

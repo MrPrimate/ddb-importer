@@ -453,13 +453,9 @@ export async function addExtraEffects(ddb, documents, character) {
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
 
-  if (addCharacterEffects) {
-    const results = await Promise.all(documents.map((document) => {
-      return featureEffectAdjustment(ddb, character, document);
-    }));
-    return results;
-  } else {
-    return documents;
-  }
+  const results = await Promise.all(documents.map((document) => {
+    return featureEffectAdjustment(ddb, character, document, addCharacterEffects);
+  }));
+  return results;
 
 }

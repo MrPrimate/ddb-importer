@@ -3,14 +3,13 @@ import DDBMacros from "../DDBMacros.js";
 import { effectModules, addStatusEffectChange } from "../effects.js";
 
 export async function blackTentaclesEffect(document) {
-  if (!effectModules().activeAurasInstalled) {
+  if (!effectModules().activeAurasInstalled || !effectModules().midiQolInstalled) {
     let effect = baseSpellEffect(document, document.name);
     addStatusEffectChange(effect, "Restrained", 20, true);
     document.effects.push(effect);
 
     return document;
   }
-
 
   let effect = baseSpellEffect(document, document.name);
   await DDBMacros.setItemMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_ON_ENTRY.file);

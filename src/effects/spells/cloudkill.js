@@ -4,7 +4,7 @@ import { effectModules } from "../effects.js";
 
 export async function cloudkillEffect(document) {
   // we require active auras for this effect
-  if (!effectModules().activeAurasInstalled) return document;
+  if (!effectModules().activeAurasInstalled || !effectModules().midiQolInstalled) return document;
 
   await DDBMacros.setItemMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file);
 

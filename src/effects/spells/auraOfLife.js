@@ -1,6 +1,7 @@
 /* eslint-disable require-atomic-updates */
 import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
+import { effectModules } from "../effects.js";
 
 export async function auraOfLifeEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -19,28 +20,30 @@ export async function auraOfLifeEffect(document) {
     // }
   );
 
-  await DDBMacros.setItemMacroFlag(document, "spell", "auraOfLife.js");
-  effect.flags["ActiveAuras"] = {
-    isAura: true,
-    aura: "Allies",
-    radius: 30,
-    alignment: "",
-    type: "",
-    ignoreSelf: false,
-    height: false,
-    hidden: false,
-    onlyOnce: false,
-    save: false,
-    savedc: null,
-    displayTemp: true,
-  };
-  // setProperty(effect, "duration.seconds", 600);
-  setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@token", macroType: "spell", macroName: "auraOfLife.js" }));
-  document.system.actionType = "other";
-  document.system.damage.parts = [];
-  document.system.range = { value: null, units: "self", long: null };
-  document.system['target']['type'] = "self";
+  if (effectModules().midiQolInstalled) {
+    await DDBMacros.setItemMacroFlag(document, "spell", "auraOfLife.js");
+    effect.flags["ActiveAuras"] = {
+      isAura: true,
+      aura: "Allies",
+      radius: 30,
+      alignment: "",
+      type: "",
+      ignoreSelf: false,
+      height: false,
+      hidden: false,
+      onlyOnce: false,
+      save: false,
+      savedc: null,
+      displayTemp: true,
+    };
+    // setProperty(effect, "duration.seconds", 600);
+    setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
+    effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@token", macroType: "spell", macroName: "auraOfLife.js" }));
+    document.system.actionType = "other";
+    document.system.damage.parts = [];
+    document.system.range = { value: null, units: "self", long: null };
+    document.system['target']['type'] = "self";
+  }
 
   document.effects.push(effect);
   return document;

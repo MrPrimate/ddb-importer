@@ -1,10 +1,18 @@
 import DDBMacros from "../DDBMacros.js";
+import { addStatusEffectChange, effectModules } from "../effects.js";
+import { baseSpellEffect } from "../specialSpells.js";
 
 export async function sleepEffect(document) {
 
-  await DDBMacros.setItemMacroFlag(document, "spell", "sleep.js");
-  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "sleep.js", ["postActiveEffects"]);
-  document.system.damage = { parts: [["5d8", "midi-none"]], versatile: "", value: "" };
+  if (effectModules().midiQolInstalled) {
+    await DDBMacros.setItemMacroFlag(document, "spell", "sleep.js");
+    DDBMacros.setMidiOnUseMacroFlag(document, "spell", "sleep.js", ["postActiveEffects"]);
+    document.system.damage = { parts: [["5d8", "midi-none"]], versatile: "", value: "" };
+  } else {
+    let effect = baseSpellEffect(document, document.name);
+    addStatusEffectChange(effect, "Unconscious", 20, true);
+    document.effects.push(effect);
+  }
 
   return document;
 }

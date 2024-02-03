@@ -16,7 +16,7 @@ export async function darkvisionEffect(document) {
       generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 60, 5),
       generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
     );
-  } else {
+  } else if (effectModules().midiQolInstalled) {
     await DDBMacros.setItemMacroFlag(document, "spell", "darkvision.js");
     effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "darkvision.js" }));
   }

@@ -106,10 +106,8 @@ export async function parseSpell(data, character) {
   }
   if (spell.system.ability === null) spell.system.ability = "";
 
-  if (addSpellEffects) {
-    await spellEffectAdjustment(spell);
-    setProperty(spell, "flags.ddbimporter.effectsApplied", true);
-  }
+  await spellEffectAdjustment(spell, addSpellEffects);
+  setProperty(spell, "flags.ddbimporter.effectsApplied", true);
 
   return spell;
 }
