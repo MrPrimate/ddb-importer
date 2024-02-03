@@ -1125,7 +1125,7 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
     itemsToCurrency,
   };
 
-  console.warn("Calling DDB Item Update with", {
+  logger.debug("Calling DDB Item Update with", {
     actor,
     itemsToUpdate,
     ddbItems
