@@ -105,6 +105,8 @@ export default class DDBMonsterFeature {
     if (this.ddbMonster) this.feature.system.source = this.ddbMonster.npc.system.details.source;
 
     this.actionInfo = {
+      baseItem: null,
+      baseTool: null,
       damage: {
         parts: [],
         versatile: ""
@@ -671,7 +673,6 @@ export default class DDBMonsterFeature {
     description = description.replaceAll("<em><strong></strong></em>", "");
     this.feature.system.description.value = await generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
   }
-
 
   #buildAction() {
     if (Number.isInteger(this.actionInfo.activation)) {
