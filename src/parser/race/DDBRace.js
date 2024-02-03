@@ -11,6 +11,23 @@ import AdvancementHelper from "../advancements/AdvancementHelper.js";
 
 export default class DDBRace {
 
+  static getGroupName(ids, baseRaceName) {
+    const ddbGroup = CONFIG.DDB.raceGroups.find((r) => ids.includes(r.id));
+    if (ddbGroup) {
+      return ddbGroup.name;
+    }
+    const lowercaseName = baseRaceName.toLowerCase().trim();
+    if ((lowercaseName.includes("elf") && !lowercaseName.includes("half")) || ["eladrin"].includes(lowercaseName)) {
+      return "Elf";
+    }
+    if (["githzerai", "githyanki"].includes(lowercaseName)) return "Gith";
+    if (lowercaseName.includes("genasi")) return "Genasi";
+    if (lowercaseName.includes("gnome")) return "Gnome";
+    if (lowercaseName.includes("human")) return "Human";
+    if (lowercaseName.includes("yuan-ti")) return "Yuan-ti";
+    return baseRaceName;
+  }
+
   _generateDataStub() {
     this.data = {
       name: "",
@@ -49,6 +66,12 @@ export default class DDBRace {
     this.data.name = (this.race.fullName) ? utils.nameString(this.race.fullName) : utils.nameString(this.race.name);
     this.data.system.description.value += `${this.race.description}\n\n`;
 
+    this.fullName = this.race.fullName;
+    this.isLegacy = this.race.isLegacy;
+    this.baseRaceName = this.race.baseRaceName;
+    this.groupName = DDBRace.getGroupName(this.race.groupIds, this.baseRaceName);
+    this.isSubRace = this.race.isSubRace || this.groupName !== this.raceName;
+
     this.data.flags.ddbimporter = {
       type: "race",
       entityRaceId: this.race.entityRaceId,
@@ -58,12 +81,15 @@ export default class DDBRace {
       baseRaceId: this.race.baseRaceId,
       baseRaceName: this.race.baseRaceName,
       fullName: this.race.fullName,
+      fullRaceName: this.race.fullName,
       subRaceShortName: this.race.subRaceShortName,
       isHomebrew: this.race.isHomebrew,
       isLegacy: this.race.isLegacy,
-      isSubRace: this.race.isSubRace,
+      isSubRace: this.isSubRace,
       moreDetailsUrl: this.race.moreDetailsUrl,
       featIds: this.race.featIds,
+      groupIds: this.race.groupIds,
+      groupName: this.groupName,
     };
 
     if (this.race.moreDetailsUrl) {
@@ -320,7 +346,7 @@ export default class DDBRace {
 
     this.data.system.advancement.push(advancement.toObject());
 
-    const feat = this.ddbData.character.feats.find((f) =>
+    const feat = this.ddbData?.character?.feats?.find((f) =>
       f.componentId === trait.id
       && f.componentTypeId === trait.entityTypeId
     );

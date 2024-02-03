@@ -17,6 +17,10 @@ export class DDBCompendiumFolders {
     this.validFolderIds = [];
     this.classFolders = {};
     this.subClassFolders = {};
+    this.raceFolders = {};
+    this.subRaceFolders = {};
+    this.traitFolders = {};
+    this.traitSubFolders = {};
   }
 
   constructor(type, packName) {
@@ -251,15 +255,73 @@ export class DDBCompendiumFolders {
     logger.debug(`Checking for Subclass folder '${subclassName}' with Parent Class '${parentClassName}'`);
 
     const folder = this.getFolder(subclassName, flagTag)
-      ?? (await this.createCompendiumFolder({ name: subclassName, parentId: this.classFolders[parentClassName]._id, color: "#222222", flagTag }));
+      ?? (await this.createCompendiumFolder({
+        name: subclassName,
+        parentId: this.classFolders[parentClassName]._id,
+        color: "#222222",
+        flagTag,
+      }));
     this.subClassFolders[subclassName] = folder;
     this.validFolderIds.push(folder._id);
   }
 
+  async getRacialBaseFolder(type, baseRaceName) {
+    const folderType = type.includes("trait") ? "traitFolders" : "raceFolders";
+    const flagType = type.includes("trait") ? "trait" : "race";
+    logger.debug(`Checking for race folder '${baseRaceName}'`);
+    const existingFolder = this.getFolder(baseRaceName, `${flagType}/${baseRaceName}`);
+    if (existingFolder) return existingFolder;
+    logger.debug(`Not found, creating race folder '${baseRaceName}'`);
+    const newFolder = await this.createCompendiumFolder({
+      name: baseRaceName,
+      flagTag: `${flagType}/${baseRaceName}`,
+    });
+    this.validFolderIds.push(newFolder._id);
+    this[folderType][baseRaceName] = newFolder;
+    return newFolder;
+  }
+
+  async createBaseRacialFolders(type) {
+    const raceNames = CONFIG.DDB.raceGroups.map((c) => c.name);
+    for (const raceName of raceNames) {
+      await this.getRacialBaseFolder(type, raceName);
+    }
+  }
+
+  async createSubTraitFolders(baseRaceName, fullRaceName) {
+    const flagTag = `trait/${baseRaceName}/${fullRaceName}`;
+    logger.debug(`Checking for Race folder '${fullRaceName}' with Base Race '${baseRaceName}'`);
+
+    const parentFolder = await this.getRacialBaseFolder("trait", baseRaceName);
+
+    const folder = this.getFolder(fullRaceName, flagTag)
+      ?? (await this.createCompendiumFolder({
+        name: fullRaceName,
+        parentId: parentFolder._id,
+        color: "#222222",
+        flagTag,
+      }));
+    this.traitSubFolders[fullRaceName] = folder;
+    this.validFolderIds.push(folder._id);
+  }
+
+  // eslint-disable-next-line complexity
   async createCompendiumFolders() {
     logger.debug(`Checking and creating Compendium folder structure for ${this.type}`);
 
     switch (this.type) {
+      case "race":
+      case "races": {
+        // we create these as needed
+        // this.createBaseRacialFolders("race");
+        break;
+      }
+      case "trait":
+      case "traits": {
+        // we create these as needed
+        // this.createBaseRacialFolders("trait");
+        break;
+      }
       case "monsters":
       case "npc":
       case "monster": {
@@ -487,6 +549,47 @@ export class DDBCompendiumFolders {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  getRaceTraitFolderName(document) {
+    const result = {
+      name: undefined,
+      flagTag: "",
+    };
+    // "flags.ddbimporter.baseRaceName",
+    // "flags.ddbimporter.baseName",
+    // "flags.ddbimporter.subRaceShortName",
+    // "flags.ddbimporter.isSubRace",
+    // const isSubRace = getProperty(document, "flags.ddbimporter.isSubRace");
+    // const baseRaceName = getProperty(document, "flags.ddbimporter.baseRaceName");
+    // const baseName = getProperty(document, "flags.ddbimporter.baseName");
+    // const subRaceShortName = getProperty(document, "flags.ddbimporter.subRaceShortName");
+    const fullRaceName = getProperty(document, "flags.ddbimporter.fullRaceName");
+    // const name = document.name;
+    // const lowercaseName = name.toLowerCase();
+
+    const groupName = getProperty(document, "flags.ddbimporter.groupName");
+
+    result.name = fullRaceName;
+    result.flagTag = `trait/${groupName}/${fullRaceName}`;
+
+    return result;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getRaceFolderName(document) {
+    const result = {
+      name: undefined,
+      flagTag: "",
+    };
+
+    const fullRaceName = getProperty(document, "flags.ddbimporter.fullRaceName");
+    const groupName = getProperty(document, "flags.ddbimporter.groupName");
+    result.name = groupName ?? fullRaceName;
+    result.flagTag = `race/${(groupName ?? fullRaceName)}`;
+
+    return result;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
   getClassFolderName(document) {
     const result = {
       name: undefined,
@@ -507,6 +610,17 @@ export class DDBCompendiumFolders {
   getCompendiumFolderName(document) {
     let name;
     switch (this.type) {
+      case "trait":
+      case "traits": {
+        name = this.getRaceTraitFolderName(document);
+        break;
+      }
+      case "race":
+      case "races": {
+        name = this.getRaceFolderName(document);
+        break;
+      }
+      case "feature":
       case "features": {
         name = this.getClassFeatureFolderName(document);
         break;
@@ -656,11 +770,26 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.optionalFeature",
         ];
       }
+      case "trait":
+      case "traits":
+      case "race":
+      case "races": {
+        return [
+          "name",
+          "flags.ddbimporter.baseRaceName",
+          "flags.ddbimporter.baseName",
+          "flags.ddbimporter.subRaceShortName",
+          "flags.ddbimporter.isSubRace",
+          "flags.ddbimporter.fullRaceName",
+          "flags.ddbimporter.groupName"
+        ];
+      }
       default:
         return ["name"];
     }
   }
 
+  // eslint-disable-next-line complexity
   async migrateExistingCompendium() {
     if (!this.compendium) return undefined;
 
@@ -685,6 +814,11 @@ export class DDBCompendiumFolders {
     logger.debug("Folder update results", results);
 
     switch (this.type) {
+      case "trait":
+      case "traits":
+      case "race":
+      case "races":
+      case "features":
       case "feature":
       case "class":
       case "classes":

@@ -3,45 +3,14 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import DDBRace from "./DDBRace.js";
 
 
 export default class DDBRaceTrait {
 
-  static DUPPLICATES = [
-    "Breath Weapon",
-    "Natural Armor",
-    "Darkvision",
-    "Flight",
-    "Hunter's Lore",
-    "Claws",
-    "Beak",
-    "Spells of the Mark",
-    "Shifting Feature",
-    "Creature Type",
-    "Aggressive",
-    "Amphibious",
-    "Ancestral Legacy",
-    "Bite",
-    "Cantrip",
-    "Celestial Resistance",
-    "Charge",
-    "Child of the Sea",
-    "Draconic Resistance",
-    "Fey Ancestry",
-    "Hold Breath",
-    "Hooves",
-    "Horns",
-    "Magic Resistance",
-    "Mental Discipline",
-    "Natural Athlete",
-    "Powerful Build",
-    "Sunlight Sensitivity",
-    "Superior Darkvision",
-  ];
-
   _generateDataStub() {
     this.data = {
-      name: "",
+      name: "A Racial Trait",
       type: "feat",
       system: utils.getTemplate("feat"),
       flags: {
@@ -58,16 +27,20 @@ export default class DDBRaceTrait {
     };
   }
 
-  constructor(trait, raceName, { isLegacy = false } = {}) {
-    logger.debug(`Trait build for ${trait.fullName} started [${raceName}]`);
+  constructor(trait, ddbRaceData) {
+    logger.debug(`Trait build for ${trait.fullName} started [${ddbRaceData.raceName}]`);
     this.trait = trait;
-    this.raceName = raceName;
-    this.isLegacy = isLegacy;
+    this.race = ddbRaceData;
+    this.fullName = this.race.fullName;
+    this.isLegacy = this.race.isLegacy;
+    this.baseRaceName = this.race.baseRaceName;
+    this.groupName = DDBRace.getGroupName(this.race.groupIds, this.baseRaceName);
+    this.isSubRace = this.race.isSubRace || this.groupName !== this.raceName;
     this._generateDataStub();
     this._compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");
 
-    const name = (this.trait.fullName) ? utils.nameString(this.trait.fullName) : utils.nameString(this.trait.name);
-    this.data.name = name;
+    this.name = utils.nameString((this.trait.fullName ?? this.trait.name));
+    this.data.name = `${this.name}`;
     this.data.system.description.value += `${this.trait.description}\n\n`;
 
     this.data.flags.ddbimporter = {
@@ -75,10 +48,17 @@ export default class DDBRaceTrait {
       entityRaceId: this.trait.entityRaceId,
       version: CONFIG.DDBI.version,
       sourceId: this.trait.sources.length > 0 ? [0].sourceId : -1, // is homebrew
-      baseName: name,
+      baseName: this.name,
       spellListIds: this.trait.spellListIds,
       definitionKey: this.trait.definitionKey,
-      race: this.raceName,
+      race: this.baseName,
+      baseRaceName: this.baseRaceName,
+      baseRaceId: this.race.baseRaceId,
+      subRaceShortName: this.race.subRaceShortName,
+      fullRaceName: this.race.fullName,
+      isSubRace: this.isSubRace,
+      groupIds: this.race.groupIds,
+      groupName: this.groupName,
     };
 
     if (this.trait.moreDetailsUrl) {
@@ -87,16 +67,11 @@ export default class DDBRaceTrait {
 
     this.data.system.source = DDBHelper.parseSource(this.trait);
 
-    if (this.trait.isSubRace && this.trait.baseRaceName) this.data.system.requirements = this.trait.baseRaceName;
+    if (this.baseRaceName) this.data.system.requirements = this.baseRaceName;
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
     if (legacyName && this.isLegacy) {
       this.data.name += " (Legacy)";
       logger.debug(`Trait name ${this.data.name} is legacy`);
-    }
-
-    const duplicateFeature = DDBRaceTrait.DUPPLICATES.includes(name);
-    if (duplicateFeature) {
-      this.data.name = `${name} (${this.raceName})`;
     }
 
     this.data.system.requirements = this.raceName;
