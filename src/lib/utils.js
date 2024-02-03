@@ -395,6 +395,8 @@ const utils = {
     entityTypes.set("feature", "Item");
     entityTypes.set("features", "Item");
     entityTypes.set("classfeatures", "Item");
+    entityTypes.set("races", "Item");
+    entityTypes.set("traits", "Item");
     return entityTypes;
   },
 
