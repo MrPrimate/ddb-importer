@@ -9,6 +9,13 @@
 
 Note: There are still a number of improvements to come over the coming week(s) to the new rule referencing techniques in descriptions and journals.
 
+Conditions/statuses won't get added on character import right now.
+
+There are likely to be a number of other smaller things, pleae raise as issues. But this should be enough to get folks going again!
+
+system.traits.dm
+
+
 # 3.7.17
 
 - Tool to add prices to items as per Xanathar's Guide on the Tools tab.
