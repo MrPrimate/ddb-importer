@@ -958,7 +958,7 @@ const SETTINGS = {
           },
           "munching-policy-legacy-postfix": {
             type: Boolean,
-            default: false,
+            default: true,
           },
           "munching-policy-use-compendium-folders": {
             scope: "player",
