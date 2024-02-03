@@ -153,8 +153,8 @@ export function getAttunement(item) {
  * @return {Object} An object containing the base item and tool type
  */
 export function getBaseItem(data) {
-  let baseItem = "";
-  let toolType = "";
+  let baseItem;
+  let toolType;
 
   if (data.definition.filterType === "Weapon") {
     baseItem = data.definition.type.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
