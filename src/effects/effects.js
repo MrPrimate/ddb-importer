@@ -274,7 +274,7 @@ function generateEffectDuration(foundryItem) {
     startRound: null,
     startTurn: null,
   };
-  switch (foundryItem.system.duration.units) {
+  switch (foundryItem.system?.duration?.units) {
     case "turn":
       duration.turns = foundryItem.system.duration.value;
       break;
