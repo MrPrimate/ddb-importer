@@ -29,6 +29,7 @@ import parseLoot from "./loot.js";
 import parseCustomItem from "./custom.js";
 
 import { getAttunement, getBaseItem, getPrice } from "./common.js";
+import utils from "../../lib/utils.js";
 
 const CLOTHING_ITEMS = [
   "Helm",
@@ -89,7 +90,8 @@ function getItemFromGearTypeIdOne(ddb, ddbItem) {
       break;
     default: {
       const isContainerTag = ddbItem.definition.tags.includes('Container');
-      const isOuterwearTag = ddbItem.definition.tags.includes('Outerwear');
+      const isOuterwearTag = ddbItem.definition.tags.includes('Outerwear')
+        || ddbItem.definition.tags.includes('Footwear');
       if ((!ddbItem.definition.isContainer && isOuterwearTag && !isContainerTag)
         || CLOTHING_ITEMS.includes(ddbItem.definition.name)
       ) {
@@ -168,9 +170,6 @@ function addExtraDDBFlags(ddbItem, item) {
 }
 
 function enrichFlags(ddbItem, item) {
-  if (ddbItem.definition.magic) {
-    setProperty(item, "system.properties.mgc", true);
-  }
   if (ddbItem.definition?.entityTypeId) item.flags.ddbimporter['definitionEntityTypeId'] = ddbItem.definition.entityTypeId;
   if (ddbItem.definition?.id) item.flags.ddbimporter['definitionId'] = ddbItem.definition.id;
   if (ddbItem.entityTypeId) item.flags.ddbimporter['entityTypeId'] = ddbItem.entityTypeId;
@@ -229,6 +228,7 @@ export function parseItem(ddb, ddbItem, character, flags) {
     if (baseItem.toolType) setProperty(item, "system.type.value", baseItem.toolType);
     item.system.attunement = getAttunement(ddbItem);
     item.system.price = getPrice(ddbItem);
+    if (ddbItem.definition.magic) item.system.properties = utils.addToProperties(item.system.properties, "mgc");
 
     item = addExtraDDBFlags(ddbItem, item);
     item = DDBHelper.addCustomValues(ddb, item);

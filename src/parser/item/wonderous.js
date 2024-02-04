@@ -12,30 +12,35 @@ import {
   getWeightless,
 } from "./common.js";
 
-export default function parseWonderous(data, { ddbTypeOverride = null, armorType = "trinket" } = {}) {
+export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorType = "trinket" } = {}) {
+  const isContainer = ddbData.definition.isContainer;
+  const isClothingTag = ddbData.definition.tags.includes('Outerwear')
+    || ddbData.definition.tags.includes('Footwear')
+    || ddbData.definition.tags.includes('Clothing');
 
-  const isContainer = data.definition.isContainer;
+  ddbTypeOverride = isClothingTag && !isContainer ? "Clothing" : ddbTypeOverride;
+
   const type = isContainer ? "container" : "equipment";
   /**
    * MAIN parseEquipment
    */
   let item = {
     _id: foundry.utils.randomID(),
-    name: data.definition.name,
+    name: ddbData.definition.name,
     type,
     system: utils.getTemplate(type),
     flags: {
       ddbimporter: {
         dndbeyond: {
-          type: ddbTypeOverride ?? data.definition.type,
+          type: ddbTypeOverride ?? ddbData.definition.type,
         },
       },
     },
   };
 
   if (isContainer) {
-    if (data.currency) item.system.currency = getCurrency(data);
-    if (getWeightless(data)) {
+    if (ddbData.currency) item.system.currency = getCurrency(ddbData);
+    if (getWeightless(ddbData)) {
       utils.addToProperties(item.system.properties, "weightlessContents");
     }
   } else {
@@ -46,10 +51,11 @@ export default function parseWonderous(data, { ddbTypeOverride = null, armorType
     // "dex": null
     // }
     item.system.armor = {
-      type: armorType,
       value: null,
       dex: null,
     };
+
+    item.system.type.value = isClothingTag && !isContainer ? "clothing" : armorType;
 
     /* "strength": 0 */
     item.system.strength = 0;
@@ -59,15 +65,15 @@ export default function parseWonderous(data, { ddbTypeOverride = null, armorType
     item.system.proficient = true;
   }
 
-  item.system.description = getDescription(data);
-  item.system.source = DDBHelper.parseSource(data.definition);
-  item.system.quantity = getQuantity(data);
-  item.system.weight = getSingleItemWeight(data);
-  item.system.equipped = getEquipped(data);
-  item.system.rarity = getItemRarity(data);
+  item.system.description = getDescription(ddbData);
+  item.system.source = DDBHelper.parseSource(ddbData.definition);
+  item.system.quantity = getQuantity(ddbData);
+  item.system.weight = getSingleItemWeight(ddbData);
+  item.system.equipped = getEquipped(ddbData);
+  item.system.rarity = getItemRarity(ddbData);
   item.system.identified = true;
-  item.system.uses = getUses(data);
-  item.system.capacity = getCapacity(data);
+  item.system.uses = getUses(ddbData);
+  item.system.capacity = getCapacity(ddbData);
 
   return item;
 }

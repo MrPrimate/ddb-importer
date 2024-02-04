@@ -1,6 +1,8 @@
 # NEXT UP
 
 - Resoruce handling dialogue now has a Remove option, there is a setting to choose if you want to show/hide this by default on new characters. This is now set to hide as default.
+- Improvements to Magic Item uses and recharge parsing, for both characters and compendiums.
+- Equipment that is not armour, would import as armour.
 
 # 4.0.0/4.0.1
 

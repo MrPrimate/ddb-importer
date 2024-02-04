@@ -510,18 +510,22 @@ const utils = {
   },
 
   addToProperties: (properties, value) => {
-    const setProperties = utils.isArray(properties)
-      ? new Set(properties)
-      : properties;
+    const setProperties = properties
+      ? utils.isArray(properties)
+        ? new Set(properties)
+        : properties
+      : new Set();
 
     setProperties.add(value);
     return Array.from(setProperties);
   },
 
   removeFromProperties: (properties, value) => {
-    const setProperties = utils.isArray(properties)
-      ? new Set(properties)
-      : properties;
+    const setProperties = properties
+      ? utils.isArray(properties)
+        ? new Set(properties)
+        : properties
+      : new Set();
 
     setProperties.delete(value);
     return Array.from(setProperties);

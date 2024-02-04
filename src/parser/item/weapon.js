@@ -28,22 +28,51 @@ function getWeaponType(data) {
  * @param {obj} data Item data
  */
 function getProperties(data) {
-  let result = {};
-  DICTIONARY.weapon.properties.forEach((property) => {
-    if (data.definition.properties && Array.isArray(data.definition.properties)) {
-      result[property.value] = data.definition.properties.some((prop) => prop.name === property.name);
-    }
-    if (
-      !result[property.value]
-      && data.definition.grantedModifiers
-      && Array.isArray(data.definition.grantedModifiers)
-    ) {
-      result[property.value] = data.definition.grantedModifiers.some(
-        (prop) => prop.type === "weapon-property" && prop.friendlySubtypeName === property.name
-      );
-    }
-  });
-  return result;
+  // let properties = [];
+  // DICTIONARY.weapon.properties.forEach((property) => {
+  //   if (data.definition.properties && Array.isArray(data.definition.properties)) {
+  //     if (data.definition.properties.some((prop) => prop.name === property.name)) {
+  //       properties.push(property.value);
+  //     }
+  //   }
+  //   if (
+  //     !properties.includes(property.value)
+  //     && data.definition.grantedModifiers
+  //     && Array.isArray(data.definition.grantedModifiers)
+  //   ) {
+  //     const isGrantedProperty = data.definition.grantedModifiers.some(
+  //       (prop) => prop.type === "weapon-property" && prop.friendlySubtypeName === property.name
+  //     );
+  //     if (isGrantedProperty) {
+  //       properties.push(property.value);
+  //     }
+  //   }
+  // });
+  // return properties;
+
+  return DICTIONARY.weapon.properties
+    .filter((property) => {
+      // if it is a weapon property
+      if (data.definition.properties
+        && Array.isArray(data.definition.properties)
+        && data.definition.properties.some((prop) => prop.name === property.name)
+      ) {
+        return true;
+      }
+      // if it is a granted property
+      if (data.definition.grantedModifiers
+        && Array.isArray(data.definition.grantedModifiers)
+        && data.definition.grantedModifiers.some((prop) =>
+          prop.type === "weapon-property"
+          && prop.friendlySubtypeName === property.name
+        )
+      ) {
+        return true;
+      }
+      // else not a property
+      return false;
+    })
+    .map((property) => property.value);
 }
 
 /**

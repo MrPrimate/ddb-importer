@@ -26,12 +26,17 @@ function getWeaponType(data) {
  */
 function getProperties(data) {
   let weaponBehavior = data.definition.weaponBehaviors[0];
+  if (!weaponBehavior.properties || !Array.isArray(weaponBehavior.properties)) return [];
   let result = {};
   DICTIONARY.weapon.properties.forEach((property) => {
     if (weaponBehavior.properties && Array.isArray(weaponBehavior.properties)) {
       result[property.value] = weaponBehavior.properties.find((prop) => prop.name === property.name) !== undefined;
     }
   });
+
+  result = DICTIONARY.weapon.properties.filter((p) =>
+    weaponBehavior.properties.find((prop) => prop.name === p.name) !== undefined
+  ).map((p) => p.value);
   return result;
 }
 
