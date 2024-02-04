@@ -12,6 +12,7 @@ import { fixCharacterLevels } from "./character/filterModifiers.js";
 import CharacterClassFactory from "./classes/CharacterClassFactory.js";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory.js";
 import utils from "../lib/utils.js";
+import CompendiumHelper from "../lib/CompendiumHelper.js";
 
 
 export default class DDBCharacter {
@@ -66,6 +67,9 @@ export default class DDBCharacter {
       sp: 0,
       cp: 0,
     };
+
+    this.itemCompendium = CompendiumHelper.getCompendiumType("inventory");
+
   }
 
   /**
@@ -218,6 +222,9 @@ export default class DDBCharacter {
    */
   async _parseCharacter() {
     try {
+      // prefetch compendium indexes for lookups
+      await this.itemCompendium.getIndex();
+
       if (game.settings.get("ddb-importer", "character-update-policy-add-spell-effects")) await DDBMacros.createWorldMacros();
       logger.debug("Starting core character parse", { thisDDB: this.source.ddb });
       await this._generateCharacter();
