@@ -30,6 +30,7 @@ export default class DDBRace {
 
   _generateDataStub() {
     this.data = {
+      _id: foundry.utils.randomID(),
       name: "",
       type: "race",
       system: utils.getTemplate("race"),

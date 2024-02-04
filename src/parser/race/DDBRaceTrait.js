@@ -10,6 +10,7 @@ export default class DDBRaceTrait {
 
   _generateDataStub() {
     this.data = {
+      _id: foundry.utils.randomID(),
       name: "A Racial Trait",
       type: "feat",
       system: utils.getTemplate("feat"),

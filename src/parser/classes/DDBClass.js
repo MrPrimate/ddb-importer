@@ -193,6 +193,7 @@ export default class DDBClass {
 
   _generateDataStub() {
     this.data = {
+      _id: foundry.utils.randomID(),
       name: this.ddbClass.definition.name,
       type: "class",
       system: utils.getTemplate("class"),
