@@ -374,7 +374,3 @@ export function parseMagicItem(item, data, itemSpells, isCompendiumItem = false)
 
   return item;
 }
-
-  return item;
-}
-
