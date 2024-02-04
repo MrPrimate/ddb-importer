@@ -94,15 +94,10 @@ DDBCharacter.prototype._generateResources = function _generateResources(numberOf
 
   let result = {};
 
-  const resourceSelectionType = hasProperty(this.raw.character, "flags.ddbimporter.resources")
-    ? getProperty(this.raw.character, "flags.ddbimporter.resources")
-    : { type: "default" };
-
-  switch (resourceSelectionType.type) {
+  switch (this.resourceChoices.type) {
     case "custom": {
-      const customResourceSelection = getProperty(this.raw.character, "flags.ddbimporter.resources");
       for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
-        const resourceLookupName = customResourceSelection[sheetResources[i]];
+        const resourceLookupName = this.resourceChoices[sheetResources[i]];
 
         const resource = resourceLookupName && resourceLookupName !== ""
           ? allResources.find((r) => r.label === resourceLookupName)
@@ -112,6 +107,12 @@ DDBCharacter.prototype._generateResources = function _generateResources(numberOf
       break;
     }
     case "disable": {
+      for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
+        result[sheetResources[i]] = { value: 0, max: 0, sr: false, lr: false, label: "" };
+      };
+      break;
+    }
+    case "remove": {
       for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
         result[sheetResources[i]] = { value: 0, max: 0, sr: false, lr: false, label: "" };
       };
@@ -127,14 +128,16 @@ DDBCharacter.prototype._generateResources = function _generateResources(numberOf
     }
   }
 
-  this.raw.character.system.resources = result;
+  this.resources = result;
+  setProperty(this.raw.character, "flags.ddbimporter.resources", this.resourceChoices);
+  setProperty(this.raw.character, "system.resources", result);
 };
 
 DDBCharacter.prototype.getResourceList = function getResourceList() {
   return this.getSortedByUsedResourceList();
 };
 
-function generateResourceSelectionFromForm(formData, type) {
+DDBCharacter.prototype._generateResourceSelectionFromForm = function _generateResourceSelectionFromForm(formData, type) {
   const primary = formData.find((r) => r.name === "primary-select" && r.value !== "");
   const secondary = formData.find((r) => r.name === "secondary-select" && r.value !== "");
   const tertiary = formData.find((r) => r.name === "tertiary-select" && r.value !== "");
@@ -145,50 +148,34 @@ function generateResourceSelectionFromForm(formData, type) {
     primary: type === "custom" && primary ? primary.value : "",
     secondary: type === "custom" && secondary ? secondary.value : "",
     tertiary: type === "custom" && tertiary ? tertiary.value : "",
-    ask,
+    ask: type === "remove" ? false : ask,
   };
-  return resourceSelection;
-}
 
-DDBCharacter.prototype.setResourceType = function setResourceType(resourceSelection) {
-  setProperty(this.raw.character, "flags.ddbimporter.resources", resourceSelection);
-  this._generateResources();
+  this.resourceChoices = resourceSelection;
 };
 
-function setDefaultResources(sortedResources, resourceSelection) {
+DDBCharacter.prototype.setDefaultResources = function setDefaultResources(sortedResources) {
   if (sortedResources.length >= 1) {
-    resourceSelection.primary = sortedResources[0].label;
+    this.resourceChoices.primary = sortedResources[0].label;
   }
   if (sortedResources.length >= 2) {
-    resourceSelection.secondary = sortedResources[1].label;
+    this.resourceChoices.secondary = sortedResources[1].label;
   }
   if (sortedResources.length >= 3) {
-    resourceSelection.tertiary = sortedResources[2].label;
+    this.resourceChoices.tertiary = sortedResources[2].label;
   }
-  return resourceSelection;
-}
+};
 
 // this.source.ddb, this.raw.character
 DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectionDialog() {
-  const currentActor = game.actors.get(this.currentActorId);
   return new Promise((resolve) => {
-    let currentResourceSelection = hasProperty(currentActor, "flags.ddbimporter.resources.type")
-      ? getProperty(currentActor, "flags.ddbimporter.resources")
-      : {
-        ask: true,
-        type: "default",
-        primary: "",
-        secondary: "",
-        tertiary: "",
-      };
-
     const sortedResources = this.getSortedByUsedResourceList();
 
-    if (currentResourceSelection.type === "default") {
-      currentResourceSelection = setDefaultResources(sortedResources, currentResourceSelection);
+    if (this.resourceChoices.type === "default") {
+      this.setDefaultResources(sortedResources);
     }
 
-    if (currentResourceSelection.ask || !hasProperty(currentResourceSelection, "ask")) {
+    if (this.resourceChoices.ask || !hasProperty(this.resourceChoices, "ask")) {
       const resources = sortedResources.map((resource) => {
         let resourceArray = [];
         if (resource.sr) resourceArray.push("SR");
@@ -196,13 +183,13 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
         if (!resource.sr && !resource.lr) resourceArray.push("Other");
         resource.resetString = resourceArray.join(", ");
         switch (resource.label) {
-          case currentResourceSelection.primary:
+          case this.resourceChoices.primary:
             resource.primary = true;
             break;
-          case currentResourceSelection.secondary:
+          case this.resourceChoices.secondary:
             resource.secondary = true;
             break;
-          case currentResourceSelection.tertiary:
+          case this.resourceChoices.tertiary:
             resource.tertiary = true;
             break;
           // no default
@@ -222,36 +209,41 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
         },
         buttons: {
           default: {
-            icon: '<i class="fas fa-list-ol"></i>',
-            label: "Default",
+            // icon: '<i class="fas fa-list-ol"></i>',
+            // label: "Auto",
             callback: async () => {
               const formData = $('.character-resource-selection').serializeArray();
-              let resourceSelection = generateResourceSelectionFromForm(formData, "default");
-              resourceSelection = setDefaultResources(resources, resourceSelection);
-              this.setResourceType(resourceSelection);
+              this._generateResourceSelectionFromForm(formData, "default");
+              this.setDefaultResources(sortedResources);
+              this._generateResources();
               resolve(this.raw.character);
             }
           },
           custom: {
-            icon: '<i class="fas fa-sort"></i>',
-            label: "Use selected",
+            // icon: '<i class="fas fa-sort"></i>',
+            // label: "Custom",
             callback: async () => {
               const formData = $('.character-resource-selection').serializeArray();
-              const resourceSelection = generateResourceSelectionFromForm(formData, "custom");
-              this.setResourceType(resourceSelection);
+              this._generateResourceSelectionFromForm(formData, "custom");
               resolve(this.raw.character);
             }
           },
           disable: {
-            icon: '<i class="fas fa-times"></i>',
-            label: "None",
             callback: async () => {
               const formData = $('.character-resource-selection').serializeArray();
-              const resourceSelection = generateResourceSelectionFromForm(formData, "disable");
-              this.setResourceType(resourceSelection);
+              this._generateResourceSelectionFromForm(formData, "disable");
+              this._generateResources();
               resolve(this.raw.character);
             }
-          }
+          },
+          remove: {
+            callback: async () => {
+              const formData = $('.character-resource-selection').serializeArray();
+              this._generateResourceSelectionFromForm(formData, "remove");
+              this._generateResources();
+              resolve(this.raw.character);
+            }
+          },
         },
         default: "default",
         close: () => resolve(this.raw.character),
@@ -263,7 +255,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
       });
       dialog.render(true);
     } else {
-      this.setResourceType(currentResourceSelection);
+      this._generateResources();
       resolve(this.raw.character);
     }
   });

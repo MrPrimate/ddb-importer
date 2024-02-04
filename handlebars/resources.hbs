@@ -4,9 +4,10 @@
     <h3 class="item-title">Resource Selection ({{content.character}})</h3>
   </header>
 
-  <div><b>Default:</b> Top 3 most numerous abilities (auto-calculated on import).</div>
+  <div><b>Auto:</b> Top 3 most numerous abilities (calculated on import).</div>
   <div><b>Custom:</b> Select from list (dropdowns below).</div>
-  <div><b>Disable:</b> Do not use. (Retains existing resources).</div>
+  <div><b>Disable:</b> Retains user resources.</div>
+  <div><b>Remove:</b> Remove resources, disables this dialogue.</div>
 
   <div class="form-description">
     <div class="form-group">
@@ -45,7 +46,7 @@
   <div class="dialog-buttons">
       <button class="dialog-button" data-button="default">
         <i class="fas fa-check"></i>
-        Default
+        Auto
       </button>
       <button class="dialog-button" data-button="custom">
         <i class="fas fa-book-open"></i>
@@ -54,6 +55,10 @@
       <button class="dialog-button" data-button="disable">
         <i class="fas fa-times"></i>
         Disable
+      </button>
+      <button class="dialog-button" data-button="remove">
+        <i class="fas fa-times"></i>
+        Remove
       </button>
     </div>
 

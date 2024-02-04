@@ -1195,7 +1195,7 @@ export async function updateDDBCharacter(actor) {
   const ddbCharacterOptions = {
     currentActor: actor,
     characterId,
-    resourceSelection: false
+    selectResources: false
   };
   const getOptions = {
     syncId,
@@ -1488,7 +1488,7 @@ async function activeUpdateUpdateItem(document, update) {
           const ddbCharacterOptions = {
             currentActor: parentActor,
             characterId: undefined,
-            resourceSelection: false
+            selectResources: false
           };
           // when update is refactored to a class, change this
           const ddbCharacter = new DDBCharacter(ddbCharacterOptions);

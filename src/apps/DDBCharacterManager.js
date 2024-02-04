@@ -412,7 +412,7 @@ export default class DDBCharacterManager extends FormApplication {
           const ddbCharacterOptions = {
             currentActor: this.actor,
             characterId,
-            resourceSelection: true,
+            selectResources: true,
             enableCompanions: true,
           };
           const getOptions = {
@@ -574,7 +574,7 @@ export default class DDBCharacterManager extends FormApplication {
             currentActor: this.actor,
             ddb: null,
             characterId,
-            resourceSelection: false
+            selectResources: false
           };
           const getOptions = {
             syncId: null,
@@ -1317,6 +1317,8 @@ export default class DDBCharacterManager extends FormApplication {
         setProperty(this.result.character, "flags.midi-qol.onUseMacroName", "[postActiveEffects]");
       }
 
+      this.actor.system.favourites = this.actorOriginal.system.favourites ?? [];
+
       // basic import
       this.showCurrentTask("Updating core character information");
       logger.debug("Character data importing: ", this.result.character);
@@ -1374,7 +1376,7 @@ export async function importCharacter(actor, html) {
     const ddbCharacterOptions = {
       currentActor: actor,
       characterId,
-      resourceSelection: true
+      selectResources: true
     };
     const getOptions = {
       syncId: null,

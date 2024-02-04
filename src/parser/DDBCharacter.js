@@ -15,14 +15,24 @@ import utils from "../lib/utils.js";
 
 
 export default class DDBCharacter {
-  constructor({ currentActor = null, characterId = null, resourceSelection = true, enableCompanions = false } = {}) {
+  constructor({ currentActor = null, characterId = null, selectResources = true, enableCompanions = false } = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
     this.currentActorId = currentActor?.id;
     // DDBCharacter ID
     this.characterId = characterId;
     // show resource selection prompt?
-    this.resourceSelection = resourceSelection;
+    this.selectResources = selectResources;
+    this.resourceChoices = hasProperty(currentActor, "flags.ddbimporter.resources.type")
+      ? getProperty(currentActor, "flags.ddbimporter.resources")
+      : {
+        ask: game.settings.get(SETTINGS.MODULE_ID, "show-resource-chooser-default"),
+        type: "remove",
+        primary: "",
+        secondary: "",
+        tertiary: "",
+      };
+    this.resources = [];
     // raw data received from DDB
     this.source = null;
     // this is the raw items processed before filtering
@@ -211,10 +221,11 @@ export default class DDBCharacter {
       if (game.settings.get("ddb-importer", "character-update-policy-add-spell-effects")) await DDBMacros.createWorldMacros();
       logger.debug("Starting core character parse", { thisDDB: this.source.ddb });
       await this._generateCharacter();
-      if (this.resourceSelection) {
+      if (this.selectResources) {
         logger.debug("Character resources");
         await this.resourceSelectionDialog();
       }
+
       logger.debug("Character parse complete");
       await this._generateRace();
       logger.debug("Race parse complete");
