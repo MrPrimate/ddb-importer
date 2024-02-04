@@ -450,8 +450,8 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
   });
 
   // now parse all items
-  const compendiumItem = this.raw.character.flags.ddbimporter.compendium;
-  const addEffects = (compendiumItem)
+  const isCompendiumItem = getProperty(this.raw.character, "flags.ddbimporter.compendium") ?? false;
+  const addEffects = (isCompendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
 
@@ -460,7 +460,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
     const adjustedName = DDBHelper.getName(this.source.ddb, ddbItem, this.raw.character);
     const flags = this.getItemFlags(ddbItem);
 
-    const updateExisting = compendiumItem
+    const updateExisting = isCompendiumItem
       ? game.settings.get("ddb-importer", "munching-policy-update-existing")
       : false;
     // eslint-disable-next-line no-await-in-loop
@@ -470,26 +470,26 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
 
     if (item) {
       item.name = adjustedName;
-      item = parseMagicItem(item, ddbItem, this.raw.itemSpells);
+      item = parseMagicItem(item, ddbItem, this.raw.itemSpells, isCompendiumItem);
       item.flags.ddbimporter.originalName = originalName;
       item.flags.ddbimporter.version = CONFIG.DDBI.version;
       if (!item.effects) item.effects = [];
       if (!item.name || item.name === "") item.name = "Item";
 
       if (addEffects) {
-        item = generateEffects(this.source.ddb, this.raw.character, ddbItem, item, compendiumItem, "item");
+        item = generateEffects(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem, "item");
       } else if (item.type === "equipment") {
         if (hasProperty(item, "system.armor.type") && ["trinket", "clothing"].includes(item.system.armor.type)) {
-          item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, compendiumItem);
+          item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem);
         }
       } else {
-        item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, compendiumItem);
+        item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem);
       }
 
       // eslint-disable-next-line no-await-in-loop
       item = await addRestrictionFlags(item, addEffects);
 
-      if (!compendiumItem) item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, compendiumItem);
+      if (!isCompendiumItem) item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
       // eslint-disable-next-line no-await-in-loop
       item = await midiItemEffects(item);
       // eslint-disable-next-line no-await-in-loop

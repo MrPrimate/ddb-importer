@@ -6,11 +6,11 @@ export function getDescription(data) {
   const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
   const attunementText = data.definition.canAttune && data.definition.attunementDescription && data.definition.attunementDescription !== ""
-    ? `<div class="item-attunement"><i>Requires attunement by a ${data.definition.attunementDescription}</i></div>`
+    ? `<div class="item-attunement"><i>(Requires attunement by a ${data.definition.attunementDescription})</i></div>`
     : "";
 
   return {
-    value: parseTags(data.definition.description + attunementText),
+    value: parseTags(attunementText + data.definition.description),
     chat: chatAdd ? parseTags(chatSnippet) : "",
     // unidentified: data.definition.type,
   };
@@ -67,6 +67,34 @@ export function getEquipped(data) {
   }
 }
 
+export function getRechargeFormula(description, maxCharges) {
+  if (description === "") {
+    return `${maxCharges}`;
+  }
+
+  let chargeMatchFormula = /regains (\dd\d* \+ \d) expended charges/i;
+  let chargeMatchFixed = /regains (\d*) /i;
+  let chargeMatchLastDitch = /(\dd\d* \+ \d)/i;
+  let chargeNextDawn = /can't be used this way again until the next/i;
+
+  let matchFormula = chargeMatchFormula.exec(description);
+  let matchFixed = chargeMatchFixed.exec(description);
+  let matchLastDitch = chargeMatchLastDitch.exec(description);
+
+  let match = maxCharges;
+  if (matchFormula && matchFormula[1]) {
+    match = matchFormula[1];
+  } else if (matchFixed && matchFixed[1]) {
+    match = matchFixed[1];
+  } else if (matchLastDitch && matchLastDitch[1]) {
+    match = matchLastDitch[1];
+  } else if (description.search(chargeNextDawn) !== -1) {
+    match = maxCharges;
+  }
+
+  return `${match}`;
+}
+
 /**
  * Gets Limited uses information, if any
  * uses: { value: 0, max: 0, per: null }
@@ -74,6 +102,8 @@ export function getEquipped(data) {
 export function getUses(data) {
   if (data.limitedUse !== undefined && data.limitedUse !== null) {
     let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
+
+    const recovery = getRechargeFormula(data.limitedUse.resetTypeDescription, data.limitedUse.maxUses);
     return {
       max: data.limitedUse.maxUses,
       value: data.limitedUse.numberUsed
@@ -81,9 +111,10 @@ export function getUses(data) {
         : data.limitedUse.maxUses,
       per: resetType ? resetType.value : "",
       description: data.limitedUse.resetTypeDescription,
+      recovery,
     };
   } else {
-    return { value: 0, max: 0, per: null };
+    return { value: 0, max: 0, per: null, prompt: false };
   }
 }
 
@@ -91,7 +122,6 @@ export function getConsumableUses(data) {
   if (data.limitedUse) {
     let uses = getUses(data);
     if (uses.per === "") uses.per = "charges";
-    uses.autoUse = false;
     uses.autoDestroy = true;
     return uses;
   } else {

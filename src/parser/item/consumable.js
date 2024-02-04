@@ -132,6 +132,8 @@ export default function parseConsumable(ddbItem, { consumableTypeOverride = null
 
   if (item.system.type.value === "potion") {
     item.system.damage = getDamage(ddbItem, getActionType(ddbItem));
+  } else if (item.system.type.value === "wand") {
+    item.system.properties.push("mgc");
   }
 
   return item;

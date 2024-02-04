@@ -43,7 +43,7 @@
 //
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
-import { getUses } from "./common.js";
+import { getUses, getRechargeFormula } from "./common.js";
 
 const MAGICITEMS = {
   DAILY: "r1",
@@ -56,35 +56,6 @@ const MAGICITEMS = {
   DestroyCheckAlways: "d1",
   DestroyCheck1D20: "d2",
 };
-
-
-function getRechargeFormula(description, maxCharges) {
-  if (description === "") {
-    return `${maxCharges}`;
-  }
-
-  let chargeMatchFormula = /regains (\dd\d* \+ \d) expended charges/i;
-  let chargeMatchFixed = /regains (\d*) /i;
-  let chargeMatchLastDitch = /(\dd\d* \+ \d)/i;
-  let chargeNextDawn = /can't be used this way again until the next/i;
-
-  let matchFormula = chargeMatchFormula.exec(description);
-  let matchFixed = chargeMatchFixed.exec(description);
-  let matchLastDitch = chargeMatchLastDitch.exec(description);
-
-  let match = maxCharges;
-  if (matchFormula && matchFormula[1]) {
-    match = matchFormula[1];
-  } else if (matchFixed && matchFixed[1]) {
-    match = matchFixed[1];
-  } else if (matchLastDitch && matchLastDitch[1]) {
-    match = matchLastDitch[1];
-  } else if (description.search(chargeNextDawn) !== -1) {
-    match = maxCharges;
-  }
-
-  return `${match}`;
-}
 
 function getPerSpell(useDescription, itemDescription) {
   if (useDescription === "") {
@@ -235,8 +206,7 @@ function getMagicItemResetType(description) {
   return resetType;
 }
 
-
-function parseMagicItemsModule(data, itemSpells, characterItem) {
+function parseMagicItemsModule(data, itemSpells, isCompendiumItem) {
   // this builds metadata for the magicitems module to use
   // https://gitlab.com/riccisi/foundryvtt-magic-items/
 
@@ -245,8 +215,8 @@ function parseMagicItemsModule(data, itemSpells, characterItem) {
     let magicItem = createDefaultMagicItemFlags();
     magicItem.equipped = data.definition.canEquip;
 
-    if (!characterItem) {
-      const maxUses = "has (\\d*) charges";
+    if (isCompendiumItem) {
+      const maxUses = /has (\d*) charges/i;
       const maxUsesMatches = maxUses.exec(data.definition.description);
       const limitedUse = {
         maxUses: (maxUsesMatches && maxUsesMatches[1]) ? maxUsesMatches[1] : null,
@@ -294,9 +264,9 @@ function parseMagicItemsModule(data, itemSpells, characterItem) {
   }
 }
 
-function parseItemsWithSpellsModule(item, data, itemSpells, characterItem) {
+function parseItemsWithSpellsModule(item, data, itemSpells, isCompendiumItem) {
 
-  if (!characterItem) {
+  if (isCompendiumItem) {
     logger.debug("Non character item magic item additions are not supported");
   }
 
@@ -368,12 +338,43 @@ function parseItemsWithSpellsModule(item, data, itemSpells, characterItem) {
   return item;
 }
 
-export function parseMagicItem(item, data, itemSpells, characterItem = true) {
-  if (game.modules.get("magicitems")?.active || game.modules.get("magic-items-2")?.active) {
-    item.flags.magicitems = parseMagicItemsModule(data, itemSpells, characterItem);
-  } else if (game.modules.get("items-with-spells-5e")?.active) {
-    item = parseItemsWithSpellsModule(item, data, itemSpells, characterItem);
+function basicMagicItem(item, data, itemSpells, isCompendiumItem) {
+  if (data.definition.magic) {
+    if (isCompendiumItem) {
+      const maxUses = /has (\d*) charges/i;
+      const maxUsesMatches = maxUses.exec(data.definition.description);
+      const limitedUse = {
+        maxUses: (maxUsesMatches && maxUsesMatches[1]) ? maxUsesMatches[1] : null,
+        numberUsed: 0,
+        resetType: getMagicItemResetType(data.definition.description),
+        resetTypeDescription: data.definition.description,
+      };
+
+      if (limitedUse.maxUses) {
+        setProperty(item, "system.uses.value", parseInt(limitedUse.maxUses));
+        setProperty(item, "system.uses.max", `${limitedUse.maxUses}`);
+        setProperty(item, "system.uses.per", "charges");
+
+        const recharge = getRechargeFormula(data.definition.description, limitedUse.maxUses);
+        setProperty(item, "system.uses.recovery", recharge);
+      }
+    }
   }
+  return item;
+}
+
+export function parseMagicItem(item, data, itemSpells, isCompendiumItem = false) {
+  if (game.modules.get("magicitems")?.active || game.modules.get("magic-items-2")?.active) {
+    item.flags.magicitems = parseMagicItemsModule(data, itemSpells, !isCompendiumItem, true);
+  } else if (game.modules.get("items-with-spells-5e")?.active) {
+    item = parseItemsWithSpellsModule(item, data, itemSpells, !isCompendiumItem);
+  } else {
+    item = basicMagicItem(item, data, itemSpells, isCompendiumItem);
+  }
+
+  // TODO:
+  // <strong>fireball</strong> spell to link to compendium spell
+
   return item;
 }
 

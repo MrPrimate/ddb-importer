@@ -18,6 +18,7 @@ function prepItem(item) {
  * @param {*} items
  */
 export function fixItems(items) {
+  // eslint-disable-next-line complexity
   items.forEach((item) => {
     prepItem(item);
     const name = item.flags.ddbimporter?.originalName ?? item.name;
@@ -168,6 +169,33 @@ export function fixItems(items) {
         item.system.range = { value: 20, long: null, units: "ft" };
         item.system.uses = { value: 10, max: "10", per: "charge" };
         setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
+        break;
+      }
+      case "Wand of Fireballs": {
+        if (!game.modules.get("magicitems")?.active
+          && !game.modules.get("magic-items-2")?.active
+          && !game.modules.get("items-with-spells-5e")?.active
+        ) {
+          item.system.damage = { parts: [["8d6", "fire"]], versatile: "1d6", value: "" };
+          item.system.save = {
+            ability: "dex",
+            dc: 15,
+            scaling: "flat",
+          };
+          item.system.range = { value: 150, long: null, units: "ft" };
+          item.system.target = { value: 20, width: null, units: "ft", type: "sphere" };
+          item.system.uses.per = "charges";
+        }
+        break;
+      }
+      case "Wand of Magic Missiles": {
+        if (!game.modules.get("magicitems")?.active
+          && !game.modules.get("magic-items-2")?.active
+          && !game.modules.get("items-with-spells-5e")?.active
+        ) {
+          item.system.damage = { parts: [["3d4 + 3", "force"]], versatile: "1d4 + 1", value: "" };
+          item.system.range = { value: 120, long: null, units: "ft" };
+        }
         break;
       }
       // no default
