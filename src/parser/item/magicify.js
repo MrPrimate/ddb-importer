@@ -372,8 +372,8 @@ export function parseMagicItem(item, data, itemSpells, isCompendiumItem = false)
     item = basicMagicItem(item, data, itemSpells, isCompendiumItem);
   }
 
-  // TODO:
-  // <strong>fireball</strong> spell to link to compendium spell
+  return item;
+}
 
   return item;
 }
