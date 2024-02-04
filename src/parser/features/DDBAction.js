@@ -263,12 +263,15 @@ export default class DDBAction extends DDBBaseFeature {
   }
 
   _calculateActionAttackAbilities() {
-    let defaultAbility;
-
-    if (this.ddbDefinition.abilityModifierStatId && !([1, 2].includes(this.ddbDefinition.abilityModifierStatId) && this.ddbDefinition.isMartialArts)) {
-      defaultAbility = DICTIONARY.character.abilities.find(
+    let defaultAbility = this.ddbDefinition.abilityModifierStatId
+      ? DICTIONARY.character.abilities.find(
         (stat) => stat.id === this.ddbDefinition.abilityModifierStatId
-      ).value;
+      ).value
+      : "";
+
+    if (this.ddbDefinition.abilityModifierStatId
+      && !([1, 2].includes(this.ddbDefinition.abilityModifierStatId) && this.ddbDefinition.isMartialArts)
+    ) {
       this.data.system.ability = defaultAbility;
     } else if (this.ddbDefinition.isMartialArts) {
       this.data.system.ability
@@ -276,7 +279,7 @@ export default class DDBAction extends DDBBaseFeature {
           ? this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities.dex.value >= this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities.str.value
             ? "dex"
             : "str"
-          : "str";
+          : defaultAbility !== "" ? defaultAbility : "str";
     } else {
       this.data.system.ability = "";
     }
