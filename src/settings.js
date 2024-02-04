@@ -394,6 +394,13 @@ const SETTINGS = {
         },
       },
       PARSING: {
+        "show-resource-chooser-default": {
+          name: "ddb-importer.settings.show-resource-chooser-default.name",
+          hint: "ddb-importer.settings.show-resource-chooser-default.hint",
+          config: true,
+          type: Boolean,
+          default: false,
+        },
         "use-ce-toggles": {
           name: "ddb-importer.settings.use-ce-toggles.name",
           hint: "ddb-importer.settings.use-ce-toggles.hint",

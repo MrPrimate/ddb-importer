@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Resoruce handling dialogue now has a Remove option, there is a setting to choose if you want to show/hide this by default on new characters. This is now set to hide as default.
+
 # 4.0.0/4.0.1
 
 - Great Weapon Master and Sharpshooter no longer rely on CE.
