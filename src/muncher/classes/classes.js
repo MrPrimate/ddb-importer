@@ -106,6 +106,7 @@ export async function getClasses(data) {
     removeSRDDuplicates: false,
     filterDuplicates: false,
     matchFlags: ["featureId"],
+    useCompendiumFolders: true,
   };
 
   logger.debug(`Creating class features`, {
@@ -131,7 +132,7 @@ export async function getClasses(data) {
   }
 
   logger.debug("Class build finished", klasses);
-  await DDBItemImporter.buildHandler("classes", klasses, updateBool);
+  await DDBItemImporter.buildHandler("classes", klasses, updateBool, { useCompendiumFolders: true });
 
   return results;
 }

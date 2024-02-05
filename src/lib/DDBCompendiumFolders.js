@@ -309,6 +309,8 @@ export class DDBCompendiumFolders {
   async createCompendiumFolders() {
     logger.debug(`Checking and creating Compendium folder structure for ${this.type}`);
 
+    this.resetFolderLookups();
+
     switch (this.type) {
       case "race":
       case "races": {
@@ -358,7 +360,6 @@ export class DDBCompendiumFolders {
       case "inventory":
       case "item":
       case "items": {
-        this.resetFolderLookups();
         switch (this.compendiumFolderTypeItem) {
           case "TYPE":
             await this.createItemTypeCompendiumFolders();

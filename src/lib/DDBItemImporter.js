@@ -12,10 +12,10 @@ import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 
 export default class DDBItemImporter {
 
-  constructor(type, documents, { matchFlags = [], deleteBeforeUpdate = null, indexFilter = {} } = {}) {
+  constructor(type, documents, { matchFlags = [], deleteBeforeUpdate = null, indexFilter = {}, useCompendiumFolders = null } = {}) {
     this.type = type;
     this.documents = documents;
-    this.useCompendiumFolders = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
+    this.useCompendiumFolders = useCompendiumFolders ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
     this.matchFlags = matchFlags;
 
     this.compendium = CompendiumHelper.getCompendiumType(this.type);
@@ -466,9 +466,9 @@ export default class DDBItemImporter {
 
   static async buildHandler(type, documents, updateBool,
     { srdFidding = true, removeSRDDuplicates = true, ids = null, vision5e = false, chrisPremades = false, matchFlags = [],
-      deleteBeforeUpdate = null, filterDuplicates = true } = {}
+      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null } = {}
   ) {
-    const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate });
+    const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate, useCompendiumFolders });
     await handler.init();
     if (srdFidding) await handler.srdFiddling(removeSRDDuplicates);
     const filteredItems = (ids !== null && ids.length > 0)

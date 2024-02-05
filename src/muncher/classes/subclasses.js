@@ -106,6 +106,7 @@ export async function getSubClasses(subClassData, klassData) {
     filterDuplicates: false,
     deleteBeforeUpdate: false,
     matchFlags: ["featureId"],
+    useCompendiumFolders: true,
     indexFilter: {
       fields: [
         "name",
@@ -145,7 +146,8 @@ export async function getSubClasses(subClassData, klassData) {
   }
 
   logger.debug("Subclass build finished", subClasses);
-  await DDBItemImporter.buildHandler("subclasses", subClasses, updateBool, { deleteBeforeUpdate: false, matchFlags: ["id"] });
+  const subClassOptions = { deleteBeforeUpdate: false, matchFlags: ["id"], useCompendiumFolders: true };
+  await DDBItemImporter.buildHandler("subclasses", subClasses, updateBool, subClassOptions);
 
   return results;
 }

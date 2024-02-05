@@ -55,8 +55,9 @@ export async function getRaces(data) {
 
   const raceCompendiumFolders = new DDBCompendiumFolders("races");
   await raceCompendiumFolders.loadCompendium("races");
+  const traitOptions = { chrisPremades: true, matchFlags: ["entityRaceId"], useCompendiumFolders: true };
 
-  const traitHelper = await DDBItemImporter.buildHandler("traits", racialFeatures, updateBool, { chrisPremades: true, matchFlags: ["entityRaceId"] });
+  const traitHelper = await DDBItemImporter.buildHandler("traits", racialFeatures, updateBool, traitOptions);
   const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traitHelper.documents);
 
   for (const race of filteredRaces) {
@@ -68,7 +69,8 @@ export async function getRaces(data) {
   }
 
   logger.debug("Pre-fiddled races", duplicate(races));
-  await DDBItemImporter.buildHandler("races", races, updateBool, { matchFlags: ["entityRaceId"] });
+  const raceOptions = { matchFlags: ["entityRaceId"], useCompendiumFolders: true };
+  await DDBItemImporter.buildHandler("races", races, updateBool, raceOptions);
 
   return results;
 }

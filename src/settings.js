@@ -970,7 +970,7 @@ const SETTINGS = {
           "munching-policy-use-compendium-folders": {
             scope: "player",
             type: Boolean,
-            default: false,
+            default: true,
           },
           "munching-policy-use-srd-icons": {
             name: "ddb-importer.settings.munching-policy-use-srd-icons.name",
