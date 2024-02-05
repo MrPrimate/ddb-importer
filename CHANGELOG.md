@@ -1,4 +1,4 @@
-# NEXT UP
+# 4.0.3
 
 - Some actions would not pick up the correct ability score.
 - Compendium folder creation is enforced for Class, Class Features, Race, and Racial Traits.
@@ -7,8 +7,6 @@
 - Global Effect bonuses for spell attacks improved.
 - Removed signed bonuses on effect generation.
 - Features should be more consistently added to the relevant sections in the character sheet.
-
-
 
 # 4.0.2
 
