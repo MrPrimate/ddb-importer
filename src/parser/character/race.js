@@ -8,7 +8,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace() {
   const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traits, false);
   this._ddbRace = new DDBRace(this.source.ddb, this.source.ddb.character.race, compendiumRacialTraits);
   await this._ddbRace.build();
-  this.raw.race = this._ddbRace.data;
+  this.raw.race = (this.updateItemIds([this._ddbRace.data]))[0];
   delete this.raw.race.sort;
 
   // update character race value with race type

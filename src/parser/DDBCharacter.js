@@ -13,6 +13,7 @@ import CharacterClassFactory from "./classes/CharacterClassFactory.js";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory.js";
 import utils from "../lib/utils.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
+import DDBHelper from "../lib/DDBHelper.js";
 
 
 export default class DDBCharacter {
@@ -348,6 +349,20 @@ export default class DDBCharacter {
     return this.source.ddb.character.classes.some((cls) =>
       cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts")
     );
+  }
+
+  updateItemIds(items) {
+    if (!this.currentActor) return items;
+    const possibleFeatures = this.currentActor.getEmbeddedCollection("Item");
+    const matchedFeatures = [];
+    items.forEach((item) => {
+      const itemMatch = DDBHelper.findMatchedDDBItem(item, possibleFeatures, matchedFeatures);
+      if (itemMatch) {
+        item._id = itemMatch._id;
+        matchedFeatures.push(itemMatch);
+      }
+    });
+    return items;
   }
 
   _linkItemsToContainers() {

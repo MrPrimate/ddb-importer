@@ -420,18 +420,6 @@ DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
   return flags;
 };
 
-function updateItemIds(currentActor, items) {
-  const possibleFeatures = currentActor.getEmbeddedCollection("Item");
-  const matchedFeatures = [];
-  items.forEach((item) => {
-    const itemMatch = DDBHelper.findMatchedDDBItem(item, possibleFeatures, matchedFeatures);
-    if (itemMatch) {
-      item._id = itemMatch._id;
-      matchedFeatures.push(itemMatch);
-    }
-  });
-}
-
 // TO DO: revisit to break up item parsing
 // eslint-disable-next-line complexity
 DDBCharacter.prototype.getInventory = async function getInventory() {
@@ -500,6 +488,6 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
   }
 
   fixItems(items);
-  if (this.currentActor) updateItemIds(this.currentActor, items);
+  this.updateItemIds(items);
   return items;
 };

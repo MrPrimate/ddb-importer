@@ -2,6 +2,11 @@
 
 - Some actions would not pick up the correct ability score.
 - Compendium folder creation is enforced for Class, Class Features, Race, and Racial Traits.
+- Effect overhaul to remove most DAE requirements from basic effects.
+- Trinkets and clothing such as bracers of defence did not genrate AC bonus effects.
+- Global Effect bonuses for spell attacks improved.
+- Removed signed bonuses on effect generation.
+
 
 # 4.0.2
 

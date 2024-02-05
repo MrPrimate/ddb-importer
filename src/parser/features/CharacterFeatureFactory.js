@@ -192,15 +192,7 @@ export default class CharacterFeatureFactory {
   }
 
   updateIds(type) {
-    const possibleFeatures = this.ddbCharacter.currentActor.getEmbeddedCollection("Item");
-    const matchedFeatures = [];
-    this.processed[type].forEach((feature) => {
-      const itemMatch = DDBHelper.findMatchedDDBItem(feature, possibleFeatures, matchedFeatures);
-      if (itemMatch) {
-        feature._id = itemMatch._id;
-        matchedFeatures.push(itemMatch);
-      }
-    });
+    this.ddbCharacter.updateItemIds(this.processed[type]);
   }
 
   async processFeatures() {

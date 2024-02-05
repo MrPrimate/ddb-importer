@@ -30,6 +30,7 @@ export default class CharacterClassFactory {
     }
 
     logger.debug(`Processed ${documents.length} classes`, { documents });
+    this.ddbCharacter.updateItemIds(documents);
 
     return documents;
   }
