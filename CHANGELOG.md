@@ -6,6 +6,8 @@
 - Trinkets and clothing such as bracers of defence did not genrate AC bonus effects.
 - Global Effect bonuses for spell attacks improved.
 - Removed signed bonuses on effect generation.
+- Features should be more consistently added to the relevant sections in the character sheet.
+
 
 
 # 4.0.2

@@ -251,6 +251,29 @@ export default class CharacterFeatureFactory {
     }
   }
 
+  #addGenericAdvancementOrigins(types = ["actions", "features"]) {
+    for (const type of types) {
+      for (const feature of this.ddbCharacter.data[type]) {
+        // eslint-disable-next-line no-continue
+        if (hasProperty(feature, "flags.dnd5e.advancementOrigin")) continue;
+        const typeFlag = getProperty(feature, "flags.ddbimporter.type");
+        if (typeFlag == "race" && hasProperty(this.ddbCharacter, "data.race._id")) {
+          setProperty(feature, "flags.dnd5e.advancementOrigin", `${this.ddbCharacter.data.race._id}`);
+        } else if (typeFlag === "background") {
+          const background = this.ddbCharacter.data.features.find((b) => b.type === "background");
+          if (background) {
+            setProperty(feature, "flags.dnd5e.advancementOrigin", `${background._id}`);
+          }
+        } else if (typeFlag === "class" && hasProperty(feature, "flags.ddbimporter.class")) {
+          const klass = this.ddbCharacter.data.classes.find((k) => k.name === getProperty(feature, "flags.ddbimporter.class"));
+          if (klass) {
+            setProperty(feature, "flags.dnd5e.advancementOrigin", `${klass._id}`);
+          }
+        }
+      }
+    }
+  }
+
   linkFeatures(types = ["actions", "features"]) {
     logger.debug("Linking Feature Factory Advancements to Features", {
       CharacterFeatureFactory: this,
@@ -275,5 +298,6 @@ export default class CharacterFeatureFactory {
         }
       }
     }
+    this.#addGenericAdvancementOrigins(types);
   }
 }
