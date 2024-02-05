@@ -774,18 +774,6 @@ function addSpellAttackBonuses(modifiers, name) {
     " + @item.level"
   );
 
-  console.warn(`Adding spell attack bonuses for ${name}`, {
-    meleeSpellAttackBonus,
-    rangedSpellAttackBonus,
-    melee2SpellAttackBonus,
-    ranged2SpellAttackBonus,
-    warlockMeleeSpellAttackBonus,
-    warlockRangedSpellAttackBonus,
-    warlockSpellDCBonus,
-    spellDCBonus,
-    healingSpellBonus,
-  });
-
   return [
     ...meleeSpellAttackBonus,
     ...melee2SpellAttackBonus,
