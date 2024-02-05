@@ -98,6 +98,8 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   // spell modifiers
   { type: "bonus", subType: "spell-save-dc" },
   { type: "bonus", subType: "spell-attacks" },
+  { type: "bonus", subType: "melee-spell-attacks" },
+  { type: "bonus", subType: "ranged-spell-attacks" },
   { type: "bonus", subType: "warlock-spell-save-dc" },
   { type: "bonus", subType: "warlock-spell-attacks" },
   { type: "bonus", subType: "spell-group-healing" }, // system.bonuses.heal.damage
@@ -465,12 +467,17 @@ export function generateChange(bonus, priority, key, mode) {
   };
 }
 
-export function generateAddChange(bonus, priority, key) {
+export function generateSignedAddChange(bonus, priority, key) {
   const bonusValue = (Number.isInteger(bonus) && bonus >= 0) // if bonus is a positive integer
     || (!Number.isInteger(bonus) && !bonus.trim().startsWith("+") && !bonus.trim().startsWith("-")) // not an int and does not start with + or -
     ? `+${bonus}`
     : bonus;
   return generateChange(bonusValue, priority, key, CONST.ACTIVE_EFFECT_MODES.ADD);
+}
+
+export function generateUnsignedAddChange(bonus, priority, key) {
+  const bonusValue = `${bonus}`.trim().replace("+ +", "+").replace(/^\+\s+/, "");
+  return generateChange(bonusValue.trim(), priority, key, CONST.ACTIVE_EFFECT_MODES.ADD);
 }
 
 export function generateCustomChange(bonus, priority, key) {
@@ -521,52 +528,17 @@ function attunedItemsBonus(actor, change) {
 
 Hooks.on("applyActiveEffect", attunedItemsBonus);
 
-
 /**
- * Generates a global custom bonus for an item with a +
+ * Generates a global add for an item
  */
-function addCustomBonusEffect(modifiers, name, type, key) {
+export function addAddBonusEffect(modifiers, name, type, key) {
   let changes = [];
-  const bonuses = DDBHelper.getValueFromModifiers(modifiers, name, type, "bonus");
-
-  if (bonuses) {
-    changes.push(generateCustomChange(`${bonuses}`, 18, key));
-    logger.debug(`Changes for ${type} bonus for ${name}`, changes);
+  // const bonus = DDBHelper.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+  const bonus = DDBHelper.getValueFromModifiers(modifiers, name, type, "bonus");
+  if (bonus) {
+    logger.debug(`Generating ${type} bonus for ${name}`, bonus);
+    changes.push(generateUnsignedAddChange(`+ ${bonus}`, 18, key));
   }
-
-  return changes;
-}
-
-//
-// Generate saving throw bonuses
-//
-function addGlobalSavingBonusEffect(modifiers, name) {
-  const type = "saving-throws";
-  const key = "system.bonuses.abilities.save";
-  let changes = [];
-  const regularBonuses = modifiers.filter((mod) => !mod.bonusTypes?.includes(2));
-  const customBonuses = modifiers.filter((mod) => mod.bonusTypes?.includes(2));
-
-  if (customBonuses.length > 0) {
-    let customEffects = addCustomBonusEffect(customBonuses, name, type, key);
-    changes = changes.concat(customEffects);
-  }
-
-  const regularModifiers = DDBHelper.filterModifiersOld(regularBonuses, "bonus", type);
-
-  if (regularModifiers.length > 0) {
-    logger.debug(`Generating ${type} bonus for ${name}`);
-    let bonuses = "";
-    regularModifiers.forEach((modifier) => {
-      let bonusParse = DDBHelper.extractModifierValue(modifier);
-      if (bonuses !== "") bonuses += " + ";
-      bonuses += bonusParse;
-    });
-    if (bonuses === "") bonuses = 0;
-    changes.push(generateAddChange(`+ ${bonuses}`, 20, key));
-    logger.debug(`Changes for ${type} bonus for ${name}`, changes);
-  }
-
   return changes;
 }
 
@@ -583,17 +555,36 @@ function addCustomEffect(modifiers, name, type, key, extra = "") {
   return changes;
 }
 
-/**
- * Generates a global add for an item
- */
-export function addAddEffect(modifiers, name, type, key) {
+//
+// Generate saving throw bonuses
+//
+function addGlobalSavingBonusEffect(modifiers, name) {
+  const type = "saving-throws";
+  const key = "system.bonuses.abilities.save";
   let changes = [];
-  // const bonus = DDBHelper.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
-  const bonus = DDBHelper.getValueFromModifiers(modifiers, name, type, "bonus");
-  if (bonus) {
-    logger.debug(`Generating ${type} bonus for ${name}`, bonus);
-    changes.push(generateAddChange(`+ ${bonus}`, 18, key));
+  const regularBonuses = modifiers.filter((mod) => !mod.bonusTypes?.includes(2));
+  const customBonuses = modifiers.filter((mod) => mod.bonusTypes?.includes(2));
+
+  if (customBonuses.length > 0) {
+    let customEffects = addAddBonusEffect(customBonuses, name, type, key);
+    changes = changes.concat(customEffects);
   }
+
+  const regularModifiers = DDBHelper.filterModifiersOld(regularBonuses, "bonus", type);
+
+  if (regularModifiers.length > 0) {
+    logger.debug(`Generating ${type} bonus for ${name}`);
+    let bonuses = "";
+    regularModifiers.forEach((modifier) => {
+      let bonusParse = DDBHelper.extractModifierValue(modifier);
+      if (bonuses !== "") bonuses += " + ";
+      bonuses += bonusParse;
+    });
+    if (bonuses === "") bonuses = 0;
+    changes.push(generateUnsignedAddChange(`+ ${bonuses}`, 20, key));
+    logger.debug(`Changes for ${type} bonus for ${name}`, changes);
+  }
+
   return changes;
 }
 
@@ -608,11 +599,11 @@ function addLanguages(modifiers, name) {
 
   languages.value.forEach((prof) => {
     logger.debug(`Generating language ${prof} for ${name}`);
-    changes.push(generateCustomChange(prof, 0, "system.traits.languages.value"));
+    changes.push(generateUnsignedAddChange(prof, 0, "system.traits.languages.value"));
   });
   if (languages?.custom != "") {
     logger.debug(`Generating language ${languages.custom} for ${name}`);
-    changes.push(generateCustomChange(languages.custom, 0, "system.traits.languages.custom"));
+    changes.push(generateUnsignedAddChange(languages.custom, 0, "system.traits.languages.custom"));
   }
 
   return changes;
@@ -633,7 +624,7 @@ function damageBonus(type, modifiers, name) {
     });
   if (bonus && bonus.length > 0) {
     logger.debug(`Generating ${type} damage for ${name}`);
-    const change = generateAddChange(`${bonus.join(" + ")}`, 22, `system.bonuses.${type}.damage`);
+    const change = generateUnsignedAddChange(`${bonus.join(" + ")}`, 22, `system.bonuses.${type}.damage`);
     changes.push(change);
   }
   return changes;
@@ -679,37 +670,37 @@ function addGlobalDamageBonus(modifiers, name) {
 }
 
 function addWeaponAttackBonuses(modifiers, name) {
-  const meleeAttackBonus = addAddEffect(
+  const meleeAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "melee-attacks",
     "system.bonuses.mwak.attack"
   );
-  const rangedAttackBonus = addAddEffect(
+  const rangedAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "ranged-attacks",
     "system.bonuses.rwak.attack"
   );
-  const meleeWeaponAttackBonus = addAddEffect(
+  const meleeWeaponAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "melee-weapon-attacks",
     "system.bonuses.mwak.attack"
   );
-  const rangedWeaponAttackBonus = addAddEffect(
+  const rangedWeaponAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "ranged-weapon-attacks",
     "system.bonuses.rwak.attack"
   );
-  const weaponAttackMeleeBonus = addAddEffect(
+  const weaponAttackMeleeBonus = addAddBonusEffect(
     modifiers,
     name,
     "weapon-attacks",
     "system.bonuses.mwak.attack"
   );
-  const weaponAttackRangedBonus = addAddEffect(
+  const weaponAttackRangedBonus = addAddBonusEffect(
     modifiers,
     name,
     "weapon-attacks",
@@ -727,28 +718,52 @@ function addWeaponAttackBonuses(modifiers, name) {
 
 
 function addSpellAttackBonuses(modifiers, name) {
-  const spellAttackBonus = addCustomEffect(
+  const meleeSpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "spell-attacks",
-    "system.bonuses.spell.attack"
+    "system.bonuses.msak.attack"
   );
-  const spellDCBonus = addAddEffect(
+  const melee2SpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
-    "spell-save-dc",
-    "system.bonuses.spell.dc"
+    "melee-spell-attacks",
+    "system.bonuses.msak.attack"
   );
-  const warlockSpellAttackBonus = addCustomEffect(
+  const rangedSpellAttackBonus = addAddBonusEffect(
+    modifiers,
+    name,
+    "spell-attacks",
+    "system.bonuses.rsak.attack"
+  );
+  const ranged2SpellAttackBonus = addAddBonusEffect(
+    modifiers,
+    name,
+    "ranged-spell-attacks",
+    "system.bonuses.rsak.attack"
+  );
+  const warlockMeleeSpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "warlock-spell-attacks",
-    "system.bonuses.spell.attack"
+    "system.bonuses.msak.attack"
   );
-  const warlockSpellDCBonus = addAddEffect(
+  const warlockRangedSpellAttackBonus = addAddBonusEffect(
+    modifiers,
+    name,
+    "warlock-spell-attacks",
+    "system.bonuses.msak.attack"
+  );
+  const warlockSpellDCBonus = addAddBonusEffect(
     modifiers,
     name,
     "warlock-spell-save-dc",
+    "system.bonuses.rsak.dc"
+  );
+  const spellDCBonus = addAddBonusEffect(
+    modifiers,
+    name,
+    "spell-save-dc",
     "system.bonuses.spell.dc"
   );
   const healingSpellBonus = addCustomEffect(
@@ -759,11 +774,27 @@ function addSpellAttackBonuses(modifiers, name) {
     " + @item.level"
   );
 
+  console.warn(`Adding spell attack bonuses for ${name}`, {
+    meleeSpellAttackBonus,
+    rangedSpellAttackBonus,
+    melee2SpellAttackBonus,
+    ranged2SpellAttackBonus,
+    warlockMeleeSpellAttackBonus,
+    warlockRangedSpellAttackBonus,
+    warlockSpellDCBonus,
+    spellDCBonus,
+    healingSpellBonus,
+  });
+
   return [
-    ...spellAttackBonus,
-    ...spellDCBonus,
-    ...warlockSpellAttackBonus,
+    ...meleeSpellAttackBonus,
+    ...melee2SpellAttackBonus,
+    ...rangedSpellAttackBonus,
+    ...ranged2SpellAttackBonus,
+    ...warlockMeleeSpellAttackBonus,
+    ...warlockRangedSpellAttackBonus,
     ...warlockSpellDCBonus,
+    ...spellDCBonus,
     ...healingSpellBonus,
   ];
 }
@@ -866,29 +897,29 @@ function addDamageConditions(modifiers) {
   const damageVulnerabilityData = getGenericConditionAffectData(modifiers, "vulnerability", 3);
 
   damageImmunityData.forEach((data) => {
-    if (data.value && data.value.length > 0) charges.push(generateCustomChange(data.value, 1, "system.traits.di.value"));
-    if (data.bypass && data.bypass.length > 0) charges.push(generateCustomChange(data.bypass, 1, "system.traits.di.bypasses"));
+    if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.di.value"));
+    if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.di.bypasses"));
   });
   damageResistanceData.forEach((data) => {
-    if (data.value && data.value.length > 0) charges.push(generateCustomChange(data.value, 1, "system.traits.dr.value"));
-    if (data.bypass && data.bypass.length > 0) charges.push(generateCustomChange(data.bypass, 1, "system.traits.dr.bypasses"));
+    if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.dr.value"));
+    if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.dr.bypasses"));
   });
   damageVulnerabilityData.forEach((data) => {
-    if (data.value && data.value.length > 0) charges.push(generateCustomChange(data.value, 1, "system.traits.dv.value"));
-    if (data.bypass && data.bypass.length > 0) charges.push(generateCustomChange(data.bypass, 1, "system.traits.dv.bypasses"));
+    if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.dv.value"));
+    if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.dv.bypasses"));
   });
 
   const conditionImmunityData = getGenericConditionAffectData(modifiers, "immunity", 4);
 
   conditionImmunityData.forEach((data) => {
-    if (data.value && data.value.length > 0) charges.push(generateCustomChange(data.value, 1, "system.traits.ci.value"));
-    if (data.bypass && data.bypass.length > 0) charges.push(generateCustomChange(data.bypass, 1, "system.traits.ci.bypasses"));
+    if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.ci.value"));
+    if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.ci.bypasses"));
   });
 
   // system.traits.di.all
   const allDamageImmunity = DDBHelper.filterModifiersOld(modifiers, "immunity", "all");
   if (allDamageImmunity?.length > 0) {
-    charges.push(generateCustomChange(1, 1, "system.traits.di.all"));
+    charges.push(generateUnsignedAddChange("all", 1, "system.traits.di.value"));
   }
 
   return charges;
@@ -979,8 +1010,8 @@ function addStatChanges(modifiers, name) {
     const statEffect = addStatSetEffect(modifiers, name, `${stat}-score`);
     const savingThrowAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-saving-throws`, "save");
     const abilityCheckAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-ability-checks`, "check");
-    const abilityBonusesSave = addAddEffect(modifiers, name, `${stat}-saving-throws`, `system.abilities.${ability.value}.bonuses.save`);
-    const abilityBonusesCheck = addAddEffect(modifiers, name, `${stat}-ability-checks`, `system.abilities.${ability.value}.bonuses.check`);
+    const abilityBonusesSave = addAddBonusEffect(modifiers, name, `${stat}-saving-throws`, `system.abilities.${ability.value}.bonuses.save`);
+    const abilityBonusesCheck = addAddBonusEffect(modifiers, name, `${stat}-ability-checks`, `system.abilities.${ability.value}.bonuses.check`);
     changes = changes.concat(statEffect, savingThrowAdvantage, abilityCheckAdvantage, abilityBonusesSave, abilityBonusesCheck);
   });
 
@@ -1008,7 +1039,7 @@ function addSenseBonus(modifiers, name) {
       .reduce((a, b) => a + b.value, 0);
     if (bonus > 0) {
       logger.debug(`Generating ${sense} bonus for ${name}`);
-      changes.push(generateAddChange(Math.max(bonus), 15, `system.attributes.senses.${sense}`));
+      changes.push(generateUnsignedAddChange(Math.max(bonus), 15, `system.attributes.senses.${sense}`));
     }
   });
   return changes;
@@ -1023,7 +1054,7 @@ function addProficiencyBonus(modifiers, name) {
   const bonus = DDBHelper.filterModifiersOld(modifiers, "bonus", "proficiency-bonus").reduce((a, b) => a + b.value, 0);
   if (bonus) {
     logger.debug(`Generating proficiency bonus for ${name}`);
-    changes.push(generateAddChange(bonus, 0, "system.attributes.prof"));
+    changes.push(generateUnsignedAddChange(bonus, 0, "system.attributes.prof"));
   }
   return changes;
 }
@@ -1091,9 +1122,9 @@ function addBonusSpeedEffect(modifiers, name, subType, speedType = null) {
     }
     const bonusValue = bonuses.reduce((speed, mod) => speed + mod.value, 0);
     if (speedType === "all") {
-      effects.push(generateCustomChange(`+ ${bonusValue}`, 9, `system.attributes.movement.${speedType}`));
+      effects.push(generateUnsignedAddChange(`+ ${bonusValue}`, 9, `system.attributes.movement.${speedType}`));
     } else {
-      effects.push(generateAddChange(bonusValue, 9, `system.attributes.movement.${speedType}`));
+      effects.push(generateUnsignedAddChange(bonusValue, 9, `system.attributes.movement.${speedType}`));
     }
   }
   return effects;
@@ -1144,22 +1175,24 @@ function addProficiencies(modifiers, name) {
   const weaponProf = ddbCharacter.getWeaponProficiencies(proficiencies);
   const armorProf = ddbCharacter.getArmorProficiencies(proficiencies);
 
-  for (const key of Object.keys(toolProf)) {
+  for (const [key, value] of Object.entries(toolProf)) {
     logger.debug(`Generating tool proficiencies for ${name}`);
-    changes.push(generateCustomChange(1, 8, `system.tools.${key}.prof`));
+    changes.push(generateCustomChange(value.value, 8, `system.tools.${key}.value`));
+    changes.push(generateCustomChange(`${value.ability}`, 8, `system.tools.${key}.ability`));
+    changes.push(generateCustomChange("0", 8, `system.tools.${key}.bonuses.check`));
   }
   weaponProf.value.forEach((prof) => {
     logger.debug(`Generating weapon proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof, 8, "system.traits.weaponProf.value"));
+    changes.push(generateUnsignedAddChange(prof, 8, "system.traits.weaponProf.value"));
   });
   armorProf.value.forEach((prof) => {
     logger.debug(`Generating armor proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof, 8, "system.traits.armorProf.value"));
+    changes.push(generateUnsignedAddChange(prof, 8, "system.traits.armorProf.value"));
   });
   // if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom, 8, "system.traits.toolProf.custom"));
   if (weaponProf?.custom != "")
-    changes.push(generateCustomChange(weaponProf.custom, 8, "system.traits.weaponProf.custom"));
-  if (armorProf?.custom != "") changes.push(generateCustomChange(armorProf.custom, 8, "system.traits.armorProf.custom"));
+    changes.push(generateUnsignedAddChange(weaponProf.custom, 8, "system.traits.weaponProf.custom"));
+  if (armorProf?.custom != "") changes.push(generateUnsignedAddChange(armorProf.custom, 8, "system.traits.armorProf.custom"));
 
   return changes;
 }
@@ -1177,10 +1210,10 @@ function addHPEffect(ddb, modifiers, name, consumable) {
     const cls = DDBHelper.findClassByFeatureId(ddb, bonus.componentId);
     if (cls) {
       logger.debug(`Generating HP Per Level effects for ${name} for class ${cls.definition.name}`);
-      changes.push(generateAddChange(`${bonus.value} * @classes.${cls.definition.name.toLowerCase()}.levels`, 14, "system.attributes.hp.bonuses.overall"));
+      changes.push(generateUnsignedAddChange(`${bonus.value} * @classes.${cls.definition.name.toLowerCase()}.levels`, 14, "system.attributes.hp.bonuses.overall"));
     } else {
       logger.debug(`Generating HP Per Level effects for ${name} for all levels`);
-      changes.push(generateAddChange(bonus.value, 14, "system.attributes.hp.bonuses.level"));
+      changes.push(generateUnsignedAddChange(bonus.value, 14, "system.attributes.hp.bonuses.level"));
     }
   });
 
@@ -1192,7 +1225,7 @@ function addHPEffect(ddb, modifiers, name, consumable) {
       if (hpBonus !== "") hpBonus += " + ";
       hpBonus += hpParse;
     });
-    changes.push(generateCustomChange(`${hpBonus}`, 14, "system.attributes.hp.bonuses.overall"));
+    changes.push(generateUnsignedAddChange(`${hpBonus}`, 14, "system.attributes.hp.bonuses.overall"));
   }
 
   return changes;
@@ -1207,7 +1240,7 @@ function addSkillBonusEffect(modifiers, name, skill) {
   let changes = [];
   if (bonus) {
     logger.debug(`Generating ${skill.subType} skill bonus for ${name}`, bonus);
-    changes.push(generateAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.check`));
+    changes.push(generateUnsignedAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.check`));
   }
   return changes;
 }
@@ -1249,7 +1282,7 @@ function addSkillPassiveBonusEffect(modifiers, name, skill) {
   let changes = [];
   if (bonus) {
     logger.debug(`Generating ${skill.subType} skill bonus for ${name}`, bonus);
-    changes.push(generateAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.passive`));
+    changes.push(generateUnsignedAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.passive`));
   }
   return changes;
 }
@@ -1285,13 +1318,13 @@ function addInitiativeBonuses(modifiers, name) {
   const advantage = DDBHelper.filterModifiersOld(modifiers, "advantage", "initiative");
   if (advantage.length > 0) {
     logger.debug(`Generating Initiative advantage for ${name}`);
-    changes.push(generateCustomChange(1, 20, "flags.dnd5e.initiativeAdv"));
+    changes.push(generateUnsignedAddChange(1, 20, "flags.dnd5e.initiativeAdv"));
   }
 
   const advantageBonus = DDBHelper.getValueFromModifiers(modifiers, "initiative", "initiative", "bonus");
   if (advantageBonus) {
     logger.debug(`Generating Initiative bonus for ${name}`);
-    changes.push(generateAddChange(advantageBonus, 20, "system.attributes.init.bonus"));
+    changes.push(generateUnsignedAddChange(advantageBonus, 20, "system.attributes.init.bonus"));
   }
 
   return changes;
@@ -1437,13 +1470,13 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   logger.debug(`Generating Effects for ${foundryItem.name}`, ddbItem);
 
   const globalSaveBonus = addGlobalSavingBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const globalAbilityBonus = addCustomBonusEffect(
+  const globalAbilityBonus = addAddBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "ability-checks",
     "system.bonuses.abilities.check",
   );
-  const globalSkillBonus = addCustomBonusEffect(
+  const globalSkillBonus = addAddBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "skill-checks",
@@ -1524,8 +1557,8 @@ function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, eff
     case "feat": {
       if (foundryItem.type === "equipment") {
         if (type === "infusion"
-          || (foundryItem.system.armor?.type
-            && ["trinket", "clothing"].includes(foundryItem.system.armor.type))
+          || (foundryItem.system.type?.value
+            && ["trinket", "clothing"].includes(foundryItem.system.type.value))
         ) {
           foundryItem = generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem);
         }

@@ -1,7 +1,7 @@
 import DDBHelper from "../lib/DDBHelper.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { baseItemEffect, addAddEffect } from "./effects.js";
+import { baseItemEffect, addAddBonusEffect } from "./effects.js";
 
 // // ac -
 // { type: "bonus", subType: "armor-class" },
@@ -162,7 +162,7 @@ function addACSets(modifiers, name) {
  */
 function addACBonusEffect(modifiers, name, subType, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
   const bonusModifiers = DDBHelper.filterModifiersOld(modifiers, "bonus", subType, restrictions);
-  const changes = addAddEffect(bonusModifiers, name, subType, "system.attributes.ac.bonus");
+  const changes = addAddBonusEffect(bonusModifiers, name, subType, "system.attributes.ac.bonus");
   if (changes.length > 0) logger.debug(`Generating ${subType} bonus for ${name}`);
 
   return changes;

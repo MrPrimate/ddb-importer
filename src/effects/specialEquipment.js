@@ -1,7 +1,7 @@
 import {
   baseItemEffect,
   generateUpgradeChange,
-  generateAddChange,
+  generateUnsignedAddChange,
   generateCustomChange,
   forceItemEffect,
   effectModules,
@@ -64,7 +64,7 @@ export function equipmentEffectAdjustment(document) {
     case "Armor of Invulnerability": {
       // this effect is 1/day, we have to add it
       let effect = baseItemEffect(document, `${document.name} - Invulnerability`, { transfer: false, disabled: false });
-      effect.changes.push(generateAddChange("physical", 20, "system.traits.di.value"));
+      effect.changes.push(generateUnsignedAddChange("physical", 20, "system.traits.di.value"));
       effect.duration = {
         startTime: null,
         seconds: 600,
