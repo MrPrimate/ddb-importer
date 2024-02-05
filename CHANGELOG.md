@@ -1,9 +1,11 @@
+
+
 # 4.0.3
 
 - Some actions would not pick up the correct ability score.
 - Compendium folder creation is enforced for Class, Class Features, Race, and Racial Traits.
 - Effect overhaul to remove most DAE requirements from basic effects.
-- Trinkets and clothing such as bracers of defence did not genrate AC bonus effects.
+- Trinkets and clothing such as bracers of defence did not generate AC bonus effects.
 - Global Effect bonuses for spell attacks improved.
 - Removed signed bonuses on effect generation.
 - Features should be more consistently added to the relevant sections in the character sheet.
@@ -28,7 +30,7 @@ Note: There are still a number of improvements to come over the coming week(s) t
 
 Conditions/statuses won't get added on character import right now.
 
-There are likely to be a number of other smaller things, pleae raise as issues. But this should be enough to get folks going again!
+There are likely to be a number of other smaller things, please raise as issues. But this should be enough to get folks going again!
 
 # 3.7.17
 
