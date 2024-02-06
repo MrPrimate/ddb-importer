@@ -79,10 +79,12 @@ export function fixSpells(ddb, items) {
     switch (name) {
       case "Melf's Acid Arrow":
       case "Acid Arrow": {
-        const baseDamage = duplicate(spell.system.damage.parts[0]);
-        const otherDamage = duplicate(spell.system.damage.parts[1]);
-        spell.system.damage.parts = [baseDamage];
-        spell.system.formula = otherDamage[0];
+        if (spell.system.damage?.parts.length > 1) {
+          const baseDamage = duplicate(spell.system.damage.parts[0]);
+          const otherDamage = duplicate(spell.system.damage.parts[1]);
+          spell.system.damage.parts = [baseDamage];
+          spell.system.formula = otherDamage[0];
+        }
         break;
       }
       case "Aid": {
