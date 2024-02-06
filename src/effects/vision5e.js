@@ -58,7 +58,7 @@ export function addVision5eStub(document) {
   // if document name in Vision effects then add effect
   if (VISION_EFFECTS[name]
     && document.type === VISION_EFFECTS[name].type
-    && !document.effects.some((e) => (e.name ?? e.label) === VISION_EFFECTS[name].effectName)
+    && !document.effects.some((e) => e.name === VISION_EFFECTS[name].effectName)
   ) {
     const effect = baseSpellEffect(document, VISION_EFFECTS[name].effectName);
     effect.transfer = VISION_EFFECTS[name].transfer;

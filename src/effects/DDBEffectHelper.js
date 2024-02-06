@@ -398,7 +398,7 @@ export default class DDBEffectHelper {
     return actor.effects.some(
       (activeEffect) =>
         activeEffect?.flags?.isConvenient
-        && (activeEffect?.name ?? activeEffect?.label) == conditionName
+        && activeEffect?.name == conditionName
         && !activeEffect?.disabled
     );
   }
@@ -708,25 +708,23 @@ export default class DDBEffectHelper {
   }
 
   static isConditionEffectAppliedAndActive(condition, actor) {
+    // return actor.statuses.has(condition.toLowerCase());
     return DDBEffectHelper.getActorEffects(actor).some(
       (activeEffect) =>
-        (getProperty(activeEffect, "flags.dfreds-convenient-effects.isConvenient") || activeEffect?.flags?.isConvenient)
-        && (activeEffect?.name ?? activeEffect?.label) == condition
+        // (getProperty(activeEffect, "flags.dfreds-convenient-effects.isConvenient") || activeEffect?.flags?.isConvenient)
+        (activeEffect?.name.toLowerCase() == condition.toLowerCase())
         && !activeEffect?.disabled
     );
   }
 
-  static isEffectConditionEffectAppliedAndActive(condition, effect) {
-    return (getProperty(effect, "flags.dfreds-convenient-effect.isConvenient") || effect?.flags?.isConvenient)
-        && (effect?.name ?? effect?.label) === condition
-        && !effect?.disabled;
-  //   const isConvenient = (getProperty(effect, "flags.dfreds-convenient-effects.isConvenient") || effect?.flags?.isConvenient);
-  //   const isName = (effect?.name ?? effect?.label) === condition;
-  //   const isDisabled = !effect?.disabled;;
-  //   console.warn("effect eval", {
-  //     condition, effect, isConvenient, isName, isDisabled
-  //   });
-  //   return isConvenient && isName && isDisabled;
+  static getConditionEffectAppliedAndActive(condition, actor) {
+    // return actor.statuses.has(condition.toLowerCase());
+    return DDBEffectHelper.getActorEffects(actor).find(
+      (activeEffect) =>
+        // (getProperty(activeEffect, "flags.dfreds-convenient-effects.isConvenient") || activeEffect?.flags?.isConvenient)
+        (activeEffect?.name.toLowerCase() == condition.toLowerCase())
+        && !activeEffect?.disabled
+    );
   }
 
   static extractListItems(text, { type = "ol", titleType = "em" } = {}) {

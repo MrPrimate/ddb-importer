@@ -180,7 +180,7 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
         priority: "20"
       };
 
-      const changeIndex = this.raw.character.effects.findIndex((effect) => effect.label === label);
+      const changeIndex = this.raw.character.effects.findIndex((effect) => effect.name === label);
       if (changeIndex >= 0) {
         this.raw.character.effects[changeIndex].changes.push(change);
       } else {

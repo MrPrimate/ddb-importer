@@ -233,7 +233,7 @@ function generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCom
   // if (noModifiers && noACValue) return [];
   if (noModifiers) return [];
   // console.error(`Item: ${foundryItem.name}`, ddbItem);
-  logger.debug(`Generating supported AC changes for ${foundryItem.name} for effect ${effect.name ?? effect.label}`);
+  logger.debug(`Generating supported AC changes for ${foundryItem.name} for effect ${effect.name}`);
 
   // base ac from modifiers
   const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name);

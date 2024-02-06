@@ -132,23 +132,3 @@ else if (args[0] === "off") {
   });
   await DAE.unsetFlag(actor, "eyebiteSpell");
 }
-
-
-// game.canvas.tokens.placeables.forEach((t) => {
-//   const effects = DDBImporter.EffectHelper.getActorEffects(t.actor)
-//     .filter((e => e.origin === "Scene.UhmG3IpACRTbmGYN.Token.0Gv1q5oVLBVGtrDY.Actor.Cm0OMSdwV96NTOi7.Item.zDjWKeq9XeN91mMc"));
-//   console.warn(effects)
-//   effects.forEach(effect => {
-//     const flag = DAE.getFlag(t.actor, "eyebiteSpell") ?? { conditions: [] };
-//     console.warn(flag);
-//     console.warn(t.actor.uuid)
-//     flag.conditions.forEach((condition) => {
-//       const check = DDBImporter.EffectHelper.isEffectConditionEffectAppliedAndActive(condition,effect);
-//       console.warn(check)
-//       if (check) {
-//           console.warn("removing")
-//         game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: t.actor.uuid });
-//       }
-//     });
-//   });
-// });
