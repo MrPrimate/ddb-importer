@@ -391,7 +391,7 @@ export function generateBaseSkillEffect(id, label) {
 }
 
 
-export function generateStatusEffectChange(statusName, priority = 20, macro = false) {
+export function generateCEStatusEffectChange(statusName, priority = 20, macro = false) {
   const value = macro
     ? statusName
     : CONFIG.statusEffects.find((se) => se.name === statusName)?.id || statusName;
@@ -402,6 +402,15 @@ export function generateStatusEffectChange(statusName, priority = 20, macro = fa
     key: macro && !value.startsWith("Convenient Effect:") ? "macro.CE" : "StatusEffect",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     value: macro || value.startsWith("Convenient Effect:") ? value : `Convenient Effect: ${value}`,
+    priority: priority,
+  };
+}
+
+export function generateStatusEffectChange(statusName, priority = 20) {
+  return {
+    key: "statuses",
+    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+    value: statusName.toLowerCase(),
     priority: priority,
   };
 }
