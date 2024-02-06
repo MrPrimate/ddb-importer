@@ -43,5 +43,6 @@ import "./character/globalBonuses.js";
 import "./special/character.js";
 
 import "./item/index.js";
+import "./item/magicify.js";
 
 import "./companions/companions.js";
