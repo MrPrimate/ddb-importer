@@ -93,9 +93,6 @@ export default class DDBMacros {
       if (convenientEffectStatusSettings && convenientEffectStatusSettings === "none") {
         game.settings.set("dfreds-convenient-effects", "modifyStatusEffects", "add");
       }
-    } else if (useCEConditions) {
-      logger.warn("Convenient Effects needs to be installed for effects");
-      // ui.notifications.warn("Convenient Effects needs to be installed for effects");
     }
 
     if (game.modules.get("itemacro")?.active && game.modules.get("dae")?.active) {
