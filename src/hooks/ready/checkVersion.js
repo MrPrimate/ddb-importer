@@ -7,6 +7,7 @@ const MODULE_AUTHOR = "MrPrimate";
 const _GITHUB_API_LATEST = `https://api.github.com/repos/${MODULE_AUTHOR}/${MODULE_NAME}/releases/latest`;
 const _GITHUB_MODULE_JSON_LATEST = `https://raw.githubusercontent.com/${MODULE_AUTHOR}/${MODULE_NAME}/master/module-template.json`;
 const MINIMUM_5E_VERSION = "3.0.0";
+const PREVIOUS_VERSION = "3.7.17";
 
 // eslint-disable-next-line consistent-return
 async function getLatestModuleVersion() {
@@ -19,10 +20,10 @@ async function getLatestModuleVersion() {
 }
 
 // eslint-disable-next-line consistent-return
-async function getLatestModuleMinimumCoreVersion() {
+async function getCompatibility() {
   try {
-    const { minimumCoreVersion, compatibleCoreVersion } = await $.getJSON(_GITHUB_MODULE_JSON_LATEST);
-    return { minimumCoreVersion, compatibleCoreVersion };
+    const { compatibility, relationships } = await $.getJSON(_GITHUB_MODULE_JSON_LATEST);
+    return { minimumCoreVersion: compatibility.minimum, minimumSystemVersion: relationships.systems[0].compatibility.minimum };
   } catch (error) {
     logger.error(error);
   }
@@ -34,28 +35,33 @@ export default async () => {
   setProperty(CONFIG, "DDBI.version", installedVersion);
   try {
     if (!game.user.isGM) return;
-    const { minimumCoreVersion, compatibleCoreVersion } = await getLatestModuleMinimumCoreVersion();
     const compatibleMinimumSystem = utils.versionCompare(game.data.system.version, MINIMUM_5E_VERSION) >= 0;
 
     if (!compatibleMinimumSystem) {
-      ui.notifications.error(`${MODULE_TITLE} strongly recommends 5e system v${MINIMUM_5E_VERSION} to run correctly. Please update your 5e version.`, { permanent: true });
+      ui.notifications.error(`${MODULE_TITLE} requires 5e system v${MINIMUM_5E_VERSION} to run correctly. Please update your 5e version, or roll DDB Importer back to version ${PREVIOUS_VERSION}.`, { permanent: true });
+      return;
     }
 
     // check version number only for GMs
     const coreCheck = game.settings.get("ddb-importer", "update-check");
     if (!coreCheck) return;
-
+    const { minimumCoreVersion, minimumSystemVersion } = await getCompatibility();
     const { latestVersion, prerelease: preRelease } = await getLatestModuleVersion();
 
     const newModuleVersion = utils.versionCompare(latestVersion, installedVersion) === 1;
-    const compatibleCore = utils.versionCompare(game.version, compatibleCoreVersion) >= 0;
+    const compatibleSystem = utils.versionCompare(game.version, minimumSystemVersion) >= 0;
     const compatibleMinimumCore = utils.versionCompare(game.version, minimumCoreVersion) >= 0;
 
-    const needToUpdate = newModuleVersion && compatibleCore && compatibleMinimumCore;
+    const needToUpdate = newModuleVersion && compatibleSystem && compatibleMinimumCore;
 
-    // console.log(utils.versionCompare("1.0.1", "1.0.1")); // 0
-    // console.log(utils.versionCompare("1.0.0", "1.0.1")); // -1
-    // console.log(utils.versionCompare("2.0.0", "1.0.1")); // 1
+    logger.debug("Module Update data", {
+      newModuleVersion,
+      compatibleSystem,
+      compatibleMinimumCore,
+      needToUpdate,
+      minimumCoreVersion,
+      minimumSystemVersion
+    });
 
     if (preRelease) logger.debug(`Prerelease of ${MODULE_TITLE} detected`);
 
