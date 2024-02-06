@@ -454,7 +454,7 @@ const SETTINGS = {
           hint: "ddb-importer.settings.apply-conditions-with-ce.hint",
           config: true,
           type: Boolean,
-          default: true,
+          default: false,
         },
       },
       // ????
