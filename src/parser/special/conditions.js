@@ -49,21 +49,33 @@ async function adjustConditionsWithCE(actor, conditionStates) {
 export async function setConditions(actor, ddb, keepLocal = false) {
   const dfConditionsOn = game.modules.get("dfreds-convenient-effects")?.active;
   const useCEConditions = game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce");
+  const conditionStates = getActorConditionStates(actor, ddb, keepLocal);
+  // console.warn(conditionStates);
+  logger.debug(`Condition states for ${actor.name}`, conditionStates);
+
   if (dfConditionsOn && useCEConditions) {
-    const conditionStates = await getActorConditionStates(actor, ddb, keepLocal);
-    // console.warn(conditionStates);
-    logger.debug(`Condition states for ${actor.name}`, conditionStates);
-    await Promise.all(conditionStates.map(async (condition) => {
-      // console.warn(condition);
-      if (condition.needsUpdate) {
-        const state = condition.conditionApplied ? "off" : "on";
-        logger.info(`Toggling condition to ${state} for ${condition.label} to ${actor.name} (${actor.uuid})`);
-        await game.dfreds.effectInterface.toggleEffect(condition.label, { uuids: [actor.uuid] });
-      } else {
-        const state = condition.conditionApplied ? "on" : "off";
-        logger.info(`Condition ${condition.label} ignored (currently ${state}) for ${actor.name} (${actor.uuid})`);
+    await adjustConditionsWithCE(actor, conditionStates);
+  } else {
+    // remove conditions first
+    for (const condition of conditionStates.filter((c) => c.needsRemove)) {
+      console.warn(`removing ${condition.label}`, { condition });
+      const existing = actor.document.effects.get(game.dnd5e.utils.staticID.staticID(`dnd5e${condition.foundry}`));
+      if ( existing ) await existing.delete();
+      if (condition.foundry === "exhaustion") {
+        // eslint-disable-next-line no-await-in-loop
+        await actor.update({ "system.attributes.exhaustion": 0 });
       }
-      return condition;
-    }));
+    }
+    for (const condition of conditionStates.filter((c) => c.needsAdd)) {
+      console.warn(`adding ${condition.label}`, { condition });
+      const effect = await ActiveEffect.implementation.fromStatusEffect(condition.foundry);
+      console.warn("effect", effect)
+      // eslint-disable-next-line no-await-in-loop
+      await ActiveEffect.implementation.create(effect, { parent: actor.document, keepId: true });
+      if (condition.foundry === "exhaustion") {
+        // eslint-disable-next-line no-await-in-loop
+        await actor.update({ "system.attributes.exhaustion": condition.levelId });
+      }
+    }
   }
 }
