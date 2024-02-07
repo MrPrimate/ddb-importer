@@ -96,9 +96,9 @@ export default class DDBMacros {
     }
 
     if (game.modules.get("itemacro")?.active && game.modules.get("dae")?.active) {
-      const itemMacroSheet = game.settings.get("itemacro", "charsheet");
+      const itemMacroSheet = game.settings.get("itemacro", "defaultmacro");
       if (itemMacroSheet) {
-        game.settings.set("itemacro", "charsheet", false);
+        game.settings.set("itemacro", "defaultmacro", false);
       }
     }
 
