@@ -3,7 +3,6 @@ import DDBHelper from "./DDBHelper.js";
 import logger from "../logger.js";
 import CompendiumHelper from "./CompendiumHelper.js";
 import { generateAdventureConfig } from "../muncher/adventure.js";
-import SETTINGS from "../settings.js";
 
 const INDEX_COMPENDIUMS = [
   "spell",
@@ -385,63 +384,54 @@ function replaceTag(match, p1, p2, p3, offset, string) {
 
   const lowerCaseTag = utils.normalizeString(strippedP2);
 
-  if (CONFIG.DND5E.rules[lowerCaseTag]) {
-    return `&Reference[${lowerCaseTag}]{${p2}}`;
-  } else if (CONFIG.DND5E.abilities[lowerCaseTag]) {
-    return `&Reference[${lowerCaseTag}]{${p2}}`;
-  }
+  const types = [
+    CONFIG.DND5E.conditionTypes,
+    CONFIG.DND5E.skills,
+    CONFIG.DND5E.abilities,
+    CONFIG.DND5E.creatureTypes,
+    CONFIG.DND5E.damageTypes,
+    CONFIG.DND5E.areaTargetTypes,
+    CONFIG.DND5E.spellComponents,
+    CONFIG.DND5E.spellTags,
+    CONFIG.DND5E.spellSchools,
+    CONFIG.DND5E.rules,
+  ];
 
-  if (["total cover", "half cover", "three-quarters cover"].includes(strippedP2.toLowerCase())) {
-    const coverMatch = CONFIG.DDBI.SRD_LOOKUP.fullPageMap.find((entry) => entry.name === "Cover");
-    if (coverMatch) {
-      return `@Compendium[dnd5e.rules.${coverMatch._id}.JournalEntryPage.${coverMatch.pageId}]{${p2}}`;
-    }
-  } else if (hasProperty(CONFIG.DDBI.SRD_LOOKUP, strippedP2.split(";")[0])) {
-    const lookup = getProperty(CONFIG.DDBI.SRD_LOOKUP, strippedP2);
-    const pageLink = lookup.pageId ? `.JournalEntryPage.${lookup.pageId}` : "";
-    const linkStub = lookup.headerLink ? `#${lookup.headerLink}` : "";
-    return `@Compendium[dnd5e.rules.${lookup._id}${pageLink}${linkStub}]{${p2}}`;
-  } else {
-    const srdMatch = CONFIG.DDBI.SRD_LOOKUP.fullPageMap.find((page) => page.name.toLowerCase() === strippedP2.toLowerCase().split(";")[0]
-      || utils.nameString(page.name).toLowerCase() === utils.nameString(strippedP2).toLowerCase().split("ing")[0].split(";")[0]
-    );
-    if (srdMatch) {
-      const pageLink = srdMatch.pageId ? `.JournalEntryPage.${srdMatch.pageId}` : "";
-      const linkStub = srdMatch.headerLink ? `#${srdMatch.headerLink}` : "";
-      return `@Compendium[dnd5e.rules.${srdMatch._id}${pageLink}${linkStub}]{${p2}}`;
-    } else {
-      logger.info(`Unable to tag parse compendium match for ${match}`);
+  let result = p2;
+  for (const type of types) {
+    if (type[lowerCaseTag]) {
+      result = `&Reference[${lowerCaseTag}]{${p2}}`;
+      break;
     }
   }
 
-  return p2;
+  return result;
 }
 
-function parseSRDLinks(text) {
-  const useCEToggles = game.settings.get(SETTINGS.MODULE_ID, "use-ce-toggles")
-    && game.modules.get("dfreds-convenient-effects")?.active;
 
-  if (!CONFIG.DDBI.SRD_LOOKUP?.lookups) return text;
-  [
-    CONFIG.DDBI.SRD_LOOKUP.lookups.conditions,
-    CONFIG.DDBI.SRD_LOOKUP.lookups.skills,
-    CONFIG.DDBI.SRD_LOOKUP.lookups.senses,
-    // CONFIG.DDBI.SRD_LOOKUP.lookups.weaponproperties,
-  ]
-    .flat()
-    .forEach((entry) => {
-      const linkRegEx = new RegExp(`(^| |\\(|\\[|>)(${entry.name})( |\\)|\\]|\\.|,|$|\n|<)`, "ig");
-      function replaceRule(match, p1, p2, p3) {
-        return `${p1}@Compendium[${entry.compendium}.${entry._id}]{${p2}}${p3}`;
-      }
-      function replaceCERule(match, p1, p2, p3) {
-        return `${p1}@toggleEffect[${entry.name}]${p3}`;
-      }
+function parseSRDReferences(text) {
+  const types = [
+    CONFIG.DND5E.conditionTypes,
+    CONFIG.DND5E.skills,
+    CONFIG.DND5E.abilities,
+    CONFIG.DND5E.creatureTypes,
+    CONFIG.DND5E.damageTypes,
+    CONFIG.DND5E.areaTargetTypes,
+    CONFIG.DND5E.spellComponents,
+    CONFIG.DND5E.spellTags,
+    CONFIG.DND5E.spellSchools,
+    CONFIG.DND5E.rules,
+  ];
 
-      text = useCEToggles && game.dfreds.effectInterface.findEffectByName(entry.name)
-        ? text.replaceAll(linkRegEx, replaceCERule)
-        : text.replaceAll(linkRegEx, replaceRule);
-    });
+  for (const type of types) {
+    for (const [key, value] of Object.entries(type)) {
+      const linkRegEx = new RegExp(`(^| |\\(|\\[|>)(${value.label})( |\\)|\\]|\\.|,|$|\n|<)`, "ig");
+      const replaceRule = (match, p1, p2, p3) => {
+        return `${p1}&Reference[${key}]{${p2}}${p3}`;
+      };
+      text = text.replaceAll(linkRegEx, replaceRule);
+    }
+  }
 
   return text;
 }
@@ -453,7 +443,7 @@ export function parseTags(text) {
   if (matches) {
     return text.replaceAll(tagRegEx, replaceTag);
   }
-  text = parseSRDLinks(text);
+  text = parseSRDReferences(text);
   return text;
 }
 

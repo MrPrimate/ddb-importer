@@ -4,6 +4,7 @@
 - Changes to Item Macro caused importer crash.
 - Wrath of the Storm fixes.
 - Spell names in items will (mostly) be replace with links to any spells munched into the DDB Compendiums.
+- First pass at improved rule matcher, will now attempt to use the hover references rather than linking to SRD when importing.
 
 # 4.0.3
 
