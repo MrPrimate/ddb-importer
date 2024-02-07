@@ -459,6 +459,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
     if (item) {
       item.name = adjustedName;
       item = parseMagicItem(item, ddbItem, this.raw.itemSpells, isCompendiumItem);
+      item = this.replaceSpellLinks(item);
       item.flags.ddbimporter.originalName = originalName;
       item.flags.ddbimporter.version = CONFIG.DDBI.version;
       if (!item.effects) item.effects = [];

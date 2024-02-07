@@ -70,6 +70,7 @@ export default class DDBCharacter {
     };
 
     this.itemCompendium = CompendiumHelper.getCompendiumType("inventory");
+    this.spellCompendium = CompendiumHelper.getCompendiumType("spell");
 
   }
 
@@ -225,6 +226,7 @@ export default class DDBCharacter {
     try {
       // prefetch compendium indexes for lookups
       await this.itemCompendium.getIndex();
+      await this.spellCompendium.getIndex();
 
       if (game.settings.get("ddb-importer", "character-update-policy-add-spell-effects")) await DDBMacros.createWorldMacros();
       logger.debug("Starting core character parse", { thisDDB: this.source.ddb });

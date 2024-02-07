@@ -3,6 +3,7 @@
 - Conditions are applied correctly when importing and updating a character.
 - Changes to Item Macro caused importer crash.
 - Wrath of the Storm fixes.
+- Spell names in items will (mostly) be replace with links to any spells munched into the DDB Compendiums.
 
 # 4.0.3
 

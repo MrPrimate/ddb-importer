@@ -1,47 +1,5 @@
-//
-// Attempts to parse information from ddb about items to build a magicitems
-// compatible set of metadata.
-//
-// https://gitlab.com/riccisi/foundryvtt-magic-items/
-//
-// Wand of Entangle Target example
-//
-// flags": {
-// "magicitems": {
-//       "enabled": true,
-//       "charges": "7",
-//       "chargeType": "c1",
-//       "destroy": true,
-//       "destroyCheck": "d1",
-//       "rechargeable": true,
-//       "recharge": "1d6+1",
-//       "rechargeType": "t2",
-//       "rechargeUnit": "r2",
-//       "spells": {
-//           "0": {
-//               "id": "af8QUpphSZMoi2yb",
-//               "name": "Entangle",
-//               "pack": "world.spellsdndbeyond",
-//               "img": "iconizer/Spell_Nature_StrangleVines.png",
-//               "baseLevel": "1",
-//               "level": "1",
-//               "consumption": "1",
-//               "upcast": "1",
-//               "upcastCost": "1"
-//           }
-//       }
-// "feats": {},
-// "tables": {},
-// "equipped": true,
-// "attuned": true,
-// "destroyFlavorText": "reaches 0 charges: it crumbles into ashes and is destroyed.",
-// "sorting": "l"
-
-// }
-//
-//
-//
 import DICTIONARY from "../../dictionary.js";
+import DDBCharacter from "../DDBCharacter.js";
 import logger from "../../logger.js";
 import { getUses, getRechargeFormula } from "./common.js";
 
@@ -206,6 +164,46 @@ function getMagicItemResetType(description) {
   return resetType;
 }
 
+//
+// Attempts to parse information from ddb about items to build a magicitems
+// compatible set of metadata.
+//
+// https://gitlab.com/riccisi/foundryvtt-magic-items/
+//
+// Wand of Entangle Target example
+//
+// flags": {
+// "magicitems": {
+//       "enabled": true,
+//       "charges": "7",
+//       "chargeType": "c1",
+//       "destroy": true,
+//       "destroyCheck": "d1",
+//       "rechargeable": true,
+//       "recharge": "1d6+1",
+//       "rechargeType": "t2",
+//       "rechargeUnit": "r2",
+//       "spells": {
+//           "0": {
+//               "id": "af8QUpphSZMoi2yb",
+//               "name": "Entangle",
+//               "pack": "world.spellsdndbeyond",
+//               "img": "iconizer/Spell_Nature_StrangleVines.png",
+//               "baseLevel": "1",
+//               "level": "1",
+//               "consumption": "1",
+//               "upcast": "1",
+//               "upcastCost": "1"
+//           }
+//       }
+// "feats": {},
+// "tables": {},
+// "equipped": true,
+// "attuned": true,
+// "destroyFlavorText": "reaches 0 charges: it crumbles into ashes and is destroyed.",
+// "sorting": "l"
+
+// }
 function parseMagicItemsModule(data, itemSpells, isCompendiumItem) {
   // this builds metadata for the magicitems module to use
   // https://gitlab.com/riccisi/foundryvtt-magic-items/
@@ -374,3 +372,22 @@ export function parseMagicItem(item, data, itemSpells, isCompendiumItem = false)
 
   return item;
 }
+
+
+DDBCharacter.prototype.replaceSpellLinks = function replaceSpellLinks(document) {
+  const spellRegexReplacer = (match, prefix, spellName, postfix) => {
+    const cMatch = this.spellCompendium.index.find((f) => f.name.toLowerCase() === spellName.toLowerCase());
+    const replacedSpell = cMatch ? `@UUID[${cMatch.uuid}]` : spellName;
+    // console.warn("match", { match, document, prefix, spellName, postfix, compendium: this.spellCompendium.index, cMatch, replacedSpell });
+    return `${prefix}${replacedSpell}${postfix}`;
+  };
+
+  // easiest, e.g.wand of fireballs
+  const simpleSpellRegex = /(<strong>)([\w\s]*?)(<\/strong>\s*spell)/gi;
+  document.system.description.value = `${document.system.description.value}`.replaceAll(simpleSpellRegex, spellRegexReplacer);
+  // <strong>cone of cold</strong> (5 charges)
+  const chargeSpellRegex = /(<strong>)([\w\s]*?)(<\/strong>\s*\(\d* charge)/gi;
+  document.system.description.value = `${document.system.description.value}`.replaceAll(chargeSpellRegex, spellRegexReplacer);
+
+  return document;
+};
