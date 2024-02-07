@@ -1,4 +1,4 @@
-# NEXT UP
+# 4.0.4
 
 - Conditions are applied correctly when importing and updating a character.
 - Changes to Item Macro caused importer crash.
