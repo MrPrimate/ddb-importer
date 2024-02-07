@@ -4,7 +4,7 @@ import { effectModules, addStatusEffectChange } from "../effects.js";
 
 export async function blackTentaclesEffect(document) {
   if (!effectModules().activeAurasInstalled || !effectModules().midiQolInstalled) {
-    let effect = baseSpellEffect(document, document.name);
+    let effect = baseSpellEffect(document, `${document.name} - Restrained`);
     addStatusEffectChange(effect, "Restrained", 20, true);
     document.effects.push(effect);
 

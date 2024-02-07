@@ -5,6 +5,9 @@ import { addStatusEffectChange, effectModules } from "../effects.js";
 export async function silenceEffect(document) {
 
   if (!effectModules().activeAurasInstalled) {
+    let effect = baseSpellEffect(document, `${document.name} - Deafened`);
+    addStatusEffectChange(effect, "Deafened", 20, true);
+    document.effects.push(effect);
     return document;
   }
 

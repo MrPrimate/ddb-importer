@@ -2,7 +2,7 @@ import { addStatusEffectChange, effectModules } from "../effects.js";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export function holdMonsterEffect(document) {
-  let effect = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, `${document.name} - Paralyzed`);
   addStatusEffectChange(effect, "Paralyzed", 20, true);
 
   if (effectModules().midiQolInstalled) {

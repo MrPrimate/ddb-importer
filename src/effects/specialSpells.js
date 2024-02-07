@@ -98,6 +98,7 @@ import { polymorphEffect } from "./spells/polymorph.js";
 import { protectionfromEnergyEffect } from "./spells/protectionfromEnergy.js";
 import { protectionfromPoisonEffect } from "./spells/protectionfromPoison.js";
 import { psychicScreamEffect } from "./spells/psychicScream.js";
+import { rayofSicknessEffect } from "./spells/rayOfSickness.js";
 import { rayofEnfeeblementEffect } from "./spells/rayofEnfeeblement.js";
 import { rayofFrostEffect } from "./spells/rayofFrost.js";
 import { regenerateEffect } from "./spells/regenerate.js";
@@ -319,6 +320,10 @@ async function basicSpellEffects(document) {
     }
     case "Psychic Scream": {
       document = psychicScreamEffect(document);
+      break;
+    }
+    case "Ray of Sickness": {
+      document = rayofSicknessEffect(document);
       break;
     }
     case "Shield": {

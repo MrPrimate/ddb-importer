@@ -5,7 +5,7 @@ import { effectModules, addStatusEffectChange } from "../effects.js";
 export async function webEffect(document) {
 
   if (!effectModules().activeAurasInstalled || !effectModules().midiQolInstalled) {
-    let effectWebRestrained = baseSpellEffect(document, document.name);
+    let effectWebRestrained = baseSpellEffect(document, `${document.name} - Restrained`);
     addStatusEffectChange(effectWebRestrained, "Restrained", 20, true);
     document.effects.push(effectWebRestrained);
     return document;

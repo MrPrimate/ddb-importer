@@ -2,8 +2,9 @@ import { addStatusEffectChange, effectModules } from "../effects.js";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export function psychicScreamEffect(document) {
-  let effect = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, `${document.name} - Stunned`);
   addStatusEffectChange(effect, "Stunned", 20, true);
+
   if (effectModules().midiQolInstalled) {
     effect.changes.push(
       {

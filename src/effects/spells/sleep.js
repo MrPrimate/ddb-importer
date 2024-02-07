@@ -9,7 +9,7 @@ export async function sleepEffect(document) {
     DDBMacros.setMidiOnUseMacroFlag(document, "spell", "sleep.js", ["postActiveEffects"]);
     document.system.damage = { parts: [["5d8", "midi-none"]], versatile: "", value: "" };
   } else {
-    let effect = baseSpellEffect(document, document.name);
+    let effect = baseSpellEffect(document, `${document.name} - Unconscious`);
     addStatusEffectChange(effect, "Unconscious", 20, true);
     document.effects.push(effect);
   }

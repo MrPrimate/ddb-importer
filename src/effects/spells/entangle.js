@@ -2,7 +2,7 @@ import { addStatusEffectChange } from "../effects.js";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export function entangleEffect(document) {
-  let effect = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, `${document.name} - Restrained`);
   addStatusEffectChange(effect, "Restrained", 20, true);
 
   // not implemented as the target can choose to escape with it's action

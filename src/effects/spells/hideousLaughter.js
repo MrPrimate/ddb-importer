@@ -19,7 +19,7 @@ export async function hideousLaughterEffect(document) {
   }
   document.effects.push(effect);
 
-  let proneEffect = baseSpellEffect(document, `${document.name} (Prone)`);
+  let proneEffect = baseSpellEffect(document, `${document.name} - Prone`);
   addStatusEffectChange(proneEffect, "Prone", 20, true);
   document.effects.push(proneEffect);
 
