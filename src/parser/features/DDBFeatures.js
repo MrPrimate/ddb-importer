@@ -30,10 +30,12 @@ export default class DDBFeatures {
     "Hit Points",
     "Languages",
     "Bonus Proficiency",
+    "Bonus Proficiencies",
     "Speed",
     "Skills",
     "Feat",
     "Primal Knowledge",
+    "Creature Type",
   ];
 
   static TASHA_VERSATILE = [

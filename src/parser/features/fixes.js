@@ -429,6 +429,10 @@ export async function fixFeatures(features) {
         setProperty(feature.system, "damage.parts", [["@scale.battle-master.combat-superiority-die"]]);
         break;
       }
+      case "Wrath of the Storm": {
+        feature.system.damage = { parts: [["2d8", "lightning"]], versatile: "", value: "" };
+        break;
+      }
       // no default
     }
 

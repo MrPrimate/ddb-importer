@@ -121,6 +121,10 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       document = greatWeaponMasterEffect(document);
       break;
     }
+    case "Heavy Armor Master": {
+      document = heavyArmorMasterEffect(document);
+      break;
+    }
     case "Partially Amphibious":
     case "Hold Breath": {
       document = holdBreathEffect(document);
@@ -249,10 +253,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       }
       case "Hadozee Dodge": {
         document = hadozeDodgeEffect(document);
-        break;
-      }
-      case "Heavy Armor Master": {
-        document = heavyArmorMasterEffect(document);
         break;
       }
       case "Indomitable": {
