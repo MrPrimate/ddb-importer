@@ -1,4 +1,9 @@
 
+# NEXT UP
+
+- Conditions are applied correctly when importing and updating a character.
+- Changes to Item Macro caused importer crash.
+- Tidy 5e Sheet fixes for Kgar
 
 # 4.0.3
 
