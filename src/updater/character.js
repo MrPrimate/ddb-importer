@@ -424,19 +424,16 @@ async function updateDDBCondition(actor, condition) {
 
 async function conditions(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    const dfConditionsOn = game.modules.get("dfreds-convenient-effects")?.active;
-    const useCEConditions = game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce");
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-condition") || !dfConditionsOn || !useCEConditions) resolve([]);
-    getActorConditionStates(actor, ddbCharacter.source.ddb).then((conditions) => {
-      let results = [];
-      conditions.forEach((condition) => {
-        // exhaustion handled separately
-        if (condition.needsUpdate && condition.ddbId !== 4) {
-          results.push(updateDDBCondition(actor, condition));
-        }
-      });
-      resolve(results);
+    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-condition")) resolve([]);
+    const conditions = getActorConditionStates(actor, ddbCharacter.source.ddb);
+    let results = [];
+    conditions.forEach((condition) => {
+      // exhaustion handled separately
+      if (condition.needsUpdate && condition.ddbId !== 4) {
+        results.push(updateDDBCondition(actor, condition));
+      }
     });
+    resolve(results);
   });
 }
 

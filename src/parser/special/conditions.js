@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import DICTIONARY from "../../dictionary.js";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 import logger from "../../logger.js";
@@ -32,7 +33,6 @@ async function adjustConditionsWithCE(actor, conditionStates) {
     if (condition.needsUpdate) {
       const state = condition.conditionApplied ? "off" : "on";
       logger.info(`Toggling condition to ${state} for ${condition.label} to ${actor.name} (${actor.uuid})`);
-      // eslint-disable-next-line no-await-in-loop
       await game.dfreds.effectInterface.toggleEffect(condition.label, { uuids: [actor.uuid] });
     } else {
       const state = condition.conditionApplied ? "on" : "off";
@@ -58,22 +58,24 @@ export async function setConditions(actor, ddb, keepLocal = false) {
   } else {
     // remove conditions first
     for (const condition of conditionStates.filter((c) => c.needsRemove)) {
-      console.warn(`removing ${condition.label}`, { condition });
-      const existing = actor.document.effects.get(game.dnd5e.utils.staticID.staticID(`dnd5e${condition.foundry}`));
-      if ( existing ) await existing.delete();
+      logger.debug(`removing ${condition.label}`, { condition });
+      const existing = actor.document.effects.get(game.dnd5e.utils.staticID(`dnd5e${condition.foundry}`));
+      if (existing) await existing.delete();
       if (condition.foundry === "exhaustion") {
-        // eslint-disable-next-line no-await-in-loop
+        logger.debug("Removing exhaustion", condition.levelId);
         await actor.update({ "system.attributes.exhaustion": 0 });
       }
     }
     for (const condition of conditionStates.filter((c) => c.needsAdd)) {
-      console.warn(`adding ${condition.label}`, { condition });
+      logger.debug(`adding ${condition.label}`, { condition });
       const effect = await ActiveEffect.implementation.fromStatusEffect(condition.foundry);
-      console.warn("effect", effect)
-      // eslint-disable-next-line no-await-in-loop
-      await ActiveEffect.implementation.create(effect, { parent: actor.document, keepId: true });
+      effect.updateSource({ "flags.dnd5e.exhaustionLevel": condition.levelId });
+      const effectData = effect.toObject();
+      // console.warn("effect", {effect, effectData});
+      // await ActiveEffect.implementation.create(effectData, { parent: actor.document, keepId: true });
+      await actor.createEmbeddedDocuments("ActiveEffect", [effectData], { keepId: true });
       if (condition.foundry === "exhaustion") {
-        // eslint-disable-next-line no-await-in-loop
+        logger.debug("Updating actor exhaustion", condition.levelId);
         await actor.update({ "system.attributes.exhaustion": condition.levelId });
       }
     }
