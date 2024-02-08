@@ -46,7 +46,7 @@ game.modules.get("ddb-importer").api.resetProxy();
 
 ## I want to use your macros/effects/etc but don't use DDB
 
-You can apply the effects to existing actors/items using the following commands:
+You can apply the effects to existing actors/items using the following commands. This works best on spells, but some effect generation require spell descriptions, and for certain data (like damage) to already be on the spell:
 
 Actor:
 ```javascript
