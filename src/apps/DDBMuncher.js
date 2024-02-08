@@ -246,6 +246,7 @@ export default class DDBMuncher extends Application {
     try {
       logger.info("Munching monsters!");
       // await DDBMuncher.generateCompendiumFolders("monsters");
+      await importCacheLoad();
       const monsterFactory = new DDBMonsterFactory({ munchNote: DDBMuncher.munchNote });
       const result = await monsterFactory.processIntoCompendium();
       await DDBMuncher.cleanupCompendiumFolders("monsters");
@@ -277,6 +278,7 @@ export default class DDBMuncher extends Application {
       if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects")) {
         await DDBMacros.createWorldMacros("spells");
       }
+      await importCacheLoad();
       await parseSpells();
       await DDBMuncher.cleanupCompendiumFolders("spells");
       DDBMuncher.munchNote(`Finished importing spells!`, true);
@@ -311,6 +313,7 @@ export default class DDBMuncher extends Application {
     try {
       logger.info("Munching items!");
       // await DDBMuncher.generateCompendiumFolders("items");
+      await importCacheLoad();
       await parseItems();
       await DDBMuncher.cleanupCompendiumFolders("items");
       DDBMuncher.munchNote(`Finished importing items!`, true);
@@ -325,6 +328,7 @@ export default class DDBMuncher extends Application {
   static async parseRaces() {
     try {
       logger.info("Munching races!");
+      await importCacheLoad();
       const result = await parseRaces();
       DDBMuncher.munchNote(`Finished importing ${result.length} races and features!`, true);
       DDBMuncher.munchNote("");
@@ -338,6 +342,7 @@ export default class DDBMuncher extends Application {
   static async parseFeats() {
     try {
       logger.info("Munching feats!");
+      await importCacheLoad();
       const result = await parseFeats();
       DDBMuncher.munchNote(`Finished importing ${result.length} feats!`, true);
       DDBMuncher.munchNote("");
@@ -351,6 +356,7 @@ export default class DDBMuncher extends Application {
   static async parseBackgrounds() {
     try {
       logger.info("Munching backgrounds!");
+      await importCacheLoad();
       const result = await parseBackgrounds();
       DDBMuncher.munchNote(`Finished importing ${result.length} backgrounds!`, true);
       DDBMuncher.munchNote("");
@@ -364,6 +370,7 @@ export default class DDBMuncher extends Application {
   static async parseClasses() {
     try {
       logger.info("Munching classes!");
+      await importCacheLoad();
       const result = await parseClasses();
       DDBMuncher.munchNote(`Finished importing ${result.length} classes and features!`, true);
       DDBMuncher.munchNote("");

@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Refactor reference linker to prevent things like the `Cone` linking happening before spell linking breaking things like Cone of Cold.
+
 # 4.0.4
 
 - Conditions are applied correctly when importing and updating a character.

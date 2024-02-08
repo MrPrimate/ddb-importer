@@ -1,5 +1,4 @@
 import DICTIONARY from "../../dictionary.js";
-import DDBCharacter from "../DDBCharacter.js";
 import logger from "../../logger.js";
 import { getUses, getRechargeFormula } from "./common.js";
 
@@ -372,22 +371,3 @@ export function parseMagicItem(item, data, itemSpells, isCompendiumItem = false)
 
   return item;
 }
-
-
-DDBCharacter.prototype.replaceSpellLinks = function replaceSpellLinks(document) {
-  const spellRegexReplacer = (match, prefix, spellName, postfix) => {
-    const cMatch = this.spellCompendium.index.find((f) => f.name.toLowerCase() === spellName.toLowerCase());
-    const replacedSpell = cMatch ? `@UUID[${cMatch.uuid}]` : spellName;
-    // console.warn("match", { match, document, prefix, spellName, postfix, compendium: this.spellCompendium.index, cMatch, replacedSpell });
-    return `${prefix}${replacedSpell}${postfix}`;
-  };
-
-  // easiest, e.g.wand of fireballs
-  const simpleSpellRegex = /(<strong>)([\w\s]*?)(<\/strong>\s*spell)/gi;
-  document.system.description.value = `${document.system.description.value}`.replaceAll(simpleSpellRegex, spellRegexReplacer);
-  // <strong>cone of cold</strong> (5 charges)
-  const chargeSpellRegex = /(<strong>)([\w\s]*?)(<\/strong>\s*\(\d* charge)/gi;
-  document.system.description.value = `${document.system.description.value}`.replaceAll(chargeSpellRegex, spellRegexReplacer);
-
-  return document;
-};

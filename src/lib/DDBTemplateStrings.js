@@ -385,16 +385,16 @@ function replaceTag(match, p1, p2, p3, offset, string) {
   const lowerCaseTag = utils.normalizeString(strippedP2);
 
   const types = [
+    CONFIG.DND5E.rules,
     CONFIG.DND5E.conditionTypes,
     CONFIG.DND5E.skills,
     CONFIG.DND5E.abilities,
     CONFIG.DND5E.creatureTypes,
     CONFIG.DND5E.damageTypes,
-    CONFIG.DND5E.areaTargetTypes,
     CONFIG.DND5E.spellComponents,
     CONFIG.DND5E.spellTags,
     CONFIG.DND5E.spellSchools,
-    CONFIG.DND5E.rules,
+    CONFIG.DND5E.areaTargetTypes,
   ];
 
   let result = p2;
@@ -411,16 +411,16 @@ function replaceTag(match, p1, p2, p3, offset, string) {
 
 function parseSRDReferences(text) {
   const types = [
+    CONFIG.DND5E.rules,
     CONFIG.DND5E.conditionTypes,
     CONFIG.DND5E.skills,
     CONFIG.DND5E.abilities,
     CONFIG.DND5E.creatureTypes,
     CONFIG.DND5E.damageTypes,
-    CONFIG.DND5E.areaTargetTypes,
     CONFIG.DND5E.spellComponents,
     CONFIG.DND5E.spellTags,
     CONFIG.DND5E.spellSchools,
-    CONFIG.DND5E.rules,
+    CONFIG.DND5E.areaTargetTypes,
   ];
 
   for (const type of types) {
@@ -436,8 +436,42 @@ function parseSRDReferences(text) {
   return text;
 }
 
+function parseHardReferenceTag(type, text) {
+  const index = hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
+    ? getProperty(CONFIG.DDBI, `compendium.index.${type}`)
+    : undefined;
+  if (!index) {
+    logger.warn(`Unable to load compendium ${type}s`);
+    return text;
+  }
+
+  const referenceRegexReplacer = (match, referenceName, postfix) => {
+    const cMatch = index.find((f) => f.name.toLowerCase() === referenceName.toLowerCase());
+    const replacedText = cMatch ? `@UUID[${cMatch.uuid}]` : referenceName;
+    // console.warn("match", { match, document, prefix, spellName, postfix, compendium: this.spellCompendium.index, cMatch, replacedSpell });
+    return `${replacedText}${postfix}`;
+  };
+
+
+  if (["spell"].includes(type.toLowerCase())) {
+    // easiest, e.g.wand of fireballs
+    const simpleStrongRegex = /(?:<strong>)([\w\s]*?)(?:<\/strong>)(\s*spell)/gi;
+    text = `${text}`.replaceAll(simpleStrongRegex, referenceRegexReplacer);
+    // <strong>cone of cold</strong> (5 charges)
+    const chargeSpellRegex = /(?:<strong>)([\w\s]*?)(?:<\/strong>)(\s*\(\d* charge)/gi;
+    text = `${text}`.replaceAll(chargeSpellRegex, referenceRegexReplacer);
+  } else if (["item", "magicitem"].includes(type)) {
+    // easiest, e.g.wand of fireballs
+    const simpleStrongRegex = /(?:<strong>)([\w\s]*?)(?:<\/strong>)(\s*item)/gi;
+    text = `${text}`.replaceAll(simpleStrongRegex, referenceRegexReplacer);
+  }
+
+  return text;
+}
+
 export function parseTags(text) {
-  // if (!CONFIG.DDBI.SRD_LOOKUP.index || !CONFIG.DDBI.SRD_LOOKUP.lookups) return text;
+  text = parseHardReferenceTag("spell", text);
+  text = parseHardReferenceTag("item", text);
   const tagRegEx = /\[([^\]]+)]([^[]+)\[\/([^\]]+)]/g;
   const matches = text.match(tagRegEx);
   if (matches) {
