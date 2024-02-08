@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Refactor reference linker to prevent things like the `Cone` linking happening before spell linking breaking things like Cone of Cold.
+- Some races like Loxodon added Trunk as a weapon, the generation of this feature failed in the v3.0.x system resulting in bad character imports.
 
 # 4.0.4
 
