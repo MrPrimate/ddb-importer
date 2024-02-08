@@ -447,7 +447,7 @@ function parseHardReferenceTag(type, text) {
 
   const referenceRegexReplacer = (match, referenceName, postfix) => {
     const cMatch = index.find((f) => f.name.toLowerCase() === referenceName.toLowerCase());
-    const replacedText = cMatch ? `@UUID[${cMatch.uuid}]` : referenceName;
+    const replacedText = cMatch ? `@UUID[${cMatch.uuid}]{${referenceName}}` : referenceName;
     // console.warn("match", { match, document, prefix, spellName, postfix, compendium: this.spellCompendium.index, cMatch, replacedSpell });
     return `${replacedText}${postfix}`;
   };
