@@ -135,6 +135,11 @@ export default class DDBChoiceFeature extends DDBFeature {
         rawCharacter: ddbFeature.rawCharacter,
       });
       choiceFeature.build(choice);
+      logger.debug(`DDBChoiceFeature.buildChoiceFeatures: ${choiceFeature.ddbDefinition.name}`, {
+        choiceFeature,
+        choice,
+        this: this,
+      });
       features.push(choiceFeature.data);
     });
     return features;

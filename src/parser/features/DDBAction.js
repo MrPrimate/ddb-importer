@@ -103,8 +103,8 @@ export default class DDBAction extends DDBBaseFeature {
     }
   }
 
-  _generateSystemType() {
-    if (this.documentType === "weapon") return;
+  _generateSystemType(typeNudge = null) {
+    // if (this.documentType === "weapon") return;
     if (this.ddbData.character.actions.class.some((a) =>
       a.name === this.ddbDefinition.name
       || (hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
@@ -120,6 +120,9 @@ export default class DDBAction extends DDBBaseFeature {
       || (hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
     )) {
       this.data.system.type.value = "feat";
+    } else if (typeNudge) {
+      this.data.system.type.value = typeNudge;
+      setProperty(this.data, "flags.ddbimporter.type", typeNudge);
     }
   }
 
@@ -368,13 +371,15 @@ export default class DDBAction extends DDBBaseFeature {
   }
 
   _generateWeaponType() {
-    const entry = DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === this.ddbDefinition.attackSubtype);
-    const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === this.ddbDefinition.attackTypeRange);
-    this.data.system.type.value = entry
-      ? entry.value
-      : range
-        ? `simple${range.value}`
-        : "simpleM";
+    if (this.documentType === "weapon") {
+      const entry = DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === this.ddbDefinition.attackSubtype);
+      const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === this.ddbDefinition.attackTypeRange);
+      this.data.system.type.value = entry
+        ? entry.value
+        : range
+          ? `simple${range.value}`
+          : "simpleM";
+    }
   }
 
   _generateProperties() {

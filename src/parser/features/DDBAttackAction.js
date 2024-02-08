@@ -31,7 +31,7 @@ export default class DDBAttackAction extends DDBAction {
       this._generateLimitedUse();
       this._generateResourceConsumption();
       this._generateProperties();
-      this._generateSystemType();
+      this._generateSystemType(this.type);
       this._generateSystemSubType();
 
       if (["line", "cone"].includes(this.data.system.target?.type)) {

@@ -84,6 +84,11 @@ export default class DDBFeatures {
     });
 
     ddbFeature.build();
+    logger.debug(`DDBFeatures.getFeaturesFromDefinition: ${ddbFeature.ddbDefinition.name}`, {
+      ddbFeature,
+      featDefinition,
+      this: this,
+    });
     // only background features get advancements for now
     if (type === "background") {
       await ddbFeature.generateAdvancements();

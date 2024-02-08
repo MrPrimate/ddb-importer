@@ -99,6 +99,7 @@ export default class DDBFeature extends DDBBaseFeature {
       ddbDefinition: strikeMock,
       rawCharacter: this.rawCharacter,
       type: this.type,
+      documentType: "weapon",
     });
     ddbAttackAction.build();
 

@@ -46,7 +46,7 @@ export default class DDBBaseFeature {
     }
   }
 
-  constructor({ ddbData, ddbDefinition, type, source, rawCharacter = null } = {}) {
+  constructor({ ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbFeature = ddbDefinition;
@@ -55,7 +55,7 @@ export default class DDBBaseFeature {
     this.type = type;
     this.source = source;
     this.isAction = false;
-    this.documentType = "feat";
+    this.documentType = documentType;
     this.tagType = "other";
     this.data = {};
     this._init();
