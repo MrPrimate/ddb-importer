@@ -61,7 +61,7 @@ function guessTableName(parentName, htmlDocument, tableNum) {
   }
 
   if (sibling) {
-    return sibling.textContent;
+    return sibling.textContent.split(".")[0];
   } else {
     logger.warn(`No table name identified for ${parentName}`);
     return "";

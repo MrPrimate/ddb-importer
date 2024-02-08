@@ -1,3 +1,7 @@
+# Next Up
+
+- A fix for the merge of Kgar's tidy sheets in to "Official" Tidy sheets.
+
 # 4.0.5
 
 - Refactor reference linker to prevent things like the `Cone` linking happening before spell linking breaking things like Cone of Cold.

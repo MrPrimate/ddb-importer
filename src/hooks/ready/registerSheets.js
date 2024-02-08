@@ -104,7 +104,7 @@ function getNPCButton(document) {
 }
 
 export function tidySheets() {
-  const api = game.modules.get('tidy5e-sheet-kgar')?.api;
+  const api = game.modules.get('tidy5e-sheet-kgar')?.api ?? game.modules.get('tidy5e-sheet')?.api;
   if (!api) return;
 
   api.registerCharacterContent(
