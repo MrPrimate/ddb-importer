@@ -1317,8 +1317,6 @@ export default class DDBCharacterManager extends FormApplication {
         setProperty(this.result.character, "flags.midi-qol.onUseMacroName", "[postActiveEffects]");
       }
 
-      this.actor.system.favourites = this.actorOriginal.system.favourites ?? [];
-
       // basic import
       this.showCurrentTask("Updating core character information");
       logger.debug("Character data importing: ", this.result.character);
@@ -1344,6 +1342,11 @@ export default class DDBCharacterManager extends FormApplication {
           return { _id: ae._id, disabled: !ae.disabled };
         });
         await this.actor.updateEmbeddedDocuments("ActiveEffect", updatedEffects);
+      }
+
+      const favorites = deepClone(this.actorOriginal.system.favorites ?? []);
+      if (favorites.length > 0) {
+        await this.actor.update({ system: { favorites } });
       }
 
       await this.ddbCharacter.autoLinkResources();
