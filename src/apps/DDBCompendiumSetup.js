@@ -63,6 +63,7 @@ export default class DDBCompendiumSetup extends FormApplication {
       name: comp.title,
       current: game.settings.get(SETTINGS.MODULE_ID, comp.setting),
       compendiums: DDBCompendiumSetup.getCompendiumLookups(comp.type, game.settings.get(SETTINGS.MODULE_ID, comp.setting)),
+      auto: comp.auto,
     }));
 
     return {
