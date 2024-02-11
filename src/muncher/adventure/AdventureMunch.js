@@ -6,6 +6,7 @@ import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import SETTINGS from "../../settings.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import utils from "../../lib/utils.js";
+import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
 
 export default class AdventureMunch extends FormApplication {
 
@@ -68,10 +69,22 @@ export default class AdventureMunch extends FormApplication {
     this.importToAdventureCompendium = false;
     this.lookups = {
       folders: {},
+      compendiumFolders: {},
       import: {},
       actors: {},
       sceneTokens: {},
       adventureConfig: {},
+    };
+
+    this.addToCompendiums = true;
+    this.compendiums = {
+      scene: null,
+      journal: null,
+      actor: null,
+      item: null,
+      table: null,
+      playlist: null,
+      macro: null,
     };
   }
 
@@ -305,7 +318,8 @@ export default class AdventureMunch extends FormApplication {
    * Create missing folder structures in the world
    */
   async _createFolders() {
-    this.lookups.folders["null"] = null;
+    this.lookups.folders = {};
+    this.lookups.compendiumFolders = {};
 
     // the folder list could be out of order, we need to create all folders with parent null first
     const firstLevelFolders = this.folders.filter((folder) => folder.parent === null);
@@ -384,10 +398,6 @@ export default class AdventureMunch extends FormApplication {
     if (AdventureMunchHelpers.folderExists("macro", this.zip)) {
       logger.debug(`${this.adventure.name} - Loading macro`);
       await this._importFile("macro");
-    }
-    if (AdventureMunchHelpers.folderExists("compendium", this.zip)) {
-      logger.debug(`${this.adventure.name} - Loading compendium`);
-      await this._importCompendium();
     }
   }
 
@@ -1040,11 +1050,11 @@ export default class AdventureMunch extends FormApplication {
     const spellData = await AdventureMunchHelpers.getDocuments("spells", (this.adventure.required.spells ?? []), {}, true);
 
     logger.debug("Writing out Journals");
-    await this._importFile("journal", [], true);
+    await this._importFile("journal");
     logger.debug("Cartographer is working on Scenes");
-    await this._importFile("scene", [], true);
+    await this._importFile("scene");
     logger.debug("Performing some table calculations");
-    await this._importFile("table", [], true);
+    await this._importFile("table");
     // await this._importFile("Macro", [], true);
     // await this._importFile("Card", [], true);
     // await this._importFile("Playlist", [], true);
@@ -1126,71 +1136,6 @@ export default class AdventureMunch extends FormApplication {
     }
   }
 
-  async _importCompendium(folderName) {
-    let totalCount = 0;
-    let currentCount = 0;
-    const dataFiles = AdventureMunchHelpers.getFiles(folderName, this.zip);
-    logger.info(`Importing ${this.adventure.name} - Compendium (${dataFiles.length} items)`);
-    totalCount = dataFiles.length;
-
-    await utils.asyncForEach(dataFiles, async (file) => {
-      const rawData = await this.zip.file(file.name).async("text");
-      const data = JSON.parse(rawData);
-
-      const pack = CompendiumHelper.createIfNotExists({ type: data.info.entity, label: data.info.label }).compendium;
-      await pack.getIndex();
-
-      totalCount += data.items.length;
-      await utils.asyncForEach(data.items, async (item) => {
-        let obj;
-        let entry = pack.index.find((e) => e.name === item.name);
-
-        // eslint-disable-next-line require-atomic-updates
-        item = await this._loadDocumentAssets(item, data.info.entity, true);
-
-        switch (data.info.entity) {
-          case "Adventure":
-            obj = this._importAdventureCompendium(item);
-            break;
-          case "Item":
-            obj = new Item(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
-            break;
-          case "Actor":
-            obj = new Actor(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
-            break;
-          case "Scene":
-            obj = new Scene(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
-            break;
-          case "JournalEntry":
-            obj = new JournalEntry(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
-            break;
-          case "Macro":
-            obj = new Macro(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
-            break;
-          case "RollTable":
-            obj = new RollTable(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
-            break;
-          case "Playlist":
-            obj = new Playlist(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
-            break;
-          // no default
-        }
-
-        if (!entry && obj && data.info.entity !== "Adventure") {
-          const compendiumItem = await pack.importDocument(obj, { keepId: true, keepEmbeddedIds: true });
-
-          if (JSON.stringify(item).match(this.pattern) || JSON.stringify(item).match(this.altpattern)) {
-            this._itemsToRevisit.push(`Compendium.${pack.metadata.package}.${pack.metadata.name}.${compendiumItem.id}`);
-          }
-        }
-        currentCount += 1;
-        AdventureMunch._updateProgress(totalCount, currentCount, "Compendium");
-      });
-      currentCount += 1;
-      AdventureMunch._updateProgress(totalCount, currentCount, "Compendium");
-    });
-  }
-
   // import a scene file
   async _importRenderedSceneFile(data, overwriteEntity) {
     if (!AdventureMunchHelpers.findEntityByImportId("scenes", data._id) || overwriteEntity || this.importToAdventureCompendium) {
@@ -1249,7 +1194,7 @@ export default class AdventureMunch extends FormApplication {
   }
 
   // eslint-disable-next-line complexity
-  async _importRenderedFile(typeName, data, needRevisit, overwriteIds) {
+  async _importRenderedFile(typeName, data, needRevisit, overwriteIds, packName = null) {
     const overwriteEntity = overwriteIds.includes(data._id);
     const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
     switch (typeName) {
@@ -1277,6 +1222,11 @@ export default class AdventureMunch extends FormApplication {
           let journal = await JournalEntry.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
           if (this.importToAdventureCompendium) this.temporary.journals.push(journal);
+          if (this.addToCompendiums) {
+            const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
+            await createDDBCompendium(compData);
+            // TO DO, import journal entries into compendium
+          }
         }
         break;
       case "RollTable":
@@ -1284,6 +1234,9 @@ export default class AdventureMunch extends FormApplication {
           let rolltable = await RollTable.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
           if (this.importToAdventureCompendium) this.temporary.tables.push(rolltable);
+          if (this.addToCompendiums) {
+            // TO DO, import rolltables into compendium
+          }
         }
         break;
       case "Playlist":
@@ -1370,7 +1323,7 @@ export default class AdventureMunch extends FormApplication {
                       dataType = formData[i].value;
                     }
                   }
-                  resolve(this._importFile(dataType, ids));
+                  resolve(this._importFile(dataType, { overwriteIds: ids }));
                 },
               },
             },
@@ -1436,7 +1389,7 @@ export default class AdventureMunch extends FormApplication {
     return data;
   }
 
-  async _importFile(type, overwriteIds = []) {
+  async _importFile(type, { overwriteIds = [], packName = null } = {}) {
     let totalCount = 0;
     let currentCount = 0;
 
@@ -1485,7 +1438,7 @@ export default class AdventureMunch extends FormApplication {
         }
       }
 
-      await this._importRenderedFile(importType, data, needRevisit, overwriteIds);
+      await this._importRenderedFile(importType, data, needRevisit, overwriteIds, packName);
 
       currentCount += 1;
       AdventureMunch._updateProgress(totalCount, currentCount, importType);
