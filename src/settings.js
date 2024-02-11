@@ -945,6 +945,11 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "adventure-policy-add-to-compendiums": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
         },
         MUNCH: {
           "munching-policy-update-existing": {

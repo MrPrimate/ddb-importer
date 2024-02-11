@@ -40,12 +40,16 @@ const CompendiumHelper = {
     { type: "equipment", compendium: "entity-item-compendium" },
     { type: "table", compendium: "entity-table-compendium" },
     { type: "tables", compendium: "entity-table-compendium" },
+    { type: "RollTable", compendium: "entity-table-compendium" },
     { type: "background", compendium: "entity-background-compendium" },
     { type: "backgrounds", compendium: "entity-background-compendium" },
     { type: "vehicle", compendium: "entity-vehicle-compendium" },
     { type: "vehicles", compendium: "entity-vehicle-compendium" },
     { type: "adventure", compendium: "entity-adventure-compendium" },
     { type: "adventures", compendium: "entity-adventure-compendium" },
+    { type: "journal", compendium: "entity-journal-compendium" },
+    { type: "journals", compendium: "entity-journal-compendium" },
+    { type: "JournalEntry", compendium: "entity-journal-compendium" },
   ],
 
   getCompendiumLabel: (type) => {

@@ -76,7 +76,7 @@ export default class AdventureMunch extends FormApplication {
       adventureConfig: {},
     };
 
-    this.addToCompendiums = true;
+    this.addToCompendiums = false;
     this.compendiums = {
       scene: null,
       journal: null,
@@ -268,6 +268,7 @@ export default class AdventureMunch extends FormApplication {
       allScenes: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-scenes"),
       allMonsters: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world"),
       journalWorldActors: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors"),
+      addToCompendiums: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums"),
       files,
       cssClass: "ddb-importer-window",
     };
@@ -314,6 +315,44 @@ export default class AdventureMunch extends FormApplication {
     });
   }
 
+  async importCompendiumFolder(folders, folderList) {
+    await utils.asyncForEach(folders, async (f) => {
+      let folderData = f;
+      const supportedFolders = ["JournalEntry", "RollTable"];
+      if (supportedFolders.includes(folderData.type)) {
+        const pack = CompendiumHelper.getCompendiumType(folderData.type);
+        let newFolder = pack.folders.find((folder) =>
+          (folder._id === folderData._id || folder.flags.importid === folderData._id)
+          && folder.type === folderData.type
+        );
+
+        if (!newFolder) {
+          if (folderData.parent === null) {
+            folderData.parent = this.lookups.folders[folderData.type];
+          } else {
+            folderData.parent = this.lookups.folders[folderData.parent];
+          }
+
+          // eslint-disable-next-line require-atomic-updates
+          newFolder = await Folder.create(folderData, { keepId: true, pack: pack.metadata.id });
+          logger.debug(`Created new compendium folder ${newFolder._id} with data:`, folderData, newFolder);
+        }
+
+        // eslint-disable-next-line require-atomic-updates
+        this.lookups.folders[folderData.flags.importid] = newFolder._id;
+
+        let childFolders = folderList.filter((folder) => {
+          return folder.parent === folderData._id;
+        });
+
+        if (childFolders.length > 0) {
+          await this.importCompendiumFolder(childFolders, folderList);
+        }
+
+      }
+    });
+  }
+
   /**
    * Create missing folder structures in the world
    */
@@ -324,6 +363,9 @@ export default class AdventureMunch extends FormApplication {
     // the folder list could be out of order, we need to create all folders with parent null first
     const firstLevelFolders = this.folders.filter((folder) => folder.parent === null);
     await this.importFolder(firstLevelFolders, this.folders);
+    if (this.addToCompendiums) {
+      await this.importCompendiumFolder(firstLevelFolders, this.folders);
+    }
   }
 
   /** @override */
@@ -541,43 +583,6 @@ export default class AdventureMunch extends FormApplication {
     return tokenResults;
   }
 
-  async _revisitSceneV10(scene) {
-    const deadTokenIds = [];
-    const tokenUpdates = [];
-
-    await utils.asyncForEach(scene.tokens, async (token) => {
-      if (token.actorId) {
-        const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
-        delete sceneToken.scale;
-        const worldActor = this._getWorldActor(token.actorId);
-        if (worldActor) {
-          const updateData = await AdventureMunch._getTokenUpdateDataV10(worldActor, sceneToken, token);
-          tokenUpdates.push(updateData);
-        } else {
-          deadTokenIds.push(token._id);
-        }
-      } else {
-        deadTokenIds.push(token._id);
-      }
-    });
-
-    logger.debug(`Updating ${document.name} tokens with updates`, {
-      tokenUpdates: deepClone(tokenUpdates),
-    });
-
-    if (this.importToAdventureCompendium) {
-      await document.updateSource({ tokens: tokenUpdates }, { recursive: false });
-    } else {
-      await document.updateEmbeddedDocuments("Token", tokenUpdates, { keepId: true, keepEmbeddedIds: true });
-    }
-
-    // remove a token from the scene if we have not been able to link it
-    if (!this.importToAdventureCompendium && deadTokenIds.length > 0) {
-      logger.warn(`Removing ${scene.name} tokens with no world actors`, deadTokenIds);
-      await document.deleteEmbeddedDocuments("Token", deadTokenIds);
-    }
-  }
-
   async _revisitScene(document) {
     let updatedData = {};
     const scene = duplicate(document);
@@ -767,6 +772,13 @@ export default class AdventureMunch extends FormApplication {
         game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world", this.allMonsters);
         this.journalWorldActors = document.querySelector(`[name="journal-world-actors"]`).checked;
         game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors", this.journalWorldActors);
+        this.addToCompendiums = document.querySelector(`[name="add-to-compendiums"]`).checked;
+        game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums", this.addToCompendiums);
+
+        if (this.addToCompendiums) {
+          const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
+          await createDDBCompendium(compData);
+        }
 
         await this._loadZip();
         this._unpackZip();
@@ -1223,8 +1235,6 @@ export default class AdventureMunch extends FormApplication {
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
           if (this.importToAdventureCompendium) this.temporary.journals.push(journal);
           if (this.addToCompendiums) {
-            const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
-            await createDDBCompendium(compData);
             // TO DO, import journal entries into compendium
           }
         }
