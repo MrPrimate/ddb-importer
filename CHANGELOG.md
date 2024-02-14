@@ -2,6 +2,7 @@
 
 - A fix for the merge of Kgar's tidy sheets in to "Official" Tidy sheets.
 - Character sheet favourites are preserved.
+- Some customer magic items would not import if rest type was set to dawn rest.
 
 # 4.0.5
 

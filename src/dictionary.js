@@ -51,6 +51,7 @@ const DICTIONARY = {
       { id: 2, value: "r5" },
       { id: "LongRest", value: "r5" },
       { id: "Dawn", value: "r2" },
+      { id: "DawnRest", value: "r2" },
       { id: "Dusk", value: "r3" },
       { id: "Sunset", value: "r3" },
       { id: "Consumable", value: "" },
