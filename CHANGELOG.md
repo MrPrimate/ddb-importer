@@ -1,4 +1,4 @@
-# Next Up
+# 4.0.6
 
 - A fix for the merge of Kgar's tidy sheets in to "Official" Tidy sheets.
 - Character sheet favourites are preserved.
