@@ -80,16 +80,14 @@ Below are some recommended modules. If you munch without these it's likely you w
 
 I'd strongly recommend installing:
 
-- [Items with Spells DnD5e](https://foundryvtt.com/packages/items-with-spells-5e) for attaching spells to magic items
-- [DAE](https://foundryvtt.com/packages/dae/) for skill bonuses and basic effects
+- [Magic Items 2](https://github.com/PwQt/magic-items-2) for attaching spells to magic items
 - [Link Item and Resource DnD5e module](https://foundryvtt.com/packages/link-item-resource-5e ) for good resource linking
 - [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects) for proper condition management
 - [Arbron’s Summoning](https://foundryvtt.com/packages/arbron-summoner) will allow the creation and use of summoned actors for spells and features in Tasha's
-
-In v11:
 - [Vision/Detection Modes 5e](https://foundryvtt.com/packages/vision-5e) adds those lovely missing vision modes for 5e.
 
 If you want to add spell effects, and high levels of automation you will need:
+- [DAE](https://foundryvtt.com/packages/dae/) for skill bonuses and basic effects
 - [Midi-QOL](https://foundryvtt.com/packages/midi-qol/)
 - [About Time](https://foundryvtt.com/packages/about-time)
 - [Times Up](https://foundryvtt.com/packages/times-up/).

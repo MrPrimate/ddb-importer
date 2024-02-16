@@ -242,7 +242,7 @@ function parseMagicItemsModule(data, itemSpells, isCompendiumItem) {
         if (data.limitedUse.resetType) {
           magicItem.rechargeUnit = DICTIONARY.magicitems.rechargeUnits.find(
             (reset) => reset.id == data.limitedUse.resetType
-          ).value;
+          )?.value ?? "";
         }
         magicItem.rechargeable = true;
       }
@@ -290,7 +290,9 @@ function parseItemsWithSpellsModule(item, data, itemSpells, isCompendiumItem) {
     const spellData = buildMagicItemSpell(chargeType, itemSpell);
 
     const resetType = data.limitedUse?.resetType
-      ? DICTIONARY.magicitems.rechargeUnits.find((reset) => reset.id == data.limitedUse.resetType).value
+      ? DICTIONARY.resets.find((reset) =>
+        reset.id == data.limitedUse.resetType
+      )?.value ?? undefined
       : undefined;
 
     const uses = isPerSpell
