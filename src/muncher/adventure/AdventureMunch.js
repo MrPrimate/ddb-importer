@@ -83,9 +83,10 @@ export default class AdventureMunch extends FormApplication {
       actor: null,
       item: null,
       table: null,
-      playlist: null,
-      macro: null,
+      // playlist: null,
+      // macro: null,
     };
+    this._compendiumItemsToRevisit = [];
   }
 
   /** @override */
@@ -778,6 +779,11 @@ export default class AdventureMunch extends FormApplication {
         if (this.addToCompendiums) {
           const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
           await createDDBCompendium(compData);
+          for (const key of Object.keys(this.compendiums)) {
+            this.compendiums[key] = CompendiumHelper.getCompendiumType(this.compendiums[key]);
+            // eslint-disable-next-line no-await-in-loop
+            await this.compendiums[key].getIndex();
+          }
         }
 
         await this._loadZip();
@@ -1235,7 +1241,7 @@ export default class AdventureMunch extends FormApplication {
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
           if (this.importToAdventureCompendium) this.temporary.journals.push(journal);
           if (this.addToCompendiums) {
-            // TO DO, import journal entries into compendium
+            // TODO, import journal entries into compendium
           }
         }
         break;
@@ -1245,7 +1251,7 @@ export default class AdventureMunch extends FormApplication {
           if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
           if (this.importToAdventureCompendium) this.temporary.tables.push(rolltable);
           if (this.addToCompendiums) {
-            // TO DO, import rolltables into compendium
+            // TODO, import rolltables into compendium
           }
         }
         break;
