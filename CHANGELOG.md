@@ -1,3 +1,7 @@
+# 4.0.7
+
+- New Adventure Import Option: Import Journals and Tables to Compendiums. A new option will import Journals and Tables into Compendiums for you on impoty. Useful if you sayy, want the PHB accessible, but not in your world.
+
 # 4.0.6
 
 - A fix for the merge of Kgar's tidy sheets in to "Official" Tidy sheets.
