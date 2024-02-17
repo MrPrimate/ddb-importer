@@ -20,7 +20,6 @@ export default class AdventureMunchHelpers {
     return game.data[type].find((item) => item._id === id);
   }
 
-
   /**
    * Async replace for all matching patterns
    *

@@ -78,13 +78,8 @@ export default class AdventureMunch extends FormApplication {
 
     this.addToCompendiums = false;
     this.compendiums = {
-      scene: null,
       journal: null,
-      actor: null,
-      item: null,
       table: null,
-      // playlist: null,
-      // macro: null,
     };
     this._compendiumItemsToRevisit = [];
   }
@@ -102,6 +97,18 @@ export default class AdventureMunch extends FormApplication {
       template: "modules/ddb-importer/handlebars/adventure/import.hbs",
       width: 350,
     });
+  }
+
+  findCompendiumEntityByImportId(type, id) {
+    return this.compendiums[type].index.find((item) => item._id === id);
+  }
+
+  replaceUUIDSForCompendium(text) {
+    const journalRegex = /@UUID\[JournalEntry/g;
+    text = text.replaceAll(journalRegex, `@UUID[Compendium.${this.compendiums.journal.metadata.id}.JournalEntry`);
+    const tableRegex = /@UUID\[RollTable/g;
+    text = text.replaceAll(tableRegex, `@UUID[Compendium.${this.compendiums.table.metadata.id}.RollTable`);
+    return text;
   }
 
   /**
@@ -780,7 +787,7 @@ export default class AdventureMunch extends FormApplication {
           const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
           await createDDBCompendium(compData);
           for (const key of Object.keys(this.compendiums)) {
-            this.compendiums[key] = CompendiumHelper.getCompendiumType(this.compendiums[key]);
+            this.compendiums[key] = CompendiumHelper.getCompendiumType(key);
             // eslint-disable-next-line no-await-in-loop
             await this.compendiums[key].getIndex();
           }
@@ -1212,7 +1219,7 @@ export default class AdventureMunch extends FormApplication {
   }
 
   // eslint-disable-next-line complexity
-  async _importRenderedFile(typeName, data, needRevisit, overwriteIds, packName = null) {
+  async _importRenderedFile(typeName, data, needRevisit, overwriteIds) {
     const overwriteEntity = overwriteIds.includes(data._id);
     const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
     switch (typeName) {
@@ -1240,9 +1247,16 @@ export default class AdventureMunch extends FormApplication {
           let journal = await JournalEntry.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
           if (this.importToAdventureCompendium) this.temporary.journals.push(journal);
-          if (this.addToCompendiums) {
-            // TODO, import journal entries into compendium
-          }
+        }
+        if (this.addToCompendiums && !this.findCompendiumEntityByImportId("journal", data._id)) {
+          const cOptions = mergeObject(options, { temporary: false, pack: this.compendiums.journal.metadata.id });
+          data.pages.forEach((page) => {
+            if (page.type == "text") {
+              page.text.content = this.replaceUUIDSForCompendium(page.text.content);
+            }
+          });
+          let cJournal = await JournalEntry.create(data, cOptions);
+          this._compendiumItemsToRevisit.push(cJournal);
         }
         break;
       case "RollTable":
@@ -1250,9 +1264,11 @@ export default class AdventureMunch extends FormApplication {
           let rolltable = await RollTable.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
           if (this.importToAdventureCompendium) this.temporary.tables.push(rolltable);
-          if (this.addToCompendiums) {
-            // TODO, import rolltables into compendium
-          }
+        }
+        if (this.addToCompendiums && !this.findCompendiumEntityByImportId("table", data._id)) {
+          const cOptions = mergeObject(options, { temporary: false, pack: this.compendiums.table.metadata.id });
+          let cTable = await RollTable.create(data, cOptions);
+          this._compendiumItemsToRevisit.push(cTable);
         }
         break;
       case "Playlist":
@@ -1405,7 +1421,7 @@ export default class AdventureMunch extends FormApplication {
     return data;
   }
 
-  async _importFile(type, { overwriteIds = [], packName = null } = {}) {
+  async _importFile(type, { overwriteIds = [] } = {}) {
     let totalCount = 0;
     let currentCount = 0;
 
@@ -1454,7 +1470,7 @@ export default class AdventureMunch extends FormApplication {
         }
       }
 
-      await this._importRenderedFile(importType, data, needRevisit, overwriteIds, packName);
+      await this._importRenderedFile(importType, data, needRevisit, overwriteIds);
 
       currentCount += 1;
       AdventureMunch._updateProgress(totalCount, currentCount, importType);
