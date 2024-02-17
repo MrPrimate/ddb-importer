@@ -1,6 +1,8 @@
 # 4.0.7
 
-- New Adventure Import Option: Import Journals and Tables to Compendiums. A new option will import Journals and Tables into Compendiums for you on impoty. Useful if you sayy, want the PHB accessible, but not in your world.
+- New Adventure Import Option: Import Journals and Tables to Compendiums. A new option will import Journals and Tables into Compendiums for you on import. Useful if you say, want the PHB accessible, but not in your world.
+
+Before you rush to import all your books, I would urge you to wait a week or two as enhancements to Adventure Muncher are forthcoming to improve integration and references with the new 5e rules references.
 
 # 4.0.6
 
