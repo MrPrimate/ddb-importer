@@ -83,7 +83,7 @@ export default class DDBCharacter {
    * @param {String} url
    */
   static getCharacterId(url) {
-    const ddbNamePattern = /(?:https?:\/\/)?(?:www\.dndbeyond\.com|ddb\.ac)(?:\/profile\/.+)?\/characters\/(\d+)\/?/;
+    const ddbNamePattern = /(?:https?:\/\/)?(?:www\.)?(?:dndbeyond\.com|ddb\.ac)(?:\/profile\/.+)?\/characters\/(\d+)\/?/;
     const matches = url.match(ddbNamePattern);
     return matches ? matches[1] : null;
   }
