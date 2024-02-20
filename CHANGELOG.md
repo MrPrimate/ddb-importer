@@ -1,6 +1,8 @@
 # NEXT UP
 
 - Accept better parsing of DDB Character URLS.
+- Phantasmal Killer rolled damage on cast as well as turn end.
+- Weapons will not have the "Uses prompt" disabled by default.
 
 # 4.0.7
 

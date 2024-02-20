@@ -314,6 +314,10 @@ async function basicSpellEffects(document) {
       document = passWithoutTraceEffect(document);
       break;
     }
+    case "Phantasmal Killer": {
+      document = await phantasmalKillerEffect(document);
+      break;
+    }
     case "Protection from Poison": {
       document = protectionfromPoisonEffect(document);
       break;
@@ -569,10 +573,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Moonbeam": {
       document = await moonbeamEffect(document);
-      break;
-    }
-    case "Phantasmal Killer": {
-      document = phantasmalKillerEffect(document);
       break;
     }
     case "Polymorph": {
