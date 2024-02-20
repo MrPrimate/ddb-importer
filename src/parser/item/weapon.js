@@ -302,6 +302,8 @@ export default function parseWeapon(data, character, flags) {
 
   weapon.system.range = getRange(data, weapon.system.properties);
   weapon.system.uses = getUses(data);
+  // force weapons to always not use prompt
+  weapon.system.uses.prompt = false;
   weapon.system.ability = getAbility(weapon.system.properties, weapon.system.range);
   const mockAbility = weapon.system.ability === null
     ? weapon.system.properties.fin ? "dex" : "str"
