@@ -198,6 +198,10 @@ export async function fixFeatures(features) {
         feature.system.range = { value: null, units: "self", long: null };
         break;
       }
+      case "Hound of Ill Omen": {
+        feature.system.consume.amount = 3;
+        break;
+      }
       case "Intimidating Presence": {
         feature.system.duration = { value: 2, units: "turns" };
         feature.system.target.value = 1;
