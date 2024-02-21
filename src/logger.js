@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 import FileHelper from "./lib/FileHelper.js";
 
 const logger = {
@@ -139,9 +140,22 @@ const logger = {
 };
 export default logger;
 
+const getCircularReplacer = () => {
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+    }
+    // eslint-disable-next-line consistent-return
+    return value;
+  };
+};
 
 function downloadLog() {
-  FileHelper.download(JSON.stringify(CONFIG.debug.ddbimporter.log), `ddbimporter-log-data.json`, "application/json");
+  FileHelper.download(JSON.stringify(CONFIG.debug.ddbimporter.log, getCircularReplacer()), `ddbimporter-log-data.json`, "application/json");
   setProperty(CONFIG.debug, "ddbimporter.log", []);
 }
 
