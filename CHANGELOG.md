@@ -1,4 +1,4 @@
-# NEXT UP
+# 4.0.8
 
 - Accept better parsing of DDB Character URLS.
 - Phantasmal Killer rolled damage on cast as well as turn end.
