@@ -3,6 +3,7 @@
 - Accept better parsing of DDB Character URLS.
 - Phantasmal Killer rolled damage on cast as well as turn end.
 - Weapons will not have the "Uses prompt" disabled by default.
+- Hound of Ill Omen did not consume Sorcery Points.
 
 # 4.0.7
 

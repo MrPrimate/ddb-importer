@@ -264,7 +264,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
 const resourceFeatureLinkMap = {
   "Channel Divinity": ["Channel Divinity:"],
   "Superiority Dice": ["Manoeuvres:", "Maneuvers:"],
-  "Sorcery Points": ["Metamagic - ", "Metamagic:"],
+  "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen"],
   "Bardic Inspiration": [
     "Mote of Potential", "Unsettling Words", "Mantle of Inspiration",
     "Cutting Words", "Peerless Skill", "Tales from Beyond", "Blade Flourish",
