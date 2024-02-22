@@ -399,7 +399,7 @@ function replaceTag(match, p1, p2, p3, offset, string) {
 
   let result = p2;
   for (const type of types) {
-    if (type[lowerCaseTag]) {
+    if (type[lowerCaseTag] && type.reference) {
       result = `&Reference[${lowerCaseTag}]{${p2}}`;
       break;
     }
@@ -425,6 +425,8 @@ function parseSRDReferences(text) {
 
   for (const type of types) {
     for (const [key, value] of Object.entries(type)) {
+      // eslint-disable-next-line no-continue
+      if (!value.reference) continue;
       const linkRegEx = new RegExp(`(^| |\\(|\\[|>)(${value.label})( |\\)|\\]|\\.|,|$|\n|<)`, "ig");
       const replaceRule = (match, p1, p2, p3) => {
         return `${p1}&Reference[${key}]{${p2}}${p3}`;
