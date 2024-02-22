@@ -261,6 +261,8 @@ export async function fixFeatures(features) {
       case "Psychic Blades: Bonus Attack":
       case "Psychic Blades: Attack": {
         feature.system.actionType = "mwak";
+        feature.system.properties.push("fin");
+        feature.system.properties.push("thr");
         break;
       }
       case "Quickened Healing": {
