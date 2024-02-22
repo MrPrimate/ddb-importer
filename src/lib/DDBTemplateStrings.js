@@ -56,11 +56,12 @@ export async function importCacheLoad() {
  */
 // eslint-disable-next-line complexity
 function parseMatch(ddb, character, match, feature) {
+  const featureDef = feature.definition ?? feature;
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
   const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
     .flat()
-    .find((option) => option.definition.id === feature.componentId);
+    .find((option) => option.definition.id === featureDef.componentId);
   let linktext = `${result}`;
 
   // scalevalue
@@ -73,7 +74,7 @@ function parseMatch(ddb, character, match, feature) {
     } else {
       logger.warn("Unable to parse scalevalue", {
         ddb,
-        feature,
+        feature: featureDef,
         scaleValue,
       });
     }
@@ -133,12 +134,13 @@ function parseMatch(ddb, character, match, feature) {
   // classlevel*5
   // (classlevel/2)@roundup
   if (result.includes("classlevel")) {
-    const cls = feature.classId
+    const cls = featureDef.classId
       ? ddb.character.classes.find((cls) =>
-        cls.definition.id == feature.classId
-        || feature.classId === cls.subclassDefinition?.id
+        cls.definition.id == featureDef.classId
+        || featureDef.classId === cls.subclassDefinition?.id
       )
-      : DDBHelper.findClassByFeatureId(ddb, feature.componentId);
+      : DDBHelper.findClassByFeatureId(ddb, featureDef.componentId);
+
     if (cls) {
       const clsLevel = ` + @classes.${cls.definition.name.toLowerCase().replace(" ", "-")}.levels`;
       result = result.replace("classlevel", clsLevel);
@@ -152,14 +154,14 @@ function parseMatch(ddb, character, match, feature) {
         linktext = result.replace("classlevel", ` (${optionCls.definition.name} Level) `);
       } else {
         logger.error(
-          `Unable to parse option class info. classOption ComponentId is: ${classOption.componentId}.  ComponentId is ${feature.componentId}`
+          `Unable to parse option class info. classOption ComponentId is: ${classOption.componentId}.  ComponentId is ${featureDef.componentId}`
         );
       }
     } else {
-      if (!feature.componentId) {
-        logger.debug("Feature failed componentID parse", feature);
+      if (!featureDef.componentId) {
+        logger.debug("Feature failed componentID parse", featureDef);
       }
-      logger.error(`Unable to parse option class info. ComponentId is ${feature.componentId}`);
+      logger.error(`Unable to parse option class info. ComponentId is ${featureDef.componentId}`);
     }
   }
 
@@ -201,7 +203,7 @@ function parseMatch(ddb, character, match, feature) {
 
   // limiteduse
   if (result.includes("limiteduse")) {
-    const limitedUse = feature.limitedUse?.maxUses || "";
+    const limitedUse = featureDef.limitedUse?.maxUses || "";
     result = result.replace("limiteduse", limitedUse);
     linktext = result.replace("limiteduse", ` (Has limited uses) `);
   }
@@ -532,14 +534,16 @@ function rollMatch(text, matchString) {
  */
 export default function parseTemplateString(ddb, character, text, feature) {
   if (!text) return text;
+  const featureDefinition = feature.definition ?? feature;
+  if (!text) return text;
 
   text = text.replace(/\r\n•/g, "</p>\r\n<p>&bull;");
   let result = {
-    id: feature.id,
-    entityTypeId: feature.entityTypeId,
-    componentId: feature.componentId ? feature.componentId : null,
-    componentTypeId: feature.componentTypeId ? feature.componentTypeId : null,
-    damageTypeId: feature.damageTypeId ? feature.damageTypeId : null,
+    id: featureDefinition.id,
+    entityTypeId: featureDefinition.entityTypeId,
+    componentId: featureDefinition.componentId ? featureDefinition.componentId : null,
+    componentTypeId: featureDefinition.componentTypeId ? featureDefinition.componentTypeId : null,
+    damageTypeId: featureDefinition.damageTypeId ? featureDefinition.damageTypeId : null,
     text,
     resultStrings: [],
     displayStrings: [],
