@@ -1,4 +1,4 @@
-# NEXT UP
+# 4.0.9
 
 - Psychic Blades now parse as weapons rather than features.
 - Some template string parsing changes.
