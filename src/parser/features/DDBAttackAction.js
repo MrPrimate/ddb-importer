@@ -4,13 +4,19 @@ import DDBAction from "./DDBAction.js";
 
 export default class DDBAttackAction extends DDBAction {
 
-  static EXCLUDED_ACTION_FEATURES = ["Unarmed Strike"];
+  static FORCE_WEAPON_FEATURES = [
+    "Unarmed Strike",
+    "Psychic Blades: Attack (DEX)",
+    "Psychic Blades: Attack (STR)",
+    "Psychic Blades: Bonus Attack (DEX)",
+    "Psychic Blades: Bonus Attack (STR)",
+  ];
 
   _init() {
     this.isAction = true;
-    this.documentType = !DDBAttackAction.EXCLUDED_ACTION_FEATURES.includes(this.ddbDefinition.name)
-      ? "feat"
-      : "weapon";
+    this.documentType = DDBAttackAction.FORCE_WEAPON_FEATURES.includes(this.ddbDefinition.name)
+      ? "weapon"
+      : "feat";
     logger.debug(`Generating Attack Action ${this.ddbDefinition.name}`);
   }
 

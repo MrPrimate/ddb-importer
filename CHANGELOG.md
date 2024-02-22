@@ -1,3 +1,9 @@
+# NEXT UP
+
+- Psychic Blades now parse as weapons rather than features.
+- Some template string parsing changes.
+- Some reference look up elements were added for elements that did not have refences, e.g. radius.
+
 # 4.0.8
 
 - Accept better parsing of DDB Character URLS.

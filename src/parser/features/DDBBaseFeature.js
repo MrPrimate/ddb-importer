@@ -152,11 +152,11 @@ export default class DDBBaseFeature {
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
     const rawSnippet = this.ddbDefinition.snippet
-      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text
+      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbDefinition).text
       : "";
 
     const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature).text
+      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbDefinition).text
       : this.type === "race"
         ? this._getRaceFeatureDescription()
         : this._getClassFeatureDescription();

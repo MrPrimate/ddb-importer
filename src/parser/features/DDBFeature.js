@@ -10,7 +10,10 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 
 export default class DDBFeature extends DDBBaseFeature {
 
-  static FORCE_UNARMED = ["Trunk", "Claws"];
+  static FORCE_UNARMED = [
+    "Trunk",
+    "Claws",
+  ];
 
   static DOC_TYPE = {
     class: "feat", // class feature
