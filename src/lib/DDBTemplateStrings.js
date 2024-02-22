@@ -535,7 +535,6 @@ function rollMatch(text, matchString) {
 export default function parseTemplateString(ddb, character, text, feature) {
   if (!text) return text;
   const featureDefinition = feature.definition ?? feature;
-  if (!text) return text;
 
   text = text.replace(/\r\n•/g, "</p>\r\n<p>&bull;");
   let result = {
