@@ -1,3 +1,7 @@
+# NEXT UP
+
+- AC Formula Effects which Override will now do a max against `@attributes.ac.armor` to make sure the best value is selected.
+
 # 4.0.9
 
 - Psychic Blades now parse as weapons rather than features.

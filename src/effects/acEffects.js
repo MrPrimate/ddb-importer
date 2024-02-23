@@ -36,6 +36,10 @@ function buildBaseACEffect(label) {
   return effect;
 }
 
+function maxACWrapper(formula) {
+  return `max(${formula}, @attributes.ac.armor)`;
+}
+
 /**
  *
  * Generate an effect given inputs for AC
@@ -57,7 +61,7 @@ export function generateFixedACEffect(formula, label, alwaysActive = false, prio
   effect.disabled = false;
   effect.origin = "AC";
 
-  const formulaChange = { key: "system.attributes.ac.formula", value: formula, mode, priority };
+  const formulaChange = { key: "system.attributes.ac.formula", value: maxACWrapper(formula), mode, priority };
   const calcChange = { key: "system.attributes.ac.calc", value: "custom", mode, priority };
   effect.changes.push(calcChange, formulaChange);
 
@@ -95,7 +99,7 @@ function addACSetEffect(modifiers, name, subType) {
   const maxDexTypes = ["ac-max-dex-unarmored-modifier", "ac-max-dex-modifier"];
 
   if (bonuses && bonuses != 0) {
-    let effectString = "";
+    let formula = "";
     switch (subType) {
       case "unarmored-armor-class": {
         let maxDexMod = 99;
@@ -105,24 +109,24 @@ function addACSetEffect(modifiers, name, subType) {
           .map((mod) => mod.value);
         if (maxDexArray.length > 0) maxDexMod = Math.min(maxDexArray);
         if (ignoreDexMod) {
-          effectString = `10 + ${bonuses}`;
+          formula = `10 + ${bonuses}`;
         } else if (maxDexMod === 99) {
-          effectString = `10 + ${bonuses} + @abilities.dex.mod`;
+          formula = `10 + ${bonuses} + @abilities.dex.mod`;
         } else {
-          effectString = `@abilities.dex.mod > ${maxDexMod} ? 10 + ${bonuses} + ${maxDexMod} : 10 + ${bonuses} + @abilities.dex.mod`;
+          formula = `@abilities.dex.mod > ${maxDexMod} ? 10 + ${bonuses} + ${maxDexMod} : 10 + ${bonuses} + @abilities.dex.mod`;
         }
         break;
       }
       default: {
-        effectString = `10 + ${bonuses} + @abilities.dex.mod`;
+        formula = `10 + ${bonuses} + @abilities.dex.mod`;
       }
     }
 
-    logger.debug(`Generating ${subType} AC set for ${name}: ${effectString}`);
+    logger.debug(`Generating ${subType} AC set for ${name}: ${formula}`);
     effects.push(
       {
         key: "system.attributes.ac.formula",
-        value: effectString,
+        value: maxACWrapper(formula),
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         priority: 15,
       },
