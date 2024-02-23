@@ -175,13 +175,13 @@ function effectCleanup(document, actor, effect) {
         value: effect.duration.rounds,
       });
     }
-    logger.debug(`Generating damage over time effect for ${actor.name}, ${actor.name}`);
+    logger.debug(`Cleanup of over time effect for ${actor.name}, ${actor.name} for ${document.name}`, effect);
   }
   return { document, actor };
 }
 
 export function generateOverTimeEffect(actor, document) {
-  logger.debug("Generating damage over time effect for", document.name);
+  logger.debug(`Checking for over time effects for ${document.name} on ${actor.name}`);
   if (!document.effects) document.effects = [];
   let effect = baseMonsterFeatureEffect(document, `${document.name}`);
   // add any condition effects
@@ -200,7 +200,10 @@ export function generateOverTimeEffect(actor, document) {
   setProperty(effect, "duration.rounds", durationRounds);
 
   const turn = startOrEnd(document.system.description.value);
-  if (!turn) return effectCleanup(document, actor, effect);
+  if (!turn) {
+    logger.debug(`No turn over time effect for ${document.name} on ${actor.name}`);
+    return effectCleanup(document, actor, effect);
+  }
 
   const saveFeature = new DDBMonsterFeature("overTimeSaveFeature", { html: document.system.description.value });
   saveFeature.prepare();
@@ -211,8 +214,10 @@ export function generateOverTimeEffect(actor, document) {
   const dc = save.dc;
 
   const dmg = getOvertimeDamage(document.system.description.value);
-
-  if (!dmg) return effectCleanup(document, actor, effect);
+  if (!dmg) {
+    logger.debug(`Adding non damage Overtime effect for ${document.name} on ${actor.name}`);
+    return effectCleanup(document, actor, effect);
+  }
 
   // overtime damage, revert any full damage flag, reset to default on save
   setProperty(document, "flags.midiProperties.fulldam", false);
@@ -236,10 +241,11 @@ export function generateOverTimeEffect(actor, document) {
     ? getProperty(document.flags, "monsterMunch.overTime.saveDamage")
     : "nodamage";
 
+  logger.debug(`generateOverTimeEffect: Generated over time effect for ${actor.name}, ${document.name}`);
   effect.changes.push(overTimeDamage({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
-  document.effects.push(effect);
 
-  return effectCleanup(document, actor, effect);
+  const result = effectCleanup(document, actor, effect);
+  return result;
 }
 
 
@@ -249,9 +255,11 @@ export function damageOverTimeEffect({ document, startTurn = false, endTurn = fa
   if (!startTurn && !endTurn) return document;
 
   if (startTurn) {
+    logger.debug(`damageOverTimeEffect: Generating damage over time effect START for ${document.name}`);
     effect.changes.push(overTimeDamage({ document, turn: "start", damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
   }
   if (endTurn) {
+    logger.debug(`damageOverTimeEffect: Generating damage over time effect END for ${document.name}`);
     effect.changes.push(overTimeDamage({ document, turn: "end", damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
   }
 

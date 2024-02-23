@@ -175,5 +175,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     // no default
   }
 
+  console.warn("npc", deepClone(npc))
+
   return npc;
 }
