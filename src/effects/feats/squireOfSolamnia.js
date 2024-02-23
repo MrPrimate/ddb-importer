@@ -20,7 +20,7 @@ export async function squireOfSolamniaEffect(document) {
     },
     {
       key: "flags.dnd5e.DamageBonusMacro",
-      value: "ItemMacro",
+      value: DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "squireOfSolamnia.js", document }),
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       priority: 20,
     }

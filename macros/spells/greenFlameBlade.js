@@ -201,7 +201,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           }
           weaponCopy.name = weaponItem.name + " [Green Flame Blade]";
           weaponCopy.effects.push({
-            changes: [{ key: "macro.itemMacro", mode: 0, value: "", priority: "20", }],
+            changes: [{ key: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "greenFlameBlade.js", document: { name: weaponCopy.name } }), mode: 0, value: "", priority: "20", }],
             disabled: false,
             // duration: { turns: 0 },
             duration: { turns: 1 },

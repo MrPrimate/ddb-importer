@@ -52,7 +52,7 @@ export async function radiantSoulEffect(document) {
     effect.changes.push(
       {
         key: "flags.dnd5e.DamageBonusMacro",
-        value: `ItemMacro.${document.name}`,
+        value: DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "radiantSoul.js", document }),
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         priority: "20",
       },

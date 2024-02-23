@@ -23,7 +23,7 @@ export async function piercerCriticalEffect(document) {
   effect.changes.push(
     {
       key: "flags.dnd5e.DamageBonusMacro",
-      value: "ItemMacro",
+      value: DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "piercer.js", document }),
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       priority: 20,
     },

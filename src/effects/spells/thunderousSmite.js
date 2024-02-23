@@ -6,7 +6,7 @@ export async function thunderousSmiteEffect(document) {
   effect.changes.push(
     {
       key: "flags.dnd5e.DamageBonusMacro",
-      value: "ItemMacro.Thunderous Smite",
+      value: DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "thunderousSmite.js", document }),
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       priority: "20",
     },

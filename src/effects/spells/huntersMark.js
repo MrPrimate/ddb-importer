@@ -19,7 +19,7 @@ export async function huntersMarkEffect(document) {
   let damageBonusEffect = baseSpellEffect(document, "Hunter's Mark");
   damageBonusEffect.changes.push({
     key: "flags.dnd5e.DamageBonusMacro",
-    value: "ItemMacro",
+    value: DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "huntersMark.js", document }),
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: 20,
   });

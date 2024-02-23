@@ -9,7 +9,7 @@ export async function zephyrStrikeEffect(document) {
     {
       key: "flags.midi-qol.optional.ZephyrStrike.macroToCall",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: "ItemMacro.Zephyr Strike",
+      value: DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "zephyrStrike.js", document }),
       priority: "20",
     },
     {

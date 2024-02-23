@@ -51,7 +51,7 @@ if (args[0].macroPass === "postActiveEffects") {
     duration: { rounds: 10, startTime: game.time.worldTime },
     origin: args[0].item.uuid,
     changes: [{
-      key: "macro.itemMacro.local",
+      key: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "witchBolt.js", document: { name: "Witch Bolt" } }),
       value: "",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       priority: 20,

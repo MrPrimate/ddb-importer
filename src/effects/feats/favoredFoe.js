@@ -19,7 +19,7 @@ export async function favoredFoeEffect(document) {
   let damageBonusEffect = baseFeatEffect(document, document.name, { transfer: true });
   damageBonusEffect.changes.push({
     key: "flags.dnd5e.DamageBonusMacro",
-    value: "ItemMacro",
+    value: DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "favoredFoe.js", document }),
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: 20,
   });

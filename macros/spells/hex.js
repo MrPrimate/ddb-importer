@@ -22,7 +22,7 @@ if (args[0].tag === "OnUse") {
       {
         key: "flags.dnd5e.DamageBonusMacro",
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: `ItemMacro.${args[0].item.name}`,
+        value: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "hex.js", document: { name: "Hex" } }),
         priority: 20,
       }, // macro to apply the damage
     ],

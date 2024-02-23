@@ -19,7 +19,7 @@ export async function slayersPreyEffect(document) {
   let damageBonusEffect = baseFeatEffect(document, document.name, { transfer: true });
   damageBonusEffect.changes.push({
     key: "flags.dnd5e.DamageBonusMacro",
-    value: "ItemMacro",
+    value: DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "slayersPrey.js", document }),
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: 20,
   });

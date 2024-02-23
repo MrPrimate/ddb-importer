@@ -6,7 +6,7 @@ export async function brandingSmiteEffect(document) {
   effect.changes.push(
     {
       key: "flags.dnd5e.DamageBonusMacro",
-      value: "ItemMacro.Branding Smite",
+      value: DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "brandingSmite.js", document }),
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       priority: "20",
     },

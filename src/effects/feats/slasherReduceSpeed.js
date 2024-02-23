@@ -7,7 +7,7 @@ export async function slasherReduceSpeedEffect(document) {
   effect.changes.push(
     {
       key: "flags.dnd5e.DamageBonusMacro",
-      value: "ItemMacro",
+      value: DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "slasherReduceSpeed.js", document }),
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       priority: 20,
     },
