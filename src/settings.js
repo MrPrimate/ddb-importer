@@ -440,7 +440,7 @@ const SETTINGS = {
         "no-item-macros": {
           name: "ddb-importer.settings.no-item-macros.name",
           hint: "ddb-importer.settings.no-item-macros.hint",
-          config: false,
+          config: true,
           type: Boolean,
           default: false,
         },

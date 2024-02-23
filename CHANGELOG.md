@@ -1,6 +1,8 @@
 # NEXT UP
 
 - AC Formula Effects which Override will now do a max against `@attributes.ac.armor` to make sure the best value is selected.
+- MidiQoL Overtime effects on monsters could be duplicated in some instances.
+- Experimental: Remove embedded macros for Midi-QoL effects (module setting). Will call functions within DDB Importer rather than item macros. Big size reductions for automation heavy characters. Probably bugs.
 
 # 4.0.9
 
