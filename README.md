@@ -76,7 +76,9 @@ You can log bugs here, or mention them in the [Discord channel](https://discord.
 
 ## Pre-requisites and recommendations
 
-Below are some recommended modules. If you munch without these it's likely you will need to remunch with them activated to generate the required effects.
+There are no pre-requisites.
+
+Below are some recommended modules.
 
 I'd strongly recommend installing:
 
@@ -86,14 +88,14 @@ I'd strongly recommend installing:
 - [Arbron’s Summoning](https://foundryvtt.com/packages/arbron-summoner) will allow the creation and use of summoned actors for spells and features in Tasha's
 - [Vision/Detection Modes 5e](https://foundryvtt.com/packages/vision-5e) adds those lovely missing vision modes for 5e.
 
-If you want to add spell effects, and high levels of automation you will need:
+If you want to add spell effects, and high levels of automation you will need, (this is not recommended if you're using Foundry for the first time):
 - [DAE](https://foundryvtt.com/packages/dae/) for skill bonuses and basic effects
 - [Midi-QOL](https://foundryvtt.com/packages/midi-qol/)
 - [About Time](https://foundryvtt.com/packages/about-time)
 - [Times Up](https://foundryvtt.com/packages/times-up/).
 - [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects)
 
-For super high automation:
+For super high automation (this is not recommended if you're using Foundry for the first time):
 - [Chris's Premades](https://foundryvtt.com/packages/chris-premades) includes a lot of more advanced effects, but has a lot of module dependencies.
 
 Several macros that impact tokens rely on:
