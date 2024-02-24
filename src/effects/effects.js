@@ -416,7 +416,7 @@ export function generateStatusEffectChange(statusName, priority = 20) {
 }
 
 export function addStatusEffectChange(effect, statusName, priority = 20, macro = false, level = null) {
-  if (effectModules.convenientEffectsInstalled && effectModules.midiQolInstalled) {
+  if (effectModules().convenientEffectsInstalled && effectModules().midiQolInstalled) {
     const key = generateStatusEffectChange(statusName, priority, macro);
     effect.changes.push(key);
   } else {

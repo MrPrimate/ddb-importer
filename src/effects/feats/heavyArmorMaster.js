@@ -3,7 +3,13 @@ import { baseFeatEffect } from "../specialFeats.js";
 
 export function heavyArmorMasterEffect(document) {
   let effect = baseFeatEffect(document, `${document.name}`, { transfer: true });
-  if (effectModules.midiQolInstalled) {
+  console.warn("heavyArmorMasterEffect", {
+    effect,
+    midi: effectModules().midiQolInstalled,
+    effectModules,
+  });
+  if (effectModules().midiQolInstalled) {
+    console.warn("here")
     effect.changes.push(
       {
         key: "flags.midi-qol.DR.non-magical",
@@ -15,9 +21,21 @@ export function heavyArmorMasterEffect(document) {
   } else {
     effect.changes.push(
       {
-        key: "system.traits.dm",
+        key: "system.traits.dm.amount.bludgeoning",
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        value: "3",
+        value: "-3",
+        priority: "20",
+      },
+      {
+        key: "system.traits.dm.amount.slashing",
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: "-3",
+        priority: "20",
+      },
+      {
+        key: "system.traits.dm.amount.piercing",
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: "-3",
         priority: "20",
       },
     );
