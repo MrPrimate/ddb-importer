@@ -1,4 +1,4 @@
-# NEXT UP
+# 4.0.10
 
 - AC Formula Effects which Override will now do a max against `@attributes.ac.armor` to make sure the best value is selected.
 - MidiQoL Overtime effects on monsters could be duplicated in some instances.
