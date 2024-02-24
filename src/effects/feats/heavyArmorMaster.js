@@ -3,13 +3,7 @@ import { baseFeatEffect } from "../specialFeats.js";
 
 export function heavyArmorMasterEffect(document) {
   let effect = baseFeatEffect(document, `${document.name}`, { transfer: true });
-  console.warn("heavyArmorMasterEffect", {
-    effect,
-    midi: effectModules().midiQolInstalled,
-    effectModules,
-  });
   if (effectModules().midiQolInstalled) {
-    console.warn("here")
     effect.changes.push(
       {
         key: "flags.midi-qol.DR.non-magical",
