@@ -46,7 +46,7 @@ export default class DDBBaseFeature {
     }
   }
 
-  constructor({ ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null } = {}) {
+  constructor({ ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbFeature = ddbDefinition;
@@ -58,6 +58,7 @@ export default class DDBBaseFeature {
     this.documentType = documentType;
     this.tagType = "other";
     this.data = {};
+    this.noMods = noMods;
     this._init();
 
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
@@ -82,6 +83,7 @@ export default class DDBBaseFeature {
   }
 
   _getClassFeatureDescription() {
+    if (!this.ddbData) return "";
     const componentId = this.ddbDefinition.componentId;
     const componentTypeId = this.ddbDefinition.componentTypeId;
 

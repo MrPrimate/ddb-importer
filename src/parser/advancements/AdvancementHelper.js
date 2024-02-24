@@ -4,12 +4,35 @@ import DDBHelper from '../../lib/DDBHelper.js';
 import utils from '../../lib/utils.js';
 import logger from '../../logger.js';
 
+function htmlToText(html) {
+  // keep html brakes and tabs
+  return html.replace(/<\/td>/g, "\n")
+    .replace(/<\/table>/g, "\n")
+    .replace(/<\/tr>/g, "\n")
+    .replace(/<\/p>/g, "\n")
+    .replace(/<\/div>/g, "\n")
+    .replace(/<\/h>/g, "\n")
+    .replace(/<br>/g, "\n")
+    .replace(/<br( )*\/>/g, "\n")
+    .replace(/<[A-Za-z/][^<>]*>/g, "");
+}
+
 export default class AdvancementHelper {
 
   constructor({ ddbData, type, noMods = false }) {
     this.ddbData = ddbData;
     this.type = type;
     this.noMods = noMods;
+  }
+
+  static stripDescription(description) {
+    const descriptionReplaced = description
+      .replaceAll(/<br \/>(?:\s*)*/g, "<br />\n")
+      .replaceAll(/<\/p>(?:\s*)*/g, "</p>\n")
+      .replaceAll(/<\/dt>(?:\s*)*<dt>/g, "</dt>\n<dt>");
+    // console.warn(descriptionReplaced);
+    return htmlToText(descriptionReplaced);
+    // return utils.stripHtml(descriptionReplaced, true);
   }
 
 
@@ -900,7 +923,7 @@ export default class AdvancementHelper {
   static parseHTMLSaves(description) {
     const results = [];
 
-    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
+    const textDescription = AdvancementHelper.stripDescription(description);
 
     // get class saves
     const savingText = textDescription.toLowerCase().split("saving throws:").pop().split("\n")[0].split("The")[0].split(".")[0].split("skills:")[0].trim();
@@ -927,7 +950,7 @@ export default class AdvancementHelper {
       number: 0,
       allowReplacements: false,
     };
-    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true).replace(/\s/g, " ");
+    const textDescription = AdvancementHelper.stripDescription(description).replace(/\s/g, " ");
 
     // Choose any three e.g. bard
     const anySkillRegex = /Skills:\sChoose any (\w+)(.*)($|\.$|\w+:)/im;
@@ -943,14 +966,14 @@ export default class AdvancementHelper {
     }
 
     // Skill Proficiencies: Nature, Survival
-    const backgroundSkillRegex = /Skill Proficiencies:\s(\w+)(.*)($|\.$|\w+:)/im;
+    const backgroundSkillRegex = /Skill Proficiencies:\s(.*?)($|\.$|\w+:)/im;
     const backgroundMatch = textDescription.match(backgroundSkillRegex);
 
     if (backgroundMatch) {
-      const skills = backgroundMatch[1].replace(",", " and").split(" and ").map((skill) => skill.trim());
+      const skills = backgroundMatch[1].replace(" and ", ",").split(",").map((skill) => skill.trim());
       skills.forEach((grant) => {
         const dictSkill = DICTIONARY.character.skills
-          .find((skill) => skill.label.toLowerCase() === grant.toLowerCase());
+          .find((skill) => skill.label.toLowerCase() === grant.toLowerCase().split(" ")[0]);
         if (dictSkill) parsedSkills.grants.push(dictSkill.name);
       });
       return parsedSkills;
@@ -1009,7 +1032,7 @@ export default class AdvancementHelper {
     const explicitSkillGrantMatch = textDescription.match(explicitSkillGrantRegex);
 
     if (explicitSkillGrantMatch) {
-      const skills = explicitSkillGrantMatch[1].replace(",", " and").split(" and ").map((skill) => skill.trim());
+      const skills = explicitSkillGrantMatch[1].replace(" and ", ",").split(",").map((skill) => skill.trim());
       skills.forEach((grant) => {
         const dictSkill = DICTIONARY.character.skills
           .find((skill) => skill.label.toLowerCase() === grant.toLowerCase());
@@ -1028,7 +1051,96 @@ export default class AdvancementHelper {
       choices: [],
       number: 0,
     };
-    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
+    const textDescription = AdvancementHelper.stripDescription(description);
+
+    // Background languages
+    const languagesRegex = /Languages:\s(.*?)($|\.$|\w+:)/im;
+    const languagesMatch = textDescription.match(languagesRegex);
+
+    // Languages: Giant and one other language of your choice
+    // Languages: Any one of your choice
+    // Languages: one of your choice
+    // Languages: One of your choice of Elvish, Gnomish, Goblin, or Sylvan
+    // Languages: Two of your choice
+    if (languagesMatch) {
+      const choiceRegexComplex = /(?:(\w+)?(?: and))?\s?(?:(\w+)(?: other language)*)\sof\syour\schoice(?: of (.*))*/im;
+      const complexMatch = languagesMatch[1].match(choiceRegexComplex);
+      if (complexMatch) {
+        if (complexMatch[1]) {
+          const dictMatch = DICTIONARY.character.languages.find((l) =>
+            l.name.toLowerCase() === complexMatch[1].split(" ")[0].toLowerCase().trim()
+          );
+          if (dictMatch) {
+            const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+            parsedLanguages.grants.push(language);
+          }
+        }
+        if (complexMatch[2]) {
+          const number = DICTIONARY.numbers.find((num) => complexMatch[2].toLowerCase().trim() === num.natural);
+          parsedLanguages.number = number ? number.num : 1;
+          if (complexMatch[3]) {
+            const languages = complexMatch[3].replace(" or ", ",").split(",").map((skill) => skill.trim());
+            languages.forEach((choice) => {
+              const dictMatch = DICTIONARY.character.languages.find((l) =>
+                l.name.toLowerCase() === choice.toLowerCase().split(" ")[0]
+              );
+              if (dictMatch) {
+                const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+                parsedLanguages.choices.push(language);
+              }
+            });
+          } else {
+            parsedLanguages.choices = ["*"];
+          }
+        }
+        return parsedLanguages;
+      }
+
+      // Languages: Choose one of Draconic, Goblin, or Vedalken
+      const choiceOfRegex = /choose (\w+)(?: of (.*))*/im;
+      const simpleChoice = textDescription.match(choiceOfRegex);
+      if (simpleChoice) {
+        const number = DICTIONARY.numbers.find((num) => simpleChoice[1].toLowerCase().trim() === num.natural);
+        parsedLanguages.number = number ? number.num : 1;
+        if (simpleChoice[2]) {
+          const languages = simpleChoice[2].replace(" or ", ",").split(",").map((skill) => skill.trim());
+          languages.forEach((choice) => {
+            const dictMatch = DICTIONARY.character.languages.find((l) =>
+              l.name.toLowerCase() === choice.toLowerCase().split(" ")[0]
+            );
+            // console.warn("lang check", {
+            //   simple: simpleChoice[2],
+            //   choice,
+            //   languages,
+            //   matchVal: choice.toLowerCase().split(" ")[0],
+            //   dictMatch,
+            // });
+            if (dictMatch) {
+              const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+              parsedLanguages.choices.push(language);
+            }
+          });
+        } else {
+          parsedLanguages.choices = ["*"];
+        }
+
+        return parsedLanguages;
+      }
+
+      // Languages: Draconic or Elven
+      parsedLanguages.number = 1;
+      if (languagesMatch[1]) {
+        const languages = languagesMatch[1].replace(" or ", ",").split(",").map((skill) => skill.trim());
+        languages.forEach((choice) => {
+          const dictMatch = DICTIONARY.character.languages.find((l) => l.name.toLowerCase() === choice.toLowerCase());
+          if (dictMatch) {
+            const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
+            parsedLanguages.choices.push(language);
+          }
+        });
+        return parsedLanguages;
+      }
+    }
 
     // you learn one language of your choice.
     // You also learn two languages of your choice.
@@ -1054,7 +1166,7 @@ export default class AdvancementHelper {
     const speakReadAndWriteMatch = textDescription.match(speakReadAndWriteRegex);
 
     if (speakReadAndWriteMatch) {
-      const languages = speakReadAndWriteMatch[1].replace(",", " and").split(" and ").map((skill) => skill.trim());
+      const languages = speakReadAndWriteMatch[1].replace(" and ", ",").split(",").map((skill) => skill.trim());
       parsedLanguages.number = 0;
       languages.forEach((grant) => {
         if (grant.includes("other language") || grant.includes("of your choice")) {
@@ -1077,6 +1189,8 @@ export default class AdvancementHelper {
     const featMatch = textDescription.match(featMatchRegex);
 
     if (featMatch) {
+      const number = DICTIONARY.numbers.find((num) => featMatch[1].toLowerCase() === num.natural);
+      parsedLanguages.number = number ? number.num : 1;
       parsedLanguages.number = 1;
       parsedLanguages.choices = ["*"];
       return parsedLanguages;
@@ -1132,7 +1246,7 @@ export default class AdvancementHelper {
       number: 0,
     };
 
-    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
+    const textDescription = AdvancementHelper.stripDescription(description);
 
     // Tools: None
     if (textDescription.includes("Tools: None")) return parsedTools;
@@ -1163,6 +1277,7 @@ export default class AdvancementHelper {
 
     // Tools: Thieves' tools, tinker's tools, one type of artisan's tools of your choice
     // Tools: Herbalism kit
+    // Tool Proficiencies: Disguise Kit, one type of Gaming Set or Musical Instrument
     const toolGrantsRegex = /^(?:Tools|Tool Proficiencies):\s(.*?)($|\.|\w+:)/im;
     const toolGrantsMatch = textDescription.match(toolGrantsRegex);
 
@@ -1174,10 +1289,12 @@ export default class AdvancementHelper {
         if (toolChoiceMatch) {
           const numberTools = DICTIONARY.numbers.find((num) => toolChoiceMatch[1].toLowerCase() === num.natural);
           parsedTools.number = numberTools ? numberTools.num : 1;
-          const toolGroup = AdvancementHelper.getToolGroup(toolChoiceMatch[2]);
-          if (toolGroup) {
-            parsedTools.choices.push(`${toolGroup}:*`);
-          }
+          toolChoiceMatch[2].split(" or ").forEach((toolGroupMatch) => {
+            const toolGroup = AdvancementHelper.getToolGroup(toolGroupMatch.trim());
+            if (toolGroup) {
+              parsedTools.choices.push(`${toolGroup}:*`);
+            }
+          });
         } else {
           const stub = AdvancementHelper.getToolAdvancementValue(toolString);
           if (stub) {
@@ -1208,7 +1325,7 @@ export default class AdvancementHelper {
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
-      const additionalMatches = additionalMatch[2].replace(",", " and").split(" and ").map((skill) => skill.trim());
+      const additionalMatches = additionalMatch[2].replace(" and ", ",").split(",").map((skill) => skill.trim());
       for (const match of additionalMatches) {
         const toolChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
         const choiceMatch = textDescription.match(toolChoiceRegex);
@@ -1290,7 +1407,7 @@ export default class AdvancementHelper {
       grants: [],
       number: 0,
     };
-    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
+    const textDescription = AdvancementHelper.stripDescription(description);
 
     // Armor: None
     if (textDescription.includes("Armor: None")) return parsedArmorProficiencies;
@@ -1323,7 +1440,7 @@ export default class AdvancementHelper {
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
-      const additionalMatches = additionalMatch[2].replace(",", " and").split(" and ").map((m) => m.trim());
+      const additionalMatches = additionalMatch[2].replace(" and ", ",").split(",").map((m) => m.trim());
       for (const grant of additionalMatches) {
         const stub = AdvancementHelper.getArmorAdvancementValue(grant);
         if (stub) {
@@ -1385,7 +1502,7 @@ export default class AdvancementHelper {
     };
 
 
-    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
+    const textDescription = AdvancementHelper.stripDescription(description);
 
     // Weapons: None
     if (textDescription.includes("Weapons: None")) return parsedWeaponsProficiencies;
@@ -1430,7 +1547,7 @@ export default class AdvancementHelper {
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
-      const additionalMatches = additionalMatch[2].replace(",", " and").split(" and ").map((skill) => skill.trim());
+      const additionalMatches = additionalMatch[2].replace(" and ", ",").split(",").map((skill) => skill.trim());
       for (const match of additionalMatches) {
         const toolChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
         const choiceMatch = textDescription.match(toolChoiceRegex);
@@ -1529,7 +1646,7 @@ export default class AdvancementHelper {
       hint: "",
     };
 
-    const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true).toLowerCase();
+    const textDescription = AdvancementHelper.stripDescription(description).toLowerCase();
 
     // quick and dirty damage matches, 90 % of use cases
     const isObviousDamage = textDescription.includes("damage");
@@ -1554,7 +1671,7 @@ export default class AdvancementHelper {
       const damageMatch = adjustedText.match(damageRegex);
       if (damageMatch) {
         const additionalMatches = damageMatch[2]
-          .replace(",", " and").split(" and ")
+          .replace(" and ", ",").split(",")
           .map((dmg) => dmg.trim().toLowerCase());
         for (const match of additionalMatches) {
           const conditionKind = damageMatch[1].toLowerCase().trim();
@@ -1601,8 +1718,8 @@ export default class AdvancementHelper {
       if (immuneMatch) {
         let addPoisonDI = false;
         const additionalMatches = immuneMatch[1]
-          .replace(",", " and")
-          .split(" and ")
+          .replace(" and ", ",")
+          .split(",")
           .map((dmg) => {
             const result = dmg.trim().toLowerCase();
             if (dmg === "poison") {
@@ -1707,7 +1824,7 @@ export default class AdvancementHelper {
   //     grants: [],
   //     number: 0,
   //   };
-  //   const textDescription = utils.stripHtml(description.replaceAll(/<br \/>(?:\s*)*/g, "<br />\n").replaceAll(/<\/p>(?:\s*)*/g, "</p>\n"), true);
+  //   const textDescription = AdvancementHelper.stripDescription(description);
 
   //   // You start with the following equipment, in addition to the equipment granted by your background:
   //   // any two simple weapons of your choice

@@ -27,15 +27,17 @@ export default class DDBFeature extends DDBBaseFeature {
     this.documentType = DDBFeature.DOC_TYPE[this.type];
     this.tagType = this.type;
     logger.debug(`Generating Feature ${this.ddbDefinition.name}`);
-    this._class = this.ddbData.character.classes.find((klass) =>
-      (this.ddbDefinition.classId
-        && (klass.definition.id === this.ddbDefinition.classId || klass.subclassDefinition?.id === this.ddbDefinition.classId))
-      || (this.ddbDefinition.className && klass.definition.name === this.ddbDefinition.className
-        && ((!this.ddbDefinition.subclassName || this.ddbDefinition.subclassName === "")
-          || (this.ddbDefinition.subclassName && klass.subclassDefinition?.name === this.ddbDefinition.subclassName))
-      )
-    );
-    this._choices = DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition);
+    this._class = this.noMods
+      ? null
+      : this.ddbData.character.classes.find((klass) =>
+        (this.ddbDefinition.classId
+          && (klass.definition.id === this.ddbDefinition.classId || klass.subclassDefinition?.id === this.ddbDefinition.classId))
+        || (this.ddbDefinition.className && klass.definition.name === this.ddbDefinition.className
+          && ((!this.ddbDefinition.subclassName || this.ddbDefinition.subclassName === "")
+            || (this.ddbDefinition.subclassName && klass.subclassDefinition?.name === this.ddbDefinition.subclassName))
+        )
+      );
+    this._choices = this.noMods ? [] : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition);
     this.isChoiceFeature = this._choices.length > 0;
     this.include = !this.isChoiceFeature;
     this.hasRequiredLevel = !this._class || (this._class && this._class.level >= this.ddbDefinition.requiredLevel);
@@ -43,7 +45,7 @@ export default class DDBFeature extends DDBBaseFeature {
     this.advancementHelper = new AdvancementHelper({
       ddbData: this.ddbData,
       type: this.type,
-      noMods: false,
+      noMods: this.noMods,
     });
   }
 
@@ -134,6 +136,26 @@ export default class DDBFeature extends DDBBaseFeature {
     logger.info(`Generating feature advancements for ${this.ddbDefinition.name} are not yet supported`);
   }
 
+  _addAdvancement(advancement) {
+    if (!advancement) return;
+    const advancementData = advancement.toObject();
+    if (
+      advancementData.configuration.choices.length !== 0
+      || advancementData.configuration.grants.length !== 0
+      || (advancementData.value && Object.keys(advancementData.value).length !== 0)
+    ) {
+      // console.warn(advancementData)
+      // console.warn("ADVANCEMENT", {
+      //   advancement,
+      //   advancementData,
+      //   choicebool: advancementData.configuration.choices.length !== 0,
+      //   grantbool: advancementData.configuration.grants.length !== 0,
+      //   valuebool: (advancementData.value && Object.keys(advancementData.value).length !== 0),
+      // });
+      this.data.system.advancement.push(advancementData);
+    }
+  }
+
   _generateSkillAdvancements() {
     const mods = this.advancementHelper.noMods
       ? []
@@ -143,8 +165,7 @@ export default class DDBFeature extends DDBBaseFeature {
       && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
     );
     const advancement = this.advancementHelper.getSkillAdvancement(skillExplicitMods, this.ddbDefinition, undefined, 0);
-
-    if (advancement) this.data.system.advancement.push(advancement.toObject());
+    this._addAdvancement(advancement);
   }
 
   _generateLanguageAdvancements() {
@@ -153,7 +174,7 @@ export default class DDBFeature extends DDBBaseFeature {
       : DDBHelper.getModifiers(this.ddbData, this.type);
 
     const advancement = this.advancementHelper.getLanguageAdvancement(mods, this.ddbDefinition, 0);
-    if (advancement) this.data.system.advancement.push(advancement.toObject());
+    this._addAdvancement(advancement);
   }
 
   _generateToolAdvancements() {
@@ -161,7 +182,7 @@ export default class DDBFeature extends DDBBaseFeature {
       ? []
       : DDBHelper.getModifiers(this.ddbData, this.type);
     const advancement = this.advancementHelper.getToolAdvancement(mods, this.ddbDefinition, 0);
-    if (advancement) this.data.system.advancement.push(advancement.toObject());
+    this._addAdvancement(advancement);
   }
 
   _generateSkillOrLanguageAdvancements() {
@@ -178,8 +199,9 @@ export default class DDBFeature extends DDBBaseFeature {
     this._generateSkillOrLanguageAdvancements();
   }
 
-  async buildBackgroundFeatAdvancements() {
-    const featIds = getProperty(this.ddbData.character, "background.definition.featList.featIds") ?? [];
+  async buildBackgroundFeatAdvancements(extraFeatIds = []) {
+    const characterFeatIds = getProperty(this.ddbData, "character.background.definition.featList.featIds") ?? [];
+    const featIds = extraFeatIds.concat(characterFeatIds);
     if (featIds.length === 0) return;
 
     const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
