@@ -693,7 +693,9 @@ export default function parseTemplateString(ddb, character, text, feature) {
   result.text = result.text.replace(/\+<\/strong>\+/g, "+</strong>");
 
   result.text = parseTags(result.text);
-  character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
+  if (hasProperty(character, "flags.ddbimporter.dndbeyond.templateStrings")) {
+    character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
+  }
 
   // console.warn(`${feature.name} tempalte`, result);
   return result;
