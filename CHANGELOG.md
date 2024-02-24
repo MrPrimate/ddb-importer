@@ -4,6 +4,7 @@
 - MidiQoL Overtime effects on monsters could be duplicated in some instances.
 - Experimental: Remove embedded macros for Midi-QoL effects (module setting). Will call functions within DDB Importer rather than item macros. Big size reductions for automation heavy characters. Probably bugs.
 - Background munching: Background munching will now attempt to add advancements by parsing the HTML description. Variable success.
+- Heavy Armor Master generated bad effects that could break characters.
 
 # 4.0.9
 
