@@ -7,7 +7,7 @@ export function heavyArmorMasterEffect(document) {
     effect.changes.push(
       {
         key: "flags.midi-qol.DR.non-magical",
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         value: "3",
         priority: "20",
       },
