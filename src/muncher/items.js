@@ -98,6 +98,7 @@ function getItemData(sourceFilter) {
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
   const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
+  const useGenerics = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-generic-items");
   const sources = enableSources
     ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").flat()
     : [];
@@ -122,8 +123,9 @@ function getItemData(sourceFilter) {
         return data;
       })
       .then((data) => {
-        if (sources.length == 0 || !sourceFilter) return data.data;
-        return data.data.filter((item) =>
+        const genericsFilteredData = data.data.filter((item) => item.canBeAddedToInventory || useGenerics);
+        if (sources.length == 0 || !sourceFilter) return genericsFilteredData;
+        return genericsFilteredData.filter((item) =>
           item.sources.some((source) => sources.includes(source.sourceId))
         );
       })

@@ -1170,6 +1170,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-use-generic-items": {
+            type: Boolean,
+            default: false,
+          }
         },
         ENCOUNTER: {
           "encounter-import-policy-create-scene": {
