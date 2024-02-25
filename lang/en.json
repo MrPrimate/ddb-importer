@@ -16,6 +16,8 @@
       "custom-proxy.hint": "Tick if using a custom proxy and enter the proxy URL's below",
       "image-upload-directory.name": "Character image upload directory",
       "image-upload-directory.hint": "Specifies the image upload location on the server.",
+      "add-ddb-languages.name": "Add D&D Beyond languages?",
+      "add-ddb-languages.hint": "If unticked DDB languages will be added to the custom field",
       "other-image-upload-directory.name": "Other image upload directory",
       "other-image-upload-directory.hint": "Specifies the image upload location on the server.",
       "frame-image-upload-directory.name": "Image upload directory for frames",

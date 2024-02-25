@@ -278,6 +278,14 @@ const SETTINGS = {
         type: Boolean,
         default: false,
       },
+      "add-ddb-languages": {
+        name: "ddb-importer.settings.add-ddb-languages.name",
+        hint: "ddb-importer.settings.add-ddb-languages.hint",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: true,
+      },
     },
     // ready settings
     READY: {

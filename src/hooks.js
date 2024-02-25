@@ -56,6 +56,7 @@ export async function onceReady() {
 
   // notificaitons
   registerNotifications();
+  loadDDBConfig();
 
   // delay the startup just a tiny little bit
   setTimeout(() => {
@@ -64,9 +65,7 @@ export async function onceReady() {
     registerSheets();
     itemSheets();
     setupUpdateCreatedOrigins();
-    loadDDBConfig();
     activateUpdateHooks();
-
   }, 500);
 
   anchorInjection();

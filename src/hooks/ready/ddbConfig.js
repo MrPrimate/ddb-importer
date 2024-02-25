@@ -3,6 +3,7 @@ import { fallbackDDBConfig } from "./fallbackConfig.js";
 import FileHelper from "../../lib/FileHelper.js";
 import SETTINGS from "../../settings.js";
 import DDBProxy from "../../lib/DDBProxy.js";
+import addDDBConfig from "./addDDBConfig.js";
 
 function directConfig() {
   $.getJSON("https://www.dndbeyond.com/api/config/json")
@@ -74,10 +75,14 @@ export function loadDDBConfig() {
         logger.debug("DDB_CONFIG", CONFIG.DDB);
       } else {
         logger.info("Loaded default DDB config, checking for live config access.");
-        directConfig();
+        directConfig().then(() => {
+          addDDBConfig();
+        });
       }
     } else {
-      proxyConfig();
+      proxyConfig().then(() => {
+        addDDBConfig();
+      });
     }
   }
 }
