@@ -3,7 +3,7 @@ import utils from "../../lib/utils.js";
 import SETTINGS from "../../settings.js";
 
 function addLanguages() {
-  if (Gamepad.setting.get(SETTINGS.MODULE_ID, "add-ddb-languages")) {
+  if (game.setting.get(SETTINGS.MODULE_ID, "add-ddb-languages")) {
     const ddbRaw = getProperty(CONFIG, "DDB.languages");
     if (!ddbRaw) return;
 
