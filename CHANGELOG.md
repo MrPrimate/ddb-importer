@@ -1,4 +1,4 @@
-# NEXT UP
+# 4.0.11
 
 - Some items such as "Beads of ...", "Elemental Gem ..." and "Dust of ..." will now be munched as consumable items.
 - By default "generic items", e.g. Belt of Giant Strength will not be imported (it's sub types such as  Belt of Giants Strength) will. There is a secret setting to enable these generics, run a macro with `game.settings.set("ddb-importer", "munching-policy-use-generic-items", true)`. @acaciagalagr @motomoto0295
