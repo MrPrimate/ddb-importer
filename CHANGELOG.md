@@ -3,6 +3,7 @@
 - Some items such as "Beads of ...", "Elemental Gem ..." and "Dust of ..." will now be munched as consumable items.
 - By default "generic items", e.g. Belt of Giant Strength will not be imported (it's sub types such as  Belt of Giants Strength) will. There is a secret setting to enable these generics, run a macro with `game.settings.set("ddb-importer", "munching-policy-use-generic-items", true)`. @acaciagalagr @motomoto0295
 - DDB Importer will add missing languages it knows about on D&D Beyond to a new section in the languages config for D&D System. You can disable this in module settings.
+- If midi-qol and CE were installed, status effects would still be generated for effects using statuses rather than CE macros.
 
 # 4.0.10
 

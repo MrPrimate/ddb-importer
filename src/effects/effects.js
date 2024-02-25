@@ -419,6 +419,9 @@ export function addStatusEffectChange(effect, statusName, priority = 20, macro =
   if (effectModules().convenientEffectsInstalled && effectModules().midiQolInstalled) {
     const key = generateStatusEffectChange(statusName, priority, macro);
     effect.changes.push(key);
+  } else if (effectModules().convenientEffectsInstalled) {
+    const key = generateCEStatusEffectChange(statusName, priority, macro);
+    effect.changes.push(key);
   } else {
     effect.statuses.push(statusName.toLowerCase());
     if (level) setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
