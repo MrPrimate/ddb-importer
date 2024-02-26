@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Some advancements should allow replacements, e.g. skills on backgrounds.
+
+
 # 4.0.11
 
 - Some items such as "Beads of ...", "Elemental Gem ..." and "Dust of ..." will now be munched as consumable items.
