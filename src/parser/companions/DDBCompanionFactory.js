@@ -175,6 +175,7 @@ export default class DDBCompanionFactory {
 
     const itemHandler = new DDBItemImporter("monsters", companionData);
     await itemHandler.srdFiddling();
+    await itemHandler.iconAdditions();
 
     await generateIconMap(itemHandler.documents);
 

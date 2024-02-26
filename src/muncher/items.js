@@ -206,6 +206,7 @@ export async function parseItems(ids = null) {
   const itemHandler = new DDBItemImporter("items", items);
   await itemHandler.init();
   await itemHandler.srdFiddling();
+  await itemHandler.iconAdditions();
   const filteredItems = (ids !== null && ids.length > 0)
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : itemHandler.documents;

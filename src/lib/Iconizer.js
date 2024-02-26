@@ -349,7 +349,7 @@ export default class Iconizer {
 
       const pathPostfix = useDeepPaths ? `/item/${item.type}` : "";
 
-      if (item.flags && item.flags.ddbimporter && item.flags.ddbimporter && item.flags.ddbimporter.dndbeyond) {
+      if (hasProperty(item, "flags.ddbimporter.dndbeyond")) {
         if (item.flags.ddbimporter.dndbeyond.avatarUrl) {
           const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
           if (avatarUrl && avatarUrl != "") {
@@ -381,6 +381,33 @@ export default class Iconizer {
     return Promise.all(itemMap);
   }
 
+  static async getDDBHintImages(type, items, download) {
+    DDBMuncher.munchNote(`Fetching DDB Hint Images for ${type}`);
+    const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
+    const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
+    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
+    const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+
+    const imageNamePrefix = useDeepPaths ? "" : type;
+
+    for (const item of items) {
+      // eslint-disable-next-line no-continue
+      if (item.type !== type || item.img) continue;
+      const ddbImg = getProperty(item, "flags.ddbimporter.ddbImg");
+      // eslint-disable-next-line no-continue
+      if (!ddbImg || ddbImg === "") continue;
+      const pathPostfix = useDeepPaths ? `/${type}/${item.type}` : "";
+      const name = useDeepPaths ? `${item.name}` : item.name;
+      const downloadOptions = { type, name, download: downloadImages, remoteImages, targetDirectory, pathPostfix, imageNamePrefix };
+      // eslint-disable-next-line no-await-in-loop
+      const img = await FileHelper.getImagePath(ddbImg, downloadOptions);
+      if (img) item.img = img;
+    }
+
+    DDBMuncher.munchNote("");
+
+    return items;
+  }
 
   static async getDDBGenericItemImages(download) {
     DDBMuncher.munchNote(`Fetching DDB Generic Item icons`);
@@ -597,6 +624,9 @@ export default class Iconizer {
 
     const inBuiltIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-inbuilt-icons");
     if (inBuiltIcons) {
+      console.warn("getDDBHintImages");
+      items = await Iconizer.getDDBHintImages("class", items);
+      items = await Iconizer.getDDBHintImages("subclass", items);
       logger.debug(`Inbuilt icon matching (Monster? ${monster ? monsterName : monster})`);
       items = await Iconizer.copyInbuiltIcons(items, monster, monsterName);
     }

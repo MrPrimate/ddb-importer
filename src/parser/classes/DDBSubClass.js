@@ -38,6 +38,7 @@ export default class DDBSubClass extends DDBClass {
           subclassDefinitionId: this.ddbClass.id,
           id: this.ddbClass.subclassDefinition.id,
           type: "class",
+          ddbImg: this.ddbClass.subclassDefinition.portraitAvatarUrl ?? this.ddbClass.definition.portraitAvatarUrl,
         },
         obsidian: {
           source: {

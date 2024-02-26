@@ -680,7 +680,9 @@ export default class DDBCharacterManager extends FormApplication {
       }
 
       if (useInbuiltIcons) {
-        this.showCurrentTask("Adding SRD Icons");
+        this.showCurrentTask("Adding Inbuilt Icons");
+        items = await Iconizer.getDDBHintImages("class", items);
+        items = await Iconizer.getDDBHintImages("subclass", items);
         items = await Iconizer.copyInbuiltIcons(items);
       }
 

@@ -246,6 +246,7 @@ export default class DDBMonsterFactory {
     this.munchNote("");
     this.munchNote(`Fiddling with the SRD data...`, true);
     await itemHandler.srdFiddling();
+    await itemHandler.iconAdditions();
     this.munchNote(`Generating Icon Map..`, true);
     await generateIconMap(itemHandler.documents);
     await useSRDMonsterImages(itemHandler.documents);

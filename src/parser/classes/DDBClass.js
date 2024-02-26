@@ -204,6 +204,7 @@ export default class DDBClass {
           entityTypeId: this.ddbClass.entityTypeId,
           type: "class",
           isStartingClass: this.ddbClass.isStartingClass,
+          ddbImg: this.ddbClass.definition.portraitAvatarUrl,
         },
         obsidian: {
           source: {

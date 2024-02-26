@@ -137,6 +137,7 @@ export async function parseTransports(ids = null) {
   DDBMuncher.munchNote("");
   DDBMuncher.munchNote(`Fiddling with the SRD data...`, true);
   await vehicleHandler.srdFiddling();
+  await vehicleHandler.iconAdditions();
 
   DDBMuncher.munchNote(`Generating Icon Map..`, true);
   await generateIconMap(vehicleHandler.documents);

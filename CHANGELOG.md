@@ -2,7 +2,7 @@
 
 - Some advancements should allow replacements, e.g. skills on backgrounds.
 - Fighter Armor advancement was not parsed correctly.
-
+- Fallback for class icons like Blood Hunter.
 
 # 4.0.11
 

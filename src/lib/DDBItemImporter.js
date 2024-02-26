@@ -458,10 +458,11 @@ export default class DDBItemImporter {
       const srdItems = await this.getSRDCompendiumItems();
       if (removeDuplicates) this.removeItems(srdItems, matchDDBId);
       this.documents = this.documents.concat(srdItems);
-      this.documents = await Iconizer.updateIcons(this.documents);
-    } else {
-      this.documents = await Iconizer.updateIcons(this.documents);
     }
+  }
+
+  async iconAdditions() {
+    this.documents = await Iconizer.updateIcons(this.documents);
   }
 
   static async buildHandler(type, documents, updateBool,
@@ -471,6 +472,7 @@ export default class DDBItemImporter {
     const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate, useCompendiumFolders });
     await handler.init();
     if (srdFidding) await handler.srdFiddling(removeSRDDuplicates);
+    await handler.iconAdditions();
     const filteredItems = (ids !== null && ids.length > 0)
       ? handler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
       : handler.documents;
