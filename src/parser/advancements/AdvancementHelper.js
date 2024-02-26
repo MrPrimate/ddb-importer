@@ -362,7 +362,7 @@ export default class AdvancementHelper {
       title,
       classRestriction,
       configuration: {
-        allowReplacements: false,
+        allowReplacements: true,
       },
       level,
     });
@@ -435,7 +435,7 @@ export default class AdvancementHelper {
     advancement.updateSource({
       title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "Languages",
       configuration: {
-        allowReplacements: false,
+        allowReplacements: true,
       },
       level: level,
     });
@@ -506,7 +506,7 @@ export default class AdvancementHelper {
     advancement.updateSource({
       title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "Tool Proficiencies",
       configuration: {
-        allowReplacements: false,
+        allowReplacements: true,
       },
       level: level,
     });
@@ -948,7 +948,7 @@ export default class AdvancementHelper {
       choices: [],
       grants: [],
       number: 0,
-      allowReplacements: false,
+      allowReplacements: true,
     };
     const textDescription = AdvancementHelper.stripDescription(description).replace(/\s/g, " ");
 
