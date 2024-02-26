@@ -364,6 +364,7 @@ const DICTIONARY = {
     ],
     proficiencies: [
       // Armor
+      { name: "All armor", type: "Armor", subType: null, foundryValue: "all", advancement: "" },
       { name: "Light Armor", type: "Armor", subType: "Light Armor", foundryValue: "lgt", advancement: "" },
       { name: "Medium Armor", type: "Armor", subType: "Medium Armor", foundryValue: "med", advancement: "" },
       { name: "Heavy Armor", type: "Armor", subType: "Heavy Armor", foundryValue: "hvy", advancement: "" },

@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Some advancements should allow replacements, e.g. skills on backgrounds.
+- Fighter Armor advancement was not parsed correctly.
 
 
 # 4.0.11

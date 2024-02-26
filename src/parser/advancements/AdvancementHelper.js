@@ -1422,7 +1422,9 @@ export default class AdvancementHelper {
       const grantsArray = grantsMatch[1].split(",").map((grant) => grant.trim());
       for (const grant of grantsArray) {
         const stub = AdvancementHelper.getArmorAdvancementValue(grant);
-        if (stub) {
+        if (stub === "all") {
+          parsedArmorProficiencies.grants.push("lgt", "med", "hvy");
+        } else if (stub) {
           parsedArmorProficiencies.grants.push(stub);
         }
       }
