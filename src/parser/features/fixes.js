@@ -444,6 +444,8 @@ export async function fixFeatures(features) {
 
     if (name.endsWith(" Breath Weapon") && feature.system.target?.type === "line") {
       feature.system.target.value = 30;
+    } else if (name.endsWith("[Infusion] Spell-Refueling Ring")) {
+      feature.system.activation.type = "action";
     }
 
     // eslint-disable-next-line no-await-in-loop
