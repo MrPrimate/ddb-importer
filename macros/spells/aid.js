@@ -1,5 +1,7 @@
 // pass in @spellLevel
 const lastArg = args[args.length - 1];
+await DDBImporter?.EffectHelper.wait(500);
+
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
