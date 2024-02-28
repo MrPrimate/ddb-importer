@@ -3,6 +3,8 @@
 - Some advancements should allow replacements, e.g. skills on backgrounds.
 - Fighter Armor advancement was not parsed correctly.
 - Fallback for class icons like Blood Hunter.
+- Some effects generated incorrect macro calls if removing embedded macros.
+- Spell-Refueling Ring infusions came in as bonus actions, not actions.
 
 # 4.0.11
 
