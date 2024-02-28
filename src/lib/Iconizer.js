@@ -624,7 +624,6 @@ export default class Iconizer {
 
     const inBuiltIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-inbuilt-icons");
     if (inBuiltIcons) {
-      console.warn("getDDBHintImages");
       items = await Iconizer.getDDBHintImages("class", items);
       items = await Iconizer.getDDBHintImages("subclass", items);
       logger.debug(`Inbuilt icon matching (Monster? ${monster ? monsterName : monster})`);
