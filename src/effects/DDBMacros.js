@@ -156,12 +156,15 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
   static generateMacroChange({ macroValues = "", macroType = null, macroName = null, keyPostfix = "", priority = 20 } = {}) {
     const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
     const macroKey = (useDDBFunctions)
-      ? `macro.execute.function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")`
+      ? `macro.execute`
       : "macro.itemMacro";
+    const macroValuePrefix = (useDDBFunctions)
+      ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}") `
+      : "";
 
     return {
       key: `${macroKey}${keyPostfix}`,
-      value: macroValues,
+      value: `${macroValuePrefix}${macroValues}`,
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       priority: priority,
     };
@@ -170,7 +173,9 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
   static generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints = [], macroUuid = null) {
     const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
     const docMacroName = (macroUuid && !useDDBFunctions) ? `.${macroUuid}` : "";
-    const valueContent = (useDDBFunctions) ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")` : `ItemMacro${docMacroName}`;
+    const valueContent = (useDDBFunctions)
+      ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")`
+      : `ItemMacro${docMacroName}`;
     return triggerPoints.map((t) => `[${t}]${valueContent}`).join(",");
   }
 
