@@ -1,3 +1,7 @@
+# 4.0.13
+
+- Attempt to resolve the Cannot convert undefined or null to object error.
+
 # 4.0.12
 
 - Some advancements should allow replacements, e.g. skills on backgrounds.

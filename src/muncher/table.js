@@ -204,7 +204,8 @@ function buildTable(parsedTable, keys, diceKeys, tableName, parentName) {
 async function buildAndImportTable(parsedTable, keys, diceKeys, finalName, name, updateExisting) {
   const data = buildTable(parsedTable, keys, diceKeys, finalName, name);
 
-  const handler = await DDBItemImporter.buildHandler("tables", data, updateExisting, { srdFidding: false });
+  const handlerOptions = { srdFidding: false, updateIcons: false };
+  const handler = await DDBItemImporter.buildHandler("tables", data, updateExisting, handlerOptions);
   return handler.results;
 }
 

@@ -467,12 +467,12 @@ export default class DDBItemImporter {
 
   static async buildHandler(type, documents, updateBool,
     { srdFidding = true, removeSRDDuplicates = true, ids = null, vision5e = false, chrisPremades = false, matchFlags = [],
-      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null } = {}
+      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true } = {}
   ) {
     const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate, useCompendiumFolders });
     await handler.init();
     if (srdFidding) await handler.srdFiddling(removeSRDDuplicates);
-    await handler.iconAdditions();
+    if (updateIcons) await handler.iconAdditions();
     const filteredItems = (ids !== null && ids.length > 0)
       ? handler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
       : handler.documents;
