@@ -10,7 +10,7 @@ import FileHelper from "../../lib/FileHelper.js";
 
 setProperty(CONFIG, "DDBI", {
   module: "DDB Importer",
-  schemaVersion: 4.3,
+  schemaVersion: 5.0,
   DICTIONARY: DICTIONARY,
   ADVENTURE: {},
   MACROS: {

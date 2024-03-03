@@ -403,7 +403,7 @@ const MuncherSettings = {
       {
         name: "condition",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-condition"),
-        description: "Exhaustion",
+        description: "Conditions/Exhaustion",
         enabled: true,
       },
       {
