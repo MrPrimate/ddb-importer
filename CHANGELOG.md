@@ -1,3 +1,6 @@
+# Next Up
+
+- Armour of Agathys level scaling fix for core 3.0 bug.
 # 4.0.13
 
 - Attempt to resolve the Cannot convert undefined or null to object error.
