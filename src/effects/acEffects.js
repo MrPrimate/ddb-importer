@@ -36,9 +36,9 @@ function buildBaseACEffect(label) {
   return effect;
 }
 
-function maxACWrapper(formula) {
-  return `max(${formula}, @attributes.ac.armor)`;
-}
+// function maxACWrapper(formula) {
+//   return `max(${formula}, @attributes.ac.armor + @attributes.ac.dex)`;
+// }
 
 /**
  *
@@ -61,7 +61,7 @@ export function generateFixedACEffect(formula, label, alwaysActive = false, prio
   effect.disabled = false;
   effect.origin = "AC";
 
-  const formulaChange = { key: "system.attributes.ac.formula", value: maxACWrapper(formula), mode, priority };
+  const formulaChange = { key: "system.attributes.ac.formula", value: formula, mode, priority };
   const calcChange = { key: "system.attributes.ac.calc", value: "custom", mode, priority };
   effect.changes.push(calcChange, formulaChange);
 
@@ -99,6 +99,7 @@ function addACSetEffect(modifiers, name, subType) {
   const maxDexTypes = ["ac-max-dex-unarmored-modifier", "ac-max-dex-modifier"];
 
   if (bonuses && bonuses != 0) {
+    const bonusSum = Number.isInteger(bonuses) ? 10 + bonuses : `10 + ${bonuses}`;
     let formula = "";
     switch (subType) {
       case "unarmored-armor-class": {
@@ -109,16 +110,16 @@ function addACSetEffect(modifiers, name, subType) {
           .map((mod) => mod.value);
         if (maxDexArray.length > 0) maxDexMod = Math.min(maxDexArray);
         if (ignoreDexMod) {
-          formula = `10 + ${bonuses}`;
+          formula = `${bonusSum}`;
         } else if (maxDexMod === 99) {
-          formula = `10 + ${bonuses} + @abilities.dex.mod`;
+          formula = `${bonusSum} + @abilities.dex.mod`;
         } else {
-          formula = `@abilities.dex.mod > ${maxDexMod} ? 10 + ${bonuses} + ${maxDexMod} : 10 + ${bonuses} + @abilities.dex.mod`;
+          formula = `@abilities.dex.mod > ${maxDexMod} ? ${bonusSum} + ${maxDexMod} : ${bonusSum} + @abilities.dex.mod`;
         }
         break;
       }
       default: {
-        formula = `10 + ${bonuses} + @abilities.dex.mod`;
+        formula = `${bonusSum} + @abilities.dex.mod`;
       }
     }
 
@@ -126,7 +127,7 @@ function addACSetEffect(modifiers, name, subType) {
     effects.push(
       {
         key: "system.attributes.ac.formula",
-        value: maxACWrapper(formula),
+        value: formula,
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         priority: 15,
       },

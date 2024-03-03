@@ -392,7 +392,6 @@ export default class DDBBaseFeature {
     } else {
       this.data = generateBaseACItemEffect(this.ddbData, this.rawCharacter, modifierItem, this.data, compendiumItem);
     }
-
   }
 
 

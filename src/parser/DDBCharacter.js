@@ -72,6 +72,8 @@ export default class DDBCharacter {
     this.itemCompendium = CompendiumHelper.getCompendiumType("inventory");
     this.spellCompendium = CompendiumHelper.getCompendiumType("spell");
 
+    this.armor = {};
+
   }
 
   /**

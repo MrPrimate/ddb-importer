@@ -1804,5 +1804,11 @@
     "race": "Dragonborn",
     "subrace": "Chromatic Dragonborn",
     "path": "icons/creatures/abilities/dragon-ice-breath-blue.webp"
+  },
+  {
+    "name": "Armored Casing",
+    "race": "Autognome",
+    "racial_trait": "Armored Casing",
+    "path": "icons/creatures/magical/construct-stone-earth-gray.webp"
   }
 ]

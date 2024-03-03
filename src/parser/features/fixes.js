@@ -100,6 +100,19 @@ export async function fixFeatures(features) {
         feature.system.damage = { parts: [["1d100", ""]], versatile: "", value: "" };
         feature.system.actionType = "other";
         break;
+      case "Draconic Resilience": {
+        if (feature.effects.length === 1) {
+          feature.effects[0].changes = [
+            {
+              key: "system.attributes.ac.calc",
+              value: "draconic",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              priority: 15,
+            },
+          ];
+        }
+        break;
+      }
       case "Eldritch Cannon: Force Ballista":
         feature.system.target.value = 1;
         feature.system.target.type = "creature";
@@ -433,6 +446,31 @@ export async function fixFeatures(features) {
         break;
       case "Superiority Dice": {
         setProperty(feature.system, "damage.parts", [["@scale.battle-master.combat-superiority-die"]]);
+        break;
+      }
+      case "Unarmored Defense": {
+        if (feature.effects.length === 1) {
+          const klass = getProperty(feature, "flags.ddbimporter.class");
+          if (klass == "Barbarian") {
+            feature.effects[0].changes = [
+              {
+                key: "system.attributes.ac.calc",
+                value: "unarmoredBarb",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                priority: 15,
+              },
+            ];
+          } else if (klass === "Monk") {
+            feature.effects[0].changes = [
+              {
+                key: "system.attributes.ac.calc",
+                value: "unarmoredMonk",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                priority: 15,
+              },
+            ];
+          }
+        }
         break;
       }
       case "Wrath of the Storm": {

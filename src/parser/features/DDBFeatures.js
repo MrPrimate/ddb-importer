@@ -214,6 +214,22 @@ export default class DDBFeatures {
     });
   }
 
+  fixAcEffects() {
+    for (const feature of this.parsed) {
+      logger.debug(`Checking ${feature.name} for AC effects`);
+      for (const effect of (feature.effects ?? [])) {
+        if (
+          !["Natural", "Unarmored Defense", "Custom", "Unarmored"].includes(this.ddbCharacter.armor.results.maxType)
+          && effect.changes.length === 2
+          && effect.changes.some((change) => change.key === "system.attributes.ac.formula")
+          && effect.changes.some((change) => change.key === "system.attributes.ac.calc")
+        ) {
+          effect.disabled = true;
+        }
+      }
+    }
+  }
+
   async build() {
     await this._buildRacialTraits();
     await this._buildClassFeatures();
@@ -223,6 +239,7 @@ export default class DDBFeatures {
     this._setLevelScales();
 
     await fixFeatures(this.parsed);
+    this.fixAcEffects();
     this.data = await addExtraEffects(this.ddbData, this.parsed, this.rawCharacter);
   }
 }
