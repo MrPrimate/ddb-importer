@@ -70,7 +70,7 @@ function getSpellData(className, sourceFilter) {
   });
 }
 
-export async function parseSpells(ids = null) {
+export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
 
@@ -125,7 +125,7 @@ export async function parseSpells(ids = null) {
   await Iconizer.preFetchDDBIconImages();
 
   const uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
-  const itemHandler = new DDBItemImporter("spells", uniqueSpells);
+  const itemHandler = new DDBItemImporter("spells", uniqueSpells, { deleteBeforeUpdate });
   await itemHandler.init();
   await itemHandler.srdFiddling();
   await itemHandler.iconAdditions();

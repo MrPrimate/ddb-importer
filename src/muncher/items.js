@@ -166,7 +166,7 @@ async function addMagicItemSpells(items, spells, updateBool) {
   });
 }
 
-export async function parseItems(ids = null) {
+export async function parseItems(ids = null, deleteBeforeUpdate = null) {
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   const magicItemsInstalled = !!game.modules.get("magicitems");
   const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -203,7 +203,7 @@ export async function parseItems(ids = null) {
 
   await Iconizer.preFetchDDBIconImages();
 
-  const itemHandler = new DDBItemImporter("items", items);
+  const itemHandler = new DDBItemImporter("items", items, { deleteBeforeUpdate });
   await itemHandler.init();
   await itemHandler.srdFiddling();
   await itemHandler.iconAdditions();
