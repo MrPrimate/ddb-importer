@@ -95,7 +95,7 @@ export function fixSpells(ddb, items) {
         spell.system.actionType = "util";
         spell.system.target.type = "self";
         spell.system.damage.parts[0] = ["5", "temphp"];
-        spell.system.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
+        spell.system.scaling = { mode: "level", formula: "((@item.level - 1) * 5)" };
         break;
       }
       case "Arms of Hadar": {
