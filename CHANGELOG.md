@@ -1,6 +1,10 @@
-# Next Up
+# 4.0.14
 
 - Armour of Agathys level scaling fix for core 3.0 bug.
+- Better Support for AC effects from things like Autognomes and Unarmored Defence.
+- Monster Munching will now generate condition effects for application manually if Midi-Qol is not installed. e.g. Wolf attack will get an effect that applies the Prone condition.
+- Waterskins would fail to import.
+
 # 4.0.13
 
 - Attempt to resolve the Cannot convert undefined or null to object error.
