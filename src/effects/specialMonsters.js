@@ -5,7 +5,7 @@ import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
 import { generateLegendaryEffect } from "./monsterFeatures/legendary.js";
-import { generateOverTimeEffect } from "./monsterFeatures/overTimeEffect.js";
+import { generateConditionOnlyEffect, generateOverTimeEffect } from "./monsterFeatures/overTimeEffect.js";
 import { generatePackTacticsEffect } from "./monsterFeatures/packTactics.js";
 import { generateReversalOfFortuneEffect } from "./monsterFeatures/reversalOfFortune.js";
 import { generateSuaveDefenseEffect } from "./monsterFeatures/suaveDefense.js";
@@ -20,6 +20,7 @@ import { deathlyChoirEffect } from "./monsterFeatures/deathlyChoir.js";
 import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
 import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
 import { spellReflectionEffect } from "./monsterFeatures/spellReflection.js";
+import logger from "../logger.js";
 
 export function baseMonsterFeatureEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -56,15 +57,31 @@ export function transferEffectsToActor(document) {
  * @param {*} document
  */
 // eslint-disable-next-line complexity
-export async function monsterFeatureEffectAdjustment(ddbMonster) {
+export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects = false) {
   let npc = duplicate(ddbMonster.npc);
 
   if (!npc.effects) npc.effects = [];
 
   const deps = effectModules();
-  if (!deps.hasCore) {
+  if (!deps.hasCore || !addMidiEffects) {
+    logger.debug(`Adding Condition Effects to ${npc.name}`);
+    // damage over time effects
+    for (let [index, item] of npc.items.entries()) {
+      // auto condition effect
+      if (item.type !== "spell") {
+        console.warn(`Auto-adding Condition Effect to ${item.name} in ${npc.name}`);
+        const overTimeResults = generateConditionOnlyEffect(npc, item);
+        item = overTimeResults.document;
+        npc = overTimeResults.actor;
+      }
+
+      item = forceItemEffect(item);
+      npc.items[index] = item;
+    };
     return npc;
   }
+
+  if (!addMidiEffects) return npc;
 
   // damage over time effects
   for (let [index, item] of npc.items.entries()) {

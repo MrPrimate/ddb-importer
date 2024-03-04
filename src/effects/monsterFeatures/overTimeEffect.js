@@ -100,7 +100,7 @@ function getSpecialDuration (effect, match) {
   return effect;
 }
 
-function generateConditionEffect(effect, text) {
+function generateConditionEffect(effect, text, nameHint = null) {
   let results = {
     success: false,
     effect,
@@ -126,9 +126,12 @@ function generateConditionEffect(effect, text) {
       results.condition = group4Condition.value;
       addStatusEffectChange(results.effect, group4Condition.name, 20, true);
       effect = getSpecialDuration(results.effect, match);
+      if (nameHint) results.effect.name = `${nameHint}: ${group4Condition.name}`;
     } else if (match[3] && match[3] === "die") {
       addStatusEffectChange(results.effect, "Dead", 20, true);
+      if (nameHint) results.effect.name = `Condition: Dead`;
     }
+
   }
   return results;
 }
@@ -163,7 +166,7 @@ export function getOvertimeDamage(text) {
 }
 
 function effectCleanup(document, actor, effect) {
-  if (effect.changes.length > 0) {
+  if (effect.changes.length > 0 || effect.statuses.length > 0) {
     document.effects.push(effect);
     let overTimeFlags = hasProperty(actor, "flags.monsterMunch.overTime") ? getProperty(actor, "flags.monsterMunch.overTime") : [];
     overTimeFlags.push(document.name);
@@ -178,6 +181,25 @@ function effectCleanup(document, actor, effect) {
     logger.debug(`Cleanup of over time effect for ${actor.name}, ${actor.name} for ${document.name}`, effect);
   }
   return { document, actor };
+}
+
+export function generateConditionOnlyEffect(actor, document) {
+  logger.debug(`Checking for condition effects for ${document.name} on ${actor.name}`);
+  if (!document.effects) document.effects = [];
+  let effect = baseMonsterFeatureEffect(document, `${document.name}`);
+  // add any condition effects
+  const conditionResults = generateConditionEffect(effect, document.system.description.value, document.name);
+  effect = conditionResults.effect;
+
+  const durationSeconds = hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
+    ? getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
+    : getDuration(document.system.description.value);
+  setProperty(effect, "duration.seconds", durationSeconds);
+  const durationRounds = Number.parseInt(durationSeconds / 6);
+  setProperty(effect, "duration.rounds", durationRounds);
+
+  const result = effectCleanup(document, actor, effect);
+  return result;
 }
 
 export function generateOverTimeEffect(actor, document) {
