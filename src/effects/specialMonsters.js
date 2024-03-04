@@ -69,7 +69,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
     for (let [index, item] of npc.items.entries()) {
       // auto condition effect
       if (item.type !== "spell") {
-        console.warn(`Auto-adding Condition Effect to ${item.name} in ${npc.name}`);
+        // console.warn(`Auto-adding Condition Effect to ${item.name} in ${npc.name}`);
         const overTimeResults = generateConditionOnlyEffect(npc, item);
         item = overTimeResults.document;
         npc = overTimeResults.actor;
