@@ -68,7 +68,7 @@ export function getEquipped(data) {
 }
 
 export function getRechargeFormula(description, maxCharges) {
-  if (description === "") {
+  if (description === "" || !description) {
     return `${maxCharges}`;
   }
 
@@ -100,7 +100,7 @@ export function getRechargeFormula(description, maxCharges) {
  * uses: { value: 0, max: 0, per: null }
  */
 export function getUses(data) {
-  if (data.limitedUse !== undefined && data.limitedUse !== null) {
+  if (data.limitedUse !== undefined && data.limitedUse !== null && data.limitedUse.resetTypeDescription !== null) {
     let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
 
     const recovery = getRechargeFormula(data.limitedUse.resetTypeDescription, data.limitedUse.maxUses);
