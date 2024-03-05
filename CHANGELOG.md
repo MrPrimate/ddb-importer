@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Importing characters when replacing conditions with Convenient Effects replacing core effects caused issues.
+
 # 4.0.14
 
 - Armour of Agathys level scaling fix for core 3.0 bug.

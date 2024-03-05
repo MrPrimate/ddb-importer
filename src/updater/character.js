@@ -1616,8 +1616,12 @@ export function activateUpdateHooks() {
     Hooks.on("deleteItem", (document) => activeUpdateAddOrDeleteItem(document, "DELETE"));
     // conditions syncing relies of Conv Effects
     const dfConditionsOn = game.modules.get("dfreds-convenient-effects")?.active;
-    const useCEConditions = game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce");
-    if (dfConditionsOn && useCEConditions) {
+    const useCEConditions = dfConditionsOn ? game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce") : false;
+    const dfCEAdded = dfConditionsOn
+      ? game.settings.get("dfreds-convenient-effects", "modifyStatusEffects")
+      : "none";
+
+    if ((dfConditionsOn && useCEConditions && dfCEAdded !== "none") || (dfConditionsOn && dfCEAdded === "replace")) {
       Hooks.on("createActiveEffect", (document) => activeUpdateEffectTrigger(document, "CREATE"));
       Hooks.on("updateActiveEffect", (document) => activeUpdateEffectTrigger(document, "UPDATE"));
       Hooks.on("deleteActiveEffect", (document) => activeUpdateEffectTrigger(document, "DELETE"));

@@ -48,12 +48,16 @@ async function adjustConditionsWithCE(actor, conditionStates) {
  */
 export async function setConditions(actor, ddb, keepLocal = false) {
   const dfConditionsOn = game.modules.get("dfreds-convenient-effects")?.active;
-  const useCEConditions = game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce");
+  const useCEConditions = dfConditionsOn ? game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce") : false;
   const conditionStates = getActorConditionStates(actor, ddb, keepLocal);
   // console.warn(conditionStates);
   logger.debug(`Condition states for ${actor.name}`, conditionStates);
 
-  if (dfConditionsOn && useCEConditions) {
+  const dfCEAdded = dfConditionsOn
+    ? game.settings.get("dfreds-convenient-effects", "modifyStatusEffects")
+    : "none";
+
+  if ((dfConditionsOn && useCEConditions && dfCEAdded !== "none") || (dfConditionsOn && dfCEAdded === "replace")) {
     await adjustConditionsWithCE(actor, conditionStates);
   } else {
     // remove conditions first
