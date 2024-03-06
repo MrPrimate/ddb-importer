@@ -1,4 +1,4 @@
-# NEXT UP
+# 4.0.15
 
 - Importing characters when replacing conditions with Convenient Effects replacing core effects caused issues.
 - More corrections to the Aid spell effect.
