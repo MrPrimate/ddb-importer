@@ -7,7 +7,7 @@ export async function aidEffect(document) {
 
   if (effectModules().midiQolInstalled) {
     effect.changes.push({
-      key: "system.attributes.hp.bonuses.overall",
+      key: "system.attributes.hp.tempmax",
       value: "5 * (@spellLevel - 1)",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 20,
@@ -17,7 +17,7 @@ export async function aidEffect(document) {
     effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "aid.js", priority: 0 }));
   } else if (effectModules().daeInstalled) {
     effect.changes.push({
-      key: "system.attributes.hp.bonuses.overall",
+      key: "system.attributes.hp.tempmax",
       value: "5 * (@spellLevel - 1)",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 20,

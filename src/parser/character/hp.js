@@ -73,8 +73,8 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
       : rolledHP && game.settings.get("ddb-importer", "character-update-policy-use-hp-max-for-rolled-hp")
         ? maxHitPoints
         : null,
-    temp: temporaryHitPoints !== 0 ? temporaryHitPoints : null,
-    tempmax: tempMaxHitPoints !== 0 ? tempMaxHitPoints : null,
+    temp: temporaryHitPoints ?? 0,
+    tempmax: tempMaxHitPoints ?? 0,
     bonuses: {
       level: bonusPerLevelValue !== 0 ? bonusPerLevelValue : "",
       overall: overallBonus !== 0 ? overallBonus : "",
