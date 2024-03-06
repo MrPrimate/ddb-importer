@@ -19,10 +19,11 @@ function htmlToText(html) {
 
 export default class AdvancementHelper {
 
-  constructor({ ddbData, type, noMods = false }) {
+  constructor({ ddbData, type, dictionary = null, noMods = false }) {
     this.ddbData = ddbData;
     this.type = type;
     this.noMods = noMods;
+    this.dictionary = dictionary;
   }
 
   static stripDescription(description) {
@@ -528,7 +529,7 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  getArmorAdvancement(mods, feature, level) {
+  getArmorAdvancement(mods, feature, availableToMulticlass, level) {
     const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
     const armorMods = proficiencyMods
       .filter((mod) =>
@@ -571,10 +572,13 @@ export default class AdvancementHelper {
 
     if (count === 0 && parsedArmors.grants.length === 0) return null;
 
+    const classRestriction = availableToMulticlass === undefined
+      ? undefined
+      : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
+
     const pool = this.noMods || parsedArmors.choices.length > 0 || parsedArmors.grants.length > 0
       ? parsedArmors.choices.map((choice) => `armor:${choice}`)
       : armorsFromMods.map((choice) => `armor:${choice}`);
-
 
     const chosen = this.noMods || chosenArmors.chosen.length > 0
       ? chosenArmors.chosen.map((choice) => `armor:${choice}`)
@@ -583,6 +587,7 @@ export default class AdvancementHelper {
 
     advancement.updateSource({
       title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "Armor Proficiencies",
+      classRestriction,
       configuration: {
         allowReplacements: false,
       },
