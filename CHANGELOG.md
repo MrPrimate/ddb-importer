@@ -3,6 +3,7 @@
 - Importing characters when replacing conditions with Convenient Effects replacing core effects caused issues.
 - More corrections to the Aid spell effect.
 - Incorrect armour advancements for multi-class classes (advancement on class, not proficiency on sheet).
+- Actually working better Support for AC effects from things like Autognomes and Unarmored Defence.
 
 # 4.0.14
 

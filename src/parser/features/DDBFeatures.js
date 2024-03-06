@@ -220,9 +220,13 @@ export default class DDBFeatures {
       for (const effect of (feature.effects ?? [])) {
         if (
           !["Natural", "Unarmored Defense", "Custom", "Unarmored"].includes(this.ddbCharacter.armor.results.maxType)
-          && effect.changes.length === 2
-          && effect.changes.some((change) => change.key === "system.attributes.ac.formula")
-          && effect.changes.some((change) => change.key === "system.attributes.ac.calc")
+          && (
+            (effect.changes.length === 2
+            && effect.changes.some((change) => change.key === "system.attributes.ac.formula")
+            && effect.changes.some((change) => change.key === "system.attributes.ac.calc"))
+            || (effect.changes.length === 1
+              && effect.changes.some((change) => change.key === "system.attributes.ac.calc"))
+          )
         ) {
           effect.disabled = true;
         }
