@@ -59,6 +59,8 @@ export function getTarget(data) {
     result.value = getTargetValues(data);
   }
 
+  const rangeValue = getProperty(data, "definition.range.rangeValue");
+
   switch (data.definition.range.origin) {
     case "Touch":
       result.units = "touch";
@@ -66,7 +68,15 @@ export function getTarget(data) {
       break;
     case "Self": {
       const dmgSpell = data.definition.modifiers.some((mod) => mod.type === "damage");
-      result.type = (dmgSpell) ? "creature" : "self";
+      if (dmgSpell && rangeValue) {
+        result.value = rangeValue;
+        result.units = "ft";
+        result.type = "radius";
+      } else if (dmgSpell) {
+        result.type = "creature";
+      } else {
+        result.type = "self";
+      }
       break;
     }
     case "None":

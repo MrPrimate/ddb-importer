@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Some spells such as Sword Burst or Word of Radiance would not come in with the correct target.
+
 # 4.0.15
 
 - Importing characters when replacing conditions with Convenient Effects replacing core effects caused issues.

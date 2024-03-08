@@ -9,7 +9,8 @@ export function intimidatingPresenceEffect(document) {
   effect.duration.turns = 2;
   document.effects.push(effect);
 
-  document.system.activation.condition = "!target.effects.some((e)=> e.name?.toLowerCase().includes('blind') || e.name?.toLowerCase().includes('deaf'))";
+  // document.system.activation.condition = "!target.effects.some((e)=> e.name?.toLowerCase().includes('blind') || e.name?.toLowerCase().includes('deaf'))";
+  setProperty(document, "flags.midi-qol.effectCondition", "!target.effects.some((e)=> e.name?.toLowerCase().includes('blind') || e.name?.toLowerCase().includes('deaf'))");
   setProperty(document.flags, "midi-qol.effectActivation", true);
   document.system.duration.units = "perm";
 

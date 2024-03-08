@@ -94,7 +94,8 @@ export function getDivineSmiteSpell(feature) {
   result.system.formula = `${regularDamage} + ${extraDamage}`;
   result.system.chatFlavor = `Use Other damage ${restriction.toLowerCase()}`;
   if (game.modules.get("midi-qol")?.active) {
-    result.system.activation.condition = `["undead", "fiend"].includes("@raceOrType")`;
+    // result.system.activation.condition = `["undead", "fiend"].includes("@raceOrType")`;
+    setProperty(document, "flags.midi-qol.effectCondition", `["undead", "fiend"].includes("@raceOrType")`);
   }
 
   return result;

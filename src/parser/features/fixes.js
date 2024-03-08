@@ -79,7 +79,12 @@ export async function fixFeatures(features) {
         };
         break;
       case "Daunting Roar": {
-        feature.system.range.value = 10;
+        feature.system.target = {
+          value: 10,
+          units: "ft",
+          type: "radius",
+        };
+        feature.system.range.units = "self";
         break;
       }
       case "Dark One’s Blessing":

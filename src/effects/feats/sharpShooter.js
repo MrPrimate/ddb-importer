@@ -51,14 +51,8 @@ export function sharpShooterEffect(document) {
   document.system.range = { value: null, units: "self", long: null };
   document.system.actionType = "other";
 
-  const midiFlags = {
-    "effectActivation": false,
-    // "forceCEOff": false,
-    // "forceCEOn": true,
-    "removeAttackDamageButtons": "default",
-  };
-
-  setProperty(document, "flags.midi-qol", midiFlags);
+  setProperty(document, "flags.midi-qol.effectActivation", false);
+  setProperty(document, "flags.midi-qol.removeAttackDamageButtons", false);
   setProperty(document, "flags.midiProperties.toggleEffect", true);
 
   return document;

@@ -208,7 +208,9 @@ export async function addRestrictionFlags(document, addEffects) {
     if (document.system.attunement > 0 && !["", "false"].includes(restriction.restriction)) {
       restrictionText += ` && @item.attunement !== 1`;
     }
-    setProperty(document, "system.activation.condition", restrictionText);
+    // setProperty(document, "system.activation.condition", restrictionText);
+    setProperty(document, "flags.midi-qol.effectCondition", restrictionText);
+
     if (restriction.effectRestrictionActivation) {
       setProperty(document, "flags.midi-qol.effectActivation", true);
     }

@@ -1,11 +1,6 @@
 export function swordBurstEffect(document) {
-  document.system.target = {
-    value: 5,
-    width: null,
-    units: "ft",
-    type: "creature",
-  };
-  document.system.range = { value: null, units: "special", long: null };
+  setProperty(document, "flags.midi-qol.AoETargetType", "any");
+  setProperty(document, "flags.midi-qol.AoETargetTypeIncludeSelf", false);
 
   return document;
 }
