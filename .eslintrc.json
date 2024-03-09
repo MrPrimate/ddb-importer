@@ -59,6 +59,7 @@
     "mergeObject": true,
     "MidiQOL": true,
     "NoteConfig": true,
+    "PIXI": true,
     "Playlist": true,
     "randomID": true,
     "Ray": true,
