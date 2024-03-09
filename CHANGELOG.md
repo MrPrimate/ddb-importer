@@ -1,5 +1,7 @@
 # NEXT UP
 
+# 4.0.16
+
 - Some spells such as Sword Burst or Word of Radiance would not come in with the correct target.
 - In cases where using midi's activation conditions, these have now been moved to the midi flag.
 - Sneak Attack effect for midi users.
