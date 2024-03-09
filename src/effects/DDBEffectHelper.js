@@ -463,6 +463,169 @@ export default class DDBEffectHelper {
   }
 
   /**
+   * This is a simple reworking of midi-qols measureDistances function, for use where midi-qol is not available
+   * Measure distances for given segments with optional grid spaces.
+   *
+   * @param {Array} segments - Array of segments to measure distances for
+   * @param {Object} options - Optional object with grid spaces configuration
+   * @return {Array} Array of distances for each segment
+   */
+  static simpleMeasureDistances(segments, options = {}) {
+    if (canvas?.grid?.grid.constructor.name !== "BaseGrid" || !options.gridSpaces) {
+      const distances = canvas?.grid?.measureDistances(segments, options);
+      return distances;
+    }
+
+    const rule = canvas?.grid.diagonalRule;
+    if (!options.gridSpaces || !["555", "5105", "EUCL"].includes(rule)) {
+      return canvas?.grid?.measureDistances(segments, options);
+    }
+    // Track the total number of diagonals
+    let nDiagonal = 0;
+    const d = canvas?.dimensions;
+
+    const grid = canvas?.scene?.grid;
+    if (!d || !d.size) return 0;
+
+    // Iterate over measured segments
+    return segments.map((s) => {
+      const r = s.ray;
+      // Determine the total distance traveled
+      const nx = Math.ceil(Math.max(0, Math.abs(r.dx / d.size)));
+      const ny = Math.ceil(Math.max(0, Math.abs(r.dy / d.size)));
+      // Determine the number of straight and diagonal moves
+      const nd = Math.min(nx, ny);
+      const ns = Math.abs(ny - nx);
+      nDiagonal += nd;
+
+      if (rule === "5105") { // Alternative DMG Movement
+        const nd10 = Math.floor(nDiagonal / 2) - Math.floor((nDiagonal - nd) / 2);
+        const spaces = (nd10 * 2) + (nd - nd10) + ns;
+        return spaces * d.distance;
+      } else if (rule === "EUCL") { // Euclidean Measurement
+        const nx = Math.max(0, Math.abs(r.dx / d.size));
+        const ny = Math.max(0, Math.abs(r.dy / d.size));
+        return Math.ceil(Math.hypot(nx, ny) * grid?.distance);
+      } else { // Standard PHB Movement
+        return Math.max(nx, ny) * grid.distance;
+      }
+    });
+  }
+
+  /**
+   * Get the distance segments between two objects.
+   *
+   * @param {Object} t1 - the first token
+   * @param {Object} t2 - the second token
+   * @param {boolean} wallBlocking - whether to consider walls as blocking
+   * @return {Array} an array of segments representing the distance between the two objects
+   */
+  static _getDistanceSegments(t1, t2, wallBlocking = false) {
+    const t1StartX = t1.document.width >= 1 ? 0.5 : t1.document.width / 2;
+    const t1StartY = t1.document.height >= 1 ? 0.5 : t1.document.height / 2;
+    const t2StartX = t2.document.width >= 1 ? 0.5 : t2.document.width / 2;
+    const t2StartY = t2.document.height >= 1 ? 0.5 : t2.document.height / 2;
+    let x, x1, y, y1;
+    let segments = [];
+    for (x = t1StartX; x < t1.document.width; x++) {
+      for (y = t1StartY; y < t1.document.height; y++) {
+        const origin = new PIXI.Point(...canvas.grid.getCenter(Math.round(t1.document.x + (canvas.dimensions.size * x)), Math.round(t1.document.y + (canvas.dimensions.size * y))));
+        for (x1 = t2StartX; x1 < t2.document.width; x1++) {
+          for (y1 = t2StartY; y1 < t2.document.height; y1++) {
+            const dest = new PIXI.Point(...canvas.grid.getCenter(Math.round(t2.document.x + (canvas.dimensions.size * x1)), Math.round(t2.document.y + (canvas.dimensions.size * y1))));
+            const r = new Ray(origin, dest);
+            // eslint-disable-next-line max-depth
+            if (wallBlocking) {
+              const collisionCheck = CONFIG.Canvas.polygonBackends.move.testCollision(origin, dest, { mode: "any", type: "move" });
+              // eslint-disable-next-line max-depth, no-continue
+              if (collisionCheck) continue;
+            }
+            segments.push({ ray: r });
+          }
+        }
+      }
+    }
+    return segments;
+  }
+
+  /**
+   * Calculate the height difference between two tokens based on their elevation and dimensions.
+   *
+   * @param {type} t1 - description of parameter t1
+   * @param {type} t2 - description of parameter t2
+   * @return {type} the height difference between the two tokens
+   */
+  static _calculateTokeHeightDifference(t1, t2) {
+    const t1Elevation = t1.document.elevation ?? 0;
+    const t2Elevation = t2.document.elevation ?? 0;
+    const t1TopElevation = t1Elevation + (Math.max(t1.document.height, t1.document.width) * (canvas?.dimensions?.distance ?? 5));
+    const t2TopElevation = t2Elevation + (Math.min(t2.document.height, t2.document.width) * (canvas?.dimensions?.distance ?? 5));
+
+    let heightDifference = 0;
+    let t1ElevationRange = Math.max(t1.document.height, t1.document.width) * (canvas?.dimensions?.distance ?? 5);
+    if (Math.abs(t2Elevation - t1Elevation) < t1ElevationRange) {
+      // token 2 is within t1's size so height difference is functionally 0
+      heightDifference = 0;
+    } else if (t1Elevation < t2Elevation) { // t2 above t1
+      heightDifference = t2Elevation - t1TopElevation;
+    } else if (t1Elevation > t2Elevation) { // t1 above t2
+      heightDifference = t1Elevation - t2TopElevation;
+    }
+
+    return heightDifference;
+
+  }
+
+  /**
+   * This is a simple reworking of midi-qols get distance function, for use where midi-qol is not available
+   * Calculate the distance between two tokens on the canvas, considering the presence of walls.
+   *
+   * @param {string} token1 - The ID of the first token
+   * @param {string} token2 - The ID of the second token
+   * @param {boolean} wallBlocking - Whether to consider walls as obstacles (default is false)
+   * @return {number} The calculated distance between the two tokens
+   */
+  static getSimpleDistance(token1, token2, wallBlocking = false) {
+    if (!canvas || !canvas.scene) return -1;
+    if (!canvas.grid || !canvas.dimensions) return -1;
+    const t1 = DDBEffectHelper.getToken(token1);
+    const t2 = DDBEffectHelper.getToken(token2);
+    if (!t1 || !t2) return -1;
+    if (!canvas || !canvas.grid || !canvas.dimensions) return -1;
+
+    const segments = DDBEffectHelper._getDistanceSegments(t1, t2, wallBlocking);
+    if (segments.length === 0) return -1;
+
+    const rayDistances = segments.map((ray) => DDBEffectHelper.simpleMeasureDistances([ray], { gridSpaces: true }));
+    let distance = Math.min(...rayDistances);
+
+    const heightDifference = DDBEffectHelper._calculateTokeHeightDifference(t1, t2);
+
+    const distanceRule = canvas.grid.diagonalRule;
+    // 5105 Alternative DMG Movement
+    // 555 Standard Movement
+    // EUCL Euclidean Measurement
+    if (["555", "5105"].includes(distanceRule)) {
+      let nd = Math.min(distance, heightDifference);
+      let ns = Math.abs(distance - heightDifference);
+      distance = nd + ns;
+      let dimension = canvas?.dimensions?.distance ?? 5;
+      if (distanceRule === "5105") distance += Math.floor(nd / 2 / dimension) * dimension;
+    }
+    distance = Math.sqrt((heightDifference * heightDifference) + (distance * distance));
+
+    return distance;
+  }
+
+  static getDistance(token1, token2, wallsBlocking = false) {
+    if (game.modules.get("midi-qol")?.active) {
+      return MidiQOL.computeDistance(token1, token2, wallsBlocking);
+    } else {
+      return DDBEffectHelper.getSimpleDistance(token1, token2, wallsBlocking);
+    }
+  }
+
+  /**
    * Returns the highest ability of an actor based on the given abilities.
    *
    * @param {Object} actor - The actor object.
@@ -615,7 +778,7 @@ export default class DDBEffectHelper {
 
     const sourceToken = canvas.tokens?.get(macroData.tokenId);
     const targetToken = macroData.hitTargets[0].object;
-    const distance = MidiQOL.getDistance(sourceToken, targetToken, true, true);
+    const distance = MidiQOL.computeDistance(sourceToken, targetToken, true);
     const meleeDistance = 5; // Would it be possible to have creatures with reach and thrown weapon?
     return distance >= 0 && distance > meleeDistance;
   }

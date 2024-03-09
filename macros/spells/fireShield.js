@@ -63,7 +63,7 @@ if (args[0].tag === 'OnUse') {
   const defenderToken = args[0].options.token;
   const defenderActor = args[0].options.actor;
   if (!attackerToken || !defenderToken || !defenderActor) return;
-  if (MidiQOL.getDistance(attackerToken, defenderToken) > 5) return;
+  if (DDBImporter.EffectHelper.getDistance(attackerToken, defenderToken) > 5) return;
   const dmgType = defenderActor.effects.find((eff) => (eff.name ?? eff.label).toLocaleLowerCase().includes('warm'))
     ? 'fire'
     : 'cold';
