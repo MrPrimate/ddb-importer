@@ -78,11 +78,307 @@ import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
 import { giantStatureEffect } from "./feats/giantStature.js";
 import { demiurgicColossusEffect } from "./feats/demiurgicColossus.js";
 import { greatWeaponMasterEffect } from "./feats/greatWeaponMaster.js";
+import { psychicBladesEffect } from "./feats/psychicBlades.js";
+import { sneakAttackEffect } from "./feats/sneakAttack.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
 ) {
   return baseEffect(document, label, { transfer, disabled });
+}
+
+// eslint-disable-next-line complexity
+async function midiFeatureEffects(ddb, character, document) {
+  const name = document.flags.ddbimporter?.originalName ?? document.name;
+
+  document = applyDefaultMidiFlags(document);
+
+  if (name.startsWith("Maneuvers: ") && ddb && character) {
+    document = await maneuversEffect(ddb, character, document);
+    return document;
+  } else if (name.startsWith("Rune Carver: ")) {
+    document = await runeCarverEffect(document);
+    return document;
+  }
+
+  switch (name) {
+    case "Arcane Recovery": {
+      document = await arcaneRecoveryEffect(document);
+      break;
+    }
+    case "Ancestral Protectors": {
+      document = await ancestralProtectorsEffect(document);
+      break;
+    }
+    case "Arcane Ward": {
+      document = await arcaneWardEffect(document);
+      break;
+    }
+    case "Bladesong": {
+      document = bladesongEffect(document);
+      break;
+    }
+    case "Bardic Inspiration": {
+      document = bardicInspirationEffect(document);
+      break;
+    }
+    case "Blessed Healer": {
+      document = await blessedHealerEffect(document);
+      break;
+    }
+    case "Blessed Strikes": {
+      document = blessedStrikesEffect(document);
+      break;
+    }
+    case "Convert Sorcery Points":
+    case "Font of Magic": {
+      document = await fontOfMagicEffect(document);
+      break;
+    }
+    case "Crusher": {
+      document = await crusherEffect(document);
+      break;
+    }
+    case "Crusher: Critical": {
+      document = await crusherCriticalEffect(document);
+      break;
+    }
+    case "Cloud Rune": {
+      document = cloudRuneEffect(document);
+      break;
+    }
+    case "Crossbow Expert": {
+      document = crossbowExpertEffect(document);
+      break;
+    }
+    case "Daunting Roar": {
+      document = dauntingRoarEffect(document);
+      break;
+    }
+    case "Deflect Missiles": {
+      document = deflectMissilesEffect(document);
+      break;
+    }
+    case "Deflect Missiles Attack": {
+      document = deflectMissilesAttackEffect(document);
+      break;
+    }
+    case "Deft Strike": {
+      document = await deftStrikeEffect(document);
+      break;
+    }
+    case "Evasion": {
+      document = evasionEffect(document);
+      break;
+    }
+    case "Empty Body":
+    case "Ki: Empty Body": {
+      document = kiEmptyBodyEffect(document);
+      break;
+    }
+    case "Favored Foe": {
+      document = await favoredFoeEffect(document);
+      break;
+    }
+    case "Fighting Style: Interception": {
+      document = fightingStyleInterceptionEffect(document);
+      break;
+    }
+    case "Fire Rune": {
+      document = fireRuneEffect(document);
+      break;
+    }
+    case "Form of the Beast: Tail (reaction)": {
+      document = formOfTheBeastReactionEffect(document);
+      break;
+    }
+    case "Fury of the Small": {
+      document = await furyOfTheSmallEffect(document);
+      break;
+    }
+    case "Giant's Might": {
+      document = giantsMightEffect(document);
+      break;
+    }
+    case "Glide (Reaction)": {
+      document = forceManualReaction(document);
+      break;
+    }
+    case "Hadozee Dodge": {
+      document = hadozeDodgeEffect(document);
+      break;
+    }
+    case "Indomitable": {
+      document = indomitableEffect(document);
+      break;
+    }
+    case "Intimidating Presence": {
+      document = intimidatingPresenceEffect(document);
+      break;
+    }
+    case "Mantle of Inspiration": {
+      document = await mantleOfInspirationEffect(document);
+      break;
+    }
+    case "Mask of the Wild": {
+      document = await maskOfTheWildEffect(document);
+      break;
+    }
+    case "Patient Defense": {
+      document = patientDefenseEffect(document);
+      break;
+    }
+    case "Potent Cantrip": {
+      document = potentCantripEffect(document);
+      break;
+    }
+    case "Equine Build":
+    case "Little Giant":
+    case "Hippo Build":
+    case "Powerful Build": {
+      document = powerfulBuild(document);
+      break;
+    }
+    case "Piercer": {
+      document = await piercerCriticalEffect(document);
+      document = await piercerRerollEffect(document);
+      break;
+    }
+    case "Piercer: Reroll Damage": {
+      document = await piercerRerollEffect(document);
+      break;
+    }
+    case "Piercer: Critical Hit": {
+      document = await piercerCriticalEffect(document);
+      break;
+    }
+    case "Planar Warrior": {
+      document = await planarWarriorEffect(document);
+      break;
+    }
+    case "Psychic Blades: Attack (DEX)":
+    case "Psychic Blades: Attack (STR)":
+    case "Psychic Blades: Bonus Attack (DEX)":
+    case "Psychic Blades: Bonus Attack (STR)":
+    case "Psychic Blades: Bonus Attack":
+    case "Psychic Blades: Attack": {
+      document = psychicBladesEffect(document);
+      break;
+    }
+    case "Celestial Revelation (Radiant Soul)":
+    case "Radiant Soul": {
+      document = await radiantSoulEffect(document);
+      break;
+    }
+    case "Raging Storm: Sea": {
+      document = await ragingStormSeaEffect(document);
+      break;
+    }
+    case "Raging Storm: Tundra": {
+      document = await ragingStormTundraEffect(document);
+      break;
+    }
+    case "Reckless Attack": {
+      document = recklessAttackEffect(document);
+      break;
+    }
+    case "Channel Divinity: Sacred Weapon":
+    case "Sacred Weapon": {
+      document = await sacredWeaponEffect(document);
+      break;
+    }
+    case "Sculpt Spells": {
+      document = sculptSpellsEffect(document);
+      break;
+    }
+    case "Sharpshooter": {
+      document = sharpShooterEffect(document);
+      break;
+    }
+    case "Savage Attacker": {
+      document = savageAttackerEffect(document);
+      break;
+    }
+    case "Shift": {
+      if (ddb && character) document = shiftEffect(ddb, character, document);
+      break;
+    }
+    case "Slasher: Reduce Speed": {
+      document = await slasherReduceSpeedEffect(document);
+      break;
+    }
+    case "Slasher: Critical Hit": {
+      document = await slasherCriticalEffect(document);
+      break;
+    }
+    case "Slayer's Prey": {
+      document = await slayersPreyEffect(document);
+      break;
+    }
+    case "Slow Fall": {
+      document = forceManualReaction(document);
+      break;
+    }
+    case "Squire of Solamnia: Precise Strike": {
+      document = await squireOfSolamniaEffect(document);
+      break;
+    }
+    case "Sneak Attack": {
+      document = await sneakAttackEffect(document);
+      break;
+    }
+    case "Steady Aim": {
+      document = steadyAimEffect(document);
+      break;
+    }
+    case "Stone Rune": {
+      document = stoneRuneEffect(document);
+      break;
+    }
+    case "Stone's Endurance":
+    case "Stone’s Endurance": {
+      document = stonesEnduranceEffect(document);
+      break;
+    }
+    case "Storm Aura: Tundra": {
+      document = await stormAuraTundraEffect(document);
+      break;
+    }
+    case "Storm Rune": {
+      document = stormRuneEffect(document);
+      break;
+    }
+    case "Storm Soul: Desert":
+    case "Storm Soul: Sea":
+    case "Storm Soul: Tundra":
+    case "Storm Soul": {
+      if (ddb) document = await stormSoulEffect(ddb, document);
+      break;
+    }
+    case "Swiftstride Reaction": {
+      document = forceManualReaction(document);
+      break;
+    }
+    case "Uncanny Dodge": {
+      document = uncannyDodgeEffect(document);
+      break;
+    }
+    case "Vedalken Dispassion": {
+      document = vedalkenDispassionEffect(document);
+      break;
+    }
+    case "Visage of the Astral Self": {
+      document = visageOfTheAstralSelfEffect(document);
+      break;
+    }
+    case "War Caster":
+    case "Warcaster": {
+      document = warCasterEffect(document);
+      break;
+    }
+    // no default
+  }
+  return document;
 }
 
 /**
@@ -113,8 +409,17 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       document = defensiveDuelistEffect(document);
       break;
     }
+    case "Demiurgic Colossus": {
+      document = demiurgicColossusEffect(document);
+      break;
+    }
     case "Frost Rune": {
       document = frostRuneEffect(document);
+      break;
+    }
+    case "Giant Stature":
+    case "Giant's Havoc: Giant Stature": {
+      document = giantStatureEffect(document);
       break;
     }
     case "Great Weapon Master": {
@@ -140,6 +445,10 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Rage": {
       document = rageEffect(document);
+      break;
+    }
+    case "Shielding Storm": {
+      if (ddb) document = shieldingStormEffect(ddb, document);
       break;
     }
     case "Unarmored Movement": {
@@ -179,300 +488,12 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
   }
 
-  if (deps.midiQolInstalled && midiEffects) {
-    document = applyDefaultMidiFlags(document);
-    switch (name) {
-      case "Arcane Recovery": {
-        document = await arcaneRecoveryEffect(document);
-        break;
-      }
-      case "Bladesong": {
-        document = bladesongEffect(document);
-        break;
-      }
-      case "Bardic Inspiration": {
-        document = bardicInspirationEffect(document);
-        break;
-      }
-      case "Blessed Strikes": {
-        document = blessedStrikesEffect(document);
-        break;
-      }
-      case "Cloud Rune": {
-        document = cloudRuneEffect(document);
-        break;
-      }
-      case "Crossbow Expert": {
-        document = crossbowExpertEffect(document);
-        break;
-      }
-      case "Daunting Roar": {
-        document = dauntingRoarEffect(document);
-        break;
-      }
-      case "Deflect Missiles": {
-        document = deflectMissilesEffect(document);
-        break;
-      }
-      case "Deflect Missiles Attack": {
-        document = deflectMissilesAttackEffect(document);
-        break;
-      }
-      case "Evasion": {
-        document = evasionEffect(document);
-        break;
-      }
-      case "Empty Body":
-      case "Ki: Empty Body": {
-        document = kiEmptyBodyEffect(document);
-        break;
-      }
-      case "Fighting Style: Interception": {
-        document = fightingStyleInterceptionEffect(document);
-        break;
-      }
-      case "Fire Rune": {
-        document = fireRuneEffect(document);
-        break;
-      }
-      case "Form of the Beast: Tail (reaction)": {
-        document = formOfTheBeastReactionEffect(document);
-        break;
-      }
-      case "Fury of the Small": {
-        document = await furyOfTheSmallEffect(document);
-        break;
-      }
-      case "Giant's Might": {
-        document = giantsMightEffect(document);
-        break;
-      }
-      case "Glide (Reaction)": {
-        document = forceManualReaction(document);
-        break;
-      }
-      case "Hadozee Dodge": {
-        document = hadozeDodgeEffect(document);
-        break;
-      }
-      case "Indomitable": {
-        document = indomitableEffect(document);
-        break;
-      }
-      case "Intimidating Presence": {
-        document = intimidatingPresenceEffect(document);
-        break;
-      }
-      case "Mantle of Inspiration": {
-        document = await mantleOfInspirationEffect(document);
-        break;
-      }
-      case "Mask of the Wild": {
-        document = await maskOfTheWildEffect(document);
-        break;
-      }
-      case "Patient Defense": {
-        document = patientDefenseEffect(document);
-        break;
-      }
-      case "Potent Cantrip": {
-        document = potentCantripEffect(document);
-        break;
-      }
-      case "Equine Build":
-      case "Little Giant":
-      case "Hippo Build":
-      case "Powerful Build": {
-        document = powerfulBuild(document);
-        break;
-      }
-      case "Celestial Revelation (Radiant Soul)":
-      case "Radiant Soul": {
-        document = await radiantSoulEffect(document);
-        break;
-      }
-      case "Raging Storm: Sea": {
-        document = await ragingStormSeaEffect(document);
-        break;
-      }
-      case "Raging Storm: Tundra": {
-        document = await ragingStormTundraEffect(document);
-        break;
-      }
-      case "Reckless Attack": {
-        document = recklessAttackEffect(document);
-        break;
-      }
-      case "Channel Divinity: Sacred Weapon":
-      case "Sacred Weapon": {
-        document = await sacredWeaponEffect(document);
-        break;
-      }
-      case "Sculpt Spells": {
-        document = sculptSpellsEffect(document);
-        break;
-      }
-      case "Sharpshooter": {
-        document = sharpShooterEffect(document);
-        break;
-      }
-      case "Savage Attacker": {
-        document = savageAttackerEffect(document);
-        break;
-      }
-      case "Shift": {
-        if (ddb && character) document = shiftEffect(ddb, character, document);
-        break;
-      }
-      case "Slow Fall": {
-        document = forceManualReaction(document);
-        break;
-      }
-      case "Squire of Solamnia: Precise Strike": {
-        document = await squireOfSolamniaEffect(document);
-        break;
-      }
-      case "Steady Aim": {
-        document = steadyAimEffect(document);
-        break;
-      }
-      case "Stone Rune": {
-        document = stoneRuneEffect(document);
-        break;
-      }
-      case "Stone's Endurance":
-      case "Stone’s Endurance": {
-        document = stonesEnduranceEffect(document);
-        break;
-      }
-      case "Storm Aura: Tundra": {
-        document = await stormAuraTundraEffect(document);
-        break;
-      }
-      case "Storm Rune": {
-        document = stormRuneEffect(document);
-        break;
-      }
-      case "Storm Soul: Desert":
-      case "Storm Soul: Sea":
-      case "Storm Soul: Tundra":
-      case "Storm Soul": {
-        if (ddb) document = await stormSoulEffect(ddb, document);
-        break;
-      }
-      case "Swiftstride Reaction": {
-        document = forceManualReaction(document);
-        break;
-      }
-      case "Uncanny Dodge": {
-        document = uncannyDodgeEffect(document);
-        break;
-      }
-      case "Vedalken Dispassion": {
-        document = vedalkenDispassionEffect(document);
-        break;
-      }
-      case "Visage of the Astral Self": {
-        document = visageOfTheAstralSelfEffect(document);
-        break;
-      }
-      case "War Caster":
-      case "Warcaster": {
-        document = warCasterEffect(document);
-        break;
-      }
-      // no default
-    }
-  }
-
   if (!deps.hasCore || !midiEffects) {
     return forceItemEffect(document);
   }
 
-
-  if (name.startsWith("Maneuvers: ") && ddb && character) {
-    document = await maneuversEffect(ddb, character, document);
-  }
-  if (name.startsWith("Rune Carver: ")) {
-    document = await runeCarverEffect(document);
-  }
-  switch (name) {
-    case "Ancestral Protectors": {
-      document = await ancestralProtectorsEffect(document);
-      break;
-    }
-    case "Arcane Ward": {
-      document = await arcaneWardEffect(document);
-      break;
-    }
-    case "Blessed Healer": {
-      document = await blessedHealerEffect(document);
-      break;
-    }
-    case "Convert Sorcery Points":
-    case "Font of Magic": {
-      document = await fontOfMagicEffect(document);
-      break;
-    }
-    case "Crusher": {
-      document = await crusherEffect(document);
-      break;
-    }
-    case "Crusher: Critical": {
-      document = await crusherCriticalEffect(document);
-      break;
-    }
-    case "Deft Strike": {
-      document = await deftStrikeEffect(document);
-      break;
-    }
-    case "Demiurgic Colossus": {
-      document = demiurgicColossusEffect(document);
-      break;
-    }
-    case "Favored Foe": {
-      document = await favoredFoeEffect(document);
-      break;
-    }
-    case "Giant Stature":
-    case "Giant's Havoc: Giant Stature": {
-      document = giantStatureEffect(document);
-      break;
-    }
-    case "Piercer": {
-      document = await piercerCriticalEffect(document);
-      document = await piercerRerollEffect(document);
-      break;
-    }
-    case "Piercer: Reroll Damage": {
-      document = await piercerRerollEffect(document);
-      break;
-    }
-    case "Piercer: Critical Hit": {
-      document = await piercerCriticalEffect(document);
-      break;
-    }
-    case "Planar Warrior": {
-      document = await planarWarriorEffect(document);
-      break;
-    }
-    case "Shielding Storm": {
-      if (ddb) document = shieldingStormEffect(ddb, document);
-      break;
-    }
-    case "Slasher: Reduce Speed": {
-      document = await slasherReduceSpeedEffect(document);
-      break;
-    }
-    case "Slasher: Critical Hit": {
-      document = await slasherCriticalEffect(document);
-      break;
-    }
-    case "Slayer's Prey": {
-      document = await slayersPreyEffect(document);
-      break;
-    }
-    // no default
+  if (deps.midiQolInstalled && midiEffects) {
+    document = await midiFeatureEffects(ddb, character, document);
   }
 
   return forceItemEffect(document);
