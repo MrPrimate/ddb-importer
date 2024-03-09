@@ -207,7 +207,12 @@ export async function getNPCImage(npcData, { type = "monster", forceUpdate = fal
   const hasAvatarProcessedAlready = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
   const hasTokenProcessedAlready = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
 
-  const npcType = type.startsWith("vehicle") ? "vehicle" : npcData.system.details.type.value;
+  const npcType = type.startsWith("vehicle")
+    ? "vehicle"
+    : npcData.system.details.type.value
+      ?? (npcData.system.details.type.custom && npcData.system.details.type.custom !== ""
+        ? npcData.system.details.type.custom
+        : "unknown");
   const genericNPCName = utils.referenceNameString(npcType);
   const npcName = utils.referenceNameString(npcData.name);
 
