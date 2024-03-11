@@ -15,7 +15,7 @@ import { checkCobalt } from "./lib/Secrets.js";
 import { getFeats } from "./muncher/feats/feats.js";
 import DDBMacros from "./effects/DDBMacros.js";
 import Iconizer from "./lib/Iconizer.js";
-import { loadSRDRules, importCacheLoad } from "./lib/DDBTemplateStrings.js";
+import { importCacheLoad } from "./lib/DDBReferenceLinker.js";
 import { getNPCImage } from "./muncher/importMonster.js";
 import PatreonHelper from "./lib/PatreonHelper.js";
 import CompendiumHelper from "./lib/CompendiumHelper.js";
@@ -155,7 +155,6 @@ export function registerApi() {
     iconPath: Iconizer.iconPath,
     generateIcon: Iconizer.generateIcon,
 
-    loadSRDRules,
     importCacheLoad,
     getNPCImage,
     resetCompendiumActorImages,

@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import logger from "../../logger.js";
-import { parseTags } from "../../lib/DDBTemplateStrings.js";
+import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements, getClassImages } from "./shared.js";
 import DDBMuncher from "../../apps/DDBMuncher.js";
 import utils from "../../lib/utils.js";

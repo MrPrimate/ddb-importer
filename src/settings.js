@@ -465,6 +465,20 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
+        "use-loose-srd-reference-matching": {
+          name: "ddb-importer.settings.use-loose-srd-reference-matching.name",
+          hint: "ddb-importer.settings.use-loose-srd-reference-matching.hint",
+          config: true,
+          type: Boolean,
+          default: true,
+        },
+        "use-super-loose-srd-reference-matching": {
+          // name: "ddb-importer.settings.use-super-loose-srd-reference-matching.name",
+          // hint: "ddb-importer.settings.use-super-loose-srd-reference-matching.hint",
+          config: false,
+          type: Boolean,
+          default: false,
+        },
       },
       // ????
       MISC: {

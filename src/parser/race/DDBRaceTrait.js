@@ -1,4 +1,4 @@
-import { parseTags } from "../../lib/DDBTemplateStrings.js";
+import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import utils from "../../lib/utils.js";

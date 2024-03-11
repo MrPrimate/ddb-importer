@@ -2,6 +2,8 @@
 
 - Weightless Containers were not recognised.
 - Some macro corrections for when using DDB Importer functions.
+- Support for Adventure Muncher 2.0.0 and greater.
+- You can disable greedy rule matching in the settings now. (This is where the importer tries to match rule names with the references in the SRD/System).
 
 # 4.0.16
 

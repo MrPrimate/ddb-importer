@@ -54,6 +54,8 @@
       "allow-all-sync.hint": "If character import is restricted, this option will still allow players to sync back to DDB.",
       "apply-conditions-with-ce.name": "Convenient Effect Conditions?",
       "apply-conditions-with-ce.hint": "If Convenient Effects is installed, use it to manage conditions",
+      "use-loose-srd-reference-matching.name": "Loose Rules referencing?",
+      "use-loose-srd-reference-matching.hint": "Attempt to match any references to SRD rules, may result in some false positives",
       "setup.name": "Core setup",
       "setup.hint": "Core setup options",
       "compendium-setup.name": "Compendiums",

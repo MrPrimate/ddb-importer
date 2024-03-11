@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import logger from "../../logger.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
-import { parseTags } from "../../lib/DDBTemplateStrings.js";
+import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import DDBMuncher from "../../apps/DDBMuncher.js";

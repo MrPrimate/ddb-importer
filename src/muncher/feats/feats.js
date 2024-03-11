@@ -1,5 +1,5 @@
 import logger from "../../logger.js";
-import { parseTags } from "../../lib/DDBTemplateStrings.js";
+import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 

@@ -4,7 +4,7 @@ import DDBMacros from "../effects/DDBMacros.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/DDBCampaigns.js";
-import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
+import { importCacheLoad } from "../lib/DDBReferenceLinker.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
 import { addVision5eStubs } from "../effects/vision5e.js";

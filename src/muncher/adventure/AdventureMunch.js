@@ -7,6 +7,7 @@ import SETTINGS from "../../settings.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import utils from "../../lib/utils.js";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
+import { parseTags } from "../../lib/DDBReferenceLinker.js";
 
 export default class AdventureMunch extends FormApplication {
 
@@ -1577,6 +1578,8 @@ export default class AdventureMunch extends FormApplication {
         doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
       });
     }
+
+    doc.body.innerHTML = parseTags(doc.body.innerHTML);
 
     return doc.body.innerHTML;
   }

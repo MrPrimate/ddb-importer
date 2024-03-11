@@ -1,51 +1,14 @@
 import utils from "./utils.js";
 import DDBHelper from "./DDBHelper.js";
 import logger from "../logger.js";
-import CompendiumHelper from "./CompendiumHelper.js";
-import { generateAdventureConfig } from "../muncher/adventure.js";
+import { parseTags } from './DDBReferenceLinker.js';
 
-const INDEX_COMPENDIUMS = [
-  "spell",
-  "item",
-  "magicitem",
-];
 
 function evaluateMath(obj) {
   // eslint-disable-next-line no-new-func
   return Function('"use strict";return ' + obj.replace(/\+\s*\+/g, "+"))();
 }
 
-export async function loadDDBCompendiumIndexes() {
-  for (const i of INDEX_COMPENDIUMS) {
-    // eslint-disable-next-line no-await-in-loop
-    await CompendiumHelper.loadCompendiumIndex(i);
-  }
-}
-
-export async function loadSRDRules() {
-  if (hasProperty(CONFIG, "DDBI.SRD_LOOKUP.index")) return;
-  try {
-    // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.SRD_LOOKUP = await generateAdventureConfig(false, false, true);
-    // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.SRD_LOOKUP.linkMap = {};
-    for (const [key, value] of Object.entries(CONFIG.DDBI.SRD_LOOKUP.lookups)) {
-      value.forEach((thing) => {
-        thing.type = key;
-        CONFIG.DDBI.SRD_LOOKUP.linkMap[thing.name] = thing;
-      });
-    }
-  } catch (err) {
-    logger.error("5e SRD Rules compendium failed to load", err);
-    // eslint-disable-next-line require-atomic-updates
-    // setProperty(CONFIG, "DDBI.SRD_LOOKUP.index", {});
-  }
-}
-
-export async function importCacheLoad() {
-  await loadDDBCompendiumIndexes();
-  await loadSRDRules();
-}
 
 /**
  * Parse a match and replace template values ready for evaluation
@@ -347,144 +310,15 @@ const getNumber = (theNumber, signed) => {
   return theNumber.toString();
 };
 
-function findMatchingTagInIndex(type, tag) {
-  const index = hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
-    ? getProperty(CONFIG.DDBI, `compendium.index.${type}`)
-    : undefined;
-  if (!index) {
-    logger.warn(`Unable to load compendium ${type}s`);
-    return tag;
-  }
-  const strippedTag = utils.stripHtml(tag);
-  const match = index.find((entry) => utils.nameString(entry.name).toLowerCase() === utils.nameString(strippedTag).replace("&nbsp;", " ").toLowerCase());
-  if (match) {
-    const label = getProperty(CONFIG.DDBI, `compendium.label.${type}`);
-    return `@Compendium[${label}.${match._id}]{${tag}}`;
-  } else if (strippedTag.includes(";")) {
-    const tagSplit = utils.nameString(strippedTag.replace("&nbsp;", " ")).split(";")[0];
-    const splitMatch = index.find((entry) => utils.nameString(entry.name).toLowerCase() === tagSplit.toLowerCase());
-    if (splitMatch) {
-      const label = getProperty(CONFIG.DDBI, `compendium.label.${type}`);
-      return `@Compendium[${label}.${splitMatch._id}]{${tagSplit}}`;
-    }
-  }
-  logger.info(`Unable to find tag parse compendium match in ${type} for ${tag}`);
-  return tag;
-}
 
-// eslint-disable-next-line no-unused-vars
-function replaceTag(match, p1, p2, p3, offset, string) {
-  if (!p2) {
-    logger.warn(`Unable to tag parse ${match}`);
-    return match;
-  }
-  const strippedP2 = utils.stripHtml(p2);
-
-  if (INDEX_COMPENDIUMS.includes(p1)) {
-    return findMatchingTagInIndex(p1, p2);
-  }
-
-  const lowerCaseTag = utils.normalizeString(strippedP2);
-
-  const types = [
-    CONFIG.DND5E.rules,
-    CONFIG.DND5E.conditionTypes,
-    CONFIG.DND5E.skills,
-    CONFIG.DND5E.abilities,
-    CONFIG.DND5E.creatureTypes,
-    CONFIG.DND5E.damageTypes,
-    CONFIG.DND5E.spellComponents,
-    CONFIG.DND5E.spellTags,
-    CONFIG.DND5E.spellSchools,
-    CONFIG.DND5E.areaTargetTypes,
-  ];
-
-  let result = p2;
-  for (const type of types) {
-    if (type[lowerCaseTag] && type.reference) {
-      result = `&Reference[${lowerCaseTag}]{${p2}}`;
-      break;
-    }
-  }
-
-  return result;
-}
-
-
-function parseSRDReferences(text) {
-  const types = [
-    CONFIG.DND5E.rules,
-    CONFIG.DND5E.conditionTypes,
-    CONFIG.DND5E.skills,
-    CONFIG.DND5E.abilities,
-    CONFIG.DND5E.creatureTypes,
-    CONFIG.DND5E.damageTypes,
-    CONFIG.DND5E.spellComponents,
-    CONFIG.DND5E.spellTags,
-    CONFIG.DND5E.spellSchools,
-    CONFIG.DND5E.areaTargetTypes,
-  ];
-
-  for (const type of types) {
-    for (const [key, value] of Object.entries(type)) {
-      // eslint-disable-next-line no-continue
-      if (!value.reference) continue;
-      const linkRegEx = new RegExp(`(^| |\\(|\\[|>)(${value.label})( |\\)|\\]|\\.|,|$|\n|<)`, "ig");
-      const replaceRule = (match, p1, p2, p3) => {
-        return `${p1}&Reference[${key}]{${p2}}${p3}`;
-      };
-      text = text.replaceAll(linkRegEx, replaceRule);
-    }
-  }
-
-  return text;
-}
-
-function parseHardReferenceTag(type, text) {
-  const index = hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
-    ? getProperty(CONFIG.DDBI, `compendium.index.${type}`)
-    : undefined;
-  if (!index) {
-    logger.warn(`Unable to load compendium ${type}s`);
-    return text;
-  }
-
-  const referenceRegexReplacer = (match, referenceName, postfix) => {
-    const cMatch = index.find((f) => f.name.toLowerCase() === referenceName.toLowerCase());
-    const replacedText = cMatch ? `@UUID[${cMatch.uuid}]{${referenceName}}` : referenceName;
-    // console.warn("match", { match, document, prefix, spellName, postfix, compendium: this.spellCompendium.index, cMatch, replacedSpell });
-    return `${replacedText}${postfix}`;
-  };
-
-
-  if (["spell"].includes(type.toLowerCase())) {
-    // easiest, e.g.wand of fireballs
-    const simpleStrongRegex = /(?:<strong>)([\w\s]*?)(?:<\/strong>)(\s*spell)/gi;
-    text = `${text}`.replaceAll(simpleStrongRegex, referenceRegexReplacer);
-    // <strong>cone of cold</strong> (5 charges)
-    const chargeSpellRegex = /(?:<strong>)([\w\s]*?)(?:<\/strong>)(\s*\(\d* charge)/gi;
-    text = `${text}`.replaceAll(chargeSpellRegex, referenceRegexReplacer);
-  } else if (["item", "magicitem"].includes(type)) {
-    // easiest, e.g.wand of fireballs
-    const simpleStrongRegex = /(?:<strong>)([\w\s]*?)(?:<\/strong>)(\s*item)/gi;
-    text = `${text}`.replaceAll(simpleStrongRegex, referenceRegexReplacer);
-  }
-
-  return text;
-}
-
-export function parseTags(text) {
-  text = parseHardReferenceTag("spell", text);
-  text = parseHardReferenceTag("item", text);
-  const tagRegEx = /\[([^\]]+)]([^[]+)\[\/([^\]]+)]/g;
-  const matches = text.match(tagRegEx);
-  if (matches) {
-    return text.replaceAll(tagRegEx, replaceTag);
-  }
-  text = parseSRDReferences(text);
-  return text;
-}
-
+/**
+ * Replaces the matched string with the appropriate value or format, based on the value of p2.
+ *
+ * @param {string} match - the matched string
+ * @param {string} p1 - the first capturing group
+ * @param {string} p2 - the second capturing group
+ * @return {string} the replaced or formatted string
+ */
 function replaceRoll(match, p1, p2) {
   if (!p2) {
     logger.warn(`Unable to roll parse ${match}`);
@@ -502,6 +336,12 @@ function replaceRoll(match, p1, p2) {
   }
 }
 
+/**
+ * Fix rollables in the given text by replacing them with the correct syntax.
+ *
+ * @param {string} text - The input text to be fixed.
+ * @return {string} The text with corrected rollables.
+ */
 function fixRollables(text) {
   const diceMatchRegex = /(?:<strong>)?\+*\s*(\d*d\d\d*\s*\+*)\s*(?:<\/strong>)?\+*\s*\[\[(\/roll)?/g;
   const matches = text.match(diceMatchRegex);
@@ -518,6 +358,13 @@ function fixRollables(text) {
   return text;
 }
 
+/**
+ * Replaces occurrences of matchString in the text with a roll command where appropriate
+ *
+ * @param {string} text - the input text
+ * @param {string} matchString - the string to match and replace
+ * @return {string} the text with replacements
+ */
 function rollMatch(text, matchString) {
   const rollMatch = new RegExp(`(?:^|[ "'(+>])(\\d*d\\d\\d*\\s)({{${matchString}}})(?:$|[., "')+<])`, "g");
   return text.replace(rollMatch, (m) => `[[/roll ${m[1] !== undefined ? m[1] : ""}${m[2]}]`);
