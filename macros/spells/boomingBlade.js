@@ -49,7 +49,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           }
           weaponCopy.name = weaponItem.name + " [Booming Blade]";
           weaponCopy.effects.push({
-            changes: [{ key: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "boomingBlade.js", document: { name: weaponCopy.name } }), mode: 0, value: "", priority: "20", }],
+            changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "boomingBlade.js", document: { name: weaponCopy.name } })],
             disabled: false,
             duration: { rounds: 1 },
             icon: sourceItemData.img,
@@ -103,6 +103,7 @@ if (args[0].tag === "OnUse") {
     const workflowItemData = duplicate(sourceItem);
     workflowItemData.system.target = { value: 1, units: "", type: "creature" };
     workflowItemData.name = "Booming Blade: Movement Damage";
+    workflowItemData.system.description.value = "";
 
     await new MidiQOL.DamageOnlyWorkflow(
       caster,
@@ -112,7 +113,7 @@ if (args[0].tag === "OnUse") {
       [targetToken.object], // bug in midi/levels auto cover can't cope with token
       damageRoll,
       {
-        flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
+        flavor: `(${CONFIG.DND5E.damageTypes[damageType].label})`,
         itemCardId: "new",
         itemData: workflowItemData,
         isCritical: false,

@@ -157,7 +157,7 @@ async function attackNearby(originToken, ignoreIds) {
       [targetToken],
       damageRoll,
       {
-        flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
+        flavor: `(${CONFIG.DND5E.damageTypes[damageType].label})`,
         itemCardId: "new",
         itemData: workflowItemData,
         isCritical: false,
@@ -201,7 +201,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           }
           weaponCopy.name = weaponItem.name + " [Green Flame Blade]";
           weaponCopy.effects.push({
-            changes: [{ key: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "greenFlameBlade.js", document: { name: weaponCopy.name } }), mode: 0, value: "", priority: "20", }],
+            changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "greenFlameBlade.js", document: { name: weaponCopy.name } })],
             disabled: false,
             // duration: { turns: 0 },
             duration: { turns: 1 },

@@ -38,12 +38,7 @@ if (args[0].tag === "OnUse") {
       icon: DAEItem.img,
       duration: { min: 10, startTime: game.time.worldTime },
       origin: lastArg.sourceItemUuid,
-      changes: [{
-        key: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "stormSphere.js", document: { name: "Storm Sphere" } }),
-        value: "",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        priority: 20,
-      }],
+      changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "stormSphere.js", document: { name: "Storm Sphere" } })],
       disabled: false,
     }];
     await targetActor.createEmbeddedDocuments("ActiveEffect", effectData);

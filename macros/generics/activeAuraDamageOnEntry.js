@@ -70,7 +70,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
       [targetToken],
       damageRoll,
       {
-        flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
+        flavor: `(${CONFIG.DND5E.damageTypes[damageType].label})`,
         itemCardId: "new",
         itemData: workflowItemData,
         isCritical: false,

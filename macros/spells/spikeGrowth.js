@@ -62,7 +62,7 @@ async function applySpikeGrowthDamage() {
     [target],
     damageRoll,
     {
-      flavor: `(${CONFIG.DND5E.damageTypes["piercing"]})`,
+      flavor: `(${CONFIG.DND5E.damageTypes["piercing"].label})`,
       itemCardId: "new",
       itemData: workflowItemData,
       isCritical: false,

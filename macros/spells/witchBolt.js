@@ -21,7 +21,7 @@ async function sustainedDamage({ options, damageType, damageDice, sourceItem, ca
     targets,
     damageRoll,
     {
-      flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
+      flavor: `(${CONFIG.DND5E.damageTypes[damageType].label})`,
       itemCardId: "new",
       itemData,
       isCritical: false,
@@ -50,12 +50,7 @@ if (args[0].macroPass === "postActiveEffects") {
     icon: args[0].item.img,
     duration: { rounds: 10, startTime: game.time.worldTime },
     origin: args[0].item.uuid,
-    changes: [{
-      key: DDBImporter.lib.DDBMacros.generateItemMacroValue({ macroType: "spell", macroName: "witchBolt.js", document: { name: "Witch Bolt" } }),
-      value: "",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      priority: 20,
-    }],
+    changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "witchBolt.js", document: { name: "Witch Bolt" } })],
     disabled: false,
     "flags.dae.macroRepeat": "startEveryTurn",
   }];

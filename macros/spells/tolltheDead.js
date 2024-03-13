@@ -21,7 +21,7 @@ if (lastArg.failedSaveUuids.length > 0) {
     targets,
     damageRoll,
     {
-      flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
+      flavor: `(${CONFIG.DND5E.damageTypes[damageType].label})`,
       itemCardId: lastArg.itemCardId,
       itemData: lastArg.item,
       isCritical: lastArg.isCritical,
