@@ -211,7 +211,7 @@ function replaceTag(match, tagType, tagName, _p4, _offset, _string) {
  */
 function parseLooseRuleReferences(text, superLoose = false) {
   for (const [type, entries] of Object.entries(getRuleLookups())) {
-    console.error(`Parsing ${type}`);
+    // console.error(`Parsing ${type}`);
     // eslint-disable-next-line no-continue
     if (!superLoose && SUPER_LOOSE.includes(type)) continue;
     for (const [key, value] of Object.entries(entries)) {
@@ -219,7 +219,7 @@ function parseLooseRuleReferences(text, superLoose = false) {
       if (!value.reference) continue;
       const linkRegEx = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(${value.label})( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
       const replaceRule = (match, p1, p2, p3, p4) => {
-        console.warn("match", { match, p1, p2, p3, p4 });
+        // console.warn("match", { match, p1, p2, p3, p4 });
         if (p1) return match; // already a reference match don't match this
         return `${p2}&Reference[${key}]{${p3}}${p4}`;
       };
