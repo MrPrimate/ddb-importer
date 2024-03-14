@@ -377,6 +377,17 @@ DDBCharacter.prototype._generateOverrideArmorClass = function _generateOverrideA
     label: "Armor Class",
     value: overRideAC.value,
   };
+
+  this.armor.results = {
+    maxValue: overRideAC.value,
+    maxType: "override",
+    // actorBase,
+    // armorClassValues,
+    // effects,
+    // maxType,
+    // maxValue,
+    // maxData,
+  };
 };
 
 
