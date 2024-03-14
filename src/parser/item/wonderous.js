@@ -41,7 +41,7 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
   if (isContainer) {
     if (ddbData.currency) item.system.currency = getCurrency(ddbData);
     if (getWeightless(ddbData)) {
-      utils.addToProperties(item.system.properties, "weightlessContents");
+      item.system.properties = utils.addToProperties(item.system.properties, "weightlessContents");
     }
   } else {
     //

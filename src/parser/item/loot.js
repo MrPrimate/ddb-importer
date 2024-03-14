@@ -143,7 +143,7 @@ export default function parseLoot(data, itemType) {
     loot.system.capacity = getCapacity(data);
     if (data.currency) loot.system.currency = getCurrency(data);
     if (getWeightless(data)) {
-      utils.addToProperties(loot.system.properties, "weightlessContents");
+      loot.system.properties = utils.addToProperties(loot.system.properties, "weightlessContents");
     }
   }
   return loot;

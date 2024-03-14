@@ -1,5 +1,8 @@
 # NEXT UP
 
+- Weightless Containers were not recognised.
+- Some macro corrections for when using DDB Importer functions.
+
 # 4.0.16
 
 - Some spells such as Sword Burst or Word of Radiance would not come in with the correct target.

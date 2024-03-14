@@ -237,7 +237,6 @@ export function getCapacity(data) {
     ? {
       "type": "weight",
       "value": data.definition.capacityWeight,
-      "weightless": getWeightless(data),
     }
     : {};
 
