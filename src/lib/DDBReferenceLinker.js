@@ -143,32 +143,32 @@ function getRuleLookups() {
  * Replaces a rule based on the given type, reference, slug, and forceTrimCheck flag.
  *
  * @param {string} baseType - The base type of the rule.
- * @param {string} reference - The reference to be replaced.
+ * @param {string} text - The text to be replaced/used as description.
  * @param {string} slug - The slug to identify the rule.
  * @param {boolean} forceTrimCheck - Optional flag to force trim check.
  * @return {string} The replaced reference based on the rule.
  */
-function ruleReplacer(baseType, reference, slug, forceTrimCheck = false) {
+function ruleReplacer(baseType, text, slug, forceTrimCheck = false) {
   const type = RULE_ADJUSTMENT[baseType] ?? baseType;
 
   const rules = getRuleLookups()[type];
-  if (!rules) return reference;
+  if (!rules) return text;
 
   if (forceTrimCheck || ["abilities", "skills", "spellSchools"].includes("type")) {
     // ensure it's not a trimmed slug
     const trimmedSlug = slug.substring(0, 3).toLowerCase();
     if (rules[trimmedSlug] && type[trimmedSlug].reference) {
-      const result = `&Reference[${trimmedSlug}]{${reference}}`;
+      const result = `&Reference[${trimmedSlug}]{${text}}`;
       return result;
     }
   }
 
-  if (rules[slug] && type[slug].reference) {
-    const result = `&Reference[${slug}]{${reference}}`;
+  if (rules[slug] && rules[slug].reference) {
+    const result = `&Reference[${slug}]{${text}}`;
     return result;
   }
 
-  return reference;
+  return text;
 }
 
 /**
