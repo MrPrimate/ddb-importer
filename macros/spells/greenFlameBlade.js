@@ -228,7 +228,13 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           attackItem.prepareData();
           attackItem.prepareFinalAttributes();
-          const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
+          const workflowOptions = {
+            // autoFastForward: "on",
+            autoRollAttack: true,
+            // autoRollDamage: 'onHit',
+            // autoFastDamage: true
+          };
+          const options = { showFullCard: false, createWorkflow: true, configureDialog: true, workflowOptions };
           const result = await MidiQOL.completeItemUse(attackItem, {}, options);
           // console.warn("HERE6", {weaponCopy, sourceItemData, attackItem, options, result})
         },

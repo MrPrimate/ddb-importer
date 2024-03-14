@@ -65,7 +65,13 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           attackItem.prepareData();
           attackItem.prepareFinalAttributes();
           // console.warn(attackItem);
-          const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
+          const workflowOptions = {
+            // autoFastForward: "on",
+            autoRollAttack: true,
+            // autoRollDamage: 'onHit',
+            // autoFastDamage: true
+          };
+          const options = { showFullCard: false, createWorkflow: true, configureDialog: true, workflowOptions };
           await MidiQOL.completeItemUse(attackItem, {}, options);
         },
       },
