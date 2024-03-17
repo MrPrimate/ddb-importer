@@ -1,6 +1,7 @@
 # Next Up
 
 - First pass code tweaks for v12 support.
+- Long standing bug with compendiums appearing outside of D&D Beyond Folder on first load after creation. (Thanks kaelad02!)
 
 # 5.0.0
 
