@@ -207,7 +207,7 @@ export default class CharacterSpellFactory {
       );
       if (!dups && !this.items[duplicateSpell]) {
         // also parse spell as non-limited use
-        let unlimitedSpell = duplicate(spell);
+        let unlimitedSpell = foundry.utils.duplicate(spell);
         unlimitedSpell.limitedUse = null;
         unlimitedSpell.usesSpellSlot = true;
         unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;

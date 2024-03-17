@@ -15,8 +15,8 @@ export function psychicScreamEffect(document) {
       },
     );
     effect.duration.rounds = 99;
-    setProperty(document, "flags.midiProperties.halfdam", true);
-    setProperty(document, "flags.midiProperties.saveDamage", "halfdam");
+    foundry.utils.setProperty(document, "flags.midiProperties.halfdam", true);
+    foundry.utils.setProperty(document, "flags.midiProperties.saveDamage", "halfdam");
   }
   document.effects.push(effect);
 

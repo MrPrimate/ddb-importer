@@ -28,8 +28,8 @@ function getNotes(scene, bookCode) {
       // removed un-needed userdata
       const pageFlags = page.flags.ddb;
       const noteFlags = note.flags.ddb;
-      const flags = duplicate(pageFlags);
-      mergeObject(flags, noteFlags, { overwrite: true, insertKeys: true, insertValues: true });
+      const flags = foundry.utils.duplicate(pageFlags);
+      foundry.utils.mergeObject(flags, noteFlags, { overwrite: true, insertKeys: true, insertValues: true });
       if (flags?.userData) delete flags.userData;
       const label = flags?.labelName && flags.labelName.trim() !== ""
         ? flags.labelName
@@ -127,7 +127,7 @@ export function collectSceneData(scene, bookCode) {
 
   const data = {
     flags: scene.flags,
-    background: deepClone(scene.background),
+    background: foundry.utils.deepClone(scene.background),
     name: scene.name,
     navName: scene.navName,
     // dimensions
@@ -196,7 +196,7 @@ export function collectSceneData(scene, bookCode) {
           result.flags.ddbActorFlags.name = token.actor.prototypeToken?.name ? token.actor.prototypeToken.name : token.actor.name;
         }
       }
-      if (hasProperty(token, "token.actorData.flags")) delete token.actorData.flags["token-action-hud-core"];
+      if (foundry.utils.hasProperty(token, "token.actorData.flags")) delete token.actorData.flags["token-action-hud-core"];
       delete token.flags["token-action-hud-core"];
       delete token.flags["simbuls-cover-calculator"];
       delete token.flags["monks-enhanced-journal"];
@@ -439,7 +439,7 @@ export class SceneEnhancerExport extends Application {
   async buttonClick(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
 
-    let sceneFlags = duplicate(this.scene.flags);
+    let sceneFlags = foundry.utils.duplicate(this.scene.flags);
 
     if (!sceneFlags.ddb) sceneFlags.ddb = {};
     if (!sceneFlags.ddbimporter) sceneFlags.ddbimporter = {};

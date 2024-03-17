@@ -16,7 +16,7 @@ export function resistanceEffect(document) {
       priority: "20",
     },
   );
-  setProperty(effect, "flags.dae.specialDuration", ["isSave"]);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isSave"]);
 
   document.effects.push(effect);
 

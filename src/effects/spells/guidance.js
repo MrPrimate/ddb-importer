@@ -28,7 +28,7 @@ export function guidanceEffect(document) {
       priority: "20",
     },
   );
-  setProperty(effect, "flags.dae.specialDuration", ["isSkill", "isCheck", "isInitiative"]);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isSkill", "isCheck", "isInitiative"]);
 
   document.effects.push(effect);
 

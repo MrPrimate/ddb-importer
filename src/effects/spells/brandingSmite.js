@@ -17,7 +17,7 @@ export async function brandingSmiteEffect(document) {
       priority: "20",
     },
   );
-  setProperty(effect, "flags.dae.specialDuration", ["1Hit:rwak", "1Hit:mwak"]);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["1Hit:rwak", "1Hit:mwak"]);
 
   document.system.actionType = "other";
   document.system.target.type = "self";

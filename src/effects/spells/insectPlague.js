@@ -34,10 +34,10 @@ export async function insectPlagueEffect(document) {
     savedc: null,
     displayTemp: true,
   };
-  setProperty(effect, "duration.seconds", 600);
-  // setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
+  foundry.utils.setProperty(effect, "duration.seconds", 600);
+  // foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
   DDBMacros.setMidiOnUseMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file, ["preActiveEffects"]);
-  setProperty(document, "flags.ddbimporter.effect", {
+  foundry.utils.setProperty(document, "flags.ddbimporter.effect", {
     dice: document.system.damage.parts[0][0],
     damageType: document.system.damage.parts[0][1],
     save: document.system.save.ability,

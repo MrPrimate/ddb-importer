@@ -47,8 +47,8 @@ export async function loadDDBCompendiumIndexes() {
 
 
 function findMatchingTagInIndex(type, tag) {
-  const index = hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
-    ? getProperty(CONFIG.DDBI, `compendium.index.${type}`)
+  const index = foundry.utils.hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
+    ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${type}`)
     : undefined;
   if (!index) {
     logger.warn(`Unable to load compendium ${type}s`);
@@ -57,13 +57,13 @@ function findMatchingTagInIndex(type, tag) {
   const strippedTag = utils.stripHtml(tag);
   const match = index.find((entry) => utils.nameString(entry.name).toLowerCase() === utils.nameString(strippedTag).replace("&nbsp;", " ").toLowerCase());
   if (match) {
-    const label = getProperty(CONFIG.DDBI, `compendium.label.${type}`);
+    const label = foundry.utils.getProperty(CONFIG.DDBI, `compendium.label.${type}`);
     return `@Compendium[${label}.${match._id}]{${tag}}`;
   } else if (strippedTag.includes(";")) {
     const tagSplit = utils.nameString(strippedTag.replace("&nbsp;", " ")).split(";")[0];
     const splitMatch = index.find((entry) => utils.nameString(entry.name).toLowerCase() === tagSplit.toLowerCase());
     if (splitMatch) {
-      const label = getProperty(CONFIG.DDBI, `compendium.label.${type}`);
+      const label = foundry.utils.getProperty(CONFIG.DDBI, `compendium.label.${type}`);
       return `@Compendium[${label}.${splitMatch._id}]{${tagSplit}}`;
     }
   }
@@ -133,8 +133,8 @@ function getRuleLookups() {
       reference: value,
     };
   }
-  baseRules["rules"] = mergeObject(mergeObject({}, rules), baseRules.spellTags);
-  CONFIG.DDBI.RULE_MATCHES = mergeObject(baseRules, generateDDBRuleLinks());
+  baseRules["rules"] = foundry.utils.mergeObject(foundry.utils.mergeObject({}, rules), baseRules.spellTags);
+  CONFIG.DDBI.RULE_MATCHES = foundry.utils.mergeObject(baseRules, generateDDBRuleLinks());
   return CONFIG.DDBI.RULE_MATCHES;
 }
 
@@ -232,8 +232,8 @@ function parseLooseRuleReferences(text, superLoose = false) {
 }
 
 function parseHardReferenceTag(type, text) {
-  const index = hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
-    ? getProperty(CONFIG.DDBI, `compendium.index.${type}`)
+  const index = foundry.utils.hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
+    ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${type}`)
     : undefined;
   if (!index) {
     logger.warn(`Unable to load compendium ${type}s`);

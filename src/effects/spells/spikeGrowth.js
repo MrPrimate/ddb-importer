@@ -33,8 +33,8 @@ export async function spikeGrowthEffect(document) {
     savedc: null,
     displayTemp: true,
   };
-  setProperty(effect, "duration.seconds", 600);
-  setProperty(effect, "flags.dae.specialDuration", ["isMoved"]);
+  foundry.utils.setProperty(effect, "duration.seconds", 600);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isMoved"]);
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "spikeGrowth.js", ["preActiveEffects"]);
 
   document.effects.push(effect);

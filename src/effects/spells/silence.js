@@ -45,7 +45,7 @@ export async function silenceEffect(document) {
     savedc: null,
     displayTemp: true,
   };
-  setProperty(effect, "duration.seconds", 600);
+  foundry.utils.setProperty(effect, "duration.seconds", 600);
   DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraOnly.js", ["preActiveEffects"]);
 
   const limits = {
@@ -60,8 +60,8 @@ export async function silenceEffect(document) {
     wallsBlock: "walled",
   };
 
-  setProperty(document, "flags.limits", limits);
-  setProperty(document, "flags.walledtemplates", walledtemplates);
+  foundry.utils.setProperty(document, "flags.limits", limits);
+  foundry.utils.setProperty(document, "flags.walledtemplates", walledtemplates);
 
   document.effects.push(effect);
 

@@ -155,16 +155,16 @@ function addExtraDDBFlags(ddbItem, item) {
   }
 
   // container info
-  if (ddbItem.containerEntityId) setProperty(item, "flags.ddbimporter.containerEntityId", ddbItem.containerEntityId);
-  if (ddbItem.containerEntityTypeId) setProperty(item, "flags.ddbimporter.containerEntityTypeId", ddbItem.containerEntityTypeId);
+  if (ddbItem.containerEntityId) foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityId", ddbItem.containerEntityId);
+  if (ddbItem.containerEntityTypeId) foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityTypeId", ddbItem.containerEntityTypeId);
 
-  setProperty(item, "flags.ddbimporter.dndbeyond.isConsumable", ddbItem.definition.isConsumable);
-  setProperty(item, "flags.ddbimporter.dndbeyond.isContainer", ddbItem.definition.isContainer);
-  setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", ddbItem.definition.isCustomItem);
-  setProperty(item, "flags.ddbimporter.dndbeyond.isHomebrew", ddbItem.definition.isHomebrew);
-  setProperty(item, "flags.ddbimporter.dndbeyond.isMonkWeapon", ddbItem.definition.isMonkWeapon);
-  setProperty(item, "flags.ddbimporter.dndbeyond.isPack", ddbItem.definition.isPack);
-  setProperty(item, "flags.ddbimporter.dndbeyond.levelInfusionGranted", ddbItem.definition.levelInfusionGranted);
+  foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isConsumable", ddbItem.definition.isConsumable);
+  foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isContainer", ddbItem.definition.isContainer);
+  foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", ddbItem.definition.isCustomItem);
+  foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isHomebrew", ddbItem.definition.isHomebrew);
+  foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isMonkWeapon", ddbItem.definition.isMonkWeapon);
+  foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isPack", ddbItem.definition.isPack);
+  foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.levelInfusionGranted", ddbItem.definition.levelInfusionGranted);
 
   return item;
 }
@@ -234,8 +234,8 @@ export function parseItem(ddb, ddbItem, character, flags) {
       item = parseCustomItem(ddbItem);
     }
     const baseItem = getBaseItem(ddbItem);
-    if (baseItem.baseItem) setProperty(item, "system.type.baseItem", baseItem.baseItem);
-    if (baseItem.toolType) setProperty(item, "system.type.value", baseItem.toolType);
+    if (baseItem.baseItem) foundry.utils.setProperty(item, "system.type.baseItem", baseItem.baseItem);
+    if (baseItem.toolType) foundry.utils.setProperty(item, "system.type.value", baseItem.toolType);
     item.system.attunement = getAttunement(ddbItem);
     item.system.price = getPrice(ddbItem);
     if (ddbItem.definition.magic) item.system.properties = utils.addToProperties(item.system.properties, "mgc");
@@ -448,7 +448,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
   });
 
   // now parse all items
-  const isCompendiumItem = getProperty(this.raw.character, "flags.ddbimporter.compendium") ?? false;
+  const isCompendiumItem = foundry.utils.getProperty(this.raw.character, "flags.ddbimporter.compendium") ?? false;
   const addEffects = (isCompendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
@@ -477,7 +477,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       if (addEffects) {
         item = generateEffects(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem, "item");
       } else if (item.type === "equipment") {
-        if (hasProperty(item, "system.armor.type") && ["trinket", "clothing"].includes(item.system.armor.type)) {
+        if (foundry.utils.hasProperty(item, "system.armor.type") && ["trinket", "clothing"].includes(item.system.armor.type)) {
           item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem);
         }
       } else {

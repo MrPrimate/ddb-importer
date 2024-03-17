@@ -6,8 +6,8 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
   try {
     // Default to the most basic token setup.
     // everything else can be handled by the user / Token Mold
-    const existingData = deepClone(this.currentActor.prototypeToken);
-    let tokenData = mergeObject(existingData, {
+    const existingData = foundry.utils.deepClone(this.currentActor.prototypeToken);
+    let tokenData = foundry.utils.mergeObject(existingData, {
       actorLink: true,
       name: this.source.ddb.character.name,
       sight: {
@@ -24,15 +24,15 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
     // truesight: 0,
 
     for (const [key, value] of Object.entries(senses)) {
-      if (value > 0 && value > tokenData.sight.range && hasProperty(DICTIONARY.senseMap(), key)) {
+      if (value > 0 && value > tokenData.sight.range && foundry.utils.hasProperty(DICTIONARY.senseMap(), key)) {
         const visionMode = DICTIONARY.senseMap()[key];
-        setProperty(tokenData, "sight.visionMode", visionMode);
-        setProperty(tokenData, "sight.range", value);
-        tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes[visionMode].vision.defaults);
+        foundry.utils.setProperty(tokenData, "sight.visionMode", visionMode);
+        foundry.utils.setProperty(tokenData, "sight.range", value);
+        tokenData.sight = foundry.utils.mergeObject(tokenData.sight, CONFIG.Canvas.visionModes[visionMode].vision.defaults);
       }
       if (!game.modules.get("vision-5e")?.active
         && value > 0
-        && hasProperty(DICTIONARY.detectionMap, key)
+        && foundry.utils.hasProperty(DICTIONARY.detectionMap, key)
       ) {
         const detectionMode = {
           id: DICTIONARY.detectionMap[key],
@@ -50,11 +50,11 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
     // devilsight? we set the vision mode back to basic
     const devilSight = senses.special.includes("You can see normally in darkness");
     if (devilSight && game.modules.get("vision-5e")?.active) {
-      setProperty(tokenData, "sight.visionMode", "devilsSight");
-      tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes.devilsSight.vision.defaults);
+      foundry.utils.setProperty(tokenData, "sight.visionMode", "devilsSight");
+      tokenData.sight = foundry.utils.mergeObject(tokenData.sight, CONFIG.Canvas.visionModes.devilsSight.vision.defaults);
     } else if (devilSight) {
-      setProperty(tokenData, "sight.visionMode", "basic");
-      tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes.basic.vision.defaults);
+      foundry.utils.setProperty(tokenData, "sight.visionMode", "basic");
+      tokenData.sight = foundry.utils.mergeObject(tokenData.sight, CONFIG.Canvas.visionModes.basic.vision.defaults);
     }
 
     this.raw.character.prototypeToken = tokenData;

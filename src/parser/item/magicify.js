@@ -78,7 +78,7 @@ function buildMagicItemSpell(chargeType, itemSpell) {
       castLevel = itemSpell.flags.ddbimporter.dndbeyond.castAtLevel;
     }
   }
-  const spellName = hasProperty(itemSpell, "flags.ddbimporter.originalName")
+  const spellName = foundry.utils.hasProperty(itemSpell, "flags.ddbimporter.originalName")
     ? itemSpell.flags.ddbimporter.originalName
     : itemSpell.name;
 
@@ -276,7 +276,7 @@ function parseItemsWithSpellsModule(item, data, itemSpells, isCompendiumItem) {
 
   const perSpell = getPerSpell(data.limitedUse?.resetTypeDescription ?? "", data.definition.description);
 
-  if (!perSpell && getProperty(item, "system.uses.value") === null) {
+  if (!perSpell && foundry.utils.getProperty(item, "system.uses.value") === null) {
     item.system.uses = getUses(data);
   }
 
@@ -302,7 +302,7 @@ function parseItemsWithSpellsModule(item, data, itemSpells, isCompendiumItem) {
       ? { amount: null }
       : { amount: spellData.consumption };
 
-    const save = getProperty(itemSpell, "flags.ddbimporter.dndbeyond.overrideDC")
+    const save = foundry.utils.getProperty(itemSpell, "flags.ddbimporter.dndbeyond.overrideDC")
       ? { scaling: "flat", dc: itemSpell.flags.ddbimporter.dndbeyond?.dc }
       : { scaling: "spell" };
     const preparation = isPerSpell
@@ -350,12 +350,12 @@ function basicMagicItem(item, data, itemSpells, isCompendiumItem) {
       };
 
       if (limitedUse.maxUses) {
-        setProperty(item, "system.uses.value", parseInt(limitedUse.maxUses));
-        setProperty(item, "system.uses.max", `${limitedUse.maxUses}`);
-        setProperty(item, "system.uses.per", "charges");
+        foundry.utils.setProperty(item, "system.uses.value", parseInt(limitedUse.maxUses));
+        foundry.utils.setProperty(item, "system.uses.max", `${limitedUse.maxUses}`);
+        foundry.utils.setProperty(item, "system.uses.per", "charges");
 
         const recharge = getRechargeFormula(data.definition.description, limitedUse.maxUses);
-        setProperty(item, "system.uses.recovery", recharge);
+        foundry.utils.setProperty(item, "system.uses.recovery", recharge);
       }
     }
   }

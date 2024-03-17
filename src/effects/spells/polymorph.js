@@ -1,6 +1,6 @@
 export function polymorphEffect(document) {
 
-  setProperty(document, "flags.midiProperties.autoFailFriendly", true);
+  foundry.utils.setProperty(document, "flags.midiProperties.autoFailFriendly", true);
 
   return document;
 }

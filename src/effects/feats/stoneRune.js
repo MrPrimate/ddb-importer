@@ -2,14 +2,14 @@ import { baseFeatEffect } from "../specialFeats.js";
 import { addStatusEffectChange } from "../effects.js";
 
 export function stoneRuneEffect(document) {
-  setProperty(document, "system.target.value", 1);
-  setProperty(document, "system.target.type", "creature");
-  setProperty(document, "system.range.units", "ft");
-  setProperty(document, "system.range.value", 30);
+  foundry.utils.setProperty(document, "system.target.value", 1);
+  foundry.utils.setProperty(document, "system.target.type", "creature");
+  foundry.utils.setProperty(document, "system.range.units", "ft");
+  foundry.utils.setProperty(document, "system.range.value", 30);
 
   let bonusEffect = baseFeatEffect(document, `${document.name} (Charm Effect)`);
   bonusEffect.statuses.push(`${document.name} (Charm Effect)`);
-  setProperty(bonusEffect, "duration.seconds", 60);
+  foundry.utils.setProperty(bonusEffect, "duration.seconds", 60);
   addStatusEffectChange(bonusEffect, "Charmed", 20, true);
   addStatusEffectChange(bonusEffect, "Incapacitated", 20, true);
   bonusEffect.changes.push(

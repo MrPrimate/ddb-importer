@@ -10,10 +10,10 @@ export function defensiveDuelistEffect(document) {
       priority: "20",
     },
   );
-  setProperty(effect, "duration.turns", 1);
-  setProperty(effect, "flags.dae.specialDuration", ["isAttacked"]);
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "duration.turns", 1);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isAttacked"]);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.system.target = {
     value: null,
     width: null,

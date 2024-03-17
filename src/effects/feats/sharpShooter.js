@@ -18,7 +18,7 @@ export function sharpShooterEffect(document) {
     },
   );
 
-  setProperty(effect, "flags.dae.showIcon", true);
+  foundry.utils.setProperty(effect, "flags.dae.showIcon", true);
 
   document.effects.push(effect);
 
@@ -51,9 +51,9 @@ export function sharpShooterEffect(document) {
   document.system.range = { value: null, units: "self", long: null };
   document.system.actionType = "other";
 
-  setProperty(document, "flags.midi-qol.effectActivation", false);
-  setProperty(document, "flags.midi-qol.removeAttackDamageButtons", false);
-  setProperty(document, "flags.midiProperties.toggleEffect", true);
+  foundry.utils.setProperty(document, "flags.midi-qol.effectActivation", false);
+  foundry.utils.setProperty(document, "flags.midi-qol.removeAttackDamageButtons", false);
+  foundry.utils.setProperty(document, "flags.midiProperties.toggleEffect", true);
 
   return document;
 }

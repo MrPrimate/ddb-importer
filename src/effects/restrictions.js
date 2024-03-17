@@ -177,7 +177,7 @@ const RESTRICTION_MAPPINGS = [
 
 export async function addRestrictionFlags(document, addEffects) {
 
-  const restrictions = getProperty(document, "flags.ddbimporter.dndbeyond.restrictions");
+  const restrictions = foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.restrictions");
   if (!restrictions || restrictions.length == 0) return document;
   const name = document.flags.ddbimporter?.originalName ?? document.name;
 
@@ -192,10 +192,10 @@ export async function addRestrictionFlags(document, addEffects) {
 
   if (restriction) {
     if (restriction.removeOther) {
-      setProperty(document, "system.formula", "");
+      foundry.utils.setProperty(document, "system.formula", "");
     }
     if (restriction.replaceFlavor) {
-      setProperty(document, "system.chatFlavor", restriction.replaceFlavor);
+      foundry.utils.setProperty(document, "system.chatFlavor", restriction.replaceFlavor);
     }
     if (restriction.damageParts) {
       document.system.damage.parts.push(...restriction.damageParts);
@@ -208,11 +208,11 @@ export async function addRestrictionFlags(document, addEffects) {
     if (document.system.attunement > 0 && !["", "false"].includes(restriction.restriction)) {
       restrictionText += ` && @item.attunement !== 1`;
     }
-    // setProperty(document, "system.activation.condition", restrictionText);
-    setProperty(document, "flags.midi-qol.effectCondition", restrictionText);
+    // foundry.utils.setProperty(document, "system.activation.condition", restrictionText);
+    foundry.utils.setProperty(document, "flags.midi-qol.effectCondition", restrictionText);
 
     if (restriction.effectRestrictionActivation) {
-      setProperty(document, "flags.midi-qol.effectActivation", true);
+      foundry.utils.setProperty(document, "flags.midi-qol.effectActivation", true);
     }
 
     if (restriction.effect) {

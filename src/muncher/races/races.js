@@ -68,7 +68,7 @@ export async function getRaces(data) {
     races.push(ddbRace.data);
   }
 
-  logger.debug("Pre-fiddled races", duplicate(races));
+  logger.debug("Pre-fiddled races", foundry.utils.duplicate(races));
   const raceOptions = { matchFlags: ["entityRaceId"], useCompendiumFolders: true };
   await DDBItemImporter.buildHandler("races", races, updateBool, raceOptions);
 

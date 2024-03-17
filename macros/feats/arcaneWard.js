@@ -46,13 +46,13 @@ if (args[0].macroPass === "preActiveEffects" && args[0].item?.system.school === 
       label: arcaneWardAbsorptionEffectLabel,
       name: arcaneWardAbsorptionEffectLabel,
     };
-    setProperty(effectData, "flags.dae.specialDuration", ["longRest"]);
+    foundry.utils.setProperty(effectData, "flags.dae.specialDuration", ["longRest"]);
     await args[0].actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
   }
 
 } else if (args[0] === "onUpdateActor") {
   const lastArg = args[args.length - 1];
-  let newHP = getProperty(lastArg.updates, "system.attributes.hp.value");
+  let newHP = foundry.utils.getProperty(lastArg.updates, "system.attributes.hp.value");
   const oldHP = lastArg.targetActor.system.attributes.hp.value;
   if (newHP && oldHP && newHP < oldHP) {
     const damage = oldHP - newHP;

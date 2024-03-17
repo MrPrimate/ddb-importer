@@ -53,7 +53,7 @@ function getRangeAdjustmentMultiplier(ddb) {
 
 function adjustRange(multiplier, spell) {
   if (spell.system.actionType === "rsak" && Number.isInteger(spell.system.range?.value)) {
-    setProperty(spell, "system.range.value", spell.system.range.value * multiplier);
+    foundry.utils.setProperty(spell, "system.range.value", spell.system.range.value * multiplier);
   }
   return spell;
 }
@@ -80,8 +80,8 @@ export function fixSpells(ddb, items) {
       case "Melf's Acid Arrow":
       case "Acid Arrow": {
         if (spell.system.damage?.parts.length > 1) {
-          const baseDamage = duplicate(spell.system.damage.parts[0]);
-          const otherDamage = duplicate(spell.system.damage.parts[1]);
+          const baseDamage = foundry.utils.duplicate(spell.system.damage.parts[0]);
+          const otherDamage = foundry.utils.duplicate(spell.system.damage.parts[1]);
           spell.system.damage.parts = [baseDamage];
           spell.system.formula = otherDamage[0];
         }
@@ -121,7 +121,7 @@ export function fixSpells(ddb, items) {
         break;
       }
       case "Catapult": {
-        setProperty(spell, "flags.midiProperties.nodam", true);
+        foundry.utils.setProperty(spell, "flags.midiProperties.nodam", true);
         break;
       }
       case "Call Lightning": {
@@ -276,10 +276,10 @@ export function fixSpells(ddb, items) {
         const radiantAlignments = [1, 2, 3, 4, 5, 6, 10, 14];
         const necroticAlignments = [7, 8, 9, 11];
         if (radiantAlignments.includes(ddb.character.alignmentId)) {
-          setProperty(spell, "flags.ddbimporter.damageType", "radiant");
+          foundry.utils.setProperty(spell, "flags.ddbimporter.damageType", "radiant");
           spell.system.damage = { parts: [["3d8", "radiant"]], versatile: "", value: "" };
         } else if (necroticAlignments.includes(ddb.character.alignmentId)) {
-          setProperty(spell, "flags.ddbimporter.damageType", "necrotic");
+          foundry.utils.setProperty(spell, "flags.ddbimporter.damageType", "necrotic");
           spell.system.damage = { parts: [["3d8", "necrotic"]], versatile: "", value: "" };
         }
         break;

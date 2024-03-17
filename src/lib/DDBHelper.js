@@ -183,7 +183,7 @@ const DDBHelper = {
       .find((option) => option.definition.id === feature.componentId);
 
     let feat = feature.levelScale ? feature : DDBHelper.findComponentByComponentId(ddb, feature.componentId);
-    if (!feat && hasProperty(feature, "flags.ddbimporter.dndbeyond.choice")) {
+    if (!feat && foundry.utils.hasProperty(feature, "flags.ddbimporter.dndbeyond.choice")) {
       feat = DDBHelper.findComponentByComponentId(ddb, feature.flags.ddbimporter.dndbeyond.choice.componentId);
     }
     if (!feat && classOption) {
@@ -401,7 +401,7 @@ const DDBHelper = {
         ddb.character.choices.class.some((choice) =>
           choice.componentId == option.componentId
           && choice.componentTypeId == option.componentTypeId
-          && hasProperty(choice, "optionValue")
+          && foundry.utils.hasProperty(choice, "optionValue")
         )
         || !ddb.character.choices.class.some((choice) =>
           choice.componentId == option.componentId
@@ -640,7 +640,7 @@ const DDBHelper = {
               (option) =>
                 // id match
                 (!featDefinition.componentTypeId && !featDefinition.entityTypeId && id == option.componentId)
-                || (!featDefinition.componentTypeId && hasProperty(featDefinition, "entityTypeId")
+                || (!featDefinition.componentTypeId && foundry.utils.hasProperty(featDefinition, "entityTypeId")
                   && featDefinition.entityTypeId == option.componentTypeId && id == option.componentId
                 )
                 // && // the choice id matches the option componentID
@@ -808,7 +808,7 @@ const DDBHelper = {
     const dcBonus = DDBHelper.getCustomValue(foundryItem, ddb, 14);
 
     if (toHitBonus) {
-      if (hasProperty(foundryItem, "system.attackBonus") && parseInt(foundryItem.system.attackBonus) === 0) {
+      if (foundry.utils.hasProperty(foundryItem, "system.attackBonus") && parseInt(foundryItem.system.attackBonus) === 0) {
         foundryItem.system.attackBonus = toHitBonus;
       } else {
         foundryItem.system.attackBonus += ` + ${toHitBonus}`;
@@ -860,7 +860,7 @@ const DDBHelper = {
       : DDBHelper.getCustomValue(item, ddb, 16);
     if (typeof customDisplay == "boolean") {
       return customDisplay;
-    } else if (hasProperty(item, "displayAsAttack")) {
+    } else if (foundry.utils.hasProperty(item, "displayAsAttack")) {
       return item.displayAsAttack;
     } else {
       return false;
@@ -945,7 +945,7 @@ const DDBHelper = {
     return ownedItems.find((owned) => {
       // have we already matched against this id? lets not double dip
       const existingMatch = existingMatchedItems.find((matched) => {
-        return getProperty(owned, "flags.ddbimporter.id") === getProperty(matched, "flags.ddbimporter.id");
+        return foundry.utils.getProperty(owned, "flags.ddbimporter.id") === foundry.utils.getProperty(matched, "flags.ddbimporter.id");
       });
       if (existingMatch) return false;
       // the simple match
@@ -955,14 +955,14 @@ const DDBHelper = {
         && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
       // account for choices in ddb
       const isChoice
-        = hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
-        && hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
+        = foundry.utils.hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
+        && foundry.utils.hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
       const choiceMatch = isChoice
         ? item.flags.ddbimporter.dndbeyond.choice.choiceId
           === owned.flags.ddbimporter.dndbeyond.choice.choiceId
         : true;
       // force an override
-      const overrideDetails = getProperty(owned, "flags.ddbimporter.overrideItem");
+      const overrideDetails = foundry.utils.getProperty(owned, "flags.ddbimporter.overrideItem");
       const overrideMatch
         = overrideDetails
         && item.name === overrideDetails.name

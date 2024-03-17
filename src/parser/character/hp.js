@@ -53,7 +53,7 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
     ? constitutionHP + baseHitPoints + totalBonusHPWithEffects
     : overrideHitPoints;
 
-  const rolledHP = getProperty(this.source, "ddb.character.preferences.hitPointType") === 2;
+  const rolledHP = foundry.utils.getProperty(this.source, "ddb.character.preferences.hitPointType") === 2;
 
   // console.warn("hp data", {
   //   bonusHitPointValues,

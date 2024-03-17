@@ -25,8 +25,8 @@ export default class DDBCharacter {
     this.characterId = characterId;
     // show resource selection prompt?
     this.selectResources = selectResources;
-    this.resourceChoices = hasProperty(currentActor, "flags.ddbimporter.resources.type")
-      ? getProperty(currentActor, "flags.ddbimporter.resources")
+    this.resourceChoices = currentActor && foundry.utils.hasProperty(currentActor, "flags.ddbimporter.resources.type")
+      ? foundry.utils.getProperty(currentActor, "flags.ddbimporter.resources")
       : {
         ask: game.settings.get(SETTINGS.MODULE_ID, "show-resource-chooser-default"),
         type: "remove",
@@ -141,7 +141,7 @@ export default class DDBCharacter {
       // load some required content
       await importCacheLoad();
 
-      logger.debug("DDB Data to parse:", duplicate(this.source.ddb));
+      logger.debug("DDB Data to parse:", foundry.utils.duplicate(this.source.ddb));
       logger.debug("currentActorId", this.currentActorId);
       try {
         // this parses the json and sets the results as this.data
@@ -151,7 +151,7 @@ export default class DDBCharacter {
           this.data.character.name = undefined;
           this.data.character.prototypeToken.name = undefined;
         }
-        logger.debug("finalParsedData", duplicate({ source: this.source, data: deepClone(this.data) }));
+        logger.debug("finalParsedData", foundry.utils.duplicate({ source: this.source, data: foundry.utils.deepClone(this.data) }));
       } catch (error) {
         if (game.settings.get("ddb-importer", "debug-json")) {
           FileHelper.download(JSON.stringify(this.source), `${this.characterId}-raw.json`, "application/json");
@@ -192,10 +192,10 @@ export default class DDBCharacter {
         ) {
 
           action.effects = featureMatch.effects;
-          const newFlags = duplicate(featureMatch.flags);
+          const newFlags = foundry.utils.duplicate(featureMatch.flags);
 
           delete newFlags.ddbimporter;
-          mergeObject(action.flags, newFlags, { overwrite: true, insertKeys: true, insertValues: true });
+          foundry.utils.mergeObject(action.flags, newFlags, { overwrite: true, insertKeys: true, insertValues: true });
         }
       }
       return action;
@@ -206,7 +206,7 @@ export default class DDBCharacter {
         actionAndFeature
         || !this.data.actions.some((action) =>
           action.name.trim().toLowerCase() === feature.name.trim().toLowerCase()
-          && getProperty(action, "flags.ddbimporter.isCustomAction") !== true
+          && foundry.utils.getProperty(action, "flags.ddbimporter.isCustomAction") !== true
         )
       )
       .map((feature) => {
@@ -257,7 +257,7 @@ export default class DDBCharacter {
       await this._generateInventory();
       logger.debug("Inventory generation complete");
 
-      this.data = deepClone({
+      this.data = foundry.utils.deepClone({
         character: this.raw.character,
         features: this.raw.features,
         race: this.raw.race,
@@ -373,21 +373,21 @@ export default class DDBCharacter {
     const containerItems = this.data.inventory
       .filter((item) =>
         item.type === "container"
-        && hasProperty(item, "flags.ddbimporter.id")
-        && hasProperty(item, "flags.ddbimporter.containerEntityId")
+        && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
+        && foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
         && parseInt(item.flags.ddbimporter.containerEntityId) === parseInt(this.source.ddb.character.id)
-        && !getProperty(item, "flags.ddbimporter.ignoreItemImport")
+        && !foundry.utils.getProperty(item, "flags.ddbimporter.ignoreItemImport")
       );
 
     this.data.inventory.forEach((item) => {
-      if (hasProperty(item, "flags.ddbimporter.containerEntityId")
+      if (foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
         && parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(this.source.ddb.character.id)
       ) {
         const containerItem = containerItems.find((container) =>
           parseInt(container.flags.ddbimporter.id) === parseInt(item.flags.ddbimporter.containerEntityId)
         );
         if (containerItem) {
-          setProperty(item, "system.container", containerItem._id);
+          foundry.utils.setProperty(item, "system.container", containerItem._id);
         }
       }
     });

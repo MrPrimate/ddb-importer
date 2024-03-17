@@ -1,3 +1,7 @@
+# Next Up
+
+- First pass code tweaks for v12 support.
+
 # 5.0.0
 
 - Weightless Containers were not recognised.

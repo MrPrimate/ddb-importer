@@ -197,8 +197,8 @@ DDBCharacter.prototype._generateAbilities = function _generateAbilities() {
   // we need to populate some base abilities to work out bonuses
   this._generateBaseAbilities(false);
 
-  this.abilities.core = mergeObject(this._getAbilities(false), this._getAbilitiesBonuses(false));
-  this.abilities.withEffects = mergeObject(this._getAbilities(true), this._getAbilitiesBonuses(true));
+  this.abilities.core = foundry.utils.mergeObject(this._getAbilities(false), this._getAbilitiesBonuses(false));
+  this.abilities.withEffects = foundry.utils.mergeObject(this._getAbilities(true), this._getAbilitiesBonuses(true));
   this.raw.character.system.abilities = this.abilities.core;
   this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities = this.abilities.withEffects;
 

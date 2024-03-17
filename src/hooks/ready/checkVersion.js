@@ -32,7 +32,7 @@ async function getCompatibility() {
 export default async () => {
   const moduleInfo = game.modules.get(MODULE_NAME);
   const installedVersion = moduleInfo.version;
-  setProperty(CONFIG, "DDBI.version", installedVersion);
+  foundry.utils.setProperty(CONFIG, "DDBI.version", installedVersion);
   try {
     if (!game.user.isGM) return;
     const compatibleMinimumSystem = utils.versionCompare(game.data.system.version, MINIMUM_5E_VERSION) >= 0;

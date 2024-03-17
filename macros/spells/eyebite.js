@@ -77,7 +77,7 @@ async function getTarget(userId, ignoreInitial = false) {
 }
 
 if (args[0] === "on") {
-  const saveData = deepClone(DAEItem.system.save);
+  const saveData = foundry.utils.deepClone(DAEItem.system.save);
   if (saveData.scaling === "spell") {
     const rollData = actor.getRollData();
     saveData.dc = rollData.attributes.spelldc;

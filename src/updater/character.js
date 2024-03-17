@@ -15,8 +15,8 @@ import NameMatcher from "../lib/NameMatcher.js";
 function getContainerItems(actor) {
   return actor.items
     .filter((item) =>
-      hasProperty(item, "flags.ddbimporter.id")
-      && hasProperty(item, "flags.ddbimporter.containerEntityId")
+      foundry.utils.hasProperty(item, "flags.ddbimporter.id")
+      && foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
       && item.flags.ddbimporter.containerEntityId === parseInt(actor.flags.ddbimporter.dndbeyond.characterId)
       && !item.flags.ddbimporter?.ignoreItemImport
       && !item.system.container
@@ -32,13 +32,13 @@ function setContainerDetails(actor, item, containerItems = null) {
     : null;
 
   if (containerItem) {
-    const containerId = getProperty(containerItem, "flags.ddbimporter.id");
-    const containerEntityTypeId = getProperty(containerItem, "flags.ddbimporter.entityTypeId");
-    setProperty(item, "flags.ddbimporter.containerEntityId", containerId);
-    setProperty(item, "flags.ddbimporter.containerEntityTypeId", containerEntityTypeId);
+    const containerId = foundry.utils.getProperty(containerItem, "flags.ddbimporter.id");
+    const containerEntityTypeId = foundry.utils.getProperty(containerItem, "flags.ddbimporter.entityTypeId");
+    foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityId", containerId);
+    foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityTypeId", containerEntityTypeId);
   } else {
     // set the container entity id to the id of the character, if the character is the "container"
-    setProperty(item, "flags.ddbimporter.containerEntityId", parseInt(characterId));
+    foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityId", parseInt(characterId));
   }
 
   return item;
@@ -47,7 +47,7 @@ function setContainerDetails(actor, item, containerItems = null) {
 function getFoundryItems(actor) {
   const ddbContainers = getContainerItems(actor);
 
-  const actorItems = duplicate(actor.items)
+  const actorItems = foundry.utils.duplicate(actor.items)
     .filter((item) => !(item.flags.ddbimporter?.ignoreItemUpdate ?? false))
     .map((item) => {
       return setContainerDetails(actor, item, ddbContainers);
@@ -61,7 +61,7 @@ function getCustomItemDescription(text) {
 }
 
 async function getUpdateItemIndex() {
-  if (hasProperty(CONFIG, "DDBI.update.itemIndex")) return getProperty(CONFIG, "DDBI.update.itemIndex");
+  if (foundry.utils.hasProperty(CONFIG, "DDBI.update.itemIndex")) return foundry.utils.getProperty(CONFIG, "DDBI.update.itemIndex");
   const compendium = await CompendiumHelper.getCompendiumType("item", false);
 
   const indexFields = [
@@ -72,7 +72,7 @@ async function getUpdateItemIndex() {
   ];
   // eslint-disable-next-line require-atomic-updates
   const itemIndex = await compendium.getIndex({ fields: indexFields });
-  setProperty(CONFIG, "DDBI.update.itemIndex", itemIndex);
+  foundry.utils.setProperty(CONFIG, "DDBI.update.itemIndex", itemIndex);
 
   return itemIndex;
 }
@@ -91,7 +91,7 @@ async function updateCharacterCall(actor, path, bodyContent, flavor) {
   const parsingApi = dynamicSync
     ? DDBProxy.getDynamicProxy()
     : DDBProxy.getProxy();
-  const useCharacterKey = getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
+  const useCharacterKey = foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
   const betaKey = PatreonHelper.getPatreonKey(useCharacterKey);
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
@@ -280,7 +280,7 @@ async function currency(actor, ddbCharacter) {
 // async function itemCurrency(actor, ddbItem, foundryItem) {
 //   if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency")) return [];
 //   if (!game.modules.get("itemcollection")?.active) return [];
-//   if (!hasProperty(foundryItem, "system.currency")) return [];
+//   if (!foundry.utils.hasProperty(foundryItem, "system.currency")) return [];
 
 //   const promises = [];
 
@@ -574,10 +574,10 @@ async function updateItemsWithDDBInfo(itemsToAdd) {
         && ddbCompendiumMatch.flags?.ddbimporter?.definitionEntityTypeId
       ) {
         logger.debug(`Adding ${item.name} from DDB compendium match:`, ddbCompendiumMatch);
-        setProperty(item, "flags.ddbimporter.definitionId", ddbCompendiumMatch.flags.ddbimporter.definitionId);
-        setProperty(item, "flags.ddbimporter.definitionEntityTypeId", ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId);
-        setProperty(item, "name", ddbCompendiumMatch.name);
-        setProperty(item, "type", ddbCompendiumMatch.type);
+        foundry.utils.setProperty(item, "flags.ddbimporter.definitionId", ddbCompendiumMatch.flags.ddbimporter.definitionId);
+        foundry.utils.setProperty(item, "flags.ddbimporter.definitionEntityTypeId", ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId);
+        foundry.utils.setProperty(item, "name", ddbCompendiumMatch.name);
+        foundry.utils.setProperty(item, "type", ddbCompendiumMatch.type);
       }
     }
     return item;
@@ -587,8 +587,8 @@ async function updateItemsWithDDBInfo(itemsToAdd) {
 function getValidContainer(actor, containerEntityId) {
   if (!containerEntityId) return undefined;
   if (parseInt(containerEntityId) === parseInt(actor.flags.ddbimporter.dndbeyond.characterId)) return true;
-  const containers = actor.items.filter((i) => getProperty(i, "flags.ddbimporter.dndbeyond.isContainer") === true);
-  return containers.find((c) => parseInt(getProperty(c, "flags.ddbimporter.id")) === parseInt(containerEntityId));
+  const containers = actor.items.filter((i) => foundry.utils.getProperty(i, "flags.ddbimporter.dndbeyond.isContainer") === true);
+  return containers.find((c) => parseInt(foundry.utils.getProperty(c, "flags.ddbimporter.id")) === parseInt(containerEntityId));
 }
 
 function generateItemsToAdd(actor, itemsToAdd) {
@@ -603,12 +603,12 @@ function generateItemsToAdd(actor, itemsToAdd) {
   for (let i = 0; i < itemsToAdd.length; i++) {
     let item = itemsToAdd[i];
     if (item.flags.ddbimporter?.definitionId && item.flags.ddbimporter?.definitionEntityTypeId) {
-      const containerItem = getValidContainer(actor, hasProperty(item, "flags.ddbimporter.containerEntityId"));
+      const containerItem = getValidContainer(actor, foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId"));
       const containerEntityId = containerItem
-        ? parseInt(getProperty(containerItem, "flags.ddbimporter.id"))
+        ? parseInt(foundry.utils.getProperty(containerItem, "flags.ddbimporter.id"))
         : characterId;
       const containerEntityTypeId = containerItem && containerEntityId !== characterId
-        ? parseInt(getProperty(containerItem, "flags.ddbimporter.entityTypeId"))
+        ? parseInt(foundry.utils.getProperty(containerItem, "flags.ddbimporter.entityTypeId"))
         : parseInt("1581111423");
       results.toAdd.push({
         containerEntityId,
@@ -639,13 +639,13 @@ async function deleteDDBCustomItems(actor, itemsToDelete) {
           partyId: null,
         }
       };
-      if (getProperty(customData, "customValues.id") !== undefined
-        && getProperty(customData, "customValues.mappingId") !== undefined
+      if (foundry.utils.getProperty(customData, "customValues.id") !== undefined
+        && foundry.utils.getProperty(customData, "customValues.mappingId") !== undefined
       ) {
         const result = updateCharacterCall(actor, "custom/item", customData, { name: item.name }).then((data) => {
-          setProperty(item, "flags.ddbimporter.delete", data);
-          setProperty(item, "flags.ddbimporter.custom", true);
-          setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", true);
+          foundry.utils.setProperty(item, "flags.ddbimporter.delete", data);
+          foundry.utils.setProperty(item, "flags.ddbimporter.custom", true);
+          foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", true);
           return item;
         });
         customItemResults.push(result);
@@ -663,10 +663,10 @@ async function addDDBCustomItems(actor, itemsToAdd) {
   let customItemResults = [];
   for (let i = 0; i < itemsToAdd.length; i++) {
     const item = itemsToAdd[i];
-    const containerEntityId = hasProperty(item, "flags.ddbimporter.containerEntityId")
+    const containerEntityId = foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
       ? parseInt(item.flags.ddbimporter.containerEntityId)
       : parseInt(actor.flags.ddbimporter.dndbeyond.characterId);
-    const containerEntityTypeId = hasProperty(item, "flags.ddbimporter.containerEntityTypeId")
+    const containerEntityTypeId = foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityTypeId")
       ? parseInt(item.flags.ddbimporter.containerEntityTypeId)
       : parseInt("1581111423");
     const customData = {
@@ -683,13 +683,13 @@ async function addDDBCustomItems(actor, itemsToAdd) {
       }
     };
     const result = updateCharacterCall(actor, "custom/item", customData, { name: item.name }).then((data) => {
-      setProperty(item, "flags.ddbimporter.id", data.data.addItems[0].id);
-      setProperty(item, "flags.ddbimporter.custom", true);
-      setProperty(item, "flags.ddbimporter.ddbCustomAdded", true);
-      setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", true);
-      setProperty(item, "flags.ddbimporter.definitionId", data.data.addItems[0].definition.id);
-      setProperty(item, "flags.ddbimporter.containerEntityId", data.data.addItems[0].definition.containerEntityId);
-      setProperty(item, "flags.ddbimporter.containerEntityTypeId", data.data.addItems[0].definition.containerEntityTypeId);
+      foundry.utils.setProperty(item, "flags.ddbimporter.id", data.data.addItems[0].id);
+      foundry.utils.setProperty(item, "flags.ddbimporter.custom", true);
+      foundry.utils.setProperty(item, "flags.ddbimporter.ddbCustomAdded", true);
+      foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", true);
+      foundry.utils.setProperty(item, "flags.ddbimporter.definitionId", data.data.addItems[0].definition.id);
+      foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityId", data.data.addItems[0].definition.containerEntityId);
+      foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityTypeId", data.data.addItems[0].definition.containerEntityTypeId);
       return item;
     });
     customItemResults.push(result);
@@ -747,9 +747,9 @@ async function addDDBEquipment(actor, itemsToAdd) {
             && i.flags.ddbimporter.definitionId === addedItem.definition.id
             && i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
           );
-          setProperty(updatedItem, "flags.ddbimporter.id", addedItem.id);
-          setProperty(updatedItem, "flags.ddbimporter.containerEntityId", addedItem.containerEntityId);
-          setProperty(updatedItem, "flags.ddbimporter.containerEntityTypeId", addedItem.containerEntityTypeId);
+          foundry.utils.setProperty(updatedItem, "flags.ddbimporter.id", addedItem.id);
+          foundry.utils.setProperty(updatedItem, "flags.ddbimporter.containerEntityId", addedItem.containerEntityId);
+          foundry.utils.setProperty(updatedItem, "flags.ddbimporter.containerEntityTypeId", addedItem.containerEntityTypeId);
           return updatedItem;
         });
 
@@ -948,12 +948,12 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
 
   for (const item of currencyItems) {
     // eslint-disable-next-line no-continue
-    if (!hasProperty(item, "system.currency.gp")) continue;
+    if (!foundry.utils.hasProperty(item, "system.currency.gp")) continue;
     const ddbItem = ddbItems.find((dItem) =>
       item.flags.ddbimporter.id === dItem.id
     );
     // eslint-disable-next-line no-continue
-    if (ddbItem && !hasProperty(ddbItem, "currency.gp")) continue;
+    if (ddbItem && !foundry.utils.hasProperty(ddbItem, "currency.gp")) continue;
     ["pp", "gp", "ep", "sp", "cp"].forEach((t) => {
       if (item.system.currency[t] !== ddbItem.currency[t]) {
         const currency = {
@@ -970,8 +970,8 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
 
   customItems
     .filter((item) => {
-      const isValid = getProperty(item, "flags.ddbimporter.id") !== undefined
-       && getProperty(item, "flags.ddbimporter.definitionId") !== undefined;
+      const isValid = foundry.utils.getProperty(item, "flags.ddbimporter.id") !== undefined
+       && foundry.utils.getProperty(item, "flags.ddbimporter.definitionId") !== undefined;
       if (!isValid) {
         logger.error(`Custom item ${item.name} is missing metadata, please manually update and re-import`);
         ui.notifications.error(`Custom item ${item.name} is missing metadata, please manually update and re-import`);
@@ -1016,73 +1016,73 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
   const foundryItems = getFoundryItems(actor);
 
   const itemsToEquip = foundryItems.filter((item) =>
-    hasProperty(item, "system.equipped")
-    && hasProperty(item, "flags.ddbimporter.id")
-    && !getProperty(item, "flags.ddbimporter.action")
-    && !getProperty(item, "flags.ddbimporter.custom")
+    foundry.utils.hasProperty(item, "system.equipped")
+    && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
+    && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
+    && !foundry.utils.getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
-      getProperty(item, "flags.ddbimporter.id") === dItem.id
+      foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
       && item.system.equipped !== dItem.equipped
     )
   );
   const itemsToAttune = foundryItems.filter((item) =>
-    hasProperty(item, "system.attunement")
-    && hasProperty(item, "flags.ddbimporter.id")
-    && !getProperty(item, "flags.ddbimporter.action")
-    && !getProperty(item, "flags.ddbimporter.custom")
+    foundry.utils.hasProperty(item, "system.attunement")
+    && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
+    && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
+    && !foundry.utils.getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
-      getProperty(item, "flags.ddbimporter.id") === dItem.id
+      foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
       && ((item.system.attunement === 2) !== dItem.isAttuned)
     )
   );
   const itemsToCharge = foundryItems.filter((item) =>
-    hasProperty(item, "system.uses")
-    && hasProperty(item, "flags.ddbimporter.id")
-    && !getProperty(item, "flags.ddbimporter.action")
-    && !getProperty(item, "flags.ddbimporter.custom")
+    foundry.utils.hasProperty(item, "system.uses")
+    && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
+    && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
+    && !foundry.utils.getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
-      getProperty(item, "flags.ddbimporter.id") === dItem.id
+      foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
       && Number.isInteger(parseInt(item.system.uses?.max)) && Number.isInteger(parseInt(dItem.limitedUse?.numberUsed))
       && ((parseInt(item.system.uses.max) - parseInt(item.system.uses.value)) !== dItem.limitedUse.numberUsed)
     )
   );
   const itemsToQuantity = foundryItems.filter((item) =>
-    hasProperty(item, "system.quantity")
+    foundry.utils.hasProperty(item, "system.quantity")
     && item.system.quantity !== 0
-    && !getProperty(item, "system.armor.type")
-    && ((item.type !== "weapon" && item.type !== "armor") || getProperty(item, "flags.ddbimporter.dndbeyond.stackable"))
-    && hasProperty(item, "flags.ddbimporter.id")
-    && !getProperty(item, "flags.ddbimporter.action")
-    && !getProperty(item, "flags.ddbimporter.custom")
+    && !foundry.utils.getProperty(item, "system.armor.type")
+    && ((item.type !== "weapon" && item.type !== "armor") || foundry.utils.getProperty(item, "flags.ddbimporter.dndbeyond.stackable"))
+    && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
+    && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
+    && !foundry.utils.getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
-      getProperty(item, "flags.ddbimporter.id") === dItem.id
+      foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
       && item.system.quantity !== dItem.quantity
     )
   );
   // this is for items that have been added and might have a different name
   const itemsToName = foundryItems.filter((item) =>
-    hasProperty(item, "flags.ddbimporter.id")
+    foundry.utils.hasProperty(item, "flags.ddbimporter.id")
     && item.system?.quantity !== 0
-    && !getProperty(item, "flags.ddbimporter.custom")
+    && !foundry.utils.getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
       item.flags.ddbimporter.originalName === dItem.definition.name
       && item.flags.ddbimporter.originalName !== item.name.replaceAll("[Infusion]", "").trim()
-      && getProperty(item, "flags.ddbimporter.id") === dItem.id
+      && foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
       && item.name.replaceAll("[Infusion]", "").trim() !== dItem.definition.name
     )
   );
 
   // update.name || update.data?.description || update.data?.weight || update.data?.price || update.data?.quantity
   const customItems = foundryItems.filter((item) =>
-    hasProperty(item, "flags.ddbimporter.id")
+    foundry.utils.hasProperty(item, "flags.ddbimporter.id")
     && item.system?.quantity !== 0
-    && (getProperty(item, "flags.ddbimporter.custom") === true || getProperty(item, "flags.ddbimporter.isCustom") === true)
+    && (foundry.utils.getProperty(item, "flags.ddbimporter.custom") === true || foundry.utils.getProperty(item, "flags.ddbimporter.isCustom") === true)
     && customDDBItems.some((dItem) => dItem.id === item.flags.ddbimporter.id
       && (
         item.name !== dItem.name
         || getCustomItemDescription(item.system.description.value) != dItem.description
-        || (hasProperty(item, "system.quantity") && item.system.quantity != dItem.quantity)
-        || (hasProperty(item, "system.weight") && item.system.weight != dItem.weight)
+        || (foundry.utils.hasProperty(item, "system.quantity") && item.system.quantity != dItem.quantity)
+        || (foundry.utils.hasProperty(item, "system.weight") && item.system.weight != dItem.weight)
         //  ||
         // item.data.price != dItem.cost
       )
@@ -1090,9 +1090,9 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
   );
 
   const itemsToMove = foundryItems.filter((item) =>
-    hasProperty(item, "flags.ddbimporter.id")
-    && !getProperty(item, "flags.ddbimporter.action")
-    && hasProperty(item, "flags.ddbimporter.containerEntityId")
+    foundry.utils.hasProperty(item, "flags.ddbimporter.id")
+    && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
+    && foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
     && ddbItems.some((dItem) =>
       item.flags.ddbimporter.id === dItem.id
       && parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(dItem.containerEntityId)
@@ -1100,11 +1100,11 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
 
   const itemsToCurrency = game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency")
     ? foundryItems.filter((item) =>
-      hasProperty(item, "flags.ddbimporter.id")
-      && hasProperty(item, "flags.ddbimporter.entityTypeId")
-      && !getProperty(item, "flags.ddbimporter.action")
-      && !getProperty(item, "flags.ddbimporter.custom")
-      && hasProperty(item, "system.currency.gp")
+      foundry.utils.hasProperty(item, "flags.ddbimporter.id")
+      && foundry.utils.hasProperty(item, "flags.ddbimporter.entityTypeId")
+      && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
+      && !foundry.utils.getProperty(item, "flags.ddbimporter.custom")
+      && foundry.utils.hasProperty(item, "system.currency.gp")
       && ddbItems.some((dItem) =>
         item.flags.ddbimporter.id === dItem.id
         && !isEqual(dItem.currency, item.system.currency)
@@ -1208,7 +1208,7 @@ export async function updateDDBCharacter(actor) {
     throw new Error("User is not allowed to edit character on D&D Beyond.");
   }
 
-  logger.debug("Current actor:", duplicate(actor));
+  logger.debug("Current actor:", foundry.utils.duplicate(actor));
   logger.debug("DDB Parsed data:", { data: ddbCharacter.data, source: ddbCharacter.source });
 
   let singlePromises = []
@@ -1359,16 +1359,16 @@ async function generateDynamicItemChange(actor, document, update) {
   // console.warn("Document", document);
   // console.warn("ItemUpdate", update);
 
-  if (getProperty(document, "flags.ddbimporter.custom") === true || getProperty(document, "flags.ddbimporter.isCustom") === true) {
+  if (foundry.utils.getProperty(document, "flags.ddbimporter.custom") === true || foundry.utils.getProperty(document, "flags.ddbimporter.isCustom") === true) {
     if (update.name || update.system?.description || update.system?.weight || update.system?.price || update.system?.quantity) {
-      updateItemDetails.customItems.push(duplicate(document));
+      updateItemDetails.customItems.push(foundry.utils.duplicate(document));
     }
   } else {
     if (update.system?.uses) {
-      updateItemDetails.itemsToCharge.push(duplicate(document));
+      updateItemDetails.itemsToCharge.push(foundry.utils.duplicate(document));
     }
     if (update.system?.attunement) {
-      updateItemDetails.itemsToAttune.push(duplicate(document));
+      updateItemDetails.itemsToAttune.push(foundry.utils.duplicate(document));
     }
     if (update.system?.quantity) {
       // if its a weapon or armor we actually need to push a new one
@@ -1376,7 +1376,7 @@ async function generateDynamicItemChange(actor, document, update) {
         // Some items are not stackable on DDB
 
         await document.update({ system: { quantity: 1 } });
-        let newDocument = duplicate(document.toObject());
+        let newDocument = foundry.utils.duplicate(document.toObject());
         delete newDocument._id;
         delete newDocument.flags.ddbimporter.id;
 
@@ -1390,22 +1390,22 @@ async function generateDynamicItemChange(actor, document, update) {
         }
         return results;
       } else {
-        updateItemDetails.itemsToQuantity.push(duplicate(document));
+        updateItemDetails.itemsToQuantity.push(foundry.utils.duplicate(document));
       }
     }
     if (update.system?.equipped) {
-      updateItemDetails.itemsToEquip.push(duplicate(document));
+      updateItemDetails.itemsToEquip.push(foundry.utils.duplicate(document));
     }
     if (update.name) {
-      updateItemDetails.itemsToName.push(duplicate(document));
+      updateItemDetails.itemsToName.push(foundry.utils.duplicate(document));
     }
     if (update.system?.container) {
-      const containerisedDocument = duplicate(document);
+      const containerisedDocument = foundry.utils.duplicate(document);
       setContainerDetails(actor, containerisedDocument);
       updateItemDetails.itemsToMove.push(containerisedDocument);
     }
     if (update.system?.currency) {
-      updateItemDetails.itemsToCurrency.push(duplicate(document));
+      updateItemDetails.itemsToCurrency.push(foundry.utils.duplicate(document));
     }
   }
 
@@ -1444,7 +1444,7 @@ async function activeUpdateUpdateItem(document, update) {
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
     const actorActiveUpdate = parentActor && parentActor.flags.ddbimporter?.activeUpdate;
-    const ignore = getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
+    const ignore = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
 
     if (!parentActor || !actorActiveUpdate || ignore) {
       resolve([]);
@@ -1468,7 +1468,7 @@ async function activeUpdateUpdateItem(document, update) {
       if (action && syncActionUse && isDDBItem) {
         if (update.system?.uses) {
           logger.debug("Updating action uses", update);
-          updateDDBActionUseStatus(parentActor, [duplicate(document)]);
+          updateDDBActionUseStatus(parentActor, [foundry.utils.duplicate(document)]);
         } else {
           resolve([]);
         }
@@ -1509,8 +1509,8 @@ async function activeUpdateAddOrDeleteItem(document, state) {
     const syncEquipment = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-equipment");
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
-    const actorActiveUpdate = parentActor && getProperty(parentActor, "flags.ddbimporter.activeUpdate");
-    const ignore = getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
+    const actorActiveUpdate = parentActor && foundry.utils.getProperty(parentActor, "flags.ddbimporter.activeUpdate");
+    const ignore = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
 
     if (parentActor && actorActiveUpdate && syncEquipment && !ignore) {
       logger.debug(`Checking to see if ${state.toLowerCase()} can be added to DDB...`);
@@ -1533,7 +1533,7 @@ async function activeUpdateAddOrDeleteItem(document, state) {
             //     containerEntityId: characterId,
             //     containerEntityTypeId: 1581111423,
             //   };
-            //   const flavor = { summary: "Moving item to character", name: document.name, containerId: duplicate(containerId) };
+            //   const flavor = { summary: "Moving item to character", name: document.name, containerId: foundry.utils.duplicate(containerId) };
             //   promises.push(updateCharacterCall(parentActor, "equipment/move", itemData, flavor));
             // } else {
             logger.debug(`Creating item`, document);
@@ -1544,9 +1544,9 @@ async function activeUpdateAddOrDeleteItem(document, state) {
           case "DELETE": {
             // const collectionItems = getItemCollectionItems(parentActor);
             // const collectionItemDDBIds = collectionItems
-            //   .filter((item) => hasProperty(item, "flags.ddbimporter.id"))
+            //   .filter((item) => foundry.utils.hasProperty(item, "flags.ddbimporter.id"))
             //   .map((item) => item.flags.ddbimporter.id);
-            // if (hasProperty(document, "flags.ddbimporter.id")
+            // if (foundry.utils.hasProperty(document, "flags.ddbimporter.id")
             //   && collectionItemDDBIds.includes(document.flags.ddbimporter.id)
             // ) {
             //   // we don't have to handle deletes as the item collection move is handled above

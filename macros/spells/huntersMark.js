@@ -1,7 +1,7 @@
 try {
   const act = args[0].actor ?? actor;
   if (args[0].macroPass === "DamageBonus") {
-    if (hasProperty(act, "flags.dae.onUpdateTarget") && args[0].hitTargets.length > 0) {
+    if (foundry.utils.hasProperty(act, "flags.dae.onUpdateTarget") && args[0].hitTargets.length > 0) {
       const isMarked = act.flags.dae.onUpdateTarget.some(
         (flag) =>
           flag.flagName === "Hunter's Mark" &&
@@ -27,7 +27,7 @@ try {
       const target = await fromUuid(markedTarget);
       if (!target || target.actor.system.attributes.hp.value <= 0) {
         //marked target is dead or removed so don't consume a resource
-        const currentDuration = duplicate(
+        const currentDuration = foundry.utils.duplicate(
           act.effects.find(
             (ef) => (ef.name ?? ef.label) === game.i18n.localize("midi-qol.Concentrating")
           ).duration

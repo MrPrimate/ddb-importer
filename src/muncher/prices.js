@@ -41,7 +41,7 @@ export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepEx
     const noGpValue = (gpPrice === undefined || gpPrice === null || gpPrice === 0);
 
     if (noGpValue) return true;
-    const existingDDBPrice = getProperty(i, "flags.ddbimporter.price.xgte");
+    const existingDDBPrice = foundry.utils.getProperty(i, "flags.ddbimporter.price.xgte");
     // console.warn(`checking ${i.name}`, { existingDDBPrice, keepExistingDDBPrices, keepExistingNonDDBPrices, i });
     if (!keepExistingDDBPrices && existingDDBPrice) return true;
     if (!keepExistingNonDDBPrices && !existingDDBPrice) return true;
@@ -60,8 +60,8 @@ export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepEx
 
     logger.info(`Processing ${item.name}: Rarity - ${rarity}, Price - ${gpPrice}, Consumable - ${isConsumable}`);
 
-    const newPrice = keepExistingDDBPrices && hasProperty(item, "flags.ddbimporter.price.value")
-      ? getProperty(item, "flags.ddbimporter.price.value")
+    const newPrice = keepExistingDDBPrices && foundry.utils.hasProperty(item, "flags.ddbimporter.price.value")
+      ? foundry.utils.getProperty(item, "flags.ddbimporter.price.value")
       : await calculatePrice(rarity, isConsumable);
     if (newPrice !== null) {
       logger.info(`Adding update of GP price of ${item.name} (Rarity: ${rarity}) to ${newPrice} gp`);

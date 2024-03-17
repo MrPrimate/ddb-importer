@@ -11,8 +11,8 @@ export function steadyAimEffect(document) {
     },
   );
   effect.flags.dae.specialDuration = ["1Attack"];
-  setProperty(effect, "flags.dae.stackable", "noneName");
-  setProperty(effect, "duration.turns", 1);
+  foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
+  foundry.utils.setProperty(effect, "duration.turns", 1);
 
   document.system["target"]["type"] = "self";
   document.system.range = { value: null, units: "self", long: null };
@@ -41,7 +41,7 @@ export function steadyAimEffect(document) {
     startTurn: null,
   };
   moveEffect.flags.dae.specialDuration = ["turnStartSource"];
-  setProperty(moveEffect, "flags.dae.stackable", "noneName");
+  foundry.utils.setProperty(moveEffect, "flags.dae.stackable", "noneName");
   document.effects.push(moveEffect);
 
   return document;

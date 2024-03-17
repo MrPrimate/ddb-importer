@@ -198,7 +198,7 @@ export default class DDBEncounterMunch extends Application {
         journalMonsterInfo.set(monsterData.ddbId, monsterData);
 
         for (let i = 0; i < monster.quantity; i++) {
-          let addData = deepClone(monsterData);
+          let addData = foundry.utils.deepClone(monsterData);
           addData.quantity = 1;
           addData.uniqueId = monster.uniqueId;
           addData.initiative = monster.initiative;
@@ -242,7 +242,7 @@ export default class DDBEncounterMunch extends Application {
           );
         }
       }
-      this.encounter.worldMonsters.push(mergeObject(actor, { id: worldActor.id }));
+      this.encounter.worldMonsters.push(foundry.utils.mergeObject(actor, { id: worldActor.id }));
     });
 
     return new Promise((resolve) => {
@@ -422,12 +422,12 @@ export default class DDBEncounterMunch extends Application {
               .some((t) => t.actor.flags?.ddbimporter?.id == character.id && t.actor.type == "character");
 
             if (!onScene) {
-              const linkedToken = duplicate(await characterInGame.getTokenDocument());
+              const linkedToken = foundry.utils.duplicate(await characterInGame.getTokenDocument());
               if (useDDBSave) {
-                setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", character.initiative);
+                foundry.utils.setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", character.initiative);
               }
-              setProperty(linkedToken, `delta.flags.ddbimporter.encounters`, true);
-              setProperty(linkedToken, `delta.flags.ddbimporter.encounterId`, this.encounter.id);
+              foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.encounters`, true);
+              foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.encounterId`, this.encounter.id);
               linkedToken.x = xStartPixelPC;
               const yOffsetChange = characterCount * sceneData.grid.size;
               linkedToken.y = yStartPixel + yOffsetChange;
@@ -444,30 +444,30 @@ export default class DDBEncounterMunch extends Application {
         logger.info(`Generating token ${worldMonster.ddbName} (${worldMonster.name}) for ${this.encounter.name}`);
         const monster = game.actors.get(worldMonster.id);
         // eslint-disable-next-line no-await-in-loop
-        const linkedToken = duplicate(await monster.getTokenDocument());
+        const linkedToken = foundry.utils.duplicate(await monster.getTokenDocument());
         if (monsterDepth + linkedToken.height > ySquares) {
           monsterDepth = 0;
           monsterRows += rowMonsterWidth;
           rowMonsterWidth = 1;
         }
 
-        setProperty(linkedToken, "name", worldMonster.ddbName);
-        setProperty(linkedToken, `delta.name`, worldMonster.ddbName);
-        setProperty(linkedToken, "flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
-        setProperty(linkedToken, "flags.ddbimporter.encounterId", this.encounter.id);
-        setProperty(linkedToken, `delta.flags.ddbimporter.dndbeyond.uniqueId`, worldMonster.uniqueId);
-        setProperty(linkedToken, `delta.flags.ddbimporter.encounters`, true);
-        setProperty(linkedToken, `delta.flags.ddbimporter.encounterId`, this.encounter.id);
+        foundry.utils.setProperty(linkedToken, "name", worldMonster.ddbName);
+        foundry.utils.setProperty(linkedToken, `delta.name`, worldMonster.ddbName);
+        foundry.utils.setProperty(linkedToken, "flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
+        foundry.utils.setProperty(linkedToken, "flags.ddbimporter.encounterId", this.encounter.id);
+        foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.dndbeyond.uniqueId`, worldMonster.uniqueId);
+        foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.encounters`, true);
+        foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.encounterId`, this.encounter.id);
         const xOffsetChange = sceneData.grid.size * monsterRows;
         const yOffsetChange = monsterDepth * sceneData.grid.size;
         linkedToken.x = xStartPixelMonster + xOffsetChange;
         linkedToken.y = yStartPixel + yOffsetChange;
         if (useDDBSave) {
-          setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", worldMonster.initiative);
+          foundry.utils.setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", worldMonster.initiative);
           // if no hp changes have been made on a monster on ddb it says 0 here
           if (worldMonster.maximumHitPoints !== 0) {
-            setProperty(linkedToken, `delta.system.attributes.hp.max`, worldMonster.maximumHitPoints);
-            setProperty(
+            foundry.utils.setProperty(linkedToken, `delta.system.attributes.hp.max`, worldMonster.maximumHitPoints);
+            foundry.utils.setProperty(
               linkedToken,
               `delta.system.attributes.hp.value`,
               worldMonster.currentHitPoints + worldMonster.temporaryHitPoints
@@ -500,7 +500,7 @@ export default class DDBEncounterMunch extends Application {
           logger.info(`Updating DDBI scene ${sceneData.name}`);
           sceneData._id = worldScene.id;
           await worldScene.deleteEmbeddedDocuments("Token", [], { deleteAll: true });
-          await worldScene.update(mergeObject(worldScene.toObject(), sceneData));
+          await worldScene.update(foundry.utils.mergeObject(worldScene.toObject(), sceneData));
         } else if (useExistingScene) {
           logger.info(`Checking existing scene ${sceneData.name} for encounter monsters`);
           const existingSceneMonsterIds = worldScene.tokens
@@ -783,7 +783,7 @@ export default class DDBEncounterMunch extends Application {
     const characterSettings = MuncherSettings.getCharacterImportSettings();
     const muncherSettings = MuncherSettings.getMuncherSettings(false);
 
-    const importSettings = mergeObject(characterSettings, muncherSettings);
+    const importSettings = foundry.utils.mergeObject(characterSettings, muncherSettings);
 
     const encounterConfig = [
       {
@@ -846,7 +846,7 @@ export default class DDBEncounterMunch extends Application {
       existingSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene"),
     };
 
-    const data = mergeObject(importSettings, encounterSettings);
+    const data = foundry.utils.mergeObject(importSettings, encounterSettings);
     logger.debug("Encounter muncher form data", data);
 
     return data;

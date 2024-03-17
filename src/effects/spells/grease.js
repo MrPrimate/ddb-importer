@@ -42,8 +42,8 @@ export async function greaseEffect(document) {
     savedc: null,
     displayTemp: true,
   };
-  setProperty(effect, "duration.seconds", 60);
-  // setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
+  foundry.utils.setProperty(effect, "duration.seconds", 60);
+  // foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
   const aaMacroFlags = {
     applyStart: true,
     applyEnd: true,
@@ -59,8 +59,8 @@ export async function greaseEffect(document) {
     save: document.system.save.ability,
     sequencerFile: "jb2a.grease.dark_green.loop",
   };
-  setProperty(document, "flags.ddbimporter.effect", aaMacroFlags);
-  setProperty(effect, "flags.ddbimporter.effect", aaMacroFlags);
+  foundry.utils.setProperty(document, "flags.ddbimporter.effect", aaMacroFlags);
+  foundry.utils.setProperty(effect, "flags.ddbimporter.effect", aaMacroFlags);
 
   document.effects.push(effect);
 

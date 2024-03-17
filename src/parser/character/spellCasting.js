@@ -9,11 +9,11 @@ function convertSpellCastingAbilityId(spellCastingAbilityId) {
 };
 
 function getSpellCastingAbility(klass) {
-  const subClassAbilityId = getProperty(klass, "subclassDefinition.spellCastingAbilityId");
+  const subClassAbilityId = foundry.utils.getProperty(klass, "subclassDefinition.spellCastingAbilityId");
   const subClassAbility = subClassAbilityId ? convertSpellCastingAbilityId(subClassAbilityId) : undefined;
   if (subClassAbility) return subClassAbility;
 
-  const classAbilityId = getProperty(klass, "definition.spellCastingAbilityId");
+  const classAbilityId = foundry.utils.getProperty(klass, "definition.spellCastingAbilityId");
   const classAbility = classAbilityId ? convertSpellCastingAbilityId(classAbilityId) : undefined;
 
   if (classAbility) return classAbility;
@@ -182,6 +182,6 @@ DDBCharacter.prototype._generateMaxPreparedSpells = function _generateMaxPrepare
     });
 
   this.raw.character.system.details.maxPreparedSpells = max;
-  setProperty(this.raw.character, "flags.tidy5e-sheet.maxPreparedSpells", max);
-  setProperty(this.raw.character, "flags.tidy5e-sheet-kgar.maxPreparedSpells", max);
+  foundry.utils.setProperty(this.raw.character, "flags.tidy5e-sheet.maxPreparedSpells", max);
+  foundry.utils.setProperty(this.raw.character, "flags.tidy5e-sheet-kgar.maxPreparedSpells", max);
 };

@@ -9,8 +9,8 @@ export async function crownofStarsEffect(document) {
     effect.changes.push(generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '60'));
     effect.changes.push(generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '30'));
   }
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
 
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "crownofStars.js" }));
   document.system.damage = { parts: [], versatile: "", value: "" };

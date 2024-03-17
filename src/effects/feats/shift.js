@@ -19,8 +19,8 @@ export function shiftEffect(ddb, character, document) {
         priority: 20,
       },
     );
-    setProperty(effect, "flags.dae.selfTarget", true);
-    setProperty(effect, "flags.dae.selfTargetAlways", true);
+    foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+    foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
     const description = parseTemplateString(ddb, character, isBeasthide.definition.description, isBeasthide.definition).text;
     document.system.description.value += `<h2>Beasthide</h2>\n${description}`;
     document.effects.push(effect);
@@ -33,8 +33,8 @@ export function shiftEffect(ddb, character, document) {
         priority: "20",
       },
     );
-    setProperty(effect, "flags.dae.selfTarget", true);
-    setProperty(effect, "flags.dae.selfTargetAlways", true);
+    foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+    foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
     const description = parseTemplateString(ddb, character, isSwiftstride.definition.description, isSwiftstride.definition).text;
     document.system.description.value += `<h2>Swiftstride</h2>\n${description}`;
     document.effects.push(effect);
@@ -47,8 +47,8 @@ export function shiftEffect(ddb, character, document) {
         priority: "20",
       },
     );
-    setProperty(effect, "flags.dae.selfTarget", true);
-    setProperty(effect, "flags.dae.selfTargetAlways", true);
+    foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+    foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
     const description = parseTemplateString(ddb, character, isWildhunt.definition.description, isWildhunt.definition).text;
     document.system.description.value += `<h2>Wildhunt</h2>\n${description}`;
     document.effects.push(effect);

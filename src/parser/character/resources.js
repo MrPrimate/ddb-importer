@@ -129,8 +129,8 @@ DDBCharacter.prototype._generateResources = function _generateResources(numberOf
   }
 
   this.resources = result;
-  setProperty(this.raw.character, "flags.ddbimporter.resources", this.resourceChoices);
-  setProperty(this.raw.character, "system.resources", result);
+  foundry.utils.setProperty(this.raw.character, "flags.ddbimporter.resources", this.resourceChoices);
+  foundry.utils.setProperty(this.raw.character, "system.resources", result);
 };
 
 DDBCharacter.prototype.getResourceList = function getResourceList() {
@@ -175,7 +175,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
       this.setDefaultResources(sortedResources);
     }
 
-    if (this.resourceChoices.ask || !hasProperty(this.resourceChoices, "ask")) {
+    if (this.resourceChoices.ask || !foundry.utils.hasProperty(this.resourceChoices, "ask")) {
       const resources = sortedResources.map((resource) => {
         let resourceArray = [];
         if (resource.sr) resourceArray.push("SR");
@@ -354,13 +354,13 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
         if (children) {
           logger.debug(`Found children`, children);
           children.forEach((child) => {
-            if (getProperty(child, "flags.ddbimporter.retainResourceConsumption")) return;
+            if (foundry.utils.getProperty(child, "flags.ddbimporter.retainResourceConsumption")) return;
             logger.debug("child", child);
             const update = {
               _id: child._id
             };
-            const charge = getProperty(child, "system.consume.amount") ?? 1;
-            setProperty(update, "system.consume", {
+            const charge = foundry.utils.getProperty(child, "system.consume.amount") ?? 1;
+            foundry.utils.setProperty(update, "system.consume", {
               type: "charges",
               target: parent._id,
               amount: charge,
@@ -389,12 +389,12 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
         });
 
         if (child) {
-          if (getProperty(child, "flags.ddbimporter.retainResourceConsumption")) return;
+          if (foundry.utils.getProperty(child, "flags.ddbimporter.retainResourceConsumption")) return;
           logger.debug("child", child);
           const update = {
             _id: child._id
           };
-          setProperty(update, "system.consume", {
+          foundry.utils.setProperty(update, "system.consume", {
             type: "charges",
             target: parent._id,
             amount: value.cost,

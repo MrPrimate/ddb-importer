@@ -25,11 +25,11 @@ export async function huntersMarkEffect(document) {
   });
   damageBonusEffect.transfer = true;
 
-  setProperty(damageBonusEffect, "flags.dae.transfer", true);
+  foundry.utils.setProperty(damageBonusEffect, "flags.dae.transfer", true);
   document.effects.push(damageBonusEffect);
 
   await DDBMacros.setItemMacroFlag(document, "spell", "huntersMark.js");
-  setProperty(document, "system.actionType", "util");
+  foundry.utils.setProperty(document, "system.actionType", "util");
 
   return document;
 }

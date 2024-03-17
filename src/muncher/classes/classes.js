@@ -14,12 +14,12 @@ function getHPAdvancement(klass, character) {
   // },
   const value = {};
   if (klass) {
-    const rolledHP = getProperty(character, "flags.ddbimporter.rolledHP") ?? false;
-    const startingClass = getProperty(klass, "flags.ddbimporter.isStartingClass") === true;
+    const rolledHP = foundry.utils.getProperty(character, "flags.ddbimporter.rolledHP") ?? false;
+    const startingClass = foundry.utils.getProperty(klass, "flags.ddbimporter.isStartingClass") === true;
     const useMaxHP = game.settings.get("ddb-importer", "character-update-policy-use-hp-max-for-rolled-hp");
     if (rolledHP && !useMaxHP) {
-      const baseHP = getProperty(character, "flags.ddbimporter.baseHitPoints");
-      const totalLevels = getProperty(character, "flags.ddbimporter.dndbeyond.totalLevels");
+      const baseHP = foundry.utils.getProperty(character, "flags.ddbimporter.baseHitPoints");
+      const totalLevels = foundry.utils.getProperty(character, "flags.ddbimporter.dndbeyond.totalLevels");
       const hpPerLevel = Math.floor(baseHP / totalLevels);
       const leftOvers = Math.floor(baseHP % totalLevels);
 

@@ -24,7 +24,7 @@ export async function chillTouchEffect(document) {
     // const itemMacroText = await DDBMacros.loadMacroFile("spell", "chillTouch.js");
     // document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
     // effect.changes.push(DDBMacros.generateMacroChange());
-    setProperty(effect, "flags.dae.specialDuration", ["turnEndSource"]);
+    foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEndSource"]);
   }
   document.effects.push(effect);
 

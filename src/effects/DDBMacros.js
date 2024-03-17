@@ -132,7 +132,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
   }
 
   static generateItemMacroFlag(document, macroText) {
-    const daeMacro = isNewerVersion((game.modules.get("dae")?.version ?? 0), "11.0.21");
+    const daeMacro = foundry.utils.isNewerVersion((game.modules.get("dae")?.version ?? 0), "11.0.21");
     const data = {
       name: document.name,
       type: "script",
@@ -140,7 +140,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
       command: macroText,
     };
     const flag = daeMacro ? "flags.dae.macro" : "flags.itemacro.macro";
-    setProperty(document, flag, data);
+    foundry.utils.setProperty(document, flag, data);
     return document;
   }
 
@@ -181,7 +181,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
 
   static setMidiOnUseMacroFlag(document, macroType, macroName, triggerPoints = []) {
     const value = DDBMacros.generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints);
-    setProperty(document, "flags.midi-qol.onUseMacroName", value);
+    foundry.utils.setProperty(document, "flags.midi-qol.onUseMacroName", value);
   }
 
   static generateItemMacroValue({ macroType = null, macroName = null, document = null } = {}) {
@@ -288,7 +288,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
   static async loadDDBMacroToConfig(type, name, fileName) {
     const macroText = await DDBMacros.getMacroBody(type, fileName);
     const macro = await DDBMacros.createMacro({ name: `${type} ${fileName}`, content: macroText, img: null, isGM: false, isTemp: true });
-    setProperty(CONFIG.DDBI.MACROS, `${type}.${name}`, macro);
+    foundry.utils.setProperty(CONFIG.DDBI.MACROS, `${type}.${name}`, macro);
     logger.debug(`Macro (${type}) ${fileName} loaded from file into cache`, macro);
     return macro;
   }

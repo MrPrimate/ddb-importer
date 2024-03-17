@@ -2,7 +2,7 @@ import { baseFeatEffect } from "../specialFeats.js";
 
 export function pactMagicEffect(document) {
 
-  if (getProperty(document, "flags.ddbimporter.subclass")?.startsWith("Order of the Profane Soul")) {
+  if (foundry.utils.getProperty(document, "flags.ddbimporter.subclass")?.startsWith("Order of the Profane Soul")) {
     const effect = baseFeatEffect(document, `${document.name} Level`, { transfer: true });
     effect.changes.push(
       {

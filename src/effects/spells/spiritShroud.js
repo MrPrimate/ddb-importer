@@ -32,8 +32,8 @@ export async function spiritShroudEffect(document) {
     onlyOnce: false,
     displayTemp: true,
   };
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
 
   await DDBMacros.setItemMacroFlag(document, "spell", "spiritShroud.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "spiritShroud.js", ["preActiveEffects"]);

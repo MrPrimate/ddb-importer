@@ -1,7 +1,7 @@
 import utils from "../../lib/utils.js";
 
 function getCustomName(data, character) {
-  if (!character || (character && !hasProperty(character, "flags.ddbimporter.dndbeyond.characterValues"))) return null;
+  if (!character || (character && !foundry.utils.hasProperty(character, "flags.ddbimporter.dndbeyond.characterValues"))) return null;
   const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
   const customValue = characterValues.filter((value) => value.valueId == data.id && value.valueTypeId == data.entityTypeId);
 

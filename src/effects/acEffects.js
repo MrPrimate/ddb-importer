@@ -209,22 +209,22 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
     || (ddbItem.isAttuned && !ddbItem.definition.canEquip) // if it is attuned but can't equip
     || (!ddbItem.definition.canAttune && ddbItem.equipped) // can't attune but is equipped
   ) {
-    setProperty(foundryItem, "flags.dae.alwaysActive", false);
-    setProperty(effect, "flags.ddbimporter.disabled", false);
+    foundry.utils.setProperty(foundryItem, "flags.dae.alwaysActive", false);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.disabled", false);
     effect.disabled = false;
   } else {
     effect.disabled = true;
-    setProperty(effect, "flags.ddbimporter.disabled", true);
-    setProperty(foundryItem, "flags.dae.alwaysActive", false);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.disabled", true);
+    foundry.utils.setProperty(foundryItem, "flags.dae.alwaysActive", false);
   }
 
-  setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
-  setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
+  foundry.utils.setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
+  foundry.utils.setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
   // set dae flag for active equipped
   if (ddbItem.definition?.canEquip || ddbItem.definition?.canAttune) {
-    setProperty(foundryItem, "flags.dae.activeEquipped", true);
+    foundry.utils.setProperty(foundryItem, "flags.dae.activeEquipped", true);
   } else {
-    setProperty(foundryItem, "flags.dae.activeEquipped", false);
+    foundry.utils.setProperty(foundryItem, "flags.dae.activeEquipped", false);
   }
 
   return [foundryItem, effect];

@@ -100,7 +100,7 @@ async function processVehicleData(ddbData) {
 
 
 export async function parseTransports(ids = null) {
-  setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
+  foundry.utils.setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
   const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -174,7 +174,7 @@ export async function parseTransports(ids = null) {
   //   await addNPCsToCompendium(vehiclesParsed, "vehicle");
   // }
   DDBMuncher.munchNote("", false, true);
-  setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
+  foundry.utils.setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 
   if (ids !== null) {
     return Promise.all(vehiclesParsed);

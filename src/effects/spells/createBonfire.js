@@ -33,14 +33,14 @@ export async function createBonfireEffect(document) {
     savedc: null,
     displayTemp: true,
   };
-  setProperty(effect, "duration.seconds", 60);
-  setProperty(effect, "duration.rounds", 10);
+  foundry.utils.setProperty(effect, "duration.seconds", 60);
+  foundry.utils.setProperty(effect, "duration.rounds", 10);
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "generic", macroName: DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file }));
   DDBMacros.setMidiOnUseMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_DAMAGE_ON_ENTRY.file, ["preActiveEffects"]);
 
   document.effects.push(effect);
 
-  setProperty(document, "flags.ddbimporter.effect", {
+  foundry.utils.setProperty(document, "flags.ddbimporter.effect", {
     dice: document.system.damage.parts[0][0],
     damageType: document.system.damage.parts[0][1],
     save: document.system.save.ability,

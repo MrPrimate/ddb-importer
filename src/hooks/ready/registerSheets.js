@@ -34,11 +34,11 @@ function getCharacterButton(document, actor) {
     ? `<a class="ddb-open-url" title="DDB Importer"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`
     : '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
 
-  let url = hasProperty(document, "flags.ddbimporter.dndbeyond.url")
+  let url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
     ? document.flags.ddbimporter.dndbeyond.url
     : null;
 
-  let jsonURL = hasProperty(document, "flags.ddbimporter.dndbeyond.json")
+  let jsonURL = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.json")
     ? document.flags.ddbimporter.dndbeyond.json
     : null;
 
@@ -137,7 +137,7 @@ export function tidySheets() {
   //       position: "afterbegin",
   //     },
   //     enabled: (params) => {
-  //       return hasProperty(params, "app.document.flags.monsterMunch.url");
+  //       return foundry.utils.hasProperty(params, "app.document.flags.monsterMunch.url");
   //     },
   //     onRender: (params) => {
   //       const $ddbCharacterName = $(params.element).find(".ddbCharacterName");

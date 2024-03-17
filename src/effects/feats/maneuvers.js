@@ -25,77 +25,77 @@ export async function maneuversEffect(ddb, character, document) {
 
   const name = document.flags.ddbimporter?.originalName ?? document.name;
   let effect = baseFeatEffect(document, document.name);
-  setProperty(document, "system.range.units", "");
-  setProperty(document, "system.range.value", null);
-  setProperty(document, "system.target.type", "self");
+  foundry.utils.setProperty(document, "system.range.units", "");
+  foundry.utils.setProperty(document, "system.range.value", null);
+  foundry.utils.setProperty(document, "system.target.type", "self");
 
   // special durations
   switch (name) {
     case "Maneuvers: Rally": {
-      setProperty(effect, "duration.seconds", 86400);
-      setProperty(effect, "flags.dae.specialDuration", ["longRest"]);
+      foundry.utils.setProperty(effect, "duration.seconds", 86400);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["longRest"]);
       break;
     }
     case "Maneuvers: Brace":
     case "Maneuvers: Riposte": {
-      setProperty(effect, "flags.dae.specialDuration", ["1Attack:mwak"]);
-      setProperty(effect, "duration.turns", 2);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["1Attack:mwak"]);
+      foundry.utils.setProperty(effect, "duration.turns", 2);
       break;
     }
     case "Maneuvers: Lunging Attack":
     case "Maneuvers: Sweeping Attack": {
-      setProperty(effect, "duration.turns", 1);
-      setProperty(effect, "flags.dae.specialDuration", ["1Attack:mwak"]);
+      foundry.utils.setProperty(effect, "duration.turns", 1);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["1Attack:mwak"]);
       break;
     }
     case "Maneuvers: Quick Toss": {
-      setProperty(effect, "duration.turns", 1);
-      setProperty(effect, "flags.dae.specialDuration", ["1Attack:rwak"]);
+      foundry.utils.setProperty(effect, "duration.turns", 1);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["1Attack:rwak"]);
       break;
     }
     case "Maneuvers: Tactical Assessment": {
-      setProperty(effect, "flags.dae.specialDuration", ["isSkill.inv", "isSkill.his", "isSkill.ins"]);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isSkill.inv", "isSkill.his", "isSkill.ins"]);
       break;
     }
     case "Maneuvers: Commanding Presence": {
-      setProperty(effect, "flags.dae.specialDuration", ["isSkill.itm", "isSkill.per", "isSkill.prf"]);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isSkill.itm", "isSkill.per", "isSkill.prf"]);
       break;
     }
     case "Maneuvers: Ambush": {
-      setProperty(effect, "duration.turns", 1);
-      setProperty(effect, "flags.dae.specialDuration", ["isSkill.ste"]);
+      foundry.utils.setProperty(effect, "duration.turns", 1);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isSkill.ste"]);
       break;
     }
     case "Maneuvers: Distracting Strike": {
-      setProperty(effect, "flags.dae.specialDuration", ["isAttacked", "turnStartSource"]);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isAttacked", "turnStartSource"]);
       break;
     }
     case "Maneuvers: Bait and Switch": {
-      setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
       break;
     }
     case "Maneuvers: Feinting Attack": {
-      setProperty(effect, "duration.turns", 1);
-      setProperty(effect, "flags.dae.specialDuration", ["1Attack"]);
+      foundry.utils.setProperty(effect, "duration.turns", 1);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["1Attack"]);
       break;
     }
     case "Maneuvers: Trip Attack": {
-      setProperty(document, "system.duration.units", "inst");
+      foundry.utils.setProperty(document, "system.duration.units", "inst");
       break;
     }
     case "Maneuvers: Menacing Attack":
     case "Maneuvers: Goading Attack": {
-      setProperty(effect, "flags.dae.specialDuration", ["turnEndSource"]);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEndSource"]);
       break;
     }
     case "Maneuvers: Grappling Strike": {
-      setProperty(effect, "duration.turns", 1);
-      setProperty(effect, "flags.dae.specialDuration", ["isSkill.ath"]);
+      foundry.utils.setProperty(effect, "duration.turns", 1);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isSkill.ath"]);
       break;
     }
     case "Maneuvers: Parry": {
-      setProperty(document, "system.duration.units", "inst");
-      setProperty(effect, "flags.dae.specialDuration", ["isDamaged"]);
+      foundry.utils.setProperty(document, "system.duration.units", "inst");
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isDamaged"]);
       break;
     }
     // no default
@@ -242,7 +242,7 @@ export async function maneuversEffect(ddb, character, document) {
       break;
     }
     case "Maneuvers: Parry": {
-      setProperty(document, "system.activation.type", "reactiondamage");
+      foundry.utils.setProperty(document, "system.activation.type", "reactiondamage");
       effect.changes.push(
         {
           "key": "flags.midi-qol.DR.all",
@@ -277,8 +277,8 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Bait and Switch":
     case "Maneuvers: Commander’s Strike":
     case "Maneuvers: Commander's Strike": {
-      setProperty(document, "system.target.value", 1);
-      setProperty(document, "system.target.type", "creature");
+      foundry.utils.setProperty(document, "system.target.value", 1);
+      foundry.utils.setProperty(document, "system.target.type", "creature");
       break;
     }
     // no default
@@ -295,7 +295,7 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Sweeping Attack":
     case "Maneuvers: Disarming Attack":
     case "Maneuvers: Pushing Attack": {
-      setProperty(document, "system.damage.parts", [[diceString]]);
+      foundry.utils.setProperty(document, "system.damage.parts", [[diceString]]);
       break;
     }
     // no default
@@ -303,7 +303,7 @@ export async function maneuversEffect(ddb, character, document) {
 
   switch (name) {
     case "Maneuvers: Precision Attack": {
-      setProperty(document, "system.damage.parts", [[diceString, "midi-none"]]);
+      foundry.utils.setProperty(document, "system.damage.parts", [[diceString, "midi-none"]]);
       break;
     }
     // no default
@@ -314,16 +314,16 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Trip Attack":
     case "Maneuvers: Disarming Attack":
     case "Maneuvers: Pushing Attack": {
-      setProperty(effect, "flags.midiProperties.fulldam", true);
-      setProperty(document, "system.damage.parts", [[diceString]]);
-      setProperty(document, "system.save", { ability: "str", dc: null, "scaling": ability });
+      foundry.utils.setProperty(effect, "flags.midiProperties.fulldam", true);
+      foundry.utils.setProperty(document, "system.damage.parts", [[diceString]]);
+      foundry.utils.setProperty(document, "system.save", { ability: "str", dc: null, "scaling": ability });
       break;
     }
     case "Maneuvers: Menacing Attack":
     case "Maneuvers: Goading Attack": {
-      setProperty(effect, "flags.midiProperties.fulldam", true);
-      setProperty(document, "system.damage.parts", [[diceString]]);
-      setProperty(document, "system.save", { ability: "wis", dc: null, "scaling": ability });
+      foundry.utils.setProperty(effect, "flags.midiProperties.fulldam", true);
+      foundry.utils.setProperty(document, "system.damage.parts", [[diceString]]);
+      foundry.utils.setProperty(document, "system.save", { ability: "wis", dc: null, "scaling": ability });
       break;
     }
     // no default

@@ -10,9 +10,9 @@ import { featureEffectAdjustment } from "../../effects/specialFeats.js";
 // eslint-disable-next-line complexity
 export async function fixFeatures(features) {
   for (let feature of features) {
-    const name = getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+    const name = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
     // eslint-disable-next-line no-continue
-    if (getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
+    if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
       case "Action Surge": {
         feature.system.damage = { parts: [], versatile: "", value: "" };
@@ -269,7 +269,7 @@ export async function fixFeatures(features) {
       }
       case "Psionic Power: Recovery": {
         feature.system.damage = { parts: [], versatile: "", value: "" };
-        setProperty(feature, "system.consume.amount", -1);
+        foundry.utils.setProperty(feature, "system.consume.amount", -1);
         break;
       }
       case "Psychic Blades: Attack (DEX)":
@@ -293,13 +293,13 @@ export async function fixFeatures(features) {
       }
       case "Celestial Revelation (Radiant Soul)":
       case "Radiant Soul": {
-        if (getProperty(feature, "flags.ddbimporter.type") == "race") {
+        if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") == "race") {
           feature.system.uses = {
             value: 1,
             max: 1,
             per: "lr",
           };
-        } else if (getProperty(feature, "flags.ddbimporter.type") == "class") {
+        } else if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") == "class") {
           feature.system.activation.type = "special";
         }
         break;
@@ -395,7 +395,7 @@ export async function fixFeatures(features) {
         break;
       }
       case "Sneak Attack": {
-        if (!getProperty(feature, "flags.ddbimporter.action")) {
+        if (!foundry.utils.getProperty(feature, "flags.ddbimporter.action")) {
           feature.system.actionType = "other";
           feature.system.activation = { type: "special", cost: 0, condition: "" };
         }
@@ -407,8 +407,8 @@ export async function fixFeatures(features) {
         feature.system.target.type = "creature";
         feature.system.range = { value: null, long: null, units: "spec" };
         feature.system.damage.parts[0][1] = "healing";
-        setProperty(feature, "flags.midiProperties.magicdam", true);
-        setProperty(feature, "flags.midiProperties.magiceffect", true);
+        foundry.utils.setProperty(feature, "flags.midiProperties.magicdam", true);
+        foundry.utils.setProperty(feature, "flags.midiProperties.magiceffect", true);
         break;
       }
       case "Surprise Attack":
@@ -450,12 +450,12 @@ export async function fixFeatures(features) {
         feature.system.range.units = "ft";
         break;
       case "Superiority Dice": {
-        setProperty(feature.system, "damage.parts", [["@scale.battle-master.combat-superiority-die"]]);
+        foundry.utils.setProperty(feature.system, "damage.parts", [["@scale.battle-master.combat-superiority-die"]]);
         break;
       }
       case "Unarmored Defense": {
         if (feature.effects.length === 1) {
-          const klass = getProperty(feature, "flags.ddbimporter.class");
+          const klass = foundry.utils.getProperty(feature, "flags.ddbimporter.class");
           if (klass == "Barbarian") {
             feature.effects[0].changes = [
               {

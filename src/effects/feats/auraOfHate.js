@@ -11,7 +11,7 @@ export function auraOfHateEffect(document) {
     "priority": 20
   });
   alliesEffect.statuses.push(alliesEffect.name);
-  setProperty(alliesEffect, "flags.dae.stackable", "none");
+  foundry.utils.setProperty(alliesEffect, "flags.dae.stackable", "none");
 
   document.effects.push(alliesEffect);
 
@@ -37,7 +37,7 @@ export function auraOfHateEffect(document) {
   });
   otherEffect.statuses.push(otherEffect.name);
 
-  setProperty(otherEffect, "flags.dae.stackable", "none");
+  foundry.utils.setProperty(otherEffect, "flags.dae.stackable", "none");
 
   document.effects.push(otherEffect);
 

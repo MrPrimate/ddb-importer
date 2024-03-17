@@ -2,7 +2,7 @@ import FileHelper from "../../lib/FileHelper.js";
 
 function downloadLog() {
   FileHelper.download(JSON.stringify(CONFIG.debug.ddbimporter.log), `ddbimporter-log-data.json`, "application/json");
-  setProperty(CONFIG.debug, "ddbimporter.log", []);
+  foundry.utils.setProperty(CONFIG.debug, "ddbimporter.log", []);
 }
 
 export default function () {
@@ -14,5 +14,5 @@ export default function () {
     download: downloadLog,
   };
 
-  setProperty(CONFIG.debug, "ddbimporter", defaults);
+  foundry.utils.setProperty(CONFIG.debug, "ddbimporter", defaults);
 }

@@ -36,8 +36,8 @@ export async function auraOfLifeEffect(document) {
       savedc: null,
       displayTemp: true,
     };
-    // setProperty(effect, "duration.seconds", 600);
-    setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
+    // foundry.utils.setProperty(effect, "duration.seconds", 600);
+    foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
     effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@token", macroType: "spell", macroName: "auraOfLife.js" }));
     document.system.actionType = "other";
     document.system.damage.parts = [];

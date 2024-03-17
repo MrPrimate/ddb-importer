@@ -3,9 +3,9 @@ export async function newNPC(name) {
     temporary: true,
     displaySheet: false,
   };
-  const npcClass = await Actor.create({ name, type: "npc" }, options);
+  const npcClass = new Actor.implementation({ name, type: "npc" }, options);
   let npc = npcClass.toObject();
-  npc._id = randomID();
+  npc._id = foundry.utils.randomID();
   const flags = {
     dnd5e: {},
     monsterMunch: {},
@@ -14,7 +14,7 @@ export async function newNPC(name) {
       dndbeyond: {},
     },
   };
-  setProperty(npc, "flags", flags);
+  foundry.utils.setProperty(npc, "flags", flags);
   // delete npc._id;
   return npc;
 };

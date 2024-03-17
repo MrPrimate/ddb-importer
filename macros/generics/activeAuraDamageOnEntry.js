@@ -25,7 +25,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
     ? `${DDBImporter?.EffectHelper.getCantripDice(caster)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
 
-  const workflowItemData = duplicate(item);
+  const workflowItemData = foundry.utils.duplicate(item);
   workflowItemData.system.target = { value: 1, units: "", type: "creature" };
   workflowItemData.system.save.ability = saveAbility;
   workflowItemData.system.properties = DDBImporter?.EffectHelper.removeFromProperties(workflowItemData.system.properties, "concentration") ?? [];
@@ -35,10 +35,10 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   workflowItemData.system.uses = { value: null, max: "", per: null, recovery: "", autoDestroy: false };
   workflowItemData.system.consume = { "type": "", "target": null, "amount": null };
 
-  setProperty(workflowItemData, "flags.itemacro", {});
-  setProperty(workflowItemData, "flags.midi-qol", {});
-  setProperty(workflowItemData, "flags.dae", {});
-  setProperty(workflowItemData, "effects", []);
+  foundry.utils.setProperty(workflowItemData, "flags.itemacro", {});
+  foundry.utils.setProperty(workflowItemData, "flags.midi-qol", {});
+  foundry.utils.setProperty(workflowItemData, "flags.dae", {});
+  foundry.utils.setProperty(workflowItemData, "effects", []);
   delete workflowItemData._id;
 
   const saveOnEntry = ddbEffectFlags.saveOnEntry;
@@ -83,7 +83,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
 if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const safeName = lastArg.itemData.name.replace(/\s|'|\.|’/g, "_");
   const dataTracker = {
-    randomId: randomID(),
+    randomId: foundry.utils.randomID(),
     targetUuids: lastArg.targetUuids,
     startRound: game.combat.round,
     startTurn: game.combat.turn,
@@ -113,8 +113,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
         });
         return effect;
       });
-      args[0].item.effects = duplicate(newEffects);
-      args[0].itemData.effects = duplicate(newEffects);
+      args[0].item.effects = foundry.utils.duplicate(newEffects);
+      args[0].itemData.effects = foundry.utils.duplicate(newEffects);
     }
     const template = await fromUuid(lastArg.templateUuid);
     await template.update({"flags.effect": ddbEffectFlags});

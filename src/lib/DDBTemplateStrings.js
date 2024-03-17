@@ -352,7 +352,7 @@ function fixRollables(text) {
 
   const noRollRegex = /(\[\[\/roll)([\w\s.,@\d+-\\*/()]*(?![0-9]*d[0-9]+)(?!@scale\.)[\w\s.,@\d-+\\*/()]*)(\]\])/g;
   // const noRollMatches = text.match(noRollRegex);
-  // console.warn("noRollMatches", {text: duplicate(text), noRollMatches});
+  // console.warn("noRollMatches", {text: foundry.utils.duplicate(text), noRollMatches});
   text = text.replaceAll(noRollRegex, replaceRoll);
 
   return text;
@@ -414,7 +414,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
 
     entry.rollMatchTest = entry.rollMatch.test(result.text);
 
-    // console.warn("parseTemplateString", { text: duplicate(text), feature, entry, match, result });
+    // console.warn("parseTemplateString", { text: foundry.utils.duplicate(text), feature, entry, match, result });
 
     const splitSignedBase = match.split("#");
     const splitSigned = splitSignedBase.length > 1 && ["signed", "unsigned"].includes(splitSignedBase[1])
@@ -540,7 +540,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
   result.text = result.text.replace(/\+<\/strong>\+/g, "+</strong>");
 
   result.text = parseTags(result.text);
-  if (hasProperty(character, "flags.ddbimporter.dndbeyond.templateStrings")) {
+  if (foundry.utils.hasProperty(character, "flags.ddbimporter.dndbeyond.templateStrings")) {
     character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
   }
 

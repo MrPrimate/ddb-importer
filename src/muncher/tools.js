@@ -20,7 +20,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
       delete item._id;
       return item;
     });
-    const actorUpdate = duplicate(sourceActor);
+    const actorUpdate = foundry.utils.duplicate(sourceActor);
     // pop items in later
     delete actorUpdate.items;
 
@@ -59,10 +59,10 @@ async function updateActorsWithActor(targetActors, sourceActor) {
 
     // eslint-disable-next-line no-await-in-loop
     await targetActor.update(actorUpdate);
-    // console.warn("afterdelete", duplicate(targetActor));
+    // console.warn("afterdelete", foundry.utils.duplicate(targetActor));
     // eslint-disable-next-line no-await-in-loop
     await targetActor.createEmbeddedDocuments("Item", monsterItems);
-    // console.warn("after create", duplicate(targetActor));
+    // console.warn("after create", foundry.utils.duplicate(targetActor));
 
   };
 
@@ -78,7 +78,7 @@ export async function updateWorldMonsters() {
   if (monsterCompendium) {
     const monsterIndices = ["name", "flags.ddbimporter.id"];
     const index = await monsterCompendium.getIndex({ fields: monsterIndices });
-    totalTargets = game.actors.filter((a) => a.type === "npc" && hasProperty(a, "flags.ddbimporter.id")).length;
+    totalTargets = game.actors.filter((a) => a.type === "npc" && foundry.utils.hasProperty(a, "flags.ddbimporter.id")).length;
     count = 0;
     DDBMuncher.munchNote(`Updating ${count}/${totalTargets} world monsters`);
     logger.debug(`Checking ${totalTargets} world monsters`);
@@ -123,7 +123,7 @@ export async function resetCompendiumActorImages(compendiumName = null, type = "
     .filter((i) => i.name !== "#[CF_tempEntity]")
     .map(async (i) => {
       const options = { forceUpdate: true, disableAutoTokenizeOverride: true, type };
-      const update = await getNPCImage(duplicate(i), options);
+      const update = await getNPCImage(foundry.utils.duplicate(i), options);
       logger.info(`Resetting ${i.name}`, update);
       return update;
     }));

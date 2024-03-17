@@ -46,7 +46,7 @@ try {
       ui.notifications.warn("Sneak Attack Damage: No advantage/ally next to target");
       return {};
     }
-    let useSneak = getProperty(actor, "flags.dae.autoSneak");
+    let useSneak = foundry.utils.getProperty(actor, "flags.dae.autoSneak");
     if (!useSneak) {
         let dialog = new Promise((resolve, reject) => {
           new Dialog({

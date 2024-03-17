@@ -13,7 +13,7 @@ export function lightEffect(document) {
     effect.changes.push(generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, lightAnimation));
   }
 
-  setProperty(document, "flags.midiProperties.autoFailFriendly", true);
+  foundry.utils.setProperty(document, "flags.midiProperties.autoFailFriendly", true);
   document.effects.push(effect);
 
   return document;

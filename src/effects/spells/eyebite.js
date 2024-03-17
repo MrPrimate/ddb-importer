@@ -7,8 +7,8 @@ export async function eyebiteEffect(document) {
   effect.flags.dae.macroRepeat = "startEveryTurn";
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "eyebite.js" }));
   document.effects.push(effect);
-  setProperty(document, "system.actionType", "other");
-  setProperty(document, "system.save.ability", "");
+  foundry.utils.setProperty(document, "system.actionType", "other");
+  foundry.utils.setProperty(document, "system.save.ability", "");
 
   return document;
 }

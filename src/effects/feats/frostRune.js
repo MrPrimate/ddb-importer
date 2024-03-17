@@ -1,10 +1,10 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function frostRuneEffect(document) {
-  setProperty(document, "system.target.type", "self");
-  setProperty(document, "system.range.units", "self");
-  setProperty(document, "system.range.value", "");
-  setProperty(document, "system.actionType", null);
+  foundry.utils.setProperty(document, "system.target.type", "self");
+  foundry.utils.setProperty(document, "system.range.units", "self");
+  foundry.utils.setProperty(document, "system.range.value", "");
+  foundry.utils.setProperty(document, "system.actionType", null);
 
   let bonusEffect = baseFeatEffect(document, `${document.name} (Sturdiness)`);
   bonusEffect.changes.push(
@@ -33,7 +33,7 @@ export function frostRuneEffect(document) {
       priority: "20",
     },
   );
-  setProperty(bonusEffect, "duration.seconds", 600);
+  foundry.utils.setProperty(bonusEffect, "duration.seconds", 600);
   document.effects.push(bonusEffect);
 
   return document;

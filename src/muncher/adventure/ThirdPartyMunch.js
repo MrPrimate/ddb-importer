@@ -30,7 +30,7 @@ export default class ThirdPartyMunch extends FormApplication {
     this.pattern = /(@[a-z]*)(\[)([a-z0-9]*|[a-z0-9.]*)(\])(\{)(.*?)(\})/gmi;
     this.altpattern = /((data-entity)=\\?["']?([a-zA-Z]*)\\?["']?|(data-pack)=\\?["']?([[\S.]*)\\?["']?) data-id=\\?["']?([a-zA-Z0-9]*)\\?["']?.*?>(.*?)<\/a>/gmi;
 
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       id: "ddb-adventure-import",
       classes: ["ddb-adventure-import"],
       title: "Third Party Munch",
@@ -250,7 +250,7 @@ export default class ThirdPartyMunch extends FormApplication {
         .map((token) => token.flags.ddbActorFlags.id)
       : [];
     return {
-      id: randomID(),
+      id: foundry.utils.randomID(),
       name: DDBHelper.getBookName(scene.flags.ddb.bookCode),
       description: "",
       system: "dnd5e",
@@ -267,7 +267,7 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   static _generateActorId(token) {
-    if (!hasProperty(token, "flags.ddbActorFlags.id")) logger.warn("Token does not link to DDB Actor", token);
+    if (!foundry.utils.hasProperty(token, "flags.ddbActorFlags.id")) logger.warn("Token does not link to DDB Actor", token);
     const ddbId = token.flags.ddbActorFlags?.id;
     const folderId = token.flags.actorFolderId;
     const key = `${ddbId}-${folderId}`;
@@ -275,10 +275,10 @@ export default class ThirdPartyMunch extends FormApplication {
       return CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key];
     } else {
       const existingActor = game.actors.find((actor) =>
-        hasProperty(actor, "flags.ddbimporter.id")
+        foundry.utils.hasProperty(actor, "flags.ddbimporter.id")
         && actor.folder?.id == folderId && actor.flags.ddbimporter.id == ddbId
       );
-      const actorId = existingActor ? existingActor.id : randomID();
+      const actorId = existingActor ? existingActor.id : foundry.utils.randomID();
       CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key] = actorId;
       return actorId;
     }
@@ -306,7 +306,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
   async _linkSceneNotes(scene, adventure) {
     const journalNotes = game.journal.filter((journal) => journal?.flags?.ddb?.bookCode === scene.flags.ddb.bookCode);
-    this.adventureMunch.adventure = deepClone(adventure);
+    this.adventureMunch.adventure = foundry.utils.deepClone(adventure);
 
     const noJournalPinNotes = game.settings.get(SETTINGS.MODULE_ID, "third-party-scenes-notes-merged");
 
@@ -358,17 +358,17 @@ export default class ThirdPartyMunch extends FormApplication {
             if (!this._pageFinders[noteJournal._id]) {
               this._pageFinders[noteJournal._id] = new PageFinder(noteJournal);
             }
-            const contentChunkIdPageId = hasProperty(note, "flags.ddb.contentChunkId")
+            const contentChunkIdPageId = foundry.utils.hasProperty(note, "flags.ddb.contentChunkId")
               ? this._pageFinders[noteJournal._id].getPageIdForContentChunkId(note.flags.ddb.contentChunkId)
               : undefined;
-            const slugLinkPageId = hasProperty(note, "flags.ddb.slugLink")
+            const slugLinkPageId = foundry.utils.hasProperty(note, "flags.ddb.slugLink")
               ? this._pageFinders[noteJournal._id].getPageIdForElementId(note.flags.ddb.slugLink)
               : undefined;
 
             // console.warn("MATCHES", { slugLinkPageId, contentChunkIdPageId, noteFlags: note.flags.ddb });
             // console.warn("PageIds", noteJournal.pages.map((p) => {return {id: p._id, flags: p.flags.ddb}}));
             const journalPage = noteJournal.pages.find((page) =>
-              hasProperty(page, "flags.ddb")
+              foundry.utils.hasProperty(page, "flags.ddb")
               && page.flags.ddb.parentId == note.flags.ddb.parentId
               && (page.flags.ddb.slug == note.flags.ddb.slug
               || page.flags.ddb.slug.replace(/^([a-zA-Z]?)0+/, "$1") == note.flags.ddb.slug
@@ -390,7 +390,7 @@ export default class ThirdPartyMunch extends FormApplication {
       if (note.flags?.ddb?.journalId) {
         note.positions.forEach((position) => {
           logger.info(`Matching ${note.label} to position ${position.x}/${position.y}`);
-          const noteId = randomID();
+          const noteId = foundry.utils.randomID();
           const n = {
             "_id": noteId,
             "flags": {
@@ -433,8 +433,8 @@ export default class ThirdPartyMunch extends FormApplication {
         scene.tokens = scene.flags.ddb.tokens.map((token) => {
           token.flags.actorFolderId = actorFolder.id;
           token.actorId = ThirdPartyMunch._generateActorId(token);
-          if (hasProperty(token, "actorData")) {
-            setProperty(token, "delta", deepClone(token.actorData));
+          if (foundry.utils.hasProperty(token, "actorData")) {
+            foundry.utils.setProperty(token, "delta", foundry.utils.deepClone(token.actorData));
             delete token.actorData;
           }
           return token;
@@ -500,7 +500,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
     await utils.asyncForEach(filteredScenes, async(scene) => {
       logger.debug(`Processing scene ${scene.name} with DDB Updates`);
-      const tokenUpdates = duplicate(scene.tokens);
+      const tokenUpdates = foundry.utils.duplicate(scene.tokens);
       logger.debug("tokenUpdates", tokenUpdates);
       scene.tokens = [];
       const worldScene = await this._getScene(scene);
@@ -587,7 +587,7 @@ export default class ThirdPartyMunch extends FormApplication {
       // add notes to scene
       const adjustedScenes = await this._getAdjustedScenes(this._scenePackage.scenes);
 
-      logger.debug("adjustedScenes", duplicate(adjustedScenes));
+      logger.debug("adjustedScenes", foundry.utils.duplicate(adjustedScenes));
 
       logger.debug("About to generate Token Actors");
       // load token actors into world
@@ -601,7 +601,7 @@ export default class ThirdPartyMunch extends FormApplication {
       const tokenAdjustedScenes = await Promise.all(adjustedScenes
         .map(async (scene) => {
           logger.debug(`Generating scene tokens for ${scene.name}`);
-          const newScene = duplicate(scene);
+          const newScene = foundry.utils.duplicate(scene);
           newScene.tokens = await ThirdPartyMunch._linkSceneTokens(scene);
           return newScene;
         })

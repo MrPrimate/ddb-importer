@@ -3,11 +3,11 @@ import { baseFeatEffect } from "../specialFeats.js";
 export function bladesongEffect(document) {
   let effect = baseFeatEffect(document, `${document.name}`);
 
-  setProperty(document, "system.range", { value: null, units: "self", long: null });
-  setProperty(document, "system.range.value", null);
-  setProperty(document, "system.target.type", "self");
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(document, "system.range", { value: null, units: "self", long: null });
+  foundry.utils.setProperty(document, "system.range.value", null);
+  foundry.utils.setProperty(document, "system.target.type", "self");
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
 
   effect.changes.push(
     {

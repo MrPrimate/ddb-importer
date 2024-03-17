@@ -14,12 +14,12 @@ export function vitriolicSphereEffect(document) {
       priority: "20",
     }
   );
-  setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
-  setProperty(effect, "duration.rounds", 1);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
+  foundry.utils.setProperty(effect, "duration.rounds", 1);
   document.effects.push(effect);
 
-  const damageOne = duplicate(document.system.damage.parts[0]);
-  const damageTwo = duplicate(document.system.damage.parts[1]);
+  const damageOne = foundry.utils.duplicate(document.system.damage.parts[0]);
+  const damageTwo = foundry.utils.duplicate(document.system.damage.parts[1]);
   document.system.damage = { parts: [damageOne], versatile: "", value: "" };
   document.system.formula = damageTwo[0];
   document.system.actionType = "save";

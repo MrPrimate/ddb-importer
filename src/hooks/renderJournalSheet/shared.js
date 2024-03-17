@@ -43,7 +43,7 @@ async function getJournal(bookCode) {
 
 async function createPage(journal, name, type, content) {
   const page = {
-    _id: randomID(),
+    _id: foundry.utils.randomID(),
     name,
     type,
     text: {},

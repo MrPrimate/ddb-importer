@@ -12,11 +12,11 @@ export function generateReversalOfFortuneEffect(document) {
     },
   );
 
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
-  setProperty(effect, "flags.dae.specialDuration", ["1Reaction"]);
-  setProperty(effect, "duration.turns", 1);
-  setProperty(document, "system.activation.type", "reactiondamage");
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["1Reaction"]);
+  foundry.utils.setProperty(effect, "duration.turns", 1);
+  foundry.utils.setProperty(document, "system.activation.type", "reactiondamage");
   document.effects.push(effect);
   return document;
 }

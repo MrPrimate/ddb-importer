@@ -341,30 +341,30 @@ export function baseItemEffect(foundryItem, label,
 }
 
 export function getMidiCEOnFlags(midiFlags = {}) {
-  setProperty(midiFlags, "forceCEOff", false);
-  setProperty(midiFlags, "forceCEOn", true);
+  foundry.utils.setProperty(midiFlags, "forceCEOff", false);
+  foundry.utils.setProperty(midiFlags, "forceCEOn", true);
   return midiFlags;
 }
 
 export function applyDefaultMidiFlags(document) {
   if (effectModules().midiQolInstalled) {
-    setProperty(document, "flags.midi-qol.removeAttackDamageButtons", "default");
-    setProperty(document, "flags.midiProperties.confirmTargets", "default");
+    foundry.utils.setProperty(document, "flags.midi-qol.removeAttackDamageButtons", "default");
+    foundry.utils.setProperty(document, "flags.midiProperties.confirmTargets", "default");
   }
   return document;
 }
 
 export function forceItemEffect(document) {
-  if (document.effects.length > 0 || hasProperty(document.flags, "dae") || hasProperty(document.flags, "midi-qol.onUseMacroName")) {
+  if (document.effects.length > 0 || foundry.utils.hasProperty(document.flags, "dae") || foundry.utils.hasProperty(document.flags, "midi-qol.onUseMacroName")) {
     document = applyDefaultMidiFlags(document);
-    setProperty(document, "flags.ddbimporter.effectsApplied", true);
-    if (!getProperty(document, "flags.midi-qol.forceCEOn")) setProperty(document, "flags.midi-qol.forceCEOff", true);
+    foundry.utils.setProperty(document, "flags.ddbimporter.effectsApplied", true);
+    if (!foundry.utils.getProperty(document, "flags.midi-qol.forceCEOn")) foundry.utils.setProperty(document, "flags.midi-qol.forceCEOff", true);
   }
   return document;
 }
 
 export function forceManualReaction(document) {
-  setProperty(document, "system.activation.type", "reactionmanual");
+  foundry.utils.setProperty(document, "system.activation.type", "reactionmanual");
   return document;
 }
 
@@ -427,7 +427,7 @@ export function addStatusEffectChange(effect, statusName, priority = 20, macro =
     effect.changes.push(key);
   } else {
     effect.statuses.push(statusName.toLowerCase());
-    if (level) setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
+    if (level) foundry.utils.setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
   }
   return effect;
 }
@@ -533,7 +533,7 @@ function attunedItemsBonus(actor, change) {
     const bonus = actor.items.filter((item) => item.system.attunement == 2).length;
     // actor.system.bonuses.abilities.save += bonus;
     logger.debug(`Setting attuned items saving throw bonus for ${actor.name} to ${bonus}`);
-    // setProperty(actor, "system.flags.ddbimporter.attundedItems", bonus);
+    // foundry.utils.setProperty(actor, "system.flags.ddbimporter.attundedItems", bonus);
     // this updates the effect value
     change.value = bonus;
     // console.warn(actor);
@@ -844,7 +844,7 @@ export function getGenericConditionAffectData(modifiers, condition, typeId, forc
       return DICTIONARY.character.damageAdjustments.some((adj) =>
         adj.type === typeId
         && ddbLookup.id === adj.id
-        && (hasProperty(adj, "foundryValues") || hasProperty(adj, "foundryValue"))
+        && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue"))
       );
     })
     .map((modifier) => {
@@ -854,9 +854,9 @@ export function getGenericConditionAffectData(modifiers, condition, typeId, forc
         && ddbLookup.id === adj.id
       );
       if (!entry) return undefined;
-      const valueData = hasProperty(entry, "foundryValues")
-        ? getProperty(entry, "foundryValues")
-        : hasProperty(entry, "foundryValue")
+      const valueData = foundry.utils.hasProperty(entry, "foundryValues")
+        ? foundry.utils.getProperty(entry, "foundryValues")
+        : foundry.utils.hasProperty(entry, "foundryValue")
           ? { value: entry.foundryValue }
           : undefined;
       return valueData;
@@ -1375,8 +1375,8 @@ function consumableEffect(effect, ddbItem, foundryItem) {
   effect.name = label;
   effect.disabled = false;
   effect.transfer = false;
-  setProperty(effect, "flags.ddbimporter.disabled", false);
-  setProperty(effect, "flags.dae.transfer", false);
+  foundry.utils.setProperty(effect, "flags.ddbimporter.disabled", false);
+  foundry.utils.setProperty(effect, "flags.dae.transfer", false);
   effect.duration = generateEffectDuration(foundryItem);
   if (!foundryItem.system.target?.value) {
     foundryItem.system.target = {
@@ -1420,8 +1420,8 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
   ) {
     // if item just gives a thing and not potion/scroll
     effect.disabled = false;
-    setProperty(effect, "flags.ddbimporter.disabled", false);
-    setProperty(foundryItem, "flags.dae.alwaysActive", true);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.disabled", false);
+    foundry.utils.setProperty(foundryItem, "flags.dae.alwaysActive", true);
   } else if (
     isCompendiumItem
     || foundryItem.type === "feat"
@@ -1429,22 +1429,22 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
     || (ddbItem.isAttuned && !ddbItem.definition?.canEquip) // if it is attuned but can't equip
     || (!ddbItem.definition?.canAttune && ddbItem.equipped) // can't attune but is equipped
   ) {
-    setProperty(foundryItem, "flags.dae.alwaysActive", false);
-    setProperty(effect, "flags.ddbimporter.disabled", false);
+    foundry.utils.setProperty(foundryItem, "flags.dae.alwaysActive", false);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.disabled", false);
     effect.disabled = false;
   } else {
     effect.disabled = true;
-    setProperty(effect, "flags.ddbimporter.disabled", true);
-    setProperty(foundryItem, "flags.dae.alwaysActive", false);
+    foundry.utils.setProperty(effect, "flags.ddbimporter.disabled", true);
+    foundry.utils.setProperty(foundryItem, "flags.dae.alwaysActive", false);
   }
 
-  setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
-  setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
+  foundry.utils.setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
+  foundry.utils.setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
   // set dae flag for active equipped
   if (ddbItem.definition?.canEquip || ddbItem.definitio?.canAttune) {
-    setProperty(foundryItem, "flags.dae.activeEquipped", true);
+    foundry.utils.setProperty(foundryItem, "flags.dae.activeEquipped", true);
   } else {
-    setProperty(foundryItem, "flags.dae.activeEquipped", false);
+    foundry.utils.setProperty(foundryItem, "flags.dae.activeEquipped", false);
   }
 
   if (ddbItem.definition?.filterType === "Potion") {
@@ -1545,10 +1545,10 @@ function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, eff
   // console.warn("addACEffect", {
   //   ddb,
   //   character,
-  //   ddbItem: deepClone(ddbItem),
-  //   foundryItem: deepClone(foundryItem),
+  //   ddbItem: foundry.utils.deepClone(ddbItem),
+  //   foundryItem: foundry.utils.deepClone(foundryItem),
   //   isCompendiumItem,
-  //   effect: deepClone(effect),
+  //   effect: foundry.utils.deepClone(effect),
   //   equipment: foundryItem.type === "equipment",
   //   transfer: effect.transfer,
   //   ac: (foundryItem.system.armor?.type && ["trinket", "clothing"].includes(foundryItem.system.armor.type)),
@@ -1584,7 +1584,7 @@ export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendi
   foundryItem = applyDefaultMidiFlags(foundryItem);
   let label;
 
-  if (type === "item" && hasProperty(ddbItem, "definition.grantedModifiers")) {
+  if (type === "item" && foundry.utils.hasProperty(ddbItem, "definition.grantedModifiers")) {
     ddbItem.definition.grantedModifiers = ddbItem.definition.grantedModifiers.filter((modifier) =>
       modifier.type !== "damage" && modifier.subType !== null
     );
@@ -1615,9 +1615,9 @@ export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendi
     // no default
   }
 
-  if (foundryItem.effects?.length > 0 || hasProperty(document.flags, "dae") || hasProperty(document.flags, "midi-qol.onUseMacroName")) {
-    logger.debug(`${type} effect ${foundryItem.name}:`, duplicate(foundryItem));
-    setProperty(foundryItem, "flags.ddbimporter.effectsApplied", true);
+  if (foundryItem.effects?.length > 0 || foundry.utils.hasProperty(document, "flags.dae") || foundry.utils.hasProperty(document, "flags.midi-qol.onUseMacroName")) {
+    logger.debug(`${type} effect ${foundryItem.name}:`, foundry.utils.duplicate(foundryItem));
+    foundry.utils.setProperty(foundryItem, "flags.ddbimporter.effectsApplied", true);
   }
   return foundryItem;
 

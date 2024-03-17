@@ -6,7 +6,7 @@ export async function planarWarriorEffect(document) {
 
   let effect = baseFeatEffect(document, "Marked by Planar Warrior");
 
-  setProperty(effect, "duration.turns", 1);
+  foundry.utils.setProperty(effect, "duration.turns", 1);
   DDBMacros.setMidiOnUseMacroFlag(document, "feat", "planarWarrior.js", ["preItemRoll", "preActiveEffects"]);
 
   document.effects.push(effect);

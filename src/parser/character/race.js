@@ -12,7 +12,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace() {
   delete this.raw.race.sort;
 
   // update character race value with race type
-  setProperty(this.raw.character, "system.details.type.value", this.raw.race.type);
+  foundry.utils.setProperty(this.raw.character, "system.details.type.value", this.raw.race.type);
 
   // console.warn("Race Advancement", JSON.parse(JSON.stringify(this.raw.race.system.advancement)));
   this.raw.race.system.advancement.forEach((a) => {

@@ -100,10 +100,10 @@ export async function runeCarverEffect(document) {
   }
 
   if (baseEffect.changes.length > 0) {
-    setProperty(document, "system.target.type", "self");
-    setProperty(document, "system.range.units", "self");
-    setProperty(document, "system.range.value", "");
-    setProperty(document, "system.actionType", null);
+    foundry.utils.setProperty(document, "system.target.type", "self");
+    foundry.utils.setProperty(document, "system.range.units", "self");
+    foundry.utils.setProperty(document, "system.range.value", "");
+    foundry.utils.setProperty(document, "system.actionType", null);
     document.effects.push(baseEffect);
   }
   return document;

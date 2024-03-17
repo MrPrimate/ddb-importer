@@ -21,8 +21,8 @@ export async function flameBladeEffect(document) {
       priority: 20,
     }
   );
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.system.actionType = "other";
   document.effects.push(effect);
   document.system.damage = { parts: [], versatile: "", value: "" };

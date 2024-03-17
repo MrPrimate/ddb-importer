@@ -58,7 +58,7 @@ export async function addMagicItemSpells(input) {
   // scan the inventory for each item with spells and copy the imported data over
   input.inventory.forEach((item) => {
     logger.debug("replacing spells for item", item);
-    const magicItemsSpells = getProperty(item, "flags.magicitems.spells");
+    const magicItemsSpells = foundry.utils.getProperty(item, "flags.magicitems.spells");
     if (magicItemsSpells) {
       logger.debug("item.flags.magicitems.spells", magicItemsSpells);
       for (let [i, spell] of Object.entries(magicItemsSpells)) {
@@ -90,7 +90,7 @@ export async function addMagicItemSpells(input) {
     //   name: result.name,
     //   compendium: true,
     // };
-    const itemsWithSpells = getProperty(item, "flags.items-with-spells-5e.item-spells");
+    const itemsWithSpells = foundry.utils.getProperty(item, "flags.items-with-spells-5e.item-spells");
     if (itemsWithSpells) {
       logger.debug("item.flags.items-with-spells-5e.item-spells", item.flags["items-with-spells-5e"]["item-spells"]);
       itemsWithSpells.forEach((spellData, i) => {
@@ -100,7 +100,7 @@ export async function addMagicItemSpells(input) {
         if (itemSpell) {
           item.flags["items-with-spells-5e"]["item-spells"][i].uuid = `Compendium.${itemSpell.magicItem.pack}.${itemSpell._id}`;
           if (item._id) {
-            setProperty(item.flags["items-with-spells-5e"]["item-spells"][i], "flags.items-with-spells-5e.item-spells.parent-item", item._id);
+            foundry.utils.setProperty(item.flags["items-with-spells-5e"]["item-spells"][i], "flags.items-with-spells-5e.item-spells.parent-item", item._id);
           }
         } else if (!game.user.can("ITEM_CREATE")) {
           ui.notifications.warn(`Magic Item ${item.name} cannot be enriched because of lacking player permissions`);

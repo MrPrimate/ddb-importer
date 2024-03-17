@@ -177,10 +177,10 @@ export default class AdventureMunchHelpers {
         .filter((idx) => {
           switch (type) {
             case "monster":
-              return ddbIds.includes(String(getProperty(idx, "flags.ddbimporter.id")));
+              return ddbIds.includes(String(foundry.utils.getProperty(idx, "flags.ddbimporter.id")));
             case "spell":
             case "item":
-              return ddbIds.includes(String(getProperty(idx, "flags.ddbimporter.definitionId")));
+              return ddbIds.includes(String(foundry.utils.getProperty(idx, "flags.ddbimporter.definitionId")));
             default:
               return false;
           }
@@ -225,7 +225,7 @@ export default class AdventureMunchHelpers {
     const ddbIVersion = game.modules.get(SETTINGS.MODULE_ID).version;
     if (!existingDoc) existingDoc = {};
     // do we have versioned metadata?
-    setProperty(newDoc, "flags.ddb.versions.importer", {});
+    foundry.utils.setProperty(newDoc, "flags.ddb.versions.importer", {});
     if (newDoc?.flags?.ddb?.versions?.ddbMetaData?.lastUpdate) {
       // check old data, it might not exist
       const oldDDBMetaDataVersions = existingDoc.flags?.ddb?.versions?.ddbMetaData?.lastUpdate
@@ -249,10 +249,10 @@ export default class AdventureMunchHelpers {
 
       const documentVersions = newDoc.flags.ddb.versions;
       const documentFoundryVersion = documentVersions["ddbMetaData"]["foundry"] !== undefined ? documentVersions["ddbMetaData"]["foundry"] : "0.8.9";
-      const importerVersionChanged = isNewerVersion(ddbIVersion, oldVersions["ddbImporter"]);
-      const metaVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["lastUpdate"], oldVersions["ddbMetaData"]["lastUpdate"]);
-      const muncherVersionChanged = isNewerVersion(documentVersions["adventureMuncher"], oldVersions["adventureMuncher"]);
-      const foundryVersionNewer = isNewerVersion(documentFoundryVersion, game.version);
+      const importerVersionChanged = foundry.utils.isNewerVersion(ddbIVersion, oldVersions["ddbImporter"]);
+      const metaVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["lastUpdate"], oldVersions["ddbMetaData"]["lastUpdate"]);
+      const muncherVersionChanged = foundry.utils.isNewerVersion(documentVersions["adventureMuncher"], oldVersions["adventureMuncher"]);
+      const foundryVersionNewer = foundry.utils.isNewerVersion(documentFoundryVersion, game.version);
 
       let versionUpdates = {};
 
@@ -261,15 +261,15 @@ export default class AdventureMunchHelpers {
         versionUpdates.metaVersionChanged = metaVersionChanged;
         versionUpdates.muncherVersionChanged = muncherVersionChanged;
         versionUpdates.foundryVersionNewer = foundryVersionNewer;
-        versionUpdates.drawingVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["drawings"], oldVersions["ddbMetaData"]["drawings"]);
-        versionUpdates.noteVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["notes"], oldVersions["ddbMetaData"]["notes"]);
-        versionUpdates.tokenVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["tokens"], oldVersions["ddbMetaData"]["tokens"]);
-        versionUpdates.wallVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["walls"], oldVersions["ddbMetaData"]["walls"]);
-        versionUpdates.lightVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["lights"], oldVersions["ddbMetaData"]["lights"]);
+        versionUpdates.drawingVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["drawings"], oldVersions["ddbMetaData"]["drawings"]);
+        versionUpdates.noteVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["notes"], oldVersions["ddbMetaData"]["notes"]);
+        versionUpdates.tokenVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["tokens"], oldVersions["ddbMetaData"]["tokens"]);
+        versionUpdates.wallVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["walls"], oldVersions["ddbMetaData"]["walls"]);
+        versionUpdates.lightVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["lights"], oldVersions["ddbMetaData"]["lights"]);
       }
-      setProperty(newDoc, "flags.ddb.versions.ddbImporter", ddbIVersion);
-      setProperty(newDoc, "flags.ddb.versions.importer", versionUpdates);
-      setProperty(newDoc, "flags.ddb.oldVersions", oldVersions);
+      foundry.utils.setProperty(newDoc, "flags.ddb.versions.ddbImporter", ddbIVersion);
+      foundry.utils.setProperty(newDoc, "flags.ddb.versions.importer", versionUpdates);
+      foundry.utils.setProperty(newDoc, "flags.ddb.oldVersions", oldVersions);
     }
     return newDoc;
   }

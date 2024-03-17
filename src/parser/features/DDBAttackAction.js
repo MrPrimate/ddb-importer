@@ -23,7 +23,7 @@ export default class DDBAttackAction extends DDBAction {
   build() {
     try {
       if (this.ddbData.isMartialArts) {
-        setProperty(this.data, "flags.ddbimporter.dndbeyond.type", "Martial Arts");
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", "Martial Arts");
       };
       this.data.system.proficient = this.ddbDefinition.isProficient ? 1 : 0;
       this._generateDescription();
@@ -41,7 +41,7 @@ export default class DDBAttackAction extends DDBAction {
       this._generateSystemSubType();
 
       if (["line", "cone"].includes(this.data.system.target?.type)) {
-        setProperty(this.data, "system.duration.units", "inst");
+        foundry.utils.setProperty(this.data, "system.duration.units", "inst");
       }
 
       this._generateFlagHints();

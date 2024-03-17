@@ -4,7 +4,7 @@ import SETTINGS from "../../settings.js";
 
 function addLanguages() {
   if (game.settings.get(SETTINGS.MODULE_ID, "add-ddb-languages")) {
-    const ddbRaw = getProperty(CONFIG, "DDB.languages");
+    const ddbRaw = foundry.utils.getProperty(CONFIG, "DDB.languages");
     if (!ddbRaw) return;
 
     const ddbFiltered = [...new Set(ddbRaw

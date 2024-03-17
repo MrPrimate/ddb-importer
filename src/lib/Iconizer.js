@@ -59,7 +59,7 @@ async function loadDataFile(fileName) {
     logger.warn(`Possible missing file, icon load may fail. Fetching ${url}`);
   }
 
-  const data = await fetchJsonWithTimeout(url);
+  const data = await foundry.utils.fetchJsonWithTimeout(url);
   return data;
 }
 
@@ -243,7 +243,7 @@ export default class Iconizer {
 
     return new Promise((resolve) => {
       const iconItems = items.map((item) => {
-        if (getProperty(item, "flags.ddbimporter.keepIcon") !== true) {
+        if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") !== true) {
           // logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
           // if we have a monster lets check the monster dict first
           if (monster && !["spell"].includes(item.type)) {
@@ -349,7 +349,7 @@ export default class Iconizer {
 
       const pathPostfix = useDeepPaths ? `/item/${item.type}` : "";
 
-      if (hasProperty(item, "flags.ddbimporter.dndbeyond")) {
+      if (foundry.utils.hasProperty(item, "flags.ddbimporter.dndbeyond")) {
         if (item.flags.ddbimporter.dndbeyond.avatarUrl) {
           const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
           if (avatarUrl && avatarUrl != "") {
@@ -393,7 +393,7 @@ export default class Iconizer {
     for (const item of items) {
       // eslint-disable-next-line no-continue
       if (item.type !== type || item.img) continue;
-      const ddbImg = getProperty(item, "flags.ddbimporter.ddbImg");
+      const ddbImg = foundry.utils.getProperty(item, "flags.ddbimporter.ddbImg");
       // eslint-disable-next-line no-continue
       if (!ddbImg || ddbImg === "") continue;
       const pathPostfix = useDeepPaths ? `/${type}/${item.type}` : "";
@@ -529,7 +529,7 @@ export default class Iconizer {
           const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
           if (imageMatch && imageMatch.img) {
             item.img = imageMatch.img;
-            setProperty(item, "flags.ddbimporter.keepIcon", true);
+            foundry.utils.setProperty(item, "flags.ddbimporter.keepIcon", true);
           }
           if (imageMatch && imageMatch.large) {
             item.flags.ddbimporter.dndbeyond['pictureUrl'] = imageMatch.large;
@@ -603,7 +603,7 @@ export default class Iconizer {
     if (!actor.effects) return actor;
     logger.debug("Adding Icons to actor effects");
     actor.effects.forEach((effect) => {
-      const name = getProperty(effect, "flags.ddbimporter.originName");
+      const name = foundry.utils.getProperty(effect, "flags.ddbimporter.originName");
       if (name) {
         const actorItem = actor.items.find((i) => i.name === name);
         if (actorItem) {

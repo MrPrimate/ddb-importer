@@ -31,9 +31,9 @@ DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getChar
         && type.type === typeId
       );
       if (!entry) return undefined;
-      const valueData = hasProperty(entry, "foundryValues")
-        ? getProperty(entry, "foundryValues")
-        : hasProperty(entry, "foundryValue")
+      const valueData = foundry.utils.hasProperty(entry, "foundryValues")
+        ? foundry.utils.getProperty(entry, "foundryValues")
+        : foundry.utils.hasProperty(entry, "foundryValue")
           ? { value: entry.foundryValue }
           : undefined;
       return valueData;

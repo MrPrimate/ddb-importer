@@ -97,9 +97,9 @@ export default class DDBCompanion {
       };
 
       if (acString.includes("plus PB") || acString.includes("+ PB")) {
-        setProperty(this.npc, "flags.arbron-summoner.config.acFormula", `${ac} + @prof`);
+        foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.acFormula", `${ac} + @prof`);
       } else if (acString.includes("+ the level of the spell")) {
-        setProperty(this.npc, "flags.arbron-summoner.config.acFormula", `${ac} + @details.level`);
+        foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.acFormula", `${ac} + @details.level`);
       }
     }
   }
@@ -109,7 +109,7 @@ export default class DDBCompanion {
       ?? this.getBlockData("Challenge");
 
     if (profString && profString.innerText.includes("equals your bonus")) {
-      setProperty(this.npc, "flags.arbron-summoner.config.matchProficiency", true);
+      foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.matchProficiency", true);
     }
   }
 
@@ -165,7 +165,7 @@ export default class DDBCompanion {
     }
 
     if (hpAdjustments.length > 0) {
-      setProperty(this.npc, "flags.arbron-summoner.config.hpFormula", hpAdjustments.join(" + "));
+      foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.hpFormula", hpAdjustments.join(" + "));
     }
 
   }
@@ -391,12 +391,12 @@ export default class DDBCompanion {
 
         const senseType = DICTIONARY.senseMap()[match[1].toLowerCase()];
 
-        if (value > 0 && value > this.npc.prototypeToken.sight.range && hasProperty(CONFIG.Canvas.visionModes, senseType)) {
-          setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);
-          setProperty(this.npc.prototypeToken.sight, "range", value);
-          this.npc.prototypeToken.sight = mergeObject(this.npc.prototypeToken.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
+        if (value > 0 && value > this.npc.prototypeToken.sight.range && foundry.utils.hasProperty(CONFIG.Canvas.visionModes, senseType)) {
+          foundry.utils.setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);
+          foundry.utils.setProperty(this.npc.prototypeToken.sight, "range", value);
+          this.npc.prototypeToken.sight = foundry.utils.mergeObject(this.npc.prototypeToken.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
         }
-        if (value > 0 && hasProperty(DICTIONARY.detectionMap, match[1].toLowerCase())) {
+        if (value > 0 && foundry.utils.hasProperty(DICTIONARY.detectionMap, match[1].toLowerCase())) {
           const detectionMode = {
             id: DICTIONARY.detectionMap[match[1].toLowerCase()],
             range: value,
@@ -465,7 +465,7 @@ export default class DDBCompanion {
     const options = { extra: true, useItemAC: this.useItemAC, legacyName: this.legacyName, addMonsterEffects: this.addMonsterEffects, addChrisPremades: this.addChrisPremades };
     const ddbMonster = new DDBMonster(null, options);
     ddbMonster.name = this.name;
-    ddbMonster.npc = duplicate(this.npc);
+    ddbMonster.npc = foundry.utils.duplicate(this.npc);
     ddbMonster.abilities = ddbMonster.npc.system.abilities;
     ddbMonster.proficiencyBonus = 0;
     const featureFactory = new DDBMonsterFeatureFactory({ ddbMonster, hideDescription: false, updateExisting: false });
@@ -473,11 +473,11 @@ export default class DDBCompanion {
     logger.debug("Generating companion feature", { text, type, featureFactory });
     const toHitRegex = /(your spell attack modifier to hit)/i;
     if (toHitRegex.test(text)) {
-      setProperty(this.npc, "flags.arbron-summoner.config.matchToHit", true);
+      foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.matchToHit", true);
     }
     const spellSaveRegex = /(against your spell save DC)/i;
     if (spellSaveRegex.test(text)) {
-      setProperty(this.npc, "flags.arbron-summoner.config.matchSaveDCs", true);
+      foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.matchSaveDCs", true);
     }
     return featureFactory.getFeatures(type);
   }
@@ -591,10 +591,10 @@ export default class DDBCompanion {
 
     const actorName = `${name} ${namePostfix}`.trim();
     this.npc = await newNPC(actorName);
-    setProperty(this.npc, "flags.ddbimporter.companion.modifiers", {});
+    foundry.utils.setProperty(this.npc, "flags.ddbimporter.companion.modifiers", {});
     this.npc.prototypeToken.name = actorName;
 
-    setProperty(this.npc, "flags.arbron-summoner", {
+    foundry.utils.setProperty(this.npc, "flags.arbron-summoner", {
       config: {
         matchProficiency: false,
         matchToHit: false,
@@ -605,8 +605,8 @@ export default class DDBCompanion {
       }
     });
 
-    setProperty(this.npc, "flags.ddbimporter.id", `companion-${actorName}`);
-    setProperty(this.npc, "flags.ddbimporter.entityTypeId", `companion-${this.type}`);
+    foundry.utils.setProperty(this.npc, "flags.ddbimporter.id", `companion-${actorName}`);
+    foundry.utils.setProperty(this.npc, "flags.ddbimporter.entityTypeId", `companion-${this.type}`);
 
     this.#generateSize();
     this.#generateType();
@@ -628,9 +628,9 @@ export default class DDBCompanion {
     await this.#generateFeatures();
 
     // make friendly
-    setProperty(this.npc, "prototypeToken.disposition", 1);
+    foundry.utils.setProperty(this.npc, "prototypeToken.disposition", 1);
 
-    this.data = duplicate(this.npc);
+    this.data = foundry.utils.duplicate(this.npc);
     this.parsed = true;
 
     logger.debug(`Finished companion parse for ${name}`, { name, block: this.block, data: this.data, npc: this.npc });

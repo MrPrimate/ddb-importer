@@ -4,7 +4,7 @@ export function getComponents (data) {
   if (data.definition.components.includes(1)) properties.push("vocal");
   if (data.definition.components.includes(2)) properties.push("somatic");
   if (data.definition.components.includes(3)
-    || getProperty(data, "flags.ddbimporter.dndbeyond.forceMaterial")
+    || foundry.utils.getProperty(data, "flags.ddbimporter.dndbeyond.forceMaterial")
   ) {
     properties.push("material");
   }
@@ -14,7 +14,7 @@ export function getComponents (data) {
     value: data.definition.componentsDescription,
     vocal: data.definition.components.includes(1),
     somatic: data.definition.components.includes(2),
-    material: data.definition.components.includes(3) || getProperty(data, "flags.ddbimporter.dndbeyond.forceMaterial"),
+    material: data.definition.components.includes(3) || foundry.utils.getProperty(data, "flags.ddbimporter.dndbeyond.forceMaterial"),
     ritual: data.definition.ritual,
     concentration: data.definition.concentration,
     properties,

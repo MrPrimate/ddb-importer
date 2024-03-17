@@ -33,7 +33,7 @@ import DDBFeature from "../../parser/features/DDBFeature.js";
 // };
 
 // async function buildBase(data) {
-//   let result = duplicate(BACKGROUND_TEMPLATE);
+//   let result = foundry.utils.duplicate(BACKGROUND_TEMPLATE);
 //   const bgData = generateBackground(data);
 //   result.name = data.name;
 //   result.system.description.value += `${bgData.description}\n\n`;
@@ -71,7 +71,7 @@ async function buildBackground(backgroundData) {
   });
 
   await ddbFeature.generateAdvancements();
-  const featIds = getProperty(backgroundData, "featList.featIds") ?? [];
+  const featIds = foundry.utils.getProperty(backgroundData, "featList.featIds") ?? [];
   await ddbFeature.buildBackgroundFeatAdvancements(featIds);
 
   return ddbFeature.data;

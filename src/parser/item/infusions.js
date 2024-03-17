@@ -73,7 +73,7 @@ function addMagicBonus(character, item, modifiers) {
   if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
     item.system.damage.parts[0][0] += ` + ${magicBonus}`;
     item.system.attackBonus += magicBonus;
-    setProperty(item, "system.properties.mgc", true);
+    foundry.utils.setProperty(item, "system.properties.mgc", true);
     // to do add infusion description to item
   }
   return item;
@@ -99,7 +99,7 @@ export function getInfusionActionData(ddb) {
           action.name = `${itemName}[Infusion] ${infusionDetail.name}`;
         }
         // action.infusionFlags = {
-        //   // maps: [duplicate(itemLookup)],
+        //   // maps: [foundry.utils.duplicate(itemLookup)],
         //   applied: action.name,
         //   // applied: infusionDetail.map((d) => d.name),
         //   infused: true,
@@ -131,7 +131,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     // console.warn(foundryItem);
 
     // get modifiers && generate effects
-    const ddbInfusionItem = duplicate(ddbItem);
+    const ddbInfusionItem = foundry.utils.duplicate(ddbItem);
     ddbInfusionItem.definition.grantedModifiers = getInfusionModifiers(infusionItemMap, infusionDetail);
 
     foundryItem = generateEffects(ddb, character, ddbInfusionItem, foundryItem, compendiumItem, "infusion");
@@ -145,7 +145,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     // foundryItem.flags.infusions.maps.push(infusionItemMap);
 
     // set magic properties
-    setProperty(foundryItem, "system.properties.mgc", true);
+    foundry.utils.setProperty(foundryItem, "system.properties.mgc", true);
 
     // Update Item description
     foundryItem.system.description.value += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.description}</p></div>`;

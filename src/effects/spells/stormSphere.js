@@ -38,15 +38,15 @@ export async function stormSphereEffect(document) {
     savedc: null,
     displayTemp: true,
   };
-  setProperty(effect, "duration.seconds", 60);
-  setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
+  foundry.utils.setProperty(effect, "duration.seconds", 60);
+  foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "stormSphere.js" }));
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "stormSphere.js", ["preActiveEffects"]);
 
   document.effects.push(effect);
 
-  const damageOne = duplicate(document.system.damage.parts[0]);
-  const damageTwo = duplicate(document.system.damage.parts[1]);
+  const damageOne = foundry.utils.duplicate(document.system.damage.parts[0]);
+  const damageTwo = foundry.utils.duplicate(document.system.damage.parts[1]);
   document.system.damage = { parts: [damageOne], versatile: "", value: "" };
   document.system.formula = damageTwo[0];
   document.system.actionType = "save";

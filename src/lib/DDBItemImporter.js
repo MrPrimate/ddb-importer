@@ -50,7 +50,7 @@ export default class DDBItemImporter {
   static copyFlagGroup(flagGroup, originalItem, targetItem) {
     if (targetItem.flags === undefined) targetItem.flags = {};
     // if we have generated effects we dont want to copy some flag groups. mostly for AE on spells
-    const effectsProperty = getProperty(targetItem, "flags.ddbimporter.effectsApplied")
+    const effectsProperty = foundry.utils.getProperty(targetItem, "flags.ddbimporter.effectsApplied")
       && SETTINGS.EFFECTS_IGNORE_FLAG_GROUPS.includes(flagGroup);
     if (originalItem.flags && !!originalItem.flags[flagGroup] && !effectsProperty) {
       // logger.debug(`Copying ${flagGroup} for ${originalItem.name}`);
@@ -66,7 +66,7 @@ export default class DDBItemImporter {
 
 
   static updateCharacterItemFlags(itemData, replaceData) {
-    if (itemData.flags?.ddbimporter?.importId) setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
+    if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
     if (replaceData.flags?.ddbimporter?.ddbCustomAdded) {
       replaceData.system = itemData.system;
       replaceData.type = itemData.type;
@@ -83,11 +83,11 @@ export default class DDBItemImporter {
       if (itemData.system.consume) replaceData.system.consume = itemData.system.consume;
       if (itemData.system.ability) replaceData.system.ability = itemData.system.ability;
     }
-    if (hasProperty(itemData, "system.levels")) replaceData.system.levels = itemData.system.levels;
-    if (getProperty(itemData, "flags.ddbimporter.price.xgte")) {
+    if (foundry.utils.hasProperty(itemData, "system.levels")) replaceData.system.levels = itemData.system.levels;
+    if (foundry.utils.getProperty(itemData, "flags.ddbimporter.price.xgte")) {
       replaceData.system.price.value = itemData.system.price.value;
       replaceData.system.price.denomination = itemData.system.price.denomination;
-      setProperty(replaceData, "flags.ddbimporter.price", itemData.flags.ddbimporter.price);
+      foundry.utils.setProperty(replaceData, "flags.ddbimporter.price", itemData.flags.ddbimporter.price);
     }
     return replaceData;
   }
@@ -98,31 +98,31 @@ export default class DDBItemImporter {
     let results = [];
 
     for (let newItem of newItems) {
-      let item = duplicate(newItem);
+      let item = foundry.utils.duplicate(newItem);
 
       const matched = overrideId
-        ? oldItems.find((oldItem) => getProperty(oldItem, "flags.ddbimporter.overrideId") == item._id)
+        ? oldItems.find((oldItem) => foundry.utils.getProperty(oldItem, "flags.ddbimporter.overrideId") == item._id)
         : NameMatcher.looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
 
       if (matched) {
-        const match = duplicate(matched);
+        const match = foundry.utils.duplicate(matched);
         // in some instances we want to keep the ddb id
-        if (keepDDBId && hasProperty(item, "flags.ddbimporter.id")) {
-          setProperty(match, "flags.ddbimporter.id", duplicate(item.flags.ddbimporter.id));
+        if (keepDDBId && foundry.utils.hasProperty(item, "flags.ddbimporter.id")) {
+          foundry.utils.setProperty(match, "flags.ddbimporter.id", foundry.utils.duplicate(item.flags.ddbimporter.id));
         }
         if (!item.flags.ddbimporter) {
-          setProperty(item, "flags.ddbimporter", match.flags.ddbimporter);
+          foundry.utils.setProperty(item, "flags.ddbimporter", match.flags.ddbimporter);
         } else if (match.flags.ddbimporter && item.flags.ddbimporter) {
-          const mergedFlags = mergeObject(item.flags.ddbimporter, match.flags.ddbimporter);
-          setProperty(item, "flags.ddbimporter", mergedFlags);
+          const mergedFlags = foundry.utils.mergeObject(item.flags.ddbimporter, match.flags.ddbimporter);
+          foundry.utils.setProperty(item, "flags.ddbimporter", mergedFlags);
         }
         if (!item.flags.monsterMunch && match.flags.monsterMunch) {
-          setProperty(item, "flags.monsterMunch", match.flags.monsterMunch);
+          foundry.utils.setProperty(item, "flags.monsterMunch", match.flags.monsterMunch);
         }
-        setProperty(item, "flags.ddbimporter.originalItemName", match.name);
-        setProperty(item, "flags.ddbimporter.replaced", true);
-        if (linkItemFlags && hasProperty(match, "flags.link-item-resource-5e")) {
-          setProperty(item, "flags.link-item-resource-5e", match.flags["link-item-resource-5e"]);
+        foundry.utils.setProperty(item, "flags.ddbimporter.originalItemName", match.name);
+        foundry.utils.setProperty(item, "flags.ddbimporter.replaced", true);
+        if (linkItemFlags && foundry.utils.hasProperty(match, "flags.link-item-resource-5e")) {
+          foundry.utils.setProperty(item, "flags.link-item-resource-5e", match.flags["link-item-resource-5e"]);
         }
         item = DDBItemImporter.updateCharacterItemFlags(match, item);
 
@@ -157,7 +157,7 @@ export default class DDBItemImporter {
 
     const matchedIds = index.filter((i) =>
       index.some((orig) => {
-        const extraNames = getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
+        const extraNames = foundry.utils.getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
         if (looseMatch) {
           const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
           return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
@@ -236,11 +236,13 @@ export default class DDBItemImporter {
       }
       default: {
         try {
-          // eslint-disable-next-line no-await-in-loop
-          newItem = await Item.create(item, {
-            temporary: true,
+          const options = {
             displaySheet: false,
-          });
+            keepId: true,
+            temporary: true,
+          };
+          // eslint-disable-next-line no-await-in-loop
+          newItem = new Item.implementation(item, options);
         } catch (err) {
           logger.error(`Error creating ${item.name}`, { item, err });
           throw err;
@@ -371,7 +373,7 @@ export default class DDBItemImporter {
 
     const firstPassItems = await this.compendiumIndex.filter((i) =>
       items.some((orig) => {
-        const extraNames = getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
+        const extraNames = foundry.utils.getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
         if (looseMatch) {
           const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
           return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
@@ -399,12 +401,12 @@ export default class DDBItemImporter {
         if (deleteCompendiumId) delete docData._id;
         delete docData.folder;
         SETTINGS.COMPENDIUM_REMOVE_FLAGS.forEach((flag) => {
-          if (hasProperty(docData, flag)) setProperty(docData, flag, undefined);
+          if (foundry.utils.hasProperty(docData, flag)) foundry.utils.setProperty(docData, flag, undefined);
         });
 
         return docData;
       });
-      setProperty(item, "flags.ddbimporter.pack", `${this.compendium.metadata.id}`);
+      foundry.utils.setProperty(item, "flags.ddbimporter.pack", `${this.compendium.metadata.id}`);
       loadedItems.push(item);
     }
     logger.debug(`compendium ${this.type} loaded items:`, loadedItems);
@@ -483,7 +485,7 @@ export default class DDBItemImporter {
       handler.documents = await applyChrisPremadeEffects({ documents: handler.documents, compendiumItem: true });
     }
     DDBMuncher.munchNote(`Importing ${handler.documents.length} ${type} documents!`, true);
-    logger.debug(`Importing ${handler.documents.length} ${type} documents!`, deepClone(documents));
+    logger.debug(`Importing ${handler.documents.length} ${type} documents!`, foundry.utils.deepClone(documents));
     await handler.updateCompendium(updateBool, filterDuplicates);
     await handler.buildIndex();
     return handler;

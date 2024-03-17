@@ -8,15 +8,15 @@ export function invisibilityFeatureEffect(document) {
 
   let effect = baseMonsterFeatureEffect(document, `${document.name} feature`);
   addStatusEffectChange(effect, "Invisible", 20, true);
-  setProperty(effect, "flags.dae.stackable", "noneName");
+  foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
 
-  const permanent = ["special"].includes(getProperty(document, "flags.monsterMunch.type"));
+  const permanent = ["special"].includes(foundry.utils.getProperty(document, "flags.monsterMunch.type"));
   const improvedEffect = ["Superior Invisibility"].includes(document.name);
 
   if (permanent) {
     effect.transfer = true;
   } else if (!improvedEffect) {
-    setProperty(effect, "flags.dae.specialDuration", ["1Action", "1Spell", "1Attack"]);
+    foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["1Action", "1Spell", "1Attack"]);
   }
   document.effects.push(effect);
 
@@ -25,8 +25,8 @@ export function invisibilityFeatureEffect(document) {
   document.system.range = { value: null, units: "self", long: null };
   document.system.duration.units = "spec";
 
-  setProperty(document, "flags.midi-qol.forceCEOff", true);
-  setProperty(document, "flags.midiProperties.concentration", true);
+  foundry.utils.setProperty(document, "flags.midi-qol.forceCEOff", true);
+  foundry.utils.setProperty(document, "flags.midiProperties.concentration", true);
 
   return document;
 }

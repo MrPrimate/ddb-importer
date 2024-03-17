@@ -7,7 +7,7 @@ function prepItem(item) {
     if (!item.system.target) item.system.target = { value: null, width: null, units: "", type: "creature" };
     if (!item.system.range) item.system.range = { value: null, long: null, units: "", type: "touch" };
   } else if (item.name.startsWith("Vicious")) {
-    setProperty(item, "system.critical", { damage: "+ 7", threshold: null });
+    foundry.utils.setProperty(item, "system.critical", { damage: "+ 7", threshold: null });
   }
 }
 
@@ -168,7 +168,7 @@ export function fixItems(items) {
         item.system.target = { value: 1, width: null, units: "any", type: "creature" };
         item.system.range = { value: 20, long: null, units: "ft" };
         item.system.uses = { value: 10, max: "10", per: "charge" };
-        setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
+        foundry.utils.setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
         break;
       }
       case "Wand of Fireballs": {

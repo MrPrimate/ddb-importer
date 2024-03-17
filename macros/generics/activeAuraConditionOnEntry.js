@@ -51,7 +51,7 @@ async function attemptRemoval(targetToken, condition, item) {
 async function applyCondition(condition, targetToken, item, itemLevel) {
   if (!game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
     const caster = item.parent;
-    const workflowItemData = duplicate(item);
+    const workflowItemData = foundry.utils.duplicate(item);
     workflowItemData.system.target = { value: 1, units: "", type: "creature" };
     workflowItemData.system.save.ability = item.flags.ddbimporter.effect.save;
     workflowItemData.system.properties = DDBImporter?.EffectHelper.removeFromProperties(workflowItemData.system.properties, "concentration");
@@ -61,10 +61,10 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
     workflowItemData.system.uses = { value: null, max: "", per: null, recovery: "", autoDestroy: false };
     workflowItemData.system.consume = { "type": "", "target": null, "amount": null };
     workflowItemData.system.preparation.mode = "atwill";
-    setProperty(workflowItemData, "flags.itemacro", {});
-    setProperty(workflowItemData, "flags.midi-qol", {});
-    setProperty(workflowItemData, "flags.dae", {});
-    setProperty(workflowItemData, "effects", []);
+    foundry.utils.setProperty(workflowItemData, "flags.itemacro", {});
+    foundry.utils.setProperty(workflowItemData, "flags.midi-qol", {});
+    foundry.utils.setProperty(workflowItemData, "flags.dae", {});
+    foundry.utils.setProperty(workflowItemData, "effects", []);
     delete workflowItemData._id;
     workflowItemData.name = `${workflowItemData.name}: ${item.name} Condition save`;
 
@@ -87,7 +87,7 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
 if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const safeName = lastArg.itemData.name.replace(/\s|'|\.|’/g, "_");
   const dataTracker = {
-    randomId: randomID(),
+    randomId: foundry.utils.randomID(),
     targetUuids: lastArg.targetUuids,
     startRound: game.combat.round,
     startTurn: game.combat.turn,
@@ -150,7 +150,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
   const isLaterTurn = game.combat.round > targetTokenTracker.round || game.combat.turn > targetTokenTracker.turn;
-  const everyEntry = hasProperty(item, "flags.ddbimporter.effect.everyEntry")
+  const everyEntry = foundry.utils.hasProperty(item, "flags.ddbimporter.effect.everyEntry")
     ? item.flags.ddbimporter.effect.everyEntry
     : false;
 
@@ -184,7 +184,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   })
   const targetTokenTracker = await DAE.getFlag(targetToken.actor, `${safeName}Tracker`);
   console.warn("targetTokenTracker", targetTokenTracker);
-  const removeOnOff = hasProperty(lastArg, "efData.flags.ddbimporter.effect.removeOnOff")
+  const removeOnOff = foundry.utils.hasProperty(lastArg, "efData.flags.ddbimporter.effect.removeOnOff")
     ? lastArg.efData.flags.ddbimporter.effect.removeOnOff
     : true;
 

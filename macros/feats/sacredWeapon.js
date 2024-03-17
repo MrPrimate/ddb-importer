@@ -69,7 +69,7 @@ if (args[0] === "on") {
         callback: () => {
           const itemId = $("input[type='radio'][name='weapon']:checked").val();
           const weaponItem = targetActor.items.get(itemId);
-          let copyItem = duplicate(weaponItem);
+          let copyItem = foundry.utils.duplicate(weaponItem);
           const bonus = args[1];
           DAE.setFlag(targetActor, "sacredWeapon", {
             bonus: weaponItem.system.attackBonus,
@@ -95,7 +95,7 @@ if (args[0] === "on") {
 if (args[0] === "off") {
   const { bonus, name, weapon, mgc } = DAE.getFlag(targetActor, "sacredWeapon");
   const weaponItem = targetActor.items.get(weapon);
-  let copyItem = duplicate(weaponItem);
+  let copyItem = foundry.utils.duplicate(weaponItem);
   copyItem.system.attackBonus = bonus;
   copyItem.system.properties.mgc = mgc;
   copyItem.name = name;

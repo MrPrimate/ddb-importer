@@ -49,11 +49,11 @@ export async function parseSpell(data, character) {
     },
   };
 
-  const isGeneric = getProperty(data, "flags.ddbimporter.generic");
+  const isGeneric = foundry.utils.getProperty(data, "flags.ddbimporter.generic");
   const addSpellEffects = isGeneric
     ? game.settings.get("ddb-importer", "munching-policy-add-spell-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-spell-effects");
-  setProperty(data, "flags.ddbimporter.addSpellEffects", addSpellEffects);
+  foundry.utils.setProperty(data, "flags.ddbimporter.addSpellEffects", addSpellEffects);
 
   // spell level
   spell.system.level = data.definition.level;
@@ -107,7 +107,7 @@ export async function parseSpell(data, character) {
   if (spell.system.ability === null) spell.system.ability = "";
 
   await spellEffectAdjustment(spell, addSpellEffects);
-  setProperty(spell, "flags.ddbimporter.effectsApplied", true);
+  foundry.utils.setProperty(spell, "flags.ddbimporter.effectsApplied", true);
 
   return spell;
 }

@@ -1,10 +1,10 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function hillRuneEffect(document) {
-  setProperty(document, "system.target.type", "self");
-  setProperty(document, "system.range.units", "self");
-  setProperty(document, "system.range.value", "");
-  setProperty(document, "system.actionType", null);
+  foundry.utils.setProperty(document, "system.target.type", "self");
+  foundry.utils.setProperty(document, "system.range.units", "self");
+  foundry.utils.setProperty(document, "system.range.value", "");
+  foundry.utils.setProperty(document, "system.actionType", null);
 
   let bonusEffect = baseFeatEffect(document, `${document.name} (Temporary)`);
   bonusEffect.changes.push(
@@ -27,7 +27,7 @@ export function hillRuneEffect(document) {
       priority: "20",
     },
   );
-  setProperty(bonusEffect, "duration.seconds", 60);
+  foundry.utils.setProperty(bonusEffect, "duration.seconds", 60);
 
   document.effects.push(bonusEffect);
   return document;

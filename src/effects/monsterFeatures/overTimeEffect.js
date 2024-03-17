@@ -93,9 +93,9 @@ function getSpecialDuration (effect, match) {
     && (match[7].includes("until the end of its next turn")
     || match[7].includes("until the end of the target's next turn"))
   ) {
-    setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
+    foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
   } else if (match[7] && match[7].includes("until the start of the")) {
-    setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
+    foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
   }
   return effect;
 }
@@ -168,12 +168,12 @@ export function getOvertimeDamage(text) {
 function effectCleanup(document, actor, effect) {
   if (effect.changes.length > 0 || effect.statuses.length > 0) {
     document.effects.push(effect);
-    let overTimeFlags = hasProperty(actor, "flags.monsterMunch.overTime") ? getProperty(actor, "flags.monsterMunch.overTime") : [];
+    let overTimeFlags = foundry.utils.hasProperty(actor, "flags.monsterMunch.overTime") ? foundry.utils.getProperty(actor, "flags.monsterMunch.overTime") : [];
     overTimeFlags.push(document.name);
-    setProperty(actor, "flags.monsterMunch.overTime", overTimeFlags);
+    foundry.utils.setProperty(actor, "flags.monsterMunch.overTime", overTimeFlags);
     // console.warn(`ITEM OVER TIME EFFECT: ${actor.name}, ${document.name}`);
-    if (getProperty(document, "system.duration.units") === "inst") {
-      setProperty(document, "system.duration", {
+    if (foundry.utils.getProperty(document, "system.duration.units") === "inst") {
+      foundry.utils.setProperty(document, "system.duration", {
         units: "round",
         value: effect.duration.rounds,
       });
@@ -191,12 +191,12 @@ export function generateConditionOnlyEffect(actor, document) {
   const conditionResults = generateConditionEffect(effect, document.system.description.value, document.name);
   effect = conditionResults.effect;
 
-  const durationSeconds = hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
-    ? getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
+  const durationSeconds = foundry.utils.hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
+    ? foundry.utils.getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
     : getDuration(document.system.description.value);
-  setProperty(effect, "duration.seconds", durationSeconds);
+  foundry.utils.setProperty(effect, "duration.seconds", durationSeconds);
   const durationRounds = Number.parseInt(durationSeconds / 6);
-  setProperty(effect, "duration.rounds", durationRounds);
+  foundry.utils.setProperty(effect, "duration.rounds", durationRounds);
 
   const result = effectCleanup(document, actor, effect);
   return result;
@@ -210,16 +210,16 @@ export function generateOverTimeEffect(actor, document) {
   const conditionResults = generateConditionEffect(effect, document.system.description.value);
   effect = conditionResults.effect;
   if (conditionResults.success) {
-    setProperty(document, "flags.midiProperties.fulldam", true);
+    foundry.utils.setProperty(document, "flags.midiProperties.fulldam", true);
     overTimeSaveEnd(document, effect, conditionResults.save, document.system.description.value);
   }
 
-  const durationSeconds = hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
-    ? getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
+  const durationSeconds = foundry.utils.hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
+    ? foundry.utils.getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
     : getDuration(document.system.description.value);
-  setProperty(effect, "duration.seconds", durationSeconds);
+  foundry.utils.setProperty(effect, "duration.seconds", durationSeconds);
   const durationRounds = Number.parseInt(durationSeconds / 6);
-  setProperty(effect, "duration.rounds", durationRounds);
+  foundry.utils.setProperty(effect, "duration.rounds", durationRounds);
 
   const turn = startOrEnd(document.system.description.value);
   if (!turn) {
@@ -242,25 +242,25 @@ export function generateOverTimeEffect(actor, document) {
   }
 
   // overtime damage, revert any full damage flag, reset to default on save
-  setProperty(document, "flags.midiProperties.fulldam", false);
+  foundry.utils.setProperty(document, "flags.midiProperties.fulldam", false);
 
-  const damage = hasProperty(document.flags, "monsterMunch.overTime.damage")
-    ? getProperty(document.flags, "monsterMunch.overTime.damage")
+  const damage = foundry.utils.hasProperty(document.flags, "monsterMunch.overTime.damage")
+    ? foundry.utils.getProperty(document.flags, "monsterMunch.overTime.damage")
     : dmg.parts.reduce((total, current) => {
       total = [total, `${current[0]}[${current[1]}]`].join(" + ");
       return total;
     }, "");
 
-  const damageType = hasProperty(document.flags, "monsterMunch.overTime.damageType")
-    ? getProperty(document.flags, "monsterMunch.overTime.damageType")
+  const damageType = foundry.utils.hasProperty(document.flags, "monsterMunch.overTime.damageType")
+    ? foundry.utils.getProperty(document.flags, "monsterMunch.overTime.damageType")
     : dmg.parts.length > 0 ? dmg.parts[0][1] : "";
 
-  const saveRemove = hasProperty(document.flags, "monsterMunch.overTime.saveRemove")
-    ? getProperty(document.flags, "monsterMunch.overTime.saveRemove")
+  const saveRemove = foundry.utils.hasProperty(document.flags, "monsterMunch.overTime.saveRemove")
+    ? foundry.utils.getProperty(document.flags, "monsterMunch.overTime.saveRemove")
     : true;
 
-  const saveDamage = hasProperty(document.flags, "monsterMunch.overTime.saveDamage")
-    ? getProperty(document.flags, "monsterMunch.overTime.saveDamage")
+  const saveDamage = foundry.utils.hasProperty(document.flags, "monsterMunch.overTime.saveDamage")
+    ? foundry.utils.getProperty(document.flags, "monsterMunch.overTime.saveDamage")
     : "nodamage";
 
   logger.debug(`generateOverTimeEffect: Generated over time effect for ${actor.name}, ${document.name}`);
@@ -285,7 +285,7 @@ export function damageOverTimeEffect({ document, startTurn = false, endTurn = fa
     effect.changes.push(overTimeDamage({ document, turn: "end", damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
   }
 
-  setProperty(effect, "duration.seconds", durationSeconds);
+  foundry.utils.setProperty(effect, "duration.seconds", durationSeconds);
 
   document.effects.push(effect);
   return document;

@@ -20,7 +20,7 @@ export function getDamage(data, spell) {
   let chatFlavor = [];
 
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-  const spellEffects = getProperty(data, "flags.ddbimporter.addSpellEffects");
+  const spellEffects = foundry.utils.getProperty(data, "flags.ddbimporter.addSpellEffects");
   const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !spellEffects;
   const hintOrRestriction = globalDamageHints || damageRestrictionHints;
 

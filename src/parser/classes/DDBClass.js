@@ -384,12 +384,12 @@ export default class DDBClass {
    */
   getFeatureCompendiumMatch(feature) {
     return this._compendiums.features.index.find((match) =>
-      ((hasProperty(match, "flags.ddbimporter.featureName") && feature.name.trim().toLowerCase() == match.flags.ddbimporter.featureName.trim().toLowerCase())
-        || (!hasProperty(match, "flags.ddbimporter.featureName")
+      ((foundry.utils.hasProperty(match, "flags.ddbimporter.featureName") && feature.name.trim().toLowerCase() == match.flags.ddbimporter.featureName.trim().toLowerCase())
+        || (!foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
           && (feature.name.trim().toLowerCase() == match.name.trim().toLowerCase()
           || `${feature.name} (${this.ddbClassDefinition.name})`.trim().toLowerCase() == match.name.trim().toLowerCase()))
       )
-      && hasProperty(match, "flags.ddbimporter")
+      && foundry.utils.hasProperty(match, "flags.ddbimporter")
       && (match.flags.ddbimporter.class == this.ddbClassDefinition.name
         || match.flags.ddbimporter.parentClassId == this.ddbClassDefinition.id
         || match.flags.ddbimporter.classId == this.ddbClassDefinition.id)
@@ -399,9 +399,9 @@ export default class DDBClass {
   getFeatCompendiumMatch(featName) {
     const smallName = featName.trim().toLowerCase();
     return this._compendiums.feats.index.find((match) =>
-      ((hasProperty(match, "flags.ddbimporter.featureName")
+      ((foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
         && smallName == match.flags.ddbimporter.featureName.trim().toLowerCase())
-        || (!hasProperty(match, "flags.ddbimporter.featureName")
+        || (!foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
           && (smallName == match.name.trim().toLowerCase()
           || smallName.split(":")[0].trim() == match.name.trim().toLowerCase()))
       )
@@ -844,12 +844,12 @@ export default class DDBClass {
     // },
     const value = {};
 
-    const rolledHP = getProperty(character, "flags.ddbimporter.rolledHP") ?? false;
-    const startingClass = getProperty(this.data, "flags.ddbimporter.isStartingClass") === true;
+    const rolledHP = foundry.utils.getProperty(character, "flags.ddbimporter.rolledHP") ?? false;
+    const startingClass = foundry.utils.getProperty(this.data, "flags.ddbimporter.isStartingClass") === true;
     const useMaxHP = game.settings.get("ddb-importer", "character-update-policy-use-hp-max-for-rolled-hp");
     if (rolledHP && !useMaxHP) {
-      const baseHP = getProperty(character, "flags.ddbimporter.baseHitPoints");
-      const totalLevels = getProperty(character, "flags.ddbimporter.dndbeyond.totalLevels");
+      const baseHP = foundry.utils.getProperty(character, "flags.ddbimporter.baseHitPoints");
+      const totalLevels = foundry.utils.getProperty(character, "flags.ddbimporter.dndbeyond.totalLevels");
       const hpPerLevel = Math.floor(baseHP / totalLevels);
       const leftOvers = Math.floor(baseHP % totalLevels);
 

@@ -27,7 +27,7 @@ export default class DDBLocationSetup extends FormApplication {
       if (element.readOnly) {
         const name = element.name;
         const field = this.form.elements[name];
-        setProperty(data, name, field.value);
+        foundry.utils.setProperty(data, name, field.value);
       }
     }
 

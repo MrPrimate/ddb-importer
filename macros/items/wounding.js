@@ -14,13 +14,13 @@ if (args[0] === "on") {
   const sourceActor = item.parent;
 
   const combatTime = game.combat.round + game.combat.turn / 100;
-  const lastTime = getProperty(sourceActor.flags, "midi-qol.woundedTime");
+  const lastTime = foundry.utils.getProperty(sourceActor.flags, "midi-qol.woundedTime");
   lastArg.canWound = !game.combat || (combatTime !== lastTime);
   if (game.combat && lastArg.canWound && combatTime !== lastTime) {
-    setProperty(sourceActor.flags, "midi-qol.woundedTime", combatTime)
+    foundry.utils.setProperty(sourceActor.flags, "midi-qol.woundedTime", combatTime)
   }
   if (!lastArg.canWound) {
-    const stacks = getProperty(lastArg.efData, "flags.dae.stacks") || 1;
+    const stacks = foundry.utils.getProperty(lastArg.efData, "flags.dae.stacks") || 1;
     const label = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s+\(\d*\)/, "") +` (${stacks - 1})`;
     Hooks.once("midi-qol.RollComplete", () => {
       targetActor.updateEmbeddedDocuments("ActiveEffect", [
@@ -29,7 +29,7 @@ if (args[0] === "on") {
     });
   }
 } else if (args[0] === "each") {
-  const woundCount = getProperty(lastArg.efData, "flags.dae.stacks");
+  const woundCount = foundry.utils.getProperty(lastArg.efData, "flags.dae.stacks");
   if (!woundCount) return;
   const saveType = "con";
   const DC = 15;

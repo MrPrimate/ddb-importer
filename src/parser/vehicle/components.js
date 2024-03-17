@@ -147,10 +147,10 @@ function getWeaponProperties(action, weapon) {
 function buildComponents(ddb, configurations, component) {
   const results = [];
   const types = component.definition.types.map((t) => t.type);
-  const item = duplicate(newComponent(component.definition.name, TYPE_MAPPING[types[0]]));
+  const item = foundry.utils.duplicate(newComponent(component.definition.name, TYPE_MAPPING[types[0]]));
 
   if (types[0] === "equipment") {
-    setProperty(item, "data.armor.type", "vehicle");
+    foundry.utils.setProperty(item, "data.armor.type", "vehicle");
   }
 
   if (component.description) item.system.description.value = parseTags(component.description);
@@ -246,7 +246,7 @@ function buildComponents(ddb, configurations, component) {
   if (types.includes("weapon") && component.definition.actions.length > 0) {
     logger.debug("processing weapon", component);
     component.definition.actions.forEach((action) => {
-      const actionItem = getWeaponProperties(action, duplicate(item));
+      const actionItem = getWeaponProperties(action, foundry.utils.duplicate(item));
       logger.debug("action item", actionItem);
       results.push(actionItem);
     });
@@ -283,8 +283,8 @@ export function processComponents(ddb, configurations) {
   const featureItems = ddb.features
     .filter((f) => f.name)
     .map((feature) => {
-      setProperty(feature, "definition.types", [{ type: "feature" }]);
-      setProperty(feature, "definition.name", feature.name);
+      foundry.utils.setProperty(feature, "definition.types", [{ type: "feature" }]);
+      foundry.utils.setProperty(feature, "definition.name", feature.name);
       const builtItems = buildComponents(ddb, configurations, feature);
       return builtItems;
     })

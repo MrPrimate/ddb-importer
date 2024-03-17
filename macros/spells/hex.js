@@ -37,7 +37,7 @@ if (args[0].tag === "OnUse") {
   await caster.createEmbeddedDocuments("ActiveEffect", [effectData]);
 } else if (args[0].tag === "DamageBonus") {
   const targetUuid = args[0].hitTargets[0].uuid;
-  if (targetUuid !== getProperty(args[0].actor.flags, "midi-qol.hex")) return {};
+  if (targetUuid !== foundry.utils.getProperty(args[0].actor.flags, "midi-qol.hex")) return {};
   const diceMult = args[0].isCritical ? 2 : 1;
   return { damageRoll: `${diceMult}d6[necrotic]`, flavor: "Hex Damage" };
 }

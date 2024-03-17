@@ -130,8 +130,8 @@ export default class DDBFeatures {
     if (this.ddbData.classOptions) {
       const options = this.ddbData.classOptions
         .filter((feat) => {
-          if (!requireLevel || !hasProperty(feat, "requiredLevel")) return true;
-          const requiredLevel = getProperty(feat, "requiredLevel");
+          if (!requireLevel || !foundry.utils.hasProperty(feat, "requiredLevel")) return true;
+          const requiredLevel = foundry.utils.getProperty(feat, "requiredLevel");
           const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === feat.classId
             || cls.subclassDefinition?.id === feat.classId);
           if (!klass) {
@@ -205,10 +205,10 @@ export default class DDBFeatures {
 
       if (scaleKlass) {
         const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
-        if (hasProperty(feature, "system.damage.parts") && feature.system.damage.parts.length > 0) {
+        if (foundry.utils.hasProperty(feature, "system.damage.parts") && feature.system.damage.parts.length > 0) {
           feature.system.damage.parts[0][0] = `@scale.${identifier}.${featureName}`;
         } else {
-          setProperty(feature, "system.damage.parts", [[`@scale.${identifier}.${featureName}`]]);
+          foundry.utils.setProperty(feature, "system.damage.parts", [[`@scale.${identifier}.${featureName}`]]);
         }
       }
     });

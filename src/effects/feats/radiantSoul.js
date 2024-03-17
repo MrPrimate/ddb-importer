@@ -59,7 +59,7 @@ export async function radiantSoulEffect(document) {
     );
 
     await DDBMacros.setItemMacroFlag(document, "feat", "radiantSoul.js");
-    setProperty(document, "system.activation.type", "special");
+    foundry.utils.setProperty(document, "system.activation.type", "special");
 
     document.effects.push(effect);
   }

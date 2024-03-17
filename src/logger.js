@@ -27,7 +27,7 @@ const logger = {
 
   },
   _addToLogFile: (logLevel, data) => {
-    if (getProperty(CONFIG.debug, "ddbimporter.record") === true) {
+    if (foundry.utils.getProperty(CONFIG.debug, "ddbimporter.record") === true) {
       CONFIG.debug.ddbimporter.log.push({
         level: logLevel,
         data: data,
@@ -156,7 +156,7 @@ const getCircularReplacer = () => {
 
 function downloadLog() {
   FileHelper.download(JSON.stringify(CONFIG.debug.ddbimporter.log, getCircularReplacer()), `ddbimporter-log-data.json`, "application/json");
-  setProperty(CONFIG.debug, "ddbimporter.log", []);
+  foundry.utils.setProperty(CONFIG.debug, "ddbimporter.log", []);
 }
 
 export function setupLogger() {
@@ -168,5 +168,5 @@ export function setupLogger() {
     download: downloadLog,
   };
 
-  setProperty(CONFIG.debug, "ddbimporter", defaults);
+  foundry.utils.setProperty(CONFIG.debug, "ddbimporter", defaults);
 }

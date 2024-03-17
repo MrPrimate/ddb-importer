@@ -19,13 +19,13 @@ export default class CharacterClassFactory {
       const ddbClass = new DDBClass(this.source, characterClass.definition.id);
       await ddbClass.generateFromCharacter(this.character);
       this.ddbClasses[ddbClass.data.name] = ddbClass;
-      documents.push(deepClone(ddbClass.data));
+      documents.push(foundry.utils.deepClone(ddbClass.data));
 
       if (characterClass.subclassDefinition && characterClass.subclassDefinition.name) {
         const ddbSubClass = new DDBSubClass(this.source, characterClass.definition.id);
         await ddbSubClass.generateFromCharacter(this.character);
         this.ddbClasses[ddbSubClass.data.name] = ddbSubClass;
-        documents.push(deepClone(ddbSubClass.data));
+        documents.push(foundry.utils.deepClone(ddbSubClass.data));
       }
     }
 
@@ -65,8 +65,8 @@ export default class CharacterClassFactory {
       if (characterFeature) {
         logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
         added[characterFeature._id] = uuid;
-        setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
-        setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${klass._id}.${advancement._id}`);
+        foundry.utils.setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
+        foundry.utils.setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${klass._id}.${advancement._id}`);
       }
     }
 
@@ -111,8 +111,8 @@ export default class CharacterClassFactory {
       if (characterFeature) {
         logger.debug(`Ability Score Advancement ${advancement._id} found Feat ${advancementFeatureName} (${uuid})`);
         feats[characterFeature._id] = uuid;
-        setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
-        setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${klass._id}.${advancement._id}`);
+        foundry.utils.setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
+        foundry.utils.setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${klass._id}.${advancement._id}`);
       }
     }
 

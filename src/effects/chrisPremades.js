@@ -73,7 +73,7 @@ function getType(doc, isMonster = false) {
   if (isMonster) return "monsterfeature";
 
   // lets see if we have marked this as a class or race type
-  const systemTypeValue = getProperty(doc, "system.type.value");
+  const systemTypeValue = foundry.utils.getProperty(doc, "system.type.value");
   if (systemTypeValue && systemTypeValue !== "") {
     if (systemTypeValue === "class") return "features";
     if (systemTypeValue === "race") return "traits";
@@ -81,7 +81,7 @@ function getType(doc, isMonster = false) {
   }
 
   // can we derive the type from the ddb importer type flag?
-  const ddbType = getProperty(doc, "flags.ddbimporter.type");
+  const ddbType = foundry.utils.getProperty(doc, "flags.ddbimporter.type");
   if (ddbType && !["", "other"].includes(ddbType)) {
     if (ddbType === "class") return "features";
     if (ddbType === "race") return "traits";
@@ -98,7 +98,7 @@ function getType(doc, isMonster = false) {
 // matchedProperties = { "system.activation.type": "bonus" }
 function matchProperties(document, matchedProperties = {}) {
   for (const [key, value] of Object.entries(matchedProperties)) {
-    if (getProperty(document, key) !== value) {
+    if (foundry.utils.getProperty(document, key) !== value) {
       return false;
     }
   }
@@ -136,7 +136,7 @@ async function getItemFromCompendium(key, name, ignoreNotFound, folderId, matche
 
 export async function applyChrisPremadeEffect({ document, type, folderName = null, chrisNameOverride = null } = {}) {
   if (!game.modules.get("chris-premades")?.active) return document;
-  if (getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true) {
+  if (foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true) {
     logger.info(`${document.name} set to ignore Chris's Premade effect application`);
     return document;
   }
@@ -176,26 +176,26 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
     delete chrisDoc.flags[flagName];
   });
 
-  document.flags = mergeObject(document.flags, chrisDoc.flags);
+  document.flags = foundry.utils.mergeObject(document.flags, chrisDoc.flags);
 
   CP_FIELDS_TO_COPY.forEach((field) => {
-    const values = getProperty(chrisDoc, field);
+    const values = foundry.utils.getProperty(chrisDoc, field);
     if (field === "effects") {
       values.forEach((effect) => {
-        effect._id = randomID();
+        effect._id = foundry.utils.randomID();
       });
     }
-    setProperty(document, field, values);
+    foundry.utils.setProperty(document, field, values);
   });
 
-  setProperty(document, "flags.ddbimporter.effectsApplied", true);
-  setProperty(document, "flags.ddbimporter.chrisEffectsApplied", true);
-  setProperty(document, "flags.ddbimporter.chrisPreEffectName", ddbName);
+  foundry.utils.setProperty(document, "flags.ddbimporter.effectsApplied", true);
+  foundry.utils.setProperty(document, "flags.ddbimporter.chrisEffectsApplied", true);
+  foundry.utils.setProperty(document, "flags.ddbimporter.chrisPreEffectName", ddbName);
 
-  const correctionProperties = getProperty(CONFIG, `chrisPremades.correctedItems.${chrisName}`);
+  const correctionProperties = foundry.utils.getProperty(CONFIG, `chrisPremades.correctedItems.${chrisName}`);
   if (correctionProperties) {
     logger.debug(`Updating ${document.name} with a Chris correction properties`);
-    document = mergeObject(document, correctionProperties);
+    document = foundry.utils.mergeObject(document, correctionProperties);
   }
 
   logger.debug(`Updated ${document.name} with a Chris effect`);
@@ -225,7 +225,7 @@ export async function applyChrisPremadeEffects({ documents, compendiumItem = fal
     logger.debug(`Evaluating ${doc.name} of type ${type} for Chris's Premade application.`, { type, folderName });
 
     doc = await applyChrisPremadeEffect({ document: doc, type, folderName });
-    if (isMonster && !["monsterfeatures", "monsterfeature"].includes(type) && !getProperty(document, "flags.ddbimporter.effectsApplied") === true) {
+    if (isMonster && !["monsterfeatures", "monsterfeature"].includes(type) && !foundry.utils.getProperty(document, "flags.ddbimporter.effectsApplied") === true) {
       logger.debug(`No Chris' Premade found for ${doc.name} with type "${type}", checking for monster feature.`);
       doc = await applyChrisPremadeEffect({ document: doc, type: "monsterfeature", folderName });
     }
@@ -241,7 +241,7 @@ export async function restrictedItemReplacer(actor, folderName = null) {
   logger.debug("Beginning additions and removals of restricted effects.");
 
   const documents = actor.getEmbeddedCollection("Item").toObject();
-  const restrictedItems = getProperty(CONFIG, `chrisPremades.restrictedItems`);
+  const restrictedItems = foundry.utils.getProperty(CONFIG, `chrisPremades.restrictedItems`);
 
   const sortedItems = Object.keys(restrictedItems).map((key) => {
     const data = restrictedItems[key];
@@ -255,7 +255,7 @@ export async function restrictedItemReplacer(actor, folderName = null) {
     logger.debug(`Checking restricted Item ${restrictedItem.key}: ${restrictedItem.originalName}`);
     const doc = documents.find((d) => {
       const ddbName = d.flags.ddbimporter?.chrisPreEffectName ?? getName(d);
-      const retainDoc = getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true;
+      const retainDoc = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true;
       return ddbName === restrictedItem.originalName && !retainDoc;
     });
     if (!doc) continue;
@@ -299,7 +299,7 @@ export async function restrictedItemReplacer(actor, folderName = null) {
     // now replace the matched item with the replaced Item
     if (restrictedItem.replacedItemName && restrictedItem.replacedItemName !== "") {
       logger.debug(`Replacing item data for ${ddbName}, using restricted data from ${restrictedItem.key}`);
-      let document = duplicate(doc);
+      let document = foundry.utils.duplicate(doc);
       const type = getType(document);
       document = await applyChrisPremadeEffect({ document, type, folderName, chrisNameOverride: restrictedItem.replacedItemName });
       await actor.deleteEmbeddedDocuments("Item", [doc._id]);
@@ -335,7 +335,7 @@ export async function restrictedItemReplacer(actor, folderName = null) {
               compendiumName,
             });
           } else if (!documents.some((d) => d.name === chrisDoc.name)) {
-            setProperty(chrisDoc, "flags.ddbimporter.ignoreItemUpdate", true);
+            foundry.utils.setProperty(chrisDoc, "flags.ddbimporter.ignoreItemUpdate", true);
             toAdd.push(chrisDoc);
           }
         }
@@ -380,7 +380,7 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
 
     const ddbName = getName(doc);
     const chrisName = CONFIG.chrisPremades?.renamedItems[ddbName] ?? ddbName;
-    const newItemNames = getProperty(CONFIG, `chrisPremades.additionalItems.${chrisName}`);
+    const newItemNames = foundry.utils.getProperty(CONFIG, `chrisPremades.additionalItems.${chrisName}`);
 
     if (newItemNames) {
       logger.debug(`Adding new items for ${chrisName}`);
@@ -402,13 +402,13 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
             compendiumName,
           });
         } else if (!documents.some((d) => d.name === chrisDoc.name)) {
-          setProperty(chrisDoc, "flags.ddbimporter.ignoreItemUpdate", true);
+          foundry.utils.setProperty(chrisDoc, "flags.ddbimporter.ignoreItemUpdate", true);
           toAdd.push(chrisDoc);
         }
       }
     }
 
-    const itemsToRemoveNames = getProperty(CONFIG, `chrisPremades.removedItems.${chrisName}`);
+    const itemsToRemoveNames = foundry.utils.getProperty(CONFIG, `chrisPremades.removedItems.${chrisName}`);
     if (itemsToRemoveNames) {
       logger.debug(`Removing items for ${chrisName}`);
       for (const removeItemName of itemsToRemoveNames) {
@@ -440,8 +440,8 @@ export async function addChrisEffectsToActorDocuments(actor) {
   const folderName = isMonster ? actor.name : null;
   const data = (await applyChrisPremadeEffects({ documents, compendiumItem: false, force: true, folderName, isMonster }))
     .filter((d) =>
-      getProperty(d, "flags.ddbimporter.chrisEffectsApplied") === true
-      && !hasProperty(d, "flags.items-with-spells-5e.item-spells.parent-item")
+      foundry.utils.getProperty(d, "flags.ddbimporter.chrisEffectsApplied") === true
+      && !foundry.utils.hasProperty(d, "flags.items-with-spells-5e.item-spells.parent-item")
     );
   const dataIds = data.map((d) => d._id);
   logger.debug("Chris premades generation complete, beginning replace", {

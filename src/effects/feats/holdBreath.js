@@ -7,7 +7,7 @@ export function holdBreathEffect(document) {
   document.system.range = { value: null, units: "self", long: null };
   document.effects.push(effect);
 
-  setProperty(document, "flags.midiProperties.toggleEffect", true);
+  foundry.utils.setProperty(document, "flags.midiProperties.toggleEffect", true);
   document.system.activation = {
     "type": "special",
     "cost": 1,

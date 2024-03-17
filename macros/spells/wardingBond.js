@@ -11,7 +11,7 @@ async function setWardingBondHook() {
     if (flag.targetID !== actor.id) return;
     if (!("actorData.system.attributes.hp" in update)) return;
     const oldHP = actor.system.attributes.hp.value;
-    const newHP = getProperty(update, "system.attributes.hp.value");
+    const newHP = foundry.utils.getProperty(update, "system.attributes.hp.value");
     const hpChange = oldHP - newHP;
     if (Number.isInteger(hpChange) && hpChange > 0) {
       const caster = game.actors.get(flag.casterID).getActiveTokens()[0];

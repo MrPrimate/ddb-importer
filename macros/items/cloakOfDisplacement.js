@@ -16,8 +16,8 @@ if (args[0] === "each") {
     label: `Cloak of Displacement - Enforced Disadvantage`,
     name: `Cloak of Displacement - Enforced Disadvantage`,
   };
-  setProperty(effectData, "flags.dae.specialDuration", ["isDamaged", "turnStartSource"]);
-  setProperty(effectData, "flags.dae.showIcon", true);
+  foundry.utils.setProperty(effectData, "flags.dae.specialDuration", ["isDamaged", "turnStartSource"]);
+  foundry.utils.setProperty(effectData, "flags.dae.showIcon", true);
   await lastArg.actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
 
 }

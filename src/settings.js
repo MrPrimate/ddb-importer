@@ -1331,7 +1331,7 @@ const SETTINGS = {
   },
   APPLY_GLOBAL_DEFAULTS(settings) {
     for (const [name, data] of Object.entries(settings)) {
-      settings[name] = mergeObject({ scope: "world", config: false }, data);
+      settings[name] = foundry.utils.mergeObject({ scope: "world", config: false }, data);
     }
     return settings;
   },

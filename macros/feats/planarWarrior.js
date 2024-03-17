@@ -73,7 +73,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
 
     origin: macroData.itemUuid, //flag the effect as associated to the item used
     disabled: false,
-    duration: duplicate(macroData.item.effects[0].duration),
+    duration: foundry.utils.duplicate(macroData.item.effects[0].duration),
     icon: macroData.item.img,
     label: macroData.item.name,
     name: macroData.item.name,
@@ -82,20 +82,20 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
 } else if (args[0].tag === "OnUse" && args[0].macroPass === "preDamageRoll") {
   // Validates if target is valid for the attack and replaces damage type if thats the case
   let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
-  if (!getProperty(workflow.actor.flags, "midi-qol.planarWarrior.targetUuid")) {
+  if (!foundry.utils.getProperty(workflow.actor.flags, "midi-qol.planarWarrior.targetUuid")) {
     // There was a problem, the hook was set but the never called while the item was active
     return;
   }
   // Make sure the temp property is set to false, we keep this in workflow variable otherwise
   // if set on actor it would be removed on an actor update
-  setProperty(workflow, "planarWarrior.validTarget", false);
+  foundry.utils.setProperty(workflow, "planarWarrior.validTarget", false);
 
   if (!isValidTarget(workflow)) {
     return;
   }
 
   // Set property for ItemMacro.DamageBonus macroPass
-  setProperty(workflow, "planarWarrior.validTarget", true);
+  foundry.utils.setProperty(workflow, "planarWarrior.validTarget", true);
 
   // Set default damage type
   workflow.defaultDamageType = newDamageType;
@@ -106,13 +106,13 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
   // Adds bonus damage if target is valid
   const macroData = args[0];
   let workflow = MidiQOL.Workflow.getWorkflow(macroData.uuid);
-  if (!getProperty(workflow, "planarWarrior.validTarget")) {
+  if (!foundry.utils.getProperty(workflow, "planarWarrior.validTarget")) {
     // Skip, maybe next attack could be valid for this item
     return {};
   }
 
   // Reset to false to make sure it is not called again without validation first
-  setProperty(workflow, "planarWarrior.validTarget", false);
+  foundry.utils.setProperty(workflow, "planarWarrior.validTarget", false);
 
   const sourceItemUuid = macroData.sourceItemUuid;
 
@@ -157,7 +157,7 @@ function isValidTarget(workflow) {
 
   const targetUuid = workflow.hitTargets.first().document.uuid;
   // only on the marked target
-  if (targetUuid !== getProperty(workflow.actor.flags, "midi-qol.planarWarrior.targetUuid")) {
+  if (targetUuid !== foundry.utils.getProperty(workflow.actor.flags, "midi-qol.planarWarrior.targetUuid")) {
     return false;
   }
   return true;
@@ -176,14 +176,14 @@ function replaceItemDamage(workflow) {
   // Change temporarely the damage type of the item, but make a temporary copy before applying changes
   // and keep the original values in a flag
   const item = workflow.item;
-  if (item.system.damage?.parts?.length > 0 && !getProperty(workflow, "planarWarrior.origDmg")) {
+  if (item.system.damage?.parts?.length > 0 && !foundry.utils.getProperty(workflow, "planarWarrior.origDmg")) {
     const origDmg = item.system.damage;
 
-    let newDmg = duplicate(origDmg);
-    let newOtherFormula = duplicate(item.system.formula ?? "");
+    let newDmg = foundry.utils.duplicate(origDmg);
+    let newOtherFormula = foundry.utils.duplicate(item.system.formula ?? "");
 
     for (let i = 0; i < newDmg.parts.length; i++) {
-      newDmg.parts[i] = duplicate(origDmg.parts[i]);
+      newDmg.parts[i] = foundry.utils.duplicate(origDmg.parts[i]);
       // Change damage type in formula if present
       newDmg.parts[i][0] = getUpdatedFormula(newDmg.parts[i][0]);
       // Change damage type
@@ -194,8 +194,8 @@ function replaceItemDamage(workflow) {
     newOtherFormula = getUpdatedFormula(newOtherFormula);
 
     // Set in memory and recompute item derived data
-    setProperty(workflow, "planarWarrior.origDmg", origDmg);
-    setProperty(workflow, "planarWarrior.origOtherFormula", item.system.formula);
+    foundry.utils.setProperty(workflow, "planarWarrior.origDmg", origDmg);
+    foundry.utils.setProperty(workflow, "planarWarrior.origOtherFormula", item.system.formula);
     item.system.damage = newDmg;
     item.system.formula = newOtherFormula;
     item.prepareDerivedData();
@@ -211,18 +211,18 @@ function replaceItemDamage(workflow) {
  */
 function revertItemDamage(workflow) {
   // Revert item to original damage
-  const origDmg = getProperty(workflow, "planarWarrior.origDmg");
+  const origDmg = foundry.utils.getProperty(workflow, "planarWarrior.origDmg");
   if (!origDmg) {
     return;
   }
-  const origOtherFormula = getProperty(workflow, "planarWarrior.origOtherFormula");
+  const origOtherFormula = foundry.utils.getProperty(workflow, "planarWarrior.origOtherFormula");
 
   // Set in memory and recompute item derived data
   workflow.item.system.damage = origDmg;
   workflow.item.system.formula = origOtherFormula;
   workflow.item.prepareDerivedData();
-  setProperty(workflow, "planarWarrior.origDmg", null);
-  setProperty(workflow, "planarWarrior.origOtherFormula", null);
+  foundry.utils.setProperty(workflow, "planarWarrior.origDmg", null);
+  foundry.utils.setProperty(workflow, "planarWarrior.origOtherFormula", null);
   console.log(`${sourceItemName}: ${workflow.item.name} damage reverted to`, origDmg, origOtherFormula);
 
 }

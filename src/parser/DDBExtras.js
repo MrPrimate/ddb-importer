@@ -321,8 +321,8 @@ function addAverageHitPoints(ddbCharacterData, actor, creature, mock) {
     const artificer = ddbCharacterData.classes.find((klass) => klass.definition.name === "Artificer");
     if (artificer) {
       mock.averageHitPoints = parseInt(artificer.level);
-      setProperty(mock, "hitPointDice.diceCount", artificer.level);
-      setProperty(mock, "hitPointDice.diceString", `${artificer.level}d${mock.hitPointDice.diceValue}`);
+      foundry.utils.setProperty(mock, "hitPointDice.diceCount", artificer.level);
+      foundry.utils.setProperty(mock, "hitPointDice.diceString", `${artificer.level}d${mock.hitPointDice.diceValue}`);
     }
   }
 
@@ -383,7 +383,7 @@ function addCreatureFlags(creature, mock) {
 function transformExtraToMonsterData(ddbCharacter, actor, creature) {
   let ddbCharacterData = ddbCharacter.source.ddb.character;
   logger.debug("Extra data", creature);
-  let mock = duplicate(creature.definition);
+  let mock = foundry.utils.duplicate(creature.definition);
   mock.id = creature.id;
   mock.entityTypeId = creature.entityTypeId;
   mock = addCreatureFlags(creature, mock);
@@ -542,13 +542,13 @@ export async function generateCharacterExtras(html, ddbCharacter, actor) {
         return creature;
       });
 
-    logger.debug("Extracted creatures", duplicate(extractedCreatures));
+    logger.debug("Extracted creatures", foundry.utils.duplicate(extractedCreatures));
     const monsterFactory = new DDBMonsterFactory({ ddbData: extractedCreatures, extra: true });
     const parsedExtras = await monsterFactory.parse();
-    logger.debug("Parsed Extras:", duplicate(parsedExtras.actors));
+    logger.debug("Parsed Extras:", foundry.utils.duplicate(parsedExtras.actors));
 
     const enhancedExtras = parsedExtras.actors.map((extra) => enhanceParsedExtra(actor, extra));
-    logger.debug("Enhanced Parsed Extras:", duplicate(enhancedExtras));
+    logger.debug("Enhanced Parsed Extras:", foundry.utils.duplicate(enhancedExtras));
 
     const ddbCompanionFactory = new DDBCompanionFactory(ddbCharacter, "", { actor, data: enhancedExtras });
     await ddbCompanionFactory.updateOrCreateCompanions({ folderOverride: folder });

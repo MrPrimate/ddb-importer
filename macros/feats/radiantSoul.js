@@ -22,7 +22,7 @@ const dialog = new Promise((resolve, reject) => {
             ui.notifications.error(`You did not target anything for Radiant Soul Extra Damage!`);
           } else {
             const chatMessage = game.messages.get(args[0].itemCardId);
-            var content = duplicate(chatMessage.content);
+            var content = foundry.utils.duplicate(chatMessage.content);
             const searchString = '<div class="midi-qol-hits-display">';
             const replaceString = `<div class="midi-qol-hits-display">${extraDamage} [${damageType}] from Radiant Soul to<div class="midi-qol-target-npc-player midi-qol-target-name" id="${
               game.user.targets.first().document.id

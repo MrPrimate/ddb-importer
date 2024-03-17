@@ -95,7 +95,7 @@ export default class DDBFeature extends DDBBaseFeature {
       componentTypeId: this.ddbDefinition.componentTypeId,
     };
 
-    const unarmedStrikeMock = deepClone(CONFIG.DDB.naturalActions[0]);
+    const unarmedStrikeMock = foundry.utils.deepClone(CONFIG.DDB.naturalActions[0]);
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, override);
 
@@ -200,7 +200,7 @@ export default class DDBFeature extends DDBBaseFeature {
   }
 
   async buildBackgroundFeatAdvancements(extraFeatIds = []) {
-    const characterFeatIds = getProperty(this.ddbData, "character.background.definition.featList.featIds") ?? [];
+    const characterFeatIds = foundry.utils.getProperty(this.ddbData, "character.background.definition.featList.featIds") ?? [];
     const featIds = extraFeatIds.concat(characterFeatIds);
     if (featIds.length === 0) return;
 
@@ -214,7 +214,7 @@ export default class DDBFeature extends DDBBaseFeature {
     const compendium = CompendiumHelper.getCompendiumType("feats");
     await compendium.getIndex(indexFilter);
 
-    const feats = compendium.index.filter((f) => featIds.includes(getProperty(f, "flags.ddbimporter.featId")));
+    const feats = compendium.index.filter((f) => featIds.includes(foundry.utils.getProperty(f, "flags.ddbimporter.featId")));
 
     advancement.updateSource({
       configuration: {
@@ -224,7 +224,7 @@ export default class DDBFeature extends DDBBaseFeature {
     });
     this.data.system.advancement.push(advancement.toObject());
 
-    const advancementLinkData = getProperty(this.data, "flags.ddbimporter.advancementLink") ?? [];
+    const advancementLinkData = foundry.utils.getProperty(this.data, "flags.ddbimporter.advancementLink") ?? [];
     const advancementData = {
       _id: advancement._id,
       features: {}
@@ -234,7 +234,7 @@ export default class DDBFeature extends DDBBaseFeature {
       advancementData.features[f.name] = f.uuid;
     });
     advancementLinkData.push(advancementData);
-    setProperty(this.data, "flags.ddbimporter.advancementLink", advancementLinkData);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.advancementLink", advancementLinkData);
   }
 
   _buildBackground() {

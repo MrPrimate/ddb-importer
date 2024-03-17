@@ -17,9 +17,9 @@ export async function thunderousSmiteEffect(document) {
       priority: "20",
     },
   );
-  setProperty(effect, "flags.dae.specialDuration", ["1Hit:mwak"]);
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["1Hit:mwak"]);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
 
 
   document.system.damage.parts = [];

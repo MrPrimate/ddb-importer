@@ -43,7 +43,7 @@ DDBCharacter.prototype.getArmorProficiencies = function getArmorProficiencies(pr
   const custom = [];
 
   // lookup the characters's proficiencies in the DICT
-  const allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Armor" && hasProperty(prof, "foundryValue"));
+  const allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Armor" && foundry.utils.hasProperty(prof, "foundryValue"));
 
   const processArmorProficiency = (prof) => {
     if (prof.name === "Light Armor") values.add("lgt");

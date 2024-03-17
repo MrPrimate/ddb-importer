@@ -2,9 +2,9 @@ import { addStatusEffectChange } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function horrifyingVisageEffect(document) {
-  setProperty(document, "system.duration", { value: 1, units: "minute" });
-  setProperty(document, "system.target", { value: 60, width: null, units: "ft", type: "enemy" });
-  setProperty(document, "system.range", { value: 60, long: null, units: "spec" });
+  foundry.utils.setProperty(document, "system.duration", { value: 1, units: "minute" });
+  foundry.utils.setProperty(document, "system.target", { value: 60, width: null, units: "ft", type: "enemy" });
+  foundry.utils.setProperty(document, "system.range", { value: 60, long: null, units: "spec" });
 
   let effect = baseFeatEffect(document, document.name);
   effect.changes.push(

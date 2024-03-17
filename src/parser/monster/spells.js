@@ -416,7 +416,7 @@ DDBMonster.prototype._addSpellHints = function() {
         { name: "Color Spray", type: "day", edge: "Orange", value: 1, edgeDescription: "Available to Orange, Yellow" },
         { name: "Mirror Image", type: "day", edge: "Yellow", value: 1, edgeDescription: "Available to Yellow" },
       ];
-      this.spellList.edgeCases = deepClone(this.spellList.innate).map((s) => {
+      this.spellList.edgeCases = foundry.utils.deepClone(this.spellList.innate).map((s) => {
         s.type = "innate";
         return s;
       });
@@ -437,7 +437,7 @@ DDBMonster.prototype._addSpellHints = function() {
         { name: "Hallucinatory Terrain", type: "day", edge: "Indigo", value: 1, edgeDescription: "Available to Indigo and Violet" },
         { name: "Polymorph", type: "day", edge: "Violet", value: 1, edgeDescription: "Available to Indigo" },
       ];
-      this.spellList.edgeCases = deepClone(this.spellList.innate).map((s) => {
+      this.spellList.edgeCases = foundry.utils.deepClone(this.spellList.innate).map((s) => {
         s.type = "innate";
         return s;
       });
@@ -557,7 +557,7 @@ DDBMonster.prototype.addSpells = async function() {
       .map((spell) => {
         const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
         if (spellInfo) {
-          const isAtWill = hasProperty(spellInfo, "innate") && !spellInfo.innate;
+          const isAtWill = foundry.utils.hasProperty(spellInfo, "innate") && !spellInfo.innate;
           if (spell.system.level == 0) {
             spell.system.preparation = {
               mode: "prepared",

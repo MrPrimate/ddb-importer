@@ -11,8 +11,8 @@ export function hadozeDodgeEffect(document) {
     priority: 20,
   });
   effect.flags.dae.specialDuration = ["1Reaction"];
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(document, "system.activation.type", "reactiondamage");
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(document, "system.activation.type", "reactiondamage");
 
   document.system["target"]["type"] = "self";
   document.system.range = { value: null, units: "self", long: null };

@@ -50,7 +50,7 @@ for (let target of targets) {
 await DDBImporter?.EffectHelper.wait(500);
 const sleptResults = `<div><div class="midi-qol-nobox">${sleepTarget.join('')}</div></div>`;
 const chatMessage = game.messages.get(args[0].itemCardId);
-let content = duplicate(chatMessage.content);
+let content = foundry.utils.duplicate(chatMessage.content);
 const searchString = /<div class="midi-qol-hits-display">[\s\S]*<div class="end-midi-qol-hits-display">/g;
 const replaceString = `<div class="midi-qol-hits-display"><div class="end-midi-qol-hits-display">${sleptResults}`;
 content = await content.replace(searchString, replaceString);

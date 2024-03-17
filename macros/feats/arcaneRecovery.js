@@ -7,7 +7,7 @@ const tActor = await fromUuid(lastArg.actorUuid);
 const feature = await fromUuid(lastArg.origin);
 
 const levels = tActor.getRollData().classes.wizard.levels;
-const spellConfig = duplicate(tActor.system.spells);
+const spellConfig = foundry.utils.duplicate(tActor.system.spells);
 const spellLevels = [];
 
 const arcaneGrimoire = tActor.items.some((i) => i.name.startsWith("Arcane Grimoire") && i.system?.equipped && i.system?.attunement === 2);

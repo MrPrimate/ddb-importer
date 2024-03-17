@@ -25,9 +25,9 @@ function addSlugField(element, slug, document) {
 }
 
 function setSlugProperties(doc, slug, label) {
-  setProperty(doc, "flags.anchor.slug", slug);
-  setProperty(doc, "flags.ddb.slugLink", slug);
-  setProperty(doc, "flags.ddb.labelName", label);
+  foundry.utils.setProperty(doc, "flags.anchor.slug", slug);
+  foundry.utils.setProperty(doc, "flags.ddb.slugLink", slug);
+  foundry.utils.setProperty(doc, "flags.ddb.labelName", label);
   return doc;
 }
 
@@ -95,7 +95,7 @@ export function anchorInjection() {
   // handle new notes, we just inject the slug properties into the source from the sheet data
   Hooks.on("preCreateNote", (note, data) => {
     if (data.slug) {
-      const flagData = setSlugProperties(deepClone(note), data.slug, data.text);
+      const flagData = setSlugProperties(foundry.utils.deepClone(note), data.slug, data.text);
       note.updateSource({ flags: flagData.flags });
     };
   });

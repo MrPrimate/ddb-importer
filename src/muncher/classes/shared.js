@@ -73,7 +73,7 @@ export const FEATURE_DUP = [
 ];
 
 async function buildBase(data) {
-  let result = duplicate(CLASS_TEMPLATE);
+  let result = foundry.utils.duplicate(CLASS_TEMPLATE);
   const updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
   result.name = data.name;
@@ -104,11 +104,11 @@ export async function generateFeatureAdvancements(klass, compendiumClassFeatures
     .filter((feature) => !ignoreIds.includes(feature.id))
     .forEach((feature) => {
       const featureMatch = compendiumClassFeatures.find((match) => {
-        const matchName = hasProperty(match, "flags.ddbimporter.featureName")
-          ? getProperty(match, "flags.ddbimporter.featureName").trim().toLowerCase()
+        const matchName = foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
+          ? foundry.utils.getProperty(match, "flags.ddbimporter.featureName").trim().toLowerCase()
           : match.name.trim().toLowerCase();
         return feature.name.trim().toLowerCase() == matchName
-          && hasProperty(match, "flags.ddbimporter")
+          && foundry.utils.hasProperty(match, "flags.ddbimporter")
           && (match.flags.ddbimporter.class == klass.name
             || match.flags.ddbimporter.parentClassId == klass.id
             || match.flags.ddbimporter.classId == klass.id);
@@ -155,11 +155,11 @@ export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreI
     // sort by level?
     if (!classFeaturesAdded && !ignoreIds.includes(feature.id)) {
       const featureMatch = compendiumClassFeatures.find((match) => {
-        const matchName = hasProperty(match, "flags.ddbimporter.featureName")
-          ? getProperty(match, "flags.ddbimporter.featureName").trim().toLowerCase()
+        const matchName = foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
+          ? foundry.utils.getProperty(match, "flags.ddbimporter.featureName").trim().toLowerCase()
           : match.name.trim().toLowerCase();
         return feature.name.trim().toLowerCase() == matchName
-          && hasProperty(match, "flags.ddbimporter")
+          && foundry.utils.hasProperty(match, "flags.ddbimporter")
           && (match.flags.ddbimporter.class == klass.name
             || match.flags.ddbimporter.parentClassId == klass.id
             || match.flags.ddbimporter.classId == klass.id);
@@ -251,9 +251,9 @@ export async function getClassImages(klass, result) {
       ? `<img class="ddb-class-image" src="${avatarUrl}">\n\n`
       : `<img class="ddb-class-image" src="${largeAvatarUrl}">\n\n`;
 
-    setProperty(result, "flags.ddbimporter.image", image);
+    foundry.utils.setProperty(result, "flags.ddbimporter.image", image);
   } else {
-    setProperty(result, "flags.ddbimporter.image", "");
+    foundry.utils.setProperty(result, "flags.ddbimporter.image", "");
   }
 
 }
@@ -268,7 +268,7 @@ export async function buildBaseClass(klass) {
 
   await getClassImages(klass, result);
   // eslint-disable-next-line require-atomic-updates
-  result.system.description.value += getProperty(result, "flags.ddbimporter.image");
+  result.system.description.value += foundry.utils.getProperty(result, "flags.ddbimporter.image");
 
   result.flags.ddbimporter['parentClassId'] = klass.parentClassId;
   result.flags.ddbimporter['class'] = klass.name;

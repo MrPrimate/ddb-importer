@@ -147,7 +147,7 @@ if (args[0] === "on") {
         callback: async () => {
           const itemId = $("input[type='radio'][name='weapon']:checked").val();
           const weaponItem = targetActor.items.get(itemId);
-          let copyItem = duplicate(weaponItem);
+          let copyItem = foundry.utils.duplicate(weaponItem);
           const spellLevel = Math.floor(args[1] / 2);
           const bonus = valueLimit(spellLevel, 1, 3);
           const wpDamage = copyItem.system.damage.parts[0][0];
@@ -182,7 +182,7 @@ if (args[0] === "on") {
 if (args[0] === "off") {
   const { name, attackBonus, weapon, damage, mgc } = DAE.getFlag(targetActor, "magicWeapon");
   const weaponItem = targetActor.items.get(weapon);
-  let copyItem = duplicate(weaponItem);
+  let copyItem = foundry.utils.duplicate(weaponItem);
   copyItem.name = name;
   copyItem.system.attackBonus = attackBonus;
   copyItem.system.damage = damage;

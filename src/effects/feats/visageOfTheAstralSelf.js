@@ -37,8 +37,8 @@ export function visageOfTheAstralSelfEffect(document) {
     startRound: null,
     startTurn: null,
   };
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
 
   document.effects.push(effect);
 

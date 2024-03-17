@@ -77,7 +77,7 @@ export default class DDBMonsterFeatureFactory {
   }
 
   getFeatures(type) {
-    return this.features[type].map((feature) => deepClone(feature.feature));
+    return this.features[type].map((feature) => foundry.utils.deepClone(feature.feature));
   }
 
   get actions() {
@@ -226,7 +226,7 @@ export default class DDBMonsterFeatureFactory {
       if (node.outerHTML) {
         let outerHTML = `${node.outerHTML}`;
         if (switchAction && startFlag) {
-          const replaceName = getProperty(action, "fullName") ?? nodeName;
+          const replaceName = foundry.utils.getProperty(action, "fullName") ?? nodeName;
           outerHTML = outerHTML.replace(replaceName, "");
           const titleDom = utils.htmlToDocumentFragment(outerHTML);
           if (titleDom.textContent.startsWith(".")) outerHTML = outerHTML.replace(".", "");
@@ -326,7 +326,7 @@ export default class DDBMonsterFeatureFactory {
 
       if (actionMatch) {
         const dupFeature = new DDBMonsterFeature(name, { ddbMonster: this.ddbMonster, html: actionMatch.html, type, actionCopy: true });
-        dupFeature.feature = duplicate(actionMatch.feature);
+        dupFeature.feature = foundry.utils.duplicate(actionMatch.feature);
         dupFeature.feature.name = action.name; // fix up name to make sure things like Attack are included
         this.features[type].push(dupFeature);
         action.options.actionCopy = true;

@@ -21,7 +21,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const safeName = lastArg.itemData.name.replace(/\s|'|\.|’/g, "_");
   const dataTracker = {
     origin: lastArg.itemUuid,
-    randomId: randomID(),
+    randomId: foundry.utils.randomID(),
     targetUuids: lastArg.targetUuids,
     startRound: game.combat.round,
     startTurn: game.combat.turn,
@@ -42,15 +42,15 @@ async function applySpikeGrowthDamage() {
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
   const damageRoll = await new CONFIG.Dice.DamageRoll(`2d4[piercing]`).evaluate({ async: true });
   await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
-  const workflowItemData = duplicate(item);
+  const workflowItemData = foundry.utils.duplicate(item);
   workflowItemData.system.properties = DDBImporter?.EffectHelper.removeFromProperties(workflowItemData.system.properties, "concentration") ?? [];
   workflowItemData.system.duration = { value: null, units: "inst" };
   workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
 
-  setProperty(workflowItemData, "flags.itemacro", {});
-  setProperty(workflowItemData, "flags.midi-qol", {});
-  setProperty(workflowItemData, "flags.dae", {});
-  setProperty(workflowItemData, "effects", []);
+  foundry.utils.setProperty(workflowItemData, "flags.itemacro", {});
+  foundry.utils.setProperty(workflowItemData, "flags.midi-qol", {});
+  foundry.utils.setProperty(workflowItemData, "flags.dae", {});
+  foundry.utils.setProperty(workflowItemData, "effects", []);
   delete workflowItemData._id;
   workflowItemData.name = `${workflowItemData.name}: Movement Damage`;
 
@@ -95,7 +95,7 @@ if (args[0] === "on") {
     };
 
   const testString = getDamageTestString(target, targetTokenTracker);
-  const existingTestString = hasProperty(targetTokenTracker, "testString");
+  const existingTestString = foundry.utils.hasProperty(targetTokenTracker, "testString");
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
 
   if (castTurn && originalTarget && targetTokenTracker.firstRound) {

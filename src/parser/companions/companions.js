@@ -15,8 +15,8 @@ DDBCharacter.prototype.addCompanionsToDocuments = async function() {
         };
       });
     if (factory.originDocument) {
-      setProperty(factory.originDocument, "flags.arbron-summoner.summons", summons);
-      setProperty(factory.originDocument, "system.actionType", "summon");
+      foundry.utils.setProperty(factory.originDocument, "flags.arbron-summoner.summons", summons);
+      foundry.utils.setProperty(factory.originDocument, "system.actionType", "summon");
     }
   }
 };

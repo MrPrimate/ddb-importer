@@ -24,25 +24,25 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 
     if (existingItem) {
       if (existingItem.flags.ddbimporter?.ignoreItemImport) {
-        returnItems.push(duplicate(existingItem));
+        returnItems.push(foundry.utils.duplicate(existingItem));
       } else {
         item["_id"] = existingItem.id;
-        if (getProperty(existingItem, "flags.ddbimporter.ignoreIcon") === true) {
+        if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.ignoreIcon") === true) {
           item.img = existingItem.img;
-          setProperty(item, "flags.ddbimporter.ignoreIcon", true);
+          foundry.utils.setProperty(item, "flags.ddbimporter.ignoreIcon", true);
         }
-        if (getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")) {
+        if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")) {
           item.system.consume = existingItem.system.consume;
-          setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
-          if (hasProperty(existingItem, "flags.link-item-resource-5e")) {
-            setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
+          foundry.utils.setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
+          if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e")) {
+            foundry.utils.setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
           }
         }
 
         if (!item.effects
           || (item.effects && item.effects.length == 0 && existingItem.effects && existingItem.effects.length > 0)
         ) {
-          item.effects = duplicate(existingItem.getEmbeddedCollection("ActiveEffect"));
+          item.effects = foundry.utils.duplicate(existingItem.getEmbeddedCollection("ActiveEffect"));
         }
 
         returnItems.push(item);
@@ -60,31 +60,31 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 async function addNPCToCompendium(npc, type = "monster") {
   const itemImporter = new DDBItemImporter(type, []);
   if (itemImporter.compendium) {
-    const npcBasic = (await itemImporter.addCompendiumFolderIds([duplicate(npc)]))[0];
+    const npcBasic = (await itemImporter.addCompendiumFolderIds([foundry.utils.duplicate(npc)]))[0];
 
     let compendiumNPC;
-    if (hasProperty(npc, "_id") && itemImporter.compendium.index.has(npc._id)) {
+    if (foundry.utils.hasProperty(npc, "_id") && itemImporter.compendium.index.has(npc._id)) {
       if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
         const existingNPC = await itemImporter.compendium.getDocument(npc._id);
 
-        if (hasProperty(existingNPC, "prototypeToken.flags.tagger.tags")) {
+        if (foundry.utils.hasProperty(existingNPC, "prototypeToken.flags.tagger.tags")) {
           const newTags = [...new Set(npcBasic.prototypeToken.flags.tagger.tags, existingNPC.prototypeToken.flags.tagger.tags)];
-          setProperty(existingNPC, "prototypeToken.flags.tagger.tags", newTags);
+          foundry.utils.setProperty(existingNPC, "prototypeToken.flags.tagger.tags", newTags);
         }
 
-        const existing3dModel = getProperty(existingNPC.prototypeToken, "flags.levels-3d-preview.model3d");
+        const existing3dModel = foundry.utils.getProperty(existingNPC.prototypeToken, "flags.levels-3d-preview.model3d");
         if (existing3dModel && existing3dModel.trim() !== "") {
-          setProperty(npcBasic.prototypeToken, "flags.levels-3d-preview.model3d", existing3dModel);
+          foundry.utils.setProperty(npcBasic.prototypeToken, "flags.levels-3d-preview.model3d", existing3dModel);
         }
 
         const monsterTaggedItems = npcBasic.items.map((item) => {
-          setProperty(item, "flags.ddbimporter.parentId", npc._id);
+          foundry.utils.setProperty(item, "flags.ddbimporter.parentId", npc._id);
           return item;
         });
         const existingItems = existingNPC.getEmbeddedCollection("Item");
         npcBasic.items = await existingItemRetentionCheck(existingItems, monsterTaggedItems, false);
 
-        logger.debug("NPC Update Data", duplicate(npcBasic));
+        logger.debug("NPC Update Data", foundry.utils.duplicate(npcBasic));
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
         await existingNPC.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
         // compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.collection, recursive: false, render: false, keepId: true });
@@ -102,7 +102,7 @@ async function addNPCToCompendium(npc, type = "monster") {
         pack: itemImporter.compendium.collection,
         keepId: true,
       };
-      logger.debug("NPC New Data", duplicate(npcBasic));
+      logger.debug("NPC New Data", foundry.utils.duplicate(npcBasic));
       compendiumNPC = await Actor.create(npcBasic, options);
     }
 
@@ -129,14 +129,14 @@ async function addNPCToCompendium(npc, type = "monster") {
 //     };
 
 //     if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
-//       const updateNPCs = npcs.filter((npc) => hasProperty(npc, "_id") && compendium.index.has(npc._id));
-//       logger.debug("NPCs Update Data", duplicate(updateNPCs));
+//       const updateNPCs = npcs.filter((npc) => foundry.utils.hasProperty(npc, "_id") && compendium.index.has(npc._id));
+//       logger.debug("NPCs Update Data", foundry.utils.duplicate(updateNPCs));
 //       const updateResults = await Actor.updateDocuments(updateNPCs, options);
 //       results = results.concat(updateResults);
 //     }
 
-//     const newNPCs = npcs.filter((npc) => !hasProperty(npc, "_id") || !compendium.index.has(npc._id));
-//     logger.debug("NPC New Data", duplicate(newNPCs));
+//     const newNPCs = npcs.filter((npc) => !foundry.utils.hasProperty(npc, "_id") || !compendium.index.has(npc._id));
+//     logger.debug("NPC New Data", foundry.utils.duplicate(newNPCs));
 //     const createResults = await Actor.createDocuments(newNPCs, options);
 //     results = results.concat(createResults);
 //   } else {
@@ -146,7 +146,7 @@ async function addNPCToCompendium(npc, type = "monster") {
 // }
 
 export async function addNPCDDBId(npc, type = "monster") {
-  let npcBasic = duplicate(npc);
+  let npcBasic = foundry.utils.duplicate(npc);
   const compendium = CompendiumHelper.getCompendiumType(type, false);
   if (compendium) {
     // unlock the compendium for update/create
@@ -155,7 +155,7 @@ export async function addNPCDDBId(npc, type = "monster") {
 
     const index = await compendium.getIndex({ fields: monsterIndexFields });
     const npcMatch = index.contents.find((entity) =>
-      !hasProperty(entity, "flags.ddbimporter.id")
+      !foundry.utils.hasProperty(entity, "flags.ddbimporter.id")
       && entity.name.toLowerCase() === npcBasic.name.toLowerCase()
     );
 
@@ -166,7 +166,7 @@ export async function addNPCDDBId(npc, type = "monster") {
           _id: npcMatch._id,
           "flags.ddbimporter.id": npcBasic.flags.ddbimporter.id,
         };
-        logger.debug("NPCId Update Data", duplicate(updateDDBData));
+        logger.debug("NPCId Update Data", foundry.utils.duplicate(updateDDBData));
         await existingNPC.update(updateDDBData);
       }
     }
@@ -181,7 +181,7 @@ export async function getNPCImage(npcData, { type = "monster", forceUpdate = fal
   forceUseTokenAvatar = false, disableAutoTokenizeOverride = false } = {}
 ) {
   // check to see if we have munched flags to work on
-  if (!hasProperty(npcData, "flags.monsterMunch.img")) {
+  if (!foundry.utils.hasProperty(npcData, "flags.monsterMunch.img")) {
     return npcData;
   }
 
@@ -195,11 +195,11 @@ export async function getNPCImage(npcData, { type = "monster", forceUpdate = fal
   const useTokenAsAvatar = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image") || forceUseTokenAvatar;
 
   let ddbAvatarUrl = useTokenAsAvatar
-    ? getProperty(npcData, "flags.monsterMunch.tokenImg")
-    : getProperty(npcData, "flags.monsterMunch.img");
+    ? foundry.utils.getProperty(npcData, "flags.monsterMunch.tokenImg")
+    : foundry.utils.getProperty(npcData, "flags.monsterMunch.img");
   let ddbTokenUrl = useAvatarAsToken
-    ? getProperty(npcData, "flags.monsterMunch.img")
-    : getProperty(npcData, "flags.monsterMunch.tokenImg");
+    ? foundry.utils.getProperty(npcData, "flags.monsterMunch.img")
+    : foundry.utils.getProperty(npcData, "flags.monsterMunch.tokenImg");
 
   if (!ddbAvatarUrl && ddbTokenUrl) ddbAvatarUrl = ddbTokenUrl;
   if (!ddbTokenUrl && ddbAvatarUrl) ddbTokenUrl = ddbAvatarUrl;
@@ -217,10 +217,10 @@ export async function getNPCImage(npcData, { type = "monster", forceUpdate = fal
   const npcName = utils.referenceNameString(npcData.name);
 
   const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-  const subType = getProperty(npcData, "system.details.type.value") ?? "other";
+  const subType = foundry.utils.getProperty(npcData, "system.details.type.value") ?? "other";
   const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
-  if (ddbAvatarUrl && getProperty(npcData, "flags.monsterMunch.imgSet") !== true) {
+  if (ddbAvatarUrl && foundry.utils.getProperty(npcData, "flags.monsterMunch.imgSet") !== true) {
     if (hasAvatarProcessedAlready) {
       npcData.img = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
     } else {
@@ -236,7 +236,7 @@ export async function getNPCImage(npcData, { type = "monster", forceUpdate = fal
     }
   }
 
-  if (ddbTokenUrl && getProperty(npcData, "flags.monsterMunch.tokenImgSet") !== true) {
+  if (ddbTokenUrl && foundry.utils.getProperty(npcData, "flags.monsterMunch.tokenImgSet") !== true) {
     if (hasTokenProcessedAlready) {
       npcData.prototypeToken.texture.src = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
     } else {
@@ -326,7 +326,7 @@ async function linkResourcesConsumption(actor) {
     logger.debug(`Resource linking for ${actor.name}`);
     actor.items.forEach((item) => {
       if (item.system?.recharge?.value) {
-        const itemID = randomID(16);
+        const itemID = foundry.utils.randomID(16);
         item._id = itemID;
         if (item.type === "weapon") {
           item.type = "feat";
@@ -363,17 +363,17 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
   if (handleBuild) {
     // create the new npc
     logger.debug("Creating NPC actor");
-    const options = {
-      temporary: temporary,
-      displaySheet: false,
-    };
     if (update) {
       const npc = game.actors.get(data._id);
       await npc.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
       await Actor.updateDocuments([data]);
       return npc;
     } else {
-      const npc = await Actor.create(data, options);
+      const options = {
+        temporary: temporary,
+        displaySheet: false,
+      };
+      const npc = new Actor.implementation(data, options);
       return npc;
     }
 
@@ -426,26 +426,26 @@ export async function useSRDMonsterImages(monsters) {
         monster.prototypeToken.texture.scaleX = nameMatch.prototypeToken.texture.scaleX;
         if (moduleArt?.actor && nameMatch.actor !== "" && !moduleArt.actor.includes("mystery-man")) {
           monster.img = moduleArt.actor;
-          setProperty(monster, "flags.monsterMunch.imgSet", true);
+          foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
         } else if (nameMatch.img && nameMatch.img !== "" && !nameMatch.img.includes("mystery-man")) {
           monster.img = nameMatch.img;
-          setProperty(monster, "flags.monsterMunch.imgSet", true);
+          foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
         }
-        if (moduleArt?.token && !hasProperty(moduleArt, "token.texture.src")) {
+        if (moduleArt?.token && !foundry.utils.hasProperty(moduleArt, "token.texture.src")) {
           monster.prototypeToken.texture.src = moduleArt.token;
         } else if (moduleArt?.token?.texture?.src
           && moduleArt.token.texture.src !== ""
           && !moduleArt.token.texture.src.includes("mystery-man")
         ) {
           monster.prototypeToken.texture.src = moduleArt.token.texture.src;
-          setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
+          foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
           if (moduleArt.token.texture.scaleY) monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY;
           if (moduleArt.token.texture.scaleX) monster.prototypeToken.texture.scaleX = moduleArt.token.texture.scaleX;
         } else if (nameMatch.prototypeToken?.texture?.src
           && nameMatch.prototypeToken.texture.src !== ""
           && !nameMatch.prototypeToken.texture.src.includes("mystery-man")
         ) {
-          setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
+          foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
           monster.prototypeToken.texture.src = nameMatch.prototypeToken.texture.src;
         }
       }
@@ -484,8 +484,8 @@ export function copyExistingMonsterImages(monsters, existingMonsters) {
     if (existing) {
       monster.img = existing.img;
       for (const key of Object.keys(monster.prototypeToken)) {
-        if (!["sight", "detectionModes", "flags"].includes(key) && hasProperty(existing.prototypeToken, key)) {
-          monster.prototypeToken[key] = deepClone(existing.prototypeToken[key]);
+        if (!["sight", "detectionModes", "flags"].includes(key) && foundry.utils.hasProperty(existing.prototypeToken, key)) {
+          monster.prototypeToken[key] = foundry.utils.deepClone(existing.prototypeToken[key]);
         }
       }
       return monster;

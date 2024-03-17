@@ -35,7 +35,7 @@ export async function absorbElementsEffect(document) {
     },
   );
   resistanceEffect.duration.rounds = 2;
-  setProperty(resistanceEffect, "flags.dae.specialDuration", ["turnStartSource"]);
+  foundry.utils.setProperty(resistanceEffect, "flags.dae.specialDuration", ["turnStartSource"]);
   document.effects.push(resistanceEffect);
 
   document.system.damage = {
@@ -54,12 +54,12 @@ export async function absorbElementsEffect(document) {
     long: null,
     units: "self",
   };
-  setProperty(document, "system.actionType", "util");
+  foundry.utils.setProperty(document, "system.actionType", "util");
 
   if (effectModules().midiQolInstalled) {
     await DDBMacros.setItemMacroFlag(document, "spell", "absorbElements.js");
     DDBMacros.setMidiOnUseMacroFlag(document, "spell", "absorbElements.js", ["postActiveEffects"]);
-    setProperty(document, "system.activation.type", "reactiondamage");
+    foundry.utils.setProperty(document, "system.activation.type", "reactiondamage");
   }
 
   return document;

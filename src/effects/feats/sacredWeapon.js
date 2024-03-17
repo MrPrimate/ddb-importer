@@ -25,8 +25,8 @@ export async function sacredWeaponEffect(document) {
     const lightAnimation = '{"type": "sunburst", "speed": 2,"intensity": 4}';
     effect.changes.push(generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, lightAnimation));
   }
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
-  setProperty(effect, "duration.seconds", 60);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "duration.seconds", 60);
   document.effects.push(effect);
   return document;
 }

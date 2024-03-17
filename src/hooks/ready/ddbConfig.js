@@ -9,7 +9,7 @@ function directConfig() {
   $.getJSON("https://www.dndbeyond.com/api/config/json")
     .then((config) => {
       if (config && config.sources) {
-        setProperty(CONFIG, "DDB", config);
+        foundry.utils.setProperty(CONFIG, "DDB", config);
         logger.info("Loaded DDB live config");
       }
       return config;
@@ -20,7 +20,7 @@ function directConfig() {
     })
     .always(() => {
       if (!CONFIG.DDB?.sources) {
-        setProperty(CONFIG, "DDB", fallbackDDBConfig);
+        foundry.utils.setProperty(CONFIG, "DDB", fallbackDDBConfig);
         logger.warn("Failed to load DDB config, using fallback.");
       } else {
         logger.info("A DDB config was loaded");
@@ -46,7 +46,7 @@ function proxyConfig() {
       .then((data) => {
         if (!data.success) {
           logger.error(`API Failure: ${data.message}`);
-          setProperty(CONFIG, "DDB", fallbackDDBConfig);
+          foundry.utils.setProperty(CONFIG, "DDB", fallbackDDBConfig);
           reject(data.message);
         }
         if (debugJson) {
@@ -57,7 +57,7 @@ function proxyConfig() {
       .then((data) => {
         if (data.success) {
           logger.info(`Retrieved DDB CONFIG DATA via proxy`);
-          setProperty(CONFIG, "DDB", data.data);
+          foundry.utils.setProperty(CONFIG, "DDB", data.data);
         }
         logger.debug("DDB_CONFIG", CONFIG.DDB);
         resolve(data.data);
@@ -67,9 +67,9 @@ function proxyConfig() {
 }
 
 export function loadDDBConfig() {
-  if (!hasProperty(CONFIG, "DDB")) {
-    setProperty(CONFIG, "DDB", fallbackDDBConfig);
-    if (getProperty(CONFIG, "DEBUG.DDBI.DIRECT_CONFIG")) {
+  if (!foundry.utils.hasProperty(CONFIG, "DDB")) {
+    foundry.utils.setProperty(CONFIG, "DDB", fallbackDDBConfig);
+    if (foundry.utils.getProperty(CONFIG, "DEBUG.DDBI.DIRECT_CONFIG")) {
       if ((/electron/i).test(navigator.userAgent)) {
         logger.info("Electron detected using DDB Config stub");
         logger.debug("DDB_CONFIG", CONFIG.DDB);

@@ -39,12 +39,12 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
       const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
       if (rangeMatch) {
         const value = parseInt(rangeMatch[1]);
-        if (value > 0 && value > this.npc.prototypeToken.sight.range && hasProperty(CONFIG.Canvas.visionModes, senseType)) {
-          setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);
-          setProperty(this.npc.prototypeToken.sight, "range", value);
-          this.npc.prototypeToken.sight = mergeObject(this.npc.prototypeToken.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
+        if (value > 0 && value > this.npc.prototypeToken.sight.range && foundry.utils.hasProperty(CONFIG.Canvas.visionModes, senseType)) {
+          foundry.utils.setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);
+          foundry.utils.setProperty(this.npc.prototypeToken.sight, "range", value);
+          this.npc.prototypeToken.sight = foundry.utils.mergeObject(this.npc.prototypeToken.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
         }
-        if (value > 0 && hasProperty(DICTIONARY.detectionMap, senseMatch.name.toLowerCase())) {
+        if (value > 0 && foundry.utils.hasProperty(DICTIONARY.detectionMap, senseMatch.name.toLowerCase())) {
           const detectionMode = {
             id: DICTIONARY.detectionMap[senseMatch.name.toLowerCase()],
             range: value,

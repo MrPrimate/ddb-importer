@@ -7,7 +7,7 @@ const damageType = "thunder";
 
 // sequencer caller for effects on target
 function sequencerEffect(target, file, scale) {
-  if (game.modules.get("sequencer")?.active && hasProperty(Sequencer.Database.entries, "jb2a")) {
+  if (game.modules.get("sequencer")?.active && foundry.utils.hasProperty(Sequencer.Database.entries, "jb2a")) {
     new Sequence().effect().file(file).atLocation(target).scaleToObject(scale).play();
   }
 }
@@ -42,7 +42,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const itemId = html.find("[name=weapons]")[0].value;
           const weaponItem = caster.getEmbeddedDocument("Item", itemId);
           DAE.setFlag(caster, "boomingBladeChoice", itemId);
-          const weaponCopy = duplicate(weaponItem);
+          const weaponCopy = foundry.utils.duplicate(weaponItem);
           delete weaponCopy._id;
           if (cantripDice > 0) {
             weaponCopy.system.damage.parts[0][0] += ` + ${cantripDice - 1}d8[${damageType}]`;
@@ -58,9 +58,9 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             transfer: false,
             flags: { targetUuid: target.uuid, casterUuid: caster.uuid, origin, cantripDice, damageType, dae: { specialDuration: ["turnStartSource", "isMoved"], transfer: false } },
           });
-          if (hasProperty(sourceItemData, "flags.itemacro")) setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
-          if (hasProperty(sourceItemData, "flags.dae.macro")) setProperty(weaponCopy, "flags.dae.macro", duplicate(sourceItemData.flags.dae.macro));
-          setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
+          if (foundry.utils.hasProperty(sourceItemData, "flags.itemacro")) foundry.utils.setProperty(weaponCopy, "flags.itemacro", foundry.utils.duplicate(sourceItemData.flags.itemacro));
+          if (foundry.utils.hasProperty(sourceItemData, "flags.dae.macro")) foundry.utils.setProperty(weaponCopy, "flags.dae.macro", foundry.utils.duplicate(sourceItemData.flags.dae.macro));
+          foundry.utils.setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           attackItem.prepareData();
           attackItem.prepareFinalAttributes();
@@ -106,7 +106,7 @@ if (args[0].tag === "OnUse") {
     const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
     const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice}d8[${damageType}]`).evaluate({ async: true });
     await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
-    const workflowItemData = duplicate(sourceItem);
+    const workflowItemData = foundry.utils.duplicate(sourceItem);
     workflowItemData.system.target = { value: 1, units: "", type: "creature" };
     workflowItemData.name = "Booming Blade: Movement Damage";
     workflowItemData.system.description.value = "";

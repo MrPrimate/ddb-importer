@@ -37,7 +37,7 @@ export default class DDBAction extends DDBBaseFeature {
 
   _prepare() {
     if (this.ddbDefinition.infusionFlags) {
-      setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
+      foundry.utils.setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
     }
 
     this._actionType = {
@@ -66,7 +66,7 @@ export default class DDBAction extends DDBBaseFeature {
       : DDBHelper.getCustomValue(this.ddbDefinition, this.ddbData, 16);
     if (typeof customDisplay == "boolean") {
       return customDisplay;
-    } else if (hasProperty(this.ddbDefinition, "displayAsAttack")) {
+    } else if (foundry.utils.hasProperty(this.ddbDefinition, "displayAsAttack")) {
       return this.ddbDefinition.displayAsAttack;
     } else {
       return false;
@@ -107,22 +107,22 @@ export default class DDBAction extends DDBBaseFeature {
     // if (this.documentType === "weapon") return;
     if (this.ddbData.character.actions.class.some((a) =>
       a.name === this.ddbDefinition.name
-      || (hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
+      || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
     )) {
       this.data.system.type.value = "class";
     } else if (this.ddbData.character.actions.race.some((a) =>
       a.name === this.ddbDefinition.name
-      || (hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
+      || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
     )) {
       this.data.system.type.value = "race";
     } else if (this.ddbData.character.actions.feat.some((a) =>
       a.name === this.ddbDefinition.name
-      || (hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
+      || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
     )) {
       this.data.system.type.value = "feat";
     } else if (typeNudge) {
       this.data.system.type.value = typeNudge;
-      setProperty(this.data, "flags.ddbimporter.type", typeNudge);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.type", typeNudge);
     }
   }
 
@@ -360,7 +360,7 @@ export default class DDBAction extends DDBBaseFeature {
     if (parts.length > 0 && useScale) {
       this.data.system.damage.parts = parts;
     } else if (parts.length > 0 && !DDBAction.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)) {
-      const combinedParts = hasProperty(this.data, "data.damage.parts") && this.data.system.damage.parts.length > 0
+      const combinedParts = foundry.utils.hasProperty(this.data, "data.damage.parts") && this.data.system.damage.parts.length > 0
         ? this.data.system.damage.parts.concat(parts)
         : parts;
       this.data.system.damage = {
@@ -392,8 +392,8 @@ export default class DDBAction extends DDBBaseFeature {
           && cls.level >= feature.definition.requiredLevel
         ));
 
-    if (kiEmpowered && getProperty(this.data, "flags.ddbimporter.originalName") == "Unarmed Strike") {
-      setProperty(this.data, "system.properties.mgc", true);
+    if (kiEmpowered && foundry.utils.getProperty(this.data, "flags.ddbimporter.originalName") == "Unarmed Strike") {
+      foundry.utils.setProperty(this.data, "system.properties.mgc", true);
     }
 
   }
@@ -402,27 +402,27 @@ export default class DDBAction extends DDBBaseFeature {
     // obsidian and klass names (used in effect enrichment)
     if (this._actionType.class) {
       const klass = DDBHelper.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
-      setProperty(this.data.flags, "obsidian.source.type", "class");
-      setProperty(this.data.flags, "ddbimporter.type", "class");
-      setProperty(this.data.flags, "obsidian.source.text", klass.definition.name);
-      setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
-      const subClassName = hasProperty(klass, "subclassDefinition.name") ? klass.subclassDefinition.name : undefined;
-      setProperty(this.data.flags, "ddbimporter.subclass", subClassName);
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "class");
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "class");
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.text", klass.definition.name);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
+      const subClassName = foundry.utils.hasProperty(klass, "subclassDefinition.name") ? klass.subclassDefinition.name : undefined;
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.subclass", subClassName);
     } else if (this._actionType.race) {
-      setProperty(this.data.flags, "obsidian.source.type", "race");
-      setProperty(this.data.flags, "ddbimporter.type", "race");
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "race");
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "race");
     } else if (this._actionType.feat) {
-      setProperty(this.data.flags, "obsidian.source.type", "feat");
-      setProperty(this.data.flags, "ddbimporter.type", "feat");
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "feat");
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "feat");
     }
 
     // scaling details
     const klassActionComponent = DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.id)
       ?? DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
     if (klassActionComponent) {
-      setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
-      setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
-      setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
     }
   }
 

@@ -11,7 +11,7 @@ if (args[0].tag === "OnUse") {
 
     if (isMarked) {
       const targetUuid = args[0].hitTargets[0].uuid;
-      if (targetUuid == getProperty(args[0].actor.flags, "midi-qol.favoredFoeHit")) {
+      if (targetUuid == foundry.utils.getProperty(args[0].actor.flags, "midi-qol.favoredFoeHit")) {
         console.debug("Favored Foe used this turn");
         return {};
       }
@@ -31,7 +31,7 @@ if (args[0].tag === "OnUse") {
         label: "Favored Foe Hit",
         name: "Favored Foe Hit",
       };
-      setProperty(favoredFoeHitData, "flags.dae.specialDuration", ["turnStartSource"]);
+      foundry.utils.setProperty(favoredFoeHitData, "flags.dae.specialDuration", ["turnStartSource"]);
       await args[0].actor.createEmbeddedDocuments("ActiveEffect", [favoredFoeHitData]);
 
       const damageType = args[0].item.system.damage.parts[0][1];

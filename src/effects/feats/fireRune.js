@@ -2,12 +2,12 @@ import { baseFeatEffect } from "../specialFeats.js";
 import { addStatusEffectChange } from "../effects.js";
 
 export function fireRuneEffect(document) {
-  setProperty(document, "system.range.units", "");
-  setProperty(document, "system.target.value", 1);
-  setProperty(document, "system.target.type", "creature");
+  foundry.utils.setProperty(document, "system.range.units", "");
+  foundry.utils.setProperty(document, "system.target.value", 1);
+  foundry.utils.setProperty(document, "system.target.type", "creature");
 
   let baseEffect = baseFeatEffect(document, document.name);
-  setProperty(baseEffect, "duration.seconds", 60);
+  foundry.utils.setProperty(baseEffect, "duration.seconds", 60);
 
   addStatusEffectChange(baseEffect, "Restrained", 20, true);
 

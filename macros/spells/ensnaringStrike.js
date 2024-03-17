@@ -29,7 +29,7 @@ const icon = "icons/magic/nature/root-vine-entangled-hand.webp";
  * @returns temporary spell item data for Ensnaring Strike effect.
  */
 function getTempSpellData(sourceActor, originItem, originEffect) {
-  const level = getProperty(originEffect, "flags.midi-qol.castData.castLevel") ?? 1;
+  const level = foundry.utils.getProperty(originEffect, "flags.midi-qol.castData.castLevel") ?? 1;
   const nbDice = level;
 
   // Get restrained condition id
@@ -53,7 +53,7 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
     },
     effects: [
       {
-        _id: randomID(),
+        _id: foundry.utils.randomID(),
         changes: [
           {
             key: "StatusEffect",
@@ -126,7 +126,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   }
 
   // Flag the spell as used.
-  let originEffectChanges = duplicate(originEffect.changes);
+  let originEffectChanges = foundry.utils.duplicate(originEffect.changes);
   originEffectChanges.push({
     key: "flags.world.ensnaring-strike.used",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,

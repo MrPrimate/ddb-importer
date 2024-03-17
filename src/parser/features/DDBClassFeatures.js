@@ -68,12 +68,12 @@ export default class DDBClassFeatures {
         return items.map((item) => {
           item.flags.ddbimporter.dndbeyond.class = className;
           item.flags.ddbimporter.class = klass.definition.name;
-          item.flags.ddbimporter.subclass = hasProperty(klass, "subclassDefinition.name")
+          item.flags.ddbimporter.subclass = foundry.utils.hasProperty(klass, "subclassDefinition.name")
             ? klass.subclassDefinition.name
             : undefined;
           item.flags.obsidian.source.text = className;
           // add feature to all features list
-          this.featureList.class.push(duplicate(item));
+          this.featureList.class.push(foundry.utils.duplicate(item));
           return item;
         });
       })
@@ -123,11 +123,11 @@ export default class DDBClassFeatures {
           item.flags.ddbimporter.dndbeyond.class = subClassName;
           item.flags.obsidian.source.text = className;
           item.flags.ddbimporter.class = klass.definition.name;
-          item.flags.ddbimporter.subclass = hasProperty(klass, "subclassDefinition.name")
+          item.flags.ddbimporter.subclass = foundry.utils.hasProperty(klass, "subclassDefinition.name")
             ? klass.subclassDefinition.name
             : undefined;
           // add feature to all features list
-          this.featureList.subClass.push(duplicate(item));
+          this.featureList.subClass.push(foundry.utils.duplicate(item));
           return item;
         });
       })

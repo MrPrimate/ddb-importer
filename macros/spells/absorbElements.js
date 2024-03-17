@@ -6,12 +6,12 @@ const targetActor = args[0].tokenUuid
 async function updateEffects(html) {
   const element = html.find("#element").val();
   const effect = targetActor.effects.find((i) => (i.name ?? i.label) === `${itemName} - Extra Damage`);
-  const changes = duplicate(effect.changes);
+  const changes = foundry.utils.duplicate(effect.changes);
   changes[0].value += `[${element}]`;
   changes[1].value += `[${element}]`;
   await effect.update({ changes });
   const resistanceEffect = targetActor.effects.find((i) => (i.name ?? i.label) === `${itemName} - Resistance`);
-  const resistanceChanges = duplicate(resistanceEffect.changes);
+  const resistanceChanges = foundry.utils.duplicate(resistanceEffect.changes);
   resistanceChanges[0].value = element;
   await resistanceEffect.update({ changes: resistanceChanges });
 }

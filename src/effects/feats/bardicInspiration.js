@@ -39,10 +39,10 @@ export function bardicInspirationEffect(document) {
   );
   inspiredEffect.transfer = false;
   inspiredEffect.disabled = false;
-  setProperty(inspiredEffect, "flags.dae.transfer", false);
-  setProperty(inspiredEffect, "flags.dae.stackable", false);
-  setProperty(inspiredEffect, "flags.dae.macroRepeat", "none");
-  setProperty(inspiredEffect, "flags.dae.specialDuration", []);
+  foundry.utils.setProperty(inspiredEffect, "flags.dae.transfer", false);
+  foundry.utils.setProperty(inspiredEffect, "flags.dae.stackable", false);
+  foundry.utils.setProperty(inspiredEffect, "flags.dae.macroRepeat", "none");
+  foundry.utils.setProperty(inspiredEffect, "flags.dae.specialDuration", []);
 
   if (document.flags.ddbimporter.subclass === "College of Valor") {
     inspiredEffect.changes.push(
@@ -63,7 +63,7 @@ export function bardicInspirationEffect(document) {
 
   document.effects.push(inspiredEffect);
 
-  setProperty(document, "flags.midi-qol.effectActivation", false);
+  foundry.utils.setProperty(document, "flags.midi-qol.effectActivation", false);
   return document;
 }
 

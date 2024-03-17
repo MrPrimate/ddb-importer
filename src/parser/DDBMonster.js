@@ -61,7 +61,7 @@ export default class DDBMonster {
       this.proficiencyBonus = this.setProperty("proficiencyBonus", existingNpc.system.attributes.prof);
       this.cr = this.setProperty("cr", existingNpc.system.details.cr);
       this.abilities = this.setProperty("abilities", existingNpc.system.abilities);
-      this.items = duplicate(existingNpc.items);
+      this.items = foundry.utils.duplicate(existingNpc.items);
       this.img = existingNpc.img;
     }
     this.stockImage = false;
@@ -171,7 +171,7 @@ export default class DDBMonster {
       logger.debug(`Resource linking for ${this.name}`);
       this.items.forEach((item) => {
         if (item.system?.recharge?.value) {
-          const itemID = randomID(16);
+          const itemID = foundry.utils.randomID(16);
           item._id = itemID;
           if (item.type === "weapon") {
             item.type = "feat";
@@ -207,20 +207,20 @@ export default class DDBMonster {
       }
     }
 
-    setProperty(this.npc.prototypeToken, "flags.tagger.tags", tags);
+    foundry.utils.setProperty(this.npc.prototypeToken, "flags.tagger.tags", tags);
   }
 
   _generate3DModels() {
     if (!game.canvas3D?.CONFIG?.UI?.TokenBrowser) return;
     const matches = game.canvas3D.CONFIG.UI.TokenBrowser.findByName(this.name.replace("(Legacy)", "").trim());
     if (matches && matches.length > 0) {
-      setProperty(this.npc.prototypeToken, "flags.levels-3d-preview.model3d", matches[0].output);
+      foundry.utils.setProperty(this.npc.prototypeToken, "flags.levels-3d-preview.model3d", matches[0].output);
     }
   }
 
   async parse() {
     if (!this.name) this.name = this.source.name;
-    this.npc = duplicate(await newNPC(this.name));
+    this.npc = foundry.utils.duplicate(await newNPC(this.name));
     this._calculateImage();
 
     this.npc.prototypeToken.name = this.name;

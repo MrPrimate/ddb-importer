@@ -28,8 +28,8 @@ export async function blackTentaclesEffect(document) {
     savedc: null,
     displayTemp: true,
   };
-  setProperty(effect, "duration.seconds", 60);
-  setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
+  foundry.utils.setProperty(effect, "duration.seconds", 60);
+  foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "generic", macroName: DDBMacros.MACROS.ACTIVE_AURAS.AA_ON_ENTRY.file }));
   DDBMacros.setMidiOnUseMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_ON_ENTRY.file, ["preActiveEffects"]);
 
@@ -54,9 +54,9 @@ export async function blackTentaclesEffect(document) {
     save: `${document.system.save.ability}`,
     sequencerFile: "jb2a.black_tentacles.dark_purple",
   };
-  setProperty(document, "flags.ddbimporter.effect", aaMacroFlags);
-  setProperty(effect, "flags.ddbimporter.effect", aaMacroFlags);
-  // setProperty(document, "flags.midiProperties.nodam", true);
+  foundry.utils.setProperty(document, "flags.ddbimporter.effect", aaMacroFlags);
+  foundry.utils.setProperty(effect, "flags.ddbimporter.effect", aaMacroFlags);
+  // foundry.utils.setProperty(document, "flags.midiProperties.nodam", true);
   document.system.damage = { parts: [], versatile: "", value: "" };
   document.system.save.ability = "";
   document.system.actionType = "other";

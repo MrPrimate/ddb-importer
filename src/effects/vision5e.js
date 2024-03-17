@@ -66,7 +66,7 @@ export function addVision5eStub(document) {
     if (VISION_EFFECTS[name].type === "spell") {
       document.system.target.type = "self";
     }
-    setProperty(document, "flags.ddbimporter.effectsApplied", true);
+    foundry.utils.setProperty(document, "flags.ddbimporter.effectsApplied", true);
   }
   return document;
 }

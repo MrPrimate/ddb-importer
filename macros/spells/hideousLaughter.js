@@ -29,9 +29,9 @@ async function cleanUp() {
 
 async function onDamageHook(hookActor, update) {
   const flag = await DAE.getFlag(hookActor, "hideousLaughterHook");
-  if (!hasProperty(update, "system.attributes.hp") || !flag) return;
+  if (!foundry.utils.hasProperty(update, "system.attributes.hp") || !flag) return;
   const oldHP = hookActor.system.attributes.hp.value;
-  const newHP = getProperty(update, "system.attributes.hp.value");
+  const newHP = foundry.utils.getProperty(update, "system.attributes.hp.value");
   const hpChange = oldHP - newHP;
   if (hpChange > 0 && typeof hpChange === "number") {
     console.warn("hookActor", hookActor);

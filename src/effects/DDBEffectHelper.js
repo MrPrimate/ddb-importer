@@ -49,8 +49,8 @@ export default class DDBEffectHelper {
    * @return {Promise<void>} A promise that resolves when the effects have been applied.
    */
   static async addDDBIEffectToDocument(document, { useChrisPremades = false } = {}) {
-    if (getProperty(document, "flags.ddbimporter.effectsApplied") === true
-      || getProperty(document, "flags.ddbimporter.chrisEffectsApplied") === true
+    if (foundry.utils.getProperty(document, "flags.ddbimporter.effectsApplied") === true
+      || foundry.utils.getProperty(document, "flags.ddbimporter.chrisEffectsApplied") === true
     ) {
       logger.warn(`Skipping effect generation for ${document.name} as DDB Importer or Chris effect is already present.`);
       return;
@@ -64,10 +64,10 @@ export default class DDBEffectHelper {
       let data = document.toObject();
       // remove old effects
       data.effects = [];
-      if (hasProperty(data, "flags.dae")) delete data.flags.dae;
-      if (hasProperty(data, "flags.itemacro")) delete data.flags.itemacro;
-      if (hasProperty(data, "flags.midi-qol")) delete data.flags["midi-qol"];
-      if (hasProperty(data, "flags.ActiveAuras")) delete data.flags.ActiveAuras;
+      if (foundry.utils.hasProperty(data, "flags.dae")) delete data.flags.dae;
+      if (foundry.utils.hasProperty(data, "flags.itemacro")) delete data.flags.itemacro;
+      if (foundry.utils.hasProperty(data, "flags.midi-qol")) delete data.flags["midi-qol"];
+      if (foundry.utils.hasProperty(data, "flags.ActiveAuras")) delete data.flags.ActiveAuras;
 
       if (DICTIONARY.types.inventory.includes(data.type)) {
         equipmentEffectAdjustment(data);
@@ -103,15 +103,15 @@ export default class DDBEffectHelper {
 
       data = addVision5eStub(data);
 
-      if (getProperty(data, "flags.ddbimporter.effectsApplied") === true
-        || getProperty(data, "flags.ddbimporter.chrisEffectsApplied") === true
+      if (foundry.utils.getProperty(data, "flags.ddbimporter.effectsApplied") === true
+        || foundry.utils.getProperty(data, "flags.ddbimporter.chrisEffectsApplied") === true
       ) {
         logger.debug("New effects generated, removing existing effects");
         await document.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
         logger.debug(`Removal complete, adding effects to item ${document.name}`);
 
         logger.info(`Updating actor document ${document.name} with`, {
-          data: duplicate(data),
+          data: foundry.utils.duplicate(data),
         });
         await document.update(data);
       } else {
@@ -149,7 +149,7 @@ export default class DDBEffectHelper {
    */
   static async addSaveAdvantageToTarget(targetActor, originItem, ability, additionLabel = "", icon = null) {
     const effectData = {
-      _id: randomID(),
+      _id: foundry.utils.randomID(),
       changes: [
         {
           key: `flags.midi-qol.advantage.ability.save.${ability}`,
@@ -823,7 +823,7 @@ export default class DDBEffectHelper {
    * @return {Promise} A promise that resolves with the save result
    */
   static async rollSaveForItem(item, targetToken, workflow = null) {
-    const { ability, dc } = duplicate(item.system.save);
+    const { ability, dc } = foundry.utils.duplicate(item.system.save);
     const userID = MidiQOL.playerForActor(targetToken.actor)?.active
       ? MidiQOL.playerForActor(targetToken.actor).id
       : game.users.activeGM.id;
@@ -876,7 +876,7 @@ export default class DDBEffectHelper {
     // return actor.statuses.has(condition.toLowerCase());
     return DDBEffectHelper.getActorEffects(actor).some(
       (activeEffect) =>
-        // (getProperty(activeEffect, "flags.dfreds-convenient-effects.isConvenient") || activeEffect?.flags?.isConvenient)
+        // (foundry.utils.getProperty(activeEffect, "flags.dfreds-convenient-effects.isConvenient") || activeEffect?.flags?.isConvenient)
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
         && !activeEffect?.disabled
     );
@@ -886,7 +886,7 @@ export default class DDBEffectHelper {
     // return actor.statuses.has(condition.toLowerCase());
     return DDBEffectHelper.getActorEffects(actor).find(
       (activeEffect) =>
-        // (getProperty(activeEffect, "flags.dfreds-convenient-effects.isConvenient") || activeEffect?.flags?.isConvenient)
+        // (foundry.utils.getProperty(activeEffect, "flags.dfreds-convenient-effects.isConvenient") || activeEffect?.flags?.isConvenient)
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
         && !activeEffect?.disabled
     );

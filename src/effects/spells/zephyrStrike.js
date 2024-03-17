@@ -45,9 +45,9 @@ export async function zephyrStrikeEffect(document) {
   );
 
   document.system.target.type = "self";
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
-  setProperty(document, "system.actionType", "other");
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(document, "system.actionType", "other");
 
   document.effects.push(effect);
   document.system.damage.parts = [];

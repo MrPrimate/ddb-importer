@@ -855,7 +855,7 @@ export default class AdvancementHelper {
   }
 
   static addSingularDie(advancement) {
-    const scaleValue = AdvancementHelper.convertToSingularDie(duplicate(advancement));
+    const scaleValue = AdvancementHelper.convertToSingularDie(foundry.utils.duplicate(advancement));
 
     scaleValue._id = foundry.utils.randomID();
     scaleValue.configuration.identifier = `${advancement.configuration.identifier}-die`;
@@ -1366,7 +1366,7 @@ export default class AdvancementHelper {
   }
 
   static ARMOR_GROUPS = DICTIONARY.character.proficiencies
-    .filter((prof) => prof.type === "Armor" && hasProperty(prof, "foundryValue") && prof.advancement === "")
+    .filter((prof) => prof.type === "Armor" && foundry.utils.hasProperty(prof, "foundryValue") && prof.advancement === "")
     .reduce((acc, prof) => {
       acc[prof.name.toLowerCase()] = prof.foundryValue;
       return acc;
@@ -1381,13 +1381,13 @@ export default class AdvancementHelper {
 
   static getDictionaryArmor(name) {
     const directMatch = DICTIONARY.character.proficiencies.find((prof) =>
-      prof.type === "Armor" && hasProperty(prof, "foundryValue")
+      prof.type === "Armor" && foundry.utils.hasProperty(prof, "foundryValue")
       && prof.name.toLowerCase() === utils.nameString(name).toLowerCase()
     );
     if (directMatch) return directMatch;
 
     const dictionaryProfs = DICTIONARY.character.proficiencies.filter((prof) =>
-      prof.type === "Armor" && hasProperty(prof, "foundryValue")
+      prof.type === "Armor" && foundry.utils.hasProperty(prof, "foundryValue")
     );
     for (const prof of dictionaryProfs) {
       if (utils.nameString(name).toLowerCase().includes(prof.name.toLowerCase())) return prof;
@@ -1462,7 +1462,7 @@ export default class AdvancementHelper {
   static WEAPON_GROUPS = DICTIONARY.character.proficiencies
     .filter((prof) =>
       prof.type === "Weapon"
-      && getProperty(prof, "foundryValue") !== ""
+      && foundry.utils.getProperty(prof, "foundryValue") !== ""
       && prof.advancement === ""
     )
     .reduce((acc, prof) => {
@@ -1480,7 +1480,7 @@ export default class AdvancementHelper {
   static getDictionaryWeapon(name) {
     const match = DICTIONARY.character.proficiencies.find((prof) =>
       prof.type === "Weapon"
-      && getProperty(prof, "foundryValue") !== ""
+      && foundry.utils.getProperty(prof, "foundryValue") !== ""
       && (prof.name.toLowerCase() === utils.nameString(name).toLowerCase()
         || `${prof.name.toLowerCase()}s` === utils.nameString(name).toLowerCase()
         || `the ${prof.name.toLowerCase()}` === utils.nameString(name).toLowerCase())
@@ -1568,9 +1568,9 @@ export default class AdvancementHelper {
           } else if (choiceMatch[2].toLowerCase().includes("one-handed melee weapon")) {
             const weapons = DICTIONARY.character.proficiencies.filter((prof) =>
               prof.type === "Weapon"
-              && getProperty(prof, "foundryValue") !== ""
-              && getProperty(prof, "properties.two") !== true
-              && getProperty(prof, "melee") === true
+              && foundry.utils.getProperty(prof, "foundryValue") !== ""
+              && foundry.utils.getProperty(prof, "properties.two") !== true
+              && foundry.utils.getProperty(prof, "melee") === true
             ).map((prof) => {
               const stub = prof.advancement === ""
                 ? prof.foundryValue
@@ -1598,9 +1598,9 @@ export default class AdvancementHelper {
       parsedWeaponsProficiencies.number = 2;
       const weapons = DICTIONARY.character.proficiencies.filter((prof) =>
         prof.type === "Weapon"
-        && getProperty(prof, "foundryValue") !== ""
-        && getProperty(prof, "properties.spc") !== true
-        && (getProperty(prof, "properties.hvy") !== true || prof.name === "Longbow")
+        && foundry.utils.getProperty(prof, "foundryValue") !== ""
+        && foundry.utils.getProperty(prof, "properties.spc") !== true
+        && (foundry.utils.getProperty(prof, "properties.hvy") !== true || prof.name === "Longbow")
       ).map((prof) => {
         const stub = prof.advancement === ""
           ? prof.foundryValue
@@ -1689,9 +1689,9 @@ export default class AdvancementHelper {
           );
           if (damageMapping) {
             const type = AdvancementHelper.CONDITION_MAPPING[conditionKind];
-            const valueData = hasProperty(damageMapping, "foundryValues")
-              ? getProperty(damageMapping, "foundryValues")
-              : hasProperty(damageMapping, "foundryValue")
+            const valueData = foundry.utils.hasProperty(damageMapping, "foundryValues")
+              ? foundry.utils.getProperty(damageMapping, "foundryValues")
+              : foundry.utils.hasProperty(damageMapping, "foundryValue")
                 ? { value: damageMapping.foundryValue }
                 : undefined;
             // eslint-disable-next-line max-depth, no-continue

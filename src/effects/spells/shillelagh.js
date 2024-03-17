@@ -4,8 +4,8 @@ import DDBMacros from "../DDBMacros.js";
 export async function shillelaghEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "shillelagh.js", priority: 0 }));
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.system.actionType = "other";
   document.effects.push(effect);
   document.system.damage = { parts: [], versatile: "", value: "" };

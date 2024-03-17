@@ -32,9 +32,9 @@ export default class DDBChoiceFeature extends DDBFeature {
       this._levelScales = this._classFeatureComponent.definition?.levelScales;
       this._limitedUse = this._classFeatureComponent.definition?.limitedUse;
       // I don't think I actually use these
-      // setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", this._levelScale);
-      // setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", this._levelScales);
-      // setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", this._limitedUse);
+      // foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", this._levelScale);
+      // foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", this._levelScales);
+      // foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", this._limitedUse);
     }
 
   }
@@ -74,7 +74,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         }
       }
       // add these flags in so they can be used by the description parser
-      setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
+      foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
       this._generateDescription(false);
       this.data.flags.ddbimporter.dndbeyond.choice = {
@@ -130,7 +130,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     ddbFeature._choices.forEach((choice) => {
       const choiceFeature = new DDBChoiceFeature({
         ddbData: ddbFeature.ddbData,
-        ddbDefinition: deepClone(ddbFeature.ddbDefinition),
+        ddbDefinition: foundry.utils.deepClone(ddbFeature.ddbDefinition),
         type: ddbFeature.type,
         rawCharacter: ddbFeature.rawCharacter,
       });

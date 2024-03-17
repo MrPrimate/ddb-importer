@@ -152,7 +152,7 @@ function filterModifiers(data, classInfo) {
 }
 
 export function fixCharacterLevels(data) {
-  data.unfilteredModifiers = deepClone(data.character.modifiers);
+  data.unfilteredModifiers = foundry.utils.deepClone(data.character.modifiers);
   const classInfo = getClassInfo(data.character);
   const filteredClassInfo = filterModifiers(data.character, classInfo);
   let classModifiers = getClassOptionModifiers(data.character, classInfo);

@@ -8,8 +8,8 @@ export async function arcaneSwordEffect(document) {
 
   await DDBMacros.setItemMacroFlag(document, "spell", "arcaneSword.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "arcaneSword.js" }));
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
 
   document.effects.push(effect);
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "arcaneSword.js", ["preTargeting"]);

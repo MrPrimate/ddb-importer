@@ -158,7 +158,7 @@ export default class DDBMonsterFactory {
         const ddbMonster = new DDBMonster(monster, { extra: this.extra, useItemAC, legacyName, addMonsterEffects, addChrisPremades });
         // eslint-disable-next-line no-await-in-loop
         await ddbMonster.parse();
-        foundryActors.push(duplicate(ddbMonster.npc));
+        foundryActors.push(foundry.utils.duplicate(ddbMonster.npc));
         logger.timeEnd(`Monster Parse ${name}`);
         // logger.timeLog("Monster Parsing", monster.name);
       } catch (err) {
@@ -195,7 +195,7 @@ export default class DDBMonsterFactory {
    */
   async processIntoCompendium(ids = null) {
     logger.time("Monster Import Time");
-    setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
+    foundry.utils.setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
     const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
     const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
     const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -281,7 +281,7 @@ export default class DDBMonsterFactory {
     //   await addNPCsToCompendium(monstersParsed, "monster");
     // }
     this.munchNote("", false, true);
-    setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
+    foundry.utils.setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 
     logger.timeEnd("Monster Import Time");
     if (ids !== null) {

@@ -21,7 +21,7 @@ async function buildSubClassBase(klass, subClass) {
   // eslint-disable-next-line require-atomic-updates
   klass.flags.ddbimporter['moreDetailsUrl'] = subClass.moreDetailsUrl;
 
-  const image = getProperty(klass, "flags.ddbimporter.image");
+  const image = foundry.utils.getProperty(klass, "flags.ddbimporter.image");
   if (image && image !== "") {
     const imageMatch = /$<img class="ddb-class-image"(.*)$/;
     klass.system.description.value.replace(imageMatch, image);
@@ -140,7 +140,7 @@ export async function getSubClasses(subClassData, klassData) {
   logger.debug("Features fetched for classes", compendiumClassFeatures);
 
   for (const subClass of subClassData) {
-    const classMatch = classDocs.find((i) => getProperty(i, "flags.ddbimporter.id") == subClass.parentClassId);
+    const classMatch = classDocs.find((i) => foundry.utils.getProperty(i, "flags.ddbimporter.id") == subClass.parentClassId);
     const builtClass = await buildSubClass(classMatch, subClass, compendiumClassFeatures);
     subClasses.push(builtClass);
   }

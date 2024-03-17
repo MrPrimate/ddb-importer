@@ -13,7 +13,7 @@ if (args[0] === "on") {
   if (!castItem) {
     const DAEItem = lastArg.efData.flags.dae.itemData;
     const stars = 7 + ((args[1] - 7) * 2);
-    const uuid = randomID();
+    const uuid = foundry.utils.randomID();
     const weaponData = {
       _id: uuid,
       name: castItemName,

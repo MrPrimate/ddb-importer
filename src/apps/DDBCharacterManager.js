@@ -30,7 +30,7 @@ export default class DDBCharacterManager extends FormApplication {
     super(options);
     this.actor = game.actors.get(actor._id);
     this.migrateMetadata();
-    this.actorOriginal = duplicate(this.actor);
+    this.actorOriginal = foundry.utils.duplicate(this.actor);
     logger.debug("Current Actor (Original):", this.actorOriginal);
     this.result = {};
     this.nonMatchedItemIds = [];
@@ -286,9 +286,9 @@ export default class DDBCharacterManager extends FormApplication {
     }
 
     if (this.actorOriginal.prototypeToken.texture.src.includes("mystery-man")) {
-      setProperty(this.result.character, "prototypeToken.texture.src", this.result.character.img);
-    } else if (hasProperty(this.actorOriginal, "prototypeToken.texture.src")) {
-      setProperty(this.result.character, "prototypeToken.texture.src", this.actorOriginal.prototypeToken.texture.src);
+      foundry.utils.setProperty(this.result.character, "prototypeToken.texture.src", this.result.character.img);
+    } else if (foundry.utils.hasProperty(this.actorOriginal, "prototypeToken.texture.src")) {
+      foundry.utils.setProperty(this.result.character, "prototypeToken.texture.src", this.actorOriginal.prototypeToken.texture.src);
     }
   }
 
@@ -324,8 +324,8 @@ export default class DDBCharacterManager extends FormApplication {
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
     const dynamicUpdateAllowed = dynamicSync && gmSyncUser && this.importSettings.tiers.experimentalMid;
     const dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
-    const resourceSelection = !hasProperty(this.actor, "flags.ddbimporter.resources.ask")
-      || getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
+    const resourceSelection = !foundry.utils.hasProperty(this.actor, "flags.ddbimporter.resources.ask")
+      || foundry.utils.getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
 
     const itemCompendium = await CompendiumHelper.getCompendiumType("item", false);
     this.itemsMunched = itemCompendium ? (await itemCompendium.index.size) !== 0 : false;
@@ -343,7 +343,7 @@ export default class DDBCharacterManager extends FormApplication {
       useLocalPatreonKey: useLocalPatreonKey && this.itemsMunched,
     };
 
-    return mergeObject(this.importSettings, this.actorSettings);
+    return foundry.utils.mergeObject(this.importSettings, this.actorSettings);
   }
 
   /* -------------------------------------------- */
@@ -719,7 +719,7 @@ export default class DDBCharacterManager extends FormApplication {
   }
 
   async createCharacterItems(items, keepIds) {
-    const options = duplicate(SETTINGS.DISABLE_FOUNDRY_UPGRADE);
+    const options = foundry.utils.duplicate(SETTINGS.DISABLE_FOUNDRY_UPGRADE);
     if (keepIds) options["keepId"] = true;
 
     // we have to break these out into class and non-class because of
@@ -728,11 +728,11 @@ export default class DDBCharacterManager extends FormApplication {
     const nonKlassItems = items.filter((item) => !["class", "subclass"].includes(item.type));
 
     if (klassItems.length > 0) {
-      logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, { options, items: duplicate(klassItems) });
+      logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(klassItems) });
       await this.actor.createEmbeddedDocuments("Item", klassItems, options);
     }
     if (nonKlassItems.length > 0) {
-      logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, { options, items: duplicate(nonKlassItems) });
+      logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(nonKlassItems) });
       await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
     }
   }
@@ -750,7 +750,7 @@ export default class DDBCharacterManager extends FormApplication {
   }
 
   async keepNonDDBItems(ddbItems) {
-    const lastImportId = getProperty(this.actorOriginal, "flags.ddbimporter.importId");
+    const lastImportId = foundry.utils.getProperty(this.actorOriginal, "flags.ddbimporter.importId");
     if (this.settings.ignoreNonDDBItems) {
       const items = this.actor.getEmbeddedCollection("Item");
       await items.forEach((item) => {
@@ -774,12 +774,12 @@ export default class DDBCharacterManager extends FormApplication {
     const compendium = CompendiumHelper.getCompendium(label);
 
     const compendiumItems = await Promise.all(overrideItems.map(async (item) => {
-      const compendiumItem = duplicate(await compendium.getDocument(item.flags.ddbimporter.overrideId));
-      setProperty(compendiumItem, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
-      if (hasProperty(item, "flags.ddbimporter.overrideItem")) {
-        setProperty(compendiumItem, "flags.ddbimporter.overrideItem", item.flags.ddbimporter.overrideItem);
+      const compendiumItem = foundry.utils.duplicate(await compendium.getDocument(item.flags.ddbimporter.overrideId));
+      foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
+      if (foundry.utils.hasProperty(item, "flags.ddbimporter.overrideItem")) {
+        foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", item.flags.ddbimporter.overrideItem);
       } else {
-        setProperty(compendiumItem, "flags.ddbimporter.overrideItem", {
+        foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", {
           name: item.name,
           type: item.type,
           ddbId: item.flags.ddbimporter?.id
@@ -803,7 +803,7 @@ export default class DDBCharacterManager extends FormApplication {
   }
 
   static restoreDDBMatchedFlags(existingItem, item) {
-    const ddbItemFlags = getProperty(existingItem, "flags.ddbimporter");
+    const ddbItemFlags = foundry.utils.getProperty(existingItem, "flags.ddbimporter");
     logger.debug(`Item flags for ${ddbItemFlags}`, ddbItemFlags);
     // we retain some flags that might change the nature of the import for this item
     // these flags are used elsewhere
@@ -815,30 +815,30 @@ export default class DDBCharacterManager extends FormApplication {
       "overrideItem",
       "ddbCustomAdded",
     ].forEach((flag) => {
-      if (hasProperty(ddbItemFlags, flag)) {
+      if (foundry.utils.hasProperty(ddbItemFlags, flag)) {
         logger.debug(`Overriding ${flag} for ${item.name} to ${ddbItemFlags[flag]}`);
-        setProperty(item, `flags.ddbimporter.${flag}`, ddbItemFlags[flag]);
+        foundry.utils.setProperty(item, `flags.ddbimporter.${flag}`, ddbItemFlags[flag]);
       }
     });
     // some items get ignored completly, if so we don't match these
-    if (!getProperty(ddbItemFlags, "ignoreItemImport") ?? false) {
+    if (!foundry.utils.getProperty(ddbItemFlags, "ignoreItemImport") ?? false) {
       logger.debug(`Updating ${item.name} with id`);
       item["_id"] = existingItem["id"];
-      if (getProperty(ddbItemFlags, "ignoreIcon") ?? false) {
+      if (foundry.utils.getProperty(ddbItemFlags, "ignoreIcon") ?? false) {
         logger.debug(`Retaining icons for ${item.name}`);
         item.flags.ddbimporter.matchedImg = existingItem.img;
         item.flags.ddbimporter.ignoreIcon = true;
       }
-      if (getProperty(ddbItemFlags, "retainResourceConsumption") ?? false) {
+      if (foundry.utils.getProperty(ddbItemFlags, "retainResourceConsumption") ?? false) {
         logger.debug(`Retaining resources for ${item.name}`);
-        item.system.consume = deepClone(existingItem.system.consume);
+        item.system.consume = foundry.utils.deepClone(existingItem.system.consume);
         item.flags.ddbimporter.retainResourceConsumption = true;
-        if (hasProperty(existingItem, "flags.link-item-resource-5e") ?? false) {
-          setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
+        if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e") ?? false) {
+          foundry.utils.setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
         }
       }
     }
-    if (getProperty(ddbItemFlags, "ddbCustomAdded") ?? false) {
+    if (foundry.utils.getProperty(ddbItemFlags, "ddbCustomAdded") ?? false) {
       item.system = existingItem.system;
       item.type = existingItem.type;
     }
@@ -858,7 +858,7 @@ export default class DDBCharacterManager extends FormApplication {
         // let existingItem = ownedItems.find((owned) => {
         //   // have we already matched against this id? lets not double dip
         //   const existingMatch = matchedItems.find((matched) => {
-        //     return getProperty(owned, "flags.ddbimporter.id") === getProperty(matched, "flags.ddbimporter.id");
+        //     return foundry.utils.getProperty(owned, "flags.ddbimporter.id") === foundry.utils.getProperty(matched, "flags.ddbimporter.id");
         //   });
         //   if (existingMatch) return false;
         //   // the simple match
@@ -868,14 +868,14 @@ export default class DDBCharacterManager extends FormApplication {
         //     && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
         //   // account for choices in ddb
         //   const isChoice
-        //     = hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
-        //     && hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
+        //     = foundry.utils.hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
+        //     && foundry.utils.hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
         //   const choiceMatch = isChoice
         //     ? item.flags.ddbimporter.dndbeyond.choice.choiceId
         //       === owned.flags.ddbimporter.dndbeyond.choice.choiceId
         //     : true;
         //   // force an override
-        //   const overrideDetails = getProperty(owned, "flags.ddbimporter.overrideItem");
+        //   const overrideDetails = foundry.utils.getProperty(owned, "flags.ddbimporter.overrideItem");
         //   const overrideMatch
         //     = overrideDetails
         //     && item.name === overrideDetails.name
@@ -894,7 +894,7 @@ export default class DDBCharacterManager extends FormApplication {
           // we can now determine if we are going to ignore this item or not,
           // this effectively filters out the items we don't want and they don't
           // get returned from this function
-          const ignoreItemImport = getProperty(item, "flags.ddbimporter.ignoreItemImport") ?? false;
+          const ignoreItemImport = foundry.utils.getProperty(item, "flags.ddbimporter.ignoreItemImport") ?? false;
           if (!ignoreItemImport) {
             logger.debug(`Importing matched item ${item.name}`);
             matchedItems.push(item);
@@ -963,7 +963,7 @@ export default class DDBCharacterManager extends FormApplication {
 
     // First we do items that are individually marked as override
     const individualOverrideItems = items.filter((item) => {
-      const overrideId = getProperty(item, "flags.ddbimporter.overrideId");
+      const overrideId = foundry.utils.getProperty(item, "flags.ddbimporter.overrideId");
       return overrideId !== undefined && overrideId !== "NONE";
     });
 
@@ -1074,13 +1074,13 @@ export default class DDBCharacterManager extends FormApplication {
   }
 
   async preActiveEffects() {
-    this.effectBackup = duplicate(this.actor.effects);
+    this.effectBackup = foundry.utils.duplicate(this.actor.effects);
     for (const e of this.effectBackup) {
       if (e.origin?.includes(".Item.")) {
         // eslint-disable-next-line no-await-in-loop
         const parent = await fromUuid(e.origin);
         logger.debug("Effect Backup flags", { e, parent });
-        if (parent) setProperty(e, "flags.ddbimporter.type", parent.type);
+        if (parent) foundry.utils.setProperty(e, "flags.ddbimporter.type", parent.type);
       }
     }
     await this.actor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
@@ -1131,7 +1131,7 @@ export default class DDBCharacterManager extends FormApplication {
       const isOther = coreStatusEffects.some((ae) => ae._id === e._id)
         || charEffects.some((ae) => ae._id === e._id)
         || ddbGeneratedCharEffects.some((ae) => ae._id === e._id);
-      if (!isOther && getProperty(e, "flags.ddbimporter.type") === "spell") {
+      if (!isOther && foundry.utils.getProperty(e, "flags.ddbimporter.type") === "spell") {
         spellEffects.push(e);
       }
     }
@@ -1186,7 +1186,7 @@ export default class DDBCharacterManager extends FormApplication {
     const importId = this.importId;
     function addImportId(items) {
       return items.map((item) => {
-        setProperty(item, "flags.ddbimporter.importId", importId);
+        foundry.utils.setProperty(item, "flags.ddbimporter.importId", importId);
         return item;
       });
     }
@@ -1235,15 +1235,15 @@ export default class DDBCharacterManager extends FormApplication {
       // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
     }
-    this.result = deepClone(this.ddbCharacter.data);
+    this.result = foundry.utils.deepClone(this.ddbCharacter.data);
 
     // disable active sync
     const activeUpdateState = this.ddbCharacter.getCurrentDynamicUpdateState();
     await this.ddbCharacter.disableDynamicUpdates();
 
     try {
-      this.importId = randomID();
-      setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
+      this.importId = foundry.utils.randomID();
+      foundry.utils.setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
       await this.addImportIdToItems();
 
       // handle active effects
@@ -1290,9 +1290,9 @@ export default class DDBCharacterManager extends FormApplication {
         this.result.character.system.traits.languages = this.actorOriginal.system.traits.languages;
       }
       // if resource mode is in disable and not asking, then we use the previous resources
-      const resourceFlags = getProperty(this.result.character, "flags.ddbimporter.resources");
+      const resourceFlags = foundry.utils.getProperty(this.result.character, "flags.ddbimporter.resources");
       if (resourceFlags.type === "disable") {
-        this.result.character.system.resources = duplicate(this.actorOriginal.system.resources);
+        this.result.character.system.resources = foundry.utils.duplicate(this.actorOriginal.system.resources);
       }
 
       // flag as having items ids
@@ -1307,16 +1307,16 @@ export default class DDBCharacterManager extends FormApplication {
       this.result.character.flags.ddbimporter.dndbeyond["proficienciesIncludingEffects"] = null;
       this.result.character.flags.ddbimporter.dndbeyond["effectAbilities"] = null;
       this.result.character.flags.ddbimporter.dndbeyond["abilityOverrides"] = null;
-      setProperty(this.result.character.flags, "ddb-importer.version", CONFIG.DDBI.version);
+      foundry.utils.setProperty(this.result.character.flags, "ddb-importer.version", CONFIG.DDBI.version);
 
       if (this.actorOriginal.flags.dnd5e?.wildMagic === true) {
         this.result.character.flags.dnd5e["wildMagic"] = true;
       }
 
       // midi fixes
-      const actorOnUseMacroName = getProperty(this.result.character, "flags.midi-qol.onUseMacroName");
+      const actorOnUseMacroName = foundry.utils.getProperty(this.result.character, "flags.midi-qol.onUseMacroName");
       if (!actorOnUseMacroName || actorOnUseMacroName === "") {
-        setProperty(this.result.character, "flags.midi-qol.onUseMacroName", "[postActiveEffects]");
+        foundry.utils.setProperty(this.result.character, "flags.midi-qol.onUseMacroName", "[postActiveEffects]");
       }
 
       // basic import
@@ -1346,7 +1346,7 @@ export default class DDBCharacterManager extends FormApplication {
         await this.actor.updateEmbeddedDocuments("ActiveEffect", updatedEffects);
       }
 
-      const favorites = deepClone(this.actorOriginal.system.favorites ?? []);
+      const favorites = foundry.utils.deepClone(this.actorOriginal.system.favorites ?? []);
       if (favorites.length > 0) {
         await this.actor.update({ system: { favorites } });
       }
@@ -1424,7 +1424,7 @@ export async function importCharacter(actor, html) {
 }
 
 export async function importCharacterById(characterId, html) {
-  const actor = await Actor.create({
+  const actor = new Actor.implementation({
     name: "New Actor",
     type: "character",
     flags: {

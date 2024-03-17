@@ -13,7 +13,7 @@ export function recklessAttackEffect(document, allMWAK = false) {
   );
 
 
-  setProperty(attackEffect, "flags.dae.stackable", "noneName");
+  foundry.utils.setProperty(attackEffect, "flags.dae.stackable", "noneName");
 
   document.effects.push(attackEffect);
 
@@ -35,8 +35,8 @@ export function recklessAttackEffect(document, allMWAK = false) {
     startRound: null,
     startTurn: null,
   };
-  setProperty(defenseEffect, "flags.dae.specialDuration", ["turnStartSource"]);
-  setProperty(defenseEffect, "flags.dae.stackable", "noneName");
+  foundry.utils.setProperty(defenseEffect, "flags.dae.specialDuration", ["turnStartSource"]);
+  foundry.utils.setProperty(defenseEffect, "flags.dae.stackable", "noneName");
   defenseEffect.statuses.push("Reckless");
 
   document.effects.push(defenseEffect);
@@ -44,7 +44,7 @@ export function recklessAttackEffect(document, allMWAK = false) {
   document.system["target"]["type"] = "self";
   document.system.range = { value: null, units: "self", long: null };
   document.system.actionType = null;
-  setProperty(document, "system.activation.type", "special");
+  foundry.utils.setProperty(document, "system.activation.type", "special");
   document.system.duration = {
     value: 1,
     units: "turn",

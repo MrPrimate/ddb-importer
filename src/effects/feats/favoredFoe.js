@@ -28,7 +28,7 @@ export async function favoredFoeEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "feat", "favoredFoe.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "feat", "favoredFoe.js", ["postActiveEffects"]);
 
-  setProperty(document, "system.actionType", "util");
+  foundry.utils.setProperty(document, "system.actionType", "util");
   document.system.damage.parts = [];
   document.system.target = {
     value: 1,

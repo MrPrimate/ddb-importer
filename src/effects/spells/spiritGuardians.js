@@ -37,8 +37,8 @@ export async function spiritGuardiansEffect(document) {
     displayTemp: true,
   };
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@token @spellLevel @attributes.spelldc", macroType: "spell", macroName: "spiritGuardians.js" }));
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);
 
   document.system.damage = { parts: [], versatile: "", value: "" };

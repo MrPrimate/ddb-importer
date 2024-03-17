@@ -36,14 +36,14 @@ export function transferEffectsToActor(document) {
   document.items.forEach((item) => {
     item.effects.forEach((effect) => {
       if (effect.transfer) {
-        const transferEffect = duplicate(effect);
-        if (!hasProperty(item, "_id")) item._id = randomID();
-        if (!hasProperty(effect, "_id")) effect._id = randomID();
-        transferEffect._id = randomID();
+        const transferEffect = foundry.utils.duplicate(effect);
+        if (!foundry.utils.hasProperty(item, "_id")) item._id = foundry.utils.randomID();
+        if (!foundry.utils.hasProperty(effect, "_id")) effect._id = foundry.utils.randomID();
+        transferEffect._id = foundry.utils.randomID();
         transferEffect.transfer = false;
         transferEffect.origin = `Actor.${document._id}.Item.${item._id}`;
-        setProperty(transferEffect, "flags.ddbimporter.originName", item.name);
-        setProperty(transferEffect, "flags.ddbimporter.localOriginEffect", true);
+        foundry.utils.setProperty(transferEffect, "flags.ddbimporter.originName", item.name);
+        foundry.utils.setProperty(transferEffect, "flags.ddbimporter.localOriginEffect", true);
         document.effects.push(transferEffect);
       }
     });
@@ -58,7 +58,7 @@ export function transferEffectsToActor(document) {
  */
 // eslint-disable-next-line complexity
 export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects = false) {
-  let npc = duplicate(ddbMonster.npc);
+  let npc = foundry.utils.duplicate(ddbMonster.npc);
 
   if (!npc.effects) npc.effects = [];
 

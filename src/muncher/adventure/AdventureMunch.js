@@ -91,7 +91,7 @@ export default class AdventureMunch extends FormApplication {
     this.altpattern
       = /((data-entity)=\\?["']?([a-zA-Z]*)\\?["']?|(data-pack)=\\?["']?([[\S.]*)\\?["']?) data-id=\\?["']?([a-zA-Z0-9]*)\\?["']?.*?>(.*?)<\/a>/gim;
 
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       id: "ddb-adventure-import",
       classes: ["ddb-adventure-import"],
       title: "Adventure Munch",
@@ -504,7 +504,7 @@ export default class AdventureMunch extends FormApplication {
       if (item.customItem) {
         items.push(item.data);
       } else {
-        const ddbId = getProperty(item, "ddbId");
+        const ddbId = foundry.utils.getProperty(item, "ddbId");
         if (Number.isInteger(ddbId)) {
           // fetch ddbItem
           const compendium = CompendiumHelper.getCompendiumType(item.type);
@@ -534,28 +534,28 @@ export default class AdventureMunch extends FormApplication {
 
     const tokenStub = { };
 
-    if (hasProperty(sceneToken, "actorData")) {
-      const data = deepClone(sceneToken.actorData);
+    if (foundry.utils.hasProperty(sceneToken, "actorData")) {
+      const data = foundry.utils.deepClone(sceneToken.actorData);
       if (data.data) {
-        setProperty(tokenStub, "delta.system", deepClone(data.data));
-        if (data.name) setProperty(tokenStub, "delta.name", deepClone(data.name));
+        foundry.utils.setProperty(tokenStub, "delta.system", foundry.utils.deepClone(data.data));
+        if (data.name) foundry.utils.setProperty(tokenStub, "delta.name", foundry.utils.deepClone(data.name));
       } else {
-        setProperty(tokenStub, "delta", deepClone(sceneToken.actorData));
+        foundry.utils.setProperty(tokenStub, "delta", foundry.utils.deepClone(sceneToken.actorData));
       }
       delete sceneToken.actorData;
     }
 
     if (items.length > 0) {
-      setProperty(tokenStub, "delta.items", items);
+      foundry.utils.setProperty(tokenStub, "delta.items", items);
     }
     if (sceneToken.flags.ddbImages?.keepToken)
-      setProperty(tokenStub, "texture.src", sceneToken.flags.ddbImages.tokenImage);
+      foundry.utils.setProperty(tokenStub, "texture.src", sceneToken.flags.ddbImages.tokenImage);
     if (sceneToken.flags.ddbImages?.keepAvatar)
-      setProperty(tokenStub, "delta.img", sceneToken.flags.ddbImages.avatarImage);
+      foundry.utils.setProperty(tokenStub, "delta.img", sceneToken.flags.ddbImages.avatarImage);
 
-    const updateData = mergeObject(tokenStub, sceneToken);
-    if (updateData.name !== worldActor.name && !hasProperty(updateData, "delta.name")) {
-      setProperty(updateData, "delta.name", updateData.name);
+    const updateData = foundry.utils.mergeObject(tokenStub, sceneToken);
+    if (updateData.name !== worldActor.name && !foundry.utils.hasProperty(updateData, "delta.name")) {
+      foundry.utils.setProperty(updateData, "delta.name", updateData.name);
     }
 
     const tokenData = await worldActor.getTokenDocument(updateData);
@@ -570,7 +570,7 @@ export default class AdventureMunch extends FormApplication {
 
     for (const token of tokens) {
       if (token.actorId && !token.actorLink) {
-        const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === getProperty(token, "flags.ddbActorFlags.tokenLinkId"));
+        const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === foundry.utils.getProperty(token, "flags.ddbActorFlags.tokenLinkId"));
         delete sceneToken.scale;
         const worldActor = this._getWorldActor(token.actorId);
         if (worldActor) {
@@ -594,7 +594,7 @@ export default class AdventureMunch extends FormApplication {
 
   async _revisitScene(document) {
     let updatedData = {};
-    const scene = duplicate(document);
+    const scene = foundry.utils.duplicate(document);
     // this is a scene we need to update links to all items
     logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
 
@@ -832,7 +832,11 @@ export default class AdventureMunch extends FormApplication {
         this.lookups.adventureConfig = await generateAdventureConfig(true);
 
         if (action === "world") await this._importAdventureToWorld();
-        else if (action === "compendium") await this._importAdventureToCompendium();
+        else if (action === "compendium") {
+          const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Adventures");
+          await createDDBCompendium(compData);
+          await this._importAdventureToCompendium();
+        }
 
         $(".ddb-overlay").toggleClass("import-invalid");
 
@@ -1170,7 +1174,7 @@ export default class AdventureMunch extends FormApplication {
   async _importRenderedSceneFile(data, overwriteEntity) {
     if (!AdventureMunchHelpers.findEntityByImportId("scenes", data._id) || overwriteEntity || this.importToAdventureCompendium) {
       await utils.asyncForEach(data.tokens, async (token) => {
-        setProperty(token, "flags.ddbActorFlags.tokenLinkId", token._id);
+        foundry.utils.setProperty(token, "flags.ddbActorFlags.tokenLinkId", token._id);
         // eslint-disable-next-line require-atomic-updates
         if (token.img) token.img = await this.importImage(token.img);
         if (token.prototypeToken?.texture?.src) {
@@ -1206,8 +1210,8 @@ export default class AdventureMunch extends FormApplication {
 
       if (overwriteEntity) await Scene.deleteDocuments([data._id]);
       const options = { keepId: true, keepEmbeddedIds: true, temporary: false };
-      logger.debug(`Creating Scene ${data.name}`, deepClone(data));
-      const tokens = deepClone(data.tokens);
+      logger.debug(`Creating Scene ${data.name}`, foundry.utils.deepClone(data));
+      const tokens = foundry.utils.deepClone(data.tokens);
       data.tokens = [];
       const scene = await Scene.create(data, options);
       logger.debug(`Created Scene ${data.name}`, scene);
@@ -1254,7 +1258,7 @@ export default class AdventureMunch extends FormApplication {
           if (this.importToAdventureCompendium) this.temporary.journals.push(journal);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("journal", data._id)) {
-          const cOptions = mergeObject(options, { temporary: false, pack: this.compendiums.journal.metadata.id });
+          const cOptions = foundry.utils.mergeObject(options, { temporary: false, pack: this.compendiums.journal.metadata.id });
           data.pages.forEach((page) => {
             if (page.type == "text") {
               page.text.content = this.replaceUUIDSForCompendium(page.text.content);
@@ -1271,7 +1275,7 @@ export default class AdventureMunch extends FormApplication {
           if (this.importToAdventureCompendium) this.temporary.tables.push(rolltable);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("table", data._id)) {
-          const cOptions = mergeObject(options, { temporary: false, pack: this.compendiums.table.metadata.id });
+          const cOptions = foundry.utils.mergeObject(options, { temporary: false, pack: this.compendiums.table.metadata.id });
           let cTable = await RollTable.create(data, cOptions);
           this._compendiumItemsToRevisit.push(cTable);
         }
@@ -1453,7 +1457,7 @@ export default class AdventureMunch extends FormApplication {
 
       if (data.flags.ddb.needRevisit) needRevisit = true;
 
-      setProperty(data.flags, "ddbimporter.version", CONFIG.DDBI.version);
+      foundry.utils.setProperty(data.flags, "ddbimporter.version", CONFIG.DDBI.version);
 
       if (importType !== "Playlist" && importType !== "Compendium") {
         if (this.lookups.folders[data.folder]) {

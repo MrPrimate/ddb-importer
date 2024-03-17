@@ -3,14 +3,14 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const casterActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 if (lastArg.targets.length > 0) {
-  let areaSpellData = duplicate(lastArg.item);
+  let areaSpellData = foundry.utils.duplicate(lastArg.item);
   const damageDice = 1 + lastArg.spellLevel;
   delete areaSpellData.effects;
   delete areaSpellData.id;
   delete areaSpellData.flags["midi-qol"].onUseMacroName;
   delete areaSpellData.flags["midi-qol"].onUseMacroParts;
-  if (hasProperty(areaSpellData, "flags.itemacro")) delete areaSpellData.flags.itemacro;
-  if (hasProperty(areaSpellData, "flags.dae.macro")) delete areaSpellData.flags.dae.macro;
+  if (foundry.utils.hasProperty(areaSpellData, "flags.itemacro")) delete areaSpellData.flags.itemacro;
+  if (foundry.utils.hasProperty(areaSpellData, "flags.dae.macro")) delete areaSpellData.flags.dae.macro;
   areaSpellData.name = "Ice Knife: Explosion";
   areaSpellData.system.damage.parts = [[`${damageDice}d6[cold]`, "cold"]];
   areaSpellData.system.actionType = "save";

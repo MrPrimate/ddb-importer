@@ -36,20 +36,20 @@ if (args[0] === "on") {
         callback: async (html) => {
           const itemId = html.find("[name=weapons]")[0].value;
           const weaponItem = target.getEmbeddedDocument("Item", itemId);
-          const weaponCopy = duplicate(weaponItem);
+          const weaponCopy = foundry.utils.duplicate(weaponItem);
           await DAE.setFlag(target, "shillelagh", {
             id: itemId,
             name: weaponItem.name,
             damage: weaponItem.system.damage.parts[0][0],
             ability: weaponItem.system.ability,
-            magical: getProperty(weaponItem, "system.properties.mgc") || false,
+            magical: foundry.utils.getProperty(weaponItem, "system.properties.mgc") || false,
           });
           const damage = weaponCopy.system.damage.parts[0][0];
           const targetAbilities = target.system.abilities;
           weaponCopy.system.damage.parts[0][0] = damage.replace(/1d(4|6)/g, "1d8");
           if (targetAbilities.wis.value > targetAbilities.str.value) weaponCopy.system.ability = "wis";
           weaponCopy.name = weaponItem.name + " [Shillelagh]";
-          setProperty(weaponCopy, "system.properties.mgc", true);
+          foundry.utils.setProperty(weaponCopy, "system.properties.mgc", true);
           await target.updateEmbeddedDocuments("Item", [weaponCopy]);
           await ChatMessage.create({
             content: weaponCopy.name + " is empowered by Shillelagh",
@@ -66,11 +66,11 @@ if (args[0] === "on") {
 if (args[0] === "off") {
   const flag = DAE.getFlag(target, "shillelagh");
   const weaponItem = target.getEmbeddedDocument("Item", flag.id);
-  const weaponCopy = duplicate(weaponItem);
+  const weaponCopy = foundry.utils.duplicate(weaponItem);
   weaponCopy.system.damage.parts[0][0] = flag.damage;
   weaponCopy.system.ability = flag.ability;
   weaponCopy.name = flag.name;
-  setProperty(weaponCopy, "system.properties.mgc", flag.magical);
+  foundry.utils.setProperty(weaponCopy, "system.properties.mgc", flag.magical);
   await target.updateEmbeddedDocuments("Item", [weaponCopy]);
   await DAE.unsetFlag(target, "shillelagh");
   await ChatMessage.create({ content: weaponCopy.name + " returns to normal" });

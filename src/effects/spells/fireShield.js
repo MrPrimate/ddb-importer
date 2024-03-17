@@ -17,9 +17,9 @@ export async function fireShieldEffect(document) {
     document.effects.push(effect);
     document.system.damage = { parts: [], versatile: "", value: "" };
     document.system.target.type = "self";
-    setProperty(document, "system.actionType", "util");
+    foundry.utils.setProperty(document, "system.actionType", "util");
 
-    setProperty(effect, "flags.dae.selfTargetAlways", true);
+    foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
   } else {
     let fireEffect = baseSpellEffect(document, "Cold Shield");
     fireEffect.changes.push({

@@ -131,7 +131,7 @@ function handlePreAttackByMarkedTarget(macroData) {
   if (macroData.targetUuids.filter((targetUuid) => targetUuid !== sourceTokenUuid).length > 0) {
     // Target is not the source of the mark
     console.log(`${sourceItemName}: Disadvantage on target for not beeing the marker of the attacker`, macroData);
-    setProperty(macroData.workflowOptions, "disadvantage", true);
+    foundry.utils.setProperty(macroData.workflowOptions, "disadvantage", true);
   }
 
 
@@ -178,7 +178,7 @@ async function handlePreDamageByMarkedTarget(macroData) {
       label: `${sourceItemName} - Damage resistance`,
       name: `${sourceItemName} - Damage resistance`,
     };
-    setProperty(targetEffectData, "flags.dae.specialDuration", ["isDamaged"]);
+    foundry.utils.setProperty(targetEffectData, "flags.dae.specialDuration", ["isDamaged"]);
 
     for (let targetUuid of notSourceTargetUuids) {
       const target = await fromUuid(targetUuid);

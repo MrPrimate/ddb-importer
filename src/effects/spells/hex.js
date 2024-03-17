@@ -8,7 +8,7 @@ export async function hexEffect(document) {
 
   await DDBMacros.setItemMacroFlag(document, "spell", "hex.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "hex.js", ["postActiveEffects"]);
-  setProperty(document, "system.actionType", "util");
+  foundry.utils.setProperty(document, "system.actionType", "util");
 
   document.effects.push(effect);
   return document;

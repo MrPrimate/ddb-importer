@@ -435,7 +435,7 @@ export class DDBCompendiumFolders {
         switch (document.system?.type?.value) {
           case "trinket": {
             const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
-            const isContainer = getProperty(document, "flags.ddbimporter.dndbeyond.isContainer") === true;
+            const isContainer = foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.isContainer") === true;
             result.name = isContainer
               ? this.containerFolders[ddbType].name
               : this.trinketFolders[ddbType].name;
@@ -530,9 +530,9 @@ export class DDBCompendiumFolders {
       name: undefined,
       flagTag: "",
     };
-    const subClassName = getProperty(document, "flags.ddbimporter.subClass");
-    const className = getProperty(document, "flags.ddbimporter.class");
-    const optional = getProperty(document, "flags.ddbimporter.optionalFeature");
+    const subClassName = foundry.utils.getProperty(document, "flags.ddbimporter.subClass");
+    const className = foundry.utils.getProperty(document, "flags.ddbimporter.class");
+    const optional = foundry.utils.getProperty(document, "flags.ddbimporter.optionalFeature");
     if (optional) {
       result.name = "Optional Features";
       result.flagTag = `optional/${className}`;
@@ -559,15 +559,15 @@ export class DDBCompendiumFolders {
     // "flags.ddbimporter.baseName",
     // "flags.ddbimporter.subRaceShortName",
     // "flags.ddbimporter.isSubRace",
-    // const isSubRace = getProperty(document, "flags.ddbimporter.isSubRace");
-    // const baseRaceName = getProperty(document, "flags.ddbimporter.baseRaceName");
-    // const baseName = getProperty(document, "flags.ddbimporter.baseName");
-    // const subRaceShortName = getProperty(document, "flags.ddbimporter.subRaceShortName");
-    const fullRaceName = getProperty(document, "flags.ddbimporter.fullRaceName");
+    // const isSubRace = foundry.utils.getProperty(document, "flags.ddbimporter.isSubRace");
+    // const baseRaceName = foundry.utils.getProperty(document, "flags.ddbimporter.baseRaceName");
+    // const baseName = foundry.utils.getProperty(document, "flags.ddbimporter.baseName");
+    // const subRaceShortName = foundry.utils.getProperty(document, "flags.ddbimporter.subRaceShortName");
+    const fullRaceName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
     // const name = document.name;
     // const lowercaseName = name.toLowerCase();
 
-    const groupName = getProperty(document, "flags.ddbimporter.groupName");
+    const groupName = foundry.utils.getProperty(document, "flags.ddbimporter.groupName");
 
     result.name = fullRaceName;
     result.flagTag = `trait/${groupName}/${fullRaceName}`;
@@ -582,8 +582,8 @@ export class DDBCompendiumFolders {
       flagTag: "",
     };
 
-    const fullRaceName = getProperty(document, "flags.ddbimporter.fullRaceName");
-    const groupName = getProperty(document, "flags.ddbimporter.groupName");
+    const fullRaceName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
+    const groupName = foundry.utils.getProperty(document, "flags.ddbimporter.groupName");
     result.name = groupName ?? fullRaceName;
     result.flagTag = `race/${(groupName ?? fullRaceName)}`;
 
@@ -596,7 +596,7 @@ export class DDBCompendiumFolders {
       name: undefined,
       flagTag: "",
     };
-    const className = getProperty(document, "flags.ddbimporter.class");
+    const className = foundry.utils.getProperty(document, "flags.ddbimporter.class");
     if (className && className.trim() !== "") {
       result.name = className;
     } else {

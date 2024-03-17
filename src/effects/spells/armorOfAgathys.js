@@ -12,12 +12,12 @@ export async function armorOfAgathysEffect(document) {
     },
   );
   effect.duration.seconds = 3600;
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);
 
   await DDBMacros.setItemMacroFlag(document, "spell", "armorOfAgathys.js");
-  setProperty(document, "system.actionType", "util");
+  foundry.utils.setProperty(document, "system.actionType", "util");
 
   return document;
 }

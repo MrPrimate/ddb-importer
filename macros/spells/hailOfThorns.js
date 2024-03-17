@@ -36,7 +36,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     console.error(`${defaultItemName}: spell active effect was not found.`);
     return;
   }
-  const level = getProperty(originEffect, "flags.midi-qol.castData.castLevel") ?? 1;
+  const level = foundry.utils.getProperty(originEffect, "flags.midi-qol.castData.castLevel") ?? 1;
   const nbDice = Math.min(level, 6);
 
   // Temporary spell data for the burst effect
@@ -55,7 +55,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
       duration: { units: "inst" },
     },
   };
-  setProperty(
+  foundry.utils.setProperty(
     areaSpellData,
     "flags.midi-qol.onUseMacroName",
     DDBImporter.lib.DDBMacros.generateMidiOnUseMacroFlagValue("spell", "hailOfThorns.js", ["preItemRoll", "preambleComplete", "preActiveEffects"], macroData.sourceItemUuid)
@@ -101,10 +101,10 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     };
     // Note: set flag for walled templates if module enabled
     if (game.modules.get("walledtemplates")?.active) {
-      setProperty(templateData, "flags.walledtemplates", { wallsBlock: "walled", wallRestriction: "move" });
+      foundry.utils.setProperty(templateData, "flags.walledtemplates", { wallsBlock: "walled", wallRestriction: "move" });
     }
     // Note: this flag is set to allow AA to trigger if a template config exists for 'Hail of Thorns'
-    setProperty(templateData, "flags.dnd5e.origin", macroData.sourceItemUuid);
+    foundry.utils.setProperty(templateData, "flags.dnd5e.origin", macroData.sourceItemUuid);
 
     const [measuredTemplateDoc] = await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [templateData]);
     if (!measuredTemplateDoc) {
@@ -118,7 +118,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   // Add template to concentration data to be auto deleted
   const concentrationData = macroData.actor.getFlag("midi-qol", "concentration-data");
   if (concentrationData) {
-    const templatesToDelete = concentrationData.templates ? duplicate(concentrationData.templates) : [];
+    const templatesToDelete = concentrationData.templates ? foundry.utils.duplicate(concentrationData.templates) : [];
     templatesToDelete.push(macroData.workflow.templateUuid);
     await macroData.actor.setFlag("midi-qol", "concentration-data.templates", templatesToDelete);
   }

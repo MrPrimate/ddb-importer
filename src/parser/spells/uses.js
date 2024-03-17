@@ -13,7 +13,7 @@ const DEFAULT_USE = {
  */
 export function getUses(data, character) {
   // we check this, as things like items have useage attached to the item, not spell
-  const limitedUse = getProperty(data, "flags.ddbimporter.dndbeyond.limitedUse") ?? data.limitedUse;
+  const limitedUse = foundry.utils.getProperty(data, "flags.ddbimporter.dndbeyond.limitedUse") ?? data.limitedUse;
 
   if (!limitedUse) return DEFAULT_USE;
   const resetType = DICTIONARY.resets.find((reset) => reset.id == limitedUse.resetType);

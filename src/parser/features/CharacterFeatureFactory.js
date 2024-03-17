@@ -161,7 +161,7 @@ export default class CharacterFeatureFactory {
     this._generateUnarmedStrikeAction();
     this._generateOtherActions();
 
-    this.processed.actions = duplicate(this.parsed.actions);
+    this.processed.actions = foundry.utils.duplicate(this.parsed.actions);
 
     this.processed.actions.sort().sort((a, b) => {
       if (!a.system.activation.activationType) {
@@ -213,7 +213,7 @@ export default class CharacterFeatureFactory {
     //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
     //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
     // }
-    const linkingData = getProperty(feature, "flags.ddbimporter.advancementLink");
+    const linkingData = foundry.utils.getProperty(feature, "flags.ddbimporter.advancementLink");
     const advancement = feature.system.advancement[advancementIndex];
     const dataLink = linkingData.find((d) => d._id === advancement._id);
 
@@ -238,8 +238,8 @@ export default class CharacterFeatureFactory {
       if (characterFeature) {
         logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
         added[characterFeature._id] = uuid;
-        setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
-        setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${feature._id}.${advancement._id}`);
+        foundry.utils.setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
+        foundry.utils.setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${feature._id}.${advancement._id}`);
       }
     }
 
@@ -255,19 +255,19 @@ export default class CharacterFeatureFactory {
     for (const type of types) {
       for (const feature of this.ddbCharacter.data[type]) {
         // eslint-disable-next-line no-continue
-        if (hasProperty(feature, "flags.dnd5e.advancementOrigin")) continue;
-        const typeFlag = getProperty(feature, "flags.ddbimporter.type");
-        if (typeFlag == "race" && hasProperty(this.ddbCharacter, "data.race._id")) {
-          setProperty(feature, "flags.dnd5e.advancementOrigin", `${this.ddbCharacter.data.race._id}`);
+        if (foundry.utils.hasProperty(feature, "flags.dnd5e.advancementOrigin")) continue;
+        const typeFlag = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
+        if (typeFlag == "race" && foundry.utils.hasProperty(this.ddbCharacter, "data.race._id")) {
+          foundry.utils.setProperty(feature, "flags.dnd5e.advancementOrigin", `${this.ddbCharacter.data.race._id}`);
         } else if (typeFlag === "background") {
           const background = this.ddbCharacter.data.features.find((b) => b.type === "background");
           if (background) {
-            setProperty(feature, "flags.dnd5e.advancementOrigin", `${background._id}`);
+            foundry.utils.setProperty(feature, "flags.dnd5e.advancementOrigin", `${background._id}`);
           }
-        } else if (typeFlag === "class" && hasProperty(feature, "flags.ddbimporter.class")) {
-          const klass = this.ddbCharacter.data.classes.find((k) => k.name === getProperty(feature, "flags.ddbimporter.class"));
+        } else if (typeFlag === "class" && foundry.utils.hasProperty(feature, "flags.ddbimporter.class")) {
+          const klass = this.ddbCharacter.data.classes.find((k) => k.name === foundry.utils.getProperty(feature, "flags.ddbimporter.class"));
           if (klass) {
-            setProperty(feature, "flags.dnd5e.advancementOrigin", `${klass._id}`);
+            foundry.utils.setProperty(feature, "flags.dnd5e.advancementOrigin", `${klass._id}`);
           }
         }
       }
@@ -281,7 +281,7 @@ export default class CharacterFeatureFactory {
     });
     for (const type of types) {
       for (const feature of this.ddbCharacter.data[type]) {
-        const linkingData = getProperty(feature, "flags.ddbimporter.advancementLink");
+        const linkingData = foundry.utils.getProperty(feature, "flags.ddbimporter.advancementLink");
         if (linkingData) {
           logger.debug("Linking Advancements to Features", {
             feature,

@@ -339,7 +339,7 @@ function calculateACOptions(data, character, calculatedArmor) {
     if (acValue.value > maxValue || (acValue.value === "Unarmored Defense" && acValue.value >= maxValue)) {
       maxType = acValue.type;
       maxValue = acValue.value;
-      maxData = deepClone(acValue);
+      maxData = foundry.utils.deepClone(acValue);
     }
   }
 
@@ -366,7 +366,7 @@ DDBCharacter.prototype._generateOverrideArmorClass = function _generateOverrideA
   this.raw.character.effects = this.raw.character.effects.concat(overRideEffect);
   this.raw.character.flags.ddbimporter.acEffects = [overRideEffect];
   this.raw.character.flags.ddbimporter.baseAC = overRideAC.value;
-  this.raw.character.flags.ddbimporter.autoAC = deepClone(this.raw.character.system.attributes.ac);
+  this.raw.character.flags.ddbimporter.autoAC = foundry.utils.deepClone(this.raw.character.system.attributes.ac);
   this.raw.character.flags.ddbimporter.overrideAC = {
     flat: overRideAC.value,
     calc: "flat",
@@ -610,7 +610,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
 
   this.raw.character.flags.ddbimporter.acEffects = this.armor.results.effects;
   this.raw.character.flags.ddbimporter.baseAC = this.armor.results.actorBase;
-  this.raw.character.flags.ddbimporter.autoAC = deepClone(this.raw.character.system.attributes.ac);
+  this.raw.character.flags.ddbimporter.autoAC = foundry.utils.deepClone(this.raw.character.system.attributes.ac);
   this.raw.character.flags.ddbimporter.overrideAC = {
     flat: this.armor.results.maxValue,
     calc: "flat",

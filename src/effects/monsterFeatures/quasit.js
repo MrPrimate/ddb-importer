@@ -17,12 +17,12 @@ export function quasitEffects(npc) {
       );
       addStatusEffectChange(effect, "Poisoned", 20, true);
 
-      setProperty(effect, "duration.seconds", 60);
-      setProperty(effect, "duration.rounds", 10);
-      setProperty(effect, "flags.dae.stackable", "noneName");
+      foundry.utils.setProperty(effect, "duration.seconds", 60);
+      foundry.utils.setProperty(effect, "duration.rounds", 10);
+      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
 
       item.effects.push(effect);
-      setProperty(item, "flags.midiProperties.fulldam", true);
+      foundry.utils.setProperty(item, "flags.midiProperties.fulldam", true);
       item = forceItemEffect(item);
     }
   }

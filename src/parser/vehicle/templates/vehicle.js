@@ -3,7 +3,7 @@ export async function newVehicle(name) {
     temporary: true,
     displaySheet: false,
   };
-  const vehicleClass = await Actor.create({ name, type: "vehicle" }, options);
+  const vehicleClass = new Actor.implementation({ name, type: "vehicle" }, options);
   let vehicle = vehicleClass.toObject();
   const flags = {
     dnd5e: {},
@@ -12,6 +12,6 @@ export async function newVehicle(name) {
       dndbeyond: {},
     },
   };
-  setProperty(vehicle, "flags", flags);
+  foundry.utils.setProperty(vehicle, "flags", flags);
   return vehicle;
 };

@@ -25,9 +25,9 @@ export async function squireOfSolamniaEffect(document) {
       priority: 20,
     }
   );
-  setProperty(effect, "flags.dae.specialDuration", ["1Attack"]);
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["1Attack"]);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);
 
   document.system.damage.parts = [];

@@ -13,7 +13,7 @@ function confusionRayEffect(document) {
       priority: "20"
     },
   );
-  setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
   effect.duration.rounds = 2;
   effect.duration.seconds = 12;
 
@@ -46,9 +46,9 @@ function damageRayEffect(document, nodam = false) {
 
   console.warn("damage", dmg);
   if (nodam) {
-    setProperty(document, "flags.midiProperties.saveDamage", "nodam");
+    foundry.utils.setProperty(document, "flags.midiProperties.saveDamage", "nodam");
   }
-  setProperty(document, "flags.midiProperties.magicdam", true);
+  foundry.utils.setProperty(document, "flags.midiProperties.magicdam", true);
 
   if (dmg) {
     document.system.damage.parts = dmg.parts;
@@ -63,7 +63,7 @@ function DisintegrationRayEffect(document) {
 function telekineticRayEffect(document) {
   const effect = DDBImporter.EffectHelper.baseEffect(document, document.name, { transfer: false, disabled: false });
   DDBImporter.EffectHelper.addStatusEffectChange(effect, "Restrained");
-  setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
   effect.duration.rounds = 2;
   effect.duration.seconds = 12;
   document.effects.push(effect);
@@ -80,13 +80,13 @@ async function petrificationRayEffect(document) {
   effect.changes.push(DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "monsterFeature", macroName: "petrification.js" }));
   effect.duration.rounds = 2;
   effect.duration.seconds = 12;
-  setProperty(effect, "flags.dae.macroRepeat", "endEveryTurn");
+  foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "endEveryTurn");
   document.effects.push(effect);
 }
 
 async function attackWithRay(documentData) {
   console.warn("ATTACK RAY", {
-    documentData: deepClone(documentData),
+    documentData: foundry.utils.deepClone(documentData),
   })
   const rayItem = new CONFIG.Item.documentClass(documentData, { parent: workflow.actor });
   const workflowOptions = {
@@ -108,13 +108,13 @@ async function attackWithRay(documentData) {
 }
 
 async function createBaseRay(rayName, { description, saveAbility = "", saveDC = null }) {
-  const rayData = duplicate(workflow.item);
+  const rayData = foundry.utils.duplicate(workflow.item);
   delete rayData.effects;
   delete rayData._id;
   delete rayData.flags["midi-qol"].onUseMacroName;
   delete rayData.flags["midi-qol"].onUseMacroParts;
-  if (hasProperty(rayData, "flags.itemacro")) delete rayData.flags.itemacro;
-  if (hasProperty(rayData, "flags.dae.macro")) delete rayData.flags.dae.macro;
+  if (foundry.utils.hasProperty(rayData, "flags.itemacro")) delete rayData.flags.itemacro;
+  if (foundry.utils.hasProperty(rayData, "flags.dae.macro")) delete rayData.flags.dae.macro;
   rayData.name = rayName;
   rayData.system.save.ability = saveAbility;
   rayData.system.description.value = description;

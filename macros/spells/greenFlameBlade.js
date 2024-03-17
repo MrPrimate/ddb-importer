@@ -110,7 +110,7 @@ async function attackNearby(originToken, ignoreIds) {
     caster, itemData: lastArg.itemData, sourceItem, userId: game.userId
   });
 
-  // const userId = getProperty(sourceItem, "flags.userId") ?? game.userId;
+  // const userId = foundry.utils.getProperty(sourceItem, "flags.userId") ?? game.userId;
   const result = await DDBImporter.DialogHelper.AskUserChooserDialog(userId,
     [{
       type: 'select',
@@ -134,16 +134,16 @@ async function attackNearby(originToken, ignoreIds) {
     }
   );
 
-  if (hasProperty(result, "results") && result.results.length > 0) {
+  if (foundry.utils.hasProperty(result, "results") && result.results.length > 0) {
     const selectedId = result.results[0];
     const targetToken = canvas.tokens.get(selectedId);
     const sourceItem = await fromUuid(lastArg.efData.flags.origin);
     const mod = caster.system.abilities[sourceItem.abilityMod].mod;
     const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate({ async: true });
     await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
-    const workflowItemData = duplicate(sourceItem);
+    const workflowItemData = foundry.utils.duplicate(sourceItem);
     workflowItemData.effects = [];
-    setProperty(workflowItemData, "flags.midi-qol", {});
+    foundry.utils.setProperty(workflowItemData, "flags.midi-qol", {});
     workflowItemData.system.target = { value: 1, units: "", type: "creature" };
     workflowItemData.system.range = { value: 5, long: null, units: "ft", };
     delete workflowItemData._id;
@@ -194,7 +194,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const weaponItem = caster.getEmbeddedDocument("Item", itemId);
           DAE.setFlag(caster, "greenFlameBladeChoice", itemId);
           DAE.setFlag(caster, "greenFlameBladeUserId", game.userId);
-          const weaponCopy = duplicate(weaponItem);
+          const weaponCopy = foundry.utils.duplicate(weaponItem);
           delete weaponCopy._id;
           if (cantripDice > 0) {
             weaponCopy.system.damage.parts[0][0] += ` + ${cantripDice - 1}d8[${damageType}]`;
@@ -212,18 +212,18 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             transfer: false,
             flags: { userId: game.userId, targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { specialDuration: ["1Action", "1Attack", "turnStartSource"], transfer: false } },
           });
-          if (hasProperty(sourceItemData, "flags.itemacro")) setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
-          if (hasProperty(sourceItemData, "flags.dae.macro")) setProperty(weaponCopy, "flags.dae.macro", duplicate(sourceItemData.flags.dae.macro));
-          setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
+          if (foundry.utils.hasProperty(sourceItemData, "flags.itemacro")) foundry.utils.setProperty(weaponCopy, "flags.itemacro", foundry.utils.duplicate(sourceItemData.flags.itemacro));
+          if (foundry.utils.hasProperty(sourceItemData, "flags.dae.macro")) foundry.utils.setProperty(weaponCopy, "flags.dae.macro", foundry.utils.duplicate(sourceItemData.flags.dae.macro));
+          foundry.utils.setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
           if (game.modules.get("sequencer")?.active && Sequencer.Database.entryExists(patreonPrimary)) {
-            const autoAnimationsAdjustments = duplicate(baseAutoAnimation);
+            const autoAnimationsAdjustments = foundry.utils.duplicate(baseAutoAnimation);
             autoAnimationsAdjustments.primary.video.animation = weaponCopy.system.type.baseItem && !["longsword", "rapier"].includes(weaponCopy.system.type.baseItem)
               ? weaponCopy.system.type.baseItem
               : "shortsword";
-            const autoanimations = hasProperty(weaponCopy, "flags.autoanimations")
-              ? mergeObject(getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)
+            const autoanimations = foundry.utils.hasProperty(weaponCopy, "flags.autoanimations")
+              ? foundry.utils.mergeObject(foundry.utils.getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)
               : autoAnimationsAdjustments;
-            setProperty(weaponCopy, "flags.autoanimations", autoanimations);
+            foundry.utils.setProperty(weaponCopy, "flags.autoanimations", autoanimations);
           }
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           attackItem.prepareData();

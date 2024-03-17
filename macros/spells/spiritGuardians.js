@@ -9,9 +9,9 @@ if (args[0] === "on"
   const tokenOrActor = await fromUuid(lastArg.actorUuid);
   const theActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
   const DAEItem = lastArg.efData.flags.dae.itemData;
-  const damageType = getProperty(DAEItem, "flags.ddbimporter.damageType") || "radiant";
+  const damageType = foundry.utils.getProperty(DAEItem, "flags.ddbimporter.damageType") || "radiant";
 
-  const itemData = mergeObject(
+  const itemData = foundry.utils.mergeObject(
     sourceItem.toObject(),
     {
       type: "weapon",
@@ -38,7 +38,7 @@ if (args[0] === "on"
     { overwrite: true, inlace: true, insertKeys: true, insertValues: true }
   );
   itemData.system.target.type = "self";
-  setProperty(itemData.flags, "autoanimations.killAnim", true);
+  foundry.utils.setProperty(itemData.flags, "autoanimations.killAnim", true);
   const item = new CONFIG.Item.documentClass(itemData, { parent: theActor });
   item.prepareData();
   item.prepareFinalAttributes();

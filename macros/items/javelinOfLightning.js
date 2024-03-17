@@ -98,13 +98,13 @@ if (args[0].macroPass === "postActiveEffects") {
   }
 
   if (targetTokens.length > 0) {
-    const lightningBoltData = duplicate(workflow.item);
+    const lightningBoltData = foundry.utils.duplicate(workflow.item);
     delete lightningBoltData.effects;
     delete lightningBoltData._id;
     delete lightningBoltData.flags["midi-qol"].onUseMacroName;
     delete lightningBoltData.flags["midi-qol"].onUseMacroParts;
-    if (hasProperty(lightningBoltData, "flags.itemacro")) delete lightningBoltData.flags.itemacro;
-    if (hasProperty(lightningBoltData, "flags.dae.macro")) delete lightningBoltData.flags.dae.macro;
+    if (foundry.utils.hasProperty(lightningBoltData, "flags.itemacro")) delete lightningBoltData.flags.itemacro;
+    if (foundry.utils.hasProperty(lightningBoltData, "flags.dae.macro")) delete lightningBoltData.flags.dae.macro;
     lightningBoltData.name +=  ": Bolt";
     lightningBoltData.system.damage.parts = [["4d6[lightning]", "lightning"]];
     lightningBoltData.system.actionType = "save";

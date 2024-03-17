@@ -12,7 +12,7 @@ export function paladinDefaultAuraEffect(document) {
         displayTemp: true,
       };
       effect.statuses.push(effect.name);
-      setProperty(effect, "flags.dae.stackable", "noneName");
+      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
     }
   });
   return document;

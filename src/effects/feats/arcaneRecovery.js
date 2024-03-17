@@ -5,8 +5,8 @@ export async function arcaneRecoveryEffect(document) {
   let effect = baseFeatEffect(document, document.name);
   await DDBMacros.setItemMacroFlag(document, "feat", "arcaneRecovery.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "feat", macroName: "arcaneRecovery.js" }));
-  setProperty(effect, "flags.dae.selfTarget", true);
-  setProperty(effect, "flags.dae.selfTargetAlways", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);
   document.system.actionType = "";
 

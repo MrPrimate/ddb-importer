@@ -59,7 +59,7 @@ export function getTarget(data) {
     result.value = getTargetValues(data);
   }
 
-  const rangeValue = getProperty(data, "definition.range.rangeValue");
+  const rangeValue = foundry.utils.getProperty(data, "definition.range.rangeValue");
 
   switch (data.definition.range.origin) {
     case "Touch":

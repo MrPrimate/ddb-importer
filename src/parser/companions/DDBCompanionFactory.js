@@ -46,7 +46,7 @@ export default class DDBCompanionFactory {
 
   async #buildCompanion(block, options = {}) {
     logger.debug("Beginning companion parse", { block });
-    const ddbCompanion = new DDBCompanion(block, mergeObject(options, { type: this.options.type }));
+    const ddbCompanion = new DDBCompanion(block, foundry.utils.mergeObject(options, { type: this.options.type }));
     // eslint-disable-next-line no-await-in-loop
     await ddbCompanion.parse();
     if (ddbCompanion.parsed) {
@@ -101,7 +101,7 @@ export default class DDBCompanionFactory {
     logger.debug("Matched companion names", companionNames);
 
     const existingCompanions = await game.actors.contents
-      .filter((companion) => hasProperty(companion, "folder.id")
+      .filter((companion) => foundry.utils.hasProperty(companion, "folder.id")
         && ((!folderOverride && this.folderIds.has(companion.folder.id))
           || folderOverride?.id === companion.folder.id)
         && (!limitToFactory || (limitToFactory && companionNames.includes(companion.name)))
@@ -204,7 +204,7 @@ export default class DDBCompanionFactory {
         isLocal: true,
         companions,
       };
-      const mergedSettings = mergeObject(currentAutomatedEvocationSettings, newAutomatedEvocationSettings);
+      const mergedSettings = foundry.utils.mergeObject(currentAutomatedEvocationSettings, newAutomatedEvocationSettings);
 
       this.actor.setFlag("automated-evocations", "isLocal", mergedSettings.isLocal);
       this.actor.setFlag("automated-evocations", "companions", mergedSettings.companions);

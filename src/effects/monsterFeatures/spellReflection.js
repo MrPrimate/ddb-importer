@@ -3,8 +3,8 @@ import { baseEffect } from "../effects.js";
 
 export async function spellReflectionEffect(document) {
 
-  setProperty(document, "system.activation.type", "special");
-  setProperty(document, "system.actionType", "other");
+  foundry.utils.setProperty(document, "system.activation.type", "special");
+  foundry.utils.setProperty(document, "system.actionType", "other");
 
   await DDBMacros.setItemMacroFlag(document, "monsterFeature", "spellReflection.js");
 

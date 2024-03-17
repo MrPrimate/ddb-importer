@@ -42,7 +42,7 @@ export default class DDBBaseFeature {
 
   _prepare() {
     if (this.ddbDefinition.infusionFlags) {
-      setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
+      foundry.utils.setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
     }
   }
 
@@ -192,7 +192,7 @@ export default class DDBBaseFeature {
       const resetType = DICTIONARY.resets.find((type) => type.id === this.ddbDefinition.limitedUse.resetType);
       let maxUses = (this.ddbDefinition.limitedUse.maxUses && this.ddbDefinition.limitedUse.maxUses !== -1) ? this.ddbDefinition.limitedUse.maxUses : 0;
       let intMaxUses = maxUses;
-      const statModifierUsesId = getProperty(this.ddbDefinition, "limitedUse.statModifierUsesId");
+      const statModifierUsesId = foundry.utils.getProperty(this.ddbDefinition, "limitedUse.statModifierUsesId");
       if (statModifierUsesId) {
         const ability = DICTIONARY.character.abilities.find((ability) => ability.id === statModifierUsesId).value;
 
@@ -213,7 +213,7 @@ export default class DDBBaseFeature {
         }
       }
 
-      const useProficiencyBonus = getProperty(this.ddbDefinition, "limitedUse.useProficiencyBonus");
+      const useProficiencyBonus = foundry.utils.getProperty(this.ddbDefinition, "limitedUse.useProficiencyBonus");
       if (useProficiencyBonus) {
         if (maxUses === 0) {
           maxUses = `@prof`;
@@ -265,7 +265,7 @@ export default class DDBBaseFeature {
     const kiPointRegex = /(?:spend|expend) (\d) ki point/;
     const match = this.data.system.description.value.match(kiPointRegex);
     if (match) {
-      setProperty(this.data, "system.consume.amount", match[1]);
+      foundry.utils.setProperty(this.data, "system.consume.amount", match[1]);
     }
 
   }
@@ -300,16 +300,16 @@ export default class DDBBaseFeature {
 
   _generateResourceFlags() {
     const linkItems = game.modules.get("link-item-resource-5e")?.active;
-    const resourceType = getProperty(this.rawCharacter, "flags.ddbimporter.resources.type");
+    const resourceType = foundry.utils.getProperty(this.rawCharacter, "flags.ddbimporter.resources.type");
     if (resourceType !== "disable" && linkItems) {
-      const hasResourceLink = getProperty(this.data.flags, "link-item-resource-5e.resource-link");
+      const hasResourceLink = foundry.utils.getProperty(this.data.flags, "link-item-resource-5e.resource-link");
       Object.keys(this.rawCharacter.system.resources).forEach((resource) => {
         const detail = this.rawCharacter.system.resources[resource];
         if (this.ddbDefinition.name === detail.label) {
-          setProperty(this.data.flags, "link-item-resource-5e.resource-link", resource);
+          foundry.utils.setProperty(this.data.flags, "link-item-resource-5e.resource-link", resource);
           this.rawCharacter.system.resources[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
         } else if (hasResourceLink === resource) {
-          setProperty(this.data.flags, "link-item-resource-5e.resource-link", undefined);
+          foundry.utils.setProperty(this.data.flags, "link-item-resource-5e.resource-link", undefined);
         }
       });
     }
@@ -317,7 +317,7 @@ export default class DDBBaseFeature {
 
   _getFeatModifierItem(choice, type) {
     if (this.ddbDefinition.grantedModifiers) return this.ddbDefinition;
-    let modifierItem = duplicate(this.ddbDefinition);
+    let modifierItem = foundry.utils.duplicate(this.ddbDefinition);
     const modifiers = [
       DDBHelper.getChosenClassModifiers(this.ddbData, { includeExcludedEffects: true, effectOnly: true }),
       DDBHelper.getModifiers(this.ddbData, "race", true, true),
@@ -421,12 +421,12 @@ export default class DDBBaseFeature {
       // missing: Arcane Shot : arcaneShot
       // missing: multiattack
 
-      if (subType) setProperty(this.data, "system.type.subtype", subType);
+      if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
     }
   }
 
   _generateSystemType() {
-    setProperty(this.data, "system.type.value", this.type);
+    foundry.utils.setProperty(this.data, "system.type.value", this.type);
   }
 
   // eslint-disable-next-line class-methods-use-this

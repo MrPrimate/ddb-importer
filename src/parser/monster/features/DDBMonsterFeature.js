@@ -81,7 +81,7 @@ export default class DDBMonsterFeature {
     this.#generateAdjustedName();
 
     // if not attack set to a monster type action
-    if (!this.isAttack) setProperty(this.feature, ".system.type.value", "monster");
+    if (!this.isAttack) foundry.utils.setProperty(this.feature, ".system.type.value", "monster");
 
   }
 
@@ -387,8 +387,8 @@ export default class DDBMonsterFeature {
     const halfSaveSearch = /or half as much damage on a successful one/i;
     const halfMatch = this.strippedHtml.match(halfSaveSearch);
     if (halfMatch) {
-      setProperty(this.feature, "flags.midiProperties.halfdam", true);
-      setProperty(this.feature, "flags.midiProperties.saveDamage", "halfdam");
+      foundry.utils.setProperty(this.feature, "flags.midiProperties.halfdam", true);
+      foundry.utils.setProperty(this.feature, "flags.midiProperties.saveDamage", "halfdam");
     }
 
     return this.actionInfo.save;
@@ -524,7 +524,7 @@ export default class DDBMonsterFeature {
 
     if (this.strippedHtml.includes("is a magic weapon attack")) {
       this.actionInfo.properties["mgc"] = true;
-      setProperty(this.feature, "flags.midiProperties.magicdam", true);
+      foundry.utils.setProperty(this.feature, "flags.midiProperties.magicdam", true);
     }
 
     if (this.spellAttack) {
@@ -721,8 +721,8 @@ export default class DDBMonsterFeature {
       if (this.templateType === "feat") {
         this.feature.system.equipped = true;
       }
-      setProperty(this.feature, "flags.midiProperties.magicdam", true);
-      setProperty(this.feature, "flags.midiProperties.magiceffect", true);
+      foundry.utils.setProperty(this.feature, "flags.midiProperties.magicdam", true);
+      foundry.utils.setProperty(this.feature, "flags.midiProperties.magiceffect", true);
       this.feature.system.properties.mgc = true;
     } else if (this.actionInfo.save.dc) {
       this.feature.system.actionType = "save";

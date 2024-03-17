@@ -9,7 +9,7 @@ const weapons = targetActor.items.filter((i) => i.type === "weapon");
 if (args[0] === "on") {
   weapons.forEach((weapon) => {
     if (weapon.abilityMod === "str") {
-      const originalParts = duplicate(weapon.system.damage.parts);
+      const originalParts = foundry.utils.duplicate(weapon.system.damage.parts);
       weapon.setFlag("world", "RayOfEnfeeblementSpell", originalParts);
       weapon.system.damage.parts.forEach((part) => {
         part[0] = `floor((${part[0]})/2)`;

@@ -6,8 +6,8 @@ export function frostbiteEffect(document) {
     { key: "flags.midi-qol.disadvantage.attack.mwak", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 50 },
     { key: "flags.midi-qol.disadvantage.attack.rwak", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 50 },
   );
-  setProperty(effect, "duration.rounds", 2);
-  setProperty(effect, "flags.dae.specialDuration", ["1Attack:rwak", "1Attack:mwak", "turnEnd"]);
+  foundry.utils.setProperty(effect, "duration.rounds", 2);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["1Attack:rwak", "1Attack:mwak", "turnEnd"]);
   document.effects.push(effect);
 
   return document;

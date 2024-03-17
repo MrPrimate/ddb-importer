@@ -31,7 +31,7 @@ const FEAT_TEMPLATE = {
 };
 
 function buildBase(data) {
-  let result = duplicate(FEAT_TEMPLATE);
+  let result = foundry.utils.duplicate(FEAT_TEMPLATE);
 
   result.name = data.name;
   result.system.description.value += `${data.description}\n\n`;

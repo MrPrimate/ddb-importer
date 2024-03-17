@@ -28,7 +28,7 @@ export async function slayersPreyEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "feat", "slayersPrey.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "feat", "slayersPrey.js", ["postActiveEffects"]);
 
-  setProperty(document, "system.actionType", "util");
+  foundry.utils.setProperty(document, "system.actionType", "util");
   document.system.damage.parts = [];
   document.system.target = {
     value: 1,

@@ -16,7 +16,7 @@ import { parseTags } from '../../lib/DDBReferenceLinker.js';
 async function parseVehicle(ddb, extra = {}) {
 
   logger.debug("Parsing vehicle", { extra });
-  let vehicle = duplicate(await newVehicle(ddb.name));
+  let vehicle = foundry.utils.duplicate(await newVehicle(ddb.name));
   const configurations = {};
   ddb.configurations.forEach((c) => {
     configurations[c.key] = c.value;
@@ -65,7 +65,7 @@ async function parseVehicle(ddb, extra = {}) {
     vehicle.system.traits.dimensions = `(${ddb.weight} lb.)`;
   }
 
-  const movement = duplicate(vehicle.system.attributes.movement);
+  const movement = foundry.utils.duplicate(vehicle.system.attributes.movement);
   vehicle.system.attributes.movement = getMovement(ddb, configurations, movement);
 
   const primaryComponent = ddb.components.find((c) => c.isPrimaryComponent);

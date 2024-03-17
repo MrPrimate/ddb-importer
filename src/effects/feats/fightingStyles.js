@@ -28,8 +28,8 @@ export function fightingStyleInterceptionEffect(document) {
       priority: "20",
     }
   );
-  setProperty(effect, "duration.turns", 1);
-  setProperty(effect, "flags.dae.specialDuration", ["isDamaged"]);
+  foundry.utils.setProperty(effect, "duration.turns", 1);
+  foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isDamaged"]);
   document.system.target = {
     value: 1,
     width: null,

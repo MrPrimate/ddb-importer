@@ -90,12 +90,12 @@ const CompendiumHelper = {
 
   loadCompendiumIndex: async (type, indexOptions = {}) => {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
-    setProperty(CONFIG.DDBI, `compendium.label.${type}`, compendiumLabel);
+    foundry.utils.setProperty(CONFIG.DDBI, `compendium.label.${type}`, compendiumLabel);
     const compendium = await CompendiumHelper.getCompendium(compendiumLabel);
 
     if (compendium) {
       const index = await compendium.getIndex(indexOptions);
-      setProperty(CONFIG.DDBI, `compendium.index.${type}`, index);
+      foundry.utils.setProperty(CONFIG.DDBI, `compendium.index.${type}`, index);
       return index;
     } else {
       return undefined;
@@ -113,7 +113,7 @@ const CompendiumHelper = {
       if (!updateImages && existingNPC.system.img !== CONST.DEFAULT_TOKEN) {
         foundryActor.img = existingNPC.system.img;
       }
-      if (!updateImages && getProperty(existingNPC, "prototypeToken.texture.src") !== CONST.DEFAULT_TOKEN) {
+      if (!updateImages && foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src") !== CONST.DEFAULT_TOKEN) {
         foundryActor.prototypeToken.texture.src = existingNPC.prototypeToken.texture.src;
         foundryActor.prototypeToken.scale = existingNPC.prototypeToken.scale;
         foundryActor.prototypeToken.randomImg = existingNPC.prototypeToken.randomImg;
@@ -146,7 +146,7 @@ const CompendiumHelper = {
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
     const index = await CompendiumHelper.loadCompendiumIndex(type, { fields: monsterIndexFields });
     const npcMatch = index.contents.find((entity) =>
-      hasProperty(entity, "flags.ddbimporter.id")
+      foundry.utils.hasProperty(entity, "flags.ddbimporter.id")
       && entity.flags.ddbimporter.id == npc.flags.ddbimporter.id
       && ((!legacyName && entity.name.toLowerCase() === npc.name.toLowerCase())
         || (legacyName && npc.flags.ddbimporter.isLegacy && npc.name.toLowerCase().startsWith(entity.name.toLowerCase()))

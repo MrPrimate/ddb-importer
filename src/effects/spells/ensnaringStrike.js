@@ -9,8 +9,8 @@ export async function ensnaringStrikeEffect(document) {
     effect.changes.push(
       DDBMacros.generateOnUseMacroChange({ macroPass: "postActiveEffects", macroType: "spell", macroName: "ensnaringStrike.js", document }),
     );
-    setProperty(effect, "flags.dae.selfTarget", true);
-    setProperty(effect, "flags.dae.selfTargetAlways", true);
+    foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
+    foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
 
     document.effects.push(effect);
     document.system.damage = { parts: [], versatile: "", value: "" };

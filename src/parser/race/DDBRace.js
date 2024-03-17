@@ -180,7 +180,7 @@ export default class DDBRace {
 
   #addFeatureDescription(trait) {
     const featureMatch = this.compendiumRacialTraits.find((match) =>
-      hasProperty(match, "flags.ddbimporter.baseName") && hasProperty(match, "flags.ddbimporter.entityRaceId")
+      foundry.utils.hasProperty(match, "flags.ddbimporter.baseName") && foundry.utils.hasProperty(match, "flags.ddbimporter.entityRaceId")
       && utils.nameString(trait.name) === utils.nameString(match.flags.ddbimporter.baseName)
       && match.flags.ddbimporter.entityRaceId === trait.entityRaceId
     );
@@ -217,7 +217,7 @@ export default class DDBRace {
   }
 
   #flightCheck(trait) {
-    if (trait.name.trim() === "Flight" && getProperty(this.race, "weightSpeeds.normal.fly") === 0) {
+    if (trait.name.trim() === "Flight" && foundry.utils.getProperty(this.race, "weightSpeeds.normal.fly") === 0) {
       const typeRegex = /you have a flying speed equal to your walking speed/i;
       const flightMatch = trait.description.match(typeRegex);
       if (flightMatch) {
@@ -405,8 +405,8 @@ export default class DDBRace {
 
             logger.debug(`Advancement Race ${a._id} found Feature ${feat.name} (${this.featLink.uuid})`);
             addedFeats[feat._id] = this.featLink.uuid;
-            setProperty(feat, "flags.dnd5e.sourceId", this.featLink.uuid);
-            setProperty(feat, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
+            foundry.utils.setProperty(feat, "flags.dnd5e.sourceId", this.featLink.uuid);
+            foundry.utils.setProperty(feat, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
           }
 
 
@@ -454,7 +454,7 @@ export default class DDBRace {
     this.#generateAbilityAdvancement();
 
     // set final type
-    setProperty(this.data, "system.type.value", this.type);
+    foundry.utils.setProperty(this.data, "system.type.value", this.type);
 
     // finally a tag parse to update the description
     this.data.system.description.value = parseTags(this.data.system.description.value);

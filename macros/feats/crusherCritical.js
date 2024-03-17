@@ -28,7 +28,7 @@ if (args[0].tag === "DamageBonus" && args[0].isCritical) {
           },
         ],
       };
-      setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
       await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: hitTarget.actor.uuid, effects: [effect] });
     }
   }
