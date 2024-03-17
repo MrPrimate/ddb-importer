@@ -216,8 +216,8 @@ const CompendiumHelper = {
           label,
           name,
           package: packageType,
-          folder: folderId,
         });
+        if (folderId) await newCompendium.setFolder(folderId);
         return {
           compendium: newCompendium,
           created: true
