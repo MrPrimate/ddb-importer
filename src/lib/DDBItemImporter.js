@@ -41,7 +41,8 @@ export default class DDBItemImporter {
     // console.warn("flagMatch", {item1, item2, matchFlags});
     if (this.matchFlags.length === 0) return true;
     const matched = this.matchFlags.some((flag) =>
-      item1.flags.ddbimporter[flag] && item2.flags.ddbimporter[flag]
+      foundry.utils.hasProperty(item1, `flags.ddbimporter.${flag}`)
+      && foundry.utils.hasProperty(item2, `flags.ddbimporter.${flag}`)
       && item1.flags.ddbimporter[flag] === item2.flags.ddbimporter[flag]
     );
     return matched;
