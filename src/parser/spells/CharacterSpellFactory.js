@@ -210,6 +210,7 @@ export default class CharacterSpellFactory {
         let unlimitedSpell = foundry.utils.duplicate(spell);
         unlimitedSpell.limitedUse = null;
         unlimitedSpell.usesSpellSlot = true;
+        unlimitedSpell.alwaysPrepared = true;
         unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
         unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
         unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = type;
