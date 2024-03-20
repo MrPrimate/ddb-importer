@@ -66,12 +66,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     temporary: true,
   });
 
-  const options = {
-    createWorkflow: true,
-    targetUuids: macroData.hitTargetUuids,
-    configureDialog: false,
-  };
-  await MidiQOL.completeItemUse(areaSpell, {}, options);
+  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: macroData.hitTargetUuids });
+  await MidiQOL.completeItemUse(areaSpell, config, options);
 
   // Remove concentration and the effect causing it since the effect has been used
   const effect = MidiQOL.getConcentrationEffect(macroData.actor);

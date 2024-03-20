@@ -115,6 +115,9 @@ export function fixSpells(ddb, items) {
         }
         spell.system.scaling = { mode: "cantrip", formula: "1d8" };
         spell.system.actionType = "other";
+        spell.system.target.type = "creature";
+        spell.system.target.value = 1;
+        spell.system.target.units = "";
         break;
       case "Bones of the Earth": {
         spell.system.target.value = 2.5;
@@ -194,6 +197,9 @@ export function fixSpells(ddb, items) {
         }
         spell.system.scaling = { mode: "cantrip", formula: "1d8" };
         spell.system.actionType = "other";
+        spell.system.target.type = "creature";
+        spell.system.target.value = 1;
+        spell.system.target.units = "";
         break;
       case "Gust of Wind":
         spell.system.target = { value: 60, units: "ft", type: "line", width: 10 };

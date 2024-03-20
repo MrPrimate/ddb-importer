@@ -913,4 +913,28 @@ export default class DDBEffectHelper {
     return results;
   }
 
+  static syntheticItemWorkflowOptions({ targets = undefined, showFullCard = false, useSpellSlot = false, castLevel = false, consume = false, configureDialog = false } = {}) {
+    return [
+      {
+        showFullCard,
+        createWorkflow: true,
+        consumeResource: consume,
+        consumeRecharge: consume,
+        consumeQuantity: consume,
+        consumeUsage: consume,
+        consumeSpellSlot: useSpellSlot,
+        consumeSpellLevel: castLevel,
+        slotLevel: castLevel,
+      },
+      {
+        targetUuids: targets,
+        configureDialog,
+        workflowOptions: {
+          autoRollDamage: 'always',
+          autoFastDamage: true,
+          autoRollAttack: true,
+        }
+      }
+    ];
+  }
 }

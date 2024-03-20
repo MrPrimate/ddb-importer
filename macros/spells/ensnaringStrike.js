@@ -151,13 +151,9 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   if (dnd5e.config.tokenSizes[targetActor?.system.traits.size ?? "med"] >= dnd5e.config.tokenSizes["lg"]) {
     await DDBImporter?.EffectHelper.addSaveAdvantageToTarget(targetActor, originItem, "str", " (Large Creature)");
   }
-  const options = {
-    createWorkflow: true,
-    targetUuids: [macroData.hitTargetUuids[0]],
-    configureDialog: false,
-    skipOnUse: true,
-  };
-  const spellEffectWorkflow = await MidiQOL.completeItemUse(spell, {}, options);
+
+  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [macroData.hitTargetUuids[0]] });
+  const spellEffectWorkflow = await MidiQOL.completeItemUse(spell, config, options);
   const conEffect = MidiQOL.getConcentrationEffect(sourceActor);
 
   if (spellEffectWorkflow.hitTargets.size > 0 && spellEffectWorkflow.failedSaves.size > 0) {

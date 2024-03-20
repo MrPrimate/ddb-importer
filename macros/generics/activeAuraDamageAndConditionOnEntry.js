@@ -68,8 +68,8 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
     const saveTargets = [...game.user?.targets].map((t )=> t.id);
     game.user.updateTokenTargets([targetToken.id]);
     const saveItem = new CONFIG.Item.documentClass(workflowItemData, { parent: caster });
-    const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
-    const result = await MidiQOL.completeItemUse(saveItem, {}, options);
+    const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions();
+    const result = await MidiQOL.completeItemUse(saveItem, config, options);
 
     game.user.updateTokenTargets(saveTargets);
     const failedSaves = [...result.failedSaves];

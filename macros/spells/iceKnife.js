@@ -33,17 +33,8 @@ if (lastArg.targets.length > 0) {
     .concat(target)
     .map((t) => t.document.uuid);
 
-  const options = {
-    showFullCard: false,
-    createWorkflow: true,
-    targetUuids: aoeTargets,
-    configureDialog: false,
-    versatile: false,
-    consumeResource: false,
-    consumeSlot: false,
-  };
-
-  await MidiQOL.completeItemUse(areaSpell, {}, options);
+  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: aoeTargets });
+  await MidiQOL.completeItemUse(areaSpell, config, options);
 } else {
   ui.notifications.error("Ice Knife: No target selected: unable to automate burst effect.");
 }

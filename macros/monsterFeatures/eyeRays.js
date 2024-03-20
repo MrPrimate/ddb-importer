@@ -89,22 +89,14 @@ async function attackWithRay(documentData) {
     documentData: foundry.utils.deepClone(documentData),
   })
   const rayItem = new CONFIG.Item.documentClass(documentData, { parent: workflow.actor });
-  const workflowOptions = {
-    showFullCard: false,
-    createWorkflow: true,
-    targetUuids: args[0].targetUuids,
-    configureDialog: false,
-    versatile: false,
-    consumeResource: false,
-    consumeSlot: false,
-  };
+  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: args[0].targetUuids });
 
   console.warn("Midi Options", {
     documentData,
     workflowOptions,
     rayItem,
   });
-  return await MidiQOL.completeItemUse(rayItem, {}, workflowOptions);
+  return await MidiQOL.completeItemUse(rayItem, config, options);
 }
 
 async function createBaseRay(rayName, { description, saveAbility = "", saveDC = null }) {

@@ -112,15 +112,7 @@ if (args[0].macroPass === "postActiveEffects") {
     lightningBoltData.system.save.dc = 13;
     lightningBoltData.system.save.scaling = "flat";
     const areaSpell = new CONFIG.Item.documentClass(lightningBoltData, { parent: workflow.actor });
-    const options = {
-      showFullCard: false,
-      createWorkflow: true,
-      targetUuids: targetTokens,
-      configureDialog: false,
-      versatile: false,
-      consumeResource: false,
-      consumeSlot: false,
-    };
+    const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: targetTokens });
 
     // console.warn("Midi Options", {
     //   areaSpell,
@@ -128,7 +120,7 @@ if (args[0].macroPass === "postActiveEffects") {
     //   targetTokens,
     //   lightningBoltData,
     // })
-    await MidiQOL.completeItemUse(areaSpell, {}, options);
+    await MidiQOL.completeItemUse(areaSpell, config, options);
   }
 } else if (args[0].macroPass === "postDamageRoll") {
   if (!workflow.item.flags.world?.useBolt) return;

@@ -42,6 +42,6 @@ if (args[0] === "on"
   const item = new CONFIG.Item.documentClass(itemData, { parent: theActor });
   item.prepareData();
   item.prepareFinalAttributes();
-  const options = { showFullCard: false, createWorkflow: true, versatile: false, configureDialog: false };
-  await MidiQOL.completeItemUse(item, {}, options);
+  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions();
+  await MidiQOL.completeItemUse(item, config, options);
 }

@@ -46,16 +46,8 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   if (saveOnEntry) {
     const entryItem = new CONFIG.Item.documentClass(workflowItemData, { parent: caster });
     // console.warn("Saving item on entry", {entryItem, targetToken});
-    const options = {
-      showFullCard: false,
-      createWorkflow: true,
-      targetUuids: [targetToken.document.uuid],
-      configureDialog: false,
-      versatile: false,
-      consumeResource: false,
-      consumeSlot: false,
-    };
-    await MidiQOL.completeItemUse(entryItem, {}, options);
+    const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [targetToken.document.uuid] });
+    await MidiQOL.completeItemUse(entryItem, config, options);
   } else {
     const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate({ async: true });
     await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");

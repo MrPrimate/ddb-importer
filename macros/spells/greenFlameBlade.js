@@ -228,14 +228,8 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           attackItem.prepareData();
           attackItem.prepareFinalAttributes();
-          const workflowOptions = {
-            // autoFastForward: "on",
-            autoRollAttack: true,
-            // autoRollDamage: 'onHit',
-            // autoFastDamage: true
-          };
-          const options = { showFullCard: false, createWorkflow: true, configureDialog: true, workflowOptions };
-          const result = await MidiQOL.completeItemUse(attackItem, {}, options);
+          const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [target.uuid] });
+          const result = await MidiQOL.completeItemUse(attackItem, config, options);
           // console.warn("HERE6", {weaponCopy, sourceItemData, attackItem, options, result})
         },
       },
@@ -252,7 +246,7 @@ if (args[0].tag === "OnUse") {
     const casterData = await fromUuid(lastArg.actorUuid);
     const caster = casterData.actor ? casterData.actor : casterData;
     // console.warn({
-    //   caster, itemData: lastArg.itemData, uuid: lastArg.uuid, targets: lastArg.targets[0]
+    //   caster, itemData: lastArg.itemData, uuid: lastArg.uuid, targets: lastArg.targets[0], lastArg
     // })
     weaponAttack(caster, lastArg.itemData, lastArg.uuid, lastArg.targets[0]);
   } else {

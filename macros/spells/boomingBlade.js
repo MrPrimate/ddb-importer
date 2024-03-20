@@ -71,8 +71,8 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             // autoRollDamage: 'onHit',
             // autoFastDamage: true
           };
-          const options = { showFullCard: false, createWorkflow: true, configureDialog: true, workflowOptions };
-          await MidiQOL.completeItemUse(attackItem, {}, options);
+          const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [target.uuid] });
+          await MidiQOL.completeItemUse(attackItem, config, options);
         },
       },
       Cancel: {

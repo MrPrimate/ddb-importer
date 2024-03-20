@@ -4,6 +4,7 @@
 - Long standing bug with compendiums appearing outside of D&D Beyond Folder on first load after creation. (Thanks kaelad02!)
 - Some more error handling if comependiums contain custom items.
 - For spells granted through feats that allow you to cast it using your spell slots, these will now be marked as prepared.
+- Effects such as Green Flame blade would not work if Midi-QoL auto attack was disabled.
 
 # 5.0.0
 
