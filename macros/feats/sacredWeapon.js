@@ -72,13 +72,13 @@ if (args[0] === "on") {
           let copyItem = foundry.utils.duplicate(weaponItem);
           const bonus = args[1];
           DAE.setFlag(targetActor, "sacredWeapon", {
-            bonus: weaponItem.system.attackBonus,
+            bonus: weaponItem.system.attack.bonus,
             name: weaponItem.name,
             weapon: itemId,
-            mgc: weaponItem.system.properties.mgc,
+            mgc: weaponItem.system.properties.includes("mgc"),
           });
-          if (copyItem.system.attackBonus === "") copyItem.system.attackBonus = "0";
-          copyItem.system.attackBonus = `${parseInt(copyItem.system.attackBonus) + bonus}`;
+          if (copyItem.system.attack.bonus === "") copyItem.system.attack.bonus = "0";
+          copyItem.system.attack.bonus = `${parseInt(copyItem.system.attack.bonus) + bonus}`;
           copyItem.system.properties.mgc = true;
           copyItem.name = `Sacred ${weaponItem.name}`;
           targetActor.updateEmbeddedDocuments("Item", [copyItem]);
@@ -96,8 +96,8 @@ if (args[0] === "off") {
   const { bonus, name, weapon, mgc } = DAE.getFlag(targetActor, "sacredWeapon");
   const weaponItem = targetActor.items.get(weapon);
   let copyItem = foundry.utils.duplicate(weaponItem);
-  copyItem.system.attackBonus = bonus;
-  copyItem.system.properties.mgc = mgc;
+  copyItem.system.attack.bonus = bonus;
+  if (mgc) DDBImporter.EffectHelper.removeFromProperties(copyItem.system.properties, "mgc");
   copyItem.name = name;
   targetActor.updateEmbeddedDocuments("Item", [copyItem]);
   DAE.unsetFlag(targetActor, "sacredWeapon");

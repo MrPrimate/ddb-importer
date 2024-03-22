@@ -19,7 +19,9 @@ if (args[0].tag === "OnUse") {
         description: DAEItem.system.description,
         activation: { type: "bonus", },
         ability: DAEItem.system.ability,
-        attackBonus: DAEItem.system.attackBonus,
+        attack: {
+          bonus: DAEItem.system.attack.bonus,
+        },
         actionType: "rsak",
         damage: { parts: [[`${spellLevel}d6[lightning]`, "lightning"]], versatile: "", },
         level: 0,

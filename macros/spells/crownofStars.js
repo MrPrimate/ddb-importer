@@ -26,7 +26,9 @@ if (args[0] === "on") {
         uses: { value: stars, max: stars, per: "charges", },
         ability: DAEItem.system.ability,
         actionType: "rsak",
-        attackBonus: DAEItem.system.attackBonus,
+        attack: {
+          bonus: DAEItem.system.attack.bonus,
+        },
         chatFlavor: "",
         critical: null,
         damage: { parts: [["4d12", "radiant"]], versatile: "" },

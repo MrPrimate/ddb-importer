@@ -328,7 +328,7 @@ export default function parseWeapon(data, character, flags) {
   }
 
   weapon.system.actionType = getActionType(data);
-  weapon.system.attackBonus = getWeaponMagicalBonus(data, flags);
+  weapon.system.attack.bonus = getWeaponMagicalBonus(data, flags);
 
   [
     weapon.system.damage,

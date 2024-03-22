@@ -701,7 +701,7 @@ export default class DDBMonsterFeature {
     this.feature.system.properties = this.actionInfo.properties;
     this.feature.system.proficient = this.actionInfo.proficient;
     this.feature.system.ability = this.actionInfo.baseAbility;
-    this.feature.system.attackBonus = `${this.actionInfo.extraAttackBonus}`;
+    this.feature.system.attack.bonus = `${this.actionInfo.extraAttackBonus}`;
 
     if (this.weaponAttack) {
       if (this.templateType !== "feat") {

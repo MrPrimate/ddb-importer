@@ -107,7 +107,7 @@ export function equipmentEffectAdjustment(document) {
       // Unarmed strikes bonus/weapons
       document.effects[0].changes.push(
         {
-          key: "items.Unarmed Strike.system.attackBonus",
+          key: "items.Unarmed Strike.system.attack.bonus",
           value: "1",
           mode: 2,
           priority: 20,

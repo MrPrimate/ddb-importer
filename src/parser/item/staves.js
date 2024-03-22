@@ -167,7 +167,7 @@ export default function parseStaff(data, character) {
   staff.system.range = getRange(data);
   staff.system.ability = getAbility(staff.system.properties, staff.system.range, character.flags.ddbimporter.dndbeyond.effectAbilities);
   staff.system.actionType = staff.system.range.long === 5 ? "mwak" : "rwak";
-  staff.system.attackBonus = getMagicalBonus(data);
+  staff.system.attack.bonus = getMagicalBonus(data);
   staff.system.damage = getDamage(data, getMagicalBonus(data));
 
   return staff;

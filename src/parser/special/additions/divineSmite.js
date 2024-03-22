@@ -56,7 +56,9 @@ export function getDivineSmiteSpell(feature) {
       },
       ability: "",
       actionType: "other",
-      attackBonus: 0,
+      attack: {
+        bonus: 0,
+      },
       chatFlavor: "",
       critical: null,
       damage: {
@@ -73,7 +75,7 @@ export function getDivineSmiteSpell(feature) {
       },
       level: 1,
       school: "",
-      properties: [],
+      properties: ["mgc"],
       materials: {
         value: "",
         consumed: false,

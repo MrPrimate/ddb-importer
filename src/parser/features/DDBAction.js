@@ -288,7 +288,7 @@ export default class DDBAction extends DDBBaseFeature {
     }
     if (this.ddbDefinition.isMartialArts) {
       this._generateMartialArtsDamage();
-      this.data.system.attackBonus = DDBHelper.filterBaseModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
+      this.data.system.attack.bonus = DDBHelper.filterBaseModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
     } else {
       this._generateDamage();
     }

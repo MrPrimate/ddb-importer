@@ -106,7 +106,7 @@ function getWeaponProperties(action, weapon) {
   weapon.system.description.value += `\n${action.description}`;
 
   if (action.fixedToHit !== null) {
-    weapon.system.attackBonus = `${action.fixedToHit}`;
+    weapon.system.attack.bonus = `${action.fixedToHit}`;
   }
 
   weapon.system.type.value = "siege";

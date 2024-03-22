@@ -83,7 +83,9 @@ if (args[0] === "on") {
         description: DAEItem.system.description,
         activation: { type: "action", },
         ability: DAEItem.system.ability,
-        attackBonus: DAEItem.system.attackBonus,
+        attack: {
+          bonus: DAEItem.system.attack.bonus,
+        },
         actionType: "save",
         damage: { parts: [[`${spellLevel}d10`, "radiant"]], versatile: "", },
         formula: "",

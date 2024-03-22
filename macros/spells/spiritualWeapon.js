@@ -70,7 +70,9 @@ if (args[0] === "on") {
         // we choose 60ft here in case the midi-check range is on
         range: { value: 60, long: null, units: "ft", },
         ability: DAEItem.system.ability,
-        attackBonus: DAEItem.system.attackBonus,
+        attack: {
+          bonus: DAEItem.system.attack.bonus,
+        },
         actionType: "msak",
         chatFlavor: "",
         critical: null,
@@ -79,6 +81,7 @@ if (args[0] === "on") {
           value: "simpleM",
         },
         proficient: true,
+        properties: ["mgc"],
         equipped: true,
       },
       flags: { SpiritualWeapon: targetActor.id, ddbimporter: { ignoreItemUpdate: true } },

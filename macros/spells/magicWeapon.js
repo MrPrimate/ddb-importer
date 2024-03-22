@@ -79,16 +79,16 @@ if (args[0] === "on") {
           const wpDamage = copyItem.system.damage.parts[0][0];
           const verDamage = copyItem.system.damage.versatile;
           DAE.setFlag(targetActor, "magicWeapon", {
-            damage: weaponItem.system.attackBonus,
+            damage: weaponItem.system.attack.bonus,
             weapon: itemId,
             weaponDmg: wpDamage,
             verDmg: verDamage,
-            mgc: copyItem.system.properties.mgc,
+            mgc: copyItem.system.properties.includes("mgc"),
           });
-          if (copyItem.system.attackBonus === "") copyItem.system.attackBonus = "0";
-          copyItem.system.attackBonus = `${parseInt(copyItem.system.attackBonus) + bonus}`;
+          if (copyItem.system.attack.bonus === "") copyItem.system.attack.bonus = "0";
+          copyItem.system.attack.bonus = `${parseInt(copyItem.system.attack.bonus) + bonus}`;
           copyItem.system.damage.parts[0][0] = wpDamage + " + " + bonus;
-          copyItem.system.properties.mgc = true;
+          copyItem.system.properties.push("mgc");
           if (verDamage !== "" && verDamage !== null) copyItem.system.damage.versatile = verDamage + " + " + bonus;
           targetActor.updateEmbeddedDocuments("Item", [copyItem]);
         },
@@ -105,9 +105,9 @@ if (args[0] === "off") {
   const { damage, weapon, weaponDmg, verDmg, mgc } = DAE.getFlag(targetActor, "magicWeapon");
   const weaponItem = targetActor.items.get(weapon);
   let copyItem = foundry.utils.duplicate(weaponItem);
-  copyItem.system.attackBonus = damage;
+  copyItem.system.attack.bonus = damage;
   copyItem.system.damage.parts[0][0] = weaponDmg;
-  copyItem.system.properties.mgc = mgc;
+  if (!mgc) DDBImporter.EffectHelper.removeFromProperties(copyItem.system.properties, "mgc");
   if (verDmg !== "" && verDmg !== null) copyItem.system.damage.versatile = verDmg;
   targetActor.updateEmbeddedDocuments("Item", [copyItem]);
   DAE.unsetFlag(targetActor, "magicWeapon");

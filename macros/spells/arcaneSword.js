@@ -73,7 +73,9 @@ if (args[0] === "on") {
         target: { value: 1, type: "creature", },
         range: { value: 5, long: null, units: "", },
         ability: DAEItem.system.ability,
-        attackBonus: DAEItem.system.attackBonus,
+        attack: {
+          bonus: DAEItem.system.attack.bonus,
+        },
         actionType: "msak",
         chatFlavor: "",
         critical: null,
@@ -81,6 +83,7 @@ if (args[0] === "on") {
         type: {
           value: "simpleM",
         },
+        properties: ["mgc"],
         proficient: true,
         equipped: true,
       },

@@ -47,7 +47,9 @@ if (args[0] === "on") {
         activation: { type: "action", },
         target: { value: 5, width: null, units: "ft", type: "radius", },
         ability: DAEItem.system.ability,
-        attackBonus: DAEItem.system.attackBonus,
+        attack: {
+          bonus: DAEItem.system.attack.bonus,
+        },
         actionType: "save",
         damage: { parts: [[`${args[1]}d10`, "lightning"]], versatile: "", },
         formula: "",

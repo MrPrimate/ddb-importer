@@ -516,7 +516,7 @@ function enhanceParsedExtra(actor, extra) {
           const characterMod = parseInt(actor.system.abilities[characterAbility].mod);
           // eslint-disable-next-line no-eval
           const globalMod = parseInt(eval(actor.system.bonuses.rsak.attack || 0));
-          item.system.attackBonus = characterMod + globalMod - mod;
+          item.system.attack.bonus = characterMod + globalMod - mod;
         }
       }
       return item;

@@ -28,13 +28,16 @@ if (args[0] === "on") {
         range: { value: 5, long: null, units: "", },
         ability: DAEItem.system.ability,
         actionType: "msak",
-        attackBonus: DAEItem.system.attackBonus,
+        attack: {
+          bonus: DAEItem.system.attack.bonus,
+        },
         chatFlavor: "",
         critical: null,
         damage: { parts: [[`${weaponDamage}d6`, "fire"]], versatile: "" },
         type: {
           value: "simpleM",
         },
+        properties: ["mgc"],
         proficient: true,
         equipped: true,
         description: DAEItem.system.description,

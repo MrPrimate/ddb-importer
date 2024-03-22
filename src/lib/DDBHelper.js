@@ -808,10 +808,10 @@ const DDBHelper = {
     const dcBonus = DDBHelper.getCustomValue(foundryItem, ddb, 14);
 
     if (toHitBonus) {
-      if (foundry.utils.hasProperty(foundryItem, "system.attackBonus") && parseInt(foundryItem.system.attackBonus) === 0) {
-        foundryItem.system.attackBonus = toHitBonus;
+      if (foundry.utils.hasProperty(foundryItem, "system.attack.bonus") && parseInt(foundryItem.system.attack.bonus) === 0) {
+        foundryItem.system.attack.bonus = toHitBonus;
       } else {
-        foundryItem.system.attackBonus += ` + ${toHitBonus}`;
+        foundryItem.system.attack.bonus += ` + ${toHitBonus}`;
       }
     }
     if (damageBonus && foundryItem.system?.damage?.parts && foundryItem.system?.damage?.parts.length !== 0) {
