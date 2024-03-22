@@ -3,6 +3,7 @@
 - Only for D&D SYstem version 3.1 and higher.
 - Advancement fixes for new version.
 - Summoning Spells (Tasha's only right now) use new summoning mode.
+- Many small tweaks for new version. Many macros changed around the new attack bonus changes.
 
 # 5.0.1
 
