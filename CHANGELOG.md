@@ -1,3 +1,8 @@
+# 5.1.0
+
+- Only for D&D SYstem version 3.1 and higher.
+_ Advancement fixes for new version.
+
 # 5.0.1
 
 - First pass code tweaks for v12 support.
