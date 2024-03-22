@@ -81,8 +81,8 @@ DDBCharacter.prototype._setSpecialSkills = function _setSpecialSkills() {
         (feature) => feature.name === "Silver Tongue" && klass.level >= feature.requiredLevel
       );
       if (silverTongue) {
-        this.raw.character.system.skills["per"].bonuses.minimum = 10;
-        this.raw.character.system.skills["dec"].bonuses.minimum = 10;
+        this.raw.character.system.skills["per"].roll.min = 10;
+        this.raw.character.system.skills["dec"].roll.min = 10;
       }
     }
   });
@@ -138,7 +138,11 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
             bonuses: {
               "check": `${parseInt(checkBonus) === 0 ? "" : checkBonus}`,
               "passive": "",
-              "minimum": null,
+            },
+            roll: {
+              min: null,
+              max: null,
+              mode: 0
             },
           };
         }
@@ -196,7 +200,11 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
       bonuses: {
         check: `${parseInt(skillBonus) === 0 ? "" : skillBonus}`,
         passive: `${parseInt(passiveBonus) === 0 ? "" : passiveBonus}`,
-        minimum: null,
+      },
+      roll: {
+        min: null,
+        max: null,
+        mode: 0
       },
     };
   });
