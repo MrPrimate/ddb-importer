@@ -17,7 +17,7 @@ DDBCharacter.prototype.addCompanionsToDocuments = async function() {
         };
       });
     if (factory.originDocument) {
-      console.warn("data", {
+      logger.debug("Companion Data Load", {
         originDocument: factory.originDocument,
         profiles,
         worldActors,
