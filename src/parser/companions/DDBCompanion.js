@@ -22,6 +22,23 @@ export default class DDBCompanion {
     this.removeSplitCreatureActions = true;
     this.removeCreatureOnlyNames = true;
     this.addChrisPremades = true;
+
+    this.summons = {
+      match: {
+        proficiency: false,
+        attacks: false,
+        saves: false,
+      },
+      bonuses: {
+        ac: "",
+        hp: "",
+        attackDamage: "",
+        saveDamage: "",
+        healing: ""
+      },
+      profiles: [],
+      prompt: true
+    };
   }
 
   #generateAbilities() {
@@ -97,9 +114,9 @@ export default class DDBCompanion {
       };
 
       if (acString.includes("plus PB") || acString.includes("+ PB")) {
-        foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.acFormula", `${ac} + @prof`);
+        this.summons.bonuses.ac = "@prof";
       } else if (acString.includes("+ the level of the spell")) {
-        foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.acFormula", `${ac} + @details.level`);
+        this.summons.bonuses.ac = "@item.level";
       }
     }
   }
@@ -109,7 +126,7 @@ export default class DDBCompanion {
       ?? this.getBlockData("Challenge");
 
     if (profString && profString.innerText.includes("equals your bonus")) {
-      foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.matchProficiency", true);
+      this.summons.match.proficiency = true;
     }
   }
 
@@ -142,7 +159,7 @@ export default class DDBCompanion {
     // 30 (Ghostly and Putrid only) or 20 (Skeletal only) + 10 for each spell level above 3rd
 
     // additional summon points
-    const hpAdjustments = [hpInt];
+    const hpAdjustments = [];
     const modMatch = hpString.match(/\+ your (\w+) modifier/);
 
     if (modMatch) hpAdjustments.push(`@abilities.${modMatch[1].toLowerCase().substring(0, 3)}.mod`);
@@ -165,7 +182,7 @@ export default class DDBCompanion {
     }
 
     if (hpAdjustments.length > 0) {
-      foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.hpFormula", hpAdjustments.join(" + "));
+      this.summons.bonuses.hp = hpAdjustments.join(" + ");
     }
 
   }
@@ -182,7 +199,7 @@ export default class DDBCompanion {
         "key": "system.attributes.hp.formula",
         "value": `(@classes.${hitDice[2]}.levels)[d${hitDice[1]}]`
       };
-      this.npc.flags["arbron-summoner"].config.actorChanges.push(hitDiceAdjustment);
+      this.npc.flags.ddbimporter.summons.changes.push(hitDiceAdjustment);
     }
   }
 
@@ -473,11 +490,11 @@ export default class DDBCompanion {
     logger.debug("Generating companion feature", { text, type, featureFactory });
     const toHitRegex = /(your spell attack modifier to hit)/i;
     if (toHitRegex.test(text)) {
-      foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.matchToHit", true);
+      this.summons.match.attacks = true;
     }
     const spellSaveRegex = /(against your spell save DC)/i;
     if (spellSaveRegex.test(text)) {
-      foundry.utils.setProperty(this.npc, "flags.arbron-summoner.config.matchSaveDCs", true);
+      this.summons.match.saves = true;
     }
     return featureFactory.getFeatures(type);
   }
@@ -515,6 +532,10 @@ export default class DDBCompanion {
       } else if (!this.removeSplitCreatureActions || !feature.name.toLowerCase().includes("only")) {
         this.npc.items.push(feature);
       }
+      if (foundry.utils.getProperty(feature, "flags.ddbimporter.levelBonus")) {
+        this.summons.bonuses.attackDamage = "@item.level";
+        this.summons.bonuses.saveDamage = "@item.level";
+      }
     });
     return { next, featType };
   }
@@ -536,24 +557,6 @@ export default class DDBCompanion {
       featType = result.featType;
     }
   }
-
-  // this parser creates actor data for a base actor
-  // these are actors that are modified by the PB of the actor
-  // these require the use of "arbron-summoner" module to run.
-  // {
-  //   "config": {
-  //     "matchProficiency": true,
-  //     "matchToHit": true,
-  //     "matchSaveDCs": true,
-  //     "acFormula": "22 + @prof",
-  //     "hpFormula": "2 + @prof",
-  //     "actorChanges": [
-  //       {
-  //         "key": "system.attributes.movement.fly",
-  //         "value": "10"
-  //       }
-  //     ]
-  //   }
 
   // #extraFeatures() {
   // if (this.name === "Drake Companion") {
@@ -594,17 +597,7 @@ export default class DDBCompanion {
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.companion.modifiers", {});
     this.npc.prototypeToken.name = actorName;
 
-    foundry.utils.setProperty(this.npc, "flags.arbron-summoner", {
-      config: {
-        matchProficiency: false,
-        matchToHit: false,
-        matchSaveDCs: false,
-        acFormula: "",
-        hpFormula: "",
-        actorChanges: []
-      }
-    });
-
+    foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.changes", []);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.id", `companion-${actorName}`);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.entityTypeId", `companion-${this.type}`);
 

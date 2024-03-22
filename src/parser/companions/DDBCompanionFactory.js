@@ -4,6 +4,7 @@ import logger from "../../logger.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
 import DDBCompanion from "./DDBCompanion.js";
+import { isEqual } from "../../../vendor/lowdash/isequal.js";
 
 export default class DDBCompanionFactory {
 
@@ -23,6 +24,8 @@ export default class DDBCompanionFactory {
       updated: [],
     };
     this.originDocument = options.originDocument;
+    this.summons = null;
+    this.badSummons = false;
   }
 
   get data() {
@@ -51,6 +54,17 @@ export default class DDBCompanionFactory {
     await ddbCompanion.parse();
     if (ddbCompanion.parsed) {
       this.companions.push(ddbCompanion);
+      if (this.summons === null) {
+        this.summons = foundry.utils.deepClone(ddbCompanion.summons);
+      } else if (!isEqual(this.summons, ddbCompanion.summons)) {
+        logger.error("Companion has different summons", {
+          summon: ddbCompanion.summons,
+          factory: this,
+          ddbCompanion,
+        });
+        this.badSummons = false;
+      }
+
     }
   }
 
@@ -184,31 +198,6 @@ export default class DDBCompanionFactory {
     }
     this.results.created = await DDBCompanionFactory.createCompanions(itemHandler.documents, existingCompanions, folderOverride?.id);
 
-    // add companions to automated evocations list
-    if (this.actor && game.modules.get("automated-evocations")?.active) {
-      const currentAutomatedEvocationSettings = {
-        isLocal: this.actor.getFlag("automated-evocations", "isLocal"),
-        companions: this.actor.getFlag("automated-evocations", "isLocal"),
-      };
-
-      const companions = existingCompanions.concat(this.results.created).map((companion) => {
-        return {
-          id: companion.id ? companion.id : companion._id,
-          number: 1,
-          animation: companion.flags?.ddbimporter?.automatedEvcoationAnimation
-            ? companion.flags?.ddbimporter?.automatedEvcoationAnimation
-            : "magic1",
-        };
-      });
-      const newAutomatedEvocationSettings = {
-        isLocal: true,
-        companions,
-      };
-      const mergedSettings = foundry.utils.mergeObject(currentAutomatedEvocationSettings, newAutomatedEvocationSettings);
-
-      this.actor.setFlag("automated-evocations", "isLocal", mergedSettings.isLocal);
-      this.actor.setFlag("automated-evocations", "companions", mergedSettings.companions);
-    }
   }
 
 }

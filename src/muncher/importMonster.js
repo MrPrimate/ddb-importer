@@ -370,10 +370,13 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
       return npc;
     } else {
       const options = {
-        temporary: temporary,
+        temporary,
         displaySheet: false,
       };
-      const npc = new Actor.implementation(data, options);
+      const npc = temporary
+        ? new Actor.implementation(data, options)
+        : await Actor.create(data, options);
+      console.warn(npc);
       return npc;
     }
 

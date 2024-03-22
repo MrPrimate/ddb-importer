@@ -7,16 +7,26 @@ DDBCharacter.prototype.addCompanionsToDocuments = async function() {
   for (const factory of this.companionFactories) {
     // eslint-disable-next-line no-await-in-loop
     const worldActors = await factory.getExistingWorldCompanions({ limitToFactory: true });
-    const summons = worldActors
+    const profiles = worldActors
       .map((actor) => {
         return {
+          _id: foundry.utils.randomID(),
           name: actor.name,
           uuid: `Actor.${actor.id}`,
+          count: null,
         };
       });
     if (factory.originDocument) {
-      foundry.utils.setProperty(factory.originDocument, "flags.arbron-summoner.summons", summons);
-      foundry.utils.setProperty(factory.originDocument, "system.actionType", "summon");
+      console.warn("data", {
+        originDocument: factory.originDocument,
+        profiles,
+        worldActors,
+        factory,
+        summons: factory.summons,
+      });
+      foundry.utils.setProperty(factory.originDocument, "system.summons", foundry.utils.deepClone(factory.summons));
+      foundry.utils.setProperty(factory.originDocument, "system.summons.profiles", profiles);
+      foundry.utils.setProperty(factory.originDocument, "system.actionType", "summ");
     }
   }
 };
@@ -101,11 +111,6 @@ DDBCharacter.prototype._getCompanionOption = async function(parentFeature, child
 };
 
 DDBCharacter.prototype.generateCompanions = async function() {
-  if (!game.modules.get("arbron-summoner")?.active) {
-    logger.warn("Companion Parsing requires the Arbron Summoner module");
-    return;
-  }
-
   for (const name of SETTINGS.COMPANIONS.COMPANION_FEATURES) {
     // eslint-disable-next-line no-await-in-loop
     await this._getCompanionFeature(name);

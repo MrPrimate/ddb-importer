@@ -32,6 +32,7 @@ export default class DDBMonsterFeature {
       effects: [],
       flags: {
         ddbimporter: {
+          levelBonus: false,
           dndbeyond: {
           },
         },
@@ -46,6 +47,7 @@ export default class DDBMonsterFeature {
     // these templates not good
     this.feature.system.duration.value = "";
     this.feature.system.requirements = "";
+    this.levelBonus = false;
   }
 
   // prepare the html in this.html for a parse, runs some checks and pregen to calculate values
@@ -221,8 +223,12 @@ export default class DDBMonsterFeature {
       // check for other
       if (dmg[5] && dmg[5].trim() == "at the start of") other = true;
       const profBonus = dmg[3]?.includes(" + PB") || dmg[3]?.includes(" plus PB") ? "@prof" : "";
-      const levelBonus = dmg[3] && (/the spell[’']s level/i).test(dmg[3]) ? "@summoner.item.level" : "";
-      const damage = profBonus !== "" || levelBonus !== ""
+      const levelBonus = dmg[3] && (/the spell[’']s level/i).test(dmg[3]); // ? "@item.level" : "";
+      if (levelBonus) {
+        this.levelBonus = true;
+        foundry.utils.setProperty(this, "flags.ddbimporter.levelBonus", true);
+      }
+      const damage = profBonus !== "" || levelBonus
         ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" plus PB").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
         : dmg[3] ?? dmg[2];
 

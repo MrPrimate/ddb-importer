@@ -334,7 +334,6 @@ export default class DDBRace {
       title: "Feat",
       configuration: {
         allowDrops: true,
-        allowReplacements: false,
         pool: index.map((i) => i.uuid),
         choices: {
           "0": 1,
