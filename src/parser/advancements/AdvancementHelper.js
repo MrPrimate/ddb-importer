@@ -717,7 +717,6 @@ export default class AdvancementHelper {
       title: feature.name === "Survivalist" ? `${feature.name} (Expertise)` : `${feature.name}`,
       configuration: {
         allowReplacements: false,
-        pool,
         mode: "expertise",
       },
       level: level,
@@ -729,6 +728,7 @@ export default class AdvancementHelper {
 
     AdvancementHelper.advancementUpdate(advancement, {
       chosen,
+      pool,
       count,
       grants,
     });

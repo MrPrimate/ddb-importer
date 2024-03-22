@@ -218,7 +218,9 @@ export default class DDBFeature extends DDBBaseFeature {
 
     advancement.updateSource({
       configuration: {
-        items: feats.map((f) => f.uuid),
+        items: feats.map((f) => {
+          return { uuid: f.uuid };
+        }),
       },
       title: "Feat",
     });

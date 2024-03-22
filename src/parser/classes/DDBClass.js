@@ -481,7 +481,7 @@ export default class DDBClass {
 
             const update = {
               configuration: {
-                items: [featureMatch.uuid]
+                items: [{ uuid: featureMatch.uuid }]
               },
               value: {},
               level: feature.requiredLevel,
@@ -492,7 +492,7 @@ export default class DDBClass {
             advancement.updateSource(update);
             advancements.push(advancement.toObject());
           } else {
-            advancements[levelAdvancement].configuration.items.push(featureMatch.uuid);
+            advancements[levelAdvancement].configuration.items.push({ uuid: featureMatch.uuid });
             this._advancementMatches.features[advancements[levelAdvancement]._id][featureMatch.name] = featureMatch.uuid;
           }
         }
