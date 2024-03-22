@@ -1,7 +1,8 @@
 # 5.1.0
 
 - Only for D&D SYstem version 3.1 and higher.
-_ Advancement fixes for new version.
+- Advancement fixes for new version.
+- Summoning Spells (Tasha's only right now) use new summoning mode.
 
 # 5.0.1
 
