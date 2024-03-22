@@ -739,6 +739,54 @@ export const fallbackDDBConfig = {
     { id: 106, name: "Jerbeen" },
     { id: 107, name: "Mapach" },
     { id: 108, name: "Vulpin" },
+    {
+      id: 109,
+      name: "Darakhul",
+    },
+    {
+      id: 110,
+      name: "Derro",
+    },
+    {
+      id: 111,
+      name: "Eonic",
+    },
+    {
+      id: 112,
+      name: "Erina",
+    },
+    {
+      id: 113,
+      name: "Lemurfolk",
+    },
+    {
+      id: 114,
+      name: " Loxodan",
+    },
+    {
+      id: 115,
+      name: "Millitaur",
+    },
+    {
+      id: 116,
+      name: "Ravenfolk",
+    },
+    {
+      id: 117,
+      name: "Tosculi",
+    },
+    {
+      id: 118,
+      name: "Trollkin",
+    },
+    {
+      id: 119,
+      name: "Umbral",
+    },
+    {
+      id: 120,
+      name: "Void Speech",
+    },
   ],
   restoreTypes: [
     { id: 1, name: "Full", description: "Restore life with full HP" },
@@ -3772,6 +3820,15 @@ export const fallbackDDBConfig = {
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/39695/377/638425036767623471.jpeg",
       sourceURL: "sources/hcs",
+    },
+    {
+      id: 139,
+      name: "ToB1",
+      description: "Tome of Beasts 1",
+      sourceCategoryId: 21,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/40544/209/638459347386150459.jpeg",
+      sourceURL: "sources/tob1",
     },
   ],
   levelProficiencyBonuses: [
