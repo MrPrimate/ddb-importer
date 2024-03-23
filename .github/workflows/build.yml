@@ -73,13 +73,11 @@ jobs:
       uses: Ilshidur/action-discord@0.3.2
       with:
         args: 'DDB Importer ${{ steps.get-version.outputs.release_version }} has been published by our development Kobolds!'
-
-    # - name: FoundryVTT AutoPublish
-    #   uses: Varriount/fvtt-autopublish@v1.0.9
-    #   with:
-    #     username: ${{ secrets.FOUNDRY_ADMIN_USER }}
-    #     password: ${{ secrets.FOUNDRY_ADMIN_PW }}
-    #     module-id: ${{ secrets.FOUNDRY_MODULE_ID }}
-    #     manifest-url: https://github.com/${{ github.repository }}/releases/download/${{ env.release_version }} /module.json
-    #     manifest-file: ./module.json
-
+    - name: FoundryVTT AutoPublish
+      uses: fjogeleit/http-request-action@v1
+      continue-on-error: true
+      with:
+        url: 'https://api.foundryvtt.com/_api/packages/release_version'
+        method: 'POST'
+        customHeaders: '{"Content-Type": "application/json", "Authorization" : "${{ secrets.FOUNDRY_KEY }}"}'
+        data: '{"dry_run": false, "id" : "ssb-importer", "release": {"version" :  "${{ steps.get-version.outputs.release_version }}", "manifest": "https://github.com/${{ github.repository }}/releases/download/${{ steps.get-version.outputs.release_version }}/module.json", "notes" : "https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md", "compatibility" : {"minimum": "11", "verified": "11", "maximum": ""} } }'
