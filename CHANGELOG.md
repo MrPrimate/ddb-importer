@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Warcaster uses new concentration for effect.
+
 # 5.1.0
 
 - Only for D&D SYstem version 3.1 and higher.

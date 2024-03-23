@@ -371,11 +371,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = visageOfTheAstralSelfEffect(document);
       break;
     }
-    case "War Caster":
-    case "Warcaster": {
-      document = warCasterEffect(document);
-      break;
-    }
     // no default
   }
   return document;
@@ -461,6 +456,11 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Vigilant Blessing": {
       document = vigilantBlessingEffect(document);
+      break;
+    }
+    case "War Caster":
+    case "Warcaster": {
+      document = warCasterEffect(document);
       break;
     }
     // no default
