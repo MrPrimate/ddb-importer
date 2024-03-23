@@ -55,6 +55,7 @@ export default class DDBMonster {
     this.abilities = null;
     this.proficiencyBonus = null;
     this.cr = 0;
+    this.typeName = "";
     this.items = [];
     this.img = null;
     if (existingNpc) {

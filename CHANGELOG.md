@@ -1,6 +1,9 @@
 # NEXT UP
 
 - Warcaster uses new concentration for effect.
+- Two hidden settings for @motomoto0295, that will become more widely available later:
+  - `game.settings.set("ddb-importer", "munching-policy-hide-description-choice", "XXXX")`, which can be NAME, TYPE< MONSTER, or NPC. This will set the value used in descriptions for the monster name when hiding the description for players.
+  - `game.settings.set("ddb-importer", "munching-policy-hide-item-name", true)` which will hide wether the features name is included in the description.
 
 # 5.1.0
 

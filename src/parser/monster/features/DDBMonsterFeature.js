@@ -661,15 +661,30 @@ export default class DDBMonsterFeature {
   }
 
   #getHiddenDescription() {
+    const nameChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description-choice");
+    const hideItemName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-item-name");
+    let actorDescriptor = this.ddbMonster.npc.name;
+
+    if (nameChoice === "TYPE") {
+      actorDescriptor = this.ddbMonster.typeName;
+    } else if (nameChoice === "MONSTER") {
+      actorDescriptor = "Monster";
+    } else if (nameChoice === "NPC") {
+      actorDescriptor = "NPC";
+    }
+
     let description = `<section class="secret">\n${this.html}`;
     if (["rwak", "mwak"].includes(this.feature.system.actionType)) {
-      description += `\n</section>\nThe ${this.ddbMonster.npc.name} attacks with its ${this.feature.name}.`;
+      const featureName = hideItemName ? "" : ` with its ${this.feature.name}`;
+      description += `\n</section>\nThe ${actorDescriptor} attacks${featureName}.`;
     } else if (["rsak", "msak"].includes(this.feature.system.actionType)) {
-      description += `\n</section>\nThe ${this.ddbMonster.npc.name} casts ${this.feature.name}.`;
+      const featureName = hideItemName ? "a spell" : this.feature.name;
+      description += `\n</section>\nThe ${actorDescriptor} casts ${featureName}.`;
     } else if (["save"].includes(this.feature.system.actionType)) {
-      description += `\n</section>\nThe ${this.ddbMonster.npc.name} uses ${this.feature.name} and a save is required.`;
+      const featureName = hideItemName ? "a feature" : this.feature.name;
+      description += `\n</section>\nThe ${actorDescriptor} uses ${featureName} and a save is required.`;
     } else {
-      description += `\n</section>\nThe ${this.ddbMonster.npc.name} uses ${this.feature.name}.`;
+      description += `\n</section>\nThe ${actorDescriptor} uses ${hideItemName ? "a feature" : this.feature.name}.`;
     }
     return description;
   }
@@ -698,7 +713,9 @@ export default class DDBMonsterFeature {
 
     this.feature.system.damage = this.actionInfo.damage;
     this.feature.system.formula = this.actionInfo.formula;
-    this.feature.system.properties = this.actionInfo.properties;
+    for (const [key, value] of Object.entries(this.actionInfo.properties)) {
+      if (value) this.feature.system.properties.push(key);
+    }
     this.feature.system.proficient = this.actionInfo.proficient;
     this.feature.system.ability = this.actionInfo.baseAbility;
     this.feature.system.attack.bonus = `${this.actionInfo.extraAttackBonus}`;
