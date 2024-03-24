@@ -43,6 +43,7 @@ import utils from "./lib/utils.js";
 import DDBHelper from "./lib/DDBHelper.js";
 import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
 import DDBCampaigns from "./lib/DDBCampaigns.js";
+import ChrisPremadesHelper from "./effects/external/ChrisPremadesHelper.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -102,6 +103,7 @@ export function registerApi() {
     },
     lib: {
       CompendiumHelper,
+      ChrisPremadesHelper,
       DDBCampaigns,
       DDBCharacterManager,
       DDBCompanion,
@@ -166,6 +168,7 @@ export function registerApi() {
     DialogHelper,
     effects: {
       helpers: DDBEffectHelper,
+      ChrisPremadesHelper,
       addChrisEffectsToActorDocuments,
       addDDBIEffectsToActorDocuments: DDBEffectHelper.addDDBIEffectsToActorDocuments,
       addDDBIEffectToDocument: DDBEffectHelper.addDDBIEffectToDocument,

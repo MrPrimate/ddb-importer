@@ -45,6 +45,18 @@ export default class FolderHelper {
   }
 
   /**
+   * Retrieves the folder ID of a compendium with a given name within a specified compendium.
+   *
+   * @param {string} name - The name of the folder to search for.
+   * @param {string} compendiumName - The name of the compendium to search within.
+   * @return {Promise<string|undefined>} The ID of the folder if found, otherwise undefined.
+   */
+  static async getCompendiumFolderId(name, compendiumName) {
+    const compendium = game.packs.get(compendiumName);
+    return compendium.folders.find((f) => f.name === name)?._id;
+  }
+
+  /**
    * Updates game folder items
    * @param {*} type
    */

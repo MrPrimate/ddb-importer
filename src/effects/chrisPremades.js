@@ -2,66 +2,11 @@
 /* eslint-disable no-continue */
 /* eslint-disable require-atomic-updates */
 import DICTIONARY from "../dictionary.js";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
+import FolderHelper from "../lib/FolderHelper.js";
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";
+import ChrisPremadesHelper from "./external/ChrisPremadesHelper.js";
 
-const DDB_FLAGS_TO_REMOVE = [
-  "midi-qol",
-  "midiProperties",
-  "ActiveAuras",
-  "dae",
-  "itemacro",
-];
-
-const CP_FLAGS_TO_REMOVE = [
-  "cf",
-  "ddbimporter",
-  "monsterMunch",
-  "core",
-  "link-item-resource-5e",
-];
-
-const CP_FIELDS_TO_COPY = [
-  "effects",
-  "system.damage",
-  "system.target",
-  "system.range",
-  "system.duration",
-  "system.save",
-  "system.activation",
-  "system.ability",
-  "system.critical",
-  "system.formula",
-  "system.actionType",
-];
-
-export async function getChrisCompendium(type) {
-  const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type);
-  const cpPack = CompendiumHelper.getCompendium(compendiumName);
-  const indices = ["name", "type", "flags.cf"];
-  const index = await cpPack.getIndex({ fields: indices });
-  return index;
-}
-
-
-async function getFolderId(name, compendiumName) {
-  const compendium = game.packs.get(compendiumName);
-  return compendium.folders.find((f) => f.name === name)?._id;
-}
-
-function getName(document) {
-  const flagName = document.flags.ddbimporter?.originalName ?? document.name;
-
-  const regex = /(.*)\s*\((:?costs \d actions|\d\/Turn|Recharges after a Short or Long Rest|\d\/day|recharge \d-\d)\)/i;
-  const nameMatch = flagName.replace(/[–-–−]/g, "-").match(regex);
-  if (nameMatch) {
-    return nameMatch[1].trim();
-  } else {
-    return flagName;
-  }
-
-}
 
 function getType(doc, isMonster = false) {
   if (DICTIONARY.types.inventory.includes(doc.type)) {
@@ -75,63 +20,24 @@ function getType(doc, isMonster = false) {
   // lets see if we have marked this as a class or race type
   const systemTypeValue = foundry.utils.getProperty(doc, "system.type.value");
   if (systemTypeValue && systemTypeValue !== "") {
-    if (systemTypeValue === "class") return "features";
-    if (systemTypeValue === "race") return "traits";
+    if (systemTypeValue === "class") return "feature";
+    if (systemTypeValue === "race") return "trait";
     return systemTypeValue;
   }
 
   // can we derive the type from the ddb importer type flag?
   const ddbType = foundry.utils.getProperty(doc, "flags.ddbimporter.type");
   if (ddbType && !["", "other"].includes(ddbType)) {
-    if (ddbType === "class") return "features";
-    if (ddbType === "race") return "traits";
+    if (ddbType === "class") return "feature";
+    if (ddbType === "race") return "trait";
     return ddbType;
   }
 
   if (doc.type === "feat") {
-    return "features";
+    return "feature";
   }
 
   return doc.type;
-}
-
-// matchedProperties = { "system.activation.type": "bonus" }
-function matchProperties(document, matchedProperties = {}) {
-  for (const [key, value] of Object.entries(matchedProperties)) {
-    if (foundry.utils.getProperty(document, key) !== value) {
-      return false;
-    }
-  }
-  return true;
-}
-
-// matchedProperties = { "system.activation.type": "bonus" }
-async function getItemFromCompendium(key, name, ignoreNotFound, folderId, matchedProperties = {}) {
-  const gamePack = game.packs.get(key);
-  if (!gamePack) {
-    ui.notifications.warn('Invalid compendium specified!');
-    return false;
-  }
-
-  const packIndex = await gamePack.getIndex({
-    fields: ['name', 'type', 'folder'].concat(Object.keys(matchedProperties))
-  });
-
-  const match = packIndex.find((item) =>
-    item.name === name
-    && (!folderId || (folderId && item.folder === folderId))
-    && (Object.keys(matchedProperties).length === 0 || matchProperties(item, matchedProperties))
-  );
-
-  if (match) {
-    return (await gamePack.getDocument(match._id))?.toObject();
-  } else {
-    if (!ignoreNotFound) {
-      ui.notifications.warn(`Item not found in compendium ${key} with name ${name}! Check spelling?`);
-      logger.warn(`Item not found in compendium ${key} with name ${name}! Check spelling?`, { key, name, folderId, matchedProperties });
-    }
-    return undefined;
-  }
 }
 
 export async function applyChrisPremadeEffect({ document, type, folderName = null, chrisNameOverride = null } = {}) {
@@ -140,16 +46,20 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
     logger.info(`${document.name} set to ignore Chris's Premade effect application`);
     return document;
   }
+
+
   const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
+
+
   if (!compendiumName) {
     logger.warn(`No compendium found for Chris's Premade effect for ${type} and ${document.name}!`);
     return document;
   }
   // .split("(")[0].trim()
-  const ddbName = getName(document);
+  const ddbName = ChrisPremadesHelper.getOriginalName(document);
   const chrisName = chrisNameOverride ?? CONFIG.chrisPremades?.renamedItems[ddbName] ?? ddbName;
   const folderId = ["monsterfeatures", "monsterfeature"].includes(type)
-    ? await getFolderId((folderName ?? chrisName), compendiumName)
+    ? await FolderHelper.getCompendiumFolderId((folderName ?? chrisName), compendiumName)
     : undefined;
 
   // expected to find feature in a folder, but we could not
@@ -160,25 +70,25 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
 
   logger.debug(`CP Effect: Attempting to fetch ${document.name} from ${compendiumName} with folderID ${folderId}`);
   // const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, chrisName, true, folderId);
-  const chrisDoc = await getItemFromCompendium(compendiumName, chrisName, true, folderId);
+  const chrisDoc = await ChrisPremadesHelper.getItemFromCompendium(compendiumName, chrisName, true, folderId);
   if (!chrisDoc) {
     logger.debug(`No CP Effect found for ${document.name} from ${compendiumName} with folderID ${folderId}`);
     return document;
   }
 
-  DDB_FLAGS_TO_REMOVE.forEach((flagName) => {
+  ChrisPremadesHelper.DDB_FLAGS_TO_REMOVE.forEach((flagName) => {
     delete document.flags[flagName];
   });
 
   document.effects = [];
 
-  CP_FLAGS_TO_REMOVE.forEach((flagName) => {
+  ChrisPremadesHelper.CP_FLAGS_TO_REMOVE.forEach((flagName) => {
     delete chrisDoc.flags[flagName];
   });
 
   document.flags = foundry.utils.mergeObject(document.flags, chrisDoc.flags);
 
-  CP_FIELDS_TO_COPY.forEach((field) => {
+  ChrisPremadesHelper.CP_FIELDS_TO_COPY.forEach((field) => {
     const values = foundry.utils.getProperty(chrisDoc, field);
     if (field === "effects") {
       values.forEach((effect) => {
@@ -254,13 +164,13 @@ export async function restrictedItemReplacer(actor, folderName = null) {
   for (const restrictedItem of sortedItems) {
     logger.debug(`Checking restricted Item ${restrictedItem.key}: ${restrictedItem.originalName}`);
     const doc = documents.find((d) => {
-      const ddbName = d.flags.ddbimporter?.chrisPreEffectName ?? getName(d);
+      const ddbName = d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d);
       const retainDoc = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true;
       return ddbName === restrictedItem.originalName && !retainDoc;
     });
     if (!doc) continue;
     if (["class", "subclass", "background"].includes(doc.type)) continue;
-    const ddbName = doc.flags.ddbimporter?.chrisPreEffectName ?? getName(doc);
+    const ddbName = doc.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(doc);
 
     const rollData = actor.getRollData();
 
@@ -318,13 +228,13 @@ export async function restrictedItemReplacer(actor, folderName = null) {
           logger.debug(`No Chris Compendium mapping for ${type} yet parsing ${docAdd.name}`);
         }
         const folderId = ["monsterfeatures", "monsterfeature"].includes(type)
-          ? await getFolderId((folderName ?? ddbName), compendiumName)
+          ? await FolderHelper.getCompendiumFolderId((folderName ?? ddbName), compendiumName)
           : undefined;
 
         for (const newItemName of restrictedItem.additionalItems) {
           logger.debug(`Adding new item ${newItemName}`);
           // const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, newItemName, true, folderId);
-          const chrisDoc = await getItemFromCompendium(compendiumName, newItemName, true, folderId);
+          const chrisDoc = await ChrisPremadesHelper.getItemFromCompendium(compendiumName, newItemName, true, folderId);
           // eslint-disable-next-line max-depth
           if (!chrisDoc) {
             logger.error(`DDB Importer expected to find an item in Chris's Premades for ${newItemName} but did not`, {
@@ -346,7 +256,7 @@ export async function restrictedItemReplacer(actor, folderName = null) {
       logger.debug(`Removing items for ${ddbName}, using restricted data from ${restrictedItem.key}`);
       for (const removeItemName of restrictedItem.removedItems) {
         logger.debug(`Removing item ${removeItemName}`);
-        const deleteDoc = documents.find((d) => getName(d) === removeItemName);
+        const deleteDoc = documents.find((d) => ChrisPremadesHelper.getOriginalName(d) === removeItemName);
         if (deleteDoc) toDelete.push(deleteDoc._id);
       }
     }
@@ -378,20 +288,20 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
       continue;
     }
 
-    const ddbName = getName(doc);
+    const ddbName = ChrisPremadesHelper.getOriginalName(doc);
     const chrisName = CONFIG.chrisPremades?.renamedItems[ddbName] ?? ddbName;
     const newItemNames = foundry.utils.getProperty(CONFIG, `chrisPremades.additionalItems.${chrisName}`);
 
     if (newItemNames) {
       logger.debug(`Adding new items for ${chrisName}`);
       const folderId = ["monsterfeatures", "monsterfeature"].includes(type)
-        ? await getFolderId((folderName ?? chrisName), compendiumName)
+        ? await FolderHelper.getCompendiumFolderId((folderName ?? chrisName), compendiumName)
         : undefined;
 
       for (const newItemName of newItemNames) {
         logger.debug(`Adding new item ${newItemName}`);
         // const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, newItemName, true, folderId);
-        const chrisDoc = await getItemFromCompendium(compendiumName, newItemName, true, folderId);
+        const chrisDoc = await ChrisPremadesHelper.getItemFromCompendium(compendiumName, newItemName, true, folderId);
         if (!chrisDoc) {
           logger.error(`DDB Importer expected to find an item in Chris's Premades for ${newItemName} but did not`, {
             ddbName,
@@ -413,7 +323,7 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
       logger.debug(`Removing items for ${chrisName}`);
       for (const removeItemName of itemsToRemoveNames) {
         logger.debug(`Removing item ${removeItemName}`);
-        const deleteDoc = documents.find((d) => getName(d) === removeItemName);
+        const deleteDoc = documents.find((d) => ChrisPremadesHelper.getOriginalName(d) === removeItemName);
         if (deleteDoc) toDelete.push(deleteDoc._id);
       }
     }

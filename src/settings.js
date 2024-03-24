@@ -43,12 +43,10 @@ const SRD_COMPENDIUM_LOOKUPS = [
 ];
 
 const CHRIS_PREMADES_COMPENDIUM_LOOKUPS = [
-  { type: "spells", name: "chris-premades.CPR Spells" },
   { type: "spell", name: "chris-premades.CPR Spells" },
-  { type: "features", name: "chris-premades.CPR Class Features" },
-  { type: "traits", name: "chris-premades.CPR Race Features" },
+  { type: "feature", name: "chris-premades.CPR Class Features" },
+  { type: "trait", name: "chris-premades.CPR Race Features" },
   { type: "feat", name: "chris-premades.CPR Feats" },
-  { type: "feats", name: "chris-premades.CPR Feats" },
   { type: "inventory", name: "chris-premades.CPR Items" },
   { type: "weapon", name: "chris-premades.CPR Items" },
   { type: "consumable", name: "chris-premades.CPR Items" },
@@ -57,7 +55,6 @@ const CHRIS_PREMADES_COMPENDIUM_LOOKUPS = [
   { type: "container", name: "chris-premades.CPR Items" },
   { type: "equipment", name: "chris-premades.CPR Items" },
   { type: "monsterfeature", name: "chris-premades.CPR Monster Features" },
-  { type: "monsterfeatures", name: "chris-premades.CPR Monster Features" },
 ];
 
 const SUPPORTED_FLAG_GROUPS = [

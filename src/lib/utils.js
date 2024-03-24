@@ -530,6 +530,16 @@ const utils = {
     setProperties.delete(value);
     return Array.from(setProperties);
   },
+
+  // matchedProperties = { "system.activation.type": "bonus" }
+  matchProperties: (document, matchedProperties = {}) => {
+    for (const [key, value] of Object.entries(matchedProperties)) {
+      if (foundry.utils.getProperty(document, key) !== value) {
+        return false;
+      }
+    }
+    return true;
+  },
 };
 
 export default utils;
