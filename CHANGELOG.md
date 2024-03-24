@@ -1,4 +1,4 @@
-# NEXT UP
+# 5.1.1
 
 - From 5.1.0 monsters would parse damage with an erroneous `+ false` in their damage fields.
 - Warcaster uses new concentration for effect.
