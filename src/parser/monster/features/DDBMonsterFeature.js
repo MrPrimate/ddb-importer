@@ -240,7 +240,7 @@ export default class DDBMonsterFeature {
           ? this.damageModReplace(damage.replace("plus", "+"), dmg[4])
           : damage.replace("plus", "+");
 
-        const finalDamage = [parsedDiceDamage, profBonus, levelBonus].filter((t) => t !== "").join(" + ");
+        const finalDamage = [parsedDiceDamage, profBonus].filter((t) => t !== "").join(" + ");
 
         // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
         // versatile for damage

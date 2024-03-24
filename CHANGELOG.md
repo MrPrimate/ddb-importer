@@ -1,5 +1,6 @@
 # NEXT UP
 
+- From 5.1.0 monsters would parse damage with an erroneous `+ false` in their damage fields.
 - Warcaster uses new concentration for effect.
 - Two hidden settings for @motomoto0295, that will become more widely available later:
   - `game.settings.set("ddb-importer", "munching-policy-hide-description-choice", "XXXX")`, which can be NAME, TYPE< MONSTER, or NPC. This will set the value used in descriptions for the monster name when hiding the description for players.
