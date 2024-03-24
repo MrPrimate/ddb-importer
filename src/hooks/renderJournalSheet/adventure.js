@@ -45,6 +45,10 @@ function adventureFlags(app, html, data) {
   let titleElement = html.closest('.app').find('.window-title');
   button.insertAfter(titleElement);
   buildNotes(html, data);
+
+  let journalContent = html.closest('.app').find('section.journal-entry-content');
+  journalContent.addClass("ddb-adventure");
+  console.warn("here", {journalContent, html});
 }
 
 

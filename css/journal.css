@@ -85,7 +85,7 @@ div.ddbimporter-image-popout img {
   height: 90%;
 }
 
-aside.block-torn-paper, aside.epigraph, aside.epigraph--with-author {
+.ddb-adventure aside.block-torn-paper, .ddb-adventure aside.epigraph, .ddb-adventure aside.epigraph--with-author {
   overflow: auto;
   background: var(--theme-quote-bg-color,#fff);
   color: var(--theme-quote-fg-color,#242527);
@@ -101,7 +101,7 @@ aside.block-torn-paper, aside.epigraph, aside.epigraph--with-author {
   position: relative;
 }
 
-aside.rules-text {
+.ddb-adventure aside.rules-text {
   overflow: auto;
   display: block;
   margin: 30px 0;
@@ -121,7 +121,7 @@ aside.rules-text {
   filter: drop-shadow(0 5px 8px #ccc);
 }
 
-aside.read-aloud-text {
+.ddb-adventure aside.read-aloud-text {
   overflow: auto;
   display: block;
   margin: 30px 0;
@@ -137,7 +137,7 @@ aside.read-aloud-text {
   border-image-source: var(--theme-read-aloud-border,url(https://media.dndbeyond.com/ddb-compendium-client/146117d0758df55ed5ff299b916e9bd1.png));
 }
 
-.text--quote-box, .text-quote-box {
+.ddb-adventure .text--quote-box, .ddb-adventure .text-quote-box {
   display: block !important;
   background-color: var(--compendium-quote-box-color, #FAF8EC) !important;
   padding: 20px 25px 15px 25px !important;
@@ -158,7 +158,7 @@ aside.read-aloud-text {
   font-size: 14px !important;
 }
 
-.text--quote-box::before, .text--quote-box::after {
+.ddb-adventure .text--quote-box::before, .ddb-adventure .text--quote-box::after {
   content: '';
   border-radius: 50%;
   background-position: left !important;
@@ -175,7 +175,7 @@ aside.read-aloud-text {
 }
 
 
-.stat-block-background {
+.ddb-adventure .stat-block-background {
   background-repeat: no-repeat;
   -webkit-box-shadow: 0px 5px 8px 0px #aaa;
   -moz-box-shadow: 0px 5px 8px 0px #aaa;
@@ -184,11 +184,16 @@ aside.read-aloud-text {
   background-image: url(https://media.dndbeyond.com/compendium-images/tcoe/0gqawlEa2tjXGxpc/mm_statbg_sm.jpg) !important;
 }
 
-h2.compendium-hr, h3.compendium-hr, h4.compendium-hr, h4.Core-Styles_Core-Body, h4.quick-menu-exclude.Table_Table-Title, .ddb-book-header{
+.ddb-adventure h2.compendium-hr,
+.ddb-adventure h3.compendium-hr,
+.ddb-adventure h4.compendium-hr,
+.ddb-adventure h4.Core-Styles_Core-Body,
+.ddb-adventure h4.quick-menu-exclude.Table_Table-Title,
+.ddb-book-header{
   font-weight: bold;
 }
 
-.compendium-image-subtitle, .compendium-image > figcaption {
+.ddb-adventure .compendium-image-subtitle, .ddb-adventure .compendium-image > figcaption {
   text-align: center;
   font-size: 14px;
   font-weight: 700;
@@ -197,32 +202,34 @@ h2.compendium-hr, h3.compendium-hr, h4.compendium-hr, h4.Core-Styles_Core-Body, 
   margin: 10px 0;
 }
 
-p.Table-Styles_Table-Title {
+.ddb-adventure p.Table-Styles_Table-Title {
   font-weight: bold;
   font-size: 16px;
   margin-top: 19.5px;
   margin-bottom: 6.5px;
 }
 
-.compendium-left-aligned-table th:nth-child(1) {
+.ddb-adventure .compendium-left-aligned-table th:nth-child(1) {
   text-align: center !important;
   width: 80px !important;
 }
 
-.summoning-creatures-table td:nth-child(1), .compendium-left-aligned-table td:nth-child(1) {
+.ddb-adventure .summoning-creatures-table td:nth-child(1), .ddb-adventure .compendium-left-aligned-table td:nth-child(1) {
   vertical-align: middle !important;
   padding: 8px 20px !important;
   line-height: 1.4 !important;
   text-align: center !important;
 }
 
-.table-compendium.table--generic-dice td:first-child, .table-compendium.table--generic-dice th:first-child {
+.ddb-adventure .table-compendium.table--generic-dice td:first-child,
+.ddb-adventure .table-compendium.table--generic-dice th:first-child {
   width: 12% !important;
   text-align: center !important;
   vertical-align: middle !important;
 }
 
-blockquote.adventure-read-aloud-text::before, blockquote.adventure-read-aloud-text::after {
+.ddb-adventure blockquote.adventure-read-aloud-text::before,
+.ddb-adventure blockquote.adventure-read-aloud-text::after {
   background-image: url("../images/icons/dot.svg"),url("../images/icons/dot.svg") !important;
   background-position: left,right;
   background-size: contain !important;
@@ -232,7 +239,9 @@ blockquote.adventure-read-aloud-text::before, blockquote.adventure-read-aloud-te
   right: -4px !important;
 }
 
-blockquote.adventure-read-aloud-text, blockquote.compendium-parchment-blockquote, blockquote.ddb-blockquote {
+.ddb-adventure blockquote.adventure-read-aloud-text,
+.ddb-adventure blockquote.compendium-parchment-blockquote,
+.ddb-adventure blockquote.ddb-blockquote {
   background: white;
   padding: 20px;
   position: relative;
@@ -254,13 +263,13 @@ blockquote.adventure-read-aloud-text, blockquote.compendium-parchment-blockquote
   line-height: 1.6;
 }
 
-blockquote.adventure-read-aloud-text {
+.ddb-adventure blockquote.adventure-read-aloud-text {
   display: block !important;
   background-color: #e6e7ec !important;
   border-color: #979aa4 !important;
 }
 
-.Flowchart-Block {
+.ddb-adventure .Flowchart-Block {
   border-width: 16px 16px 16px 16px !important;
   border-style: solid !important;
   border-color: transparent !important;
@@ -275,25 +284,25 @@ blockquote.adventure-read-aloud-text {
   margin: 50px 0px 20px 0px !important;
 }
 
-.Flowchart-Heading {
+.ddb-adventure .Flowchart-Heading {
   font-weight: bold;
   text-transform: uppercase;
   text-align: center;
   font-size: 16px;
 }
 
-.Flowchart-Block {
+.ddb-adventure .Flowchart-Block {
   font-size: 14px;
   line-height: 1.6 !important;
 }
 
-.Flowchart-Subheading {
+.ddb-adventure .Flowchart-Subheading {
   font-style: italic;
   text-align: center;
   font-size: 16px;
 }
 
-.Flowchart-Block-Linked::before {
+.ddb-adventure .Flowchart-Block-Linked::before {
   content: '';
   border-left: 3px solid #cdb078;
   height: 100px;
@@ -303,10 +312,10 @@ blockquote.adventure-read-aloud-text {
   z-index: -1;
 }
 
-aside.vrgtr-flowchart--1 {
+.ddb-adventure aside.vrgtr-flowchart--1 {
   background-image: url(https://media.dndbeyond.com/compendium-images/vrgtr/U9mBj5XfiTD1mHie/flowchart-box-01.png);
 }
-aside.vrgtr-flowchart {
+.ddb-adventure aside.vrgtr-flowchart {
   text-align: center;
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -322,7 +331,7 @@ aside.vrgtr-flowchart {
   font-weight: bold;
 }
 
-.Basic-Text-Frame {
+.ddb-adventure .Basic-Text-Frame {
   clear: both;
   position: relative;
   box-shadow: 0 0 5px #979aa4;
@@ -332,7 +341,7 @@ aside.vrgtr-flowchart {
   margin: 10px 0 10px 0;
 }
 
-.Stat-Block-Styles_Stat-Block-Title {
+.ddb-adventure .Stat-Block-Styles_Stat-Block-Title {
   font-size: 18px !important;
   font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;
   text-transform: uppercase;
@@ -342,25 +351,25 @@ aside.vrgtr-flowchart {
   margin-top: 0 !important;
 }
 
-.Stat-Block-Styles_Stat-Block-Metadata {
+.ddb-adventure .Stat-Block-Styles_Stat-Block-Metadata {
   font-style: italic;
   font-size: 14px !important;
   line-height: 1.4 !important;
   margin-bottom: 8px !important;
 }
 
-.Stat-Block-Styles_Stat-Block-Data,
-.Stat-Block-Styles_Stat-Block-Data-Last,
-.Stat-Block-Styles_Stat-Block-Body,
-.Stat-Block-Styles_Stat-Block-Hanging,
-.Stat-Block-Styles_Stat-Block-Hanging-Last,
-.Stat-Block-Styles_Stat-Block-Body-Last--apply-before-heading- {
+.ddb-adventure .Stat-Block-Styles_Stat-Block-Data,
+.ddb-adventure .Stat-Block-Styles_Stat-Block-Data-Last,
+.ddb-adventure .Stat-Block-Styles_Stat-Block-Body,
+.ddb-adventure .Stat-Block-Styles_Stat-Block-Hanging,
+.ddb-adventure .Stat-Block-Styles_Stat-Block-Hanging-Last,
+.ddb-adventure .Stat-Block-Styles_Stat-Block-Body-Last--apply-before-heading- {
   font-size: 14px !important;
   line-height: 1.4 !important;
   margin-bottom: 10px !important;
 }
 
-.stat-block-ability-scores {
+.ddb-adventure .stat-block-ability-scores {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
@@ -372,27 +381,294 @@ aside.vrgtr-flowchart {
   margin: 10px 0;
 }
 
-.stat-block-ability-scores-stat {
+.ddb-adventure .stat-block-ability-scores-stat {
   width: 33.33333%;
   padding: 10px 5px;
   text-align: center;
 }
 
-.stat-block-ability-scores-stat {
+.ddb-adventure .stat-block-ability-scores-stat {
   width: 16.66667%;
 }
 
-.stat-block-ability-scores-heading {
+.ddb-adventure .stat-block-ability-scores-heading {
   font-weight: bold;
 }
 
-.stat-block-ability-scores-modifier {
+.ddb-adventure .stat-block-ability-scores-modifier {
   margin-left: 5px;
 }
 
-.Stat-Block-Styles_Stat-Block-Heading,
-.Stat-Block-Styles_Stat-Block-Heading--after-last-bar- {
+.ddb-adventure .Stat-Block-Styles_Stat-Block-Heading,
+.ddb-adventure .Stat-Block-Styles_Stat-Block-Heading--after-last-bar- {
   font-size: 16px !important;
   font-weight: bold;
   font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;
+}
+
+
+ /* for stat blocks appearing in spells details */
+.Basic-Text-Frame {
+  column-count: 1;
+
+  .stat-block-ability-scores-modifier {
+    display: block;
+  }
+
+  &::before {
+    left: -3px;
+    top: -3px;
+    right: -3px;
+  }
+
+  &::after {
+    left: -3px;
+    bottom: -3px;
+    right: -3px;
+  }
+
+  &::before,
+  &::after {
+    content: "";
+    background-image: url("https://www.dndbeyond.com/content/skins/waterdeep/images/MMStatBar_lrg.jpg");
+    background-size: 100% 100%;
+    background-position: center;
+    height: 4px;
+    display: inline-block;
+    position: absolute;
+  }
+
+  .Stat-Block-Styles_Stat-Block-Title {
+    font-size: 18px;
+    font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;
+    text-transform: uppercase;
+    font-weight: bold;
+    line-height: 1.4;
+    margin-bottom: 0;
+    display: inline;
+    margin-right: 5px;
+  }
+
+  .Stat-Block-Styles_Stat-Block-Metadata {
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    &::after {
+      content: "";
+      display: block;
+      border-bottom: 2px solid #bc0f0f;
+      padding-top: 5px;
+    }
+  }
+
+  .Stat-Block-Styles_Stat-Block-Heading,
+  .Stat-Block-Styles_Stat-Block-Heading--after-last-bar- {
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;
+    &::after {
+      content: "";
+      display: block;
+      border-bottom: 1px solid #bc0f0f;
+      padding-top: 2px;
+    }
+  }
+
+  .Stat-Block-Styles_Stat-Block-Data,
+  .Stat-Block-Styles_Stat-Block-Data-Last,
+  .Stat-Block-Styles_Stat-Block-Body,
+  .Stat-Block-Styles_Stat-Block-Hanging,
+  .Stat-Block-Styles_Stat-Block-Hanging-Last,
+  .Stat-Block-Styles_Stat-Block-Body-Last--apply-before-heading- {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .Stat-Block-Styles_Stat-Block-Data-Last {
+    border-bottom: 2px solid #bc0f0f;
+    padding-bottom: 10px;
+  }
+
+  .stat-block-ability-scores {
+    display: flex;
+    flex-wrap: wrap;
+    border-top: 2px solid #bc0f0f;
+    border-bottom: 2px solid #bc0f0f;
+    margin: 10px 0;
+  }
+
+  .stat-block-ability-scores-stat {
+    width: 33.33333%;
+    padding: 10px 5px;
+    text-align: center;
+  }
+
+  .stat-block-ability-scores-heading {
+    font-weight: bold;
+  }
+
+  @media (min-width: 768px) {
+    .stat-block-ability-scores-stat {
+      width: 16.66667%;
+    }
+  }
+}
+
+.monster--stat-block {
+  border: 1px solid #d4d0ce;
+  background-color: var(--sb-stat-block-bg-override, #fefcef);
+  padding: 15px;
+  position: relative;
+  background-repeat: no-repeat;
+  box-shadow: 0 5px 5px 0 #aaa;
+  font-size: 14px;
+  line-height: 19.6px;
+  margin: 10px 4px;
+
+  &::before,
+  &::after {
+    content: "";
+    background-image: var(--sb-stat-block-scrollbar, url(https://media.dndbeyond.com/compendium-images/cm/c43LH2y2Gcaxb3V2/MMStatBar_lrg.png));
+    background-size: 100% 100%;
+    background-position: center;
+    height: 4px;
+    display: inline-block;
+    position: absolute;
+  }
+  &::before {
+    left: -3px;
+    top: -3px;
+    right: -3px;
+  }
+  &::after {
+    left: -3px;
+    bottom: -3px;
+    right: -3px;
+  }
+
+  & br {
+    display: none;
+  }
+
+  p {
+    break-inside: avoid;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5 {
+    display: inline;
+    font-size: 20px;
+    font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 0;
+    margin-right: 8px;
+  }
+
+  p:first-of-type:not(.monster--stats p:first-of-type) {
+    font-style: italic;
+    border-bottom: 2px solid var(--sb-stat-block-divider, #bc0f0f);
+    padding: 5px 0;
+  }
+
+  p:nth-child(odd) {
+    margin-top: 12px;
+  }
+
+  .monster--stats {
+    display: grid;
+    grid-auto-flow: column;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    grid-template-areas:
+      "STR-a DEX-a CON-a"
+      "STR-b DEX-b CON-b"
+      "INT-a WIS-a CHA-a"
+      "INT-b WIS-b CHA-b";
+    border-top: 2px solid var(--sb-stat-block-divider, #bc0f0f);
+    border-bottom: 2px solid var(--sb-stat-block-divider, #bc0f0f);
+    text-align: center;
+    align-items: center;
+    margin: 12px 6px 12px 0;
+    padding: 0 12px 8px 0;
+
+    p {
+      font-size: 15px;
+      margin: 3px 0 5px;
+
+      &:nth-child(odd) {
+        margin-top: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+      }
+      &:nth-of-type(1) {
+        grid-area: STR-a;
+      }
+      &:nth-of-type(3) {
+        grid-area: DEX-a;
+      }
+      &:nth-of-type(5) {
+        grid-area: CON-a;
+      }
+      &:nth-of-type(7) {
+        grid-area: INT-a;
+      }
+      &:nth-of-type(9) {
+        grid-area: WIS-a;
+      }
+      &:nth-of-type(11) {
+        grid-area: CHA-a;
+      }
+      &:nth-of-type(2) {
+        grid-area: STR-b;
+      }
+      &:nth-of-type(4) {
+        grid-area: DEX-b;
+      }
+      &:nth-of-type(6) {
+        grid-area: CON-b;
+      }
+      &:nth-of-type(8) {
+        grid-area: INT-b;
+      }
+      &:nth-of-type(10) {
+        grid-area: WIS-b;
+      }
+      &:nth-of-type(12) {
+        grid-area: CHA-b;
+      }
+    }
+  }
+
+  .monster--stats p:nth-child(odd) {
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 5px !important;
+  }
+
+  .monster--data-last::after {
+    content: "";
+    display: block;
+    border-bottom: 2px solid var(--sb-stat-block-divider, #bc0f0f);
+    padding: 0 0 8px;
+  }
+  .monster--action-header {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;
+    padding-top: 4px;
+    border-bottom: 1px solid var(--sb-stat-block-divider, #bc0f0f);
+  }
+  .monster--data-last strong + strong {
+    margin-left: 12px;
+  }
 }
