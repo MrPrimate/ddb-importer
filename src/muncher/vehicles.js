@@ -8,7 +8,7 @@ import {
   // addNPCsToCompendium,
 } from "./importMonster.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { getCampaignId } from "../lib/DDBCampaigns.js";
+import DDBCampaigns from "../lib/DDBCampaigns.js";
 import { parseVehicles } from "../parser/vehicle/vehicle.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
@@ -25,7 +25,7 @@ export function getVehicleData(ids) {
   const betaKey = PatreonHelper.getPatreonKey();
   const parsingApi = DDBProxy.getProxy();
 
-  const campaignId = getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
 
   if (ids && ids.length > 0) {

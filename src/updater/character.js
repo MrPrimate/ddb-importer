@@ -4,7 +4,7 @@ import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DICTIONARY from "../dictionary.js";
 import SETTINGS from "../settings.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";
-import { getCampaignId } from "../lib/DDBCampaigns.js";
+import DDBCampaigns from "../lib/DDBCampaigns.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getActorConditionStates, getCondition } from "../parser/special/conditions.js";
 import DDBProxy from "../lib/DDBProxy.js";
@@ -93,7 +93,7 @@ async function updateCharacterCall(actor, path, bodyContent, flavor) {
     : DDBProxy.getProxy();
   const useCharacterKey = foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
   const betaKey = PatreonHelper.getPatreonKey(useCharacterKey);
-  const campaignId = getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
   const coreBody = {
     cobalt: cobaltCookie,

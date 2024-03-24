@@ -4,7 +4,7 @@ import { getSpells } from "../parser/spells/getGenericSpells.js";
 import FileHelper from "../lib/FileHelper.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { getCampaignId } from "../lib/DDBCampaigns.js";
+import DDBCampaigns from "../lib/DDBCampaigns.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
@@ -17,7 +17,7 @@ import utils from "../lib/utils.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
-  const campaignId = getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId();
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };

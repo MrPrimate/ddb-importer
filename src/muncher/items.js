@@ -3,7 +3,7 @@ import DDBMuncher from "../apps/DDBMuncher.js";
 import utils from "../lib/utils.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { getCampaignId } from "../lib/DDBCampaigns.js";
+import DDBCampaigns from "../lib/DDBCampaigns.js";
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
@@ -92,7 +92,7 @@ async function generateImportItems(items) {
 
 function getItemData(sourceFilter) {
   const cobaltCookie = getCobalt();
-  const campaignId = getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId();
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };

@@ -1,6 +1,6 @@
 import { DirectoryPicker } from "../lib/DirectoryPicker.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
-import { refreshCampaigns, getAvailableCampaigns, getCampaignId } from "../lib/DDBCampaigns.js";
+import DDBCampaigns from "../lib/DDBCampaigns.js";
 import DDBMuncher from "./DDBMuncher.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "../lib/Secrets.js";
 import logger from "../logger.js";
@@ -43,12 +43,12 @@ export default class DDBSetup extends FormApplication {
     const cobaltLocal = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
     const key = PatreonHelper.getPatreonKey();
     const hasKey = key !== "";
-    const campaignId = getCampaignId();
+    const campaignId = DDBCampaigns.getCampaignId();
     const tier = PatreonHelper.getPatreonTier();
     const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
     const validKeyObject = hasKey ? (await PatreonHelper.getPatreonValidity(key)) : false;
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
-    const availableCampaigns = isCobalt && cobaltStatus.success ? await getAvailableCampaigns() : [];
+    const availableCampaigns = isCobalt && cobaltStatus.success ? await DDBCampaigns.getAvailableCampaigns() : [];
 
     this.campaignFallback = false;
 
@@ -90,7 +90,7 @@ export default class DDBSetup extends FormApplication {
       const cookie = html.find("#cobalt-cookie-input");
       const cookieStatus = await DDBSetup.checkCobaltCookie(cookie[0].value);
       if (!cookieStatus.success) return;
-      const campaigns = await refreshCampaigns(cookie[0].value);
+      const campaigns = await DDBCampaigns.refreshCampaigns(cookie[0].value);
       const list = html.find("#campaign-select");
       let campaignList = `<option value="">Select campaign:</option>`;
       if (!campaigns || (Array.isArray(campaigns) && campaigns.length === 0)) {

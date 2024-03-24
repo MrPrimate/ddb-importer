@@ -3,7 +3,7 @@ import logger from "../logger.js";
 import DDBMacros from "../effects/DDBMacros.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { getCampaignId } from "../lib/DDBCampaigns.js";
+import DDBCampaigns from "../lib/DDBCampaigns.js";
 import { importCacheLoad } from "../lib/DDBReferenceLinker.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
@@ -112,7 +112,7 @@ export default class DDBCharacter {
     const cobaltCookie = getCobalt(localCobaltPostFix);
     const parsingApi = DDBProxy.getProxy();
     const betaKey = game.settings.get("ddb-importer", "beta-key");
-    const campaignId = getCampaignId();
+    const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
     let body = {
       cobalt: cobaltCookie,

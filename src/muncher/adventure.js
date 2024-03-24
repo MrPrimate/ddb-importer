@@ -1,4 +1,4 @@
-import { getCampaignId } from "../lib/DDBCampaigns.js";
+import DDBCampaigns from "../lib/DDBCampaigns.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getVehicleData } from "./vehicles.js";
 import FileHelper from "../lib/FileHelper.js";
@@ -118,7 +118,7 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
 
   if (cobalt) {
     result.cobalt = getCobalt();
-    result.campaignId = getCampaignId();
+    result.campaignId = DDBCampaigns.getCampaignId();
   }
 
   // @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}

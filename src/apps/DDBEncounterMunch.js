@@ -2,7 +2,7 @@ import logger from "../logger.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import MuncherSettings from "../lib/MuncherSettings.js";
-import { getAvailableCampaigns } from "../lib/DDBCampaigns.js";
+import DDBCampaigns from "../lib/DDBCampaigns.js";
 import { importCharacterById } from "./DDBCharacterManager.js";
 import SETTINGS from "../settings.js";
 import DDBEncounters from "../parser/DDBEncounters.js";
@@ -777,7 +777,7 @@ export default class DDBEncounterMunch extends Application {
   async getData() {
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
-    const availableCampaigns = await getAvailableCampaigns();
+    const availableCampaigns = await DDBCampaigns.getAvailableCampaigns();
     const availableEncounters = await this.ddbEncounters.filterEncounters();
 
     const characterSettings = MuncherSettings.getCharacterImportSettings();

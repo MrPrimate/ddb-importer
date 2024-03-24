@@ -4,7 +4,7 @@ import DDBMuncher from "../apps/DDBMuncher.js";
 import { getSubClasses } from "./classes/subclasses.js";
 import { getClassOptions } from "./classes/options.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { getCampaignId } from "../lib/DDBCampaigns.js";
+import DDBCampaigns from "../lib/DDBCampaigns.js";
 import FileHelper from "../lib/FileHelper.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
@@ -12,7 +12,7 @@ import PatreonHelper from "../lib/PatreonHelper.js";
 
 function getSubClassesData(className) {
   const cobaltCookie = getCobalt();
-  const campaignId = getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId();
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
@@ -44,7 +44,7 @@ function getSubClassesData(className) {
 
 function getClassOptionsData(className) {
   const cobaltCookie = getCobalt();
-  const campaignId = getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId();
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
@@ -76,7 +76,7 @@ function getClassOptionsData(className) {
 
 function getClassesData() {
   const cobaltCookie = getCobalt();
-  const campaignId = getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId();
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
