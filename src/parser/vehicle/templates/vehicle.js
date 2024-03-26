@@ -3,7 +3,7 @@ export async function newVehicle(name) {
     temporary: true,
     displaySheet: false,
   };
-  const vehicleClass = new Actor.implementation({ name, type: "vehicle" }, options);
+  const vehicleClass = await Actor.create({ name, type: "vehicle" }, options);
   let vehicle = vehicleClass.toObject();
   const flags = {
     dnd5e: {},

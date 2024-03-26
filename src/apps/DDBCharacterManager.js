@@ -1424,7 +1424,7 @@ export async function importCharacter(actor, html) {
 }
 
 export async function importCharacterById(characterId, html) {
-  const actor = new Actor.implementation({
+  const actor = await Actor.create({
     name: "New Actor",
     type: "character",
     flags: {

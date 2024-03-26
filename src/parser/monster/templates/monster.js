@@ -3,7 +3,7 @@ export async function newNPC(name) {
     temporary: true,
     displaySheet: false,
   };
-  const npcClass = new Actor.implementation({ name, type: "npc" }, options);
+  const npcClass = await Actor.create({ name, type: "npc" }, options);
   let npc = npcClass.toObject();
   npc._id = foundry.utils.randomID();
   const flags = {
