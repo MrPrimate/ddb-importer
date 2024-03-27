@@ -9,11 +9,11 @@ import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
-import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import DDBMacros from "../effects/DDBMacros.js";
 import Iconizer from "../lib/Iconizer.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
+import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 
 async function getCharacterInventory(items) {
   return items.map((item) => {
@@ -211,7 +211,7 @@ export async function parseItems(ids = null, deleteBeforeUpdate = null) {
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : itemHandler.documents;
   const vision5eItems = addVision5eStubs(filteredItems);
-  itemHandler.documents = await applyChrisPremadeEffects({ documents: vision5eItems, compendiumItem: true });
+  itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: vision5eItems, compendiumItem: true });
 
   const finalCount = itemHandler.documents.length;
   DDBMuncher.munchNote(`Importing ${finalCount} items!`, true);

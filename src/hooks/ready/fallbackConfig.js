@@ -3822,6 +3822,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/hcs",
     },
     {
+      id: 136,
+      name: "DiLCT",
+      description: "Descent into the Lost Caverns of Tsojcanth",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/40132/872/638442415700463413.jpeg",
+      sourceURL: "sources/dilct",
+    },
+    {
       id: 139,
       name: "ToB1",
       description: "Tome of Beasts 1",

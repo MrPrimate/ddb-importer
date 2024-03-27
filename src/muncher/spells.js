@@ -7,13 +7,13 @@ import { getCobalt } from "../lib/Secrets.js";
 import DDBCampaigns from "../lib/DDBCampaigns.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
-import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBMacros from "../effects/DDBMacros.js";
 import Iconizer from "../lib/Iconizer.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
 import utils from "../lib/utils.js";
+import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
@@ -133,7 +133,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : itemHandler.documents;
   const visionSpells = addVision5eStubs(filteredSpells);
-  itemHandler.documents = await applyChrisPremadeEffects({ documents: visionSpells, compendiumItem: true });
+  itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: visionSpells, compendiumItem: true });
 
   const finalCount = itemHandler.documents.length;
   DDBMuncher.munchNote(`Importing ${finalCount} spells...`, true);

@@ -6,13 +6,13 @@ import utils from "../lib/utils.js";
 import logger from "../logger.js";
 import { fixItems } from "../parser/item/special.js";
 import { fixSpells } from "../parser/spells/special.js";
-import { applyChrisPremadeEffects } from "./chrisPremades.js";
 import { equipmentEffectAdjustment, midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
 import { fixFeatures, addExtraEffects } from "../parser/features/fixes.js";
 import { generateOverTimeEffect, damageOverTimeEffect, getOvertimeDamage, getMonsterFeatureDamage } from "./monsterFeatures/overTimeEffect.js";
 import { baseEffect, generateStatusEffectChange, generateCEStatusEffectChange, addStatusEffectChange, generateTokenMagicFXChange, generateATLChange } from "./effects.js";
+import ExternalAutomations from "./external/ExternalAutomations.js";
 
 export default class DDBEffectHelper {
 
@@ -99,7 +99,7 @@ export default class DDBEffectHelper {
         data = (await addExtraEffects(null, [data], mockCharacter))[0];
       }
 
-      if (useChrisPremades) data = (await applyChrisPremadeEffects({ documents: [data], force: true }))[0];
+      if (useChrisPremades) data = (await ExternalAutomations.applyChrisPremadeEffects({ documents: [data], force: true }))[0];
 
       data = addVision5eStub(data);
 

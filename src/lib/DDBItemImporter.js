@@ -7,8 +7,7 @@ import Iconizer from "./Iconizer.js";
 import { DDBCompendiumFolders } from "./DDBCompendiumFolders.js";
 import NameMatcher from "./NameMatcher.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
-import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
-// import FolderHelper from "../lib/FolderHelper.js";
+import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 
 export default class DDBItemImporter {
 
@@ -483,7 +482,7 @@ export default class DDBItemImporter {
       handler.documents = addVision5eStubs(filteredItems);
     }
     if (chrisPremades) {
-      handler.documents = await applyChrisPremadeEffects({ documents: handler.documents, compendiumItem: true });
+      handler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: handler.documents, compendiumItem: true });
     }
     DDBMuncher.munchNote(`Importing ${handler.documents.length} ${type} documents!`, true);
     logger.debug(`Importing ${handler.documents.length} ${type} documents!`, foundry.utils.deepClone(documents));

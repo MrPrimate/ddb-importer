@@ -26,11 +26,6 @@ import DDBProxy from "./lib/DDBProxy.js";
 import DDBCompanion from "./parser/companions/DDBCompanion.js";
 import { DDBCompendiumFolders } from "./lib/DDBCompendiumFolders.js";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.js";
-import {
-  applyChrisPremadeEffect,
-  applyChrisPremadeEffects,
-  addChrisEffectsToActorDocuments,
-} from "./effects/chrisPremades.js";
 import SETTINGS from "./settings.js";
 import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
@@ -44,6 +39,7 @@ import DDBHelper from "./lib/DDBHelper.js";
 import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
 import DDBCampaigns from "./lib/DDBCampaigns.js";
 import ChrisPremadesHelper from "./effects/external/ChrisPremadesHelper.js";
+import ExternalAutomations from "./effects/external/ExternalAutomations.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -169,7 +165,7 @@ export function registerApi() {
     effects: {
       helpers: DDBEffectHelper,
       ChrisPremadesHelper,
-      addChrisEffectsToActorDocuments,
+      addChrisEffectsToActorDocuments: ExternalAutomations.addChrisEffectsToActorDocuments,
       addDDBIEffectsToActorDocuments: DDBEffectHelper.addDDBIEffectsToActorDocuments,
       addDDBIEffectToDocument: DDBEffectHelper.addDDBIEffectToDocument,
       // these are now in DDBEffectHelper, wrapped here for historical reasons
@@ -201,9 +197,9 @@ export function registerApi() {
       getMacro: DDBMacros.getMacro,
     },
     chris: {
-      generateEffect: applyChrisPremadeEffect,
-      generateEffects: applyChrisPremadeEffects,
-      adjustActor: addChrisEffectsToActorDocuments,
+      generateEffect: ExternalAutomations.applyChrisPremadeEffect,
+      generateEffects: ExternalAutomations.applyChrisPremadeEffects,
+      adjustActor: ExternalAutomations.addChrisEffectsToActorDocuments,
     },
     debug: {
       start: debugStart,

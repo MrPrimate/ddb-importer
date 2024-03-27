@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Default prototype token settings not picked up on actor/monster creation.
+- Chris's premades application will now use Chris' Compendium priority list.
+
 # 5.1.1
 
 - From 5.1.0 monsters would parse damage with an erroneous `+ false` in their damage fields.

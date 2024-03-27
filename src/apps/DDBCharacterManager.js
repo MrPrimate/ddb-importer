@@ -15,15 +15,11 @@ import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/special/conditions.js";
 import SETTINGS from "../settings.js";
-import {
-  // addAndReplaceRedundantChrisDocuments,
-  addChrisEffectsToActorDocuments,
-  // restrictedItemReplacer
-} from "../effects/chrisPremades.js";
 import DDBMacros from "../effects/DDBMacros.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
 import { addMagicItemSpells } from "../parser/item/itemSpells.js";
 import DDBHelper from "../lib/DDBHelper.js";
+import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 
 export default class DDBCharacterManager extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {
@@ -1354,9 +1350,7 @@ export default class DDBCharacterManager extends FormApplication {
       await this.ddbCharacter.autoLinkResources();
 
       if (this.settings.useChrisPremades) {
-        await addChrisEffectsToActorDocuments(this.actor);
-        // await restrictedItemReplacer(this.actor);
-        // await addAndReplaceRedundantChrisDocuments(this.actor);
+        await ExternalAutomations.addChrisEffectsToActorDocuments(this.actor);
       }
       await setConditions(this.actor, this.ddbCharacter.source.ddb, this.settings.activeEffectCopy);
 

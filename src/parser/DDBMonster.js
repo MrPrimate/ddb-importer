@@ -13,9 +13,9 @@ import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
-import { applyChrisPremadeEffect } from "../effects/chrisPremades.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import utils from "../lib/utils.js";
+import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 
 export default class DDBMonster {
 
@@ -296,7 +296,7 @@ export default class DDBMonster {
     if (this.addChrisPremades) {
       for (let item of this.npc.items) {
         // eslint-disable-next-line no-await-in-loop
-        await applyChrisPremadeEffect({ document: item, type: "monsterfeatures", folderName: this.npc.name });
+        await ExternalAutomations.applyChrisPremadeEffect({ document: item, type: "monsterfeature", folderName: this.npc.name });
       }
     }
     this.npc = transferEffectsToActor(this.npc);

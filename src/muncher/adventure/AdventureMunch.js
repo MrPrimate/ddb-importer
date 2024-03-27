@@ -974,17 +974,12 @@ export default class AdventureMunch extends FormApplication {
 
     data.flags.importid = data._id;
 
-    if (data.img) {
-      // eslint-disable-next-line require-atomic-updates
-      data.img = await this.importImage(data.img);
-    }
-    if (data.background?.source) {
-      // eslint-disable-next-line require-atomic-updates
-      data.background.source = await this.importImage(data.background.source);
-    }
     if (data.background?.src) {
       // eslint-disable-next-line require-atomic-updates
       data.background.src = await this.importImage(data.background.src);
+    } else if (data.img) {
+      // eslint-disable-next-line require-atomic-updates
+      data.img = await this.importImage(data.img);
     }
     if (data.thumb) {
       // eslint-disable-next-line require-atomic-updates
