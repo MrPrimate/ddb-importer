@@ -1,4 +1,4 @@
-# NEXT UP
+# 5.1.2
 
 - Default prototype token settings not picked up on actor/monster creation.
 - Chris's premades application will now use Chris' Compendium priority list.
