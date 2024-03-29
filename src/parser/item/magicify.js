@@ -138,7 +138,7 @@ function capitalize(word) {
 function getMagicItemResetType(description) {
   let resetType = null;
 
-  const chargeMatchFormula = /expended charges (?:\w) at (\w)/i;
+  const chargeMatchFormula = /expended charges (?:\w+|each day) at (\w+)/i;
   const usedAgainFormula = /(?:until|when) you (?:take|finish) a (short|long|short or long) rest/i;
   const chargeNextDawnFormula = /can't be used this way again until the next (dawn|dusk)/i;
 
@@ -242,6 +242,11 @@ function parseMagicItemsModule(data, itemSpells, isCompendiumItem) {
         if (data.limitedUse.resetType) {
           magicItem.rechargeUnit = DICTIONARY.magicitems.rechargeUnits.find(
             (reset) => reset.id == data.limitedUse.resetType
+          )?.value ?? "";
+        } else {
+          const textType = getMagicItemResetType(data.definition.description);
+          magicItem.rechargeUnit = DICTIONARY.magicitems.rechargeUnits.find(
+            (reset) => reset.id == textType
           )?.value ?? "";
         }
         magicItem.rechargeable = true;
