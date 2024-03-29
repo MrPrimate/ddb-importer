@@ -80,6 +80,7 @@ import { demiurgicColossusEffect } from "./feats/demiurgicColossus.js";
 import { greatWeaponMasterEffect } from "./feats/greatWeaponMaster.js";
 import { psychicBladesEffect } from "./feats/psychicBlades.js";
 import { sneakAttackEffect } from "./feats/sneakAttack.js";
+import { aspectOfTheBeastBearEffect } from "./feats/aspectOfTheBeastBear.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -112,6 +113,10 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Arcane Ward": {
       document = await arcaneWardEffect(document);
+      break;
+    }
+    case "Aspect of the Beast: Bear": {
+      document = await aspectOfTheBeastBearEffect(document);
       break;
     }
     case "Bladesong": {

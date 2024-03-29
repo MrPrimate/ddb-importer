@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Aspect of the Beast: Bear effect. (Thanks to @motomoto0295 )
+
 # 5.1.2
 
 - Default prototype token settings not picked up on actor/monster creation.
