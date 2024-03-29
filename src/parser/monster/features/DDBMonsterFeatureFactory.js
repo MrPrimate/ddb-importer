@@ -504,6 +504,8 @@ export default class DDBMonsterFeatureFactory {
     this.html[type] = DDBMonsterFeatureFactory.replaceRollable(utils.replaceHtmlSpaces(`${html}`))
       .replace(/<\/strong> <strong>/g, "")
       .replace(/<\/strong><strong>/g, "")
+      .replace(/<strong>\.<\/strong>/g, ".")
+      .replace(/<em>\.<\/em>/g, ".")
       .replace(/&shy;/g, "");
 
     switch (type) {

@@ -1,3 +1,7 @@
+# Next Up
+
+- Handle some odd formating or Humblewood Monsters.
+
 # 5.1.3
 
 - Aspect of the Beast: Bear effect. (Thanks to @motomoto0295 )
