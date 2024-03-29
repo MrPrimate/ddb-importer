@@ -1,6 +1,8 @@
 # NEXT UP
 
 - Aspect of the Beast: Bear effect. (Thanks to @motomoto0295 )
+- When using Magic Items module, some items would not parse reset condition correcly, e.g.g Staff of Defence. @sarelle
+- Some ChrisP additional items would not add. @sarelle @chrisk123999
 
 # 5.1.2
 
