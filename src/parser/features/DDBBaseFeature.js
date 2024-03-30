@@ -4,7 +4,6 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import { generateEffects } from "../../effects/effects.js";
-import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 
 
 export default class DDBBaseFeature {
@@ -380,18 +379,10 @@ export default class DDBBaseFeature {
   }
 
   _addEffects(choice, type) {
-    // can we apply any effects to this feature
+    // can we apply any auto-generated effects to this feature
     const compendiumItem = this.rawCharacter.flags.ddbimporter.compendium;
-    const addCharacterEffects = compendiumItem
-      ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-      : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
     const modifierItem = this._getFeatModifierItem(choice, type);
-    if (addCharacterEffects) {
-      this.data = generateEffects(this.ddbData, this.rawCharacter, modifierItem, this.data, compendiumItem, "feat");
-      // console.log(item);
-    } else {
-      this.data = generateBaseACItemEffect(this.ddbData, this.rawCharacter, modifierItem, this.data, compendiumItem);
-    }
+    this.data = generateEffects(this.ddbData, this.rawCharacter, modifierItem, this.data, compendiumItem, "feat");
   }
 
 

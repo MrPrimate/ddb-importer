@@ -2,6 +2,7 @@
 
 - Handle some odd formating or Humblewood Monsters.
 - Some Fey Ancestry traits don't grant sleep immunity, but it was applied by the importer. @babywashbear
+- Some effects would not be auto generated for features when they should be.
 
 
 # 5.1.3

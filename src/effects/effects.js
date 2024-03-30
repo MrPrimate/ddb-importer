@@ -1471,7 +1471,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   let effect = baseItemEffect(foundryItem, label);
 
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return [foundryItem, effect];
-  logger.debug(`Generating Effects for ${foundryItem.name}`, ddbItem);
+  logger.debug(`Generating Generic Effects for ${foundryItem.name}`, ddbItem);
 
   const globalSaveBonus = addGlobalSavingBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name);
   const globalAbilityBonus = addAddBonusEffect(
@@ -1580,6 +1580,7 @@ function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, eff
 }
 
 export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, type) {
+  logger.debug(`Checking ${foundryItem.name} for auto generated effects`, ddbItem);
   // set flags if using effects
   foundryItem = applyDefaultMidiFlags(foundryItem);
   let label;
