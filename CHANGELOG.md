@@ -1,6 +1,8 @@
 # Next Up
 
 - Handle some odd formating or Humblewood Monsters.
+- Some Fey Ancestry traits don't grant sleep immunity, but it was applied by the importer. @babywashbear
+
 
 # 5.1.3
 

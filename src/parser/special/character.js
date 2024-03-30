@@ -9,7 +9,7 @@ DDBCharacter.prototype._addSpecialAdditions = function _addSpecialAdditions() {
   }
 
   const feyAncestry = checkList.find((f) => f.name === "Fey Ancestry" && f.type === "feat");
-  if (feyAncestry) {
+  if (feyAncestry && (foundry.utils.getProperty(feyAncestry, "system.description.value") ?? "").includes("sleep")) {
     const ci = ["Sleep"];
     if (this.data.character.system.traits.ci.custom && this.data.character.system.traits.ci.custom.trim() !== "")
       ci.push(this.data.character.system.traits.ci.custom);
