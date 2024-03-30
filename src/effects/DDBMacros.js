@@ -1,6 +1,5 @@
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
-import SETTINGS from "../settings.js";
 import DDBEffectHelper from "./DDBEffectHelper.js";
 
 export default class DDBMacros {
@@ -84,15 +83,6 @@ export default class DDBMacros {
     } else {
       logger.warn("Midi-QOL needs to be installed for effects");
       // ui.notifications.warn("Midi-QOL needs to be installed for effects");
-    }
-
-    const useCEConditions = game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce");
-    // if dfreds status effects not added, add them
-    if (game.modules.get("dfreds-convenient-effects")?.active && useCEConditions) {
-      const convenientEffectStatusSettings = game.settings.get("dfreds-convenient-effects", "modifyStatusEffects");
-      if (convenientEffectStatusSettings && convenientEffectStatusSettings === "none") {
-        game.settings.set("dfreds-convenient-effects", "modifyStatusEffects", "add");
-      }
     }
 
     if (game.modules.get("itemacro")?.active && game.modules.get("dae")?.active) {
