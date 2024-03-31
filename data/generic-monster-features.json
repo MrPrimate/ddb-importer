@@ -9430,5 +9430,13 @@
   {
     "name": "Cultists of Zuggtmoy",
     "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Void Bolt",
+    "path": "icons/magic/lightning/bolt-strike-beam-purple.webp"
+  },
+  {
+    "name": "Soothing Word",
+    "path": "icons/magic/life/heart-cross-purple-orange.webp"
   }
 ]

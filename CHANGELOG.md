@@ -1,3 +1,7 @@
+# Next Up
+
+- Bleak Cabal Void Soother fixes (thanks @motomoto0295 )
+
 # 5.1.4
 
 - Handle some odd formating or Humblewood Monsters.

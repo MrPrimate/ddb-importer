@@ -140,6 +140,13 @@ export function specialCases(monster) {
         "per": null,
         "recovery": ""
       };
+    } else if (item.name.startsWith("Soothing Word")) {
+      this[index].system.target = {
+        value: 1,
+        width: null,
+        units: "",
+        type: "creature",
+      };
     }
   }, monster.items);
 

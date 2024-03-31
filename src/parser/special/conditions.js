@@ -63,7 +63,7 @@ export async function setConditions(actor, ddb, keepLocal = false) {
     // remove conditions first
     for (const condition of conditionStates.filter((c) => c.needsRemove)) {
       logger.debug(`removing ${condition.label}`, { condition });
-      const existing = actor.document.effects.get(game.dnd5e.utils.staticID(`dnd5e${condition.foundry}`));
+      const existing = actor.document?.effects?.get(game.dnd5e.utils.staticID(`dnd5e${condition.foundry}`));
       if (existing) await existing.delete();
       if (condition.foundry === "exhaustion") {
         logger.debug("Removing exhaustion", condition.levelId);
