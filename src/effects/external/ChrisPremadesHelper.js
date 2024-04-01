@@ -47,14 +47,16 @@ export default class ChrisPremadesHelper {
     { type: "feat", system: "feature" },
     { type: "feat", system: "trait" },
     { type: "feat", system: "feat" },
-    { type: "inventory", system: "equipment" },
+    { type: "equipment", system: "inventory" },
     { type: "weapon", system: "weapon" },
     { type: "consumable", system: "consumable" },
     { type: "tool", system: "tool" },
     { type: "loot", system: "loot" },
-    { type: "container", system: "container" },
+    // { type: "container", system: "container" },
+    { type: "equipment", system: "container" },
+    { type: "equipment", system: "backback" },
     { type: "equipment", system: "equipment" },
-    { type: "feature", system: "monsterfeature" },
+    { type: "monsterfeature", system: "monsterfeature" },
   ];
 
   static async getChrisCompendiumIndex(compendiumName, matchedProperties = {}) {
@@ -68,7 +70,9 @@ export default class ChrisPremadesHelper {
   static async getChrisCompendiums(type, matchedProperties = {}) {
     if (chrisPremades.helpers.getSearchCompendiums) {
       const baseType = ChrisPremadesHelper.CP_COMPENDIUM_TYPES.find((t) => t.system === type)?.type ?? type;
-      const compendiums = await chrisPremades.helpers.getSearchCompendiums(baseType);
+      const compendiums = type === "monsterfeature"
+        ? ["CPR Monster Feature Items"]
+        : await chrisPremades.helpers.getSearchCompendiums(baseType);
       const results = (await Promise.all(compendiums
         .filter((c) => game.packs.get(c))
         .map(async (c) => {
@@ -224,7 +228,9 @@ export default class ChrisPremadesHelper {
   async findReplacement() {
     const compendiums = await ChrisPremadesHelper.getChrisCompendiums(this.original.type);
     if (compendiums.length === 0) {
-      logger.warn(`No compendium found for Chris's Premade effect for ${this.original.type} and ${this.original.name}, with type ${this.type}!`);
+      logger.warn(`No compendium found for Chris's Premade effect for "${this.original.name}" with original type ${this.original.type} and with type object type ${this.type}!`, {
+        this: this,
+      });
       return undefined;
     }
 
@@ -322,7 +328,7 @@ export default class ChrisPremadesHelper {
 
     chrisHelper.updateOriginalDocument();
 
-    return chrisDoc.document;
+    return chrisHelper.document;
   }
 
   // eslint-disable-next-line no-unused-vars
