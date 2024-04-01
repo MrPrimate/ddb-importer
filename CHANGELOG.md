@@ -1,4 +1,4 @@
-# Next Up
+# 5.1.5
 
 - Bleak Cabal Void Soother fixes (thanks @motomoto0295 )
 - Chris Premades fix for certain class builds @dead_sith @chrisleong @deadfacekh4no
