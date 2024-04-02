@@ -107,7 +107,7 @@ if (args[0] === "off") {
   let copyItem = foundry.utils.duplicate(weaponItem);
   copyItem.system.attack.bonus = damage;
   copyItem.system.damage.parts[0][0] = weaponDmg;
-  if (!mgc) DDBImporter.EffectHelper.removeFromProperties(copyItem.system.properties, "mgc");
+  if (!mgc) copyItem.system.properties = DDBImporter.EffectHelper.removeFromProperties(copyItem.system.properties, "mgc");
   if (verDmg !== "" && verDmg !== null) copyItem.system.damage.versatile = verDmg;
   targetActor.updateEmbeddedDocuments("Item", [copyItem]);
   DAE.unsetFlag(targetActor, "magicWeapon");

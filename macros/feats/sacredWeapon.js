@@ -97,7 +97,7 @@ if (args[0] === "off") {
   const weaponItem = targetActor.items.get(weapon);
   let copyItem = foundry.utils.duplicate(weaponItem);
   copyItem.system.attack.bonus = bonus;
-  if (mgc) DDBImporter.EffectHelper.removeFromProperties(copyItem.system.properties, "mgc");
+  if (mgc) copyItem.system.properties = DDBImporter.EffectHelper.removeFromProperties(copyItem.system.properties, "mgc");
   copyItem.name = name;
   targetActor.updateEmbeddedDocuments("Item", [copyItem]);
   DAE.unsetFlag(targetActor, "sacredWeapon");

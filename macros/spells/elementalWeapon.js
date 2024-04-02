@@ -186,7 +186,7 @@ if (args[0] === "off") {
   copyItem.name = name;
   copyItem.system.attack.bonus = attackBonus;
   copyItem.system.damage = damage;
-  if (mgc) DDBImporter.EffectHelper.removeFromProperties(copyItem.system.properties, "mgc");
+  if (mgc) copyItem.system.properties = DDBImporter.EffectHelper.removeFromProperties(copyItem.system.properties, "mgc");
   targetActor.updateEmbeddedDocuments("Item", [copyItem]);
   DAE.unsetFlag(targetActor, "magicWeapon");
 }

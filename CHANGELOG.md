@@ -1,3 +1,7 @@
+# Next up
+
+- Some effects, noteably Magic Weapon, would not remove the magic property from the weapon when the effect ended.
+
 # 5.1.5
 
 - Bleak Cabal Void Soother fixes (thanks @motomoto0295 )
