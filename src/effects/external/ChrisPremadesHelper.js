@@ -56,7 +56,6 @@ export default class ChrisPremadesHelper {
     { type: "equipment", system: "container" },
     { type: "equipment", system: "backback" },
     { type: "equipment", system: "equipment" },
-    { type: "monsterfeature", system: "monsterfeature" },
   ];
 
   static async getChrisCompendiumIndex(compendiumName, matchedProperties = {}) {
@@ -67,12 +66,12 @@ export default class ChrisPremadesHelper {
     return index;
   }
 
-  static async getChrisCompendiums(type, matchedProperties = {}) {
+  static async getChrisCompendiums(type, isMonster = false, matchedProperties = {}) {
     if (chrisPremades.helpers.getSearchCompendiums) {
       const baseType = ChrisPremadesHelper.CP_COMPENDIUM_TYPES.find((t) => t.system === type)?.type ?? type;
-      const compendiums = type === "monsterfeature"
-        ? ["CPR Monster Feature Items"]
-        : await chrisPremades.helpers.getSearchCompendiums(baseType);
+      const compendiums = (isMonster
+        ? ["chris-premades.CPR Monster Features"]
+        : []).concat(await chrisPremades.helpers.getSearchCompendiums(baseType));
       const results = (await Promise.all(compendiums
         .filter((c) => game.packs.get(c))
         .map(async (c) => {
@@ -171,19 +170,21 @@ export default class ChrisPremadesHelper {
     { folderName = null, isMonster = false, matchedProperties = {} } = {}
   ) {
 
-    const compendiums = await ChrisPremadesHelper.getChrisCompendiums(type);
+    const compendiums = await ChrisPremadesHelper.getChrisCompendiums(type, isMonster);
     if (compendiums.length === 0) {
       logger.warn(`No compendium found for Chris's Premade effect for ${type} and ${documentName}, with type ${type}!`);
       return undefined;
     }
 
+    const allowFolders = !["feat", "weapon"].includes(this.type);
+
     for (const c of compendiums) {
-      const folderId = isMonster
+      const folderId = isMonster && allowFolders
         ? await FolderHelper.getCompendiumFolderId((folderName ?? documentName), c.packName)
         : undefined;
 
       // expected to find feature in a folder, but we could not
-      if (folderName && folderId === undefined) {
+      if (allowFolders && folderName && folderId === undefined) {
         logger.debug(`No folder found for ${folderName} and ${documentName}, checking compendium name ${c.packName}`);
         return undefined;
       }
@@ -226,7 +227,7 @@ export default class ChrisPremadesHelper {
   }
 
   async findReplacement() {
-    const compendiums = await ChrisPremadesHelper.getChrisCompendiums(this.original.type);
+    const compendiums = await ChrisPremadesHelper.getChrisCompendiums(this.original.type, this.isMonster);
     if (compendiums.length === 0) {
       logger.warn(`No compendium found for Chris's Premade effect for "${this.original.name}" with original type ${this.original.type} and with type object type ${this.type}!`, {
         this: this,
@@ -234,13 +235,15 @@ export default class ChrisPremadesHelper {
       return undefined;
     }
 
+    const allowFolders = !["feat", "weapon"].includes(this.type);
+
     for (const c of compendiums) {
-      const folderId = ["monsterfeature"].includes(this.type)
+      const folderId = allowFolders && this.isMonster
         ? await FolderHelper.getCompendiumFolderId((this.folderName ?? this.chrisName), c.packName)
         : undefined;
 
       // expected to find feature in a folder, but we could not
-      if (this.folderName && folderId === undefined) {
+      if (this.allowFolders && folderId === undefined) {
         logger.debug(`No folder found for ${this.folderName} and ${this.original.name}, using compendium name ${c.packName}`);
         return undefined;
       }
@@ -453,10 +456,15 @@ export default class ChrisPremadesHelper {
       // now replace the matched item with the replaced Item
       if (restrictedItem.replacedItemName && restrictedItem.replacedItemName !== "") {
         logger.debug(`Replacing item data for ${ddbName}, using restricted data from ${restrictedItem.key}`);
-        let document = foundry.utils.duplicate(doc);
-        document = await ChrisPremadesHelper.findAndUpdate({ document, folderName, chrisNameOverride: restrictedItem.replacedItemName });
-        await actor.deleteEmbeddedDocuments("Item", [doc._id]);
-        await actor.createEmbeddedDocuments("Item", [document], { keepId: true });
+        const updateDocument = await ChrisPremadesHelper.findAndUpdate({
+          document: foundry.utils.duplicate(doc),
+          folderName,
+          chrisNameOverride: restrictedItem.replacedItemName,
+        });
+        if (updateDocument) {
+          await actor.deleteEmbeddedDocuments("Item", [doc._id]);
+          await actor.createEmbeddedDocuments("Item", [updateDocument], { keepId: true });
+        }
       }
 
 

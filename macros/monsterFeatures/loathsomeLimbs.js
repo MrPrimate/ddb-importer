@@ -18,7 +18,8 @@ const generateLimbEffect = (roll, targetActor) => {
     const name = 'Decapitated';
     if (getEffects(name, targetActor) >= 1) return;
     ChatMessage.create({ content: `${targetActor.name}'s has been decapitated` });
-    return { name, stackable: 'noneName', changes: [{ key: 'macro.CE', mode: 0, value: 'Blinded' }] };
+    const change = DDBImporter.EffectHelper.generateCEStatusEffectChange("Blinded", 20, true);
+    return { name, stackable: 'noneName', changes: [change] };
   }
 };
 

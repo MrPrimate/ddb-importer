@@ -30,7 +30,7 @@ for (let target of targets) {
       duration: { startRound: gameRound, startTime: game.time.worldTime },
       flags: { dae: { specialDuration: ["turnEndSource"] } },
       changes: [
-        { key: "macro.CE", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: game.i18n.localize("Blinded"), priority: 20 },
+        DDBImporter.EffectHelper.generateCEStatusEffectChange(game.i18n.localize("Blinded"), 20, true),
       ]
     };
 

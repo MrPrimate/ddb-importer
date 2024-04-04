@@ -1,6 +1,8 @@
-# Next up
+# 5.1.6
 
 - Some effects, noteably Magic Weapon, would not remove the magic property from the weapon when the effect ended.
+- Fox for simple distance calculations (thanks @elwin1410 )
+- Chris Premades monster parsing was not applying effects for all monster features.
 
 # 5.1.5
 

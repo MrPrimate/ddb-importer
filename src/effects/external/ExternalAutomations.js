@@ -8,8 +8,14 @@ import ChrisPremadesHelper from "./ChrisPremadesHelper.js";
 
 export default class ExternalAutomations {
 
-  static async applyChrisPremadeEffect({ document, type, folderName = null, chrisNameOverride = null } = {}) {
-    return ChrisPremadesHelper.findAndUpdate({ document, type, folderName, chrisNameOverride });
+  static async applyChrisPremadeEffect({ document, type, isMonster = false, folderName = null, chrisNameOverride = null } = {}) {
+    return ChrisPremadesHelper.findAndUpdate({
+      document,
+      type,
+      folderName,
+      chrisNameOverride,
+      isMonster
+    });
   }
 
   static async applyChrisPremadeEffects({ documents, compendiumItem = false, force = false, isMonster = false, folderName = null } = {}) {
@@ -29,12 +35,17 @@ export default class ExternalAutomations {
     for (let doc of documents) {
       if (["class", "subclass", "background"].includes(doc.type)) continue;
       const type = ChrisPremadesHelper.getTypeMatch(doc, isMonster);
-      logger.debug(`Evaluating ${doc.name} of type ${type} for Chris's Premade application.`, { type, folderName });
+      logger.debug(`Evaluating ${doc.name} of type ${type} for Chris's Premade application.`, { type, folderName, isMonster });
 
-      doc = await ChrisPremadesHelper.findAndUpdate({ document: doc, type, folderName });
-      if (isMonster && !["monsterfeature"].includes(type) && !foundry.utils.getProperty(document, "flags.ddbimporter.effectsApplied") === true) {
+      doc = await ChrisPremadesHelper.findAndUpdate({
+        document: doc,
+        type,
+        folderName,
+        isMonster,
+      });
+      if (isMonster && !["monsterfeature"].includes(type) && !foundry.utils.getProperty(doc, "flags.ddbimporter.effectsApplied") === true) {
         logger.debug(`No Chris' Premade found for ${doc.name} with type "${type}", checking for monster feature.`);
-        doc = await ChrisPremadesHelper.findAndUpdate({ document: doc, type: "monsterfeature", folderName });
+        doc = await ChrisPremadesHelper.findAndUpdate({ document: doc, type: "monsterfeature", folderName, isMonster });
       }
     }
 

@@ -611,8 +611,10 @@ export default class DDBEffectHelper {
       distance = nd + ns;
       let dimension = canvas?.dimensions?.distance ?? 5;
       if (distanceRule === "5105") distance += Math.floor(nd / 2 / dimension) * dimension;
+    } else {
+      // assumes euclidean
+      distance = Math.sqrt((heightDifference * heightDifference) + (distance * distance));
     }
-    distance = Math.sqrt((heightDifference * heightDifference) + (distance * distance));
 
     return distance;
   }
