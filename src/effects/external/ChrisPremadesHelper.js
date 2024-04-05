@@ -176,7 +176,7 @@ export default class ChrisPremadesHelper {
       return undefined;
     }
 
-    const allowFolders = !["feat", "weapon"].includes(this.type);
+    const allowFolders = ["weapon", "feat"].includes(this.original.type);
 
     for (const c of compendiums) {
       const folderId = isMonster && allowFolders
@@ -235,7 +235,12 @@ export default class ChrisPremadesHelper {
       return undefined;
     }
 
-    const allowFolders = !["feat"].includes(this.type);
+    const allowFolders = ["weapon", "feat"].includes(this.original.type);
+
+    console.warn(`Check data`, {
+      this: this,
+      allowFolders: allowFolders,
+    })
 
     for (const c of compendiums) {
       const folderId = allowFolders && this.isMonster
@@ -243,8 +248,8 @@ export default class ChrisPremadesHelper {
         : undefined;
 
       // expected to find feature in a folder, but we could not
-      if (this.allowFolders && folderId === undefined) {
-        logger.debug(`No folder found for ${this.folderName} and ${this.original.name}, using compendium name ${c.packName}`);
+      if (allowFolders && folderId === undefined) {
+        logger.debug(`Needed folder, but none found for ${this.folderName} and ${this.original.name}, using compendium name ${c.packName}`);
         return undefined;
       }
 

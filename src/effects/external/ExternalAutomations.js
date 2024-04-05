@@ -62,7 +62,13 @@ export default class ExternalAutomations {
     let documents = actor.getEmbeddedCollection("Item").toObject();
     const isMonster = actor.type === "npc";
     const folderName = isMonster ? actor.name : null;
-    const data = (await ExternalAutomations.applyChrisPremadeEffects({ documents, compendiumItem: false, force: true, folderName, isMonster }))
+    const data = (await ExternalAutomations.applyChrisPremadeEffects({
+      documents,
+      compendiumItem: false,
+      force: true,
+      folderName,
+      isMonster,
+    }))
       .filter((d) =>
         foundry.utils.getProperty(d, "flags.ddbimporter.chrisEffectsApplied") === true
         && !foundry.utils.hasProperty(d, "flags.items-with-spells-5e.item-spells.parent-item")

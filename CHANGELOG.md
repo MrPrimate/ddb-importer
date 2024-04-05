@@ -1,6 +1,7 @@
 # Next Up
 
 - Ensnaring Strike fixes from the wonderful @elwin1410
+- More Chris Premades fixes, some monster actions such as bite or claw would pick up the wrong feature. @steve8887
 
 # 5.1.6
 
