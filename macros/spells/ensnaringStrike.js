@@ -3,13 +3,15 @@
 // Optional AA setup:
 //   A special custom restrained condition can be added for Ensnaring Strike.
 //     - In the AA Auto Rec menu, select the Active Effects tab.
-//     - Duplicate the Restrained entry.
-//     - Rename the duplicate to "Restrained [Ensnaring Strike]"
-//     - Change the animation to something more appropriate for the spell, e.g.:
+//     - Create a new entry.name "Restrained [Ensnaring Strike]"
+//     - Animation Type: On Token
+//     - Primary Animation: (Set the animation to something more appropriate for the spell), e.g.:
 //       - Type: Spell
 //       - Animation: Entangle
 //       - Variant: 01
 //       - Color: Green
+//       - Options:
+//         - Persistent: (checked)
 
 if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
   args[0].workflow.item.system['target']['type'] = "self";
@@ -23,9 +25,9 @@ const icon = "icons/magic/nature/root-vine-entangled-hand.webp";
 /**
  * Returns a temporary spell item data for the Ensnaring Strike effect.
  *
- * @param {*} sourceActor the actor that casted the origin spell item.
- * @param {*} originItem the origin spell item that was cast.
- * @param {*} originEffect the effect from the origin spell item that was cast.
+ * @param {Actor5e} sourceActor the actor that casted the origin spell item.
+ * @param {Item5e} originItem the origin spell item that was cast.
+ * @param {ActiveEffect5e} originEffect the effect from the origin spell item that was cast.
  * @returns temporary spell item data for Ensnaring Strike effect.
  */
 function getTempSpellData(sourceActor, originItem, originEffect) {
@@ -33,7 +35,7 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
   const nbDice = level;
 
   // Get restrained condition id
-  const statusId = CONFIG.statusEffects.find(se => (se.name ?? se.label) === CONFIG.DND5E.conditionTypes["restrained"])?.id;
+  const statusId = CONFIG.statusEffects.find(se => (se.name ?? se.label) === CONFIG.DND5E.conditionTypes["restrained"].label)?.id;
   const conEffect = MidiQOL.getConcentrationEffect(sourceActor);
 
   // Temporary spell data for the ensnaring effect.
@@ -53,18 +55,11 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
     },
     effects: [
       {
-        _id: foundry.utils.randomID(),
         changes: [
           {
             key: "StatusEffect",
             mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
             value: statusId,
-            priority: 20,
-          },
-          {
-            key: "flags.dae.deleteUuid",
-            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-            value: conEffect.uuid,
             priority: 20,
           },
           {
@@ -78,7 +73,6 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
         disabled: false,
         transfer: false,
         icon,
-        label: originItem.name,
         name: originItem.name,
         duration: DDBImporter?.EffectHelper.getRemainingDuration(conEffect.duration),
       },
@@ -89,88 +83,83 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
 if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   const macroData = args[0];
 
-  const workflow = MidiQOL.Workflow.getWorkflow(macroData.uuid);
-  if (workflow?.options?.skipOnUse) {
+  if (workflow.options?.skipOnUse) {
     // Skip onUse when temporary effect item is used (this is a custom option that is passed to completeItemUse)
     return;
   }
 
-  if (macroData.hitTargets.length < 1) {
+  if (workflow.hitTargets.size < 1) {
     // No target hit
     return;
   }
-  if (!["mwak", "rwak"].includes(macroData.itemData.system.actionType)) {
+  if (!["mwak", "rwak"].includes(rolledItem?.system.actionType)) {
     // Not a weapon attack
     return;
   }
 
-  const originItem = await fromUuid(macroData.sourceItemUuid);
-  if (!originItem) {
-    // Could not find origin item
-    console.error(`${itemName}: origin item ${macroData.sourceItemUuid} not found.`);
-    return;
-  }
-  const sourceActor = await fromUuid(macroData.actorUuid);
-  if (sourceActor.getFlag("world", "ensnaring-strike.used")) {
-    // Effect already applied to target
-    console.warn(`${itemName}: spell already used.`);
-    return;
-  }
-
-  const originEffect = sourceActor.effects.find((ef) =>
-    ef.getFlag("midi-qol", "castData.itemUuid") === macroData.sourceItemUuid
+  const originEffect = actor.effects.find((ef) =>
+    ef.getFlag("midi-qol", "castData.itemUuid") === macroItem.uuid
   );
   if (!originEffect) {
     console.error(`${itemName}: spell active effect was not found.`);
     return;
   }
 
-  // Flag the spell as used.
-  let originEffectChanges = foundry.utils.duplicate(originEffect.changes);
-  originEffectChanges.push({
-    key: "flags.world.ensnaring-strike.used",
-    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    value: "1",
-    priority: 20,
-  });
-  await originEffect.update({ changes: originEffectChanges });
-
   // Temporary spell data for the ensnaring effect
-  const spellData = getTempSpellData(sourceActor, originItem, originEffect);
+  const spellData = getTempSpellData(actor, macroItem, originEffect);
   const spell = new Item.implementation(spellData, {
-    parent: sourceActor,
+    parent: actor,
     temporary: true,
   });
 
   // If AA has a special custom effect for the restrained condition, use it instead of standard one
   if (game.modules.get("autoanimations")?.active) {
-    DDBImporter?.EffectHelper.configureCustomAAForCondition("restrained", macroData, originItem.name, spell.uuid);
+    DDBImporter?.EffectHelper.configureCustomAAForCondition("restrained", macroData, macroItem.name, spell.uuid);
   }
   // Check if target is large or larger and give it advantage on next save
-  const targetActor = macroData.hitTargets[0].actor;
-  if (dnd5e.config.tokenSizes[targetActor?.system.traits.size ?? "med"] >= dnd5e.config.tokenSizes["lg"]) {
-    await DDBImporter?.EffectHelper.addSaveAdvantageToTarget(targetActor, originItem, "str", " (Large Creature)");
+  const targetActor = workflow.hitTargets.first().actor;
+  if (getActorSizeValue(targetActor) >= getSizeValue("lg")) {
+    await DDBImporter?.EffectHelper.addSaveAdvantageToTarget(targetActor, macroItem, "str", " (Large Creature)");
   }
 
   const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [macroData.hitTargetUuids[0]] });
+  options.skipOnUse = true;
   const spellEffectWorkflow = await MidiQOL.completeItemUse(spell, config, options);
-  const conEffect = MidiQOL.getConcentrationEffect(sourceActor);
+  const conEffect = MidiQOL.getConcentrationEffect(actor);
 
   if (spellEffectWorkflow.hitTargets.size > 0 && spellEffectWorkflow.failedSaves.size > 0) {
     // Transfer target of concentration from the caster to the target to allow removing effect on caster.
-    const conTargets = [];
+    const conTargets = foundry.utils.deepClone(actor.getFlag("midi-qol", "concentration-data.targets") ?? []);
     spellEffectWorkflow.failedSaves.forEach((token) =>
       conTargets.push({
         tokenUuid: token.document?.uuid ?? token.uuid,
         actorUuid: token.actor?.uuid ?? "",
       })
     );
-    await sourceActor.setFlag("midi-qol", "concentration-data.targets", conTargets);
+    await actor.setFlag("midi-qol", "concentration-data.targets", conTargets);
     await originEffect.delete();
   } else {
     // Remove concentration and the effect causing it since the effect has been used
-    if (conEffect) {
-      conEffect.delete();
-    }
+    conEffect?.delete();
   }
+}
+
+/**
+* Returns the numeric value of the specified actor's size.
+*
+* @param {Actor5e} actor actor for which to get the size value.
+* @returns {number} the numeric value of the specified actor's size.
+*/
+function getActorSizeValue(actor) {
+  return getSizeValue(actor?.system?.traits?.size ?? "med");
+}
+
+/**
+ * Returns the numeric value of the specified size.
+ *
+ * @param {string} size  the size name for which to get the size value.
+ * @returns {number} the numeric value of the specified size.
+ */
+function getSizeValue(size) {
+  return Object.keys(CONFIG.DND5E.actorSizes).indexOf(size ?? "med");
 }

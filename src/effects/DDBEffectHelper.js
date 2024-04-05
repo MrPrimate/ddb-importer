@@ -254,7 +254,7 @@ export default class DDBEffectHelper {
       return;
     }
     const customStatusName = `${statusName.label} [${originItemName}]`;
-    if (AutomatedAnimations.AutorecManager.getAutorecEntries().aefx.find((a) => a.name === customStatusName)) {
+    if (AutomatedAnimations.AutorecManager.getAutorecEntries().aefx.find((a) => (a.label ?? a.name) === customStatusName)) {
       const aaHookId = Hooks.on("AutomatedAnimations-WorkflowStart", (data) => {
         if (
           data.item instanceof CONFIG.ActiveEffect.documentClass
