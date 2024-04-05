@@ -237,11 +237,6 @@ export default class ChrisPremadesHelper {
 
     const allowFolders = ["weapon", "feat"].includes(this.original.type);
 
-    console.warn(`Check data`, {
-      this: this,
-      allowFolders: allowFolders,
-    })
-
     for (const c of compendiums) {
       const folderId = allowFolders && this.isMonster
         ? await FolderHelper.getCompendiumFolderId((this.folderName ?? this.chrisName), c.packName)
