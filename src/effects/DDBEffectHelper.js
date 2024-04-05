@@ -48,7 +48,7 @@ export default class DDBEffectHelper {
    * @param {boolean} options.useChrisPremades - Whether to use Chris premade effects. Default is false.
    * @return {Promise<void>} A promise that resolves when the effects have been applied.
    */
-  static async addDDBIEffectToDocument(document, { useChrisPremades = false } = {}) {
+  static async addDDBIEffectToDocument(document, { useChrisPremades = false, isMonster = false } = {}) {
     if (foundry.utils.getProperty(document, "flags.ddbimporter.effectsApplied") === true
       || foundry.utils.getProperty(document, "flags.ddbimporter.chrisEffectsApplied") === true
     ) {
@@ -99,7 +99,7 @@ export default class DDBEffectHelper {
         data = (await addExtraEffects(null, [data], mockCharacter))[0];
       }
 
-      if (useChrisPremades) data = (await ExternalAutomations.applyChrisPremadeEffects({ documents: [data], force: true }))[0];
+      if (useChrisPremades) data = (await ExternalAutomations.applyChrisPremadeEffects({ documents: [data], force: true, isMonster }))[0];
 
       data = addVision5eStub(data);
 
@@ -133,9 +133,10 @@ export default class DDBEffectHelper {
    */
   static async addDDBIEffectsToActorDocuments(actor, { useChrisPremades = false } = {}) {
     logger.info("Starting to add effects to actor items");
+    const isMonster = actor.type === "npc";
     for (const doc of actor.items) {
       logger.debug(`Processing ${doc.name}`);
-      await DDBEffectHelper.addDDBIEffectToDocument(doc, { useChrisPremades });
+      await DDBEffectHelper.addDDBIEffectToDocument(doc, { useChrisPremades, isMonster });
     }
     logger.info("Effect addition complete");
   }

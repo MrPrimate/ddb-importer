@@ -235,7 +235,7 @@ export default class ChrisPremadesHelper {
       return undefined;
     }
 
-    const allowFolders = !["feat", "weapon"].includes(this.type);
+    const allowFolders = !["feat"].includes(this.type);
 
     for (const c of compendiums) {
       const folderId = allowFolders && this.isMonster
