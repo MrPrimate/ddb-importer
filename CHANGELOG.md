@@ -1,3 +1,7 @@
+# Next Up
+
+- On character import update name choice was not respected on prototype token.
+
 # 5.1.7
 
 - Ensnaring Strike fixes from the wonderful @elwin1410

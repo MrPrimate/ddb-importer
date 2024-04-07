@@ -146,11 +146,6 @@ export default class DDBCharacter {
       try {
         // this parses the json and sets the results as this.data
         await this._parseCharacter();
-        const shouldChangeName = game.settings.get("ddb-importer", "character-update-policy-name");
-        if (!shouldChangeName) {
-          this.data.character.name = undefined;
-          this.data.character.prototypeToken.name = undefined;
-        }
         logger.debug("finalParsedData", foundry.utils.duplicate({ source: this.source, data: foundry.utils.deepClone(this.data) }));
       } catch (error) {
         if (game.settings.get("ddb-importer", "debug-json")) {

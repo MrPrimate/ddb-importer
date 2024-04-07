@@ -1205,6 +1205,7 @@ export default class DDBCharacterManager extends FormApplication {
 
   getSettings() {
     this.settings = {
+      updatePolicyName: game.settings.get("ddb-importer", "character-update-policy-name"),
       updatePolicyHP: game.settings.get("ddb-importer", "character-update-policy-hp"),
       updatePolicyHitDie: game.settings.get("ddb-importer", "character-update-policy-hit-die"),
       updatePolicyCurrency: game.settings.get("ddb-importer", "character-update-policy-currency"),
@@ -1255,6 +1256,10 @@ export default class DDBCharacterManager extends FormApplication {
 
       // manage updates of basic character data more intelligently
       // revert some data if update not wanted
+      if (!this.settings.updatePolicyName) {
+        this.result.character.name = this.actorOriginal.name;
+        this.result.character.prototypeToken.name = this.actorOriginal.prototypeToken.name;
+      }
       if (!this.settings.updatePolicyHP) {
         this.result.character.system.attributes.hp = this.actorOriginal.system.attributes.hp;
       }
