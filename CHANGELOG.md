@@ -1,4 +1,4 @@
-# Next Up
+# 5.1.8
 
 - On character import update name choice was not respected on prototype token.
 - Fix for somme touch spells not setting target correctly to 1 creature, e.g. Gift of Alacrity.
