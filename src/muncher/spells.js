@@ -102,11 +102,12 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
     getSpellData("Artificer", sourceFilter),
   ]);
 
-  DDBMuncher.munchNote("Parsing spell data..");
+  DDBMuncher.munchNote("Parsing spell data.");
 
   const filteredResults = results
     .filter((r) => r.status === "fulfilled")
-    .map((r) => r.value).flat().flat();
+    .map((r) => r.value).flat().flat()
+    .filter((v, i, a) => a.findIndex((t) => t.definition.name === v.definition.name) === i);
 
   const rawSpells = await getSpells(filteredResults);
 
