@@ -1,3 +1,8 @@
+# Next up
+
+- Missed broken manual cookie link
+- Spell parsing would create duplicate tables
+
 # 5.1.8
 
 - On character import update name choice was not respected on prototype token.
