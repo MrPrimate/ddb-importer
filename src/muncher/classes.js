@@ -9,6 +9,7 @@ import FileHelper from "../lib/FileHelper.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
+import utils from "../lib/utils.js";
 
 function getSubClassesData(className) {
   const cobaltCookie = getCobalt();
@@ -119,9 +120,11 @@ export async function parseClasses() {
     const klass = classData.find((c) => c.name === className);
     // eslint-disable-next-line no-await-in-loop
     const subClassData = await getSubClassesData(className);
-    // eslint-disable-next-line no-await-in-loop
-    const subClassResult = await getSubClasses(subClassData, klass);
-    subClassResults.push(...subClassResult);
+    if (!klass || (subClassData && utils.isArray(subClassData) && subClassData.length > 0)) {
+      // eslint-disable-next-line no-await-in-loop
+      const subClassResult = await getSubClasses(subClassData, klass);
+      subClassResults.push(...subClassResult);
+    }
   }
 
   const classOptionsResults = [];

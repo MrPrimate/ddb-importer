@@ -57,6 +57,9 @@ async function buildSubClass(klass, subclass, compendiumSubClassFeatures) {
 }
 
 export async function getSubClasses(subClassData, klassData) {
+  if (!klassData || !subClassData) {
+    return [];
+  }
   logger.debug("get subclasses started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
