@@ -60,6 +60,10 @@
     "path": "icons/magic/water/bubbles-air-water-blue.webp"
   },
   {
+    "name": "Antagonize",
+    "path": "icons/magic/control/control-influence-puppet.webp"
+  },
+  {
     "name": "Antilife Shell",
     "path": "icons/magic/earth/orb-stone-smoke-teal.webp"
   },
@@ -1752,12 +1756,20 @@
     "path": "icons/magic/defensive/shield-barrier-blades-teal.webp"
   },
   {
+    "name": "Spirit of Death",
+    "path": "icons/magic/death/weapon-scythe-rune-green.webp"
+  },
+  {
     "name": "Spirit Shroud",
     "path": "icons/magic/death/projectile-skull-fire-purple.webp"
   },
   {
     "name": "Spiritual Weapon",
     "path": "icons/magic/fire/dagger-rune-enchant-flame-purple-orange.webp"
+  },
+  {
+    "name": "Spray of Cards",
+    "path": "icons/skills/ranged/projectile-spiral-gray.webp"
   },
   {
     "name": "Staggering Smite",
@@ -2062,6 +2074,10 @@
   {
     "name": "Warding Wind",
     "path": "icons/magic/air/wind-swirl-purple-blue.webp"
+  },
+  {
+    "name": "Warp Sense",
+    "path": "icons/magic/perception/third-eye-blue-red.webp"
   },
   {
     "name": "Water Breathing",
