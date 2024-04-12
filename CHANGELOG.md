@@ -3,6 +3,7 @@
 - Missed broken manual cookie link
 - Spell parsing would create duplicate tables
 - More icons from @kaelad
+- Some more Chris Premade fixes
 
 # 5.1.8
 

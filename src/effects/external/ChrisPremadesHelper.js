@@ -176,15 +176,18 @@ export default class ChrisPremadesHelper {
       return undefined;
     }
 
-    const allowFolders = ["weapon", "feat"].includes(this.original.type);
+    // console.warn("here", { this: this });
+
+    // const allowFolders = ["weapon", "feat"].includes(this.original.type);
 
     for (const c of compendiums) {
-      const folderId = isMonster && allowFolders
+      const folderId = isMonster // && allowFolders
         ? await FolderHelper.getCompendiumFolderId((folderName ?? documentName), c.packName)
         : undefined;
 
       // expected to find feature in a folder, but we could not
-      if (allowFolders && folderName && folderId === undefined) {
+      // if (allowFolders && folderName && folderId === undefined) {
+      if (folderName && folderId === undefined) {
         logger.debug(`No folder found for ${folderName} and ${documentName}, checking compendium name ${c.packName}`);
         return undefined;
       }
