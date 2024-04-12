@@ -743,11 +743,11 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-use-actions-as-features": {
-            scope: "player",
-            type: Boolean,
-            default: true,
-          },
+          // "character-update-policy-use-actions-as-features": {
+          //   scope: "player",
+          //   type: Boolean,
+          //   default: true,
+          // },
           "character-update-policy-dae-effect-copy": {
             scope: "player",
             type: Boolean,

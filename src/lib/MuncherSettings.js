@@ -197,13 +197,13 @@ const MuncherSettings = {
         description: "Add the snippet to the chat card (otherwise will use description).",
         enabled: true,
       },
-      {
-        name: "use-actions-as-features",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features"),
-        description:
-          "Import D&D Beyond Actions as Features, not weapons.",
-        enabled: true,
-      },
+      // {
+      //   name: "use-actions-as-features",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features"),
+      //   description:
+      //     "Import D&D Beyond Actions as Features, not weapons.",
+      //   enabled: true,
+      // },
       {
         name: "use-action-and-feature",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-action-and-feature"),
