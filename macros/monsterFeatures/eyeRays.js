@@ -91,11 +91,11 @@ async function attackWithRay(documentData) {
   const rayItem = new CONFIG.Item.documentClass(documentData, { parent: workflow.actor });
   const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: args[0].targetUuids });
 
-  console.warn("Midi Options", {
-    documentData,
-    workflowOptions,
-    rayItem,
-  });
+  // console.warn("Midi Options", {
+  //   documentData,
+  //   options,
+  //   rayItem,
+  // });
   return await MidiQOL.completeItemUse(rayItem, config, options);
 }
 
