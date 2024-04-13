@@ -1,4 +1,4 @@
-# Next Up
+# 5.1.10
 
 - THunder Gauntlets and Lighting Launcher now parse as weapons rather than features.
 - Fix typo in Spectator/Beholder macro.
