@@ -1,6 +1,10 @@
+# 5.1.11
+
+- Fix Confusion for Spectator/Beholder macro.
+
 # 5.1.10
 
-- THunder Gauntlets and Lighting Launcher now parse as weapons rather than features.
+- Thunder Gauntlets and Lighting Launcher now parse as weapons rather than features.
 - Fix typo in Spectator/Beholder macro.
 
 # 5.1.9

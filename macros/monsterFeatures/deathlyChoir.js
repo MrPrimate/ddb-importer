@@ -1,4 +1,4 @@
-if (args[0].macroPass === "preambleComplete") {
+if (args[0].macroPass === "prePreambleComplete") {
     if (workflow.targets.size === 0) return;
     let validTargets = [];
     for (let i of Array.from(workflow.targets)) {

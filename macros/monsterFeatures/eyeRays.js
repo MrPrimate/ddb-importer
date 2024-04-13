@@ -129,7 +129,7 @@ async function createBaseRay(rayName, { description, saveAbility = "", saveDC = 
   } else if (rayName === "Petrification Ray") {
     await petrificationRayEffect(rayData);
   } else if (rayName === "Confusion Ray") {
-    confusionRayEffect(document);
+    confusionRayEffect(rayData);
   }
 
   console.warn("Midi Options", {

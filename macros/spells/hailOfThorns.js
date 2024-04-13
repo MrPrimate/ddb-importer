@@ -58,7 +58,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   foundry.utils.setProperty(
     areaSpellData,
     "flags.midi-qol.onUseMacroName",
-    DDBImporter.lib.DDBMacros.generateMidiOnUseMacroFlagValue("spell", "hailOfThorns.js", ["preItemRoll", "preambleComplete", "preActiveEffects"], macroData.sourceItemUuid)
+    DDBImporter.lib.DDBMacros.generateMidiOnUseMacroFlagValue("spell", "hailOfThorns.js", ["preItemRoll", "prePreambleComplete", "preActiveEffects"], macroData.sourceItemUuid)
   );
 
   const areaSpell = new CONFIG.Item.documentClass(areaSpellData, {
@@ -109,7 +109,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     }
   });
   return true;
-} else if (args[0].tag === "OnUse" && args[0].macroPass === "preambleComplete") {
+} else if (args[0].tag === "OnUse" && args[0].macroPass === "prePreambleComplete") {
   const macroData = args[0];
   // Add template to concentration data to be auto deleted
   const concentrationData = macroData.actor.getFlag("midi-qol", "concentration-data");
