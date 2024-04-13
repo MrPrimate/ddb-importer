@@ -133,6 +133,20 @@
     "path": "icons/tools/laboratory/vials-blue-pink.webp"
   },
   {
+    "name": "Power Armor",
+    "class_feature": "Power Armor",
+    "class": "Artificer",
+    "subclass": "",
+    "path": "icons/creatures/magical/construct-iron-stomping-yellow.webp"
+  },
+  {
+    "name": "Defensive Field",
+    "class_feature": "Defensive Field",
+    "class": "Artificer",
+    "subclass": "",
+    "path": "icons/magic/control/debuff-chains-ropes-net-white.webp"
+  },
+  {
     "name": "Alchemist Spells",
     "class_feature": "Alchemist Spells",
     "class": "Artificer",

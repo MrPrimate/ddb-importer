@@ -1,3 +1,7 @@
+# Next Up
+
+- THunder Gauntlets and Lighting Launcher now parse as weapons rather than features.
+
 # 5.1.9
 
 - Missed broken manual cookie link

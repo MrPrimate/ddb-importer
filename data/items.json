@@ -8906,5 +8906,13 @@
   {
     "name": "Tan Bag of Tricks",
     "path": "icons/containers/bags/sack-cloth-tan.webp"
+  },
+  {
+    "name": "Thunder Gauntlets",
+    "path": "icons/magic/lightning/bolt-forked-large-blue.webp"
+  },
+  {
+    "name": "Lighting Launcher",
+    "path": "icons/magic/lightning/projectile-orb-blue.webp"
   }
 ]

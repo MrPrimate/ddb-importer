@@ -10,6 +10,8 @@ export default class DDBAttackAction extends DDBAction {
     "Psychic Blades: Attack (STR)",
     "Psychic Blades: Bonus Attack (DEX)",
     "Psychic Blades: Bonus Attack (STR)",
+    "Thunder Gauntlets",
+    "Lightning Launcher",
   ];
 
   _init() {
