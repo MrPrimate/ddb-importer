@@ -1,3 +1,7 @@
+# 5.1.12
+
+- More fixes for Chris Premades @sarelle
+
 # 5.1.11
 
 - Fix Confusion for Spectator/Beholder macro.
