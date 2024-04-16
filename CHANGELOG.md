@@ -1,3 +1,7 @@
+# Next Up
+
+- Improvements to Guidance cantrip effect.
+
 # 5.1.12
 
 - More fixes for Chris Premades @sarelle
