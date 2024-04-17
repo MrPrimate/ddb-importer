@@ -1,6 +1,7 @@
-# Next Up
+# 5.1.13
 
 - Improvements to Guidance cantrip effect.
+- Draconic Resilience did not include bonus hp in effect due to recent ac effect fixes.
 
 # 5.1.12
 
