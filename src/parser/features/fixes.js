@@ -107,7 +107,9 @@ export async function fixFeatures(features) {
         break;
       case "Draconic Resilience": {
         if (feature.effects.length === 1) {
+          const toKeepChanges = feature.effects[0].changes.filter((change) => !change.key.includes("system.attributes.ac"));
           feature.effects[0].changes = [
+            ...toKeepChanges,
             {
               key: "system.attributes.ac.calc",
               value: "draconic",
