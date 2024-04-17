@@ -3822,6 +3822,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/hcs",
     },
     {
+      id: 135,
+      name: "VNEE",
+      description: "Vecna: Nest of the Eldritch Eye",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/40687/843/638465408127994219.jpeg",
+      sourceURL: "sources/vnee",
+    },
+    {
       id: 136,
       name: "DiLCT",
       description: "Descent into the Lost Caverns of Tsojcanth",
