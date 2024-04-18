@@ -502,7 +502,11 @@ export default function parseTemplateString(ddb, character, text, feature) {
         } else {
           entry.parsed = getNumber(`${evalString}`, signed);
         }
-        entry.parsed = entry.parsed.replaceAll("+ +", "+").replaceAll("++", "+").replaceAll("* +", "*");
+        entry.parsed = entry.parsed
+          .replaceAll("+ +", "+")
+          .replaceAll("++", "+")
+          .replaceAll("* +", "*")
+          .replaceAll(":", "");
         const isRoll = entry.rollMatchTest;
         // there are some edge cases here where some template string matches do not get the correct [[]] boxes because
         // they are not all [[/roll ]] boxes
