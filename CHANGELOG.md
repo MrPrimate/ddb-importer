@@ -1,3 +1,7 @@
+# Next Up
+
+- Fix missing read aloud boxes/asides in some imported adventures.
+
 # 5.1.13
 
 - Improvements to Guidance cantrip effect.

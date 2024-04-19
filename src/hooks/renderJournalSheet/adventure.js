@@ -23,7 +23,11 @@ const renderPopup = (type, url) => {
 };
 
 function adventureFlags(app, html, data) {
-  if (!game.user.isGM || !app.document.flags.ddb) return;
+  if (!app.document.flags.ddb) return;
+  let journalContent = html.closest('.app').find('section.journal-page-content');
+  journalContent.addClass("ddb-adventure");
+
+  if (!game.user.isGM) return;
   const existingLink = html.closest('.app').find('.open-adventure-ddb-importer');
   if (existingLink.length > 0) return;
 
@@ -46,8 +50,6 @@ function adventureFlags(app, html, data) {
   button.insertAfter(titleElement);
   buildNotes(html, data);
 
-  let journalContent = html.closest('.app').find('section.journal-entry-content');
-  journalContent.addClass("ddb-adventure");
 }
 
 
