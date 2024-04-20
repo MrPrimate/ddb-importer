@@ -1162,10 +1162,6 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
-          "munching-policy-monster-bulk-import": {
-            type: Boolean,
-            default: false,
-          },
           "munching-policy-monster-strip-name": {
             type: Boolean,
             default: true,

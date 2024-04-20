@@ -12,7 +12,6 @@ import {
   addNPC,
   generateIconMap,
   copyExistingMonsterImages,
-  // addNPCsToCompendium,
   useSRDMonsterImages
 } from "../muncher/importMonster.js";
 import Iconizer from "../lib/Iconizer.js";
@@ -199,9 +198,6 @@ export default class DDBMonsterFactory {
     const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
     const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
     const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-    // const bulkImport = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-bulk-import");
-    // bulk import is disabled for now de to entry duplication
-    const bulkImport = false;
 
     // to speed up file checking we pregenerate existing files now.
     logger.info("Checking for existing files...");
@@ -263,23 +259,14 @@ export default class DDBMonsterFactory {
     const monsterCount = itemHandler.documents.length;
     this.munchNote(`Preparing dinner for ${monsterCount} monsters!`, true);
     for (const monster of itemHandler.documents) {
-      if (bulkImport) {
-        this.munchNote(`[${currentMonster}/${monsterCount}] Checking dietary requirements for ${monster.name}`, false, true);
-      } else {
-        this.munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name} to compendium`, false, true);
-      }
+      this.munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name} to compendium`, false, true);
       logger.debug(`Preparing ${monster.name} data for import`);
       // eslint-disable-next-line no-await-in-loop
-      const munched = await addNPC(monster, bulkImport, "monster");
+      const munched = await addNPC(monster, "monster");
       monstersParsed.push(munched);
       currentMonster += 1;
     }
     logger.debug("Monsters Parsed", monstersParsed);
-    // if (bulkImport) {
-    //   this.munchNote(`Importing ${monstersParsed.length} monsters`, false, true);
-    //   logger.debug(`Importing ${monstersParsed.length} monsters`);
-    //   await addNPCsToCompendium(monstersParsed, "monster");
-    // }
     this.munchNote("", false, true);
     foundry.utils.setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 

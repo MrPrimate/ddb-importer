@@ -26,6 +26,7 @@ export default class DDBMonsterFeature {
 
   createBaseFeature() {
     this.feature = {
+      _id: foundry.utils.randomID(),
       name: this.name,
       type: this.templateType,
       system: utils.getTemplate(this.templateType),
@@ -83,7 +84,7 @@ export default class DDBMonsterFeature {
     this.#generateAdjustedName();
 
     // if not attack set to a monster type action
-    if (!this.isAttack) foundry.utils.setProperty(this.feature, ".system.type.value", "monster");
+    if (!this.isAttack) foundry.utils.setProperty(this.feature, "system.type.value", "monster");
 
   }
 
@@ -882,6 +883,16 @@ export default class DDBMonsterFeature {
     this.actionInfo.uses = this.getUses();
   }
 
+  #linkResourcesConsumption() {
+    logger.debug(`Resource linking for ${this.name}`);
+
+    if (foundry.utils.getProperty(this.feature, "system.recharge.value")) {
+      foundry.utils.setProperty(this.feature, "system.consume.type", "charges");
+      foundry.utils.setProperty(this.feature, "system.consume.target", this.feature._id);
+      foundry.utils.setProperty(this.feature, "system.consume.amount", null);
+    }
+  }
+
   async parse() {
     this.#generateActionInfo();
     switch (this.type) {
@@ -906,6 +917,7 @@ export default class DDBMonsterFeature {
     }
 
     await this.#generateDescription();
+    this.#linkResourcesConsumption();
 
     logger.debug(`Parsed Feature ${this.name} for ${this.ddbMonster.name}`, { feature: this });
 

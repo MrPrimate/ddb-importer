@@ -1,6 +1,7 @@
 # Next Up
 
 - Fix missing read aloud boxes/asides in some imported adventures.
+- Some monster features, such as a dragons breath weapon, would not always have the resource consumption correctly set on import. @usernym
 
 # 5.1.13
 

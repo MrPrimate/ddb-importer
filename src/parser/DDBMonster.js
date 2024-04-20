@@ -167,31 +167,6 @@ export default class DDBMonster {
     });
   }
 
-  async #linkResourcesConsumption() {
-    if (this.items.some((item) => item.system.recharge?.value)) {
-      logger.debug(`Resource linking for ${this.name}`);
-      this.items.forEach((item) => {
-        if (item.system?.recharge?.value) {
-          const itemID = foundry.utils.randomID(16);
-          item._id = itemID;
-          if (item.type === "weapon") {
-            item.type = "feat";
-            delete item.system.type.value;
-            item.system.type = {
-              value: "monster",
-              subtype: "",
-            };
-          }
-          item.system.consume = {
-            type: "charges",
-            target: itemID,
-            amount: null,
-          };
-        }
-      });
-    }
-  }
-
   _generateTaggerFlags() {
     // if (!CONFIG.DDBI.tagger) return;
     const tags = [
@@ -277,7 +252,6 @@ export default class DDBMonster {
       this.items = this.items.filter((i) => i.name && i.name !== "");
     }
 
-    await this.#linkResourcesConsumption();
     this.items = addVision5eStubs(this.items);
     this.npc.items = this.items;
 

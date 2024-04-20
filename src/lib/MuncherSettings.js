@@ -695,12 +695,6 @@ Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasI
         description: `Generate Automation Effects that use Midi-QOL on monster attacks/features? <br>These are for a highly automated game, and are things such as managing abilities with conditions that have saves every round, or attacks which apply conditions such as frightened or prone.<br>Requires DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}.`,
         enabled: effectModulesAvailable.hasMonster,
       },
-      // {
-      //   name: "monster-bulk-import",
-      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-bulk-import"),
-      //   description: "Use bulk import mode? Experimental, potentially faster. Does not preserve excluded items.",
-      //   enabled: true,
-      // },
     ];
 
     const homebrewMonsterConfig = includeHomebrew

@@ -5,7 +5,6 @@ import {
   addNPC,
   generateIconMap,
   copyExistingMonsterImages,
-  // addNPCsToCompendium,
 } from "./importMonster.js";
 import { getCobalt } from "../lib/Secrets.js";
 import DDBCampaigns from "../lib/DDBCampaigns.js";
@@ -104,7 +103,6 @@ export async function parseTransports(ids = null) {
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
   const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-  const bulkImport = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-bulk-import");
 
   // to speed up file checking we pregenerate existing files now.
   logger.info("Checking for existing files...");
@@ -156,23 +154,14 @@ export async function parseTransports(ids = null) {
   const vehicleCount = vehicleHandler.documents.length;
   DDBMuncher.munchNote(`Preparing to wax ${vehicleCount} vehicles!`, true);
   for (const vehicle of vehicleHandler.documents) {
-    if (bulkImport) {
-      DDBMuncher.munchNote(`[${currentVehicle}/${vehicleCount}] Checking servicing requirements for ${vehicle.name}`, false, true);
-    } else {
-      DDBMuncher.munchNote(`[${currentVehicle}/${vehicleCount}] Importing ${vehicle.name}`, false, true);
-    }
+    DDBMuncher.munchNote(`[${currentVehicle}/${vehicleCount}] Importing ${vehicle.name}`, false, true);
     logger.debug(`Importing/second parse of ${vehicle.name} data`);
     // eslint-disable-next-line no-await-in-loop
-    const munched = await addNPC(vehicle, bulkImport, "vehicle");
+    const munched = await addNPC(vehicle, "vehicle");
     vehiclesParsed.push(munched);
     currentVehicle += 1;
   }
   logger.debug("Vehicles Parsed", vehiclesParsed);
-  // if (bulkImport) {
-  //   DDBMuncher.munchNote(`Importing ${vehiclesParsed.length} vehicles`, false, true);
-  //   logger.debug(`Importing ${vehiclesParsed.length} vehicles`);
-  //   await addNPCsToCompendium(vehiclesParsed, "vehicle");
-  // }
   DDBMuncher.munchNote("", false, true);
   foundry.utils.setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 
