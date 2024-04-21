@@ -211,17 +211,22 @@ function replaceTag(match, tagType, tagName, _p4, _offset, _string) {
  */
 function parseLooseRuleReferences(text, superLoose = false) {
   for (const [type, entries] of Object.entries(getRuleLookups())) {
-    // console.error(`Parsing ${type}`);
+    // console.error(`Reference Check`, { text });
     // eslint-disable-next-line no-continue
     if (!superLoose && SUPER_LOOSE.includes(type)) continue;
     for (const [key, value] of Object.entries(entries)) {
       // eslint-disable-next-line no-continue
       if (!value.reference) continue;
-      const linkRegEx = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(${value.label})( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
-      const replaceRule = (match, p1, p2, p3, p4) => {
-        // console.warn("match", { match, p1, p2, p3, p4 });
+      const linkRegEx = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(DC (\\d\\d) )?(${value.label})( (saving throw))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
+      const replaceRule = (match, p1, p2, p3, p4, p5, p6, p7, p8) => {
+        // console.warn("match", { match, p1, p2, p3, p4, p5, p6, p7, p8 });
         if (p1) return match; // already a reference match don't match this
-        return `${p2}&Reference[${key}]{${p3}}${p4}`;
+        if (p3 && Number.isInteger(parseInt(p4)) && p7) {
+          if (p7.toLowerCase() === "saving throw") {
+            return `${p2}[[/save ${key} ${p4} format=long]]${p8}`;
+          }
+        }
+        return `${p2}${p3 ?? ""}&Reference[${key}]{${p5}}${p6 ?? ""}${p8}`;
       };
       text = text.replaceAll(linkRegEx, replaceRule);
     }
