@@ -32,6 +32,12 @@ export function heavyArmorMasterEffect(document) {
         value: "-3",
         priority: "20",
       },
+      {
+        key: "system.traits.dm.bypasses",
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: "mgc",
+        priority: "20",
+      },
     );
   }
 

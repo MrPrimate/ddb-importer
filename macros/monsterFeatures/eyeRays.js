@@ -44,7 +44,7 @@ function slowingRayEffect(document, dc, saveAbility) {
 function damageRayEffect(document, nodam = false) {
   const dmg = DDBImporter.EffectHelper.getMonsterFeatureDamage(document.system.description.value);
 
-  console.warn("damage", dmg);
+  // console.warn("damage", dmg);
   if (nodam) {
     foundry.utils.setProperty(document, "flags.midiProperties.saveDamage", "nodam");
   }
@@ -84,17 +84,18 @@ async function petrificationRayEffect(document) {
   document.effects.push(effect);
 }
 
-async function attackWithRay(documentData) {
-  console.warn("ATTACK RAY", {
-    documentData: foundry.utils.deepClone(documentData),
-  })
+async function attackWithRay(documentData, target) {
+  // console.warn("ATTACK RAY", {
+  //   documentData: foundry.utils.deepClone(documentData),
+  // })
   const rayItem = new CONFIG.Item.documentClass(documentData, { parent: workflow.actor });
-  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: args[0].targetUuids });
+  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: (target?.uuid ? [ target.uuid ] : args[0].targetUuids) });
 
   // console.warn("Midi Options", {
   //   documentData,
   //   options,
   //   rayItem,
+  //   target,
   // });
   return await MidiQOL.completeItemUse(rayItem, config, options);
 }
@@ -132,12 +133,12 @@ async function createBaseRay(rayName, { description, saveAbility = "", saveDC = 
     confusionRayEffect(rayData);
   }
 
-  console.warn("Midi Options", {
-    rayData,
-    overTimeEffects,
-    lastArg: args[0],
-    workflow,
-  });
+  // console.warn("Midi Options", {
+  //   rayData,
+  //   overTimeEffects,
+  //   lastArg: args[0],
+  //   workflow,
+  // });
   return rayData;
 }
 
@@ -160,53 +161,63 @@ async function randomRayButtonCallback(results, _html) {
   return results;
 }
 
-const rayChooser = await DDBImporter.DialogHelper.ChooserDialog.Ask(
-  [{
-    type: 'select',
-    label: 'Choose a ray...',
-    options: rayChoices.map((t) => ({ label: `${t.number} - ${t.title}`, value: t.number })),
-  }],
-  [{
-    label: "Select",
-    value: "choice",
-  }, {
-    label: "Random",
-    value: "random",
-    callback: randomRayButtonCallback,
-  }, {
-    label: "Cancel",
-    value: "cancel",
-  }],
-  {
-    title: 'Eye Rays',
-    options: {
-      width: 450,
-      height: "auto",
-    },
-    defaultButton: "Random",
+const results = [];
+for (const target of args[0].targets) {
+
+  const rayChooser = await DDBImporter.DialogHelper.ChooserDialog.Ask(
+    [{
+      type: "label",
+      label: `Ray for ${target.name}`,
+      },
+      {
+      type: 'select',
+      label: 'Choose a ray...',
+      options: rayChoices.map((t) => ({ label: `${t.number} - ${t.title}`, value: t.number })),
+    }],
+    [{
+      label: "Select",
+      value: "choice",
+    }, {
+      label: "Random",
+      value: "random",
+      callback: randomRayButtonCallback,
+    }, {
+      label: "Cancel",
+      value: "cancel",
+    }],
+    {
+      title: 'Eye Rays',
+      options: {
+        width: 450,
+        height: "auto",
+      },
+      defaultButton: "Random",
+    }
+  );
+
+
+  // console.warn(rayChooser);
+
+  if (!rayChooser.success) continue;
+
+  const rayChoice = rayChoices.find((r) => r.number === rayChooser.results[1]);
+
+  if (!rayChoice) {
+    console.warn("Unable to determine Ray Choice", { rayChooser, rayChoices, target });
+    continue;
   }
-);
+
+  const save = rayChoice.content.match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
+
+  const ray = await createBaseRay(rayChoice.title, {
+    description: rayChoice.full,
+    saveAbility: save && save[2] ? save[2].toLowerCase().substr(0, 3) : "",
+    saveDC: save ? save[1] : "",
+    target,
+  });
 
 
-console.warn(rayChooser);
-
-if (!rayChooser.success) return;
-
-const rayChoice = rayChoices.find((r) => r.number === rayChooser.results[0]);
-
-if (!rayChoice) {
-  console.warn("Unable to determine Ray Choice", { rayChooser, rayChoices });
-  return;
+  results.push(await attackWithRay(ray, target));
 }
 
-
-const save = rayChoice.content.match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
-
-const ray = await createBaseRay(rayChoice.title, {
-  description: rayChoice.content,
-  saveAbility: save && save[2] ? save[2].toLowerCase().substr(0, 3) : "",
-  saveDC: save ? save[1] : "",
-});
-
-
-return attackWithRay(ray);
+return results;
