@@ -3,6 +3,7 @@ import logger from "../../../logger.js";
 import DICTIONARY from "../../../dictionary.js";
 import { generateTable } from "../../../muncher/table.js";
 import SETTINGS from "../../../settings.js";
+import { parseTags } from "../../../lib/DDBReferenceLinker.js";
 
 export default class DDBMonsterFeature {
 
@@ -693,6 +694,7 @@ export default class DDBMonsterFeature {
   async #generateDescription() {
     let description = this.hideDescription ? this.#getHiddenDescription() : `${this.html}`;
     description = description.replaceAll("<em><strong></strong></em>", "");
+    description = parseTags(description);
     this.feature.system.description.value = await generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
   }
 

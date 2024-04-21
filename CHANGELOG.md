@@ -2,6 +2,8 @@
 
 - Fix updating characters back to DDB for some actions such as Artificer Magical Tinkering and Rune Knight Runic Shield @deepfriedgnome @ohmygodwhat @dm.dk
 - Some improvements to Eye Ray macro for Beholders etc, that includes better description parsing for Ray attacks, handles multiple targets, rolls damage to Disintegration.
+- Monster feature descriptions will now attempt to parse out tags for rules references
+- Reference parser will now and save enrichers where it can in descriptions.
 
 # 5.1.14
 
