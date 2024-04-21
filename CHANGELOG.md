@@ -1,4 +1,4 @@
-# Next Up
+# 5.1.15
 
 - Fix updating characters back to DDB for some actions such as Artificer Magical Tinkering and Rune Knight Runic Shield @deepfriedgnome @ohmygodwhat @dm.dk
 - Some improvements to Eye Ray macro for Beholders etc, that includes better description parsing for Ray attacks, handles multiple targets, rolls damage to Disintegration.
