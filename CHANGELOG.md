@@ -1,3 +1,7 @@
+# Next Up
+
+- Fix updating characters back to DDB for some actions such as Artificer Magical Tinkering @deepfriedgnome @ohmygodwhat
+
 # 5.1.14
 
 - Fix missing read aloud boxes/asides in some imported adventures.

@@ -23,6 +23,15 @@ function getContainerItems(actor) {
     );
 }
 
+function getItemRollData(actor, itemId) {
+  const item = actor.items.get(itemId);
+  const rollData = item.getRollData();
+  return {
+    item,
+    rollData,
+  };
+}
+
 function setContainerDetails(actor, item, containerItems = null) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
   const ddbContainers = containerItems ?? getContainerItems(actor);
@@ -49,7 +58,8 @@ function getFoundryItems(actor) {
 
   const actorItems = foundry.utils.duplicate(actor.items)
     .filter((item) => !(item.flags.ddbimporter?.ignoreItemUpdate ?? false))
-    .map((item) => {
+    .map((rawItem) => {
+      const item = getItemRollData(actor, rawItem._id).item;
       return setContainerDetails(actor, item, ddbContainers);
     });
   // don't return update ignored items
@@ -909,7 +919,8 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
     const itemData = { itemId: item.flags.ddbimporter.id, value: (item.system.attunement === 2) };
     promises.push(updateCharacterCall(actor, "equipment/attuned", itemData, { name: item.name }));
   });
-  itemsToCharge.forEach((item) => {
+  itemsToCharge.forEach((rawItem) => {
+    const item = getItemRollData(actor, rawItem._id);
     const itemData = {
       itemId: item.flags.ddbimporter.id,
       charges: Math.max(0, parseInt(item.system.uses.max) - parseInt(item.system.uses.value)),
@@ -1035,8 +1046,9 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
       && ((item.system.attunement === 2) !== dItem.isAttuned)
     )
   );
-  const itemsToCharge = foundryItems.filter((item) =>
-    foundry.utils.hasProperty(item, "system.uses")
+  const itemsToCharge = foundryItems.filter((rawItem) => {
+    const item = getItemRollData(actor, rawItem._id);
+    return foundry.utils.hasProperty(item, "system.uses")
     && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
     && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
     && !foundry.utils.getProperty(item, "flags.ddbimporter.custom")
@@ -1044,8 +1056,8 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
       foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
       && Number.isInteger(parseInt(item.system.uses?.max)) && Number.isInteger(parseInt(dItem.limitedUse?.numberUsed))
       && ((parseInt(item.system.uses.max) - parseInt(item.system.uses.value)) !== dItem.limitedUse.numberUsed)
-    )
-  );
+    );
+  });
   const itemsToQuantity = foundryItems.filter((item) =>
     foundry.utils.hasProperty(item, "system.quantity")
     && item.system.quantity !== 0
@@ -1140,7 +1152,8 @@ async function updateActionUseStatus(actor, actionData, actionName) {
 
 async function updateDDBActionUseStatus(actor, actions) {
   let promises = [];
-  actions.forEach((action) => {
+  actions.forEach((rawAction) => {
+    const action = getItemRollData(actor, rawAction._id).item;
     const actionData = {
       actionId: action.flags.ddbimporter.id,
       entityTypeId: action.flags.ddbimporter.entityTypeId,
