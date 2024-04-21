@@ -1,6 +1,6 @@
 # Next Up
 
-- Fix updating characters back to DDB for some actions such as Artificer Magical Tinkering @deepfriedgnome @ohmygodwhat
+- Fix updating characters back to DDB for some actions such as Artificer Magical Tinkering and Rune Knight Runic Shield @deepfriedgnome @ohmygodwhat @dm.dk
 
 # 5.1.14
 
