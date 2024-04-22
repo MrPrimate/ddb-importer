@@ -1,3 +1,7 @@
+# 5.1.16
+
+- Creature Midi QoL auto effect generation broken by changes in v5.1.15
+
 # 5.1.15
 
 - Fix updating characters back to DDB for some actions such as Artificer Magical Tinkering and Rune Knight Runic Shield @deepfriedgnome @ohmygodwhat @dm.dk

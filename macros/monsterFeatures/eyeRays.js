@@ -207,12 +207,21 @@ for (const target of args[0].targets) {
     continue;
   }
 
-  const save = rayChoice.content.match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
+  let save = rayChoice.content.match(/DC (?<dc>[0-9]+) (?<ability>.*?) saving throw|\(save DC (?<dc_only>[0-9]+)\)/);
+
+  if (!save) {
+    save = rayChoice.content.match(/\[\/save (?<ability>\w+) (?<dc>\d\d)/);
+  }
+
 
   const ray = await createBaseRay(rayChoice.title, {
     description: rayChoice.full,
-    saveAbility: save && save[2] ? save[2].toLowerCase().substr(0, 3) : "",
-    saveDC: save ? save[1] : "",
+    saveAbility: save && save.groups["ability"] ? save.groups["ability"].toLowerCase().substr(0, 3) : "",
+    saveDC: save && save.groups["dc"]
+      ? save.groups["dc"]
+      : save && save.groups["dc_only"]
+         ? save.groups["dc_only"]
+         : "",
     target,
   });
 
