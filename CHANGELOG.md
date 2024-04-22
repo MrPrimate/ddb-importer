@@ -1,4 +1,4 @@
-# Next Up
+# 5.1.17
 
 - Resolve some character update bugs introduced with v5.1.15.
 - Make monster and item names use @lookup in when hiding text from players.
