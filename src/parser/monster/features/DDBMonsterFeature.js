@@ -665,10 +665,10 @@ export default class DDBMonsterFeature {
   #getHiddenDescription() {
     const nameChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description-choice");
     const hideItemName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-item-name");
-    let actorDescriptor = this.ddbMonster.npc.name;
+    let actorDescriptor = `[[lookup @name]]`;
 
     if (nameChoice === "TYPE") {
-      actorDescriptor = this.ddbMonster.typeName;
+      actorDescriptor = `[[lookup @details.type.config.label]]`;
     } else if (nameChoice === "MONSTER") {
       actorDescriptor = "Monster";
     } else if (nameChoice === "NPC") {
@@ -677,16 +677,16 @@ export default class DDBMonsterFeature {
 
     let description = `<section class="secret">\n${this.html}`;
     if (["rwak", "mwak"].includes(this.feature.system.actionType)) {
-      const featureName = hideItemName ? "" : ` with its ${this.feature.name}`;
+      const featureName = hideItemName ? "" : ` with its [[@lookup @item.name]]`;
       description += `\n</section>\nThe ${actorDescriptor} attacks${featureName}.`;
     } else if (["rsak", "msak"].includes(this.feature.system.actionType)) {
-      const featureName = hideItemName ? "a spell" : this.feature.name;
+      const featureName = hideItemName ? "a spell" : "[[@lookup @item.name]]";
       description += `\n</section>\nThe ${actorDescriptor} casts ${featureName}.`;
     } else if (["save"].includes(this.feature.system.actionType)) {
-      const featureName = hideItemName ? "a feature" : this.feature.name;
+      const featureName = hideItemName ? "a feature" : "[[@lookup @item.name]]";
       description += `\n</section>\nThe ${actorDescriptor} uses ${featureName} and a save is required.`;
     } else {
-      description += `\n</section>\nThe ${actorDescriptor} uses ${hideItemName ? "a feature" : this.feature.name}.`;
+      description += `\n</section>\nThe ${actorDescriptor} uses ${hideItemName ? "a feature" : "[[@lookup @item.name]]"}.`;
     }
     return description;
   }
