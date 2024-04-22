@@ -1,3 +1,7 @@
+# Next Up
+
+- Resolve some character update bugs introduced with v5.1.15.
+
 # 5.1.16
 
 - Creature Midi QoL auto effect generation broken by changes in v5.1.15

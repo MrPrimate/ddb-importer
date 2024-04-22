@@ -920,7 +920,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
     promises.push(updateCharacterCall(actor, "equipment/attuned", itemData, { name: item.name }));
   });
   itemsToCharge.forEach((rawItem) => {
-    const item = getItemRollData(actor, rawItem._id);
+    const item = getItemRollData(actor, rawItem._id).item;
     const itemData = {
       itemId: item.flags.ddbimporter.id,
       charges: Math.max(0, parseInt(item.system.uses.max) - parseInt(item.system.uses.value)),
@@ -1047,7 +1047,7 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
     )
   );
   const itemsToCharge = foundryItems.filter((rawItem) => {
-    const item = getItemRollData(actor, rawItem._id);
+    const item = getItemRollData(actor, rawItem._id).item;
     return foundry.utils.hasProperty(item, "system.uses")
     && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
     && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
