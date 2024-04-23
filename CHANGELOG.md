@@ -1,3 +1,7 @@
+# 5.1.18
+
+- Emergency correction for @lookup for hidden monster features.
+
 # 5.1.17
 
 - Resolve some character update bugs introduced with v5.1.15.

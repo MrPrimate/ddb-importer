@@ -677,16 +677,16 @@ export default class DDBMonsterFeature {
 
     let description = `<section class="secret">\n${this.html}`;
     if (["rwak", "mwak"].includes(this.feature.system.actionType)) {
-      const featureName = hideItemName ? "" : ` with its [[@lookup @item.name]]`;
+      const featureName = hideItemName ? "" : ` with its [[lookup @item.name]]`;
       description += `\n</section>\nThe ${actorDescriptor} attacks${featureName}.`;
     } else if (["rsak", "msak"].includes(this.feature.system.actionType)) {
-      const featureName = hideItemName ? "a spell" : "[[@lookup @item.name]]";
+      const featureName = hideItemName ? "a spell" : "[[lookup @item.name]]";
       description += `\n</section>\nThe ${actorDescriptor} casts ${featureName}.`;
     } else if (["save"].includes(this.feature.system.actionType)) {
-      const featureName = hideItemName ? "a feature" : "[[@lookup @item.name]]";
+      const featureName = hideItemName ? "a feature" : "[[lookup @item.name]]";
       description += `\n</section>\nThe ${actorDescriptor} uses ${featureName} and a save is required.`;
     } else {
-      description += `\n</section>\nThe ${actorDescriptor} uses ${hideItemName ? "a feature" : "[[@lookup @item.name]]"}.`;
+      description += `\n</section>\nThe ${actorDescriptor} uses ${hideItemName ? "a feature" : "[[lookup @item.name]]"}.`;
     }
     return description;
   }
