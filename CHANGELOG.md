@@ -1,3 +1,7 @@
+# Next Up
+
+- Use damage roll enrichers in monster features.
+
 # 5.1.18
 
 - Emergency correction for @lookup for hidden monster features.

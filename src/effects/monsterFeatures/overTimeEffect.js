@@ -157,17 +157,19 @@ function overTimeSaveEnd(document, effect, save, text) {
   }
 }
 
-export function getMonsterFeatureDamage(damageText) {
+export function getMonsterFeatureDamage(damageText, featureDoc = null) {
+  const preParsed = foundry.utils.getProperty(featureDoc, "flags.monstermunch.damageInfo");
+  if (preParsed) return preParsed;
   const feature = new DDBMonsterFeature("overTimeFeature", { html: damageText });
   feature.prepare();
   feature.generateExtendedDamageInfo();
   return feature.actionInfo.damage;
 }
 
-export function getOvertimeDamage(text) {
+export function getOvertimeDamage(text, featureDoc = null) {
   if (text.includes("taking") && (text.includes("on a failed save") || text.includes("damage on a failure"))) {
     const damageText = text.split("taking")[1];
-    return getMonsterFeatureDamage(damageText);
+    return getMonsterFeatureDamage(damageText, featureDoc);
   }
   return undefined;
 }
@@ -244,7 +246,7 @@ export function generateOverTimeEffect(actor, document) {
   const saveAbility = save.ability;
   const dc = save.dc;
 
-  const dmg = getOvertimeDamage(document.system.description.value);
+  const dmg = getOvertimeDamage(document.system.description.value, document);
   if (!dmg) {
     logger.debug(`Adding non damage Overtime effect for ${document.name} on ${actor.name}`);
     return effectCleanup(document, actor, effect);

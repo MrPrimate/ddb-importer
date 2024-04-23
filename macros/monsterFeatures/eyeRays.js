@@ -42,7 +42,7 @@ function slowingRayEffect(document, dc, saveAbility) {
 }
 
 function damageRayEffect(document, nodam = false) {
-  const dmg = DDBImporter.EffectHelper.getMonsterFeatureDamage(document.system.description.value);
+  const dmg = DDBImporter.EffectHelper.getMonsterFeatureDamage(document.system.description.value, document);
 
   // console.warn("damage", dmg);
   if (nodam) {

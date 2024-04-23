@@ -217,10 +217,10 @@ function parseLooseRuleReferences(text, superLoose = false) {
     for (const [key, value] of Object.entries(entries)) {
       // eslint-disable-next-line no-continue
       if (!value.reference) continue;
-      const linkRegEx = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(DC (\\d\\d) )?(${value.label})( (saving throw))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
+      const linkRegEx = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(DC (\\d\\d) )?(${value.label})( (saving throw|average=true|average=false))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
       const replaceRule = (match, p1, p2, p3, p4, p5, p6, p7, p8) => {
         // console.warn("match", { match, p1, p2, p3, p4, p5, p6, p7, p8 });
-        if (p1) return match; // already a reference match don't match this
+        if (p1 || (p7 && p7.includes("average="))) return match; // already a reference match don't match this
         if (p3 && Number.isInteger(parseInt(p4)) && p7) {
           if (p7.toLowerCase() === "saving throw") {
             return `${p2}[[/save ${key} ${p4} format=long]]${p8}`;
@@ -264,6 +264,110 @@ function parseHardReferenceTag(type, text) {
     // easiest, e.g.wand of fireballs
     const simpleStrongRegex = /(?:<strong>)([\w\s]*?)(?:<\/strong>)(\s*item)/gi;
     text = `${text}`.replaceAll(simpleStrongRegex, referenceRegexReplacer);
+  }
+
+  return text;
+}
+
+function damageRollGenerator({ text, damageType, actor, document, extraMods = [] } = {}) {
+  let result;
+  const damageHint = damageType ? ` type=${damageType}` : "";
+  const diceParse = utils.parseDiceString(text, null, "");
+  const baseAbility = foundry.utils.getProperty(document, "flags.monstermunch.actionInfo.baseAbility");
+  const mods = extraMods.join(" + ");
+
+  if (baseAbility) {
+    const baseAbilityMod = actor.system.abilities[baseAbility].mod;
+    const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
+    const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
+    const finalMods = mods.length > 0
+      ? `${useMod} + ${mods}`
+      : useMod;
+    const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, finalMods, "");
+    result = `[[/damage ${reParse.diceString}${damageHint} average=true]]`;
+  } else {
+    const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, undefined, mods, "");
+    result = `[[/damage ${reParse.diceString}${damageHint} average=true]]`;
+  }
+
+  return result;
+}
+
+export function parseDamageRolls({ text, document, actor } = {}) {
+  // (2d8 + 3) piercing damage
+  // [[/damage 2d6 fire average=true]]
+  // 5 (1d4 + 3) piercing damage plus 10 (3d6) psychic damage, or 1 piercing damage plus 10 (3d6) psychic damage while under the effect of Reduce.
+
+  const strippedHtml = utils.stripHtml(`${text}`).trim();
+
+  const hitIndex = strippedHtml.indexOf("Hit:");
+  let hit = (hitIndex > 0) ? strippedHtml.slice(hitIndex) : `${strippedHtml}`;
+  hit = hit.split("At the end of each")[0].split("At the start of each")[0];
+  hit = hit.replace(/[–-–−]/g, "-");
+  const damageExpression = new RegExp(/((?:takes|plus|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^)]+)?)\)?)?\s*([\w ]*?)\s*damage/gi);
+
+  const matches = [...hit.matchAll(damageExpression)];
+  const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
+
+  const regainMatch = hit.match(regainExpression);
+
+  logger.debug(`${document.name} Damage matches`, { hit, matches, regainMatch });
+
+  const includesDiceRegExp = /[0-9]*d[0-9]+/;
+
+  for (const dmg of matches) {
+    if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
+      continue; // eslint-disable-line no-continue
+    }
+
+    const bonusMods = [];
+    if (dmg[3]?.includes(" + PB") || dmg[3]?.includes(" plus PB")) bonusMods.push("@prof");
+    if (dmg[3] && (/the spell[’']s level/i).test(dmg[3])) bonusMods.push("@item.level");
+
+    const damage = bonusMods.length > 0
+      ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" plus PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
+      : dmg[3] ?? dmg[2];
+
+    if (damage && includesDiceRegExp.test(damage)) {
+      const parsedDiceDamage = damageRollGenerator({ text: damage, damageType: dmg[4], actor, document });
+      const replaceValue = `${dmg[1]}${parsedDiceDamage} damage`;
+      // console.warn("DAMAGE PARSE", {
+      //   damage,
+      //   dmg,
+      //   parsedDiceDamage,
+      //   replaceValue,
+      // });
+
+      text = text.replace(dmg[0], replaceValue);
+
+    } else {
+      const noDiceRegex = /(\d+) (\w+) damage/i;
+      const fixedDamageMatch = dmg[0].match(noDiceRegex);
+      // console.warn("no dice match",{
+      //   noDiceRegex,
+      //   fixedDamageMatch,
+      //   dmg
+      // })
+      if (fixedDamageMatch) {
+        text = text.replace(fixedDamageMatch[0], `[[/damage ${fixedDamageMatch[1]} ${fixedDamageMatch[2]} average=false]] damage`);
+      }
+    }
+  }
+
+  if (regainMatch) {
+    const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
+    const parsedDiceDamage = Number.isInteger(parseInt(damageValue))
+      ? `[[/damage ${damageValue} type=heal average=false]]`
+      : damageRollGenerator({ text: damageValue, damageType: "heal", actor, document });
+    const replaceValue = `${regainMatch[1]} ${parsedDiceDamage} hit points`;
+    // console.warn("DAMAGE PARSE", {
+    //   regainMatch,
+    //   damageValue,
+    //   parsedDiceDamage,
+    //   replaceValue,
+    // });
+
+    text = text.replace(regainMatch[0], replaceValue);
   }
 
   return text;

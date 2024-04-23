@@ -3,7 +3,7 @@ import logger from "../../../logger.js";
 import DICTIONARY from "../../../dictionary.js";
 import { generateTable } from "../../../muncher/table.js";
 import SETTINGS from "../../../settings.js";
-import { parseTags } from "../../../lib/DDBReferenceLinker.js";
+import { parseDamageRolls, parseTags } from "../../../lib/DDBReferenceLinker.js";
 
 export default class DDBMonsterFeature {
 
@@ -231,7 +231,7 @@ export default class DDBMonsterFeature {
         foundry.utils.setProperty(this, "flags.ddbimporter.levelBonus", true);
       }
       const damage = profBonus !== "" || levelBonus
-        ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" plus PB").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
+        ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" plus PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
         : dmg[3] ?? dmg[2];
 
       // Make sure we did match a damage
@@ -694,6 +694,7 @@ export default class DDBMonsterFeature {
   async #generateDescription() {
     let description = this.hideDescription ? this.#getHiddenDescription() : `${this.html}`;
     description = description.replaceAll("<em><strong></strong></em>", "");
+    description = parseDamageRolls({ text: description, document: this.feature, actor: this.ddbMonster.npc });
     description = parseTags(description);
     this.feature.system.description.value = await generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
   }
@@ -917,6 +918,9 @@ export default class DDBMonsterFeature {
         logger.error(`Unknown action parsing type ${this.type}`, { DDBFeature: this });
         throw new Error(`Unknown action parsing type ${this.type}`);
     }
+
+    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.damage", this.actionInfo.damage);
+    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.baseAbility", this.actionInfo.baseAbility);
 
     await this.#generateDescription();
     this.#linkResourcesConsumption();
