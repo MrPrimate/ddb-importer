@@ -1,4 +1,4 @@
-# Next Up
+# 5.1.19
 
 - Use damage roll enrichers in monster features.
 - Creatures like the Helmed Horror would not add magical to the bypasses of their Damage Resistance.
