@@ -327,6 +327,7 @@ export default class DDBMonsterFeatureFactory {
       if (actionMatch) {
         const dupFeature = new DDBMonsterFeature(name, { ddbMonster: this.ddbMonster, html: actionMatch.html, type, actionCopy: true });
         dupFeature.feature = foundry.utils.duplicate(actionMatch.feature);
+        dupFeature.feature._id = foundry.utils.randomID();
         dupFeature.feature.name = action.name; // fix up name to make sure things like Attack are included
         this.features[type].push(dupFeature);
         action.options.actionCopy = true;

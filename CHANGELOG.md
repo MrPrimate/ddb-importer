@@ -2,6 +2,7 @@
 
 - Use damage roll enrichers in monster features.
 - Creatures like the Helmed Horror would not add magical to the bypasses of their Damage Resistance.
+- Some Legendary Actions were not created where there were duplicates @arbordrake
 
 # 5.1.18
 
