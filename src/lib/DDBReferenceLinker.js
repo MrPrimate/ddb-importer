@@ -373,6 +373,30 @@ export function parseDamageRolls({ text, document, actor } = {}) {
   return text;
 }
 
+export function parseToHitRoll({ text, document } = {}) {
+
+  if (!document) return text;
+
+  const matches = utils.stripHtml(`${text}`).trim().match(
+    /(?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)(?:,)?\s+(plus PB\s|\+ PB\s)?to\s+hit/i
+  );
+
+  const toHit = matches && Number.isInteger(parseInt(matches[1]));
+
+  if (!toHit) return text;
+
+  const ability = foundry.utils.getProperty(document, "flags.monstermunch.actionInfo.baseAbility");
+  const proficient = foundry.utils.getProperty(document, "flags.monstermunch.actionInfo.proficient") ? " + @prof" : "";
+  const extraNum = foundry.utils.getProperty(document, "flags.monstermunch.actionInfo.extraAttackBonus");
+  const extra = extraNum === 0 ? "" : ` + ${extraNum}`;
+  const result = `[[/roll 1d20 + @abilities.${ability}.mod${proficient}${extra}]]`;
+
+  text = text.replace(matches[1], result);
+
+  return text;
+
+}
+
 export function parseTags(text) {
   text = parseHardReferenceTag("spell", text);
   text = parseHardReferenceTag("item", text);

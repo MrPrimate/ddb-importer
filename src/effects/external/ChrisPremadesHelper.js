@@ -69,9 +69,13 @@ export default class ChrisPremadesHelper {
   static async getChrisCompendiums(type, isMonster = false, matchedProperties = {}) {
     if (chrisPremades.helpers.getSearchCompendiums) {
       const baseType = ChrisPremadesHelper.CP_COMPENDIUM_TYPES.find((t) => t.system === type)?.type ?? type;
-      const compendiums = (isMonster
-        ? (chrisPremades.helpers.getMonsterFeatureSearchCompendiums() ?? ['chris-premades.CPR Monster Features'])
-        : []).concat(await chrisPremades.helpers.getSearchCompendiums(baseType));
+      const compendiums = (
+        isMonster
+          ? (chrisPremades.helpers.getMonsterFeatureSearchCompendiums
+            ? chrisPremades.helpers.getMonsterFeatureSearchCompendiums()
+            : ['chris-premades.CPR Monster Features'])
+          : []
+      ).concat(await chrisPremades.helpers.getSearchCompendiums(baseType));
       const results = (await Promise.all(compendiums
         .filter((c) => game.packs.get(c))
         .map(async (c) => {
