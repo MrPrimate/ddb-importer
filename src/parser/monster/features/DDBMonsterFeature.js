@@ -3,7 +3,7 @@ import logger from "../../../logger.js";
 import DICTIONARY from "../../../dictionary.js";
 import { generateTable } from "../../../muncher/table.js";
 import SETTINGS from "../../../settings.js";
-import { parseDamageRolls, parseTags } from "../../../lib/DDBReferenceLinker.js";
+import { parseDamageRolls, parseTags, parseToHitRoll } from "../../../lib/DDBReferenceLinker.js";
 
 export default class DDBMonsterFeature {
 
@@ -694,8 +694,9 @@ export default class DDBMonsterFeature {
   async #generateDescription() {
     let description = this.hideDescription ? this.#getHiddenDescription() : `${this.html}`;
     description = description.replaceAll("<em><strong></strong></em>", "");
-    description = parseDamageRolls({ text: description, document: this.feature, actor: this.ddbMonster.npc });
-    description = parseTags(description);
+    // description = parseDamageRolls({ text: description, document: this.feature, actor: this.ddbMonster.npc });
+    // description = parseToHitRoll({ text: description, document: this.feature });
+    // description = parseTags(description);
     this.feature.system.description.value = await generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
   }
 
@@ -921,6 +922,10 @@ export default class DDBMonsterFeature {
 
     foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.damage", this.actionInfo.damage);
     foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.baseAbility", this.actionInfo.baseAbility);
+    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.toHit", this.toHit);
+    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.baseAbility", this.actionInfo.baseAbility);
+    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.proficient", this.actionInfo.proficient);
+    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.extraAttackBonus", this.actionInfo.extraAttackBonus);
 
     await this.#generateDescription();
     this.#linkResourcesConsumption();
