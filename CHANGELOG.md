@@ -1,3 +1,7 @@
+# Next Up
+
+- Chris Premades Mosnter Feature integration now allows pulling features from MISC and Gambits premades.
+
 # 5.1.19
 
 - Use damage roll enrichers in monster features.
