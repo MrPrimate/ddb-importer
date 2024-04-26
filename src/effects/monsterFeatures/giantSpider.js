@@ -12,7 +12,7 @@ export function giantSpiderEffects(npc) {
         {
           key: "flags.midi-qol.OverTime",
           mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          value: "You can take an action to break free of the web by rolling a Strength Ability Check",
+          value: "turn=start,name=You can take an action to break free of the web by rolling a Strength Ability Check",
           priority: "20",
         },
         {

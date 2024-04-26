@@ -70,7 +70,7 @@ export default class ChrisPremadesHelper {
     if (chrisPremades.helpers.getSearchCompendiums) {
       const baseType = ChrisPremadesHelper.CP_COMPENDIUM_TYPES.find((t) => t.system === type)?.type ?? type;
       const compendiums = (isMonster
-        ? ["chris-premades.CPR Monster Features"]
+        ? (chrisPremades.helpers.getMonsterFeatureSearchCompendiums() ?? ['chris-premades.CPR Monster Features'])
         : []).concat(await chrisPremades.helpers.getSearchCompendiums(baseType));
       const results = (await Promise.all(compendiums
         .filter((c) => game.packs.get(c))
@@ -189,7 +189,7 @@ export default class ChrisPremadesHelper {
       // if (allowFolders && folderName && folderId === undefined) {
       if (folderName && folderId === undefined) {
         logger.debug(`No folder found for ${folderName} and ${documentName}, checking compendium name ${c.packName}`);
-        return undefined;
+        continue;
       }
 
       logger.debug(`CP Effect: Attempting to fetch ${documentName} from ${c.packName} with folderID ${folderId}`);
@@ -231,6 +231,12 @@ export default class ChrisPremadesHelper {
 
   async findReplacement() {
     const compendiums = await ChrisPremadesHelper.getChrisCompendiums(this.original.type, this.isMonster);
+    logger.debug("Compendiums found", {
+      compendiums,
+      this: this,
+      type: this.original.type,
+      isMonster: this.isMonster,
+    });
     if (compendiums.length === 0) {
       logger.warn(`No compendium found for Chris's Premade effect for "${this.original.name}" with original type ${this.original.type} and with type object type ${this.type}!`, {
         this: this,
@@ -248,7 +254,7 @@ export default class ChrisPremadesHelper {
       // expected to find feature in a folder, but we could not
       if (allowFolders && folderId === undefined) {
         logger.debug(`Needed folder, but none found for ${this.folderName} and ${this.original.name}, using compendium name ${c.packName}`);
-        return undefined;
+        continue;
       }
 
       logger.debug(`CP Effect: Attempting to fetch ${this.original.name} from ${c.packName} with folderID ${folderId}`);
