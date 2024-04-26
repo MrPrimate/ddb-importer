@@ -21,6 +21,7 @@ import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
 import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
 import { spellReflectionEffect } from "./monsterFeatures/spellReflection.js";
 import logger from "../logger.js";
+import { giantSpiderEffects } from "./monsterFeatures/giantSpider.js";
 
 export function baseMonsterFeatureEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -143,6 +144,10 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
           this[index] = forceItemEffect(this[index]);
         }
       }, npc.items);
+      break;
+    }
+    case "Giant Spider": {
+      npc = giantSpiderEffects(npc);
       break;
     }
     case "Quasit": {
