@@ -1,6 +1,7 @@
 # Next Up
 
 - Chris Premades Mosnter Feature integration now allows pulling features from MISC and Gambits premades.
+- Override Item Config error in some niche circumstances @sayshal
 
 # 5.1.19
 

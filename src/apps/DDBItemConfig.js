@@ -69,7 +69,7 @@ export class DDBItemConfig extends FormApplication {
       };
     });
 
-    const selectedOverrideId = overrideId || "NONE";
+    const selectedOverrideId = overrideId ?? "NONE";
     overrides[selectedOverrideId].selected = true;
 
     const result = {
