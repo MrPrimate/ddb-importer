@@ -76,13 +76,14 @@ export default class DDBCompanionFactory {
     for (const block of statBlockDivs) {
       const name = block
         .querySelector("p.Stat-Block-Styles_Stat-Block-Title")
-        .innerText
+        .textContent
         .trim()
         .toLowerCase()
-        .split(" ")
-        .map((w) => utils.capitalize(w))
+        .split(/\s/)
+        .map((w) => utils.capitalize(w.trim()))
         .join(" ");
 
+      // console.warn("Processing Companion", { name, block });
       if (name && name in DDBCompanionFactory.MULTI) {
         for (const subType of DDBCompanionFactory.MULTI[name]) {
           // eslint-disable-next-line no-await-in-loop
