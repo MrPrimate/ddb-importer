@@ -2,7 +2,7 @@
 
 - Chris Premades Mosnter Feature integration now allows pulling features from MISC and Gambits premades.
 - Override Item Config error in some niche circumstances @sayshal
-- Summon Monster parsing was failing for some versions of Draconic Spirit.
+- Summon Monster parsing was failing for some versions of Draconic Spirit. @aura6931
 
 # 5.1.19
 
