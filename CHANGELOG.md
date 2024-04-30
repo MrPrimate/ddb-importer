@@ -1,8 +1,9 @@
 # Next Up
 
-- Chris Premades Mosnter Feature integration now allows pulling features from MISC and Gambits premades.
+- Chris Premades Monster Feature integration now allows pulling features from MISC and Gambits premades. @arbordrake
 - Override Item Config error in some niche circumstances @sayshal
 - Summon Monster parsing was failing for some versions of Draconic Spirit. @aura6931
+- Beholder ray effect fixes following v5.1.19 @callbritton requires remunch of beholder.
 
 # 5.1.19
 

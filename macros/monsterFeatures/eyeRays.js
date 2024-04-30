@@ -44,7 +44,7 @@ function slowingRayEffect(document, dc, saveAbility) {
 function damageRayEffect(document, nodam = false) {
   const dmg = DDBImporter.EffectHelper.getMonsterFeatureDamage(document.system.description.value, document);
 
-  // console.warn("damage", dmg);
+  console.warn("damage", dmg);
   if (nodam) {
     foundry.utils.setProperty(document, "flags.midiProperties.saveDamage", "nodam");
   }
@@ -85,9 +85,9 @@ async function petrificationRayEffect(document) {
 }
 
 async function attackWithRay(documentData, target) {
-  // console.warn("ATTACK RAY", {
-  //   documentData: foundry.utils.deepClone(documentData),
-  // })
+  console.warn("ATTACK RAY", {
+    documentData: foundry.utils.deepClone(documentData),
+  })
   const rayItem = new CONFIG.Item.documentClass(documentData, { parent: workflow.actor });
   const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: (target?.uuid ? [ target.uuid ] : args[0].targetUuids) });
 
@@ -157,7 +157,7 @@ async function getRandomRayNumber() {
 
 async function randomRayButtonCallback(results, _html) {
   const num = await getRandomRayNumber();
-  results.results[0] = num;
+  results.results[1] = num;
   return results;
 }
 

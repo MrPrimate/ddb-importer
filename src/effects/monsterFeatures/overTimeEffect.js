@@ -158,8 +158,9 @@ function overTimeSaveEnd(document, effect, save, text) {
 }
 
 export function getMonsterFeatureDamage(damageText, featureDoc = null) {
-  const preParsed = foundry.utils.getProperty(featureDoc, "flags.monstermunch.damageInfo");
+  const preParsed = foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionInfo.damage");
   if (preParsed) return preParsed;
+  logger.debug("Monster feature damage miss", { damageText, featureDoc });
   const feature = new DDBMonsterFeature("overTimeFeature", { html: damageText });
   feature.prepare();
   feature.generateExtendedDamageInfo();

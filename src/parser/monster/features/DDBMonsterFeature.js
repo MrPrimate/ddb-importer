@@ -920,12 +920,12 @@ export default class DDBMonsterFeature {
         throw new Error(`Unknown action parsing type ${this.type}`);
     }
 
-    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.damage", this.actionInfo.damage);
-    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.baseAbility", this.actionInfo.baseAbility);
-    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.toHit", this.toHit);
-    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.baseAbility", this.actionInfo.baseAbility);
-    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.proficient", this.actionInfo.proficient);
-    foundry.utils.setProperty(this.feature, "flags.monstermunch.actionInfo.extraAttackBonus", this.actionInfo.extraAttackBonus);
+    foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.damage", this.actionInfo.damage);
+    foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.baseAbility", this.actionInfo.baseAbility);
+    foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.toHit", this.toHit);
+    foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.baseAbility", this.actionInfo.baseAbility);
+    foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.proficient", this.actionInfo.proficient);
+    foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.extraAttackBonus", this.actionInfo.extraAttackBonus);
 
     await this.#generateDescription();
     this.#linkResourcesConsumption();

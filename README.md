@@ -94,6 +94,7 @@ If you want to add spell effects, and high levels of automation you will need, (
 - [About Time](https://foundryvtt.com/packages/about-time)
 - [Times Up](https://foundryvtt.com/packages/times-up/).
 - [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects)
+- [Socketlib](https://foundryvtt.com/packages/socketlib)
 
 For super high automation (this is not recommended if you're using Foundry for the first time):
 - [Chris's Premades](https://foundryvtt.com/packages/chris-premades) includes a lot of more advanced effects, but has a lot of module dependencies.
