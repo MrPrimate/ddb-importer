@@ -17,7 +17,8 @@ export async function chillTouchEffect(document) {
       {
         key: "flags.midi-qol.onUseMacroName",
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: "Chill Touch (Target effect),preAttackRoll",
+        value: `function.DDBImporter.lib.DDBMacros.macroFunction.spell("chillTouchDisadvantage"),preAttackRoll`,
+        // value: "Chill Touch (Target effect),preAttackRoll",
         priority: "30",
       },
     );
