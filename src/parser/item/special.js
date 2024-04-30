@@ -147,6 +147,13 @@ export function fixItems(items) {
         };
         break;
       }
+      case "Canaith Mandolin": {
+        item.flags.magicitems.charges = "1";
+        item.flags.magicitems.chargeType = "c2";
+        item.flags.magicitems.recharge = "1";
+        item.flags.magicitems.rechargeType = "t1";
+        break;
+      }
       case "Grenade, Fragmentation": {
         item.type = "consumable";
         item.system.activation = { type: "action", cost: 1, condition: "" };

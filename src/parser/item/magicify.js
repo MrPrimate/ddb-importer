@@ -18,9 +18,9 @@ function getPerSpell(useDescription, itemDescription) {
   if (useDescription === "") {
     // some times 1 use per day items, like circlet of blasting have nothing in
     // the limited use description, fall back to this
-    let limitedUse = /can't be used this way again until the next/i;
-    if (itemDescription.search(limitedUse) !== -1) {
-      return 1;
+    let limitedUse = /can't be used this way again until the next|can’t be used to cast that spell again until the next/i;
+    if (itemDescription.replace("’", "'").search(limitedUse) !== -1) {
+      return true;
     }
     return false;
   }
@@ -229,8 +229,8 @@ function parseMagicItemsModule(data, itemSpells, isCompendiumItem) {
       // if the item is x per spell
       const perSpell = getPerSpell(data.limitedUse.resetTypeDescription, data.definition.description);
       if (perSpell) {
-        magicItem.charges = perSpell;
-        magicItem.recharge = `${perSpell}`;
+        magicItem.charges = 1;
+        magicItem.recharge = `1`;
         magicItem.rechargeUnit = MAGICITEMS.DAILY;
         magicItem.rechargeable = true;
         magicItem.rechargeType = MAGICITEMS.NUMERIC_RECHARGE;
