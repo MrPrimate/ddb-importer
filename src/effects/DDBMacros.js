@@ -297,6 +297,22 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     return macro.execute(...params);
   }
 
+  static async executeDDBMacroAsGM(type, name, ...params) {
+    const gmUser = game.users.find((f) => f.isGM);
+    if (!gmUser) {
+      ui.notifications.error("No GM user found");
+      return undefined;
+    }
+    if (!game.modules.get("socketlib")?.active) {
+      ui.notifications.warn(`Socketlib needs to be installed and active for this macro functionality`);
+      return DDBMacros.executeDDBMacro(type, name, ...params);
+    } else if (game.user.isGM) {
+      return DDBMacros.executeDDBMacro(type, name, ...params);
+    } else {
+      return globalThis.socketlib.modules.get("ddb-importer").executeAsGM("ddbMacro", type, name, ...params);
+    }
+  }
+
   static getMacroFunction(type, name) {
     const macroFunction = async (...params) => {
       const macro = await DDBMacros.getMacro(type, name);
