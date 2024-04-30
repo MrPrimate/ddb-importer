@@ -4,6 +4,7 @@
 - Override Item Config error in some niche circumstances @sayshal
 - Summon Monster parsing was failing for some versions of Draconic Spirit. @aura6931
 - Beholder ray effect fixes following v5.1.19 @callbritton requires remunch of beholder.
+- Canaith Mandolin Magic Item charge fix.
 
 # 5.1.19
 
