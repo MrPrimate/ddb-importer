@@ -5,6 +5,7 @@
 - Summon Monster parsing was failing for some versions of Draconic Spirit. @aura6931
 - Beholder ray effect fixes following v5.1.19 @callbritton requires remunch of beholder.
 - Canaith Mandolin Magic Item charge fix.
+- Thrown weapons importing with incorrect ability set. @nikolai.sw
 
 # 5.1.19
 

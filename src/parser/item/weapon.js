@@ -82,7 +82,7 @@ function getRange(data, weaponProperties) {
   // range: { value: null, long: null, units: '' },
   // sometimes reach weapons have their range set as 5. it's not clear why.
   const shortRange = data.definition.range ? data.definition.range : 5;
-  const reach = weaponProperties.rch && data.definition.range == 5 ? 5 : 0;
+  const reach = weaponProperties.includes("rch") && data.definition.range == 5 ? 5 : 0;
   return {
     value: shortRange + reach,
     long: (data.definition.longRange && data.definition.longRange != data.definition.range)
@@ -105,17 +105,17 @@ function getRange(data, weaponProperties) {
  */
 function getAbility(weaponProperties, weaponRange) {
   // finesse weapons can choose freely, so we choose the higher one
-  if (weaponProperties.fin) {
+  if (weaponProperties.includes("fin")) {
     return null;
   }
 
   // thrown, but not finesse weapon: STR
-  if (weaponProperties.thr) {
+  if (weaponProperties.includes("thr")) {
     return "str";
   }
 
   // if it's a ranged weapon, and not a reach weapon (long = 10 (?))
-  if (weaponRange.long > 5 && !weaponProperties.rch) {
+  if (weaponRange.long > 5 && !weaponProperties.includes("rch")) {
     return "dex";
   }
   // the default is STR
@@ -304,10 +304,11 @@ export default function parseWeapon(data, character, flags) {
   weapon.system.uses = getUses(data);
   // force weapons to always not use prompt
   weapon.system.uses.prompt = false;
-  weapon.system.ability = getAbility(weapon.system.properties, weapon.system.range);
-  const mockAbility = weapon.system.ability === null
+  weapon.system.ability = "";
+  const ability = getAbility(weapon.system.properties, weapon.system.range);
+  const mockAbility = ability === null
     ? weapon.system.properties.fin ? "dex" : "str"
-    : weapon.system.ability;
+    : ability;
 
   // warlocks can use cha for their Hex weapon
   if (flags.classFeatures.includes("hexWarrior")) {
