@@ -148,10 +148,10 @@ export function fixItems(items) {
         break;
       }
       case "Canaith Mandolin": {
-        item.flags.magicitems.charges = "1";
-        item.flags.magicitems.chargeType = "c2";
-        item.flags.magicitems.recharge = "1";
-        item.flags.magicitems.rechargeType = "t1";
+        foundry.utils.setProperty(item, "flags.magicitems.charges", "1");
+        foundry.utils.setProperty(item, "flags.magicitems.chargeType", "c2");
+        foundry.utils.setProperty(item, "flags.magicitems.recharge", "1");
+        foundry.utils.setProperty(item, "flags.magicitems.rechargeType", "t1");
         break;
       }
       case "Grenade, Fragmentation": {

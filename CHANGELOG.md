@@ -1,3 +1,7 @@
+# 5.1.21
+
+- Fix for Canaith Mandolin breaking item import if magic items was not installed.
+
 # 5.1.20
 
 - Chris Premades Monster Feature integration now allows pulling features from MISC and Gambits premades. @arbordrake
