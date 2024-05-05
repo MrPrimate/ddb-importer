@@ -691,7 +691,7 @@ export default class DDBClass {
         //   skillAdvancement,
         //   languageAdvancement,
         // });
-        if (skillAdvancement && languageAdvancement) {
+        if (skillAdvancement && languageAdvancement && skillAdvancement.configuration.choices.length > 0) {
           const advancement = skillAdvancement.toObject();
           advancement.configuration.choices[0].pool.push(...languageAdvancement.toObject().configuration.choices[0].pool);
           advancements.push(advancement);
