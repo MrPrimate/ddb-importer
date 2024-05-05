@@ -1,3 +1,8 @@
+# Next Up
+
+- Some character would generate a "pool error" when importing. @neepsterix
+- Infusions weapons would not import.
+
 # 5.1.21
 
 - Fix for Canaith Mandolin breaking item import if magic items was not installed.
