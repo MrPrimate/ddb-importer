@@ -127,8 +127,8 @@ function getAbility(weaponProperties, weaponRange) {
  * @param {obj} data item data
  * @param {obj} flags
  */
-function getWeaponMagicalBonus(data, flags) {
-  const bonus = getMagicalBonus(data);
+function getWeaponMagicalBonus(data, flags, returnZero = false) {
+  const bonus = getMagicalBonus(data, returnZero);
   if (flags.classFeatures.includes("Improved Pact Weapon") && bonus === 0) {
     return 1;
   } else {
@@ -143,7 +143,7 @@ function getWeaponMagicalBonus(data, flags) {
  * /* damage: { parts: [], versatile: '' }, * /
  */
 function getDamage(data, flags) {
-  const magicalDamageBonus = getWeaponMagicalBonus(data, flags);
+  const magicalDamageBonus = getWeaponMagicalBonus(data, flags, true);
   // we can safely make these assumptions about GWF and Dueling because the
   // flags are only added for melee attacks
   const greatWeaponFighting = flags.classFeatures.includes("greatWeaponFighting") ? "r<=2" : "";
@@ -327,6 +327,10 @@ export default function parseWeapon(data, character, flags) {
       weapon.system.ability = "int";
     }
   }
+  const setAbility = weapon.system.ability && weapon.system.ability !== ""
+    ? weapon.system.ability
+    : mockAbility;
+  foundry.utils.setProperty(weapon, "flags.ddbimporter.dndbeyond.ability", setAbility);
 
   weapon.system.actionType = getActionType(data);
   weapon.system.attack.bonus = getWeaponMagicalBonus(data, flags);

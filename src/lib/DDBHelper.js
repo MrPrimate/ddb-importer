@@ -585,7 +585,7 @@ const DDBHelper = {
       sum = diceString + " + " + sum;
     }
 
-    sum = `${sum}`.trim().replace(/\+\s*\+/, "+");
+    sum = `${sum}`.trim().replace(/\+\s*\+/, "+").replace(/^\+\s*/, "");
 
     return sum !== "" ? sum : 0;
   },

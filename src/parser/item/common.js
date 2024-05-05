@@ -158,12 +158,12 @@ export function getWeaponProficient(data, weaponType, proficiencies) {
  * Searches for a magical attack bonus granted by this weapon
  * @param {obj} data item data
  */
-export function getMagicalBonus(data) {
-  let boni = data.definition.grantedModifiers.filter(
+export function getMagicalBonus(data, returnZero = false) {
+  const boni = data.definition.grantedModifiers.filter(
     (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0
   );
-  let bonus = boni.reduce((prev, cur) => prev + cur.value, 0);
-  return bonus;
+  const bonus = boni.reduce((prev, cur) => prev + cur.value, 0);
+  return bonus === 0 && !returnZero ? "" : bonus;
 }
 
 export function getAttunement(item) {

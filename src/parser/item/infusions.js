@@ -71,8 +71,10 @@ function addMagicBonus(character, item, modifiers) {
   const magicBonus = DDBHelper.getModifierSum(filteredModifiers, character);
 
   if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
-    item.system.damage.parts[0][0] += ` + ${magicBonus}`;
-    item.system.attack.bonus += magicBonus;
+    item.system.damage.parts[0][0] = `${item.system.damage.parts[0][0]} + ${magicBonus}`.replace("+ +", "+");
+    item.system.attack.bonus = item.system.attack.bonus && item.system.attack.bonus !== ""
+      ? `${item.system.attack.bonus} + ${magicBonus}`.replace(/^0 \+ /, "")
+      : magicBonus;
     foundry.utils.setProperty(item, "system.properties.mgc", true);
     // to do add infusion description to item
   }
@@ -172,9 +174,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
       const intSwap = DDBHelper.filterBaseModifiers(ddb, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0;
       if (intSwap) {
         const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
-        const mockAbility = foundryItem.system.ability === null
-          ? foundryItem.system.properties.fin ? "dex" : "str"
-          : foundryItem.system.ability;
+        const mockAbility = foundry.utils.getProperty(foundryItem, "flags.ddbimporter.dndbeyond.ability");
         if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
           foundryItem.system.ability = "int";
         }
