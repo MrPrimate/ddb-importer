@@ -107,6 +107,9 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   // hp modifiers
   { type: "bonus", subType: "hit-points-per-level" },
   { type: "bonus", subType: "hit-points" },
+
+  // attunement
+  { type: "set", subType: "attunement-slots" },
 ];
 
 const EFFECT_EXCLUDED_SENSE_MODIFIERS = [
@@ -524,25 +527,6 @@ export function generateDowngradeChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.DOWNGRADE);
 }
 
-
-// special effect functions
-function attunedItemsBonus(actor, change) {
-  // actor is the actor being processed and change a key/value pair
-  if (change.key === "system.bonuses.abilities.save" && change.value === "ATTUNED_ITEM_BONUS") {
-    // If your active effect spec was
-    const bonus = actor.items.filter((item) => item.system.attunement == 2).length;
-    // actor.system.bonuses.abilities.save += bonus;
-    logger.debug(`Setting attuned items saving throw bonus for ${actor.name} to ${bonus}`);
-    // foundry.utils.setProperty(actor, "system.flags.ddbimporter.attundedItems", bonus);
-    // this updates the effect value
-    change.value = bonus;
-    // console.warn(actor);
-    // console.warn(change);
-    // console.warn(bonus);
-  }
-}
-
-Hooks.on("applyActiveEffect", attunedItemsBonus);
 
 /**
  * Generates a global add for an item
@@ -1314,6 +1298,20 @@ function addSkillBonuses(modifiers, name) {
   return changes;
 }
 
+// Attunement Slot Bonus
+
+function addAttunementSlots(modifiers, name) {
+  let changes = [];
+  const bonus = DDBHelper.getValueFromModifiers(modifiers, name, "attunement-slots", "set");
+
+  if (bonus) {
+    logger.debug(`Generating Attunement bonus for ${name}`, bonus);
+    changes.push(generateUpgradeChange(bonus, (10 + bonus), "system.attributes.attunement.max"));
+  }
+  return changes;
+}
+
+
 //
 // initiative
 //
@@ -1505,6 +1503,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   const bonusSpeeds = addBonusSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name);
   const weaponAttackBonuses = addWeaponAttackBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const globalDamageBonus = addGlobalDamageBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const attunementAdjustment = addAttunementSlots(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
     ...criticalHitImmunity,
@@ -1528,6 +1527,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     ...bonusSpeeds,
     ...weaponAttackBonuses,
     ...globalDamageBonus,
+    ...attunementAdjustment,
   ];
 
   // if we don't have effects, lets return the item

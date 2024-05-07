@@ -275,9 +275,7 @@ const DDBHelper = {
 
   getActiveItemModifiers: (ddb, includeExcludedEffects = false) => {
     // are we adding effects to items?
-    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
-    const daeInstalled = game.modules.get("dae")?.active;
-    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? getEffectExcludedModifiers("item", true, true) : [];
+    const excludedModifiers = (!includeExcludedEffects) ? getEffectExcludedModifiers("item", true, true) : [];
     // get items we are going to interact on
     const modifiers = ddb.character.inventory
       .filter(
@@ -905,7 +903,7 @@ const DDBHelper = {
     if (value === "" && modifier.subType == "saving-throws" && modifier.bonusTypes.includes(2)) {
       // we set the value to zero and when the saving throw is calculated it will
       // be updated by the attunedItemsBonus function above
-      value = "ATTUNED_ITEM_BONUS";
+      value = "@attributes.attunement.value";
     }
 
     return value;

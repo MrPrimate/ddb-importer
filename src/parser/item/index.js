@@ -10,7 +10,6 @@ import { fixItems } from "./special.js";
 
 // effects support
 import { generateEffects } from "../../effects/effects.js";
-import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { parseInfusion } from "./infusions.js";
 import { addRestrictionFlags } from "../../effects/restrictions.js";
 import { midiItemEffects } from "../../effects/specialEquipment.js";
@@ -395,8 +394,8 @@ DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
   if (flags.classFeatures.includes("Lifedrinker")) {
     flags.damage.parts.push(["@abilities.cha.mod", "necrotic"]);
   }
-  // const addItemEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
-  const addCharacterEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
+
+  const addMidiEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
 
   // for melee attacks get extras
   if (ddbItem.definition.attackType === 1) {
@@ -411,7 +410,7 @@ DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
       flags.classFeatures.push("greatWeaponFighting");
     }
     // do we have dueling fighting style?
-    if (DDBHelper.hasChosenCharacterOption(ddb, "Dueling") && !addCharacterEffects) {
+    if (DDBHelper.hasChosenCharacterOption(ddb, "Dueling") && !addMidiEffects) {
       flags.classFeatures.push("Dueling");
     }
     // do we have two weapon fighting style?
@@ -449,7 +448,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
 
   // now parse all items
   const isCompendiumItem = foundry.utils.getProperty(this.raw.character, "flags.ddbimporter.compendium") ?? false;
-  const addEffects = (isCompendiumItem)
+  const addAutomationEffects = (isCompendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
 
@@ -474,22 +473,22 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       if (!item.effects) item.effects = [];
       if (!item.name || item.name === "") item.name = "Item";
 
-      if (addEffects) {
-        item = generateEffects(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem, "item");
-      } else if (item.type === "equipment") {
-        if (foundry.utils.hasProperty(item, "system.armor.type") && ["trinket", "clothing"].includes(item.system.armor.type)) {
-          item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem);
-        }
-      } else {
-        item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem);
-      }
+      // if (addEffects) {
+      item = generateEffects(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem, "item");
+      // } else if (item.type === "equipment") {
+      //   if (foundry.utils.hasProperty(item, "system.armor.type") && ["trinket", "clothing"].includes(item.system.armor.type)) {
+      //     item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem);
+      //   }
+      // } else {
+      //   item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem);
+      // }
 
       // eslint-disable-next-line no-await-in-loop
-      item = await addRestrictionFlags(item, addEffects);
+      item = await addRestrictionFlags(item, addAutomationEffects);
 
       if (!isCompendiumItem) item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
       // eslint-disable-next-line no-await-in-loop
-      item = await midiItemEffects(item);
+      if (addAutomationEffects) item = await midiItemEffects(item);
       // eslint-disable-next-line no-await-in-loop
       // item = await getIcon(item, ddbItem);
 
