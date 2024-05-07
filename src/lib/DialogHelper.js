@@ -51,18 +51,10 @@ export default class DialogHelper {
   static ChooserDialog = ChooserDialog;
 
   static async AskUserButtonDialog(user, ...buttonArgs) {
-    if (!game.modules.get("socketlib")?.active) {
-      ui.notifications.warn(`Socketlib needs to be installed and active for this functionality`);
-      return DialogHelper.buttonDialog(...buttonArgs);
-    }
-    return globalThis.socketlib.modules.get("ddb-importer").executeAsUser("simpleButtonDialog", user, ...buttonArgs);
+    return globalThis.DDBImporter.socket.executeAsUser("simpleButtonDialog", user, ...buttonArgs);
   }
 
   static async AskUserChooserDialog(user, ...dialogArgs) {
-    if (!game.modules.get("socketlib")?.active) {
-      ui.notifications.warn(`Socketlib needs to be installed and active for this functionality`);
-      return DialogHelper.ChooserDialog.Ask(...dialogArgs);
-    }
-    return globalThis.socketlib.modules.get("ddb-importer").executeAsUser("chooserDialog", user, ...dialogArgs);
+    return globalThis.DDBImporter.socket.executeAsUser("chooserDialog", user, ...dialogArgs);
   }
 }

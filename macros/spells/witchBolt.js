@@ -30,7 +30,9 @@ async function sustainedDamage({ options, damageType, damageDice, sourceItem, ca
 }
 
 async function cancel(caster) {
-  const concentration = caster.effects.find((i) => i.name ?? i.label === "Concentrating");
+  // Remove concentration and the effect causing it since the effect has been used
+  const concentration = MidiQOL.getConcentrationEffect(macroData.actor);
+
   if (concentration) {
     await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: caster.uuid, effects: [concentration.id] });
   }
@@ -62,7 +64,9 @@ if (args[0].macroPass === "postActiveEffects") {
     userId: game.userId,
   };
 
-  DAE.setFlag(args[0].actor, "witchBoltSpell", options);
+  await DAE.setFlag(args[0].actor, "witchBoltSpell", options);
+
+  // console.warn("WitchBolt", {options, effectData, args, actor: args[0].actor});
   await args[0].actor.createEmbeddedDocuments("ActiveEffect", effectData);
 } else if (args[0] == "off") {
   const sourceItem = await fromUuid(lastArg.origin);
@@ -72,38 +76,31 @@ if (args[0].macroPass === "postActiveEffects") {
   const sourceItem = await fromUuid(lastArg.origin);
   const caster = sourceItem.parent;
   const options = DAE.getFlag(caster, "witchBoltSpell");
+  // console.warn("on each", {
+  //   options,
+  //   sourceItem,
+  //   lastArg,
+  //   caster,
+  // })
   const isInRange = await DDBImporter?.EffectHelper.checkTargetInRange(options);
   if (isInRange) {
     const userIds = Object.entries(caster.ownership).filter((k) => k[1] === CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER).map((k) => k[0]);
-    const mes = await ChatMessage.create({
-      content: `<p>${caster.name} may use their action to sustain Witch Bolt.</p><br>`,
+    await ChatMessage.create({
+      content: `<p>${caster.name} may use their action to sustain Witch Bolt. Asking them now...</p><br>`,
       type: CONST.CHAT_MESSAGE_TYPES.OTHER,
       speaker: caster.uuid,
       whisper: game.users.filter((u) => userIds.includes(u.id) || u.isGM),
     });
-    // new Dialog({
-    //   title: sourceItem.name,
-    //   content: "<p>Use action to sustain Witch Bolt?</p>",
-    //   buttons: {
-    //     continue: {
-    //       label: "Yes, damage!",
-    //       callback: () => sustainedDamage({options, damageType, damageDice, sourceItem, caster} )
-    //     },
-    //     end: {
-    //       label: "No, end concentration",
-    //       callback: () => cancel(caster)
-    //     }
-    //   }
-    // }).render(true);
     const result = await DDBImporter.DialogHelper.AskUserButtonDialog(options.userId, {
-      buttons: [
-        { label: "Yes, damage!", value: true},
-        { label: "No, end concentration", value: false }
-      ],
-      title: "Witch Bolt",
-      content: "<p>Use action to sustain Witch Bolt?</p>"
-    },
-    'column');
+        buttons: [
+          { label: "Yes, damage!", value: true},
+          { label: "No, end concentration", value: false }
+        ],
+        title: "Witch Bolt",
+        content: "<p>Use action to sustain Witch Bolt?</p>"
+      },
+      'column');
+    // console.warn("result", result);
     if (result) {
       sustainedDamage({options, damageType, damageDice, sourceItem, caster} );
     } else {

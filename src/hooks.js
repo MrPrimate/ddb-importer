@@ -15,6 +15,7 @@ import checkVersion from "./hooks/ready/checkVersion.js";
 import { loadDDBConfig } from "./hooks/ready/ddbConfig.js";
 import { anchorInjection } from "./hooks/ready/anchorInjection.js";
 import { setupUpdateCreatedOrigins } from "./hooks/ready/originFixing.js";
+import DDBEffectHooks from "./effects/DDBEffectHooks.js";
 
 // monster muncher
 import { earlySettings } from "./hooks/renderMuncher/earlySettings.js";
@@ -22,8 +23,7 @@ import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
 import { addEncounterMuncher } from "./hooks/renderMuncher/addEncounterMuncher.js";
 
 // socket messaging
-import { onSocketMessage } from "./hooks/socket/onSocketMessage.js";
-import { setupSocketlib } from "./hooks/socket/socketlib.js";
+import { setupSockets } from "./hooks/socket/sockets.js";
 
 // image hooks
 import { linkTables } from "./hooks/renderJournalSheet/linkTables.js";
@@ -44,6 +44,7 @@ export function init() {
   chatHooks();
   adventureImporter();
   logger.info("Init complete");
+  DDBEffectHooks.loadHooks();
 }
 
 // foundry is ready
@@ -73,19 +74,7 @@ export async function onceReady() {
 }
 
 export function onReady() {
-  if (game.modules.get("socketlib")?.active) {
-    setupSocketlib();
-  } else {
-    game.socket.on("module.ddb-importer", (data) => {
-      if (data.sender === game.user.data._id) {
-        return;
-      }
-
-      const sender = game.users.get(data.sender);
-      delete data.sender;
-      onSocketMessage(sender, data);
-    });
-  }
+  setupSockets();
 }
 
 export function renderSidebarTab(app, html) {

@@ -8,8 +8,6 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-const gmMacroName = "Darkness (DDB - GM)";
-
 if (args[0] === "on") {
   Hooks.once("createMeasuredTemplate", async (template) => {
     let radius = canvas.grid.size * (template.data.distance / canvas.grid.grid.options.dimensions.distance);
@@ -22,10 +20,8 @@ if (args[0] === "on") {
     };
     await DAE.setFlag(targetActor, "darknessSpell", darknessSpellParams);
     canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
-    const gmMacro = game.macros.find((m) => m.name === gmMacroName);
-    gmMacro.execute({ actor, token, args: ["on", darknessSpellParams] })
-
-
+    // console.warn("Darkness Spell", darknessSpellParams);
+    await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "darkness", { origin: lastArg.origin, effect: lastArg.origin }, { args: ["on", darknessSpellParams] });
   });
 
   const measureTemplateData = {
@@ -51,7 +47,8 @@ if (args[0] === "on") {
   measureTemplate.drawPreview();
 } else if (args[0] === "off") {
   const params = await DAE.getFlag(targetActor, "darknessSpell");
-  const gmMacro = game.macros.find((m) => m.name === gmMacroName);
-  gmMacro.execute({ actor, token, args: ["off", params] })
+  // const gmMacro = game.macros.find((m) => m.name === gmMacroName);
+  // gmMacro.execute({ actor, token, args: ["off", params] })
+  DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "darkness", { actor: actor._id, token: token._id }, { args: ["off", params] });
   await DAE.unsetFlag(targetActor, "darknessSpell");
 }

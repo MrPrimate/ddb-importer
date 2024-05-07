@@ -6,22 +6,22 @@ export default class DDBMacros {
 
   static MACROS = {
     WORLD: {
-      DARKNESS_GM: {
-        name: "Darkness (DDB - GM)",
-        type: "gm",
-        file: "darkness.js",
-        isGM: true,
-        img: "icons/magic/unholy/orb-glowing-yellow-purple.webp",
-        world: true,
-      },
-      CHILL_TOUCH: {
-        name: "Chill Touch (Target effect)",
-        type: "spell",
-        file: "chillTouchWorld.js",
-        isGM: false,
-        img: "icons/magic/fire/flame-burning-hand-purple.webp",
-        world: true,
-      },
+      // DARKNESS_GM: {
+      //   name: "Darkness (DDB - GM)",
+      //   type: "gm",
+      //   file: "darkness.js",
+      //   isGM: true,
+      //   img: "icons/magic/unholy/orb-glowing-yellow-purple.webp",
+      //   world: true,
+      // },
+      // CHILL_TOUCH: {
+      //   name: "Chill Touch (Target effect)",
+      //   type: "spell",
+      //   file: "chillTouchWorld.js",
+      //   isGM: false,
+      //   img: "icons/magic/fire/flame-burning-hand-purple.webp",
+      //   world: true,
+      // },
     },
     ACTIVE_AURAS: {
       AA_ONLY: {
@@ -249,7 +249,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
 
       const worldMacros = [].concat(
         Object.values(DDBMacros.MACROS.WORLD),
-        Object.values(DDBMacros.MACROS.ACTIVE_AURAS)
+        // Object.values(DDBMacros.MACROS.ACTIVE_AURAS),
       ).filter((m) => m.world);
 
       for (const macro of worldMacros) {
@@ -275,6 +275,15 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     return macroText;
   }
 
+  static _getMacroFileNameFromName(name) {
+    const strippedName = name.split(".js")[0]; // sanitise name
+    const fileName = `${strippedName}.js`;
+    return {
+      name: strippedName,
+      fileName: fileName,
+    };
+  }
+
   static async loadDDBMacroToConfig(type, name, fileName) {
     const macroText = await DDBMacros.getMacroBody(type, fileName);
     const macro = await DDBMacros.createMacro({ name: `${type} ${fileName}`, content: macroText, img: null, isGM: false, isTemp: true });
@@ -285,31 +294,112 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
 
 
   static async getMacro(type, name) {
-    const strippedName = name.split(".js")[0]; // sanitise name
-    const fileName = `${strippedName}.js`;
-    const macro = CONFIG.DDBI.MACROS[type]?.[strippedName] ?? (await DDBMacros.loadDDBMacroToConfig(type, strippedName, fileName));
+    const names = DDBMacros._getMacroFileNameFromName(name);
+    const macro = CONFIG.DDBI.MACROS[type]?.[names.name]
+      ?? (await DDBMacros.loadDDBMacroToConfig(type, names.name, names.fileName));
     return macro;
   }
 
   static async executeDDBMacro(type, name, ...params) {
+    // console.warn("executeDDBMacro", {type, name, parms: [...params] });
     const macro = await DDBMacros.getMacro(type, name);
     logger.debug(`Calling (${type}) macro "${name}" with spread params`, ...params);
     return macro.execute(...params);
   }
 
-  static async executeDDBMacroAsGM(type, name, ...params) {
-    const gmUser = game.users.find((f) => f.isGM);
+  /**
+   * Expose some useful things in a macro.
+   * @param {ActiveEffect} effect
+   * @returns {object}
+   */
+  static _getEffectVariables(effect) {
+    const actor = effect.parent instanceof Actor
+      ? effect.parent
+      : effect.parent.parent ?? null;
+    const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
+    const scene = token?.scene ?? game.scenes.active ?? null;
+    const origin = effect.origin ? fromUuidSync(effect.origin) : null;
+    const speaker = actor ? ChatMessage.implementation.getSpeaker({ actor }) : {};
+    const item = effect.parent instanceof Item ? effect.parent : null;
+    return {
+      actor,
+      token,
+      speaker,
+      scene,
+      origin,
+      effect,
+      item,
+    };
+  }
+
+  /**
+   * Executes the supplied ddb macro as a function
+   * @param {string} [script]
+   * @param {object} [context]
+   */
+  static async executeDDBMacroFunction(type, name, context = {}, ids = {}, ...params) {
+    // console.warn("executeDDBMacroFunction", { type, name, context });
+    const names = DDBMacros._getMacroFileNameFromName(name);
+    // console.warn("names", names);
+    const script = await DDBMacros.getMacroBody(type, names.fileName);
+    // console.warn("script", script);
+    const effect = ids.effect ? await fromUuid(ids.effect) : null;
+    // console.warn("effect", effect);
+    const effectVariables = ids.effect
+      ? DDBMacros._getEffectVariables(effect)
+      : {};
+
+    if (ids.actor) {
+      const actor = await fromUuid(ids.actor);
+      if (actor) effectVariables.actor = actor;
+    }
+    if (ids.token) {
+      const token = await fromUuid(ids.token);
+      if (token) effectVariables.token = token;
+    }
+    if (ids.item) {
+      const item = await fromUuid(ids.item);
+      if (item) effectVariables.item = item;
+    }
+    if (ids.origin) {
+      const origin = await fromUuid(ids.origin);
+      if (origin) effectVariables.origin = origin;
+    }
+
+    const variables = foundry.utils.mergeObject(effectVariables, ...params);
+    // console.warn("variables", variables);
+    const body = `return (async()=>{
+      ${script}
+    })();`;
+    // eslint-disable-next-line no-new-func
+    const fn = Function(...Object.keys(variables), body);
+    // console.warn("fn", fn);
+    try {
+      const result = await fn.call(context, ...Object.values(variables));
+      return result;
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+  }
+
+  /**
+   * Exectutes a DDB Macro as GM, don't pass in world objects like actors
+   * ids = { actor, effect, token}
+   */
+  static async executeDDBMacroAsGM(type, name, ids = {}, ...params) {
+    const gmUser = game.users.find((user) => user.active && user.isGM);
     if (!gmUser) {
       ui.notifications.error("No GM user found");
       return undefined;
     }
-    if (!game.modules.get("socketlib")?.active) {
-      ui.notifications.warn(`Socketlib needs to be installed and active for this macro functionality`);
-      return DDBMacros.executeDDBMacro(type, name, ...params);
-    } else if (game.user.isGM) {
+    if (game.user.isGM) {
       return DDBMacros.executeDDBMacro(type, name, ...params);
     } else {
-      return globalThis.socketlib.modules.get("ddb-importer").executeAsGM("ddbMacro", type, name, ...params);
+      logger.debug("Executing macro as GM", { type, name, ids, params });
+      const result = await globalThis.DDBImporter.socket.executeAsGM("ddbMacroFunction", type, name, {}, ids, ...params);
+      logger.debug("GM Macro Result", result);
+      return result;
     }
   }
 
