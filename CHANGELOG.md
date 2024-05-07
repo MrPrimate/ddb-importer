@@ -1,3 +1,9 @@
+# Next Up
+
+- Fix Soul of Artifice Bonuses.
+- Artificer Max Attunement Slots now taken into account for effect generation.
+- Darkness MidiQoL effect should work for player again.
+
 # 5.1.22
 
 - Some character would generate a "pool error" when importing. @neepsterix
