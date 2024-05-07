@@ -3813,6 +3813,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/dodr",
     },
     {
+      id: 132,
+      name: "VEoR",
+      description: "Vecna: Eve of Ruin",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/39768/808/638427681488703113.jpeg",
+      sourceURL: "sources/veor",
+    },
+    {
       id: 133,
       name: "HCS",
       description: "Humblewood Campaign Setting",
