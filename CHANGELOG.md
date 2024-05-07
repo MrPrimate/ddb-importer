@@ -1,4 +1,4 @@
-# Next Up
+# 5.1.23
 
 - Fix Soul of Artifice Bonuses.
 - Artificer Max Attunement Slots now taken into account for effect generation.
