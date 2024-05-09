@@ -1,3 +1,9 @@
+# Next Up
+
+- Chris Premades now copies over scaling value for spells.
+- Fix an issue with Weapon Attacks for monsters not pulling in effects from Chris' Premades.
+- Spell Effect: Command (Based on work by @MotoMoto)
+
 # 5.1.23
 
 - Fix Soul of Artifice Bonuses.

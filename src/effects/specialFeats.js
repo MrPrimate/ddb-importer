@@ -81,6 +81,7 @@ import { greatWeaponMasterEffect } from "./feats/greatWeaponMaster.js";
 import { psychicBladesEffect } from "./feats/psychicBlades.js";
 import { sneakAttackEffect } from "./feats/sneakAttack.js";
 import { aspectOfTheBeastBearEffect } from "./feats/aspectOfTheBeastBear.js";
+import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -199,6 +200,10 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Fury of the Small": {
       document = await furyOfTheSmallEffect(document);
+      break;
+    }
+    case "Flurry of Blows": {
+      document = await flurryOfBlowsEffect(document);
       break;
     }
     case "Giant's Might": {
