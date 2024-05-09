@@ -35,6 +35,12 @@ If you know what the campaign ID (it's a number, you can find it in the URL of y
 game.settings.set("ddb-importer", "campaign-id", "ID_HERE")
 ```
 
+## I purchased content on DDB and it's not available!
+
+Sometimes you just need to wait a little bit. Sometimes you need to [Sync your entitlements](https://dndbeyond-support.wizards.com/hc/en-us/articles/7747224765588-Sync-Entitlements).
+
+For characters/spells/items check that you can create a character on DDB with those features. For adventures, make sure you can download the adventure in the DDB mobile app. For monsters make sure you can access the monster's stats in the DDB Encounter Builders.
+
 
 ## I tried the custom proxy and want to reset to use yours
 
