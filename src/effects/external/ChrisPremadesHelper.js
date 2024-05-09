@@ -40,6 +40,7 @@ export default class ChrisPremadesHelper {
     "system.critical",
     "system.formula",
     "system.actionType",
+    "system.scaling",
   ];
 
   static CP_COMPENDIUM_TYPES = [
@@ -97,16 +98,16 @@ export default class ChrisPremadesHelper {
     }
   }
 
-  static getOriginalName(document) {
+  static getOriginalName(document, trimOption = false) {
     const flagName = document.flags.ddbimporter?.originalName ?? document.name;
 
     const regex = /(.*)\s*\((:?costs \d actions|\d\/Turn|Recharges after a Short or Long Rest|\d\/day|recharge \d-\d)\)/i;
     const nameMatch = flagName.replace(/[–-–−]/g, "-").match(regex);
-    if (nameMatch) {
-      return nameMatch[1].trim();
-    } else {
-      return flagName;
-    }
+    const longName = nameMatch ? nameMatch[1].trim() : flagName;
+    if (!trimOption) return longName;
+
+    return longName.split(":")[0].trim();
+
   }
 
   static getTypeMatch(doc, isMonster = false) {
@@ -159,6 +160,15 @@ export default class ChrisPremadesHelper {
       && (Object.keys(matchedProperties).length === 0 || utils.matchProperties(item, matchedProperties))
     );
 
+    logger.debug(`Looking for ${name} in ${key} with properties`, {
+      key,
+      name, ignoreNotFound,
+      folderId,
+      matchedProperties,
+      match,
+      packIndex,
+    });
+
     if (match) {
       return (await gamePack.getDocument(match._id))?.toObject();
     } else {
@@ -196,7 +206,7 @@ export default class ChrisPremadesHelper {
         continue;
       }
 
-      logger.debug(`CP Effect: Attempting to fetch ${documentName} from ${c.packName} with folderID ${folderId}`);
+      logger.debug(`CP Effect (From Name): Attempting to fetch ${documentName} from ${c.packName} with folderID ${folderId}`);
       // const chrisDoc = await ChrisPremadesHelper.getDocumentFromCompendium(c.packName, documentName, true, folderId, matchedProperties);
       const match = c.index.find((doc) =>
         doc.name === documentName
@@ -204,11 +214,8 @@ export default class ChrisPremadesHelper {
         && (Object.keys(matchedProperties).length === 0 || utils.matchProperties(doc, matchedProperties))
       );
 
-      const chrisDoc = match
-        ? (await c.compendium.getDocument(match._id))?.toObject()
-        : undefined;
-      if (!chrisDoc) continue;
-      return chrisDoc;
+      if (!match) continue;
+      return match;
     }
 
     logger.debug(`No CP Effect found for ${documentName} from all matched compendiums with folderName ${folderName}`);
@@ -261,14 +268,22 @@ export default class ChrisPremadesHelper {
         continue;
       }
 
-      logger.debug(`CP Effect: Attempting to fetch ${this.original.name} from ${c.packName} with folderID ${folderId}`);
+      logger.debug(`CP Effect (find replacement): Attempting to fetch ${this.original.name} from ${c.packName} with folderID ${folderId}`);
       const chrisDoc = await ChrisPremadesHelper.getDocumentFromCompendium(c.packName, this.chrisName, this.ignoreNotFound, folderId, this.matchedProperties);
       if (!chrisDoc) continue;
       const chrisType = ChrisPremadesHelper.getTypeMatch(chrisDoc, this.isMonster);
-      if (this.type === chrisType) {
+
+      logger.debug("Found", {
+        thisType: this.type,
+        chrisType,
+        chrisDoc,
+        truthy: this.type === chrisType,
+      });
+      if (this.type === chrisType || folderId) {
         this.chrisDoc = chrisDoc;
         return chrisDoc;
       }
+      logger.debug(`Skipping CP Effect found for ${this.original.name} from ${c.packName} with folderName ${this.folderName} as type mismatch`);
     }
 
     logger.debug(`No CP Effect found for ${this.original.name} from all matched compendiums with folderName ${this.folderName}`);
