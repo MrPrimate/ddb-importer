@@ -445,7 +445,7 @@ async function midiEffectAdjustment(document) {
       break;
     }
     case "Command": {
-      document = commandEffect(document);
+      document = await commandEffect(document);
       break;
     }
     case "Comprehend Languages": {
