@@ -1,4 +1,4 @@
-# Next Up
+# 5.1.24
 
 - Chris Premades now copies over scaling value for spells.
 - Fix an issue with Weapon Attacks for monsters not pulling in effects from Chris' Premades.
