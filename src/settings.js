@@ -1,6 +1,7 @@
 import { DirectoryPicker } from "./lib/DirectoryPicker.js";
 import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
+import PatreonHelper from "./lib/PatreonHelper.js";
 
 const COMPENDIUMS = [
   { title: "Backgrounds", setting: "entity-background-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/86797d176a398d9f2f05b75b2f54b6dd.jpg", auto: true },
@@ -177,6 +178,9 @@ const POPUPS = {
 const MODULE_ID = "ddb-importer";
 
 function activeUpdate() {
+  const tiers = PatreonHelper.calculateAccessMatrix(PatreonHelper.getPatreonTier());
+  const available = tiers.god || tiers.undying || tiers.experimentalMid;
+  if (!available) return false;
   const dynamicSync = game.settings.get(MODULE_ID, "dynamic-sync");
   const updateUser = game.settings.get(MODULE_ID, "dynamic-sync-user");
   const gmSyncUser = game.user.isGM && game.user.id == updateUser;
