@@ -1,5 +1,4 @@
 /* Squire of Solamnia: Precise Strike based on a macro by @Wheels#2393 */
-
 async function refundUse(sourceActor, effectItem) {
   if (effectItem.system.uses?.value < effectItem.system.uses?.max) {
     const newValue = effectItem.system.uses.value + 1;
@@ -18,14 +17,14 @@ async function refundUse(sourceActor, effectItem) {
   }
 }
 
-if (["off"].includes(args[0])) {
+if (args[0] === 'off') {
   const lastArg = args[args.length - 1];
   const tokenOrActor = await fromUuid(lastArg.actorUuid);
   const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
   const item = targetActor.items.find((i) => i.name === args[1]);
   if (item) {
     if (!item.getFlag("world", "preciseStrikeHit")) {
-      await refundUse(targetActor, item);
+      await refundUse(workflow.actor, item);
     }
   }
   return;
@@ -33,16 +32,20 @@ if (["off"].includes(args[0])) {
   try {
     const effectItem = await fromUuid(args[0].sourceItemUuid);
     if (args[0].hitTargets.length === 0) {
-      //if player misses the target, refund the resource as per feature description
-      if (effectItem) {
-        await refundUse(args[0].actor, effectItem);
-      }
       return {};
     } else {
       await effectItem.setFlag("world", "preciseStrikeHit", true);
-      return { damageRoll: "1d8", flavor: effectItem?.name };
+      return {
+        damageRoll: new CONFIG.Dice.DamageRoll("1d8", {}, {critical: workflow.isCritical || workflow.rollOptions.critical}).formula,
+        flavor: "Precision Strike"};
     }
   } catch (err) {
-    console.error(`${args[0].itemData.name} - Squire of Solamnia: Precise Strike ${version}`, err);
+    console.error(`${args[0].itemData.name} - Squire of Solamnia: Precise Strike`, err);
   }
+}
+if (args[0].macroPass === 'postAttackRoll'
+  && actor.effects.find((e) => e.name.includes(macroItem.name)
+  && args[0].hitTargets.length === 0)
+) {
+  await refundUse(workflow.actor, scope.macroItem);
 }
