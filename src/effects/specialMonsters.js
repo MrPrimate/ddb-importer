@@ -22,6 +22,7 @@ import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
 import { spellReflectionEffect } from "./monsterFeatures/spellReflection.js";
 import logger from "../logger.js";
 import { giantSpiderEffects } from "./monsterFeatures/giantSpider.js";
+import { beholderEyeRayLegendaryEffect } from "./monsterFeatures/beholderEyeRayLegendary.js";
 
 export function baseMonsterFeatureEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -124,6 +125,8 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
       for (let [index, item] of npc.items.entries()) {
         if (item.name === "Eye Rays") {
           npc.items[index] = await beholderEyeRaysEffect(item, 3, 120);
+        } else if (item.name === "Eye Ray") {
+          npc.items[index] = await beholderEyeRayLegendaryEffect(item, 3, 120);
         }
       }
       break;

@@ -1,3 +1,7 @@
+# Next up
+
+- Monster Effects: Beholder Legendary Eye Ray action will now roll Eye Rays macro.
+
 # 5.1.24
 
 - Chris Premades now copies over scaling value for spells.

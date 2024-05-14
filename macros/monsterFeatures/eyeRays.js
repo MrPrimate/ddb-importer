@@ -46,6 +46,9 @@ function damageRayEffect(document, nodamageSave = false) {
 
   if (nodamageSave) {
     foundry.utils.setProperty(document, "flags.midiProperties.saveDamage", "nodam");
+  } else {
+    foundry.utils.setProperty(document, "flags.midiProperties.saveDamage", "halfdam");
+    foundry.utils.setProperty(document, "flags.midiProperties.halfdam", true);
   }
   foundry.utils.setProperty(document, "flags.midiProperties.magicdam", true);
 
@@ -84,13 +87,13 @@ async function petrificationRayEffect(document) {
 }
 
 async function attackWithRay(documentData, target) {
-  console.warn("ATTACK RAY", {
-    documentData: foundry.utils.deepClone(documentData),
-  })
+  // console.warn("ATTACK RAY", {
+  //   documentData: foundry.utils.deepClone(documentData),
+  // })
   const rayItem = new CONFIG.Item.documentClass(documentData, { parent: workflow.actor });
   const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: (target?.uuid ? [ target.uuid ] : args[0].targetUuids) });
 
-  // console.warn("Midi Options", {
+  // console.warn("Midi Options Final", {
   //   documentData,
   //   options,
   //   rayItem,
@@ -132,12 +135,12 @@ async function createBaseRay(rayName, { description, saveAbility = "", saveDC = 
     confusionRayEffect(rayData);
   }
 
-  // console.warn("Midi Options", {
-  //   rayData,
-  //   overTimeEffects,
-  //   lastArg: args[0],
-  //   workflow,
-  // });
+  console.warn("Base Ray", {
+    rayData,
+    overTimeEffects,
+    lastArg: args[0],
+    workflow,
+  });
   return rayData;
 }
 
@@ -212,6 +215,7 @@ for (const target of args[0].targets) {
     save = rayChoice.content.match(/\[\/save (?<ability>\w+) (?<dc>\d\d)/);
   }
 
+  // console.warn("SAVE", save);
 
   const ray = await createBaseRay(rayChoice.title, {
     description: rayChoice.full,
