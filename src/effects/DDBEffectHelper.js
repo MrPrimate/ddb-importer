@@ -463,6 +463,11 @@ export default class DDBEffectHelper {
     return 1 + Math.floor((level + 1) / 6);
   }
 
+
+  static getConcentrationEffect(actor, name=null) {
+    return actor?.effects.find((ef) => foundry.utils.getProperty(ef, "flags.midi-qol.isConcentration"));
+  }
+
   /**
    * This is a simple reworking of midi-qols measureDistances function, for use where midi-qol is not available
    * Measure distances for given segments with optional grid spaces.
@@ -916,7 +921,10 @@ export default class DDBEffectHelper {
     return results;
   }
 
-  static syntheticItemWorkflowOptions({ targets = undefined, showFullCard = false, useSpellSlot = false, castLevel = false, consume = false, configureDialog = false } = {}) {
+  static syntheticItemWorkflowOptions({
+    targets = undefined, showFullCard = false, useSpellSlot = false, castLevel = false, consume = false,
+    configureDialog = false, targetConfirmation = undefined
+  } = {}) {
     return [
       {
         showFullCard,
@@ -936,6 +944,7 @@ export default class DDBEffectHelper {
           autoRollDamage: 'always',
           autoFastDamage: true,
           autoRollAttack: true,
+          targetConfirmation,
         }
       }
     ];
