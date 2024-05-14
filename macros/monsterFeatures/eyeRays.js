@@ -41,11 +41,10 @@ function slowingRayEffect(document, dc, saveAbility) {
   document.effects.push(effect);
 }
 
-function damageRayEffect(document, nodam = false) {
+function damageRayEffect(document, nodamageSave = false) {
   const dmg = DDBImporter.EffectHelper.getMonsterFeatureDamage(document.system.description.value, document);
 
-  console.warn("damage", dmg);
-  if (nodam) {
+  if (nodamageSave) {
     foundry.utils.setProperty(document, "flags.midiProperties.saveDamage", "nodam");
   }
   foundry.utils.setProperty(document, "flags.midiProperties.magicdam", true);
