@@ -1,6 +1,8 @@
 # Next up
 
 - Monster Effects: Beholder Legendary Eye Ray action will now roll Eye Rays macro.
+- Thunder Gauntlets and Lightning Launcher change on DDB meant they are no longer importing as weapons on newer characters.
+- Slight tweak for ability bonus effects (such as belt of dwarfenkind) if not using DAE.
 
 # 5.1.24
 

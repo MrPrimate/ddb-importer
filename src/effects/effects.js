@@ -922,18 +922,17 @@ function addStatBonusEffect(modifiers, name, subType) {
   let effects = [];
   if (bonuses.length > 0) {
     bonuses.forEach((bonus) => {
-      const maxMatch = /Maximum of (\d*)/;
-      const match = bonus.restriction ? bonus.restriction.match(maxMatch) : false;
       logger.debug(`Generating ${subType} stat bonus for ${name}`);
       const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]);
-      const abilityScoreMaxBonus = modifiers
-        .filter((modifier) => modifier.type === "bonus" && modifier.subType === "ability-score-maximum")
-        .filter((mod) => mod.statId === ability.id)
-        .reduce((prev, cur) => prev + cur.value, 0);
-      const max = match ? match[1] : 20 + abilityScoreMaxBonus;
 
-      const bonusString = `@abilities.${ability.value}.value + ${bonus.value} > ${max} ? ${max} : @abilities.${ability.value}.value + ${bonus.value}`;
-      effects.push(generateOverrideChange(bonusString, 5, `system.abilities.${ability.value}.value`));
+      if (game.modules.get("dae")?.active) {
+        const bonusString = `min(@abilities.${ability.value}.max, @abilities.${ability.value}.value + ${bonus.value})`;
+        // min(20, @abilities.con.value + 2)
+        effects.push(generateOverrideChange(bonusString, 5, `system.abilities.${ability.value}.value`));
+      } else {
+        effects.push(generateSignedAddChange(bonus.value, 5, `system.abilities.${ability.value}.value`));
+      }
+
     });
   }
   return effects;
