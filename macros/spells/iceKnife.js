@@ -18,6 +18,11 @@ if (lastArg.targets.length > 0) {
   areaSpellData.system.scaling = { mode: "level", formula: "1d6" };
   areaSpellData.system.preparation.mode = "atwill";
   areaSpellData.system.target.value = 99;
+
+  foundry.utils.hasProperty(areaSpellData, "flags.midiProperties.magicdam", true);
+  foundry.utils.hasProperty(areaSpellData, "flags.midiProperties.saveDamage", "nodam");
+  foundry.utils.hasProperty(areaSpellData, "flags.midiProperties.bonusSaveDamage", "nodam");
+
   const areaSpell = new CONFIG.Item.documentClass(areaSpellData, { parent: casterActor });
   areaSpell.prepareData();
   areaSpell.prepareFinalAttributes();
