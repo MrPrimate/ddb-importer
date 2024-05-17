@@ -75,7 +75,7 @@ if (args[0] === "on") {
             bonus: weaponItem.system.attack.bonus,
             name: weaponItem.name,
             weapon: itemId,
-            mgc: weaponItem.system.properties.includes("mgc"),
+            mgc: weaponItem.system.properties.has("mgc"),
           });
           if (copyItem.system.attack.bonus === "") copyItem.system.attack.bonus = "0";
           copyItem.system.attack.bonus = `${parseInt(copyItem.system.attack.bonus) + bonus}`;
