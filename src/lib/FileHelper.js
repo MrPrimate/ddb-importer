@@ -221,22 +221,23 @@ const FileHelper = {
     });
   },
 
-  uploadRemoteImage: async function (url, targetDirectory, baseFilename, useProxy = true) {
+  uploadRemoteImage: async function (originalUrl, targetDirectory, baseFilename, useProxy = true) {
     // prepare filenames
     const filename = baseFilename;
     const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
     const ext = useWebP
       ? "webp"
-      : url
+      : originalUrl
         .split(".")
         .pop()
         .split(/#|\?|&/)[0];
+    const urlEncode = game.settings.get(SETTINGS.MODULE_ID, "cors-encode");
+    const stripProtocol = game.settings.get(SETTINGS.MODULE_ID, "cors-strip-protocol");
+    const corsPathPrefix = game.settings.get(SETTINGS.MODULE_ID, "cors-path-prefix");
+    let url = originalUrl.split("?")[0];
 
     try {
       const proxyEndpoint = DDBProxy.getCORSProxy();
-      const urlEncode = game.settings.get(SETTINGS.MODULE_ID, "cors-encode");
-      const stripProtocol = game.settings.get(SETTINGS.MODULE_ID, "cors-strip-protocol");
-      const corsPathPrefix = game.settings.get(SETTINGS.MODULE_ID, "cors-path-prefix");
       const fiddledUrl = stripProtocol ? url.replace(/^https:\/\//, corsPathPrefix) : `${corsPathPrefix}${url}`;
       const target = urlEncode ? encodeURIComponent(fiddledUrl) : fiddledUrl;
       url = useProxy ? proxyEndpoint + target : url;
@@ -249,7 +250,7 @@ const FileHelper = {
       return result;
     } catch (error) {
       logger.error("Image upload error", error);
-      ui.notifications.warn(`Image upload failed. Please check your ddb-importer upload folder setting. ${url}`);
+      ui.notifications.warn(`Image upload failed. Please check your ddb-importer upload folder setting. ${originalUrl}`);
       return null;
     }
   },
