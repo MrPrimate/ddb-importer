@@ -58,6 +58,11 @@ export default class DDBChoiceFeature extends DDBFeature {
         : this.data.name;
       this.data.name = utils.nameString(this.data.name);
       this._generateSystemSubType();
+
+      // get description for chris premades
+      this._generateDescription(true);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.initialFeature", foundry.utils.deepClone(this.data.system.description));
+
       if (choice.wasOption && choice.description) {
         this.ddbDefinition.description = choice.description;
         this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";
@@ -92,29 +97,6 @@ export default class DDBChoiceFeature extends DDBFeature {
       this.data._id = foundry.utils.randomID();
       this._addEffects(choice, this.type);
 
-      // these are common but need moving
-      // this._generateLimitedUse();
-      // this._generateRange();
-      // this._generateResourceConsumption();
-      // this._generateActivation();
-
-      // this._generateActivation();
-      // this._generateDescription();
-
-      // this._generateResourceConsumption();
-      // this._generateRange();
-      // this._generateAttackType();
-
-      // if (this.data.system.damage.parts.length === 0) {
-      //   logger.debug("Running level scale parser");
-      //   this._generateLevelScaleDice();
-      // }
-
-      // this._generateFlagHints();
-      // this._generateResourceFlags();
-
-
-      // this._addCustomValues();
     } catch (err) {
       logger.warn(
         `Unable to Generate Choice Action: ${this.name}, please log a bug report. Err: ${err.message}`,

@@ -12,7 +12,6 @@ export function getDescription(data) {
   return {
     value: parseTags(attunementText + data.definition.description),
     chat: chatAdd ? parseTags(chatSnippet) : "",
-    // unidentified: data.definition.type,
   };
 }
 

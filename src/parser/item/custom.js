@@ -34,7 +34,6 @@ export default function parseCustomItem(data) {
   customItem.system.description = {
     value: description,
     chat: chatAdd ? description : "",
-    // unidentified: description,
   };
 
   customItem.system.source = "Custom item";

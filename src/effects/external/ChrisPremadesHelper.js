@@ -9,6 +9,7 @@ import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import FolderHelper from "../../lib/FolderHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import SETTINGS from "../../settings.js";
 
 export default class ChrisPremadesHelper {
 
@@ -238,6 +239,7 @@ export default class ChrisPremadesHelper {
     this.ddbName = ChrisPremadesHelper.getOriginalName(document);
     this.chrisName = chrisNameOverride ?? CONFIG.chrisPremades?.renamedItems[this.ddbName] ?? this.ddbName;
     this.chrisDoc = null;
+    this.appendChrisDescription = game.settings.get(SETTINGS.MODULE_ID, "append-chris-premade-effect-description");
   }
 
   async findReplacement() {
@@ -290,6 +292,62 @@ export default class ChrisPremadesHelper {
     return undefined;
   }
 
+  static appendDescription(source, target) {
+    const description = foundry.utils.getProperty(source, "system.description");
+    if (!description || description.value.trim() === "") return target;
+
+    const text = description.value;
+    if (text && text.trim() !== "") {
+      target.system.description.value += `
+<br>
+<section class="secret">
+<hr>
+<h5>Automation notes - Chris's Premades (CPR):</h5>
+${text}
+</section>`;
+    }
+    const chat = description.chat;
+    if (chat && chat.trim() !== "") {
+      target.system.description.chat += `
+<br>
+<section class="secret">
+<hr>
+<h5>Automation notes - Chris's Premades (CPR):</h5>
+${chat}
+</section>`;
+    }
+
+    return target;
+  }
+
+  static copyDescription(source, target, { appendSourceDescription = false, prependSourceDescription = false } = {}) {
+    const sourceDescription = foundry.utils.getProperty(source, "system.description");
+    if (!sourceDescription || sourceDescription.value.trim() === "") return target;
+
+    if (appendSourceDescription) {
+      ChrisPremadesHelper.appendDescription(source, target);
+    } else if (prependSourceDescription) {
+      const mockSource = foundry.utils.deepClone(target);
+      const mockDescription = foundry.utils.getProperty(source, "flags.ddbimporter.initialFeature")
+        ?? foundry.utils.getProperty(source, "system.description");
+
+      console.warn("COPYTIME", {
+        mockSource,
+        mockDescription,
+        target,
+        sourceDescription,
+        source,
+      });
+      mockSource.system.description = foundry.utils.deepClone(foundry.utils.getProperty(target, "system.description"));
+      target.system.description = foundry.utils.deepClone(mockDescription);
+      ChrisPremadesHelper.appendDescription(mockSource, target);
+    } else {
+      target.system.description = foundry.utils.deepClone(sourceDescription);
+    }
+
+    return target;
+  }
+
   updateOriginalDocument() {
     ChrisPremadesHelper.DDB_FLAGS_TO_REMOVE.forEach((flagName) => {
       delete this.document.flags[flagName];
@@ -312,6 +370,10 @@ export default class ChrisPremadesHelper {
       }
       foundry.utils.setProperty(this.document, field, values);
     });
+
+    if (this.appendChrisDescription) {
+      ChrisPremadesHelper.appendDescription(this.chrisDoc, this.document);
+    }
 
     foundry.utils.setProperty(this.document, "flags.ddbimporter.effectsApplied", true);
     foundry.utils.setProperty(this.document, "flags.ddbimporter.chrisEffectsApplied", true);
@@ -368,16 +430,27 @@ export default class ChrisPremadesHelper {
     logger.debug("Beginning additions and removals of extra effects.");
     const documents = actor.getEmbeddedCollection("Item").toObject();
     const toAdd = [];
-    const toDelete = [];
+    const toDelete = new Set();
+    const choiceRemovals = foundry.utils.getProperty(CONFIG, "chrisPremades.removeChoices") ?? [];
+    const choiceAdditions = new Set();
 
     for (let doc of documents) {
       if (["class", "subclass", "background"].includes(doc.type)) continue;
 
       const ddbName = ChrisPremadesHelper.getOriginalName(doc);
       const chrisName = CONFIG.chrisPremades?.renamedItems[ddbName] ?? ddbName;
-      const newItemNames = foundry.utils.getProperty(CONFIG, `chrisPremades.additionalItems.${chrisName}`);
+      const noChoiceName = ddbName.split(":")[0].trim();
+      const newItemNames = new Set(foundry.utils.getProperty(CONFIG, `chrisPremades.additionalItems.${chrisName}`) ?? []);
 
-      if (newItemNames) {
+      if (ddbName !== noChoiceName) {
+        const noChoiceNewNames = foundry.utils.getProperty(CONFIG, `chrisPremades.additionalItems.${noChoiceName}`);
+        if (noChoiceNewNames && !choiceAdditions.has(noChoiceName)) {
+          noChoiceNewNames.forEach((i) => newItemNames.add(i));
+          choiceAdditions.add(noChoiceName);
+        }
+      }
+
+      if (newItemNames.size > 0) {
         logger.debug(`Adding new items for ${chrisName}`);
 
         for (const newItemName of newItemNames) {
@@ -393,19 +466,23 @@ export default class ChrisPremadesHelper {
               chrisDoc,
             });
           } else if (!documents.some((d) => d.name === chrisDoc.name)) {
+            ChrisPremadesHelper.copyDescription(doc, chrisDoc, { prependSourceDescription: this.appendDescription });
             foundry.utils.setProperty(chrisDoc, "flags.ddbimporter.ignoreItemUpdate", true);
             toAdd.push(chrisDoc);
           }
         }
       }
 
-      const itemsToRemoveNames = foundry.utils.getProperty(CONFIG, `chrisPremades.removedItems.${chrisName}`);
-      if (itemsToRemoveNames) {
+      const itemsToRemoveNames = new Set(foundry.utils.getProperty(CONFIG, `chrisPremades.removedItems.${chrisName}`) ?? []);
+      if (choiceRemovals.includes(noChoiceName)) {
+        itemsToRemoveNames.add(ddbName);
+      }
+      if (itemsToRemoveNames.size > 0) {
         logger.debug(`Removing items for ${chrisName}`);
         for (const removeItemName of itemsToRemoveNames) {
           logger.debug(`Removing item ${removeItemName}`);
           const deleteDoc = documents.find((d) => ChrisPremadesHelper.getOriginalName(d) === removeItemName);
-          if (deleteDoc) toDelete.push(deleteDoc._id);
+          if (deleteDoc) toDelete.add(deleteDoc._id);
         }
       }
     }
@@ -414,7 +491,7 @@ export default class ChrisPremadesHelper {
       toDelete,
       toAdd,
     });
-    await actor.deleteEmbeddedDocuments("Item", toDelete);
+    await actor.deleteEmbeddedDocuments("Item", Array.from(toDelete));
     await actor.createEmbeddedDocuments("Item", toAdd);
 
   }
@@ -434,7 +511,7 @@ export default class ChrisPremadesHelper {
       return data;
     }).sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
     const toAdd = [];
-    const toDelete = [];
+    const toDelete = new Set();
 
     for (const restrictedItem of sortedItems) {
       logger.debug(`Checking restricted Item ${restrictedItem.key}: ${restrictedItem.originalName}`);
@@ -527,7 +604,7 @@ export default class ChrisPremadesHelper {
         for (const removeItemName of restrictedItem.removedItems) {
           logger.debug(`Removing item ${removeItemName}`);
           const deleteDoc = documents.find((d) => ChrisPremadesHelper.getOriginalName(d) === removeItemName);
-          if (deleteDoc) toDelete.push(deleteDoc._id);
+          if (deleteDoc) toDelete.add(deleteDoc._id);
         }
       }
 
@@ -537,7 +614,7 @@ export default class ChrisPremadesHelper {
       toDelete,
       toAdd,
     });
-    await actor.deleteEmbeddedDocuments("Item", toDelete);
+    await actor.deleteEmbeddedDocuments("Item", Array.from(toDelete));
     await actor.createEmbeddedDocuments("Item", toAdd);
 
   }
