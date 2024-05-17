@@ -464,7 +464,8 @@ export default class DDBEffectHelper {
   }
 
 
-  static getConcentrationEffect(actor, name=null) {
+  // eslint-disable-next-line no-unused-vars
+  static getConcentrationEffect(actor, _name = null) {
     return actor?.effects.find((ef) => foundry.utils.getProperty(ef, "flags.midi-qol.isConcentration"));
   }
 

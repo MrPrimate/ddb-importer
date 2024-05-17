@@ -331,13 +331,6 @@ ${chat}
       const mockDescription = foundry.utils.getProperty(source, "flags.ddbimporter.initialFeature")
         ?? foundry.utils.getProperty(source, "system.description");
 
-      console.warn("COPYTIME", {
-        mockSource,
-        mockDescription,
-        target,
-        sourceDescription,
-        source,
-      });
       mockSource.system.description = foundry.utils.deepClone(foundry.utils.getProperty(target, "system.description"));
       target.system.description = foundry.utils.deepClone(mockDescription);
       ChrisPremadesHelper.appendDescription(mockSource, target);

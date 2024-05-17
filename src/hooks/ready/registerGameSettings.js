@@ -8,7 +8,7 @@ import DDBLocationSetup from "../../apps/DDBLocationSetup.js";
 import SETTINGS from "../../settings.js";
 import FileHelper from "../../lib/FileHelper.js";
 
-setProperty(CONFIG, "DDBI", {
+foundry.utils.setProperty(CONFIG, "DDBI", {
   module: "DDB Importer",
   schemaVersion: 5.0,
   DICTIONARY: DICTIONARY,
