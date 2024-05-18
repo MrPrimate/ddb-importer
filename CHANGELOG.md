@@ -1,3 +1,7 @@
+# Next Up
+
+- Fix for Beholder Zombie Eye Ray macro
+
 # 5.1.25
 
 - Monster Effects: Beholder Legendary Eye Ray action will now roll Eye Rays macro.

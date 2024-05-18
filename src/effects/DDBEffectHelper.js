@@ -919,6 +919,30 @@ export default class DDBEffectHelper {
         });
       });
     }
+    if (results.length > 0) return results;
+    return DDBEffectHelper.extractParagraphItems(text, { titleType });
+  }
+
+  static extractParagraphItems(text, { type = "p", titleType = "em" } = {}) {
+    const results = [];
+    const parsedDoc = utils.htmlToDoc(text);
+
+    const listItems = parsedDoc.querySelectorAll(type);
+    let i = 1;
+    for (const item of listItems) {
+      const title = item.querySelector(titleType);
+      // eslint-disable-next-line no-continue
+      if (!title) continue;
+      const content = title.nextSibling;
+      results.push({
+        number: i,
+        title: title.textContent.replace(/\.$/, "").trim(),
+        content: content.innerHTML?.trim() ?? content.wholeText?.trim() ?? content.textContent?.trim(),
+        full: item.innerHTML,
+      });
+      i++;
+    }
+
     return results;
   }
 
