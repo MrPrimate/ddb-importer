@@ -168,7 +168,8 @@ export default class DDBCharacter {
     const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
 
     this.data.actions = this.raw.actions.map((action) => {
-      const featureMatch = this.raw.features.find((feature) => feature.name === action.name);
+      const featureMatch = this.raw.features.find((feature) => feature.name === action.name
+        && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type"));
       if (featureMatch) {
         // console.warn(`Removing duplicate feature ${featureMatch.name} from action ${action.name}`, {
         //   action,
@@ -202,6 +203,7 @@ export default class DDBCharacter {
         || !this.data.actions.some((action) =>
           action.name.trim().toLowerCase() === feature.name.trim().toLowerCase()
           && foundry.utils.getProperty(action, "flags.ddbimporter.isCustomAction") !== true
+          && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type")
         )
       )
       .map((feature) => {
