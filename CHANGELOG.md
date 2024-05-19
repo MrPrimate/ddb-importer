@@ -1,6 +1,7 @@
 # Next Up
 
 - Fix for Beholder Zombie Eye Ray macro
+- Improve formating for stat blocks in features such as the Steel Defender.
 
 # 5.1.25
 

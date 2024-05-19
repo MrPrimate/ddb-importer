@@ -708,6 +708,14 @@ export default class DDBCharacterManager extends FormApplication {
 
     items = items.map((item) => {
       if (!item.effects) item.effects = [];
+      if (foundry.utils.hasProperty(item, "system.description.value")) {
+        item.system.description.value = `<div class="ddb">
+${item.system.description.value}
+</div>`;
+        item.system.description.chat = `<div class="ddb">
+${item.system.description.chat}
+</div>`;
+      }
       return item;
     });
 

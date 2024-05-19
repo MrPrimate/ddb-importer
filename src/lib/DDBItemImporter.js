@@ -343,7 +343,17 @@ export default class DDBItemImporter {
       : this.documents;
 
     // v11 compendium folders - just add to doc before creation/update
-    const inputItems = await this.addCompendiumFolderIds(filterItems);
+    const inputItems = (await this.addCompendiumFolderIds(filterItems)).map((item) => {
+      if (foundry.utils.hasProperty(item, "system.description.value")) {
+        item.system.description.value = `<div class="ddb">
+${item.system.description.value}
+</div>`;
+        item.system.description.chat = `<div class="ddb">
+${item.system.description.chat}
+</div>`;
+      }
+      return item;
+    });
 
     let results = [];
     // update existing items

@@ -85,7 +85,7 @@ div.ddbimporter-image-popout img {
   height: 90%;
 }
 
-.ddb-adventure aside.block-torn-paper, .ddb-adventure aside.epigraph, .ddb-adventure aside.epigraph--with-author {
+.ddb aside.block-torn-paper, .ddb aside.epigraph, .ddb aside.epigraph--with-author {
   overflow: auto;
   background: var(--theme-quote-bg-color,#fff);
   color: var(--theme-quote-fg-color,#242527);
@@ -101,7 +101,7 @@ div.ddbimporter-image-popout img {
   position: relative;
 }
 
-.ddb-adventure aside.rules-text {
+.ddb aside.rules-text {
   overflow: auto;
   display: block;
   margin: 30px 0;
@@ -121,7 +121,7 @@ div.ddbimporter-image-popout img {
   filter: drop-shadow(0 5px 8px #ccc);
 }
 
-.ddb-adventure aside.read-aloud-text {
+.ddb aside.read-aloud-text {
   overflow: auto;
   display: block;
   margin: 30px 0;
@@ -137,7 +137,7 @@ div.ddbimporter-image-popout img {
   border-image-source: var(--theme-read-aloud-border,url(https://media.dndbeyond.com/ddb-compendium-client/146117d0758df55ed5ff299b916e9bd1.png));
 }
 
-.ddb-adventure .text--quote-box, .ddb-adventure .text-quote-box {
+.ddb .text--quote-box, .ddb .text-quote-box {
   display: block !important;
   background-color: var(--compendium-quote-box-color, #FAF8EC) !important;
   padding: 20px 25px 15px 25px !important;
@@ -158,7 +158,7 @@ div.ddbimporter-image-popout img {
   font-size: 14px !important;
 }
 
-.ddb-adventure .text--quote-box::before, .ddb-adventure .text--quote-box::after {
+.ddb .text--quote-box::before, .ddb .text--quote-box::after {
   content: '';
   border-radius: 50%;
   background-position: left !important;
@@ -175,7 +175,7 @@ div.ddbimporter-image-popout img {
 }
 
 
-.ddb-adventure .stat-block-background {
+.ddb .stat-block-background {
   background-repeat: no-repeat;
   -webkit-box-shadow: 0px 5px 8px 0px #aaa;
   -moz-box-shadow: 0px 5px 8px 0px #aaa;
@@ -184,16 +184,16 @@ div.ddbimporter-image-popout img {
   background-image: url(https://media.dndbeyond.com/compendium-images/tcoe/0gqawlEa2tjXGxpc/mm_statbg_sm.jpg) !important;
 }
 
-.ddb-adventure h2.compendium-hr,
-.ddb-adventure h3.compendium-hr,
-.ddb-adventure h4.compendium-hr,
-.ddb-adventure h4.Core-Styles_Core-Body,
-.ddb-adventure h4.quick-menu-exclude.Table_Table-Title,
+.ddb h2.compendium-hr,
+.ddb h3.compendium-hr,
+.ddb h4.compendium-hr,
+.ddb h4.Core-Styles_Core-Body,
+.ddb h4.quick-menu-exclude.Table_Table-Title,
 .ddb-book-header{
   font-weight: bold;
 }
 
-.ddb-adventure .compendium-image-subtitle, .ddb-adventure .compendium-image > figcaption {
+.ddb .compendium-image-subtitle, .ddb .compendium-image > figcaption {
   text-align: center;
   font-size: 14px;
   font-weight: 700;
@@ -202,34 +202,34 @@ div.ddbimporter-image-popout img {
   margin: 10px 0;
 }
 
-.ddb-adventure p.Table-Styles_Table-Title {
+.ddb p.Table-Styles_Table-Title {
   font-weight: bold;
   font-size: 16px;
   margin-top: 19.5px;
   margin-bottom: 6.5px;
 }
 
-.ddb-adventure .compendium-left-aligned-table th:nth-child(1) {
+.ddb .compendium-left-aligned-table th:nth-child(1) {
   text-align: center !important;
   width: 80px !important;
 }
 
-.ddb-adventure .summoning-creatures-table td:nth-child(1), .ddb-adventure .compendium-left-aligned-table td:nth-child(1) {
+.ddb .summoning-creatures-table td:nth-child(1), .ddb .compendium-left-aligned-table td:nth-child(1) {
   vertical-align: middle !important;
   padding: 8px 20px !important;
   line-height: 1.4 !important;
   text-align: center !important;
 }
 
-.ddb-adventure .table-compendium.table--generic-dice td:first-child,
-.ddb-adventure .table-compendium.table--generic-dice th:first-child {
+.ddb .table-compendium.table--generic-dice td:first-child,
+.ddb .table-compendium.table--generic-dice th:first-child {
   width: 12% !important;
   text-align: center !important;
   vertical-align: middle !important;
 }
 
-.ddb-adventure blockquote.adventure-read-aloud-text::before,
-.ddb-adventure blockquote.adventure-read-aloud-text::after {
+.ddb blockquote.adventure-read-aloud-text::before,
+.ddb blockquote.adventure-read-aloud-text::after {
   background-image: url("../images/icons/dot.svg"),url("../images/icons/dot.svg") !important;
   background-position: left,right;
   background-size: contain !important;
@@ -239,9 +239,9 @@ div.ddbimporter-image-popout img {
   right: -4px !important;
 }
 
-.ddb-adventure blockquote.adventure-read-aloud-text,
-.ddb-adventure blockquote.compendium-parchment-blockquote,
-.ddb-adventure blockquote.ddb-blockquote {
+.ddb blockquote.adventure-read-aloud-text,
+.ddb blockquote.compendium-parchment-blockquote,
+.ddb blockquote.ddb-blockquote {
   background: white;
   padding: 20px;
   position: relative;
@@ -263,13 +263,13 @@ div.ddbimporter-image-popout img {
   line-height: 1.6;
 }
 
-.ddb-adventure blockquote.adventure-read-aloud-text {
+.ddb blockquote.adventure-read-aloud-text {
   display: block !important;
   background-color: #e6e7ec !important;
   border-color: #979aa4 !important;
 }
 
-.ddb-adventure .Flowchart-Block {
+.ddb .Flowchart-Block {
   border-width: 16px 16px 16px 16px !important;
   border-style: solid !important;
   border-color: transparent !important;
@@ -284,25 +284,25 @@ div.ddbimporter-image-popout img {
   margin: 50px 0px 20px 0px !important;
 }
 
-.ddb-adventure .Flowchart-Heading {
+.ddb .Flowchart-Heading {
   font-weight: bold;
   text-transform: uppercase;
   text-align: center;
   font-size: 16px;
 }
 
-.ddb-adventure .Flowchart-Block {
+.ddb .Flowchart-Block {
   font-size: 14px;
   line-height: 1.6 !important;
 }
 
-.ddb-adventure .Flowchart-Subheading {
+.ddb .Flowchart-Subheading {
   font-style: italic;
   text-align: center;
   font-size: 16px;
 }
 
-.ddb-adventure .Flowchart-Block-Linked::before {
+.ddb .Flowchart-Block-Linked::before {
   content: '';
   border-left: 3px solid #cdb078;
   height: 100px;
@@ -312,10 +312,10 @@ div.ddbimporter-image-popout img {
   z-index: -1;
 }
 
-.ddb-adventure aside.vrgtr-flowchart--1 {
+.ddb aside.vrgtr-flowchart--1 {
   background-image: url(https://media.dndbeyond.com/compendium-images/vrgtr/U9mBj5XfiTD1mHie/flowchart-box-01.png);
 }
-.ddb-adventure aside.vrgtr-flowchart {
+.ddb aside.vrgtr-flowchart {
   text-align: center;
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -331,7 +331,7 @@ div.ddbimporter-image-popout img {
   font-weight: bold;
 }
 
-.ddb-adventure .Basic-Text-Frame {
+.ddb .Basic-Text-Frame {
   clear: both;
   position: relative;
   box-shadow: 0 0 5px #979aa4;
@@ -341,7 +341,7 @@ div.ddbimporter-image-popout img {
   margin: 10px 0 10px 0;
 }
 
-.ddb-adventure .Stat-Block-Styles_Stat-Block-Title {
+.ddb .Stat-Block-Styles_Stat-Block-Title {
   font-size: 18px !important;
   font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;
   text-transform: uppercase;
@@ -351,25 +351,25 @@ div.ddbimporter-image-popout img {
   margin-top: 0 !important;
 }
 
-.ddb-adventure .Stat-Block-Styles_Stat-Block-Metadata {
+.ddb .Stat-Block-Styles_Stat-Block-Metadata {
   font-style: italic;
   font-size: 14px !important;
   line-height: 1.4 !important;
   margin-bottom: 8px !important;
 }
 
-.ddb-adventure .Stat-Block-Styles_Stat-Block-Data,
-.ddb-adventure .Stat-Block-Styles_Stat-Block-Data-Last,
-.ddb-adventure .Stat-Block-Styles_Stat-Block-Body,
-.ddb-adventure .Stat-Block-Styles_Stat-Block-Hanging,
-.ddb-adventure .Stat-Block-Styles_Stat-Block-Hanging-Last,
-.ddb-adventure .Stat-Block-Styles_Stat-Block-Body-Last--apply-before-heading- {
+.ddb .Stat-Block-Styles_Stat-Block-Data,
+.ddb .Stat-Block-Styles_Stat-Block-Data-Last,
+.ddb .Stat-Block-Styles_Stat-Block-Body,
+.ddb .Stat-Block-Styles_Stat-Block-Hanging,
+.ddb .Stat-Block-Styles_Stat-Block-Hanging-Last,
+.ddb .Stat-Block-Styles_Stat-Block-Body-Last--apply-before-heading- {
   font-size: 14px !important;
   line-height: 1.4 !important;
   margin-bottom: 10px !important;
 }
 
-.ddb-adventure .stat-block-ability-scores {
+.ddb .stat-block-ability-scores {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
@@ -381,26 +381,26 @@ div.ddbimporter-image-popout img {
   margin: 10px 0;
 }
 
-.ddb-adventure .stat-block-ability-scores-stat {
+.ddb .stat-block-ability-scores-stat {
   width: 33.33333%;
   padding: 10px 5px;
   text-align: center;
 }
 
-.ddb-adventure .stat-block-ability-scores-stat {
+.ddb .stat-block-ability-scores-stat {
   width: 16.66667%;
 }
 
-.ddb-adventure .stat-block-ability-scores-heading {
+.ddb .stat-block-ability-scores-heading {
   font-weight: bold;
 }
 
-.ddb-adventure .stat-block-ability-scores-modifier {
+.ddb .stat-block-ability-scores-modifier {
   margin-left: 5px;
 }
 
-.ddb-adventure .Stat-Block-Styles_Stat-Block-Heading,
-.ddb-adventure .Stat-Block-Styles_Stat-Block-Heading--after-last-bar- {
+.ddb .Stat-Block-Styles_Stat-Block-Heading,
+.ddb .Stat-Block-Styles_Stat-Block-Heading--after-last-bar- {
   font-size: 16px !important;
   font-weight: bold;
   font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;

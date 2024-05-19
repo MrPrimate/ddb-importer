@@ -698,6 +698,9 @@ export default class DDBMonsterFeature {
     // description = parseToHitRoll({ text: description, document: this.feature });
     description = parseTags(description);
     this.feature.system.description.value = await generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
+    this.feature.system.description.value = `<div class="ddb">
+${this.feature.system.description.value}
+</div>`;
   }
 
   #buildAction() {

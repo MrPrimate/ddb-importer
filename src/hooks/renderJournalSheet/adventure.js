@@ -25,7 +25,7 @@ const renderPopup = (type, url) => {
 function adventureFlags(app, html, data) {
   if (!app.document.flags.ddb) return;
   let journalContent = html.closest('.app').find('section.journal-page-content');
-  journalContent.addClass("ddb-adventure");
+  journalContent.addClass("ddb");
 
   if (!game.user.isGM) return;
   const existingLink = html.closest('.app').find('.open-adventure-ddb-importer');
