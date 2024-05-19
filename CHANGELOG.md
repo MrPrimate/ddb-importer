@@ -2,6 +2,8 @@
 
 - Fix for Beholder Zombie Eye Ray macro
 - Improve formating for stat blocks in features such as the Steel Defender.
+- The Lucky racial trait could be lost on import if you had the Lucky feat as well. Frankly this is a sickening combo.
+- Some monster features which were saves would not calculate the correct damage in the rollable enriched field in the descripton. e.g. Mind Flayer Prophet, Mind Whip.
 
 # 5.1.25
 

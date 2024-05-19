@@ -283,11 +283,29 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
     const finalMods = mods.length > 0
       ? `${useMod} + ${mods}`
       : useMod;
+
+    // console.warn("RESULTS", {
+    //   text,
+    //   diceParse,
+    //   baseAbility,
+    //   baseAbilityMod,
+    //   bonusMod,
+    //   useMod,
+    //   finalMods
+    // });
+
     const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, finalMods, "");
     result = `[[/damage ${reParse.diceString}${damageHint} average=true]]`;
   } else {
-    const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, undefined, mods, "");
-    result = `[[/damage ${reParse.diceString}${damageHint} average=true]]`;
+    // console.warn("RESULTS2", {
+    //   text,
+    //   diceParse,
+    //   baseAbility,
+    //   document,
+    // });
+    // const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, undefined, mods, "");
+    // result = `[[/damage ${reParse.diceString}${damageHint} average=true]]`;
+    result = `[[/damage ${diceParse.diceString}${damageHint} average=true]]`;
   }
 
   return result;
@@ -329,7 +347,7 @@ export function parseDamageRolls({ text, document, actor } = {}) {
       : dmg[3] ?? dmg[2];
 
     if (damage && includesDiceRegExp.test(damage)) {
-      const parsedDiceDamage = damageRollGenerator({ text: damage, damageType: dmg[4], actor, document });
+      const parsedDiceDamage = damageRollGenerator({ text: damage, damageType: dmg[4], actor, document, bonusMods });
       const replaceValue = `${dmg[1]}${parsedDiceDamage} damage`;
       // console.warn("DAMAGE PARSE", {
       //   damage,
