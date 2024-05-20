@@ -78,7 +78,8 @@ export default class DDBMonsterFeature {
         ? parseInt(matches[3])
         : 0
       : 0;
-    this.templateType = this.isAttack ? "weapon" : "feat";
+    this.isRecharge = this.#matchRecharge();
+    this.templateType = this.isAttack && this.isRecharge === null ? "weapon" : "feat";
     this.yourSpellAttackModToHit = matches ? matches[3]?.startsWith("your spell") : false;
 
     if (!this.feature) this.createBaseFeature();
@@ -350,8 +351,13 @@ export default class DDBMonsterFeature {
     return uses;
   }
 
+  #matchRecharge() {
+    const matches = this.fullName.toLowerCase().match(/(?:\(|; )recharge ([0-9––−-]+)\)/);
+    return matches;
+  }
+
   getRecharge() {
-    const matches = this.name.toLowerCase().match(/(?:\(|; )recharge ([0-9––−-]+)\)/);
+    const matches = this.isRecharge;
     if (matches) {
       const value = matches[1].replace(/[––−-]/, "-").split("-").shift();
       return {
