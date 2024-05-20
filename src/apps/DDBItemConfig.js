@@ -54,7 +54,7 @@ export class DDBItemConfig extends FormApplication {
     const overrides = {
       "NONE": {
         label: `None`,
-        selected: false
+        selected: true
       }
     };
 
@@ -70,7 +70,9 @@ export class DDBItemConfig extends FormApplication {
     });
 
     const selectedOverrideId = overrideId ?? "NONE";
-    overrides[selectedOverrideId].selected = true;
+    if (overrideId && overrides[selectedOverrideId]) {
+      overrides[selectedOverrideId].selected = true;
+    }
 
     const result = {
       name: item.name,
