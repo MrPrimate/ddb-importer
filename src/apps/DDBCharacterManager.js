@@ -777,21 +777,23 @@ ${item.system.description.chat}
     const label = CompendiumHelper.getCompendiumLabel("custom");
     const compendium = CompendiumHelper.getCompendium(label);
 
-    const compendiumItems = await Promise.all(overrideItems.map(async (item) => {
-      const compendiumItem = foundry.utils.duplicate(await compendium.getDocument(item.flags.ddbimporter.overrideId));
-      foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
-      if (foundry.utils.hasProperty(item, "flags.ddbimporter.overrideItem")) {
-        foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", item.flags.ddbimporter.overrideItem);
-      } else {
-        foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", {
-          name: item.name,
-          type: item.type,
-          ddbId: item.flags.ddbimporter?.id
-        });
-      }
+    const compendiumItems = await Promise.all(overrideItems
+      .filter((item) => foundry.utils.hasProperty(item, "flags.ddbimporter.overrideId") && compendium.index.has(item.flags.ddbimporter.overrideId))
+      .map(async (item) => {
+        const compendiumItem = foundry.utils.duplicate(await compendium.getDocument(item.flags.ddbimporter.overrideId));
+        foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
+        if (foundry.utils.hasProperty(item, "flags.ddbimporter.overrideItem")) {
+          foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", item.flags.ddbimporter.overrideItem);
+        } else {
+          foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", {
+            name: item.name,
+            type: item.type,
+            ddbId: item.flags.ddbimporter?.id
+          });
+        }
 
-      return compendiumItem;
-    }));
+        return compendiumItem;
+      }));
 
     const matchingOptions = {
       looseMatch: false,
