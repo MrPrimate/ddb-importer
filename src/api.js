@@ -77,6 +77,28 @@ function simpleTest(...params) {
   logger.warn(`running simple test with params`, { params });
 }
 
+async function updateFoundryCharacters() {
+  for (const actor of game.actors.values()) {
+    const ddbImported = 'ddbimporter' in actor.flags;
+    if (ddbImported && actor.type === "character") {
+      logger.info(`Updating ${actor.name} to DDB`);
+      // eslint-disable-next-line no-await-in-loop
+      await importCharacter(actor);
+    }
+  }
+}
+
+async function updateDDBCharacters() {
+  for (const actor of game.actors.values()) {
+    const ddbImported = 'ddbimporter' in actor.flags;
+    if (ddbImported && actor.type === "character") {
+      logger.info(`Updating ${actor.name} to DDB`);
+      // eslint-disable-next-line no-await-in-loop
+      await updateDDBCharacter(actor);
+    }
+  }
+}
+
 export function registerApi() {
   const API = {
     migrateCompendiums,
@@ -134,21 +156,29 @@ export function registerApi() {
     generateAdventureConfig,
     downloadAdventureConfig,
 
-    importCharacter,
-    importCharacterById,
+    importCharacter, // imports an actor
+    importCharacterById, // imports and actor by id
+    updateDDBCharacter, // updates an actor back to ddb
 
-    parseCritters,
-    parseTransports,
-    parseFeats: getFeats,
-    parseItems,
-    parseSpells,
+    // bulk update
+    updateAllPCs: {
+      foundry: updateFoundryCharacters,
+      ddb: updateDDBCharacters,
+    },
+
+    parse: {
+      monsters: parseCritters,
+      vehicles: parseTransports,
+      feats: getFeats,
+      items: parseItems,
+      spells: parseSpells,
+    },
 
     prices: {
       generateXgtePrices: updateItemPrices,
       calculateXgtePrice: calculatePrice,
     },
 
-    updateDDBCharacter,
     updateWorldMonsters,
 
     getIconPath: Iconizer.iconPath,

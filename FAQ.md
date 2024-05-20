@@ -216,14 +216,7 @@ Answer: run the above migration command.
 Yes, use the following macro:
 
 ```javascript
-const actors = game.actors;
-for (let [key, value] of actors.entries()) {
-  const ddbImported = 'ddbimporter' in value.flags;
-  if (ddbImported && value.type === "character") {
-    console.log('Importing: ' + value.name);
-    await game.modules.get("ddb-importer").api.importCharacter(value);
-  }
-}
+globalThis.DDBImporter.updateAllPCs.foundry();
 ```
 
 ## My Pact Spells are not marked as prepared
