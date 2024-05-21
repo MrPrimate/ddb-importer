@@ -4,7 +4,7 @@
   "title": "[ALPHA] DDB-Importer: A D&D Beyond Integrator",
   "license": "MIT License",
   "description": "ALPHA DDB-Importer",
-  "version": "4.0.2",
+  "version": "6.0.0",
   "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
@@ -36,8 +36,8 @@
         "id": "dnd5e",
         "type": "system",
         "compatibility": {
-          "minimum": "3.1.0",
-          "verified": "3.1.0"
+          "minimum": "3.2.0",
+          "verified": "3.2.0"
         }
       }
     ],

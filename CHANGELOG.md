@@ -1,3 +1,8 @@
+# 3.2 Branch
+
+- Item proficiencies will now be set to automatic on import.
+- New 5e Attunement system used for item attunement.
+
 # 5.1.28
 
 - Fix Where Evil Lies Item imports.

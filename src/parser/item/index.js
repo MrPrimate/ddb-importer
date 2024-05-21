@@ -190,7 +190,7 @@ function enrichFlags(ddbItem, item) {
 }
 
 // the filter type "Other Gear" represents the equipment while the other filters represents the magic items in ddb
-export function parseItem(ddb, ddbItem, character, flags) {
+function parseItem(ddb, ddbItem, character, flags) {
   try {
     // is it a weapon?
     let item = {};
@@ -246,6 +246,7 @@ export function parseItem(ddb, ddbItem, character, flags) {
     const baseItem = getBaseItem(ddbItem);
     if (baseItem.baseItem) foundry.utils.setProperty(item, "system.type.baseItem", baseItem.baseItem);
     if (baseItem.toolType) foundry.utils.setProperty(item, "system.type.value", baseItem.toolType);
+    item.system.attuned = ddbItem.isAttuned;
     item.system.attunement = getAttunement(ddbItem);
     item.system.price = getPrice(ddbItem);
     if (ddbItem.definition.magic) item.system.properties = utils.addToProperties(item.system.properties, "mgc");

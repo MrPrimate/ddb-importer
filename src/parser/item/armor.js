@@ -85,10 +85,10 @@ function getStealthPenalty(data) {
  */
 function getProficient(data, proficiencies) {
   // Proficiency in armor category (Light Armor, Shield)
-  if (proficiencies.find((proficiency) => proficiency.name === data.definition.type) !== -1) return true;
+  if (proficiencies.some((proficiency) => proficiency.name === data.definition.type)) return true;
   // Specific proficiency
-  if (proficiencies.find((proficiency) => proficiency.name === data.definition.baseArmorName) !== -1) return true;
-  return false;
+  if (proficiencies.some((proficiency) => proficiency.name === data.definition.baseArmorName)) return true;
+  return null;
 }
 
 export default function parseArmor(data, character, flags) {
@@ -114,7 +114,8 @@ export default function parseArmor(data, character, flags) {
   armor.system.type.baseItem = getBaseItem(data).baseItem;
   armor.system.strength = getStrength(data);
   if (getStealthPenalty(data)) armor.system.properties.push("stealthDisadvantage");
-  armor.system.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
+  const proficiencies = foundry.utils.getProperty(character, "flags.ddbimporter.dndbeyond.proficienciesIncludingEffects") ?? [];
+  armor.system.proficient = getProficient(data, proficiencies);
   armor.system.description = getDescription(data);
   armor.system.source = DDBHelper.parseSource(data.definition);
   armor.system.quantity = getQuantity(data);

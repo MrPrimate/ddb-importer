@@ -62,7 +62,7 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
 
     /* "stealth": false,*/
     utils.removeFromProperties(item.system.properties, "stealthDisadvantage");
-    item.system.proficient = true;
+    item.system.proficient = null;
   }
 
   item.system.description = getDescription(ddbData);

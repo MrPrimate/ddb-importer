@@ -138,19 +138,20 @@ export function getConsumableUses(data) {
 export function getWeaponProficient(data, weaponType, proficiencies) {
   // if it's a simple weapon and the character is proficient in simple weapons:
   if (
-    proficiencies.find((proficiency) => proficiency.name === "Simple Weapons")
+    proficiencies.some((proficiency) => proficiency.name === "Simple Weapons")
     && weaponType.indexOf("simple") !== -1
   ) {
     return true;
   } else if (
-    proficiencies.find((proficiency) => proficiency.name === "Martial Weapons")
+    proficiencies.some((proficiency) => proficiency.name === "Martial Weapons")
     && weaponType.indexOf("martial") !== -1
   ) {
     return true;
   } else {
     const proficient = proficiencies.some((proficiency) => proficiency.name.toLowerCase() === data.definition.type.toLowerCase());
-    return proficient;
+    if (proficient) return proficient;
   }
+  return null;
 };
 
 /**
@@ -166,12 +167,13 @@ export function getMagicalBonus(data, returnZero = false) {
 }
 
 export function getAttunement(item) {
-  if (item.isAttuned) {
-    return 2;
-  } else if (item.definition.canAttune) {
-    return 1;
+  if (item.isAttuned || item.definition.canAttune) {
+    if (item.definition.name.startsWith("Spell Gem")) {
+      return "optional";
+    }
+    return "required";
   } else {
-    return 0;
+    return "";
   }
 }
 
