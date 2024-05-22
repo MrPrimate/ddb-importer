@@ -393,25 +393,9 @@ export function generateBaseSkillEffect(id, label) {
   return skillEffect;
 }
 
-
-export function generateCEStatusEffectChange(statusName, priority = 20, macro = false) {
-  const value = macro
-    ? statusName
-    : CONFIG.statusEffects.find((se) => se.name === statusName)?.id || statusName;
-  if (!value) {
-    logger.error(`Status effect ${statusName} not found`);
-  }
-  return {
-    key: macro && !value.startsWith("Convenient Effect:") ? "macro.CE" : "StatusEffect",
-    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-    value: macro || value.startsWith("Convenient Effect:") ? value : `Convenient Effect: ${value}`,
-    priority: priority,
-  };
-}
-
 export function generateStatusEffectChange(statusName, priority = 20) {
   return {
-    key: "statuses",
+    key: effectModules().daeInstalled ? "macro.StatusEffect" : "statuses",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     value: statusName.toLowerCase(),
     priority: priority,
@@ -419,13 +403,7 @@ export function generateStatusEffectChange(statusName, priority = 20) {
 }
 
 export function addStatusEffectChange(effect, statusName, priority = 20, macro = false, level = null) {
-  if (effectModules().convenientEffectsInstalled && effectModules().midiQolInstalled) {
-    const key = generateCEStatusEffectChange(statusName, priority, macro);
-    effect.changes.push(key);
-  } else if (effectModules().convenientEffectsInstalled) {
-    const key = generateCEStatusEffectChange(statusName, priority, macro);
-    effect.changes.push(key);
-  } else if (effectModules().daeInstalled) {
+  if (effectModules().daeInstalled) {
     const key = generateStatusEffectChange(statusName, priority, macro);
     effect.changes.push(key);
   } else {

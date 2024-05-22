@@ -36,7 +36,7 @@ for (let target of targets) {
       duration: { rounds: 10, seconds: 60, startRound: gameRound, startTime: game.time.worldTime },
       flags: { dae: { specialDuration: ["isDamaged"] } },
       changes: [
-        DDBImporter.EffectHelper.generateCEStatusEffectChange(game.i18n.localize("Unconscious"), 20, true),
+        DDBImporter.EffectHelper.generateStatusEffectChange(game.i18n.localize("Unconscious"), 20),
       ]
     };
 

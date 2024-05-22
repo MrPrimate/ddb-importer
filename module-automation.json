@@ -50,11 +50,6 @@
         "reason": "Provides improvements to active effects"
        },
       {
-        "id": "dfreds-convenient-effects",
-        "type": "module",
-        "reason": "Adds some useful low touch effects and automated conditions"
-      },
-      {
         "id": "midi-qol",
         "type": "module",
         "reason": "THE Automation powerhouse for automated effects"

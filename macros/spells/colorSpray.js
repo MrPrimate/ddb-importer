@@ -1,5 +1,4 @@
 // based on @ccjmk and @crymic macro for sleep.
-// uses convinient effects
 // Midi-qol "On Use"
 
 const blindHp = await args[0].damageTotal;
@@ -30,7 +29,7 @@ for (let target of targets) {
       duration: { startRound: gameRound, startTime: game.time.worldTime },
       flags: { dae: { specialDuration: ["turnEndSource"] } },
       changes: [
-        DDBImporter.EffectHelper.generateCEStatusEffectChange(game.i18n.localize("Blinded"), 20, true),
+        DDBImporter.EffectHelper.generateStatusEffectChange(game.i18n.localize("Blinded"), 20),
       ]
     };
 

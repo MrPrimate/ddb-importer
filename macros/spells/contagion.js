@@ -33,7 +33,7 @@ async function applyContagion() {
                 value: "1",
               },
             ],
-            icon: "modules/dfreds-convenient-effects/images/blinded.svg",
+            icon: "icons/creatures/eyes/humanoid-single-blind.webp",
             label: "Blinding Sickness",
             name: "Blinding Sickness",
             _id: lastArg.effectId,

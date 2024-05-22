@@ -4,8 +4,8 @@ import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 
-export function getCondition(conditionName) {
-  return DICTIONARY.conditions.find((condition) => condition.label === conditionName);
+export function getCondition(conditionDDBName) {
+  return DICTIONARY.conditions.find((condition) => condition.label === conditionDDBName);
 }
 
 export function getActorConditionStates(actor, ddb, keepLocal = false) {

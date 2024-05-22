@@ -11,7 +11,7 @@ import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
 import { fixFeatures, addExtraEffects } from "../parser/features/fixes.js";
 import { generateOverTimeEffect, damageOverTimeEffect, getOvertimeDamage, getMonsterFeatureDamage } from "./monsterFeatures/overTimeEffect.js";
-import { baseEffect, generateStatusEffectChange, generateCEStatusEffectChange, addStatusEffectChange, generateTokenMagicFXChange, generateATLChange } from "./effects.js";
+import { baseEffect, generateStatusEffectChange, addStatusEffectChange, generateTokenMagicFXChange, generateATLChange } from "./effects.js";
 import ExternalAutomations from "./external/ExternalAutomations.js";
 
 export default class DDBEffectHelper {
@@ -27,8 +27,6 @@ export default class DDBEffectHelper {
   static damageOverTimeEffect = damageOverTimeEffect;
 
   static generateStatusEffectChange = generateStatusEffectChange;
-
-  static generateCEStatusEffectChange = generateCEStatusEffectChange;
 
   static addStatusEffectChange = addStatusEffectChange;
 
@@ -395,15 +393,6 @@ export default class DDBEffectHelper {
     workflow.hitTargets.add(newToken);
     workflow.saveResults = workflow.saveResults.filter((e) => e.data.tokenId !== oldToken.id);
     return newToken;
-  }
-
-  static effectConditionAppliedAndActive(conditionName, actor) {
-    return actor.effects.some(
-      (activeEffect) =>
-        activeEffect?.flags?.isConvenient
-        && activeEffect?.name == conditionName
-        && !activeEffect?.disabled
-    );
   }
 
   /**
@@ -882,23 +871,79 @@ export default class DDBEffectHelper {
   }
 
   static isConditionEffectAppliedAndActive(condition, actor) {
-    // return actor.statuses.has(condition.toLowerCase());
     return DDBEffectHelper.getActorEffects(actor).some(
       (activeEffect) =>
-        // (foundry.utils.getProperty(activeEffect, "flags.dfreds-convenient-effects.isConvenient") || activeEffect?.flags?.isConvenient)
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
         && !activeEffect?.disabled
     );
   }
 
   static getConditionEffectAppliedAndActive(condition, actor) {
-    // return actor.statuses.has(condition.toLowerCase());
     return DDBEffectHelper.getActorEffects(actor).find(
       (activeEffect) =>
-        // (foundry.utils.getProperty(activeEffect, "flags.dfreds-convenient-effects.isConvenient") || activeEffect?.flags?.isConvenient)
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
         && !activeEffect?.disabled
     );
+  }
+
+  static async removeCondition({ actor, conditionName, level = null } = {}) {
+    const condition = CONFIG.statusEffects.find((se) => se.name.toLowerCase() === conditionName.toLowerCase());
+
+    if (!condition) {
+      logger.error(`Condition ${conditionName} not found`);
+      return;
+    }
+
+    logger.debug(`removing ${condition.name}`, { condition });
+    const existing = actor.document?.effects?.get(game.dnd5e.utils.staticID(`dnd5e${condition.id}`));
+    if (existing) await existing.delete();
+    if (condition.id === "exhaustion") {
+      logger.debug("Reducing exhaustion", level);
+      await actor.update({ "system.attributes.exhaustion": level ?? 0 });
+    }
+  }
+
+  static async addCondition({ conditionName, actor, level = null, origin = null } = {}) {
+    const condition = CONFIG.statusEffects.find((se) => se.name.toLowerCase() === conditionName.toLowerCase());
+
+    if (!condition) {
+      logger.error(`Condition ${conditionName} not found`);
+      return;
+    }
+
+    logger.debug(`adding ${condition.name}`, { condition });
+    const effect = await ActiveEffect.implementation.fromStatusEffect(condition.id);
+    if (condition.level) effect.updateSource({ [`flags.dnd5e.${condition.id}Level`]: condition.level });
+    effect.updateSource({ origin });
+    const effectData = effect.toObject();
+    await actor.createEmbeddedDocuments("ActiveEffect", [effectData], { keepId: true });
+    if (condition.foundry === "exhaustion") {
+      logger.debug("Updating actor exhaustion", level);
+      await actor.update({ "system.attributes.exhaustion": level ?? 1 });
+    }
+  }
+
+  static async adjustCondition({ add = false, remove = false, actor, conditionName, level = null, origin = null } = {}) {
+    const gmUser = game.users.find((user) => user.active && user.isGM);
+    if (!gmUser) {
+      ui.notifications.error("No GM user found, unable to adjust condition");
+      return;
+    }
+    if (!add && !remove) {
+      logger.warn("You must specify if you want to add or remove the condition");
+      return;
+    }
+    logger.debug("Adjusting condition", { add, remove, actor, conditionName, level, origin });
+    if (remove) {
+      logger.debug("Removing condition", { actor, conditionName, level });
+      await globalThis.DDBImporter.socket.executeAsGM("removeCondition", { actor, conditionName, level });
+    }
+    if (add) {
+      logger.debug("Adding condition", { actor, conditionName, level, origin });
+      await globalThis.DDBImporter.socket.executeAsGM("addCondition", { actor, conditionName, level, origin });
+    }
+    logger.debug("Condition adjusted", { add, remove, actor, conditionName, level, origin });
+
   }
 
   static extractListItems(text, { type = "ol", titleType = "em" } = {}) {

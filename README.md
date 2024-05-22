@@ -83,9 +83,7 @@ Below are some recommended modules.
 I'd strongly recommend installing:
 
 - [Magic Items](https://foundryvtt.com/packages/magicitems/) for attaching spells to magic items
-- [Link Item and Resource DnD5e module](https://foundryvtt.com/packages/link-item-resource-5e ) for good resource linking
-- [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects) for proper condition management
-- [Arbron’s Summoning](https://foundryvtt.com/packages/arbron-summoner) will allow the creation and use of summoned actors for spells and features in Tasha's
+- [Link Item and Resource DnD5e module](https://foundryvtt.com/packages/link-item-resource-5e ) for good resource linking (not needed if using the new 5e sheets in v3.0.0+)
 - [Vision/Detection Modes 5e](https://foundryvtt.com/packages/vision-5e) adds those lovely missing vision modes for 5e.
 
 If you want to add spell effects, and high levels of automation you will need, (this is not recommended if you're using Foundry for the first time):
@@ -93,7 +91,6 @@ If you want to add spell effects, and high levels of automation you will need, (
 - [Midi-QOL](https://foundryvtt.com/packages/midi-qol/)
 - [About Time](https://foundryvtt.com/packages/about-time)
 - [Times Up](https://foundryvtt.com/packages/times-up/).
-- [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects)
 
 Several macros that impact tokens rely on:
 - [Active Auras](https://foundryvtt.com/packages/ActiveAuras)

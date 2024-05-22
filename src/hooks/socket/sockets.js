@@ -153,6 +153,8 @@ export function setupSockets() {
   socket.register("chooserDialog", DDBImporter.lib.DialogHelper.ChooserDialog.Ask);
   socket.register("ddbMacro", DDBImporter.lib.DDBMacros.executeDDBMacro);
   socket.register("ddbMacroFunction", DDBImporter.lib.DDBMacros.executeDDBMacroFunction);
+  socket.register("addCondition", DDBImporter.lib.DDBEffectHelper.addCondition);
+  socket.register("removeCondition", DDBImporter.lib.DDBEffectHelper.removeCondition);
 
   globalThis.DDBImporter.socket = socket;
 }

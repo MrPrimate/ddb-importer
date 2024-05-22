@@ -1,8 +1,3 @@
-if (!game.modules.get("dfreds-convenient-effects")?.active) {
-  ui.notifications.error("Please enable the CE module");
-  return;
-}
-
 const lastArg = args[args.length - 1];
 
 if (lastArg.tag === "OnUse") {
@@ -19,7 +14,7 @@ if (lastArg.tag === "OnUse") {
           lastArg.targets.forEach((targetToken) => {
             const targetActor = targetToken.actor;
             DAE.setFlag(targetActor, "DAEBlind", "blind");
-            game.dfreds.effectInterface.addEffect({ effectName: "Blinded", uuid: targetActor.uuid });
+            globalThis.DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: "Blinded", actor: targetActor });
             const changes = [
               {
                 key: "ATL.sight.range",
@@ -41,7 +36,7 @@ if (lastArg.tag === "OnUse") {
           lastArg.targets.forEach((targetToken) => {
             const targetActor = targetToken.actor;
             DAE.setFlag(targetActor, "DAEBlind", "deaf");
-            game.dfreds.effectInterface.addEffect({ effectName: "Deafened", uuid: targetActor.uuid });
+            globalThis.DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: "Deafened", actor: targetActor });
           });
         },
       },
@@ -54,11 +49,11 @@ if (args[0] === "off") {
   const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
   let flag = DAE.getFlag(targetActor, "DAEBlind");
   if (flag === "blind") {
-    if (DDBImporter.EffectHelper.effectConditionAppliedAndActive("Blinded", targetActor))
-      game.dfreds.effectInterface.removeEffect({ effectName: "Blinded", uuid: targetActor.uuid });
+    if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Blinded", targetActor))
+      globalThis.DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Blinded", actor: targetActor });
   } else if (flag === "deaf") {
-    if (DDBImporter.EffectHelper.effectConditionAppliedAndActive("Deafened", targetActor))
-      game.dfreds.effectInterface.removeEffect({ effectName: "Deafened", uuid: targetActor.uuid });
+    if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Deafened", targetActor))
+      globalThis.DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Deafened", actor: targetActor });
   }
   DAE.unsetFlag(targetActor, "DAEBlind");
 }
