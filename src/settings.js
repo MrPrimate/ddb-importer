@@ -1,6 +1,5 @@
 import { DirectoryPicker } from "./lib/DirectoryPicker.js";
 import DICTIONARY from "./dictionary.js";
-import logger from "./logger.js";
 import PatreonHelper from "./lib/PatreonHelper.js";
 
 const COMPENDIUMS = [
@@ -392,43 +391,6 @@ const SETTINGS = {
         "show-resource-chooser-default": {
           name: "ddb-importer.settings.show-resource-chooser-default.name",
           hint: "ddb-importer.settings.show-resource-chooser-default.hint",
-          config: true,
-          type: Boolean,
-          default: false,
-        },
-        "apply-conditions-with-ce": {
-          name: "ddb-importer.settings.apply-conditions-with-ce.name",
-          hint: "ddb-importer.settings.apply-conditions-with-ce.hint",
-          config: true,
-          type: Boolean,
-          default: false,
-          requiresReload: false,
-          onChange: (value) => {
-            if (!game.user.isGM) return;
-            if (game.modules.get("dfreds-convenient-effects")?.active) {
-              const convenientEffectStatusSettings = game.settings.get("dfreds-convenient-effects", "modifyStatusEffects");
-              if (value === true && convenientEffectStatusSettings === "none") {
-                const message = `Unable to use Convenient Effects for conditions. You must set the CE status effects to "add" or "replace" first!`;
-                logger.error(message);
-                ui.notifications.error(message, { permanent: true });
-                game.settings.set("ddb-importer", "apply-conditions-with-ce", false);
-              } else if (value === false && convenientEffectStatusSettings === "replace") {
-                const message = `Unable to remove Convenient Effects for conditions. You must set the CE status effects to "none" or "replace" first!`;
-                logger.error(message);
-                ui.notifications.error(message, { permanent: true });
-                game.settings.set("ddb-importer", "apply-conditions-with-ce", true);
-              }
-            } else if (value === true) {
-              const message = `Unable to use Convenient Effects for conditions. You must install the Convenient Effects module first!`;
-              logger.error(message);
-              ui.notifications.error(message, { permanent: true });
-              game.settings.set("ddb-importer", "apply-conditions-with-ce", false);
-            }
-          }
-        },
-        "use-ce-toggles": {
-          name: "ddb-importer.settings.use-ce-toggles.name",
-          hint: "ddb-importer.settings.use-ce-toggles.hint",
           config: true,
           type: Boolean,
           default: false,

@@ -1,10 +1,4 @@
-if (!game.modules.get("dfreds-convenient-effects")?.active) {
-  ui.notifications.error("Please enable the CE module");
-  return;
-}
-
 const lastArg = args[args.length - 1];
-
 const DAEItem = lastArg.efData.flags.dae.itemData;
 
 // console.warn("Details", {
@@ -28,7 +22,7 @@ async function eyebite(type, dc, targetActor) {
     ChatMessage.create({ content: `${targetActor.name} failed the save with a ${saveRoll.total}` });
     const conditions = EFFECT_LOOKUP[type];
     conditions.forEach((condition) => {
-      game.dfreds.effectInterface.addEffect({ effectName: condition, uuid: targetActor.uuid, origin: lastArg.origin });
+      DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: condition, actor: targetActor, origin: lastArg.origin });
     })
     DAE.setFlag(targetActor, "eyebiteSpell", { conditions, dc, origin: lastArg.origin });
   } else {
@@ -124,7 +118,7 @@ else if (args[0] === "off") {
       const flag = DAE.getFlag(t.actor, "eyebiteSpell") ?? { conditions: [] };
       flag.conditions.forEach((condition) => {
         if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, t.actor)) {
-          game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: t.actor.uuid });
+          DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: condition, actor: t.actor });
         }
       });
       DAE.unsetFlag(actor, "eyebiteSpell");

@@ -23,10 +23,10 @@ if (args[0] === "each") {
     console.log("Confusion effect not found on the actor.");
   }
 
-  const hasEffectApplied = await game.dfreds.effectInterface.hasEffectApplied("Reaction", token.actor.uuid);
-  if (!hasEffectApplied) {
-    game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: token.actor.uuid });
-  }
+  // const hasEffectApplied = await game.dfreds.effectInterface.hasEffectApplied("Reaction", token.actor.uuid);
+  // if (!hasEffectApplied) {
+  //   DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: "Reaction", actor: token.actor });
+  // }
 
   const confusionRoll = await new CONFIG.Dice.DamageRoll("1d10").evaluate({ async: true });
   await MidiQOL.displayDSNForRoll(confusionRoll, "damageRoll");

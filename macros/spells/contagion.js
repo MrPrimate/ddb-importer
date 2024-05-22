@@ -9,7 +9,7 @@ const DAEItem = lastArg.efData.flags.dae.itemData;
  */
 async function applyContagion() {
   if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Poisoned", targetActor))
-    game.dfreds.effectInterface.removeEffect({ effectName: "Poisoned", uuid: targetActor.uuid });
+    DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Poisoned", actor: targetActor });
 
   new Dialog({
     title: "Contagion options",

@@ -1,8 +1,3 @@
-if (!game.modules.get("dfreds-convenient-effects")?.active) {
-  ui.notifications.error("Please enable the CE module");
-  return;
-}
-
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
@@ -31,7 +26,7 @@ async function checkPetrification(flag) {
     if (flag.failures === petrifiedAtFailureCount) {
       ChatMessage.create({ content: `Petrification on ${targetActor.name} is complete` });
       if (!DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Petrified", targetActor)) {
-        await game.dfreds.effectInterface.addEffect({ effectName: "Petrified", uuid: targetActor.uuid });
+        DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: "Petrified", actor: targetActor });
       }
     } else {
       console.log(`Petrification failures increments to ${flag.failures} failures and ${flag.successes} successes`);

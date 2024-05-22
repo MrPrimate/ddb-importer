@@ -9,7 +9,7 @@ if (!game.modules.get("ActiveAuras")?.active) {
 const lastArg = args[args.length - 1];
 
 async function attemptRemoval(targetToken, condition, item) {
-  if (game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
+  if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor))
     new Dialog({
       title: `Use action to attempt to remove ${condition}?`,
       buttons: {
@@ -30,7 +30,7 @@ async function attemptRemoval(targetToken, condition, item) {
               : (await targetToken.actor.rollAbilitySave(ability, { flavor })).total;
 
             if (rollResult >= saveDc) {
-              game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: targetToken.document.uuid });
+              await DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: targetTokenTracker.condition, actor: targetToken.actor });
             } else {
               if (rollResult < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the ${type} for ${item.name}, still has the ${condition} condition.` });
             }
@@ -46,7 +46,7 @@ async function attemptRemoval(targetToken, condition, item) {
 }
 
 async function applyCondition(condition, targetToken, item, itemLevel) {
-  if (!game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
+  if (!DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor)) {
     const caster = item.parent;
     const workflowItemData = foundry.utils.duplicate(item);
     workflowItemData.system.target = { value: 1, units: "", type: "creature" };
@@ -74,7 +74,7 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
     game.user.updateTokenTargets(saveTargets);
     const failedSaves = [...result.failedSaves];
     if (failedSaves.length > 0) {
-      await game.dfreds.effectInterface.addEffect({ effectName: condition, uuid: failedSaves[0].document.uuid });
+      await DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: condition, actor: failedSaves[0].actor });
     }
 
     return result;
@@ -187,9 +187,9 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
       await DDBImporter?.EffectHelper.wait(500);
       const condition = ddbEffectFlags.condition;
       for (const token of lastArg.failedSaves) {
-        if (!game.dfreds.effectInterface.hasEffectApplied(condition, token.actor.uuid)) {
+        if (!DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, token.actor)) {
           console.debug(`Applying ${condition} to ${token.name}`);
-          await game.dfreds.effectInterface.addEffect({ effectName: condition, uuid: token.actor.uuid });
+          await DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: condition, actor: token.actor });
         }
       };
     }
@@ -203,9 +203,9 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   if (lastArg.item.flags.ddbimporter?.effect?.applyImmediate) {
     const condition = lastArg.item.flags.ddbimporter.effect.condition;
     for (const token of lastArg.failedSaves) {
-      if (!game.dfreds.effectInterface.hasEffectApplied(condition, token.actor.uuid)) {
+      if (!DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, token.actor)) {
         console.debug(`Applying ${condition} to ${token.name}`);
-        await game.dfreds.effectInterface.addEffect({ effectName: condition, uuid: token.actor.uuid });
+        await DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: condition, actor: token.actor });
       }
     };
   }
@@ -243,7 +243,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   // has been targeted this combat, left and re-entered effect, and is a later turn
 
   const autoDamageIfCondition = foundry.utils.hasProperty(ddbEffectFlags, "autoDamageIfCondition") ? ddbEffectFlags.autoDamageIfCondition : false;
-  const hasConditionStart = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.actor.uuid);
+  const hasConditionStart = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(targetTokenTracker.condition, target.actor);
   const applyAutoConditionDamage = autoDamageIfCondition && hasConditionStart;
 
   if (ddbEffectFlags.conditionEffect && !hasConditionStart) {
@@ -275,7 +275,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   targetTokenTracker.round = game.combat.round;
   await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
   const allowVsRemoveCondition = item.flags.ddbimporter.effect.allowVsRemoveCondition;
-  const hasConditionAppliedEnd = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.document.uuid);
+  const hasConditionAppliedEnd = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(targetTokenTracker.condition, target.actor);
   const currentTokenCombatTurn = game.combat.current.tokenId === lastArg.tokenId;
   if (currentTokenCombatTurn && allowVsRemoveCondition && hasConditionAppliedEnd) {
     console.log(`Asking ${target.name} wants to remove ${targetTokenTracker.condition}`);
@@ -289,9 +289,11 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     ? lastArg.efData.flags.ddbimporter.effect.removeOnOff
     : true;
 
-  if (targetTokenTracker?.condition && removeOnOff && game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, lastArg.tokenUuid)) {
+  if (targetTokenTracker?.condition && removeOnOff
+    && DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(targetTokenTracker.condition, targetToken.actor)
+  ) {
     console.debug(`Removing ${targetTokenTracker.condition} from ${targetToken.name}`);
-    game.dfreds.effectInterface.removeEffect({ effectName: targetTokenTracker.condition, uuid: lastArg.tokenUuid });
+    await DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: targetTokenTracker.condition, actor: targetToken.actor });
   }
 
   if (targetTokenTracker) {

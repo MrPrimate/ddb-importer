@@ -1592,12 +1592,11 @@ async function activeUpdateEffectTrigger(document, state) {
       logger.debug(`Preparing to ${state.toLowerCase()} condition on DDB...`);
       // is it a condition?
       // is it a suitable type?
-      const isConvenient = document.system?.flags?.isConvenient;
       const condition = getCondition(document.system?.name ?? document.system?.label);
       // exhaustion is a special case, but also a condition effect, handled by character update
       const notExhaustion = condition ? condition.ddbId !== 4 : false;
 
-      if (isConvenient && condition && notExhaustion) {
+      if (condition && notExhaustion) {
         logger.debug(`Attempting to ${state.toLowerCase()} Condition`, document);
         switch (state) {
           case "CREATE":
@@ -1627,17 +1626,8 @@ export function activateUpdateHooks() {
     Hooks.on("updateItem", activeUpdateUpdateItem);
     Hooks.on("createItem", (document) => activeUpdateAddOrDeleteItem(document, "CREATE"));
     Hooks.on("deleteItem", (document) => activeUpdateAddOrDeleteItem(document, "DELETE"));
-    // conditions syncing relies of Conv Effects
-    const dfConditionsOn = game.modules.get("dfreds-convenient-effects")?.active;
-    const useCEConditions = dfConditionsOn ? game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce") : false;
-    const dfCEAdded = dfConditionsOn
-      ? game.settings.get("dfreds-convenient-effects", "modifyStatusEffects")
-      : "none";
-
-    if ((dfConditionsOn && useCEConditions && dfCEAdded !== "none") || (dfConditionsOn && dfCEAdded === "replace")) {
-      Hooks.on("createActiveEffect", (document) => activeUpdateEffectTrigger(document, "CREATE"));
-      Hooks.on("updateActiveEffect", (document) => activeUpdateEffectTrigger(document, "UPDATE"));
-      Hooks.on("deleteActiveEffect", (document) => activeUpdateEffectTrigger(document, "DELETE"));
-    }
+    Hooks.on("createActiveEffect", (document) => activeUpdateEffectTrigger(document, "CREATE"));
+    Hooks.on("updateActiveEffect", (document) => activeUpdateEffectTrigger(document, "UPDATE"));
+    Hooks.on("deleteActiveEffect", (document) => activeUpdateEffectTrigger(document, "DELETE"));
   }
 }

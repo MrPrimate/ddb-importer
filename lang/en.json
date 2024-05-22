@@ -44,8 +44,6 @@
       "auto-create-compendium.hint": "Auto create compendiums if not present?",
       "use-full-source.name": "Use full source book name?",
       "use-full-source.hint": "Otherwise use acronym",
-      "use-ce-toggles.name": "Use Convenient Effect Toggles?",
-      "use-ce-toggles.hint": "Use a Convenient Effect toggle rather than linking to the compendium value",
       "show-resource-chooser-default.name": "Show resource chooser default?",
       "show-resource-chooser-default.hint": "On new characters should resource chooser be enabled by default?",
       "monster-has-vision.name": "Should imported monster have vision set?",

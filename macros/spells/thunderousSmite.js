@@ -27,7 +27,7 @@ try {
     const saveRoll = await MidiQOL.socket().executeAsGM("rollAbility", saveRollData);
 
     if (saveRoll.total < spellDC) {
-      game.dfreds.effectInterface.addEffect({ effectName: "Prone", uuid: tokenUuid });
+      await DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Prone", actor: targetActor });
       ChatMessage.create({ content: `${targetActor.name} has failed the save and is pushed back 10ft and knocked prone.` });
     }
   }

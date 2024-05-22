@@ -6,12 +6,7 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const targetToken = await fromUuid(lastArg.tokenUuid);
 
 function effectAppliedAndActive(conditionName) {
-  return targetToken.effects.some(
-    (activeEffect) =>
-      activeEffect?.flags?.isConvenient
-      && (activeEffect?.name ?? activeEffect?.label) == conditionName
-      && !activeEffect?.disabled
-  );
+  return DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("conditionName", targetActor));
 }
 
 async function DivineWordApply(target, targetHp) {
@@ -20,23 +15,23 @@ async function DivineWordApply(target, targetHp) {
   } else {
     if (targetHp <= 30) {
       const hasStunned = effectAppliedAndActive("Stunned");
-      if (!hasStunned) await game.dfreds.effectInterface.toggleEffect("Stunned", { uuids: [targetActor.uuid] });
+      if (!hasStunned) await DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: "Stunned", actor: targetActor });
       game.Gametime.doIn({ hours: 1 }, async () => {
-        await game.dfreds.effectInterface.removeEffect({ effectName: "Stunned", uuid: targetActor.uuid });
+        await DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Stunned", actor: targetActor });
       });
     }
     if (targetHp <= 40) {
       const hasBlinded = effectAppliedAndActive("Blinded");
-      if (!hasBlinded) await game.dfreds.effectInterface.toggleEffect("Blinded", { uuids: [targetActor.uuid] });
+      if (!hasBlinded) await DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: "Blinded", actor: targetActor });
       game.Gametime.doIn({ hours: 1 }, async () => {
-        await game.dfreds.effectInterface.removeEffect({ effectName: "Blinded", uuid: [targetActor.uuid] });
+        await DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Blinded", actor: targetActor });
       });
     }
     if (targetHp <= 50) {
       const hasDeafened = effectAppliedAndActive("Deafened");
-      if (!hasDeafened) await game.dfreds.effectInterface.toggleEffect("Deafened", { uuids: [targetActor.uuid] });
+      if (!hasDeafened) await DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: "Deafened", actor: targetActor });
       game.Gametime.doIn({ hours: 1 }, async () => {
-        await game.dfreds.effectInterface.removeEffect({ effectName: "Deafened", uuid: targetActor.uuid });
+        await DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Deafened", actor: targetActor });
       });
     }
   }

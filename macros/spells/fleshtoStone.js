@@ -1,8 +1,3 @@
-if (!game.modules.get("dfreds-convenient-effects")?.active) {
-  ui.notifications.error("Please enable the CE module");
-  return;
-}
-
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
@@ -28,7 +23,7 @@ async function checkPetrification(flag) {
     if (flag.failures === 3) {
       ChatMessage.create({ content: `Flesh To Stone on ${targetActor.name} is complete` });
       if (!DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Petrified", targetActor)) {
-        await game.dfreds.effectInterface.addEffect({ effectName: "Petrified", uuid: targetActor.uuid });
+        DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: "Petrified", actor: targetActor });
       }
     } else {
       console.log(`Flesh To Stone failures increments to ${flag.failures} and ${flag.successes}`);
@@ -64,7 +59,7 @@ if (args[0] === "off") {
   const flag = await DAE.getFlag(targetActor, "fleshToStoneSpell");
   if (flag && flag.rounds < 10) {
     if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Petrified", targetActor)) {
-      game.dfreds.effectInterface.removeEffect({ effectName: "Petrified", uuid: targetActor.uuid });
+      DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Petrified", actor: targetActor });
     }
   }
 

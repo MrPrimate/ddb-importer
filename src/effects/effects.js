@@ -253,8 +253,8 @@ export function effectModules() {
   const warpgateInstalled = game.modules.get("warpgate")?.active ?? false;
 
   CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
-    hasCore: midiQolInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
-    hasMonster: midiQolInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
+    hasCore: midiQolInstalled && timesUp && daeInstalled,
+    hasMonster: midiQolInstalled && timesUp && daeInstalled,
     midiQolInstalled,
     timesUp,
     daeInstalled,
