@@ -1323,7 +1323,8 @@ function addInitiativeBonuses(modifiers, name) {
   }
 
   const advantageBonus = DDBHelper.getValueFromModifiers(modifiers, "initiative", "initiative", "bonus");
-  if (advantageBonus) {
+  // alert feet gets special bonus
+  if (advantageBonus && name !== "Alert") {
     logger.debug(`Generating Initiative bonus for ${name}`);
     changes.push(generateUnsignedAddChange(advantageBonus, 20, "system.attributes.init.bonus"));
   }

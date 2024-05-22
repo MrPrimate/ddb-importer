@@ -400,6 +400,10 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
 
   // effects to always apply
   switch (name) {
+    case "Alert": {
+      document = alertEffect(document);
+      break;
+    }
     // if using active auras add the aura effect
     case "Aura of Courage":
     case "Aura of Protection": {
@@ -478,10 +482,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
 
   if (deps.daeInstalled) {
     switch (name) {
-      case "Alert": {
-        document = alertEffect(document);
-        break;
-      }
       case "Mind Link Response": {
         document = mindLinkEffect(document);
         break;

@@ -6,7 +6,7 @@ export function alertEffect(document) {
   effect.changes.push({
     key: "flags.dnd5e.initiativeAlert",
     value: "1",
-    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     priority: "0",
   });
 
