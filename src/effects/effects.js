@@ -301,6 +301,7 @@ export function baseEffect(foundryItem, label,
   { transfer = true, disabled = false } = {}
 ) {
   let effect = {
+    img: foundryItem.img,
     icon: foundryItem.img,
     changes: [],
     duration: {},

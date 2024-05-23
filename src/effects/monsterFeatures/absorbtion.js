@@ -14,6 +14,7 @@ export function absorptionEffect(item) {
         priority: 20,
       }
     );
+    effect.img = "icons/svg/downgrade.svg";
     effect.icon = "icons/svg/downgrade.svg";
     item.effects.push(effect);
   }

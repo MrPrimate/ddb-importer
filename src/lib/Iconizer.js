@@ -261,6 +261,9 @@ export default class Iconizer {
                 if (!effect.icon || effect.icon === "") {
                   effect.icon = pathMatched;
                 }
+                if (!effect.img || effect.img === "") {
+                  effect.img = pathMatched;
+                }
               });
             }
           }
@@ -592,6 +595,9 @@ export default class Iconizer {
           if (!effect.icon || effect.icon === "" || effect.icon === CONST.DEFAULT_TOKEN) {
             effect.icon = item.img;
           }
+          if (!effect.img || effect.img === "" || effect.img === CONST.DEFAULT_TOKEN) {
+            effect.img = item.img;
+          }
         });
       }
 
@@ -608,6 +614,7 @@ export default class Iconizer {
         const actorItem = actor.items.find((i) => i.name === name);
         if (actorItem) {
           effect.icon = actorItem.img;
+          effect.img = actorItem.img;
         }
       }
     });

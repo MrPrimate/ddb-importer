@@ -161,6 +161,7 @@ export default class DDBEffectHelper {
       disabled: false,
       transfer: false,
       icon,
+      img: icon,
       duration: { turns: 1 },
       flags: {
         dae: {
