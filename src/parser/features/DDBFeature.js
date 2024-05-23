@@ -77,6 +77,13 @@ export default class DDBFeature extends DDBBaseFeature {
         },
       }
     };
+
+    const requiredLevel = foundry.utils.getProperty(this.ddbDefinition, "requiredLevel");
+    if (Number.isInteger(Number.parseInt(requiredLevel))) {
+      this.data.system.prerequisites = {
+        level: Number.parseInt(requiredLevel),
+      };
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
