@@ -91,6 +91,14 @@ function getProficient(data, proficiencies) {
   return null;
 }
 
+function getMagicalArmorBonus(data) {
+  const boni = data.definition.grantedModifiers.filter(
+    (mod) => mod.type === "bonus" && mod.subType === "armor-class" && mod.value && mod.value !== 0
+  );
+  const bonus = boni.reduce((prev, cur) => prev + cur.value, 0);
+  return bonus;
+}
+
 export default function parseArmor(data, character, flags) {
   let armor = {
     _id: foundry.utils.randomID(),
@@ -108,7 +116,13 @@ export default function parseArmor(data, character, flags) {
 
   const armorType = getArmorType(data, character, flags);
 
-  armor.system.armor.value = armorType.value;
+  const magicBonus = getMagicalArmorBonus(data);
+
+  armor.system.armor.value = armorType.value - magicBonus;
+  if (magicBonus > 0) {
+    armor.system.armor.magicalBonus = magicBonus;
+    armor.system.properties.push("mgc");
+  }
   armor.system.armor.dex = armorType.dex;
   armor.system.type.value = armorType.type;
   armor.system.type.baseItem = getBaseItem(data).baseItem;

@@ -225,7 +225,10 @@ export function getSingleItemWeight(data) {
   const bundleSize = data.definition?.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition?.weight ? data.definition.weight : 0;
   const weight = totalWeight / bundleSize;
-  return weight;
+  return {
+    value: weight,
+    units: "lb"
+  };
 }
 
 export function getWeightless(data) {

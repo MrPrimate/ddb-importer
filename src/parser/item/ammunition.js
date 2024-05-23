@@ -87,8 +87,12 @@ export default function parseAmmunition(data, itemType) {
   ammunition.system.range = getRange(data);
   ammunition.system.ability = "";
   ammunition.system.actionType = "rwak";
-  ammunition.system.attack.bonus = getMagicalBonus(data);
-  ammunition.system.damage = getDamage(data, getMagicalBonus(data, true));
+  const magicalBonus = getMagicalBonus(data, true);
+  if (magicalBonus > 0) {
+    ammunition.system.properties.push("mgc");
+    ammunition.system.magicalBonus = magicalBonus;
+  }
+  ammunition.system.damage = getDamage(data);
   ammunition.system.type.value = "ammo";
 
   return ammunition;

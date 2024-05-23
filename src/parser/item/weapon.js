@@ -28,28 +28,6 @@ function getWeaponType(data) {
  * @param {obj} data Item data
  */
 function getProperties(data) {
-  // let properties = [];
-  // DICTIONARY.weapon.properties.forEach((property) => {
-  //   if (data.definition.properties && Array.isArray(data.definition.properties)) {
-  //     if (data.definition.properties.some((prop) => prop.name === property.name)) {
-  //       properties.push(property.value);
-  //     }
-  //   }
-  //   if (
-  //     !properties.includes(property.value)
-  //     && data.definition.grantedModifiers
-  //     && Array.isArray(data.definition.grantedModifiers)
-  //   ) {
-  //     const isGrantedProperty = data.definition.grantedModifiers.some(
-  //       (prop) => prop.type === "weapon-property" && prop.friendlySubtypeName === property.name
-  //     );
-  //     if (isGrantedProperty) {
-  //       properties.push(property.value);
-  //     }
-  //   }
-  // });
-  // return properties;
-
   return DICTIONARY.weapon.properties
     .filter((property) => {
       // if it is a weapon property
@@ -143,7 +121,7 @@ function getWeaponMagicalBonus(data, flags, returnZero = false) {
  * /* damage: { parts: [], versatile: '' }, * /
  */
 function getDamage(data, flags) {
-  const magicalDamageBonus = getWeaponMagicalBonus(data, flags, true);
+  // const magicalDamageBonus = getWeaponMagicalBonus(data, flags, true);
   // we can safely make these assumptions about GWF and Dueling because the
   // flags are only added for melee attacks
   const greatWeaponFighting = flags.classFeatures.includes("greatWeaponFighting") ? "r<=2" : "";
@@ -163,7 +141,7 @@ function getDamage(data, flags) {
     .map((versatile) => {
       if (versatile && versatile.notes) {
         return (
-          utils.parseDiceString(versatile.notes + ` + ${magicalDamageBonus}`, null, damageTag, greatWeaponFighting).diceString + mod
+          utils.parseDiceString(versatile.notes, null, damageTag, greatWeaponFighting).diceString + mod
         );
       } else {
         return "";
@@ -183,7 +161,7 @@ function getDamage(data, flags) {
 
   if (Number.isInteger(data.definition.fixedDamage)) {
     parts.push([
-      utils.parseDiceString(data.definition.fixedDamage + ` + ${magicalDamageBonus}`, `${mod}${dueling}`, damageTag, fightingStyleDiceMod)
+      utils.parseDiceString(data.definition.fixedDamage, `${mod}${dueling}`, damageTag, fightingStyleDiceMod)
         .diceString,
       damageType,
     ]);
@@ -195,7 +173,7 @@ function getDamage(data, flags) {
 
     // if there is a magical damage bonus, it probably should only be included into the first damage part.
     parts.push([
-      utils.parseDiceString(diceString + ` + ${magicalDamageBonus}`, `${mod}${dueling}`, damageTag, fightingStyleDiceMod)
+      utils.parseDiceString(diceString, `${mod}${dueling}`, damageTag, fightingStyleDiceMod)
         .diceString,
       damageType,
     ]);
@@ -307,7 +285,7 @@ export default function parseWeapon(data, character, flags) {
   weapon.system.ability = "";
   const ability = getAbility(weapon.system.properties, weapon.system.range);
   const mockAbility = ability === null
-    ? weapon.system.properties.fin ? "dex" : "str"
+    ? weapon.system.properties.includes("fin") ? "dex" : "str"
     : ability;
 
   // warlocks can use cha for their Hex weapon
@@ -322,7 +300,7 @@ export default function parseWeapon(data, character, flags) {
       weapon.system.ability = "dex";
     }
   }
-  if (flags.magicItemAttackInt && (data.definition.magic || weapon.system.properties.mgc)) {
+  if (flags.magicItemAttackInt && (data.definition.magic || weapon.system.properties.includes("mgc"))) {
     if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
       weapon.system.ability = "int";
     }
@@ -333,7 +311,12 @@ export default function parseWeapon(data, character, flags) {
   foundry.utils.setProperty(weapon, "flags.ddbimporter.dndbeyond.ability", setAbility);
 
   weapon.system.actionType = getActionType(data);
-  weapon.system.attack.bonus = getWeaponMagicalBonus(data, flags);
+  const magicalBonus = getWeaponMagicalBonus(data, flags, true);
+
+  if (magicalBonus > 0) {
+    weapon.system.magicalBonus = magicalBonus;
+    weapon.system.properties = utils.addToProperties(weapon.system.properties, "mgc");
+  }
 
   [
     weapon.system.damage,
