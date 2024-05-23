@@ -8,8 +8,9 @@ function classSpell(data, result) {
     "name",
     data.flags.ddbimporter.dndbeyond.class
   );
-  if (data.restriction === "As Ritual Only") {
-    result.mode = "prepared";
+
+  if (data.restriction === "As Ritual Only" || data.castOnlyAsRitual || data.ritualCastingType !== null) {
+    result.mode = "ritual";
     result.prepared = false;
   } else if (!data.usesSpellSlot && data.definition.level !== 0) {
     // some class features such as druid circle of stars grants x uses of a spell
@@ -72,6 +73,7 @@ export function getSpellPreparationMode(data) {
     let ritaulOnly = data.ritualCastingType !== null || data.castOnlyAsRitual; // e.g. Book of ancient secrets & totem barb
     if (always && ritaulOnly) {
       // in this case we want the spell to appear in the spell list unprepared
+      result.mode = "ritual";
       result.prepared = false;
     } else if (always) {
       // these spells are always prepared, and have a limited use that's
