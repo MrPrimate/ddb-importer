@@ -8,6 +8,7 @@
 - Correct weight generation for v3.2.
 - Use new ritual only spell preperation mode.
 - Adds some pre-requisites to start supplying enchantment effects for future updates.
+- Fix ueling style applying effect and damage adjustment to weapons if not using midi.
 
 # 5.1.28
 

@@ -128,8 +128,6 @@ function getDamage(data, flags) {
   const offHand = flags.classFeatures.includes("OffHand");
   const twoWeapon = flags.classFeatures.includes("Two-Weapon Fighting");
   const twoHanded = data.definition.properties.find((property) => property.name === "Two-Handed");
-  const melee = data.definition.attackType === 1;
-  const dueling = flags.classFeatures.includes("Dueling") && !twoHanded && melee ? " + 2" : "";
   const mod = (offHand && !twoWeapon) ? "" : " + @mod";
 
   const baseDamageTagData = DDBHelper.getDamageTagForItem(data);
@@ -161,7 +159,7 @@ function getDamage(data, flags) {
 
   if (Number.isInteger(data.definition.fixedDamage)) {
     parts.push([
-      utils.parseDiceString(data.definition.fixedDamage, `${mod}${dueling}`, damageTag, fightingStyleDiceMod)
+      utils.parseDiceString(data.definition.fixedDamage, `${mod}`, damageTag, fightingStyleDiceMod)
         .diceString,
       damageType,
     ]);
@@ -173,7 +171,7 @@ function getDamage(data, flags) {
 
     // if there is a magical damage bonus, it probably should only be included into the first damage part.
     parts.push([
-      utils.parseDiceString(diceString, `${mod}${dueling}`, damageTag, fightingStyleDiceMod)
+      utils.parseDiceString(diceString, `${mod}`, damageTag, fightingStyleDiceMod)
         .diceString,
       damageType,
     ]);

@@ -407,8 +407,6 @@ DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
     flags.damage.parts.push(["@abilities.cha.mod", "necrotic"]);
   }
 
-  const addMidiEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
-
   // for melee attacks get extras
   if (ddbItem.definition.attackType === 1) {
     // get improved divine smite etc for melee attacks
@@ -420,10 +418,6 @@ DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
     // do we have great weapon fighting?
     if (DDBHelper.hasChosenCharacterOption(ddb, "Great Weapon Fighting")) {
       flags.classFeatures.push("greatWeaponFighting");
-    }
-    // do we have dueling fighting style?
-    if (DDBHelper.hasChosenCharacterOption(ddb, "Dueling") && !addMidiEffects) {
-      flags.classFeatures.push("Dueling");
     }
     // do we have two weapon fighting style?
     if (DDBHelper.hasChosenCharacterOption(ddb, "Two-Weapon Fighting")) {
