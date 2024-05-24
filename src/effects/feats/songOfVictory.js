@@ -1,7 +1,6 @@
-import { effectModules } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
-export function bladesongEffect(document) {
+export function songOfVictoryEffect(document) {
   let effect = baseFeatEffect(document, `${document.name}`);
 
   foundry.utils.setProperty(document, "system.range", { value: null, units: "self", long: null });
@@ -12,22 +11,10 @@ export function bladesongEffect(document) {
 
   effect.changes.push(
     {
-      key: "system.attributes.ac.bonus",
+      key: "system.bonuses.mwak.damage",
       value: "max(@abilities.int.mod,1)",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 20,
-    },
-    {
-      key: "system.attributes.concentration.bonuses.save",
-      value: "max(@abilities.int.mod,1)",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      priority: 20,
-    },
-    {
-      key: "system.attributes.movement.walk",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: "10",
-      priority: "20",
     },
   );
   effect.duration = {
@@ -38,15 +25,6 @@ export function bladesongEffect(document) {
     startRound: null,
     startTurn: null,
   };
-
-  if (effectModules().midiQolInstalled) {
-    effect.changes.push({
-      key: "flags.midi-qol.advantage.skill.acr",
-      value: "1",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      priority: 20,
-    });
-  }
 
   document.effects.push(effect);
   return document;

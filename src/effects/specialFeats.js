@@ -82,6 +82,7 @@ import { psychicBladesEffect } from "./feats/psychicBlades.js";
 import { sneakAttackEffect } from "./feats/sneakAttack.js";
 import { aspectOfTheBeastBearEffect } from "./feats/aspectOfTheBeastBear.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
+import { songOfVictoryEffect } from "./feats/songOfVictory.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -118,10 +119,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Aspect of the Beast: Bear": {
       document = await aspectOfTheBeastBearEffect(document);
-      break;
-    }
-    case "Bladesong": {
-      document = bladesongEffect(document);
       break;
     }
     case "Bardic Inspiration": {
@@ -414,6 +411,10 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       document = auraOfHateEffect(document);
       break;
     }
+    case "Bladesong": {
+      document = bladesongEffect(document);
+      break;
+    }
     case "Defensive Duelist": {
       document = defensiveDuelistEffect(document);
       break;
@@ -454,6 +455,10 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Rage": {
       document = rageEffect(document);
+      break;
+    }
+    case "Song of Victory": {
+      document = songOfVictoryEffect(document);
       break;
     }
     case "Shielding Storm": {
