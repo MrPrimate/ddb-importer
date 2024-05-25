@@ -431,6 +431,13 @@ export class DDBCompendiumFolders {
     };
 
     switch (document.type) {
+      case "dnd-tashas-cauldron.tattoo":
+      case "tattoo": {
+        const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
+        result.name = this.trinketFolders[ddbType].name;
+        result.flagTag = `trinket/${result.name}`;
+        break;
+      }
       case "equipment": {
         switch (document.system?.type?.value) {
           case "trinket": {

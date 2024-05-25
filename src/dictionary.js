@@ -824,6 +824,7 @@ const DICTIONARY = {
       "Holy Symbol",
       "Druidic Focus",
       "Adventuring Gear",
+      "Tattoo",
     ],
     CONSUMABLE: [
       "Adventuring Gear",

@@ -320,6 +320,7 @@ const utils = {
     return undefined;
   },
 
+  // eslint-disable-next-line complexity
   getTemplate: (type) => {
     switch (type.toLowerCase()) {
       case "character":
@@ -356,6 +357,9 @@ const utils = {
         return game.dnd5e.dataModels.item.WeaponData.schema.initial();
       case "journalpage":
         return game.dnd5e.dataModels.journal.ClassJournalPageData.schema.initial();
+      case "dnd-tashas-cauldron.tattoo":
+      case "tattoo":
+        return CONFIG.Item.dataModels["dnd-tashas-cauldron.tattoo"].schema.initial();
       default:
         return undefined;
     }
