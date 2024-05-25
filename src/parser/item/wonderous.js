@@ -18,13 +18,14 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
     || ddbData.definition.tags.includes('Footwear')
     || ddbData.definition.tags.includes('Clothing');
   const tashasInstalled = game.modules.get("dnd-tashas-cauldron")?.active;
-  const isTattoo = tashasInstalled && ddbData.definition.name.toLowerCase().includes("tattoo");
+  const isTattoo = ddbData.definition.name.toLowerCase().includes("tattoo");
+  const tattooType = tashasInstalled && isTattoo;
 
   ddbTypeOverride = isTattoo
     ? "Tattoo"
     : isClothingTag && !isContainer ? "Clothing" : ddbTypeOverride;
 
-  const type = isTattoo
+  const type = tattooType
     ? "dnd-tashas-cauldron.tattoo"
     : isContainer ? "container" : "equipment";
   /**
@@ -49,7 +50,7 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
     if (getWeightless(ddbData)) {
       item.system.properties = utils.addToProperties(item.system.properties, "weightlessContents");
     }
-  } else if (isTattoo) {
+  } else if (tattooType) {
     item.system.type.value = ddbData.definition.name.toLowerCase().includes("spellwrought")
       ? "spellwrought"
       : "permanent";

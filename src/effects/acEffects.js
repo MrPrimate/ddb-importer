@@ -116,7 +116,7 @@ function addACSetEffect(modifiers, name, subType) {
           formula = `${bonusSum} + @abilities.dex.mod`;
         } else {
           // formula = `@abilities.dex.mod > ${maxDexMod} ? ${bonusSum} + ${maxDexMod} : ${bonusSum} + @abilities.dex.mod`;
-          formula = `max(${bonusSum} + ${maxDexMod}, ${bonusSum} + @abilities.dex.mod)`;
+          formula = `min(${bonusSum} + ${maxDexMod}, ${bonusSum} + @abilities.dex.mod)`;
         }
         break;
       }

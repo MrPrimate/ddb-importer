@@ -34,10 +34,10 @@ export default class DDBCompanion {
         hp: "",
         attackDamage: "",
         saveDamage: "",
-        healing: ""
+        healing: "",
       },
       profiles: [],
-      prompt: true
+      prompt: true,
     };
   }
 

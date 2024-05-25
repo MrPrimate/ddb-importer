@@ -33,6 +33,8 @@ const TYPE_MAP = {
   traits: "traits",
   races: "races",
   race: "races",
+  tattoo: "items",
+  "dnd-tashas-cauldron.tattoo": "items",
 };
 
 const FILE_MAP = {
