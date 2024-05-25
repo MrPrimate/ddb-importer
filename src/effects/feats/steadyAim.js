@@ -1,27 +1,30 @@
+import { effectModules } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function steadyAimEffect(document) {
-  let effect = baseFeatEffect(document, document.name);
-  effect.changes.push(
-    {
-      key: "flags.midi-qol.advantage.attack.all",
-      value: "1",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      priority: 30,
-    },
-  );
-  effect.flags.dae.specialDuration = ["1Attack"];
-  foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
-  foundry.utils.setProperty(effect, "duration.turns", 1);
+  if (effectModules().midiQolInstalled) {
+    let effect = baseFeatEffect(document, document.name);
+    effect.changes.push(
+      {
+        key: "flags.midi-qol.advantage.attack.all",
+        value: "1",
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+        priority: 30,
+      },
+    );
+    effect.flags.dae.specialDuration = ["1Attack"];
+    foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
+    foundry.utils.setProperty(effect, "duration.turns", 1);
 
-  document.system["target"]["type"] = "self";
-  document.system.range = { value: null, units: "self", long: null };
-  document.system.actionType = null;
-  // document.system.duration = {
-  //   value: 1,
-  //   units: "turn",
-  // };
-  document.effects.push(effect);
+    document.system["target"]["type"] = "self";
+    document.system.range = { value: null, units: "self", long: null };
+    document.system.actionType = null;
+    // document.system.duration = {
+    //   value: 1,
+    //   units: "turn",
+    // };
+    document.effects.push(effect);
+  }
 
   let moveEffect = baseFeatEffect(document, `${document.name} Movement Restriction`);
   moveEffect.changes.push(

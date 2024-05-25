@@ -16,6 +16,8 @@ export default class DDBAttackAction extends DDBAction {
     "Guardian Armor: Thunder Gauntlets (STR)",
     "Infiltrator Armor: Lightning Launcher",
     "Infiltrator Armor: Lightning Launcher (DEX)",
+    "Arms of the Astral Self (WIS)",
+    "Arms of the Astral Self (DEX/STR)",
   ];
 
   _init() {

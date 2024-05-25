@@ -1,3 +1,4 @@
+import { effectModules } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function visageOfTheAstralSelfEffect(document) {
@@ -5,30 +6,41 @@ export function visageOfTheAstralSelfEffect(document) {
 
   effect.changes.push(
     {
-      key: "flags.midi-qol.advantage.skill.itm",
-      value: `1`,
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      priority: 20,
-    },
-    {
-      key: "flags.midi-qol.advantage.skill.ins",
-      value: `1`,
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      priority: 20,
-    },
-    {
-      key: "ATL.sight.visionMode",
-      value: `basic`,
-      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-      priority: 20,
-    },
-    {
-      key: "ATL.sight.range",
-      value: `120`,
+      key: "system.attributes.senses.truesight",
+      value: "120",
       mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
       priority: 20,
     },
   );
+
+  if (effectModules().midiQolInstalled) {
+    effect.changes.push(
+      {
+        key: "flags.midi-qol.advantage.skill.itm",
+        value: `1`,
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        priority: 20,
+      },
+      {
+        key: "flags.midi-qol.advantage.skill.ins",
+        value: `1`,
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        priority: 20,
+      },
+      {
+        key: "ATL.sight.visionMode",
+        value: `basic`,
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        priority: 20,
+      },
+      {
+        key: "ATL.sight.range",
+        value: `120`,
+        mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+        priority: 20,
+      },
+    );
+  }
   effect.duration = {
     startTime: null,
     seconds: 360,

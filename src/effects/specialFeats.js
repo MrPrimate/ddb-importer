@@ -83,6 +83,9 @@ import { sneakAttackEffect } from "./feats/sneakAttack.js";
 import { aspectOfTheBeastBearEffect } from "./feats/aspectOfTheBeastBear.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 import { songOfVictoryEffect } from "./feats/songOfVictory.js";
+import { twinklingConstellationsEffect } from "./feats/twinklingConstellations.js";
+import { armsOfTheAstralSelfEffect } from "./feats/armsOfTheAstralSelf.js";
+import { ghostWalkEffect } from "./feats/ghostWalk.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -330,10 +333,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = await sneakAttackEffect(document);
       break;
     }
-    case "Steady Aim": {
-      document = steadyAimEffect(document);
-      break;
-    }
     case "Stone's Endurance":
     case "Stone’s Endurance": {
       document = stonesEnduranceEffect(document);
@@ -360,10 +359,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Vedalken Dispassion": {
       document = vedalkenDispassionEffect(document);
-      break;
-    }
-    case "Visage of the Astral Self": {
-      document = visageOfTheAstralSelfEffect(document);
       break;
     }
     // no default
@@ -399,6 +394,10 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       document = auraOfHateEffect(document);
       break;
     }
+    case "Arms of the Astral Self": {
+      document = armsOfTheAstralSelfEffect(document);
+      break;
+    }
     case "Bladesong": {
       document = bladesongEffect(document);
       break;
@@ -417,6 +416,10 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Frost Rune": {
       document = frostRuneEffect(document);
+      break;
+    }
+    case "Ghost Walk": {
+      document = ghostWalkEffect(document);
       break;
     }
     case "Giant Stature":
@@ -457,12 +460,20 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       if (ddb) document = shieldingStormEffect(ddb, document);
       break;
     }
+    case "Steady Aim": {
+      document = steadyAimEffect(document);
+      break;
+    }
     case "Stone Rune": {
       document = stoneRuneEffect(document);
       break;
     }
     case "Storm Rune": {
       document = stormRuneEffect(document);
+      break;
+    }
+    case "Twinkling Constellations": {
+      document = twinklingConstellationsEffect(document);
       break;
     }
     case "Unarmored Movement": {
@@ -475,6 +486,10 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Vigilant Blessing": {
       document = vigilantBlessingEffect(document);
+      break;
+    }
+    case "Visage of the Astral Self": {
+      document = visageOfTheAstralSelfEffect(document);
       break;
     }
     case "War Caster":
