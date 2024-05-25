@@ -1097,19 +1097,19 @@
   },
   {
     "name": "Barrier Tattoo",
-    "path": "icons/environment/traps/spiked-wall.webp"
+    "path": "icons/magic/symbols/triangle-glow-purple.webp"
   },
   {
     "name": "Barrier Tattoo (Rare)",
-    "path": "icons/environment/traps/spiked-wall.webp"
+    "path": "icons/magic/symbols/triangle-glow-purple.webp"
   },
   {
     "name": "Barrier Tattoo (Uncommon)",
-    "path": "icons/environment/traps/spiked-wall.webp"
+    "path": "icons/magic/symbols/triangle-glow-purple.webp"
   },
   {
     "name": "Barrier Tattoo (Very Rare)",
-    "path": "icons/environment/traps/spiked-wall.webp"
+    "path": "icons/magic/symbols/triangle-glow-purple.webp"
   },
   {
     "name": "Basket",
@@ -2829,7 +2829,7 @@
   },
   {
     "name": "Eldritch Claw Tattoo",
-    "path": "icons/commodities/claws/talon-black.webp"
+    "path": "icons/creatures/claws/claw-talons-yellow-red.webp"
   },
   {
     "name": "Eldritch Staff",
@@ -4585,7 +4585,7 @@
   },
   {
     "name": "Lifewell Tattoo",
-    "path": "icons/magic/air/air-burst-spiral-teal-green.webp"
+    "path": "icons/magic/symbols/mask-metal-silver-white.webp"
   },
   {
     "name": "Light Hammer",
