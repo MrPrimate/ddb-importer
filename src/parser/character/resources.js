@@ -300,6 +300,7 @@ const resourceFeatureLinkMap = {
     "Shape the Flowing River", "Sweeping Cinder Strike", "Water Whip",
     "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm", "Hand of Ultimate Mercy",
   ],
+  "Infuse Item": ["Infusion:"]
 };
 
 const resourceSpellLinkMap = {
