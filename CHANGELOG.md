@@ -8,7 +8,9 @@
 - Correct weight generation for v3.2.
 - Use new ritual only spell preperation mode.
 - Adds some pre-requisites to start supplying enchantment effects for future updates.
-- Fix ueling style applying effect and damage adjustment to weapons if not using midi.
+- Fix dueling style applying effect and damage adjustment to weapons if not using midi.
+- Tattoos are created as Tattoo type is Tasha's Cauldron of Everything Module is active.
+- A huge number of effect tweaks if not using MidiQoL.
 
 # 5.1.28
 
