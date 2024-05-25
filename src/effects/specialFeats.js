@@ -187,10 +187,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = fightingStyleInterceptionEffect(document);
       break;
     }
-    case "Fire Rune": {
-      document = fireRuneEffect(document);
-      break;
-    }
     case "Form of the Beast: Tail (reaction)": {
       document = formOfTheBeastReactionEffect(document);
       break;
@@ -338,10 +334,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = steadyAimEffect(document);
       break;
     }
-    case "Stone Rune": {
-      document = stoneRuneEffect(document);
-      break;
-    }
     case "Stone's Endurance":
     case "Stone’s Endurance": {
       document = stonesEnduranceEffect(document);
@@ -349,10 +341,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Storm Aura: Tundra": {
       document = await stormAuraTundraEffect(document);
-      break;
-    }
-    case "Storm Rune": {
-      document = stormRuneEffect(document);
       break;
     }
     case "Storm Soul: Desert":
@@ -423,6 +411,10 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       document = demiurgicColossusEffect(document);
       break;
     }
+    case "Fire Rune": {
+      document = fireRuneEffect(document);
+      break;
+    }
     case "Frost Rune": {
       document = frostRuneEffect(document);
       break;
@@ -463,6 +455,14 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Shielding Storm": {
       if (ddb) document = shieldingStormEffect(ddb, document);
+      break;
+    }
+    case "Stone Rune": {
+      document = stoneRuneEffect(document);
+      break;
+    }
+    case "Storm Rune": {
+      document = stormRuneEffect(document);
       break;
     }
     case "Unarmored Movement": {

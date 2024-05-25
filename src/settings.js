@@ -511,22 +511,7 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-effect-race-damages": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "character-update-policy-effect-race-speed": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-race-senses": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-class-damages": {
             scope: "player",
             type: Boolean,
             default: false,
@@ -536,42 +521,12 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-effect-class-senses": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-feat-proficiencies": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-feat-damages": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "character-update-policy-effect-feat-speed": {
             scope: "player",
             type: Boolean,
             default: false,
           },
-          "character-update-policy-effect-feat-senses": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-background-damages": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "character-update-policy-effect-background-speed": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-background-senses": {
             scope: "player",
             type: Boolean,
             default: false,

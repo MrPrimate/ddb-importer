@@ -6,7 +6,7 @@ export function hillRuneEffect(document) {
   foundry.utils.setProperty(document, "system.range.value", "");
   foundry.utils.setProperty(document, "system.actionType", null);
 
-  let bonusEffect = baseFeatEffect(document, `${document.name} (Temporary)`);
+  let bonusEffect = baseFeatEffect(document, `${document.name} (Resistance)`);
   bonusEffect.changes.push(
     {
       key: "system.traits.dr.value",

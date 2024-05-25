@@ -110,9 +110,7 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
 
   // attunement
   { type: "set", subType: "attunement-slots" },
-];
 
-const EFFECT_EXCLUDED_SENSE_MODIFIERS = [
   // senses
   { type: "set-base", subType: "darkvision" },
   { type: "sense", subType: "darkvision" },
@@ -122,6 +120,12 @@ const EFFECT_EXCLUDED_SENSE_MODIFIERS = [
   { type: "sense", subType: "tremorsense" },
   { type: "set-base", subType: "truesight" },
   { type: "sense", subType: "truesight" },
+
+  // resistances - subType - e.g. poison - lookup from DICTIONARY
+  { type: "resistance", subType: null },
+  { type: "immunity", subType: null },
+  { type: "vulnerability", subType: null },
+
 ];
 
 const EFFECT_EXCLUDED_SPEED_SET_MODIFIERS = [
@@ -167,13 +171,6 @@ const EFFECT_EXCLUDED_LANGUAGES_MODIFIERS = [
   { type: "language", subType: null },
 ];
 
-const EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS = [
-  // resistances - subType - e.g. poison - lookup from DICTIONARY
-  { type: "resistance", subType: null },
-  { type: "immunity", subType: null },
-  { type: "vulnerability", subType: null },
-];
-
 const AC_BONUS_MODIFIERS = [
   { type: "bonus", subType: "unarmored-armor-class" },
   { type: "bonus", subType: "armor-class" },
@@ -193,16 +190,12 @@ export function getEffectExcludedModifiers(type, features, ac) {
   if (type !== "item") {
     // these are the effect tweaks, and mostly excessive
     const speedEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-speed`);
-    const senseEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-senses`);
-    const damageEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-damages`);
 
     // features represent core non ac features
     if (features) {
       modifiers = modifiers.concat(EFFECT_EXCLUDED_COMMON_MODIFIERS);
       if (["feat", "background", "race", "class"].includes(type)) {
         if (speedEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS);
-        if (senseEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
-        if (damageEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
       }
       if (["class"].includes(type)) {
         modifiers = modifiers.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
@@ -222,11 +215,9 @@ export function getEffectExcludedModifiers(type, features, ac) {
     modifiers = modifiers.concat(
       EFFECT_EXCLUDED_COMMON_MODIFIERS,
       EFFECT_EXCLUDED_ABILITY_BONUSES,
-      EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS,
       EFFECT_EXCLUDED_LANGUAGES_MODIFIERS,
       EFFECT_EXCLUDED_PROFICIENCY_BONUSES,
       EFFECT_EXCLUDED_ALL_SPEED_MODIFIERS,
-      EFFECT_EXCLUDED_SENSE_MODIFIERS,
       AC_EFFECTS,
       AC_BONUS_MODIFIERS,
     );

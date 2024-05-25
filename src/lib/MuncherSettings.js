@@ -28,10 +28,6 @@ const MuncherSettings = {
     ["class", "race", "background", "feat"].forEach((type) => {
       $(html).find(`#character-import-policy-effect-${type}-speed`).prop("checked", false);
       game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-speed`, false);
-      $(html).find(`#character-import-policy-effect-${type}-senses`).prop("checked", false);
-      game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-senses`, false);
-      $(html).find(`#character-import-policy-effect-${type}-damages`).prop("checked", false);
-      game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-damages`, false);
     });
   },
 
@@ -54,10 +50,6 @@ const MuncherSettings = {
     ["class", "race", "background", "feat"].forEach((type) => {
       $(html).find(`#character-import-policy-effect-${type}-speed`).prop("checked", false);
       game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-speed`, false);
-      $(html).find(`#character-import-policy-effect-${type}-senses`).prop("checked", false);
-      game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-senses`, false);
-      $(html).find(`#character-import-policy-effect-${type}-damages`).prop("checked", false);
-      game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-damages`, false);
     });
   },
 
@@ -300,36 +292,12 @@ const MuncherSettings = {
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-class-speed"),
           enabled: true,
         },
-        {
-          name: "effect-class-senses",
-          title: "Senses",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-class-senses"),
-          enabled: true,
-        },
-        {
-          name: "effect-class-damages",
-          title: "Imm/Res/Vuln",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-class-damages"),
-          enabled: true,
-        },
       ],
       race: [
         {
           name: "effect-race-speed",
           title: "Movement",
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-race-speed"),
-          enabled: true,
-        },
-        {
-          name: "effect-race-senses",
-          title: "Senses",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-race-senses"),
-          enabled: true,
-        },
-        {
-          name: "effect-race-damages",
-          title: "Imm/Res/Vuln",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-race-damages"),
           enabled: true,
         },
       ],
@@ -340,36 +308,12 @@ const MuncherSettings = {
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-background-speed"),
           enabled: true,
         },
-        {
-          name: "effect-background-senses",
-          title: "Senses",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-background-senses"),
-          enabled: true,
-        },
-        {
-          name: "effect-background-damages",
-          title: "Imm/Res/Vuln",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-background-damages"),
-          enabled: true,
-        },
       ],
       feat: [
         {
           name: "effect-feat-speed",
           title: "Movement",
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-feat-speed"),
-          enabled: true,
-        },
-        {
-          name: "effect-feat-senses",
-          title: "Senses",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-feat-senses"),
-          enabled: true,
-        },
-        {
-          name: "effect-feat-damages",
-          title: "Imm/Res/Vuln",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-feat-damages"),
           enabled: true,
         },
       ],
