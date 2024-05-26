@@ -12,6 +12,39 @@ import {
   getWeightless,
 } from "./common.js";
 
+
+/**
+ *
+ * @param {obj} ddbData item data
+ * /* damage: { parts: [], versatile: '' }, * /
+ */
+function getDamage(ddbData) {
+  const parts = [];
+
+  // additional damage parts
+  ddbData.definition.grantedModifiers
+    .filter((mod) => mod.type === "damage")
+    .forEach((mod) => {
+      const die = mod.dice
+        ? mod.dice
+        : mod.die
+          ? mod.die
+          : undefined;
+      if (die?.diceString) {
+        parts.push([die.diceString, mod.subType]);
+      } else if (mod.value) {
+        parts.push([`${mod.value}`, mod.subType]);
+      }
+    });
+
+  const result = {
+    parts,
+    versatile: "",
+  };
+
+  return result;
+}
+
 export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorType = "trinket" } = {}) {
   const isContainer = ddbData.definition.isContainer;
   const isClothingTag = ddbData.definition.tags.includes('Outerwear')
@@ -86,6 +119,14 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
   item.system.identified = true;
   item.system.uses = getUses(ddbData);
   if (!isTattoo) item.system.capacity = getCapacity(ddbData);
+
+  if (foundry.utils.hasProperty(item, "system.damage")) {
+    item.system.damage = getDamage(ddbData);
+    if (item.system.damage.parts.length > 0) {
+      console.warn(`Added damage to ${item.name}`, {item, damage: item.system.damage});
+    }
+  }
+
 
   return item;
 }

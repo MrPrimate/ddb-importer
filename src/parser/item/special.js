@@ -11,6 +11,33 @@ function prepItem(item) {
   }
 }
 
+function tattoos(item) {
+  if (!item.name.toLowerCase().includes("tattoo")) return;
+  const name = item.flags.ddbimporter?.originalName ?? item.name;
+  if (name.startsWith("Absorbing")) {
+    item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: false, autoUse: true };
+    // foundry.utils.setProperty(item, "flags.ddbimporter.effectLabelOverride", `${item.name}`);
+    item.effects.map((effect) => {
+      effect.name = item.name;
+      return item;
+    });
+    item.system.activation.type = "reaction";
+    item.system.activation.cost = 1;
+    item.system.activation.condition = `When you take ${name.split(',').pop().trim().toLowerCase()} damage`;
+    item.system.actionType = "heal";
+    item.system.target = {
+      value: null,
+      width: null,
+      units: "",
+      type: "self",
+    };
+  } else if (name.includes("Blood Fury")) {
+    item.system.activation.type = "special";
+    item.system.actionType = "util";
+  }
+
+}
+
 /**
  * Some items we need to fix up or massage because they are modified
  * in interesting ways
@@ -21,6 +48,7 @@ export function fixItems(items) {
   // eslint-disable-next-line complexity
   items.forEach((item) => {
     prepItem(item);
+    tattoos(item);
     const name = item.flags.ddbimporter?.originalName ?? item.name;
     switch (name) {
       case "Waterskin":

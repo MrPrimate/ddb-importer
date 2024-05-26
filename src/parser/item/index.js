@@ -462,6 +462,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
     const originalName = ddbItem.definition.name;
     const adjustedName = DDBHelper.getName(this.source.ddb, ddbItem, this.raw.character);
     const flags = this.getItemFlags(ddbItem);
+    foundry.utils.setProperty(ddbItem, "isCompendiumItem", isCompendiumItem);
 
     const updateExisting = isCompendiumItem
       ? game.settings.get("ddb-importer", "munching-policy-update-existing")

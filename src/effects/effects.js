@@ -1429,7 +1429,8 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
  * @param {*} ddbItem
  * @param {*} foundryItem
  */
-function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, labelOverride) {
+// eslint-disable-next-line no-unused-vars
+function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompendiumItem, labelOverride } = {}) {
   if (!foundryItem.effects) foundryItem.effects = [];
 
   const label = labelOverride
@@ -1561,11 +1562,21 @@ export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendi
     );
   }
 
-  if (type == "infusion") {
+  const labelAdjustment = foundry.utils.getProperty(foundryItem, "flags.ddbimporter.effectLabelOverride");
+  if (labelAdjustment) {
+    label = labelAdjustment;
+  } else if (type == "infusion") {
     label = `${foundryItem.name} - Infusion`;
   }
   let effect;
-  [foundryItem, effect] = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, label);
+  [foundryItem, effect] = generateGenericEffects({
+    ddb,
+    character,
+    ddbItem,
+    foundryItem,
+    isCompendiumItem,
+    labelOverride: label,
+  });
   [foundryItem, effect] = addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect, type);
 
   if (effect.changes?.length > 0) {

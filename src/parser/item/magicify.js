@@ -342,7 +342,7 @@ function parseItemsWithSpellsModule(item, data, itemSpells, isCompendiumItem) {
   return item;
 }
 
-function basicMagicItem(item, data, itemSpells, isCompendiumItem) {
+export function basicMagicItem(item, data, itemSpells, isCompendiumItem) {
   if (data.definition.magic) {
     if (isCompendiumItem) {
       const maxUses = /has (\d*) charges/i;
