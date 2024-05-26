@@ -447,6 +447,14 @@ export function generateATLChange(atlKey, mode, value, priority = 20) {
   };
 }
 
+export function addSimpleConditionEffect(document, condition) {
+  document.effects = [];
+  const effect = baseItemEffect(document, `${document.name} - ${utils.capitalize(condition)}`);
+  addStatusEffectChange(effect, condition);
+  document.effects.push(effect);
+  return document;
+}
+
 export function generateChange(bonus, priority, key, mode) {
   return {
     key: key,

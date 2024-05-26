@@ -6,6 +6,7 @@ import {
   forceItemEffect,
   effectModules,
   applyDefaultMidiFlags,
+  addSimpleConditionEffect,
 } from "./effects.js";
 // load item effects
 import { bootsOfSpeedEffect } from "./items/bootsOfSpeed.js";
@@ -24,6 +25,10 @@ export async function midiItemEffects(document) {
   switch (name) {
     case "Cloak of Displacement": {
       document = await cloakOfDisplacementEffect(document);
+      break;
+    }
+    case "Horn of Blasting": {
+      document = addSimpleConditionEffect(document, "deafened");
       break;
     }
     case "Javelin of Lightning":
