@@ -75,7 +75,7 @@ export default function parseAmmunition(data, itemType) {
     },
   };
 
-  ammunition.system.description = getDescription(data);
+  ammunition.system.description = getDescription(data, ammunition);
   ammunition.system.source = DDBHelper.parseSource(data.definition);
   ammunition.system.properties = [];
   ammunition.system.quantity = getQuantity(data);

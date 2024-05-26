@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
-import { parseTags } from "../../lib/DDBReferenceLinker.js";
+import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
 
-export function getDescription(data) {
+export function getDescription(data, document) {
   const chatSnippet = data.definition.snippet ? data.definition.snippet : "";
   const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
@@ -9,9 +9,11 @@ export function getDescription(data) {
     ? `<div class="item-attunement"><i>(Requires attunement by a ${data.definition.attunementDescription})</i></div>`
     : "";
 
+  const valueDamageText = parseDamageRolls({ text: data.definition.description, document, actor: null });
+  const chatDamageText = chatAdd ? parseDamageRolls({ text: chatSnippet, document, actor: null }) : "";
   return {
-    value: parseTags(attunementText + data.definition.description),
-    chat: chatAdd ? parseTags(chatSnippet) : "",
+    value: parseTags(attunementText + valueDamageText),
+    chat: chatAdd ? parseTags(chatDamageText) : "",
   };
 }
 

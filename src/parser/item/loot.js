@@ -127,7 +127,7 @@ export default function parseLoot(data, itemType) {
     loot.system.type.value = type.consumableType;
     loot.system.uses = getConsumableUses(data);
   }
-  loot.system.description = getDescription(data);
+  loot.system.description = getDescription(data, loot);
   loot.system.source = DDBHelper.parseSource(data.definition);
   loot.system.quantity = getQuantity(data);
   loot.system.weight = getSingleItemWeight(data);

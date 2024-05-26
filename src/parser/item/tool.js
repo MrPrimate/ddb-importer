@@ -66,7 +66,7 @@ export default function parseTool(ddb, data, itemType) {
   const defaultAbility = DICTIONARY.character.proficiencies.find((prof) => prof.name === tool.name);
 
   tool.system.ability = defaultAbility?.ability ?? "dex";
-  tool.system.description = getDescription(data);
+  tool.system.description = getDescription(data, tool);
   tool.system.proficient = (ddb) ? getProficiency(ddb, tool.name, tool.system.ability) : 0;
   tool.system.source = DDBHelper.parseSource(data.definition);
   tool.system.quantity = getQuantity(data);

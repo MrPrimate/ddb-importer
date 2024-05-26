@@ -119,7 +119,7 @@ export default function parseConsumable(ddbItem, { consumableTypeOverride = null
 
   item.system.type.value = consumableTypeOverride?.toLowerCase() ?? ddbItem.definition.filterType.toLowerCase();
   item.system.uses = getConsumableUses(ddbItem);
-  item.system.description = getDescription(ddbItem);
+  item.system.description = getDescription(ddbItem, item);
   item.system.source = DDBHelper.parseSource(ddbItem.definition);
   item.system.quantity = getQuantity(ddbItem);
   item.system.weight = getSingleItemWeight(ddbItem);

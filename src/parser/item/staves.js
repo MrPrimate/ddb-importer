@@ -156,7 +156,7 @@ export default function parseStaff(data, character) {
   staff.system.type.value = getWeaponType(data);
   staff.system.properties = getProperties(data);
   staff.system.proficient = getWeaponProficient(data, staff.system.type.value, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
-  staff.system.description = getDescription(data);
+  staff.system.description = getDescription(data, staff);
   staff.system.source = DDBHelper.parseSource(data.definition);
   staff.system.quantity = getQuantity(data);
   staff.system.weight = getSingleItemWeight(data);

@@ -266,7 +266,7 @@ export default function parseWeapon(data, character, flags) {
     weapon.system.proficient = getWeaponProficient(data, weapon.system.type.value, characterProficiencies);
   }
 
-  weapon.system.description = getDescription(data);
+  weapon.system.description = getDescription(data, weapon);
   weapon.system.source = DDBHelper.parseSource(data.definition);
   weapon.system.quantity = getQuantity(data);
   weapon.system.weight = getSingleItemWeight(data);

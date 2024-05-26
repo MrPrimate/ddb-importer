@@ -130,7 +130,7 @@ export default function parseArmor(data, character, flags) {
   if (getStealthPenalty(data)) armor.system.properties.push("stealthDisadvantage");
   const proficiencies = foundry.utils.getProperty(character, "flags.ddbimporter.dndbeyond.proficienciesIncludingEffects") ?? [];
   armor.system.proficient = getProficient(data, proficiencies);
-  armor.system.description = getDescription(data);
+  armor.system.description = getDescription(data, armor);
   armor.system.source = DDBHelper.parseSource(data.definition);
   armor.system.quantity = getQuantity(data);
   armor.system.weight = getSingleItemWeight(data);
