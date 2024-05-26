@@ -322,7 +322,7 @@ export function parseDamageRolls({ text, document, actor } = {}) {
   let hit = (hitIndex > 0) ? strippedHtml.slice(hitIndex) : `${strippedHtml}`;
   hit = hit.split("At the end of each")[0].split("At the start of each")[0];
   hit = hit.replace(/[–-–−]/g, "-");
-  const damageExpression = new RegExp(/((?:takes|plus|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^)]+)?)\)?)?\s*([\w ]*?)\s*damage/gi);
+  const damageExpression = new RegExp(/((?:takes\s+|plus\s+|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^)]+)?)\)?)\s*([\w ]*?)\s*damage/gi);
 
   const matches = [...hit.matchAll(damageExpression)];
   const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
@@ -344,11 +344,11 @@ export function parseDamageRolls({ text, document, actor } = {}) {
 
     const damage = bonusMods.length > 0
       ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" plus PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
-      : dmg[3] ?? dmg[2];
+      : `${dmg[2] ? dmg[2] : ""}${dmg[3] ? dmg[3] : ""}`;
 
     if (damage && includesDiceRegExp.test(damage)) {
       const parsedDiceDamage = damageRollGenerator({ text: damage, damageType: dmg[4], actor, document, bonusMods });
-      const replaceValue = `${dmg[1]}${parsedDiceDamage} damage`;
+      const replaceValue = `${dmg[1]} ${parsedDiceDamage} damage`;
       // console.warn("DAMAGE PARSE", {
       //   damage,
       //   dmg,

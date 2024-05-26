@@ -166,7 +166,7 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
       } else {
         item.system.actionType = "util";
       }
-      console.warn(`Added damage to ${item.name}`, { item, damage: item.system.damage });
+      // console.warn(`Added damage to ${item.name}`, { item, damage: item.system.damage });
     }
     if (item.system.activation.value === "") item.system.activation.value = "special";
   }
