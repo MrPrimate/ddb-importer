@@ -11,6 +11,7 @@
 - Fix dueling style applying effect and damage adjustment to weapons if not using midi.
 - Tattoos are created as Tattoo type is Tasha's Cauldron of Everything Module is active.
 - A huge number of effect tweaks if not using MidiQoL.
+- General improvements to item parsing quality.
 
 # 5.1.28
 

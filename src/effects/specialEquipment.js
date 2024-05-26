@@ -19,16 +19,23 @@ import { hasteEffect } from "./spells/haste.js";
 
 
 export async function midiItemEffects(document) {
+
+  const name = document.flags.ddbimporter?.originalName || document.name;
+
+  switch (name) {
+    case "Horn of Blasting": {
+      document = addSimpleConditionEffect(document, "deafened");
+      break;
+    }
+    // no default
+  }
+
   if (!effectModules().hasCore) return document;
   document = applyDefaultMidiFlags(document);
-  const name = document.flags.ddbimporter?.originalName || document.name;
+
   switch (name) {
     case "Cloak of Displacement": {
       document = await cloakOfDisplacementEffect(document);
-      break;
-    }
-    case "Horn of Blasting": {
-      document = addSimpleConditionEffect(document, "deafened");
       break;
     }
     case "Javelin of Lightning":
