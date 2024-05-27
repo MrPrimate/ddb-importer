@@ -1,7 +1,8 @@
-# Next Up
+# 5.1.27
 
 - Monster features could be matched as a weapon attack, but they should be a feature, as they have a recharge. e.g. Giant Spider Web.
 - If DDB Override item not found when mentioned on character, don't fail on import, but fallback to DDB item.
+- Features sent to chat would be empty.
 
 # 5.1.26
 

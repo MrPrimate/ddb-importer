@@ -348,9 +348,11 @@ export default class DDBItemImporter {
         item.system.description.value = `<div class="ddb">
 ${item.system.description.value}
 </div>`;
-        item.system.description.chat = `<div class="ddb">
+        item.system.description.chat = item.system.description.chat.trim() !== ""
+          ? `<div class="ddb">
 ${item.system.description.chat}
-</div>`;
+</div>`
+          : "";
       }
       return item;
     });
