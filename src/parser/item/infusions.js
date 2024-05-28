@@ -71,10 +71,7 @@ function addMagicBonus(character, item, modifiers) {
   const magicBonus = DDBHelper.getModifierSum(filteredModifiers, character);
 
   if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
-    item.system.damage.parts[0][0] = `${item.system.damage.parts[0][0]} + ${magicBonus}`.replace("+ +", "+");
-    item.system.attack.bonus = item.system.attack.bonus && item.system.attack.bonus !== ""
-      ? `${item.system.attack.bonus} + ${magicBonus}`.replace(/^0 \+ /, "")
-      : magicBonus;
+    item.system.magicalBonus = magicBonus;
     foundry.utils.setProperty(item, "system.properties.mgc", true);
     // to do add infusion description to item
   }
