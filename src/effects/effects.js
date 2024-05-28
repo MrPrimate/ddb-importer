@@ -329,6 +329,14 @@ export function baseEffect(foundryItem, label,
   return effect;
 }
 
+export function baseEnchantmentEffect(foundryItem, label,
+  { transfer = false, disabled = false } = {}
+) {
+  const effect = baseEffect(foundryItem, label, { transfer, disabled });
+  foundry.utils.setProperty(effect, "flags.dnd5e.type", "enchantment");
+  return effect;
+}
+
 export function baseItemEffect(foundryItem, label,
   { transfer = true, disabled = false } = {}
 ) {
