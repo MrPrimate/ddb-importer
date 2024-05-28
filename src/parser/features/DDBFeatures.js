@@ -6,6 +6,7 @@ import SETTINGS from "../../settings.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBClassFeatures from "./DDBClassFeatures.js";
 import DDBFeature from "./DDBFeature.js";
+import { DDBInfusion } from "./DDBInfusion.js";
 import { addExtraEffects, fixFeatures } from "./fixes.js";
 
 
@@ -194,6 +195,25 @@ export default class DDBFeatures {
     this.parsed.push(...backgroundFeats);
   }
 
+  async _addInfusions() {
+    logger.debug("Parsing infusions");
+    for (const infusion of (foundry.utils.getProperty(this.ddbData, "infusions.infusions.definitionData") ?? [])) {
+      const ddbInfusion = new DDBInfusion({
+        ddbData: this.ddbData,
+        ddbInfusion: infusion,
+        rawCharacter: this.rawCharacter,
+      });
+
+      ddbInfusion.build();
+      logger.debug(`DDBInfusion: ${ddbInfusion.ddbInfusion.name}`, {
+        ddbInfusion,
+        infusion,
+        this: this,
+      });
+      this.parsed.push(ddbInfusion.data);
+    }
+  }
+
   _setLevelScales() {
     this.parsed.forEach((feature) => {
       const featureName = utils.referenceNameString(feature.name).toLowerCase();
@@ -239,6 +259,7 @@ export default class DDBFeatures {
     await this._buildClassFeatures();
     await this._addFeats();
     await this._addBackground();
+    await this._addInfusions();
 
     this._setLevelScales();
 

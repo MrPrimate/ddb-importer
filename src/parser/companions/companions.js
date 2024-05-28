@@ -3,6 +3,10 @@ import SETTINGS from "../../settings.js";
 import DDBCharacter from "../DDBCharacter.js";
 import DDBCompanionFactory from "./DDBCompanionFactory.js";
 
+const COMPANION_REMAP = {
+  "Artificer Infusions": "Infusion: Homunculus Servant",
+};
+
 DDBCharacter.prototype.addCompanionsToDocuments = async function() {
   for (const factory of this.companionFactories) {
     // eslint-disable-next-line no-await-in-loop
@@ -17,16 +21,23 @@ DDBCharacter.prototype.addCompanionsToDocuments = async function() {
         };
       });
     if (factory.originDocument) {
+      const alternativeDocument = COMPANION_REMAP[factory.originDocument.name];
+      const updateDocument = alternativeDocument
+        ? (this.data.features.concat(this.data.actions).find((s) =>
+          s.name === alternativeDocument || s.flags.ddbimporter?.originalName === alternativeDocument
+        ) ?? factory.originDocument)
+        : factory.originDocument;
+
       logger.debug("Companion Data Load", {
-        originDocument: factory.originDocument,
+        originDocument: updateDocument,
         profiles,
         worldActors,
         factory,
         summons: factory.summons,
       });
-      foundry.utils.setProperty(factory.originDocument, "system.summons", foundry.utils.deepClone(factory.summons));
-      foundry.utils.setProperty(factory.originDocument, "system.summons.profiles", profiles);
-      foundry.utils.setProperty(factory.originDocument, "system.actionType", "summ");
+      foundry.utils.setProperty(updateDocument, "system.summons", foundry.utils.deepClone(factory.summons));
+      foundry.utils.setProperty(updateDocument, "system.summons.profiles", profiles);
+      foundry.utils.setProperty(updateDocument, "system.actionType", "summ");
     }
   }
 };

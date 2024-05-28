@@ -54,5 +54,77 @@
   {
     "name": "Unarmed Strike",
     "path": "icons/skills/melee/unarmed-punch-fist.webp"
+  },
+  {
+    "name": "Infusion: Arcane Propulsion Armor",
+    "path": "icons/equipment/chest/breastplate-layered-steel-blue-gold.webp"
+  },
+  {
+    "name": "Arcane Propulsion Gauntlets",
+    "path": "icons/equipment/hand/gauntlet-armored-grey.webp"
+  },
+  {
+    "name": "Infusion: Armor of Magical Strength",
+    "path": "icons/magic/control/buff-strength-muscle-damage.webp"
+  },
+  {
+    "name": "Infusion: Boots of the Winding Path",
+    "path": "icons/equipment/feet/boots-armored-green.webp"
+  },
+  {
+    "name": "Infusion: Enhanced Arcane Focus",
+    "path": "icons/weapons/staves/staff-blue-jewel.webp"
+  },
+  {
+    "name": "Infusion: Enhanced Defense",
+    "path": "icons/equipment/shield/heater-steel-crystal-red.webp"
+  },
+  {
+    "name": "Infusion: Enhanced Weapon",
+    "path": "icons/weapons/swords/sword-broad-serrated-blue.webp"
+  },
+  {
+    "name": "Infusion: Helm of Awareness",
+    "path": "icons/equipment/head/helm-barbute-horned-glowing.webp"
+  },
+  {
+    "name": "Infusion: Homunculus Servant",
+    "path": "icons/commodities/gems/gem-cut-faceted-princess-purple.webp"
+  },
+  {
+    "name": "Infusion: Mind Sharpener",
+    "path": "icons/equipment/chest/coat-collared-red-gold.webp"
+  },
+  {
+    "name": "Infusion: Radiant Weapon",
+    "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
+  },
+  {
+    "name": "Radiant Weapon",
+    "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
+  },
+  {
+    "name": "Infusion: Repeating Shot",
+    "path": "icons/weapons/ammunition/arrows-barbed-white.webp"
+  },
+  {
+    "name": "Infusion: Replicate Magic Item",
+    "path": "icons/magic/movement/abstract-ribbons-red-orange.webp"
+  },
+  {
+    "name": "Infusion: Repulsion Shield",
+    "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
+  },
+  {
+    "name": "Infusion: Resistant Armor",
+    "path": "icons/magic/defensive/shield-barrier-glowing-blue.webp"
+  },
+  {
+    "name": "Infusion: Returning Weapon",
+    "path": "icons/magic/movement/pinwheel-turning-blue.webp"
+  },
+  {
+    "name": "Infusion: Spell-Refueling Ring",
+    "path": "icons/equipment/finger/ring-ball-silver.webp"
   }
 ]

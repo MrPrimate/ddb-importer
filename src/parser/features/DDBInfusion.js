@@ -6,13 +6,13 @@ import logger from "../../logger.js";
 export class DDBInfusion {
 
   _init() {
-    logger.debug(`Generating Infusion Feature ${this.ddbDefinition.name}`);
+    logger.debug(`Generating Infusion Feature ${this.ddbInfusion.name}`);
   }
 
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
-      name: utils.nameString(`Infusion: ${this.ddbDefinition.name}`),
+      name: utils.nameString(`Infusion: ${this.ddbInfusion.name}`),
       type: this.documentType,
       system: utils.getTemplate(this.documentType),
       flags: {
@@ -22,7 +22,7 @@ export class DDBInfusion {
           dndbeyond: {
             defintionKey: this.ddbInfusion.definitionKey,
             requiredLevel: this.ddbInfusion.level,
-            modifierType: this.ddbDefinition.modifierDataType,
+            modifierType: this.ddbInfusion.modifierDataType,
           },
         },
       }
@@ -76,7 +76,7 @@ export class DDBInfusion {
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
     const valueDamageText = parseDamageRolls({ text: this.ddbInfusion.description, document: this.data, actor: null });
     const chatDamageText = chatAdd ? parseDamageRolls({ text: chatSnippet, document: this.data, actor: null }) : "";
-    this.data.description = {
+    this.data.system.description = {
       value: parseTags(valueDamageText),
       chat: chatAdd ? parseTags(chatDamageText) : "",
     };
