@@ -311,6 +311,7 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
   return result;
 }
 
+// eslint-disable-next-line complexity
 export function parseDamageRolls({ text, document, actor } = {}) {
   // (2d8 + 3) piercing damage
   // [[/damage 2d6 fire average=true]]
@@ -344,7 +345,9 @@ export function parseDamageRolls({ text, document, actor } = {}) {
 
     const damage = bonusMods.length > 0
       ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" plus PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
-      : `${dmg[2] ? dmg[2] : ""}${dmg[3] ? dmg[3] : ""}`;
+      : dmg[3] && dmg[3].startsWith("d") // satisfies parsing where no average damage e.g. horn of blasting summary
+        ? `${dmg[2] ?? ""}${dmg[3] ?? ""}`
+        : dmg[3] ?? dmg[2];
 
     if (damage && includesDiceRegExp.test(damage)) {
       const parsedDiceDamage = damageRollGenerator({ text: damage, damageType: dmg[4], actor, document, bonusMods });
