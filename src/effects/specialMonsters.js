@@ -23,6 +23,7 @@ import { spellReflectionEffect } from "./monsterFeatures/spellReflection.js";
 import logger from "../logger.js";
 import { giantSpiderEffects } from "./monsterFeatures/giantSpider.js";
 import { beholderEyeRayLegendaryEffect } from "./monsterFeatures/beholderEyeRayLegendary.js";
+import { multiAttackEffect } from "./monsterFeatures/multiAttack.js";
 
 export function baseMonsterFeatureEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -100,6 +101,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
     else if (item.name.includes("Absorption")) item = absorptionEffect(item);
     else if (item.name === "Mask of the Wild") item = await maskOfTheWildEffect(item);
     else if (item.name === "Spell Reflection") item = await spellReflectionEffect(item);
+    else if (item.name === "Multiattack") item = await multiAttackEffect(item);
 
     // auto overtime effect
     if (item.type !== "spell") {
