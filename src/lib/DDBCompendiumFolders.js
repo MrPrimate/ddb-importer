@@ -247,6 +247,12 @@ export class DDBCompendiumFolders {
           ?? (await this.createCompendiumFolder({ name: "Optional Features", parentId: folder._id, color: "#222222", flagTag }));
         this.validFolderIds.push(optionalFolder._id);
       }
+      if (includeOptions && className === "Artificer") {
+        const flagTag = `infusions/Artificer`;
+        const infusionsFolder = this.getFolder("Infusions", flagTag)
+          ?? (await this.createCompendiumFolder({ name: "Infusions", parentId: folder._id, color: "#222222", flagTag }));
+        this.validFolderIds.push(infusionsFolder._id);
+      }
     }
   }
 
@@ -540,7 +546,11 @@ export class DDBCompendiumFolders {
     const subClassName = foundry.utils.getProperty(document, "flags.ddbimporter.subClass");
     const className = foundry.utils.getProperty(document, "flags.ddbimporter.class");
     const optional = foundry.utils.getProperty(document, "flags.ddbimporter.optionalFeature");
-    if (optional) {
+    const infusion = foundry.utils.getProperty(document, "flags.ddbimporter.infusionFeature");
+    if (infusion) {
+      result.name = "Infusions";
+      result.flagTag = `infusions/${className}`;
+    } else if (optional) {
       result.name = "Optional Features";
       result.flagTag = `optional/${className}`;
     } else if (subClassName && subClassName.trim() !== "") {
@@ -776,6 +786,7 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.class",
           "flags.ddbimporter.subClass",
           "flags.ddbimporter.optionalFeature",
+          "flags.ddbimporter.infusionFeature",
         ];
       }
       case "trait":

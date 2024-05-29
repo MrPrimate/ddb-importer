@@ -14,7 +14,7 @@ export default class DDBItemImporter {
   constructor(type, documents, { matchFlags = [], deleteBeforeUpdate = null, indexFilter = {}, useCompendiumFolders = null } = {}) {
     this.type = type;
     this.documents = documents;
-    this.useCompendiumFolders = useCompendiumFolders ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
+    this.useCompendiumFolders = useCompendiumFolders ?? true;
     this.matchFlags = matchFlags;
 
     this.compendium = CompendiumHelper.getCompendiumType(this.type);

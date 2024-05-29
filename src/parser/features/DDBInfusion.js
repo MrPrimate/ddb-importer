@@ -1,5 +1,7 @@
 import { baseEnchantmentEffect, generateEffects } from "../../effects/effects.js";
+import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
 import DDBHelper from "../../lib/DDBHelper.js";
+import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
@@ -20,7 +22,10 @@ export class DDBInfusion {
       flags: {
         ddbimporter: {
           id: this.ddbInfusion.id,
+          infusionId: this.ddbInfusion.id,
+          class: "Artificer",
           type: this.tagType,
+          infusionFeature: true,
           dndbeyond: {
             defintionKey: this.ddbInfusion.definitionKey,
             requiredLevel: this.ddbInfusion.level,
@@ -69,10 +74,13 @@ export class DDBInfusion {
     this.documentType = documentType;
     this.tagType = "infusion";
     this.data = {};
+    this.actions = [];
+    this.grantedItems = [];
     this.noMods = noMods;
     this._init();
     this._generateDataStub();
     this.data.system.source = this.source;
+    this.compendium = null;
   }
 
   _buildDescription() {
@@ -110,6 +118,32 @@ export class DDBInfusion {
     } else if (this.ddbInfusion.type === "creature") {
       this.data.system.actionType = "summon";
     }
+  }
+
+  async compendiumInit() {
+    this.compendiumFolders = new DDBCompendiumFolders("features");
+    await this.compendiumFolders.loadCompendium("features");
+  }
+
+  static async addInfusionsToCompendium(documents) {
+    const featureHandlerOptions = {
+      chrisPremades: false,
+      deleteBeforeUpdate: false,
+      removeSRDDuplicates: false,
+      filterDuplicates: false,
+      matchFlags: ["infusionId"],
+      useCompendiumFolders: true,
+    };
+
+    logger.debug(`Creating infusion compendium feature`, {
+      documents,
+      featureHandlerOptions,
+    });
+    const featureHandler = await DDBItemImporter.buildHandler("features", documents, true, featureHandlerOptions);
+    const compendiumFeatures = await featureHandler.compendiumIndex.filter((i) =>
+      featureHandler.documents.some((orig) => i.name === orig.name)
+    );
+    return compendiumFeatures;
   }
 
   _buildActions() {
@@ -247,7 +281,8 @@ export class DDBInfusion {
   //   // summons are generated elsewhere and linked to the feature, not handled her.
   // }
 
-  build() {
+  async build() {
+    await this.compendiumInit();
     this._generateSystemType();
     // this._generateEnchantmentType();
     this._generateActionType();
@@ -259,6 +294,8 @@ export class DDBInfusion {
     // add to compendium folders?
 
     this._specials();
+
+    await DDBInfusion.addInfusionsToCompendium([this.data]);
 
   }
 

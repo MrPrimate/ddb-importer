@@ -478,7 +478,6 @@ const MuncherSettings = {
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
     const effectModulesAvailable = effectModules();
     const chrisInstalled = effectModulesAvailable.chrisInstalled;
-    const compendiumFolderAdd = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
     const compendiumFolderMonsterStyles = MuncherSettings.getCompendiumFolderLookups("monster");
     const compendiumFolderSpellStyles = MuncherSettings.getCompendiumFolderLookups("spell");
     const compendiumFolderItemStyles = MuncherSettings.getCompendiumFolderLookups("item");
@@ -702,12 +701,6 @@ Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasI
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades"),
         description: `Use Automation Effects from Chris's Premades module? These provide high quality automations for spells, features, monsters, etc. (Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module).<br>These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
-      },
-      {
-        name: "use-compendium-folders",
-        isChecked: compendiumFolderAdd,
-        description: "Generate compendium folders. You can migrate an existing DDB Compendium in the Tools tab.",
-        enabled: true,
       },
       {
         name: "use-srd",

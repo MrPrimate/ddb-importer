@@ -291,22 +291,18 @@ export default class DDBMuncher extends Application {
   }
 
   static async cleanupCompendiumFolders(type) {
-    if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders")) {
-      const compendiumFolders = new DDBCompendiumFolders(type);
-      DDBMuncher.munchNote(`Cleaning compendium folders...`, true);
-      await compendiumFolders.loadCompendium(type);
-      await compendiumFolders.removeUnusedFolders();
-      DDBMuncher.munchNote(`Cleaning compendium folders complete`, true);
-    }
+    const compendiumFolders = new DDBCompendiumFolders(type);
+    DDBMuncher.munchNote(`Cleaning compendium folders...`, true);
+    await compendiumFolders.loadCompendium(type);
+    await compendiumFolders.removeUnusedFolders();
+    DDBMuncher.munchNote(`Cleaning compendium folders complete`, true);
   }
 
   static async generateCompendiumFolders(type) {
-    if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders")) {
-      const compendiumFolders = new DDBCompendiumFolders(type);
-      DDBMuncher.munchNote(`Checking compendium folders..`, true);
-      await compendiumFolders.loadCompendium(type);
-      DDBMuncher.munchNote("", true);
-    }
+    const compendiumFolders = new DDBCompendiumFolders(type);
+    DDBMuncher.munchNote(`Checking compendium folders..`, true);
+    await compendiumFolders.loadCompendium(type);
+    DDBMuncher.munchNote("", true);
   }
 
   static async parseItems() {

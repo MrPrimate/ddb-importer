@@ -204,7 +204,7 @@ export default class DDBFeatures {
         rawCharacter: this.rawCharacter,
       });
 
-      ddbInfusion.build();
+      await ddbInfusion.build();
       logger.debug(`DDBInfusion: ${ddbInfusion.ddbInfusion.name}`, {
         ddbInfusion,
         infusion,

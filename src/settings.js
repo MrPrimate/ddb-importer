@@ -924,10 +924,6 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
-          "munching-policy-use-compendium-folders": {
-            type: Boolean,
-            default: true,
-          },
           "munching-policy-use-srd-icons": {
             name: "ddb-importer.settings.munching-policy-use-srd-icons.name",
             hint: "ddb-importer.settings.munching-policy-use-srd-icons.hint",

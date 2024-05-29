@@ -247,12 +247,9 @@ export default class DDBMonsterFactory {
     await generateIconMap(itemHandler.documents);
     await useSRDMonsterImages(itemHandler.documents);
 
-    const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
-    if (addToCompendiumFolder) {
-      this.munchNote(`Checking compendium folders..`, true);
-      await this.compendiumFolders.loadCompendium("monsters");
-      this.munchNote("", true);
-    }
+    this.munchNote(`Checking compendium folders..`, true);
+    await this.compendiumFolders.loadCompendium("monsters");
+    this.munchNote("", true);
 
     let monstersParsed = [];
     let currentMonster = 1;

@@ -141,13 +141,10 @@ export async function parseTransports(ids = null) {
   await generateIconMap(vehicleHandler.documents);
 
   // Compendium folders not yet in use for Vehicles
-  const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
-  if (addToCompendiumFolder) {
-    const compendiumFolders = new DDBCompendiumFolders("vehicles");
-    DDBMuncher.munchNote(`Checking compendium folders..`, true);
-    await compendiumFolders.loadCompendium("vehicles");
-    DDBMuncher.munchNote("", true);
-  }
+  const compendiumFolders = new DDBCompendiumFolders("vehicles");
+  DDBMuncher.munchNote(`Checking compendium folders..`, true);
+  await compendiumFolders.loadCompendium("vehicles");
+  DDBMuncher.munchNote("", true);
 
   let vehiclesParsed = [];
   let currentVehicle = 1;
