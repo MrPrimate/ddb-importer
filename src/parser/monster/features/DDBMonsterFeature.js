@@ -216,6 +216,7 @@ export default class DDBMonsterFeature {
     for (const dmg of matches) {
       let other = false;
       let thisVersatile = false;
+      let thisOther = false;
       if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
         continue; // eslint-disable-line no-continue
       }
@@ -252,12 +253,18 @@ export default class DDBMonsterFeature {
             || (dmg[1] && dmg[1].includes("saving throw")))
           && this.actionInfo.damage.parts.length >= 1
         ) {
-          versatile = true;
-          thisVersatile = true;
+          other = true;
+          thisOther = true;
         }
         // assumption here is that there is just one field added to versatile. this is going to be rare.
         if (other) {
           if (this.actionInfo.formula == "") this.actionInfo.formula = finalDamage;
+          else this.actionInfo.formula += ` + ${finalDamage}`;
+
+          if (!thisOther && dmg[1].trim() == "plus") {
+            this.actionInfo.damage.versatile += ` + ${finalDamage}`;
+            this.actionInfo.damage.parts.push([finalDamage, dmg[4]]);
+          }
         } else if (versatile) {
           if (this.actionInfo.damage.versatile == "") this.actionInfo.damage.versatile = finalDamage;
           // so things like the duergar mind master have oddity where we might want to use a different thing
