@@ -124,33 +124,88 @@ export class DDBInfusion {
     // radiant weapon blindness effect?
   }
 
-  _generateEnchanmentEffect() {
-    const modifiers = this.ddbInfusion.modifierData.map((data) => data.modifiers).flat();
-    const effect = baseEnchantmentEffect(this.data, this.name);
+  _getEnchanmentEffect(modifierData, { forceName = false, useModifierLabelName = false } = {}) {
+    const label = modifierData.name ?? this.name;
     const foundryItem = foundry.utils.deepClone(this.data);
+    foundryItem.effects = [];
+    const effect = baseEnchantmentEffect(foundryItem, label);
+    const modifiers = foundry.utils.deepClone(modifierData.modifiers) ?? [];
     const modifierItem = {
       definition: {
         name: this.name,
-        grantedModifiers: modifiers,
+        grantedModifiers: modifiers.filter((mod) =>
+          !(mod.type === "bonus" && mod.subType === "armor-class")
+          && !(mod.type === "bonus" && mod.subType === "magic")
+        ),
       },
     };
 
     const mockItem = generateEffects(this.ddbData, this.rawCharacter, modifierItem, foundryItem, this.noMods, "infusion");
-
-    console.warn(`${this.name} effects`,{mockItem: mockItem.effects});
-    if (mockItem.effects.length > 0) effect.changes = mockItem.effects.map((e) => e.data.changes).flat(1);
+    if (mockItem.effects.length > 0) effect.changes = mockItem.effects.map((e) => e.changes).flat(1);
 
     effect.changes.push(...this._getMagicBonusChanges(modifiers));
 
-    if (effect.changes.length > 0) this.data.effects.push(effect);
+    if (effect.changes.length === 0 && !forceName) return effect;
+    effect.changes.push(
+      {
+        key: "name",
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: ` [${useModifierLabelName ? label : this.name}] [Infusion]`,
+        priority: 20,
+      }
+    );
+    return effect;
   }
 
-  _generateChoiceEnchantmentEffects() {
+  _generateEnchantmentEffects() {
+    for (const [index, effectData] of this.ddbInfusion.modifierData.entries()) {
+      const forceName = ["granted"].includes(this.ddbInfusion.modifierDataType);
+      const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType);
+      const effect = this._getEnchanmentEffect(effectData, { forceName, useModifierLabelName });
+
+      switch (this.ddbInfusion.modifierDataType) {
+        case "class-level": {
+          const minLevel = effectData.value;
+          const maxLevel = index < this.ddbInfusion.modifierData.length - 1
+            ? (this.ddbInfusion.modifierData[index + 1].value ?? null)
+            : null;
+          const level = {
+            min: minLevel,
+            max: maxLevel,
+          };
+          foundry.utils.setProperty(effect, "flags.dnd5e.enchantment.level", level);
+          break;
+        }
+        case "damage-type-choice": {
+
+          break;
+        }
+        case "replicate": {
+          effect.changes.push(
+            {
+              key: "name",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              value: ` [Infusion]`,
+              priority: 20,
+            }
+          );
+          break;
+        }
+        case "granted":
+        default: {
+          logger.debug(`Infusion ${this.name} has no additional config`);
+        }
+      }
+
+      this.data.effects.push(effect);
+    }
+
   }
 
   _getMagicBonusChanges(modifiers) {
     const filteredModifiers = DDBHelper.filterModifiersOld(modifiers, "bonus", "magic");
-    const magicBonus = DDBHelper.getModifierSum(filteredModifiers, this.rawCharacter);
+    const acMagicalBonus = DDBHelper.filterModifiersOld(modifiers, "bonus", "armor-class");
+    const magicBonus = DDBHelper.getModifierSum(filteredModifiers.concat(acMagicalBonus), this.rawCharacter);
 
     const changes = [];
     if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
@@ -178,12 +233,12 @@ export class DDBInfusion {
     switch (this.ddbInfusion.modifierDataType) {
       case "class-level":
       case "damage-type-choice": {
-        this._generateChoiceEnchantmentEffects();
+        this._generateEnchantmentEffects();
         break;
       }
       case "granted":
       default: {
-        this._generateEnchanmentEffect();
+        this._generateEnchantmentEffects();
       }
     }
   }
@@ -196,9 +251,7 @@ export class DDBInfusion {
     this._generateSystemType();
     // this._generateEnchantmentType();
     this._generateActionType();
-
     this._buildDescription();
-
     this._generateEnchantments();
 
     // build actions
