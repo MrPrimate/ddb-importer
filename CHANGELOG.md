@@ -12,6 +12,8 @@
 - Tattoos are created as Tattoo type is Tasha's Cauldron of Everything Module is active.
 - A huge number of effect tweaks if not using MidiQoL.
 - General improvements to item parsing quality.
+- Monster like the assassin will now parse their sae damage into the other field, rather than as versatile.
+- MidiQoL Automation effects: monsters with multi attack will now have the midi qol multiattack effect applied.
 
 # 5.1.28
 
