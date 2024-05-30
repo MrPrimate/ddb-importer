@@ -24,6 +24,7 @@ export default class CharacterFeatureFactory {
     this.processed = {
       actions: [],
       features: [],
+      infusions: [],
     };
 
     this.data = [];
@@ -132,7 +133,7 @@ export default class CharacterFeatureFactory {
       this.ddbData.character.actions.race,
       this.ddbData.character.actions.feat,
       this._getCustomActions(false),
-      getInfusionActionData(this.ddbData),
+      // getInfusionActionData(this.ddbData),
     ]
       .flat()
       .filter((action) => action.name && action.name !== "")
@@ -197,7 +198,7 @@ export default class CharacterFeatureFactory {
     this.ddbCharacter.updateItemIds(this.processed[type]);
   }
 
-  async _processInfusions() {
+  async processInfusions() {
     logger.debug("Parsing infusions");
     for (const infusion of (foundry.utils.getProperty(this.ddbData, "infusions.infusions.definitionData") ?? [])) {
       const ddbInfusion = new DDBInfusion({
@@ -213,10 +214,12 @@ export default class CharacterFeatureFactory {
         infusion,
         this: this,
       });
-      this.processed.features.push(ddbInfusion.data);
+      this.processed.infusions.push(ddbInfusion.data);
       // this.processed.actions.push(...ddbInfusion.actions);
       // TODO copy our relevant actions and apply them to the character
     }
+    this.updateIds("infusions");
+    this.data.push(...this.processed.infusions);
   }
 
   async processFeatures() {
@@ -227,8 +230,6 @@ export default class CharacterFeatureFactory {
     });
 
     await ddbFeatures.build();
-    await this._processInfusions();
-
     this.processed.features = ddbFeatures.data;
     this.updateIds("features");
     this.data.push(...ddbFeatures.data);

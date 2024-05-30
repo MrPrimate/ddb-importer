@@ -244,6 +244,8 @@ export default class DDBCharacter {
       this._characterFeatureFactory = new CharacterFeatureFactory(this);
       await this._characterFeatureFactory.processFeatures();
       this.raw.features = this._characterFeatureFactory.processed.features;
+      await this._characterFeatureFactory.processInfusions();
+      this.raw.features.push(...this._characterFeatureFactory.processed.infusions);
       logger.debug("Feature parse complete");
       this._spellParser = new CharacterSpellFactory(this.source.ddb, this.raw.character);
       this.raw.spells = await this._spellParser.getCharacterSpells();

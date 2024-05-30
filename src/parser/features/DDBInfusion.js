@@ -6,6 +6,7 @@ import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 
 export class DDBInfusion {
@@ -26,8 +27,8 @@ export class DDBInfusion {
           id: this.ddbInfusion.id,
           infusionId: this.ddbInfusion.id,
           class: "Artificer",
-          type: this.tagType,
           infusionFeature: true,
+          type: this.tagType,
           dndbeyond: {
             defintionKey: this.ddbInfusion.definitionKey,
             requiredLevel: this.ddbInfusion.level,
@@ -169,8 +170,13 @@ export class DDBInfusion {
           : "";
         actionData.name = `${this.name}${postfix}`;
       }
-      const action = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: actionData, rawCharacter: this.rawCharacter, type: actionData.actionSource });
+      const action = DDBHelper.displayAsAttack(this.ddbData, actionData, this.rawCharacter)
+        ? new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: actionData, rawCharacter: this.rawCharacter, type: actionData.actionSource })
+        : new DDBAction({ ddbData: this.ddbData, ddbDefinition: actionData, rawCharacter: this.rawCharacter });
       action.build();
+      foundry.utils.setProperty(action.data, "flags.ddbimporter.class", "Artificer");
+      foundry.utils.setProperty(action.data, "flags.ddbimporter.infusionFeature", true);
+      foundry.utils.setProperty(action.data, "flags.ddbimporter.infusionId", actionData.id);
       this.actions.push(action.data);
     }
     logger.debug(`Generated Infusions Actions`, this.actions);
@@ -321,8 +327,6 @@ export class DDBInfusion {
 
     await DDBInfusion.addInfusionsToCompendium([this.data]);
     await DDBInfusion.addInfusionsToCompendium(this.actions);
-
-
   }
 
 }
