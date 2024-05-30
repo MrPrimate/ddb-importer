@@ -105,6 +105,16 @@ function getItemFromGearTypeIdOne(ddb, ddbItem) {
   return item;
 }
 
+function fallbackParse(ddb, ddbItem) {
+  if (ddbItem.definition.name.includes(" Ring")) {
+    return parseWonderous(ddbItem, { ddbTypeOverride: "Ring" });
+  } else if (ddbItem.definition.subType) {
+    return parseLoot(ddbItem, ddbItem.definition.subType);
+  } else {
+    return parseLoot(ddbItem, "Miscellaneous");
+  }
+}
+
 function otherGear(ddb, ddbItem) {
   let item = {};
 
@@ -137,6 +147,7 @@ function otherGear(ddb, ddbItem) {
       item = parseLoot(ddbItem, "Gemstone");
       break;
     default:
+      item = fallbackParse(ddb, ddbItem);
       logger.warn("Other Gear type missing from " + ddbItem.definition.name, ddbItem);
   }
   return item;
