@@ -108,7 +108,14 @@ export class DDBInfusion {
   }
 
   _generateEnchantmentType() {
-    const type = "equipment"; // weapon etc
+    let type = "";
+    const itemRule = foundry.utils.getProperty(this.ddbInfusion, "itemRuleData.text");
+    if (!itemRule) return;
+    if (itemRule.includes("weapon")) type = "weapon";
+    else if (itemRule.includes("armor")) type = "equipment";
+    else if (itemRule.includes("shield")) type = "equipment";
+    else if (itemRule.includes("gem")) type = "loot";
+    // tool, equipment, consumable, loot, container, weapon
     foundry.utils.setProperty(this.data, "system.enchantment.restrictions.type", type);
   }
 

@@ -100,6 +100,7 @@ export default class CharacterFeatureFactory {
         return t;
       }),
       this._getCustomActions(true),
+      // TODO: Remove infusion action generation here
       getInfusionActionData(this.ddbData),
     ]
       .flat()
