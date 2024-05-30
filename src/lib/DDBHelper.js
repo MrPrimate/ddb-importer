@@ -212,11 +212,22 @@ const DDBHelper = {
    * Gets the sourcebook for a subset of dndbeyond sources
    * @param {obj} definition item definition
    */
+  // eslint-disable-next-line complexity
   getSourceData: (definition) => {
     const fullSource = game.settings.get("ddb-importer", "use-full-source");
     const results = [];
     if (definition.sources?.length > 0) {
-      for (const ds of definition.sources) {
+      // is basic rules (e.g. SRD)
+      const basicRules = definition.sources.some((source) => source.sourceType === 2 && source.sourceId === 1);
+      const hasPage = definition.sources.some((source) => source.pageNumber !== null);
+      const sources = hasPage
+        ? definition.sources.filter((source) => source.pageNumber !== null)
+        : basicRules
+          ? definition.sources.filter((source) => source.sourceType === 2 && source.sourceId === 1)
+          : definition.sources.some((source) => source.sourceType === 1)
+            ? definition.sources.filter((source) => source.sourceType === 1)
+            : definition.sources;
+      for (const ds of sources) {
         const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === ds.sourceId);
 
         results.push({

@@ -5,6 +5,7 @@ import { getInfusionActionData } from "../item/infusions.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBFeatures from "./DDBFeatures.js";
+import { DDBInfusion } from "./DDBInfusion.js";
 import { addExtraEffects, fixFeatures } from "./fixes.js";
 
 
@@ -101,7 +102,7 @@ export default class CharacterFeatureFactory {
       }),
       this._getCustomActions(true),
       // TODO: Remove infusion action generation here
-      getInfusionActionData(this.ddbData),
+      // getInfusionActionData(this.ddbData),
     ]
       .flat()
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
@@ -196,6 +197,28 @@ export default class CharacterFeatureFactory {
     this.ddbCharacter.updateItemIds(this.processed[type]);
   }
 
+  async _processInfusions() {
+    logger.debug("Parsing infusions");
+    for (const infusion of (foundry.utils.getProperty(this.ddbData, "infusions.infusions.definitionData") ?? [])) {
+      const ddbInfusion = new DDBInfusion({
+        ddbData: this.ddbData,
+        ddbInfusion: infusion,
+        rawCharacter: this.rawCharacter,
+      });
+
+      // eslint-disable-next-line no-await-in-loop
+      await ddbInfusion.build();
+      logger.debug(`DDBInfusion: ${ddbInfusion.ddbInfusion.name}`, {
+        ddbInfusion,
+        infusion,
+        this: this,
+      });
+      this.processed.features.push(ddbInfusion.data);
+      // this.processed.actions.push(...ddbInfusion.actions);
+      // TODO copy our relevant actions and apply them to the character
+    }
+  }
+
   async processFeatures() {
     const ddbFeatures = new DDBFeatures({
       ddbCharacter: this.ddbCharacter,
@@ -204,6 +227,8 @@ export default class CharacterFeatureFactory {
     });
 
     await ddbFeatures.build();
+    await this._processInfusions();
+
     this.processed.features = ddbFeatures.data;
     this.updateIds("features");
     this.data.push(...ddbFeatures.data);

@@ -114,6 +114,9 @@
   {
     "name": "Infusion: Repulsion Shield",
     "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
+  },{
+    "name": "Repulsion Shield",
+    "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
   },
   {
     "name": "Infusion: Resistant Armor",
@@ -125,6 +128,10 @@
   },
   {
     "name": "Infusion: Spell-Refueling Ring",
+    "path": "icons/equipment/finger/ring-ball-silver.webp"
+  },
+  {
+    "name": "Spell-Refueling Ring",
     "path": "icons/equipment/finger/ring-ball-silver.webp"
   }
 ]

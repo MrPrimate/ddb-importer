@@ -1,3 +1,4 @@
+import DICTIONARY from "../../dictionary.js";
 import { baseEnchantmentEffect, generateEffects } from "../../effects/effects.js";
 import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
 import DDBHelper from "../../lib/DDBHelper.js";
@@ -5,6 +6,7 @@ import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import DDBAttackAction from "./DDBAttackAction.js";
 
 export class DDBInfusion {
 
@@ -155,8 +157,23 @@ export class DDBInfusion {
 
   _buildActions() {
     // build actions fomr this.ddbInfusion.actions
-
     // for example radiant weapon reaction
+    if (!this.ddbInfusion.actions) return;
+
+    for (const actionData of this.ddbInfusion.actions) {
+      // const itemLookup = ddb.infusions.item.find((mapping) => mapping.definitionKey === infusionDetail.definitionKey);
+      if (!actionData.name) {
+        const activationType = foundry.utils.getProperty(actionData, "activation.activationType");
+        const postfix = [3, 4].includes(activationType)
+          ? ` (${utils.capitalize(DICTIONARY.actions.activationTypes.find((a) => a.id === activationType).value)})`
+          : "";
+        actionData.name = `${this.name}${postfix}`;
+      }
+      const action = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: actionData, rawCharacter: this.rawCharacter, type: actionData.actionSource });
+      action.build();
+      this.actions.push(action.data);
+    }
+    logger.debug(`Generated Infusions Actions`, this.actions);
   }
 
   _specials() {
@@ -291,7 +308,7 @@ export class DDBInfusion {
   async build() {
     await this.compendiumInit();
     this._generateSystemType();
-    // this._generateEnchantmentType();
+    this._generateEnchantmentType();
     this._generateActionType();
     this._buildDescription();
     this._generateEnchantments();
@@ -303,6 +320,8 @@ export class DDBInfusion {
     this._specials();
 
     await DDBInfusion.addInfusionsToCompendium([this.data]);
+    await DDBInfusion.addInfusionsToCompendium(this.actions);
+
 
   }
 
