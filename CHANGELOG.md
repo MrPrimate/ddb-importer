@@ -1,3 +1,7 @@
+# 5.1.28
+
+- Fix Where Evil Lies Item imports.
+
 # 5.1.27
 
 - Monster features could be matched as a weapon attack, but they should be a feature, as they have a recharge. e.g. Giant Spider Web.
