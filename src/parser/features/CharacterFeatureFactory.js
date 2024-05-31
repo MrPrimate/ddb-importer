@@ -1,11 +1,10 @@
 import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import logger from "../../logger.js";
-import { getInfusionActionData } from "../item/infusions.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBFeatures from "./DDBFeatures.js";
-import { DDBInfusion } from "./DDBInfusion.js";
+import { DDBInfusionFactory } from "./DDBInfusionFactory.js";
 import { addExtraEffects, fixFeatures } from "./fixes.js";
 
 
@@ -102,8 +101,6 @@ export default class CharacterFeatureFactory {
         return t;
       }),
       this._getCustomActions(true),
-      // TODO: Remove infusion action generation here
-      // getInfusionActionData(this.ddbData),
     ]
       .flat()
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
@@ -133,7 +130,6 @@ export default class CharacterFeatureFactory {
       this.ddbData.character.actions.race,
       this.ddbData.character.actions.feat,
       this._getCustomActions(false),
-      // getInfusionActionData(this.ddbData),
     ]
       .flat()
       .filter((action) => action.name && action.name !== "")
@@ -200,26 +196,10 @@ export default class CharacterFeatureFactory {
 
   async processInfusions() {
     logger.debug("Parsing infusions");
-    for (const infusion of (foundry.utils.getProperty(this.ddbData, "infusions.infusions.definitionData") ?? [])) {
-      const ddbInfusion = new DDBInfusion({
-        ddbData: this.ddbData,
-        ddbInfusion: infusion,
-        rawCharacter: this.rawCharacter,
-      });
-
-      // eslint-disable-next-line no-await-in-loop
-      await ddbInfusion.build();
-      logger.debug(`DDBInfusion: ${ddbInfusion.ddbInfusion.name}`, {
-        ddbInfusion,
-        infusion,
-        this: this,
-      });
-      this.processed.infusions.push(ddbInfusion.data);
-      // this.processed.actions.push(...ddbInfusion.actions);
-      // TODO copy our relevant actions and apply them to the character
-    }
-    this.updateIds("infusions");
-    this.data.push(...this.processed.infusions);
+    this.infusionFactory = new DDBInfusionFactory(this.ddbCharacter);
+    await this.infusionFactory.processInfusions();
+    this.processed.infusions = this.infusionFactory.processed.infusions;
+    this.data.push(...this.infusionFactory.processed.infusions);
   }
 
   async processFeatures() {
