@@ -42,14 +42,14 @@ if (args[0] === "on") {
             name: weaponItem.name,
             damage: weaponItem.system.damage.parts[0][0],
             ability: weaponItem.system.ability,
-            magical: foundry.utils.getProperty(weaponItem, "system.properties.mgc") || false,
+            magical: foundry.utils.getProperty(weaponItem, "system.properties").includes("mgc") || false,
           });
           const damage = weaponCopy.system.damage.parts[0][0];
           const targetAbilities = target.system.abilities;
           weaponCopy.system.damage.parts[0][0] = damage.replace(/1d(4|6)/g, "1d8");
           if (targetAbilities.wis.value > targetAbilities.str.value) weaponCopy.system.ability = "wis";
           weaponCopy.name = weaponItem.name + " [Shillelagh]";
-          foundry.utils.setProperty(weaponCopy, "system.properties.mgc", true);
+          DDBImporter.EffectHelper.addToProperties(weaponCopy.system.properties, "mgc");
           await target.updateEmbeddedDocuments("Item", [weaponCopy]);
           await ChatMessage.create({
             content: weaponCopy.name + " is empowered by Shillelagh",
@@ -70,7 +70,9 @@ if (args[0] === "off") {
   weaponCopy.system.damage.parts[0][0] = flag.damage;
   weaponCopy.system.ability = flag.ability;
   weaponCopy.name = flag.name;
-  foundry.utils.setProperty(weaponCopy, "system.properties.mgc", flag.magical);
+  if (!flag.magical) {
+    DDBImporter.EffectHelper.removeFromProperties(weaponCopy.system.properties, "mgc");
+  }
   await target.updateEmbeddedDocuments("Item", [weaponCopy]);
   await DAE.unsetFlag(target, "shillelagh");
   await ChatMessage.create({ content: weaponCopy.name + " returns to normal" });

@@ -45,6 +45,37 @@ const utils = {
       .replace(/-$/g, '');
   },
 
+  idString: (str) => {
+    return str.replace(/[^a-zA-Z0-9]/g, "");
+  },
+
+  namedIDStub(name, { prefix = "ddb", postfix = null, length = 16 } = {}) {
+    const nameSplit = name.split(" ").map((n) => utils.idString(n));
+    const remainingN = length - (prefix?.length ?? 0) - (postfix?.length ?? 0);
+    const quotient = Math.floor(remainingN / nameSplit.length);
+    let remainder = remainingN % nameSplit.length;
+    let result = `${prefix ?? ""}`;
+
+    for (let i = 0; i < nameSplit.length; i++) {
+      const splitLength = nameSplit[i].length > quotient + remainder
+        ? quotient + remainder
+        : Math.min(nameSplit[i].length, quotient + remainder);
+      result += utils.capitalize(nameSplit[i].substring(0, splitLength));
+      const remainderUsed = splitLength > quotient
+        ? splitLength - quotient
+        : 0;
+      remainder -= remainderUsed;
+    }
+
+    if (postfix) result += postfix;
+    const padding = length - result.length;
+    if (padding > 0) {
+      result += "I".repeat(padding);
+    }
+
+    return result;
+  },
+
   nameString: (str) => {
     return str.replaceAll("’", "'").trim();
   },

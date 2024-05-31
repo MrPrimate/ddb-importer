@@ -2,6 +2,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import logger from "../../logger.js";
 
 import { generateEffects } from "../../effects/effects.js";
+import utils from "../../lib/utils.js";
 
 // function isInfused(ddb, item) {
 //   return ddb.infusions.item.some((mapping) =>
@@ -72,7 +73,7 @@ function addMagicBonus(character, item, modifiers) {
 
   if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
     item.system.magicalBonus = magicBonus;
-    foundry.utils.setProperty(item, "system.properties.mgc", true);
+    utils.addToProperties(item.system.properties, "mgc");
     // to do add infusion description to item
   }
   return item;
@@ -144,7 +145,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     // foundryItem.flags.infusions.maps.push(infusionItemMap);
 
     // set magic properties
-    foundry.utils.setProperty(foundryItem, "system.properties.mgc", true);
+    utils.addToProperties(foundryItem.system.properties, "mgc");
 
     // Update Item description
     foundryItem.system.description.value += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.description}</p></div>`;

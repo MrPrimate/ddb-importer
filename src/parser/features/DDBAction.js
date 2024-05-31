@@ -393,7 +393,7 @@ export default class DDBAction extends DDBBaseFeature {
         ));
 
     if (kiEmpowered && foundry.utils.getProperty(this.data, "flags.ddbimporter.originalName") == "Unarmed Strike") {
-      foundry.utils.setProperty(this.data, "system.properties.mgc", true);
+      utils.addToProperties(this.data.system.properties, "mgc");
     }
 
   }

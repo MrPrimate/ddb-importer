@@ -330,10 +330,22 @@ export function baseEffect(foundryItem, label,
 }
 
 export function baseEnchantmentEffect(foundryItem, label,
-  { transfer = false, disabled = false } = {}
+  { transfer = false, disabled = false, origin = null, id = null } = {}
 ) {
   const effect = baseEffect(foundryItem, label, { transfer, disabled });
   foundry.utils.setProperty(effect, "flags.dnd5e.type", "enchantment");
+  foundry.utils.setProperty(effect, "flags.dnd5e.enchantment", {
+    level: {
+      min: null,
+      max: null
+    },
+    riders: {
+      effect: [],
+      item: [],
+    },
+  });
+  effect._id = id ?? foundry.utils.randomID();
+  effect.origin = origin ?? null;
   return effect;
 }
 
