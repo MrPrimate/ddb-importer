@@ -133,5 +133,17 @@
   {
     "name": "Spell-Refueling Ring",
     "path": "icons/equipment/finger/ring-ball-silver.webp"
+  },
+  {
+    "name": "Firearms Mastery",
+    "path": "icons/weapons/guns/gun-red.webp"
+  },
+  {
+    "name": "Astral Spark",
+    "path": "icons/magic/light/beam-rays-teal-purple-small.webp"
+  },
+  {
+    "name": "Hippo Build",
+    "path": "icons/creatures/abilities/paw-print-orange.webp"
   }
 ]

@@ -14,6 +14,7 @@
 - General improvements to item parsing quality.
 - Monster like the assassin will now parse their sae damage into the other field, rather than as versatile.
 - MidiQoL Automation effects: monsters with multi attack will now have the midi qol multiattack effect applied.
+- Artificer Infusions are now created using the Enchantment system. This will create the infusions and granted features into the DDB Class Features compendium.
 
 # 5.1.28
 
