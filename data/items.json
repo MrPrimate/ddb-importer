@@ -8912,7 +8912,23 @@
     "path": "icons/magic/lightning/bolt-forked-large-blue.webp"
   },
   {
+    "name": "Thunder Gauntlets (STR)",
+    "path": "icons/magic/lightning/bolt-forked-large-blue.webp"
+  },
+  {
+    "name": "Thunder Gauntlets (INT)",
+    "path": "icons/magic/lightning/bolt-forked-large-blue.webp"
+  },
+  {
     "name": "Lighting Launcher",
+    "path": "icons/magic/lightning/projectile-orb-blue.webp"
+  },
+  {
+    "name": "Lighting Launcher (DEX)",
+    "path": "icons/magic/lightning/projectile-orb-blue.webp"
+  },
+  {
+    "name": "Lighting Launcher (INT)",
     "path": "icons/magic/lightning/projectile-orb-blue.webp"
   }
 ]

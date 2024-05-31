@@ -245,10 +245,20 @@ export class DDBInfusion {
     return effect;
   }
 
+  _generateEnchantmentStubEffect() {
+    const forceName = ["granted"].includes(this.ddbInfusion.modifierDataType);
+    const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType);
+    const effect = this._getEnchantmentEffect([], {
+      forceName,
+      useModifierLabelName,
+    });
+    this.data.effects.push(effect);
+  }
+
   _generateEnchantmentEffects() {
+    const forceName = ["granted"].includes(this.ddbInfusion.modifierDataType);
+    const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType);
     for (const [index, effectData] of this.ddbInfusion.modifierData.entries()) {
-      const forceName = ["granted"].includes(this.ddbInfusion.modifierDataType);
-      const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType);
       const effect = this._getEnchantmentEffect(effectData, {
         forceName,
         useModifierLabelName,
@@ -327,6 +337,7 @@ export class DDBInfusion {
       case "granted":
       default: {
         this._generateEnchantmentEffects();
+        if (this.data.effects.length === 0) this._generateEnchantmentStubEffect();
       }
     }
   }
