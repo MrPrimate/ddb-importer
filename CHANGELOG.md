@@ -16,6 +16,7 @@
 - MidiQoL Automation effects: monsters with multi attack will now have the midi qol multiattack effect applied.
 - Artificer Infusions are now created using the Enchantment system. This will create the infusions and granted features into the DDB Class Features compendium. (this will require appropriate permissions).
 - Summons actors are now added to a compendium on import (DDB Summons).
+- If you have access to appropriate monster art on DDB, this will now be added to the Summons (previously defaulted to mystery man).
 
 # 5.1.28
 

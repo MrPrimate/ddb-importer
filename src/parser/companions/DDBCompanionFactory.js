@@ -128,9 +128,12 @@ export default class DDBCompanionFactory {
 
   async #addToCompendium(companion) {
     if (!game.user.isGM) return;
-    const folderName = this.compendiumFolders.getSummonFolderName(companion);
-    await this.compendiumFolders.createSummonsFolder(folderName.name);
-    await addNPC(companion, "summons");
+    const compendiumCompanion = foundry.utils.deepClone(companion);
+    delete compendiumCompanion.folder;
+    const folderName = this.compendiumFolders.getSummonFolderName(compendiumCompanion);
+    const folder = await this.compendiumFolders.createSummonsFolder(folderName.name);
+    compendiumCompanion.folder = folder._id;
+    await addNPC(compendiumCompanion, "summons");
   }
 
   async #updateCompanions(companions, existingCompanions) {
@@ -154,7 +157,7 @@ export default class DDBCompanionFactory {
       DDBItemImporter.copySupportedItemFlags(existingCompanion, companion);
       const npc = await buildNPC(companion, "monster", false, true, true);
       results.push(npc);
-      this.#addToCompendium(companion);
+      await this.#addToCompendium(companion);
     }
 
     return results;
@@ -175,10 +178,14 @@ export default class DDBCompanionFactory {
     const results = [];
     for (const companion of newCompanions) {
       logger.info(`Creating Companion ${companion.name}`);
+      logger.debug(`Companion data:`, {
+        companion,
+        folderId,
+      });
       if (folderId) companion.folder = folderId;
       const importedCompanion = await buildNPC(companion, "monster", false, false, true);
       results.push(importedCompanion);
-      this.#addToCompendium(companion);
+      await this.#addToCompendium(companion);
     }
     return results;
   }
@@ -202,7 +209,7 @@ export default class DDBCompanionFactory {
       }
     }
 
-    const itemHandler = new DDBItemImporter("summons", companionData);
+    const itemHandler = new DDBItemImporter("monster", companionData);
     await itemHandler.srdFiddling();
     await itemHandler.iconAdditions();
 

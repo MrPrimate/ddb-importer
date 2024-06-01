@@ -70,8 +70,8 @@ export default class DDBCompanion {
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
     if (!tiers.all) return document;
 
-    const monsterFactory = new DDBMonsterFactory({ type: "summons" });
-    if (data.monsterIDs) {
+    if (data.monsterIDs && data.monsterIDs.length > 0) {
+      const monsterFactory = new DDBMonsterFactory({ type: "summons" });
       const parsedData = monsterFactory.createMonsterDocuments(data.monsterIDs);
       if (document.length > 0) {
         const tokenImg = foundry.utils.getProperty(parsedData[0], "flags.monsterMunch.tokenImg");
@@ -676,7 +676,7 @@ export default class DDBCompanion {
     // make friendly
     foundry.utils.setProperty(this.npc, "prototypeToken.disposition", 1);
 
-    this.data = DDBCompanion.addEnrichedImageData(foundry.utils.duplicate(this.npc));
+    this.data = await DDBCompanion.addEnrichedImageData(foundry.utils.duplicate(this.npc));
     this.parsed = true;
 
     logger.debug(`Finished companion parse for ${name}`, { name, block: this.block, data: this.data, npc: this.npc });
