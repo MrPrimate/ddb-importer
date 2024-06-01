@@ -50,6 +50,8 @@ const CompendiumHelper = {
     { type: "journal", compendium: "entity-journal-compendium" },
     { type: "journals", compendium: "entity-journal-compendium" },
     { type: "JournalEntry", compendium: "entity-journal-compendium" },
+    { type: "summons", compendium: "entity-summons-compendium" },
+    { type: "summon", compendium: "entity-summons-compendium" },
   ],
 
   getCompendiumLabel: (type) => {

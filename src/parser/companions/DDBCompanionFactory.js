@@ -1,10 +1,14 @@
+/* eslint-disable no-await-in-loop */
 import FolderHelper from "../../lib/FolderHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
-import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
+import { addNPC, buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
 import DDBCompanion from "./DDBCompanion.js";
 import { isEqual } from "../../../vendor/lowdash/isequal.js";
+import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
+import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
+import SETTINGS from "../../settings.js";
 
 export default class DDBCompanionFactory {
 
@@ -26,6 +30,7 @@ export default class DDBCompanionFactory {
     this.originDocument = options.originDocument;
     this.summons = null;
     this.badSummons = false;
+    this.compendiumFolders = null;
   }
 
   get data() {
@@ -50,7 +55,6 @@ export default class DDBCompanionFactory {
   async #buildCompanion(block, options = {}) {
     logger.debug("Beginning companion parse", { block });
     const ddbCompanion = new DDBCompanion(block, foundry.utils.mergeObject(options, { type: this.options.type }));
-    // eslint-disable-next-line no-await-in-loop
     await ddbCompanion.parse();
     if (ddbCompanion.parsed) {
       this.companions.push(ddbCompanion);
@@ -86,11 +90,9 @@ export default class DDBCompanionFactory {
       // console.warn("Processing Companion", { name, block });
       if (name && name in DDBCompanionFactory.MULTI) {
         for (const subType of DDBCompanionFactory.MULTI[name]) {
-          // eslint-disable-next-line no-await-in-loop
           await this.#buildCompanion(block, { name, subType });
         }
       } else {
-        // eslint-disable-next-line no-await-in-loop
         await this.#buildCompanion(block, { name, subType: null });
       }
 
@@ -102,7 +104,6 @@ export default class DDBCompanionFactory {
   async #generateCompanionFolders(rootFolderName = "DDB Companions") {
     const rootFolder = await FolderHelper.getOrCreateFolder(null, "Actor", rootFolderName);
     for (const companion of this.companions) {
-      // eslint-disable-next-line no-await-in-loop
       const folder = await FolderHelper.getOrCreateFolder(rootFolder, "Actor", utils.capitalize(companion.type ?? "other"));
       companion.data.folder = folder._id;
       this.folderIds.add(folder._id);
@@ -125,7 +126,14 @@ export default class DDBCompanionFactory {
     return existingCompanions;
   }
 
-  static async updateCompanions(companions, existingCompanions) {
+  async #addToCompendium(companion) {
+    if (!game.user.isGM) return;
+    const folderName = this.compendiumFolders.getSummonFolderName(companion);
+    await this.compendiumFolders.createSummonsFolder(folderName.name);
+    await addNPC(companion, "summons");
+  }
+
+  async #updateCompanions(companions, existingCompanions) {
     const updateCompanions = companions.filter((companion) =>
       existingCompanions.some(
         (exist) =>
@@ -136,7 +144,6 @@ export default class DDBCompanionFactory {
     const results = [];
 
     for (const companion of updateCompanions) {
-      // eslint-disable-next-line no-await-in-loop
       const existingCompanion = await existingCompanions.find((exist) =>
         exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
         && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
@@ -145,15 +152,15 @@ export default class DDBCompanionFactory {
       companion._id = existingCompanion._id;
       logger.info(`Updating companion ${companion.name}`);
       DDBItemImporter.copySupportedItemFlags(existingCompanion, companion);
-      // eslint-disable-next-line no-await-in-loop
       const npc = await buildNPC(companion, "monster", false, true, true);
       results.push(npc);
+      this.#addToCompendium(companion);
     }
 
     return results;
   }
 
-  static async createCompanions(companions, existingCompanions, folderId) {
+  async #createCompanions(companions, existingCompanions, folderId) {
     if (!game.user.can("ITEM_CREATE")) {
       ui.notifications.warn(`User is unable to create world items, and cannot create companions`);
       return [];
@@ -169,15 +176,22 @@ export default class DDBCompanionFactory {
     for (const companion of newCompanions) {
       logger.info(`Creating Companion ${companion.name}`);
       if (folderId) companion.folder = folderId;
-      // eslint-disable-next-line no-await-in-loop
       const importedCompanion = await buildNPC(companion, "monster", false, false, true);
       results.push(importedCompanion);
+      this.#addToCompendium(companion);
     }
     return results;
   }
 
   async updateOrCreateCompanions({ folderOverride = null, rootFolderNameOverride = undefined } = {}) {
     const existingCompanions = await this.getExistingWorldCompanions({ folderOverride, rootFolderNameOverride });
+
+    if (game.user.isGM) {
+      const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Summons");
+      await createDDBCompendium(compData);
+      this.compendiumFolders = new DDBCompendiumFolders("summons");
+      await this.compendiumFolders.loadCompendium("summons");
+    }
 
     let companionData = this.data;
 
@@ -188,16 +202,16 @@ export default class DDBCompanionFactory {
       }
     }
 
-    const itemHandler = new DDBItemImporter("monsters", companionData);
+    const itemHandler = new DDBItemImporter("summons", companionData);
     await itemHandler.srdFiddling();
     await itemHandler.iconAdditions();
 
     await generateIconMap(itemHandler.documents);
 
     if (this.updateCompanions) {
-      this.results.updated = await DDBCompanionFactory.updateCompanions(itemHandler.documents, existingCompanions);
+      this.results.updated = await this.#updateCompanions(itemHandler.documents, existingCompanions);
     }
-    this.results.created = await DDBCompanionFactory.createCompanions(itemHandler.documents, existingCompanions, folderOverride?.id);
+    this.results.created = await this.#createCompanions(itemHandler.documents, existingCompanions, folderOverride?.id);
 
   }
 

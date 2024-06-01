@@ -598,6 +598,7 @@ export default class DDBCompanion {
     this.npc.prototypeToken.name = actorName;
 
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.changes", []);
+    foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.name", `${name}`);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.id", `companion-${actorName}`);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.entityTypeId", `companion-${this.type}`);
 

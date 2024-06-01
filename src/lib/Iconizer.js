@@ -28,6 +28,8 @@ const TYPE_MAP = {
   class: "classes",
   subclass: "classes",
   monster: "monster",
+  summons: "monster",
+  summon: "monster",
   backgrounds: "backgrounds",
   background: "backgrounds",
   traits: "traits",

@@ -417,6 +417,8 @@ const utils = {
     entityTypes.set("monsters", "Actor");
     entityTypes.set("monster", "Actor");
     entityTypes.set("extras", "Actor");
+    entityTypes.set("summon", "Actor");
+    entityTypes.set("summons", "Actor");
     entityTypes.set("scene", "Scene");
     entityTypes.set("page", "JournalEntry");
     entityTypes.set("journal", "JournalEntry");

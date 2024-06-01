@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import DICTIONARY from "../../dictionary.js";
-import { baseEnchantmentEffect, generateEffects } from "../../effects/effects.js";
+import { addSimpleConditionEffect, baseEnchantmentEffect, generateEffects } from "../../effects/effects.js";
 import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
@@ -9,6 +9,7 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
+import { addExtraEffects } from "./fixes.js";
 
 export class DDBInfusion {
 
@@ -194,6 +195,7 @@ export class DDBInfusion {
   }
 
   async _addActionsToEffects() {
+    if (this.actions.length === 0) return;
     const cItems = await DDBInfusion.addInfusionsToCompendium(this.actions);
     if (cItems.length === 0) return;
 
@@ -205,8 +207,28 @@ export class DDBInfusion {
 
   _specials() {
     // handle special cases
+    // e.g. radiant weapon blindness effect
 
-    // radiant weapon blindness effect?
+    switch (this.name) {
+      // example
+      case "Radiant Weapon": {
+        break;
+      }
+      // no default
+    }
+
+
+    for (let action of this.actions) {
+      const name = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
+      switch (name) {
+        case "Radiant Weapon (Reaction)": {
+          action = addSimpleConditionEffect(action, "Blinded");
+          break;
+        }
+        // no default
+      }
+    }
+
   }
 
   _getEnchantmentEffect(modifierData, { forceName = false, useModifierLabelName = false, useOrigin = false } = {}) {
@@ -342,6 +364,11 @@ export class DDBInfusion {
     }
   }
 
+  async _addExtraEffects() {
+    this.data = await addExtraEffects(this.ddbData, [this.data], this.rawCharacter)[0];
+    this.actions = await addExtraEffects(this.ddbData, this.actions, this.rawCharacter);
+  }
+
   // _generateSummons() {
   //   // summons are generated elsewhere and linked to the feature, not handled her.
   // }
@@ -355,13 +382,14 @@ export class DDBInfusion {
     this._generateEnchantments();
     this._buildActions();
     this._specials();
-
-    await DDBInfusion.addInfusionsToCompendium([this.data]);
+    // await this._addExtraEffects();
     await this._addActionsToEffects();
 
-    console.warn(`DDBInfusions for ${this.name}`, {
-      data: deepClone(this.data),
-      actions: deepClone(this.actions),
+    await DDBInfusion.addInfusionsToCompendium([this.data]);
+
+    logger.debug(`DDBInfusions for ${this.name}`, {
+      data: foundry.utils.deepClone(this.data),
+      actions: foundry.utils.deepClone(this.actions),
       this: this,
     });
   }

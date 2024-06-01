@@ -21,6 +21,7 @@ export class DDBCompendiumFolders {
     this.subRaceFolders = {};
     this.traitFolders = {};
     this.traitSubFolders = {};
+    this.summonFolders = {};
   }
 
   constructor(type, packName) {
@@ -311,6 +312,21 @@ export class DDBCompendiumFolders {
     this.validFolderIds.push(folder._id);
   }
 
+  async createSummonsFolder(type) {
+    const flagTag = `summons/${type}`;
+    logger.debug(`Checking for Summons folder '${type}'`);
+    const existingFolder = this.getFolder(type, flagTag);
+    if (existingFolder) return existingFolder;
+    logger.debug(`Not found, creating summons folder '${type}'`);
+    const newFolder = await this.createCompendiumFolder({
+      name: type,
+      flagTag,
+    });
+    this.validFolderIds.push(newFolder._id);
+    this.summonFolders[type] = newFolder;
+    return newFolder;
+  }
+
   // eslint-disable-next-line complexity
   async createCompendiumFolders() {
     logger.debug(`Checking and creating Compendium folder structure for ${this.type}`);
@@ -328,6 +344,12 @@ export class DDBCompendiumFolders {
       case "traits": {
         // we create these as needed
         // this.createBaseRacialFolders("trait");
+        break;
+      }
+      case "summons":
+      case "summon": {
+        // we create these as needed
+        // this.createBaseSummonFolders("summon");
         break;
       }
       case "monsters":
@@ -608,6 +630,20 @@ export class DDBCompendiumFolders {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  getSummonFolderName(document) {
+    const result = {
+      name: undefined,
+      flagTag: "",
+    };
+
+    const summonHint = foundry.utils.getProperty(document, "flags.ddbimporter.summons.name");
+    result.name = summonHint ?? document.name;
+    result.flagTag = `summon/${result.name}`;
+
+    return result;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
   getClassFolderName(document) {
     const result = {
       name: undefined,
@@ -646,6 +682,11 @@ export class DDBCompendiumFolders {
       case "subclass":
       case "subclasses": {
         name = this.getClassFolderName(document);
+        break;
+      }
+      case "summon":
+      case "summons": {
+        name = this.getSummonFolderName(document);
         break;
       }
       case "monsters":
@@ -776,6 +817,14 @@ export class DDBCompendiumFolders {
           "system.details.cr",
         ];
       }
+      case "summon":
+      case "summons": {
+        return [
+          "name",
+          "type",
+          "flags.ddbimporter.summons.name",
+        ];
+      }
       case "class":
       case "subclass":
       case "classes":
@@ -851,6 +900,8 @@ export class DDBCompendiumFolders {
         await Item.updateDocuments(results, { pack: this.packName });
         break;
       }
+      case "summon":
+      case "summons":
       case "monsters":
       case "npc":
       case "monster": {

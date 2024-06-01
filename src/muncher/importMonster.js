@@ -328,7 +328,7 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
   // eslint-disable-next-line require-atomic-updates
   data.items = await Iconizer.updateIcons(data.items, false, true, data.name);
   data = Iconizer.addActorEffectIcons(data);
-  if (type !== "monster") data = await linkResourcesConsumption(data);
+  if (!["monster", "summons"].includes(type)) data = await linkResourcesConsumption(data);
 
   if (handleBuild) {
     // create the new npc

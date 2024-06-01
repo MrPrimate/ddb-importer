@@ -853,7 +853,7 @@ const DICTIONARY = {
       "Mount",
       "Wondrous item",
     ],
-  }
+  },
 };
 
 export default DICTIONARY;
