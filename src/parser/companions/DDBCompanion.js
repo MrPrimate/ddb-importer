@@ -1,6 +1,9 @@
 import DICTIONARY from "../../dictionary.js";
+import DDBProxy from "../../lib/DDBProxy.js";
+import PatreonHelper from "../../lib/PatreonHelper.js";
 import logger from "../../logger.js";
 import DDBMonster from "../DDBMonster.js";
+import DDBMonsterFactory from "../DDBMonsterFactory.js";
 import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFactory.js";
 import { newNPC } from "../monster/templates/monster.js";
 
@@ -39,6 +42,53 @@ export default class DDBCompanion {
       profiles: [],
       prompt: true,
     };
+  }
+
+  static async addEnrichedImageData(document) {
+    const name = document.name;
+    if (!CONFIG.DDBI.EXTRA_IMAGES) {
+      const path = "/proxy/enriched/actor/images";
+      const parsingApi = DDBProxy.getProxy();
+      const response = await fetch(`${parsingApi}${path}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+
+      const j = await response.json();
+      if (!j.success) return document;
+      // eslint-disable-next-line require-atomic-updates
+      foundry.utils.setProperty(CONFIG, "DDBI.EXTRA_IMAGES", j.data);
+    }
+
+    const data = CONFIG.DDBI.EXTRA_IMAGES.summons[name]
+      ?? CONFIG.DDBI.EXTRA_IMAGES.summons[name.split("(")[0].trim()];
+
+    if (!data) return document;
+    const tier = PatreonHelper.getPatreonTier();
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
+    if (!tiers.all) return document;
+
+    const monsterFactory = new DDBMonsterFactory({ type: "summons" });
+    if (data.monsterIDs) {
+      const parsedData = monsterFactory.createMonsterDocuments(data.monsterIDs);
+      if (document.length > 0) {
+        const tokenImg = foundry.utils.getProperty(parsedData[0], "flags.monsterMunch.tokenImg");
+        const img = foundry.utils.getProperty(parsedData[0], "flags.monsterMunch.img");
+        foundry.utils.setProperty(document, "flags.monsterMunch.tokenImg", tokenImg);
+        foundry.utils.setProperty(document, "flags.monsterMunch.img", img);
+        return document;
+      }
+    }
+    if (data.actor) {
+      foundry.utils.setProperty(document, "flags.monsterMunch.img", data.actor);
+      return document;
+    }
+
+    // future enhancement loop through the downloaded compendium monsters for image
+
+    return document;
   }
 
   #generateAbilities() {
@@ -624,7 +674,7 @@ export default class DDBCompanion {
     // make friendly
     foundry.utils.setProperty(this.npc, "prototypeToken.disposition", 1);
 
-    this.data = foundry.utils.duplicate(this.npc);
+    this.data = DDBCompanion.addEnrichedImageData(foundry.utils.duplicate(this.npc));
     this.parsed = true;
 
     logger.debug(`Finished companion parse for ${name}`, { name, block: this.block, data: this.data, npc: this.npc });

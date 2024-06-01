@@ -52,12 +52,14 @@ export default class DDBMonsterFactory {
     return options;
   }
 
-  constructor ({ ddbData = null, extra = false, munchNote = null } = {}) {
+  constructor ({ ddbData = null, extra = false, munchNote = null, type = "monsters", forceUpdate = null } = {}) {
     this.extra = extra;
     this.npcs = [];
     this.source = ddbData;
     this.munchNote = munchNote ?? DDBMonsterFactory.#noteStub;
-    this.compendiumFolders = new DDBCompendiumFolders("monsters");
+    this.type = type;
+    this.compendiumFolders = new DDBCompendiumFolders(type);
+    this.update = forceUpdate ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   }
 
   /**
@@ -190,12 +192,11 @@ export default class DDBMonsterFactory {
   }
 
   /**
-   * Downloads, parces and imports monsters into a compendium
+   * Downloads, parses, prepares
    */
-  async processIntoCompendium(ids = null) {
-    logger.time("Monster Import Time");
-    foundry.utils.setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
-    const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
+  async createMonsterDocuments(ids = null) {
+    logger.time("Monster Process Time");
+    const updateBool = this.update;
     const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
     const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
 
@@ -219,7 +220,7 @@ export default class DDBMonsterFactory {
     this.munchNote("");
     const monsterResults = await this.parse();
 
-    const itemHandler = new DDBItemImporter("monsters", monsterResults.actors);
+    const itemHandler = new DDBItemImporter(this.type, monsterResults.actors);
     await itemHandler.init();
 
     logger.debug("Item Importer Loaded");
@@ -247,15 +248,27 @@ export default class DDBMonsterFactory {
     await generateIconMap(itemHandler.documents);
     await useSRDMonsterImages(itemHandler.documents);
 
+    return itemHandler.documents;
+
+  }
+
+  /**
+   * Downloads, parses and imports monsters into a compendium
+   */
+  async processIntoCompendium(ids = null) {
+    logger.time("Monster Import Time");
+
+    const documents = await this.createMonsterDocuments(ids);
+
     this.munchNote(`Checking compendium folders..`, true);
     await this.compendiumFolders.loadCompendium("monsters");
     this.munchNote("", true);
 
     let monstersParsed = [];
     let currentMonster = 1;
-    const monsterCount = itemHandler.documents.length;
+    const monsterCount = documents.length;
     this.munchNote(`Preparing dinner for ${monsterCount} monsters!`, true);
-    for (const monster of itemHandler.documents) {
+    for (const monster of documents) {
       this.munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name} to compendium`, false, true);
       logger.debug(`Preparing ${monster.name} data for import`);
       // eslint-disable-next-line no-await-in-loop
@@ -265,7 +278,6 @@ export default class DDBMonsterFactory {
     }
     logger.debug("Monsters Parsed", monstersParsed);
     this.munchNote("", false, true);
-    foundry.utils.setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 
     logger.timeEnd("Monster Import Time");
     if (ids !== null) {
