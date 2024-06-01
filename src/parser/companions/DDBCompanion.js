@@ -83,7 +83,9 @@ export default class DDBCompanion {
     }
     if (data.actor) {
       foundry.utils.setProperty(document, "flags.monsterMunch.img", data.actor);
-      return document;
+    }
+    if (data.token) {
+      foundry.utils.setProperty(document, "flags.monsterMunch.tokenImg", data.token);
     }
 
     // future enhancement loop through the downloaded compendium monsters for image
