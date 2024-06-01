@@ -73,6 +73,13 @@ export default class DDBCompanionFactory {
   }
 
   async parse() {
+    if (game.user.isGM) {
+      const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Summons");
+      await createDDBCompendium(compData);
+      this.compendiumFolders = new DDBCompendiumFolders("summons");
+      await this.compendiumFolders.loadCompendium("summons");
+    }
+
     // console.warn(this.doc);
     const statBlockDivs = this.doc.querySelectorAll("div.stat-block-background, div.stat-block-finder, div.basic-text-frame");
 
@@ -192,13 +199,6 @@ export default class DDBCompanionFactory {
 
   async updateOrCreateCompanions({ folderOverride = null, rootFolderNameOverride = undefined } = {}) {
     const existingCompanions = await this.getExistingWorldCompanions({ folderOverride, rootFolderNameOverride });
-
-    if (game.user.isGM) {
-      const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Summons");
-      await createDDBCompendium(compData);
-      this.compendiumFolders = new DDBCompendiumFolders("summons");
-      await this.compendiumFolders.loadCompendium("summons");
-    }
 
     let companionData = this.data;
 

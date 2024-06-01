@@ -58,12 +58,17 @@ export default class DDBCompanion {
 
       const j = await response.json();
       if (!j.success) return document;
-      // eslint-disable-next-line require-atomic-updates
       foundry.utils.setProperty(CONFIG, "DDBI.EXTRA_IMAGES", j.data);
     }
 
     const data = CONFIG.DDBI.EXTRA_IMAGES.summons[name]
       ?? CONFIG.DDBI.EXTRA_IMAGES.summons[name.split("(")[0].trim()];
+
+    console.warn(`Image check for ${document.name}`, {
+      name,
+      document,
+      data,
+    });
 
     if (!data) return document;
     const tier = PatreonHelper.getPatreonTier();
@@ -72,10 +77,14 @@ export default class DDBCompanion {
 
     if (data.monsterIDs && data.monsterIDs.length > 0) {
       const monsterFactory = new DDBMonsterFactory({ type: "summons" });
-      const parsedData = monsterFactory.createMonsterDocuments(data.monsterIDs);
-      if (document.length > 0) {
-        const tokenImg = foundry.utils.getProperty(parsedData[0], "flags.monsterMunch.tokenImg");
-        const img = foundry.utils.getProperty(parsedData[0], "flags.monsterMunch.img");
+      // const parsedData = await monsterFactory.createMonsterDocuments(data.monsterIDs);
+
+      await monsterFactory.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(data.monsterIDs));
+      const monsterResults = await monsterFactory.parse();
+
+      if (monsterResults.actors.length > 0) {
+        const tokenImg = foundry.utils.getProperty(monsterResults.actors[0], "flags.monsterMunch.tokenImg");
+        const img = foundry.utils.getProperty(monsterResults.actors[0], "flags.monsterMunch.img");
         foundry.utils.setProperty(document, "flags.monsterMunch.tokenImg", tokenImg);
         foundry.utils.setProperty(document, "flags.monsterMunch.img", img);
         return document;
@@ -89,7 +98,6 @@ export default class DDBCompanion {
     }
 
     // future enhancement loop through the downloaded compendium monsters for image
-
     return document;
   }
 
@@ -676,7 +684,9 @@ export default class DDBCompanion {
     // make friendly
     foundry.utils.setProperty(this.npc, "prototypeToken.disposition", 1);
 
-    this.data = await DDBCompanion.addEnrichedImageData(foundry.utils.duplicate(this.npc));
+    const data = await DDBCompanion.addEnrichedImageData(foundry.utils.duplicate(this.npc));
+
+    this.data = data;
     this.parsed = true;
 
     logger.debug(`Finished companion parse for ${name}`, { name, block: this.block, data: this.data, npc: this.npc });

@@ -161,7 +161,6 @@ export default class DDBMonsterFactory {
         await ddbMonster.parse();
         foundryActors.push(foundry.utils.duplicate(ddbMonster.npc));
         logger.timeEnd(`Monster Parse ${name}`);
-        // logger.timeLog("Monster Parsing", monster.name);
       } catch (err) {
         logger.error(`Failed parsing ${name}`);
         logger.error(err);
@@ -247,6 +246,12 @@ export default class DDBMonsterFactory {
     this.munchNote(`Generating Icon Map..`, true);
     await generateIconMap(itemHandler.documents);
     await useSRDMonsterImages(itemHandler.documents);
+
+    logger.timeEnd("Monster Process Time");
+    logger.debug("Monster Document Generation", {
+      ids,
+      itemHandler,
+    });
 
     return itemHandler.documents;
 
