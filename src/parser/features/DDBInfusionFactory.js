@@ -36,8 +36,6 @@ export class DDBInfusionFactory {
       });
       this.processed.infusions.push(ddbInfusion.data);
       this.processed.actions.push(...ddbInfusion.actions);
-      // this.processed.actions.push(...ddbInfusion.actions);
-      // TODO copy our relevant actions and apply them to the character
     }
     this.updateIds("infusions");
     this.updateIds("actions");
@@ -95,7 +93,7 @@ export class DDBInfusionFactory {
         foundryItem.system.equipped = ddbItem.equipped;
       }
 
-      // TODO: move this effect to the enchantment item
+      // TO DO: move this effect to the enchantment item
       // check to see if we need to fiddle attack modifiers on infused weapons
       if (foundryItem.type === "weapon") {
         const intSwap = DDBHelper.filterBaseModifiers(this.ddbData, "bonus", {
@@ -109,9 +107,6 @@ export class DDBInfusionFactory {
           }
         }
       }
-
-      // TODO: add actions here
-
 
     } else if (infusionItemMap && !infusionDetail) {
       logger.warn(`${foundryItem.name} marked as infused but no infusion info found`);

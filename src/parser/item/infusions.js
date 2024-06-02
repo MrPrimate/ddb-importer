@@ -116,6 +116,14 @@ export async function createInfusedItems(ddb, actor) {
     }
 
     // check for granted magic items
+    // const magicItemsGranted = ddb.infusions.known.filter((k) =>
+    //   k.itemTypeId === "magic-item"
+    //   && k.itemName && k.itemId
+    // );
+
+    // for (const grantedItem of magicItemsGranted) {
+    //   const compendiumItem = CompendiumCollection.get("item", grantedItem.itemId);
+    // }
 
   }
 

@@ -1,5 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import { addSimpleConditionEffect, baseEnchantmentEffect, generateEffects } from "../../effects/effects.js";
+// import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
@@ -35,6 +36,9 @@ export class DDBInfusion {
             defintionKey: this.ddbInfusion.definitionKey,
             requiredLevel: this.ddbInfusion.level,
             modifierType: this.ddbInfusion.modifierDataType,
+            type: this.ddbInfusion.type,
+            requiresAttunement: this.ddbInfusion.requiresAttunement,
+            allowDuplicates: this.ddbInfusion.allowDuplicates,
           },
         },
       }
@@ -117,6 +121,9 @@ export class DDBInfusion {
   }
 
   _generateEnchantmentType() {
+    if (this.ddbInfusion.type === "replicate") {
+      foundry.utils.setProperty(this.data, "system.enchantment.restrictions.allowMagical", true);
+    }
     let type = "";
     const itemRule = foundry.utils.getProperty(this.ddbInfusion, "itemRuleData.text");
     if (!itemRule) return;
@@ -254,6 +261,14 @@ export class DDBInfusion {
 
     effect.changes.push(...this._getMagicBonusChanges(modifiers));
 
+    if (this.ddbInfusion.requiresAttunement) {
+      effect.changes.push({
+        key: "system.attunement",
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        value: "required",
+      });
+    }
+
     if (effect.changes.length === 0 && !forceName) return effect;
     effect.changes.push(
       {
@@ -276,6 +291,14 @@ export class DDBInfusion {
     this.data.effects.push(effect);
   }
 
+  _addDescriptionToEffect(effect) {
+    effect.changes.push({
+      key: "system.description.value",
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      value: `<hr> <br> ${this.ddbInfusion.description}`,
+    });
+  }
+
   _generateEnchantmentEffects() {
     const forceName = ["granted"].includes(this.ddbInfusion.modifierDataType);
     const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType);
@@ -296,6 +319,8 @@ export class DDBInfusion {
             max: maxLevel,
           };
           foundry.utils.setProperty(effect, "flags.dnd5e.enchantment.level", level);
+          effect.description = this.ddbInfusion.snippet;
+          this._addDescriptionToEffect(effect);
           break;
         }
         case "replicate": {
@@ -309,9 +334,18 @@ export class DDBInfusion {
           );
           break;
         }
-        case "damage-type-choice":
-        case "granted":
+        case "granted": {
+          effect.description = this.ddbInfusion.snippet;
+          this._addDescriptionToEffect(effect);
+          break;
+        }
+        case "damage-type-choice": {
+          effect.description = this.ddbInfusion.snippet;
+          this._addDescriptionToEffect(effect);
+          break;
+        }
         default: {
+          this._addDescriptionToEffect(effect);
           logger.debug(`Infusion ${this.name} has no additional config`);
         }
       }
@@ -356,15 +390,11 @@ export class DDBInfusion {
   _generateEnchantments() {
     if ((this.data.system.actionType !== "ench")) return;
 
+    this._generateEnchantmentEffects();
+
     switch (this.ddbInfusion.modifierDataType) {
-      case "class-level":
-      case "damage-type-choice": {
-        this._generateEnchantmentEffects();
-        break;
-      }
       case "granted":
       default: {
-        this._generateEnchantmentEffects();
         if (this.data.effects.length === 0) this._generateEnchantmentStubEffect();
       }
     }
@@ -377,6 +407,37 @@ export class DDBInfusion {
 
   // _generateSummons() {
   //   // summons are generated elsewhere and linked to the feature, not handled her.
+  // }
+
+  // ended up not using this.
+  // async _addCompendiumItems(effect) {
+  //   const grantedItems = foundry.utils.getProperty(this.ddbData, "source.ddb.infusions.known");
+  //   if (!grantedItems) return;
+
+  //   const magicItemsGranted = grantedItems.filter((k) =>
+  //     k.definitionKey === this.ddbInfusion.definitionKey
+  //     && k.itemTypeId === "magic-item"
+  //     && k.itemName && k.itemId
+  //   );
+
+  //   if (!magicItemsGranted) return;
+
+  //   const compendium = CompendiumHelper.getCompendiumType("item", false);
+  //   if (!compendium) return;
+
+  //   const index = await CompendiumHelper.loadCompendiumIndex("item", {
+  //     fields: [
+  //       "name",
+  //       "flags.ddbimporter.definitionId",
+  //     ]
+  //   });
+
+  //   for (const item of magicItemsGranted) {
+  //     const matchedItem = index.find((i) =>
+  //       i.flags.ddbimporter.definitionId === item.itemId
+  //     );
+  //     effect.flags.dnd5e.enchantment.riders.item.push(matchedItem.uuid);
+  //   }
   // }
 
   async build() {
@@ -392,6 +453,10 @@ export class DDBInfusion {
     await this._addActionsToEffects();
 
     await DDBInfusion.addInfusionsToCompendium([this.data]);
+
+    // if (this.ddbInfusion.type === "replicate") {
+    //   await this._addCompendiumItems(this.data.effects[0]);
+    // }
 
     logger.debug(`DDBInfusions for ${this.name}`, {
       data: foundry.utils.deepClone(this.data),
