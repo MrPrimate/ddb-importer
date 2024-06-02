@@ -3,10 +3,10 @@
 - Only supports D&D System v3.2 and higher
 - Item proficiencies will now be set to automatic on import.
 - New 5e Attunement system used for item attunement.
-- Removal of Convinient Effects as a requirement for automation.
+- Removal of Convenient Effects as a requirement for automation.
 - Use the magicalBonus field on ammunition, armour and weapons.
 - Correct weight generation for v3.2.
-- Use new ritual only spell preperation mode.
+- Use new ritual only spell preparation mode.
 - Adds some pre-requisites to start supplying enchantment effects for future updates.
 - Fix dueling style applying effect and damage adjustment to weapons if not using midi.
 - Rod of the pact keeper did not add spell save bonus correctly.
