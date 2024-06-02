@@ -122,7 +122,7 @@ export async function createInfusedItems(ddb, actor) {
     // );
 
     // for (const grantedItem of magicItemsGranted) {
-    //   const compendiumItem = CompendiumCollection.get("item", grantedItem.itemId);
+    // need to add linking to replicated items here
     // }
 
   }

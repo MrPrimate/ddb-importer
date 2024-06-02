@@ -1,4 +1,4 @@
-# 3.2 Branch
+# 5.2.0
 
 - Only supports D&D System v3.2 and higher
 - Item proficiencies will now be set to automatic on import.
