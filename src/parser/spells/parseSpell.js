@@ -18,12 +18,17 @@ import { generateTable } from "../../muncher/table.js";
 import { spellEffectAdjustment } from "../../effects/specialSpells.js";
 import { getName } from "./name.js";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";
+import SETTINGS from "../../settings.js";
+import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
+import logger from "../../logger.js";
 
 export async function parseSpell(data, character) {
+  const name = getName(data, character);
   let spell = {
+    _id: utils.namedIDStub(name),
     type: "spell",
     system: utils.getTemplate("spell"),
-    name: getName(data, character),
+    name: name,
     flags: {
       ddbimporter: {
         id: data.id,
@@ -51,8 +56,8 @@ export async function parseSpell(data, character) {
 
   const isGeneric = foundry.utils.getProperty(data, "flags.ddbimporter.generic");
   const addSpellEffects = isGeneric
-    ? game.settings.get("ddb-importer", "munching-policy-add-spell-effects")
-    : game.settings.get("ddb-importer", "character-update-policy-add-spell-effects");
+    ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects")
+    : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects");
   foundry.utils.setProperty(data, "flags.ddbimporter.addSpellEffects", addSpellEffects);
 
   // spell level
@@ -107,6 +112,24 @@ export async function parseSpell(data, character) {
 
   await spellEffectAdjustment(spell, addSpellEffects);
   foundry.utils.setProperty(spell, "flags.ddbimporter.effectsApplied", true);
+
+  if (isGeneric || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) {
+    if (SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(data.definition.name)) {
+      const ddbCompanionFactory = new DDBCompanionFactory(data.definition.description, {
+        type: "spell",
+        originDocument: spell,
+      });
+      await ddbCompanionFactory.parse();
+      await ddbCompanionFactory.updateOrCreateCompanions();
+      await ddbCompanionFactory.addCompanionsToDocuments([]);
+
+      logger.debug(`parsed companions for ${spell.name}`, {
+        factory: ddbCompanionFactory,
+        parsed: ddbCompanionFactory.companions,
+      });
+    }
+
+  }
 
   return spell;
 }
