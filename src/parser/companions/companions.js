@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 import DDBCharacter from "../DDBCharacter.js";

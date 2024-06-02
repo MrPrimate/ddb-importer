@@ -467,7 +467,6 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
     const updateExisting = isCompendiumItem
       ? game.settings.get("ddb-importer", "munching-policy-update-existing")
       : false;
-    // eslint-disable-next-line no-await-in-loop
     ddbItem.definition.description = await generateTable(adjustedName, ddbItem.definition.description, updateExisting);
 
     let item = Object.assign({}, parseItem(this.source.ddb, ddbItem, this.raw.character, flags));
@@ -489,14 +488,10 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       // } else {
       //   item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem);
       // }
-
-      // eslint-disable-next-line no-await-in-loop
       item = await addRestrictionFlags(item, addAutomationEffects);
 
       if (!isCompendiumItem) item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
-      // eslint-disable-next-line no-await-in-loop
       if (addAutomationEffects) item = await midiItemEffects(item);
-      // eslint-disable-next-line no-await-in-loop
       // item = await getIcon(item, ddbItem);
 
       items.push(item);

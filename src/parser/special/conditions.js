@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import DICTIONARY from "../../dictionary.js";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 import logger from "../../logger.js";

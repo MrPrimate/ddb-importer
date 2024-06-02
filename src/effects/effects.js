@@ -467,9 +467,9 @@ export function generateATLChange(atlKey, mode, value, priority = 20) {
   };
 }
 
-export function addSimpleConditionEffect(document, condition) {
+export function addSimpleConditionEffect(document, condition, { disabled, transfer } = {}) {
   document.effects = [];
-  const effect = baseItemEffect(document, `${document.name} - ${utils.capitalize(condition)}`);
+  const effect = baseItemEffect(document, `${document.name} - ${utils.capitalize(condition)}`, { disabled, transfer });
   addStatusEffectChange(effect, condition);
   document.effects.push(effect);
   return document;

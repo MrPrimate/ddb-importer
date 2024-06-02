@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import logger from "../../logger.js";
 import { generateBackground } from "../../parser/character/bio.js";
 // import { parseTags } from "../../lib/DDBReferenceLinker.js";

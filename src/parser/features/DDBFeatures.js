@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";

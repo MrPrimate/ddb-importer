@@ -74,7 +74,6 @@ async function loadIconMap(type) {
   logger.debug(`Loading Inbuilt Icon Map for ${type}`);
   let data = [];
   for (const fileName of FILE_MAP[type]) {
-    // eslint-disable-next-line no-await-in-loop
     const dataLoad = await loadDataFile(fileName);
     data = data.concat(dataLoad);
   }
@@ -406,7 +405,6 @@ export default class Iconizer {
       const pathPostfix = useDeepPaths ? `/${type}/${item.type}` : "";
       const name = useDeepPaths ? `${item.name}` : item.name;
       const downloadOptions = { type, name, download: downloadImages, remoteImages, targetDirectory, pathPostfix, imageNamePrefix };
-      // eslint-disable-next-line no-await-in-loop
       const img = await FileHelper.getImagePath(ddbImg, downloadOptions);
       if (img) item.img = img;
     }

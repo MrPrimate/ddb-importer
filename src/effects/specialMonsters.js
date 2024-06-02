@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 /* eslint-disable require-atomic-updates */
 import { addStatusEffectChange, applyDefaultMidiFlags, baseEffect, effectModules, forceItemEffect } from "./effects.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";

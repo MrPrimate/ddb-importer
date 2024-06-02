@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import DialogHelper from "../lib/DialogHelper.js";
 import DICTIONARY from "../dictionary.js";
 import FolderHelper from "../lib/FolderHelper.js";

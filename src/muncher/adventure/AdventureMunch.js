@@ -510,7 +510,6 @@ export default class AdventureMunch extends FormApplication {
           const compendium = CompendiumHelper.getCompendiumType(item.type);
           const itemRef = compendium.index.find((i) => i.name === item.name && i.type === item.type);
           if (itemRef) {
-            // eslint-disable-next-line no-await-in-loop
             const compendiumItem = await compendium.getDocument(itemRef._id);
             const jsonItem = compendiumItem.toObject();
             delete jsonItem._id;
@@ -574,7 +573,6 @@ export default class AdventureMunch extends FormApplication {
         delete sceneToken.scale;
         const worldActor = this._getWorldActor(token.actorId);
         if (worldActor) {
-          // eslint-disable-next-line no-await-in-loop
           const updateData = await AdventureMunch._getTokenUpdateData(worldActor, sceneToken);
           tokenResults.push(updateData);
         } else {
@@ -789,7 +787,6 @@ export default class AdventureMunch extends FormApplication {
           await createDDBCompendium(compData);
           for (const key of Object.keys(this.compendiums)) {
             this.compendiums[key] = CompendiumHelper.getCompendiumType(key);
-            // eslint-disable-next-line no-await-in-loop
             await this.compendiums[key].getIndex();
           }
         }

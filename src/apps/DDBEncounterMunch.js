@@ -443,7 +443,6 @@ export default class DDBEncounterMunch extends Application {
       for (const worldMonster of this.encounter.worldMonsters) {
         logger.info(`Generating token ${worldMonster.ddbName} (${worldMonster.name}) for ${this.encounter.name}`);
         const monster = game.actors.get(worldMonster.id);
-        // eslint-disable-next-line no-await-in-loop
         const linkedToken = foundry.utils.duplicate(await monster.getTokenDocument());
         if (monsterDepth + linkedToken.height > ySquares) {
           monsterDepth = 0;

@@ -241,7 +241,6 @@ export default class DDBItemImporter {
             keepId: true,
             temporary: true,
           };
-          // eslint-disable-next-line no-await-in-loop
           newItem = new Item.implementation(item, options);
         } catch (err) {
           logger.error(`Error creating ${item.name}`, { item, err });
@@ -284,7 +283,6 @@ export default class DDBItemImporter {
   async updateCompendiumItems(inputItems) {
     let results = [];
     for (const item of inputItems) {
-      // eslint-disable-next-line no-await-in-loop
       const existingItems = await this.getFilteredItems(item);
       // we have a match, update first match
       if (existingItems.length >= 1) {
@@ -311,11 +309,9 @@ export default class DDBItemImporter {
   async createCompendiumItems(inputItems) {
     let promises = [];
     for (const item of inputItems) {
-      // eslint-disable-next-line no-await-in-loop
       const existingItems = await this.getFilteredItems(item);
       // we have a single match
       if (existingItems.length === 0) {
-        // eslint-disable-next-line no-await-in-loop
         let newItem = await this.createCompendiumItem(item);
         promises.push(newItem);
       }
@@ -407,7 +403,6 @@ ${item.system.description.chat}
 
     let loadedItems = [];
     for (const i of firstPassItems) {
-      // eslint-disable-next-line no-await-in-loop
       let item = await this.compendium.getDocument(i._id).then((doc) => {
         const docData = doc.toObject();
         if (deleteCompendiumId) delete docData._id;

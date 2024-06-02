@@ -71,7 +71,6 @@ export default class DDBDynamicUpdateSetup extends FormApplication {
     event.preventDefault();
     const initial = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync");
     for (const [key, value] of Object.entries(formData)) {
-      // eslint-disable-next-line no-await-in-loop
       await game.settings.set(SETTINGS.MODULE_ID, key, value);
     }
     const post = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync");

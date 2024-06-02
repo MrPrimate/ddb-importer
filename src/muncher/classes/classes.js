@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import logger from "../../logger.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";

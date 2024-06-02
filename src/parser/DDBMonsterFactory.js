@@ -157,7 +157,6 @@ export default class DDBMonsterFactory {
         logger.debug(`Attempting to parse ${i}/${totalMonsters} ${monster.name}`);
         logger.time(`Monster Parse ${name}`);
         const ddbMonster = new DDBMonster(monster, { extra: this.extra, useItemAC, legacyName, addMonsterEffects, addChrisPremades });
-        // eslint-disable-next-line no-await-in-loop
         await ddbMonster.parse();
         foundryActors.push(foundry.utils.duplicate(ddbMonster.npc));
         logger.timeEnd(`Monster Parse ${name}`);
@@ -276,7 +275,6 @@ export default class DDBMonsterFactory {
     for (const monster of documents) {
       this.munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name} to compendium`, false, true);
       logger.debug(`Preparing ${monster.name} data for import`);
-      // eslint-disable-next-line no-await-in-loop
       const munched = await addNPC(monster, "monster");
       monstersParsed.push(munched);
       currentMonster += 1;

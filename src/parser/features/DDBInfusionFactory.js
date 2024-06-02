@@ -28,8 +28,6 @@ export class DDBInfusionFactory {
         ddbInfusion: infusion,
         rawCharacter: this.rawCharacter,
       });
-
-      // eslint-disable-next-line no-await-in-loop
       await ddbInfusion.build();
       logger.debug(`DDBInfusion: ${ddbInfusion.ddbInfusion.name}`, {
         ddbInfusion,

@@ -238,7 +238,6 @@ export async function generateTable(parentName, html, updateExisting, type = "")
       nameGuess = keys[1];
     }
     const finalName = `${name}: ${nameGuess}`;
-    // eslint-disable-next-line no-await-in-loop
     const tableGenerated = await CompendiumHelper.queryCompendiumEntry(tableCompendiumLabel, finalName, true);
 
     logger.debug(`Table detection triggered for ${name} (parentName: ${parentName})!`, {
@@ -255,7 +254,6 @@ export async function generateTable(parentName, html, updateExisting, type = "")
 
     const builtTables = tableGenerated
       ? [tableGenerated]
-      // eslint-disable-next-line no-await-in-loop
       : await buildAndImportTable(parsedTable, keys, diceKeys, finalName, name, updateExisting);
 
     if (builtTables.length > 0) {

@@ -1396,7 +1396,6 @@ async function generateDynamicItemChange(actor, document, update) {
         let results = [];
         for (let i = 1; i < update.system.quantity; i++) {
           logger.debug(`Adding item # ${i}`);
-          // eslint-disable-next-line no-await-in-loop
           let newDoc = await actor.createEmbeddedDocuments("Item", [newDocument], DISABLE_FOUNDRY_UPGRADE);
           results.push(newDoc);
           // new doc/item push to ddb handled by the add item hook

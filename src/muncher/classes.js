@@ -129,10 +129,8 @@ export async function parseClasses() {
   const subClassResults = [];
   for (const className of classNames) {
     const klass = classData.find((c) => c.name === className);
-    // eslint-disable-next-line no-await-in-loop
     const subClassData = await getSubClassesData(className);
     if (!klass || (subClassData && utils.isArray(subClassData) && subClassData.length > 0)) {
-      // eslint-disable-next-line no-await-in-loop
       const subClassResult = await getSubClasses(subClassData, klass);
       subClassResults.push(...subClassResult);
     }
@@ -140,9 +138,7 @@ export async function parseClasses() {
 
   const classOptionsResults = [];
   for (const className of classNames) {
-    // eslint-disable-next-line no-await-in-loop
     const classOptionsData = await getClassOptionsData(className);
-    // eslint-disable-next-line no-await-in-loop
     const classOptionsResult = await getClassOptions(classOptionsData, className);
     classOptionsResults.push(...classOptionsResult);
   }

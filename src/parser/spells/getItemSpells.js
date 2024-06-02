@@ -60,8 +60,6 @@ export async function getItemSpells(ddb, character) {
         },
       },
     };
-
-    // eslint-disable-next-line no-await-in-loop
     items.push(await parseSpell(spell, character));
   }
 

@@ -58,11 +58,9 @@ foundry.utils.setProperty(CONFIG, "DDBI", {
 
 async function resetSettings() {
   for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS())) {
-    // eslint-disable-next-line no-await-in-loop
     await game.settings.set(SETTINGS.MODULE_ID, name, data.default);
   }
   for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS(true))) {
-    // eslint-disable-next-line no-await-in-loop
     await game.settings.set(SETTINGS.MODULE_ID, name, data.default);
   }
   window.location.reload();

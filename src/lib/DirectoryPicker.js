@@ -148,8 +148,6 @@ export class DirectoryPicker extends FilePicker {
           if (currentSource !== paths[i]) {
             currentSource = `${currentSource}/${paths[i]}`;
           }
-
-          // eslint-disable-next-line no-await-in-loop
           await DirectoryPicker.createDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
         } catch (err) {
           const errMessage = `${(err?.message ?? utils.isString(err) ? err : err)}`.replace(/^Error: /, "").trim();
@@ -160,7 +158,6 @@ export class DirectoryPicker extends FilePicker {
           //     current: currentSource,
           //   });
           //   console.warn("about to check files on existing folder", newBrowsePath);
-          //   // eslint-disable-next-line no-await-in-loop
           //   await FileHelper.generateCurrentFiles(newBrowsePath);
           // }
           if (!errMessage.startsWith("EEXIST") && !errMessage.startsWith("The S3 key")) {

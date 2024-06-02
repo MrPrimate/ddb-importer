@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 
 import OriginFixer from "../../lib/OriginFixer.js";
 

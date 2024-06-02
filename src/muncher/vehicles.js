@@ -157,7 +157,6 @@ export async function parseTransports(ids = null) {
   for (const vehicle of vehicleHandler.documents) {
     DDBMuncher.munchNote(`[${currentVehicle}/${vehicleCount}] Importing ${vehicle.name}`, false, true);
     logger.debug(`Importing/second parse of ${vehicle.name} data`);
-    // eslint-disable-next-line no-await-in-loop
     const munched = await addNPC(vehicle, "vehicle");
     vehiclesParsed.push(munched);
     currentVehicle += 1;

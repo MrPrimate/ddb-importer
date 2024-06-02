@@ -20,7 +20,6 @@ export async function getClassOptions(data, className) {
     const existingFeature = classFeatures.some((f) => f.name === feature.name);
     logger.debug(`${feature.name} feature starting...`);
     if (!NO_TRAITS.includes(feature.name.trim()) && !existingFeature) {
-      // eslint-disable-next-line no-await-in-loop
       const parsedFeature = await getClassFeature(feature, klass);
       foundry.utils.setProperty(parsedFeature, "flags.ddbimporter.optionalFeature", true);
       classFeatures.push(parsedFeature);

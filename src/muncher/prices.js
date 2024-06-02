@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 
 import DICTIONARY from "../dictionary.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";

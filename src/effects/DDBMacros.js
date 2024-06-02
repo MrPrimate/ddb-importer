@@ -253,11 +253,9 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
       ).filter((m) => m.world);
 
       for (const macro of worldMacros) {
-        // eslint-disable-next-line no-await-in-loop
         const macroFile = await DDBMacros.loadMacroFile(macro.type, macro.file, true);
 
         if (macroFile) {
-          // eslint-disable-next-line no-await-in-loop
           await DDBMacros.createMacro({ name: macro.name, content: macroFile, img: macro.img, isGM: macro.isGM, isTemp: false });
         }
       }

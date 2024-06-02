@@ -51,16 +51,10 @@ async function updateActorsWithActor(targetActors, sourceActor) {
     if (targetActor.folder) actorUpdate.folder = targetActor.folder._id;
     actorUpdate.sort = targetActor.sort;
     actorUpdate.ownership = targetActor.ownership;
-    // eslint-disable-next-line no-await-in-loop
     DDBItemImporter.copySupportedItemFlags(targetActor, actorUpdate);
-
-    // eslint-disable-next-line no-await-in-loop
     await targetActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
-
-    // eslint-disable-next-line no-await-in-loop
     await targetActor.update(actorUpdate);
     // console.warn("afterdelete", foundry.utils.duplicate(targetActor));
-    // eslint-disable-next-line no-await-in-loop
     await targetActor.createEmbeddedDocuments("Item", monsterItems);
     // console.warn("after create", foundry.utils.duplicate(targetActor));
 
@@ -94,9 +88,7 @@ export async function updateWorldMonsters() {
       if (worldMatches.length > 0) {
         DDBMuncher.munchNote(`Found ${value.name} world monster`, true);
         logger.debug(`Matched ${value.name} (${key})`);
-        // eslint-disable-next-line no-await-in-loop
         const monster = await monsterCompendium.getDocument(value._id);
-        // eslint-disable-next-line no-await-in-loop
         let updatedActors = await updateActorsWithActor(worldMatches, monster, count);
         results.push(updatedActors);
       }

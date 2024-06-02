@@ -532,7 +532,6 @@ export default class DDBMonsterFeatureFactory {
 
     // some features are duplicated and we parse these first
     for (const feature of this.features[type]) {
-      // eslint-disable-next-line no-await-in-loop
       await feature.parse();
     }
 
@@ -541,7 +540,6 @@ export default class DDBMonsterFeatureFactory {
       feature.options["hideDescription"] = this.hideDescription;
       feature.options["updateExisting"] = this.updateExisting;
       const ddbFeature = new DDBMonsterFeature(feature.name, feature.options);
-      // eslint-disable-next-line no-await-in-loop
       await ddbFeature.parse();
       this.features[type].push(ddbFeature);
     }

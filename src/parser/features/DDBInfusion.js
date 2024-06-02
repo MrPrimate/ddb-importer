@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import DICTIONARY from "../../dictionary.js";
 import { addSimpleConditionEffect, baseEnchantmentEffect, generateEffects } from "../../effects/effects.js";
 import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
@@ -222,7 +221,7 @@ export class DDBInfusion {
       const name = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
       switch (name) {
         case "Radiant Weapon (Reaction)": {
-          action = addSimpleConditionEffect(action, "Blinded");
+          action = addSimpleConditionEffect(action, "Blinded", { transfer: false });
           break;
         }
         // no default
@@ -336,14 +335,21 @@ export class DDBInfusion {
           value: magicBonus,
           priority: 20,
         },
-        {
-          key: "system.properties",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: "mgc",
-          priority: 20,
-        }
+        // {
+        //   key: "system.properties",
+        //   mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        //   value: "mgc",
+        //   priority: 20,
+        // }
       );
     }
+    // all items infused become magical
+    changes.push({
+      key: "system.properties",
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      value: "mgc",
+      priority: 20,
+    });
     return changes;
   }
 

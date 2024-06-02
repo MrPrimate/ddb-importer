@@ -82,7 +82,6 @@ async function updateFoundryCharacters() {
     const ddbImported = 'ddbimporter' in actor.flags;
     if (ddbImported && actor.type === "character") {
       logger.info(`Updating ${actor.name} to DDB`);
-      // eslint-disable-next-line no-await-in-loop
       await importCharacter(actor);
     }
   }
@@ -93,7 +92,6 @@ async function updateDDBCharacters() {
     const ddbImported = 'ddbimporter' in actor.flags;
     if (ddbImported && actor.type === "character") {
       logger.info(`Updating ${actor.name} to DDB`);
-      // eslint-disable-next-line no-await-in-loop
       await updateDDBCharacter(actor);
     }
   }

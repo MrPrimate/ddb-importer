@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import { forceItemEffect, addStatusEffectChange } from "../effects.js";
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 

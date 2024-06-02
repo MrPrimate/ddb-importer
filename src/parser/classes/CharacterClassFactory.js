@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import DDBClass from "./DDBClass.js";
 import logger from '../../logger.js';
 import DDBSubClass from "./DDBSubClass.js";

@@ -40,7 +40,6 @@ const SUPER_LOOSE = [
 
 export async function loadDDBCompendiumIndexes() {
   for (const i of INDEX_COMPENDIUMS) {
-    // eslint-disable-next-line no-await-in-loop
     await CompendiumHelper.loadCompendiumIndex(i);
   }
 }

@@ -511,13 +511,10 @@ export async function fixFeatures(features) {
     } else if (name.endsWith("[Infusion] Spell-Refueling Ring")) {
       feature.system.activation.type = "action";
     }
-
-    // eslint-disable-next-line no-await-in-loop
     const tableDescription = await generateTable(feature.name, feature.system.description.value, true, feature.type);
     feature.system.description.value = tableDescription;
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
     if (chatAdd && feature.system.description.chat !== "") {
-      // eslint-disable-next-line no-await-in-loop
       feature.system.description.chat = await generateTable(feature.name, feature.system.description.chat, true, feature.type);
     }
   }

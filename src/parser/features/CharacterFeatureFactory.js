@@ -4,9 +4,7 @@ import logger from "../../logger.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBFeatures from "./DDBFeatures.js";
-import { DDBInfusionFactory } from "./DDBInfusionFactory.js";
 import { addExtraEffects, fixFeatures } from "./fixes.js";
-
 
 export default class CharacterFeatureFactory {
 
@@ -23,7 +21,6 @@ export default class CharacterFeatureFactory {
     this.processed = {
       actions: [],
       features: [],
-      infusions: [],
     };
 
     this.data = [];
@@ -192,14 +189,6 @@ export default class CharacterFeatureFactory {
 
   updateIds(type) {
     this.ddbCharacter.updateItemIds(this.processed[type]);
-  }
-
-  async processInfusions() {
-    logger.debug("Parsing infusions");
-    this.infusionFactory = new DDBInfusionFactory(this.ddbCharacter);
-    await this.infusionFactory.processInfusions();
-    this.processed.infusions = this.infusionFactory.processed.infusions;
-    this.data.push(...this.infusionFactory.processed.infusions);
   }
 
   async processFeatures() {

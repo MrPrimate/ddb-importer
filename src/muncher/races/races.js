@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import logger from "../../logger.js";
 import DDBRace from "../../parser/race/DDBRace.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";

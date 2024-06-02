@@ -605,7 +605,6 @@ export default class DDBCompanion {
     let now = data;
     let featType = "special";
     while (now !== null) {
-      // eslint-disable-next-line no-await-in-loop
       const result = await this.#processFeatureElement(now, featType);
       now = result.next;
       featType = result.featType;

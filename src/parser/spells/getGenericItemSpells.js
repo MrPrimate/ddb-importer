@@ -39,8 +39,6 @@ export async function getGenericItemSpells(itemList, itemSpells) {
         },
       },
     };
-
-    // eslint-disable-next-line no-await-in-loop
     const parsedSpell = await parseSpell(spell, null);
 
     items.push(parsedSpell);

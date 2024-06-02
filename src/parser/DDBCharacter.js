@@ -14,6 +14,7 @@ import CharacterFeatureFactory from "./features/CharacterFeatureFactory.js";
 import utils from "../lib/utils.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DDBHelper from "../lib/DDBHelper.js";
+import { DDBInfusionFactory } from "./features/DDBInfusionFactory.js";
 
 
 export default class DDBCharacter {
@@ -244,10 +245,13 @@ export default class DDBCharacter {
       this._characterFeatureFactory = new CharacterFeatureFactory(this);
       await this._characterFeatureFactory.processFeatures();
       this.raw.features = this._characterFeatureFactory.processed.features;
-      await this._characterFeatureFactory.processInfusions();
-      this.raw.features.push(...this._characterFeatureFactory.processed.infusions);
       logger.debug("Feature parse complete");
-      this._spellParser = new CharacterSpellFactory(this.source.ddb, this.raw.character);
+      logger.debug("Parsing infusions");
+      this._infusionFactory = new DDBInfusionFactory(this);
+      await this._infusionFactory.processInfusions();
+      this.raw.features.push(...this._infusionFactory.processed.infusions);
+      logger.debug("Infusion parse complete");
+      this._spellParser = new CharacterSpellFactory(this);
       this.raw.spells = await this._spellParser.getCharacterSpells();
       logger.debug("Character Spells parse complete");
       await this._characterFeatureFactory.processActions();

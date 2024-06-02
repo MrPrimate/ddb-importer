@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import FolderHelper from "../../lib/FolderHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";

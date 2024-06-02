@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 
 import logger from "../logger.js";
 import CompendiumHelper from "./CompendiumHelper.js";

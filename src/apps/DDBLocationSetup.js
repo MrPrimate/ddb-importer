@@ -72,13 +72,11 @@ export default class DDBLocationSetup extends FormApplication {
 
     for (const key of Object.keys(SETTINGS.DEFAULT_SETTINGS.READY.DIRECTORIES)) {
       const value = formData[key];
-      // eslint-disable-next-line no-await-in-loop
       await game.settings.set(SETTINGS.MODULE_ID, key, value);
       directoryStatus.push({
         key,
         value,
         isBad: FileHelper.BAD_DIRS.includes(value),
-        // eslint-disable-next-line no-await-in-loop
         isValid: await DirectoryPicker.verifyPath(DirectoryPicker.parse(value)),
       });
     }

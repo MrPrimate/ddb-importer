@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 /* eslint-disable no-continue */
 /* eslint-disable require-atomic-updates */
 

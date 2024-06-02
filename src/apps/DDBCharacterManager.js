@@ -20,6 +20,7 @@ import DDBItemImporter from "../lib/DDBItemImporter.js";
 import { addMagicItemSpells } from "../parser/item/itemSpells.js";
 import DDBHelper from "../lib/DDBHelper.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
+import { createInfusedItems } from "../parser/item/infusions.js";
 
 export default class DDBCharacterManager extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {
@@ -1085,7 +1086,6 @@ ${item.system.description.chat}
     this.effectBackup = foundry.utils.duplicate(this.actor.effects);
     for (const e of this.effectBackup) {
       if (e.origin?.includes(".Item.")) {
-        // eslint-disable-next-line no-await-in-loop
         const parent = await fromUuid(e.origin);
         logger.debug("Effect Backup flags", { e, parent });
         if (parent) foundry.utils.setProperty(e, "flags.ddbimporter.type", parent.type);
@@ -1363,6 +1363,9 @@ ${item.system.description.chat}
       if (favorites.length > 0) {
         await this.actor.update({ system: { favorites } });
       }
+
+      // add infusions to actors items
+      await createInfusedItems(this.ddbCharacter.source.ddb, this.actor);
 
       await this.ddbCharacter.autoLinkResources();
 

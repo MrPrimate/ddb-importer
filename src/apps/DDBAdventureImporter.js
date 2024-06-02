@@ -40,7 +40,6 @@ export class DDBAdventureImporter extends AdventureImporter {
     const importResult = await super.importContent(toCreate, toUpdate, documentCount);
     for (let [name, option] of Object.entries(this.importOptions || {})) {
       if (option.handler) {
-        // eslint-disable-next-line no-await-in-loop
         await option.handler(this.document, option, this.submitOptions[name]);
       }
     }

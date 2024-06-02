@@ -11,19 +11,20 @@ import logger from "../../logger.js";
 
 export default class CharacterSpellFactory {
 
-  constructor(ddb, character) {
-    this.ddb = ddb;
-    this.character = character;
+  constructor(ddbCharacter) {
+    this.ddbCharacter = ddbCharacter;
+    this.ddb = ddbCharacter.source.ddb;
+    this.character = ddbCharacter.raw.character;
 
     this.items = [];
 
-    this.proficiencyModifier = character.system.attributes.prof;
-    this.lookups = getLookups(ddb.character);
+    this.proficiencyModifier = this.character.system.attributes.prof;
+    this.lookups = getLookups(this.ddb.character);
 
     logger.debug("Character spell lookups", this.lookups);
-    this.characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+    this.characterAbilities = this.character.flags.ddbimporter.dndbeyond.effectAbilities;
 
-    this.healingBoost = DDBHelper.filterBaseModifiers(ddb, "bonus", { subType: "spell-group-healing" }).reduce((a, b) => a + b.value, 0);
+    this.healingBoost = DDBHelper.filterBaseModifiers(this.ddb, "bonus", { subType: "spell-group-healing" }).reduce((a, b) => a + b.value, 0);
 
   }
 
@@ -82,7 +83,6 @@ export default class CharacterSpellFactory {
         // Check for duplicate spells, normally domain ones
         // We will import spells from a different class that are the same though
         // as they may come from with different spell casting mods
-        // eslint-disable-next-line no-await-in-loop
         const parsedSpell = await parseSpell(spell, this.character);
         const duplicateSpell = this.items.findIndex(
           (existingSpell) => {
@@ -181,13 +181,11 @@ export default class CharacterSpellFactory {
           && spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
       );
       if (!this.items[duplicateSpell]) {
-        // eslint-disable-next-line no-await-in-loop
         const parsedSpell = await parseSpell(spell, this.character);
         this.items.push(parsedSpell);
       } else if (spell.alwaysPrepared) {
         // if our new spell is always known we overwrite!
         // it's probably domain
-        // eslint-disable-next-line no-await-in-loop
         const parsedSpell = await parseSpell(spell, this.character);
         this.items[duplicateSpell] = parsedSpell;
       } else {
@@ -216,7 +214,6 @@ export default class CharacterSpellFactory {
         unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = type;
         delete unlimitedSpell.id;
         delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-        // eslint-disable-next-line no-await-in-loop
         const parsedSpell = await parseSpell(unlimitedSpell, this.character);
         this.items.push(parsedSpell);
       }
@@ -269,8 +266,6 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "race");
-
-      // eslint-disable-next-line no-await-in-loop
       const parsedSpell = await parseSpell(spell, this.character);
       this.items.push(parsedSpell);
     }
@@ -321,8 +316,6 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "feat");
-
-      // eslint-disable-next-line no-await-in-loop
       const parsedSpell = await parseSpell(spell, this.character);
       this.items.push(parsedSpell);
     }
@@ -362,8 +355,6 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "background");
-
-      // eslint-disable-next-line no-await-in-loop
       const parsedSpell = await parseSpell(spell, this.character);
       this.items.push(parsedSpell);
     }
