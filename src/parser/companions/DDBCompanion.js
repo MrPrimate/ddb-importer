@@ -64,12 +64,6 @@ export default class DDBCompanion {
     const data = CONFIG.DDBI.EXTRA_IMAGES.summons[name]
       ?? CONFIG.DDBI.EXTRA_IMAGES.summons[name.split("(")[0].trim()];
 
-    console.warn(`Image check for ${document.name}`, {
-      name,
-      document,
-      data,
-    });
-
     if (!data) return document;
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);

@@ -756,7 +756,7 @@ function addSpellAttackBonuses(modifiers, name) {
     modifiers,
     name,
     "warlock-spell-save-dc",
-    "system.bonuses.rsak.dc"
+    "system.bonuses.spell.dc"
   );
   const spellDCBonus = addAddBonusEffect(
     modifiers,

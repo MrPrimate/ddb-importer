@@ -31,6 +31,8 @@ export default class DDBCompanionFactory {
     this.summons = null;
     this.badSummons = false;
     this.compendiumFolders = null;
+    this.noCompendiums = options.noCompendiums ?? false;
+    this.itemHandler = new DDBItemImporter("summons", []);
   }
 
   get data() {
@@ -117,7 +119,21 @@ export default class DDBCompanionFactory {
     }
   }
 
+  async getExistingCompendiumCompanions() {
+    await this.itemHandler.buildIndex({ fields: ["name", "flags.ddbimporter.compendiumId"] });
+
+    const existingCompanions = await Promise.all(this.itemHandler.compendiumIndex
+      .filter((companion) => foundry.utils.hasProperty(companion, "flags.ddbimporter.compendiumId")
+        && this.companions.some((c) => foundry.utils.getProperty(c, "data.flags.ddbimporter.compendiumId") === companion.flags.ddbimporter.compendiumId)
+      )
+      .map(async (companion) => this.itemHandler.compendium.getDocument(companion._id))
+    );
+
+    return existingCompanions;
+  }
+
   async getExistingWorldCompanions({ folderOverride = null, rootFolderNameOverride = undefined, limitToFactory = false } = {}) {
+    if (game.user.isGM && !this.noCompendiums) return [];
     if (!folderOverride) await this.#generateCompanionFolders(rootFolderNameOverride);
 
     const companionNames = limitToFactory ? this.data.map((c) => c.name) : [];
@@ -134,13 +150,24 @@ export default class DDBCompanionFactory {
   }
 
   async #addToCompendium(companion) {
-    if (!game.user.isGM) return;
+    const results = [];
+    if (!game.user.isGM) return results;
     const compendiumCompanion = foundry.utils.deepClone(companion);
     delete compendiumCompanion.folder;
     const folderName = this.compendiumFolders.getSummonFolderName(compendiumCompanion);
     const folder = await this.compendiumFolders.createSummonsFolder(folderName.name);
     compendiumCompanion.folder = folder._id;
-    await addNPC(compendiumCompanion, "summons");
+    const npc = await addNPC(compendiumCompanion, "summons");
+    results.push(npc);
+    return results;
+  }
+
+  static async addToWorld(companion, update) {
+    const results = [];
+    if (!game.user.can("ITEM_CREATE")) return results;
+    const npc = await buildNPC(companion, "monster", false, update, true);
+    results.push(npc);
+    return results;
   }
 
   async #updateCompanions(companions, existingCompanions) {
@@ -162,9 +189,10 @@ export default class DDBCompanionFactory {
       companion._id = existingCompanion._id;
       logger.info(`Updating companion ${companion.name}`);
       DDBItemImporter.copySupportedItemFlags(existingCompanion, companion);
-      const npc = await buildNPC(companion, "monster", false, true, true);
+      const npc = game.user.isGM && !this.noCompendiums
+        ? await this.#addToCompendium(companion)
+        : await DDBCompanionFactory.addToWorld(companion, true);
       results.push(npc);
-      await this.#addToCompendium(companion);
     }
 
     return results;
@@ -190,9 +218,10 @@ export default class DDBCompanionFactory {
         folderId,
       });
       if (folderId) companion.folder = folderId;
-      const importedCompanion = await buildNPC(companion, "monster", false, false, true);
+      const importedCompanion = game.user.isGM && !this.noCompendiums
+        ? await this.#addToCompendium(companion)
+        : await DDBCompanionFactory.addToWorld(companion, false);
       results.push(importedCompanion);
-      await this.#addToCompendium(companion);
     }
     return results;
   }
@@ -209,16 +238,16 @@ export default class DDBCompanionFactory {
       }
     }
 
-    const itemHandler = new DDBItemImporter("monster", companionData);
-    await itemHandler.srdFiddling();
-    await itemHandler.iconAdditions();
+    this.itemHandler.documents = companionData;
+    await this.itemHandler.srdFiddling();
+    await this.itemHandler.iconAdditions();
 
-    await generateIconMap(itemHandler.documents);
+    await generateIconMap(this.itemHandler.documents);
 
     if (this.updateCompanions) {
-      this.results.updated = await this.#updateCompanions(itemHandler.documents, existingCompanions);
+      this.results.updated = await this.#updateCompanions(this.itemHandler.documents, existingCompanions);
     }
-    this.results.created = await this.#createCompanions(itemHandler.documents, existingCompanions, folderOverride?.id);
+    this.results.created = await this.#createCompanions(this.itemHandler.documents, existingCompanions, folderOverride?.id);
 
   }
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 import DDBCharacter from "../DDBCharacter.js";
@@ -9,14 +10,15 @@ const COMPANION_REMAP = {
 
 DDBCharacter.prototype.addCompanionsToDocuments = async function() {
   for (const factory of this.companionFactories) {
-    // eslint-disable-next-line no-await-in-loop
-    const worldActors = await factory.getExistingWorldCompanions({ limitToFactory: true });
-    const profiles = worldActors
+    const summonActors = game.user.isGM
+      ? await factory.getExistingCompendiumCompanions()
+      : await factory.getExistingWorldCompanions({ limitToFactory: true });
+    const profiles = summonActors
       .map((actor) => {
         return {
           _id: foundry.utils.randomID(),
           name: actor.name,
-          uuid: `Actor.${actor.id}`,
+          uuid: actor.uuid,
           count: null,
         };
       });
@@ -31,7 +33,7 @@ DDBCharacter.prototype.addCompanionsToDocuments = async function() {
       logger.debug("Companion Data Load", {
         originDocument: updateDocument,
         profiles,
-        worldActors,
+        worldActors: summonActors,
         factory,
         summons: factory.summons,
       });
@@ -85,7 +87,6 @@ DDBCharacter.prototype._parseCompanion = async function(html, type, originDocume
 
 DDBCharacter.prototype._importCompanions = async function() {
   for (const factory of this.companionFactories) {
-    // eslint-disable-next-line no-await-in-loop
     await factory.updateOrCreateCompanions();
   }
 };
@@ -123,16 +124,13 @@ DDBCharacter.prototype._getCompanionOption = async function(parentFeature, child
 
 DDBCharacter.prototype.generateCompanions = async function() {
   for (const name of SETTINGS.COMPANIONS.COMPANION_FEATURES) {
-    // eslint-disable-next-line no-await-in-loop
     await this._getCompanionFeature(name);
   }
   for (const name of SETTINGS.COMPANIONS.COMPANION_SPELLS) {
-    // eslint-disable-next-line no-await-in-loop
     await this._getCompanionSpell(name);
   }
   for (const [parentFeature, childNames] of Object.entries(SETTINGS.COMPANIONS.COMPANION_OPTIONS)) {
     for (const name of childNames) {
-      // eslint-disable-next-line no-await-in-loop
       await this._getCompanionOption(parentFeature, name);
     }
   }
