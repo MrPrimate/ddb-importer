@@ -10,6 +10,7 @@ import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import utils from "../lib/utils.js";
+import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 function getSubClassesData(className) {
   const cobaltCookie = getCobalt();
@@ -108,6 +109,16 @@ function getClassesData() {
 }
 
 export async function parseClasses() {
+
+  const classesCompData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Classes");
+  await createDDBCompendium(classesCompData);
+
+  const subClassCompData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Subclasses");
+  await createDDBCompendium(subClassCompData);
+
+  const classFeaturesCompData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Class Features");
+  await createDDBCompendium(classFeaturesCompData);
+
   const classData = await getClassesData();
   const classesResults = await getClasses(classData);
 

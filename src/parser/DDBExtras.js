@@ -550,7 +550,7 @@ export async function generateCharacterExtras(html, ddbCharacter, actor) {
     const enhancedExtras = parsedExtras.actors.map((extra) => enhanceParsedExtra(actor, extra));
     logger.debug("Enhanced Parsed Extras:", foundry.utils.duplicate(enhancedExtras));
 
-    const ddbCompanionFactory = new DDBCompanionFactory(ddbCharacter, "", { actor, data: enhancedExtras });
+    const ddbCompanionFactory = new DDBCompanionFactory("", { actor, data: enhancedExtras });
     await ddbCompanionFactory.updateOrCreateCompanions({ folderOverride: folder });
 
   } catch (err) {

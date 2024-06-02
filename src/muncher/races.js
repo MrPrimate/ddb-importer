@@ -7,6 +7,7 @@ import FileHelper from "../lib/FileHelper.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
+import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 function getRaceData() {
   const cobaltCookie = getCobalt();
@@ -42,6 +43,13 @@ function getRaceData() {
 }
 
 export async function parseRaces() {
+
+  const racesCompData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Races");
+  await createDDBCompendium(racesCompData);
+
+  const traitCompData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Racial Traits");
+  await createDDBCompendium(traitCompData);
+
   const results = await getRaceData();
 
   // FileHelper.download(JSON.stringify(results), `races-icon.json`, "application/json");

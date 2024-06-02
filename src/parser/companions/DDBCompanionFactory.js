@@ -7,15 +7,12 @@ import { addNPC, buildNPC, copyExistingMonsterImages, generateIconMap } from "..
 import DDBCompanion from "./DDBCompanion.js";
 import { isEqual } from "../../../vendor/lowdash/isequal.js";
 import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
-import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
-import SETTINGS from "../../settings.js";
 
 export default class DDBCompanionFactory {
 
-  constructor(ddbCharacter, html, options = {}) {
+  constructor(html, options = {}) {
     // console.warn("html", html);
     this.options = options;
-    this.ddbCharacter = ddbCharacter;
     this.html = html;
     this.doc = new DOMParser().parseFromString(html.replaceAll("\n", ""), 'text/html');
     this.companions = [];
@@ -32,7 +29,17 @@ export default class DDBCompanionFactory {
     this.badSummons = false;
     this.compendiumFolders = null;
     this.noCompendiums = options.noCompendiums ?? false;
-    this.itemHandler = new DDBItemImporter("summons", []);
+    this.indexFilter = { fields: ["name", "flags.ddbimporter.compendiumId"] };
+    this.itemHandler = null;
+  }
+
+  async init() {
+    this.compendiumFolders = new DDBCompendiumFolders("summons");
+    await this.compendiumFolders.loadCompendium("summons");
+
+    this.itemHandler = new DDBItemImporter("summons", [], {
+      indexFilter: this.indexFilter,
+    });
   }
 
   get data() {
@@ -75,12 +82,8 @@ export default class DDBCompanionFactory {
   }
 
   async parse() {
-    if (game.user.isGM) {
-      const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Summons");
-      await createDDBCompendium(compData);
-      this.compendiumFolders = new DDBCompendiumFolders("summons");
-      await this.compendiumFolders.loadCompendium("summons");
-    }
+
+    await this.init();
 
     // console.warn(this.doc);
     const statBlockDivs = this.doc.querySelectorAll("div.stat-block-background, div.stat-block-finder, div.basic-text-frame");
@@ -120,7 +123,7 @@ export default class DDBCompanionFactory {
   }
 
   async getExistingCompendiumCompanions() {
-    await this.itemHandler.buildIndex({ fields: ["name", "flags.ddbimporter.compendiumId"] });
+    await this.itemHandler.buildIndex(this.indexFilter);
 
     const existingCompanions = await Promise.all(this.itemHandler.compendiumIndex
       .filter((companion) => foundry.utils.hasProperty(companion, "flags.ddbimporter.compendiumId")
@@ -249,6 +252,45 @@ export default class DDBCompanionFactory {
     }
     this.results.created = await this.#createCompanions(this.itemHandler.documents, existingCompanions, folderOverride?.id);
 
+  }
+
+
+  static COMPANION_REMAP = {
+    "Artificer Infusions": "Infusion: Homunculus Servant",
+  };
+
+  async addCompanionsToDocuments(otherDocuments) {
+    const summonActors = game.user.isGM
+      ? await this.getExistingCompendiumCompanions()
+      : await this.getExistingWorldCompanions({ limitToFactory: true });
+    const profiles = summonActors
+      .map((actor) => {
+        return {
+          _id: actor._id,
+          name: actor.name,
+          uuid: actor.uuid,
+          count: null,
+        };
+      });
+    if (this.originDocument) {
+      const alternativeDocument = DDBCompanionFactory.COMPANION_REMAP[this.originDocument.name];
+      const updateDocument = alternativeDocument
+        ? (otherDocuments.find((s) =>
+          s.name === alternativeDocument || s.flags.ddbimporter?.originalName === alternativeDocument
+        ) ?? this.originDocument)
+        : this.originDocument;
+
+      logger.debug("Companion Data Load", {
+        originDocument: updateDocument,
+        profiles,
+        worldActors: summonActors,
+        factory: this,
+        summons: this.summons,
+      });
+      foundry.utils.setProperty(updateDocument, "system.summons", foundry.utils.deepClone(this.summons));
+      foundry.utils.setProperty(updateDocument, "system.summons.profiles", profiles);
+      foundry.utils.setProperty(updateDocument, "system.actionType", "summ");
+    }
   }
 
 }

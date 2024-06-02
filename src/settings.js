@@ -18,7 +18,7 @@ const COMPENDIUMS = [
   { title: "Override", setting: "entity-override-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/e116466f43544117a34ed5f642c680f7.jpg", auto: true },
   { title: "Adventures", setting: "entity-adventure-compendium", type: "Adventure", image: "https://media.dndbeyond.com/mega-menu/4af3d4c196428ab0809cf71d332d540d.png", auto: false },
   { title: "Journals", setting: "entity-journal-compendium", type: "JournalEntry", image: "https://media.dndbeyond.com/mega-menu/4af3d4c196428ab0809cf71d332d540d.png", auto: false },
-  { title: "Summons", setting: "entity-summons-compendium", type: "Actor", image: "https://media.dndbeyond.com/mega-menu/4af3d4c196428ab0809cf71d332d540d.png", auto: false },
+  { title: "Summons", setting: "entity-summons-compendium", type: "Actor", image: "https://media.dndbeyond.com/mega-menu/4af3d4c196428ab0809cf71d332d540d.png", auto: true },
 ];
 
 const SRD_COMPENDIUM_LOOKUPS = [

@@ -14,6 +14,7 @@ import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
+import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 /**
  *
@@ -99,6 +100,9 @@ async function processVehicleData(ddbData) {
 
 
 export async function parseTransports(ids = null) {
+  const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Vehicles");
+  await createDDBCompendium(compData);
+
   foundry.utils.setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");

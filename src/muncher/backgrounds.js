@@ -7,6 +7,7 @@ import FileHelper from "../lib/FileHelper.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
+import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 function getBackgroundData() {
   const cobaltCookie = getCobalt();
@@ -42,6 +43,10 @@ function getBackgroundData() {
 }
 
 export async function parseBackgrounds() {
+
+  const backgroundsCompData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Backgrounds");
+  await createDDBCompendium(backgroundsCompData);
+
   const results = await getBackgroundData();
 
   return results;

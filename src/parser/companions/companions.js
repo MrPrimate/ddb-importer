@@ -4,45 +4,6 @@ import SETTINGS from "../../settings.js";
 import DDBCharacter from "../DDBCharacter.js";
 import DDBCompanionFactory from "./DDBCompanionFactory.js";
 
-const COMPANION_REMAP = {
-  "Artificer Infusions": "Infusion: Homunculus Servant",
-};
-
-DDBCharacter.prototype.addCompanionsToDocuments = async function() {
-  for (const factory of this.companionFactories) {
-    const summonActors = game.user.isGM
-      ? await factory.getExistingCompendiumCompanions()
-      : await factory.getExistingWorldCompanions({ limitToFactory: true });
-    const profiles = summonActors
-      .map((actor) => {
-        return {
-          _id: foundry.utils.randomID(),
-          name: actor.name,
-          uuid: actor.uuid,
-          count: null,
-        };
-      });
-    if (factory.originDocument) {
-      const alternativeDocument = COMPANION_REMAP[factory.originDocument.name];
-      const updateDocument = alternativeDocument
-        ? (this.data.features.concat(this.data.actions).find((s) =>
-          s.name === alternativeDocument || s.flags.ddbimporter?.originalName === alternativeDocument
-        ) ?? factory.originDocument)
-        : factory.originDocument;
-
-      logger.debug("Companion Data Load", {
-        originDocument: updateDocument,
-        profiles,
-        worldActors: summonActors,
-        factory,
-        summons: factory.summons,
-      });
-      foundry.utils.setProperty(updateDocument, "system.summons", foundry.utils.deepClone(factory.summons));
-      foundry.utils.setProperty(updateDocument, "system.summons.profiles", profiles);
-      foundry.utils.setProperty(updateDocument, "system.actionType", "summ");
-    }
-  }
-};
 
 DDBCharacter.prototype.getClassFeature = function(name) {
   const klass = this.source.ddb.character.classes
@@ -80,7 +41,7 @@ DDBCharacter.prototype._findDDBSpell = function(name) {
 };
 
 DDBCharacter.prototype._parseCompanion = async function(html, type, originDocument) {
-  const ddbCompanionFactory = new DDBCompanionFactory(this, html, { type, originDocument });
+  const ddbCompanionFactory = new DDBCompanionFactory(html, { type, originDocument });
   await ddbCompanionFactory.parse();
   this.companionFactories.push(ddbCompanionFactory);
 };
@@ -144,7 +105,10 @@ DDBCharacter.prototype.generateCompanions = async function() {
     parsed: this.companions,
   });
 
-  await this.addCompanionsToDocuments();
+  for (const factory of this.companionFactories) {
+    await factory.addCompanionsToDocuments(this.data.features.concat(this.data.actions));
+  }
+
   // different types of companion
   // ranger beast companions, classic and new
   // ranger drake warden

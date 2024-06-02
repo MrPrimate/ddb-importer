@@ -7,6 +7,7 @@ import FileHelper from "../lib/FileHelper.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
+import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 function getFeatData() {
   const cobaltCookie = getCobalt();
@@ -42,6 +43,9 @@ function getFeatData() {
 }
 
 export async function parseFeats() {
+  const featsCompData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Feats");
+  await createDDBCompendium(featsCompData);
+
   const results = await getFeatData();
 
   return results;
