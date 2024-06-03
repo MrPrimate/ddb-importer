@@ -196,7 +196,7 @@ export default class DDBMonster {
 
   async parse() {
     if (!this.name) this.name = this.source.name;
-    this.npc = foundry.utils.duplicate(await newNPC(this.name, this.source.isLegacy));
+    this.npc = foundry.utils.duplicate(await newNPC(this.name, this.source.id));
     this._calculateImage();
 
     this.npc.prototypeToken.name = this.name;

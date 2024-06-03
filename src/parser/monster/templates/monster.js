@@ -1,14 +1,15 @@
 import utils from "../../../lib/utils.js";
 
-export async function newNPC(name, isLegacy) {
+export async function newNPC(name, ddbId = null) {
   const options = {
     temporary: true,
     displaySheet: false,
   };
   const npcClass = await Actor.create({ name, type: "npc" }, options);
   let npc = npcClass.toObject();
-  // npc._id = foundry.utils.randomID();
-  npc._id = utils.namedIDStub(`${npc.name}${isLegacy ? " Legacy" : ""}`);
+  npc._id = ddbId === null
+    ? foundry.utils.randomID()
+    : utils.namedIDStub(npc.name, { postfix: ddbId });
   const flags = {
     dnd5e: {},
     monsterMunch: {},
