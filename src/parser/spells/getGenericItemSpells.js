@@ -1,5 +1,6 @@
 import { fixSpells } from "./special.js";
 import { parseSpell } from "./parseSpell.js";
+import utils from "../../lib/utils.js";
 
 
 export async function getGenericItemSpells(itemList, itemSpells) {
@@ -39,7 +40,8 @@ export async function getGenericItemSpells(itemList, itemSpells) {
         },
       },
     };
-    const parsedSpell = await parseSpell(spell, null);
+    const namePostfix = utils.namedIDStub(itemInfo.definition.name, { prefix: "", length: 5 });
+    const parsedSpell = await parseSpell(spell, null, { namePostfix: namePostfix });
 
     items.push(parsedSpell);
   }

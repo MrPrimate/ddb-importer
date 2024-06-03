@@ -60,7 +60,8 @@ export async function getItemSpells(ddb, character) {
         },
       },
     };
-    items.push(await parseSpell(spell, character));
+    const namePostfix = utils.namedIDStub(itemInfo.name, { prefix: "", length: 5 });
+    items.push(await parseSpell(spell, character, { namePostfix: namePostfix }));
   }
 
   if (items) fixSpells(ddb, items);

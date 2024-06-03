@@ -26,6 +26,16 @@ export default class CharacterSpellFactory {
 
     this.healingBoost = DDBHelper.filterBaseModifiers(this.ddb, "bonus", { subType: "spell-group-healing" }).reduce((a, b) => a + b.value, 0);
 
+    this.spellCounts = {
+
+    };
+  }
+
+  _getSpellCount(name) {
+    if (!this.spellCounts[name]) {
+      this.spellCounts[name] = 0;
+    }
+    return ++this.spellCounts[name];
   }
 
   async getClassSpells() {
@@ -83,7 +93,7 @@ export default class CharacterSpellFactory {
         // Check for duplicate spells, normally domain ones
         // We will import spells from a different class that are the same though
         // as they may come from with different spell casting mods
-        const parsedSpell = await parseSpell(spell, this.character);
+        const parsedSpell = await parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
         const duplicateSpell = this.items.findIndex(
           (existingSpell) => {
             const existingName = (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name);
@@ -181,12 +191,12 @@ export default class CharacterSpellFactory {
           && spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
       );
       if (!this.items[duplicateSpell]) {
-        const parsedSpell = await parseSpell(spell, this.character);
+        const parsedSpell = await parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
         this.items.push(parsedSpell);
       } else if (spell.alwaysPrepared) {
         // if our new spell is always known we overwrite!
         // it's probably domain
-        const parsedSpell = await parseSpell(spell, this.character);
+        const parsedSpell = await parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
         this.items[duplicateSpell] = parsedSpell;
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
@@ -214,7 +224,7 @@ export default class CharacterSpellFactory {
         unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = type;
         delete unlimitedSpell.id;
         delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-        const parsedSpell = await parseSpell(unlimitedSpell, this.character);
+        const parsedSpell = await parseSpell(unlimitedSpell, this.character, { namePostfix: `${this._getSpellCount(unlimitedSpell.definition.name)}` });
         this.items.push(parsedSpell);
       }
     }
@@ -266,7 +276,7 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "race");
-      const parsedSpell = await parseSpell(spell, this.character);
+      const parsedSpell = await parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
       this.items.push(parsedSpell);
     }
   }
@@ -316,7 +326,7 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "feat");
-      const parsedSpell = await parseSpell(spell, this.character);
+      const parsedSpell = await parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
       this.items.push(parsedSpell);
     }
   }
@@ -355,7 +365,7 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "background");
-      const parsedSpell = await parseSpell(spell, this.character);
+      const parsedSpell = await parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
       this.items.push(parsedSpell);
     }
   }
