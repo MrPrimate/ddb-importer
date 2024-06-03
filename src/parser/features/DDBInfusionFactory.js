@@ -14,6 +14,18 @@ export class DDBInfusionFactory {
       actions: [],
       infusions: [],
     };
+
+    this.infusionCount = {
+
+    };
+  }
+
+
+  _getInfusionCount(name) {
+    if (!this.infusionCount[name]) {
+      this.infusionCount[name] = 0;
+    }
+    return ++this.infusionCount[name];
   }
 
   updateIds(type) {
@@ -23,10 +35,17 @@ export class DDBInfusionFactory {
   async processInfusions() {
     logger.debug("Parsing infusions");
     for (const infusion of (foundry.utils.getProperty(this.ddbData, "infusions.infusions.definitionData") ?? [])) {
+      const infusionNum = Number.parseInt(this._getInfusionCount(infusion.name));
+      const addToCompendium = infusionNum === 1;
+      console.warn(`Infusion ${infusionNum}: ${infusion.name}`, {
+        addToCompendium,
+      });
       const ddbInfusion = new DDBInfusion({
         ddbData: this.ddbData,
         ddbInfusion: infusion,
         rawCharacter: this.rawCharacter,
+        nameIdPostfix: infusionNum > 1 ? infusionNum : null,
+        addToCompendium,
       });
       await ddbInfusion.build();
       logger.debug(`DDBInfusion: ${ddbInfusion.ddbInfusion.name}`, {

@@ -1,3 +1,10 @@
+# 5.2.1
+
+- Some characters with duplicate spells would fail to import.
+- Some characters with duplicate infusions would fail to import.
+- Armour infusions would not add the AC bonus correctly.
+- Some midiqol damage on save effects were not set correctly where the save damage was in the other field.
+
 # 5.2.0
 
 - Only supports D&D System v3.2 and higher

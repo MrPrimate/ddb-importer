@@ -33,9 +33,6 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem) {
     // add infusion flags
     foundryItem.flags.infusions.infused = true;
 
-    // set magic properties
-    // utils.addToProperties(foundryItem.system.properties, "mgc");
-
     // if item is loot, lets move it to equipment/trinket so effects will apply
     if (foundryItem.type === "loot") {
       foundryItem.type = "equipment";
@@ -114,17 +111,6 @@ export async function createInfusedItems(ddb, actor) {
         }
       }
     }
-
-    // check for granted magic items
-    // const magicItemsGranted = ddb.infusions.known.filter((k) =>
-    //   k.itemTypeId === "magic-item"
-    //   && k.itemName && k.itemId
-    // );
-
-    // for (const grantedItem of magicItemsGranted) {
-    // need to add linking to replicated items here
-    // }
-
   }
 
 }

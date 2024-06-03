@@ -20,7 +20,7 @@ export class DDBInfusion {
   _generateDataStub() {
 
     this.data = {
-      _id: utils.namedIDStub(this.name),
+      _id: utils.namedIDStub(this.name, { postfix: this.nameIdPostfix }),
       name: utils.nameString(`Infusion: ${this.name}`),
       type: this.documentType,
       system: utils.getTemplate(this.documentType),
@@ -77,7 +77,7 @@ export class DDBInfusion {
     }
   }
 
-  constructor({ ddbData, ddbInfusion, documentType = "feat", rawCharacter = null, noMods = false } = {}) {
+  constructor({ ddbData, ddbInfusion, documentType = "feat", rawCharacter = null, noMods = false, addToCompendium = true, nameIdPostfix = null } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbInfusion = ddbInfusion;
@@ -94,6 +94,8 @@ export class DDBInfusion {
     this.compendium = null;
     this._init();
     this._generateDataStub();
+    this.addToCompendium = addToCompendium;
+    this.nameIdPostfix = nameIdPostfix;
   }
 
   _buildDescription() {
@@ -152,7 +154,7 @@ export class DDBInfusion {
     await this.compendiumFolders.loadCompendium("features");
   }
 
-  static async addInfusionsToCompendium(documents) {
+  async addInfusionsToCompendium(documents) {
     const featureHandlerOptions = {
       chrisPremades: false,
       deleteBeforeUpdate: false,
@@ -165,8 +167,23 @@ export class DDBInfusion {
     logger.debug(`Creating infusion compendium feature`, {
       documents,
       featureHandlerOptions,
+      addToCompendium: this.addToCompendium,
+      this: this,
     });
-    const featureHandler = await DDBItemImporter.buildHandler("features", documents, true, featureHandlerOptions);
+    const featureHandler = this.addToCompendium
+      ? await DDBItemImporter.buildHandler("features", documents, true, featureHandlerOptions)
+      : new DDBItemImporter("features", documents, featureHandlerOptions);
+    await featureHandler.buildIndex({
+      fields: [
+        "name",
+        "flags.ddbimporter.classId",
+        "flags.ddbimporter.class",
+        "flags.ddbimporter.subClass",
+        "flags.ddbimporter.parentClassId",
+        "flags.ddbimporter.featureName",
+        "flags.ddbimporter.infusionId",
+      ],
+    });
     const compendiumFeatures = await featureHandler.compendiumIndex.filter((i) =>
       featureHandler.documents.some((orig) => i.name === orig.name)
     );
@@ -202,12 +219,19 @@ export class DDBInfusion {
 
   async _addActionsToEffects() {
     if (this.actions.length === 0) return;
-    const cItems = await DDBInfusion.addInfusionsToCompendium(this.actions);
+    const cItems = await this.addInfusionsToCompendium(this.actions);
     if (cItems.length === 0) return;
+
+    const descriptions = this.ddbInfusion.actions.map((i) => `[[/item ${i.name}]]`);
 
     const uuids = cItems.map((i) => i.uuid);
     this.data.effects.forEach((e) => {
       if (e.flags.ddbimporter?.infusion) e.flags.dnd5e.enchantment.riders.item.push(...uuids);
+      e.changes.push({
+        key: "system.description.value",
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: `<hr> <br><h2>Infusion Actions</h2><p> ${descriptions.join(", ")} </p>`,
+      });
     });
   }
 
@@ -237,7 +261,7 @@ export class DDBInfusion {
 
   }
 
-  _getEnchantmentEffect(modifierData, { forceName = false, useModifierLabelName = false, useOrigin = false } = {}) {
+  _getEnchantmentEffect(modifierData, { useModifierLabelName = false, useOrigin = false } = {}) {
     const label = modifierData.name ?? this.name;
     const foundryItem = foundry.utils.deepClone(this.data);
     foundryItem.effects = [];
@@ -269,12 +293,14 @@ export class DDBInfusion {
       });
     }
 
-    if (effect.changes.length === 0 && !forceName) return effect;
+    const nameLabel = this.ddbInfusion.type === "replicate"
+      ? `: Replicated [Infusion]`
+      : `: ${useModifierLabelName ? label : this.name} [Infusion]`;
     effect.changes.push(
       {
         key: "name",
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        value: ` [${useModifierLabelName ? label : this.name}] [Infusion]`,
+        value: nameLabel,
         priority: 20,
       }
     );
@@ -282,10 +308,8 @@ export class DDBInfusion {
   }
 
   _generateEnchantmentStubEffect() {
-    const forceName = ["granted"].includes(this.ddbInfusion.modifierDataType);
     const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType);
     const effect = this._getEnchantmentEffect([], {
-      forceName,
       useModifierLabelName,
     });
     this.data.effects.push(effect);
@@ -300,11 +324,9 @@ export class DDBInfusion {
   }
 
   _generateEnchantmentEffects() {
-    const forceName = ["granted"].includes(this.ddbInfusion.modifierDataType);
     const useModifierLabelName = ["damage-type-choice"].includes(this.ddbInfusion.modifierDataType);
     for (const [index, effectData] of this.ddbInfusion.modifierData.entries()) {
       const effect = this._getEnchantmentEffect(effectData, {
-        forceName,
         useModifierLabelName,
       });
 
@@ -321,17 +343,6 @@ export class DDBInfusion {
           foundry.utils.setProperty(effect, "flags.dnd5e.enchantment.level", level);
           effect.description = this.ddbInfusion.snippet;
           this._addDescriptionToEffect(effect);
-          break;
-        }
-        case "replicate": {
-          effect.changes.push(
-            {
-              key: "name",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              value: ` [Infusion]`,
-              priority: 20,
-            }
-          );
           break;
         }
         case "granted": {
@@ -357,8 +368,10 @@ export class DDBInfusion {
 
   _getMagicBonusChanges(modifiers) {
     const filteredModifiers = DDBHelper.filterModifiersOld(modifiers, "bonus", "magic");
-    const acMagicalBonus = DDBHelper.filterModifiersOld(modifiers, "bonus", "armor-class");
-    const magicBonus = DDBHelper.getModifierSum(filteredModifiers.concat(acMagicalBonus), this.rawCharacter);
+    const magicBonus = DDBHelper.getModifierSum(filteredModifiers, this.rawCharacter);
+
+    const acFilteredModifiers = DDBHelper.filterModifiersOld(modifiers, "bonus", "armor-class");
+    const acMagicalBonus = DDBHelper.getModifierSum(acFilteredModifiers, this.rawCharacter);
 
     const changes = [];
     if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
@@ -369,14 +382,19 @@ export class DDBInfusion {
           value: magicBonus,
           priority: 20,
         },
-        // {
-        //   key: "system.properties",
-        //   mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        //   value: "mgc",
-        //   priority: 20,
-        // }
       );
     }
+    if (acMagicalBonus && acMagicalBonus !== 0 && acMagicalBonus !== "") {
+      changes.push(
+        {
+          key: "system.armor.magicalBonus",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: acMagicalBonus,
+          priority: 20,
+        },
+      );
+    }
+
     // all items infused become magical
     changes.push({
       key: "system.properties",
@@ -409,37 +427,6 @@ export class DDBInfusion {
   //   // summons are generated elsewhere and linked to the feature, not handled her.
   // }
 
-  // ended up not using this.
-  // async _addCompendiumItems(effect) {
-  //   const grantedItems = foundry.utils.getProperty(this.ddbData, "source.ddb.infusions.known");
-  //   if (!grantedItems) return;
-
-  //   const magicItemsGranted = grantedItems.filter((k) =>
-  //     k.definitionKey === this.ddbInfusion.definitionKey
-  //     && k.itemTypeId === "magic-item"
-  //     && k.itemName && k.itemId
-  //   );
-
-  //   if (!magicItemsGranted) return;
-
-  //   const compendium = CompendiumHelper.getCompendiumType("item", false);
-  //   if (!compendium) return;
-
-  //   const index = await CompendiumHelper.loadCompendiumIndex("item", {
-  //     fields: [
-  //       "name",
-  //       "flags.ddbimporter.definitionId",
-  //     ]
-  //   });
-
-  //   for (const item of magicItemsGranted) {
-  //     const matchedItem = index.find((i) =>
-  //       i.flags.ddbimporter.definitionId === item.itemId
-  //     );
-  //     effect.flags.dnd5e.enchantment.riders.item.push(matchedItem.uuid);
-  //   }
-  // }
-
   async build() {
     await this.compendiumInit();
     this._generateSystemType();
@@ -452,11 +439,7 @@ export class DDBInfusion {
     // await this._addExtraEffects();
     await this._addActionsToEffects();
 
-    await DDBInfusion.addInfusionsToCompendium([this.data]);
-
-    // if (this.ddbInfusion.type === "replicate") {
-    //   await this._addCompendiumItems(this.data.effects[0]);
-    // }
+    await this.addInfusionsToCompendium([this.data]);
 
     logger.debug(`DDBInfusions for ${this.name}`, {
       data: foundry.utils.deepClone(this.data),
