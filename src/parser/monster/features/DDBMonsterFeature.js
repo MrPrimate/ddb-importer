@@ -408,8 +408,12 @@ export default class DDBMonsterFeature {
     const halfSaveSearch = /or half as much damage on a successful one/i;
     const halfMatch = this.strippedHtml.match(halfSaveSearch);
     if (halfMatch) {
-      foundry.utils.setProperty(this.feature, "flags.midiProperties.halfdam", true);
-      foundry.utils.setProperty(this.feature, "flags.midiProperties.saveDamage", "halfdam");
+      if (this.isAttack) {
+        foundry.utils.setProperty(this.feature, "flags.midiProperties.otherSaveDamage", "halfdam");
+      } else {
+        // foundry.utils.setProperty(this.feature, "flags.midiProperties.halfdam", true);
+        foundry.utils.setProperty(this.feature, "flags.midiProperties.saveDamage", "halfdam");
+      }
     }
 
     return this.actionInfo.save;
