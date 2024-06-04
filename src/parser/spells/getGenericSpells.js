@@ -26,7 +26,7 @@ export async function getSpells(spells) {
         },
       };
 
-      return parseSpell(spell, null);
+      return parseSpell(spell, null, {});
     }));
 
   if (items) fixSpells(null, items);
