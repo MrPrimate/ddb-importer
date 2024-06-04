@@ -1,3 +1,7 @@
+# 5.2.2
+
+- Fix spell parsing.
+
 # 5.2.1
 
 - Some characters with duplicate spells would fail to import.

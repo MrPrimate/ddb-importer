@@ -22,7 +22,7 @@ import SETTINGS from "../../settings.js";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
 import logger from "../../logger.js";
 
-export async function parseSpell(data, character, { namePostfix = null }) {
+export async function parseSpell(data, character, { namePostfix = null } = {}) {
   const name = getName(data, character);
   let spell = {
     _id: utils.namedIDStub(name, { postfix: namePostfix }),
