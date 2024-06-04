@@ -1,3 +1,8 @@
+# 5.2.3
+
+- Some monster parsing would fail.
+
+
 # 5.2.2
 
 - Fix spell parsing.
