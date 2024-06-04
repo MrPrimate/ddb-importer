@@ -51,7 +51,7 @@ const utils = {
 
   namedIDStub(name, { prefix = "ddb", postfix = null, length = 16 } = {}) {
     const nameSplit = name.split(" ").map((n) => utils.idString(n));
-    const remainingN = length - (prefix?.length ?? 0) - (`${postfix}`?.length ?? 0);
+    const remainingN = length - (prefix ? `${prefix}`.length : 0) - (postfix ? `${postfix}`.length : 0);
     const quotient = Math.floor(remainingN / nameSplit.length);
     let remainder = remainingN % nameSplit.length;
     let result = `${prefix ?? ""}`;
