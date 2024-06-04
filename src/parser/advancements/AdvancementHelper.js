@@ -267,7 +267,7 @@ export default class AdvancementHelper {
       advancement.updateSource({
         configuration: {
           choices: [{
-            count,
+            count: count === 0 ? undefined : count,
             pool,
           }],
         }

@@ -1,7 +1,10 @@
+# 5.2.5
+
+- Some rogue subclasses would fail to import.
+
 # 5.2.4
 
 - Some monster parsing would fail.
-
 
 # 5.2.2
 
