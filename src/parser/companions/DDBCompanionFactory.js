@@ -66,13 +66,21 @@ export default class DDBCompanionFactory {
     await ddbCompanion.parse();
     if (ddbCompanion.parsed) {
       this.companions.push(ddbCompanion);
+      const companionSummons = foundry.utils.deepClone(ddbCompanion.summons);
+      const existingSummons = this.summons
+        ? foundry.utils.deepClone(this.summons)
+        : null;
+      const summonMatch = isEqual(existingSummons, existingSummons);
       if (this.summons === null) {
         this.summons = foundry.utils.deepClone(ddbCompanion.summons);
-      } else if (!isEqual(this.summons, ddbCompanion.summons)) {
+      } else if (!summonMatch) {
         logger.error("Companion has different summons", {
-          summon: ddbCompanion.summons,
+          existingSummons,
+          companionSummons,
           factory: this,
           ddbCompanion,
+          equal: isEqual(existingSummons, existingSummons),
+          summonMatch,
         });
         this.badSummons = false;
       }

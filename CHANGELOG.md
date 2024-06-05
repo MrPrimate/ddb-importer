@@ -1,3 +1,8 @@
+# Next Up
+
+- Reduce some false positive summons parsing errors.
+
+
 # 5.2.5
 
 - Some rogue subclasses would fail to import.
