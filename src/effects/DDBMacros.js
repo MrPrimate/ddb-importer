@@ -330,48 +330,60 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     };
   }
 
+
   /**
-   * Executes the supplied ddb macro as a function
-   * @param {string} [script]
-   * @param {object} [context]
+   * Executes a DDB macro function.
+   *
+   * @param {string} type - The type of the macro. e.g. gm
+   * @param {string} name - The name of the macro. e.g. test
+   * @param {object} context - The context object.
+   * @param {object} ids - An object of ids you wish to resolve for the macro to run
+   * @param {object} scope - ANy additional information/parameters in an object to pass to the macro
+   * @return {Promise<any>} The result of the macro function.
    */
-  static async executeDDBMacroFunction(type, name, context = {}, ids = {}, ...params) {
-    // console.warn("executeDDBMacroFunction", { type, name, context });
+  static async executeDDBMacroFunction(type, name, context = {}, ids = {}, { ...scope } = {}) {
     const names = DDBMacros._getMacroFileNameFromName(name);
-    // console.warn("names", names);
     const script = await DDBMacros.getMacroBody(type, names.fileName);
-    // console.warn("script", script);
     const effect = ids.effect ? await fromUuid(ids.effect) : null;
-    // console.warn("effect", effect);
     const effectVariables = ids.effect
       ? DDBMacros._getEffectVariables(effect)
       : {};
 
-    if (ids.actor) {
-      const actor = await fromUuid(ids.actor);
-      if (actor) effectVariables.actor = actor;
-    }
-    if (ids.token) {
-      const token = await fromUuid(ids.token);
-      if (token) effectVariables.token = token;
-    }
-    if (ids.item) {
-      const item = await fromUuid(ids.item);
-      if (item) effectVariables.item = item;
-    }
-    if (ids.origin) {
-      const origin = await fromUuid(ids.origin);
-      if (origin) effectVariables.origin = origin;
+    const actor = ids.actor
+      ? await fromUuid(ids.actor)
+      : null;
+    if (actor) effectVariables.actor = actor;
+
+    const token = ids.token
+      ? await fromUuid(ids.token)
+      : null;
+    if (token) effectVariables.token = token;
+
+    const item = ids.item
+      ? await fromUuid(ids.item)
+      : null;
+    if (item) effectVariables.item = item;
+
+    const origin = ids.origin
+      ? await fromUuid(ids.origin)
+      : null;
+    if (origin) effectVariables.origin = origin;
+
+    if (!effectVariables.speaker && actor) {
+      const speaker = ChatMessage.implementation.getSpeaker({ actor, token });
+      if (speaker) effectVariables.speaker = speaker;
     }
 
-    const variables = foundry.utils.mergeObject(effectVariables, ...params);
-    // console.warn("variables", variables);
-    const body = `return (async()=>{
-      ${script}
-    })();`;
+    effectVariables.character = game.user.character;
+    effectVariables.scope = scope;
+
+    const variables = foundry.utils.mergeObject(effectVariables, scope);
+
+    // eslint-disable-next-line no-empty-function
+    const AsyncFunction = (async function() {}).constructor;
     // eslint-disable-next-line no-new-func
-    const fn = Function(...Object.keys(variables), body);
-    // console.warn("fn", fn);
+    const fn = new AsyncFunction(...Object.keys(variables), `{${script}\n}`);
+
     try {
       const result = await fn.call(context, ...Object.values(variables));
       return result;

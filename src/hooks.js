@@ -34,6 +34,7 @@ import { showReadAlouds } from "./hooks/renderJournalSheet/linkReadAlouds.js";
 import registerNotifications from "./lib/Notification.js";
 
 import { activateUpdateHooks } from "./updater/character.js";
+import { registerCustomEnrichers } from "./hooks/ready/enrichers.js";
 
 
 // foundry is initializing
@@ -45,6 +46,7 @@ export function init() {
   adventureImporter();
   logger.info("Init complete");
   DDBEffectHooks.loadHooks();
+  registerCustomEnrichers();
 }
 
 // foundry is ready
