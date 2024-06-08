@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Improve linking of spells to items if not using Magic Items module.
+
 # 5.2.7
 
 - Some characters with item spells would fail to import.

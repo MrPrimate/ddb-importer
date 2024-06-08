@@ -100,7 +100,7 @@ export function getRechargeFormula(description, maxCharges) {
  * Gets Limited uses information, if any
  * uses: { value: 0, max: 0, per: null }
  */
-export function getUses(data) {
+export function getUses(data, prompt = false) {
   if (data.limitedUse !== undefined && data.limitedUse !== null && data.limitedUse.resetTypeDescription !== null) {
     let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
 
@@ -113,15 +113,16 @@ export function getUses(data) {
       per: resetType ? resetType.value : "",
       description: data.limitedUse.resetTypeDescription,
       recovery,
+      prompt,
     };
   } else {
-    return { value: 0, max: 0, per: null, prompt: false };
+    return { value: 0, max: 0, per: null, prompt };
   }
 }
 
 export function getConsumableUses(data) {
   if (data.limitedUse) {
-    let uses = getUses(data);
+    let uses = getUses(data, true);
     if (uses.per === "") uses.per = "charges";
     uses.autoDestroy = true;
     return uses;

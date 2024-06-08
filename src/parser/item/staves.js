@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import { getItemRarity, getEquipped, getWeaponProficient, getMagicalBonus, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
+import { getItemRarity, getEquipped, getWeaponProficient, getMagicalBonus, getSingleItemWeight, getQuantity, getDescription, getUses } from "./common.js";
 
 /**
  * Gets the DND5E weapontype (simpleM, martialR etc.) as string
@@ -169,6 +169,10 @@ export default function parseStaff(data, character) {
   staff.system.actionType = staff.system.range.long === 5 ? "mwak" : "rwak";
   staff.system.attack.bonus = getMagicalBonus(data);
   staff.system.damage = getDamage(data, getMagicalBonus(data, true));
+
+  if (!game.modules.get("magicitems")?.active && !game.modules.get("items-with-spells-5e")?.active) {
+    staff.system.uses = getUses(data);
+  }
 
   return staff;
 }

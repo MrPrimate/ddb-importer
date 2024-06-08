@@ -168,13 +168,13 @@ function getMagicItemResetType(description) {
     }
   }
 
-  console.warn("reset type", {
-    chargeMatch,
-    untilMatch,
-    dawnMatch,
-    description,
-    resetType,
-  });
+  // console.warn("reset type", {
+  //   chargeMatch,
+  //   untilMatch,
+  //   dawnMatch,
+  //   description,
+  //   resetType,
+  // });
 
   return resetType;
 }
@@ -360,27 +360,29 @@ function parseItemsWithSpellsModule(item, data, itemSpells, isCompendiumItem) {
 }
 
 export function basicMagicItem(item, data, itemSpells, isCompendiumItem) {
-  if (data.definition.magic) {
-    if (isCompendiumItem) {
-      const maxUses = /has (\d*) charges/i;
-      const maxUsesMatches = maxUses.exec(data.definition.description);
-      const limitedUse = {
-        maxUses: (maxUsesMatches && maxUsesMatches[1]) ? maxUsesMatches[1] : null,
-        numberUsed: 0,
-        resetType: getMagicItemResetType(data.definition.description),
-        resetTypeDescription: data.definition.description,
-      };
+  if (!data.definition.magic) return item;
 
-      if (limitedUse.maxUses) {
-        foundry.utils.setProperty(item, "system.uses.value", parseInt(limitedUse.maxUses));
-        foundry.utils.setProperty(item, "system.uses.max", `${limitedUse.maxUses}`);
-        foundry.utils.setProperty(item, "system.uses.per", (limitedUse.resetType ?? "charges"));
+  if (isCompendiumItem) {
+    const maxUses = /has (\d*) charges/i;
+    const maxUsesMatches = maxUses.exec(data.definition.description);
+    const limitedUse = {
+      maxUses: (maxUsesMatches && maxUsesMatches[1]) ? maxUsesMatches[1] : null,
+      numberUsed: 0,
+      resetType: getMagicItemResetType(data.definition.description),
+      resetTypeDescription: data.definition.description,
+    };
 
-        const recharge = getRechargeFormula(data.definition.description, limitedUse.maxUses);
-        foundry.utils.setProperty(item, "system.uses.recovery", recharge);
-      }
+    if (limitedUse.maxUses) {
+      foundry.utils.setProperty(item, "system.uses.value", parseInt(limitedUse.maxUses));
+      foundry.utils.setProperty(item, "system.uses.max", `${limitedUse.maxUses}`);
+      foundry.utils.setProperty(item, "system.uses.per", (limitedUse.resetType ?? "charges"));
+
+      const recharge = getRechargeFormula(data.definition.description, limitedUse.maxUses);
+      foundry.utils.setProperty(item, "system.uses.recovery", recharge);
     }
+    return item;
   }
+
 
   // if the item is x per spell
   const isPerSpell = data.limitedUse
@@ -415,9 +417,18 @@ export function basicMagicItem(item, data, itemSpells, isCompendiumItem) {
           target: item._id,
         };
 
+      foundry.utils.setProperty(spell, "flags.ddbimporter.isItemCharge", !isPerSpell);
+
       const save = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
         ? { scaling: "flat", dc: spell.flags.ddbimporter.dndbeyond?.dc }
         : { scaling: "spell" };
+
+      console.warn("Setting Magic Item Properties for Spell", {
+        level: spellData.level,
+        uses,
+        consume,
+        save,
+      });
 
       foundry.utils.setProperty(spell, "system.level", Number.parseInt(spellData.level));
       foundry.utils.setProperty(spell, "system.uses", uses);
@@ -437,7 +448,7 @@ export function parseMagicItem(item, data, itemSpells, isCompendiumItem = false)
     item = parseItemsWithSpellsModule(item, data, itemSpells, !isCompendiumItem);
   } else {
     logger.debug(`$Item.name} Parsing basic magic item data`, {
-      item,
+      item: foundry.utils.deepClone(item),
       data,
       itemSpells,
       isCompendiumItem,

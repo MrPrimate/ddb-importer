@@ -150,7 +150,7 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
   item.system.equipped = getEquipped(ddbData);
   item.system.rarity = getItemRarity(ddbData);
   item.system.identified = true;
-  item.system.uses = getUses(ddbData);
+  item.system.uses = getUses(ddbData, true);
   if (!isTattoo) item.system.capacity = getCapacity(ddbData);
 
   item.system.activation = getActivation(ddbData.definition.description);

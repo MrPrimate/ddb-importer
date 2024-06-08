@@ -330,6 +330,36 @@ const notReplace = {
   "Starry Form": ["Starry Form: Archer", "Starry Form: Chalice", "Starry Form: Dragon"],
 };
 
+
+DDBCharacter.prototype.fixItemSpellResources = async function fixItemSpellResources() {
+  const possibleItems = this.currentActor.items.toObject();
+  let toUpdate = [];
+
+  for (const spell of possibleItems) {
+    if (spell.type !== "spell") continue;
+    if (!foundry.utils.getProperty(spell, "flags.ddbimporter.isItemCharge")) continue;
+    if (foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookup") !== "item") continue;
+    const spellLookupId = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookupId");
+    if (!spellLookupId) continue;
+    const parentDoc = possibleItems.find((item) =>
+      spellLookupId === item.flags?.ddbimporter?.definitionId
+    );
+    if (!parentDoc) continue;
+    toUpdate.push({
+      _id: spell._id,
+      "system.consume.target": parentDoc._id,
+      "system.uses.prompt": false,
+    });
+  }
+
+  logger.debug("itemSpellsToUpdate", toUpdate);
+
+  const results = await this.currentActor.updateEmbeddedDocuments("Item", toUpdate);
+  logger.debug("itemSpellsToUpdate results", results);
+
+};
+
+
 DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
   // loop over resourceFeatureLinkMap
   const possibleItems = this.currentActor.items.toObject();
