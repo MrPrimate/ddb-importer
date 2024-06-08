@@ -1,4 +1,4 @@
-# Next Up
+# 5.2.6
 
 - Reduce some false positive summons parsing errors.
 - Spiritual Weapon forumla no longer worked in v12.
