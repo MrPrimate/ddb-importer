@@ -2,6 +2,7 @@
 
 - Some characters with item spells would fail to import.
 - Some effects would fail to apply to spells, preventing character import.
+- Improve some magic item uses.
 
 # 5.2.6
 
