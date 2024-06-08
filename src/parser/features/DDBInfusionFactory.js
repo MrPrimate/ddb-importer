@@ -37,9 +37,9 @@ export class DDBInfusionFactory {
     for (const infusion of (foundry.utils.getProperty(this.ddbData, "infusions.infusions.definitionData") ?? [])) {
       const infusionNum = Number.parseInt(this._getInfusionCount(infusion.name));
       const addToCompendium = infusionNum === 1;
-      console.warn(`Infusion ${infusionNum}: ${infusion.name}`, {
-        addToCompendium,
-      });
+      // console.warn(`Infusion ${infusionNum}: ${infusion.name}`, {
+      //   addToCompendium,
+      // });
       const ddbInfusion = new DDBInfusion({
         ddbData: this.ddbData,
         ddbInfusion: infusion,
