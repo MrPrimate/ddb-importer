@@ -14,6 +14,10 @@ const MAGICITEMS = {
   DestroyCheck1D20: "d2",
 };
 
+// const ITEM_CONSUME_CORRECTIONS = {
+//   "Staff of Defense": 1,
+// };
+
 function getPerSpell(useDescription, itemDescription) {
   if (useDescription === "") {
     // some times 1 use per day items, like circlet of blasting have nothing in
@@ -146,19 +150,31 @@ function getMagicItemResetType(description) {
   const untilMatch = usedAgainFormula.exec(description);
   const dawnMatch = chargeNextDawnFormula.exec(description);
 
-  if (chargeMatch && chargeMatch[1]) {
-    resetType = capitalize(`${chargeMatch[1]}Rest`);
+  if (chargeMatch && chargeMatch[1] && ["dawn", "dusk"].includes(chargeMatch[1].toLowerCase())) {
+    resetType = chargeMatch[1].toLowerCase();
+  } else if (chargeMatch && chargeMatch[1] && ["sunset"].includes(chargeMatch[1].toLowerCase())) {
+    resetType = "dusk";
+  } else if (dawnMatch && dawnMatch[1]) {
+    resetType = capitalize(dawnMatch[1].toLowerCase());
+  } else if (chargeMatch && chargeMatch[1]) {
+    resetType = "day";
   } else if (untilMatch && untilMatch[1]) {
     switch (untilMatch[1]) {
       case "short or long":
-        resetType = "ShortRest";
+        resetType = "sr";
         break;
       default:
         resetType = capitalize(`${untilMatch[1]}Rest`);
     }
-  } else if (dawnMatch && dawnMatch[1]) {
-    resetType = capitalize(`${dawnMatch[1]}Rest`);
   }
+
+  console.warn("reset type", {
+    chargeMatch,
+    untilMatch,
+    dawnMatch,
+    description,
+    resetType,
+  });
 
   return resetType;
 }
@@ -212,13 +228,15 @@ function parseMagicItemsModule(data, itemSpells, isCompendiumItem) {
     let magicItem = createDefaultMagicItemFlags();
     magicItem.equipped = data.definition.canEquip;
 
+    const resetType = getMagicItemResetType(data.definition.description);
+
     if (isCompendiumItem) {
       const maxUses = /has (\d*) charges/i;
       const maxUsesMatches = maxUses.exec(data.definition.description);
       const limitedUse = {
         maxUses: (maxUsesMatches && maxUsesMatches[1]) ? maxUsesMatches[1] : null,
         numberUsed: 0,
-        resetType: getMagicItemResetType(data.definition.description),
+        resetType,
         resetTypeDescription: data.definition.description,
       };
 
@@ -244,9 +262,8 @@ function parseMagicItemsModule(data, itemSpells, isCompendiumItem) {
             (reset) => reset.id == data.limitedUse.resetType
           )?.value ?? "";
         } else {
-          const textType = getMagicItemResetType(data.definition.description);
           magicItem.rechargeUnit = DICTIONARY.magicitems.rechargeUnits.find(
-            (reset) => reset.id == textType
+            (reset) => reset.id == resetType
           )?.value ?? "";
         }
         magicItem.rechargeable = true;
@@ -357,13 +374,59 @@ export function basicMagicItem(item, data, itemSpells, isCompendiumItem) {
       if (limitedUse.maxUses) {
         foundry.utils.setProperty(item, "system.uses.value", parseInt(limitedUse.maxUses));
         foundry.utils.setProperty(item, "system.uses.max", `${limitedUse.maxUses}`);
-        foundry.utils.setProperty(item, "system.uses.per", "charges");
+        foundry.utils.setProperty(item, "system.uses.per", (limitedUse.resetType ?? "charges"));
 
         const recharge = getRechargeFormula(data.definition.description, limitedUse.maxUses);
         foundry.utils.setProperty(item, "system.uses.recovery", recharge);
       }
     }
   }
+
+  // if the item is x per spell
+  const isPerSpell = data.limitedUse
+    ? getPerSpell(data.limitedUse.resetTypeDescription, data.definition.description)
+    : false;
+
+  const chargeType = isPerSpell
+    ? MAGICITEMS.CHARGE_TYPE_PER_SPELL
+    : MAGICITEMS.CHARGE_TYPE_WHOLE_ITEM;
+
+  itemSpells.forEach((spell) => {
+    const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
+      && spell.flags.ddbimporter.dndbeyond.lookupId === item.flags.ddbimporter.definitionId;
+    if (isItemSpell) {
+      logger.debug(`Adding spell ${spell.name} to item ${item.name}`);
+      const spellData = buildMagicItemSpell(chargeType, spell);
+
+      const resetType = data.limitedUse?.resetType
+        ? DICTIONARY.resets.find((reset) =>
+          reset.id == data.limitedUse.resetType
+        )?.value ?? undefined
+        : undefined;
+
+      const uses = isPerSpell
+        ? { max: spellData.charges, per: resetType ?? "" }
+        : { max: "", per: "" };
+      const consume = isPerSpell
+        ? { amount: null }
+        : {
+          amount: spellData.consumption,
+          type: "charges",
+          target: item._id,
+        };
+
+      const save = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
+        ? { scaling: "flat", dc: spell.flags.ddbimporter.dndbeyond?.dc }
+        : { scaling: "spell" };
+
+      foundry.utils.setProperty(spell, "system.level", Number.parseInt(spellData.level));
+      foundry.utils.setProperty(spell, "system.uses", uses);
+      foundry.utils.setProperty(spell, "system.consume", consume);
+      foundry.utils.setProperty(spell, "system.save", save);
+    }
+
+  });
+
   return item;
 }
 
@@ -373,8 +436,26 @@ export function parseMagicItem(item, data, itemSpells, isCompendiumItem = false)
   } else if (game.modules.get("items-with-spells-5e")?.active) {
     item = parseItemsWithSpellsModule(item, data, itemSpells, !isCompendiumItem);
   } else {
+    logger.debug(`$Item.name} Parsing basic magic item data`, {
+      item,
+      data,
+      itemSpells,
+      isCompendiumItem,
+    });
     item = basicMagicItem(item, data, itemSpells, isCompendiumItem);
+
+    const uses = foundry.utils.getProperty(item, "system.uses.value");
+    const activation = foundry.utils.getProperty(item, "system.activation.type");
+
+    if (activation === "" && uses > 0) {
+      item.system.activation.type = "special";
+    }
   }
+
+  // console.warn(`Parsed ${item.name}`, {
+  //   item: deepClone(item),
+  //   itemSpells: deepClone(itemSpells),
+  // });
 
   return item;
 }
