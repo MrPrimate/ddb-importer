@@ -1,6 +1,5 @@
 {
   "id": "ddb-importer",
-  "author": "MrPrimate",
   "title": "D&D Beyond Importer [Dev Mode]",
   "license": "MIT License",
   "description": "Import your dndbeyond.com characters, spells, items, monsters, encounters, and adventures!",

@@ -176,7 +176,9 @@ export function fixSpells(ddb, items) {
       case "Eldritch Blast": {
         if (!ddb) break;
         const eldritchBlastMods = getEldritchInvocations(ddb);
-        spell.system.damage.parts[0][0] += " + " + eldritchBlastMods["damage"];
+        if (eldritchBlastMods["damage"] && eldritchBlastMods["damage"] !== "") {
+          spell.system.damage.parts[0][0] += " + " + eldritchBlastMods["damage"];
+        }
         spell.system.range.value += eldritchBlastMods["range"];
         break;
       }
@@ -292,7 +294,9 @@ export function fixSpells(ddb, items) {
       }
       case "Spiritual Weapon":
       case "Spirit Shroud": {
-        spell.system.scaling = { mode: "level", formula: "floor((@item.level - 1)/2)d8" };
+        spell.system.damage.parts[0][0] = "(floor(@item.level / 2))d8 + @mod";
+        spell.system.scaling = { mode: "none", formula: "" };
+        // spell.system.scaling = { mode: "level", formula: "(floor((@item.level - 1)/2))d8" };
         break;
       }
       case "Spike Growth": {

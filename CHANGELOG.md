@@ -1,7 +1,8 @@
 # Next Up
 
 - Reduce some false positive summons parsing errors.
-
+- Spiritual Weapon forumla no longer worked in v12.
+- Eldritch Blast did not parse a valid damage value if you didn't take Agonising Blast (crazy).
 
 # 5.2.5
 
