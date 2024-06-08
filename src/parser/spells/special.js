@@ -294,7 +294,7 @@ export function fixSpells(ddb, items) {
       }
       case "Spiritual Weapon":
       case "Spirit Shroud": {
-        spell.system.damage.parts[0][0] = "(floor(@item.level / 2))d8 + @mod";
+        spell.system.damage.parts = [["(floor(@item.level / 2))d8 + @mod"]["radiant"]];
         spell.system.scaling = { mode: "none", formula: "" };
         // spell.system.scaling = { mode: "level", formula: "(floor((@item.level - 1)/2))d8" };
         break;

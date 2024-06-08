@@ -1,3 +1,8 @@
+# 5.2.7
+
+- Some characters with item spells would fail to import.
+- Some effects would fail to apply to spells, preventing character import.
+
 # 5.2.6
 
 - Reduce some false positive summons parsing errors.

@@ -8,10 +8,19 @@ import { parseSpell } from "./parseSpell.js";
 import { hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 
 
+function getSpellCount(dict, name) {
+  if (!dict[name]) {
+    dict[name] = 0;
+  }
+  return ++dict[name];
+}
+
 export async function getItemSpells(ddb, character) {
   let items = [];
   const proficiencyModifier = character.system.attributes.prof;
   const lookups = getLookups(ddb.character);
+
+  const spellCountDict = {};
 
   // feat spells are handled slightly differently
   for (const spell of ddb.character.spells.item) {
@@ -60,7 +69,7 @@ export async function getItemSpells(ddb, character) {
         },
       },
     };
-    const namePostfix = utils.namedIDStub(itemInfo.name, { prefix: "", length: 5 });
+    const namePostfix = `It${getSpellCount(spellCountDict, spell.definition.name)}`;
     items.push(await parseSpell(spell, character, { namePostfix: namePostfix }));
   }
 
