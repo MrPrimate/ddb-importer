@@ -14,7 +14,23 @@ export class DirectoryPicker extends FilePicker {
     event.preventDefault();
     const path = event.target.target.value;
     const activeSource = this.activeSource;
-    const bucket = event.target.bucket ? event.target.bucket.value : null;
+    const bucket = this.sources.s3.bucket && this.sources.s3.bucket !== ""
+      ? this.sources.s3.bucket
+      : null;
+
+    // console.warn("Clicked", {
+    //   event,
+    //   bucket,
+    //   target: event.target.bucket,
+    //   targetTargget: event.target.target,
+    //   path,
+    //   pathv12,
+    //   currentTarget,
+    //   currentTargetValue: currentTarget.value,
+    //   activeSource,
+    //   thisBucket: this.sources.s3.bucket,
+    // })
+
     this.field.value = DirectoryPicker.format({
       activeSource,
       bucket,
@@ -35,7 +51,7 @@ export class DirectoryPicker extends FilePicker {
 
   // formats the data into a string for saving it as a GameSetting
   static format(value) {
-    return value.bucket !== null
+    return value.bucket !== null && value.bucket !== ""
       ? `[${value.activeSource}:${value.bucket}] ${value.path ?? value.current ?? ""}`
       : `[${value.activeSource}] ${value.path ?? value.current ?? ""}`;
   }

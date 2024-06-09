@@ -1,6 +1,7 @@
-# NEXT UP
+# 5.2.8
 
 - Improve linking of spells to items if not using Magic Items module.
+- Fix S3 bucket selection in v12.
 
 # 5.2.7
 
