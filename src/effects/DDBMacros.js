@@ -376,6 +376,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
 
     effectVariables.character = game.user.character;
     effectVariables.scope = scope;
+    foundry.utils.setProperty(effectVariables.scope, "flags.ddb-importer.ddbMacroFunction", true);
 
     const variables = foundry.utils.mergeObject(effectVariables, scope);
 

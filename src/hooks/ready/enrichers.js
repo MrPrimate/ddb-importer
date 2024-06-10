@@ -64,13 +64,13 @@ async function enrichFunction(config, label, options) {
   //   options,
   // });
 
-  if (!config.functionName || !config.functionType || !config.functionParams) return "";
+  if (!config.functionName || !config.functionType) return "";
 
   const dataset = {
     type: "ddbfunction",
     functionName: config.functionName,
     functionType: config.functionType,
-    functionParams: config.functionParams,
+    functionParams: config.functionParams ?? null,
   };
 
   let foundItem;
@@ -122,7 +122,11 @@ async function macroEnricher(match, options) {
   config = parseConfig(config);
   config._input = match[0];
   switch (type.toLowerCase()) {
-    case "dbbifunc": return enrichFunction(config, label, options);
+    case "dbbfunc":
+    case "dbbifunc":
+    case "ddbfunc":
+    case "ddbifunc":
+      return enrichFunction(config, label, options);
     // no default
   }
   return null;
@@ -186,7 +190,7 @@ export function registerCustomEnrichers() {
   CONFIG.TextEditor.enrichers.push(
     {
       pattern:
-        /\[\[\/(?<type>dbbifunc) (?<config>[^\]]+)]](?:{(?<label>[^}]+)})?/gi,
+        /\[\[\/(?<type>ddbifunc) (?<config>[^\]]+)]](?:{(?<label>[^}]+)})?/gi,
       enricher: macroEnricher,
     },
   );

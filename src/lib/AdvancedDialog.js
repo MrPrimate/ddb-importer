@@ -82,6 +82,28 @@ class AdvancedDialog {
           .join("\n");
         return `${thLabel}<td><select id="ddb-${idx}">${optionString}</select></td>`;
       }
+      case "number": {
+        let value = "";
+        if (utils.isObject(options)) {
+          const values = [];
+          for (const [key, v] of Object.entries(options)) {
+            const stringValue = `${v}`.trim();
+            values.push(`${key}="${stringValue}"`);
+          }
+          value = values.join(" ");
+        } else if (Array.isArray(options)) {
+          const values = [];
+          for (const option of options) {
+            values.push(`${option.key}="${option.value}"`);
+          }
+          value = values.join(" ");
+        } else if (utils.isString(options)) {
+          value = `value="${options}"`;
+        } else {
+          value = `value=""`;
+        }
+        return `${thLabel}</th><td><input type="${type}" id="ddb-${idx}" ${value}/></td>`;
+      }
       default: {
         const value = Array.isArray(options) ? options[0] : options;
         return `${thLabel}</th><td><input type="${type}" id="ddb-${idx}" value="${value}"/></td>`;
