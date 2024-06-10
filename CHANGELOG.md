@@ -1,3 +1,7 @@
+# 3.2.9
+
+- Fix Extra/Companion importing.
+
 # 5.2.8
 
 - Improve linking of spells to items if not using Magic Items module.
