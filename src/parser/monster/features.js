@@ -32,6 +32,8 @@ DDBMonster.prototype._generateFeatures = async function () {
   await this.featureFactory.generateActions(this.source.reactionsDescription, "reaction");
   await this.featureFactory.generateActions(this.source.bonusActionsDescription, "bonus");
   await this.featureFactory.generateActions(this.source.mythicActionsDescription, "mythic");
+  // special MCDM actions
+  await this.featureFactory.generateActions(`${this.featureFactory.html.villain}`, "villain");
 
   this.items.push(
     ...this.featureFactory.actions,
@@ -41,6 +43,7 @@ DDBMonster.prototype._generateFeatures = async function () {
     ...this.featureFactory.reactions,
     ...this.featureFactory.bonus,
     ...this.featureFactory.mythic,
+    ...this.featureFactory.villain,
   );
 
   // add any actor descriptions found in action blocks into the biography

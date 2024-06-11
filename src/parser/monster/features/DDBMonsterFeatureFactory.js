@@ -25,6 +25,7 @@ export default class DDBMonsterFeatureFactory {
       lair: [],
       legendary: [],
       special: [],
+      villain: [],
     };
 
     this.features = {
@@ -35,6 +36,7 @@ export default class DDBMonsterFeatureFactory {
       lair: [],
       legendary: [],
       special: [],
+      villain: [],
     };
 
     this.characterDescription = {
@@ -45,6 +47,7 @@ export default class DDBMonsterFeatureFactory {
       lair: "",
       legendary: "",
       special: "",
+      villain: "",
       unexpected: null,
     };
 
@@ -56,6 +59,7 @@ export default class DDBMonsterFeatureFactory {
       lair: "",
       legendary: "",
       special: "",
+      villain: "",
     };
 
     this.resources = {
@@ -108,6 +112,10 @@ export default class DDBMonsterFeatureFactory {
     return this.getFeatures("special");
   }
 
+  get villain() {
+    return this.getFeatures("villain");
+  }
+
   #buildDom(type) {
     const dom = utils.htmlToDocumentFragment(this.html[type]);
     dom.childNodes.forEach((node) => {
@@ -123,11 +131,16 @@ export default class DDBMonsterFeatureFactory {
   ];
 
   #generateActionActions(type) {
-    let splitActions = this.html[type].split("<h3>Roleplaying Information</h3>");
-    if (splitActions.length > 1) {
-      this.characterDescription[type] = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
+    let splitActions1 = this.html[type].split("<h3>Roleplaying Information</h3>");
+    if (splitActions1.length > 1) {
+      this.characterDescription[type] = `<h3>Roleplaying Information</h3>${splitActions1[1]}`;
     }
-    this.html[type] = splitActions[0];
+    const splitActions2 = splitActions1[0].split("<h3>Villain Actions</h3>");
+    if (splitActions2.length > 1) {
+      this.html.villain = splitActions2[1];
+    }
+
+    this.html[type] = splitActions2[0];
 
     let dom = this.#buildDom(type);
 
@@ -372,6 +385,53 @@ export default class DDBMonsterFeatureFactory {
       });
   }
 
+  #generateVillainActions(type = "villain") {
+    let dom = this.#buildDom(type);
+
+    // Base feat
+    const feat = { name: "Villain Actions", options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false } };
+    feat.options.html = `${this.html[type]}`;
+    this.featureBlocks[type].push(feat);
+
+    // build out skeleton actions
+    dom.querySelectorAll("strong").forEach((node) => {
+      const name = node.textContent.trim().replace(/\.$/, '').trim();
+      const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false } };
+
+      this.featureBlocks[type].push(action);
+    });
+
+    let action = this.featureBlocks[type].find((act) => act.name == "Villain Actions");
+
+    dom.childNodes
+      .forEach((node) => {
+        let startFlag = false;
+
+        const nameRegex = /^Action (.)+?[.!?]/;
+        const actionMatch = node.textContent.match(nameRegex);
+        const nodeName = actionMatch ? actionMatch[0].split('.')[0].trim() : node.textContent.split('.')[0].trim();
+        const switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
+
+        if (action.name !== "Villain Actions" || switchAction) {
+
+          if (switchAction) {
+            action = switchAction;
+            if (action.options.html === "") {
+              startFlag = true;
+            }
+          }
+
+          if (node.outerHTML) {
+            let outerHTML = node.outerHTML;
+            if (switchAction && startFlag) {
+              outerHTML = outerHTML.replace(`${nodeName}.`, "").replace(`${nodeName}`, "");
+            }
+            action.options.html += outerHTML;
+          }
+        }
+      });
+  }
+
   static splitName(name, nodeText) {
     if (!name.includes("Spell;") && !name.includes("Psionics;") && !name.includes("Mythic Trait;")) {
       const split = name.split(";");
@@ -524,6 +584,9 @@ export default class DDBMonsterFeatureFactory {
         break;
       case "special":
         this.#generateSpecialActions(type);
+        break;
+      case "villain":
+        this.#generateVillainActions(type);
         break;
       default:
         logger.error(`Unknown action parsing type ${this.type}`, { DDBFeatureFactory: this });

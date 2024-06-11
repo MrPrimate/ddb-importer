@@ -423,12 +423,12 @@ export function basicMagicItem(item, data, itemSpells, isCompendiumItem) {
         ? { scaling: "flat", dc: spell.flags.ddbimporter.dndbeyond?.dc }
         : { scaling: "spell" };
 
-      console.warn("Setting Magic Item Properties for Spell", {
-        level: spellData.level,
-        uses,
-        consume,
-        save,
-      });
+      // console.warn("Setting Magic Item Properties for Spell", {
+      //   level: spellData.level,
+      //   uses,
+      //   consume,
+      //   save,
+      // });
 
       foundry.utils.setProperty(spell, "system.level", Number.parseInt(spellData.level));
       foundry.utils.setProperty(spell, "system.uses", uses);

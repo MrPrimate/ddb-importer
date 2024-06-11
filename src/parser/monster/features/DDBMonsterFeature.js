@@ -306,6 +306,7 @@ export default class DDBMonsterFeature {
     let action = this.type;
     // foundry doesn't support mythic actions pre 1.6
     if (this.type === "mythic") action = "mythic";
+    if (this.type === "villain") action = "special";
     const actionAction = this.strippedHtml.toLowerCase().match(/as (a|an) action/);
     const bonusAction = this.strippedHtml.toLowerCase().match(/as a bonus action/);
     const reAction = this.strippedHtml.toLowerCase().match(/as a reaction/);
@@ -887,6 +888,32 @@ ${this.feature.system.description.value}
     }
   }
 
+  #buildVillain() {
+    this.feature.system.activation.type = this.getAction();
+
+    if (this.name !== "Villain Actions") {
+      this.feature.system.uses = {
+        value: 1,
+        max: "1",
+        per: "sr",
+        recovery: "",
+      };
+    }
+
+    this.feature.system.save = this.actionInfo.save;
+    this.feature.system.target = this.actionInfo.target;
+    // assumption - if we have parsed a save dc set action type to save
+    if (this.feature.system.save.dc) {
+      this.feature.system.actionType = "save";
+    }
+    this.feature.system.damage = this.actionInfo.damage;
+    // assumption - if the action type is not set but there is damage, the action type is other
+    if (!this.feature.system.actionType && this.feature.system.damage.parts.length != 0) {
+      this.feature.system.actionType = "other";
+    }
+
+  }
+
   #generateActionInfo() {
     if (this.weaponAttack || this.spellAttack) {
       this.generateWeaponAttackInfo();
@@ -931,6 +958,9 @@ ${this.feature.system.description.value}
         break;
       case "legendary":
         this.#buildLegendary();
+        break;
+      case "villain":
+        this.#buildVillain();
         break;
       case "special":
         this.#buildSpecial();
