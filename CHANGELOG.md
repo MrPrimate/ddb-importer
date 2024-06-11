@@ -1,3 +1,7 @@
+# 5.2.10
+
+- Could not select directory path if aws bucket config was not enabled.
+
 # 3.2.9
 
 - Fix Extra/Companion importing.
