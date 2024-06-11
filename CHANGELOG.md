@@ -1,6 +1,6 @@
 # 5.2.11
 
-- Flee Mortals! Villain monsters now parse Villain actions as separate actions. @supersallad I, er haven't chaecked all 300 odd monsters, so please let me know if any are not quite right.
+- Flee Mortals! Villain monsters now parse Villain actions as separate actions. @supersallad I, er haven't checked all 300 odd monsters, so please let me know if any are not quite right.
 
 # 5.2.10
 
