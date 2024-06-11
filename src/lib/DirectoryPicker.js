@@ -14,7 +14,7 @@ export class DirectoryPicker extends FilePicker {
     event.preventDefault();
     const path = event.target.target.value;
     const activeSource = this.activeSource;
-    const bucket = this.sources.s3.bucket && this.sources.s3.bucket !== ""
+    const bucket = this.sources.s3?.bucket && this.sources.s3.bucket !== ""
       ? this.sources.s3.bucket
       : null;
 
