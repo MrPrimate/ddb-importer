@@ -55,7 +55,7 @@ export default class DDBRace {
     }
   }
 
-  constructor(ddbData, race, compendiumRacialTraits) {
+  constructor(ddbData, race, compendiumRacialTraits, noMods = false) {
     this.ddbData = ddbData;
     this.race = race;
     this.#fixups();
@@ -110,10 +110,12 @@ export default class DDBRace {
 
     this.abilityAdvancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
 
+    this.noMods = noMods || ddbData === null;
+
     this.advancementHelper = new AdvancementHelper({
       ddbData: this.ddbData,
       type: "race",
-      noMods: ddbData === null,
+      noMods: this.noMods,
     });
 
     this.featLink = {
@@ -429,6 +431,37 @@ export default class DDBRace {
 
   }
 
+  #generateHTMLSenses() {
+    const textDescription = AdvancementHelper.stripDescription(this.data.system.description.value);
+
+    // You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light
+    // You can see in dim light within 120 feet of you as if it were bright light and in darkness as if it were dim light.
+    const darkVisionRegex = /you can see in dim light within (\d+) feet of you as if it were bright light/im;
+    const darkVisionMatch = textDescription.match(darkVisionRegex);
+
+    if (darkVisionMatch) {
+      this.data.system.senses.darkvision = parseInt(darkVisionMatch[1]);
+    }
+
+  }
+
+  #generateSenses() {
+    if (this.noMods) {
+      this.#generateHTMLSenses();
+      return;
+    }
+    for (const senseName in this.data.system.senses) {
+      const basicOptions = {
+        subType: senseName,
+      };
+      DDBHelper.filterModifiers((this.ddbData?.character?.modifiers?.race ?? []), "set-base", basicOptions).forEach((sense) => {
+        if (Number.isInteger(sense.value) && sense.value > this.data.system.senses[senseName]) {
+          this.data.system.senses[senseName] = parseInt(sense.value);
+        }
+      });
+    }
+  }
+
   async build() {
     try {
       await this._generateRaceImage();
@@ -451,6 +484,7 @@ export default class DDBRace {
     });
 
     this.#generateAbilityAdvancement();
+    this.#generateSenses();
 
     // set final type
     foundry.utils.setProperty(this.data, "system.type.value", this.type);

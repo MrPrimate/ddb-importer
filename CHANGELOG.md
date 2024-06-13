@@ -1,3 +1,9 @@
+# Next Up
+
+- Heroe's Feast duration fix.
+- Senses not been set correctly on imported characters with senes granted through race features.
+- Race parsing will now add darkvision to a races senses.
+
 # 5.2.11
 
 - Flee Mortals! Villain monsters now parse Villain actions as separate actions. @supersallad I, er haven't checked all 300 odd monsters, so please let me know if any are not quite right.

@@ -2,7 +2,7 @@ import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBCharacter from "../DDBCharacter.js";
 
-DDBCharacter.prototype.getSenses = function getSenses() {
+DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false } = {}) {
   let senses = {
     darkvision: 0,
     blindsight: 0,
@@ -28,7 +28,8 @@ DDBCharacter.prototype.getSenses = function getSenses() {
 
   // Base senses
   for (const senseName in senses) {
-    DDBHelper.filterBaseModifiers(this.source.ddb, "set-base", { subType: senseName }).forEach((sense) => {
+    const basicOptions = { subType: senseName, includeExcludedEffects: includeEffects };
+    DDBHelper.filterBaseModifiers(this.source.ddb, "set-base", basicOptions).forEach((sense) => {
       if (Number.isInteger(sense.value) && sense.value > senses[senseName]) {
         senses[senseName] = parseInt(sense.value);
       }
@@ -40,7 +41,8 @@ DDBCharacter.prototype.getSenses = function getSenses() {
     subType: "darkvision",
     restriction: [
       "You can see normally in darkness, both magical and nonmagical",
-    ]
+    ],
+    includeExcludedEffects: includeEffects,
   };
   DDBHelper
     .filterBaseModifiers(this.source.ddb, "set-base", devilsSightFilters)
@@ -54,7 +56,8 @@ DDBCharacter.prototype.getSenses = function getSenses() {
   // Magical bonuses and additional, e.g. Gloom Stalker
   const magicalBonusFilters = {
     subType: "darkvision",
-    restriction: ["", null, "plus 60 feet if wearer already has Darkvision"]
+    restriction: ["", null, "plus 60 feet if wearer already has Darkvision"],
+    includeExcludedEffects: includeEffects,
   };
   DDBHelper
     .filterBaseModifiers(this.source.ddb, "sense", magicalBonusFilters)

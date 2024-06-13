@@ -111,6 +111,14 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   // attunement
   { type: "set", subType: "attunement-slots" },
 
+  // resistances - subType - e.g. poison - lookup from DICTIONARY
+  { type: "resistance", subType: null },
+  { type: "immunity", subType: null },
+  { type: "vulnerability", subType: null },
+
+];
+
+const EFFECT_EXCLUDED_SENSE_MODIFIERS = [
   // senses
   { type: "set-base", subType: "darkvision" },
   { type: "sense", subType: "darkvision" },
@@ -120,12 +128,6 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   { type: "sense", subType: "tremorsense" },
   { type: "set-base", subType: "truesight" },
   { type: "sense", subType: "truesight" },
-
-  // resistances - subType - e.g. poison - lookup from DICTIONARY
-  { type: "resistance", subType: null },
-  { type: "immunity", subType: null },
-  { type: "vulnerability", subType: null },
-
 ];
 
 const EFFECT_EXCLUDED_SPEED_SET_MODIFIERS = [
@@ -197,6 +199,7 @@ export function getEffectExcludedModifiers(type, features, ac) {
       if (["feat", "background", "race", "class"].includes(type)) {
         if (speedEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS);
       }
+      if (!["race"].includes(type)) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
       if (["class"].includes(type)) {
         modifiers = modifiers.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
       } else if (["feat", "background", "race"].includes(type)) {

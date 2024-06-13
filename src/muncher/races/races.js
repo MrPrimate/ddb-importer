@@ -61,7 +61,7 @@ export async function getRaces(data) {
 
   for (const race of filteredRaces) {
     logger.debug(`${race.fullName} race parsing started...`);
-    const ddbRace = new DDBRace(null, race, compendiumRacialTraits);
+    const ddbRace = new DDBRace(null, race, compendiumRacialTraits, true);
     await ddbRace.build();
     await raceCompendiumFolders.getRacialBaseFolder("race", ddbRace.groupName);
     races.push(ddbRace.data);
