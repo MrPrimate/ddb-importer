@@ -1,4 +1,4 @@
-# Next Up
+# 5.2.12
 
 - Heroe's Feast duration fix.
 - Senses not been set correctly on imported characters with senes granted through race features.
