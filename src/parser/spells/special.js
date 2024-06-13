@@ -219,6 +219,8 @@ export function fixSpells(ddb, items) {
         }
         break;
       }
+      case "Heroe's Feast":
+      case "Heroe’s Feast":
       case "Heroes Feast": {
         spell.system.duration = { value: 1, units: "day" };
         break;
