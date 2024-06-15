@@ -1,4 +1,4 @@
-# Next Up
+# 5.2.13
 
 - Summons would fail to import if using custom proxy.
 - New "Simple Macro" feature added that exposes some DDB Macros to users via the Chat Description. This is primarily targeted at users who do not exist within the Automation/Midi-Verse. The first of the macros provided here are for Lay On Hands and Arcane Recovery.
