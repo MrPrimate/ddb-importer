@@ -5,6 +5,7 @@
 - Monks speed bonus was no longer correctly applying when DAE was not installed. @ rupertthegrell
 - Auto generated active effects will now have the item/feature description/chat summary applied.
 - Spell Effect: Tidal Wave
+- Magic Weapon, Elemental Weapon and Shillelagh spells now use the Enchantment system to provide the effects/modifications.
 
 # 5.2.12
 

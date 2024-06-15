@@ -387,7 +387,7 @@ export class DDBInfusion {
       changes.push(
         {
           key: "system.magicalBonus",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           value: magicBonus,
           priority: 20,
         },
@@ -397,7 +397,7 @@ export class DDBInfusion {
       changes.push(
         {
           key: "system.armor.magicalBonus",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           value: acMagicalBonus,
           priority: 20,
         },

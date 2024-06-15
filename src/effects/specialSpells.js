@@ -218,6 +218,10 @@ async function basicSpellEffects(document) {
       document = dominatePersonEffect(document);
       break;
     }
+    case "Elemental Weapon": {
+      document = elementalWeaponEffect(document);
+      break;
+    }
     case "Ensnaring Strike": {
       document = await ensnaringStrikeEffect(document);
       break;
@@ -299,6 +303,10 @@ async function basicSpellEffects(document) {
       document = mageArmorEffect(document);
       break;
     }
+    case "Magic Weapon": {
+      document = magicWeaponEffect(document);
+      break;
+    }
     case "Mass Suggestion": {
       document = massSuggestionEffect(document);
       break;
@@ -333,6 +341,10 @@ async function basicSpellEffects(document) {
     }
     case "Shield": {
       document = shieldEffect(document);
+      break;
+    }
+    case "Shillelagh": {
+      document = shillelaghEffect(document);
       break;
     }
     case "Shield of Faith": {
@@ -485,10 +497,6 @@ async function midiEffectAdjustment(document) {
       document = await divineWordEffect(document);
       break;
     }
-    case "Elemental Weapon": {
-      document = await elementalWeaponEffect(document);
-      break;
-    }
     case "Enhance Ability": {
       document = await enhanceAbilityEffect(document);
       break;
@@ -566,10 +574,6 @@ async function midiEffectAdjustment(document) {
       document = longstriderEffect(document);
       break;
     }
-    case "Magic Weapon": {
-      document = await magicWeaponEffect(document);
-      break;
-    }
     case "Misty Step": {
       if (!deps.autoAnimationsInstalled) {
         document = await mistyStepEffect(document);
@@ -607,10 +611,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Resistance": {
       document = resistanceEffect(document);
-      break;
-    }
-    case "Shillelagh": {
-      document = await shillelaghEffect(document);
       break;
     }
     case "Silence": {

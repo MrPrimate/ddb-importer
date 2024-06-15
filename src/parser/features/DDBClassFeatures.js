@@ -90,6 +90,7 @@ export default class DDBClassFeatures {
         if (existingFeature && !duplicateFeature) {
           const levelAdjustment = `<h3>${className}: Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
           existingFeature.system.description.value += levelAdjustment;
+          existingFeature.effects.push(...item.effects);
         } else if (!existingFeature) {
           this.data.push(item);
         }
