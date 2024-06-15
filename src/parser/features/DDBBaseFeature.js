@@ -4,6 +4,7 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import { generateEffects } from "../../effects/effects.js";
+import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
 
 
 export default class DDBBaseFeature {
@@ -25,7 +26,7 @@ export default class DDBBaseFeature {
           action: this.isAction,
           componentId: this.ddbDefinition.componentId,
           componentTypeId: this.ddbDefinition.componentTypeId,
-          originalName: DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter, false),
+          originalName: this.originalName,
           type: this.tagType,
           isCustomAction: this.ddbDefinition.isCustomAction,
         },
@@ -51,6 +52,7 @@ export default class DDBBaseFeature {
     this.ddbFeature = ddbDefinition;
     this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
     this.name = utils.nameString(this.ddbDefinition.name);
+    this.originalName = DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter, false);
     this.type = type;
     this.source = source;
     this.isAction = false;
@@ -128,7 +130,7 @@ export default class DDBBaseFeature {
 
     if (summary && !utils.stringKindaEqual(main, summary) && summary.trim() !== "" && main.trim() !== "") {
       result += summary.trim();
-      result += `
+      result += `<br>
   <details>
     <summary>
       ${title ? title : "More Details"}
@@ -162,21 +164,22 @@ export default class DDBBaseFeature {
         ? this._getRaceFeatureDescription()
         : this._getClassFeatureDescription();
 
+    const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");
     if (!chatAdd) {
       const snippet = utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
       const fullDescription = DDBBaseFeature.buildFullDescription(description, snippet);
       const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
 
       this.data.system.description = {
-        value: value,
-        chat: chatAdd ? snippet : "",
+        value: value + macroHelper,
+        chat: chatAdd ? snippet + macroHelper : "",
       };
     } else {
       const snippet = description !== "" && utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
 
       this.data.system.description = {
         value: description,
-        chat: snippet,
+        chat: snippet + macroHelper,
       };
     }
 

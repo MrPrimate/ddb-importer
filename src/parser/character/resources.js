@@ -300,7 +300,14 @@ const resourceFeatureLinkMap = {
     "Shape the Flowing River", "Sweeping Cinder Strike", "Water Whip",
     "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm", "Hand of Ultimate Mercy",
   ],
-  "Infuse Item": ["Infusion:"]
+  "Infuse Item": ["Infusion:"],
+  // "Lay on Hands Pool": ["Lay on Hands"],
+};
+
+const chargeTypeMap = {
+  "Lay on Hands": {
+    "type": "none",
+  },
 };
 
 const resourceSpellLinkMap = {
@@ -365,21 +372,21 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
   const possibleItems = this.currentActor.items.toObject();
   let toUpdate = [];
 
-  for (const [key, values] of Object.entries(resourceFeatureLinkMap)) {
-    logger.debug(`Checking ${key}`, values);
+  for (const [resourceDocName, consumingDocs] of Object.entries(resourceFeatureLinkMap)) {
+    logger.debug(`Checking ${resourceDocName}`, consumingDocs);
     const parent = possibleItems.find((doc) => {
       const name = doc.flags.ddbimporter?.originalName || doc.name;
-      return name === key;
+      return name === resourceDocName;
     });
 
     if (parent) {
       logger.debug("parent", parent);
-      values.forEach((value) => {
-        logger.debug(`Checking ${value}`);
+      consumingDocs.forEach((consumingDocName) => {
+        logger.debug(`Checking ${consumingDocName}`);
         const children = possibleItems.filter((doc) => {
           const name = doc.flags.ddbimporter?.originalName || doc.name;
-          const dontReplace = notReplace[value]?.includes(name);
-          return name.startsWith(value) && !dontReplace;
+          const dontReplace = notReplace[consumingDocName]?.includes(name);
+          return name.startsWith(consumingDocName) && !dontReplace;
         });
 
         if (children) {
@@ -392,7 +399,7 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
             };
             const charge = foundry.utils.getProperty(child, "system.consume.amount") ?? 1;
             foundry.utils.setProperty(update, "system.consume", {
-              type: "charges",
+              type: chargeTypeMap[consumingDocName]?.type ?? "charges",
               target: parent._id,
               amount: charge,
             });

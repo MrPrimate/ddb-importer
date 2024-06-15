@@ -40,6 +40,7 @@ import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
 import DDBCampaigns from "./lib/DDBCampaigns.js";
 import ChrisPremadesHelper from "./effects/external/ChrisPremadesHelper.js";
 import ExternalAutomations from "./effects/external/ExternalAutomations.js";
+import DDBSimpleMacro from "./effects/DDBSimpleMacro.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -118,13 +119,14 @@ export function registerApi() {
       getPatreonValidity: PatreonHelper.getPatreonValidity,
     },
     lib: {
-      CompendiumHelper,
       ChrisPremadesHelper,
+      CompendiumHelper,
       DDBCampaigns,
       DDBCharacterManager,
       DDBCompanion,
       DDBCompanionFactory,
       DDBCompendiumFolders,
+      DDBSimpleMacro,
       DDBEffectHelper,
       DDBEncounterMunch,
       DDBEncounters,
@@ -223,6 +225,7 @@ export function registerApi() {
       loadMacroFile: DDBMacros.loadMacroFile,
       macros: DDBMacros.MACROS,
       getMacro: DDBMacros.getMacro,
+      executeSimpleMacro: DDBSimpleMacro.execute
     },
     chris: {
       generateEffect: ExternalAutomations.applyChrisPremadeEffect,

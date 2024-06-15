@@ -1,6 +1,6 @@
 /* eslint-disable no-continue */
 
-import DDBMacros from "../../effects/DDBMacros.js";
+import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
 import logger from "../../logger.js";
 
 /**
@@ -170,7 +170,7 @@ async function runFunction(event) {
       rollItemUuid,
     };
 
-    logger.debug(`Calling executeDDBMacroFunction`, {
+    logger.debug(`Calling DDBSimpleMacro execution`, {
       functionType,
       functionName,
       context,
@@ -180,7 +180,7 @@ async function runFunction(event) {
     });
 
 
-    await DDBMacros.executeDDBMacroFunction(functionType, functionName, context, ids, scope);
+    await DDBSimpleMacro.execute(functionType, functionName, context, ids, scope);
   } finally {
     target.disabled = false;
   }

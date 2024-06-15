@@ -886,7 +886,12 @@ export default class DDBEffectHelper {
     );
   }
 
-  static async removeCondition({ actor, conditionName, level = null } = {}) {
+  static async removeCondition({ actor, actorUuid, conditionName, level = null } = {}) {
+    if (!actor) actor = await fromUuid(actorUuid);
+    if (!actor) {
+      logger.error("No actor passed to remove condition");
+      return;
+    }
     const condition = CONFIG.statusEffects.find((se) => se.name.toLowerCase() === conditionName.toLowerCase());
 
     if (!condition) {
@@ -903,7 +908,13 @@ export default class DDBEffectHelper {
     }
   }
 
-  static async addCondition({ conditionName, actor, level = null, origin = null } = {}) {
+  static async addCondition({ conditionName, actor, actorUuid, level = null, origin = null } = {}) {
+    if (!actor) actor = await fromUuid(actorUuid);
+    if (!actor) {
+      logger.error("No actor passed to remove condition");
+      return;
+    }
+
     const condition = CONFIG.statusEffects.find((se) => se.name.toLowerCase() === conditionName.toLowerCase());
 
     if (!condition) {
@@ -936,11 +947,11 @@ export default class DDBEffectHelper {
     logger.debug("Adjusting condition", { add, remove, actor, conditionName, level, origin });
     if (remove) {
       logger.debug("Removing condition", { actor, conditionName, level });
-      await globalThis.DDBImporter.socket.executeAsGM("removeCondition", { actor, conditionName, level });
+      await globalThis.DDBImporter.socket.executeAsGM("removeCondition", { actorUuid: actor.uuid, conditionName, level });
     }
     if (add) {
       logger.debug("Adding condition", { actor, conditionName, level, origin });
-      await globalThis.DDBImporter.socket.executeAsGM("addCondition", { actor, conditionName, level, origin });
+      await globalThis.DDBImporter.socket.executeAsGM("addCondition", { actorUuid: actor.uuid, conditionName, level, origin });
     }
     logger.debug("Condition adjusted", { add, remove, actor, conditionName, level, origin });
 
@@ -989,6 +1000,72 @@ export default class DDBEffectHelper {
     }
 
     return results;
+  }
+
+  static async _verySimpleDamageRollToChat({ actor, flavor, formula, damageType = "damage", item, itemId, itemUuid } = {}) {
+    const roll = new CONFIG.Dice.DamageRoll(formula, {}, { type: damageType });
+    await roll.evaluate({ async: true });
+
+    if (!item && itemId && !itemUuid && actor) {
+      item = actor.getEmbeddedDocument("Item", itemId);
+    }
+    if (!item && itemUuid && actor) {
+      item = await fromUuid(itemUuid);
+    }
+
+    if (item && !itemId) itemId = item._id;
+    if (item && !itemUuid) itemUuid = item.uuid;
+
+    roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      flavor,
+      "flags.dnd5e": {
+        targets: CONFIG.Item.documentClass._formatAttackTargets(),
+        roll: {
+          type: "damage",
+          itemId,
+          itemUuid,
+        }
+      },
+
+    });
+  }
+
+  static async simpleDamageRollToChat({ event = undefined, actor, flavor, formulas = [], damageType = "damage", item, itemId, itemUuid, fastForward = false } = {}) {
+
+    if (!item && itemId && !itemUuid && actor) {
+      item = actor.getEmbeddedDocument("Item", itemId);
+    }
+    if (!item && itemUuid && actor) {
+      item = await fromUuid(itemUuid);
+    }
+
+    if (item && !itemId) itemId = item._id;
+    if (item && !itemUuid) itemUuid = item.uuid;
+
+    const isHealing = damageType in CONFIG.DND5E.healingTypes;
+    const title = game.i18n.localize(`DND5E.${isHealing ? "Healing" : "Damage"}Roll`);
+    const rollConfig = {
+      rollConfigs: [{
+        parts: formulas,
+        type: damageType
+      }],
+      flavor: flavor ?? title,
+      event,
+      title,
+      fastForward,
+      messageData: {
+        "flags.dnd5e": {
+          targets: CONFIG.Item.documentClass._formatAttackTargets(),
+          roll: { type: "damage", itemId, itemUuid },
+        },
+        speaker: ChatMessage.implementation.getSpeaker()
+      }
+    };
+
+    if (Hooks.call("dnd5e.preRollDamage", undefined, rollConfig) === false) return;
+    const roll = await globalThis.dnd5e.dice.damageRoll(rollConfig);
+    if (roll) Hooks.callAll("dnd5e.rollDamage", undefined, roll);
   }
 
   static syntheticItemWorkflowOptions({

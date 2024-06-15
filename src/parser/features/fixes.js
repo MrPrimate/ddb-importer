@@ -245,6 +245,22 @@ export async function fixFeatures(features) {
         };
         break;
       }
+      case "Lay on Hands": {
+        feature.system.activation = { type: "action", cost: 1, condition: "" };
+        feature.system.range = {
+          type: "touch",
+          value: null,
+          long: null,
+          units: "touch"
+        };
+        feature.system.target.value = 1;
+        feature.system.target.type = "creature";
+        feature.system.actionType = "other";
+        feature.system.duration.units = "inst";
+        feature.system.consume.amount = 0;
+        feature.system.uses.prompt = false;
+        break;
+      }
       case "Mantle of Inspiration": {
         feature.system.damage.parts[0][1] = "temphp";
         break;
