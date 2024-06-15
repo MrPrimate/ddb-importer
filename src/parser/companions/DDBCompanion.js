@@ -46,7 +46,8 @@ export default class DDBCompanion {
 
   static async addEnrichedImageData(document) {
     const name = document.name;
-    if (!CONFIG.DDBI.EXTRA_IMAGES) {
+    // this endpoint is not supported in custom proxies
+    if (!CONFIG.DDBI.EXTRA_IMAGES && !DDBProxy.isCustom()) {
       const path = "/proxy/enriched/actor/images";
       const parsingApi = DDBProxy.getProxy();
       const response = await fetch(`${parsingApi}${path}`, {

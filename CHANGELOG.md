@@ -1,3 +1,8 @@
+# Next Up
+
+- Summons would fail to import if using custom proxy.
+
+
 # 5.2.12
 
 - Heroe's Feast duration fix.
