@@ -190,20 +190,11 @@ export function getEffectExcludedModifiers(type, features, ac) {
   let modifiers = [];
 
   if (type !== "item") {
-    // these are the effect tweaks, and mostly excessive
-    const speedEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-speed`);
-
     // features represent core non ac features
     if (features) {
-      modifiers = modifiers.concat(EFFECT_EXCLUDED_COMMON_MODIFIERS);
-      if (["feat", "background", "race", "class"].includes(type)) {
-        if (speedEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS);
-      }
-      if (!["race"].includes(type)) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
-      if (["class"].includes(type)) {
-        modifiers = modifiers.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
-      } else if (["feat", "background", "race"].includes(type)) {
-        if (speedEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
+      modifiers = modifiers.concat(EFFECT_EXCLUDED_COMMON_MODIFIERS, EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
+      if (!["race"].includes(type)) {
+        modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS, EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS);
       }
     }
     // here ac represents the more exotic ac effects that set limits and change base
@@ -1461,14 +1452,15 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
  * @param {*} foundryItem
  */
 // eslint-disable-next-line no-unused-vars
-function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompendiumItem, labelOverride } = {}) {
+function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompendiumItem, labelOverride, description = "" } = {}) {
   if (!foundryItem.effects) foundryItem.effects = [];
 
   const label = labelOverride
     ? labelOverride
-    : `${foundryItem.name} - Constant`;
+    : `${foundryItem.name} - Passive`;
 
   let effect = baseItemEffect(foundryItem, label);
+  effect.description = description;
 
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return [foundryItem, effect];
   logger.debug(`Generating Generic Effects for ${foundryItem.name}`, ddbItem);
@@ -1581,7 +1573,7 @@ function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, eff
   return [foundryItem, effect];
 }
 
-export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, type) {
+export function generateEffects({ ddb, character, ddbItem, foundryItem, isCompendiumItem, type, description = "" } = {}) {
   logger.debug(`Checking ${foundryItem.name} for auto generated effects`, ddbItem);
   // set flags if using effects
   foundryItem = applyDefaultMidiFlags(foundryItem);
@@ -1607,6 +1599,7 @@ export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendi
     foundryItem,
     isCompendiumItem,
     labelOverride: label,
+    description,
   });
   [foundryItem, effect] = addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect, type);
 

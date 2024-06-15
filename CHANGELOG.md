@@ -1,7 +1,10 @@
 # Next Up
 
 - Summons would fail to import if using custom proxy.
-
+- New "Simple Macro" feature added that exposes some DDB Macros to users via the Chat Description. This is primarily targeted at users who do not exist within the Automation/Midi-Verse. The first of the macros provided here are for Lay On Hands and Arcane Recovery.
+- Monks speed bonus was no longer correctly applying when DAE was not installed. @ rupertthegrell
+- Auto generated active effects will now have the item/feature description/chat summary applied.
+- Spell Effect: Tidal Wave
 
 # 5.2.12
 

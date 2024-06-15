@@ -24,11 +24,6 @@ const MuncherSettings = {
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
     $(html).find("#character-update-policy-use-chris-premades").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades", false);
-
-    ["class", "race", "background", "feat"].forEach((type) => {
-      $(html).find(`#character-import-policy-effect-${type}-speed`).prop("checked", false);
-      game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-speed`, false);
-    });
   },
 
   setRecommendedCharacterActiveEffectSettings: (html) => {
@@ -47,10 +42,6 @@ const MuncherSettings = {
     $(html).find("#character-update-policy-use-chris-premades").prop("checked", !effectModules().chrisInstalled);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades", !effectModules().chrisInstalled);
 
-    ["class", "race", "background", "feat"].forEach((type) => {
-      $(html).find(`#character-import-policy-effect-${type}-speed`).prop("checked", false);
-      game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-speed`, false);
-    });
   },
 
   getInstalledIcon: (name) => {
@@ -284,41 +275,6 @@ const MuncherSettings = {
       },
     ];
 
-    const effectSelectionConfig = {
-      class: [
-        {
-          name: "effect-class-speed",
-          title: "Movement",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-class-speed"),
-          enabled: true,
-        },
-      ],
-      race: [
-        {
-          name: "effect-race-speed",
-          title: "Movement",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-race-speed"),
-          enabled: true,
-        },
-      ],
-      background: [
-        {
-          name: "effect-background-speed",
-          title: "Movement",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-background-speed"),
-          enabled: true,
-        },
-      ],
-      feat: [
-        {
-          name: "effect-feat-speed",
-          title: "Movement",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-feat-speed"),
-          enabled: true,
-        },
-      ],
-    };
-
     const syncConfig = [
       {
         name: "action-use",
@@ -409,7 +365,6 @@ const MuncherSettings = {
       extrasConfig,
       advancedImportConfig,
       effectImportConfig,
-      effectSelectionConfig,
       dataDirSet,
       syncConfig,
       tiers,
@@ -484,7 +439,7 @@ const MuncherSettings = {
     const spellEffectText = `Create Automation Effects for spells?<br>
 These effects automate a lot of common spells, but do require the use of a number of external modules, including "Midi-QOL", which potentially introduces a much higher level of automation and complexity above the base Foundry system.<br>
 These require the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, and Times Up${MuncherSettings.getInstalledIcon("timesUp")} as a minimum.<br>
-Also recommended is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}.
+Effects can also be created to use Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}.
 `;
 
     const generateSpellEffects = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects");

@@ -2,6 +2,7 @@ import { baseItemEffect, forceManualReaction, effectModules } from "../effects.j
 
 export function warCasterEffect(document) {
   let effect = baseItemEffect(document, document.name);
+  effect.description = document.system.description.value;
   effect.changes.push(
     {
       key: "system.attributes.concentration.roll.mode",

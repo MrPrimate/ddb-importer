@@ -92,6 +92,7 @@ export class DDBInfusion {
     this.noMods = noMods;
     this.idNames = [];
     this.compendium = null;
+    this.snippet = "";
     this._init();
     this._generateDataStub();
     this.addToCompendium = addToCompendium;
@@ -99,7 +100,7 @@ export class DDBInfusion {
   }
 
   _buildDescription() {
-    const chatSnippet = this.ddbInfusion.snippet ? this.ddbInfusion.snippet : "";
+    this.snippet = this.ddbInfusion.snippet ? this.ddbInfusion.snippet : "";
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
     const itemText = foundry.utils.getProperty(this.ddbInfusion, "itemRuleData.text");
     const prerequisitesHeader = this.requiredLevel && this.requiredLevel > 1
@@ -110,7 +111,7 @@ export class DDBInfusion {
       : "";
 
     const valueDamageText = parseDamageRolls({ text: this.ddbInfusion.description, document: this.data, actor: null });
-    const chatDamageText = chatAdd ? parseDamageRolls({ text: chatSnippet, document: this.data, actor: null }) : "";
+    const chatDamageText = chatAdd ? parseDamageRolls({ text: this.snippet, document: this.data, actor: null }) : "";
     this.data.system.description = {
       value: parseTags(prerequisitesHeader + itemHeader + valueDamageText),
       chat: chatAdd ? parseTags(chatDamageText) : "",
@@ -280,7 +281,15 @@ export class DDBInfusion {
       },
     };
 
-    const mockItem = generateEffects(this.ddbData, this.rawCharacter, modifierItem, foundryItem, this.noMods, "infusion");
+    const mockItem = generateEffects({
+      ddb: this.ddbData,
+      character: this.rawCharacter,
+      ddbItem: modifierItem,
+      foundryItem,
+      isCompendiumItem: this.noMods,
+      type: "infusion",
+      description: this.snippet,
+    });
     if (mockItem.effects.length > 0) effect.changes = mockItem.effects.map((e) => e.changes).flat(1);
 
     effect.changes.push(...this._getMagicBonusChanges(modifiers));

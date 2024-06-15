@@ -6,7 +6,7 @@
     <a class="item active" data-tab="encounter"><i class="fas fa-dungeon"></i> Import</a>
     <a class="item" data-tab="characters"><i class="fas fa-users-cog"></i> Character Settings</a>
     <a class="item" data-tab="config"><i class="fas fa-cogs"></i> Compendium Settings</a>
-    <a class="item" data-tab="effects"><i class="fas fa-dna"></i> Active Effect Settings</a>
+    <a class="item" data-tab="effects"><i class="fas fa-dna"></i> Automation</a>
     <a class="item" data-tab="monsters"><i class="fas fa-pastafarianism"></i> Monster Settings</a>
   </nav>
 
@@ -104,56 +104,19 @@
 
   <!-- Effects Configuration Tab -->
   <section class="tab" data-tab="effects">
-    <p>Dynamic effects are difficult to calculate and require you to have a grasp of how they work, and what you want to achieve. Please read the descriptions carefully. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a> (Requires the DAE module).</p>
-    <button type="button" id="default-effects">Apply Recommended Active Effect Settings</button>
+    <p class="notification info">This section adds extra Automation Active Effects to imported content. Many of these are designed to work with <em>highly automated</em> games. Please read the descriptions carefully. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a></p>
+    <p>{{{localize "ddb-importer.settings.user-hint-setting"}}}</p>
+    <p>{{{localize "ddb-importer.settings.user-hint-animations"}}}</p>
+    <button type="button" id="default-effects">Apply Recommended Active Effect/Automation Settings for the installed modules</button>
     <hr>
-    <h2>Active Effect Options</h2>
+    <h2>Automation Options</h2>
+    <p>{{{installedModulesText}}}</p>
     {{#each effectImportConfig}}
     <div class="effect-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
         name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}"
-        {{#if this.enabled}}enabled{{else}}disabled{{/if}}><b>{{this.title}}</b><p>{{{this.description}}}</p>
+        {{#if this.enabled}}enabled{{else}}disabled{{/if}}><b>{{this.title}}</b>{{#if this.description}}<p>{{{this.description}}}</p>{{/if}}
     </div>
     {{/each}}
-    <hr>
-    <h2>Active Effects to include for Characters</h2>
-    <p>Some common effects are always generated. You can enable/disable other effects below. These are used if character effect generation selected above.</p>
-    <p>Please consider if you need effects on the character, each effect adds an overhead. Sense effects are not added to tokens without additional modules. You probably don't need an effect if the ability is always applied.</p>
-    <hr>
-    <p><b>Class Features</b></p>
-    <div class="effect-policy-group-class">
-      {{#each effectSelectionConfig.class}}
-      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
-      </label>
-      {{/each}}
-    </div>
-    <hr>
-    <p><b>Racial Traits</b></p>
-    <div class="effect-policy-group-race">
-      {{#each effectSelectionConfig.race}}
-      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
-      </label>
-      {{/each}}
-    </div>
-    <hr>
-    <p><b>Feats</b></p>
-    <div class="effect-policy-group-feat">
-      {{#each effectSelectionConfig.feat}}
-      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
-      </label>
-      {{/each}}
-    </div>
-    <hr>
-    <p><b>Background</b></p>
-    <div class="effect-policy-group-background">
-      {{#each effectSelectionConfig.background}}
-      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
-      </label>
-      {{/each}}
-    </div>
   </section>
 
     <!-- Monsters Tab -->

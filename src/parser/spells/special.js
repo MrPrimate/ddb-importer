@@ -312,6 +312,15 @@ export function fixSpells(ddb, items) {
         spell.system.scaling = { mode: "level", formula: "2d8" };
         break;
       }
+      case "Tidal Wave":
+        spell.system.target = {
+          "value": "30",
+          "units": "ft",
+          "type": "line",
+          "width": 10,
+          "prompt": true
+        };
+        break;
       case "Thorn Whip": {
         spell.system.actionType = "msak";
         break;

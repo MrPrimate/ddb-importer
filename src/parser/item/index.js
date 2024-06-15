@@ -480,7 +480,17 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       if (!item.name || item.name === "") item.name = "Item";
 
       // if (addEffects) {
-      item = generateEffects(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem, "item");
+      item = generateEffects({
+        ddb: this.source.ddb,
+        character: this.raw.character,
+        ddbItem,
+        foundryItem: item,
+        isCompendiumItem,
+        type: "item",
+        description: item.system.description.chat !== ""
+          ? item.system.description.chat
+          : item.system.description.value,
+      });
       // } else if (item.type === "equipment") {
       //   if (foundry.utils.hasProperty(item, "system.armor.type") && ["trinket", "clothing"].includes(item.system.armor.type)) {
       //     item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem);

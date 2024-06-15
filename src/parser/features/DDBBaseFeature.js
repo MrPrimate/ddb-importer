@@ -61,6 +61,8 @@ export default class DDBBaseFeature {
     this.data = {};
     this.noMods = noMods;
     this._init();
+    this.snippet = "";
+    this.description = "";
 
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
 
@@ -154,11 +156,12 @@ export default class DDBBaseFeature {
     const useFull = forceFull || useFullSetting;
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
+    this.snippet = parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text;
     const rawSnippet = this.ddbDefinition.snippet
-      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text
+      ? this.snippet
       : "";
 
-    const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
+    this.description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
       ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature).text
       : this.type === "race"
         ? this._getRaceFeatureDescription()
@@ -166,8 +169,8 @@ export default class DDBBaseFeature {
 
     const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");
     if (!chatAdd) {
-      const snippet = utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
-      const fullDescription = DDBBaseFeature.buildFullDescription(description, snippet);
+      const snippet = utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
+      const fullDescription = DDBBaseFeature.buildFullDescription(this.description, snippet);
       const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
 
       this.data.system.description = {
@@ -175,10 +178,10 @@ export default class DDBBaseFeature {
         chat: chatAdd ? snippet + macroHelper : "",
       };
     } else {
-      const snippet = description !== "" && utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
+      const snippet = this.description !== "" && utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
 
       this.data.system.description = {
-        value: description,
+        value: this.description,
         chat: snippet + macroHelper,
       };
     }
@@ -385,7 +388,15 @@ export default class DDBBaseFeature {
     // can we apply any auto-generated effects to this feature
     const compendiumItem = this.rawCharacter.flags.ddbimporter.compendium;
     const modifierItem = this._getFeatModifierItem(choice, type);
-    this.data = generateEffects(this.ddbData, this.rawCharacter, modifierItem, this.data, compendiumItem, "feat");
+    this.data = generateEffects({
+      ddb: this.ddbData,
+      character: this.rawCharacter,
+      ddbItem: modifierItem,
+      foundryItem: this.data,
+      isCompendiumItem: compendiumItem,
+      type: "feat",
+      description: this.snippet !== "" ? this.snippet : this.description,
+    });
   }
 
 

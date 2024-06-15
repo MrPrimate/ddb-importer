@@ -121,6 +121,7 @@ import { sunbeamEffect } from "./spells/sunbeam.js";
 import { swordBurstEffect } from "./spells/swordburst.js";
 import { thunderclapEffect } from "./spells/thunderclap.js";
 import { thunderousSmiteEffect } from "./spells/thunderousSmite.js";
+import { tidalWaveEffect } from "./spells/tidalWave.js";
 import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { trueStrikeEffect } from "./spells/trueStrike.js";
 import { viciousMockeryEffect } from "./spells/viciousMockery.js";
@@ -356,6 +357,10 @@ async function basicSpellEffects(document) {
     }
     case "Sunbeam": {
       document = sunbeamEffect(document);
+      break;
+    }
+    case "Tidal Wave": {
+      document = tidalWaveEffect(document);
       break;
     }
     case "Warding Bond": {

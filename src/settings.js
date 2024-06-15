@@ -512,26 +512,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-effect-race-speed": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-class-speed": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-feat-speed": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-effect-background-speed": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "character-update-policy-add-item-effects": {
             scope: "player",
             type: Boolean,

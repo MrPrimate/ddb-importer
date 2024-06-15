@@ -1,10 +1,12 @@
+import { effectModules } from "../effects.js";
+
 export function unarmoredMovementEffect(document) {
   document.effects.forEach((effect) => {
-    if (effect.name.includes("Constant")) {
+    if (effect.name.includes("Passive") && effectModules().daeInstalled) {
       effect.changes = [
         {
           key: "system.attributes.movement.walk",
-          value: "max(10+(ceil(((@classes.monk.levels)-5)/4))*5,10)",
+          value: `@scale.monk.unarmored-movement.value`,
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           priority: 20,
         },

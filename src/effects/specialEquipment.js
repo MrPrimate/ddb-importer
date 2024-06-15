@@ -140,7 +140,7 @@ export function equipmentEffectAdjustment(document) {
       break;
     }
     case "Belashyrra’s Beholder Crown": {
-      let effect = baseItemEffect(document, `${document.name} - Constant Effects`);
+      let effect = baseItemEffect(document, `${document.name} - Passive Effects`);
       effect.changes.push(generateUpgradeChange(120, 10, "system.attributes.senses.darkvision"));
       document.effects.push(effect);
       break;
