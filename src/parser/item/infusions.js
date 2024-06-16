@@ -73,9 +73,9 @@ export async function createInfusedItems(ddb, actor) {
   for (const item of actor.getEmbeddedCollection("Item")) {
 
     const infusedItem = ddb.infusions.item.find((mapping) =>
-      mapping.itemId === item.flags.ddbimporter.definitionId
-      && mapping.inventoryMappingId === item.flags.ddbimporter.id
-      && mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
+      mapping.itemId === item.flags?.ddbimporter?.definitionId
+      && mapping.inventoryMappingId === item.flags?.ddbimporter?.id
+      && mapping.itemTypeId === item.flags?.ddbimporter?.definitionEntityTypeId
     );
     if (infusedItem) {
       // add infused item effect

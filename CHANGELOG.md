@@ -1,3 +1,7 @@
+# 5.2.14
+
+- Artificier parsing could fail for characters with non-ddb items on them.
+
 # 5.2.13
 
 - Summons would fail to import if using custom proxy.
