@@ -1,6 +1,6 @@
 # Next Up
 
-- Simple Macros: Spell Refueling Ring infusion macro.
+- Simple Macros: Spell Refueling Ring infusion, and Font of Magic macro.
 
 # 5.2.15
 

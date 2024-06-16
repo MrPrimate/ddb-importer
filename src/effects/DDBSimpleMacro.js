@@ -17,6 +17,14 @@ export default class DDBSimpleMacro {
         name: "arcaneRecovery",
         label: "Arcane Recovery Macro"
       },
+      "font-of-magic": {
+        name: "fontOfMagic",
+        label: "Font of Magic Macro",
+      },
+      "convert-sorcery-points": {
+        name: "fontOfMagic",
+        label: "Font of Magic Macro",
+      },
     },
     "item": {
       "spell-refuleing-ring": {

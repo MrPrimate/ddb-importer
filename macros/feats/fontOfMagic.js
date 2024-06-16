@@ -2,17 +2,86 @@
 // required modules: midi-qol
 // number of points required to regain an nth level spell slot; {slot-level : point-cost}.
 
-// midi changes to skip config dialog and not consume usage
+// Convert spell slot to sorcery points.
+async function slot_to_points() {
+  const level = await new Promise((resolve) => {
+    // build buttons for each level where value, max > 0.
+    const slot_to_points_buttons = Object.fromEntries(spell_levels_with_available_slots.map(([key, { value, max }]) => {
+      const spell_level = key.at(-1);
+      return [key, { callback: () => {
+        resolve(spell_level);
+      }, label: `
+          <div class="flexrow">
+            <span>${CONFIG.DND5E.spellLevels[spell_level]} (${value}/${max})</span>
+            <span>(+${spell_level} points)</span>
+          </div>` }];
+    }));
 
-Hooks.once("dnd5e.preUseItem", (item, config, options) => {
-  options.configureDialog = false;
-  return true;
-});
-Hooks.once("dnd5e.preItemUsageConsumption", (item, config, options) => {
-  config.consumeUsage = false;
-  return true;
-});
-// End of midi changes to macro
+    new Dialog({
+      title: "Slot to Sorcery Points",
+      buttons: slot_to_points_buttons,
+      content: style + `
+          <p>Pick a spell slot level to convert one spell slot to sorcery points (<strong>${spvalue}/${spmax}</strong>).
+          You regain a number of sorcery points equal to the level of the spell slot.</p>`,
+      close: () => {
+        resolve(0);
+      }
+    }, {
+      classes: ["dialog", "font-of-magic"]
+    }).render(true, { height: "auto" });
+  });
+
+  if (Number(level) > 0) {
+    spells[`spell${level}`].value--;
+    await actor.update({ system: { spells } });
+    const new_points_value = Math.clamped(spvalue + Number(level), 0, spmax);
+    const points_gained = new_points_value - spvalue;
+    await sorceryPointsItem.update({ "system.uses.value": new_points_value });
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content: `${actor.name} regained ${points_gained} sorcery points.`
+    });
+  }
+}
+
+// Convert sorcery points to spell slot.
+async function points_to_slot() {
+  const level = await new Promise((resolve) => {
+    // build buttons for each level where max > 0, max > value, and conversion_map[level] <= spvalue.
+    const points_to_slot_buttons = Object.fromEntries(valid_levels_with_spent_spell_slots.map(([key, { value, max }]) => {
+      const spell_level = key.at(-1);
+      const cost = conversion_map[spell_level];
+      return [key, { callback: () => {
+        resolve(spell_level);
+      }, label: `
+          <div class="flexrow">
+            <span>${CONFIG.DND5E.spellLevels[spell_level]} (${value}/${max})</span>
+            <span>(&minus;${cost} points)</span>
+          </div>` }];
+    }));
+
+    new Dialog({
+      title: "Sorcery Points to Slot",
+      buttons: points_to_slot_buttons,
+      content: style + `<p>Pick a spell slot level to regain from sorcery points (<strong>${spvalue}/${spmax}</strong>).</p>`,
+      close: () => {
+        resolve(0);
+      }
+    }, {
+      classes: ["dialog", "font-of-magic"]
+    }).render(true);
+  });
+
+  if (Number(level) > 0) {
+    spells[`spell${level}`].value++;
+    await actor.update({ system: { spells } });
+    await sorceryPointsItem.update({ "system.uses.value": Math.clamped(spvalue - conversion_map[level], 0, spmax) });
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content: `${actor.name} regained a ${CONFIG.DND5E.spellLevels[level]} spell slot.`
+    });
+  }
+}
 
 const conversion_map = {
   "1": 2,
@@ -72,85 +141,27 @@ if (can_convert_points_to_slot) buttons["point_to_slot"] = {
   label: "Convert sorcery points to a spell slot",
   callback: points_to_slot
 };
-new Dialog({ title: "Font of Magic", buttons }).render(true);
 
-// Convert spell slot to sorcery points.
-async function slot_to_points() {
-  const level = await new Promise((resolve) => {
-    // build buttons for each level where value, max > 0.
-    const slot_to_points_buttons = Object.fromEntries(spell_levels_with_available_slots.map(([key, { value, max }]) => {
-      const spell_level = key.at(-1);
-      return [key, { callback: () => {
-        resolve(spell_level); 
-      }, label: `
-          <div class="flexrow">
-            <span>${CONFIG.DND5E.spellLevels[spell_level]} (${value}/${max})</span>
-            <span>(+${spell_level} points)</span>
-          </div>` }];
-    }));
 
-    new Dialog({
-      title: "Slot to Sorcery Points",
-      buttons: slot_to_points_buttons,
-      content: style + `
-          <p>Pick a spell slot level to convert one spell slot to sorcery points (<strong>${spvalue}/${spmax}</strong>).
-          You regain a number of sorcery points equal to the level of the spell slot.</p>`,
-      close: () => {
-        resolve(0); 
-      }
-    }, {
-      classes: ["dialog", "font-of-magic"]
-    }).render(true, { height: "auto" });
-  });
-
-  if (Number(level) > 0) {
-    spells[`spell${level}`].value--;
-    await actor.update({ system: { spells } });
-    const new_points_value = Math.clamped(spvalue + Number(level), 0, spmax);
-    const points_gained = new_points_value - spvalue;
-    await sorceryPointsItem.update({ "system.uses.value": new_points_value });
-    return ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor }),
-      content: `${actor.name} regained ${points_gained} sorcery points.`
-    });
+if (scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFunction")) {
+  if (!actor || ! item) {
+    logger.error("No actor or item passed to arcane recovery");
+    return;
   }
+  new Dialog({ title: "Font of Magic", buttons }).render(true);
+} else if (args && args[0] === "on") {
+  // midi changes to skip config dialog and not consume usage
+  Hooks.once("dnd5e.preUseItem", (item, config, options) => {
+    options.configureDialog = false;
+    return true;
+  });
+  Hooks.once("dnd5e.preItemUsageConsumption", (item, config, options) => {
+    config.consumeUsage = false;
+    return true;
+  });
+  // End of midi changes to macro
+
+  new Dialog({ title: "Font of Magic", buttons }).render(true);
 }
 
-// Convert sorcery points to spell slot.
-async function points_to_slot() {
-  const level = await new Promise((resolve) => {
-    // build buttons for each level where max > 0, max > value, and conversion_map[level] <= spvalue.
-    const points_to_slot_buttons = Object.fromEntries(valid_levels_with_spent_spell_slots.map(([key, { value, max }]) => {
-      const spell_level = key.at(-1);
-      const cost = conversion_map[spell_level];
-      return [key, { callback: () => {
-        resolve(spell_level); 
-      }, label: `
-          <div class="flexrow">
-            <span>${CONFIG.DND5E.spellLevels[spell_level]} (${value}/${max})</span>
-            <span>(&minus;${cost} points)</span>
-          </div>` }];
-    }));
 
-    new Dialog({
-      title: "Sorcery Points to Slot",
-      buttons: points_to_slot_buttons,
-      content: style + `<p>Pick a spell slot level to regain from sorcery points (<strong>${spvalue}/${spmax}</strong>).</p>`,
-      close: () => {
-        resolve(0); 
-      }
-    }, {
-      classes: ["dialog", "font-of-magic"]
-    }).render(true);
-  });
-
-  if (Number(level) > 0) {
-    spells[`spell${level}`].value++;
-    await actor.update({ system: { spells } });
-    await sorceryPointsItem.update({ "system.uses.value": Math.clamped(spvalue - conversion_map[level], 0, spmax) });
-    return ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor }),
-      content: `${actor.name} regained a ${CONFIG.DND5E.spellLevels[level]} spell slot.`
-    });
-  }
-}
