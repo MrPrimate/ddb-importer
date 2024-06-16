@@ -52,7 +52,9 @@ export default class DDBBaseFeature {
     this.ddbFeature = ddbDefinition;
     this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
     this.name = utils.nameString(this.ddbDefinition.name);
-    this.originalName = DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter, false);
+    this.originalName = this.ddbData
+      ? DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter, false)
+      : this.ddbDefinition.name;
     this.type = type;
     this.source = source;
     this.isAction = false;
@@ -156,7 +158,9 @@ export default class DDBBaseFeature {
     const useFull = forceFull || useFullSetting;
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
-    this.snippet = parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text;
+    this.snippet = this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
+      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text
+      : "";
     const rawSnippet = this.ddbDefinition.snippet
       ? this.snippet
       : "";

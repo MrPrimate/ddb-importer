@@ -5,10 +5,15 @@ import SETTINGS from "../settings.js";
 
 const INDEX_COMPENDIUMS = [
   "spell",
+  "spells",
   "item",
+  "items",
+  "magicitems",
+  "monsters",
   "magicitem",
   "monster",
   "vehicle",
+  "vehicles",
 ];
 
 const ATTACK_ACTION_HINTS = {
@@ -252,14 +257,14 @@ function parseHardReferenceTag(type, text) {
   };
 
 
-  if (["spell"].includes(type.toLowerCase())) {
+  if (["spell", "spells"].includes(type.toLowerCase())) {
     // easiest, e.g.wand of fireballs
     const simpleStrongRegex = /(?:<strong>)([\w\s]*?)(?:<\/strong>)(\s*spell)/gi;
     text = `${text}`.replaceAll(simpleStrongRegex, referenceRegexReplacer);
     // <strong>cone of cold</strong> (5 charges)
     const chargeSpellRegex = /(?:<strong>)([\w\s]*?)(?:<\/strong>)(\s*\(\d* charge)/gi;
     text = `${text}`.replaceAll(chargeSpellRegex, referenceRegexReplacer);
-  } else if (["item", "magicitem"].includes(type)) {
+  } else if (["item", "items", "magicitem", "magicitems"].includes(type)) {
     // easiest, e.g.wand of fireballs
     const simpleStrongRegex = /(?:<strong>)([\w\s]*?)(?:<\/strong>)(\s*item)/gi;
     text = `${text}`.replaceAll(simpleStrongRegex, referenceRegexReplacer);
@@ -418,9 +423,10 @@ export function parseToHitRoll({ text, document } = {}) {
 }
 
 export function parseTags(text) {
-  text = parseHardReferenceTag("spell", text);
-  text = parseHardReferenceTag("item", text);
-  const tagRegEx = /\[([^\]]+)]([^[]+)\[\/([^\]]+)]/g;
+  for (const tag of ["spell", "item", "spells", "items"]) {
+    text = parseHardReferenceTag(tag, text);
+  }
+  const tagRegEx = /\[([^\]]+)]{?([^[}]+)}?\[\/([^\]]+)]/g;
   const matches = text.match(tagRegEx);
   if (matches) {
     return text.replaceAll(tagRegEx, replaceTag);

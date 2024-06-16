@@ -1,3 +1,9 @@
+# 5.2.15
+
+- Background parsing was broken since 5.2.13
+- In v12, folders created in adventure import would not nestle.
+- Small and Tiny monsters will now keep scale 1. @dm.dk
+
 # 5.2.14
 
 - Artificier parsing could fail for characters with non-ddb items on them.

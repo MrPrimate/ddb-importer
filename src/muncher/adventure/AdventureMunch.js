@@ -284,41 +284,39 @@ export default class AdventureMunch extends FormApplication {
   }
 
   async importFolder(folders, folderList) {
+    console.warn("Creating Folders", {
+      folders,
+      folderList,
+    });
     await utils.asyncForEach(folders, async (f) => {
-      let folderData = f;
+      const folderData = f;
 
-      let newFolder = game.folders.find((folder) =>
-        (folder._id === folderData._id || folder.flags.importid === folderData._id)
-        && folder.type === folderData.type
+      const existingFolder = game.folders.find((folder) =>
+        folder._id === folderData._id && folder.type === folderData.type
       );
 
-      if (newFolder) {
-        if (!this.temporary.folders.some((f) => f._id === newFolder._id)) {
-          this.temporary.folders.push(newFolder);
+      if (existingFolder) {
+        if (!this.temporary.folders.some((f) => f._id === existingFolder._id)) {
+          this.temporary.folders.push(existingFolder);
         }
-        logger.debug(`Found existing folder ${newFolder._id} with data:`, folderData, newFolder);
-      } else {
-        if (folderData.parent === null) {
-          folderData.parent = this.lookups.folders[folderData.type];
-        } else {
-          folderData.parent = this.lookups.folders[folderData.parent];
-        }
-
+        logger.debug(`Found existing folder ${existingFolder._id} with data:`, folderData, existingFolder);
         // eslint-disable-next-line require-atomic-updates
-        newFolder = await Folder.create(folderData, { keepId: true });
+        // this.lookups.folders[folderData.flags.importid] = existingFolder._id;
+      } else {
+        if (folderData.parent) folderData.folder = folderData.parent;
+        // eslint-disable-next-line require-atomic-updates
+        const newFolder = await Folder.create(folderData, { keepId: true });
         this.temporary.folders.push(newFolder);
         if (this.importToAdventureCompendium) this.remove.folderIds.add(newFolder._id);
         logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
       }
-
-      // eslint-disable-next-line require-atomic-updates
-      this.lookups.folders[folderData.flags.importid] = newFolder._id;
 
       let childFolders = folderList.filter((folder) => {
         return folder.parent === folderData._id;
       });
 
       if (childFolders.length > 0) {
+        logger.debug(`Creating subfolders for ${folderData._id} (${folderData.type})`, childFolders);
         await this.importFolder(childFolders, folderList);
       }
     });
@@ -1451,25 +1449,25 @@ export default class AdventureMunch extends FormApplication {
 
       foundry.utils.setProperty(data.flags, "ddbimporter.version", CONFIG.DDBI.version);
 
-      if (importType !== "Playlist" && importType !== "Compendium") {
-        if (this.lookups.folders[data.folder]) {
-          logger.debug(
-            `Adding data to subfolder importkey = ${data.folder}, folder = ${
-              this.lookups.folders[data.folder]
-            }`
-          );
-          data.folder = this.lookups.folders[data.folder];
-        } else {
-          logger.debug(
-            `Adding data to subfolder importkey = ${data.folder}, folder = ${this.lookups.folders["null"]}`
-          );
-          if (this.adventure?.options?.folders) {
-            data.folder = this.lookups.folders["null"];
-          } else {
-            data.folder = this.lookups.folders[importType];
-          }
-        }
-      }
+      // if (importType !== "Playlist" && importType !== "Compendium") {
+      //   if (this.lookups.folders[data.folder]) {
+      //     logger.debug(
+      //       `Adding data to subfolder importkey = ${data.folder}, folder = ${
+      //         this.lookups.folders[data.folder]
+      //       }`
+      //     );
+      //     data.folder = this.lookups.folders[data.folder];
+      //   } else {
+      //     logger.debug(
+      //       `Adding data to subfolder importkey = ${data.folder}, folder = ${this.lookups.folders["null"]}`
+      //     );
+      //     if (this.adventure?.options?.folders) {
+      //       data.folder = this.lookups.folders["null"];
+      //     } else {
+      //       data.folder = this.lookups.folders[importType];
+      //     }
+      //   }
+      // }
 
       await this._importRenderedFile(importType, data, needRevisit, overwriteIds);
 
