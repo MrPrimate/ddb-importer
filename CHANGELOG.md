@@ -1,6 +1,7 @@
-# Next Up
+# 5.2.16
 
 - Simple Macros: Spell Refueling Ring infusion, and Font of Magic macro.
+- Some more fixes for self hosted proxy and summon importing.
 
 # 5.2.15
 
