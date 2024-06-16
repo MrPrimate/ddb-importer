@@ -45,9 +45,12 @@ export default class DDBCompanion {
   }
 
   static async addEnrichedImageData(document) {
+    const tier = PatreonHelper.getPatreonTier();
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
+    if (!tiers.all || DDBProxy.isCustom()) return document;
     const name = document.name;
     // this endpoint is not supported in custom proxies
-    if (!CONFIG.DDBI.EXTRA_IMAGES && !DDBProxy.isCustom()) {
+    if (!CONFIG.DDBI.EXTRA_IMAGES) {
       const path = "/proxy/enriched/actor/images";
       const parsingApi = DDBProxy.getProxy();
       const response = await fetch(`${parsingApi}${path}`, {
@@ -62,13 +65,11 @@ export default class DDBCompanion {
       foundry.utils.setProperty(CONFIG, "DDBI.EXTRA_IMAGES", j.data);
     }
 
+    if (!foundry.utils.hasProperty(CONFIG, "DDBI.EXTRA_IMAGES.summons")) return document;
     const data = CONFIG.DDBI.EXTRA_IMAGES.summons[name]
       ?? CONFIG.DDBI.EXTRA_IMAGES.summons[name.split("(")[0].trim()];
 
     if (!data) return document;
-    const tier = PatreonHelper.getPatreonTier();
-    const tiers = PatreonHelper.calculateAccessMatrix(tier);
-    if (!tiers.all) return document;
 
     if (data.monsterIDs && data.monsterIDs.length > 0) {
       const monsterFactory = new DDBMonsterFactory({ type: "summons" });
