@@ -1,3 +1,7 @@
+# Next Up
+
+- Simple Macros: Spell Refueling Ring infusion macro.
+
 # 5.2.15
 
 - Background parsing was broken since 5.2.13

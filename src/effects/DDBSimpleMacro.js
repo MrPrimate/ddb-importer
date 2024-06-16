@@ -18,6 +18,12 @@ export default class DDBSimpleMacro {
         label: "Arcane Recovery Macro"
       },
     },
+    "item": {
+      "spell-refuleing-ring": {
+        name: "spellRefuelingRing",
+        label: "Spell Refueling Macro",
+      }
+    }
   };
 
   static getDescriptionAddition(name, type, params) {
