@@ -14,6 +14,7 @@
 
 import DICTIONARY from '../../dictionary.js';
 import logger from '../../logger.js';
+import SETTINGS from '../../settings.js';
 import DDBMonster from "../DDBMonster.js";
 
 DDBMonster.prototype.getSizeFromId = function getSizeFromId(sizeId) {
@@ -29,9 +30,10 @@ DDBMonster.prototype.getSizeFromId = function getSizeFromId(sizeId) {
 
 DDBMonster.prototype._generateSize = function _generateSize () {
   const sizeData = this.getSizeFromId(this.source.sizeId);
+  const flatScale = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-size-flat-scale");
   const token = {
-    scale: sizeData.size >= 1 ? 1 : sizeData.size,
-    value: sizeData.size >= 1 ? sizeData.size : 1,
+    scale: flatScale ? 1 : (sizeData.size >= 1 ? 1 : sizeData.size),
+    value: flatScale ? sizeData.size : (sizeData.size >= 1 ? sizeData.size : 1),
   };
 
   this.npc.system.traits.size = sizeData.value;
