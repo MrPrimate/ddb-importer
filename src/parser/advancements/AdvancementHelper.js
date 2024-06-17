@@ -1850,4 +1850,9 @@ export default class AdvancementHelper {
   //   return parsedEquipment;
   // }
 
+
+  // static getEquipmentAdvancement(parts) {
+
+  // }
+
 }

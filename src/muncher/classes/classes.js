@@ -5,6 +5,7 @@ import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import DDBMuncher from "../../apps/DDBMuncher.js";
 import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
+import SETTINGS from "../../settings.js";
 
 function getHPAdvancement(klass, character) {
   // const value = "value": {
@@ -43,12 +44,13 @@ function getHPAdvancement(klass, character) {
 }
 
 async function addSRDAdvancements(advancements, klass) {
-  const rulesCompendium = "dnd5e.classes";
-  const srdCompendium = CompendiumHelper.getCompendium(rulesCompendium);
-  await srdCompendium.getIndex();
-  const klassMatch = srdCompendium.index.find((k) => k.name === klass.name);
-  if (klassMatch) {
-    const srdKlass = await srdCompendium.getDocument(klassMatch._id);
+  for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
+    const pack = CompendiumHelper.getCompendium(packId);
+    if (!pack) continue;
+    await pack.getIndex();
+    const klassMatch = pack.index.find((k) => k.name === klass.name && k.type === "class");
+    if (!klassMatch) continue;
+    const srdKlass = await pack.getDocument(klassMatch._id);
     const scaleAdvancements = srdKlass.system.advancement.filter((srdA) =>
       srdA.type === "ScaleValue"
       && !advancements.some((ddbA) => ddbA.configuration.identifier === srdA.configuration.identifier)
@@ -56,9 +58,23 @@ async function addSRDAdvancements(advancements, klass) {
       return advancement.toObject();
     });
     advancements.push(...scaleAdvancements);
+    return advancements;
   }
 
   return advancements;
+}
+
+async function _getSRDEquipment(klass) {
+  for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
+    const pack = CompendiumHelper.getCompendium(packId);
+    if (!pack) continue;
+    await pack.getIndex();
+    const klassMatch = pack.index.find((k) => k.name === klass.name && k.type === "class");
+    if (!klassMatch) continue;
+    const srdKlass = await pack.getDocument(klassMatch._id);
+    return foundry.utils.duplicate(srdKlass.system.startingEquipment);
+  }
+  return [];
 }
 
 async function buildClass(klass, compendiumClassFeatures) {
@@ -67,6 +83,7 @@ async function buildClass(klass, compendiumClassFeatures) {
   result.system.description.value = parseTags(result.system.description.value);
   result.system.advancement.push(getHPAdvancement(), ...(await generateFeatureAdvancements(klass, compendiumClassFeatures)));
   result.system.advancement = await addSRDAdvancements(result.system.advancement, result);
+  result.system.startingEquipment = await _getSRDEquipment(result);
   return result;
 }
 

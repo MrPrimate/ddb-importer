@@ -284,10 +284,10 @@ export default class AdventureMunch extends FormApplication {
   }
 
   async importFolder(folders, folderList) {
-    console.warn("Creating Folders", {
-      folders,
-      folderList,
-    });
+    // console.warn("Creating Folders", {
+    //   folders,
+    //   folderList,
+    // });
     await utils.asyncForEach(folders, async (f) => {
       const folderData = f;
 

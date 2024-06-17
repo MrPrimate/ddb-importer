@@ -1,3 +1,8 @@
+# Next Up
+
+- Sacred Weapon is now an enchantment, and if not using Active Token Effects, a Simple Macro is provided to toggle on/off the light emission.
+- Add wealth dice to classes.
+
 # 5.2.16
 
 - Simple Macros: Spell Refueling Ring infusion, and Font of Magic macro.

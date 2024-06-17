@@ -364,5 +364,13 @@ export async function buildBaseClass(klass) {
     result.system.description.value += `<p><b>Starting Equipment</b></p>\n${klass.equipmentDescription}\n\n`;
   }
 
+  if (klass.wealthDice) {
+    const diceString = klass.wealthDice.diceString;
+    const diceMultiplier = klass.wealthDice.diceMultiplier;
+    result.system.wealth = diceMultiplier && diceString
+      ? `${diceString}*${diceMultiplier}`
+      : "";
+  }
+
   return result;
 }

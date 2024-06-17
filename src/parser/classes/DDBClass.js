@@ -6,6 +6,7 @@ import CompendiumHelper from '../../lib/CompendiumHelper.js';
 import { getSpellCastingAbility } from "../spells/ability.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
+import SETTINGS from '../../settings.js';
 
 
 export default class DDBClass {
@@ -868,19 +869,25 @@ export default class DDBClass {
   }
 
 
-  async _addSRDAdvancements() {
-    const srdCompendium = CompendiumHelper.getCompendium("dnd5e.classes");
-    await srdCompendium.getIndex();
-    const klassMatch = srdCompendium.index.find((k) => k.name === this.ddbClassDefinition.name);
-    if (klassMatch) {
-      const srdKlass = await srdCompendium.getDocument(klassMatch._id);
-      const scaleAdvancements = srdKlass.system.advancement.filter((srdA) =>
-        srdA.type === "ScaleValue"
-        && !this.data.system.advancement.some((ddbA) => ddbA.configuration.identifier === srdA.configuration.identifier)
+  async _addFoundryAdvancements() {
+    for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
+      const pack = CompendiumHelper.getCompendium(packId);
+      if (!pack) continue;
+      await pack.getIndex();
+      const klassMatch = pack.index.find((k) =>
+        k.name === this.ddbClassDefinition.name
+        && k.type === "class"
+      );
+      if (!klassMatch) continue;
+      const foundryKlass = await pack.getDocument(klassMatch._id);
+      const scaleAdvancements = foundryKlass.system.advancement.filter((foundryA) =>
+        foundryA.type === "ScaleValue"
+        && !this.data.system.advancement.some((ddbA) => ddbA.configuration.identifier === foundryA.configuration.identifier)
       ).map((advancement) => {
         return advancement.toObject();
       });
       this.data.system.advancement.push(...scaleAdvancements);
+      return;
     }
   }
 
@@ -952,6 +959,30 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
+  _generateWealth() {
+    const diceString = this.ddbClassDefinition.wealthDice.diceString;
+    const diceMultiplier = this.ddbClassDefinition.wealthDice.diceMultiplier;
+    this.data.system.wealth = diceMultiplier && diceString
+      ? `${diceString}*${diceMultiplier}`
+      : "";
+  }
+
+  async _copyFoundryEquipment() {
+    for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
+      const pack = CompendiumHelper.getCompendium(packId);
+      if (!pack) continue;
+      await pack.getIndex();
+      const klassMatch = pack.index.find((k) =>
+        k.name === this.ddbClassDefinition.name
+        && k.type === "class"
+      );
+      if (!klassMatch) continue;
+      const foundryKlass = await pack.getDocument(klassMatch._id);
+      const startingEquipment = foundry.utils.duplicate(foundryKlass.system.startingEquipment);
+      this.data.system.startingEquipment = startingEquipment;
+      return;
+    }
+  }
 
   async _generateCommonAdvancements() {
     this._generateScaleValueAdvancementsFromFeatures();
@@ -968,7 +999,7 @@ export default class DDBClass {
     this._generateConditionAdvancements();
     this._generateSpellCastingProgression();
     // FUTURE: choice options such as fighting styles, this requires improved feature parsing
-    await this._addSRDAdvancements();
+    await this._addFoundryAdvancements();
   }
 
   // fixes
@@ -990,6 +1021,8 @@ export default class DDBClass {
     await this._generateCommonAdvancements();
     this._generateHitDice();
     this._generateAbilityScoreAdvancement();
+    this._generateWealth();
+    this._copyFoundryEquipment();
 
     // finally a description
     await this._generateDescriptionStub(character);

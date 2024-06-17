@@ -44,6 +44,20 @@ const SRD_COMPENDIUM_LOOKUPS = [
   { type: "backgrounds", name: "dnd5e.backgrounds" },
 ];
 
+const FOUNDRY_COMPENDIUM_MAP = {
+  "classes": [
+    "dnd5e.classes",
+    "dnd-tashas-cauldron.tcoe-character-options",
+  ],
+  "spells": [
+    "dnd5e.spells",
+  ],
+  "items": [
+    "dnd5e.items",
+    "dnd-tashas-cauldron.tcoe-magic-items",
+  ],
+};
+
 const SUPPORTED_FLAG_GROUPS = [
   "advancedspelleffects",
   "arbron-summoner",
@@ -194,6 +208,7 @@ const SETTINGS = {
   DICTIONARY,
   COMPENDIUMS: COMPENDIUMS,
   SRD_COMPENDIUMS: SRD_COMPENDIUM_LOOKUPS,
+  FOUNDRY_COMPENDIUM_MAP,
   EFFECTS_IGNORE_FLAG_GROUPS,
   SUPPORTED_FLAG_GROUPS,
   GAME_FOLDER_LOOKUPS,
