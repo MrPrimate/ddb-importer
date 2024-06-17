@@ -1,3 +1,7 @@
+# 5.2.18
+
+- Fix compendium load fail.
+
 # 5.2.17
 
 - Sacred Weapon is now an enchantment, and if not using Active Token Effects, a Simple Macro is provided to toggle on/off the light emission.

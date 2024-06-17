@@ -871,7 +871,7 @@ export default class DDBClass {
 
   async _addFoundryAdvancements() {
     for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
-      const pack = CompendiumHelper.getCompendium(packId);
+      const pack = CompendiumHelper.getCompendium(packId, false);
       if (!pack) continue;
       await pack.getIndex();
       const klassMatch = pack.index.find((k) =>
@@ -969,7 +969,7 @@ export default class DDBClass {
 
   async _copyFoundryEquipment() {
     for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
-      const pack = CompendiumHelper.getCompendium(packId);
+      const pack = CompendiumHelper.getCompendium(packId, false);
       if (!pack) continue;
       await pack.getIndex();
       const klassMatch = pack.index.find((k) =>

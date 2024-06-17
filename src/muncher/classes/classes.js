@@ -45,7 +45,7 @@ function getHPAdvancement(klass, character) {
 
 async function addSRDAdvancements(advancements, klass) {
   for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
-    const pack = CompendiumHelper.getCompendium(packId);
+    const pack = CompendiumHelper.getCompendium(packId, false);
     if (!pack) continue;
     await pack.getIndex();
     const klassMatch = pack.index.find((k) => k.name === klass.name && k.type === "class");
@@ -66,7 +66,7 @@ async function addSRDAdvancements(advancements, klass) {
 
 async function _getSRDEquipment(klass) {
   for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
-    const pack = CompendiumHelper.getCompendium(packId);
+    const pack = CompendiumHelper.getCompendium(packId, false);
     if (!pack) continue;
     await pack.getIndex();
     const klassMatch = pack.index.find((k) => k.name === klass.name && k.type === "class");
