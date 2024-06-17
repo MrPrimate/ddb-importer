@@ -1810,5 +1810,15 @@
     "race": "Autognome",
     "racial_trait": "Armored Casing",
     "path": "icons/creatures/magical/construct-stone-earth-gray.webp"
+  },
+  {
+    "name": "Draconic Roar",
+    "race": "Kobold",
+    "path": "icons/creatures/reptiles/lizard-mouth-glowing-red.webp"
+  },
+  {
+    "name": "Draconic Legacy",
+    "race": "Kobold",
+    "path": "icons/creatures/reptiles/dragon-winged-blue.webp"
   }
 ]
