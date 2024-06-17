@@ -288,11 +288,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = recklessAttackEffect(document);
       break;
     }
-    case "Channel Divinity: Sacred Weapon":
-    case "Sacred Weapon": {
-      document = await sacredWeaponEffect(document);
-      break;
-    }
     case "Sculpt Spells": {
       document = sculptSpellsEffect(document);
       break;
@@ -450,6 +445,11 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Rage": {
       document = rageEffect(document);
+      break;
+    }
+    case "Channel Divinity: Sacred Weapon":
+    case "Sacred Weapon": {
+      document = sacredWeaponEffect(document);
       break;
     }
     case "Song of Victory": {

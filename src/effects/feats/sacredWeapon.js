@@ -1,32 +1,56 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import DDBMacros from "../DDBMacros.js";
-import { generateATLChange } from "../effects.js";
+import { generateATLChange, baseEnchantmentEffect } from "../effects.js";
 
-export async function sacredWeaponEffect(document) {
+export function sacredWeaponEffect(document) {
   if (document.system.actionType === null) return document;
-  let effect = baseFeatEffect(document, document.name);
+  const name = document.name.split(":").pop();
+  document.system.actionType = "ench";
 
-  await DDBMacros.setItemMacroFlag(document, "feat", "sacredWeapon.js");
-  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@abilities.cha.mod", macroType: "feat", macroName: "sacredWeapon.js", priority: 0 }));
+  document.system.damage.parts = [];
+  document.system.chatFlavor = "";
 
-  // effect.changes.push(
-  //   {
-  //     key: "system.bonuses.weapon.attack",
-  //     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-  //     value: "+ @abilities.cha.mod",
-  //     priority: "20",
-  //   },
-  // );
+  let enchantmentEffect = baseEnchantmentEffect(document, `${name}`);
+  enchantmentEffect.changes.push(
+    {
+      key: "name",
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      value: `{}, (${name})`,
+      priority: 20,
+    },
+    {
+      key: "system.properties",
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      value: "mgc",
+      priority: 20,
+    },
+    {
+      key: "system.attack.bonus",
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      value: "@abilities.cha.mod",
+      priority: 20,
+    },
+  );
+  enchantmentEffect.description = `The weapon shines with Sacred Energy.`;
+  foundry.utils.setProperty(enchantmentEffect, "duration.seconds", 60);
 
   if (CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules.atlInstalled) {
-    effect.changes.push(generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '5'));
-    effect.changes.push(generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'));
-    effect.changes.push(generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'));
+    let lightEffect = baseFeatEffect(document, `${name} (Light Effect)`, { transfer: false });
+    lightEffect.changes.push(generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '5'));
+    lightEffect.changes.push(generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'));
+    lightEffect.changes.push(generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'));
     const lightAnimation = '{"type": "sunburst", "speed": 2,"intensity": 4}';
-    effect.changes.push(generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, lightAnimation));
+    lightEffect.changes.push(generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, lightAnimation));
+    foundry.utils.setProperty(lightEffect, "duration.seconds", 60);
+    lightEffect._id = foundry.utils.randomID();
+    document.effects.push(lightEffect);
+    foundry.utils.setProperty(enchantmentEffect, "flags.dnd5e.enchantment.riders.effect", [lightEffect._id]);
+  } else {
+    const macroToggle = `<br><p>[[/ddbifunc functionName="sacredWeaponLight" functionType="feat"]]{Toggle Sacred Weapon Light}</div></p>`;
+    document.system.description.value += macroToggle;
+    if (document.system.description.chat !== "") document.system.description.chat += macroToggle;
   }
-  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
-  foundry.utils.setProperty(effect, "duration.seconds", 60);
-  document.effects.push(effect);
+
+  document.effects.push(enchantmentEffect);
+
   return document;
 }
