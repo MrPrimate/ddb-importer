@@ -7,6 +7,31 @@ import ChrisPremadesHelper from "./ChrisPremadesHelper.js";
 
 export default class ExternalAutomations {
 
+  constructor(actor) {
+    this.actor = actor;
+    const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
+    const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+    const gmSyncUser = game.user.isGM && game.user.id == updateUser;
+    this.dynamicUpdateAllowed = dynamicSync && gmSyncUser && this.importSettings.tiers.experimentalMid;
+    this.dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
+  }
+
+  getCurrentDynamicUpdateState() {
+    return this.actor.flags?.ddbimporter?.activeUpdate ?? false;
+  }
+
+  async disableDynamicUpdates() {
+    if (!this.dynamicUpdateStatus) return;
+    const activeUpdateData = { flags: { ddbimporter: { activeUpdate: false } } };
+    await this.actor.update(activeUpdateData);
+  }
+
+  async enableDynamicUpdates() {
+    if (!this.dynamicUpdateStatus) return;
+    const activeUpdateData = { flags: { ddbimporter: { activeUpdate: true } } };
+    await this.actor.update(activeUpdateData);
+  }
+
   static async applyChrisPremadeEffect({ document, type, isMonster = false, folderName = null, chrisNameOverride = null } = {}) {
     return ChrisPremadesHelper.findAndUpdate({
       document,
@@ -57,6 +82,9 @@ export default class ExternalAutomations {
       return [];
     }
 
+    const externalAutomations = new ExternalAutomations(actor);
+    await externalAutomations.disableDynamicUpdates();
+
     logger.info("Starting to update actor documents with Chris Premades effects");
     let documents = actor.getEmbeddedCollection("Item").toObject();
     const isMonster = actor.type === "npc";
@@ -90,6 +118,7 @@ export default class ExternalAutomations {
     logger.debug("Restricted item replacer complete, beginning Replacement of Redundant Chris Documents");
     await ChrisPremadesHelper.addAndReplaceRedundantChrisDocuments(actor);
     logger.info("Effect replacement complete");
+    await externalAutomations.enableDynamicUpdates();
     return data.map((d) => d.name);
   }
 }
