@@ -16,6 +16,14 @@ export function getDivineSmiteSpell(feature) {
         ignoreItemUpdate: true,
       },
     },
+    midiProperties: {
+      critOther: true,
+      magicdam: true,
+      magiceffect: true,
+    },
+    "midi-qol": {
+      otherCondition: `["fiend", "undead"].includes(raceOrType)`,
+    },
     name: "Divine Smite",
     type: "spell",
     img: "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp",
