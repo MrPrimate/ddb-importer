@@ -13,7 +13,7 @@ export default class DDBEffectHooks {
   }
 
   // eslint-disable-next-line no-unused-vars
-  static processCustomApplyEffectHooks(actor, change, ...params) {
+  static processCustomApplyEffectHooks(actor, change, current, delta, changes) {
     // eslint-disable-next-line no-useless-return
     if (change.mode !== CONST.ACTIVE_EFFECT_MODES.CUSTOM) return;
 
@@ -23,6 +23,5 @@ export default class DDBEffectHooks {
     // special effect functions
     Hooks.on("applyActiveEffect", DDBEffectHooks.processCustomApplyEffectHooks);
   }
-
 
 }
