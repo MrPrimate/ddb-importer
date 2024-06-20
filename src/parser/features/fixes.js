@@ -162,6 +162,13 @@ export async function fixFeatures(features) {
         feature.system.target.type = "self";
         feature.system.range.units = "self";
         break;
+      case "Guardian Armor: Defensive Field": {
+        feature.system.damage = { parts: [["@classes.artificer.levels", "temphp"]], versatile: "", value: "" };
+        feature.system.target.type = "self";
+        feature.system.range.units = "self";
+        feature.system.actionType = "heal";
+        break;
+      }
       case "Genie's Vessel: Genie's Wrath (Dao)": {
         feature.system.activation.type = "special";
         feature.system.target.value = 1;
