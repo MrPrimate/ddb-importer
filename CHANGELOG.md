@@ -2,6 +2,8 @@
 
 - Divine Smite improvements for midi users when targeting undead and fiends.
 - Fixes for using CPR Medi-Kit when dynamic sync is on.
+- Guardian Armor: Defensive Field healing value correction.
+- Improve Aside handling in books such as Where Evil Lies.
 
 # 5.2.18
 

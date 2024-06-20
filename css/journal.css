@@ -85,7 +85,7 @@ div.ddbimporter-image-popout img {
   height: 90%;
 }
 
-.ddb aside.block-torn-paper, .ddb aside.epigraph, .ddb aside.epigraph--with-author {
+.ddb aside.block-torn-paper, .ddb aside.epigraph, .ddb aside.epigraph--with-author, .ddb aside.epigraph-with-author {
   overflow: auto;
   background: var(--theme-quote-bg-color,#fff);
   color: var(--theme-quote-fg-color,#242527);
@@ -158,6 +158,7 @@ div.ddbimporter-image-popout img {
   font-size: 14px !important;
 }
 
+.ddb .text-quote-box::before, .ddb .text-quote-box::after,
 .ddb .text--quote-box::before, .ddb .text--quote-box::after {
   content: '';
   border-radius: 50%;
@@ -221,6 +222,8 @@ div.ddbimporter-image-popout img {
   text-align: center !important;
 }
 
+.ddb .table-compendium.table-generic-dice td:first-child,
+.ddb .table-compendium.table-generic-dice th:first-child,
 .ddb .table-compendium.table--generic-dice td:first-child,
 .ddb .table-compendium.table--generic-dice th:first-child {
   width: 12% !important;
@@ -363,6 +366,7 @@ div.ddbimporter-image-popout img {
 .ddb .Stat-Block-Styles_Stat-Block-Body,
 .ddb .Stat-Block-Styles_Stat-Block-Hanging,
 .ddb .Stat-Block-Styles_Stat-Block-Hanging-Last,
+.ddb .Stat-Block-Styles_Stat-Block-Body-Last-apply-before-heading-,
 .ddb .Stat-Block-Styles_Stat-Block-Body-Last--apply-before-heading- {
   font-size: 14px !important;
   line-height: 1.4 !important;
@@ -400,6 +404,7 @@ div.ddbimporter-image-popout img {
 }
 
 .ddb .Stat-Block-Styles_Stat-Block-Heading,
+.ddb .Stat-Block-Styles_Stat-Block-Heading-after-last-bar-,
 .ddb .Stat-Block-Styles_Stat-Block-Heading--after-last-bar- {
   font-size: 16px !important;
   font-weight: bold;
@@ -463,6 +468,7 @@ div.ddbimporter-image-popout img {
   }
 
   .Stat-Block-Styles_Stat-Block-Heading,
+  .Stat-Block-Styles_Stat-Block-Heading-after-last-bar-,
   .Stat-Block-Styles_Stat-Block-Heading--after-last-bar- {
     font-size: 16px;
     font-weight: bold;
@@ -480,6 +486,7 @@ div.ddbimporter-image-popout img {
   .Stat-Block-Styles_Stat-Block-Body,
   .Stat-Block-Styles_Stat-Block-Hanging,
   .Stat-Block-Styles_Stat-Block-Hanging-Last,
+  .Stat-Block-Styles_Stat-Block-Body-Last-apply-before-heading-,
   .Stat-Block-Styles_Stat-Block-Body-Last--apply-before-heading- {
     font-size: 14px;
     line-height: 1.4;
@@ -515,6 +522,7 @@ div.ddbimporter-image-popout img {
   }
 }
 
+.monster-stat-block,
 .monster--stat-block {
   border: 1px solid #d4d0ce;
   background-color: var(--sb-stat-block-bg-override, #fefcef);
@@ -581,6 +589,7 @@ div.ddbimporter-image-popout img {
     margin-top: 12px;
   }
 
+  .monster-stats,
   .monster--stats {
     display: grid;
     grid-auto-flow: column;
@@ -649,18 +658,21 @@ div.ddbimporter-image-popout img {
     }
   }
 
+  .monster-stats p:nth-child(odd),
   .monster--stats p:nth-child(odd) {
     font-weight: bold;
     text-transform: uppercase;
     margin-bottom: 5px !important;
   }
 
+  .monster-data-last::after,
   .monster--data-last::after {
     content: "";
     display: block;
     border-bottom: 2px solid var(--sb-stat-block-divider, #bc0f0f);
     padding: 0 0 8px;
   }
+  .monster-action-header,
   .monster--action-header {
     font-size: 16px;
     font-weight: 700;
@@ -668,7 +680,245 @@ div.ddbimporter-image-popout img {
     padding-top: 4px;
     border-bottom: 1px solid var(--sb-stat-block-divider, #bc0f0f);
   }
+  .monster-data-last strong + strong,
   .monster--data-last strong + strong {
     margin-left: 12px;
   }
+}
+
+.ddb .text-rules-sidebar + figure.compendium-art,
+.ddb .text--rules-sidebar + figure.compendium-art {
+  padding-top: 1.5rem;
+}
+
+.ddb .text-rules-sidebar,
+.ddb .text--rules-sidebar {
+  background-color: var(--compendium-rules-sidebar-color, #DAE4C1); /*Fallback: if the variable isn't declared, it'll default to pale-green*/
+  color: var(--theme-page-fg-color, #242527);
+  overflow: visible;
+  margin: 30px 5px;
+  padding: 15px 28px 15px 30px;
+  border-radius: 0;
+  border-top: 3px solid #231f20;
+  border-bottom: 3px solid #231f20;
+  border-left: 1.5px solid  #b3b3b3;
+  border-right: 1.5px solid  #b3b3b3;
+  filter: drop-shadow(0px 5px 8px #ccc);
+}
+
+.ddb .text-rules-sidebar p:first-child,
+.ddb .text--rules-sidebar p:first-child {
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 1.16rem;
+}
+
+.ddb .text-rules-sidebar p ,
+.ddb .text--rules-sidebar p {
+  font-size: 0.96rem;
+}
+
+.ddb .text-rules-sidebar p+p,
+.ddb .text-quote-box p+p,
+.ddb .text--rules-sidebar p+p,
+.ddb .text--quote-box p+p {
+  margin-block-start: 0.45rem;
+}
+
+.ddb .text-rules-sidebar a:hover,
+.ddb .text-rules-sidebar a:focus,
+.ddb .text--rules-sidebar a:hover,
+.ddb .text--rules-sidebar a:focus {
+  text-decoration: underline;
+}
+
+.ddb .text-rules-sidebar::before,
+.ddb .text--rules-sidebar::before {
+  top: -13px;
+  right: 0.1px;
+  left: 0.1px;
+}
+
+.ddb .text-rules-sidebar::before,
+.ddb .text--rules-sidebar::before {
+  content: '';
+  background-image: url("modules/ddb-importer/img/svg-rules-banner-4.svg"),url("modules/ddb-importer/img/svg-rules-banner-3.svg");
+  background-position: left, right;
+  background-size: contain;
+  background-repeat: no-repeat;
+  height: 11px;
+  position: absolute;
+  z-index: -1;
+}
+
+.ddb .text-rules-sidebar::after,
+.ddb .text--rules-sidebar::after {
+  bottom: -13px;
+  right: -0.1px;
+  left: 0.1px;
+}
+
+.ddb .text-rules-sidebar::after,
+.ddb .text--rules-sidebar::after {
+  content: '';
+  background-image: url("modules/ddb-importer/img/svg-rules-banner-4.svg"),url("modules/ddb-importer/img/svg-rules-banner-3.svg");
+  background-position: left, right;
+  background-size: contain;
+  background-repeat: no-repeat;
+  height: 11px;
+  position: absolute;
+  z-index: -1;
+  transform: scaleY(-1);
+}
+
+.monster-stat-block.mcdm-statblock,
+.monster--stat-block.mcdm-statblock {
+  --stat-block-divider: var(--mcdm-primary);
+  --stat-block-scrollbar: url("https://media.dndbeyond.com/compendium-images/fm/ui/mcdm-stat-bar.png");
+  --stat-block-header-size: 1.294rem;
+  --stat-block-bg-override: #f9f9f9;
+  font-family: "Roboto";
+}
+.monster-stat-block.mcdm-statblock .monster-stats p:nth-child(odd),
+.monster--stat-block.mcdm-statblock .monster--stats p:nth-child(odd) {
+  color: var(--mcdm-primary);
+}
+.monster-stat-block.mcdm-statblock .monster-action-header,
+.monster--stat-block.mcdm-statblock .monster--action-header {
+  font-family: "Roboto Condensed";
+  color: var(--mcdm-primary);
+}
+.monster-stat-block.mcdm-statblock p:first-of-type:not(.monster-stats p:first-of-type),
+.monster--stat-block.mcdm-statblock p:first-of-type:not(.monster--stats p:first-of-type) {
+  border-bottom: unset;
+  padding-bottom: unset;
+  margin-bottom: 6px;
+}
+.monster-stat-block.mcdm-statblock .mon-data,
+.monster--stat-block.mcdm-statblock .mon-data {
+  display: grid;
+  grid-template-columns: 0.9fr 0.7fr;
+  grid-template-rows: 0.5fr 0.5fr;
+  border-bottom: 2px solid var(--stat-block-divider, #bc0f0f);
+  justify-content: space-between;
+  grid-template-areas: "header header mon-role" "metadata metadata xp";
+}
+.monster-stat-block.mcdm-statblock .mon-data :is(h2, h3, h4, h5),
+.monster--stat-block.mcdm-statblock .mon-data :is(h2, h3, h4, h5) {
+  grid-area: header;
+  margin-block: unset;
+}
+.monster-stat-block.mcdm-statblock :is(h2, h3, h4, h5):not(a),
+.monster--stat-block.mcdm-statblock :is(h2, h3, h4, h5):not(a) {
+  --theme-page-fg-color: #204d4cba;
+}
+.monster-stat-block.mcdm-statblock .mon-data p:nth-of-type(1),
+.monster--stat-block.mcdm-statblock .mon-data p:nth-of-type(1) {
+  grid-area: metadata;
+  text-wrap: balance;
+}
+.monster-stat-block.mcdm-statblock .mon-data p:nth-of-type(2),
+.monster--stat-block.mcdm-statblock .mon-data p:nth-of-type(2) {
+  grid-area: mon-role;
+  text-align: right;
+  margin-bottom: 0;
+  align-self: center;
+  font-size: 0.882rem;
+}
+.monster-stat-block.mcdm-statblock .mon-data p:nth-of-type(3),
+.monster--stat-block.mcdm-statblock .mon-data p:nth-of-type(3) {
+  grid-area: xp;
+  text-align: right;
+  font-size: 0.882rem;
+  align-self: start;
+  margin-top: -3px;
+}
+.monster-stat-block.mcdm-statblock .mon-data + p,
+.monster--stat-block.mcdm-statblock .mon-data + p {
+  padding-top: 10px;
+  font-style: revert !important;
+}
+.monster-stat-block.mcdm-statblock::before, .monster-stat-block.mcdm-statblock::after,
+.monster--stat-block.mcdm-statblock::before, .monster--stat-block.mcdm-statblock::after {
+  left: -3px;
+  right: -3px;
+  height: 11px;
+  background-repeat: no-repeat;
+}
+.monster-stat-block.mcdm-statblock::after,
+.monster--stat-block.mcdm-statblock::after {
+  transform: scaleY(-1);
+}
+.flexible-double-column .monster-stat-block.mcdm-statblock,
+.flexible-double-column .monster--stat-block.mcdm-statblock {
+  --stat-block-scrollbar: url("https://media.dndbeyond.com/compendium-images/fm/ui/stat-block-wide.svg");
+}
+@media (max-width: 760px) {
+  .monster-stat-block.mcdm-statblock,
+  .monster--stat-block.mcdm-statblock {
+      --stat-block-scrollbar: url("https://media.dndbeyond.com/compendium-images/fm/ui/stat-block-wide.svg");
+  }
+}
+
+.monster-stat-block.mcdm-statblock + .monster-stat-block.mcdm-statblock,
+.monster--stat-block.mcdm-statblock + .monster--stat-block.mcdm-statblock {
+  margin-top: 1.5rem
+}
+
+.text-rules-sidebar.mcdm-sidebar,
+.text--rules-sidebar.mcdm-sidebar {
+  border-color: var(--mcdm-primary);
+  border-width: 5px;
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 18px 20px;
+  filter: drop-shadow(0 3px 5px #ccc);
+}
+.text-rules-sidebar.mcdm-sidebar::after,
+.text--rules-sidebar.mcdm-sidebar::after {
+  all: unset;
+}
+.text-rules-sidebar.mcdm-sidebar p:first-of-type,
+.text--rules-sidebar.mcdm-sidebar p:first-of-type {
+  color: var(--mcdm-primary);
+  font-size: 1.176rem;
+}
+.text-rules-sidebar.mcdm-sidebar p:first-of-type + p,
+.text--rules-sidebar.mcdm-sidebar p:first-of-type + p {
+  margin-top: 8px !important;
+}
+.text-rules-sidebar.mcdm-sidebar::before,
+.text--rules-sidebar.mcdm-sidebar::before {
+  content: "";
+  background-image: url("https://media.dndbeyond.com/compendium-images/fm/ui/sidebar-border.svg");
+  background-position: 0, 100%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  height: 15px;
+  top: -10px;
+  left: -7px;
+  right: -7px;
+}
+
+:is(.mcdm-epigraph, .mcdm-epigraph-red) {
+  margin-bottom: 20px;
+  line-height: 24px;
+}
+:is(.mcdm-epigraph, .mcdm-epigraph-red) p {
+  color: var(--theme-page-fg-color);
+  margin-bottom: 0;
+  font-style: italic;
+}
+:is(.mcdm-epigraph, .mcdm-epigraph-red) p + p {
+  margin-top: 8px;
+}
+:is(.mcdm-epigraph, .mcdm-epigraph-red) p:last-of-type {
+  text-align: right;
+  font-style: normal;
+  font-variant: small-caps;
+  font-size: 1.059rem;
+}
+
+.mcdm-epigraph-red p:not(:last-of-type) {
+  --theme-page-fg-color: #6b2424;
 }
