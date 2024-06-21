@@ -1,4 +1,4 @@
-# Next Up
+# 5.2.19
 
 - Divine Smite improvements for midi users when targeting undead and fiends.
 - Fixes for using CPR Medi-Kit when dynamic sync is on.
