@@ -69,11 +69,6 @@
         "reason": "Allows effects that adjust the token size/vision etc"
       },
       {
-        "id": "warpgate",
-        "type": "module",
-        "reason": "Library module that makes teleporting effects easier"
-      },
-      {
         "id": "vision-5e",
         "type": "module",
         "reason": "Adds missing vision modes to 5e system"

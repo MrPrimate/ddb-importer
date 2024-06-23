@@ -52,7 +52,7 @@ function getJB2aName(colorChoice) {
 }
 
 for (let i = 0; i < 4; i++) {
-  const choice = await warpgate.buttonDialog({
+  const choice = await DDBImporter.EffectHelper.buttonDialog({
     title: 'Choose your color:',
     buttons: actorChoices,
   });
