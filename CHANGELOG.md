@@ -1,3 +1,7 @@
+# 5.2.20
+
+- Fix for CPR failing in latest version for some items.
+
 # 5.2.19
 
 - Divine Smite improvements for midi users when targeting undead and fiends.

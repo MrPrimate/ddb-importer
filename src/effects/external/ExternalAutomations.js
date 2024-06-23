@@ -1,6 +1,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable require-atomic-updates */
 
+import PatreonHelper from "../../lib/PatreonHelper.js";
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 import ChrisPremadesHelper from "./ChrisPremadesHelper.js";
@@ -12,7 +13,9 @@ export default class ExternalAutomations {
     const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
     const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
-    this.dynamicUpdateAllowed = dynamicSync && gmSyncUser && this.importSettings.tiers.experimentalMid;
+    const tier = PatreonHelper.getPatreonTier();
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
+    this.dynamicUpdateAllowed = dynamicSync && gmSyncUser && tiers?.experimentalMid;
     this.dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
   }
 
