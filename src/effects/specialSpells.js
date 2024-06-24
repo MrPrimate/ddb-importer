@@ -202,6 +202,10 @@ async function basicSpellEffects(document) {
       document = await darkvisionEffect(document);
       break;
     }
+    case "Dancing Lights": {
+      document = await dancingLightsEffect(document);
+      break;
+    }
     case "Divine Favor": {
       document = divineFavorEffect(document);
       break;
@@ -483,10 +487,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Create Bonfire": {
       document = await createBonfireEffect(document);
-      break;
-    }
-    case "Dancing Lights": {
-      document = await dancingLightsEffect(document);
       break;
     }
     case "Darkness": {

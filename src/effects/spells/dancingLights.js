@@ -1,13 +1,50 @@
-import DDBMacros from "../DDBMacros.js";
-import { effectModules } from "../effects.js";
-import DDBEffectHelper from "../DDBEffectHelper.js";
+import DDBSummonsManager from "../../parser/companions/DDBSummonsManager.js";
 
 export async function dancingLightsEffect(document) {
-  if (!effectModules().warpgateInstalled) return document;
-  if (!DDBEffectHelper.checkJB2a(true, true, false)) return document;
+  const manager = new DDBSummonsManager();
+  await manager.init();
 
-  await DDBMacros.setItemMacroFlag(document, "spell", "dancingLights.js");
-  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "dancingLights.js", ["postActiveEffects"]);
+  const summonActors = manager.itemHandler.compendium.index.filter((i) =>
+    [
+      "DancingLightsYellow",
+      "DancingLightsBlueTeal",
+      "DancingLightsGreen",
+      "DancingLightsBlueYellow",
+      "DancingLightsPink",
+      "DancingLightsPurpleGreen",
+      "DancingLightsRed",
+    ].includes(i.flags?.ddbimporter?.summons?.summonsKey)
+  );
+  const profiles = summonActors
+    .map((actor) => {
+      return {
+        _id: actor._id,
+        name: actor.name,
+        uuid: actor.uuid,
+        count: 4,
+      };
+    });
+
+  const summons = {
+    "match": {
+      "proficiency": false,
+      "attacks": false,
+      "saves": false
+    },
+    "bonuses": {
+      "ac": "",
+      "hp": "",
+      "attackDamage": "",
+      "saveDamage": "",
+      "healing": ""
+    },
+    "profiles": profiles,
+    "prompt": true
+  };
+
+  foundry.utils.setProperty(document, "system.summons", summons);
+  foundry.utils.setProperty(document, "system.actionType", "summ");
+
   return document;
 
 }

@@ -35,6 +35,7 @@ import registerNotifications from "./lib/Notification.js";
 
 import { activateUpdateHooks } from "./updater/character.js";
 import { registerCustomEnrichers } from "./hooks/ready/enrichers.js";
+import DDBSummonsManager from "./parser/companions/DDBSummonsManager.js";
 
 
 // foundry is initializing
@@ -55,7 +56,9 @@ export async function onceReady() {
   await registerGameSettings();
 
   // check for valid compendiums
-  checkCompendiums();
+  checkCompendiums().then(() => {
+    DDBSummonsManager.generateFixedSummons();
+  });
 
   // notificaitons
   registerNotifications();

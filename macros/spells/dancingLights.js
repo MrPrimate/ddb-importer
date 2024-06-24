@@ -38,13 +38,13 @@ async function postEffects(template, token) {
 function getJB2aName(colorChoice) {
   if (game.modules.get('jb2a_patreon')?.active) {
     if (colorChoice.includes('Blue')) {
-      return 'jb2a.markers.light.intro.blue';
+      return 'jb2a.dancing_light.blueteal';
     } else if (colorChoice.includes('Green')) {
-      return 'jb2a.markers.light.intro.green';
+      return 'jb2a.dancing_light.green';
     } else if (colorChoice.includes('Yellow')) {
-      return 'jb2a.markers.light.intro.yellow02';
+      return 'jb2a.dancing_light.yellow';
     } else {
-      return 'jb2a.markers.light.intro.yellow';
+      return 'jb2a.dancing_light.yellow';
     }
   } else {
     return 'jb2a.markers.light.intro.blue';
