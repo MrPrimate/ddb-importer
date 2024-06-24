@@ -137,3 +137,13 @@ Examples:
 # FAQ
 
 See [FAQ!](./FAQ.md)
+
+
+# Attributions
+
+Some assets in this module are kindly provided by JB2A and are licensed by [Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0).
+You can find them under [img/jb2a](./img/jb2a)
+
+Check them out at [https://jb2a.com](https://jb2a.com) they have a free and patreon supported Foundry modules providing wonderful animations and assets for a variety of situations.
+
+You can learn more about their Foundry modules [here](https://jb2a.com/home/install-instructions/)

@@ -41,6 +41,7 @@ import DDBCampaigns from "./lib/DDBCampaigns.js";
 import ChrisPremadesHelper from "./effects/external/ChrisPremadesHelper.js";
 import ExternalAutomations from "./effects/external/ExternalAutomations.js";
 import DDBSimpleMacro from "./effects/DDBSimpleMacro.js";
+import DDBSummonsManager from "./parser/companions/DDBSummonsManager.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -136,6 +137,7 @@ export function registerApi() {
       DDBMonster,
       DDBMonsterFactory,
       DDBProxy,
+      DDBSummonsManager,
       DialogHelper,
       DirectoryPicker,
       FileHelper,
