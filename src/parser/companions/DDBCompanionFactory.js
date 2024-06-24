@@ -2,10 +2,10 @@ import FolderHelper from "../../lib/FolderHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
-import { addNPC, buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
+import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
 import DDBCompanion from "./DDBCompanion.js";
 import { isEqual } from "../../../vendor/lowdash/isequal.js";
-import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
+import DDBSummonsManager from "./DDBSummonsManager.js";
 
 export default class DDBCompanionFactory {
 
@@ -26,19 +26,20 @@ export default class DDBCompanionFactory {
     this.originDocument = options.originDocument;
     this.summons = null;
     this.badSummons = false;
-    this.compendiumFolders = null;
     this.noCompendiums = options.noCompendiums ?? false;
-    this.indexFilter = { fields: ["name", "flags.ddbimporter.compendiumId"] };
+    this.indexFilter = { fields: [
+      "name",
+      "flags.ddbimporter.compendiumId",
+      "flags.ddbimporter.id",
+      "flags.ddbimporter.summons",
+    ] };
+    this.summonsManager = new DDBSummonsManager();
     this.itemHandler = null;
   }
 
   async init() {
-    this.compendiumFolders = new DDBCompendiumFolders("summons");
-    await this.compendiumFolders.loadCompendium("summons");
-
-    this.itemHandler = new DDBItemImporter("summons", [], {
-      indexFilter: this.indexFilter,
-    });
+    await this.summonsManager.init();
+    this.itemHandler = this.summonsManager.itemHandler;
   }
 
   get data() {
@@ -133,8 +134,8 @@ export default class DDBCompanionFactory {
     await this.itemHandler.buildIndex(this.indexFilter);
 
     const existingCompanions = await Promise.all(this.itemHandler.compendiumIndex
-      .filter((companion) => foundry.utils.hasProperty(companion, "flags.ddbimporter.compendiumId")
-        && this.companions.some((c) => foundry.utils.getProperty(c, "data.flags.ddbimporter.compendiumId") === companion.flags.ddbimporter.compendiumId)
+      .filter((companion) => foundry.utils.hasProperty(companion, "flags.ddbimporter.id")
+        && this.companions.some((c) => foundry.utils.getProperty(c, "data.flags.ddbimporter.id") === companion.flags.ddbimporter.id)
       )
       .map(async (companion) => this.itemHandler.compendium.getDocument(companion._id))
     );
@@ -157,19 +158,6 @@ export default class DDBCompanionFactory {
       )
       .map((companion) => companion);
     return existingCompanions;
-  }
-
-  async #addToCompendium(companion) {
-    const results = [];
-    if (!game.user.isGM) return results;
-    const compendiumCompanion = foundry.utils.deepClone(companion);
-    delete compendiumCompanion.folder;
-    const folderName = this.compendiumFolders.getSummonFolderName(compendiumCompanion);
-    const folder = await this.compendiumFolders.createSummonsFolder(folderName.name);
-    compendiumCompanion.folder = folder._id;
-    const npc = await addNPC(compendiumCompanion, "summons");
-    results.push(npc);
-    return results;
   }
 
   static async addToWorld(companion, update) {
@@ -200,7 +188,7 @@ export default class DDBCompanionFactory {
       logger.info(`Updating companion ${companion.name}`);
       DDBItemImporter.copySupportedItemFlags(existingCompanion, companion);
       const npc = game.user.isGM && !this.noCompendiums
-        ? await this.#addToCompendium(companion)
+        ? await this.summonsManager.addToCompendium(companion)
         : await DDBCompanionFactory.addToWorld(companion, true);
       results.push(npc);
     }
@@ -227,9 +215,10 @@ export default class DDBCompanionFactory {
         companion,
         folderId,
       });
+
       if (folderId) companion.folder = folderId;
       const importedCompanion = game.user.isGM && !this.noCompendiums
-        ? await this.#addToCompendium(companion)
+        ? await this.summonsManager.addToCompendium(companion)
         : await DDBCompanionFactory.addToWorld(companion, false);
       results.push(importedCompanion);
     }
@@ -237,7 +226,9 @@ export default class DDBCompanionFactory {
   }
 
   async updateOrCreateCompanions({ folderOverride = null, rootFolderNameOverride = undefined } = {}) {
-    const existingCompanions = await this.getExistingWorldCompanions({ folderOverride, rootFolderNameOverride });
+    const existingCompanions = game.user.isGM
+      ? await this.getExistingCompendiumCompanions()
+      : await this.getExistingWorldCompanions({ folderOverride, rootFolderNameOverride });
 
     let companionData = this.data;
 

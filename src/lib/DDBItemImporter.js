@@ -33,7 +33,7 @@ export default class DDBItemImporter {
   }
 
   async init() {
-    await this.buildIndex();
+    await this.buildIndex(this.indexFilter);
   }
 
   #flagMatch(item1, item2) {

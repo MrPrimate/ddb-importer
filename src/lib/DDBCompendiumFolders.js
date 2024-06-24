@@ -21,6 +21,7 @@ export class DDBCompendiumFolders {
     this.traitFolders = {};
     this.traitSubFolders = {};
     this.summonFolders = {};
+    this.summonSubFolders = {};
   }
 
   constructor(type, packName) {
@@ -324,6 +325,23 @@ export class DDBCompendiumFolders {
     this.validFolderIds.push(newFolder._id);
     this.summonFolders[type] = newFolder;
     return newFolder;
+  }
+
+  async createSummonsSubFolder(type, subFolderName) {
+    const flagTag = `summons/${type}/${subFolderName}`;
+    logger.debug(`Checking for Summons folder '${subFolderName}' with Base Folder '${subFolderName}'`);
+
+    const parentFolder = await this.createSummonsFolder(type);
+
+    const folder = this.getFolder(subFolderName, flagTag)
+      ?? (await this.createCompendiumFolder({
+        name: subFolderName,
+        parentId: parentFolder._id,
+        color: "#222222",
+        flagTag,
+      }));
+    this.summonSubFolders[subFolderName] = folder;
+    this.validFolderIds.push(folder._id);
   }
 
   // eslint-disable-next-line complexity
@@ -635,8 +653,9 @@ export class DDBCompendiumFolders {
       flagTag: "",
     };
 
+    const folderHint = foundry.utils.getProperty(document, "flags.ddbimporter.summons.folder");
     const summonHint = foundry.utils.getProperty(document, "flags.ddbimporter.summons.name");
-    result.name = summonHint ?? document.name;
+    result.name = folderHint ?? summonHint ?? document.name;
     result.flagTag = `summon/${result.name}`;
 
     return result;
@@ -822,6 +841,7 @@ export class DDBCompendiumFolders {
           "name",
           "type",
           "flags.ddbimporter.summons.name",
+          "flags.ddbimporter.summons.folder",
         ];
       }
       case "class":
