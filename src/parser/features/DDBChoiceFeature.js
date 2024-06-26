@@ -57,6 +57,12 @@ export default class DDBChoiceFeature extends DDBFeature {
           : `${this.data.name}: ${choice.label}`
         : this.data.name;
       this.data.name = utils.nameString(this.data.name);
+      const namePointRegex = /(.*) \((\d) points?\)/i;
+      const nameMatch = this.data.name.match(namePointRegex);
+      if (nameMatch) {
+        this.data.name = nameMatch[1];
+        this._resourceCharges = Number.parseInt(nameMatch[2]);
+      }
       this._generateSystemSubType();
 
       // get description for chris premades
@@ -81,6 +87,8 @@ export default class DDBChoiceFeature extends DDBFeature {
       // add these flags in so they can be used by the description parser
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
+      this._generateActivation();
+      this._generateResourceConsumption();
       this._generateDescription(false);
       this.data.flags.ddbimporter.dndbeyond.choice = {
         label: choice.label,
@@ -107,7 +115,10 @@ export default class DDBChoiceFeature extends DDBFeature {
   }
 
   static buildChoiceFeatures(ddbFeature) {
-    logger.debug(`Processing ${ddbFeature._choices.map((c) => c.label).join(",")}`);
+    logger.debug(`Processing Choice Features ${ddbFeature._choices.map((c) => c.label).join(",")}`, {
+      choices: ddbFeature._choices,
+      feature: ddbFeature,
+    });
     const features = [];
     ddbFeature._choices.forEach((choice) => {
       const choiceFeature = new DDBChoiceFeature({
@@ -120,7 +131,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       logger.debug(`DDBChoiceFeature.buildChoiceFeatures: ${choiceFeature.ddbDefinition.name}`, {
         choiceFeature,
         choice,
-        this: this,
+        ddbFeature,
       });
       features.push(choiceFeature.data);
     });

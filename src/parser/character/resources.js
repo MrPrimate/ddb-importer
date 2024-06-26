@@ -302,6 +302,10 @@ const resourceFeatureLinkMap = {
   ],
   "Infuse Item": ["Infusion:"],
   // "Lay on Hands Pool": ["Lay on Hands"],
+  "Maneuver Points": [
+    "Carrion Raven Martial Maneuvers:", "Slippery Otter: Activate", "Blade Breaker Maneuvers:"
+  ],
+  "Jinx Points": ["Misfortunes:", "Curse Caster"]
 };
 
 const chargeTypeMap = {
@@ -330,6 +334,9 @@ const resourceSpellLinkMap = {
     { name: "Gust of Wind", cost: 2, lookupName: "Rush of the Gale Spirits" },
     { name: "Burning Hands", cost: 2, lookupName: "Sweeping Cinder Strike" },
     { name: "Wall of Stone", cost: 6, lookupName: "Wave of Rolling Earth" },
+  ],
+  "Maneuver Points": [
+    { name: "Polymorph", cost: 8, lookupName: "Bestial Transformation (8 points)" },
   ],
 };
 
@@ -373,9 +380,9 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
   let toUpdate = [];
 
   for (const [resourceDocName, consumingDocs] of Object.entries(resourceFeatureLinkMap)) {
-    logger.debug(`Checking ${resourceDocName}`, consumingDocs);
+    logger.debug(`Generic Resource Linking: Checking ${resourceDocName}`, consumingDocs);
     const parent = possibleItems.find((doc) => {
-      const name = doc.flags.ddbimporter?.originalName || doc.name;
+      const name = doc.flags.ddbimporter?.originalName ?? doc.name;
       return name === resourceDocName;
     });
 
@@ -384,7 +391,7 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
       consumingDocs.forEach((consumingDocName) => {
         logger.debug(`Checking ${consumingDocName}`);
         const children = possibleItems.filter((doc) => {
-          const name = doc.flags.ddbimporter?.originalName || doc.name;
+          const name = doc.flags.ddbimporter?.originalName ?? doc.name;
           const dontReplace = notReplace[consumingDocName]?.includes(name);
           return name.startsWith(consumingDocName) && !dontReplace;
         });
@@ -411,9 +418,9 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
   }
 
   for (const [key, values] of Object.entries(resourceSpellLinkMap)) {
-    logger.debug(`Checking ${key}`, values);
+    logger.debug(`Resource Spells: Checking ${key}`, values);
     const parent = possibleItems.find((doc) => {
-      const name = doc.flags.ddbimporter?.originalName || doc.name;
+      const name = doc.flags.ddbimporter?.originalName ?? doc.name;
       return name === key;
     });
     if (parent) {
@@ -421,8 +428,8 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
       values.forEach((value) => {
         logger.debug(`Checking ${value.name}`, value);
         const child = possibleItems.find((doc) => {
-          const name = doc.flags.ddbimporter?.originalName || doc.name;
-          const lookupName = doc.flags.ddbimporter?.dndbeyond?.lookupName || "NO_LOOKUP_NAME";
+          const name = doc.flags.ddbimporter?.originalName ?? doc.name;
+          const lookupName = doc.flags.ddbimporter?.dndbeyond?.lookupName ?? "NO_LOOKUP_NAME";
           return name === value.name && value.lookupName === lookupName;
         });
 

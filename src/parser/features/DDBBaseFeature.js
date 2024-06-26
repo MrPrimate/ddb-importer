@@ -65,26 +65,75 @@ export default class DDBBaseFeature {
     this._init();
     this.snippet = "";
     this.description = "";
+    this._resourceCharges = null;
 
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
 
     this._generateDataStub();
+
+    // Grim Hollow puts points in names. WHY
+    const namePointRegex = /(.*) \((\d) points?\)/i;
+    const nameMatch = this.name.match(namePointRegex);
+    if (nameMatch) {
+      this.data.name = nameMatch[1];
+      this._resourceCharges = Number.parseInt(nameMatch[2]);
+    }
+
     this._prepare();
     this.data.system.source = this.source;
   }
 
+
+  static _getParsedAction(description) {
+    // foundry doesn't support mythic actions pre 1.6
+    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
+    if (actionAction) return "action";
+    const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/ig);
+    if (bonusAction) return "bonus";
+    const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/ig);
+    if (reAction) return "reaction";
+
+    return undefined;
+  }
+
+  _generateParsedActivation() {
+    const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
+      ? this.ddbDefinition.description
+      : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
+        ? this.ddbDefinition.snippet
+        : null;
+
+    // console.warn(`Generating Parsed Activation for ${this.name}`, {description});
+
+    if (!description) return;
+    const actionType = DDBBaseFeature._getParsedAction(description);
+    if (!actionType) return;
+    logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
+    this.data.system.activation = {
+      type: actionType,
+      cost: 1,
+      condition: "",
+    };
+  }
+
   _generateActivation() {
-    if (!this.ddbDefinition.activation) return;
+    // console.warn(`Generating Activation for ${this.name}`);
+    if (!this.ddbDefinition.activation) {
+      this._generateParsedActivation();
+      return;
+    }
     const actionType = DICTIONARY.actions.activationTypes
       .find((type) => type.id === this.ddbDefinition.activation.activationType);
-    const activation = !actionType
-      ? {}
-      : {
-        type: actionType.value,
-        cost: this.ddbDefinition.activation.activationTime || 1,
-        condition: "",
-      };
-    this.data.system.activation = activation;
+    if (!actionType) {
+      this._generateParsedActivation();
+      return;
+    }
+
+    this.data.system.activation = {
+      type: actionType.value,
+      cost: this.ddbDefinition.activation.activationTime || 1,
+      condition: "",
+    };
   }
 
   _getClassFeatureDescription() {
@@ -275,6 +324,8 @@ export default class DDBBaseFeature {
     const match = this.data.system.description.value.match(kiPointRegex);
     if (match) {
       foundry.utils.setProperty(this.data, "system.consume.amount", match[1]);
+    } else if (this._resourceCharges !== null) {
+      foundry.utils.setProperty(this.data, "system.consume.amount", this._resourceCharges);
     }
 
   }

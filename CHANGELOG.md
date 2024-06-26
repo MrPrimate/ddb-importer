@@ -1,3 +1,7 @@
+# 5.2.22
+
+- Grim Hollow: Player Pack, basic support and improvement of resource parsing and linking.
+
 # 5.2.21
 
 - Dancing lights now uses the D&D Summons system to summon dancing light actors. Image kindly provided by the wonderful folks at JB2A. If you have one of the JB2A modules installed it will add a variety of lights to choose from.
