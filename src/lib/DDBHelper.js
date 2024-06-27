@@ -779,7 +779,7 @@ const DDBHelper = {
   },
 
   getCustomValue(foundryItem, ddb, type) {
-    const characterValues = ddb.character?.characterValues;
+    const characterValues = ddb?.character?.characterValues;
     if (!characterValues) return null;
     const customValue = characterValues.filter(
       (value) =>
