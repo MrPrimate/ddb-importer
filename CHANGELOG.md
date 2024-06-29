@@ -1,3 +1,7 @@
+# Next Up
+
+- Dark Ones Own Luck Effect.
+
 # 5.2.22
 
 - Grim Hollow: Player Pack, basic support and improvement of resource parsing and linking.

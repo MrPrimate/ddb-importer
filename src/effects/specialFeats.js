@@ -86,6 +86,7 @@ import { songOfVictoryEffect } from "./feats/songOfVictory.js";
 import { twinklingConstellationsEffect } from "./feats/twinklingConstellations.js";
 import { armsOfTheAstralSelfEffect } from "./feats/armsOfTheAstralSelf.js";
 import { ghostWalkEffect } from "./feats/ghostWalk.js";
+import { darkOnesOwnLuckffect } from "./feats/darkOnesOwnLuck.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -155,6 +156,11 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Crossbow Expert": {
       document = crossbowExpertEffect(document);
+      break;
+    }
+    case "Dark One's Own Luck":
+    case "Dark Ones Own Luck": {
+      document = darkOnesOwnLuckffect(document);
       break;
     }
     case "Daunting Roar": {
