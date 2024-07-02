@@ -916,7 +916,8 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
     promises.push(updateCharacterCall(actor, "equipment/equipped", itemData, { name: item.name }));
   });
   itemsToAttune.forEach((item) => {
-    const itemData = { itemId: item.flags.ddbimporter.id, value: (item.system.attunement === 2) };
+    // console.warn(item)
+    const itemData = { itemId: item.flags.ddbimporter.id, value: item.system.attuned };
     promises.push(updateCharacterCall(actor, "equipment/attuned", itemData, { name: item.name }));
   });
   itemsToCharge.forEach((rawItem) => {
@@ -1037,13 +1038,13 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
     )
   );
   const itemsToAttune = foundryItems.filter((item) =>
-    foundry.utils.hasProperty(item, "system.attunement")
+    ["optional", "required"].includes(foundry.utils.getProperty(item, "system.attunement"))
     && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
     && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
     && !foundry.utils.getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
       foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
-      && ((item.system.attunement === 2) !== dItem.isAttuned)
+      && item.system.attuned !== dItem.isAttuned
     )
   );
   const itemsToCharge = foundryItems.filter((rawItem) => {
@@ -1205,7 +1206,8 @@ export async function updateDDBCharacter(actor) {
   const ddbCharacterOptions = {
     currentActor: actor,
     characterId,
-    selectResources: false
+    selectResources: false,
+    enableCompanions: false,
   };
   const getOptions = {
     syncId,
@@ -1380,7 +1382,7 @@ async function generateDynamicItemChange(actor, document, update) {
     if (update.system?.uses) {
       updateItemDetails.itemsToCharge.push(foundry.utils.duplicate(document));
     }
-    if (update.system?.attunement) {
+    if (update.system?.attuned) {
       updateItemDetails.itemsToAttune.push(foundry.utils.duplicate(document));
     }
     if (update.system?.quantity) {

@@ -1,6 +1,7 @@
 # Next Up
 
 - Dark Ones Own Luck Effect.
+- Character update to DDB would un attune items in D&D 3.2.
 
 # 5.2.22
 
