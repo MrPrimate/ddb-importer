@@ -1,7 +1,8 @@
-# Next Up
+# 5.2.23
 
 - Dark Ones Own Luck Effect.
 - Character update to DDB would un attune items in D&D 3.2.
+- Spell Effect Updates from Elwin: Hail of Thorns and Ensnaring Strike.
 
 # 5.2.22
 

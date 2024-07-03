@@ -16,7 +16,8 @@ export async function ensnaringStrikeEffect(document) {
     document.system.damage = { parts: [], versatile: "", value: "" };
     document.system.actionType = null;
     document.system.save.ability = "";
-    DDBMacros.setMidiOnUseMacroFlag(document, "spell", "ensnaringStrike.js", ["preTargeting"]);
+    document.system.target.type = "self";
+    // DDBMacros.setMidiOnUseMacroFlag(document, "spell", "ensnaringStrike.js", ["preTargeting"]);
   } else {
     let effect = baseSpellEffect(document, `${document.name} - Restrained`);
     addStatusEffectChange(effect, "Restrained", 20, true);

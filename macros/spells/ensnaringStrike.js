@@ -18,9 +18,7 @@ if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
   return;
 }
 
-const itemName = "Ensnaring Strike";
-const icon = "icons/magic/nature/root-vine-entangled-hand.webp";
-
+const DEFAULT_ITEM_NAME = "Ensnaring Strike";
 
 /**
  * Returns a temporary spell item data for the Ensnaring Strike effect.
@@ -35,8 +33,8 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
   const nbDice = level;
 
   // Get restrained condition id
-  const statusId = CONFIG.statusEffects.find(se => (se.name ?? se.label) === CONFIG.DND5E.conditionTypes["restrained"].label)?.id;
-  const conEffect = MidiQOL.getConcentrationEffect(sourceActor);
+  const statusId = CONFIG.statusEffects.find(se => se.name === CONFIG.DND5E.conditionTypes["restrained"].label)?.id;
+  const conEffect = MidiQOL.getConcentrationEffect(sourceActor, originItem);
 
   // Temporary spell data for the ensnaring effect.
   // Note: we keep same id as origin spell to make sure that the AEs have the same origin
@@ -65,14 +63,14 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
           {
             key: "flags.midi-qol.OverTime",
             mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-            value: `turn=start,damageRoll=${nbDice}d6,damageType=piercing,label=${originItem.name}: Effect,actionSave=true,rollType=check,saveAbility=str,saveDC=@attributes.spelldc,killAnim=true`,
+            value: `turn=start,damageRoll=${nbDice}d6,damageType=piercing,label=${originItem.name}: Effect,actionSave=roll,rollType=check,saveAbility=str,saveDC=@attributes.spelldc,killAnim=true`,
             priority: 20,
           },
         ],
         origin: originItem.uuid,
         disabled: false,
         transfer: false,
-        icon,
+        img: originItem.img,
         name: originItem.name,
         duration: DDBImporter?.EffectHelper.getRemainingDuration(conEffect.duration),
       },
@@ -92,7 +90,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     // No target hit
     return;
   }
-  if (!["mwak", "rwak"].includes(rolledItem?.system.actionType)) {
+  if (!["mwak", "rwak"].includes(rolledItem?.system?.actionType)) {
     // Not a weapon attack
     return;
   }
@@ -101,7 +99,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     ef.getFlag("midi-qol", "castData.itemUuid") === macroItem.uuid
   );
   if (!originEffect) {
-    console.error(`${itemName}: spell active effect was not found.`);
+    console.error(`${DEFAULT_ITEM_NAME}: spell active effect was not found.`);
     return;
   }
 
@@ -122,21 +120,14 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     await DDBImporter?.EffectHelper.addSaveAdvantageToTarget(targetActor, macroItem, "str", " (Large Creature)");
   }
 
+  const conEffect = MidiQOL.getConcentrationEffect(actor, macroItem);
   const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [macroData.hitTargetUuids[0]] });
   options.skipOnUse = true;
+  foundry.utils.setProperty(options,"flags.dnd5e.use.concentrationId", conEffect?.id);
   const spellEffectWorkflow = await MidiQOL.completeItemUse(spell, config, options);
-  const conEffect = MidiQOL.getConcentrationEffect(actor);
 
   if (spellEffectWorkflow.hitTargets.size > 0 && spellEffectWorkflow.failedSaves.size > 0) {
-    // Transfer target of concentration from the caster to the target to allow removing effect on caster.
-    const conTargets = foundry.utils.deepClone(actor.getFlag("midi-qol", "concentration-data.targets") ?? []);
-    spellEffectWorkflow.failedSaves.forEach((token) =>
-      conTargets.push({
-        tokenUuid: token.document?.uuid ?? token.uuid,
-        actorUuid: token.actor?.uuid ?? "",
-      })
-    );
-    await actor.setFlag("midi-qol", "concentration-data.targets", conTargets);
+    // At least one target has an effect, we can remove the original effect from the caster
     await originEffect.delete();
   } else {
     // Remove concentration and the effect causing it since the effect has been used
