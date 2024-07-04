@@ -1018,7 +1018,7 @@ function addSenseBonus(modifiers, name) {
       .reduce((a, b) => a + b.value, 0);
     if (bonus > 0) {
       logger.debug(`Generating ${sense} bonus for ${name}`);
-      changes.push(generateUnsignedAddChange(Math.max(bonus), 15, `system.attributes.senses.${sense}`));
+      changes.push(generateUnsignedAddChange(Math.max(bonus), 20, `system.attributes.senses.${sense}`));
     }
   });
   return changes;
