@@ -4,9 +4,9 @@ import { effectModules } from "../effects.js";
 
 export async function enlargeReduceEffect(document) {
 
-  const macroToggle = `<br><p>[[/ddbifunc functionName="enlargeReduce" functionType="spell"]]{Enlarge/Reduce Macro}</div></p>`;
-  document.system.description.value += macroToggle;
-  if (document.system.description.chat !== "") document.system.description.chat += macroToggle;
+  // const macroToggle = `<br><p>[[/ddbifunc functionName="enlargeReduce" functionType="spell"]]{Enlarge/Reduce Toggle}</div></p>`;
+  // document.system.description.value += macroToggle;
+  // if (document.system.description.chat !== "") document.system.description.chat += macroToggle;
 
   if (!effectModules().atlInstalled) return document;
 
