@@ -8,7 +8,9 @@
     "AAhelpers": true,
     "Ray": true,
     "MeasuredTemplate": true,
-    "MeasuredTemplateDocument": true
+    "MeasuredTemplateDocument": true,
+    "scope": true,
+    "workflow": true
   },
   "parserOptions": {
     "sourceType": "module",

@@ -1,6 +1,6 @@
 console.warn("TEST MACRO RUN", {
-  actor,
-  token,
+  actor: (typeof actor !== 'undefined') ? actor : undefined,
+  token: (typeof token !== 'undefined') ? token : undefined,
   item: (typeof item !== 'undefined') ? item : undefined,
   speaker: (typeof speaker !== 'undefined') ? speaker : undefined,
   origin: (typeof origin !== 'undefined') ? origin : undefined,

@@ -1,6 +1,7 @@
 // This Macro is called by the Darkness spell so players can place walls and lights.
 
 const darknessParams = args[args.length - 1];
+const darkLightSupport = foundry.utils.isNewerVersion(game.version, 12);
 
 function circleWall(cx, cy, radius) {
   let walls = [];
@@ -36,35 +37,71 @@ function circleWall(cx, cy, radius) {
   canvas.scene.createEmbeddedDocuments("Wall", walls);
 }
 
+
+const TEMPLATE_DARK_LIGHT = {
+  "negative": true,
+  "priority": 0,
+  "alpha": 0.25,
+  "angle": 360,
+  "bright": 15,
+  "color": null,
+  "coloration": 1,
+  "dim": 0,
+  "attenuation": 0.5,
+  "luminosity": 0.5,
+  "saturation": 0,
+  "contrast": 0,
+  "shadows": 0,
+  "animation": {
+    "type": null,
+    "speed": 5,
+    "intensity": 5,
+    "reverse": false
+  },
+  "darkness": {
+    "min": 0,
+    "max": 1
+  }
+};
+
+const TEMPLATE_LEGACY = {
+  alpha: 0.5,
+  angle: 0,
+  bright: 15,
+  coloration: 1,
+  dim: 0,
+  gradual: false,
+  luminosity: -1,
+  saturation: 0,
+  contrast: 0,
+  shadows: 0,
+  animation: {
+    speed: 5,
+    intensity: 5,
+    reverse: false,
+  },
+  darkness: {
+    min: 0,
+    max: 1,
+  },
+  color: null,
+};
+
+
 function darknessLight(cx, cy, radius) {
+
+  const config = darkLightSupport
+    ? TEMPLATE_DARK_LIGHT
+    : TEMPLATE_LEGACY;
+
+  config.radius = radius;
   const lightTemplate = {
     x: cx,
     y: cy,
     rotation: 0,
     walls: false,
     vision: false,
-    config: {
-      alpha: 0.5,
-      angle: 0,
-      bright: radius,
-      coloration: 1,
-      dim: 0,
-      gradual: false,
-      luminosity: -1,
-      saturation: 0,
-      contrast: 0,
-      shadows: 0,
-      animation: {
-        speed: 5,
-        intensity: 5,
-        reverse: false,
-      },
-      darkness: {
-        min: 0,
-        max: 1,
-      },
-      color: null,
-    },
+    config,
     hidden: false,
     flags: {
       spellEffects: {
@@ -92,15 +129,21 @@ function darknessLight(cx, cy, radius) {
 }
 
 if (args[0] == "on") {
-  if (!game.modules.get("perfect-vision")?.active) circleWall(darknessParams.x, darknessParams.y, darknessParams.radius);
+  if (!game.modules.get("perfect-vision")?.active && !darkLightSupport) circleWall(darknessParams.x, darknessParams.y, darknessParams.radius);
   darknessLight(darknessParams.x, darknessParams.y, darknessParams.distance);
 }
 
 if (args[0] == "off") {
-  const darkWalls = canvas.walls.placeables.filter((w) => w.document.flags?.spellEffects?.Darkness?.ActorId === darknessParams.targetActorId);
-  const wallArray = darkWalls.map((w) => w.id);
+  if (!game.modules.get("perfect-vision")?.active && !darkLightSupport) {
+    const darkWalls = canvas.walls.placeables.filter((w) => w.document.flags?.spellEffects?.Darkness?.ActorId === darknessParams.targetActorId);
+    const wallArray = darkWalls.map((w) => w.id);
+    if (wallArray.length > 0) await canvas.scene.deleteEmbeddedDocuments("Wall", wallArray);
+  }
+
   const darkLights = canvas.lighting.placeables.filter((w) => w.document.flags?.spellEffects?.Darkness?.ActorId === darknessParams.targetActorId);
   const lightArray = darkLights.map((w) => w.id);
-  if (wallArray.length > 0) await canvas.scene.deleteEmbeddedDocuments("Wall", wallArray);
-  if (lightArray.length > 0) await canvas.scene.deleteEmbeddedDocuments("AmbientLight", lightArray);
+
+  if (lightArray.length > 0) {
+    await canvas.scene.deleteEmbeddedDocuments("AmbientLight", lightArray);
+  }
 }

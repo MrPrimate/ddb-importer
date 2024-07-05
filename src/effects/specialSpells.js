@@ -198,6 +198,10 @@ async function basicSpellEffects(document) {
       document = crownofMadnessEffect(document);
       break;
     }
+    case "Darkness": {
+      document = await darknessEffect(document);
+      break;
+    }
     case "Darkvision": {
       document = await darkvisionEffect(document);
       break;
@@ -487,10 +491,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Create Bonfire": {
       document = await createBonfireEffect(document);
-      break;
-    }
-    case "Darkness": {
-      document = await darknessEffect(document);
       break;
     }
     case "Divine Word": {

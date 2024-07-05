@@ -1,7 +1,14 @@
 import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
+import { effectModules } from "../effects.js";
 
 export async function darknessEffect(document) {
+  const macroToggle = `<br><p>[[/ddbifunc functionName="darkness" functionType="spell"]]{Darkness Toggle}</div></p>`;
+  document.system.description.value += macroToggle;
+  if (document.system.description.chat !== "") document.system.description.chat += macroToggle;
+
+  if (!effectModules().midiQolInstalled) return document;
+
   let effect = baseSpellEffect(document, document.name);
   // foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
   foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
