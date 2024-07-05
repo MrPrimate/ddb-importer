@@ -73,14 +73,12 @@ export default class DDBCompanion {
 
     if (data.monsterIDs && data.monsterIDs.length > 0) {
       const monsterFactory = new DDBMonsterFactory({ type: "summons" });
-      // const parsedData = await monsterFactory.createMonsterDocuments(data.monsterIDs);
 
       await monsterFactory.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(data.monsterIDs));
-      const monsterResults = await monsterFactory.parse();
 
-      if (monsterResults.actors.length > 0) {
-        const tokenImg = foundry.utils.getProperty(monsterResults.actors[0], "flags.monsterMunch.tokenImg");
-        const img = foundry.utils.getProperty(monsterResults.actors[0], "flags.monsterMunch.img");
+      for (const monsterSource of monsterFactory.source) {
+        const img = monsterSource.basicAvatarUrl ?? monsterSource.largeAvatarUrl ?? monsterSource.avatarUrl;
+        const tokenImg = monsterSource.avatarUrl;
         foundry.utils.setProperty(document, "flags.monsterMunch.tokenImg", tokenImg);
         foundry.utils.setProperty(document, "flags.monsterMunch.img", img);
         return document;

@@ -1,6 +1,7 @@
 # Next Up
 
 - Darkness Spell: in v12 will now use darkness lightsource. A Simple Macro will be added to the description to toggle placement/removal of the darkness light if not using midi-qol.
+- Speed up parsing summon spells/features.
 
 # 5.2.23
 
