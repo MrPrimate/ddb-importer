@@ -1216,6 +1216,14 @@ const SETTINGS = {
       },
       // dev settings
       DEV: {
+        "add-features-to-compendiums": {
+          type: Boolean,
+          default: false,
+        },
+        "update-add-features-to-compendiums": {
+          type: Boolean,
+          default: false,
+        },
         "allow-scene-download": {
           type: Boolean,
           default: false,
