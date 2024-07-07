@@ -87,6 +87,7 @@ import { twinklingConstellationsEffect } from "./feats/twinklingConstellations.j
 import { armsOfTheAstralSelfEffect } from "./feats/armsOfTheAstralSelf.js";
 import { ghostWalkEffect } from "./feats/ghostWalk.js";
 import { darkOnesOwnLuckffect } from "./feats/darkOnesOwnLuck.js";
+import { foeSlayerEffect } from "./feats/foeSlayer.js";
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false } = {}
@@ -190,6 +191,10 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Favored Foe": {
       document = await favoredFoeEffect(document);
+      break;
+    }
+    case "Foe Slayer": {
+      document = foeSlayerEffect(document);
       break;
     }
     case "Fighting Style: Interception": {
