@@ -11,7 +11,7 @@
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "compatibility": {
     "minimum": "11.315",
-    "verified": 11
+    "verified": 12
   },
   "authors": [
     {
