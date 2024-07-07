@@ -1222,6 +1222,7 @@ ${item.system.description.chat}
       updatePolicyHitDie: game.settings.get("ddb-importer", "character-update-policy-hit-die"),
       updatePolicyCurrency: game.settings.get("ddb-importer", "character-update-policy-currency"),
       updatePolicyBio: game.settings.get("ddb-importer", "character-update-policy-bio"),
+      updatePolicyXP: game.settings.get("ddb-importer", "character-update-policy-xp"),
       updatePolicySpellUse: game.settings.get("ddb-importer", "character-update-policy-spell-use"),
       updatePolicyLanguages: game.settings.get("ddb-importer", "character-update-policy-languages"),
       updatePolicyImage: game.settings.get("ddb-importer", "character-update-policy-image"),
@@ -1274,6 +1275,9 @@ ${item.system.description.chat}
       }
       if (!this.settings.updatePolicyHP) {
         this.result.character.system.attributes.hp = this.actorOriginal.system.attributes.hp;
+      }
+      if (!this.settings.updatePolicyXP) {
+        this.result.character.system.details.xp = this.actorOriginal.system.details.xp;
       }
       if (!this.settings.updatePolicyHitDie) {
         this.result.character.system.attributes.hd = this.actorOriginal.system.attributes.hd;

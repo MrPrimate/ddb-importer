@@ -597,6 +597,11 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
+          "character-update-policy-xp": {
+            scope: "player",
+            type: Boolean,
+            default: true,
+          },
           "character-update-policy-spell-use": {
             scope: "player",
             type: Boolean,

@@ -61,6 +61,11 @@ const MuncherSettings = {
         description: "HP",
       },
       {
+        name: "xp",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-xp"),
+        description: "XP",
+      },
+      {
         name: "hit-die",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-hit-die"),
         description: "Hit Die",

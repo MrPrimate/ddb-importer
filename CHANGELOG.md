@@ -1,6 +1,7 @@
 # Next up
 
 - Foe Slayer effect from @motomoto0295
+- Option to preserve XP on character import @pwim
 
 # 5.2.24
 
