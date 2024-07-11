@@ -3881,6 +3881,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/dilct",
     },
     {
+      id: 137,
+      name: "QftIS",
+      description: "Quests from the Infinite Staircase",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/40544/16/638459335923192808.jpeg",
+      sourceURL: "sources/qftis",
+    },
+    {
       id: 139,
       name: "ToB1",
       description: "Tome of Beasts 1",
