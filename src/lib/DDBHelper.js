@@ -714,6 +714,25 @@ const DDBHelper = {
     return featureId;
   },
 
+  findSubClassByFeatureId: (ddb, featureId) => {
+    // optional class features need this filter, as they replace existing features
+    const featId = DDBHelper.determineActualFeatureId(ddb, featureId);
+    logger.debug(`Finding subclass featureId ${featureId} with featId ${featId}`);
+
+    let klass = ddb.character.classes.find((cls) => {
+      let classFeatures = cls.definition.classFeatures;
+      if (!cls.subclassDefinition) return false;
+      if (!cls.subclassDefinition.classFeatures) return false;
+
+      const subClassFeatures = cls.subclassDefinition.classFeatures.filter((f) =>
+        !classFeatures.some((cf) => cf.id === f.id)
+      );
+
+      return subClassFeatures.some((feature) => feature.id === featId);
+    });
+    return klass;
+  },
+
   findClassByFeatureId: (ddb, featureId) => {
     // optional class features need this filter, as they replace existing features
     const featId = DDBHelper.determineActualFeatureId(ddb, featureId);

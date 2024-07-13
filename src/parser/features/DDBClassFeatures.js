@@ -67,10 +67,11 @@ export default class DDBClassFeatures {
         let items = this._getFeatures(feat, "class", className);
         return items.map((item) => {
           item.flags.ddbimporter.dndbeyond.class = className;
-          item.flags.ddbimporter.class = klass.definition.name;
-          item.flags.ddbimporter.subclass = foundry.utils.hasProperty(klass, "subclassDefinition.name")
-            ? klass.subclassDefinition.name
-            : undefined;
+          foundry.utils.setProperty(item.flags, "ddbimporter.class", klass.definition.name);
+          foundry.utils.setProperty(item.flags, "ddbimporter.classId", klass.definition.id);
+          // const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
+          // foundry.utils.setProperty(item.flags, "ddbimporter.subclass", subClass?.name);
+          // foundry.utils.setProperty(item.flags, "ddbimporter.subclassId", subClass?.id);
           item.flags.obsidian.source.text = className;
           // add feature to all features list
           this.featureList.class.push(foundry.utils.duplicate(item));
@@ -123,10 +124,11 @@ export default class DDBClassFeatures {
         return items.map((item) => {
           item.flags.ddbimporter.dndbeyond.class = subClassName;
           item.flags.obsidian.source.text = className;
-          item.flags.ddbimporter.class = klass.definition.name;
-          item.flags.ddbimporter.subclass = foundry.utils.hasProperty(klass, "subclassDefinition.name")
-            ? klass.subclassDefinition.name
-            : undefined;
+          foundry.utils.setProperty(item.flags, "ddbimporter.class", klass.definition.name);
+          foundry.utils.setProperty(item.flags, "ddbimporter.classId", klass.definition.id);
+          const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
+          foundry.utils.setProperty(item.flags, "ddbimporter.subclass", subClass?.name);
+          foundry.utils.setProperty(item.flags, "ddbimporter.subclassId", subClass?.id);
           // add feature to all features list
           this.featureList.subClass.push(foundry.utils.duplicate(item));
           return item;
