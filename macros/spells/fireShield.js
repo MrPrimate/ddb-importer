@@ -28,7 +28,7 @@ async function updateFireShield(type) {
     },
   ];
   const update = {
-    icon: img,
+    img: img,
     changes: changes.concat(effect.changes),
   };
   console.warn("details", {

@@ -27,7 +27,7 @@ if (args[0].tag === "OnUse") {
         ],
         origin: args[0].actorUuid,
         disabled: false,
-        icon: args[0].item.img,
+        img: args[0].item.img,
         label: "Favored Foe Hit",
         name: "Favored Foe Hit",
       };

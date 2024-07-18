@@ -52,7 +52,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "boomingBlade.js", document: { name: weaponCopy.name } })],
             disabled: false,
             duration: { rounds: 1 },
-            icon: sourceItemData.img,
+            img: sourceItemData.img,
             label: sourceItemData.name,
             origin,
             transfer: false,

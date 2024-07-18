@@ -205,7 +205,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             disabled: false,
             // duration: { turns: 0 },
             duration: { turns: 1 },
-            icon: sourceItemData.img,
+            img: sourceItemData.img,
             label: sourceItemData.name,
             name: sourceItemData.name,
             origin,

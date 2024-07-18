@@ -10,7 +10,7 @@ if (args[0].tag === "DamageBonus" && args[0].isCritical) {
       const effect = {
         label: criticalEffectName,
         name: criticalEffectName,
-        icon: crusherIcon,
+        img: crusherIcon,
         origin: crusherFeat?.uuid,
         disabled: false,
         transfer: false,

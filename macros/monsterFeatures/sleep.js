@@ -11,7 +11,7 @@ for (const target of lastArg.targets) {
   const effectData = {
     label: "Sleep Ray",
     name: "Sleep Ray",
-    icon: "icons/svg/sleep.svg",
+    img: "icons/svg/sleep.svg",
     origin: args[0].uuid,
     disabled: false,
     duration: { rounds: 10, seconds: 60, startRound: gameRound, startTime: game.time.worldTime },

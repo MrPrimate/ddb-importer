@@ -42,7 +42,7 @@ if (args[0].macroPass === "preActiveEffects" && args[0].item?.system.school === 
       origin: args[0].sourceItemUuid,
       disabled: false,
       transfer: true,
-      icon: args[0].item.img,
+      img: args[0].item.img,
       label: arcaneWardAbsorptionEffectLabel,
       name: arcaneWardAbsorptionEffectLabel,
     };

@@ -37,7 +37,7 @@ if (args[0].tag === "OnUse") {
     ui.notifications.notify(`${castItemName} created in your spellbook`);
     const effectData = [{
       label: castItemName,
-      icon: DAEItem.img,
+      img: DAEItem.img,
       duration: { min: 10, startTime: game.time.worldTime },
       origin: lastArg.sourceItemUuid,
       changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "stormSphere.js", document: { name: "Storm Sphere" } })],

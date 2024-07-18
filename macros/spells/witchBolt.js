@@ -49,7 +49,7 @@ if (args[0].macroPass === "postActiveEffects") {
   const effectData = [{
     label: "WitchBolt (Concentration)",
     name: "WitchBolt (Concentration)",
-    icon: args[0].item.img,
+    img: args[0].item.img,
     duration: { rounds: 10, startTime: game.time.worldTime },
     origin: args[0].item.uuid,
     changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "witchBolt.js", document: { name: "Witch Bolt" } })],

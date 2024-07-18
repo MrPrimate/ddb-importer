@@ -36,7 +36,7 @@ if (['slashing', 'bludgeoning'].some((dt) => {
   const effectData = {
     name: stacked.name,
     changes: stacked.changes,
-    icon: item.img,
+    img: item.img,
     flags: { dae: { stackable: stacked.stackable } },
     statuses: [stacked.name],
     origin: item.uuid

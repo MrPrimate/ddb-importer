@@ -65,7 +65,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
     origin: macroData.sourceItemUuid, //flag the effect as associated to the source item used
     disabled: false,
     duration: { rounds: 1 },
-    icon: sourceItem.img,
+    img: sourceItem.img,
     label: `${sourceItemName} - Target`,
     name: `${sourceItemName} - Target`,
   };
@@ -90,7 +90,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
     origin: effectData.origin, // flag the effect as associated to the source item used
     disabled: false,
     duration: { rounds: 1 },
-    icon: sourceItem.img,
+    img: sourceItem.img,
     label: `Marked by ${sourceItemName}`,
     name: `Marked by ${sourceItemName}`,
   };
@@ -174,7 +174,7 @@ async function handlePreDamageByMarkedTarget(macroData) {
       origin: macroData.sourceItemUuid, //flag the effect as associated to the source item used
       disabled: false,
       duration: { turns: 1 },
-      icon: sourceItem.img,
+      img: sourceItem.img,
       label: `${sourceItemName} - Damage resistance`,
       name: `${sourceItemName} - Damage resistance`,
     };

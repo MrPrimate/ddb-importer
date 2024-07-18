@@ -72,7 +72,7 @@ if (args[0].macroPass === "postActiveEffects") {
   const boltEffectData = {
     label: `${workflow.item.name}: Bolt Template`,
     name: `${workflow.item.name}: Bolt Template`,
-    icon: "icons/magic/lightning/bolt-forked-large-blue-yellow.webp",
+    img: "icons/magic/lightning/bolt-forked-large-blue-yellow.webp",
     changes: [
       {
         key: "flags.dae.deleteUuid",

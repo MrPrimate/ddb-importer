@@ -18,7 +18,6 @@ function buildBaseOverrideEffect(label) {
     transfer: true,
     selectedKey: [],
     img: "icons/svg/anchor.svg",
-    icon: "icons/svg/anchor.svg",
     flags: {
       dae: { transfer: true },
       ddbimporter: { disabled: false, itemId: null, entityTypeId: null }

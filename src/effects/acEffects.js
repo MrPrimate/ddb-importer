@@ -31,7 +31,6 @@ function buildBaseACEffect(label) {
     transfer: true,
     selectedKey: [],
     img: "icons/svg/shield.svg",
-    icon: "icons/svg/shield.svg",
   };
   effect.name = label;
   return effect;

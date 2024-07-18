@@ -13,7 +13,7 @@ try {
     let bsEffect = new ActiveEffect({
       label: "Branding Smite",
       name: "Branding Smite",
-      icon: "icons/magic/fire/dagger-rune-enchant-flame-strong-purple.webp",
+      img: "icons/magic/fire/dagger-rune-enchant-flame-strong-purple.webp",
       changes: [
         {
           value: 5,

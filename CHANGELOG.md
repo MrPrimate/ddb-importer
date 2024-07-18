@@ -1,3 +1,7 @@
+# Next Up
+
+- A bunch of icon corrections for effects in v12.
+
 # 5.2.25
 
 - Foe Slayer effect from @motomoto0295

@@ -23,7 +23,7 @@ for (let target of targets) {
     const effectData = {
       label: "Color Spray: Blinded",
       name: "Color Spray: Blinded",
-      icon: args[0].itemData.img,
+      img: args[0].itemData.img,
       origin: args[0].uuid,
       disabled: false,
       duration: { startRound: gameRound, startTime: game.time.worldTime },

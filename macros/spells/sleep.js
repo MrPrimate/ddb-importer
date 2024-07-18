@@ -30,7 +30,7 @@ for (let target of targets) {
     const effectData = {
       label: "Sleep Spell",
       name: "Sleep Spell",
-      icon: "icons/svg/sleep.svg",
+      img: "icons/svg/sleep.svg",
       origin: args[0].uuid,
       disabled: false,
       duration: { rounds: 10, seconds: 60, startRound: gameRound, startTime: game.time.worldTime },

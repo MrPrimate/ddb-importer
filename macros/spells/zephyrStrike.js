@@ -6,7 +6,7 @@ const gameRound = game.combat ? game.combat.round : 0;
 const effectData = {
   label: "Zephyr Strike: Speed",
   name: "Zephyr Strike: Speed",
-  icon: lastArg.itemData.img,
+  img: lastArg.itemData.img,
   origin: lastArg.uuid,
   disabled: false,
   duration: { round: 1, startRound: gameRound, startTime: game.time.worldTime },
