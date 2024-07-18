@@ -287,7 +287,7 @@ export function baseEffect(foundryItem, label,
 ) {
   let effect = {
     img: foundryItem.img,
-    icon: foundryItem.img,
+
     changes: [],
     duration: {},
     // duration: {
