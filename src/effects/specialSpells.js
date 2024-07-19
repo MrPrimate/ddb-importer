@@ -13,6 +13,8 @@ import { acidArrowEffect } from "./spells/acidArrow.js";
 import { aidEffect } from "./spells/aid.js";
 import { alterSelfEffect } from "./spells/alterSelf.js";
 import { animalFriendshipEffect } from "./spells/animalFriendship.js";
+import { arcaneEyeEffect } from "./spells/arcaneEye.js";
+import { arcaneHandEffect } from "./spells/arcaneHand.js";
 import { arcaneSwordEffect } from "./spells/arcaneSword.js";
 import { armorOfAgathysEffect } from "./spells/armorOfAgathys.js";
 import { auraOfLifeEffect } from "./spells/auraOfLife.js";
@@ -159,6 +161,15 @@ async function basicSpellEffects(document) {
     }
     case "Aura of Life": {
       document = await auraOfLifeEffect(document);
+      break;
+    }
+    case "Arcane Eye": {
+      document = await arcaneEyeEffect(document);
+      break;
+    }
+    case "Bigby's Hand":
+    case "Arcane Hand": {
+      document = await arcaneHandEffect(document);
       break;
     }
     case "Bane": {

@@ -4,10 +4,8 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import { addNPC } from "../../muncher/importMonster.js";
 
-const DANCING_LIGHTS_BASE = {
-  "name": "Dancing Lights",
+const SUMMONS_ACTOR_STUB = {
   "type": "npc",
-  "img": "modules/ddb-importer/img/jb2a/DancingLights_01_Yellow_Thumb.webp",
   "system": {
     "abilities": {
       "str": {
@@ -33,7 +31,7 @@ const DANCING_LIGHTS_BASE = {
       "movement": {
         "burrow": null,
         "climb": null,
-        "fly": 60,
+        "fly": null,
         "swim": null,
         "walk": null,
         "units": null,
@@ -59,15 +57,12 @@ const DANCING_LIGHTS_BASE = {
   "effects": [],
   "folder": null,
   "prototypeToken": {
-    "name": "Dancing Lights",
-    "displayName": 0,
     "actorLink": false,
     "appendNumber": true,
     "prependAdjective": false,
     "width": 0.5,
     "height": 0.5,
     "texture": {
-      "src": "modules/ddb-importer/img/jb2a/DancingLights_01_Yellow_200x200.webm",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "offsetX": 0,
@@ -90,6 +85,31 @@ const DANCING_LIGHTS_BASE = {
     },
     "bar2": {
       "attribute": null
+    },
+    "ring": {
+      "enabled": false,
+    },
+    "randomImg": false,
+  },
+};
+
+const DANCING_LIGHTS_BASE = {
+  "name": "Dancing Lights",
+  "img": "modules/ddb-importer/img/jb2a/DancingLights_01_Yellow_Thumb.webp",
+  "system": {
+    "attributes": {
+      "movement": {
+        "fly": 60,
+      },
+    },
+  },
+
+  "prototypeToken": {
+    "name": "Dancing Lights",
+    "width": 0.5,
+    "height": 0.5,
+    "texture": {
+      "src": "modules/ddb-importer/img/jb2a/DancingLights_01_Yellow_200x200.webm",
     },
     "light": {
       "negative": false,
@@ -116,18 +136,147 @@ const DANCING_LIGHTS_BASE = {
         "max": 1
       }
     },
-    "ring": {
-      "enabled": false,
-    },
-    "randomImg": false,
   },
 };
 
-function getSummonActors() {
+
+async function getSRDActors() {
+  const results = {};
+  const pack = game.packs.get("dnd5e.monsters");
+  if (!pack) return results;
+
   const jb2aMod = game.modules.get('jb2a_patreon')?.active
     ? "jb2a_patreon"
     : "JB2A_DnD5e";
-  return {
+
+  const arcaneHand = await pack.getDocument("iHj5Tkm6HRgXuaWP");
+  if (arcaneHand) {
+    results["ArcaneHandRed"] = {
+      name: "Arcane Hand (Red)",
+      version: "1",
+      required: null,
+      isJB2A: true,
+      needsJB2A: false,
+      folderName: "Arcane Hand",
+      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
+        "name": "Arcane Hand (Red)",
+        "prototypeToken.texture.src": "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_Thumb.webp",
+        "img": "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_400x400.webp",
+      }),
+    };
+    results["ArcaneHandPurple"] = {
+      name: "Arcane Hand (Purple)",
+      version: "1",
+      required: null,
+      isJB2A: true,
+      needsJB2A: true,
+      folderName: "Arcane Hand",
+      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
+        "name": "Arcane Hand (Purple)",
+        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_400x400.webm`,
+        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/ArcaneHand_Human_01_Idle_Purple_Thumb.webp`,
+      }),
+    };
+    results["ArcaneHandGreen"] = {
+      name: "Arcane Hand (Green)",
+      version: "1",
+      required: null,
+      isJB2A: true,
+      needsJB2A: true,
+      folderName: "Arcane Hand",
+      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
+        "name": "Arcane Hand (Green)",
+        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_400x400.webm`,
+        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/ArcaneHand_Human_01_Idle_Green_Thumb.webp`,
+      }),
+    };
+    results["ArcaneHandBlue"] = {
+      name: "Arcane Hand (Blue)",
+      version: "1",
+      required: null,
+      isJB2A: true,
+      needsJB2A: true,
+      folderName: "Arcane Hand",
+      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
+        "name": "Arcane Hand (Blue)",
+        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_400x400.webm`,
+        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/ArcaneHand_Human_01_Idle_Blue_Thumb.webp`,
+      }),
+    };
+    results["ArcaneHandRock"] = {
+      name: "Arcane Hand (Rock)",
+      version: "1",
+      required: null,
+      isJB2A: true,
+      needsJB2A: true,
+      needsJB2APatreon: true,
+      folderName: "Arcane Hand",
+      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
+        "name": "Arcane Hand (Rock)",
+        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_400x400.webm`,
+        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/ArcaneHand_Human_01_Idle_Rock01_Thumb.webp`,
+      }),
+    };
+    results["ArcaneHandRainbow"] = {
+      name: "Arcane Hand (Rainbow)",
+      version: "1",
+      required: null,
+      isJB2A: true,
+      needsJB2A: true,
+      needsJB2APatreon: true,
+      folderName: "Arcane Hand",
+      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
+        "name": "Arcane Hand (Rainbow)",
+        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_400x400.webm`,
+        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/ArcaneHand_Human_01_Idle_Rainbow_Thumb.webp`,
+      }),
+    };
+  }
+
+  return results;
+}
+
+async function getSummonActors() {
+  const jb2aMod = game.modules.get('jb2a_patreon')?.active
+    ? "jb2a_patreon"
+    : "JB2A_DnD5e";
+
+  const dancingLightsBase = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), foundry.utils.deepClone(DANCING_LIGHTS_BASE));
+  const localActors = {
+    ArcaneEye: {
+      name: "Arcane Eye",
+      version: "1",
+      required: null,
+      isJB2A: true,
+      needsJB2A: false,
+      folderName: "Arcane Eye",
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+        "name": "Arcane Eye",
+        "prototypeToken.name": "Arcane Eye",
+        "prototypeToken.texture.src": "modules/ddb-importer/img/jb2a/Marker_01_Regular_BlueYellow_400x400.webm",
+        "img": "modules/ddb-importer/img/jb2a/Marker_01_Regular_BlueYellow_Thumb.webp",
+        "system": {
+          "attributes": {
+            "movement": {
+              "fly": 30,
+            },
+          },
+        },
+        "effects": [
+          {
+            "img": "icons/svg/invisible.svg",
+            "name": "Invisible",
+            "statuses": [
+              "invisible"
+            ],
+            "description": CONFIG.DDB.conditions.find((c) => c.definition.id === 8)?.definition.description,
+            "disabled": false,
+            "origin": null,
+            "transfer": false,
+          },
+        ]
+      }),
+    },
     DancingLightsYellow: {
       name: "Dancing Lights (Yellow)",
       version: "1",
@@ -135,7 +284,7 @@ function getSummonActors() {
       isJB2A: true,
       needsJB2A: false,
       folderName: "Dancing Lights",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(DANCING_LIGHTS_BASE), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Yellow)",
         "prototypeToken.texture.src": "modules/ddb-importer/img/jb2a/DancingLights_01_Yellow_200x200.webm",
         "prototypeToken.light": {
@@ -152,7 +301,7 @@ function getSummonActors() {
       isJB2A: true,
       needsJB2A: true,
       folderName: "Dancing Lights",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(DANCING_LIGHTS_BASE), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Green)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_Green_200x200.webm`,
         "prototypeToken.light": {
@@ -169,7 +318,7 @@ function getSummonActors() {
       isJB2A: true,
       needsJB2A: true,
       folderName: "Dancing Lights",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(DANCING_LIGHTS_BASE), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Blue Teal)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueTeal_200x200.webm`,
         "prototypeToken.light": {
@@ -186,7 +335,7 @@ function getSummonActors() {
       isJB2A: true,
       needsJB2A: true,
       folderName: "Dancing Lights",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(DANCING_LIGHTS_BASE), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Blue Yellow)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueYellow_200x200.webm`,
         "prototypeToken.light": {
@@ -203,7 +352,7 @@ function getSummonActors() {
       isJB2A: true,
       needsJB2A: true,
       folderName: "Dancing Lights",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(DANCING_LIGHTS_BASE), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Pink)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_Pink_200x200.webm`,
         "prototypeToken.light": {
@@ -220,7 +369,7 @@ function getSummonActors() {
       isJB2A: true,
       needsJB2A: true,
       folderName: "Dancing Lights",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(DANCING_LIGHTS_BASE), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Purple Green)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_PurpleGreen_200x200.webm`,
         "prototypeToken.light": {
@@ -237,7 +386,7 @@ function getSummonActors() {
       isJB2A: true,
       needsJB2A: true,
       folderName: "Dancing Lights",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(DANCING_LIGHTS_BASE), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Red)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_Red_200x200.webm`,
         "prototypeToken.light": {
@@ -248,6 +397,9 @@ function getSummonActors() {
       }),
     },
   };
+
+  const srdActors = await getSRDActors();
+  return foundry.utils.mergeObject(srdActors, localActors);
 }
 
 const JB2A_LICENSE = `<p>The assets in this actor are kindly provided by JB2A and are licensed by <a href="https://creativecommons.org/licenses/by-nc-sa/4.0">Attribution-NonCommercial-ShareAlike 4.0 International</a>.</p>
@@ -296,7 +448,8 @@ export default class DDBSummonsManager {
     await manager.init();
     logger.debug("Generating Fixed summons");
 
-    for (const [key, value] of Object.entries(getSummonActors())) {
+    const generatedSummonedActors = await getSummonActors();
+    for (const [key, value] of Object.entries(generatedSummonedActors)) {
       // check for JB2A modules
       if (value.needsJB2A
         && !game.modules.get('jb2a_patreon')?.active
