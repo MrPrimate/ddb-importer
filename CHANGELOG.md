@@ -1,5 +1,6 @@
-# Next Up
+# 5.2.26
 
+- Some tweaks for D&D system v3.3.0
 - A bunch of icon corrections for effects in v12. @callbritton
 - Add character class to spells when importing from a character from DDB.
 - Conjure Spells will now use the CR conjuring system.
