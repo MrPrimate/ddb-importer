@@ -160,8 +160,8 @@ async function getSRDActors() {
       folderName: "Arcane Hand",
       data: foundry.utils.mergeObject(arcaneHand.toObject(), {
         "name": "Arcane Hand (Red)",
-        "prototypeToken.texture.src": "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_Thumb.webp",
-        "img": "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_400x400.webp",
+        "prototypeToken.texture.src": "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_400x400.webm",
+        "img": "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_Thumb.webp",
       }),
     };
     results["ArcaneHandPurple"] = {
@@ -174,7 +174,7 @@ async function getSRDActors() {
       data: foundry.utils.mergeObject(arcaneHand.toObject(), {
         "name": "Arcane Hand (Purple)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_400x400.webm`,
-        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/ArcaneHand_Human_01_Idle_Purple_Thumb.webp`,
+        "img": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_Thumb.webp`,
       }),
     };
     results["ArcaneHandGreen"] = {
@@ -187,7 +187,7 @@ async function getSRDActors() {
       data: foundry.utils.mergeObject(arcaneHand.toObject(), {
         "name": "Arcane Hand (Green)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_400x400.webm`,
-        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/ArcaneHand_Human_01_Idle_Green_Thumb.webp`,
+        "img": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_Thumb.webp`,
       }),
     };
     results["ArcaneHandBlue"] = {
@@ -200,7 +200,7 @@ async function getSRDActors() {
       data: foundry.utils.mergeObject(arcaneHand.toObject(), {
         "name": "Arcane Hand (Blue)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_400x400.webm`,
-        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/ArcaneHand_Human_01_Idle_Blue_Thumb.webp`,
+        "img": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_Thumb.webp`,
       }),
     };
     results["ArcaneHandRock"] = {
@@ -214,7 +214,7 @@ async function getSRDActors() {
       data: foundry.utils.mergeObject(arcaneHand.toObject(), {
         "name": "Arcane Hand (Rock)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_400x400.webm`,
-        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/ArcaneHand_Human_01_Idle_Rock01_Thumb.webp`,
+        "img": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_Thumb.webp`,
       }),
     };
     results["ArcaneHandRainbow"] = {
@@ -228,7 +228,7 @@ async function getSRDActors() {
       data: foundry.utils.mergeObject(arcaneHand.toObject(), {
         "name": "Arcane Hand (Rainbow)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_400x400.webm`,
-        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/ArcaneHand_Human_01_Idle_Rainbow_Thumb.webp`,
+        "img": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_Thumb.webp`,
       }),
     };
   }
@@ -263,18 +263,8 @@ async function getSummonActors() {
           },
         },
         "effects": [
-          {
-            "img": "icons/svg/invisible.svg",
-            "name": "Invisible",
-            "statuses": [
-              "invisible"
-            ],
-            "description": CONFIG.DDB.conditions.find((c) => c.definition.id === 8)?.definition.description,
-            "disabled": false,
-            "origin": null,
-            "transfer": false,
-          },
-        ]
+          (await ActiveEffect.implementation.fromStatusEffect("invisible")).toObject(),
+        ],
       }),
     },
     DancingLightsYellow: {
