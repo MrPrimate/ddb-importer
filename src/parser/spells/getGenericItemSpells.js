@@ -1,4 +1,4 @@
-import { fixSpells } from "./special.js";
+import { addCRSummoning, fixSpells } from "./special.js";
 import { parseSpell } from "./parseSpell.js";
 import utils from "../../lib/utils.js";
 
@@ -46,7 +46,10 @@ export async function getGenericItemSpells(itemList, itemSpells) {
     items.push(parsedSpell);
   }
 
-  if (items) fixSpells(null, items);
+  if (items) {
+    fixSpells(null, items);
+    await addCRSummoning(items);
+  }
 
   return items;
 }

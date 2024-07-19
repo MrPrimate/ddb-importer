@@ -58,6 +58,187 @@ function adjustRange(multiplier, spell) {
   return spell;
 }
 
+const CR_DATA = {
+  "Conjure Animals": {
+    profiles: [
+      {
+        "count": "1 * min(3, floor((@item.level - 1) / 2))",
+        "cr": "2",
+        "types": ["beast"],
+      },
+      {
+        "count": "2 * min(3, floor((@item.level - 1) / 2))",
+        "cr": "1",
+        "types": ["beast"],
+      },
+      {
+        "count": "4 * min(3, floor((@item.level - 1) / 2))",
+        "cr": "0.5",
+        "types": ["beast"],
+      },
+      {
+        "count": "8 * min(3, floor((@item.level - 1) / 2))",
+        "cr": "0.25",
+        "types": ["beast"],
+      }
+    ],
+    creatureTypes: ["beast"],
+  },
+  "Conjure Celestial": {
+    profiles: [
+      {
+        "count": "1",
+        "cr": "4",
+        "level": {
+          "min": null,
+          "max": 8
+        },
+        "types": ["celestial"],
+      },
+      {
+        "count": "1",
+        "cr": "5",
+        "level": {
+          "min": 9,
+          "max": null,
+        },
+        "types": ["celestial"],
+      }
+    ],
+    creatureTypes: [],
+  },
+  "Conjure Elemental": {
+    profiles: [
+      {
+        "count": "1",
+        "cr": "@item.level",
+        "types": ["elemental"],
+      }
+    ],
+    creatureTypes: ["elemental"],
+  },
+  "Conjure Fey": {
+    profiles: [
+      {
+        "count": "1",
+        "cr": "@item.level",
+        "types": ["fey"],
+      }
+    ],
+    creatureTypes: ["fey"],
+  },
+  "Conjure Minor Elementals": {
+    profiles: [
+      {
+        "count": "1 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "2",
+        "types": ["elemental"],
+      },
+      {
+        "count": "2 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "1",
+        "types": ["elemental"],
+      },
+      {
+        "count": "4 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.5",
+        "types": ["elemental"],
+      },
+      {
+        "count": "8 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.25",
+        "types": ["elemental"],
+      }
+    ],
+    creatureTypes: [],
+  },
+  "Conjure Woodland Beings": {
+    profiles: [
+      {
+        "count": "1 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "2",
+        "types": ["fey"],
+      },
+      {
+        "count": "2 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "1",
+        "types": ["fey"],
+      },
+      {
+        "count": "4 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.5",
+        "types": ["fey"],
+      },
+      {
+        "count": "8 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.25",
+        "types": ["fey"],
+      },
+    ],
+    creatureTypes: ["fey"],
+  },
+  "Summon Greater Demon": {
+    profiles: [
+      {
+        "count": "1",
+        "cr": "@item.level + 1",
+        "types": ["fiend"],
+      }
+    ],
+    creatureTypes: [],
+  },
+  "Summon Lesser Demons": {
+    profiles: [
+      {
+        "count": "2 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "1",
+        "types": ["fiend"],
+      },
+      {
+        "count": "4 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.5",
+        "types": ["fiend"],
+      },
+      {
+        "count": "8 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.25",
+        "types": ["fiend"],
+      },
+    ],
+    creatureTypes: [],
+  },
+};
+
+export async function addCRSummoning(documents) {
+  if (game.release.generation < 12) return documents;
+  logger.debug(`Checking spells for cr summoning..`);
+  for (const spell of documents) {
+    const name = spell.flags.ddbimporter?.originalName ?? spell.name;
+    switch (name) {
+      case "Conjure Animals":
+      case "Conjure Celestial":
+      case "Conjure Elemental":
+      case "Conjure Fey":
+      case "Conjure Minor Elementals":
+      case "Conjure Woodland Beings":
+      case "Summon Greater Demon":
+      case "Summon Lesser Demons": {
+        spell.system.actionType = "summ";
+        spell.system.summons = {
+          prompt: true,
+          mode: "cr",
+          profiles: CR_DATA[name].profiles,
+          creatureTypes: CR_DATA[name].creatureTypes,
+        };
+        break;
+      }
+      // no default
+    }
+  };
+
+  return documents;
+}
+
 /**
  * Some spells we need to fix up or massage because they are modified
  * in interesting ways

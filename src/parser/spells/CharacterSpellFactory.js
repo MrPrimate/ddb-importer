@@ -4,7 +4,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";
-import { fixSpells } from "./special.js";
+import { addCRSummoning, fixSpells } from "./special.js";
 import { parseSpell } from "./parseSpell.js";
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import logger from "../../logger.js";
@@ -94,6 +94,7 @@ export default class CharacterSpellFactory {
         // We will import spells from a different class that are the same though
         // as they may come from with different spell casting mods
         const parsedSpell = await parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+        foundry.utils.setProperty(parsedSpell, "system.sourceClass", classInfo.definition.name.toLowerCase());
         const duplicateSpell = this.items.findIndex(
           (existingSpell) => {
             const existingName = (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name);
@@ -192,11 +193,13 @@ export default class CharacterSpellFactory {
       );
       if (!this.items[duplicateSpell]) {
         const parsedSpell = await parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+        if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
         this.items.push(parsedSpell);
       } else if (spell.alwaysPrepared) {
         // if our new spell is always known we overwrite!
         // it's probably domain
         const parsedSpell = await parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+        if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
         this.items[duplicateSpell] = parsedSpell;
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
@@ -388,6 +391,7 @@ export default class CharacterSpellFactory {
     await this.getBackgroundSpells();
 
     fixSpells(this.ddb, this.items);
+    await addCRSummoning(this.items);
 
     return this.items.sort((a, b) => a.name.localeCompare(b.name));
   }

@@ -1,6 +1,8 @@
 # Next Up
 
-- A bunch of icon corrections for effects in v12.
+- A bunch of icon corrections for effects in v12. @callbritton
+- Add character class to spells when importing from a character from DDB.
+- Conjure Spells will now use the CR conjuring system.
 
 # 5.2.25
 

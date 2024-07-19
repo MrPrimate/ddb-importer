@@ -70,7 +70,9 @@ async function addNPCToCompendium(npc, type = "monster") {
       if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
         const existingNPC = await itemImporter.compendium.getDocument(npc._id);
 
-        if (foundry.utils.hasProperty(existingNPC, "prototypeToken.flags.tagger.tags")) {
+        if (foundry.utils.hasProperty(npcBasic, "prototypeToken.flags.tagger.tags")
+          && foundry.utils.hasProperty(existingNPC, "prototypeToken.flags.tagger.tags")
+        ) {
           const newTags = [...new Set(npcBasic.prototypeToken.flags.tagger.tags, existingNPC.prototypeToken.flags.tagger.tags)];
           foundry.utils.setProperty(existingNPC, "prototypeToken.flags.tagger.tags", newTags);
         }

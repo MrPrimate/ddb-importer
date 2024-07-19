@@ -1,5 +1,5 @@
 // Import parsing functions
-import { fixSpells } from "./special.js";
+import { addCRSummoning, fixSpells } from "./special.js";
 import { parseSpell } from "./parseSpell.js";
 
 export async function getSpells(spells) {
@@ -29,7 +29,10 @@ export async function getSpells(spells) {
       return parseSpell(spell, null);
     }));
 
-  if (items) fixSpells(null, items);
+  if (items) {
+    fixSpells(null, items);
+    await addCRSummoning(items);
+  }
 
   return items;
 }
