@@ -173,6 +173,11 @@ async function basicSpellEffects(document) {
       document = await arcaneHandEffect(document);
       break;
     }
+    case "Mordenkainen's Sword":
+    case "Arcane Sword": {
+      document = await arcaneSwordEffect(document);
+      break;
+    }
     case "Bane": {
       document = baneEffect(document);
       break;
@@ -438,11 +443,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Alter Self": {
       document = alterSelfEffect(document);
-      break;
-    }
-    case "Mordenkainen's Sword":
-    case "Arcane Sword": {
-      document = await arcaneSwordEffect(document);
       break;
     }
     case "Armor of Agathys": {

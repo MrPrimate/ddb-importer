@@ -1,18 +1,46 @@
-import { baseSpellEffect } from "../specialSpells.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBSummonsManager from "../../parser/companions/DDBSummonsManager.js";
 
 export async function arcaneSwordEffect(document) {
-  let effect = baseSpellEffect(document, document.name);
+  const manager = new DDBSummonsManager();
+  await manager.init();
+
+  const summonActors = manager.itemHandler.compendium.index.filter((i) =>
+    [
+      "ArcaneSwordSpectralGreen",
+      "ArcaneSwordAstralBlue",
+    ].includes(i.flags?.ddbimporter?.summons?.summonsKey)
+  );
+  const profiles = summonActors
+    .map((actor) => {
+      return {
+        _id: actor._id,
+        name: actor.name,
+        uuid: actor.uuid,
+        count: 1,
+      };
+    });
+
+  const summons = {
+    "match": {
+      "proficiency": false,
+      "attacks": true,
+      "saves": false
+    },
+    "bonuses": {
+      "ac": "",
+      "hp": "",
+      "attackDamage": "",
+      "saveDamage": "",
+      "healing": ""
+    },
+    "profiles": profiles,
+    "prompt": true
+  };
+
+  foundry.utils.setProperty(document, "system.summons", summons);
+  foundry.utils.setProperty(document, "system.actionType", "summ");
   document.system.damage = { parts: [], versatile: "", value: "" };
-  document.system.actionType = "other";
-
-  await DDBMacros.setItemMacroFlag(document, "spell", "arcaneSword.js");
-  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "arcaneSword.js" }));
-  foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
-  foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
-
-  document.effects.push(effect);
-  DDBMacros.setMidiOnUseMacroFlag(document, "spell", "arcaneSword.js", ["preTargeting"]);
 
   return document;
+
 }
