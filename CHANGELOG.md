@@ -4,7 +4,7 @@
 - Add character class to spells when importing from a character from DDB.
 - Conjure Spells will now use the CR conjuring system.
 - Find Familiar uses summoning system.
-- Arcane Eye and Arcane Hand have summons and basic JB2A tokens. More summons options if using the JB2A module.
+- Arcane Eye, Arcane Hand and Mage Hand have summons and basic JB2A tokens. More summons options if using the JB2A module.
 
 # 5.2.25
 

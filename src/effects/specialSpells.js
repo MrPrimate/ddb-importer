@@ -88,6 +88,7 @@ import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
 import { lightEffect } from "./spells/light.js";
 import { longstriderEffect } from "./spells/longstrider.js";
 import { mageArmorEffect } from "./spells/mageArmor.js";
+import { mageHandEffect } from "./spells/mageHand.js";
 import { magicWeaponEffect } from "./spells/magicWeapon.js";
 import { massSuggestionEffect } from "./spells/massSuggestion.js";
 import { mindBlankEffect } from "./spells/mindBlank.js";
@@ -320,6 +321,10 @@ async function basicSpellEffects(document) {
     }
     case "Mage Armor": {
       document = mageArmorEffect(document);
+      break;
+    }
+    case "Mage Hand": {
+      document = await mageHandEffect(document);
       break;
     }
     case "Magic Weapon": {
