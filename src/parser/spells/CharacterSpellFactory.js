@@ -4,10 +4,10 @@ import DDBHelper from "../../lib/DDBHelper.js";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";
-import { addCRSummoning, fixSpells } from "./special.js";
 import { parseSpell } from "./parseSpell.js";
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import logger from "../../logger.js";
+import { fixSpells } from "./special.js";
 
 export default class CharacterSpellFactory {
 
@@ -390,8 +390,7 @@ export default class CharacterSpellFactory {
     // background spells are handled slightly differently
     await this.getBackgroundSpells();
 
-    fixSpells(this.ddb, this.items);
-    await addCRSummoning(this.items);
+    await fixSpells(this.ddb, this.items);
 
     return this.items.sort((a, b) => a.name.localeCompare(b.name));
   }

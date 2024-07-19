@@ -292,6 +292,7 @@ const COMPANION_SPELLS = [
   "Summon Shadowspawn",
   "Summon Undead",
   "Summon Draconic Spirit",
+  // "Spirit of Death",
 ];
 const COMPANION_FEATURES = [
   "Steel Defender",

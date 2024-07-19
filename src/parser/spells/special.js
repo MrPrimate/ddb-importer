@@ -1,6 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import DDBHelper from "../../lib/DDBHelper.js";
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
 
 let getEldritchInvocations = (ddb) => {
   let damage = "";
@@ -207,9 +208,19 @@ const CR_DATA = {
     ],
     creatureTypes: [],
   },
+  "Infernal Calling": {
+    profiles: [
+      {
+        "count": "1",
+        "cr": "@item.level + 1",
+        "types": ["fiend"],
+      }
+    ],
+    creatureTypes: [],
+  }
 };
 
-export async function addCRSummoning(documents) {
+async function addCRSummoning(documents) {
   if (game.release.generation < 12) return documents;
   logger.debug(`Checking spells for cr summoning..`);
   for (const spell of documents) {
@@ -222,6 +233,7 @@ export async function addCRSummoning(documents) {
       case "Conjure Minor Elementals":
       case "Conjure Woodland Beings":
       case "Summon Greater Demon":
+      case "Infernal Calling":
       case "Summon Lesser Demons": {
         spell.system.actionType = "summ";
         spell.system.summons = {
@@ -239,14 +251,99 @@ export async function addCRSummoning(documents) {
   return documents;
 }
 
+async function findFamiliar(spell) {
+  const ddbCompendium = CompendiumHelper.getCompendiumType("monster", false);
+  await ddbCompendium?.getIndex();
+
+  spell.system.actionType = "summ";
+  spell.system.summons = {
+    "prompt": true,
+    "creatureTypes": [
+      "celestial",
+      "fey",
+      "fiend"
+    ],
+    "profiles": [
+      {
+        "name": "Bat",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Bat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.qav2dvMIUiMQCCsy",
+      },
+      {
+        "name": "Cat",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Cat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.hIf83RD3ZVW4Egfi",
+      },
+      {
+        "name": "Crab",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Crab")?.uuid ?? "Compendium.dnd5e.monsters.Actor.8RgUhb31VvjUNZU1",
+      },
+      {
+        "name": "Fish",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Quipper")?.uuid ?? "Compendium.dnd5e.monsters.Actor.nkyCGJ9wXeAZkyyz",
+      },
+      {
+        "name": "Frog",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Frog")?.uuid ?? "Compendium.dnd5e.monsters.Actor.EZgiprHXA2D7Uyb3",
+      },
+      {
+        "name": "Hawk",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Hawk")?.uuid ?? "Compendium.dnd5e.monsters.Actor.fnkPNfIpS62LqOu4",
+      },
+      {
+        "name": "Lizard",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Lizard")?.uuid ?? "Compendium.dnd5e.monsters.Actor.I2x01hzOjVN4NUjf",
+      },
+      {
+        "name": "Octopus",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Octopus")?.uuid ?? "Compendium.dnd5e.monsters.Actor.3UUNbGiG2Yf1ZPxM",
+      },
+      {
+        "name": "Owl",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Owl")?.uuid ?? "Compendium.dnd5e.monsters.Actor.d0prpsGSAorDadec",
+      },
+      {
+        "name": "Poisonous Snake",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Poisonous Snake")?.uuid ?? "Compendium.dnd5e.monsters.Actor.D5rwVIxmfFrdyyxT",
+      },
+      {
+        "name": "Rat",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Rat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.pozQUPTnLZW8epox",
+      },
+      {
+        "name": "Raven",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Raven")?.uuid ?? "Compendium.dnd5e.monsters.Actor.LPdX5YLlwci0NDZx",
+      },
+      {
+        "name": "Sea Horse",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Sea Horse")?.uuid ?? "Compendium.dnd5e.monsters.Actor.FWSDiq9SZsdiBAa8",
+      },
+      {
+        "name": "Spider",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Spider")?.uuid ?? "Compendium.dnd5e.monsters.Actor.28gU50HtG8Kp7uIz",
+      },
+      {
+        "name": "Weasel",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Weasel")?.uuid ?? "Compendium.dnd5e.monsters.Actor.WOdeacKCYVhgLDuN",
+      }
+    ],
+    "creatureSizes": [],
+    "match": {
+      "attacks": false,
+      "proficiency": false,
+      "saves": false
+    },
+    "mode": ""
+  };
+  return spell;
+}
+
 /**
  * Some spells we need to fix up or massage because they are modified
  * in interesting ways
  * @param {*} ddb
- * @param {*} items
+ * @param {*} documents
  */
 /* eslint-disable complexity */
-export function fixSpells(ddb, items) {
+export async function fixSpells(ddb, documents) {
   // because the effect parsing happens before this, we need to fix some of the spell changes here
   const usingEffects = ddb === null
     ? game.settings.get("ddb-importer", "munching-policy-add-spell-effects")
@@ -254,7 +351,7 @@ export function fixSpells(ddb, items) {
 
   const rangeMultiplier = ddb ? getRangeAdjustmentMultiplier(ddb) : 1;
 
-  items.forEach((spell) => {
+  for (let spell of documents) {
     const name = spell.flags.ddbimporter?.originalName ?? spell.name;
     logger.debug(`Checking spell ${name} for corrections...`);
     switch (name) {
@@ -368,6 +465,10 @@ export function fixSpells(ddb, items) {
         spell.system.target.type = "self";
         spell.system.damage.parts[0] = ["1d4 + 4", "temphp"];
         spell.system.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
+        break;
+      }
+      case "Find Familiar": {
+        await findFamiliar(spell);
         break;
       }
       case "Guidance": {
@@ -532,6 +633,8 @@ export function fixSpells(ddb, items) {
       spell = adjustRange(rangeMultiplier, spell);
     }
     if (ddb) DDBHelper.addCustomValues(ddb, spell);
-  });
+  };
+
+  await addCRSummoning(documents);
 }
 /* eslint-enable complexity */

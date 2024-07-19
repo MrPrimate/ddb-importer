@@ -72,7 +72,7 @@ export default class DDBEffectHelper {
         fixItems([data]);
       } else if (data.type === "spell") {
         data = await spellEffectAdjustment(data, true);
-        fixSpells(null, [data]);
+        await fixSpells(null, [data]);
       } else if (data.type === "feat") {
         const mockCharacter = {
           system: utils.getTemplate("character"),

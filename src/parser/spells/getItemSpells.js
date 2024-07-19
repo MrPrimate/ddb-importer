@@ -3,7 +3,7 @@ import utils from "../../lib/utils.js";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";
-import { addCRSummoning, fixSpells } from "./special.js";
+import { fixSpells } from "./special.js";
 import { parseSpell } from "./parseSpell.js";
 import { hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 
@@ -74,8 +74,7 @@ export async function getItemSpells(ddb, character) {
   }
 
   if (items) {
-    fixSpells(ddb, items);
-    await addCRSummoning(items);
+    await fixSpells(ddb, items);
   }
 
   return items;
