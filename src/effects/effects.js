@@ -473,8 +473,8 @@ export function generateChange(bonus, priority, key, mode) {
   return {
     key: key,
     value: bonus,
-    mode: mode,
-    priority: priority,
+    mode,
+    priority,
   };
 }
 
