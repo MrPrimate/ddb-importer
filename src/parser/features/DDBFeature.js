@@ -37,7 +37,12 @@ export default class DDBFeature extends DDBBaseFeature {
             || (this.ddbDefinition.subclassName && klass.subclassDefinition?.name === this.ddbDefinition.subclassName))
         )
       );
-    this._choices = this.noMods ? [] : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition, false);
+    this._choices = this.noMods
+      ? []
+      : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition, false).reduce((p, c) => {
+        if (!p.some((e) => e.id === c.id)) p.push(c);
+        return p;
+      }, []);
     this._chosen = this.noMods ? [] : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition, true);
     this.isChoiceFeature = this._choices.length > 0;
     this.include = !this.isChoiceFeature;
