@@ -1,3 +1,7 @@
+# Next Up
+
+- Fix potion of healing damage text parse.
+
 # 5.2.26
 
 - Some tweaks for D&D system v3.3.0

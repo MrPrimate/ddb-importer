@@ -380,7 +380,11 @@ export function parseDamageRolls({ text, document, actor } = {}) {
   }
 
   if (regainMatch) {
-    const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
+    const damageValue = regainMatch[3]
+      ? regainMatch[2]
+        ? `${regainMatch[2]}${regainMatch[3]}`
+        : regainMatch[3]
+      : regainMatch[2];
     const parsedDiceDamage = Number.isInteger(parseInt(damageValue))
       ? `[[/damage ${damageValue} type=heal average=false]]`
       : damageRollGenerator({ text: damageValue, damageType: "heal", actor, document });
