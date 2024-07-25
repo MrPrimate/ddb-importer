@@ -37,7 +37,8 @@ export default class DDBFeature extends DDBBaseFeature {
             || (this.ddbDefinition.subclassName && klass.subclassDefinition?.name === this.ddbDefinition.subclassName))
         )
       );
-    this._choices = this.noMods ? [] : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition);
+    this._choices = this.noMods ? [] : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition, false);
+    this._chosen = this.noMods ? [] : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition, true);
     this.isChoiceFeature = this._choices.length > 0;
     this.include = !this.isChoiceFeature;
     this.hasRequiredLevel = !this._class || (this._class && this._class.level >= this.ddbDefinition.requiredLevel);
@@ -275,6 +276,43 @@ export default class DDBFeature extends DDBBaseFeature {
     }
   }
 
+  _buildChoiceFeature() {
+    this._generateSystemType();
+    this._generateSystemSubType();
+
+    // this._generateLimitedUse();
+    // this._generateRange();
+    // this._generateResourceConsumption();
+    // this._generateActivation();
+    // this._generateLevelScaleDice();
+
+    const choiceText = this._choices.reduce((p, c) => {
+      if (c.description) {
+        return `${p}<br>
+        <h3>${c.label}</h3>
+        <p>${c.description}</p>`;
+      } else {
+        return `${p}<br>
+        <p>${c.label}</p>
+        `;
+      }
+
+    }, "");
+    this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
+
+    console.warn("CHOICE TEXT", {
+      choices: this._choices,
+      choiceText,
+    });
+
+    this._generateDescription(true, choiceText);
+    this._addEffects(undefined, this.type);
+
+    // this._generateFlagHints();
+    // this._generateResourceFlags();
+    // this._addCustomValues();
+  }
+
 
   build() {
     try {
@@ -285,8 +323,8 @@ export default class DDBFeature extends DDBBaseFeature {
         this.isChoiceFeature = false;
         this._buildBackground();
       } else if (this.isChoiceFeature) {
-        logger.debug(`${this.name} has multiple choices and you  need to pass this instance to DDBChoiceFeature`);
-        //  DDBChoiceFeature.buildChoiceFeatures(this);
+        logger.debug(`${this.name} has multiple choices and you need to pass this instance to DDBChoiceFeature`);
+        this._buildChoiceFeature();
       } else {
         this._buildBasic();
       }

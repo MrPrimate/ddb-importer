@@ -409,8 +409,8 @@ export default class DDBAction extends DDBBaseFeature {
       foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
       const subKlass = DDBHelper.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
       const subClass = foundry.utils.getProperty(subKlass, "subclassDefinition");
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.subclass", subClass?.name);
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.subclassId", subClass?.id);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass?.name);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass?.id);
     } else if (this._actionType.race) {
       foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "race");
       foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "race");

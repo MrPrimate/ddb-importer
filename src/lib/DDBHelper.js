@@ -604,7 +604,7 @@ const DDBHelper = {
    * @param {string} type character property: "class", "race" etc.
    * @param {object} feat options to search for
    */
-  getChoices: (ddb, type, feat) => {
+  getChoices: (ddb, type, feat, selectionOnly = true) => {
     const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
     const featDefinition = feat.definition ? feat.definition : feat;
 
@@ -617,26 +617,55 @@ const DDBHelper = {
       if (choices) {
         const choiceDefinitions = ddb.character.choices.choiceDefinitions;
 
-        const options = choices
+        const validChoices = choices
           .filter(
             (choice) => {
               const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
               const validOption = optionChoice && optionChoice.options.find((option) => option.id === choice.optionValue);
               return validOption;
-            })
-          .map((choice) => {
-            // console.warn(choice);
+            });
+
+        console.warn("valid options", {
+          validOptions: validChoices,
+        });
+
+        if (!selectionOnly && validChoices.length > 0) {
+          const results = [];
+          for (const choice of validChoices) {
             const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-            let result = optionChoice.options.find((option) => option.id === choice.optionValue);
-            result.componentId = choice.componentId;
-            result.componentTypeId = choice.componentTypeId;
-            result.choiceId = choice.id;
-            result.parentChoiceId = choice.parentChoiceId;
-            result.subType = choice.subType;
-            result.type = type;
-            result.wasOption = false;
-            return result;
+            const options = optionChoice.options.map((option) => {
+              option.componentId = choice.componentId;
+              option.componentTypeId = choice.componentTypeId;
+              option.choiceId = choice.id;
+              option.parentChoiceId = choice.parentChoiceId;
+              option.subType = choice.subType;
+              option.type = type;
+              option.wasOption = false;
+              return option;
+            });
+            results.push(...options);
+          }
+          if (results.length > 0) return results;
+        }
+
+        const options = validChoices.map((choice) => {
+          const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+          console.warn("details", {
+            choices,
+            choice,
+            optionChoice,
+            choiceDefinitions,
           });
+          let result = optionChoice.options.find((option) => option.id === choice.optionValue);
+          result.componentId = choice.componentId;
+          result.componentTypeId = choice.componentTypeId;
+          result.choiceId = choice.id;
+          result.parentChoiceId = choice.parentChoiceId;
+          result.subType = choice.subType;
+          result.type = type;
+          result.wasOption = false;
+          return result;
+        });
 
         if (options.length > 0) return options;
 
@@ -647,8 +676,10 @@ const DDBHelper = {
               (option) =>
                 // id match
                 (!featDefinition.componentTypeId && !featDefinition.entityTypeId && id == option.componentId)
-                || (!featDefinition.componentTypeId && foundry.utils.hasProperty(featDefinition, "entityTypeId")
-                  && featDefinition.entityTypeId == option.componentTypeId && id == option.componentId
+                || (!featDefinition.componentTypeId
+                  && foundry.utils.hasProperty(featDefinition, "entityTypeId")
+                  && featDefinition.entityTypeId == option.componentTypeId
+                  && id == option.componentId
                 )
                 // && // the choice id matches the option componentID
                 // (featDefinition.componentTypeId == option.componentTypeId || // either the choice componenttype and optiontype match or

@@ -201,7 +201,7 @@ export default class DDBBaseFeature {
     return result;
   }
 
-  _generateDescription(forceFull = false) {
+  _generateDescription(forceFull = false, extra = "") {
     // for now none actions probably always want the full text
     const useFullSetting = game.settings.get("ddb-importer", "character-update-policy-use-full-description");
     const useFull = forceFull || useFullSetting;
@@ -220,6 +220,10 @@ export default class DDBBaseFeature {
         ? this._getRaceFeatureDescription()
         : this._getClassFeatureDescription();
 
+    const extraDescription = extra && extra !== ""
+      ? parseTemplateString(this.ddbData, this.rawCharacter, extra, this.ddbFeature).text
+      : "";
+
     const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");
     if (!chatAdd) {
       const snippet = utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
@@ -227,14 +231,14 @@ export default class DDBBaseFeature {
       const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
 
       this.data.system.description = {
-        value: value + macroHelper,
+        value: value + extraDescription + macroHelper,
         chat: chatAdd ? snippet + macroHelper : "",
       };
     } else {
       const snippet = this.description !== "" && utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
 
       this.data.system.description = {
-        value: this.description,
+        value: this.description + extraDescription,
         chat: snippet + macroHelper,
       };
     }

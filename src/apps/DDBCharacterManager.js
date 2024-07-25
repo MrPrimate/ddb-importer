@@ -1374,6 +1374,8 @@ ${item.system.description.chat}
       await this.ddbCharacter.autoLinkResources();
       await this.ddbCharacter.fixItemSpellResources();
 
+      await this.ddbCharacter.addToCompendiums();
+
       if (this.settings.useChrisPremades) {
         await ExternalAutomations.addChrisEffectsToActorDocuments(this.actor);
       }

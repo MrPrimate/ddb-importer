@@ -41,11 +41,10 @@ export default class DDBClassFeatures {
     });
 
     if (!allowedByLevel) return [];
-    if (feature.isChoiceFeature) {
-      return DDBChoiceFeature.buildChoiceFeatures(feature);
-    } else {
-      return [feature.data];
-    }
+    const choiceFeatures = feature.isChoiceFeature
+      ? DDBChoiceFeature.buildChoiceFeatures(feature)
+      : [];
+    return [feature.data].concat(choiceFeatures);
   }
 
 
@@ -69,9 +68,6 @@ export default class DDBClassFeatures {
           item.flags.ddbimporter.dndbeyond.class = className;
           foundry.utils.setProperty(item.flags, "ddbimporter.class", klass.definition.name);
           foundry.utils.setProperty(item.flags, "ddbimporter.classId", klass.definition.id);
-          // const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
-          // foundry.utils.setProperty(item.flags, "ddbimporter.subclass", subClass?.name);
-          // foundry.utils.setProperty(item.flags, "ddbimporter.subclassId", subClass?.id);
           item.flags.obsidian.source.text = className;
           // add feature to all features list
           this.featureList.class.push(foundry.utils.duplicate(item));
@@ -127,8 +123,8 @@ export default class DDBClassFeatures {
           foundry.utils.setProperty(item.flags, "ddbimporter.class", klass.definition.name);
           foundry.utils.setProperty(item.flags, "ddbimporter.classId", klass.definition.id);
           const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
-          foundry.utils.setProperty(item.flags, "ddbimporter.subclass", subClass?.name);
-          foundry.utils.setProperty(item.flags, "ddbimporter.subclassId", subClass?.id);
+          foundry.utils.setProperty(item.flags, "ddbimporter.subClass", subClass?.name);
+          foundry.utils.setProperty(item.flags, "ddbimporter.subClassId", subClass?.id);
           // add feature to all features list
           this.featureList.subClass.push(foundry.utils.duplicate(item));
           return item;

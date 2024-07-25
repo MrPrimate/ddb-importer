@@ -15,6 +15,9 @@ import utils from "../lib/utils.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DDBHelper from "../lib/DDBHelper.js";
 import { DDBInfusionFactory } from "./features/DDBInfusionFactory.js";
+import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
+import DDBItemImporter from "../lib/DDBItemImporter.js";
+import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 
 export default class DDBCharacter {
@@ -169,8 +172,15 @@ export default class DDBCharacter {
     const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
 
     this.data.actions = this.raw.actions.map((action) => {
-      const featureMatch = this.raw.features.find((feature) => feature.name === action.name
-        && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type"));
+      const featureMatch = this.raw.features.find((feature) => {
+        const featureNamePrefix = feature.name.split(":")[0].trim();
+        const replaceRegex = new RegExp(`${featureNamePrefix}(?:\\s*)- `);
+        return (
+          feature.name === action.name
+          || action.name.replace(replaceRegex, `${featureNamePrefix}:`)
+        )
+        && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type")
+      });
       if (featureMatch) {
         // console.warn(`Removing duplicate feature ${featureMatch.name} from action ${action.name}`, {
         //   action,
@@ -287,6 +297,7 @@ export default class DDBCharacter {
 
       this._addVision5eEffects();
       this._linkItemsToContainers();
+      // this.addToCompendiums();
 
     } catch (error) {
       logger.error(error);
@@ -394,6 +405,74 @@ export default class DDBCharacter {
         }
       }
     });
+  }
+
+  async addToCompendiums() {
+    if (!game.settings.get(SETTINGS.MODULE_ID, "add-features-to-compendiums")) return;
+
+    const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "update-add-features-to-compendiums");
+
+    const documents = this.currentActor.getEmbeddedCollection("Item")
+      .toObject()
+      .filter((doc) =>
+        foundry.utils.hasProperty(doc, "flags.ddbimporter.class")
+      );
+
+    const subKlasses = new Set(documents
+      .filter((doc) => foundry.utils.hasProperty(doc, "flags.ddbimporter.subClass"))
+      .map((doc) => {
+        return {
+          subClass: foundry.utils.getProperty(doc, "flags.ddbimporter.subClass"),
+          class: foundry.utils.getProperty(doc, "flags.ddbimporter.class"),
+        };
+      }));
+
+    const featureCompendiumFolders = new DDBCompendiumFolders("features");
+    await featureCompendiumFolders.loadCompendium("features");
+
+    for (const subKlass of subKlasses) {
+      await featureCompendiumFolders.createSubClassFeatureFolder(subKlass.subClass, subKlass.class);
+    }
+    const classFeaturesCompData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Class Features");
+    await createDDBCompendium(classFeaturesCompData);
+
+
+    const featureHandlerOptions = {
+      chrisPremades: true,
+      removeSRDDuplicates: false,
+      filterDuplicates: false,
+      deleteBeforeUpdate: false,
+      matchFlags: ["id"],
+      useCompendiumFolders: true,
+      indexFilter: {
+        fields: [
+          "name",
+          "flags.ddbimporter",
+        ],
+      },
+    };
+
+    const updateBool = true; //updateFeatures
+
+    // "flags.ddbimporter.classId",
+    // "flags.ddbimporter.class",
+    // "flags.ddbimporter.featureName",
+    // "flags.ddbimporter.subClass",
+    // "flags.ddbimporter.parentClassId"
+
+    const klassNames = new Set(documents.map((doc) => foundry.utils.getProperty(doc, "flags.ddbimporter.class")));
+
+    for (const klassName of klassNames) {
+      const classFeatures = documents.filter((doc) =>
+        klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.class")
+        // && !foundry.utils.getProperty(doc, "flags.ddbimporter.action")
+      );
+
+      const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
+      console.warn(featureHandler);
+      await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
+    }
+
   }
 
 }

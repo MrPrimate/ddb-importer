@@ -51,9 +51,10 @@ export default class DDBChoiceFeature extends DDBFeature {
         return;
       }
 
+      const replaceRegex = new RegExp(`${this.data.name}(?:\\s*)- `);
       this.data.name = choice.label
         ? choice.label.startsWith(this.data.name.trim())
-          ? choice.label
+          ? choice.label.replace(replaceRegex, `${this.data.name}: `)
           : `${this.data.name}: ${choice.label}`
         : this.data.name;
       this.data.name = utils.nameString(this.data.name);
@@ -66,24 +67,26 @@ export default class DDBChoiceFeature extends DDBFeature {
       this._generateSystemSubType();
 
       // get description for chris premades
+      this.ddbDefinition.description = choice.description;
+      this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";
       this._generateDescription(true);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.initialFeature", foundry.utils.deepClone(this.data.system.description));
 
-      if (choice.wasOption && choice.description) {
-        this.ddbDefinition.description = choice.description;
-        this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";
-      } else {
-        if (this.ddbDefinition.description) {
-          this.ddbDefinition.description = choice.description
-            ? this.ddbDefinition.description + "<h3>" + choice.label + "</h3>" + choice.description
-            : this.ddbDefinition.description;
-        }
-        if (this.ddbDefinition.snippet) {
-          this.ddbDefinition.snippet = choice.description
-            ? this.ddbDefinition.snippet + "<h3>" + choice.label + "</h3>" + choice.description
-            : this.ddbDefinition.snippet;
-        }
-      }
+      // if (choice.wasOption && choice.description) {
+      //   this.ddbDefinition.description = choice.description;
+      //   this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";
+      // } else {
+      //   if (this.ddbDefinition.description) {
+      //     this.ddbDefinition.description = choice.description
+      //       ? this.ddbDefinition.description + "<h3>" + choice.label + "</h3>" + choice.description
+      //       : this.ddbDefinition.description;
+      //   }
+      //   if (this.ddbDefinition.snippet) {
+      //     this.ddbDefinition.snippet = choice.description
+      //       ? this.ddbDefinition.snippet + "<h3>" + choice.label + "</h3>" + choice.description
+      //       : this.ddbDefinition.snippet;
+      //   }
+      // }
       // add these flags in so they can be used by the description parser
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
@@ -114,13 +117,16 @@ export default class DDBChoiceFeature extends DDBFeature {
     }
   }
 
-  static buildChoiceFeatures(ddbFeature) {
-    logger.debug(`Processing Choice Features ${ddbFeature._choices.map((c) => c.label).join(",")}`, {
+  static buildChoiceFeatures(ddbFeature, allFeatures = false) {
+    const choices = allFeatures ? ddbFeature._choices : ddbFeature._chosen;
+    logger.debug(`Processing Choice Features ${ddbFeature._chosen.map((c) => c.label).join(",")}`, {
       choices: ddbFeature._choices,
+      chosen: ddbFeature._chosen,
       feature: ddbFeature,
+      allFeatures,
     });
     const features = [];
-    ddbFeature._choices.forEach((choice) => {
+    choices.forEach((choice) => {
       const choiceFeature = new DDBChoiceFeature({
         ddbData: ddbFeature.ddbData,
         ddbDefinition: foundry.utils.deepClone(ddbFeature.ddbDefinition),

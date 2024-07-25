@@ -93,11 +93,10 @@ export default class DDBFeatures {
       await ddbFeature.generateAdvancements();
       await ddbFeature.buildBackgroundFeatAdvancements();
     }
-    if (ddbFeature.isChoiceFeature) {
-      return DDBChoiceFeature.buildChoiceFeatures(ddbFeature);
-    } else {
-      return [ddbFeature.data];
-    }
+    const choiceFeatures = ddbFeature.isChoiceFeature
+      ? DDBChoiceFeature.buildChoiceFeatures(ddbFeature)
+      : [];
+    return [ddbFeature.data].concat(choiceFeatures);
   }
 
   async _buildRacialTraits() {
