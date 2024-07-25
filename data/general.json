@@ -145,5 +145,9 @@
   {
     "name": "Hippo Build",
     "path": "icons/creatures/abilities/paw-print-orange.webp"
+  },
+  {
+    "name": "Equipment",
+    "path": "icons/containers/bags/pack-leather-brown.webp"
   }
 ]
