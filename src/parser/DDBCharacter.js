@@ -174,14 +174,18 @@ export default class DDBCharacter {
     this.data.actions = this.raw.actions.map((action) => {
       const featureMatch = this.raw.features.find((feature) => {
         const featureNamePrefix = feature.name.split(":")[0].trim();
-        const replaceRegex = new RegExp(`${featureNamePrefix}(?:\\s*)- `);
+        const replaceRegex = new RegExp(`${featureNamePrefix}(?:\\s*)-`);
+        const featureFlagType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
+        const actionFlagType = foundry.utils.getProperty(action, "flags.ddbimporter.type");
+        const replacedActionName = action.name.replace(replaceRegex, `${featureNamePrefix}:`);
         return (
           feature.name === action.name
-          || action.name.replace(replaceRegex, `${featureNamePrefix}:`)
+          || replacedActionName === feature.name
         )
-        && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type")
+        && featureFlagType === actionFlagType;
       });
       if (featureMatch) {
+        foundry.utils.setProperty(action, "flags.ddbimporter.featureNameMatch", featureMatch.name);
         // console.warn(`Removing duplicate feature ${featureMatch.name} from action ${action.name}`, {
         //   action,
         //   feature: featureMatch,
@@ -212,7 +216,8 @@ export default class DDBCharacter {
       .filter((feature) =>
         actionAndFeature
         || !this.data.actions.some((action) =>
-          action.name.trim().toLowerCase() === feature.name.trim().toLowerCase()
+          (action.name.trim().toLowerCase() === feature.name.trim().toLowerCase()
+          || foundry.utils.getProperty(action, "flags.ddbimporter.featureNameMatch") === feature.name)
           && foundry.utils.getProperty(action, "flags.ddbimporter.isCustomAction") !== true
           && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type")
         )
