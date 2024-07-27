@@ -8,7 +8,6 @@
 - Source parsing will now default to short names rather than long names, due to changes in new monster character sheet.
 - Changes to default description processing for features on character import.
 - Shadar Kai now gain resistance to magical sleep.
-- Icons for features, items and spells will now always be downloaded to prevent failures with effect transference in v12.
 
 # 5.2.29
 
