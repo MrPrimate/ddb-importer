@@ -549,14 +549,14 @@ const SETTINGS = {
           hint: "ddb-importer.settings.use-full-source.hint",
           config: true,
           type: Boolean,
-          default: true,
+          default: false,
         },
         "use-damage-hints": {
           name: "ddb-importer.settings.use-damage-hints.name",
           hint: "ddb-importer.settings.use-damage-hints.hint",
           config: true,
           type: Boolean,
-          default: true,
+          default: false,
         },
         "add-damage-restrictions-to-hints": {
           name: "ddb-importer.settings.add-damage-restrictions-to-hints.name",
@@ -795,21 +795,16 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-use-full-description": {
+          "character-update-policy-use-combined-description": {
             scope: "player",
             type: Boolean,
-            default: true,
+            default: false,
           },
           "character-update-policy-use-action-and-feature": {
             scope: "player",
             type: Boolean,
             default: false,
           },
-          // "character-update-policy-use-actions-as-features": {
-          //   scope: "player",
-          //   type: Boolean,
-          //   default: true,
-          // },
           "character-update-policy-dae-effect-copy": {
             scope: "player",
             type: Boolean,

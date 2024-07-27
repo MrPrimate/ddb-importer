@@ -136,7 +136,7 @@ export default class DDBFeature extends DDBBaseFeature {
 
     this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 
-    this._generateDescription(true);
+    this._generateDescription({ forceFull: true });
     this._addEffects(undefined, this.type);
 
     // this._generateFlagHints();
@@ -262,7 +262,7 @@ export default class DDBFeature extends DDBBaseFeature {
       logger.debug(`Found background ${this.ddbDefinition.name}`);
       logger.debug(`Found ${this._choices.map((c) => c.label).join(",")}`);
 
-      this._generateDescription(true);
+      this._generateDescription({ forceFull: true });
       this.data.system.description.value += `<h3>Proficiencies</h3><ul>`;
       this._choices.forEach((choice) => {
         this._addEffects(choice, this.type);
@@ -305,12 +305,12 @@ export default class DDBFeature extends DDBBaseFeature {
     }, "");
     this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 
-    console.warn("CHOICE TEXT", {
-      choices: this._choices,
-      choiceText,
-    });
+    // console.warn("CHOICE TEXT", {
+    //   choices: this._choices,
+    //   choiceText,
+    // });
 
-    this._generateDescription(true, choiceText);
+    this._generateDescription({ extra: choiceText });
     this._addEffects(undefined, this.type);
 
     // this._generateFlagHints();

@@ -201,10 +201,9 @@ export default class DDBBaseFeature {
     return result;
   }
 
-  _generateDescription(forceFull = false, extra = "") {
+  _generateDescription({ forceFull = false, extra = "" } = {}) {
     // for now none actions probably always want the full text
-    const useFullSetting = game.settings.get("ddb-importer", "character-update-policy-use-full-description");
-    const useFull = forceFull || useFullSetting;
+    const useCombinedSetting = game.settings.get("ddb-importer", "character-update-policy-use-combined-description");
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
     this.snippet = this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
@@ -227,18 +226,18 @@ export default class DDBBaseFeature {
     const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");
     if (!chatAdd) {
       const snippet = utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
-      const fullDescription = DDBBaseFeature.buildFullDescription(this.description, snippet);
-      const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
+      const descriptionSnippet = !useCombinedSetting || forceFull ? null : snippet;
+      const fullDescription = DDBBaseFeature.buildFullDescription(this.description, descriptionSnippet);
 
       this.data.system.description = {
-        value: value + extraDescription + macroHelper,
+        value: fullDescription + extraDescription + macroHelper,
         chat: chatAdd ? snippet + macroHelper : "",
       };
     } else {
       const snippet = this.description !== "" && utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
 
       this.data.system.description = {
-        value: this.description + extraDescription,
+        value: this.description + extraDescription + macroHelper,
         chat: snippet + macroHelper,
       };
     }

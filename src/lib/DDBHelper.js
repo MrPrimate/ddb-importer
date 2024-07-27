@@ -625,9 +625,9 @@ const DDBHelper = {
               return validOption;
             });
 
-        console.warn("valid options", {
-          validOptions: validChoices,
-        });
+        // console.warn("valid options", {
+        //   validOptions: validChoices,
+        // });
 
         if (!selectionOnly && validChoices.length > 0) {
           const results = [];
@@ -650,12 +650,12 @@ const DDBHelper = {
 
         const options = validChoices.map((choice) => {
           const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-          console.warn("details", {
-            choices,
-            choice,
-            optionChoice,
-            choiceDefinitions,
-          });
+          // console.warn("details", {
+          //   choices,
+          //   choice,
+          //   optionChoice,
+          //   choiceDefinitions,
+          // });
           let result = optionChoice.options.find((option) => option.id === choice.optionValue);
           result.componentId = choice.componentId;
           result.componentTypeId = choice.componentTypeId;

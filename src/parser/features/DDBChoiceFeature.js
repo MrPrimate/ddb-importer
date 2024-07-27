@@ -69,7 +69,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       // get description for chris premades
       this.ddbDefinition.description = choice.description;
       this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";
-      this._generateDescription(true);
+      this._generateDescription({ forceFull: true });
       foundry.utils.setProperty(this.data, "flags.ddbimporter.initialFeature", foundry.utils.deepClone(this.data.system.description));
 
       // if (choice.wasOption && choice.description) {
@@ -92,7 +92,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
       this._generateActivation();
       this._generateResourceConsumption();
-      this._generateDescription(false);
+      this._generateDescription({ forceFull: false });
       this.data.flags.ddbimporter.dndbeyond.choice = {
         label: choice.label,
         choiceId: choice.choiceId,
