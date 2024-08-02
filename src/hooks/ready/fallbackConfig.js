@@ -795,6 +795,18 @@ export const fallbackDDBConfig = {
       id: 122,
       name: "Kuran’zoi",
     },
+    {
+      id: 123,
+      name: "Gibberling",
+    },
+    {
+      id: 124,
+      name: "Huginn's Speech",
+    },
+    {
+      id: 125,
+      name: "Northern Tongue",
+    },
   ],
   restoreTypes: [
     { id: 1, name: "Full", description: "Restore life with full HP" },
@@ -3933,6 +3945,15 @@ export const fallbackDDBConfig = {
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/42333/528/638537169036542469.jpeg",
       sourceURL: "sources/ghpp",
+    },
+    {
+      id: 151,
+      name: "BoET",
+      description: "Book of Ebon Tides",
+      sourceCategoryId: 21,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/42930/371/638563983452341674.jpeg",
+      sourceURL: "sources/dnd/boet",
     },
   ],
   levelProficiencyBonuses: [
