@@ -8,8 +8,12 @@ DDBCharacter.prototype._addSpecialAdditions = function _addSpecialAdditions() {
     this.data.spells.push(getDivineSmiteSpell(divineSmite));
   }
 
-  const feyAncestry = checkList.find((f) => f.name === "Fey Ancestry" && f.type === "feat");
-  if (feyAncestry && (foundry.utils.getProperty(feyAncestry, "system.description.value") ?? "").includes("sleep")) {
+  const sleepFeatures = [
+    "Fey Ancestry",
+    "Trance"
+  ];
+  const sleepFeature = checkList.find((f) => sleepFeatures.includes(f.name) && f.type === "feat");
+  if (sleepFeature && (foundry.utils.getProperty(sleepFeature, "system.description.value") ?? "").includes("magic can’t put you to sleep")) {
     const ci = ["Sleep"];
     if (this.data.character.system.traits.ci.custom && this.data.character.system.traits.ci.custom.trim() !== "")
       ci.push(this.data.character.system.traits.ci.custom);
