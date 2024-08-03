@@ -1,7 +1,7 @@
 import utils from "../../../lib/utils.js";
 import logger from "../../../logger.js";
 import DICTIONARY from "../../../dictionary.js";
-import { generateTable } from "../../../muncher/table.js";
+import { generateTable } from "../../../lib/DDBTable.js";
 import SETTINGS from "../../../settings.js";
 import { parseDamageRolls, parseTags } from "../../../lib/DDBReferenceLinker.js";
 

@@ -14,7 +14,7 @@ import { getActionType } from "./action.js";
 import { getDamage } from "./damage.js";
 import { getSave } from "./save.js";
 import { getSpellScaling } from "./scaling.js";
-import { generateTable } from "../../muncher/table.js";
+import { generateTable } from "../../lib/DDBTable.js";
 import { spellEffectAdjustment } from "../../effects/specialSpells.js";
 import { getName } from "./name.js";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";

@@ -1,4 +1,4 @@
-import { generateTable } from "../../muncher/table.js";
+import { generateTable } from "../../lib/DDBTable.js";
 import { featureEffectAdjustment } from "../../effects/specialFeats.js";
 
 /**

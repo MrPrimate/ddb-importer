@@ -2,7 +2,6 @@ import logger from "../../logger.js";
 import { generateBackground } from "../../parser/character/bio.js";
 // import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-// import { generateTable } from "../table.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import DDBFeature from "../../parser/features/DDBFeature.js";
 

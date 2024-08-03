@@ -3,7 +3,7 @@ import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import FileHelper from "../../lib/FileHelper.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
-import { generateTable } from "../table.js";
+import { generateTable } from "../../lib/DDBTable.js";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import utils from "../../lib/utils.js";
 import SETTINGS from "../../settings.js";

@@ -1,8 +1,8 @@
 import { parseTable, getHeadings } from "../../vendor/parseTable.js";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
-import utils from "../lib/utils.js";
+import CompendiumHelper from "./CompendiumHelper.js";
+import utils from "./utils.js";
 import logger from "../logger.js";
-import DDBItemImporter from "../lib/DDBItemImporter.js";
+import DDBItemImporter from "./DDBItemImporter.js";
 
 function diceRollMatcher(match, p1, p2, p3, p4, p5) {
   if (p5 && p5.toLowerCase() === "damage") {
@@ -132,7 +132,7 @@ function getDiceTableRange(value) {
 }
 
 
-function buildTable(parsedTable, keys, diceKeys, tableName, parentName) {
+function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, html } = {}) {
   let generatedTables = [];
 
   diceKeys.forEach((diceKey) => {
@@ -142,6 +142,9 @@ function buildTable(parsedTable, keys, diceKeys, tableName, parentName) {
 
     const diceRegex = new RegExp(/(\d*d\d+(\s*[+-]?\s*\d*d*\d*)?)/, "g");
     const formulaMatch = diceKey.match(diceRegex);
+
+    const spellCastingAttackRegex = new RegExp(/make a spell attack roll/ig);
+    const spellCastingAttackMatch = diceKey.includes("d20") && spellCastingAttackRegex.test(html);
 
     let table = {
       "name": realName,
@@ -156,7 +159,11 @@ function buildTable(parsedTable, keys, diceKeys, tableName, parentName) {
       "img": "icons/svg/d20-grey.svg",
       "description": "",
       "results": [],
-      "formula": formulaMatch ? formulaMatch[0].trim() : "",
+      "formula": formulaMatch
+        ? spellCastingAttackMatch
+          ? "1d20 + @prof + @attributes.spellmod"
+          : formulaMatch[0].trim()
+        : "",
       "replacement": true,
       "displayRoll": true,
     };
@@ -193,17 +200,40 @@ function buildTable(parsedTable, keys, diceKeys, tableName, parentName) {
       table.results.push(result);
     });
 
+    if (table.results.some((r, i, a) => {
+      const low = r.range[0];
+      const high = r.range[1];
+      if (low > high) {
+        // console.warn(`Low ${low} is greater than high ${high}`, {
+        //   low,
+        //   high,
+        //   a,
+        //   length: a.length,
+        //   i,
+        // });
+        if (high === 0 && i === (a.length - 1)) {
+          r.range[1] += 100;
+          a[i] = r;
+        } else {
+          return true;
+        }
+      }
+      return false;
+    })) {
+      return;
+    }
     generatedTables.push(table);
 
   });
+
+  logger.debug(`Generated Tables for ${tableName}`, generatedTables);
 
   return generatedTables;
 }
 
 
-async function buildAndImportTable(parsedTable, keys, diceKeys, finalName, name, updateExisting) {
-  const data = buildTable(parsedTable, keys, diceKeys, finalName, name);
-
+async function buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, updateExisting, html } = {}) {
+  const data = buildTable({ parsedTable, keys, diceKeys, tableName: finalName, parentName: name, html });
   const handlerOptions = { srdFidding: false, updateIcons: false };
   const handler = await DDBItemImporter.buildHandler("tables", data, updateExisting, handlerOptions);
   return handler.results;
@@ -252,13 +282,12 @@ export async function generateTable(parentName, html, updateExisting, type = "")
       tableGenerated,
     });
 
-    const builtTables = tableGenerated
-      ? [tableGenerated]
-      : await buildAndImportTable(parsedTable, keys, diceKeys, finalName, name, updateExisting);
+    try {
+      const builtTables = tableGenerated
+        ? [tableGenerated]
+        : await buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, updateExisting, html });
 
-    if (builtTables.length > 0) {
-      try {
-
+      if (builtTables.length > 0) {
         let tableData = {
           nameGuess,
           finalName,
@@ -277,10 +306,9 @@ export async function generateTable(parentName, html, updateExisting, type = "")
         };
         tablesMatched.push(tableData);
         updatedDocument = tableReplacer(updatedDocument, tableNum, builtTables, tableCompendiumLabel);
-
-      } catch (error) {
-        logger.error("Table parser failed, please log a bug!", error);
       }
+    } catch (error) {
+      logger.error("Table parser failed, please log a bug!", error);
     }
     tableNum++;
   }

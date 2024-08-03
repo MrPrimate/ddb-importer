@@ -15,7 +15,7 @@ import { addRestrictionFlags } from "../../effects/restrictions.js";
 import { midiItemEffects } from "../../effects/specialEquipment.js";
 
 // tables
-import { generateTable } from "../../muncher/table.js";
+import { generateTable } from "../../lib/DDBTable.js";
 
 import parseWeapon from "./weapon.js";
 import parseAmmunition from "./ammunition.js";
