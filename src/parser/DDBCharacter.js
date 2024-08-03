@@ -457,8 +457,6 @@ export default class DDBCharacter {
       },
     };
 
-    const updateBool = true; //updateFeatures
-
     // "flags.ddbimporter.classId",
     // "flags.ddbimporter.class",
     // "flags.ddbimporter.featureName",
@@ -473,7 +471,7 @@ export default class DDBCharacter {
         // && !foundry.utils.getProperty(doc, "flags.ddbimporter.action")
       );
 
-      const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
+      const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateFeatures, featureHandlerOptions);
       console.warn(featureHandler);
       await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
     }
