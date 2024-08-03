@@ -1,6 +1,7 @@
-# Next Up
+# 5.2.27
 
 - Fix potion of healing damage text parse.
+- A spell from Book of Ebon Tides broke table parsing, parsing improved.
 
 # 5.2.26
 
