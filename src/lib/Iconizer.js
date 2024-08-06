@@ -387,10 +387,10 @@ export default class Iconizer {
     return Promise.all(itemMap);
   }
 
-  static async getDDBHintImages(type, items, download) {
+  static async getDDBHintImages(type, items) {
     DDBMuncher.munchNote(`Fetching DDB Hint Images for ${type}`);
-    const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
-    const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
+    // const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
+    // const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
@@ -404,7 +404,15 @@ export default class Iconizer {
       if (!ddbImg || ddbImg === "") continue;
       const pathPostfix = useDeepPaths ? `/${type}/${item.type}` : "";
       const name = useDeepPaths ? `${item.name}` : item.name;
-      const downloadOptions = { type, name, download: downloadImages, remoteImages, targetDirectory, pathPostfix, imageNamePrefix };
+      const downloadOptions = {
+        type,
+        name,
+        download: true,
+        remoteImages: false,
+        targetDirectory,
+        pathPostfix,
+        imageNamePrefix,
+      };
       const img = await FileHelper.getImagePath(ddbImg, downloadOptions);
       if (img) item.img = img;
     }
@@ -414,7 +422,7 @@ export default class Iconizer {
     return items;
   }
 
-  static async getDDBGenericItemImages(download) {
+  static async getDDBGenericItemImages() {
     DDBMuncher.munchNote(`Fetching DDB Generic Item icons`);
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
@@ -422,7 +430,7 @@ export default class Iconizer {
     const pathPostfix = useDeepPaths ? "/ddb/item" : "";
 
     const itemMap = DICTIONARY.items.map(async (item) => {
-      const downloadOptions = { type: "item", name: item.filterType, download, targetDirectory, pathPostfix, imageNamePrefix };
+      const downloadOptions = { type: "item", name: item.filterType, download: true, targetDirectory, pathPostfix, imageNamePrefix };
       const img = await FileHelper.getImagePath(item.img, downloadOptions);
       let itemIcons = {
         filterType: item.filterType,
@@ -436,7 +444,7 @@ export default class Iconizer {
   }
 
 
-  static async getDDBGenericLootImages(download) {
+  static async getDDBGenericLootImages() {
     DDBMuncher.munchNote(`Fetching DDB Generic Loot icons`);
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
@@ -444,7 +452,7 @@ export default class Iconizer {
     const pathPostfix = useDeepPaths ? "/ddb/loot" : "";
 
     const itemMap = DICTIONARY.genericItemIcons.map(async (item) => {
-      const downloadOptions = { type: "equipment", name: item.name, download, targetDirectory, pathPostfix, imageNamePrefix };
+      const downloadOptions = { type: "equipment", name: item.name, download: true, targetDirectory, pathPostfix, imageNamePrefix };
       const img = await FileHelper.getImagePath(item.img, downloadOptions);
       let itemIcons = {
         name: item.name,
@@ -457,9 +465,9 @@ export default class Iconizer {
     return Promise.all(itemMap);
   }
 
-  static async getDDBGenericItemIcons(items, download) {
-    const genericItems = await Iconizer.getDDBGenericItemImages(download);
-    const genericLoots = await Iconizer.getDDBGenericLootImages(download);
+  static async getDDBGenericItemIcons(items) {
+    const genericItems = await Iconizer.getDDBGenericItemImages();
+    const genericLoots = await Iconizer.getDDBGenericLootImages();
 
     let updatedItems = items.map((item) => {
       // logger.debug(item.name);
@@ -484,7 +492,7 @@ export default class Iconizer {
     return Promise.all(updatedItems);
   }
 
-  static async getDDBSchoolSpellImages(download) {
+  static async getDDBSchoolSpellImages() {
     DDBMuncher.munchNote(`Fetching spell school icons`);
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
@@ -492,7 +500,7 @@ export default class Iconizer {
     const pathPostfix = useDeepPaths ? "/spell/school" : "";
 
     const schoolMap = DICTIONARY.spell.schools.map(async (school) => {
-      const downloadOptions = { type: "spell", name: school.name, download, targetDirectory, imageNamePrefix, pathPostfix };
+      const downloadOptions = { type: "spell", name: school.name, download: true, targetDirectory, imageNamePrefix, pathPostfix };
       const img = await FileHelper.getImagePath(school.img, downloadOptions);
       let schoolIcons = {
         name: school.name,
@@ -506,8 +514,8 @@ export default class Iconizer {
     return Promise.all(schoolMap);
   }
 
-  static async getDDBSpellSchoolIcons(items, download) {
-    const schools = await Iconizer.getDDBSchoolSpellImages(download);
+  static async getDDBSpellSchoolIcons(items) {
+    const schools = await Iconizer.getDDBSchoolSpellImages();
 
     let updatedItems = items.map((item) => {
       // logger.debug(item.name);
@@ -523,8 +531,8 @@ export default class Iconizer {
     return Promise.all(updatedItems);
   }
 
-  static async getDDBEquipmentIcons(items, download) {
-    const itemImages = await Iconizer.getDDBItemImages(items.filter((item) => DICTIONARY.types.inventory.includes(item.type)), download);
+  static async getDDBEquipmentIcons(items) {
+    const itemImages = await Iconizer.getDDBItemImages(items.filter((item) => DICTIONARY.types.inventory.includes(item.type)), true);
 
     let updatedItems = items.map((item) => {
       // logger.debug(item.name);
@@ -556,7 +564,7 @@ export default class Iconizer {
     if (items.length > 0) {
       if (ddbItemIcons) {
         logger.debug("Magic items: adding equipment icons");
-        items = await Iconizer.getDDBEquipmentIcons(items, true);
+        items = await Iconizer.getDDBEquipmentIcons(items);
       }
 
       if (inbuiltIcons) {
@@ -571,16 +579,16 @@ export default class Iconizer {
 
       if (ddbSpellIcons) {
         logger.debug("Magic items: adding ddb spell school icons");
-        items = await Iconizer.getDDBSpellSchoolIcons(items, true);
+        items = await Iconizer.getDDBSpellSchoolIcons(items);
       }
     }
     return items;
   }
 
   static async preFetchDDBIconImages() {
-    await Iconizer.getDDBGenericItemImages(true);
-    await Iconizer.getDDBGenericLootImages(true);
-    await Iconizer.getDDBSchoolSpellImages(true);
+    await Iconizer.getDDBGenericItemImages();
+    await Iconizer.getDDBGenericLootImages();
+    await Iconizer.getDDBSchoolSpellImages();
   }
 
 
@@ -651,14 +659,14 @@ export default class Iconizer {
     const ddbSpellIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-spell-icons");
     if (ddbSpellIcons) {
       logger.debug("DDB Spell School Icon Match");
-      items = await Iconizer.getDDBSpellSchoolIcons(items, true);
+      items = await Iconizer.getDDBSpellSchoolIcons(items);
     }
 
     // this will use ddb generic icons as a fall back
     const ddbGenericItemIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-generic-item-icons");
     if (ddbGenericItemIcons) {
       logger.debug("DDB Generic Item Icon Match");
-      items = await Iconizer.getDDBGenericItemIcons(items, true);
+      items = await Iconizer.getDDBGenericItemIcons(items);
     }
 
     // update any generated effects

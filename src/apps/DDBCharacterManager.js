@@ -673,7 +673,7 @@ export default class DDBCharacterManager extends FormApplication {
 
       if (ddbItemIcons) {
         this.showCurrentTask("Fetching DDB Inventory Images");
-        items = await Iconizer.getDDBEquipmentIcons(items, true);
+        items = await Iconizer.getDDBEquipmentIcons(items);
       }
 
       if (useInbuiltIcons) {
@@ -690,12 +690,12 @@ export default class DDBCharacterManager extends FormApplication {
 
       if (ddbSpellIcons) {
         this.showCurrentTask("Fetching DDB Spell School Images");
-        items = await Iconizer.getDDBSpellSchoolIcons(items, true);
+        items = await Iconizer.getDDBSpellSchoolIcons(items);
       }
 
       if (ddbGenericItemIcons) {
         this.showCurrentTask("Fetching DDB Generic Item Images");
-        items = await Iconizer.getDDBGenericItemIcons(items, true);
+        items = await Iconizer.getDDBGenericItemIcons(items);
       }
 
       if (this.settings.activeEffectCopy) {

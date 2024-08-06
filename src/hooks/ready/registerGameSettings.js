@@ -104,7 +104,6 @@ async function createFolderPaths() {
     }
     DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
 
-
     const frameUploads = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory");
     DirectoryPicker.verifyPath(DirectoryPicker.parse(frameUploads));
 

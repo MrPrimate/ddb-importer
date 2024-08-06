@@ -437,6 +437,8 @@ const MuncherSettings = {
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
     const effectModulesAvailable = effectModules();
+    const campaignId = game.settings.get(SETTINGS.MODULE_ID, "campaign-id");
+    const isCampaign = campaignId && campaignId !== "";
     const chrisInstalled = effectModulesAvailable.chrisInstalled;
     const compendiumFolderMonsterStyles = MuncherSettings.getCompendiumFolderLookups("monster");
     const compendiumFolderSpellStyles = MuncherSettings.getCompendiumFolderLookups("spell");
@@ -569,6 +571,18 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         enabled: true,
       },
       {
+        name: "download-images",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images"),
+        description: "Download D&D Beyond monster images (takes longer and needs space).",
+        enabled: true,
+      },
+      {
+        name: "remote-images",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images"),
+        description: "Use D&D Beyond remote monster images (a lot quicker)",
+        enabled: true,
+      },
+      {
         name: "monster-tokenize",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize"),
         description: "Auto-Tokenize monsters token image? (Adds Tokenizer default token ring using the Tokenizer module).",
@@ -645,18 +659,6 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         enabled: true,
       },
       {
-        name: "download-images",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images"),
-        description: "Download D&D Beyond images (takes longer and needs space).",
-        enabled: true,
-      },
-      {
-        name: "remote-images",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images"),
-        description: "Use D&D Beyond remote images (a lot quicker)",
-        enabled: true,
-      },
-      {
         name: "use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades"),
         description: `Use Automation Effects from Chris's Premades module? These provide high quality automations for spells, features, monsters, etc. (Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module).<br>These will replace any effects created by DDB Importer.`,
@@ -720,6 +722,8 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       sourceDescription,
       enableSources,
       version: CONFIG.DDBI.version,
+      campaignId,
+      isCampaign,
     };
 
     // console.warn(resultData);

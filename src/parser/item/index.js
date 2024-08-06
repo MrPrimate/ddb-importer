@@ -502,7 +502,6 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
 
       if (!isCompendiumItem) item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
       if (addAutomationEffects) item = await midiItemEffects(item);
-      // item = await getIcon(item, ddbItem);
 
       items.push(item);
     }

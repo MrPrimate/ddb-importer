@@ -1,3 +1,7 @@
+# Next Up
+
+- Icons for features, items and spells will now always be downloaded to prevent failures with effect transference in v12.
+
 # 5.2.27
 
 - Fix potion of healing damage text parse.
