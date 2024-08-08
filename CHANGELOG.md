@@ -1,7 +1,7 @@
 # NEXT UP
 
-- POTENTIALLY BREAKING CHANGES!
-- Groundwork for v4.0.0 of the D&D system.
+- BREAKING CHANGES!
+- Support for v4.0.0 of the D&D system.
 - Metamagic action/feature no longer duplicated.
 - Features such as Metamagic will now import a feature called Metamagic with a full list of choices.
 - Parsing with damage hints now defaults to false due to display on new Monster character sheets.
