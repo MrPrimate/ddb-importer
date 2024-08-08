@@ -158,6 +158,19 @@ export function collectSceneData(scene, bookCode) {
       delete l._id;
       return l;
     }),
+    regions: scene.regions ?? [],
+    environment: scene.environment
+      ? foundry.utils.deepClone(scene.environment)
+      : undefined,
+    fog: {
+      colors: scene.fog.colors,
+      exploration: scene.fog.exploration,
+      overlay: scene.fog.overlay,
+    },
+    foreground: scene.foreground
+      ? foundry.utils.deepClone(scene.foreground)
+      : undefined,
+    foregroundElevation: scene.foregroundElevation,
   };
 
   delete data.background.src;
