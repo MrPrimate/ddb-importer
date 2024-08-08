@@ -80,4 +80,4 @@ jobs:
         url: 'https://api.foundryvtt.com/_api/packages/release_version'
         method: 'POST'
         customHeaders: '{"Content-Type": "application/json", "Authorization" : "${{ secrets.FOUNDRY_KEY }}"}'
-        data: '{"dry_run": false, "id" : "ddb-importer", "release": {"version" :  "${{ steps.get-version.outputs.release_version }}", "manifest": "https://github.com/${{ github.repository }}/releases/download/${{ steps.get-version.outputs.release_version }}/module.json", "notes" : "https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md", "compatibility" : {"minimum": "11", "verified": "12", "maximum": ""} } }'
+        data: '{"dry_run": false, "id" : "ddb-importer", "release": {"version" :  "${{ steps.get-version.outputs.release_version }}", "manifest": "https://github.com/${{ github.repository }}/releases/download/${{ steps.get-version.outputs.release_version }}/module.json", "notes" : "https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md", "compatibility" : {"minimum": "12", "verified": "12", "maximum": ""} } }'

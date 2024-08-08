@@ -10,7 +10,7 @@
   "readme": "https://github.com/MrPrimate/ddb-importer/blob/main/README.md",
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "compatibility": {
-    "minimum": "11.315",
+    "minimum": "12.330",
     "verified": 12
   },
   "authors": [
@@ -35,22 +35,12 @@
         "id": "dnd5e",
         "type": "system",
         "compatibility": {
-          "minimum": "3.2.0",
-          "verified": "3.2.0"
+          "minimum": "4.0.0",
+          "verified": "4.0.0"
         }
       }
     ],
     "recommends": [
-      {
-       "id": "dae",
-       "type": "module",
-       "reason": "Provides improvements to active effects"
-      },
-      {
-        "id": "vision-5e",
-        "type": "module",
-        "reason": "Adds missing vision modes to 5e system"
-      }
     ]
   },
   "scripts": [
