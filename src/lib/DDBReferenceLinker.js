@@ -119,15 +119,15 @@ function getRuleLookups() {
 
   const baseRules = {
     "rules": {},
-    "conditions": CONFIG.DND5E.conditionTypes,
-    "skills": CONFIG.DND5E.skills,
-    "abilities": CONFIG.DND5E.abilities,
-    "creatureTypes": CONFIG.DND5E.creatureTypes,
-    "damageTypes": CONFIG.DND5E.damageTypes,
-    "spellComponents": CONFIG.DND5E.spellComponents,
-    "spellTags": CONFIG.DND5E.spellTags,
-    "spellSchools": CONFIG.DND5E.spellSchools,
-    "areaTargetTypes": CONFIG.DND5E.areaTargetTypes,
+    "conditions": CONFIG.DND5E.conditionTypes ?? {},
+    "skills": CONFIG.DND5E.skills ?? {},
+    "abilities": CONFIG.DND5E.abilities ?? {},
+    "creatureTypes": CONFIG.DND5E.creatureTypes ?? {},
+    "damageTypes": CONFIG.DND5E.damageTypes ?? {},
+    "spellComponents": CONFIG.DND5E.spellComponents ?? {},
+    "spellTags": CONFIG.DND5E.spellTags ?? {},
+    "spellSchools": CONFIG.DND5E.spellSchools ?? {},
+    "areaTargetTypes": CONFIG.DND5E.areaTargetTypes ?? {},
   };
 
   const rules = {};
