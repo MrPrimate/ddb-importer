@@ -1,10 +1,14 @@
 # NEXT UP
 
+- POTENTIALLY BREAKING CHANGES!
+- Groundwork for v4.0.0 of the D&D system.
 - Metamagic action/feature no longer duplicated.
 - Features such as Metamagic will now import a feature called Metamagic with a full list of choices.
 - Parsing with damage hints now defaults to false due to display on new Monster character sheets.
 - Source parsing will now default to short names rather than long names, due to changes in new monster character sheet.
 - Changes to default description processing for features on character import.
+- Shadar Kai now gain resistance to magical sleep.
+- Icons for features, items and spells will now always be downloaded to prevent failures with effect transference in v12.
 
 
 # 5.2.29
