@@ -102,7 +102,7 @@ function getClassModifiers(data, classFeatures, isStartingClass = false) {
       logger.debug(
         `${isFeatureAvailable ? "  [  AVAIL]" : "  [UNAVAIL]"} Modifier found: ${classModifier.friendlyTypeName} (${
           classModifier.friendlySubtypeName
-        })`
+        })`,
       );
       return isFeatureAvailable;
     }
@@ -162,7 +162,7 @@ export function fixCharacterLevels(data) {
     logger.debug(
       extractInfo(cls.modifiers)
         .map((s) => `    ${s}`)
-        .join("\n")
+        .join("\n"),
     );
     classModifiers = classModifiers.concat(cls.modifiers);
   });

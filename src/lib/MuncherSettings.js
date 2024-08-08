@@ -89,7 +89,7 @@ const MuncherSettings = {
         name: "spell-use",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-spell-use"),
         description: "Spell Slots",
-      }
+      },
     ];
     const importPolicies2 = [
       {
@@ -621,7 +621,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match"),
           description: "Exact name match?",
           enabled: tiers.homebrew,
-        }
+        },
       ]
       : [];
 
@@ -676,7 +676,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         isChecked: enableSources,
         description: "Restrict import to specific source book(s)? (DDB sets this as the <i>first</i> book a monster appears in).",
         enabled: true,
-      }
+      },
     ];
 
     const worldUpdateConfig = [

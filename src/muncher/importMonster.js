@@ -150,7 +150,7 @@ async function addNPCToCompendium(npc, type = "monster") {
 
 // eslint-disable-next-line complexity, no-unused-vars
 export async function getNPCImage(npcData, { type = "monster", forceUpdate = false, forceUseFullToken = false,
-  forceUseTokenAvatar = false, disableAutoTokenizeOverride = false } = {}
+  forceUseTokenAvatar = false, disableAutoTokenizeOverride = false } = {},
 ) {
   // check to see if we have munched flags to work on
   if (!foundry.utils.hasProperty(npcData, "flags.monsterMunch.img")) {
@@ -226,7 +226,7 @@ export async function getNPCImage(npcData, { type = "monster", forceUpdate = fal
         force: forceUpdate || updateImages,
         imageNamePrefix,
         pathPostfix,
-        targetDirectory
+        targetDirectory,
       };
       // eslint-disable-next-line require-atomic-updates
       npcData.prototypeToken.texture.src = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
@@ -282,7 +282,7 @@ async function swapItems(data) {
     logger.debug("Swapping items", itemsToRemove);
     // console.warn(itemsToRemove);
     const lessUpdatedItems = data.items.filter((item) =>
-      !itemsToRemove.some((target) => item.name === target.name && item.type === target.type)
+      !itemsToRemove.some((target) => item.name === target.name && item.type === target.type),
     );
     // console.log(lessUpdatedItems);
     const newItems = lessUpdatedItems.concat(updatedItems);
@@ -441,7 +441,7 @@ export async function generateIconMap(monsters) {
       promises.push(
         Iconizer.copySRDIcons(monster.items, srdImageLibrary, itemMap).then((items) => {
           monster.items = items;
-        })
+        }),
       );
     });
   }

@@ -14,7 +14,7 @@ export function barkskinEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
       value: "custom",
       priority: "100",
-    }
+    },
   );
   document.effects.push(effect);
 

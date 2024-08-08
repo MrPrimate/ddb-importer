@@ -111,7 +111,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     } catch (err) {
       logger.warn(
         `Unable to Generate Choice Action: ${this.name}, please log a bug report. Err: ${err.message}`,
-        "extension"
+        "extension",
       );
       logger.error("Error", err);
     }

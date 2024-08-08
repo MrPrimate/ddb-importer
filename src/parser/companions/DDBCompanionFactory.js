@@ -135,9 +135,9 @@ export default class DDBCompanionFactory {
 
     const existingCompanions = await Promise.all(this.itemHandler.compendiumIndex
       .filter((companion) => foundry.utils.hasProperty(companion, "flags.ddbimporter.id")
-        && this.companions.some((c) => foundry.utils.getProperty(c, "data.flags.ddbimporter.id") === companion.flags.ddbimporter.id)
+        && this.companions.some((c) => foundry.utils.getProperty(c, "data.flags.ddbimporter.id") === companion.flags.ddbimporter.id),
       )
-      .map(async (companion) => this.itemHandler.compendium.getDocument(companion._id))
+      .map(async (companion) => this.itemHandler.compendium.getDocument(companion._id)),
     );
 
     return existingCompanions;
@@ -154,7 +154,7 @@ export default class DDBCompanionFactory {
       .filter((companion) => foundry.utils.hasProperty(companion, "folder.id")
         && ((!folderOverride && this.folderIds.has(companion.folder.id))
           || folderOverride?.id === companion.folder.id)
-        && (!limitToFactory || (limitToFactory && companionNames.includes(companion.name)))
+        && (!limitToFactory || (limitToFactory && companionNames.includes(companion.name))),
       )
       .map((companion) => companion);
     return existingCompanions;
@@ -173,7 +173,7 @@ export default class DDBCompanionFactory {
       existingCompanions.some(
         (exist) =>
           exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
-          && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+          && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId,
       ));
 
     const results = [];
@@ -181,7 +181,7 @@ export default class DDBCompanionFactory {
     for (const companion of updateCompanions) {
       const existingCompanion = await existingCompanions.find((exist) =>
         exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
-        && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+        && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId,
       );
       companion.folder = existingCompanion.folder?.id;
       companion._id = existingCompanion._id;
@@ -205,7 +205,7 @@ export default class DDBCompanionFactory {
       !existingCompanions.some(
         (exist) =>
           exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
-          && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+          && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId,
       ));
 
     const results = [];
@@ -274,7 +274,7 @@ export default class DDBCompanionFactory {
       const alternativeDocument = DDBCompanionFactory.COMPANION_REMAP[this.originDocument.name];
       const updateDocument = alternativeDocument
         ? (otherDocuments.find((s) =>
-          s.name === alternativeDocument || s.flags.ddbimporter?.originalName === alternativeDocument
+          s.name === alternativeDocument || s.flags.ddbimporter?.originalName === alternativeDocument,
         ) ?? this.originDocument)
         : this.originDocument;
 

@@ -9,7 +9,7 @@ export default class FolderHelper {
     let folder = game.folders.contents.find((f) =>
       f.type === entityType && f.name === folderName
       // if a root folder we want to match the root id for the parent folder
-      && (root ? root.id : null) === (f.folder?.id ?? null)
+      && (root ? root.id : null) === (f.folder?.id ?? null),
     );
     // console.warn(`Looking for ${root} ${entityType} ${folderName}`);
     // console.warn(folder);
@@ -21,7 +21,7 @@ export default class FolderHelper {
         color: folderColor,
         parent: (root) ? root.id : null,
       },
-      { displaySheet: false }
+      { displaySheet: false },
     );
     return folder;
   }
@@ -70,7 +70,7 @@ export default class FolderHelper {
       return Promise.all(
         itemFolderNames.map((name) => {
           return FolderHelper.getFolder(folderLookup.folder, name);
-        })
+        }),
       );
     };
 
@@ -80,7 +80,7 @@ export default class FolderHelper {
     const existingItems = await game.items.entities.filter((item) => {
       const itemFolder = subFolders.find((folder) =>
         item.flags?.ddbimporter?.dndbeyond?.lookupName
-        && folder.name === item.flags.ddbimporter.dndbeyond.lookupName
+        && folder.name === item.flags.ddbimporter.dndbeyond.lookupName,
       );
       return itemFolder && item.type === folderLookup.itemType && item.folder === itemFolder._id;
     });
@@ -97,7 +97,7 @@ export default class FolderHelper {
             DDBItemImporter.copySupportedItemFlags(existingItem, item);
             await Item.update(item);
             return item;
-          })
+          }),
       );
     };
 
@@ -112,13 +112,13 @@ export default class FolderHelper {
               logger.info(`Creating ${type} ${item.name}`);
               const itemsFolder = subFolders.find((folder) =>
                 item.flags?.ddbimporter?.dndbeyond?.lookupName
-                && folder.name === item.flags.ddbimporter.dndbeyond.lookupName
+                && folder.name === item.flags.ddbimporter.dndbeyond.lookupName,
               );
               item.folder = (itemsFolder) ? itemsFolder._id : defaultItemsFolder._id;
               await Item.create(item);
             }
             return item;
-          })
+          }),
       );
     };
 
@@ -150,7 +150,7 @@ export default class FolderHelper {
             name: result.name,
             compendium: false,
           };
-        })
+        }),
     );
     return items;
   }

@@ -7,14 +7,14 @@ function getInfusionItemMap(ddb, item) {
   return ddb.infusions.item.find((mapping) =>
     mapping.itemId === item.flags.ddbimporter.definitionId
     && mapping.inventoryMappingId === item.flags.ddbimporter.id
-    && mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
+    && mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId,
   );
 }
 
 function getInfusionDetail(ddb, definitionKey) {
   if (!ddb.infusions?.infusions?.definitionData) return undefined;
   return ddb.infusions.infusions.definitionData.find(
-    (infusion) => infusion.definitionKey === definitionKey
+    (infusion) => infusion.definitionKey === definitionKey,
   );
 }
 
@@ -75,12 +75,12 @@ export async function createInfusedItems(ddb, actor) {
     const infusedItem = ddb.infusions.item.find((mapping) =>
       mapping.itemId === item.flags?.ddbimporter?.definitionId
       && mapping.inventoryMappingId === item.flags?.ddbimporter?.id
-      && mapping.itemTypeId === item.flags?.ddbimporter?.definitionEntityTypeId
+      && mapping.itemTypeId === item.flags?.ddbimporter?.definitionEntityTypeId,
     );
     if (infusedItem) {
       // add infused item effect
       const infusionFeature = actor.items.find((i) =>
-        foundry.utils.getProperty(i, "flags.ddbimporter.dndbeyond.defintionKey") === infusedItem.definitionKey
+        foundry.utils.getProperty(i, "flags.ddbimporter.dndbeyond.defintionKey") === infusedItem.definitionKey,
       );
       if (infusionFeature) {
         const infusionEffectCount = infusionFeature.effects.size;

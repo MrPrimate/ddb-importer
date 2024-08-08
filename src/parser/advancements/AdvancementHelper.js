@@ -49,7 +49,7 @@ export default class AdvancementHelper {
       // check specific feature
        || (feature && feature.id === choice.componentId && feature.requiredLevel === level))
       && choice.subType === 1
-      && choice.type === 2
+      && choice.type === 2,
     ).forEach((choice) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
@@ -59,9 +59,9 @@ export default class AdvancementHelper {
       if (smallChosen) skillsChosen.add(smallChosen.name);
       const optionNames = optionChoice.options.filter((option) =>
         DICTIONARY.character.skills.some((skill) => skill.label === option.label)
-        && choice.optionIds.includes(option.id)
+        && choice.optionIds.includes(option.id),
       ).map((option) =>
-        DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
+        DICTIONARY.character.skills.find((skill) => skill.label === option.label).name,
       );
       optionNames.forEach((skill) => {
         skillChoices.add(skill);
@@ -84,7 +84,7 @@ export default class AdvancementHelper {
       feature.id === choice.componentId
       && feature.requiredLevel === level
       && choice.subType === 1
-      && choice.type === 2
+      && choice.type === 2,
     ).forEach((choice) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
@@ -100,10 +100,10 @@ export default class AdvancementHelper {
       const optionNames = optionChoice.options
         .filter((option) =>
           DICTIONARY.character.proficiencies.some((prof) => prof.type === "Tool" && prof.name === option.label)
-          && choice.optionIds.includes(option.id)
+          && choice.optionIds.includes(option.id),
         )
         .map((option) =>
-          DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === option.label)
+          DICTIONARY.character.proficiencies.find((prof) => prof.type === "Tool" && prof.name === option.label),
         );
       optionNames.forEach((tool) => {
         const toolStub = tool.toolType === ""
@@ -129,7 +129,7 @@ export default class AdvancementHelper {
       feature.id === choice.componentId
       && feature.requiredLevel === level
       && choice.subType === 3
-      && choice.type === 2
+      && choice.type === 2,
     ).forEach((choice) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
@@ -139,9 +139,9 @@ export default class AdvancementHelper {
       if (smallChosen) languagesChosen.add(smallChosen.value);
       const optionNames = optionChoice.options.filter((option) =>
         DICTIONARY.character.languages.find((lang) => lang.name === option.label)
-        && choice.optionIds.includes(option.id)
+        && choice.optionIds.includes(option.id),
       ).map((option) =>
-        DICTIONARY.character.languages.find((lang) => lang.name === option.label).value
+        DICTIONARY.character.languages.find((lang) => lang.name === option.label).value,
       );
       optionNames.forEach((skill) => {
         languageChoices.add(skill);
@@ -180,10 +180,10 @@ export default class AdvancementHelper {
       const optionNames = optionChoice.options
         .filter((option) =>
           DICTIONARY.character.proficiencies.some((prof) => prof.type === type && prof.name === option.label)
-          && choice.optionIds.includes(option.id)
+          && choice.optionIds.includes(option.id),
         )
         .map((option) =>
-          DICTIONARY.character.proficiencies.find((prof) => prof.type === type && prof.name === option.label)
+          DICTIONARY.character.proficiencies.find((prof) => prof.type === type && prof.name === option.label),
         );
       optionNames.forEach((prof) => {
         const stub = prof.advancement === ""
@@ -211,7 +211,7 @@ export default class AdvancementHelper {
       feature.id === choice.componentId
       && feature.requiredLevel === level
       && choice.subType === 2
-      && choice.type === 2
+      && choice.type === 2,
     ).forEach((choice) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
@@ -224,9 +224,9 @@ export default class AdvancementHelper {
 
       const skillOptionNames = optionChoice.options.filter((option) =>
         DICTIONARY.character.skills.some((skill) => skill.label === option.label)
-        && choice.optionIds.includes(option.id)
+        && choice.optionIds.includes(option.id),
       ).map((option) =>
-        DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
+        DICTIONARY.character.skills.find((skill) => skill.label === option.label).name,
       );
       skillOptionNames.forEach((skill) => {
         skillChoices.add(skill);
@@ -234,9 +234,9 @@ export default class AdvancementHelper {
 
       const toolOptionNames = optionChoice.options.filter((option) =>
         DICTIONARY.character.proficiencies.find((p) => p.type === "Tool" && p.name === option.label)
-        && choice.optionIds.includes(option.id)
+        && choice.optionIds.includes(option.id),
       ).map((option) =>
-        DICTIONARY.character.proficiencies.find((p) => p.type === "Tool" && p.name === option.label).baseTool
+        DICTIONARY.character.proficiencies.find((p) => p.type === "Tool" && p.name === option.label).baseTool,
       );
       toolOptionNames.forEach((tool) => {
         toolChoices.add(tool);
@@ -260,7 +260,7 @@ export default class AdvancementHelper {
       advancement.updateSource({
         configuration: {
           grants,
-        }
+        },
       });
     }
     if (pool.length > 0) {
@@ -270,7 +270,7 @@ export default class AdvancementHelper {
             count: count === 0 ? undefined : count,
             pool,
           }],
-        }
+        },
       });
     }
 
@@ -319,10 +319,10 @@ export default class AdvancementHelper {
     const baseProficiency = feature.name === "Proficiencies";
     const skillsFromMods = mods
       .filter((mod) =>
-        DICTIONARY.character.skills.find((s) => s.label === mod.friendlySubtypeName)
+        DICTIONARY.character.skills.find((s) => s.label === mod.friendlySubtypeName),
       )
       .map((mod) =>
-        DICTIONARY.character.skills.find((s) => s.label === mod.friendlySubtypeName).name
+        DICTIONARY.character.skills.find((s) => s.label === mod.friendlySubtypeName).name,
       );
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
@@ -456,7 +456,7 @@ export default class AdvancementHelper {
     const toolMods = proficiencyMods
       .filter((mod) =>
         DICTIONARY.character.proficiencies
-          .some((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName)
+          .some((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName),
       );
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
@@ -534,7 +534,7 @@ export default class AdvancementHelper {
     const armorMods = proficiencyMods
       .filter((mod) =>
         DICTIONARY.character.proficiencies
-          .some((prof) => prof.type === "Armor" && prof.name === mod.friendlySubtypeName)
+          .some((prof) => prof.type === "Armor" && prof.name === mod.friendlySubtypeName),
       );
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
@@ -616,7 +616,7 @@ export default class AdvancementHelper {
     const weaponMods = proficiencyMods
       .filter((mod) =>
         DICTIONARY.character.proficiencies
-          .some((prof) => prof.type === "Weapon" && prof.name === mod.friendlySubtypeName)
+          .some((prof) => prof.type === "Weapon" && prof.name === mod.friendlySubtypeName),
       );
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
@@ -1078,7 +1078,7 @@ export default class AdvancementHelper {
       if (complexMatch) {
         if (complexMatch[1]) {
           const dictMatch = DICTIONARY.character.languages.find((l) =>
-            l.name.toLowerCase() === complexMatch[1].split(" ")[0].toLowerCase().trim()
+            l.name.toLowerCase() === complexMatch[1].split(" ")[0].toLowerCase().trim(),
           );
           if (dictMatch) {
             const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
@@ -1092,7 +1092,7 @@ export default class AdvancementHelper {
             const languages = complexMatch[3].replace(" or ", ",").split(",").map((skill) => skill.trim());
             languages.forEach((choice) => {
               const dictMatch = DICTIONARY.character.languages.find((l) =>
-                l.name.toLowerCase() === choice.toLowerCase().split(" ")[0]
+                l.name.toLowerCase() === choice.toLowerCase().split(" ")[0],
               );
               if (dictMatch) {
                 const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
@@ -1116,7 +1116,7 @@ export default class AdvancementHelper {
           const languages = simpleChoice[2].replace(" or ", ",").split(",").map((skill) => skill.trim());
           languages.forEach((choice) => {
             const dictMatch = DICTIONARY.character.languages.find((l) =>
-              l.name.toLowerCase() === choice.toLowerCase().split(" ")[0]
+              l.name.toLowerCase() === choice.toLowerCase().split(" ")[0],
             );
             // console.warn("lang check", {
             //   simple: simpleChoice[2],
@@ -1226,7 +1226,7 @@ export default class AdvancementHelper {
   static getDictionaryTool(name) {
     const directMatch = DICTIONARY.character.proficiencies.find((tool) =>
       tool.type === "Tool"
-      && tool.name.toLowerCase() === utils.nameString(name).toLowerCase()
+      && tool.name.toLowerCase() === utils.nameString(name).toLowerCase(),
     );
     if (directMatch) return directMatch;
 
@@ -1387,12 +1387,12 @@ export default class AdvancementHelper {
   static getDictionaryArmor(name) {
     const directMatch = DICTIONARY.character.proficiencies.find((prof) =>
       prof.type === "Armor" && foundry.utils.hasProperty(prof, "foundryValue")
-      && prof.name.toLowerCase() === utils.nameString(name).toLowerCase()
+      && prof.name.toLowerCase() === utils.nameString(name).toLowerCase(),
     );
     if (directMatch) return directMatch;
 
     const dictionaryProfs = DICTIONARY.character.proficiencies.filter((prof) =>
-      prof.type === "Armor" && foundry.utils.hasProperty(prof, "foundryValue")
+      prof.type === "Armor" && foundry.utils.hasProperty(prof, "foundryValue"),
     );
     for (const prof of dictionaryProfs) {
       if (utils.nameString(name).toLowerCase().includes(prof.name.toLowerCase())) return prof;
@@ -1468,7 +1468,7 @@ export default class AdvancementHelper {
     .filter((prof) =>
       prof.type === "Weapon"
       && foundry.utils.getProperty(prof, "foundryValue") !== ""
-      && prof.advancement === ""
+      && prof.advancement === "",
     )
     .reduce((acc, prof) => {
       acc[prof.name.toLowerCase()] = prof.foundryValue;
@@ -1488,7 +1488,7 @@ export default class AdvancementHelper {
       && foundry.utils.getProperty(prof, "foundryValue") !== ""
       && (prof.name.toLowerCase() === utils.nameString(name).toLowerCase()
         || `${prof.name.toLowerCase()}s` === utils.nameString(name).toLowerCase()
-        || `the ${prof.name.toLowerCase()}` === utils.nameString(name).toLowerCase())
+        || `the ${prof.name.toLowerCase()}` === utils.nameString(name).toLowerCase()),
     );
     if (match) return match;
     return null;
@@ -1575,7 +1575,7 @@ export default class AdvancementHelper {
               prof.type === "Weapon"
               && foundry.utils.getProperty(prof, "foundryValue") !== ""
               && foundry.utils.getProperty(prof, "properties.two") !== true
-              && foundry.utils.getProperty(prof, "melee") === true
+              && foundry.utils.getProperty(prof, "melee") === true,
             ).map((prof) => {
               const stub = prof.advancement === ""
                 ? prof.foundryValue
@@ -1605,7 +1605,7 @@ export default class AdvancementHelper {
         prof.type === "Weapon"
         && foundry.utils.getProperty(prof, "foundryValue") !== ""
         && foundry.utils.getProperty(prof, "properties.spc") !== true
-        && (foundry.utils.getProperty(prof, "properties.hvy") !== true || prof.name === "Longbow")
+        && (foundry.utils.getProperty(prof, "properties.hvy") !== true || prof.name === "Longbow"),
       ).map((prof) => {
         const stub = prof.advancement === ""
           ? prof.foundryValue
@@ -1690,7 +1690,7 @@ export default class AdvancementHelper {
           const damageMapping = DICTIONARY.character.damageAdjustments.find((a) =>
             a.kind === conditionKind // only match the kind
             && a.type !== 4 // don't include conditions
-            && match === a.name.toLowerCase()
+            && match === a.name.toLowerCase(),
           );
           if (damageMapping) {
             const type = AdvancementHelper.CONDITION_MAPPING[conditionKind];
@@ -1744,7 +1744,7 @@ export default class AdvancementHelper {
           const conditionMapping = DICTIONARY.character.damageAdjustments.find((a) =>
             a.kind === "immunity" // only match the immunity kind
             && a.type === 4 // dont include damage adjustments
-            && match === a.name.toLowerCase()
+            && match === a.name.toLowerCase(),
           );
           if (conditionMapping) {
             grants.add(`ci:${conditionMapping.foundryValue}`);

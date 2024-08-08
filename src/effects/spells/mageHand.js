@@ -12,7 +12,7 @@ export async function mageHandEffect(document) {
       "MageHandBlue",
       "MageHandRock",
       "MageHandRainbow",
-    ].includes(i.flags?.ddbimporter?.summons?.summonsKey)
+    ].includes(i.flags?.ddbimporter?.summons?.summonsKey),
   );
   const profiles = summonActors
     .map((actor) => {
@@ -28,17 +28,17 @@ export async function mageHandEffect(document) {
     "match": {
       "proficiency": false,
       "attacks": false,
-      "saves": false
+      "saves": false,
     },
     "bonuses": {
       "ac": "",
       "hp": "",
       "attackDamage": "",
       "saveDamage": "",
-      "healing": ""
+      "healing": "",
     },
     "profiles": profiles,
-    "prompt": true
+    "prompt": true,
   };
 
   foundry.utils.setProperty(document, "system.summons", summons);

@@ -67,7 +67,7 @@ export class DDBInfusionFactory {
     return infusionDetails.item.find((mapping) =>
       mapping.itemId === item.flags.ddbimporter.definitionId
       && mapping.inventoryMappingId === item.flags.ddbimporter.id
-      && mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
+      && mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId,
     );
   }
 
@@ -76,7 +76,7 @@ export class DDBInfusionFactory {
   _getInfusionDetail(definitionKey) {
     if (!this.ddbData.infusions?.infusions?.definitionData) return undefined;
     return this.ddbData.infusions.infusions.definitionData.find(
-      (infusion) => infusion.definitionKey === definitionKey
+      (infusion) => infusion.definitionKey === definitionKey,
     );
   }
 

@@ -20,7 +20,7 @@ export default class DDBRaceTrait {
         },
         obsidian: {
           source: {
-            type: "race"
+            type: "race",
           },
         },
       },

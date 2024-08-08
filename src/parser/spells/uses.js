@@ -24,7 +24,7 @@ export function getUses(data, character) {
 
     if (limitedUse.statModifierUsesId) {
       const ability = DICTIONARY.character.abilities.find(
-        (ability) => ability.id === limitedUse.statModifierUsesId
+        (ability) => ability.id === limitedUse.statModifierUsesId,
       ).value;
 
       switch (limitedUse.operator) {

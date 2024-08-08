@@ -20,7 +20,7 @@ const renderPopup = (type, url) => {
     POPUPS[type] = window.open(
       url,
       "ddb_sheet_popup",
-      `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`
+      `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`,
     );
   }
   return true;
@@ -126,7 +126,7 @@ export function tidySheets() {
         const button = getCharacterButton(params.app.document, params.data.actor);
         $ddbCharacterName.append(button);
       },
-    })
+    }),
   );
 
   // api.registerNpcContent(

@@ -25,7 +25,7 @@ const SUMMONS_ACTOR_STUB = {
       },
       "cha": {
         "value": 100,
-      }
+      },
     },
     "attributes": {
       "movement": {
@@ -35,18 +35,18 @@ const SUMMONS_ACTOR_STUB = {
         "swim": null,
         "walk": null,
         "units": null,
-        "hover": true
+        "hover": true,
       },
       "ac": {
         "flat": 1000,
-        "calc": "flat"
+        "calc": "flat",
       },
       "hp": {
         "value": 1000,
         "max": 1000,
         "temp": 0,
         "tempmax": 0,
-        "bonuses": {}
+        "bonuses": {},
       },
     },
     "traits": {
@@ -72,7 +72,7 @@ const SUMMONS_ACTOR_STUB = {
       "scaleY": 1,
       "rotation": 0,
       "tint": "#ffffff",
-      "alphaThreshold": 0.75
+      "alphaThreshold": 0.75,
     },
     "hexagonalShape": 0,
     "lockRotation": false,
@@ -81,10 +81,10 @@ const SUMMONS_ACTOR_STUB = {
     "disposition": CONST.TOKEN_DISPOSITIONS.SECRET,
     "displayBars": 0,
     "bar1": {
-      "attribute": null
+      "attribute": null,
     },
     "bar2": {
-      "attribute": null
+      "attribute": null,
     },
     "ring": {
       "enabled": false,
@@ -129,12 +129,12 @@ const DANCING_LIGHTS_BASE = {
         "type": "torch",
         "speed": 3,
         "intensity": 3,
-        "reverse": false
+        "reverse": false,
       },
       "darkness": {
         "min": 0,
-        "max": 1
-      }
+        "max": 1,
+      },
     },
   },
 };
@@ -607,7 +607,7 @@ export default class DDBSummonsManager {
       ) continue;
       if (value.needsJB2APatreon && !game.modules.get('jb2a_patreon')?.active) continue;
       const existingSummons = manager.itemHandler.compendium.index.find((i) =>
-        i.flags?.ddbimporter?.summons?.summonsKey === key
+        i.flags?.ddbimporter?.summons?.summonsKey === key,
       );
 
       if (existingSummons && existingSummons.flags.ddbimporter.summons.version >= value.version) continue;

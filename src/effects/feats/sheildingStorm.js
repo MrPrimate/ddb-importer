@@ -19,7 +19,7 @@ export function shieldingStormEffect(ddb, document) {
     "key": "system.traits.dr.value",
     "mode": CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     "value": damageType,
-    "priority": 20
+    "priority": 20,
   });
 
   effect.flags.ActiveAuras = {

@@ -8,7 +8,7 @@ export async function arcaneSwordEffect(document) {
     [
       "ArcaneSwordSpectralGreen",
       "ArcaneSwordAstralBlue",
-    ].includes(i.flags?.ddbimporter?.summons?.summonsKey)
+    ].includes(i.flags?.ddbimporter?.summons?.summonsKey),
   );
   const profiles = summonActors
     .map((actor) => {
@@ -24,17 +24,17 @@ export async function arcaneSwordEffect(document) {
     "match": {
       "proficiency": false,
       "attacks": true,
-      "saves": false
+      "saves": false,
     },
     "bonuses": {
       "ac": "",
       "hp": "",
       "attackDamage": "",
       "saveDamage": "",
-      "healing": ""
+      "healing": "",
     },
     "profiles": profiles,
-    "prompt": true
+    "prompt": true,
   };
 
   foundry.utils.setProperty(document, "system.summons", summons);

@@ -71,7 +71,7 @@ export class DDBCompendiumFolders {
       && flagTag === f.flags?.ddbimporter?.flagTag
       && (parentId === null
         || (parentId === f.folder?._id)
-      )
+      ),
     );
     if (existingFolder) return existingFolder;
 
@@ -90,7 +90,7 @@ export class DDBCompendiumFolders {
         ddbimporter: {
           flagTag,
         },
-      }
+      },
     }, { pack: this.packName, keepId: true });
 
     return newFolder;
@@ -770,7 +770,7 @@ export class DDBCompendiumFolders {
   getFolder(folderName, flagTag = "") {
     const folder = this.compendium.folders.find((f) =>
       f.name == folderName
-      && f.flags?.ddbimporter?.flagTag === flagTag
+      && f.flags?.ddbimporter?.flagTag === flagTag,
     );
     return folder;
   }
@@ -868,7 +868,7 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.subRaceShortName",
           "flags.ddbimporter.isSubRace",
           "flags.ddbimporter.fullRaceName",
-          "flags.ddbimporter.groupName"
+          "flags.ddbimporter.groupName",
         ];
       }
       default:

@@ -73,12 +73,12 @@ const registerNotifications = () => {
         if (options.element) {
           anchor = Object.assign(
             { width: $(options.element).width(), height: $(options.element).height() },
-            $(options.element).offset()
+            $(options.element).offset(),
           );
         }
         const noteInfo = Object.assign(
           { width: $("#ddbimporter-hints").width(), height: $("#ddbimporter-hints").height() },
-          $("#ddbimporter-hints").position()
+          $("#ddbimporter-hints").position(),
         );
 
         switch (options.align) {

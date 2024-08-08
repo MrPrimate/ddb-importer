@@ -127,7 +127,7 @@ function getRuleLookups() {
     "spellComponents": CONFIG.DND5E.spellComponents,
     "spellTags": CONFIG.DND5E.spellTags,
     "spellSchools": CONFIG.DND5E.spellSchools,
-    "areaTargetTypes": CONFIG.DND5E.areaTargetTypes
+    "areaTargetTypes": CONFIG.DND5E.areaTargetTypes,
   };
 
   const rules = {};
@@ -407,7 +407,7 @@ export function parseToHitRoll({ text, document } = {}) {
   if (!document) return text;
 
   const matches = utils.stripHtml(`${text}`).trim().match(
-    /(?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)(?:,)?\s+(plus PB\s|\+ PB\s)?to\s+hit/i
+    /(?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)(?:,)?\s+(plus PB\s|\+ PB\s)?to\s+hit/i,
   );
 
   const toHit = matches && Number.isInteger(parseInt(matches[1]));

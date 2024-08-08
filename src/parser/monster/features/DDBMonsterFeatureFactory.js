@@ -65,15 +65,15 @@ export default class DDBMonsterFeatureFactory {
     this.resources = {
       legendary: {
         value: 3,
-        max: 3
+        max: 3,
       },
       lair: {
         value: false,
-        initiative: null
+        initiative: null,
       },
       resistance: {
         value: 0,
-        max: 0
+        max: 0,
       },
     };
 
@@ -223,7 +223,7 @@ export default class DDBMonsterFeatureFactory {
       if (!switchAction) {
         switchAction = this.featureBlocks[type].find((act) =>
           act.options?.fullName
-          && node.textContent.startsWith(act.options.fullName)
+          && node.textContent.startsWith(act.options.fullName),
         );
       }
       let startFlag = false;
@@ -334,7 +334,7 @@ export default class DDBMonsterFeatureFactory {
         name == mstAction.name
         || name == `${mstAction.name} Attack`
         || name == `${mstAction.name}`.split('(', 1)[0].trim()
-        || name == `${mstAction.name} Attack`.split('(', 1)[0].trim()
+        || name == `${mstAction.name} Attack`.split('(', 1)[0].trim(),
       );
 
       if (actionMatch) {

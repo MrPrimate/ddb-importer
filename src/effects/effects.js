@@ -283,7 +283,7 @@ function generateEffectDuration(foundryItem) {
 }
 
 export function baseEffect(foundryItem, label,
-  { transfer = true, disabled = false } = {}
+  { transfer = true, disabled = false } = {},
 ) {
   let effect = {
     img: foundryItem.img,
@@ -324,14 +324,14 @@ export function baseEffect(foundryItem, label,
 }
 
 export function baseEnchantmentEffect(foundryItem, label,
-  { transfer = false, disabled = false, origin = null, id = null } = {}
+  { transfer = false, disabled = false, origin = null, id = null } = {},
 ) {
   const effect = baseEffect(foundryItem, label, { transfer, disabled });
   foundry.utils.setProperty(effect, "flags.dnd5e.type", "enchantment");
   foundry.utils.setProperty(effect, "flags.dnd5e.enchantment", {
     level: {
       min: null,
-      max: null
+      max: null,
     },
     riders: {
       effect: [],
@@ -344,7 +344,7 @@ export function baseEnchantmentEffect(foundryItem, label,
 }
 
 export function baseItemEffect(foundryItem, label,
-  { transfer = true, disabled = false } = {}
+  { transfer = true, disabled = false } = {},
 ) {
   return baseEffect(foundryItem, label, { transfer, disabled });
 }
@@ -666,37 +666,37 @@ function addWeaponAttackBonuses(modifiers, name) {
     modifiers,
     name,
     "melee-attacks",
-    "system.bonuses.mwak.attack"
+    "system.bonuses.mwak.attack",
   );
   const rangedAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "ranged-attacks",
-    "system.bonuses.rwak.attack"
+    "system.bonuses.rwak.attack",
   );
   const meleeWeaponAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "melee-weapon-attacks",
-    "system.bonuses.mwak.attack"
+    "system.bonuses.mwak.attack",
   );
   const rangedWeaponAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "ranged-weapon-attacks",
-    "system.bonuses.rwak.attack"
+    "system.bonuses.rwak.attack",
   );
   const weaponAttackMeleeBonus = addAddBonusEffect(
     modifiers,
     name,
     "weapon-attacks",
-    "system.bonuses.mwak.attack"
+    "system.bonuses.mwak.attack",
   );
   const weaponAttackRangedBonus = addAddBonusEffect(
     modifiers,
     name,
     "weapon-attacks",
-    "system.bonuses.rwak.attack"
+    "system.bonuses.rwak.attack",
   );
   return [
     ...meleeAttackBonus,
@@ -714,56 +714,56 @@ function addSpellAttackBonuses(modifiers, name) {
     modifiers,
     name,
     "spell-attacks",
-    "system.bonuses.msak.attack"
+    "system.bonuses.msak.attack",
   );
   const melee2SpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "melee-spell-attacks",
-    "system.bonuses.msak.attack"
+    "system.bonuses.msak.attack",
   );
   const rangedSpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "spell-attacks",
-    "system.bonuses.rsak.attack"
+    "system.bonuses.rsak.attack",
   );
   const ranged2SpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "ranged-spell-attacks",
-    "system.bonuses.rsak.attack"
+    "system.bonuses.rsak.attack",
   );
   const warlockMeleeSpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "warlock-spell-attacks",
-    "system.bonuses.msak.attack"
+    "system.bonuses.msak.attack",
   );
   const warlockRangedSpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "warlock-spell-attacks",
-    "system.bonuses.msak.attack"
+    "system.bonuses.msak.attack",
   );
   const warlockSpellDCBonus = addAddBonusEffect(
     modifiers,
     name,
     "warlock-spell-save-dc",
-    "system.bonuses.spell.dc"
+    "system.bonuses.spell.dc",
   );
   const spellDCBonus = addAddBonusEffect(
     modifiers,
     name,
     "spell-save-dc",
-    "system.bonuses.spell.dc"
+    "system.bonuses.spell.dc",
   );
   const healingSpellBonus = addCustomEffect(
     modifiers,
     name,
     "spell-group-healing",
     "system.bonuses.heal.damage",
-    " + @item.level"
+    " + @item.level",
   );
 
   return [
@@ -820,14 +820,14 @@ export function getGenericConditionAffectData(modifiers, condition, typeId, forc
       return DICTIONARY.character.damageAdjustments.some((adj) =>
         adj.type === typeId
         && ddbLookup.id === adj.id
-        && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue"))
+        && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue")),
       );
     })
     .map((modifier) => {
       const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
       const entry = DICTIONARY.character.damageAdjustments.find((adj) =>
         adj.type === typeId
-        && ddbLookup.id === adj.id
+        && ddbLookup.id === adj.id,
       );
       if (!entry) return undefined;
       const valueData = foundry.utils.hasProperty(entry, "foundryValues")
@@ -1581,7 +1581,7 @@ export function generateEffects({ ddb, character, ddbItem, foundryItem, isCompen
 
   if (type === "item" && foundry.utils.hasProperty(ddbItem, "definition.grantedModifiers")) {
     ddbItem.definition.grantedModifiers = ddbItem.definition.grantedModifiers.filter((modifier) =>
-      modifier.type !== "damage" && modifier.subType !== null
+      modifier.type !== "damage" && modifier.subType !== null,
     );
   }
 

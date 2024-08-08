@@ -40,7 +40,7 @@ export default class DDBRace {
         },
         obsidian: {
           source: {
-            type: "race"
+            type: "race",
           },
         },
       },
@@ -184,7 +184,7 @@ export default class DDBRace {
     const featureMatch = this.compendiumRacialTraits.find((match) =>
       foundry.utils.hasProperty(match, "flags.ddbimporter.baseName") && foundry.utils.hasProperty(match, "flags.ddbimporter.entityRaceId")
       && utils.nameString(trait.name) === utils.nameString(match.flags.ddbimporter.baseName)
-      && match.flags.ddbimporter.entityRaceId === trait.entityRaceId
+      && match.flags.ddbimporter.entityRaceId === trait.entityRaceId,
     );
     const title = (featureMatch) ? `<p><b>@Compendium[${this._compendiumLabel}.${featureMatch._id}]{${trait.name}}</b></p>` : `<p><b>${trait.name}</b></p>`;
     this.data.system.description.value += `${title}\n${trait.description}\n\n`;
@@ -295,7 +295,7 @@ export default class DDBRace {
       : DDBHelper.getModifiers(this.ddbData, "race");
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
-      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
+      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType),
     );
     const advancement = this.advancementHelper.getSkillAdvancement(skillExplicitMods, trait, undefined, 0);
 
@@ -341,7 +341,7 @@ export default class DDBRace {
           "0": 1,
         },
         restriction: {
-          type: "feat"
+          type: "feat",
         },
       },
     });
@@ -350,7 +350,7 @@ export default class DDBRace {
 
     const feat = this.ddbData?.character?.feats?.find((f) =>
       f.componentId === trait.id
-      && f.componentTypeId === trait.entityTypeId
+      && f.componentTypeId === trait.entityTypeId,
     );
     if (!feat) {
       logger.warn(`Unable to link advancement to feat`, { advancement, trait, this: this });

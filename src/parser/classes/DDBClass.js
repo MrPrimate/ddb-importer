@@ -219,7 +219,7 @@ export default class DDBClass {
           source: {
             type: "class",
             text: this.ddbClass.definition.name,
-          }
+          },
         },
       },
       img: null,
@@ -271,7 +271,7 @@ export default class DDBClass {
         this.ddbData,
         character,
         this.data.system.description.value,
-        this.data
+        this.data,
       ).text;
     }
   }
@@ -286,13 +286,13 @@ export default class DDBClass {
           "flags.ddbimporter.subClass",
           "flags.ddbimporter.parentClassId",
           "flags.ddbimporter.featureName",
-        ]
+        ],
       },
       feats: {
         fields: [
           "name",
           "flags.ddbimporter",
-        ]
+        ],
       },
       class: {},
       subclasses: {},
@@ -376,7 +376,7 @@ export default class DDBClass {
       .filter((feature) =>
         !excludedFeatures.includes(feature.definition.id)
         && !excludedIds.includes(feature.definition.id)
-        && feature.definition.classId === this.ddbClassDefinition.id
+        && feature.definition.classId === this.ddbClassDefinition.id,
       )
       .map((feature) => feature.definition);
 
@@ -401,7 +401,7 @@ export default class DDBClass {
       && foundry.utils.hasProperty(match, "flags.ddbimporter")
       && (match.flags.ddbimporter.class == this.ddbClassDefinition.name
         || match.flags.ddbimporter.parentClassId == this.ddbClassDefinition.id
-        || match.flags.ddbimporter.classId == this.ddbClassDefinition.id)
+        || match.flags.ddbimporter.classId == this.ddbClassDefinition.id),
     );
   }
 
@@ -413,7 +413,7 @@ export default class DDBClass {
         || (!foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
           && (smallName == match.name.trim().toLowerCase()
           || smallName.split(":")[0].trim() == match.name.trim().toLowerCase()))
-      )
+      ),
     );
   }
 
@@ -490,13 +490,13 @@ export default class DDBClass {
 
             const update = {
               configuration: {
-                items: [{ uuid: featureMatch.uuid }]
+                items: [{ uuid: featureMatch.uuid }],
               },
               value: {},
               level: feature.requiredLevel,
               title: "Features",
               icon: "",
-              classRestriction: ""
+              classRestriction: "",
             };
             advancement.updateSource(update);
             advancements.push(advancement.toObject());
@@ -623,7 +623,7 @@ export default class DDBClass {
     const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
-      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
+      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType),
     );
     const filterModOptions = { subType: `choose-a-${this.ddbClassDefinition.name.toLowerCase()}-skill` };
     const skillChooseMods = DDBHelper.filterModifiers(mods, "proficiency", filterModOptions);
@@ -884,13 +884,13 @@ export default class DDBClass {
       await pack.getIndex();
       const klassMatch = pack.index.find((k) =>
         k.name === this.ddbClassDefinition.name
-        && k.type === "class"
+        && k.type === "class",
       );
       if (!klassMatch) continue;
       const foundryKlass = await pack.getDocument(klassMatch._id);
       const scaleAdvancements = foundryKlass.system.advancement.filter((foundryA) =>
         foundryA.type === "ScaleValue"
-        && !this.data.system.advancement.some((ddbA) => ddbA.configuration.identifier === foundryA.configuration.identifier)
+        && !this.data.system.advancement.some((ddbA) => ddbA.configuration.identifier === foundryA.configuration.identifier),
       ).map((advancement) => {
         return advancement.toObject();
       });
@@ -949,7 +949,7 @@ export default class DDBClass {
         // abilityAdvancementFeature.entityTypeId: 12168134
         const featChoice = this.ddbData.character.feats.find((f) =>
           f.componentId == abilityAdvancementFeature.id
-          && f.componentTypeId == abilityAdvancementFeature.entityTypeId
+          && f.componentTypeId == abilityAdvancementFeature.entityTypeId,
         );
         const featureMatch = featChoice ? this.getFeatCompendiumMatch(featChoice.definition.name) : null;
         if (featureMatch) {
@@ -982,7 +982,7 @@ export default class DDBClass {
       await pack.getIndex();
       const klassMatch = pack.index.find((k) =>
         k.name === this.ddbClassDefinition.name
-        && k.type === "class"
+        && k.type === "class",
       );
       if (!klassMatch) continue;
       const foundryKlass = await pack.getDocument(klassMatch._id);

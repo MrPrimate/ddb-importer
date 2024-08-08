@@ -23,7 +23,7 @@ export function greatWeaponMasterEffect(document) {
   document.system.activation = {
     "type": "none",
     "cost": 1,
-    "condition": ""
+    "condition": "",
   };
 
   document.system["target"]["type"] = "self";

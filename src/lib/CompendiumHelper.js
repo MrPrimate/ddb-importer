@@ -153,7 +153,7 @@ const CompendiumHelper = {
       && entity.flags.ddbimporter.id == npc.flags.ddbimporter.id
       && ((!legacyName && entity.name.toLowerCase() === npc.name.toLowerCase())
         || (legacyName && npc.flags.ddbimporter.isLegacy && npc.name.toLowerCase().startsWith(entity.name.toLowerCase()))
-        || (legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()))
+        || (legacyName && entity.name.toLowerCase() === npc.name.toLowerCase())),
     );
     return npcMatch;
   },
@@ -201,7 +201,7 @@ const CompendiumHelper = {
       logger.debug(`Compendium '${id}' (${compendium.metadata.label}) found, will not create compendium.`);
       return {
         compendium,
-        created: false
+        created: false,
       };
     } else {
       logger.info(`Compendium for ${label}, was not found, creating it now.`);
@@ -229,7 +229,7 @@ const CompendiumHelper = {
         if (folderId) await newCompendium.setFolder(folderId);
         return {
           compendium: newCompendium,
-          created: true
+          created: true,
         };
       }
     }
@@ -343,7 +343,7 @@ const CompendiumHelper = {
               resolve(null);
             }
           });
-        })
+        }),
       );
       return entities;
     }
@@ -385,7 +385,7 @@ const CompendiumHelper = {
     const cleanResults = results.filter((item) => item !== null);
 
     return cleanResults;
-  }
+  },
 
 
 };

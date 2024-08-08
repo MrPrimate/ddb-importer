@@ -54,8 +54,8 @@ export class DDBItemConfig extends FormApplication {
     const overrides = {
       "NONE": {
         label: `None`,
-        selected: true
-      }
+        selected: true,
+      },
     };
 
     const label = CompendiumHelper.getCompendiumLabel("custom");

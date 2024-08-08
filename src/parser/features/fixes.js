@@ -215,7 +215,7 @@ export async function fixFeatures(features) {
           type: "touch",
           value: null,
           long: null,
-          units: "touch"
+          units: "touch",
         };
         break;
       }
@@ -258,7 +258,7 @@ export async function fixFeatures(features) {
           type: "touch",
           value: null,
           long: null,
-          units: "touch"
+          units: "touch",
         };
         feature.system.target.value = 1;
         feature.system.target.type = "creature";

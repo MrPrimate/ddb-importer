@@ -435,7 +435,7 @@ const SETTINGS = {
           name: comp.title,
           type: String,
           default: `DDB ${comp.title}`,
-        }])
+        }]),
       ),
       // dir locations
       DIRECTORIES: {
@@ -605,7 +605,7 @@ const SETTINGS = {
           config: true,
           type: Boolean,
           default: false,
-        }
+        },
       },
       // ????
       MISC: {
@@ -1242,7 +1242,7 @@ const SETTINGS = {
           "munching-policy-use-generic-items": {
             type: Boolean,
             default: false,
-          }
+          },
         },
         ENCOUNTER: {
           "encounter-import-policy-create-scene": {

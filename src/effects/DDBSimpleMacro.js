@@ -11,11 +11,11 @@ export default class DDBSimpleMacro {
     "feat": {
       "lay-on-hands": {
         name: "layOnHands",
-        label: "Lay On Hands Macro"
+        label: "Lay On Hands Macro",
       },
       "arcane-recovery": {
         name: "arcaneRecovery",
-        label: "Arcane Recovery Macro"
+        label: "Arcane Recovery Macro",
       },
       "font-of-magic": {
         name: "fontOfMagic",
@@ -30,8 +30,8 @@ export default class DDBSimpleMacro {
       "spell-refuleing-ring": {
         name: "spellRefuelingRing",
         label: "Spell Refueling Macro",
-      }
-    }
+      },
+    },
   };
 
   static getDescriptionAddition(name, type, params) {

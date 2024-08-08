@@ -42,7 +42,7 @@ export default class DDBItemImporter {
     const matched = this.matchFlags.some((flag) =>
       foundry.utils.hasProperty(item1, `flags.ddbimporter.${flag}`)
       && foundry.utils.hasProperty(item2, `flags.ddbimporter.${flag}`)
-      && item1.flags.ddbimporter[flag] === item2.flags.ddbimporter[flag]
+      && item1.flags.ddbimporter[flag] === item2.flags.ddbimporter[flag],
     );
     return matched;
   }
@@ -93,7 +93,7 @@ export default class DDBItemImporter {
   }
 
   static updateMatchingItems(oldItems, newItems,
-    { looseMatch = false, monster = false, keepId = false, keepDDBId = false, overrideId = false, linkItemFlags = false } = {}
+    { looseMatch = false, monster = false, keepId = false, keepDDBId = false, overrideId = false, linkItemFlags = false } = {},
   ) {
     let results = [];
 
@@ -143,8 +143,8 @@ export default class DDBItemImporter {
       !itemsToRemove.some((originalItem) =>
         (item.name === originalItem.name || item.flags?.ddbimporter?.originalName === originalItem.name)
         && item.type === originalItem.type
-        && (!matchDDBId || (matchDDBId && item.flags?.ddbimporter?.id === originalItem.flags?.ddbimporter?.id))
-      )
+        && (!matchDDBId || (matchDDBId && item.flags?.ddbimporter?.id === originalItem.flags?.ddbimporter?.id)),
+      ),
     );
   }
 
@@ -164,7 +164,7 @@ export default class DDBItemImporter {
         } else {
           return i.name === orig.name || extraNames.includes(i.name);
         }
-      })
+      }),
     ).map((i) => i._id);
 
     const loadedItems = (await srdPack.getDocuments(matchedIds))
@@ -374,7 +374,7 @@ ${item.system.description.chat}
   async loadPassedItemsFromCompendium(items,
     { looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true,
       indexFilter = {}, // { fields: ["name", "flags.ddbimporter.id"] }
-      keepDDBId = false, linkItemFlags = false } = {}
+      keepDDBId = false, linkItemFlags = false } = {},
   ) {
 
     await this.buildIndex(indexFilter);
@@ -398,7 +398,7 @@ ${item.system.description.chat}
         } else {
           return i.name === orig.name || extraNames.includes(i.name);
         }
-      })
+      }),
     );
 
     let loadedItems = [];
@@ -440,7 +440,7 @@ ${item.system.description.chat}
    */
   static async getCompendiumItems(items, type,
     { looseMatch = false, monsterMatch = false, keepId = false,
-      deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false } = {}
+      deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false } = {},
   ) {
 
     const itemImporter = new DDBItemImporter(type, []);
@@ -476,7 +476,7 @@ ${item.system.description.chat}
 
   static async buildHandler(type, documents, updateBool,
     { srdFidding = true, removeSRDDuplicates = true, ids = null, vision5e = false, chrisPremades = false, matchFlags = [],
-      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true } = {}
+      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true } = {},
   ) {
     const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate, useCompendiumFolders });
     await handler.init();

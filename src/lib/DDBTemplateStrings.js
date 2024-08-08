@@ -100,7 +100,7 @@ function parseMatch(ddb, character, match, feature) {
     const cls = featureDef.classId
       ? ddb.character.classes.find((cls) =>
         cls.definition.id == featureDef.classId
-        || featureDef.classId === cls.subclassDefinition?.id
+        || featureDef.classId === cls.subclassDefinition?.id,
       )
       : DDBHelper.findClassByFeatureId(ddb, featureDef.componentId);
 
@@ -117,7 +117,7 @@ function parseMatch(ddb, character, match, feature) {
         linktext = result.replace("classlevel", ` (${optionCls.definition.name} Level) `);
       } else {
         logger.error(
-          `Unable to parse option class info. classOption ComponentId is: ${classOption.componentId}.  ComponentId is ${featureDef.componentId}`
+          `Unable to parse option class info. classOption ComponentId is: ${classOption.componentId}.  ComponentId is ${featureDef.componentId}`,
         );
       }
     } else {

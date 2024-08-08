@@ -114,7 +114,7 @@ function getWeaponProperties(action, weapon) {
     "value": 1,
     "width": null,
     "units": "",
-    "type": "creature"
+    "type": "creature",
   };
   if (Number.isInteger(action.numberOfTargets)) weapon.system.target.value = action.numberOfTargets;
 
@@ -160,13 +160,13 @@ function buildComponents(ddb, configurations, component) {
   item.system.armor = {
     value: null,
     type: "vehicle",
-    dex: null
+    dex: null,
   };
   item.system.hp = {
     value: null,
     max: null,
     dt: null,
-    conditions: ""
+    conditions: "",
   };
 
   if (component.groupType === "action-station") {
@@ -226,7 +226,7 @@ function buildComponents(ddb, configurations, component) {
       item.system.armor = {
         value: parseInt(component.definition.armorClass),
         type: "vehicle",
-        dex: null
+        dex: null,
       };
     }
 
@@ -235,7 +235,7 @@ function buildComponents(ddb, configurations, component) {
         value: parseInt(component.definition.hitPoints),
         max: parseInt(component.definition.hitPoints),
         dt: null,
-        conditions: ""
+        conditions: "",
       };
       if (component.definition.damageThreshold) {
         item.system.hp.dt = component.definition.damageThreshold;

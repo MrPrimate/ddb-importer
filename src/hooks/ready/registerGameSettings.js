@@ -73,7 +73,7 @@ class ResetSettingsDialog extends FormApplication {
     return new Dialog({
       title: game.i18n.localize(`${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Title`),
       content: `<p class="${SETTINGS.MODULE_ID}-dialog-important">${game.i18n.localize(
-        `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Content`
+        `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Content`,
       )}</p>`,
       buttons: {
         confirm: {
@@ -123,7 +123,7 @@ export default async function () {
     hint: `${SETTINGS.MODULE_ID}.settings.setup.hint`,
     icon: 'fas fa-wrench',
     type: DDBSetup,
-    restricted: true
+    restricted: true,
   });
 
   game.settings.registerMenu(SETTINGS.MODULE_ID, 'compendiumMenu', {
@@ -132,7 +132,7 @@ export default async function () {
     hint: `${SETTINGS.MODULE_ID}.settings.compendium-setup.hint`,
     icon: 'fas fa-wrench',
     type: DDBCompendiumSetup,
-    restricted: true
+    restricted: true,
   });
 
   game.settings.registerMenu(SETTINGS.MODULE_ID, 'folderMenu', {
@@ -141,7 +141,7 @@ export default async function () {
     hint: `${SETTINGS.MODULE_ID}.settings.folder-setup.hint`,
     icon: 'fas fa-wrench',
     type: DDBLocationSetup,
-    restricted: true
+    restricted: true,
   });
 
   game.settings.registerMenu(SETTINGS.MODULE_ID, 'dynamicUpdateMenu', {

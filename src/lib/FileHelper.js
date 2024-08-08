@@ -207,7 +207,7 @@ const FileHelper = {
       fetch(url, {
         method: "GET",
         headers: {
-          "x-requested-with": "foundry"
+          "x-requested-with": "foundry",
         },
       })
         .then((response) => {
@@ -311,7 +311,7 @@ const FileHelper = {
   },
 
   getImagePath: async (imageUrl, { type = "ddb", imageNamePrefix = "", name = undefined, download = false,
-    remoteImages = false, force = false, pathPostfix = "", targetDirectory = undefined } = {}
+    remoteImages = false, force = false, pathPostfix = "", targetDirectory = undefined } = {},
   ) => {
     if (!name || !targetDirectory) {
       logger.error(`You must supply a targetDirectory and name for the image ${imageUrl}`, { name, targetDirectory, type });

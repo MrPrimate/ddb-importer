@@ -35,7 +35,7 @@ export default class DDBFeature extends DDBBaseFeature {
         || (this.ddbDefinition.className && klass.definition.name === this.ddbDefinition.className
           && ((!this.ddbDefinition.subclassName || this.ddbDefinition.subclassName === "")
             || (this.ddbDefinition.subclassName && klass.subclassDefinition?.name === this.ddbDefinition.subclassName))
-        )
+        ),
       );
     this._choices = this.noMods
       ? []
@@ -81,7 +81,7 @@ export default class DDBFeature extends DDBBaseFeature {
             type: this.tagType,
           },
         },
-      }
+      },
     };
 
     const requiredLevel = foundry.utils.getProperty(this.ddbDefinition, "requiredLevel");
@@ -175,7 +175,7 @@ export default class DDBFeature extends DDBBaseFeature {
       : DDBHelper.getModifiers(this.ddbData, this.type);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
-      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
+      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType),
     );
     const advancement = this.advancementHelper.getSkillAdvancement(skillExplicitMods, this.ddbDefinition, undefined, 0);
     this._addAdvancement(advancement);
@@ -242,7 +242,7 @@ export default class DDBFeature extends DDBBaseFeature {
     const advancementLinkData = foundry.utils.getProperty(this.data, "flags.ddbimporter.advancementLink") ?? [];
     const advancementData = {
       _id: advancement._id,
-      features: {}
+      features: {},
     };
     advancementData[advancement._id] = {};
     feats.forEach((f) => {
@@ -275,7 +275,7 @@ export default class DDBFeature extends DDBBaseFeature {
     } catch (err) {
       logger.warn(
         `Unable to Generate Background Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
-        "extension"
+        "extension",
       );
       logger.error("Error", err);
     }
@@ -336,7 +336,7 @@ export default class DDBFeature extends DDBBaseFeature {
     } catch (err) {
       logger.warn(
         `Unable to Generate Basic Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
-        "extension"
+        "extension",
       );
       logger.error("Error", err);
     }

@@ -8,7 +8,7 @@ export function mindBlankEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       value: 'psychic',
       priority: "20",
-    }
+    },
   );
 
   document.effects.push(effect);

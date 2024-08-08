@@ -57,7 +57,7 @@ export default class DDBClassFeatures {
       (feat) =>
         classFeatureIds.includes(feat.definition.id)
         && DDBFeatures.includedFeatureNameCheck(feat.definition.name)
-        && feat.definition.requiredLevel <= klass.level
+        && feat.definition.requiredLevel <= klass.level,
     );
 
     const classFeatureList = classFeatures
@@ -111,7 +111,7 @@ export default class DDBClassFeatures {
         subClassFeatureIds.includes(feat.definition.id)
         && DDBFeatures.includedFeatureNameCheck(feat.definition.name)
         && feat.definition.requiredLevel <= klass.level
-        && !this.excludedFeatures.includes(feat.definition.id)
+        && !this.excludedFeatures.includes(feat.definition.id),
     );
 
     const subClassFeatureList = subClassFeatures

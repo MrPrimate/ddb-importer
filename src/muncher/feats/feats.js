@@ -23,11 +23,11 @@ const FEAT_TEMPLATE = {
     },
     "obsidian": {
       "source": {
-        "type": "feat"
-      }
+        "type": "feat",
+      },
     },
   },
-  "img": null
+  "img": null,
 };
 
 function buildBase(data) {
@@ -57,7 +57,7 @@ function buildBase(data) {
 }
 
 
-async function buildFeat(feat,) {
+async function buildFeat(feat) {
   let result = buildBase(feat);
 
   return result;

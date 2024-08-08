@@ -28,7 +28,7 @@ export default class DDBMonster {
   }
 
   constructor(ddbObject = null, { existingNpc = null, extra = false, useItemAC = true,
-    legacyName = true, addMonsterEffects = false, addChrisPremades = false } = {}, overrides = {}
+    legacyName = true, addMonsterEffects = false, addChrisPremades = false } = {}, overrides = {},
   ) {
     this.source = ddbObject;
 
@@ -273,7 +273,7 @@ export default class DDBMonster {
           document: item,
           type: "monsterfeature",
           folderName: this.npc.name,
-          isMonster: true
+          isMonster: true,
         });
       }
     }

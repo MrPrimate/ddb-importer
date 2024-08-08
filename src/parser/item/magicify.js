@@ -131,7 +131,7 @@ function createDefaultMagicItemFlags() {
     destroyFlavorText: game.modules.get("magicitems")?.active
       ? game.i18n.localize("MAGICITEMS.MagicItemDestroy")
       : "reaches 0 charges: it crumbles into ashes and is destroyed.",
-    sorting: "l"
+    sorting: "l",
   };
 }
 
@@ -259,11 +259,11 @@ function parseMagicItemsModule(data, itemSpells, isCompendiumItem) {
 
         if (data.limitedUse.resetType) {
           magicItem.rechargeUnit = DICTIONARY.magicitems.rechargeUnits.find(
-            (reset) => reset.id == data.limitedUse.resetType
+            (reset) => reset.id == data.limitedUse.resetType,
           )?.value ?? "";
         } else {
           magicItem.rechargeUnit = DICTIONARY.magicitems.rechargeUnits.find(
-            (reset) => reset.id == resetType
+            (reset) => reset.id == resetType,
           )?.value ?? "";
         }
         magicItem.rechargeable = true;
@@ -291,7 +291,7 @@ function parseItemsWithSpellsModule(item, data, itemSpells, isCompendiumItem) {
 
   const thisItemSpells = itemSpells.filter((spell) =>
     spell.flags.ddbimporter.dndbeyond.lookup === "item"
-    && spell.flags.ddbimporter.dndbeyond.lookupId === item.flags.ddbimporter.definitionId
+    && spell.flags.ddbimporter.dndbeyond.lookupId === item.flags.ddbimporter.definitionId,
   );
 
   if (thisItemSpells.length === 0) return item;
@@ -313,7 +313,7 @@ function parseItemsWithSpellsModule(item, data, itemSpells, isCompendiumItem) {
 
     const resetType = data.limitedUse?.resetType
       ? DICTIONARY.resets.find((reset) =>
-        reset.id == data.limitedUse.resetType
+        reset.id == data.limitedUse.resetType,
       )?.value ?? undefined
       : undefined;
 
@@ -402,7 +402,7 @@ export function basicMagicItem(item, data, itemSpells, isCompendiumItem) {
 
       const resetType = data.limitedUse?.resetType
         ? DICTIONARY.resets.find((reset) =>
-          reset.id == data.limitedUse.resetType
+          reset.id == data.limitedUse.resetType,
         )?.value ?? undefined
         : undefined;
 

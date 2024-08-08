@@ -24,7 +24,7 @@ export async function squireOfSolamniaEffect(document) {
       value: DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "squireOfSolamnia.js", document }),
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       priority: 20,
-    }
+    },
   );
   foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["1Attack"]);
   foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);

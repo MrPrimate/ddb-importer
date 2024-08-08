@@ -24,7 +24,7 @@ export function fireRuneEffect(document) {
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         value: `label=${document.name} (End of Turn Save),turn=end,saveDC=@attributes.spelldc,saveAbility=${document.system.save.ability},savingThrow=true,saveMagic=true,saveRemove=true,killAnim=true`,
         priority: "20",
-      }
+      },
     );
   } else {
     let restrainedEffect = baseFeatEffect(document, `${document.name} (Restrained)`);

@@ -186,7 +186,7 @@ const utils = {
     const diceHintAdd = globalDamageHints && diceHint && diceMap;
     const hintString = diceHintAdd ? diceHint.replace("[]", "") : "";
     const diceHintString = diceMap.map(({ sign, count, die }, index) =>
-      `${index ? `${sign} ` : ''}${count}d${die}${specialFlags}${hintString}`
+      `${index ? `${sign} ` : ''}${count}d${die}${specialFlags}${hintString}`,
     ).join(' ');
 
     const result = {
@@ -197,7 +197,7 @@ const utils = {
       diceString: [
         diceHintString,
         mods,
-        resultBonus
+        resultBonus,
       ].join('').trim(),
     };
     return result;
@@ -218,7 +218,7 @@ const utils = {
       const {
         rawSign = '+',
         count,
-        die
+        die,
       } = groups;
 
       // sign. We only take the sign standing exactly in front of the dice string
@@ -229,12 +229,12 @@ const utils = {
         dice.push({
           sign,
           count: parseInt(sign + count),
-          die: parseInt(die)
+          die: parseInt(die),
         });
       } else {
         bonuses.push({
           sign,
-          count: parseInt(sign + count)
+          count: parseInt(sign + count),
         });
       }
     }
@@ -256,8 +256,8 @@ const utils = {
         diceMap.push(
           dieGroup.reduce((acc, item) => ({
             ...acc,
-            count: acc.count + item.count
-          }))
+            count: acc.count + item.count,
+          })),
         );
       }
     }
@@ -518,7 +518,7 @@ const utils = {
             callback: () => {
               resolve("");
             },
-          }
+          },
         },
         default: "ok",
         close: () => {
@@ -540,7 +540,7 @@ const utils = {
       CONFIG.DDBI.POPUPS[type] = window.open(
         url,
         "ddb_sheet_popup",
-        `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`
+        `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`,
       );
     }
     return true;

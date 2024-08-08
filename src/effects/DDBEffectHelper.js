@@ -874,7 +874,7 @@ export default class DDBEffectHelper {
     return DDBEffectHelper.getActorEffects(actor).some(
       (activeEffect) =>
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
-        && !activeEffect?.disabled
+        && !activeEffect?.disabled,
     );
   }
 
@@ -882,7 +882,7 @@ export default class DDBEffectHelper {
     return DDBEffectHelper.getActorEffects(actor).find(
       (activeEffect) =>
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
-        && !activeEffect?.disabled
+        && !activeEffect?.disabled,
     );
   }
 
@@ -1025,7 +1025,7 @@ export default class DDBEffectHelper {
           type: "damage",
           itemId,
           itemUuid,
-        }
+        },
       },
 
     });
@@ -1048,7 +1048,7 @@ export default class DDBEffectHelper {
     const rollConfig = {
       rollConfigs: [{
         parts: formulas,
-        type: damageType
+        type: damageType,
       }],
       flavor: flavor ?? title,
       event,
@@ -1059,8 +1059,8 @@ export default class DDBEffectHelper {
           targets: CONFIG.Item.documentClass._formatAttackTargets(),
           roll: { type: "damage", itemId, itemUuid },
         },
-        speaker: ChatMessage.implementation.getSpeaker()
-      }
+        speaker: ChatMessage.implementation.getSpeaker(),
+      },
     };
 
     if (Hooks.call("dnd5e.preRollDamage", undefined, rollConfig) === false) return;
@@ -1070,7 +1070,7 @@ export default class DDBEffectHelper {
 
   static syntheticItemWorkflowOptions({
     targets = undefined, showFullCard = false, useSpellSlot = false, castLevel = false, consume = false,
-    configureDialog = false, targetConfirmation = undefined
+    configureDialog = false, targetConfirmation = undefined,
   } = {}) {
     return [
       {
@@ -1092,8 +1092,8 @@ export default class DDBEffectHelper {
           autoFastDamage: true,
           autoRollAttack: true,
           targetConfirmation,
-        }
-      }
+        },
+      },
     ];
   }
 }

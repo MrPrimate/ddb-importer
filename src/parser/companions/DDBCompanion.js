@@ -57,7 +57,7 @@ export default class DDBCompanion {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-        }
+        },
       });
 
       const j = await response.json();
@@ -251,7 +251,7 @@ export default class DDBCompanion {
     if (hitDice) {
       const hitDiceAdjustment = {
         "key": "system.attributes.hp.formula",
-        "value": `(@classes.${hitDice[2]}.levels)[d${hitDice[1]}]`
+        "value": `(@classes.${hitDice[2]}.levels)[d${hitDice[1]}]`,
       };
       this.npc.flags.ddbimporter.summons.changes.push(hitDiceAdjustment);
     }

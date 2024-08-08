@@ -136,7 +136,7 @@ export default class CharacterFeatureFactory {
           // const displayAsAttack = DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
           // lets grab other actions and add, make sure we don't get attack based ones that haven't parsed
           return !this.actionParsed(name);
-        }
+        },
       )
       .map((action) => {
         logger.debug(`Getting Other Action ${action.name}`);
@@ -166,10 +166,10 @@ export default class CharacterFeatureFactory {
         return -1;
       } else {
         const aActionTypeID = DICTIONARY.actions.activationTypes.find(
-          (type) => type.value === a.system.activation.activationType
+          (type) => type.value === a.system.activation.activationType,
         ).id;
         const bActionTypeID = DICTIONARY.actions.activationTypes.find(
-          (type) => type.value === b.system.activation.activationType
+          (type) => type.value === b.system.activation.activationType,
         ).id;
         if (aActionTypeID > bActionTypeID) {
           return 1;

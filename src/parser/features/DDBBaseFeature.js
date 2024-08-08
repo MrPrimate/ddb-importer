@@ -35,7 +35,7 @@ export default class DDBBaseFeature {
           source: {
             type: this.tagType,
           },
-        }
+        },
       },
     };
   }
@@ -144,14 +144,14 @@ export default class DDBBaseFeature {
     const findFeatureKlass = this.ddbData.character.classes
       .find((cls) => cls.classFeatures.find((feature) =>
         feature.definition.id == componentId
-        && feature.definition.entityTypeId == componentTypeId
+        && feature.definition.entityTypeId == componentTypeId,
       ));
 
     if (findFeatureKlass) {
       const feature = findFeatureKlass.classFeatures
         .find((feature) =>
           feature.definition.id == componentId
-          && feature.definition.entityTypeId == componentTypeId
+          && feature.definition.entityTypeId == componentTypeId,
         );
       if (feature) {
         return parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
@@ -168,7 +168,7 @@ export default class DDBBaseFeature {
     const feature = this.ddbData.character.race.racialTraits
       .find((trait) =>
         trait.definition.id == componentId
-        && trait.definition.entityTypeId == componentTypeId
+        && trait.definition.entityTypeId == componentTypeId,
       );
 
     if (feature) {
@@ -402,7 +402,7 @@ export default class DDBBaseFeature {
             && (choice.componentTypeId == option.componentTypeId // either the choice componenttype and optiontype match or
               || choice.componentTypeId == option.definition.entityTypeId) // the choice componentID matches the option definition entitytypeid
             && option.definition.entityTypeId == mod.componentTypeId // mod componentId matches option entity type id
-            && choice.id == mod.componentId // choice id and mod id match
+            && choice.id == mod.componentId, // choice id and mod id match
         );
         // console.log(`choiceMatch ${choiceMatch}`);
         if (choiceMatch) return true;
@@ -417,13 +417,13 @@ export default class DDBBaseFeature {
           // logger.log("Class check - feature effect parsing");
           const classFeatureMatch = this.ddbData.character.classes.some((klass) =>
             klass.classFeatures.some(
-              (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id
-            )
+              (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id,
+            ),
           );
           if (classFeatureMatch) return true;
         } else if (type === "feat") {
           const featMatch = this.ddbData.character.feats.some(
-            (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id
+            (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id,
           );
           if (featMatch) return true;
         } else if (type === "race") {
@@ -431,7 +431,7 @@ export default class DDBBaseFeature {
             (t) =>
               t.definition.entityTypeId == mod.componentTypeId
               && t.definition.id == mod.componentId
-              && t.definition.id == this.ddbDefinition.id
+              && t.definition.id == this.ddbDefinition.id,
           );
           if (traitMatch) return true;
         }

@@ -6,7 +6,7 @@ function classSpell(data, result) {
   const classPrepMode = utils.findByProperty(
     DICTIONARY.spell.preparationModes,
     "name",
-    data.flags.ddbimporter.dndbeyond.class
+    data.flags.ddbimporter.dndbeyond.class,
   );
 
   if (data.restriction === "As Ritual Only" || data.castOnlyAsRitual || data.ritualCastingType !== null) {

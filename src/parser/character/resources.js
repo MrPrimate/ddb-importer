@@ -22,7 +22,7 @@ DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedRes
 
       if (action.limitedUse.statModifierUsesId) {
         const ability = DICTIONARY.character.abilities.find(
-          (ability) => ability.id === action.limitedUse.statModifierUsesId
+          (ability) => ability.id === action.limitedUse.statModifierUsesId,
         ).value;
 
         switch (action.limitedUse.operator) {
@@ -205,7 +205,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
           "img": this.source.ddb.character.decorations?.avatarUrl
             ? this.source.ddb.character.decorations.avatarUrl
             : CONST.DEFAULT_TOKEN,
-          "cssClass": "character-resource-selection sheet"
+          "cssClass": "character-resource-selection sheet",
         },
         buttons: {
           default: {
@@ -217,7 +217,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               this.setDefaultResources(sortedResources);
               this._generateResources();
               resolve(this.raw.character);
-            }
+            },
           },
           custom: {
             // icon: '<i class="fas fa-sort"></i>',
@@ -226,7 +226,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               const formData = $('.character-resource-selection').serializeArray();
               this._generateResourceSelectionFromForm(formData, "custom");
               resolve(this.raw.character);
-            }
+            },
           },
           disable: {
             callback: async () => {
@@ -234,7 +234,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               this._generateResourceSelectionFromForm(formData, "disable");
               this._generateResources();
               resolve(this.raw.character);
-            }
+            },
           },
           remove: {
             callback: async () => {
@@ -242,7 +242,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               this._generateResourceSelectionFromForm(formData, "remove");
               this._generateResources();
               resolve(this.raw.character);
-            }
+            },
           },
         },
         default: "default",
@@ -278,7 +278,7 @@ const resourceFeatureLinkMap = {
   ],
   "Adept Marksman": [
     "Trick Shots:", "Bullying Shot", "Deadeye Shot", "Disarming Shot", "Piercing Shot", "Rapid Repair",
-    "Dazing Shot", "Forceful Shot", "Winging Shot", "Violent Shot"
+    "Dazing Shot", "Forceful Shot", "Winging Shot", "Violent Shot",
   ],
   "Psionic Power: Psionic Energy": [
     "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",
@@ -303,9 +303,9 @@ const resourceFeatureLinkMap = {
   "Infuse Item": ["Infusion:"],
   // "Lay on Hands Pool": ["Lay on Hands"],
   "Maneuver Points": [
-    "Carrion Raven Martial Maneuvers:", "Slippery Otter: Activate", "Blade Breaker Maneuvers:"
+    "Carrion Raven Martial Maneuvers:", "Slippery Otter: Activate", "Blade Breaker Maneuvers:",
   ],
-  "Jinx Points": ["Misfortunes:", "Curse Caster"]
+  "Jinx Points": ["Misfortunes:", "Curse Caster"],
 };
 
 const chargeTypeMap = {
@@ -356,7 +356,7 @@ DDBCharacter.prototype.fixItemSpellResources = async function fixItemSpellResour
     const spellLookupId = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookupId");
     if (!spellLookupId) continue;
     const parentDoc = possibleItems.find((item) =>
-      spellLookupId === item.flags?.ddbimporter?.definitionId
+      spellLookupId === item.flags?.ddbimporter?.definitionId,
     );
     if (!parentDoc) continue;
     toUpdate.push({
@@ -402,7 +402,7 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
             if (foundry.utils.getProperty(child, "flags.ddbimporter.retainResourceConsumption")) return;
             logger.debug("child", child);
             const update = {
-              _id: child._id
+              _id: child._id,
             };
             const charge = foundry.utils.getProperty(child, "system.consume.amount") ?? 1;
             foundry.utils.setProperty(update, "system.consume", {
@@ -437,7 +437,7 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
           if (foundry.utils.getProperty(child, "flags.ddbimporter.retainResourceConsumption")) return;
           logger.debug("child", child);
           const update = {
-            _id: child._id
+            _id: child._id,
           };
           foundry.utils.setProperty(update, "system.consume", {
             type: "charges",

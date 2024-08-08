@@ -30,7 +30,7 @@ export async function radiantSoulEffect(document) {
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         value: document.name === "Celestial Revelation (Radiant Soul)" ? "+@prof[radiant]" : "+@details.level[radiant]",
         priority: "20",
-      }
+      },
     );
     effect.duration = {
       startTime: null,

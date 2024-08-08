@@ -219,8 +219,8 @@ export default class DDBCharacter {
           (action.name.trim().toLowerCase() === feature.name.trim().toLowerCase()
           || foundry.utils.getProperty(action, "flags.ddbimporter.featureNameMatch") === feature.name)
           && foundry.utils.getProperty(action, "flags.ddbimporter.isCustomAction") !== true
-          && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type")
-        )
+          && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type"),
+        ),
       )
       .map((feature) => {
         const actionMatch = actionAndFeature && this.data.actions.some((action) => feature.name === action.name);
@@ -370,7 +370,7 @@ export default class DDBCharacter {
 
   isMartialArtist() {
     return this.source.ddb.character.classes.some((cls) =>
-      cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts")
+      cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts"),
     );
   }
 
@@ -395,7 +395,7 @@ export default class DDBCharacter {
         && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
         && foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
         && parseInt(item.flags.ddbimporter.containerEntityId) === parseInt(this.source.ddb.character.id)
-        && !foundry.utils.getProperty(item, "flags.ddbimporter.ignoreItemImport")
+        && !foundry.utils.getProperty(item, "flags.ddbimporter.ignoreItemImport"),
       );
 
     this.data.inventory.forEach((item) => {
@@ -403,7 +403,7 @@ export default class DDBCharacter {
         && parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(this.source.ddb.character.id)
       ) {
         const containerItem = containerItems.find((container) =>
-          parseInt(container.flags.ddbimporter.id) === parseInt(item.flags.ddbimporter.containerEntityId)
+          parseInt(container.flags.ddbimporter.id) === parseInt(item.flags.ddbimporter.containerEntityId),
         );
         if (containerItem) {
           foundry.utils.setProperty(item, "system.container", containerItem._id);
@@ -420,7 +420,7 @@ export default class DDBCharacter {
     const documents = this.currentActor.getEmbeddedCollection("Item")
       .toObject()
       .filter((doc) =>
-        foundry.utils.hasProperty(doc, "flags.ddbimporter.class")
+        foundry.utils.hasProperty(doc, "flags.ddbimporter.class"),
       );
 
     const subKlasses = new Set(documents
@@ -467,7 +467,7 @@ export default class DDBCharacter {
 
     for (const klassName of klassNames) {
       const classFeatures = documents.filter((doc) =>
-        klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.class")
+        klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.class"),
         // && !foundry.utils.getProperty(doc, "flags.ddbimporter.action")
       );
 

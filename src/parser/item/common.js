@@ -31,7 +31,7 @@ export function getPrice(data) {
   const value = data.definition.cost ? Number.parseFloat(data.definition.cost) : 0;
   const price = {
     "value": Number.isInteger(value) ? value : (value * 10),
-    "denomination": Number.isInteger(value) ? "gp" : "sp"
+    "denomination": Number.isInteger(value) ? "gp" : "sp",
   };
 
   return price;
@@ -163,7 +163,7 @@ export function getWeaponProficient(data, weaponType, proficiencies) {
  */
 export function getMagicalBonus(data, returnZero = false) {
   const boni = data.definition.grantedModifiers.filter(
-    (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0
+    (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0,
   );
   const bonus = boni.reduce((prev, cur) => prev + cur.value, 0);
   return bonus === 0 && !returnZero ? "" : bonus;
@@ -230,7 +230,7 @@ export function getSingleItemWeight(data) {
   const weight = totalWeight / bundleSize;
   return {
     value: weight,
-    units: "lb"
+    units: "lb",
   };
 }
 

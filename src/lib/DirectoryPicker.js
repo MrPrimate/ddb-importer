@@ -102,7 +102,7 @@ export class DirectoryPicker extends FilePicker {
             ...DirectoryPicker.parse($(element).val()),
           });
           let pickerButton = $(
-            '<button type="button" class="file-picker" data-type="imagevideo" data-target="img" title="Pick directory"><i class="fas fa-file-import fa-fw"></i></button>'
+            '<button type="button" class="file-picker" data-type="imagevideo" data-target="img" title="Pick directory"><i class="fas fa-file-import fa-fw"></i></button>',
           );
           pickerButton.on("click", () => {
             picker.render(true);

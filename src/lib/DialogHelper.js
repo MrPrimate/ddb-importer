@@ -36,14 +36,14 @@ export default class DialogHelper {
           content,
           buttons: buttons.reduce((o, button) => ({
             ...o,
-            [button.label]: { label: button.label, callback: () => resolve(button.value) }
+            [button.label]: { label: button.label, callback: () => resolve(button.value) },
           }), {}),
           close: () => resolve(this),
         },
         {
           classes: ["dialog", `ddb-button-dialog-${direction}`],
           ...options,
-        }
+        },
       ).render(true);
     });
   }

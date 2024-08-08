@@ -35,7 +35,7 @@ function getProperties(data) {
   });
 
   result = DICTIONARY.weapon.properties.filter((p) =>
-    weaponBehavior.properties.find((prop) => prop.name === p.name) !== undefined
+    weaponBehavior.properties.find((prop) => prop.name === p.name) !== undefined,
   ).map((p) => p.value);
   return result;
 }

@@ -63,7 +63,7 @@ export async function addMagicItemSpells(input) {
       logger.debug("item.flags.magicitems.spells", magicItemsSpells);
       for (let [i, spell] of Object.entries(magicItemsSpells)) {
         const itemSpell = itemSpells.find((iSpell) => iSpell.name === spell.name
-          && (iSpell.compendium || iSpell.magicItem.subFolder === item.name)
+          && (iSpell.compendium || iSpell.magicItem.subFolder === item.name),
         );
         if (itemSpell) {
           for (const [key, value] of Object.entries(itemSpell.magicItem)) {
@@ -95,7 +95,7 @@ export async function addMagicItemSpells(input) {
       logger.debug("item.flags.items-with-spells-5e.item-spells", item.flags["items-with-spells-5e"]["item-spells"]);
       itemsWithSpells.forEach((spellData, i) => {
         const itemSpell = itemSpells.find((iSpell) => iSpell.name === spellData.flags.ddbimporter.spellName
-          && (iSpell.compendium || iSpell.magicItem.subFolder === item.name)
+          && (iSpell.compendium || iSpell.magicItem.subFolder === item.name),
         );
         if (itemSpell) {
           item.flags["items-with-spells-5e"]["item-spells"][i].uuid = `Compendium.${itemSpell.magicItem.pack}.${itemSpell._id}`;

@@ -11,7 +11,7 @@ export function holdBreathEffect(document) {
   document.system.activation = {
     "type": "special",
     "cost": 1,
-    "condition": ""
+    "condition": "",
   };
 
   if (document.name === "Partially Amphibious") {

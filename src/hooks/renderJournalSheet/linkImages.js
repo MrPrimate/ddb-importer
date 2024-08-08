@@ -41,7 +41,7 @@ export function linkImages(html, data) {
                 const popOut = new ImagePopout(src, { shareable: true });
                 popOut.shareImage();
               },
-              defaultYes: true
+              defaultYes: true,
             });
           });
           // eslint-disable-next-line no-invalid-this

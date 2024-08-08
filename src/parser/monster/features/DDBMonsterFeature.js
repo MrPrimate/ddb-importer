@@ -43,7 +43,7 @@ export default class DDBMonsterFeature {
           fullName: this.fullName,
           actionCopy: this.actionCopy,
           type: this.type,
-        }
+        },
       },
     };
     // these templates not good
@@ -57,7 +57,7 @@ export default class DDBMonsterFeature {
     this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
 
     const matches = this.strippedHtml.match(
-      /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)\s+(plus PB\s|\+ PB\s)?to\s+hit/i
+      /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)\s+(plus PB\s|\+ PB\s)?to\s+hit/i,
     );
 
     const healingRegex = /(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i;
@@ -114,22 +114,22 @@ export default class DDBMonsterFeature {
       baseTool: null,
       damage: {
         parts: [],
-        versatile: ""
+        versatile: "",
       },
       formula: "",
       damageSave: {
         dc: null,
-        ability: null
+        ability: null,
       },
       target: {
         "value": null,
         "width": null,
         "units": "",
-        "type": ""
+        "type": "",
       },
       duration: {
         "value": "",
-        "units": "inst"
+        "units": "inst",
       },
       extraAttackBonus: 0,
       baseAbility: null,
@@ -149,7 +149,7 @@ export default class DDBMonsterFeature {
         "thr": false,
         "two": false,
         "ver": false,
-        "mgc": false
+        "mgc": false,
       },
       reach: "",
       range: {
@@ -161,7 +161,7 @@ export default class DDBMonsterFeature {
       activation: {
         type: "",
         cost: null,
-        condition: ""
+        condition: "",
       },
       save: {
         dc: null,
@@ -370,13 +370,13 @@ export default class DDBMonsterFeature {
       const value = matches[1].replace(/[––−-]/, "-").split("-").shift();
       return {
         value: parseInt(value),
-        charged: true
+        charged: true,
       };
     }
 
     return {
       value: null,
-      charged: false
+      charged: false,
     };
   }
 
@@ -474,7 +474,7 @@ export default class DDBMonsterFeature {
     let result = {
       success: false,
       ability: null,
-      proficient: null
+      proficient: null,
     };
 
     for (const ability of abilitiesToCheck) {
@@ -500,7 +500,7 @@ export default class DDBMonsterFeature {
         success: false,
         ability,
         proficient: null,
-        bonus: 0
+        bonus: 0,
       };
       if (this.toHit > this.ddbMonster.proficiencyBonus + this.ddbMonster.abilities[ability].mod) {
         result.success = true;
@@ -638,7 +638,7 @@ export default class DDBMonsterFeature {
       value: null,
       width: null,
       units: "",
-      type: ""
+      type: "",
     };
 
     // 90-foot line that is 10 feet wide
@@ -808,7 +808,7 @@ ${this.feature.system.description.value}
     this.feature.system.consume = {
       type: "attribute",
       target: "resources.legact.value",
-      amount: 1
+      amount: 1,
     };
 
     if (Number.isInteger(this.actionInfo.activation)) {
@@ -871,7 +871,7 @@ ${this.feature.system.description.value}
       this.feature.system.consume = {
         type: "attribute",
         target: "resources.legres.value",
-        amount: 1
+        amount: 1,
       };
     }
 

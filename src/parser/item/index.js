@@ -259,7 +259,7 @@ function parseItem(ddb, ddbItem, character, flags) {
   } catch (err) {
     logger.warn(
       `Unable to parse item: ${ddbItem.definition.name}, ${ddbItem.definition.type}/${ddbItem.definition.filterType}. ${err.message}`,
-      ddbItem
+      ddbItem,
     );
     logger.error(err.stack);
     return { // return empty strut
@@ -306,14 +306,14 @@ function getWarlockFeatures(ddb, weapon) {
         characterValue.value
         && characterValue.valueId == weapon.id
         && DICTIONARY.character.characterValuesLookup.some(
-          (entry) => entry.typeId == characterValue.typeId
-        )
+          (entry) => entry.typeId == characterValue.typeId,
+        ),
     )
     .map(
       (characterValue) =>
         DICTIONARY.character.characterValuesLookup.find(
-          (entry) => entry.typeId == characterValue.typeId
-        ).name
+          (entry) => entry.typeId == characterValue.typeId,
+        ).name,
     );
 
   // Any Pact Weapon Features
@@ -322,7 +322,7 @@ function getWarlockFeatures(ddb, weapon) {
       (option) =>
         warlockFeatures.includes("pactWeapon")
         && option.definition.name
-        && DICTIONARY.character.pactFeatures.includes(option.definition.name)
+        && DICTIONARY.character.pactFeatures.includes(option.definition.name),
     )
     .map((option) => option.definition.name);
 
@@ -333,12 +333,12 @@ function getWarlockFeatures(ddb, weapon) {
 function getMonkFeatures(ddb, weapon) {
   const kenseiWeapon = DDBHelper.getChosenClassModifiers(ddb).some((mod) =>
     mod.friendlySubtypeName === weapon.definition.type
-    && mod.type === "kensei"
+    && mod.type === "kensei",
   );
 
   const monkWeapon = DDBHelper.getChosenClassModifiers(ddb).some((mod) =>
     mod.friendlySubtypeName === weapon.definition.type
-    && mod.type == "monk-weapon"
+    && mod.type == "monk-weapon",
   ) || (weapon.definition.isMonkWeapon && isMartialArtists(ddb.character.classes));
 
   let features = [];

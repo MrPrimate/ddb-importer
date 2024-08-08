@@ -174,7 +174,7 @@ export default class DDBMuncher extends Application {
           '.munching-item-config input[type="checkbox"]',
           '.munching-monster-config input[type="checkbox"]',
           '.munching-monster-world-update-config input[type="checkbox"]',
-        ].join(",")
+        ].join(","),
       )
       .on("change", (event) => {
         MuncherSettings.updateMuncherSettings(html, event, this);

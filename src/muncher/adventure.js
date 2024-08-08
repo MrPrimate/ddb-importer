@@ -75,19 +75,19 @@ async function getItemMap() {
 const ATTACK_ACTION_MAP = {
   "Opportunity Attack": {
     hint: "Opportunity Attacks",
-    page: "Making an Attack"
+    page: "Making an Attack",
   },
   Grapple: {
     hint: "Grappling",
-    page: "Making an Attack"
+    page: "Making an Attack",
   },
   Shove: {
     hint: "Shoving a Creature",
-    page: "Making an Attack"
+    page: "Making an Attack",
   },
   "Two-Weapon Fighting": {
     hint: "Two-Weapon Fighting",
-    page: "Making an Attack"
+    page: "Making an Attack",
   },
   "Interact with an Object": {
     hint: "Use an Object",

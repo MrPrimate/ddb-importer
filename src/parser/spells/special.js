@@ -81,7 +81,7 @@ const CR_DATA = {
         "count": "8 * min(3, floor((@item.level - 1) / 2))",
         "cr": "0.25",
         "types": ["beast"],
-      }
+      },
     ],
     creatureTypes: ["beast"],
   },
@@ -92,7 +92,7 @@ const CR_DATA = {
         "cr": "4",
         "level": {
           "min": null,
-          "max": 8
+          "max": 8,
         },
         "types": ["celestial"],
       },
@@ -104,7 +104,7 @@ const CR_DATA = {
           "max": null,
         },
         "types": ["celestial"],
-      }
+      },
     ],
     creatureTypes: [],
   },
@@ -114,7 +114,7 @@ const CR_DATA = {
         "count": "1",
         "cr": "@item.level",
         "types": ["elemental"],
-      }
+      },
     ],
     creatureTypes: ["elemental"],
   },
@@ -124,7 +124,7 @@ const CR_DATA = {
         "count": "1",
         "cr": "@item.level",
         "types": ["fey"],
-      }
+      },
     ],
     creatureTypes: ["fey"],
   },
@@ -149,7 +149,7 @@ const CR_DATA = {
         "count": "8 * min(3, floor((@item.level - 2) / 2))",
         "cr": "0.25",
         "types": ["elemental"],
-      }
+      },
     ],
     creatureTypes: [],
   },
@@ -184,7 +184,7 @@ const CR_DATA = {
         "count": "1",
         "cr": "@item.level + 1",
         "types": ["fiend"],
-      }
+      },
     ],
     creatureTypes: [],
   },
@@ -214,10 +214,10 @@ const CR_DATA = {
         "count": "1",
         "cr": "@item.level + 1",
         "types": ["fiend"],
-      }
+      },
     ],
     creatureTypes: [],
-  }
+  },
 };
 
 async function addCRSummoning(documents) {
@@ -261,7 +261,7 @@ async function findFamiliar(spell) {
     "creatureTypes": [
       "celestial",
       "fey",
-      "fiend"
+      "fiend",
     ],
     "profiles": [
       {
@@ -323,15 +323,15 @@ async function findFamiliar(spell) {
       {
         "name": "Weasel",
         "uuid": ddbCompendium?.index.find((i) => i.name === "Weasel")?.uuid ?? "Compendium.dnd5e.monsters.Actor.WOdeacKCYVhgLDuN",
-      }
+      },
     ],
     "creatureSizes": [],
     "match": {
       "attacks": false,
       "proficiency": false,
-      "saves": false
+      "saves": false,
     },
-    "mode": ""
+    "mode": "",
   };
   return spell;
 }
@@ -414,7 +414,7 @@ export async function fixSpells(ddb, documents) {
       }
       // dnd beyond lists a damage for each type
       case "Chaos Bolt":
-        spell.system.damage = { parts: [["2d8", ""], ["1d6", ""]], versatile: "", value: "", };
+        spell.system.damage = { parts: [["2d8", ""], ["1d6", ""]], versatile: "", value: "" };
         break;
       // dnd beyond lists a damage for each type
       case "Chromatic Orb":
@@ -600,7 +600,7 @@ export async function fixSpells(ddb, documents) {
           "units": "ft",
           "type": "line",
           "width": 10,
-          "prompt": true
+          "prompt": true,
         };
         break;
       case "Thorn Whip": {

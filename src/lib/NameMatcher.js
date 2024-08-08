@@ -70,14 +70,14 @@ export default class NameMatcher {
         refactName
           .replace(/\+\d*\s*/, "")
           .trim()
-          .toLowerCase()
+          .toLowerCase(),
       );
       looseNames.add(
         refactName
           .replace(/\+\d*\s*/, "")
           .trim()
           .toLowerCase()
-          .replace(/s$/, "")
+          .replace(/s$/, ""),
       );
     }
 
@@ -158,7 +158,7 @@ export default class NameMatcher {
       if (!matchingItem) {
         // still no matching item, lets do a final pass
         matchingItem = items.find((matchItem) =>
-          looseNames.includes(matchItem.name.split("(")[0].trim().toLowerCase())
+          looseNames.includes(matchItem.name.split("(")[0].trim().toLowerCase()),
         );
       }
     }

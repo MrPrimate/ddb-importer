@@ -18,7 +18,7 @@ const DDBHelper = {
     if (data.definition.damageType) {
       const damageTypeReplace = data.definition.grantedModifiers.find((mod) =>
         mod.type === "replace-damage-type"
-        && (!mod.restriction || mod.restriction === "")
+        && (!mod.restriction || mod.restriction === ""),
       );
 
       const damageType = damageTypeReplace
@@ -95,7 +95,7 @@ const DDBHelper = {
 
     if (option) {
       const klass = ddb.character.classes.find((klass) =>
-        klass.classFeatures.some((feature) => feature.definition.id === option.componentId)
+        klass.classFeatures.some((feature) => feature.definition.id === option.componentId),
       );
       return klass;
     }
@@ -162,7 +162,7 @@ const DDBHelper = {
     const klass = ddb.character.classes.find((cls) =>
       (cls.definition.id === featDefinition.classId
       || cls.subclassDefinition?.id === featDefinition.classId)
-      && featDefinition.levelScales?.length > 0
+      && featDefinition.levelScales?.length > 0,
     );
 
     if (klass) {
@@ -295,12 +295,12 @@ const DDBHelper = {
           || (item.isAttuned && item.equipped) // if it is attuned and equipped
           || (item.isAttuned && !item.definition.canEquip) // if it is attuned but can't equip
             || (!item.definition.canAttune && item.equipped)) // can't attune but is equipped
-          && item.definition.grantedModifiers.length > 0
+          && item.definition.grantedModifiers.length > 0,
       )
       .flatMap((item) => item.definition.grantedModifiers)
       .filter((mod) => !excludedModifiers.some((exMod) =>
         mod.type === exMod.type
-        && (mod.subType === exMod.subType || !exMod.subType))
+        && (mod.subType === exMod.subType || !exMod.subType)),
       );
 
     return modifiers;
@@ -309,7 +309,7 @@ const DDBHelper = {
   getActiveItemEffectModifiers: (ddb) => {
     return DDBHelper.getActiveItemModifiers(ddb, true).filter((mod) =>
       getEffectExcludedModifiers("item", true, true).some((exMod) => mod.type === exMod.type
-      && (mod.subType === exMod.subType || !exMod.subType))
+      && (mod.subType === exMod.subType || !exMod.subType)),
     );
   },
 
@@ -327,13 +327,13 @@ const DDBHelper = {
       modifiers = baseMods
         .filter((mod) => excludedModifiers.some((exMod) =>
           mod.type === exMod.type
-        && (mod.subType === exMod.subType || !exMod.subType))
+        && (mod.subType === exMod.subType || !exMod.subType)),
         );
     } else {
       modifiers = baseMods
         .filter((mod) => !excludedModifiers.some((exMod) =>
           mod.type === exMod.type
-        && (mod.subType === exMod.subType || !exMod.subType))
+        && (mod.subType === exMod.subType || !exMod.subType)),
         );
     }
 
@@ -347,7 +347,7 @@ const DDBHelper = {
         (modifier) =>
           modifier.type === type
           && (subType !== null ? modifier.subType === subType : true)
-          && (!restriction ? true : restriction.includes(modifier.restriction))
+          && (!restriction ? true : restriction.includes(modifier.restriction)),
       );
   },
 
@@ -359,7 +359,7 @@ const DDBHelper = {
     return ddb.character.classes
       .filter((klass) => classId === klass.definition?.id || classId === klass.subclassDefinition?.id)
       .some((klass) =>
-        klass.classFeatures.some((feat) => feat.definition.id == componentId)
+        klass.classFeatures.some((feat) => feat.definition.id == componentId),
       );
   },
 
@@ -368,12 +368,12 @@ const DDBHelper = {
       .filter((klass) =>
         (classId === null
           ? true
-          : (classId === klass.definition?.id || classId === klass.subclassDefinition?.id))
+          : (classId === klass.definition?.id || classId === klass.subclassDefinition?.id)),
       ).map((klass) => klass.classFeatures)
       .flat()
       .filter((feat) =>
         (requiredLevel === null || feat.definition.requiredLevel >= requiredLevel)
-        && (exactLevel === null || feat.definition.requiredLevel == exactLevel)
+        && (exactLevel === null || feat.definition.requiredLevel == exactLevel),
       ).map((feat) => feat.definition.id);
   },
 
@@ -389,7 +389,7 @@ const DDBHelper = {
         && (requiredLevel === null || feat.definition.requiredLevel >= requiredLevel)
         && (exactLevel === null || feat.definition.requiredLevel == exactLevel)
         // make sure this class feature is not replaced
-        && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == feat.definition.id)
+        && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == feat.definition.id),
       ));
   },
 
@@ -408,12 +408,12 @@ const DDBHelper = {
         ddb.character.choices.class.some((choice) =>
           choice.componentId == option.componentId
           && choice.componentTypeId == option.componentTypeId
-          && foundry.utils.hasProperty(choice, "optionValue")
+          && foundry.utils.hasProperty(choice, "optionValue"),
         )
         || !ddb.character.choices.class.some((choice) =>
           choice.componentId == option.componentId
           && choice.componentTypeId == option.componentTypeId)
-      )
+      ),
     );
   },
 
@@ -433,14 +433,14 @@ const DDBHelper = {
         ddb.character.choices.class.some((choice) =>
           choice.componentId == option.componentId
           && choice.componentTypeId == option.componentTypeId
-          && choice.optionValue
+          && choice.optionValue,
         )
         || ddb.classOptions?.some((classOption) =>
           classOption.id == option.componentId
           && classOption.entityTypeId == option.componentTypeId
-          && (classId === null || classId === classOption.classId)
+          && (classId === null || classId === classOption.classId),
         )
-      )
+      ),
     );
   },
 
@@ -453,8 +453,8 @@ const DDBHelper = {
       && choice.componentId == mod.componentId
       && ddb.character.optionalClassFeatures?.some((f) =>
         f.classFeatureId == choice.componentId
-        && (!f.affectedClassFeatureId || klassFeatureIds.includes(f.affectedClassFeatureId))
-      )
+        && (!f.affectedClassFeatureId || klassFeatureIds.includes(f.affectedClassFeatureId)),
+      ),
     );
   },
 
@@ -491,7 +491,7 @@ const DDBHelper = {
           || mod.availableToMulticlass === null
           || mod.availableToMulticlass === availableToMulticlass
         )
-        && DDBHelper.isModAChosenClassMod(ddb, mod, { classFeatureIds, classId, requiredLevel, exactLevel })
+        && DDBHelper.isModAChosenClassMod(ddb, mod, { classFeatureIds, classId, requiredLevel, exactLevel }),
       );
 
     // console.warn("getChosenClassModifiers", {classFeatureIds, modifiers});
@@ -611,7 +611,7 @@ const DDBHelper = {
     if (ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
       // find a choice in the related choices-array
       const choices = ddb.character.choices[type].filter(
-        (characterChoice) => characterChoice.componentId && characterChoice.componentId === id
+        (characterChoice) => characterChoice.componentId && characterChoice.componentId === id,
       );
 
       if (choices) {
@@ -680,11 +680,11 @@ const DDBHelper = {
                   && foundry.utils.hasProperty(featDefinition, "entityTypeId")
                   && featDefinition.entityTypeId == option.componentTypeId
                   && id == option.componentId
-                )
-                // && // the choice id matches the option componentID
-                // (featDefinition.componentTypeId == option.componentTypeId || // either the choice componenttype and optiontype match or
-                //   featDefinition.componentTypeId == option.definition.entityTypeId) && // the choice componentID matches the option definition entitytypeid
-                // option.componentTypeId == featDefinition.entityTypeId
+                ),
+              // && // the choice id matches the option componentID
+              // (featDefinition.componentTypeId == option.componentTypeId || // either the choice componenttype and optiontype match or
+              //   featDefinition.componentTypeId == option.definition.entityTypeId) && // the choice componentID matches the option definition entitytypeid
+              // option.componentTypeId == featDefinition.entityTypeId
             )
             .map((option) => {
               return {
@@ -714,7 +714,7 @@ const DDBHelper = {
     if (ddb.character?.choices && ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
       // find a choice in the related choices-array
       const choice = ddb.character.choices[type].find(
-        (characterChoice) => characterChoice.optionValue && characterChoice.optionValue === optionId
+        (characterChoice) => characterChoice.optionValue && characterChoice.optionValue === optionId,
       );
       if (choice) return choice.componentId;
     }
@@ -756,7 +756,7 @@ const DDBHelper = {
       if (!cls.subclassDefinition.classFeatures) return false;
 
       const subClassFeatures = cls.subclassDefinition.classFeatures.filter((f) =>
-        !classFeatures.some((cf) => cf.id === f.id)
+        !classFeatures.some((cf) => cf.id === f.id),
       );
 
       return subClassFeatures.some((feature) => feature.id === featId);
@@ -818,7 +818,7 @@ const DDBHelper = {
     const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
     const customValue = characterValues.filter((value) =>
       value.valueId == ddbItem.id
-      && value.valueTypeId == ddbItem.entityTypeId
+      && value.valueTypeId == ddbItem.entityTypeId,
     );
 
     if (customValue) {
@@ -836,7 +836,7 @@ const DDBHelper = {
         (value.valueId == foundryItem.flags.ddbimporter.dndbeyond?.id
           && value.valueTypeId == foundryItem.flags.ddbimporter.dndbeyond?.entityTypeId)
         || (value.valueId == foundryItem.flags.ddbimporter.id
-          && value.valueTypeId == foundryItem.flags.ddbimporter.entityTypeId)
+          && value.valueTypeId == foundryItem.flags.ddbimporter.entityTypeId),
     );
 
     if (customValue) {
@@ -1028,7 +1028,7 @@ const DDBHelper = {
 
       return (simpleMatch && choiceMatch) || overrideMatch;
     });
-  }
+  },
 
 };
 

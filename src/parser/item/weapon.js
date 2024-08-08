@@ -10,10 +10,10 @@ import { getItemRarity, getEquipped, getUses, getWeaponProficient, getMagicalBon
  */
 function getWeaponType(data) {
   const type = DICTIONARY.weapon.weaponType.find(
-    (type) => type.categoryId === data.definition.categoryId
+    (type) => type.categoryId === data.definition.categoryId,
   );
   const range = DICTIONARY.weapon.weaponRange.find(
-    (type) => type.attackType === data.definition.attackType
+    (type) => type.attackType === data.definition.attackType,
   );
 
   if (type && range) {
@@ -42,7 +42,7 @@ function getProperties(data) {
         && Array.isArray(data.definition.grantedModifiers)
         && data.definition.grantedModifiers.some((prop) =>
           prop.type === "weapon-property"
-          && prop.friendlySubtypeName === property.name
+          && prop.friendlySubtypeName === property.name,
         )
       ) {
         return true;

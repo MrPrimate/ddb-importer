@@ -15,7 +15,7 @@ async function getJournal(bookCode) {
     ? DDBHelper.getBookName(bookCode)
     : "Handout Pages";
   const existingJournal = game.journal.find((journal) =>
-    journal.name === journalName && journal.folder.id === folder.id
+    journal.name === journalName && journal.folder.id === folder.id,
   );
   if (existingJournal) {
     return existingJournal;
@@ -35,7 +35,7 @@ async function getJournal(bookCode) {
       },
       {
         displaySheet: false,
-      }
+      },
     );
     return journal;
   }
@@ -52,7 +52,7 @@ async function createPage(journal, name, type, content) {
     },
     ownership: {
       default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER,
-    }
+    },
   };
   switch (type) {
     case "image": {

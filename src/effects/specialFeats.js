@@ -90,7 +90,7 @@ import { darkOnesOwnLuckffect } from "./feats/darkOnesOwnLuck.js";
 import { foeSlayerEffect } from "./feats/foeSlayer.js";
 
 export function baseFeatEffect(document, label,
-  { transfer = false, disabled = false } = {}
+  { transfer = false, disabled = false } = {},
 ) {
   return baseEffect(document, label, { transfer, disabled });
 }

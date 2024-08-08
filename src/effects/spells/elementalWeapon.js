@@ -54,7 +54,7 @@ export function elementalWeaponEffect(document) {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           value: `[["${e.bonus}d4[${element.type}]", "${element.type}"]]`,
           priority: 20,
-        }
+        },
       );
       e.description = `This weapon has become a +${e.bonus} magic weapon, granting a bonus to attack and damage rolls.`;
       document.effects.push(effect);

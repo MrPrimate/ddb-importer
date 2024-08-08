@@ -127,7 +127,7 @@ function generateConditionEffect(effect, text, nameHint = null) {
         .filter((type) => type.type === 4)
         .find(
           (type) => type.name.toLowerCase() === match.groups.condition.toLowerCase()
-            || type.foundryValue === match.groups.condition.toLowerCase()
+            || type.foundryValue === match.groups.condition.toLowerCase(),
         )
       : undefined;
     if (group4Condition) {
@@ -286,7 +286,7 @@ export function generateOverTimeEffect(actor, document) {
 
 
 export function damageOverTimeEffect({ document, startTurn = false, endTurn = false, durationSeconds, damage,
-  damageType, saveAbility, saveRemove = true, saveDamage = "nodamage", dc } = {}
+  damageType, saveAbility, saveRemove = true, saveDamage = "nodamage", dc } = {},
 ) {
   let effect = baseMonsterFeatureEffect(document, `${document.name}`);
 
@@ -295,13 +295,13 @@ export function damageOverTimeEffect({ document, startTurn = false, endTurn = fa
   if (startTurn) {
     logger.debug(`damageOverTimeEffect: Generating damage over time effect START for ${document.name}`);
     effect.changes.push(
-      overTimeDamage({ document, turn: "start", damage, damageType, saveAbility, saveRemove, saveDamage, dc })
+      overTimeDamage({ document, turn: "start", damage, damageType, saveAbility, saveRemove, saveDamage, dc }),
     );
   }
   if (endTurn) {
     logger.debug(`damageOverTimeEffect: Generating damage over time effect END for ${document.name}`);
     effect.changes.push(
-      overTimeDamage({ document, turn: "end", damage, damageType, saveAbility, saveRemove, saveDamage, dc })
+      overTimeDamage({ document, turn: "end", damage, damageType, saveAbility, saveRemove, saveDamage, dc }),
     );
   }
 

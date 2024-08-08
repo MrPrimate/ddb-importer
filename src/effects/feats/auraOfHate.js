@@ -8,7 +8,7 @@ export function auraOfHateEffect(document) {
     "key": "system.bonuses.mwak.damage",
     "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
     "value": "+@abilities.cha.mod",
-    "priority": 20
+    "priority": 20,
   });
   alliesEffect.statuses.push(alliesEffect.name);
   foundry.utils.setProperty(alliesEffect, "flags.dae.stackable", "none");
@@ -33,7 +33,7 @@ export function auraOfHateEffect(document) {
     "key": "system.bonuses.mwak.damage",
     "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
     "value": "+@abilities.cha.mod",
-    "priority": 20
+    "priority": 20,
   });
   otherEffect.statuses.push(otherEffect.name);
 

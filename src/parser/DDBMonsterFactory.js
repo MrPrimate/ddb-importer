@@ -12,7 +12,7 @@ import {
   addNPC,
   generateIconMap,
   copyExistingMonsterImages,
-  useSRDMonsterImages
+  useSRDMonsterImages,
 } from "../muncher/importMonster.js";
 import Iconizer from "../lib/Iconizer.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
@@ -68,7 +68,7 @@ export default class DDBMonsterFactory {
    * @returns
    */
   async fetchDDBMonsterSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
-    homebrewOnly = false, exactMatch = false, excludeLegacy = false }
+    homebrewOnly = false, exactMatch = false, excludeLegacy = false },
   ) {
     const cobaltCookie = getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
@@ -178,7 +178,7 @@ export default class DDBMonsterFactory {
     this.munchNote(
       `Parsed ${result.actors.length} monsters, failed ${result.failedMonsterNames.length} monsters`,
       false,
-      true
+      true,
     );
     logger.info(`Parsed ${result.actors.length} monsters, failed ${result.failedMonsterNames.length} monsters`);
     if (result.failedMonsterNames && result.failedMonsterNames.length !== 0) {

@@ -80,7 +80,7 @@ export default class DDBCampaigns {
             id: campaignId,
             name: "Unable to fetch campaigns, showing only selected",
             dmUsername: campaignId,
-          }
+          },
         ];
       }
     } else if (campaigns && campaigns.length > 0) {

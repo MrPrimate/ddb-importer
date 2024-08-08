@@ -8,7 +8,7 @@ export function regenerateEffect(document) {
       mode: 5,
       value: `label=${document.name} (Start of Turn),killAnim=true,turn=end,damageRoll=1,damageType=healing,condition=@attributes.hp.value > 0 && @attributes.hp.value < @attributes.hp.max`,
       priority: "20",
-    }
+    },
   );
   document.effects.push(effect);
 

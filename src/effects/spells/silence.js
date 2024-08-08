@@ -28,7 +28,7 @@ export async function silenceEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "thunder",
       priority: "50",
-    }
+    },
   );
   effect.flags["ActiveAuras"] = {
     isAura: true,

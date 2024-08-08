@@ -41,7 +41,7 @@ export default class ExternalAutomations {
       type,
       folderName,
       chrisNameOverride,
-      isMonster
+      isMonster,
     });
   }
 
@@ -101,7 +101,7 @@ export default class ExternalAutomations {
     }))
       .filter((d) =>
         foundry.utils.getProperty(d, "flags.ddbimporter.chrisEffectsApplied") === true
-        && !foundry.utils.hasProperty(d, "flags.items-with-spells-5e.item-spells.parent-item")
+        && !foundry.utils.hasProperty(d, "flags.items-with-spells-5e.item-spells.parent-item"),
       );
     const dataIds = data.map((d) => d._id);
     logger.debug("Chris premades generation complete, beginning replace", {

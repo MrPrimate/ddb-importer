@@ -19,7 +19,7 @@ function getProficiency(data, toolName, ability) {
 
   const toolExpertise = data.character?.classes
     ? data.character.classes.some((cls) =>
-      cls.classFeatures.some((feature) => feature.definition.name === "Tool Expertise" && cls.level >= feature.definition.requiredLevel)
+      cls.classFeatures.some((feature) => feature.definition.name === "Tool Expertise" && cls.level >= feature.definition.requiredLevel),
     )
       ? 2
       : 1
@@ -31,7 +31,7 @@ function getProficiency(data, toolName, ability) {
         // Jack of All trades/half-rounded down
         (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
         // e.g. champion for specific ability checks
-        || isHalfProficiencyRoundedUp(data, ability)
+        || isHalfProficiencyRoundedUp(data, ability),
     ) !== undefined
       ? 0.5
       : 0;

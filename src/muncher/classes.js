@@ -145,7 +145,7 @@ export async function parseClasses() {
 
   const results = classesResults.concat(
     subClassResults.flat(),
-    classOptionsResults.flat()
+    classOptionsResults.flat(),
     // [],
   );
 

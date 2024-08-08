@@ -20,7 +20,7 @@ export function generateLegendaryEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: "Use Legendary Resistance to Succeed?",
       priority: "20",
-    }
+    },
   );
 
   document.effects.push(effect);

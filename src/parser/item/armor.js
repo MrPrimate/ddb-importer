@@ -93,7 +93,7 @@ function getProficient(data, proficiencies) {
 
 function getMagicalArmorBonus(data) {
   const boni = data.definition.grantedModifiers.filter(
-    (mod) => mod.type === "bonus" && mod.subType === "armor-class" && mod.value && mod.value !== 0
+    (mod) => mod.type === "bonus" && mod.subType === "armor-class" && mod.value && mod.value !== 0,
   );
   const bonus = boni.reduce((prev, cur) => prev + cur.value, 0);
   return bonus;

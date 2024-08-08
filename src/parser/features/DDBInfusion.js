@@ -41,7 +41,7 @@ export class DDBInfusion {
             allowDuplicates: this.ddbInfusion.allowDuplicates,
           },
         },
-      }
+      },
     };
 
     this.requiredLevel = null;
@@ -66,7 +66,7 @@ export class DDBInfusion {
       },
       restrictions: {
         type: "",
-        allowMagical: false
+        allowMagical: false,
       },
       classIdentifier: "",
     };
@@ -186,7 +186,7 @@ export class DDBInfusion {
       ],
     });
     const compendiumFeatures = await featureHandler.compendiumIndex.filter((i) =>
-      featureHandler.documents.some((orig) => i.name === orig.name)
+      featureHandler.documents.some((orig) => i.name === orig.name),
     );
     return compendiumFeatures;
   }
@@ -288,7 +288,7 @@ export class DDBInfusion {
         name: this.name,
         grantedModifiers: modifiers.filter((mod) =>
           !(mod.type === "bonus" && mod.subType === "armor-class")
-          && !(mod.type === "bonus" && mod.subType === "magic")
+          && !(mod.type === "bonus" && mod.subType === "magic"),
         ),
       },
     };
@@ -323,7 +323,7 @@ export class DDBInfusion {
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
         value: nameLabel,
         priority: 20,
-      }
+      },
     );
     return effect;
   }

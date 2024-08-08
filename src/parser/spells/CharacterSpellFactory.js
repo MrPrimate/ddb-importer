@@ -51,7 +51,7 @@ export default class CharacterSpellFactory {
           (mod) =>
             mod.type === "bonus"
             && mod.subType === `${classInfo.definition.name.toLowerCase()}-cantrip-damage`
-            && (mod.restriction === null || mod.restriction === "")
+            && (mod.restriction === null || mod.restriction === ""),
         ).length > 0;
 
       // parse spells chosen as spellcasting (playerClass.spells)
@@ -189,7 +189,7 @@ export default class CharacterSpellFactory {
           (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
           && klass
           && klass.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class
-          && spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
+          && spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
       );
       if (!this.items[duplicateSpell]) {
         const parsedSpell = await parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
@@ -214,7 +214,7 @@ export default class CharacterSpellFactory {
       const duplicateSpell = this.items.findIndex(
         (existingSpell) =>
           (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
-          && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
+          && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
       );
       if (!dups && !this.items[duplicateSpell]) {
         // also parse spell as non-limited use

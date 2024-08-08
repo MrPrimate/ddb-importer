@@ -49,7 +49,7 @@ function getSpellData(className, sourceFilter) {
       .then((data) => {
         if (sources.length == 0 || !sourceFilter) return data.data;
         return data.data.filter((spell) =>
-          spell.definition.sources.some((source) => sources.includes(source.sourceId))
+          spell.definition.sources.some((source) => sources.includes(source.sourceId)),
         );
       })
       .then((data) => {

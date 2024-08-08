@@ -28,7 +28,7 @@ export default class DDBCompendiumSetup extends FormApplication {
     const selections = game.packs
       .filter((pack) =>
         pack.documentName === type
-      && !excludedCompendiumPackages.includes(pack.metadata.packageName)
+      && !excludedCompendiumPackages.includes(pack.metadata.packageName),
       )
       .reduce((choices, pack) => {
         choices[pack.collection] = {

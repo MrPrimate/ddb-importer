@@ -55,7 +55,7 @@ export async function midiItemEffects(document) {
       if (document.effects && document.effects.length > 0) {
         document.effects[0].changes.push(
           generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.msak"),
-          generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.rsak")
+          generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.rsak"),
         );
       }
       break;
@@ -135,7 +135,7 @@ export function equipmentEffectAdjustment(document) {
           value: "true",
           mode: 5,
           priority: 20,
-        }
+        },
       );
       break;
     }

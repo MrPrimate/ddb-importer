@@ -11,13 +11,13 @@ function addLanguages() {
       .map((lang) => utils.nameString(lang.name))
       .filter((lang) =>
         !DICTIONARY.character.languages.some((l) => l.name === lang)
-        && !["All"].includes(lang)
+        && !["All"].includes(lang),
       ))];
 
     CONFIG.DND5E.languages.ddb = {
       label: "D&D Beyond",
       children: {
-      }
+      },
     };
     ddbFiltered.forEach((lang) => {
       const stub = utils.normalizeString(lang);

@@ -10,7 +10,7 @@ export function hasteEffect(document) {
       value: "1",
       priority: "20",
     },
-    { key: "system.attributes.movement.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "*2", priority: "30" }
+    { key: "system.attributes.movement.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "*2", priority: "30" },
   );
   effect.duration = {
     startTime: null,

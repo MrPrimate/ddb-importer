@@ -8,7 +8,7 @@ export function warCasterEffect(document) {
       key: "system.attributes.concentration.roll.mode",
       value: "1",
       mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
-      priority: 10
+      priority: 10,
     },
   );
   if (effectModules().midiQolInstalled) {

@@ -20,7 +20,7 @@ export async function spiritGuardiansEffect(document) {
       value:
         "turn=start,label=Spirit Guardians (Start of Turn),damageRoll=(@spellLevel)d8,damageType=radiant,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=wis,saveDamage=halfdamage,killAnim=true",
       priority: "20",
-    }
+    },
   );
   await DDBMacros.setItemMacroFlag(document, "spell", "spiritGuardians.js");
   effect.flags["ActiveAuras"] = {

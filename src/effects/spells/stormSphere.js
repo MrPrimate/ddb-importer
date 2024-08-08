@@ -20,7 +20,7 @@ export async function stormSphereEffect(document) {
       value:
         "turn=end,label=Storm Sphere (End of Turn),damageRoll=(@item.level - 2)d6,damageType=bludgeoning,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=str,saveDamage=nodamage,killAnim=true",
       priority: "20",
-    }
+    },
   );
   await DDBMacros.setItemMacroFlag(document, "spell", "stormSphere.js");
   effect.flags["ActiveAuras"] = {

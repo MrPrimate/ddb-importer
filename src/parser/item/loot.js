@@ -34,7 +34,7 @@ const LOOT_TYPES = {
 
 function getItemType(data, typeHint) {
   let result = {
-    type: "loot"
+    type: "loot",
   };
 
   if (data.definition.isContainer
@@ -75,7 +75,7 @@ function getItemType(data, typeHint) {
     })
     .reduce(
       (itemType, currentType) => (currentType !== undefined && itemType === undefined ? currentType : itemType),
-      undefined
+      undefined,
     );
 
   if (!itemType && data.definition.type === "Gear"

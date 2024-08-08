@@ -89,7 +89,7 @@ async function processVehicleData(ddbData) {
   DDBMuncher.munchNote(
     `Parsed ${parsedVehicles.actors.length} vehicles, failed ${parsedVehicles.failedVehicleNames.length} vehicles`,
     false,
-    true
+    true,
   );
   logger.info(`Parsed ${parsedVehicles.actors.length} vehicles, failed ${parsedVehicles.failedVehicleNames.length} vehicles`);
   if (parsedVehicles.failedVehicleNames && parsedVehicles.failedVehicleNames.length !== 0) {

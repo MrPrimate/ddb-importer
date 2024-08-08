@@ -11,7 +11,7 @@ import FileHelper from "../lib/FileHelper.js";
 function getNotes(scene, bookCode) {
   // get all notes in the Journal related to this scene
   const relatedJournalEntries = game.journal.filter((journal) =>
-    journal.flags.ddb?.bookCode && journal.flags.ddb.bookCode === bookCode
+    journal.flags.ddb?.bookCode && journal.flags.ddb.bookCode === bookCode,
   );
 
   // get all notes placed on the map
@@ -78,7 +78,7 @@ function getNotes(scene, bookCode) {
           iconTint: note.iconTint,
           textColor: note.textColor,
           textAnchor: note.textAnchor,
-          positions: [{ x: note.x, y: note.y }]
+          positions: [{ x: note.x, y: note.y }],
         };
         notes.push(n);
       }
@@ -100,7 +100,7 @@ function getNotes(scene, bookCode) {
       iconTint: note.iconTint,
       textColor: note.textColor,
       textAnchor: note.textAnchor,
-      positions: [{ x: note.x, y: note.y }]
+      positions: [{ x: note.x, y: note.y }],
     }));
 
   const notes = journalNotes.concat(unLinkedNotes)

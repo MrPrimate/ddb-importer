@@ -138,7 +138,7 @@ export function specialCases(monster) {
         "value": null,
         "max": "",
         "per": null,
-        "recovery": ""
+        "recovery": "",
       };
     } else if (item.name.startsWith("Soothing Word")) {
       this[index].system.target = {

@@ -105,7 +105,7 @@ export default class DDBFeatures {
       .filter(
         (trait) => DDBFeatures.includedFeatureNameCheck(trait.definition.name)
           && !trait.definition.hideInSheet
-          && !this.excludedOriginFeatures.includes(trait.definition.id)
+          && !this.excludedOriginFeatures.includes(trait.definition.id),
       );
 
     for (const feat of traits) {
@@ -198,7 +198,7 @@ export default class DDBFeatures {
       const scaleKlass = this.ddbCharacter.raw.classes.find((klass) =>
         klass.system.advancement
           .some((advancement) => advancement.type === "ScaleValue"
-            && advancement.configuration.identifier === featureName
+            && advancement.configuration.identifier === featureName,
           ));
 
       if (scaleKlass) {

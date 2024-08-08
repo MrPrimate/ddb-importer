@@ -44,7 +44,7 @@ export default class DDBSubClass extends DDBClass {
           source: {
             type: "class",
             text: this.ddbClass.subclassDefinition.name,
-          }
+          },
         },
       },
       img: null,

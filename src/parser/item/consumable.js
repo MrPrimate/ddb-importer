@@ -22,7 +22,7 @@ export function getDamage(data, actionType) {
       // healing potion
       // we only get the first matching modifier
       const healingModifier = data.definition.grantedModifiers.find(
-        (mod) => mod.type === "bonus" && mod.subType === "hit-points"
+        (mod) => mod.type === "bonus" && mod.subType === "hit-points",
       );
       if (healingModifier) {
         const healingDie = healingModifier.dice
@@ -41,7 +41,7 @@ export function getDamage(data, actionType) {
     case "rsak": {
       // damage potion
       const damageModifier = data.definition.grantedModifiers.find((mod) =>
-        mod.type === "damage" && (mod.dice || mod.die)
+        mod.type === "damage" && (mod.dice || mod.die),
       );
       if (damageModifier) {
         const damageDie = damageModifier.dice

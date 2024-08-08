@@ -66,7 +66,7 @@ export default class ThirdPartyMunch extends FormApplication {
     return {
       data,
       packages,
-      cssClass: "ddb-importer-third-party-window"
+      cssClass: "ddb-importer-third-party-window",
     };
 
   }
@@ -181,7 +181,7 @@ export default class ThirdPartyMunch extends FormApplication {
       {
         classes: ["dialog", "adventure-import-export"],
         template: "modules/ddb-importer/handlebars/adventure/import-complete.hbs",
-      }
+      },
     ).render(true);
   }
 
@@ -237,7 +237,7 @@ export default class ThirdPartyMunch extends FormApplication {
     const folder = game.folders.find((f) =>
       f.type === type
       && f.parentFolder === undefined
-      && f.name === label
+      && f.name === label,
     );
 
     return folder ? folder : ThirdPartyMunch._createFolder(label, type);
@@ -257,12 +257,12 @@ export default class ThirdPartyMunch extends FormApplication {
       modules: [],
       version: "2.5",
       options: {
-        folders: true
+        folders: true,
       },
       folderColour: "FF0000",
       required: {
         monsters,
-      }
+      },
     };
   }
 
@@ -276,7 +276,7 @@ export default class ThirdPartyMunch extends FormApplication {
     } else {
       const existingActor = game.actors.find((actor) =>
         foundry.utils.hasProperty(actor, "flags.ddbimporter.id")
-        && actor.folder?.id == folderId && actor.flags.ddbimporter.id == ddbId
+        && actor.folder?.id == folderId && actor.flags.ddbimporter.id == ddbId,
       );
       const actorId = existingActor ? existingActor.id : foundry.utils.randomID();
       CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key] = actorId;
@@ -351,7 +351,7 @@ export default class ThirdPartyMunch extends FormApplication {
             note.flags.ddb.labelName = `${note.label}`;
             note.flags.ddb.slugLink = note.label.replace(/[^\w\d]+/g, "").replace(/^([a-zA-Z]?)0+/, "$1");
             note.flags.anchor = {
-              slug: note.flags.ddb.slugLink
+              slug: note.flags.ddb.slugLink,
             };
             note.text = note.label;
 
@@ -374,7 +374,7 @@ export default class ThirdPartyMunch extends FormApplication {
               || page.flags.ddb.slug.replace(/^([a-zA-Z]?)0+/, "$1") == note.flags.ddb.slug
               || page.flags.ddb.slug.startsWith(note.flags.ddb.slug)
               || note.flags.ddb.slug.startsWith(page.flags.ddb.slug))
-              && (page._id === contentChunkIdPageId || page._id === slugLinkPageId)
+              && (page._id === contentChunkIdPageId || page._id === slugLinkPageId),
             );
 
             if (journalPage) {
@@ -458,7 +458,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
     const existingScene = game.scenes.find((s) =>
       s.name === scene.name
-      && (s.folder?.id === folder.id || s.folder?.ancestors?.some((f) => f.id === folder.id))
+      && (s.folder?.id === folder.id || s.folder?.ancestors?.some((f) => f.id === folder.id)),
     );
 
     logger.debug("Third Party Scene Processing", {
@@ -466,7 +466,7 @@ export default class ThirdPartyMunch extends FormApplication {
       scene,
       folder,
       folderName,
-      compendiumScene
+      compendiumScene,
     });
 
     // if scene already exists, update
@@ -604,7 +604,7 @@ export default class ThirdPartyMunch extends FormApplication {
           const newScene = foundry.utils.duplicate(scene);
           newScene.tokens = await ThirdPartyMunch._linkSceneTokens(scene);
           return newScene;
-        })
+        }),
       );
 
       logger.debug("tokenAdjustedScenes", tokenAdjustedScenes);

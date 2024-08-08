@@ -136,7 +136,7 @@ import { zephyrStrikeEffect } from "./spells/zephyrStrike.js";
 
 
 export function baseSpellEffect(document, label,
-  { transfer = false, disabled = false } = {}
+  { transfer = false, disabled = false } = {},
 ) {
   return baseEffect(document, label, { transfer, disabled });
 }

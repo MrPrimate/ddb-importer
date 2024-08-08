@@ -97,7 +97,7 @@ export default class DDBAction extends DDBBaseFeature {
     } catch (err) {
       logger.warn(
         `Unable to Generate Action: ${this.name}, please log a bug report. Err: ${err.message}`,
-        "extension"
+        "extension",
       );
       logger.error("Error", err);
     }
@@ -107,17 +107,17 @@ export default class DDBAction extends DDBBaseFeature {
     // if (this.documentType === "weapon") return;
     if (this.ddbData.character.actions.class.some((a) =>
       a.name === this.ddbDefinition.name
-      || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
+      || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name),
     )) {
       this.data.system.type.value = "class";
     } else if (this.ddbData.character.actions.race.some((a) =>
       a.name === this.ddbDefinition.name
-      || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
+      || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name),
     )) {
       this.data.system.type.value = "race";
     } else if (this.ddbData.character.actions.feat.some((a) =>
       a.name === this.ddbDefinition.name
-      || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name)
+      || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name),
     )) {
       this.data.system.type.value = "feat";
     } else if (typeNudge) {
@@ -268,7 +268,7 @@ export default class DDBAction extends DDBBaseFeature {
   _calculateActionAttackAbilities() {
     let defaultAbility = this.ddbDefinition.abilityModifierStatId
       ? DICTIONARY.character.abilities.find(
-        (stat) => stat.id === this.ddbDefinition.abilityModifierStatId
+        (stat) => stat.id === this.ddbDefinition.abilityModifierStatId,
       ).value
       : "";
 
@@ -331,16 +331,16 @@ export default class DDBAction extends DDBBaseFeature {
       .filter((cls) => cls.classFeatures.some((feature) =>
         feature.definition.id == this.ddbDefinition.componentId
         && feature.definition.entityTypeId == this.ddbDefinition.componentTypeId
-        && feature.levelScale?.dice?.diceString
+        && feature.levelScale?.dice?.diceString,
       ))
       .map((cls) => {
         const feature = cls.classFeatures.find((feature) =>
           feature.definition.id == this.ddbDefinition.componentId
-          && feature.definition.entityTypeId == this.ddbDefinition.componentTypeId
+          && feature.definition.entityTypeId == this.ddbDefinition.componentTypeId,
         );
         const parsedString = this.rawCharacter.flags.ddbimporter.dndbeyond.templateStrings.find((templateString) =>
           templateString.id == this.ddbDefinition.id
-          && templateString.entityTypeId == this.ddbDefinition.entityTypeId
+          && templateString.entityTypeId == this.ddbDefinition.entityTypeId,
         );
         const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
         const scaleValueLink = DDBHelper.getScaleValueString(this.ddbData, this.ddbDefinition).value;
@@ -389,7 +389,7 @@ export default class DDBAction extends DDBBaseFeature {
       .some((cls) =>
         cls.classFeatures.some((feature) =>
           feature.definition.name === "Ki-Empowered Strikes"
-          && cls.level >= feature.definition.requiredLevel
+          && cls.level >= feature.definition.requiredLevel,
         ));
 
     if (kiEmpowered && foundry.utils.getProperty(this.data, "flags.ddbimporter.originalName") == "Unarmed Strike") {

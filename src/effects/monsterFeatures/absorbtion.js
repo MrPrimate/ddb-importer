@@ -12,7 +12,7 @@ export function absorptionEffect(item) {
         value: match[2] ? "0.5" : "1",
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         priority: 20,
-      }
+      },
     );
     effect.img = "icons/svg/downgrade.svg";
     effect.icon = "icons/svg/downgrade.svg";

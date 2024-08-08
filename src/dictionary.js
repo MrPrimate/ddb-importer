@@ -114,7 +114,7 @@ const DICTIONARY = {
     darkvision: "darkvision",
     tremorsense: "tremorsense",
     truesight: "truesight",
-    unknown: "basic"
+    unknown: "basic",
   },
   senseMap: () => {
     if (game.modules.get("vision-5e")?.active) return DICTIONARY.senseMapVision5e;
@@ -339,7 +339,7 @@ const DICTIONARY = {
       { id: 61, type: 1, kind: "resistance", name: "Nonmagical Bludgeoning, Piercing, and Slashing (from Stoneskin)", foundryValues: { value: ["bludgeoning", "piercing", "slashing"], bypass: ["mgc"] } },
       { id: 62, type: 1, kind: "resistance", name: "All damage but Force, Radiant, and Psychic", foundryValues: { value: ["bludgeoning", "piercing", "slashing", "lightning", "thunder", "cold", "fire", "necrotic", "acid", "poison"], bypass: [] } },
       { id: 63, type: 2, kind: "immunity", name: "Petrified (Aberrant Armor Only)", value: "petrified-aberrant-armor-only" },
-      { id: 64, type: 1, kind: "vulnerability", name: "Slashing from a Vorpal Sword", value: "slashing-from-a-vorpal-sword", },
+      { id: 64, type: 1, kind: "vulnerability", name: "Slashing from a Vorpal Sword", value: "slashing-from-a-vorpal-sword" },
       { id: 65, type: 1, kind: "resistance", name: "Damage of the type matching the animated breath's form (acid, cold, fire, lightning, or poison)", value: "damage-of-the-type-matching-the-animated-breaths-form-acid-cold-fire-lightning-or-poison" },
       { id: 66, type: 1, kind: "resistance", name: "Psychic (granted by Ruidium Armor)", foundryValues: { value: ["psychic"], bypass: [] } },
       { id: 67, type: 2, kind: "immunity", name: "Bludgeoning, Piercing, and Slashing that is Nonmagical", foundryValues: { value: ["slashing", "bludgeoning", "piercing"], bypass: ["mgc"] } },
@@ -694,10 +694,10 @@ const DICTIONARY = {
     ],
     activationTypes: [
       { activationType: 0, value: "none", name: "No Action" }, // doesn't exist an more
-      { activationType: 1, value: "action", name: "Action", }, // action
+      { activationType: 1, value: "action", name: "Action" }, // action
       { activationType: 2, value: "none", name: "No Action" }, // no action
       { activationType: 3, value: "bonus", name: "Bonus Action" }, // bonus action
-      { activationType: 4, value: "reaction", name: "Reaction", }, // reaction
+      { activationType: 4, value: "reaction", name: "Reaction" }, // reaction
       { activationType: 5, value: "special", name: "Unknown" }, // no longer exists
       { activationType: 6, value: "minute", name: "Minute" }, // minute
       { activationType: 7, value: "hour", name: "Hour" }, // hour

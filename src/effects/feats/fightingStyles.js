@@ -26,7 +26,7 @@ export function fightingStyleInterceptionEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "1d10 + @system.attributes.prof",
       priority: "20",
-    }
+    },
   );
   foundry.utils.setProperty(effect, "duration.turns", 1);
   foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isDamaged"]);

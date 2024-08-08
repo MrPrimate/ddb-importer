@@ -41,7 +41,7 @@ export async function venomTrollEffects(npc) {
         "value": 5,
         "width": null,
         "units": "ft",
-        "type": "creature"
+        "type": "creature",
       };
       item.system.range.units = "spec";
       item.system.duration.units = "inst";

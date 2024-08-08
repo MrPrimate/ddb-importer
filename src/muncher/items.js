@@ -73,13 +73,13 @@ async function generateImportItems(items) {
         condition: [],
       },
       feats: [],
-    }
+    },
   };
   let itemSpells = []; // here we need to parse each available spell and build a mock spell parser
   const ddbCharacter = new DDBCharacter(mockDDB);
   ddbCharacter.raw.character = mockCharacter;
   ddbCharacter.source = {
-    ddb: mockDDB
+    ddb: mockDDB,
   };
   ddbCharacter.raw.itemSpells = [];
   const inventory = await ddbCharacter.getInventory();
@@ -126,7 +126,7 @@ function getItemData(sourceFilter) {
         const genericsFilteredData = data.data.filter((item) => item.canBeAddedToInventory || useGenerics);
         if (sources.length == 0 || !sourceFilter) return genericsFilteredData;
         return genericsFilteredData.filter((item) =>
-          item.sources.some((source) => sources.includes(source.sourceId))
+          item.sources.some((source) => sources.includes(source.sourceId)),
         );
       })
       .then((data) => {

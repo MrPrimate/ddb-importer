@@ -20,7 +20,7 @@ DDBCharacter.prototype._getCustomProficiencies = function _getCustomProficiencie
     (value) =>
       profGroup.customAdjustments.includes(parseInt(value.typeId))
       && profGroup.entityTypeIds.includes(parseInt(value.valueTypeId))
-      && value.value == 3
+      && value.value == 3,
   );
   const customProfs = CONFIG.DDB[type.toLowerCase()]
     .filter((prof) => profCharacterValues.some((value) => value.valueId == prof.id))
@@ -97,7 +97,7 @@ DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(prof
 
   const toolExpertise = this.source?.ddb
     ? this.source.ddb.character.classes.some((cls) =>
-      cls.classFeatures.some((feature) => feature.definition.name === "Tool Expertise" && cls.level >= feature.definition.requiredLevel)
+      cls.classFeatures.some((feature) => feature.definition.name === "Tool Expertise" && cls.level >= feature.definition.requiredLevel),
     )
       ? 2
       : 1
@@ -118,7 +118,7 @@ DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(prof
             // Jack of All trades/half-rounded down
             (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
             // e.g. champion for specific ability checks
-            || this._isHalfProficiencyRoundedUp({ ability: defaultAbility })
+            || this._isHalfProficiencyRoundedUp({ ability: defaultAbility }),
         ) !== undefined
           ? 0.5
           : 0
@@ -130,8 +130,8 @@ DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(prof
         value: proficient,
         ability: profMatch.ability,
         bonuses: {
-          check: ""
-        }
+          check: "",
+        },
       };
     }
   });

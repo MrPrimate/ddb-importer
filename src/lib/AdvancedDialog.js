@@ -125,7 +125,7 @@ class AdvancedDialog {
         const rowContent = AdvancedDialog._generateSelectionHtmlStub(type, label, options, id);
         return `<tr>${rowContent}</tr>`;
       }),
-      `</table>`
+      `</table>`,
     ].join(`\n`);
   };
 
@@ -273,7 +273,7 @@ export class ChooserDialog extends AdvancedDialog {
                 resolve(results);
               }
             },
-          }
+          },
         }), {})
         // inserts default button
         : {
@@ -286,7 +286,7 @@ export class ChooserDialog extends AdvancedDialog {
                 inputs: this.inputs,
                 success: true,
               }),
-          }
+          },
         };
 
       this.dialog = new Dialog(
@@ -301,8 +301,8 @@ export class ChooserDialog extends AdvancedDialog {
         {
           classes: this.config.classes,
           focus: true,
-          ...this.config.options
-        }
+          ...this.config.options,
+        },
       );
       this.dialog.render(true);
     });
