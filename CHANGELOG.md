@@ -10,7 +10,6 @@
 - Shadar Kai now gain resistance to magical sleep.
 - Icons for features, items and spells will now always be downloaded to prevent failures with effect transference in v12.
 
-
 # 5.2.29
 
 - Small fix for Druid import warning/error for CR scale. @sayshal
