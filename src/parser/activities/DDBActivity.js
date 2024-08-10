@@ -11,3 +11,7 @@
 
 
 // CONFIG.DND5E.activityTypes
+
+
+// TODO
+// check effects for recharge and uses chages
