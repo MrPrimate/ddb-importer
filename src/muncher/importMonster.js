@@ -33,12 +33,14 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
         }
         if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")) {
           item.system.consume = existingItem.system.consume;
+          item.system.uses.recovery = existingItem.system.uses.recovery;
           foundry.utils.setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
           if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e")) {
             foundry.utils.setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
           }
+        // TODO: evaluate this
         } else if (foundry.utils.getProperty(item, "system.consume.target")
-          && foundry.utils.getProperty(item, "system.recharge.value")) {
+          && foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge")) {
           item.system.consume.target = existingItem.id;
         }
 
@@ -294,11 +296,15 @@ async function swapItems(data) {
 }
 
 async function linkResourcesConsumption(actor) {
-  if (actor.items.some((item) => item.system.recharge?.value)) {
+  // TODO: I think this is actually in recovery
+  // is consume gone?
+  if (actor.items.some((item) =>
+    foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge"),
+  )) {
     logger.debug(`Resource linking for ${actor.name}`);
     actor.items.forEach((item) => {
-      if (item.system?.recharge?.value) {
-        const itemID = foundry.utils.randomID(16);
+      if (foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge")) {
+        const itemID = item._id ?? foundry.utils.randomID(16);
         item._id = itemID;
         if (item.type === "weapon") {
           item.type = "feat";
@@ -308,6 +314,9 @@ async function linkResourcesConsumption(actor) {
             subtype: "",
           };
         }
+        // item.system.uses.recovery = [
+        //   { period: "recharge", type: 'recoverAll', formula: "5" },
+        // ];
         item.system.consume = {
           type: "charges",
           target: itemID,

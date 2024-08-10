@@ -87,9 +87,12 @@ export function equipmentEffectAdjustment(document) {
       };
       effect.flags.dae.stackable = false;
       document.system.uses = {
-        value: 1,
+        spent: 0,
         max: "1",
-        per: "day",
+        recovery: [{
+          period: "day",
+          type: "recoverAll",
+        }],
       };
       document.system.target = {
         value: null,

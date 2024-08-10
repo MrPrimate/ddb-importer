@@ -4,6 +4,8 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import { addNPC } from "../../muncher/importMonster.js";
 
+// TODO: SUmmons are now activities
+
 const SUMMONS_ACTOR_STUB = {
   "type": "npc",
   "system": {

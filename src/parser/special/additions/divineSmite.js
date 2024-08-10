@@ -53,9 +53,9 @@ export function getDivineSmiteSpell(feature) {
         units: "",
       },
       uses: {
-        value: 0,
+        spent: 0,
         max: 0,
-        per: "",
+        recovery: "",
       },
       consume: {
         type: "",

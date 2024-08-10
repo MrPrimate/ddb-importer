@@ -84,6 +84,8 @@ export default class DDBAction extends DDBBaseFeature {
       this._generateRange();
       this._generateAttackType();
 
+      // TODO: evaluate activities here
+
       if (this.data.system.damage.parts.length === 0) {
         logger.debug("Running level scale parser");
         this._generateLevelScaleDice();

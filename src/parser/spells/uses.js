@@ -1,9 +1,9 @@
 import DICTIONARY from "../../dictionary.js";
 
 const DEFAULT_USE = {
-  value: null,
+  spent: null,
   max: null,
-  per: "",
+  recovery: [],
 };
 
 /**
@@ -11,6 +11,7 @@ const DEFAULT_USE = {
  * @param {*} data Spell data
  * @param {*} character Character data
  */
+// eslint-disable-next-line no-unused-vars
 export function getUses(data, character) {
   // we check this, as things like items have useage attached to the item, not spell
   const limitedUse = foundry.utils.getProperty(data, "flags.ddbimporter.dndbeyond.limitedUse") ?? data.limitedUse;
@@ -20,7 +21,7 @@ export function getUses(data, character) {
   if (!resetType) return DEFAULT_USE;
 
   if (limitedUse.maxUses || limitedUse.statModifierUsesId || limitedUse.useProficiencyBonus) {
-    let maxUses = (limitedUse.maxUses && limitedUse.maxUses !== -1) ? limitedUse.maxUses : 0;
+    let maxUses = (limitedUse.maxUses && limitedUse.maxUses !== -1) ? limitedUse.maxUses : "";
 
     if (limitedUse.statModifierUsesId) {
       const ability = DICTIONARY.character.abilities.find(
@@ -29,33 +30,43 @@ export function getUses(data, character) {
 
       switch (limitedUse.operator) {
         case 2: {
-          maxUses *= character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
+          // maxUses *= character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
+          maxUses = `${maxUses} * @abilities.${ability}.mod`;
           break;
         }
         case 1:
         default:
-          maxUses += character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
+          // maxUses += character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
+          maxUses = `${maxUses} + @abilities.${ability}.mod`;
       }
     }
 
     if (limitedUse.useProficiencyBonus) {
       switch (limitedUse.proficiencyBonusOperator) {
         case 2: {
-          maxUses *= character.system.attributes.prof;
+          // maxUses *= character.system.attributes.prof;
+          maxUses = `${maxUses} * @prof`;
           break;
         }
         case 1:
         default:
-          maxUses += character.system.attributes.prof;
+          // maxUses += character.system.attributes.prof;
+          maxUses = `${maxUses} + @prof`;
       }
     }
 
-    const finalMaxUses = (maxUses) ? parseInt(maxUses) : null;
+    const finalMaxUses = (maxUses !== "") ? maxUses : null;
 
     return {
-      value: (finalMaxUses !== null && finalMaxUses != 0) ? maxUses - limitedUse.numberUsed : null,
-      max: (finalMaxUses != 0) ? finalMaxUses : null,
-      per: resetType ? resetType.value : "",
+      spent: limitedUse.numberUsed ?? null,
+      max: finalMaxUses,
+      recovery: resetType
+        ? [{
+          // TODO: if charges returned here maybe don't?
+          period: resetType.value,
+          type: 'recoverAll',
+        }]
+        : [],
     };
   } else {
     return DEFAULT_USE;

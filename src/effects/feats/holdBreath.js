@@ -15,7 +15,14 @@ export function holdBreathEffect(document) {
   };
 
   if (document.name === "Partially Amphibious") {
-    document.system.uses = { value: 1, max: "1", per: "lr", type: "" };
+    document.system.uses = {
+      spent: 0,
+      max: "1",
+      recovery: [{
+        period: "lr",
+        type: "recoverAll",
+      }],
+    };
   }
 
   return document;

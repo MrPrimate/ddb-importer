@@ -56,16 +56,20 @@ export async function fixFeatures(features) {
         feature.system.actionType = "heal";
         feature.system["target"]["type"] = "self";
         feature.system.range = { value: null, units: "self", long: null };
-        feature.system.uses = { value: null, max: "0", per: "", type: "" };
+        feature.system.uses = {
+          spent: null,
+          max: null,
+          recovery: [],
+        };
         break;
       }
       case "Celestial Revelation": {
         feature.system.activation.type = "";
         feature.system.actionType = "";
         feature.system.uses = {
-          value: null,
+          spent: null,
           max: null,
-          per: "",
+          recovery: [],
         };
         break;
       }
@@ -246,9 +250,9 @@ export async function fixFeatures(features) {
       }
       case "Hypnotic Gaze": {
         feature.system.uses = {
-          value: null,
+          spent: null,
           max: null,
-          per: "",
+          recovery: [],
         };
         break;
       }
@@ -325,9 +329,12 @@ export async function fixFeatures(features) {
       case "Radiant Soul": {
         if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") == "race") {
           feature.system.uses = {
-            value: 1,
-            max: 1,
-            per: "lr",
+            spent: 0,
+            max: "1",
+            recovery: [{
+              period: "lr",
+              type: "recoverAll",
+            }],
           };
         } else if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") == "class") {
           feature.system.activation.type = "special";

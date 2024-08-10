@@ -135,10 +135,9 @@ export function specialCases(monster) {
   monster.items.forEach(function (item, index) {
     if (item.name.startsWith("Sneak Attack")) {
       this[index].system.uses = {
-        "value": null,
+        "spent": null,
         "max": "",
-        "per": null,
-        "recovery": "",
+        "recovery": [],
       };
     } else if (item.name.startsWith("Soothing Word")) {
       this[index].system.target = {

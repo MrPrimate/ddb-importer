@@ -122,6 +122,7 @@ export class DDBInfusionFactory {
           const characterAbilities = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
           const mockAbility = foundry.utils.getProperty(foundryItem, "flags.ddbimporter.dndbeyond.ability");
           if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
+            // TODO: move to activity
             foundryItem.system.ability = "int";
           }
         }

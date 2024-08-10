@@ -19,6 +19,8 @@ export class DDBInfusion {
 
   _generateDataStub() {
 
+    // TODO: Infusions need to move to activities
+
     this.data = {
       _id: utils.namedIDStub(this.name, { postfix: this.nameIdPostfix }),
       name: utils.nameString(`Infusion: ${this.name}`),
@@ -53,6 +55,7 @@ export class DDBInfusion {
       this.requiredLevel = Number.parseInt(requiredLevel);
     }
 
+    // TODO: revisit to ensure this does not need to move to an activity
     this.data.system.consume = {
       type: "charges",
       target: "",

@@ -841,6 +841,7 @@ ${item.system.description.chat}
       if (foundry.utils.getProperty(ddbItemFlags, "retainResourceConsumption") ?? false) {
         logger.debug(`Retaining resources for ${item.name}`);
         item.system.consume = foundry.utils.deepClone(existingItem.system.consume);
+        item.system.uses.recovery = foundry.utils.deepClone(existingItem.system.uses.recovery);
         item.flags.ddbimporter.retainResourceConsumption = true;
         if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e") ?? false) {
           foundry.utils.setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);

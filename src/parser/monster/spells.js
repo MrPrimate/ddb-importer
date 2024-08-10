@@ -505,10 +505,9 @@ DDBMonster.prototype.addSpells = async function() {
           prepared: false,
         };
         spell.system.uses = {
-          value: null,
-          max: "",
-          per: null,
-          recovery: "",
+          spent: null,
+          max: null,
+          recovery: [],
         };
       }
       this.getSpellEdgeCase(spell, "atwill", this.spellList);
@@ -571,10 +570,9 @@ DDBMonster.prototype.addSpells = async function() {
           }
           if (isAtWill && spellInfo.type === "atwill") {
             spell.system.uses = {
-              value: null,
-              max: "",
-              per: null,
-              recovery: "",
+              spent: null,
+              max: null,
+              recovery: [],
             };
           } else {
             const perLookup = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
@@ -584,10 +582,11 @@ DDBMonster.prototype.addSpells = async function() {
                 ? perLookup.type
                 : "day";
             spell.system.uses = {
-              value: parseInt(spellInfo.value),
+              spent: 0,
               max: spellInfo.value ?? "",
-              per,
-              recovery: "",
+              recovery: [
+                { period: per, type: "recoverAll", formula: undefined },
+              ],
             };
           }
           this.getSpellEdgeCase(spell, "innate", this.spellList);

@@ -407,8 +407,17 @@ export function basicMagicItem(item, data, itemSpells, isCompendiumItem) {
         : undefined;
 
       const uses = isPerSpell
-        ? { max: spellData.charges, per: resetType ?? "" }
-        : { max: "", per: "" };
+        ? {
+          spent: 0,
+          max: spellData.charges,
+          recovery: resetType
+            ? [{
+              period: resetType,
+              type: "recoverAll",
+            }]
+            : [],
+        }
+        : { max: "", spent: null, recovery: [] };
       const consume = isPerSpell
         ? { amount: null }
         : {
@@ -455,10 +464,10 @@ export function parseMagicItem(item, data, itemSpells, isCompendiumItem = false)
     });
     item = basicMagicItem(item, data, itemSpells, isCompendiumItem);
 
-    const uses = foundry.utils.getProperty(item, "system.uses.value");
+    const spent = foundry.utils.getProperty(item, "system.uses.spent");
     const activation = foundry.utils.getProperty(item, "system.activation.type");
 
-    if (activation === "" && uses > 0) {
+    if (activation === "" && spent === 0) {
       item.system.activation.type = "special";
     }
   }

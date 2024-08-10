@@ -36,15 +36,21 @@ function getLimitedUse(action) {
     const finalMaxUses = (maxUses) ? parseInt(maxUses) : null;
 
     return {
-      value: (finalMaxUses !== null && finalMaxUses != 0) ? maxUses - action.limitedUse.numberUsed : null,
+      spent: action.limitedUse.numberUsed ?? 0,
       max: (finalMaxUses != 0) ? finalMaxUses : null,
       per: resetType ? resetType.value : "",
+      recovery: resetType
+        ? [
+          // TODO: ensure charges is not returned here
+          { period: resetType.value, type: 'recoverAll', formula: undefined },
+        ]
+        : [],
     };
   } else {
     return {
-      value: null,
+      spent: null,
       max: null,
-      per: "",
+      recovery: [],
     };
   }
 }

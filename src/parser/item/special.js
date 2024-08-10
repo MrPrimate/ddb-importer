@@ -15,7 +15,14 @@ function tattoos(item) {
   if (!item.name.toLowerCase().includes("tattoo")) return;
   const name = item.flags.ddbimporter?.originalName ?? item.name;
   if (name.startsWith("Absorbing")) {
-    item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: false, autoUse: true };
+    item.system.uses = {
+      spent: 0,
+      max: 1,
+      // TODO: charges is not correct here
+      recovery: [{ period: "charges", type: "recoverAll" }],
+      autoDestroy: false,
+      autoUse: true,
+    };
     // foundry.utils.setProperty(item, "flags.ddbimporter.effectLabelOverride", `${item.name}`);
     item.effects.map((effect) => {
       effect.name = item.name;
@@ -53,11 +60,27 @@ export function fixItems(items) {
     switch (name) {
       case "Waterskin":
         item.system.activation.type = "special";
-        item.system.uses = { value: 4, max: 4, per: "charges", autoDestroy: false, autoUse: true };
+        // item.system.uses = { value: 4, max: 4, per: "charges", autoDestroy: false, autoUse: true };
+        item.system.uses = {
+          spent: 0,
+          max: 4,
+          // TODO: charges is not correct here
+          recovery: [],
+          autoDestroy: false,
+          autoUse: true,
+        };
         break;
       case "Potion of Healing":
         item.system.damage = { parts: [["2d4 + 2", "healing"]], versatile: "", value: "" };
-        item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };
+        // item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };
+        item.system.uses = {
+          spent: 0,
+          max: 1,
+          // TODO: charges is not correct here
+          recovery: [],
+          autoDestroy: false,
+          autoUse: true,
+        };
         item.system["duration"]["value"] = 0;
         item.system.actionType = "heal";
         item.system["target"]["type"] = "creature";
@@ -66,7 +89,15 @@ export function fixItems(items) {
       case "Potion of Healing (Greater)":
       case "Potion of Greater Healing":
         item.system.damage = { parts: [["4d4 + 4", "healing"]], versatile: "", value: "" };
-        item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };
+        // item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };
+        item.system.uses = {
+          spent: 0,
+          max: 1,
+          // TODO: charges is not correct here
+          recovery: [],
+          autoDestroy: true,
+          autoUse: true,
+        };
         item.system["duration"]["value"] = 0;
         item.system.actionType = "heal";
         item.system["target"]["type"] = "creature";
@@ -76,7 +107,15 @@ export function fixItems(items) {
       case "Potion of Healing (Superior)":
       case "Potion of Superior Healing":
         item.system.damage = { parts: [["8d4 + 8", "healing"]], versatile: "", value: "" };
-        item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };
+        // item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };
+        item.system.uses = {
+          spent: 0,
+          max: 1,
+          // TODO: check this is correct
+          recovery: [],
+          autoDestroy: true,
+          autoUse: true,
+        };
         item.system["duration"]["value"] = 0;
         item.system.actionType = "heal";
         item.system["target"]["type"] = "creature";
@@ -98,7 +137,17 @@ export function fixItems(items) {
         break;
       case "Iron Bands of Binding":
         item.system.activation = { type: "action", cost: 1, condition: "" };
-        item.system.uses = { value: 1, max: "1", per: "day" };
+        // item.system.uses = { value: 1, max: "1", per: "day" };
+        item.system.uses = {
+          spent: 0,
+          max: 1,
+          recovery: [{
+            period: "day",
+            type: "recoverAll",
+          }],
+          autoDestroy: true,
+          autoUse: true,
+        };
         item.system.range = { value: 60, long: null, units: "ft" };
         item.system.ability = "dex";
         item.system.actionType = "rwak";
@@ -132,7 +181,15 @@ export function fixItems(items) {
         item.system.range = { value: 60, long: null, units: "ft" };
         item.system.ability = "dex";
         item.system.duration = { units: "minute", value: 1 };
-        item.system.uses = { value: 1, max: "1", per: "" };
+        // item.system.uses = { value: 1, max: "1", per: "" };
+        item.system.uses = {
+          spent: 0,
+          max: 1,
+          // TODO: check this is correct
+          recovery: [],
+          autoDestroy: true,
+          autoUse: true,
+        };
         item.system.actionType = "rwak";
         item.system.chatFlavor = "improvised weapon";
         item.system.damage = { parts: [["5d4[force]", "force"]], versatile: "", value: "" };
@@ -202,7 +259,15 @@ export function fixItems(items) {
         item.system.activation = { type: "action", cost: 1, condition: "" };
         item.system.target = { value: 1, width: null, units: "any", type: "creature" };
         item.system.range = { value: 20, long: null, units: "ft" };
-        item.system.uses = { value: 10, max: "10", per: "charge" };
+        // item.system.uses = { value: 10, max: "10", per: "charge" };
+        item.system.uses = {
+          spent: 0,
+          max: 10,
+          // TODO: check this is correct
+          recovery: [],
+          autoDestroy: true,
+          autoUse: true,
+        };
         foundry.utils.setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
         break;
       }
@@ -219,6 +284,16 @@ export function fixItems(items) {
           };
           item.system.range = { value: 150, long: null, units: "ft" };
           item.system.target = { value: 20, width: null, units: "ft", type: "sphere" };
+          item.system.uses = {
+            spent: 0,
+            max: 7,
+            // TODO: check this is correct
+            recovery: [{
+              period: "lr",
+              type: "formula",
+              formula: "1d6 + 1",
+            }],
+          };
           item.system.uses.per = "charges";
         }
         break;

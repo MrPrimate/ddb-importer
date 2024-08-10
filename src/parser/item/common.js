@@ -96,6 +96,10 @@ export function getRechargeFormula(description, maxCharges) {
   return `${match}`;
 }
 
+// TODO: refactor this function for activites and changed usage
+// { value: "recoverAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.RecoverAll") },
+// { value: "loseAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.LoseAll") },
+// { value: "formula", label: game.i18n.localize("DND5E.USES.Recovery.Type.Formula") }
 /**
  * Gets Limited uses information, if any
  * uses: { value: 0, max: 0, per: null }
@@ -104,31 +108,51 @@ export function getUses(data, prompt = false) {
   if (data.limitedUse !== undefined && data.limitedUse !== null && data.limitedUse.resetTypeDescription !== null) {
     let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
 
-    const recovery = getRechargeFormula(data.limitedUse.resetTypeDescription, data.limitedUse.maxUses);
+    const recoveryFormula = getRechargeFormula(data.limitedUse.resetTypeDescription, data.limitedUse.maxUses);
+    const recoveryIsMax = `${recoveryFormula}` === `${data.limitedUse.maxUses}`;
+
+    const recovery = [];
+    if (resetType.value) {
+      recovery.push({
+        period: resetType.value,
+        type: recoveryIsMax ? "recoverAll" : "formula",
+        formula: recoveryIsMax ? "" : recoveryFormula,
+      });
+    }
     return {
       max: data.limitedUse.maxUses,
-      value: data.limitedUse.numberUsed
-        ? data.limitedUse.maxUses - data.limitedUse.numberUsed
-        : data.limitedUse.maxUses,
-      per: resetType ? resetType.value : "",
-      description: data.limitedUse.resetTypeDescription,
+      spent: data.limitedUse.numberUsed ?? 0,
       recovery,
       prompt,
     };
   } else {
-    return { value: 0, max: 0, per: null, prompt };
+    return { spent: 0, max: 0, recovery: [], prompt };
   }
 }
 
 export function getConsumableUses(data) {
   if (data.limitedUse) {
     let uses = getUses(data, true);
-    if (uses.per === "") uses.per = "charges";
+    if (uses.recovery.length === 0) {
+      // uses.per = "charges";
+      // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
+      uses.recovery.push({ period: "charges", type: "recoverAll" });
+    }
     uses.autoDestroy = true;
     return uses;
   } else {
     // default
-    return { value: 1, max: 1, per: "charges", autoUse: false, autoDestroy: true };
+    return {
+      spent: 0,
+      max: 1,
+      recovery: [
+        // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
+        { period: "charges" },
+      ],
+      // TODO: where do these now live?
+      autoDestroy: true,
+      autoUse: false,
+    };
   }
 }
 

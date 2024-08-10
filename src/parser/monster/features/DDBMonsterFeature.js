@@ -157,7 +157,6 @@ export default class DDBMonsterFeature {
         long: null,
         units: "",
       },
-      recharge: { value: null, charged: true },
       activation: {
         type: "",
         cost: null,
@@ -169,13 +168,13 @@ export default class DDBMonsterFeature {
         scaling: "flat",
       },
       uses: {
-        value: null,
-        max: "",
-        per: null,
-        recovery: "",
+        spent: null,
+        max: null,
+        recovery: [
+          // { period: "", type: 'recoverAll', formula: undefined },
+        ],
       },
     };
-
   }
 
   damageModReplace(text, damageType) {
@@ -324,47 +323,13 @@ export default class DDBMonsterFeature {
     return action;
   }
 
-  getUses(name = false) {
-    let uses = {
-      value: null,
-      max: "",
-      per: null,
-      recovery: "",
-    };
-
-    const usesSearch = name ? /(\d+)\/(\w+)\)/ : /\((\d+)\/(\w+)\)/;
-    const matchString = name
-      ? this.titleHTML
-        ? this.titleHTML
-        : this.name
-      : this.strippedHtml;
-    const usesMatch = matchString.match(usesSearch);
-    // console.log(usesMatch);
-    if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
-      uses.value = Number.parseInt(usesMatch[1]);
-      uses.max = usesMatch[1];
-      uses.per = "day";
-      const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
-      if (perMatch) uses.per = perMatch.value;
-    } else {
-      const shortLongRegex = (/Recharges after a (Short or Long|Long) Rest/i);
-      const rechargeMatch = matchString.match(shortLongRegex);
-      if (rechargeMatch) {
-        uses.per = rechargeMatch[1] === "Long" ? "lr" : "sr";
-        uses.value = 1;
-        uses.max = 1;
-      }
-    }
-
-    return uses;
-  }
 
   #matchRecharge() {
     const matches = this.fullName.toLowerCase().match(/(?:\(|; )recharge ([0-9––−-]+)\)/);
     return matches;
   }
 
-  getRecharge() {
+  #getRecharge() {
     const matches = this.isRecharge;
     if (matches) {
       const value = matches[1].replace(/[––−-]/, "-").split("-").shift();
@@ -378,6 +343,59 @@ export default class DDBMonsterFeature {
       value: null,
       charged: false,
     };
+  }
+
+
+  getUses(name = false) {
+    let uses = {
+      spent: null,
+      max: null,
+      recovery: [
+        // { period: "", type: 'recoverAll', formula: undefined },
+      ],
+    };
+
+    let recovery = {
+      period: null,
+      type: "recoverAll",
+      formula: undefined,
+    };
+
+    const usesSearch = name ? /(\d+)\/(\w+)\)/ : /\((\d+)\/(\w+)\)/;
+    const matchString = name
+      ? this.titleHTML
+        ? this.titleHTML
+        : this.name
+      : this.strippedHtml;
+    const usesMatch = matchString.match(usesSearch);
+    // console.log(usesMatch);
+    if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
+      uses.spent = 0;
+      uses.max = usesMatch[1];
+      recovery.period = "day";
+      const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
+      if (perMatch) recovery.period = perMatch.value;
+    } else {
+      const shortLongRegex = (/Recharges after a (Short or Long|Long) Rest/i);
+      const rechargeMatch = matchString.match(shortLongRegex);
+      if (rechargeMatch) {
+        recovery.period = rechargeMatch[1] === "Long" ? "lr" : "sr";
+        uses.max = 1;
+      }
+    }
+
+    const recharge = this.#getRecharge();
+    if (recharge.charged) {
+      recovery.formula = recharge.value;
+      recovery.period = "recharge";
+      isSecureContext.max = 1;
+    }
+
+    if (recovery.period) {
+      uses.recovery.push(recovery);
+    }
+
+    return uses;
   }
 
   getActivation() {
@@ -730,7 +748,6 @@ ${this.feature.system.description.value}
     }
     this.feature.system.activation.type = this.getAction();
 
-    this.feature.system.recharge = this.actionInfo.recharge;
     this.feature.system.save = this.actionInfo.save;
     // assumption - if we have parsed a save dc set action type to save
     if (this.feature.system.save.dc && !this.isAttack) {
@@ -805,6 +822,7 @@ ${this.feature.system.description.value}
 
     this.feature.system.activation.type = "legendary";
 
+    // TODO: is consume removed?
     this.feature.system.consume = {
       type: "attribute",
       target: "resources.legact.value",
@@ -822,7 +840,7 @@ ${this.feature.system.description.value}
     // most legendary actions are just do x thing, where thing is an existing action
     // these have been copied from the existing actions so we don't change
     if (!this.feature.flags.monsterMunch.actionCopy) {
-      this.feature.system.recharge = this.actionInfo.recharge;
+      this.feature.system.uses = this.actionInfo.uses;
       this.feature.system.save = this.actionInfo.save;
       // assumption - if we have parsed a save dc set action type to save
       if (this.feature.system.save.dc) {
@@ -850,7 +868,6 @@ ${this.feature.system.description.value}
     }
 
     this.feature.system.uses = this.actionInfo.uses;
-    this.feature.system.recharge = this.actionInfo.recharge;
     this.feature.system.save = this.actionInfo.save;
     this.feature.system.target = this.actionInfo.target;
     // assumption - if we have parsed a save dc set action type to save
@@ -877,8 +894,9 @@ ${this.feature.system.description.value}
 
     // if this special action has nothing to do, then we remove the activation type
     if (this.feature.system.actionType === null
-      && (this.feature.system.uses.value === null || this.feature.system.uses.value === 0)
-      && this.feature.system.recharge.value === null
+      && (this.feature.system.uses.max === null || this.feature.system.uses.max === 0)
+      // TODO: ensure this is now correct
+      && this.feature.system.uses.recovery.length === 0
     ) {
       this.feature.system.activation = {
         cost: null,
@@ -893,10 +911,11 @@ ${this.feature.system.description.value}
 
     if (this.name !== "Villain Actions") {
       this.feature.system.uses = {
-        value: 1,
-        max: "1",
-        per: "sr",
-        recovery: "",
+        spent: 0,
+        max: 1,
+        recovery: [
+          { period: "sr", type: 'recoverAll', formula: undefined },
+        ],
       };
     }
 
@@ -927,7 +946,6 @@ ${this.feature.system.description.value}
     // if (this.actionInfo.reach != "" && Number.parseInt(this.actionInfo.reach) > 5) {
     //   this.actionInfo.properties.rch = true;
     // }
-    this.actionInfo.recharge = this.getRecharge();
     this.actionInfo.activation = this.getActivation();
     this.actionInfo.save = this.getFeatSave();
     this.actionInfo.target = this.getTarget();
@@ -937,7 +955,9 @@ ${this.feature.system.description.value}
   #linkResourcesConsumption() {
     logger.debug(`Resource linking for ${this.name}`);
 
-    if (foundry.utils.getProperty(this.feature, "system.recharge.value")) {
+    if (
+      foundry.utils.getProperty(this.feature, "system.uses.recovery")?.some((r) => r.period === "recharge")
+    ) {
       foundry.utils.setProperty(this.feature, "system.consume.type", "charges");
       foundry.utils.setProperty(this.feature, "system.consume.target", this.feature._id);
       foundry.utils.setProperty(this.feature, "system.consume.amount", null);
