@@ -77,7 +77,7 @@ export default class DDBAction extends DDBBaseFeature {
     try {
       this._generateSystemType();
       this._generateSystemSubType();
-      this._generateActivation();
+      // MOVED: this._generateActivation();
       this._generateDescription();
       this._generateLimitedUse();
       this._generateResourceConsumption();

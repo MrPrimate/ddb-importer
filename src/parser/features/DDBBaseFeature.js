@@ -84,57 +84,57 @@ export default class DDBBaseFeature {
   }
 
 
-  static _getParsedAction(description) {
-    // foundry doesn't support mythic actions pre 1.6
-    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
-    if (actionAction) return "action";
-    const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/ig);
-    if (bonusAction) return "bonus";
-    const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/ig);
-    if (reAction) return "reaction";
+  // static _getParsedAction(description) {
+  //   // foundry doesn't support mythic actions pre 1.6
+  //   const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
+  //   if (actionAction) return "action";
+  //   const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/ig);
+  //   if (bonusAction) return "bonus";
+  //   const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/ig);
+  //   if (reAction) return "reaction";
 
-    return undefined;
-  }
+  //   return undefined;
+  // }
 
-  _generateParsedActivation() {
-    const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-      ? this.ddbDefinition.description
-      : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
-        ? this.ddbDefinition.snippet
-        : null;
+  // _generateParsedActivation() {
+  //   const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
+  //     ? this.ddbDefinition.description
+  //     : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
+  //       ? this.ddbDefinition.snippet
+  //       : null;
 
-    // console.warn(`Generating Parsed Activation for ${this.name}`, {description});
+  //   // console.warn(`Generating Parsed Activation for ${this.name}`, {description});
 
-    if (!description) return;
-    const actionType = DDBBaseFeature._getParsedAction(description);
-    if (!actionType) return;
-    logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
-    this.data.system.activation = {
-      type: actionType,
-      cost: 1,
-      condition: "",
-    };
-  }
+  //   if (!description) return;
+  //   const actionType = DDBBaseFeature._getParsedAction(description);
+  //   if (!actionType) return;
+  //   logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
+  //   this.data.system.activation = {
+  //     type: actionType,
+  //     cost: 1,
+  //     condition: "",
+  //   };
+  // }
 
-  _generateActivation() {
-    // console.warn(`Generating Activation for ${this.name}`);
-    if (!this.ddbDefinition.activation) {
-      this._generateParsedActivation();
-      return;
-    }
-    const actionType = DICTIONARY.actions.activationTypes
-      .find((type) => type.id === this.ddbDefinition.activation.activationType);
-    if (!actionType) {
-      this._generateParsedActivation();
-      return;
-    }
+  // _generateActivation() {
+  //   // console.warn(`Generating Activation for ${this.name}`);
+  //   if (!this.ddbDefinition.activation) {
+  //     this._generateParsedActivation();
+  //     return;
+  //   }
+  //   const actionType = DICTIONARY.actions.activationTypes
+  //     .find((type) => type.id === this.ddbDefinition.activation.activationType);
+  //   if (!actionType) {
+  //     this._generateParsedActivation();
+  //     return;
+  //   }
 
-    this.data.system.activation = {
-      type: actionType.value,
-      cost: this.ddbDefinition.activation.activationTime || 1,
-      condition: "",
-    };
-  }
+  //   this.data.system.activation = {
+  //     type: actionType.value,
+  //     cost: this.ddbDefinition.activation.activationTime || 1,
+  //     condition: "",
+  //   };
+  // }
 
   _getClassFeatureDescription() {
     if (!this.ddbData) return "";

@@ -159,6 +159,7 @@ export default class CharacterFeatureFactory {
 
     this.processed.actions = foundry.utils.duplicate(this.parsed.actions);
 
+    // TODO - activations now in activites
     this.processed.actions.sort().sort((a, b) => {
       if (!a.system.activation.activationType) {
         return 1;

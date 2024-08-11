@@ -90,7 +90,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       // add these flags in so they can be used by the description parser
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
-      this._generateActivation();
+      // MOVED: this._generateActivation();
       this._generateResourceConsumption();
       this._generateDescription({ forceFull: false });
       this.data.flags.ddbimporter.dndbeyond.choice = {
