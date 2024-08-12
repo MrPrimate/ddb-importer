@@ -128,8 +128,22 @@ export default class DDBAction extends DDBBaseFeature {
     }
   }
 
+  static parseBasicDamageFormula(data, formula) {
+    const basicMatchRegex = /^\s*(\d+)d(\d+)(?:\s*([+|-])\s*(@?[\w\d.-]+))?\s*$/i;
+    const damageMatch = formula.match(basicMatchRegex);
+
+    if (damageMatch && CONFIG.DND5E.dieSteps.includes(Number(damageMatch[2]))) {
+      data.number = Number(damageMatch[1]);
+      data.denomination = Number(damageMatch[2]);
+      if (damageMatch[4]) data.bonus = damageMatch[3] === "-" ? `-${damageMatch[4]}` : damageMatch[4];
+    } else {
+      data.custom.enabled = true;
+      data.custom.formula = formula;
+    }
+  }
+
   // eslint-disable-next-line complexity
-  _generateDamage() {
+  getDamage() {
     const damageType = this.ddbDefinition.damageTypeId
       ? DICTIONARY.actions.damageType.find((type) => type.id === this.ddbDefinition.damageTypeId).name
       : null;
@@ -144,18 +158,30 @@ export default class DDBAction extends DDBBaseFeature {
         ? " + @prof"
         : ` + ${die.fixedValue}`
       : "";
-    const globalDamageHints = game.settings.get(SETTINGS.MODULE_ID, "use-damage-hints");
+    // const globalDamageHints = game.settings.get(SETTINGS.MODULE_ID, "use-damage-hints");
     const scaleValueLink = DDBHelper.getScaleValueString(this.ddbData, this.ddbDefinition).value;
     const excludedScale = DDBAction.LEVEL_SCALE_EXCLUSION.includes(this.data.name);
     const useScaleValueLink = !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
 
+    const damageResult = {
+      number: null,
+      denomination: null,
+      bonus: "",
+      types: damageType ? [damageType] : [],
+      custom: {
+        enabled: false,
+        formula: "",
+      },
+      scaling: {
+        mode: "whole",
+        number: null,
+        formula: "",
+      },
+    };
+
     if (die || useScaleValueLink) {
-      const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
       if (useScaleValueLink) {
-        this.data.system.damage = {
-          parts: [[`${scaleValueLink}${damageTag}${modBonus}${fixedBonus}`, damageType]],
-          versatile: "",
-        };
+        DDBAction.parseBasicDamageFormula(damageResult, `${scaleValueLink}${modBonus}${fixedBonus}`);
       } else if (die.diceString) {
         const profBonus = CONFIG.DDB.levelProficiencyBonuses.find((b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0))?.bonus;
         const replaceProf = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
@@ -164,18 +190,24 @@ export default class DDBAction extends DDBBaseFeature {
           ? die.diceString.replace(`+ ${profBonus}`, "")
           : die.diceString;
         const mods = replaceProf ? `${modBonus} + @prof` : modBonus;
-        const damageString = utils.parseDiceString(diceString, mods, damageTag).diceString;
-        this.data.system.damage = {
-          parts: [[damageString, damageType]],
-          versatile: "",
-        };
+        const damageString = utils.parseDiceString(diceString, mods).diceString;
+        DDBAction.parseBasicDamageFormula(damageResult, damageString);
       } else if (fixedBonus) {
-        this.data.system.damage = {
-          parts: [[fixedBonus + modBonus, damageType]],
-          versatile: "",
-        };
+        DDBAction.parseBasicDamageFormula(damageResult, fixedBonus + modBonus);
       }
+
+      return damageResult;
     }
+    return undefined;
+  }
+
+  _generateDamage() {
+    const damage = this.getDamage();
+    if (!damage) return;
+    this.data.system.damage = {
+      base: damage,
+      versatile: "",
+    };
   }
 
   _generateSaveAttack() {

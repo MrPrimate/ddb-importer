@@ -38,6 +38,9 @@ export default class DDBBaseFeature {
         },
       },
     };
+    // Spells will still have activation/duration/range/target,
+    // weapons will still have range & damage (1 base part & 1 versatile part),
+    // and all items will still have limited uses (but no consumption)
   }
 
   _prepare() {
@@ -65,7 +68,7 @@ export default class DDBBaseFeature {
     this._init();
     this.snippet = "";
     this.description = "";
-    this._resourceCharges = null;
+    this.resourceCharges = null;
 
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
 
@@ -76,65 +79,12 @@ export default class DDBBaseFeature {
     const nameMatch = this.name.match(namePointRegex);
     if (nameMatch) {
       this.data.name = nameMatch[1];
-      this._resourceCharges = Number.parseInt(nameMatch[2]);
+      this.resourceCharges = Number.parseInt(nameMatch[2]);
     }
 
     this._prepare();
     this.data.system.source = this.source;
   }
-
-
-  // static _getParsedAction(description) {
-  //   // foundry doesn't support mythic actions pre 1.6
-  //   const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
-  //   if (actionAction) return "action";
-  //   const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/ig);
-  //   if (bonusAction) return "bonus";
-  //   const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/ig);
-  //   if (reAction) return "reaction";
-
-  //   return undefined;
-  // }
-
-  // _generateParsedActivation() {
-  //   const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-  //     ? this.ddbDefinition.description
-  //     : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
-  //       ? this.ddbDefinition.snippet
-  //       : null;
-
-  //   // console.warn(`Generating Parsed Activation for ${this.name}`, {description});
-
-  //   if (!description) return;
-  //   const actionType = DDBBaseFeature._getParsedAction(description);
-  //   if (!actionType) return;
-  //   logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
-  //   this.data.system.activation = {
-  //     type: actionType,
-  //     cost: 1,
-  //     condition: "",
-  //   };
-  // }
-
-  // _generateActivation() {
-  //   // console.warn(`Generating Activation for ${this.name}`);
-  //   if (!this.ddbDefinition.activation) {
-  //     this._generateParsedActivation();
-  //     return;
-  //   }
-  //   const actionType = DICTIONARY.actions.activationTypes
-  //     .find((type) => type.id === this.ddbDefinition.activation.activationType);
-  //   if (!actionType) {
-  //     this._generateParsedActivation();
-  //     return;
-  //   }
-
-  //   this.data.system.activation = {
-  //     type: actionType.value,
-  //     cost: this.ddbDefinition.activation.activationTime || 1,
-  //     condition: "",
-  //   };
-  // }
 
   _getClassFeatureDescription() {
     if (!this.ddbData) return "";
@@ -159,7 +109,6 @@ export default class DDBBaseFeature {
     }
     return "";
   }
-
 
   _getRaceFeatureDescription() {
     const componentId = this.ddbDefinition.componentId;
@@ -201,7 +150,7 @@ export default class DDBBaseFeature {
     return result;
   }
 
-  _generateDescription({ forceFull = false, extra = "" } = {}) {
+  getDescription({ forceFull = false, extra = "" } = {}) {
     // for now none actions probably always want the full text
     const useCombinedSetting = game.settings.get("ddb-importer", "character-update-policy-use-combined-description");
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
@@ -229,19 +178,22 @@ export default class DDBBaseFeature {
       const descriptionSnippet = !useCombinedSetting || forceFull ? null : snippet;
       const fullDescription = DDBBaseFeature.buildFullDescription(this.description, descriptionSnippet);
 
-      this.data.system.description = {
+      return {
         value: fullDescription + extraDescription + macroHelper,
         chat: chatAdd ? snippet + macroHelper : "",
       };
     } else {
       const snippet = this.description !== "" && utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
 
-      this.data.system.description = {
+      return {
         value: this.description + extraDescription + macroHelper,
         chat: snippet + macroHelper,
       };
     }
+  }
 
+  _generateDescription({ forceFull = false, extra = "" } = {}) {
+    this.data.system.description = this.getDescription({ forceFull, extra });
   }
 
   // eslint-disable-next-line complexity
@@ -303,31 +255,7 @@ export default class DDBBaseFeature {
     }
   }
 
-  // TODO: does consume still exist?
-  _generateResourceConsumption() {
-    if (!this.rawCharacter) return;
-
-    Object.keys(this.rawCharacter.system.resources).forEach((resource) => {
-      const detail = this.rawCharacter.system.resources[resource];
-      if (this.ddbDefinition.name === detail.label) {
-        this.data.system.consume = {
-          type: "attribute",
-          target: `resources.${resource}.value`,
-          amount: 1,
-        };
-      }
-    });
-
-    const kiPointRegex = /(?:spend|expend) (\d) ki point/;
-    const match = this.data.system.description.value.match(kiPointRegex);
-    if (match) {
-      foundry.utils.setProperty(this.data, "system.consume.amount", match[1]);
-    } else if (this._resourceCharges !== null) {
-      foundry.utils.setProperty(this.data, "system.consume.amount", this._resourceCharges);
-    }
-
-  }
-
+  // weapons still have range
   _generateRange() {
     if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
       this.data.system.range = { value: null, units: "self", long: "" };
@@ -335,12 +263,14 @@ export default class DDBBaseFeature {
         value: this.ddbDefinition.range.aoeSize,
         type: DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value,
         units: "ft",
+        reach: null,
       };
     } else if (this.ddbDefinition.range && this.ddbDefinition.range.range) {
       this.data.system.range = {
         value: this.ddbDefinition.range.range,
         units: "ft",
         long: this.ddbDefinition.range.long || "",
+        reach: null,
       };
     } else {
       this.data.system.range = { value: 5, units: "ft", long: "" };

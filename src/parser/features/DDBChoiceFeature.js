@@ -62,7 +62,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       const nameMatch = this.data.name.match(namePointRegex);
       if (nameMatch) {
         this.data.name = nameMatch[1];
-        this._resourceCharges = Number.parseInt(nameMatch[2]);
+        this.resourceCharges = Number.parseInt(nameMatch[2]);
       }
       this._generateSystemSubType();
 

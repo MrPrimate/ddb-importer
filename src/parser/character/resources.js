@@ -345,6 +345,7 @@ const notReplace = {
 };
 
 
+// TODO: update for activities
 DDBCharacter.prototype.fixItemSpellResources = async function fixItemSpellResources() {
   const possibleItems = this.currentActor.items.toObject();
   let toUpdate = [];
@@ -373,7 +374,7 @@ DDBCharacter.prototype.fixItemSpellResources = async function fixItemSpellResour
 
 };
 
-
+// TODO: update for activities
 DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
   // loop over resourceFeatureLinkMap
   const possibleItems = this.currentActor.items.toObject();
