@@ -93,7 +93,7 @@
     "camelcase": "error",
     "capitalized-comments": "off",
     "class-methods-use-this": "error",
-    "comma-dangle": "off",
+    "comma-dangle": [2, "always-multiline"],
     "comma-spacing": [
       "error",
       {
