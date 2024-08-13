@@ -1,6 +1,7 @@
-# Next Up
+# 5.2.28
 
 - Icons for features, items and spells will now always be downloaded to prevent failures with effect transference in v12.
+- Lock DDB Importer to 3.x branch of the D&D System. The upcoming v4.x of the D&D system contains a complete rework of how features/spells/items work. DDB Importer won't work with this system till a supporting release is made. It will contain a large number of breaking changes. There will be limited releases of DDB Importer until it's release as work is underway support the new system.
 
 # 5.2.27
 
