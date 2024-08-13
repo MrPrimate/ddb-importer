@@ -306,6 +306,7 @@ export function fixItems(items) {
           item.system.damage = { parts: [["3d4 + 3", "force"]], versatile: "1d4 + 1", value: "" };
           item.system.range = { value: 120, long: null, units: "ft" };
         }
+        item.system.uses.max = 7;
         break;
       }
       // no default
