@@ -273,7 +273,28 @@ export class DDBFeatureActivity {
     // }
   }
 
-  async build({
+  _generateSave() {
+    const fixedDC = this.ddbDefinition.fixedSaveDc ? this.ddbDefinition.fixedSaveDc : null;
+    const calculation = fixedDC
+      ? "custom"
+      : (this.ddbDefinition.abilityModifierStatId)
+        ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId).value
+        : "spellcasting";
+
+    const saveAbility = (this.ddbDefinition.saveStatId)
+      ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.saveStatId).value
+      : null;
+
+    this.data.save = {
+      ability: saveAbility ?? Object.keys(CONFIG.DND5E.abilities)[0],
+      dc: {
+        calculation,
+        formula: String(fixedDC ?? ""),
+      },
+    };
+  }
+
+  build({
     extraDescription = "",
     forceFullDescription = false,
     generateActivation = true,
@@ -283,10 +304,11 @@ export class DDBFeatureActivity {
     generateDuration = true,
     generateEffects = true,
     generateRange = false,
+    generateSave = false,
     generateTarget = true,
   } = {}) {
 
-    // override set to false on object if overrideing
+    // override set to false on object if overriding
 
     if (generateActivation) this._generateActivation();
     if (generateConsumption) this._generateConsumption();
@@ -296,11 +318,11 @@ export class DDBFeatureActivity {
     if (generateRange) this._generateRange();
     if (generateTarget) this._generateTarget();
 
+    if (generateSave) this._generateSave();
     if (generateDamage) this._generateDamage();
 
 
     // ATTACK has
-    // ability
     // activation
     // attack
     // consumption
@@ -342,7 +364,6 @@ export class DDBFeatureActivity {
     // uses
 
     // SAVE
-    // ability
     // activation
     // consumption
     // damage

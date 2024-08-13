@@ -74,6 +74,10 @@ export default class DDBBaseFeature {
       || DDBBaseFeature.LEVEL_SCALE_EXCLUSION.includes(this.data.name);
     this.levelScaleInfusion = DDBBaseFeature.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
       || DDBBaseFeature.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
+    this.scaleValueLink = DDBHelper.getScaleValueString(this.ddbData, this.ddbDefinition).value;
+    this.useScaleValueLink = !this.excludedScale
+      && this.scaleValueLink
+      && this.scaleValueLink !== "{{scalevalue-unknown}}";
   }
 
   constructor({ ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false } = {}) {
@@ -90,8 +94,11 @@ export default class DDBBaseFeature {
     this.isAction = false;
     this.excludedScale = false;
     this.levelScaleInfusion = false;
+    this.scaleValueLink = "";
+    this.useScaleValueLink = false;
     this.documentType = documentType;
     this.tagType = "other";
+    this.activities = [];
     this.data = {};
     this.noMods = noMods;
     this._init();
@@ -312,6 +319,82 @@ export default class DDBBaseFeature {
     } else {
       return this.ddbData.character.classes.some((k) => k.classFeatures.some((feature) => feature.definition.name === "Martial Arts"));
     }
+
+  }
+
+  static parseBasicDamageFormula(data, formula) {
+    const basicMatchRegex = /^\s*(\d+)d(\d+)(?:\s*([+|-])\s*(@?[\w\d.-]+))?\s*$/i;
+    const damageMatch = formula.match(basicMatchRegex);
+
+    if (damageMatch && CONFIG.DND5E.dieSteps.includes(Number(damageMatch[2]))) {
+      data.number = Number(damageMatch[1]);
+      data.denomination = Number(damageMatch[2]);
+      if (damageMatch[4]) data.bonus = damageMatch[3] === "-" ? `-${damageMatch[4]}` : damageMatch[4];
+    } else {
+      data.custom.enabled = true;
+      data.custom.formula = formula;
+    }
+  }
+
+  getDamageType() {
+    return this.ddbDefinition.damageTypeId
+      ? DICTIONARY.actions.damageType.find((type) => type.id === this.ddbDefinition.damageTypeId).name
+      : null;
+  }
+
+  getDamageDie() {
+    return this.ddbDefinition.dice
+      ? this.ddbDefinition.dice
+      : this.ddbDefinition.die
+        ? this.ddbDefinition.die
+        : undefined;
+  }
+
+  getDamage(bonuses = []) {
+    const damageType = this.getDamageType();
+    const damage = {
+      number: null,
+      denomination: null,
+      bonus: "",
+      types: damageType ? [damageType] : [],
+      custom: {
+        enabled: false,
+        formula: "",
+      },
+      scaling: {
+        mode: "whole",
+        number: null,
+        formula: "",
+      },
+    };
+    const die = this.getDamageDie();
+    const fixedBonus = die?.fixedValue
+      ? (this.ddbDefinition.snippet ?? this.ddbDefinition.description ?? "").includes("{{proficiency#signed}}")
+        ? " + @prof"
+        : ` + ${die.fixedValue}`
+      : "";
+
+    const bonusString = bonuses.join(" ");
+
+    if (die || this.useScaleValueLink) {
+      if (this.useScaleValueLink) {
+        DDBBaseFeature.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
+      } else if (die.diceString) {
+        const profBonus = CONFIG.DDB.levelProficiencyBonuses.find((b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0))?.bonus;
+        const replaceProf = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
+          && Number.parseInt(die.fixedValue) === Number.parseInt(profBonus);
+        const diceString = replaceProf
+          ? die.diceString.replace(`+ ${profBonus}`, "")
+          : die.diceString;
+        const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
+        const damageString = utils.parseDiceString(diceString, mods).diceString;
+        DDBBaseFeature.parseBasicDamageFormula(damage, damageString);
+      } else if (fixedBonus) {
+        DDBBaseFeature.parseBasicDamageFormula(damage, fixedBonus + bonusString);
+      }
+    }
+
+    return damage;
 
   }
 

@@ -2,8 +2,8 @@ import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
-import SETTINGS from "../../settings.js";
 import DDBBaseFeature from "./DDBBaseFeature.js";
+import { DDBFeatureActivity } from "./DDBFeatureActivity.js";
 
 
 export default class DDBAction extends DDBBaseFeature {
@@ -51,38 +51,6 @@ export default class DDBAction extends DDBBaseFeature {
     }
   }
 
-  build() {
-    try {
-      this._generateSystemType();
-      this._generateSystemSubType();
-      // MOVED: this._generateActivation();
-      this._generateDescription();
-      this._generateLimitedUse();
-      this._generateResourceConsumption();
-      this._generateRange();
-      this._generateAttackType();
-
-      // TODO: evaluate activities here
-
-      if (this.data.system.damage.parts.length === 0) {
-        logger.debug("Running level scale parser");
-        this._generateLevelScaleDice();
-      }
-
-      this._generateFlagHints();
-      this._generateResourceFlags();
-
-      this._addEffects();
-      this._addCustomValues();
-    } catch (err) {
-      logger.warn(
-        `Unable to Generate Action: ${this.name}, please log a bug report. Err: ${err.message}`,
-        "extension",
-      );
-      logger.error("Error", err);
-    }
-  }
-
   _generateSystemType(typeNudge = null) {
     // if (this.documentType === "weapon") return;
     if (this.ddbData.character.actions.class.some((a) =>
@@ -106,41 +74,11 @@ export default class DDBAction extends DDBBaseFeature {
     }
   }
 
-  static parseBasicDamageFormula(data, formula) {
-    const basicMatchRegex = /^\s*(\d+)d(\d+)(?:\s*([+|-])\s*(@?[\w\d.-]+))?\s*$/i;
-    const damageMatch = formula.match(basicMatchRegex);
-
-    if (damageMatch && CONFIG.DND5E.dieSteps.includes(Number(damageMatch[2]))) {
-      data.number = Number(damageMatch[1]);
-      data.denomination = Number(damageMatch[2]);
-      if (damageMatch[4]) data.bonus = damageMatch[3] === "-" ? `-${damageMatch[4]}` : damageMatch[4];
-    } else {
-      data.custom.enabled = true;
-      data.custom.formula = formula;
-    }
-  }
-
-  getDamageType() {
-    return this.ddbDefinition.damageTypeId
-      ? DICTIONARY.actions.damageType.find((type) => type.id === this.ddbDefinition.damageTypeId).name
-      : null;
-  }
-
   isMeleeOrRangedAction() {
     return this.ddbDefinition.attackTypeRange || this.ddbDefinition.rangeId;
   }
 
-  getDamageDie() {
-    return this.ddbDefinition.dice
-      ? this.ddbDefinition.dice
-      : this.ddbDefinition.die
-        ? this.ddbDefinition.die
-        : undefined;
-  }
-
-  getDamage() {
-    const damageType = this.getDamageType();
-
+  getDamage(bonuses = []) {
     // when the action type is not set to melee or ranged we don't apply the mod to damage
     const meleeOrRangedAction = this.isMeleeOrRangedAction();
     const modBonus = (this.ddbDefinition.statId || this.ddbDefinition.abilityModifierStatId)
@@ -148,52 +86,14 @@ export default class DDBAction extends DDBBaseFeature {
       && meleeOrRangedAction
       ? " + @mod"
       : "";
-    const die = this.getDamageDie();
-    const fixedBonus = die?.fixedValue
-      ? (this.ddbDefinition.snippet ?? this.ddbDefinition.description ?? "").includes("{{proficiency#signed}}")
-        ? " + @prof"
-        : ` + ${die.fixedValue}`
-      : "";
-    // const globalDamageHints = game.settings.get(SETTINGS.MODULE_ID, "use-damage-hints");
-    const scaleValueLink = DDBHelper.getScaleValueString(this.ddbData, this.ddbDefinition).value;
-    const useScaleValueLink = !this.excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
 
-    const damageResult = {
-      number: null,
-      denomination: null,
-      bonus: "",
-      types: damageType ? [damageType] : [],
-      custom: {
-        enabled: false,
-        formula: "",
-      },
-      scaling: {
-        mode: "whole",
-        number: null,
-        formula: "",
-      },
-    };
+    const damage = super.getDamage(bonuses.concat([modBonus]));
 
-    if (die || useScaleValueLink) {
-      if (useScaleValueLink) {
-        DDBAction.parseBasicDamageFormula(damageResult, `${scaleValueLink}${modBonus}${fixedBonus}`);
-      } else if (die.diceString) {
-        const profBonus = CONFIG.DDB.levelProficiencyBonuses.find((b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0))?.bonus;
-        const replaceProf = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
-          && Number.parseInt(die.fixedValue) === Number.parseInt(profBonus);
-        const diceString = replaceProf
-          ? die.diceString.replace(`+ ${profBonus}`, "")
-          : die.diceString;
-        const mods = replaceProf ? `${modBonus} + @prof` : modBonus;
-        const damageString = utils.parseDiceString(diceString, mods).diceString;
-        DDBAction.parseBasicDamageFormula(damageResult, damageString);
-      } else if (fixedBonus) {
-        DDBAction.parseBasicDamageFormula(damageResult, fixedBonus + modBonus);
-      }
-
-      return damageResult;
+    if (damage.number || damage.custom.enabled) {
+      return damage;
+    } else {
+      return undefined;
     }
-    return undefined;
   }
 
   _generateDamage() {
@@ -209,21 +109,17 @@ export default class DDBAction extends DDBBaseFeature {
     this.data.system.actionType = "save";
     this._generateDamage();
 
-    const fixedDC = this.ddbDefinition.fixedSaveDc ? this.ddbDefinition.fixedSaveDc : null;
-    const scaling = fixedDC ? "flat" : (this.ddbDefinition.abilityModifierStatId) ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId).value : "spell";
+    const saveActivity = new DDBFeatureActivity({
+      name: this.data.name,
+      type: "save",
+      ddbFeature: this,
+    });
 
-    const saveAbility = (this.ddbDefinition.saveStatId)
-      ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.saveStatId).value
-      : "";
+    saveActivity.build({
+      generateSave: true,
+    });
 
-    this.data.system.save = {
-      ability: saveAbility,
-      dc: fixedDC,
-      scaling: scaling,
-    };
-    if (this.ddbDefinition.abilityModifierStatId) {
-      this.data.system.ability = DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId).value;
-    }
+    this.activities.push(saveActivity);
   }
 
   _generateMartialArtsDamage() {
@@ -385,9 +281,7 @@ export default class DDBAction extends DDBBaseFeature {
         return [part, ""];
       });
 
-    if (parts.length > 0 && useScale) {
-      this.data.system.damage.parts = parts;
-    } else if (parts.length > 0 && !this.levelScaleInfusion) {
+    if (parts.length > 0 && !this.levelScaleInfusion) {
       const combinedParts = foundry.utils.hasProperty(this.data, "data.damage.parts") && this.data.system.damage.parts.length > 0
         ? this.data.system.damage.parts.concat(parts)
         : parts;
@@ -454,6 +348,41 @@ export default class DDBAction extends DDBBaseFeature {
       foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
+    }
+  }
+
+
+  build() {
+    try {
+      this._generateSystemType();
+      this._generateSystemSubType();
+      // MOVED: this._generateActivation();
+      this._generateDescription();
+      this._generateLimitedUse();
+      this._generateResourceConsumption();
+      this._generateRange();
+      this._generateAttackType();
+
+      // TODO: evaluate activities here
+
+      if (this.data.system.damage.parts.length === 0) {
+        logger.debug("Running level scale parser");
+        this._generateLevelScaleDice();
+      }
+
+      this._generateFlagHints();
+      this._generateResourceFlags();
+
+      this._addEffects();
+      this._addCustomValues();
+
+      this.data.activities = this.activities.map((activity) => activity.data);
+    } catch (err) {
+      logger.warn(
+        `Unable to Generate Action: ${this.name}, please log a bug report. Err: ${err.message}`,
+        "extension",
+      );
+      logger.error("Error", err);
     }
   }
 
