@@ -9,6 +9,28 @@ import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
 
 export default class DDBBaseFeature {
 
+  static LEVEL_SCALE_EXCLUSION = [
+    "Fire Rune",
+    "Cloud Rune",
+    "Stone Rune",
+    "Frost Rune",
+    "Hill Rune",
+    "Storm Rune",
+    "Drake Companion: Summon",
+    "Drake Companion: Command",
+    "Drake Companion",
+  ];
+
+  static LEVEL_SCALE_INFUSIONS = [
+    "Unarmed Strike",
+    "Arms of the Astral Self (WIS)",
+    "Arms of the Astral Self (DEX)",
+    "Arms of the Astral Self (DEX/STR)",
+    "Body of the Astral Self",
+    "Starry Form: Archer",
+    "Sneak Attack",
+  ];
+
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
@@ -47,6 +69,11 @@ export default class DDBBaseFeature {
     if (this.ddbDefinition.infusionFlags) {
       foundry.utils.setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
     }
+
+    this.excludedScale = DDBBaseFeature.LEVEL_SCALE_EXCLUSION.includes(this.ddbDefinition.name)
+      || DDBBaseFeature.LEVEL_SCALE_EXCLUSION.includes(this.data.name);
+    this.levelScaleInfusion = DDBBaseFeature.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
+      || DDBBaseFeature.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
   }
 
   constructor({ ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false } = {}) {
@@ -61,6 +88,8 @@ export default class DDBBaseFeature {
     this.type = type;
     this.source = source;
     this.isAction = false;
+    this.excludedScale = false;
+    this.levelScaleInfusion = false;
     this.documentType = documentType;
     this.tagType = "other";
     this.data = {};

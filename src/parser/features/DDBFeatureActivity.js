@@ -295,6 +295,7 @@ export class DDBFeatureActivity {
     if (generateEffects) this._generateEffects();
     if (generateRange) this._generateRange();
     if (generateTarget) this._generateTarget();
+
     if (generateDamage) this._generateDamage();
 
 
@@ -377,7 +378,7 @@ export class DDBFeatureActivity {
     // duration
     // effects
     // range
-    // roll
+    // roll - name, formula, prompt, visible
     // target
     // type
     // uses

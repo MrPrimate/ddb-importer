@@ -8,27 +8,7 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 
 export default class DDBAction extends DDBBaseFeature {
 
-  static LEVEL_SCALE_EXCLUSION = [
-    "Fire Rune",
-    "Cloud Rune",
-    "Stone Rune",
-    "Frost Rune",
-    "Hill Rune",
-    "Storm Rune",
-    "Drake Companion: Summon",
-    "Drake Companion: Command",
-    "Drake Companion",
-  ];
 
-  static LEVEL_SCALE_INFUSIONS = [
-    "Unarmed Strike",
-    "Arms of the Astral Self (WIS)",
-    "Arms of the Astral Self (DEX)",
-    "Arms of the Astral Self (DEX/STR)",
-    "Body of the Astral Self",
-    "Starry Form: Archer",
-    "Sneak Attack",
-  ];
 
   _init() {
     this.isAction = true;
@@ -36,9 +16,7 @@ export default class DDBAction extends DDBBaseFeature {
   }
 
   _prepare() {
-    if (this.ddbDefinition.infusionFlags) {
-      foundry.utils.setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
-    }
+    super._prepare();
 
     this._actionType = {
       class: this.ddbData.character.actions.class
@@ -142,17 +120,35 @@ export default class DDBAction extends DDBBaseFeature {
     }
   }
 
-  // eslint-disable-next-line complexity
-  getDamage() {
-    const damageType = this.ddbDefinition.damageTypeId
+  getDamageType() {
+    return this.ddbDefinition.damageTypeId
       ? DICTIONARY.actions.damageType.find((type) => type.id === this.ddbDefinition.damageTypeId).name
       : null;
+  }
+
+  isMeleeOrRangedAction() {
+    return this.ddbDefinition.attackTypeRange || this.ddbDefinition.rangeId;
+  }
+
+  getDamageDie() {
+    return this.ddbDefinition.dice
+      ? this.ddbDefinition.dice
+      : this.ddbDefinition.die
+        ? this.ddbDefinition.die
+        : undefined;
+  }
+
+  getDamage() {
+    const damageType = this.getDamageType();
 
     // when the action type is not set to melee or ranged we don't apply the mod to damage
-    const meleeOrRangedAction = this.ddbDefinition.attackTypeRange || this.ddbDefinition.rangeId;
-    const modBonus = (this.ddbDefinition.statId || this.ddbDefinition.abilityModifierStatId) && !this.ddbDefinition.isOffhand && meleeOrRangedAction ? " + @mod" : "";
-    const die = this.ddbDefinition.dice ? this.ddbDefinition.dice : this.ddbDefinition.die ? this.ddbDefinition.die : undefined;
-    // const fixedBonus = die?.fixedValue ? ` + ${die.fixedValue}` : "";
+    const meleeOrRangedAction = this.isMeleeOrRangedAction();
+    const modBonus = (this.ddbDefinition.statId || this.ddbDefinition.abilityModifierStatId)
+      && !this.ddbDefinition.isOffhand
+      && meleeOrRangedAction
+      ? " + @mod"
+      : "";
+    const die = this.getDamageDie();
     const fixedBonus = die?.fixedValue
       ? (this.ddbDefinition.snippet ?? this.ddbDefinition.description ?? "").includes("{{proficiency#signed}}")
         ? " + @prof"
@@ -160,8 +156,7 @@ export default class DDBAction extends DDBBaseFeature {
       : "";
     // const globalDamageHints = game.settings.get(SETTINGS.MODULE_ID, "use-damage-hints");
     const scaleValueLink = DDBHelper.getScaleValueString(this.ddbData, this.ddbDefinition).value;
-    const excludedScale = DDBAction.LEVEL_SCALE_EXCLUSION.includes(this.data.name);
-    const useScaleValueLink = !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
+    const useScaleValueLink = !this.excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
 
     const damageResult = {
       number: null,
@@ -360,7 +355,6 @@ export default class DDBAction extends DDBBaseFeature {
    */
   _generateLevelScaleDice(useScale = true) {
     if (useScale) return;
-    const excludedScale = DDBAction.LEVEL_SCALE_EXCLUSION.includes(this.ddbDefinition.name);
     const parts = this.ddbData.character.classes
       .filter((cls) => cls.classFeatures.some((feature) =>
         feature.definition.id == this.ddbDefinition.componentId
@@ -378,7 +372,7 @@ export default class DDBAction extends DDBBaseFeature {
         );
         const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
         const scaleValueLink = DDBHelper.getScaleValueString(this.ddbData, this.ddbDefinition).value;
-        let part = useScale && !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
+        let part = useScale && !this.excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
           ? scaleValueLink
           : die.diceString;
         if (parsedString) {
@@ -393,7 +387,7 @@ export default class DDBAction extends DDBBaseFeature {
 
     if (parts.length > 0 && useScale) {
       this.data.system.damage.parts = parts;
-    } else if (parts.length > 0 && !DDBAction.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)) {
+    } else if (parts.length > 0 && !this.levelScaleInfusion) {
       const combinedParts = foundry.utils.hasProperty(this.data, "data.damage.parts") && this.data.system.damage.parts.length > 0
         ? this.data.system.damage.parts.concat(parts)
         : parts;
