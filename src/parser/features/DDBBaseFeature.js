@@ -80,7 +80,9 @@ export default class DDBBaseFeature {
       && this.scaleValueLink !== "{{scalevalue-unknown}}";
   }
 
-  constructor({ ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false } = {}) {
+  constructor({
+    ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false
+  } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbFeature = ddbDefinition;

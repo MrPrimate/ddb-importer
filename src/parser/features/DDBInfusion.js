@@ -209,8 +209,17 @@ export class DDBInfusion {
         actionData.name = `${this.name}${postfix}`;
       }
       const action = DDBHelper.displayAsAttack(this.ddbData, actionData, this.rawCharacter)
-        ? new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: actionData, rawCharacter: this.rawCharacter, type: actionData.actionSource })
-        : new DDBAction({ ddbData: this.ddbData, ddbDefinition: actionData, rawCharacter: this.rawCharacter });
+        ? new DDBAttackAction({
+          ddbData: this.ddbData,
+          ddbDefinition: actionData,
+          rawCharacter: this.rawCharacter,
+          type: actionData.actionSource,
+        })
+        : new DDBAction({
+          ddbData: this.ddbData,
+          ddbDefinition: actionData,
+          rawCharacter: this.rawCharacter,
+        });
       action.build();
       foundry.utils.setProperty(action.data, "flags.ddbimporter.class", "Artificer");
       foundry.utils.setProperty(action.data, "flags.ddbimporter.infusionFeature", true);

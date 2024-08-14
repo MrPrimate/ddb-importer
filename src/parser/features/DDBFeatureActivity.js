@@ -294,16 +294,56 @@ export class DDBFeatureActivity {
     };
   }
 
+
+  _generateAttack({ unarmed = false, spell = false } = {}) {
+    let type = "melee";
+    let classification = unarmed
+      ? "unarmed"
+      : spell
+        ? "spell"
+        : "weapon"; // unarmed, weapon, spell
+
+    if (this.ddbDefinition.actionType === 1) {
+      if (this.ddbDefinition.attackTypeRange === 2) {
+        type = "ranged";
+      } else {
+        type = "melee";
+      }
+    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) {
+      type = "melee";
+    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) {
+      type = "ranged";
+    }
+
+    const attack = {
+      ability: this.ddbFeature.getActionAttackAbility(),
+      bonus: "", // TODO - fix bonus and martial arts damage
+      critical: {
+        threshold: undefined,
+      },
+      flat: false, // almost never false for PC features
+      type: {
+        value: type,
+        classification,
+      },
+    };
+
+    this.data.attack = attack;
+    foundry.utils.setProperty(this.data.damage, "includeBase", true);
+
+  }
+
   build({
     extraDescription = "",
     forceFullDescription = false,
     generateActivation = true,
+    generateAttack = false,
     generateConsumption = true,
     generateDamage = false,
     generateDescription = false,
     generateDuration = true,
     generateEffects = true,
-    generateRange = false,
+    generateRange = true,
     generateSave = false,
     generateTarget = true,
   } = {}) {
@@ -311,6 +351,7 @@ export class DDBFeatureActivity {
     // override set to false on object if overriding
 
     if (generateActivation) this._generateActivation();
+    if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption();
     if (generateDescription) this._generateDescription({ forceFull: forceFullDescription, extra: extraDescription });
     if (generateDuration) this._generateDuration();

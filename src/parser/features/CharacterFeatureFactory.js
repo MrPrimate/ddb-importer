@@ -141,7 +141,11 @@ export default class CharacterFeatureFactory {
       .map((action) => {
         logger.debug(`Getting Other Action ${action.name}`);
 
-        const ddbAction = new DDBAction({ ddbData: this.ddbData, ddbDefinition: action, rawCharacter: this.rawCharacter });
+        const ddbAction = new DDBAction({
+          ddbData: this.ddbData,
+          ddbDefinition: action,
+          rawCharacter: this.rawCharacter,
+        });
         ddbAction.build();
         // console.warn(`ddbAction for ${action.name}`, ddbAction);
 

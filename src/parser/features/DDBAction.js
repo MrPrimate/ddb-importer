@@ -8,8 +8,6 @@ import { DDBFeatureActivity } from "./DDBFeatureActivity.js";
 
 export default class DDBAction extends DDBBaseFeature {
 
-
-
   _init() {
     this.isAction = true;
     logger.debug(`Generating Action ${this.ddbDefinition.name}`);
@@ -105,7 +103,7 @@ export default class DDBAction extends DDBBaseFeature {
     };
   }
 
-  _generateSaveAttack() {
+  _generateSaveActivation() {
     this.data.system.actionType = "save";
     this._generateDamage();
 
@@ -117,9 +115,45 @@ export default class DDBAction extends DDBBaseFeature {
 
     saveActivity.build({
       generateSave: true,
+      generateRange: this.documentType !== "weapon",
     });
 
     this.activities.push(saveActivity);
+  }
+
+  _generateAttackActivation() {
+    this.data.system.actionType = "attack";
+    this._generateDamage();
+
+    const attackActivity = new DDBFeatureActivity({
+      name: this.data.name,
+      type: "attack",
+      ddbFeature: this,
+    });
+
+    attackActivity.build({
+      generateAttack: true,
+      generateRange: this.documentType !== "weapon",
+    });
+    this.activities.push(attackActivity);
+  }
+
+  _generateUtilityActivation() {
+    this.data.system.actionType = "other";
+    this._generateDamage();
+
+    const utilityActivity = new DDBFeatureActivity({
+      name: this.data.name,
+      type: "utility",
+      ddbFeature: this,
+    });
+
+    utilityActivity.build({
+      generateActivation: true,
+      generateRange: this.documentType !== "weapon",
+    });
+
+    this.activities.push(utilityActivity);
   }
 
   _generateMartialArtsDamage() {
@@ -190,6 +224,37 @@ export default class DDBAction extends DDBBaseFeature {
     }
   }
 
+  getActionAttackAbility() {
+    let defaultAbility = this.ddbDefinition.abilityModifierStatId
+      ? DICTIONARY.character.abilities.find(
+        (stat) => stat.id === this.ddbDefinition.abilityModifierStatId,
+      ).value
+      : "";
+
+    if (this.ddbDefinition.abilityModifierStatId
+      && !([1, 2].includes(this.ddbDefinition.abilityModifierStatId) && this.ddbDefinition.isMartialArts)
+    ) {
+      return defaultAbility;
+    } else if (this.ddbDefinition.isMartialArts) {
+      return this.ddbDefinition.isMartialArts && this.isMartialArtist()
+        ? this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities.dex.value >= this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities.str.value
+          ? "dex"
+          : "str"
+        : defaultAbility !== ""
+          ? defaultAbility
+          : "str";
+    } else {
+      return "";
+    }
+  }
+
+  _getBonusDamage() {
+    if (this.ddbDefinition.isMartialArts) {
+      this._generateMartialArtsDamage();
+      return DDBHelper.filterBaseModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
+    }
+  }
+
   _calculateActionAttackAbilities() {
     let defaultAbility = this.ddbDefinition.abilityModifierStatId
       ? DICTIONARY.character.abilities.find(
@@ -218,30 +283,6 @@ export default class DDBAction extends DDBBaseFeature {
       this._generateDamage();
     }
     return this.data;
-  }
-
-
-  _generateAttackType() {
-    // lets see if we have a save stat for things like Dragon born Breath Weapon
-    if (typeof this.ddbDefinition.saveStatId === "number") {
-      this._generateSaveAttack();
-    } else if (this.ddbDefinition.actionType === 1) {
-      if (this.ddbDefinition.attackTypeRange === 2) {
-        this.data.system.actionType = "rwak";
-      } else {
-        this.data.system.actionType = "mwak";
-      }
-      this._calculateActionAttackAbilities();
-    } else {
-      if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) {
-        this.data.system.actionType = "mwak";
-      } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) {
-        this.data.system.actionType = "rwak";
-      } else {
-        this.data.system.actionType = "other";
-      }
-      this._calculateActionAttackAbilities();
-    }
   }
 
   /**
@@ -351,6 +392,20 @@ export default class DDBAction extends DDBBaseFeature {
     }
   }
 
+  _getActivationType() {
+    // lets see if we have a save stat for things like Dragon born Breath Weapon
+    if (typeof this.ddbDefinition.saveStatId === "number") {
+      return "save";
+    } else if (this.ddbDefinition.actionType === 1) {
+      return "attack";
+    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) {
+      return "attack";
+    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) {
+      return "attack";
+    }
+    // TODO: can we determine if utility, heal or damage?
+    return "utility";
+  }
 
   build() {
     try {
@@ -363,8 +418,26 @@ export default class DDBAction extends DDBBaseFeature {
       this._generateRange();
       this._generateAttackType();
 
-      // TODO: evaluate activities here
+      const type = this._getActivationType();
 
+       // TODO: evaluate activities here
+      switch (type) {
+        case "save":
+          this._generateSaveActivation();
+          break;
+        case "attack":
+          this._generateAttackActivation();
+          break;
+        case "damage":
+          this._generateDamageActivation();
+          break;
+        case "utility":
+          this._generateUtilityActivation();
+          break;
+        // no default
+      }
+
+      // TODO: Correct for Activities
       if (this.data.system.damage.parts.length === 0) {
         logger.debug("Running level scale parser");
         this._generateLevelScaleDice();
