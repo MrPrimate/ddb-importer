@@ -317,7 +317,7 @@ export class DDBFeatureActivity {
 
     const attack = {
       ability: this.ddbFeature.getActionAttackAbility(),
-      bonus: "", // TODO - fix bonus and martial arts damage
+      bonus: this.ddbFeature.getBonusDamage(),
       critical: {
         threshold: undefined,
       },

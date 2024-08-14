@@ -400,6 +400,83 @@ export default class DDBBaseFeature {
 
   }
 
+  getMartialArtsDamage(bonuses = []) {
+    const damageType = this.getDamageType();
+    const actionDie = this.ddbDefinition.dice
+      ? this.ddbDefinition.dice
+      : this.ddbDefinition.die
+        ? this.ddbDefinition.die
+        : undefined;
+    const bonusString = bonuses.join(" ");
+
+    const damage = {
+      number: null,
+      denomination: null,
+      bonus: "",
+      types: damageType ? [damageType] : [],
+      custom: {
+        enabled: false,
+        formula: "",
+      },
+      scaling: {
+        mode: "whole",
+        number: null,
+        formula: "",
+      },
+    };
+
+    // are we dealing with martial artist (rather than just the feature being martial arts)
+    if (this.isMartialArtist()) {
+      const dies = this.ddbData.character.classes
+        .filter((klass) => this.isMartialArtist(klass))
+        .map((klass) => {
+          const feature = klass.classFeatures.find((feature) => feature.definition.name === "Martial Arts");
+          const levelScaleDie = feature?.levelScale?.dice
+            ? feature.levelScale.dice
+            : feature?.levelScale.die
+              ? feature.levelScale.die
+              : undefined;
+
+          if (levelScaleDie?.diceString) {
+
+            const scaleValueLink = DDBHelper.getScaleValueLink(this.ddbData, feature);
+            const scaleString = scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
+              ? scaleValueLink
+              : levelScaleDie.diceString;
+
+            if (actionDie?.diceValue > levelScaleDie.diceValue) {
+              return actionDie.diceString;
+            }
+            return scaleString;
+          } else if (actionDie !== null && actionDie !== undefined) {
+            // On some races bite is considered a martial art, damage
+            // is different and on the action itself
+            return actionDie.diceString;
+          } else {
+            return "1";
+          }
+        });
+      const die = dies.length > 0 ? dies[0] : "";
+
+      const damageString = die.includes("@")
+        ? `${die}${bonusString} + @mod`
+        : utils.parseDiceString(die, `${bonusString} + @mod`).diceString;
+
+      // set the weapon damage
+      DDBBaseFeature.parseBasicDamageFormula(damage, damageString);
+    } else if (actionDie !== null && actionDie !== undefined) {
+      // The Lizardfolk jaws have a different base damage, its' detailed in
+      // dice so lets capture that for actions if it exists
+      const damageString = utils.parseDiceString(actionDie.diceString, `${bonusString} + @mod`).diceString;
+      DDBBaseFeature.parseBasicDamageFormula(damage, damageString);
+    } else {
+      // default to basics
+      DDBBaseFeature.parseBasicDamageFormula(damage, `1${bonusString} + @mod`);
+    }
+
+    return damage;
+  }
+
   _generateResourceFlags() {
     const linkItems = game.modules.get("link-item-resource-5e")?.active;
     const resourceType = foundry.utils.getProperty(this.rawCharacter, "flags.ddbimporter.resources.type");

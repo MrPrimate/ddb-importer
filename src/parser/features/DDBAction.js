@@ -84,8 +84,12 @@ export default class DDBAction extends DDBBaseFeature {
       && meleeOrRangedAction
       ? " + @mod"
       : "";
+    const unarmedDamageBonus = DDBHelper.filterBaseModifiers(this.ddbData, "damage", { subType: "unarmed-attacks" })
+      .reduce((prev, cur) => prev + cur.value, 0);
 
-    const damage = super.getDamage(bonuses.concat([modBonus]));
+    const damage = this.ddbDefinition.isMartialArts
+      ? super.getMartialArtsDamage(bonuses.concat((unarmedDamageBonus === 0 ? [] : [`+ ${unarmedDamageBonus}`])))
+      : super.getDamage(bonuses.concat([modBonus]));
 
     if (damage.number || damage.custom.enabled) {
       return damage;
@@ -156,74 +160,6 @@ export default class DDBAction extends DDBBaseFeature {
     this.activities.push(utilityActivity);
   }
 
-  _generateMartialArtsDamage() {
-    const damageType = DICTIONARY.actions.damageType.find((type) => type.id === this.ddbDefinition.damageTypeId).name;
-    const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-
-    let damageBonus = DDBHelper.filterBaseModifiers(this.ddbData, "damage", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
-    if (damageBonus === 0) {
-      damageBonus = "";
-    } else {
-      damageBonus = ` + ${damageBonus}`;
-    }
-    const actionDie = this.ddbDefinition.dice ? this.ddbDefinition.dice : this.ddbDefinition.die ? this.ddbDefinition.die : undefined;
-
-    // are we dealing with martial arts?
-    if (this.isMartialArtist()) {
-      const dies = this.ddbData.character.classes
-        .filter((klass) => this.isMartialArtist(klass))
-        .map((klass) => {
-          const feature = klass.classFeatures.find((feature) => feature.definition.name === "Martial Arts");
-          const levelScaleDie = feature?.levelScale?.dice ? feature.levelScale.dice : feature?.levelScale.die ? feature.levelScale.die : undefined;
-
-          if (levelScaleDie?.diceString) {
-
-            const scaleValueLink = DDBHelper.getScaleValueLink(this.ddbData, feature);
-            const scaleString = scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
-              ? scaleValueLink
-              : levelScaleDie.diceString;
-
-            if (actionDie?.diceValue > levelScaleDie.diceValue) {
-              return actionDie.diceString;
-            }
-            return scaleString;
-          } else if (actionDie !== null && actionDie !== undefined) {
-            // On some races bite is considered a martial art, damage
-            // is different and on the action itself
-            return actionDie.diceString;
-          } else {
-            return "1";
-          }
-        });
-      const die = dies.length > 0 ? dies[0] : "";
-      const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
-      const damageString = die.includes("@")
-        ? `${die}${damageTag}${damageBonus} + @mod`
-        : utils.parseDiceString(die, `${damageBonus} + @mod`, damageTag).diceString;
-
-      // set the weapon damage
-      this.data.system.damage = {
-        parts: [[damageString, damageType]],
-        versatile: "",
-      };
-    } else if (actionDie !== null && actionDie !== undefined) {
-      // The Lizardfolk jaws have a different base damage, its' detailed in
-      // dice so lets capture that for actions if it exists
-      const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
-      const damageString = utils.parseDiceString(actionDie.diceString, `${damageBonus} + @mod`, damageTag).diceString;
-      this.data.system.damage = {
-        parts: [[damageString, damageType]],
-        versatile: "",
-      };
-    } else {
-      // default to basics
-      this.data.system.damage = {
-        parts: [[`1${damageBonus} + @mod`, damageType]],
-        versatile: "",
-      };
-    }
-  }
-
   getActionAttackAbility() {
     let defaultAbility = this.ddbDefinition.abilityModifierStatId
       ? DICTIONARY.character.abilities.find(
@@ -248,41 +184,11 @@ export default class DDBAction extends DDBBaseFeature {
     }
   }
 
-  _getBonusDamage() {
+  getBonusDamage() {
     if (this.ddbDefinition.isMartialArts) {
-      this._generateMartialArtsDamage();
       return DDBHelper.filterBaseModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
     }
-  }
-
-  _calculateActionAttackAbilities() {
-    let defaultAbility = this.ddbDefinition.abilityModifierStatId
-      ? DICTIONARY.character.abilities.find(
-        (stat) => stat.id === this.ddbDefinition.abilityModifierStatId,
-      ).value
-      : "";
-
-    if (this.ddbDefinition.abilityModifierStatId
-      && !([1, 2].includes(this.ddbDefinition.abilityModifierStatId) && this.ddbDefinition.isMartialArts)
-    ) {
-      this.data.system.ability = defaultAbility;
-    } else if (this.ddbDefinition.isMartialArts) {
-      this.data.system.ability
-        = this.ddbDefinition.isMartialArts && this.isMartialArtist()
-          ? this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities.dex.value >= this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities.str.value
-            ? "dex"
-            : "str"
-          : defaultAbility !== "" ? defaultAbility : "str";
-    } else {
-      this.data.system.ability = "";
-    }
-    if (this.ddbDefinition.isMartialArts) {
-      this._generateMartialArtsDamage();
-      this.data.system.attack.bonus = DDBHelper.filterBaseModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
-    } else {
-      this._generateDamage();
-    }
-    return this.data;
+    return "";
   }
 
   /**
@@ -346,7 +252,6 @@ export default class DDBAction extends DDBBaseFeature {
   }
 
   _generateProperties() {
-
     const kiEmpowered = this.ddbData.character.classes
       // is a martial artist
       .some((cls) =>
@@ -358,7 +263,6 @@ export default class DDBAction extends DDBBaseFeature {
     if (kiEmpowered && foundry.utils.getProperty(this.data, "flags.ddbimporter.originalName") == "Unarmed Strike") {
       utils.addToProperties(this.data.system.properties, "mgc");
     }
-
   }
 
   _generateFlagHints() {
