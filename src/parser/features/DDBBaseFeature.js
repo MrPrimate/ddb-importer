@@ -5,6 +5,7 @@ import logger from "../../logger.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import { generateEffects } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
+import { DDBFeatureActivity } from "./DDBFeatureActivity.js";
 
 
 export default class DDBBaseFeature {
@@ -307,6 +308,7 @@ export default class DDBBaseFeature {
 
   // weapons still have range
   _generateRange() {
+    if (!this.documentType !== "weapon") return;
     if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
       this.data.system.range = { value: null, units: "self", long: "" };
       this.data.system.target = {
@@ -616,6 +618,117 @@ export default class DDBBaseFeature {
 
   _generateSystemType() {
     foundry.utils.setProperty(this.data, "system.type.value", this.type);
+  }
+
+  _getSaveActivity() {
+    this.data.system.actionType = "save";
+    this._generateDamage();
+
+    const saveActivity = new DDBFeatureActivity({
+      name: this.data.name,
+      type: "save",
+      ddbFeature: this,
+    });
+
+    saveActivity.build({
+      generateSave: true,
+      generateRange: this.documentType !== "weapon",
+      generateDamage: this.documentType !== "weapon",
+    });
+
+    return saveActivity;
+  }
+
+  _getAttackActivity() {
+    this.data.system.actionType = "attack";
+    this._generateDamage();
+
+    const attackActivity = new DDBFeatureActivity({
+      name: this.data.name,
+      type: "attack",
+      ddbFeature: this,
+    });
+
+    attackActivity.build({
+      generateAttack: true,
+      generateRange: this.documentType !== "weapon",
+      generateDamage: this.documentType !== "weapon",
+    });
+    return attackActivity;
+  }
+
+  _getUtilityActivity() {
+    this.data.system.actionType = "other";
+    this._generateDamage();
+
+    const utilityActivity = new DDBFeatureActivity({
+      name: this.data.name,
+      type: "utility",
+      ddbFeature: this,
+    });
+
+    utilityActivity.build({
+      generateActivation: true,
+      generateRange: this.documentType !== "weapon",
+      generateDamage: this.documentType !== "weapon",
+    });
+
+    return utilityActivity;
+  }
+
+  _getHealActivity() {
+    this.data.system.actionType = "heal";
+    const healActivity = new DDBFeatureActivity({
+      name: this.data.name,
+      type: "utility",
+      ddbFeature: this,
+    });
+
+    healActivity.build({
+      generateActivation: true,
+      generateDamage: true,
+      generateRange: true,
+    });
+
+    return healActivity;
+  }
+
+  _getActivitiesType() {
+    // lets see if we have a save stat for things like Dragon born Breath Weapon
+    if (typeof this.ddbDefinition.saveStatId === "number") {
+      return "save";
+    } else if (this.ddbDefinition.actionType === 1) {
+      return "attack";
+    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) {
+      return "attack";
+    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) {
+      return "attack";
+    }
+    // TODO: can we determine if utility, heal or damage?
+    return "utility";
+  }
+
+  getActivity() {
+    const type = this._getActivitiesType();
+    switch (type) {
+      case "save":
+        return this._getSaveActivity();
+      case "attack":
+        return this._getAttackActivity();
+      case "damage":
+        return this._getDamageActivity();
+      case "heal":
+        return this._getHealActivity();
+      case "utility":
+        return this._getUtilityActivity();
+      default:
+        return undefined;
+    }
+  }
+
+  _generateActivity() {
+    const activity = this._getActivity();
+    this.activities.push(activity);
   }
 
   // eslint-disable-next-line class-methods-use-this

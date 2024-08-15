@@ -108,62 +108,6 @@ export default class DDBAction extends DDBBaseFeature {
     };
   }
 
-  _generateSaveActivation() {
-    this.data.system.actionType = "save";
-    this._generateDamage();
-
-    const saveActivity = new DDBFeatureActivity({
-      name: this.data.name,
-      type: "save",
-      ddbFeature: this,
-    });
-
-    saveActivity.build({
-      generateSave: true,
-      generateRange: this.documentType !== "weapon",
-      generateDamage: this.documentType !== "weapon",
-    });
-
-    this.activities.push(saveActivity);
-  }
-
-  _generateAttackActivation() {
-    this.data.system.actionType = "attack";
-    this._generateDamage();
-
-    const attackActivity = new DDBFeatureActivity({
-      name: this.data.name,
-      type: "attack",
-      ddbFeature: this,
-    });
-
-    attackActivity.build({
-      generateAttack: true,
-      generateRange: this.documentType !== "weapon",
-      generateDamage: this.documentType !== "weapon",
-    });
-    this.activities.push(attackActivity);
-  }
-
-  _generateUtilityActivation() {
-    this.data.system.actionType = "other";
-    this._generateDamage();
-
-    const utilityActivity = new DDBFeatureActivity({
-      name: this.data.name,
-      type: "utility",
-      ddbFeature: this,
-    });
-
-    utilityActivity.build({
-      generateActivation: true,
-      generateRange: this.documentType !== "weapon",
-      generateDamage: this.documentType !== "weapon",
-    });
-
-    this.activities.push(utilityActivity);
-  }
-
   getActionAttackAbility() {
     let defaultAbility = this.ddbDefinition.abilityModifierStatId
       ? DICTIONARY.character.abilities.find(
@@ -252,21 +196,6 @@ export default class DDBAction extends DDBBaseFeature {
     }
   }
 
-  _getActivationType() {
-    // lets see if we have a save stat for things like Dragon born Breath Weapon
-    if (typeof this.ddbDefinition.saveStatId === "number") {
-      return "save";
-    } else if (this.ddbDefinition.actionType === 1) {
-      return "attack";
-    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) {
-      return "attack";
-    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) {
-      return "attack";
-    }
-    // TODO: can we determine if utility, heal or damage?
-    return "utility";
-  }
-
   build() {
     try {
       this._generateSystemType();
@@ -276,26 +205,7 @@ export default class DDBAction extends DDBBaseFeature {
       this._generateLimitedUse();
       this._generateRange();
       this._generateAttackType();
-
-      const type = this._getActivationType();
-
-       // TODO: evaluate activities here
-      switch (type) {
-        case "save":
-          this._generateSaveActivation();
-          break;
-        case "attack":
-          this._generateAttackActivation();
-          break;
-        case "damage":
-          this._generateDamageActivation();
-          break;
-        case "utility":
-          this._generateUtilityActivation();
-          break;
-        // no default
-      }
-
+      this._generateActivity();
       this._generateFlagHints();
       this._generateResourceFlags();
 

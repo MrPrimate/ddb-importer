@@ -38,7 +38,6 @@ export default class DDBAttackAction extends DDBAction {
       this.data.system.equipped = true;
       this.data.system.rarity = "";
       this.data.system.identified = true;
-      // MOVED: this._generateActivation();
       this._generateRange();
       this._generateAttackType();
       this._generateWeaponType();
@@ -46,10 +45,7 @@ export default class DDBAttackAction extends DDBAction {
       this._generateProperties();
       this._generateSystemType(this.type);
       this._generateSystemSubType();
-
-      if (["line", "cone"].includes(this.data.system.target?.type)) {
-        foundry.utils.setProperty(this.data, "system.duration.units", "inst");
-      }
+      this._generateActivity();
 
       this._generateFlagHints();
       this._generateResourceFlags();

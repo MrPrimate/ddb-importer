@@ -282,7 +282,6 @@ export class DDBFeatureActivity {
     };
   }
 
-
   _generateAttack({ unarmed = false, spell = false } = {}) {
     let type = "melee";
     let classification = unarmed

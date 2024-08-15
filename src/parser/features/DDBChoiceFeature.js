@@ -39,6 +39,16 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   }
 
+  _generateActivity() {
+    // TODO MOVED: this._generateActivation();
+    // TODO MOVED: this._generateResourceConsumption();
+
+    const activity = this.getActivity();
+    if (activity.) {
+      this.activities.push(activity);
+    }
+  }
+
 
   build(choice) {
     try {
@@ -90,8 +100,8 @@ export default class DDBChoiceFeature extends DDBFeature {
       // add these flags in so they can be used by the description parser
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
-      // TODO MOVED: this._generateActivation();
-      // TODO MOVED: this._generateResourceConsumption();
+      this._generateActivity();
+
       this._generateDescription({ forceFull: false });
       this.data.flags.ddbimporter.dndbeyond.choice = {
         label: choice.label,

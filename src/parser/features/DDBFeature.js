@@ -131,7 +131,6 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._generateLimitedUse();
     // this._generateRange();
 
-
     this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 
     this._generateDescription({ forceFull: true });
