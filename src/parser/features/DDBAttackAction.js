@@ -43,7 +43,6 @@ export default class DDBAttackAction extends DDBAction {
       this._generateAttackType();
       this._generateWeaponType();
       this._generateLimitedUse();
-      this._generateResourceConsumption();
       this._generateProperties();
       this._generateSystemType(this.type);
       this._generateSystemSubType();
@@ -55,7 +54,6 @@ export default class DDBAttackAction extends DDBAction {
       this._generateFlagHints();
       this._generateResourceFlags();
       this._addEffects();
-      this._generateLevelScaleDice();
 
       this._addCustomValues();
 

@@ -99,6 +99,7 @@ export default class DDBAction extends DDBBaseFeature {
   }
 
   _generateDamage() {
+    if (this.documentType !== "weapon") return;
     const damage = this.getDamage();
     if (!damage) return;
     this.data.system.damage = {
@@ -120,6 +121,7 @@ export default class DDBAction extends DDBBaseFeature {
     saveActivity.build({
       generateSave: true,
       generateRange: this.documentType !== "weapon",
+      generateDamage: this.documentType !== "weapon",
     });
 
     this.activities.push(saveActivity);
@@ -138,6 +140,7 @@ export default class DDBAction extends DDBBaseFeature {
     attackActivity.build({
       generateAttack: true,
       generateRange: this.documentType !== "weapon",
+      generateDamage: this.documentType !== "weapon",
     });
     this.activities.push(attackActivity);
   }
@@ -155,6 +158,7 @@ export default class DDBAction extends DDBBaseFeature {
     utilityActivity.build({
       generateActivation: true,
       generateRange: this.documentType !== "weapon",
+      generateDamage: this.documentType !== "weapon",
     });
 
     this.activities.push(utilityActivity);
@@ -189,54 +193,6 @@ export default class DDBAction extends DDBBaseFeature {
       return DDBHelper.filterBaseModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
     }
     return "";
-  }
-
-  /**
-   * Some features have actions that use dice and mods that are defined on the character class feature
-   * this attempts to parse out the damage dice and any ability modifier.
-   * This relies on the parsing of templateStrings for the ability modifier detection.
-   */
-  _generateLevelScaleDice(useScale = true) {
-    if (useScale) return;
-    const parts = this.ddbData.character.classes
-      .filter((cls) => cls.classFeatures.some((feature) =>
-        feature.definition.id == this.ddbDefinition.componentId
-        && feature.definition.entityTypeId == this.ddbDefinition.componentTypeId
-        && feature.levelScale?.dice?.diceString,
-      ))
-      .map((cls) => {
-        const feature = cls.classFeatures.find((feature) =>
-          feature.definition.id == this.ddbDefinition.componentId
-          && feature.definition.entityTypeId == this.ddbDefinition.componentTypeId,
-        );
-        const parsedString = this.rawCharacter.flags.ddbimporter.dndbeyond.templateStrings.find((templateString) =>
-          templateString.id == this.ddbDefinition.id
-          && templateString.entityTypeId == this.ddbDefinition.entityTypeId,
-        );
-        const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
-        const scaleValueLink = DDBHelper.getScaleValueString(this.ddbData, this.ddbDefinition).value;
-        let part = useScale && !this.excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
-          ? scaleValueLink
-          : die.diceString;
-        if (parsedString) {
-          const modifier = parsedString.definitions.find((definition) => definition.type === "modifier");
-          if (modifier) {
-            this.data.system.ability = modifier.subType;
-            part = `${part} + @mod`;
-          }
-        }
-        return [part, ""];
-      });
-
-    if (parts.length > 0 && !this.levelScaleInfusion) {
-      const combinedParts = foundry.utils.hasProperty(this.data, "data.damage.parts") && this.data.system.damage.parts.length > 0
-        ? this.data.system.damage.parts.concat(parts)
-        : parts;
-      this.data.system.damage = {
-        parts: combinedParts,
-        versatile: "",
-      };
-    }
   }
 
   _generateWeaponType() {
@@ -318,7 +274,6 @@ export default class DDBAction extends DDBBaseFeature {
       // MOVED: this._generateActivation();
       this._generateDescription();
       this._generateLimitedUse();
-      this._generateResourceConsumption();
       this._generateRange();
       this._generateAttackType();
 
@@ -341,19 +296,16 @@ export default class DDBAction extends DDBBaseFeature {
         // no default
       }
 
-      // TODO: Correct for Activities
-      if (this.data.system.damage.parts.length === 0) {
-        logger.debug("Running level scale parser");
-        this._generateLevelScaleDice();
-      }
-
       this._generateFlagHints();
       this._generateResourceFlags();
 
       this._addEffects();
       this._addCustomValues();
 
-      this.data.activities = this.activities.map((activity) => activity.data);
+      for (const activity of this.activities) {
+        const id = utils.namedIDStub(this.name, { prefix: "act" });
+        foundry.utils.setProperty(this.data, `system.activities.${id}`, activity);
+      }
     } catch (err) {
       logger.warn(
         `Unable to Generate Action: ${this.name}, please log a bug report. Err: ${err.message}`,

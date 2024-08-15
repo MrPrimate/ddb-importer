@@ -163,18 +163,17 @@ export default class CharacterFeatureFactory {
 
     this.processed.actions = foundry.utils.duplicate(this.parsed.actions);
 
-    // TODO - activations now in activites
     this.processed.actions.sort().sort((a, b) => {
-      if (!a.system.activation.activationType) {
+      if (!a.system.activities.some((a) => a.type)) {
         return 1;
-      } else if (!b.system.activation.activationType) {
+      } else if (!b.system.activities.some((b) => b.type)) {
         return -1;
       } else {
         const aActionTypeID = DICTIONARY.actions.activationTypes.find(
-          (type) => type.value === a.system.activation.activationType,
+          (type) => type.value === a.system.activities.find((a) => a.type)?.type,
         ).id;
         const bActionTypeID = DICTIONARY.actions.activationTypes.find(
-          (type) => type.value === b.system.activation.activationType,
+          (type) => type.value === b.system.activities.find((b) => b.type)?.type,
         ).id;
         if (aActionTypeID > bActionTypeID) {
           return 1;

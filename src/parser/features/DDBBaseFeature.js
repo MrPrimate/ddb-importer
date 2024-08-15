@@ -165,6 +165,18 @@ export default class DDBBaseFeature {
 
   }
 
+  static getParsedAction(description) {
+    // pcs don't have mythic
+    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
+    if (actionAction) return "action";
+    const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/ig);
+    if (bonusAction) return "bonus";
+    const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/ig);
+    if (reAction) return "reaction";
+
+    return undefined;
+  }
+
   static buildFullDescription(main, summary, title) {
     let result = "";
 
@@ -438,12 +450,10 @@ export default class DDBBaseFeature {
               : undefined;
 
           if (levelScaleDie?.diceString) {
-
             const scaleValueLink = DDBHelper.getScaleValueLink(this.ddbData, feature);
             const scaleString = scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
               ? scaleValueLink
               : levelScaleDie.diceString;
-
             if (actionDie?.diceValue > levelScaleDie.diceValue) {
               return actionDie.diceString;
             }

@@ -1,17 +1,29 @@
+import { DDBBasicActivity } from "../../parser/features/DDBBasicActivity.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function holdBreathEffect(document) {
   const effect = baseFeatEffect(document, document.name);
+
+  const activityId = DDBBasicActivity.createActivity( {
+    document,
+    type: "utility",
+  });
+  console.warn(document);
   effect.duration.rounds = 600;
-  document.system["target"]["type"] = "self";
-  document.system.range = { value: null, units: "self", long: null };
+  document.activities[activityId].target.affects.type = "self";
+  document.activities[activityId].range = {
+    value: null,
+    units: "self",
+    special: "",
+  };
   document.effects.push(effect);
 
   foundry.utils.setProperty(document, "flags.midiProperties.toggleEffect", true);
-  document.system.activation = {
-    "type": "special",
-    "cost": 1,
-    "condition": "",
+
+  document.activities[activityId].activation = {
+    type: "special",
+    value: 1,
+    condition: "",
   };
 
   if (document.name === "Partially Amphibious") {

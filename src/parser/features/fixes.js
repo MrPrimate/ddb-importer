@@ -9,13 +9,14 @@ import { featureEffectAdjustment } from "../../effects/specialFeats.js";
  */
 // eslint-disable-next-line complexity
 export async function fixFeatures(features) {
+  return features;
   for (let feature of features) {
     const name = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
       case "Action Surge": {
-        feature.system.damage = { parts: [], versatile: "", value: "" };
+        feature.system.damage = { base: null, versatile: "" };
         break;
       }
       case "Arcane Propulsion Armor Gauntlet": {

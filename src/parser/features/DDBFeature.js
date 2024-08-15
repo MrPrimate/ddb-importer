@@ -130,9 +130,7 @@ export default class DDBFeature extends DDBBaseFeature {
 
     // this._generateLimitedUse();
     // this._generateRange();
-    // this._generateResourceConsumption();
-    // this._generateActivation();
-    // this._generateLevelScaleDice();
+
 
     this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 
@@ -287,9 +285,6 @@ export default class DDBFeature extends DDBBaseFeature {
 
     // this._generateLimitedUse();
     // this._generateRange();
-    // this._generateResourceConsumption();
-    // this._generateActivation();
-    // this._generateLevelScaleDice();
 
     const choiceText = this._choices.reduce((p, c) => {
       if (c.description) {
