@@ -31,10 +31,11 @@ export class DDBBasicActivity {
     });
 
     this.data = rawStub.toObject();
+    this.data._id = utils.namedIDStub(this.name, { prefix: this.nameIdPrefix, postfix: this.nameIdPostfix });
   }
 
 
-  constructor({ type, name, foundryFeature, actor = null } = {}) {
+  constructor({ type, name, foundryFeature, actor = null, nameIdPrefix = null, nameIdPostfix = null } = {}) {
 
     this.type = type.toLowerCase();
     this.activityType = CONFIG.DND5E.activityTypes[this.type];
@@ -44,6 +45,9 @@ export class DDBBasicActivity {
     this.name = name;
     this.foundryFeature = foundryFeature;
     this.actor = actor;
+
+    this.nameIdPrefix = nameIdPrefix ?? "act";
+    this.nameIdPostfix = nameIdPostfix ?? "";
 
     this._init();
     this._generateDataStub();
@@ -370,11 +374,9 @@ export class DDBBasicActivity {
     });
 
     activity.build(options);
+    foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
 
-    const id = utils.namedIDStub(activity.name, { prefix: "act" });
-    foundry.utils.setProperty(document, `system.activities.${id}`, activity.data);
-
-    return id;
+    return activity.data._id;
 
   }
 

@@ -10,6 +10,7 @@
 // UtilityActivity(…)
 
 import DICTIONARY from "../../dictionary.js";
+import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBBaseFeature from "./DDBBaseFeature.js";
 
@@ -35,10 +36,11 @@ export class DDBFeatureActivity {
     });
 
     this.data = rawStub.toObject();
+    this.data._id = utils.namedIDStub(this.name, { prefix: this.nameIdPrefix, postfix: this.nameIdPostfix });
   }
 
 
-  constructor({ type, name, ddbFeature } = {}) {
+  constructor({ type, name, ddbFeature, nameIdPrefix = null, nameIdPostfix = null } = {}) {
 
     this.type = type.toLowerCase();
     this.activityType = CONFIG.DND5E.activityTypes[this.type];
@@ -50,6 +52,9 @@ export class DDBFeatureActivity {
 
     this._init();
     this._generateDataStub();
+
+    this.nameIdPrefix = nameIdPrefix ?? "act";
+    this.nameIdPostfix = nameIdPostfix ?? "";
 
     this.ddbDefinition = this.ddbFeature.ddbDefinition;
 

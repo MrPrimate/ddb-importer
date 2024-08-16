@@ -81,8 +81,7 @@ export default class DDBMacros {
         game.settings.set("midi-qol", "ConfigSettings", midiQOLSettings);
       }
     } else {
-      logger.warn("Midi-QOL needs to be installed for effects");
-      // ui.notifications.warn("Midi-QOL needs to be installed for effects");
+      logger.info("Midi-QOL not installed, skipping configuration check.");
     }
 
     if (game.modules.get("itemacro")?.active && game.modules.get("dae")?.active) {

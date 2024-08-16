@@ -744,11 +744,9 @@ export default class DDBBaseFeature {
   _generateActivity() {
     const activity = this.getActivity();
     this.activities.push(activity);
+    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
 
-    const id = utils.namedIDStub(activity.name, { prefix: "act" });
-    foundry.utils.setProperty(this.data, `system.activities.${id}`, activity.data);
-
-    return id;
+    return activity.data._id;
   }
 
   // eslint-disable-next-line class-methods-use-this
