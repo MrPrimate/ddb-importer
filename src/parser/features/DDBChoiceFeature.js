@@ -39,21 +39,6 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   }
 
-  _generateActivity() {
-    // TODO MOVED: this._generateActivation();
-    // TODO MOVED: this._generateResourceConsumption();
-
-    const activity = this.getActivity();
-    if (activity) {
-      this.activities.push(activity);
-      foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
-
-      return activity.data._id;
-    }
-    return undefined;
-  }
-
-
   build(choice) {
     try {
       this._generateSystemType();

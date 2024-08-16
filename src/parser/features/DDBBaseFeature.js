@@ -5,7 +5,8 @@ import logger from "../../logger.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import { generateEffects } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
-import { DDBFeatureActivity } from "../activities/DDBFeatureActivity.js";
+import DDBFeatureActivity from "../activities/DDBFeatureActivity.js";
+import DDDFeatureActivityDictionary from "../activities/DDBFeatureActivityDictionary.js";
 
 
 export default class DDBBaseFeature {
@@ -738,7 +739,15 @@ export default class DDBBaseFeature {
   }
 
   _generateActivity() {
-    const activity = this.getActivity();
+    const activityDictionary = new DDDFeatureActivityDictionary({
+      document: this.data,
+      name: this.data.name,
+    });
+    const activity = this.getActivity({
+      typeOverride: activityDictionary.type,
+    });
+    if (!activity) return undefined;
+    activityDictionary.applyOverride(activity.data);
     this.activities.push(activity);
     foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
 

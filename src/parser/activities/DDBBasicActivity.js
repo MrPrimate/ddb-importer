@@ -17,7 +17,7 @@ import DDBBaseFeature from "../features/DDBBaseFeature.js";
 
 // CONFIG.DND5E.activityTypes
 
-export class DDBBasicActivity {
+export default class DDBBasicActivity {
 
   _init() {
     logger.debug(`Generating DDBBasicActivity ${this.name}`);

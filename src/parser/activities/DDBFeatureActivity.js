@@ -22,7 +22,7 @@ import DDBBaseFeature from "../features/DDBBaseFeature.js";
 // check effects for recharge and uses chages
 
 
-export class DDBFeatureActivity {
+export default class DDBFeatureActivity {
 
   _init() {
     logger.debug(`Generating DDBActivity ${this.name}`);
