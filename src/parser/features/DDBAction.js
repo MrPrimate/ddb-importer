@@ -3,7 +3,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBBaseFeature from "./DDBBaseFeature.js";
-import { DDBFeatureActivity } from "./DDBFeatureActivity.js";
+import { DDBFeatureActivity } from "../activities/DDBFeatureActivity.js";
 
 
 export default class DDBAction extends DDBBaseFeature {

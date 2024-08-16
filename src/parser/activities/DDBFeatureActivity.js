@@ -12,15 +12,20 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
-import DDBBaseFeature from "./DDBBaseFeature.js";
+import DDBBaseFeature from "../features/DDBBaseFeature.js";
 
 
 // CONFIG.DND5E.activityTypes
 
-export class DDBBasicActivity {
+
+// TODO
+// check effects for recharge and uses chages
+
+
+export class DDBFeatureActivity {
 
   _init() {
-    logger.debug(`Generating DDBBasicActivity ${this.name}`);
+    logger.debug(`Generating DDBActivity ${this.name}`);
   }
 
   _generateDataStub() {
@@ -35,7 +40,7 @@ export class DDBBasicActivity {
   }
 
 
-  constructor({ type, name, foundryFeature, actor = null, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+  constructor({ type, name, ddbFeature, nameIdPrefix = null, nameIdPostfix = null } = {}) {
 
     this.type = type.toLowerCase();
     this.activityType = CONFIG.DND5E.activityTypes[this.type];
@@ -43,20 +48,26 @@ export class DDBBasicActivity {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
     this.name = name;
-    this.foundryFeature = foundryFeature;
-    this.actor = actor;
-
-    this.nameIdPrefix = nameIdPrefix ?? "act";
-    this.nameIdPostfix = nameIdPostfix ?? "";
+    this.ddbFeature = ddbFeature;
 
     this._init();
     this._generateDataStub();
 
+    this.nameIdPrefix = nameIdPrefix ?? "act";
+    this.nameIdPostfix = nameIdPostfix ?? "";
+
+    this.ddbDefinition = this.ddbFeature.ddbDefinition;
+
   }
 
-  // note spells do not have activation
-  _generateActivation() {
-    const description = this.foundryFeature.system.description.value;
+  _generateParsedActivation() {
+    const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
+      ? this.ddbDefinition.description
+      : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
+        ? this.ddbDefinition.snippet
+        : null;
+
+    // console.warn(`Generating Parsed Activation for ${this.name}`, {description});
 
     if (!description) return;
     const actionType = DDBBaseFeature.getParsedAction(description);
@@ -64,7 +75,28 @@ export class DDBBasicActivity {
     logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
     this.data.activation = {
       type: actionType,
-      value: 1,
+      cost: 1,
+      condition: "",
+    };
+  }
+
+  // note spells do not have activation
+  _generateActivation() {
+    // console.warn(`Generating Activation for ${this.name}`);
+    if (!this.ddbDefinition.activation) {
+      this._generateParsedActivation();
+      return;
+    }
+    const actionType = DICTIONARY.actions.activationTypes
+      .find((type) => type.id === this.ddbDefinition.activation.activationType);
+    if (!actionType) {
+      this._generateParsedActivation();
+      return;
+    }
+
+    this.data.activation = {
+      type: actionType.value,
+      value: this.ddbDefinition.activation.activationTime || 1,
       condition: "",
     };
   }
@@ -79,10 +111,10 @@ export class DDBBasicActivity {
     // "material"
     // "itemUses"
 
-    if (this.actor) {
-      Object.keys(this.actor.system.resources).forEach((resource) => {
-        const detail = this.actor.system.resources[resource];
-        if (this.foundryFeature.name === detail.label) {
+    if (this.ddbFeature.rawCharacter) {
+      Object.keys(this.ddbFeature.rawCharacter.system.resources).forEach((resource) => {
+        const detail = this.ddbFeature.rawCharacter.system.resources[resource];
+        if (this.ddbDefinition.name === detail.label) {
           targets.push({
             type: "attribute",
             target: `resources.${resource}.value`,
@@ -102,7 +134,7 @@ export class DDBBasicActivity {
     // right now most of these target other creatures
 
     const kiPointRegex = /(?:spend|expend) (\d) ki point/;
-    const match = this.foundryFeature.system.description.value.match(kiPointRegex);
+    const match = this.ddbFeature.data.system.description.value.match(kiPointRegex);
     if (match) {
       targets.push({
         type: "itemUses",
@@ -113,18 +145,17 @@ export class DDBBasicActivity {
           formula: "",
         },
       });
+    } else if (this.ddbFeature.resourceCharges !== null) {
+      targets.push({
+        type: "itemUses",
+        target: "", // adjusted later
+        value: this._resourceCharges,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
     }
-    // else if (this.ddbFeature.resourceCharges !== null) {
-    //   targets.push({
-    //     type: "itemUses",
-    //     target: "", // adjusted later
-    //     value: this._resourceCharges,
-    //     scaling: {
-    //       mode: "",
-    //       formula: "",
-    //     },
-    //   });
-    // }
 
     this.data.consumption = {
       targets,
@@ -136,8 +167,10 @@ export class DDBBasicActivity {
 
   }
 
-  _generateDescription({ forceFull = false, extra = "" } = {}) {
-    this.data.description = this.ddbFeature.getFeature({ forceFull, extra });
+  _generateDescription() {
+    this.data.description = {
+      chatFlavor: this.foundryFeature.system?.chatFlavor ?? "",
+    };
   }
 
   _generateDuration() {
@@ -155,11 +188,25 @@ export class DDBBasicActivity {
   }
 
   _generateRange() {
-    this.data.range = {
-      value: null,
-      units: "ft",
-      special: "",
-    };
+    if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
+      this.data.range = {
+        value: null,
+        units: "self",
+        special: "",
+      };
+    } else if (this.ddbDefinition.range && this.ddbDefinition.range.range) {
+      this.data.range = {
+        value: this.ddbDefinition.range.range,
+        units: "ft",
+        special: "",
+      };
+    } else {
+      this.data.range = {
+        value: 5,
+        units: "ft",
+        special: "",
+      };
+    }
   }
 
   _generateTarget() {
@@ -182,15 +229,15 @@ export class DDBBasicActivity {
       prompt: true,
     };
 
-    // if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
-    //   data = foundry.utils.mergeObject(data, {
-    //     template: {
-    //       type: DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value ?? "",
-    //       size: this.ddbDefinition.range.aoeSize,
-    //       width: "",
-    //     },
-    //   });
-    // }
+    if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
+      data = foundry.utils.mergeObject(data, {
+        template: {
+          type: DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value ?? "",
+          size: this.ddbDefinition.range.aoeSize,
+          width: "",
+        },
+      });
+    }
 
     // TODO: improve target parsing
     this.data.target = data;
@@ -199,9 +246,15 @@ export class DDBBasicActivity {
 
 
   _generateDamage(includeBase = false) {
+    // TODO revisit or multipart damage parsing
+    if (!this.ddbFeature.getDamage) return undefined;
+    const damage = this.ddbFeature.getDamage();
+
+    if (!damage) return undefined;
+
     this.data.damage = {
       includeBase,
-      parts: [],
+      parts: [damage],
     };
 
     // damage: {
@@ -216,26 +269,49 @@ export class DDBBasicActivity {
   }
 
   _generateSave() {
+    const fixedDC = this.ddbDefinition.fixedSaveDc ? this.ddbDefinition.fixedSaveDc : null;
+    const calculation = fixedDC
+      ? "custom"
+      : (this.ddbDefinition.abilityModifierStatId)
+        ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId).value
+        : "spellcasting";
+
+    const saveAbility = (this.ddbDefinition.saveStatId)
+      ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.saveStatId).value
+      : null;
+
     this.data.save = {
-      ability: Object.keys(CONFIG.DND5E.abilities)[0],
+      ability: saveAbility ?? Object.keys(CONFIG.DND5E.abilities)[0],
       dc: {
-        calculation: "",
-        formula: "",
+        calculation,
+        formula: String(fixedDC ?? ""),
       },
     };
   }
 
-
-  _generateAttack({ type = "melee", unarmed = false, spell = false } = {}) {
+  _generateAttack({ unarmed = false, spell = false } = {}) {
+    let type = "melee";
     let classification = unarmed
       ? "unarmed"
       : spell
         ? "spell"
         : "weapon"; // unarmed, weapon, spell
 
+    if (this.ddbDefinition.actionType === 1) {
+      if (this.ddbDefinition.attackTypeRange === 2) {
+        type = "ranged";
+      } else {
+        type = "melee";
+      }
+    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) {
+      type = "melee";
+    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) {
+      type = "ranged";
+    }
+
     const attack = {
-      ability: Object.keys(CONFIG.DND5E.abilities)[0],
-      bonus: "",
+      ability: this.ddbFeature.getActionAttackAbility(),
+      bonus: this.ddbFeature.getBonusDamage(),
       critical: {
         threshold: undefined,
       },
@@ -247,12 +323,11 @@ export class DDBBasicActivity {
     };
 
     this.data.attack = attack;
+    foundry.utils.setProperty(this.data.damage, "includeBase", true);
 
   }
 
   build({
-    extraDescription = "",
-    forceFullDescription = false,
     generateActivation = true,
     generateAttack = false,
     generateConsumption = true,
@@ -270,7 +345,7 @@ export class DDBBasicActivity {
     if (generateActivation) this._generateActivation();
     if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption();
-    if (generateDescription) this._generateDescription({ forceFull: forceFullDescription, extra: extraDescription });
+    if (generateDescription) this._generateDescription();
     if (generateDuration) this._generateDuration();
     if (generateEffects) this._generateEffects();
     if (generateRange) this._generateRange();
@@ -290,7 +365,6 @@ export class DDBBasicActivity {
     // effects
     // range
     // target
-    // type
     // uses
 
     // DAMAGE
@@ -302,7 +376,6 @@ export class DDBBasicActivity {
     // effects
     // range
     // target
-    // type
     // uses
 
 
@@ -318,7 +391,6 @@ export class DDBBasicActivity {
     // effects
     // range
     // target
-    // type
     // uses
 
     // SAVE
@@ -331,7 +403,6 @@ export class DDBBasicActivity {
     // range
     // save
     // target
-    // type
     // uses
 
     // SUMMON
@@ -347,7 +418,6 @@ export class DDBBasicActivity {
     // range
     // summon
     // target
-    // type
     // uses
 
     // UTILITY
@@ -359,24 +429,8 @@ export class DDBBasicActivity {
     // range
     // roll - name, formula, prompt, visible
     // target
-    // type
     // uses
 
-
-  }
-
-  static createActivity({ document, type, name, character } = {}, options = {}) {
-    const activity = new DDBBasicActivity({
-      name: name ?? document.name,
-      type,
-      foundryFeature: document,
-      actor: character,
-    });
-
-    activity.build(options);
-    foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
-
-    return activity.data._id;
 
   }
 

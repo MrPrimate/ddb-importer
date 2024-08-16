@@ -1,4 +1,4 @@
-import { DDBBasicActivity } from "../../parser/features/DDBBasicActivity.js";
+import { DDBBasicActivity } from "../../parser/activities/DDBBasicActivity.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function holdBreathEffect(document, character) {

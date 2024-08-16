@@ -5,7 +5,7 @@ import logger from "../../logger.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import { generateEffects } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
-import { DDBFeatureActivity } from "./DDBFeatureActivity.js";
+import { DDBFeatureActivity } from "../activities/DDBFeatureActivity.js";
 
 
 export default class DDBBaseFeature {
@@ -31,10 +31,6 @@ export default class DDBBaseFeature {
     "Starry Form: Archer",
     "Sneak Attack",
   ];
-
-  static ACTIVITY_HINTS = {
-
-  };
 
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
