@@ -44,9 +44,15 @@ export default class DDBChoiceFeature extends DDBFeature {
     // TODO MOVED: this._generateResourceConsumption();
 
     const activity = this.getActivity();
-    if (activity.) {
+    if (activity) {
       this.activities.push(activity);
+
+      const id = utils.namedIDStub(activity.name, { prefix: "act" });
+      foundry.utils.setProperty(this.data, `system.activities.${id}`, activity.data);
+
+      return id;
     }
+    return undefined;
   }
 
 
@@ -98,6 +104,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       //   }
       // }
       // add these flags in so they can be used by the description parser
+      // foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.choice", choice);
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
       this._generateActivity();

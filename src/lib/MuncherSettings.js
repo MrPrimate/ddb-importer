@@ -537,13 +537,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       {
         name: "use-full-token-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image"),
-        description: "Use avatar image for token rather than token image (full art).",
+        description: "Use portrait image for token rather than token image (i.e. full art).",
         enabled: true,
       },
       {
         name: "use-token-avatar-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image"),
-        description: "Use token image for avatar rather than avatar image (close up).",
+        description: "Use token image for portrait rather than the portrait image (i.e. close up).",
         enabled: true,
       },
       {

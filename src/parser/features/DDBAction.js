@@ -98,16 +98,6 @@ export default class DDBAction extends DDBBaseFeature {
     }
   }
 
-  _generateDamage() {
-    if (this.documentType !== "weapon") return;
-    const damage = this.getDamage();
-    if (!damage) return;
-    this.data.system.damage = {
-      base: damage,
-      versatile: "",
-    };
-  }
-
   getActionAttackAbility() {
     let defaultAbility = this.ddbDefinition.abilityModifierStatId
       ? DICTIONARY.character.abilities.find(
@@ -204,7 +194,6 @@ export default class DDBAction extends DDBBaseFeature {
       this._generateDescription();
       this._generateLimitedUse();
       this._generateRange();
-      this._generateAttackType();
       this._generateActivity();
       this._generateFlagHints();
       this._generateResourceFlags();
@@ -212,10 +201,6 @@ export default class DDBAction extends DDBBaseFeature {
       this._addEffects();
       this._addCustomValues();
 
-      for (const activity of this.activities) {
-        const id = utils.namedIDStub(this.name, { prefix: "act" });
-        foundry.utils.setProperty(this.data, `system.activities.${id}`, activity);
-      }
     } catch (err) {
       logger.warn(
         `Unable to Generate Action: ${this.name}, please log a bug report. Err: ${err.message}`,

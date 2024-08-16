@@ -443,7 +443,7 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Partially Amphibious":
     case "Hold Breath": {
-      document = holdBreathEffect(document);
+      document = holdBreathEffect(document, character);
       break;
     }
     case "Hill Rune": {

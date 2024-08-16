@@ -41,7 +41,7 @@ export class DDBFeatureActivity {
   constructor({ type, name, ddbFeature } = {}) {
 
     this.type = type.toLowerCase();
-    this.activityType = CONFIG.DND5E.activityTypes[this.toLowerCase()];
+    this.activityType = CONFIG.DND5E.activityTypes[this.type];
     if (!this.activityType) {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
@@ -107,8 +107,8 @@ export class DDBFeatureActivity {
     // "itemUses"
 
     if (this.ddbFeature.rawCharacter) {
-      Object.keys(this.rawCharacter.system.resources).forEach((resource) => {
-        const detail = this.rawCharacter.system.resources[resource];
+      Object.keys(this.ddbFeature.rawCharacter.system.resources).forEach((resource) => {
+        const detail = this.ddbFeature.rawCharacter.system.resources[resource];
         if (this.ddbDefinition.name === detail.label) {
           targets.push({
             type: "attribute",
@@ -360,7 +360,6 @@ export class DDBFeatureActivity {
     // effects
     // range
     // target
-    // type
     // uses
 
     // DAMAGE
@@ -372,7 +371,6 @@ export class DDBFeatureActivity {
     // effects
     // range
     // target
-    // type
     // uses
 
 
@@ -388,7 +386,6 @@ export class DDBFeatureActivity {
     // effects
     // range
     // target
-    // type
     // uses
 
     // SAVE
@@ -401,7 +398,6 @@ export class DDBFeatureActivity {
     // range
     // save
     // target
-    // type
     // uses
 
     // SUMMON
@@ -417,7 +413,6 @@ export class DDBFeatureActivity {
     // range
     // summon
     // target
-    // type
     // uses
 
     // UTILITY
@@ -429,7 +424,6 @@ export class DDBFeatureActivity {
     // range
     // roll - name, formula, prompt, visible
     // target
-    // type
     // uses
 
 

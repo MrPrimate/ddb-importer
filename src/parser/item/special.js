@@ -52,6 +52,7 @@ function tattoos(item) {
  * @param {*} items
  */
 export function fixItems(items) {
+  return;
   // eslint-disable-next-line complexity
   items.forEach((item) => {
     prepItem(item);

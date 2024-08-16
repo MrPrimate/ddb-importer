@@ -37,7 +37,7 @@ export class DDBBasicActivity {
   constructor({ type, name, foundryFeature, actor = null } = {}) {
 
     this.type = type.toLowerCase();
-    this.activityType = CONFIG.DND5E.activityTypes[this.toLowerCase()];
+    this.activityType = CONFIG.DND5E.activityTypes[this.type];
     if (!this.activityType) {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
@@ -76,9 +76,9 @@ export class DDBBasicActivity {
     // "itemUses"
 
     if (this.actor) {
-      Object.keys(this.rawCharacter.system.resources).forEach((resource) => {
-        const detail = this.rawCharacter.system.resources[resource];
-        if (this.ddbDefinition.name === detail.label) {
+      Object.keys(this.actor.system.resources).forEach((resource) => {
+        const detail = this.actor.system.resources[resource];
+        if (this.foundryFeature.name === detail.label) {
           targets.push({
             type: "attribute",
             target: `resources.${resource}.value`,
@@ -109,17 +109,18 @@ export class DDBBasicActivity {
           formula: "",
         },
       });
-    } else if (this.ddbFeature.resourceCharges !== null) {
-      targets.push({
-        type: "itemUses",
-        target: "", // adjusted later
-        value: this._resourceCharges,
-        scaling: {
-          mode: "",
-          formula: "",
-        },
-      });
     }
+    // else if (this.ddbFeature.resourceCharges !== null) {
+    //   targets.push({
+    //     type: "itemUses",
+    //     target: "", // adjusted later
+    //     value: this._resourceCharges,
+    //     scaling: {
+    //       mode: "",
+    //       formula: "",
+    //     },
+    //   });
+    // }
 
     this.data.consumption = {
       targets,
@@ -177,15 +178,15 @@ export class DDBBasicActivity {
       prompt: true,
     };
 
-    if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
-      data = foundry.utils.mergeObject(data, {
-        template: {
-          type: DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value ?? "",
-          size: this.ddbDefinition.range.aoeSize,
-          width: "",
-        },
-      });
-    }
+    // if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
+    //   data = foundry.utils.mergeObject(data, {
+    //     template: {
+    //       type: DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value ?? "",
+    //       size: this.ddbDefinition.range.aoeSize,
+    //       width: "",
+    //     },
+    //   });
+    // }
 
     // TODO: improve target parsing
     this.data.target = data;
@@ -360,18 +361,18 @@ export class DDBBasicActivity {
 
   }
 
-  static createActivity({ document, type, name, actor } = {}, options = {}) {
+  static createActivity({ document, type, name, character } = {}, options = {}) {
     const activity = new DDBBasicActivity({
       name: name ?? document.name,
       type,
       foundryFeature: document,
-      actor,
+      actor: character,
     });
 
     activity.build(options);
 
-    const id = utils.namedIDStub(this.name, { prefix: "act" });
-    foundry.utils.setProperty(this.data, `system.activities.${id}`, activity);
+    const id = utils.namedIDStub(activity.name, { prefix: "act" });
+    foundry.utils.setProperty(document, `system.activities.${id}`, activity.data);
 
     return id;
 

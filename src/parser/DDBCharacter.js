@@ -208,6 +208,10 @@ export default class DDBCharacter {
           delete newFlags.ddbimporter;
           foundry.utils.mergeObject(action.flags, newFlags, { overwrite: true, insertKeys: true, insertValues: true });
         }
+
+        if (featureMatch.system.activities?.length > 0) {
+          action.system.activities.push(...featureMatch.system.activities);
+        }
       }
       return action;
     });

@@ -32,6 +32,10 @@ export default class DDBBaseFeature {
     "Sneak Attack",
   ];
 
+  static ACTIVITY_HINTS = {
+
+  };
+
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
@@ -192,7 +196,7 @@ export default class DDBBaseFeature {
       ${main.trim()}
     </p>
   </details>`;
-    } else if (main.trim() === "") {
+    } else if (summary && main.trim() === "") {
       result += summary.trim();
     } else {
       result += main.trim();
@@ -412,6 +416,16 @@ export default class DDBBaseFeature {
 
     return damage;
 
+  }
+
+  _generateDamage() {
+    if (this.documentType !== "weapon") return;
+    const damage = this.getDamage();
+    if (!damage) return;
+    this.data.system.damage = {
+      base: damage,
+      versatile: "",
+    };
   }
 
   getMartialArtsDamage(bonuses = []) {
@@ -708,8 +722,8 @@ export default class DDBBaseFeature {
     return "utility";
   }
 
-  getActivity() {
-    const type = this._getActivitiesType();
+  getActivity({ typeOverride = null, typeFallback = null } = {}) {
+    const type = typeOverride ?? this._getActivitiesType();
     switch (type) {
       case "save":
         return this._getSaveActivity();
@@ -722,13 +736,19 @@ export default class DDBBaseFeature {
       case "utility":
         return this._getUtilityActivity();
       default:
+        if (typeFallback) return this.getActivity(typeFallback);
         return undefined;
     }
   }
 
   _generateActivity() {
-    const activity = this._getActivity();
+    const activity = this.getActivity();
     this.activities.push(activity);
+
+    const id = utils.namedIDStub(activity.name, { prefix: "act" });
+    foundry.utils.setProperty(this.data, `system.activities.${id}`, activity.data);
+
+    return id;
   }
 
   // eslint-disable-next-line class-methods-use-this

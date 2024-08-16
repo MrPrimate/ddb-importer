@@ -39,7 +39,6 @@ export default class DDBAttackAction extends DDBAction {
       this.data.system.rarity = "";
       this.data.system.identified = true;
       this._generateRange();
-      this._generateAttackType();
       this._generateWeaponType();
       this._generateLimitedUse();
       this._generateProperties();

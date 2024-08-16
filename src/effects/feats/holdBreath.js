@@ -1,17 +1,19 @@
 import { DDBBasicActivity } from "../../parser/features/DDBBasicActivity.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
-export function holdBreathEffect(document) {
+export function holdBreathEffect(document, character) {
   const effect = baseFeatEffect(document, document.name);
 
-  const activityId = DDBBasicActivity.createActivity( {
+  const activityId = DDBBasicActivity.createActivity({
+    name: document.name,
     document,
     type: "utility",
+    character: character,
   });
   console.warn(document);
   effect.duration.rounds = 600;
-  document.activities[activityId].target.affects.type = "self";
-  document.activities[activityId].range = {
+  document.system.activities[activityId].target.affects.type = "self";
+  document.system.activities[activityId].range = {
     value: null,
     units: "self",
     special: "",
@@ -20,7 +22,7 @@ export function holdBreathEffect(document) {
 
   foundry.utils.setProperty(document, "flags.midiProperties.toggleEffect", true);
 
-  document.activities[activityId].activation = {
+  document.system.activities[activityId].activation = {
     type: "special",
     value: 1,
     condition: "",
