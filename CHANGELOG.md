@@ -1,3 +1,7 @@
+# Next Up
+
+- Improve sense parsing in various failure states @sisimshow
+
 # 5.2.29
 
 - Small fix for Druid import warning/error for CR scale. @sayshal
