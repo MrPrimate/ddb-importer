@@ -522,6 +522,11 @@ export async function fixFeatures(features) {
         }
         break;
       }
+      case "Wild Shape": {
+        feature.system.actionType = "";
+        feature.system.damage = { parts: [], versatile: "", value: "" };
+        break;
+      }
       case "Wrath of the Storm": {
         feature.system.damage = { parts: [["2d8", "lightning"]], versatile: "", value: "" };
         break;

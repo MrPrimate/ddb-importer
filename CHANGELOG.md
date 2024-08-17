@@ -1,3 +1,8 @@
+# 5.2.29
+
+- Small fix for Druid import warning/error for CR scale. @sayshal
+- Small tweak to damage tag parsing
+
 # 5.2.28
 
 - Icons for features, items and spells will now always be downloaded to prevent failures with effect transference in v12.

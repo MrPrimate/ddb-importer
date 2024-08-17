@@ -11,7 +11,15 @@ import SETTINGS from '../../settings.js';
 
 export default class DDBClass {
 
-  static SPECIAL_ADVANCEMENTS = {};
+  static SPECIAL_ADVANCEMENTS = {
+    "Wild Shape": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Wild Shape CR" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+  };
 
   static PROFICIENCY_FEATURES = [
     "Proficiencies",
@@ -552,7 +560,7 @@ export default class DDBClass {
               specialFeatures.push(fn(advancement));
             });
           }
-          if (specialLookup.fixFunction) advancement = specialLookup.fixFunction(advancement);
+          if (specialLookup.fixFunction) advancement = specialLookup.fixFunction(advancement, specialLookup.functionArgs);
         }
         return advancement;
       });
@@ -1003,11 +1011,26 @@ export default class DDBClass {
   }
 
   // fixes
-  // eslint-disable-next-line class-methods-use-this, no-empty-function
-  _fixes() {
-    // Currently empty but stubbed for DDBSubClass
-  }
 
+  _fixes() {
+    if (this.data.name === "Druid") {
+      for (let advancement of this.data.system.advancement) {
+        if (advancement.title !== "Wild Shape CR") continue;
+        advancement.configuration.type = "cr";
+        advancement.configuration.scale = {
+          2: {
+            value: 0.25,
+          },
+          4: {
+            value: 0.5,
+          },
+          8: {
+            value: 1,
+          },
+        };
+      };
+    }
+  }
 
   // GENERATE CLASS
 

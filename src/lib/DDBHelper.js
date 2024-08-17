@@ -56,7 +56,7 @@ const DDBHelper = {
     const damageHint = damageTagData.hintOrRestriction
       ? `${hintTag}${damageTagData.hintAndRestriction}${damageTagData.restriction}`
       : "";
-    const damageTag = damageTagData.hintOrRestriction ? `[${damageHint}]` : "";
+    const damageTag = damageTagData.hintOrRestriction && damageHint !== "" ? `[${damageHint}]` : "";
     return {
       globalDamageHints: damageTagData.globalDamageHints,
       damageRestrictionHints: damageTagData.damageRestrictionHints,

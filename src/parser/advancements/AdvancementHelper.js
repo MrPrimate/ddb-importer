@@ -832,6 +832,11 @@ export default class AdvancementHelper {
     return advancement;
   }
 
+  static rename(advancement, { newName } = {}) {
+    advancement.title = newName;
+    return advancement;
+  }
+
   static addAdditionalUses(advancement) {
     const adv = new game.dnd5e.documents.advancement.ScaleValueAdvancement();
     const update = {

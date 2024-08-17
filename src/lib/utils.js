@@ -184,7 +184,7 @@ const utils = {
     const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
     const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? ' +' : ' '} ${bonus}`;
     const diceHintAdd = globalDamageHints && diceHint && diceMap;
-    const hintString = diceHintAdd ? diceHint : "";
+    const hintString = diceHintAdd ? diceHint.replace("[]", "") : "";
     const diceHintString = diceMap.map(({ sign, count, die }, index) =>
       `${index ? `${sign} ` : ''}${count}d${die}${specialFlags}${hintString}`
     ).join(' ');
