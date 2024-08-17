@@ -12,7 +12,7 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
-import DDBBaseFeature from "../features/DDBBaseFeature.js";
+import DDBBaseFeature from "./DDBBaseFeature.js";
 
 
 // CONFIG.DND5E.activityTypes

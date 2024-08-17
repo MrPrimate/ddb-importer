@@ -5,7 +5,7 @@ import logger from "../../logger.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import { generateEffects } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
-import DDBFeatureActivity from "../activities/DDBFeatureActivity.js";
+import DDBFeatureActivity from "./DDBFeatureActivity.js";
 import DDDFeatureActivityDictionary from "../activities/DDBFeatureActivityDictionary.js";
 
 
