@@ -8,6 +8,7 @@
 - Source parsing will now default to short names rather than long names, due to changes in new monster character sheet.
 - Changes to default description processing for features on character import.
 - Shadar Kai now gain resistance to magical sleep.
+- Improve sense parsing in various failure states @sisimshow
 
 # 5.2.29
 

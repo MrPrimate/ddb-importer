@@ -11,6 +11,7 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
     units: "ft",
     special: "",
   };
+  let special = [];
 
   // custom senses
   if (this.source.ddb.character.customSenses) {
@@ -49,13 +50,13 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
     .forEach((sense) => {
       if (Number.isInteger(sense.value) && sense.value > senses['darkvision']) {
         senses['darkvision'] = parseInt(sense.value);
-        senses.special += "You can see normally in darkness, both magical and nonmagical.";
+        special.push("You can see normally in darkness, both magical and nonmagical.");
       }
     });
 
   // Magical bonuses and additional, e.g. Gloom Stalker
   const magicalBonusFilters = {
-    subType: "darkvision",
+    // subType: "darkvision",
     restriction: ["", null, "plus 60 feet if wearer already has Darkvision"],
     includeExcludedEffects: includeEffects,
   };
@@ -65,11 +66,14 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
       const hasSense = mod.subType in senses;
       if (hasSense && mod.value && Number.isInteger(mod.value)) {
         senses[mod.subType] += parseInt(mod.value);
-      } else {
-        senses.special += ` ${mod.value},`;
+      } else if (mod.value) {
+        special.push(`${mod.friendlySubtypeName} (${mod.value})`);
+      } else if (mod.friendlySubtypeName) {
+        special.push(`${mod.friendlySubtypeName}`);
       }
     });
 
+  senses.special = special.join(", ");
   return senses;
 
 };
