@@ -3,6 +3,11 @@ import DDBBaseDictionary from "./DDBBaseDictionary.js";
 
 export default class DDDFeatureDictionary extends DDBBaseDictionary {
 
+  constructor({ document, name = null }) {
+    super({ document, name });
+    this._prepare();
+  }
+
   NAME_HINTS = {
   };
 
@@ -47,7 +52,7 @@ export default class DDDFeatureDictionary extends DDBBaseDictionary {
     },
   };
 
-  DOCUMENT_HINTS = {
+  DOCUMENT_OVERRIDES = {
     "Partially Amphibious": {
       data: {
         "system.uses": {

@@ -13,16 +13,17 @@ export default class DDBBaseDictionary {
 
   EFFECT_HINTS = {};
 
-
-  constructor({ document, name = null }) {
-    this.document = document;
-    this.name = name ?? document.flags?.ddbimporter?.originalName ?? document.name;
-
+  _prepare() {
     this.hintName = this.NAME_HINTS[this.name] ?? this.name;
     this.activity = this.ACTIVITY_HINTS[this.hintName];
     this.effect = this.EFFECT_HINTS[this.hintName];
     this.override = this.DOCUMENT_OVERRIDES[this.hintName];
+  }
 
+  constructor({ document, name = null }) {
+    this.document = document;
+    this.name = name ?? document.flags?.ddbimporter?.originalName ?? document.name;
+    this._prepare();
   }
 
   applyActivityOverride(activity) {

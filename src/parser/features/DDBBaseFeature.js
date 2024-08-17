@@ -701,7 +701,7 @@ export default class DDBBaseFeature {
     this.data.system.actionType = "heal";
     const healActivity = new DDBFeatureActivity({
       name: this.data.name,
-      type: "utility",
+      type: "heal",
       ddbFeature: this,
     });
 
@@ -752,6 +752,13 @@ export default class DDBBaseFeature {
     const activity = this.getActivity({
       typeOverride: this.featureDictionary.activity?.type,
     });
+
+    console.warn(`Activity Check for ${this.data.name}`, {
+      this: this,
+      activity,
+      activityType: this.featureDictionary.activity?.type,
+    });
+
     if (!activity) return undefined;
     this.featureDictionary.applyActivityOverride(activity.data);
     this.activities.push(activity);

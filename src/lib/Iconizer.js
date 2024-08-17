@@ -261,9 +261,6 @@ export default class Iconizer {
             item.img = pathMatched;
             if (item.effects) {
               item.effects.forEach((effect) => {
-                if (!effect.icon || effect.icon === "") {
-                  effect.icon = pathMatched;
-                }
                 if (!effect.img || effect.img === "") {
                   effect.img = pathMatched;
                 }
@@ -601,16 +598,11 @@ export default class Iconizer {
     items.forEach((item) => {
       if (item.effects && (item.img && (item.img !== "" || item.img !== CONST.DEFAULT_TOKEN))) {
         item.effects.forEach((effect) => {
-
-          if (!effect.icon || effect.icon === "" || effect.icon === CONST.DEFAULT_TOKEN) {
-            effect.icon = item.img;
-          }
           if (!effect.img || effect.img === "" || effect.img === CONST.DEFAULT_TOKEN) {
             effect.img = item.img;
           }
         });
       }
-
     });
     return items;
   }
@@ -623,7 +615,6 @@ export default class Iconizer {
       if (name) {
         const actorItem = actor.items.find((i) => i.name === name);
         if (actorItem) {
-          effect.icon = actorItem.img;
           effect.img = actorItem.img;
         }
       }
