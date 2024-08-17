@@ -48,6 +48,7 @@ export default class DDBAttackAction extends DDBAction {
 
       this._generateFlagHints();
       this._generateResourceFlags();
+      this.featureDictionary.addDocumentOverride();
       this._addEffects();
 
       this._addCustomValues();

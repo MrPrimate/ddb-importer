@@ -9,7 +9,6 @@
 // SummonActivity(…)
 // UtilityActivity(…)
 
-import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBBaseFeature from "../features/DDBBaseFeature.js";

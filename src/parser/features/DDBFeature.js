@@ -139,6 +139,8 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._generateFlagHints();
     // this._generateResourceFlags();
     // this._addCustomValues();
+
+    this.featureDictionary.addDocumentOverride();
   }
 
   async _generateFeatureAdvancements() {
@@ -269,6 +271,8 @@ export default class DDBFeature extends DDBBaseFeature {
       this.data.img = "icons/skills/trades/academics-book-study-purple.webp";
       this.data.name = this.data.name.split("Background: ").pop();
 
+      this.featureDictionary.addDocumentOverride();
+
     } catch (err) {
       logger.warn(
         `Unable to Generate Background Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
@@ -310,6 +314,8 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._generateFlagHints();
     // this._generateResourceFlags();
     // this._addCustomValues();
+
+    this.featureDictionary.addDocumentOverride();
   }
 
 
