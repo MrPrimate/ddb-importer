@@ -270,7 +270,7 @@ export default class DDBCompanionFactory {
           count: null,
         };
       });
-    if (this.originDocument) {
+    if (this.originDocument && this.summons) {
       const alternativeDocument = DDBCompanionFactory.COMPANION_REMAP[this.originDocument.name];
       const updateDocument = alternativeDocument
         ? (otherDocuments.find((s) =>
