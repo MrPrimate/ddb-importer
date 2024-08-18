@@ -4,7 +4,6 @@ import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../effects/specialSpells.js";
 
 export default class DDBBaseDictionary {
-
   NAME_HINTS = {};
 
   ACTIVITY_HINTS = {};
@@ -29,14 +28,42 @@ export default class DDBBaseDictionary {
   applyActivityOverride(activity) {
     if (!this.activity) return activity;
 
-    if (this.activity.data) {
-      activity = foundry.utils.mergeObject(
-        activity,
-        this.override.data,
-      );
+    if (this.activity.addItemConsume) {
+      foundry.utils.setProperty(activity, "consumption.targets", [
+        {
+          type: "itemUses",
+          target: "",
+          value: "1",
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        },
+      ]);
     }
 
-    if (this.activity?.func) this.activity.func(activity);
+    if (this.activity.targetSelf) {
+      foundry.utils.setProperty(activity, "target.affects.type", "self");
+      foundry.utils.setProperty(activity, "range", {
+        value: null,
+        units: "self",
+        special: "",
+      });
+    }
+
+    if (this.activity.specialActivation) {
+      foundry.utils.setProperty(activity, "activation", {
+        type: "special",
+        value: 1,
+        condition: "",
+      });
+    }
+
+    if (this.activity.data) {
+      activity = foundry.utils.mergeObject(activity, this.activity.data);
+    }
+
+    if (this.activity.func) this.activity.func(activity);
 
     return activity;
   }
@@ -87,5 +114,4 @@ export default class DDBBaseDictionary {
     this.document = foundry.utils.mergeObject(this.document, this.override.data);
     return this.document;
   }
-
 }

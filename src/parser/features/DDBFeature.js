@@ -131,6 +131,8 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._generateLimitedUse();
     // this._generateRange();
 
+    this._generateActivity({ hintsOnly: true });
+
     this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 
     this._generateDescription({ forceFull: true });
@@ -140,7 +142,7 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._generateResourceFlags();
     // this._addCustomValues();
 
-    this.featureDictionary.addDocumentOverride();
+    this.featureEnricher.addDocumentOverride();
   }
 
   async _generateFeatureAdvancements() {
@@ -271,7 +273,7 @@ export default class DDBFeature extends DDBBaseFeature {
       this.data.img = "icons/skills/trades/academics-book-study-purple.webp";
       this.data.name = this.data.name.split("Background: ").pop();
 
-      this.featureDictionary.addDocumentOverride();
+      this.featureEnricher.addDocumentOverride();
 
     } catch (err) {
       logger.warn(
@@ -315,7 +317,7 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._generateResourceFlags();
     // this._addCustomValues();
 
-    this.featureDictionary.addDocumentOverride();
+    this.featureEnricher.addDocumentOverride();
   }
 
 

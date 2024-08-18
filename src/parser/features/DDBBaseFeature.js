@@ -6,7 +6,7 @@ import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import { generateEffects } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
 import DDBFeatureActivity from "./DDBFeatureActivity.js";
-import DDDFeatureDictionary from "../enrichers/DDBFeatureDictionary.js";
+import DDDFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 
 
 export default class DDBBaseFeature {
@@ -125,7 +125,7 @@ export default class DDBBaseFeature {
     this._prepare();
     this.data.system.source = this.source;
 
-    this.featureDictionary = new DDDFeatureDictionary({
+    this.featureEnricher = new DDDFeatureEnricher({
       document: this.data,
       name: this.data.name,
     });
@@ -600,7 +600,7 @@ export default class DDBBaseFeature {
       description: this.snippet !== "" ? this.snippet : this.description,
     });
 
-    let effect = this.featureDictionary.createEffect();
+    let effect = this.featureEnricher.createEffect();
     if (effect) {
       this.data.effects.push(effect);
     }
@@ -748,19 +748,22 @@ export default class DDBBaseFeature {
     }
   }
 
-  _generateActivity() {
+  _generateActivity({ hintsOnly = false }) {
+    if (hintsOnly && !this.featureEnricher.activity) return undefined;
+
     const activity = this.getActivity({
-      typeOverride: this.featureDictionary.activity?.type,
+      typeOverride: this.featureEnricher.activity?.type,
     });
 
     console.warn(`Activity Check for ${this.data.name}`, {
       this: this,
       activity,
-      activityType: this.featureDictionary.activity?.type,
+      activityType: this.featureEnricher.activity?.type,
     });
 
     if (!activity) return undefined;
-    this.featureDictionary.applyActivityOverride(activity.data);
+
+    this.featureEnricher.applyActivityOverride(activity.data);
     this.activities.push(activity);
     foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
 

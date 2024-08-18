@@ -196,7 +196,7 @@ export default class DDBAction extends DDBBaseFeature {
       this._generateFlagHints();
       this._generateResourceFlags();
 
-      this.featureDictionary.addDocumentOverride();
+      this.featureEnricher.addDocumentOverride();
       this._addEffects();
       this._addCustomValues();
 

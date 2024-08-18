@@ -377,16 +377,6 @@ export async function fixFeatures(features) {
         feature.system.range.value = 10;
         break;
       }
-      case "Second Wind":
-        feature.system.damage = {
-          parts: [["1d10[healing] + @classes.fighter.levels", "healing"]],
-          versatile: "",
-          value: "",
-        };
-        feature.system.actionType = "heal";
-        feature.system.target.type = "self";
-        feature.system.range.units = "self";
-        break;
       case "Storm Aura: Desert": {
         feature.system.target = { value: 10, units: "ft", type: "creature" };
         feature.system.range = { value: null, long: null, units: "spec" };

@@ -107,7 +107,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
       this.data._id = foundry.utils.randomID();
 
-      this.featureDictionary.addDocumentOverride();
+      this.featureEnricher.addDocumentOverride();
       this._addEffects(choice, this.type);
 
     } catch (err) {
