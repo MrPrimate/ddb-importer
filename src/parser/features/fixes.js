@@ -15,10 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Action Surge": {
-        feature.system.damage = { base: null, versatile: "" };
-        break;
-      }
       case "Arcane Propulsion Armor Gauntlet": {
         feature.system.damage.parts[0][0] += " + @mod";
         break;

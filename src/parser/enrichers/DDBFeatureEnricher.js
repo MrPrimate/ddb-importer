@@ -9,6 +9,8 @@ export default class DDDFeatureEnricher extends DDBBaseDictionary {
   NAME_HINTS = {};
 
   ACTIVITY_HINTS = {
+    "Action Surge": {
+    },
     "Hold Breath": {
       type: "utility",
       func: undefined,
@@ -44,6 +46,14 @@ export default class DDDFeatureEnricher extends DDBBaseDictionary {
   };
 
   DOCUMENT_OVERRIDES = {
+    "Action Surge": {
+      removeDamage: true,
+    },
+    "Arcane Propulsion Armor Gauntlet": {
+      data: {
+        "system.damage.bonus": "@mod",
+      },
+    },
     "Partially Amphibious": {
       data: {
         "system.uses": {

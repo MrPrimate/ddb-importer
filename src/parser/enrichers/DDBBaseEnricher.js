@@ -111,7 +111,25 @@ export default class DDBBaseDictionary {
 
   addDocumentOverride() {
     if (!this.override) return this.document;
-    this.document = foundry.utils.mergeObject(this.document, this.override.data);
+    if (this.override.removeDamage) {
+      this.document.system.damage = {
+        number: null,
+        denomination: null,
+        bonus: "",
+        types: [],
+        custom: {
+          enabled: false,
+          formula: "",
+        },
+        scaling: {
+          mode: "whole",
+          number: null,
+          formula: "",
+        },
+      };
+    }
+
+    if (this.override.data) this.document = foundry.utils.mergeObject(this.document, this.override.data);
     return this.document;
   }
 }

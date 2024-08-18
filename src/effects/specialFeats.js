@@ -30,7 +30,6 @@ import { giantsMightEffect } from "./feats/giantsMight.js";
 import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
 import { heavyArmorMasterEffect } from "./feats/heavyArmorMaster.js";
 import { hillRuneEffect } from "./feats/hillRune.js";
-import { holdBreathEffect } from "./feats/holdBreath.js";
 import { indomitableEffect } from "./feats/indomitable.js";
 import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
@@ -439,11 +438,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Heavy Armor Master": {
       document = heavyArmorMasterEffect(document);
-      break;
-    }
-    case "Partially Amphibious":
-    case "Hold Breath": {
-      document = holdBreathEffect(document, character);
       break;
     }
     case "Hill Rune": {
