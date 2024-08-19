@@ -3,7 +3,7 @@ import { baseFeatEffect } from "../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../effects/specialSpells.js";
 
-export default class DDBBaseDictionary {
+export default class DDBBaseEnricher {
   NAME_HINTS = {};
 
   ACTIVITY_HINTS = {};

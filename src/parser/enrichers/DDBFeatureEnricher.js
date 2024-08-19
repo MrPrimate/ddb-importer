@@ -1,6 +1,6 @@
-import DDBBaseDictionary from "./DDBBaseEnricher.js";
+import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
-export default class DDDFeatureEnricher extends DDBBaseDictionary {
+export default class DDDFeatureEnricher extends DDBBaseEnricher {
   constructor({ document, name = null }) {
     super({ document, name });
     this._prepare();

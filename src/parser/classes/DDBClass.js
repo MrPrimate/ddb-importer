@@ -1032,11 +1032,19 @@ export default class DDBClass {
     }
   }
 
+  _generatePrimaryAbility() {
+    this.data.system.primaryAbility = {
+      value: this.ddbClassDefinition.primaryAbilities.map((a) => DICTIONARY.character.abilities.id === a)?.value,
+      all: false, // if multiclassing selected does muticlass require all to be 13, or just 1?
+    };  //TODO: can i use preq data in ddb for this?
+  };
+
   // GENERATE CLASS
 
   async generateFromCharacter(character) {
     await this._buildCompendiumIndex("features");
     this._setClassLevel();
+    this._generatePrimaryAbility();
     this._fleshOutCommonDataStub();
 
     // these are class specific

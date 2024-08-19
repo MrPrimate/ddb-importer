@@ -628,6 +628,8 @@ export default class DDBBaseFeature {
   }
 
   _generateSystemSubType() {
+    let subType = null;
+
     if (this.type === "class") {
       let subType = null;
       if (this.data.name.startsWith("Ki:")) subType = "Ki";
@@ -649,8 +651,20 @@ export default class DDBBaseFeature {
       // missing: Arcane Shot : arcaneShot
       // missing: multiattack
 
-      if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
+
+    } else if (this.type === "feat") {
+    // TODO: feat subtypes
+    // for 2024 now have for feats
+    // subtypes: {
+    //   general: "DND5E.Feature.Feat.General",
+    //   origin: "DND5E.Feature.Feat.Origin",
+    //   fightingStyle: "DND5E.Feature.Feat.FightingStyle",
+    //   epicBoon: "DND5E.Feature.Feat.EpicBoon"
+    // }
+
     }
+
+    if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
   }
 
   _generateWeaponType() {
@@ -743,33 +757,47 @@ export default class DDBBaseFeature {
   _getDamageActivity() {
     this._generateDamage();
 
-    const attackActivity = new DDBFeatureActivity({
+    const damageActivity = new DDBFeatureActivity({
       type: "damage",
       ddbFeature: this,
     });
 
-    attackActivity.build({
+    damageActivity.build({
       generateAttack: false,
       generateRange: this.documentType !== "weapon",
       generateDamage: this.documentType !== "weapon",
     });
-    return attackActivity;
+    return damageActivity;
   }
 
   _getEnchantActivity() {
     this._generateDamage();
 
-    const attackActivity = new DDBFeatureActivity({
+    const enchantActivity = new DDBFeatureActivity({
       type: "enchant",
       ddbFeature: this,
     });
 
-    attackActivity.build({
+    enchantActivity.build({
       generateAttack: false,
       generateRange: true,
       generateDamage: false,
     });
-    return attackActivity;
+    return enchantActivity;
+  }
+
+  _getSummonActivity() {
+    const summonActivity = new DDBFeatureActivity({
+      type: "summon",
+      ddbFeature: this,
+    });
+
+    summonActivity.build({
+      generateAttack: false,
+      generateRange: true,
+      generateDamage: false,
+    });
+    return summonActivity;
   }
 
   _getActivitiesType() {
@@ -802,6 +830,8 @@ export default class DDBBaseFeature {
         return this._getUtilityActivity();
       case "enchant":
         return this._getEnchantActivity();
+      case "summon":
+        return this._getSummonActivity();
       default:
         if (typeFallback) return this.getActivity(typeFallback);
         return undefined;
@@ -815,7 +845,7 @@ export default class DDBBaseFeature {
       typeOverride: this.featureEnricher.activity?.type ?? this.activityType,
     });
 
-    console.warn(`Activity Check for ${this.data.name}`, {
+    console.warn(`Feature Activity Check for ${this.data.name}`, {
       this: this,
       activity,
       activityType: this.featureEnricher.activity?.type ?? this.activityType,

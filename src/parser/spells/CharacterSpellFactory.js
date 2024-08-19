@@ -82,7 +82,7 @@ export default class CharacterSpellFactory {
           "spell-class-filter-for-5e": {
             parentClass: classInfo.definition.name.toLowerCase(),
           },
-          "tidy5e-sheet-kgar": {
+          "tidy5e-sheet": {
             parentClass: classInfo.definition.name.toLowerCase(),
           },
           // "spellbook-assistant-manager": {
@@ -176,7 +176,7 @@ export default class CharacterSpellFactory {
             forceMaterial: klass?.definition?.name === "Artificer",
           },
         },
-        "tidy5e-sheet-kgar": {
+        "tidy5e-sheet": {
           parentClass: (klass) ? klass.definition.name : undefined,
         },
       };

@@ -560,6 +560,12 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
   )) calc = "unarmoredMonk";
 
   if (classFeatures.some((kf) =>
+    kf.className === "Bard"
+    && kf.subclassName === "College of Dance"
+    && kf.name === "Unarmored Defense",
+  )) calc = "unarmoredBard";
+
+  if (classFeatures.some((kf) =>
     kf.className === "Barbarian"
     && kf.subclassName === null
     && kf.name === "Unarmored Defense",
