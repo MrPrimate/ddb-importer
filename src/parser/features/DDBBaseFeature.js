@@ -96,7 +96,7 @@ export default class DDBBaseFeature {
   }
 
   constructor({
-    ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false,
+    ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false, activityType = null,
   } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
@@ -122,6 +122,7 @@ export default class DDBBaseFeature {
     this.snippet = "";
     this.description = "";
     this.resourceCharges = null;
+    this.activityType = activityType;
 
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
 
@@ -675,11 +676,9 @@ export default class DDBBaseFeature {
   }
 
   _getSaveActivity() {
-    this.data.system.actionType = "save";
     this._generateDamage();
 
     const saveActivity = new DDBFeatureActivity({
-      // name: this.data.name,
       type: "save",
       ddbFeature: this,
     });
@@ -694,7 +693,6 @@ export default class DDBBaseFeature {
   }
 
   _getAttackActivity() {
-    this.data.system.actionType = "attack";
     this._generateDamage();
 
     const attackActivity = new DDBFeatureActivity({
@@ -711,7 +709,6 @@ export default class DDBBaseFeature {
   }
 
   _getUtilityActivity() {
-    this.data.system.actionType = "other";
     this._generateDamage();
 
     const utilityActivity = new DDBFeatureActivity({
@@ -729,7 +726,6 @@ export default class DDBBaseFeature {
   }
 
   _getHealActivity() {
-    this.data.system.actionType = "heal";
     const healActivity = new DDBFeatureActivity({
       type: "heal",
       ddbFeature: this,
@@ -742,6 +738,38 @@ export default class DDBBaseFeature {
     });
 
     return healActivity;
+  }
+
+  _getDamageActivity() {
+    this._generateDamage();
+
+    const attackActivity = new DDBFeatureActivity({
+      type: "damage",
+      ddbFeature: this,
+    });
+
+    attackActivity.build({
+      generateAttack: false,
+      generateRange: this.documentType !== "weapon",
+      generateDamage: this.documentType !== "weapon",
+    });
+    return attackActivity;
+  }
+
+  _getEnchantActivity() {
+    this._generateDamage();
+
+    const attackActivity = new DDBFeatureActivity({
+      type: "enchant",
+      ddbFeature: this,
+    });
+
+    attackActivity.build({
+      generateAttack: false,
+      generateRange: true,
+      generateDamage: false,
+    });
+    return attackActivity;
   }
 
   _getActivitiesType() {
@@ -772,6 +800,8 @@ export default class DDBBaseFeature {
         return this._getHealActivity();
       case "utility":
         return this._getUtilityActivity();
+      case "enchant":
+        return this._getEnchantActivity();
       default:
         if (typeFallback) return this.getActivity(typeFallback);
         return undefined;
@@ -782,13 +812,13 @@ export default class DDBBaseFeature {
     if (hintsOnly && !this.featureEnricher.activity) return undefined;
 
     const activity = this.getActivity({
-      typeOverride: this.featureEnricher.activity?.type,
+      typeOverride: this.featureEnricher.activity?.type ?? this.activityType,
     });
 
     console.warn(`Activity Check for ${this.data.name}`, {
       this: this,
       activity,
-      activityType: this.featureEnricher.activity?.type,
+      activityType: this.featureEnricher.activity?.type ?? this.activityType,
     });
 
     if (!activity) return undefined;

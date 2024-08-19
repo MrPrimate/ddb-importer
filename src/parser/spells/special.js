@@ -344,6 +344,8 @@ async function findFamiliar(spell) {
  */
 /* eslint-disable complexity */
 export async function fixSpells(ddb, documents) {
+
+  return;
   // because the effect parsing happens before this, we need to fix some of the spell changes here
   const usingEffects = ddb === null
     ? game.settings.get("ddb-importer", "munching-policy-add-spell-effects")

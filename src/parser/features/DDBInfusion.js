@@ -7,6 +7,7 @@ import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import { addExtraEffects } from "./fixes.js";
@@ -18,8 +19,6 @@ export class DDBInfusion {
   }
 
   _generateDataStub() {
-
-    // TODO: Infusions need to move to activities
 
     this.data = {
       _id: utils.namedIDStub(this.name, { postfix: this.nameIdPostfix }),
@@ -55,29 +54,20 @@ export class DDBInfusion {
       this.requiredLevel = Number.parseInt(requiredLevel);
     }
 
-    // TODO: revisit to ensure this does not need to move to an activity
-    this.data.system.consume = {
-      type: "charges",
-      target: "",
-      amount: "1",
-      scale: false,
-    };
-    this.data.system.enchantment = {
-      items: {
-        max: "",
-        period: "",
-      },
-      restrictions: {
-        type: "",
-        allowMagical: false,
-      },
-      classIdentifier: "",
-    };
     this.data.system.source = DDBHelper.parseSource(this.ddbInfusion);
-    this.data.system.activation.type = "none";
+
     if (this.requiredLevel && this.requiredLevel > 1) {
       this.data.system.requirements = ` ${utils.ordinalSuffixOf(this.requiredLevel)}-level Artificer`;
     }
+  }
+
+  _getActivityType() {
+    if (["augment", "replicate"].includes(this.ddbInfusion.type)) {
+      return "enchant";
+    } else if (this.ddbInfusion.type === "creature") {
+      return "summon";
+    }
+    return undefined;
   }
 
   constructor({ ddbData, ddbInfusion, documentType = "feat", rawCharacter = null, noMods = false, addToCompendium = true, nameIdPostfix = null } = {}) {
@@ -100,6 +90,37 @@ export class DDBInfusion {
     this._generateDataStub();
     this.addToCompendium = addToCompendium;
     this.nameIdPostfix = nameIdPostfix;
+    this.activityType = this._getActivityType();
+  }
+
+  _buildBaseActivity() {
+    this.activity = new DDBBasicActivity({
+      type: this.activityType,
+      actor: this.rawCharacter,
+      foundryFeature: this.data,
+    });
+    this.activity.data.consumption.targets = [
+      {
+        type: "itemUses",
+        target: "", // adjusted later
+        value: 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      },
+    ];
+
+    this.activity.data.restrictions = {
+      type: "",
+      allowMagical: false,
+    };
+
+    if (this.activityType === "summon") {
+      this.activity.data.activation.type = "action";
+      this.activity.data.activation.value = 1;
+    }
+
   }
 
   _buildDescription() {
@@ -128,7 +149,7 @@ export class DDBInfusion {
 
   _generateEnchantmentType() {
     if (this.ddbInfusion.type === "replicate") {
-      foundry.utils.setProperty(this.data, "system.enchantment.restrictions.allowMagical", true);
+      foundry.utils.setProperty(this.activity, "data.restrictions.allowMagical", true);
     }
     let type = "";
     const itemRule = foundry.utils.getProperty(this.ddbInfusion, "itemRuleData.text");
@@ -138,19 +159,7 @@ export class DDBInfusion {
     else if (itemRule.includes("shield")) type = "equipment";
     else if (itemRule.includes("gem")) type = "loot";
     // tool, equipment, consumable, loot, container, weapon
-    foundry.utils.setProperty(this.data, "system.enchantment.restrictions.type", type);
-  }
-
-  _generateActionType() {
-    if (["augment", "replicate"].includes(this.ddbInfusion.type)) {
-      this.data.system.actionType = "ench";
-    } else if (this.ddbInfusion.type === "creature") {
-      this.data.system.actionType = "summon";
-      this.data.system.activation = {
-        type: "action",
-        cost: 1,
-      };
-    }
+    foundry.utils.setProperty(this.activity, "data.restrictions.type", type);
   }
 
   async compendiumInit() {
@@ -195,7 +204,8 @@ export class DDBInfusion {
   }
 
   _buildActions() {
-    // build actions fomr this.ddbInfusion.actions
+    // TODO: I suspect (some of?) these actions can be moved to activities now?
+    // build actions for this.ddbInfusion.actions
     // for example radiant weapon reaction
     if (!this.ddbInfusion.actions) return;
 
@@ -238,8 +248,10 @@ export class DDBInfusion {
     const descriptions = this.ddbInfusion.actions.map((i) => `[[/item ${i.name}]]`);
 
     const uuids = cItems.map((i) => i.uuid);
+    if (this.activity.data.effects?.length > 0) this.activity.data.effects[0].riders.item = uuids;
     this.data.effects.forEach((e) => {
-      if (e.flags.ddbimporter?.infusion) e.flags.dnd5e.enchantment.riders.item.push(...uuids);
+      // if (e.flags.ddbimporter?.infusion) e.flags.dnd5e.enchantment.riders.item.push(...uuids);
+      // this.activity.data.effects[0].riders.item = uuids;
       e.changes.push({
         key: "system.description.value",
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -345,6 +357,18 @@ export class DDBInfusion {
     const effect = this._getEnchantmentEffect([], {
       useModifierLabelName,
     });
+    const effectLink = {
+      _id: effect._id,
+      level: {
+        min: null,
+        max: null,
+      },
+      riders: {
+        effect: [],
+        item: [],
+      },
+    };
+    this.activity.data.effects.push(effectLink);
     this.data.effects.push(effect);
   }
 
@@ -363,17 +387,29 @@ export class DDBInfusion {
         useModifierLabelName,
       });
 
+      const effectLink = {
+        _id: effect._id,
+        level: {
+          min: null,
+          max: null,
+        },
+        riders: {
+          effect: [],
+          item: [],
+        },
+      };
+
       switch (this.ddbInfusion.modifierDataType) {
         case "class-level": {
           const minLevel = effectData.value;
           const maxLevel = index < this.ddbInfusion.modifierData.length - 1
             ? (this.ddbInfusion.modifierData[index + 1].value ?? null)
             : null;
-          const level = {
+          effectLink.level = {
             min: minLevel,
             max: maxLevel,
           };
-          foundry.utils.setProperty(effect, "flags.dnd5e.enchantment.level", level);
+          // foundry.utils.setProperty(effect, "flags.dnd5e.enchantment.level", effectLink.level);
           effect.description = this.ddbInfusion.snippet;
           this._addDescriptionToEffect(effect);
           break;
@@ -394,6 +430,7 @@ export class DDBInfusion {
         }
       }
 
+      this.activity.data.effects.push(effectLink);
       this.data.effects.push(effect);
     }
 
@@ -439,7 +476,7 @@ export class DDBInfusion {
   }
 
   _generateEnchantments() {
-    if ((this.data.system.actionType !== "ench")) return;
+    if (this.activityType !== "enchant") return;
 
     this._generateEnchantmentEffects();
 
@@ -462,10 +499,11 @@ export class DDBInfusion {
 
   async build() {
     await this.compendiumInit();
+    this._buildDescription();
+    this._buildBaseActivity();
     this._generateSystemType();
     this._generateEnchantmentType();
-    this._generateActionType();
-    this._buildDescription();
+
     this._generateEnchantments();
     this._buildActions();
     this._specials();
@@ -473,6 +511,8 @@ export class DDBInfusion {
     await this._addActionsToEffects();
 
     await this.addInfusionsToCompendium([this.data]);
+
+    foundry.utils.setProperty(this.data, `system.activities.${this.activity.data._id}`, this.activity.data);
 
     logger.debug(`DDBInfusions for ${this.name}`, {
       data: foundry.utils.deepClone(this.data),

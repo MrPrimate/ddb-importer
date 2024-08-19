@@ -476,7 +476,7 @@ export default class DDBCharacter {
       );
 
       const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateFeatures, featureHandlerOptions);
-      console.warn(featureHandler);
+      // console.warn(featureHandler);
       await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
     }
 

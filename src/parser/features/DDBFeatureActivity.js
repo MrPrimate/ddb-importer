@@ -152,7 +152,7 @@ export default class DDBFeatureActivity {
       targets.push({
         type: "itemUses",
         target: "", // adjusted later
-        value: this._resourceCharges,
+        value: this._resourceCharges ?? 1,
         scaling: {
           mode: "",
           formula: "",

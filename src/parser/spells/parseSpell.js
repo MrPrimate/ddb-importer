@@ -86,6 +86,11 @@ export async function parseSpell(data, character, { namePostfix = null } = {}) {
   };
 
   spell.system.source = DDBHelper.parseSource(data.definition);
+
+  return spell;
+
+  // TO DO: activities
+
   spell.system.activation = getActivation(data);
   spell.system.duration = getDuration(data);
   spell.system.target = getTarget(data);

@@ -362,6 +362,7 @@ DDBCharacter.prototype.fixItemSpellResources = async function fixItemSpellResour
     if (!parentDoc) continue;
     toUpdate.push({
       _id: spell._id,
+      // TODO: update for activities
       "system.consume.target": parentDoc._id,
       "system.uses.prompt": false,
     });
