@@ -9,8 +9,6 @@ export default class DDDFeatureEnricher extends DDBBaseDictionary {
   NAME_HINTS = {};
 
   ACTIVITY_HINTS = {
-    "Action Surge": {
-    },
     "Hold Breath": {
       type: "utility",
       func: undefined,
