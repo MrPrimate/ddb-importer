@@ -25,7 +25,7 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 export default class DDBFeatureActivity {
 
   _init() {
-    logger.debug(`Generating DDBActivity ${this.name}`);
+    logger.debug(`Generating DDBFeatureActivity ${this.name}`);
   }
 
   _generateDataStub() {
@@ -36,11 +36,14 @@ export default class DDBFeatureActivity {
     });
 
     this.data = rawStub.toObject();
-    this.data._id = utils.namedIDStub(this.name, { prefix: this.nameIdPrefix, postfix: this.nameIdPostfix });
+    this.data._id = utils.namedIDStub(this.name ?? this.ddbFeature.data.name ?? this.type, {
+      prefix: this.nameIdPrefix,
+      postfix: this.nameIdPostfix,
+    });
   }
 
 
-  constructor({ type, name, ddbFeature, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+  constructor({ type, name = null, ddbFeature, nameIdPrefix = null, nameIdPostfix = null } = {}) {
 
     this.type = type.toLowerCase();
     this.activityType = CONFIG.DND5E.activityTypes[this.type];

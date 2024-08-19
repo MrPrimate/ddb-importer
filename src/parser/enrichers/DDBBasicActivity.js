@@ -30,7 +30,10 @@ export default class DDBBasicActivity {
     });
 
     this.data = rawStub.toObject();
-    this.data._id = utils.namedIDStub(this.name, { prefix: this.nameIdPrefix, postfix: this.nameIdPostfix });
+    this.data._id = utils.namedIDStub(this.name ?? this.foundryFeature.name ?? this.type, {
+      prefix: this.nameIdPrefix,
+      postfix: this.nameIdPostfix,
+    });
   }
 
 
@@ -366,7 +369,7 @@ export default class DDBBasicActivity {
 
   static createActivity({ document, type, name, character } = {}, options = {}) {
     const activity = new DDBBasicActivity({
-      name: name ?? document.name,
+      name: name ?? null,
       type,
       foundryFeature: document,
       actor: character,

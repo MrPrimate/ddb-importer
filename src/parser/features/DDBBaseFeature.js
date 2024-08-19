@@ -33,6 +33,19 @@ export default class DDBBaseFeature {
     "Sneak Attack",
   ];
 
+  static NATURAL_WEAPONS = [
+    "Bite",
+    "Claw",
+    "Claws",
+    "Claws",
+    "Fangs",
+    "Gore",
+    "Sting",
+    "Talon",
+    "Talons",
+    "Trunk",
+  ];
+
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
@@ -83,7 +96,7 @@ export default class DDBBaseFeature {
   }
 
   constructor({
-    ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false
+    ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false,
   } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
@@ -127,8 +140,10 @@ export default class DDBBaseFeature {
 
     this.featureEnricher = new DDDFeatureEnricher({
       document: this.data,
-      name: this.data.name,
+      name: this.originalName,
     });
+
+    this.naturalWeapon = DDBBaseFeature.NATURAL_WEAPONS.includes(this.originalName);
   }
 
   _getClassFeatureDescription() {
@@ -314,7 +329,7 @@ export default class DDBBaseFeature {
 
   // weapons still have range
   _generateRange() {
-    if (!this.documentType !== "weapon") return;
+    if (this.documentType !== "weapon") return;
     if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
       this.data.system.range = { value: null, units: "self", long: "" };
       this.data.system.target = {
@@ -637,8 +652,26 @@ export default class DDBBaseFeature {
     }
   }
 
+  _generateWeaponType() {
+    if (this.documentType !== "weapon") return;
+
+    const entry = this.naturalWeapon
+      ? "natural"
+      : DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === this.ddbDefinition.attackSubtype)?.value;
+    const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === this.ddbDefinition.attackTypeRange);
+    this.data.system.type.value = entry
+      ? entry
+      : range
+        ? `simple${range.value}`
+        : "simpleM";
+  }
+
   _generateSystemType() {
-    foundry.utils.setProperty(this.data, "system.type.value", this.type);
+    if (this.documentType === "weapon") {
+      this._generateWeaponType();
+    } else {
+      foundry.utils.setProperty(this.data, "system.type.value", this.type);
+    }
   }
 
   _getSaveActivity() {
@@ -646,7 +679,7 @@ export default class DDBBaseFeature {
     this._generateDamage();
 
     const saveActivity = new DDBFeatureActivity({
-      name: this.data.name,
+      // name: this.data.name,
       type: "save",
       ddbFeature: this,
     });
@@ -665,7 +698,6 @@ export default class DDBBaseFeature {
     this._generateDamage();
 
     const attackActivity = new DDBFeatureActivity({
-      name: this.data.name,
       type: "attack",
       ddbFeature: this,
     });
@@ -683,7 +715,6 @@ export default class DDBBaseFeature {
     this._generateDamage();
 
     const utilityActivity = new DDBFeatureActivity({
-      name: this.data.name,
       type: "utility",
       ddbFeature: this,
     });
@@ -700,7 +731,6 @@ export default class DDBBaseFeature {
   _getHealActivity() {
     this.data.system.actionType = "heal";
     const healActivity = new DDBFeatureActivity({
-      name: this.data.name,
       type: "heal",
       ddbFeature: this,
     });
@@ -748,7 +778,7 @@ export default class DDBBaseFeature {
     }
   }
 
-  _generateActivity({ hintsOnly = false }) {
+  _generateActivity({ hintsOnly = false } = {}) {
     if (hintsOnly && !this.featureEnricher.activity) return undefined;
 
     const activity = this.getActivity({

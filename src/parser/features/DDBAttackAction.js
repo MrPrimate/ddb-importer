@@ -18,6 +18,14 @@ export default class DDBAttackAction extends DDBAction {
     "Infiltrator Armor: Lightning Launcher (DEX)",
     "Arms of the Astral Self (WIS)",
     "Arms of the Astral Self (DEX/STR)",
+    "Bite",
+    "Claw",
+    "Gore",
+    "Sting",
+    "Talon",
+    "Trunk",
+    "Claws",
+    "Fangs",
   ];
 
   _init() {
@@ -39,7 +47,6 @@ export default class DDBAttackAction extends DDBAction {
       this.data.system.rarity = "";
       this.data.system.identified = true;
       this._generateRange();
-      this._generateWeaponType();
       this._generateLimitedUse();
       this._generateProperties();
       this._generateSystemType(this.type);

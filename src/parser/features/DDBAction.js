@@ -48,8 +48,9 @@ export default class DDBAction extends DDBBaseFeature {
   }
 
   _generateSystemType(typeNudge = null) {
-    // if (this.documentType === "weapon") return;
-    if (this.ddbData.character.actions.class.some((a) =>
+    if (this.documentType === "weapon") {
+      this._generateWeaponType();
+    } else if (this.ddbData.character.actions.class.some((a) =>
       a.name === this.ddbDefinition.name
       || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name),
     )) {
@@ -125,18 +126,6 @@ export default class DDBAction extends DDBBaseFeature {
       return DDBHelper.filterBaseModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
     }
     return "";
-  }
-
-  _generateWeaponType() {
-    if (this.documentType === "weapon") {
-      const entry = DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === this.ddbDefinition.attackSubtype);
-      const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === this.ddbDefinition.attackTypeRange);
-      this.data.system.type.value = entry
-        ? entry.value
-        : range
-          ? `simple${range.value}`
-          : "simpleM";
-    }
   }
 
   _generateProperties() {

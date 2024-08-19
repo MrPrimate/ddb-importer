@@ -10,11 +10,6 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 
 export default class DDBFeature extends DDBBaseFeature {
 
-  static FORCE_UNARMED = [
-    "Trunk",
-    "Claws",
-  ];
-
   static DOC_TYPE = {
     class: "feat", // class feature
     subclass: "feat", // subclass feature
@@ -97,7 +92,7 @@ export default class DDBFeature extends DDBBaseFeature {
     // override this feature
   }
 
-  _buildUnarmed() {
+  _buildNatural() {
     const override = {
       name: this.data.name,
       description: this.ddbDefinition.description,
@@ -112,6 +107,7 @@ export default class DDBFeature extends DDBBaseFeature {
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, override);
 
+    logger.debug(`Building Natural Attack for ${this.data.name}`);
     const ddbAttackAction = new DDBAttackAction({
       ddbData: this.ddbData,
       ddbDefinition: strikeMock,
@@ -119,6 +115,7 @@ export default class DDBFeature extends DDBBaseFeature {
       type: this.type,
       documentType: "weapon",
     });
+    ddbAttackAction.naturalWeapon = true;
     ddbAttackAction.build();
 
     this.data = ddbAttackAction.data;
@@ -323,8 +320,8 @@ export default class DDBFeature extends DDBBaseFeature {
 
   build() {
     try {
-      if (DDBFeature.FORCE_UNARMED.includes(this.data.name)) {
-        this._buildUnarmed();
+      if (this.naturalWeapon) {
+        this._buildNatural();
       } else if (this.type === "background") {
         // work around till background parsing support advancements
         this.isChoiceFeature = false;

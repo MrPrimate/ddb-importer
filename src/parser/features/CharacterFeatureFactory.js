@@ -113,6 +113,10 @@ export default class CharacterFeatureFactory {
         // console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);
         return ddbAttackAction.data;
       });
+
+    logger.warn("ATTACK ACTIONS", {
+      attackActions,
+    });
     logger.debug("attack actions", attackActions);
     this.parsed.actions = this.parsed.actions.concat(attackActions);
   }

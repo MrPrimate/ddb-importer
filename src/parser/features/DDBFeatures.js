@@ -83,7 +83,7 @@ export default class DDBFeatures {
     });
 
     ddbFeature.build();
-    logger.debug(`DDBFeatures.getFeaturesFromDefinition: ${ddbFeature.ddbDefinition.name}`, {
+    logger.debug(`DDBFeatures.getFeaturesFromDefinition (type: ${type}): ${ddbFeature.ddbDefinition.name}`, {
       ddbFeature,
       featDefinition,
       this: this,
