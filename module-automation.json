@@ -30,7 +30,6 @@
       "path": "lang/en.json"
     }
   ],
-  "system": ["dnd5e"],
   "relationships": {
     "systems": [
       {
