@@ -588,6 +588,7 @@ export default class DDBSpell {
     enchantActivity.build({
       generateAttack: false,
       generateDamage: false,
+      generateEnchant: true,
     });
     return enchantActivity;
   }
@@ -601,8 +602,28 @@ export default class DDBSpell {
     summonActivity.build({
       generateAttack: false,
       generateDamage: false,
+      generateSummon: true,
     });
     return summonActivity;
+  }
+
+  // TODO revisit summons for activity generation
+
+  async _generateSummons() {
+    if (!this.isGeneric && !game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) return;
+    if (!SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName)) return;
+    const ddbCompanionFactory = new DDBCompanionFactory(this.spellDefinition.description, {
+      type: "spell",
+      originDocument: this.data,
+    });
+    await ddbCompanionFactory.parse();
+    await ddbCompanionFactory.updateOrCreateCompanions();
+    await ddbCompanionFactory.addCompanionsToDocuments([]);
+
+    logger.debug(`parsed companions for ${this.data.name}`, {
+      factory: ddbCompanionFactory,
+      parsed: ddbCompanionFactory.companions,
+    });
   }
 
   _getActivitiesType(data) {
@@ -672,22 +693,6 @@ export default class DDBSpell {
     foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
   }
 
-  async _generateSummons() {
-    if (!this.isGeneric && !game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) return;
-    if (!SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName)) return;
-    const ddbCompanionFactory = new DDBCompanionFactory(this.spellDefinition.description, {
-      type: "spell",
-      originDocument: this.data,
-    });
-    await ddbCompanionFactory.parse();
-    await ddbCompanionFactory.updateOrCreateCompanions();
-    await ddbCompanionFactory.addCompanionsToDocuments([]);
-
-    logger.debug(`parsed companions for ${this.data.name}`, {
-      factory: ddbCompanionFactory,
-      parsed: ddbCompanionFactory.companions,
-    });
-  }
 
   async parse() {
     this.data.system.level = this.spellDefinition.level;
@@ -725,11 +730,8 @@ export async function parseSpell(data, character, { namePostfix = null } = {}) {
 
   // TO DO: activities
   this.data.system.actionType = getActionType(this.spellData);
-  const [damage, chatFlavor] = getDamage(this.spellData, this.data);
-  this.data.system.damage = damage;
-  this.data.system.chatFlavor = chatFlavor;
+
   this.data.system.save = getSave(this.spellData);
-  this.data.system.scaling = getSpellScaling(this.spellData);
 
   this.data.system.consume.target = "";
 

@@ -360,20 +360,6 @@ export default class DDBBaseFeature {
 
   }
 
-  static parseBasicDamageFormula(data, formula) {
-    const basicMatchRegex = /^\s*(\d+)d(\d+)(?:\s*([+|-])\s*(@?[\w\d.-]+))?\s*$/i;
-    const damageMatch = formula.match(basicMatchRegex);
-
-    if (damageMatch && CONFIG.DND5E.dieSteps.includes(Number(damageMatch[2]))) {
-      data.number = Number(damageMatch[1]);
-      data.denomination = Number(damageMatch[2]);
-      if (damageMatch[4]) data.bonus = damageMatch[3] === "-" ? `-${damageMatch[4]}` : damageMatch[4];
-    } else {
-      data.custom.enabled = true;
-      data.custom.formula = formula;
-    }
-  }
-
   getDamageType() {
     return this.ddbDefinition.damageTypeId
       ? DICTIONARY.actions.damageType.find((type) => type.id === this.ddbDefinition.damageTypeId).name
@@ -416,7 +402,7 @@ export default class DDBBaseFeature {
 
     if (die || this.useScaleValueLink) {
       if (this.useScaleValueLink) {
-        DDBBaseFeature.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
+        DDBHelper.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
       } else if (die.diceString) {
         const profBonus = CONFIG.DDB.levelProficiencyBonuses.find((b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0))?.bonus;
         const replaceProf = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
@@ -426,9 +412,9 @@ export default class DDBBaseFeature {
           : die.diceString;
         const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
         const damageString = utils.parseDiceString(diceString, mods).diceString;
-        DDBBaseFeature.parseBasicDamageFormula(damage, damageString);
+        DDBHelper.parseBasicDamageFormula(damage, damageString);
       } else if (fixedBonus) {
-        DDBBaseFeature.parseBasicDamageFormula(damage, fixedBonus + bonusString);
+        DDBHelper.parseBasicDamageFormula(damage, fixedBonus + bonusString);
       }
     }
 
@@ -507,15 +493,15 @@ export default class DDBBaseFeature {
         : utils.parseDiceString(die, `${bonusString} + @mod`).diceString;
 
       // set the weapon damage
-      DDBBaseFeature.parseBasicDamageFormula(damage, damageString);
+      DDBHelper.parseBasicDamageFormula(damage, damageString);
     } else if (actionDie !== null && actionDie !== undefined) {
       // The Lizardfolk jaws have a different base damage, its' detailed in
       // dice so lets capture that for actions if it exists
       const damageString = utils.parseDiceString(actionDie.diceString, `${bonusString} + @mod`).diceString;
-      DDBBaseFeature.parseBasicDamageFormula(damage, damageString);
+      DDBHelper.parseBasicDamageFormula(damage, damageString);
     } else {
       // default to basics
-      DDBBaseFeature.parseBasicDamageFormula(damage, `1${bonusString} + @mod`);
+      DDBHelper.parseBasicDamageFormula(damage, `1${bonusString} + @mod`);
     }
 
     return damage;
@@ -747,7 +733,8 @@ export default class DDBBaseFeature {
 
     healActivity.build({
       generateActivation: true,
-      generateDamage: true,
+      generateDamage: false,
+      generateHealing: true,
       generateRange: true,
     });
 

@@ -271,6 +271,29 @@ export default class DDBFeatureActivity {
     // }
   }
 
+  _generateHealing(includeBase = false) {
+    // TODO revisit or multipart damage parsing
+    if (!this.ddbFeature.getDamage) return undefined;
+    const damage = this.ddbFeature.getDamage();
+
+    if (!damage) return undefined;
+
+    this.data.damage = {
+      includeBase,
+      parts: [damage],
+    };
+
+    // damage: {
+    //   critical: {
+    //     allow: false,
+    //     bonus: source.system.critical?.damage
+    //   },
+    //   onSave: (source.type === "spell") && (source.system.level === 0) ? "none" : "half",
+    //   includeBase: true,
+    //   parts: damageParts.map(part => this.transformDamagePartData(source, part)) ?? []
+    // }
+  }
+
   _generateSave() {
     const fixedDC = this.ddbDefinition.fixedSaveDc ? this.ddbDefinition.fixedSaveDc : null;
     const calculation = fixedDC
@@ -312,9 +335,14 @@ export default class DDBFeatureActivity {
       type = "ranged";
     }
 
+    const bonus = this.ddbFeature.getBonusDamage();
+
     const attack = {
       ability: this.ddbFeature.getActionAttackAbility(),
-      bonus: this.ddbFeature.getBonusDamage(),
+      bonus: bonus && bonus !== 0 ? String(bonus) : "",
+      damage: {
+        parts: [],
+      },
       critical: {
         threshold: undefined,
       },
@@ -341,6 +369,7 @@ export default class DDBFeatureActivity {
     generateRange = true,
     generateSave = false,
     generateTarget = true,
+    generateHealing = false,
   } = {}) {
 
     // override set to false on object if overriding
@@ -356,6 +385,7 @@ export default class DDBFeatureActivity {
 
     if (generateSave) this._generateSave();
     if (generateDamage) this._generateDamage();
+    if (generateHealing) this._generateHealing();
 
 
     // ATTACK has

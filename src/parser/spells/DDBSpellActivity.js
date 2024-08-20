@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
-import DDBBaseFeature from "./DDBBaseFeature.js";
 
 export default class DDBSpellActivity {
 
@@ -24,7 +24,10 @@ export default class DDBSpellActivity {
   }
 
 
-  constructor({ type, name = null, ddbSpell, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+  constructor({
+    type, name = null, ddbSpell, nameIdPrefix = null, nameIdPostfix = null, spellEffects = null,
+    cantripBoost = null, healingBoost = null,
+  } = {}) {
 
     this.type = type.toLowerCase();
     this.activityType = CONFIG.DND5E.activityTypes[this.type];
@@ -33,6 +36,8 @@ export default class DDBSpellActivity {
     }
     this.name = name;
     this.ddbSpell = ddbSpell;
+    this.spellData = ddbSpell.spellData;
+    this.spellDefinition = this.spellDefinition;
 
     this._init();
     this._generateDataStub();
@@ -40,62 +45,17 @@ export default class DDBSpellActivity {
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
 
-    this.ddbDefinition = this.ddbSpell.definition;
+    this.spellEffects = spellEffects ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.addSpellEffects");
+    this.damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !this.spellEffects;
 
-  }
+    this.isCantrip = this.spellDefinition.level === 0;
+    const boost = cantripBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.cantripBoost");
+    this.cantripBoost = this.isCantrip && boost;
 
-  _getParsedActivation() {
-    // pcs don't have mythic
-    const actionAction = this.ddbDefinition.description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
-    if (actionAction) return "action";
-    const bonusAction = this.ddbDefinition.description.match(/(?:as|use|spend) (?:a|an|your) bonus action/ig);
-    if (bonusAction) return "bonus";
-    const reAction = this.ddbDefinition.description.match(/(?:as|use|spend) (?:a|an|your) reaction/ig);
-    if (reAction) return "reaction";
+    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.healingBoost");
+    this.healingBonus = boostHeal ? ` + ${boostHeal} + @item.level` : "";
 
-    return undefined;
-  }
-
-  _generateParsedActivation() {
-    const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-      ? this.ddbDefinition.description
-      : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
-        ? this.ddbDefinition.snippet
-        : null;
-
-    // console.warn(`Generating Parsed Activation for ${this.name}`, {description});
-
-    if (!description) return;
-    const actionType = this._getParsedActivation();
-    if (!actionType) return;
-    logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
-    this.data.activation = {
-      type: actionType,
-      cost: 1,
-      condition: "",
-    };
-  }
-
-  // note spells do not have activation
-  _generateActivation() {
-    const activation = this.activation ?? this.ddbDefinition.activation;
-    // console.warn(`Generating Activation for ${this.name}`);
-    if (!this.ddbDefinition.activation) {
-      this._generateParsedActivation();
-      return;
-    }
-    const actionType = DICTIONARY.actions.activationTypes
-      .find((type) => type.id === activation.activationType);
-    if (!actionType) {
-      this._generateParsedActivation();
-      return;
-    }
-
-    this.data.activation = {
-      type: actionType.value,
-      value: activation.activationTime || 1,
-      condition: this.ddbDefinition.castingTimeDescription || "",
-    };
+    this.additionalActivityDamageParts = [];
   }
 
   _generateConsumption() {
@@ -111,7 +71,7 @@ export default class DDBSpellActivity {
     if (this.ddbSpell.rawCharacter) {
       Object.keys(this.ddbSpell.rawCharacter.system.resources).forEach((resource) => {
         const detail = this.ddbSpell.rawCharacter.system.resources[resource];
-        if (this.ddbDefinition.name === detail.label) {
+        if (this.spellDefinition.name === detail.label) {
           targets.push({
             type: "attribute",
             target: `resources.${resource}.value`,
@@ -170,88 +130,326 @@ export default class DDBSpellActivity {
     };
   }
 
-  _generateDuration() {
-    // TODO: improve duration parsing
-    this.data.duration = {
-      value: null,
-      units: "inst",
-      special: "",
-    };
-  }
-
   _generateEffects() {
     logger.debug(`Stubbed effect generation for ${this.name}`);
     // Enchantments need effects here
   }
 
-  _generateRange() {
-    if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
-      this.data.range = {
-        value: null,
-        units: "self",
-        special: "",
-      };
-    } else if (this.ddbDefinition.range && this.ddbDefinition.range.range) {
-      this.data.range = {
-        value: this.ddbDefinition.range.range,
-        units: "ft",
-        special: "",
-      };
+  #getAlternativeFormula() {
+    // this might be specifically for Toll the Dead only, but it's better than nothing
+    let match = this.spellDefinition.description.match(/instead[\w\s]+(\d+d\d+) (\w+) damage/);
+    if (match) {
+      return match[1];
     } else {
-      this.data.range = {
-        value: 5,
-        units: "ft",
-        special: "",
-      };
+      return "";
     }
   }
 
-  _generateTarget() {
-    let data = {
-      template: {
-        count: "",
-        contiguous: false,
-        type: "",
-        size: "",
-        width: "",
-        height: "",
-        units: "ft",
+  getScaleType(mod) {
+    // scaleTypes:
+    // SPELLSCALE - typical spells that scale
+    // SPELLLEVEL - these spells have benefits that come in at particular levels e.g. bestow curse, hex. typically  duration changes
+    // CHARACTERLEVEL - typical cantrip based levelling, some expections (eldritch blast)
+    let scaleType = null;
+    const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : this.spellData.definition.scaleType;
+    const isHigherLevelDefinitions
+      = mod.atHigherLevels.higherLevelDefinitions
+      && Array.isArray(mod.atHigherLevels.higherLevelDefinitions)
+      && mod.atHigherLevels.higherLevelDefinitions.length >= 1;
+
+    if (isHigherLevelDefinitions && modScaleType === "spellscale") {
+      const definition = mod.atHigherLevels.higherLevelDefinitions[0];
+      if (definition) {
+        scaleType = modScaleType;
+      } else {
+        logger.warn("No spell definition found for " + this.spellDefinition.name);
+      }
+    } else if (modScaleType === "spellscale") {
+      // lets handle cases where there is a spellscale type but no damage
+      // increase/ higherleveldefinitins e.g. chain lighting
+      // these type of spells typically increase targets so we set the
+      // scaling to null as we don't want to increase damage when upcast.
+      // this also deals with cases like Ice Knife where the upscale damage
+      // is in one of the two mods provided.
+      // we are capturing this else because we don't want to trigger
+      // an update to scaleType or a warning.
+    } else if (modScaleType === "characterlevel") {
+      // lets handle odd cantrips like Eldritch Blast
+      // (in fact this might be the only case)
+      if (mod.atHigherLevels.higherLevelDefinitions.length === 0) {
+        // if this array is empty it does not contain levelling information
+        // the only case found is Eldritch Blast.
+        // this does have some info around multiple beams in
+        // data.atHigherLevels but we ignore this. we will set the scaling
+        // to null as each beam is best modelled by "casting" the cantrip again/
+        // pressing the attack/damage buttons in FVTT
+        scaleType = null;
+      } else {
+        scaleType = modScaleType;
+      }
+    } else if (modScaleType === "spelllevel") {
+      // spells that have particular level associated benefits
+      // these seem to be duration increases or target increases for
+      // the most part we can't handle these in FVTT right now (we could
+      // in theory create a new spell at a higher level).
+      // some duration upcasting (like bestow curse) affects concentration
+      // for now we will do nothing with these spells.
+      // examples include: hex, shadowblade, magic weapon, bestow curse
+      scaleType = modScaleType;
+    } else {
+      logger.warn(`${this.spellDefinition.name} parse failed: `, modScaleType);
+      scaleType = modScaleType; // if this is new/unknow will use default
+    }
+
+    return scaleType;
+  }
+
+  getScaling() {
+    let baseDamage = "";
+    let scaleDamage = "";
+    let scaleType = null; // defaults to null, so will be picked up as a None scaling spell.
+
+    // spell scaling
+    if (this.spellDefinition.canCastAtHigherLevel) {
+      // iterate over each spell modifier
+      this.spellDefinition.modifiers
+        .filter((mod) => mod.type === "damage" || (mod.type === "bonus" && mod.subType === "hit-points"))
+        // eslint-disable-next-line complexity
+        .forEach((mod) => {
+          // if the modifier has a die for damage, lets use the string or fixed value
+          // for the base damage
+          if (mod && mod.die) {
+            if (mod.die.diceString !== null) {
+              baseDamage = mod.die.diceString;
+            }
+
+            if (mod.die.fixedValue !== null && baseDamage === "") {
+              baseDamage = mod.die.fixedValue;
+            }
+          }
+
+          // defines some details about higher level casting
+          if (mod.atHigherLevels) {
+            // scaleTypes:
+            // SPELLSCALE - typical spells that scale
+            // SPELLLEVEL - these spells have benefits that come in at particular levels e.g. bestow curse, hex. typically  duration changes
+            // CHARACTERLEVEL - typical cantrip based levelling, some expections (eldritch blast)
+
+            // mod.atHigherLevels.higherLevelDefinitions contains info about the
+            // spells damage die at higher levels, but we can't use this for cantrips as
+            // FVTT use a formula to work out the scaling (ddb has a fixed value structure)
+            const isHigherLevelDefinitions
+              = mod.atHigherLevels.higherLevelDefinitions
+              && Array.isArray(mod.atHigherLevels.higherLevelDefinitions)
+              && mod.atHigherLevels.higherLevelDefinitions.length >= 1;
+
+            // lets handle normal spell leveling first
+            const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : this.spellDefinition.scaleType;
+            if (isHigherLevelDefinitions && modScaleType === "spellscale") {
+              const definition = mod.atHigherLevels.higherLevelDefinitions[0];
+              if (definition) {
+                const die = definition.dice ? definition.dice : definition.die ? definition.die : undefined;
+                const modScaleDamage
+                  = die?.diceString // if dice string
+                    ? die.diceString // use dice string
+                    : die?.fixedValue // else if fixed value
+                      ? die.fixedValue // use fixed value
+                      : definition.value; // else use value
+
+                // some spells have multiple scaling damage (e.g. Wall of Ice,
+                // Glyph of warding, Acid Arrow, Arcane Hand, Dragon's Breath,
+                // Chromatic Orb, Absorb Elements, Storm Sphere, Spirit Guardians)
+                // it's hard to model most of these in FVTT, and for some it makes
+                // no difference. so...
+                // lets optimistically use the highest
+                // assumptions: these are going to be dice strings, and we don't care
+                // about dice value, just number of dice
+                const diceFormula = /(\d*)d\d*/;
+                const existingMatch = diceFormula.exec(scaleDamage);
+                const modMatch = diceFormula.exec(modScaleDamage);
+
+                const modMatchValue = modMatch
+                  ? modMatch.length > 1 ? modMatch[1] : modMatch[0]
+                  : undefined;
+
+                if (!existingMatch && !modMatch) {
+                  scaleDamage = modScaleDamage;
+                } else if (!existingMatch || modMatchValue > existingMatch[1]) {
+                  scaleDamage = modScaleDamage;
+                }
+              } else {
+                logger.warn("No definition found for " + this.spellDefinition.name);
+              }
+            } else if (isHigherLevelDefinitions && modScaleType === "characterlevel") {
+              // cantrip support, important to set to a fixed value if using abilities like potent spellcasting
+              scaleDamage = baseDamage;
+            }
+
+            scaleType = this.getScaleType(mod);
+          }
+        });
+    }
+
+    // TODO: we can probs determine if something is doing a half scale here
+
+    switch (scaleType) {
+      case "characterlevel":
+        return {
+          old: "cantrip",
+          mode: "whole",
+          formula: scaleDamage,
+        };
+      case "spellscale":
+        return {
+          old: "level",
+          mode: "whole",
+          formula: scaleDamage,
+        };
+      case "spelllevel":
+      case null:
+        return {
+          old: "none",
+          mode: "",
+          formula: "",
+        };
+      default:
+        return {
+          old: "level",
+          mode: "whole",
+          formula: "",
+        };
+    }
+  }
+
+  #buildDamagePart({ damageString, type } = {}) {
+    const damage = {
+      number: null,
+      denomination: null,
+      bonus: "",
+      types: type ? [type] : [],
+      custom: {
+        enabled: false,
+        formula: "",
       },
-      affects: {
-        count: "",
-        type: "",
-        choice: false,
-        special: "",
+      scaling: {
+        mode: "", // whole, half or ""
+        number: null,
+        formula: "",
       },
-      prompt: true,
     };
 
-    if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
-      data = foundry.utils.mergeObject(data, {
-        template: {
-          type: DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value ?? "",
-          size: this.ddbDefinition.range.aoeSize,
-          width: "",
-        },
+    DDBHelper.parseBasicDamageFormula(damage, damageString);
+
+    const scaling = this.getScaling();
+    damage.scaling.mode = scaling.mode;
+
+    const scalingMatch = scaling.formula.match(/^\s*(\d+)d(\d+)\s*$/i);
+    if ((scalingMatch && (Number(scalingMatch[2]) === damage.denomination))
+      || (scaling.old === "cantrip")
+    ) {
+      damage.scaling.number = Number(scaling?.[1] || 1);
+      damage.scaling.formula = "";
+    } else {
+      damage.scaling.formula = scaling.formula;
+    }
+    return damage;
+  }
+
+  _generateDamage() {
+    let parts = [];
+    let versatile = "";
+    let chatFlavor = [];
+
+    // damage
+    const attacks = this.spellDefinition.modifiers.filter((mod) => mod.type === "damage");
+    if (attacks.length !== 0) {
+      attacks.forEach((attack) => {
+        const restrictionText = attack.restriction && attack.restriction !== "" ? attack.restriction : "";
+        const restriction = restrictionText !== "" ? restrictionText : "";
+        const damageHintText = attack.subType || "";
+        if (!this.damageRestrictionHints && restrictionText !== "") {
+          const damageText = attack.die.diceString ? `${attack.die.diceString} - ` : "";
+          chatFlavor.push(`[${damageText}${damageHintText}] ${restrictionText}`);
+        }
+        const damageTag = this.damageRestrictionHints && restriction ? `[${restriction}]` : "";
+        const addMod = attack.usePrimaryStat || this.cantripBoost ? " + @mod" : "";
+        let diceString = utils.parseDiceString(attack.die.diceString, addMod, damageTag).diceString;
+        if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
+          const damage = this.#buildDamagePart({
+            damageString: diceString,
+            type: attack.subType,
+          });
+          parts.push(damage);
+        }
+      });
+
+      // This is probably just for Toll the dead.
+      const alternativeFormula = this.#getAlternativeFormula(this.spellData);
+      versatile = this.cantripBoost && alternativeFormula && alternativeFormula != ""
+        ? `${alternativeFormula} + @mod`
+        : alternativeFormula;
+    }
+
+    this.data.chatFlavor = chatFlavor.join(", ");
+    if (versatile !== "" && this.ddbSpell.data.damage) {
+      this.ddbSpell.data.damage.versatile = versatile;
+    } else if (versatile) {
+      const damage = this.#buildDamagePart({ damageString: versatile });
+      this.additionalActivityDamageParts.push(damage);
+    }
+
+    this.data.damage = {
+      parts,
+      onSave: this.isCantrip ? "none" : "half", // default to half
+    };
+
+    // damage: {
+    //   critical: {
+    //     allow: false,
+    //     bonus: source.system.critical?.damage
+    //   },
+    //   onSave: (source.type === "spell") && (source.system.level === 0) ? "none" : "half",
+    //   includeBase: true,
+    //   parts: damageParts.map(part => this.transformDamagePartData(source, part)) ?? []
+    // }
+
+  }
+
+  _generateHealing() {
+    let parts = [];
+    let chatFlavor = [];
+
+    // healing
+    const heals = this.spellDefinition.modifiers.filter((mod) => mod.type === "bonus" && mod.subType === "hit-points");
+    if (heals.length !== 0) {
+      heals.forEach((heal) => {
+        const restrictionText = heal.restriction && heal.restriction !== "" ? heal.restriction : "";
+        const restriction = restrictionText !== "" ? restrictionText : "";
+        if (restrictionText !== "") {
+          const damageText = heal.die.diceString ? `${heal.die.diceString} - ` : "";
+          chatFlavor.push(`[${damageText}healing] ${restrictionText}`);
+        }
+
+        const damageTag = this.damageRestrictionHints ? `[${restriction}]` : "";
+        const healValue = (heal.die.diceString) ? `${heal.die.diceString}${damageTag}` : heal.die.fixedValue;
+        const diceString = heal.usePrimaryStat
+          ? `${healValue} + @mod${this.healingBonus}`
+          : `${healValue}${this.healingBonus}`;
+        if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
+          const damage = this.#buildDamagePart({
+            damageString: diceString,
+            type: "healing",
+          });
+          parts.push(damage);
+        }
       });
     }
 
-    // TODO: improve target parsing
-    this.data.target = data;
+    this.data.chatFlavor = chatFlavor.join(", ");
 
-  }
-
-
-  _generateDamage(includeBase = false) {
-    // TODO revisit or multipart damage parsing
-    if (!this.ddbSpell.getDamage) return undefined;
-    const damage = this.ddbSpell.getDamage();
-
-    if (!damage) return undefined;
-
-    this.data.damage = {
-      includeBase,
-      parts: [damage],
+    this.data.healing = {
+      parts,
+      onSave: this.isCantrip ? "none" : "half", // default to half
     };
 
     // damage: {
@@ -266,15 +464,15 @@ export default class DDBSpellActivity {
   }
 
   _generateSave() {
-    const fixedDC = this.ddbDefinition.fixedSaveDc ? this.ddbDefinition.fixedSaveDc : null;
+    const fixedDC = this.spellDefinition.fixedSaveDc ? this.spellDefinition.fixedSaveDc : null;
     const calculation = fixedDC
       ? "custom"
-      : (this.ddbDefinition.abilityModifierStatId)
-        ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId).value
+      : (this.spellDefinition.abilityModifierStatId)
+        ? DICTIONARY.character.abilities.find((stat) => stat.id === this.spellDefinition.abilityModifierStatId).value
         : "spellcasting";
 
-    const saveAbility = (this.ddbDefinition.saveStatId)
-      ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.saveStatId).value
+    const saveAbility = (this.spellDefinition.saveStatId)
+      ? DICTIONARY.character.abilities.find((stat) => stat.id === this.spellDefinition.saveStatId).value
       : null;
 
     this.data.save = {
@@ -286,29 +484,16 @@ export default class DDBSpellActivity {
     };
   }
 
-  _generateAttack({ unarmed = false, spell = false } = {}) {
-    let type = "melee";
-    let classification = unarmed
-      ? "unarmed"
-      : spell
-        ? "spell"
-        : "weapon"; // unarmed, weapon, spell
-
-    if (this.ddbDefinition.actionType === 1) {
-      if (this.ddbDefinition.attackTypeRange === 2) {
-        type = "ranged";
-      } else {
-        type = "melee";
-      }
-    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) {
-      type = "melee";
-    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) {
-      type = "ranged";
-    }
+  _generateAttack() {
+    let type = this.spellDefinition.range.rangeValue
+      && this.spellDefinition.range.rangeValue > 0
+      ? "ranged"
+      : "melee";
+    let classification = "spell";
 
     const attack = {
-      ability: this.ddbSpell.getActionAttackAbility(),
-      bonus: this.ddbSpell.getBonusDamage(),
+      ability: "",
+      bonus: "",
       critical: {
         threshold: undefined,
       },
@@ -324,33 +509,39 @@ export default class DDBSpellActivity {
 
   }
 
+  _generateEnchant() {
+    logger.debug(`Stubbed enchantment generation for ${this.name}`);
+  }
+
+  _generateSummon() {
+    logger.debug(`Stubbed summon generation for ${this.name}`);
+  }
+
   build({
-    generateActivation = false,
     generateAttack = false,
     generateConsumption = true,
     generateDamage = false,
     generateDescription = false,
-    generateDuration = true,
     generateEffects = true,
-    generateRange = false,
+    generateEnchant = false,
+    generateHealing = false,
     generateSave = false,
-    generateTarget = false,
+    generateSummon = false,
+    // todo: add overrides for things like activation, targets etc for generating spell actions for items
   } = {}) {
 
     // override set to false on object if overriding
 
-    if (generateActivation) this._generateActivation();
     if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption();
     if (generateDescription) this._generateDescription();
-    if (generateDuration) this._generateDuration();
     if (generateEffects) this._generateEffects();
-    if (generateRange) this._generateRange();
-    if (generateTarget) this._generateTarget();
-
     if (generateSave) this._generateSave();
     if (generateDamage) this._generateDamage();
-
+    if (generateHealing) this._generateHealing();
+    if (generateEnchant) this._generateEnchant();
+    if (generateSummon) this._generateSummon();
+    if (generateHealing) this._generateHealing();
 
     // ATTACK has
     // activation
