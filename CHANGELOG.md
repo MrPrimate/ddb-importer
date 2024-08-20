@@ -1,6 +1,9 @@
 # NEXT UP
 
 - BREAKING CHANGES!
+
+The 4.0.x fundementally changes the structure of how documents are constructed in Foundry (allowing multiple "activities" per spell). You're existing imported content will migrate (mostly successfuly), however future imports from D&D Beyond will not match the current imports 1:1.
+
 - Support for v4.0.0 of the D&D system.
 - Metamagic action/feature no longer duplicated.
 - Features such as Metamagic will now import a feature called Metamagic with a full list of choices.
@@ -8,7 +11,13 @@
 - Source parsing will now default to short names rather than long names, due to changes in new monster character sheet.
 - Changes to default description processing for features on character import.
 - Shadar Kai now gain resistance to magical sleep.
+
+
+# 5.2.30
+
 - Improve sense parsing in various failure states @sisimshow
+- Fix for Witchbolt macro in v12 midiqol
+- Tweaks to Druid Circle of Moon CR scaling.
 
 # 5.2.29
 
