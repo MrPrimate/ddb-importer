@@ -1,6 +1,5 @@
 // Main module class
 import DDBMuncher from "../apps/DDBMuncher.js";
-import { getSpells } from "../parser/spells/getGenericSpells.js";
 import FileHelper from "../lib/FileHelper.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -14,6 +13,7 @@ import Iconizer from "../lib/Iconizer.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
 import utils from "../lib/utils.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
+import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
@@ -109,7 +109,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
     .map((r) => r.value).flat().flat()
     .filter((v, i, a) => a.findIndex((t) => t.definition.name === v.definition.name) === i);
 
-  const rawSpells = await getSpells(filteredResults);
+  const rawSpells = await GenericSpellFactory.getSpells(filteredResults);
 
   const spells = rawSpells
     .filter((spell) => spell?.name)

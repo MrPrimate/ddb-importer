@@ -151,7 +151,7 @@ export default class DDBSpellActivity {
     // SPELLLEVEL - these spells have benefits that come in at particular levels e.g. bestow curse, hex. typically  duration changes
     // CHARACTERLEVEL - typical cantrip based levelling, some expections (eldritch blast)
     let scaleType = null;
-    const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : this.spellData.definition.scaleType;
+    const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : this.spellDefinition.scaleType;
     const isHigherLevelDefinitions
       = mod.atHigherLevels.higherLevelDefinitions
       && Array.isArray(mod.atHigherLevels.higherLevelDefinitions)
@@ -464,24 +464,27 @@ export default class DDBSpellActivity {
   }
 
   _generateSave() {
-    const fixedDC = this.spellDefinition.fixedSaveDc ? this.spellDefinition.fixedSaveDc : null;
-    const calculation = fixedDC
-      ? "custom"
-      : (this.spellDefinition.abilityModifierStatId)
-        ? DICTIONARY.character.abilities.find((stat) => stat.id === this.spellDefinition.abilityModifierStatId).value
-        : "spellcasting";
-
-    const saveAbility = (this.spellDefinition.saveStatId)
-      ? DICTIONARY.character.abilities.find((stat) => stat.id === this.spellDefinition.saveStatId).value
-      : null;
-
-    this.data.save = {
-      ability: saveAbility ?? Object.keys(CONFIG.DND5E.abilities)[0],
-      dc: {
-        calculation,
-        formula: String(fixedDC ?? ""),
-      },
-    };
+    if (this.spellDefinition.requiresSavingThrow && this.spellDefinition.saveDcAbilityId) {
+      const saveAbility = DICTIONARY.character.abilities
+        .find((ability) => ability.id === this.spellDefinition.saveDcAbilityId)?.value;
+      if (this.spellData.overrideSaveDc) {
+        this.data.save = {
+          ability: saveAbility,
+          dc: {
+            formula: this.spellData.overrideSaveDc,
+            calculation: "custom",
+          },
+        };
+      } else {
+        this.data.save = {
+          ability: saveAbility,
+          dc: {
+            formula: "",
+            calculation: "spellcasting",
+          },
+        };
+      }
+    }
   }
 
   _generateAttack() {

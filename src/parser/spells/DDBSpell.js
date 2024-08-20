@@ -1,21 +1,16 @@
-import utils from "../../lib/utils.js";
-import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
+import DICTIONARY from "../../dictionary.js";
+import logger from "../../logger.js";
+import SETTINGS from "../../settings.js";
+import utils from "../../lib/utils.js";
 
 // Import parsing functions
-import { getActionType } from "./action.js";
-import { getDamage } from "./damage.js";
-import { getSave } from "./save.js";
-import { getSpellScaling } from "./scaling.js";
 import { generateTable } from "../../lib/DDBTable.js";
-import { spellEffectAdjustment } from "../../effects/specialSpells.js";
-import { getName } from "./name.js";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";
-import SETTINGS from "../../settings.js";
+import { spellEffectAdjustment } from "../../effects/specialSpells.js";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
-import logger from "../../logger.js";
-import DDBSpellEnricher from "../enrichers/DDBSpellEnricher.js";
 import DDBSpellActivity from "./DDBSpellActivity.js";
+import DDBSpellEnricher from "../enrichers/DDBSpellEnricher.js";
 
 export default class DDBSpell {
 
@@ -50,17 +45,52 @@ export default class DDBSpell {
     };
   }
 
+  getCustomName(data) {
+    if (!this.rawCharacter
+      || (this.rawCharacter && !foundry.utils.hasProperty(this.rawCharacter, "flags.ddbimporter.dndbeyond.characterValues"))
+    ) return null;
+    const characterValues = this.rawCharacter.flags.ddbimporter.dndbeyond.characterValues;
+    const customValue = characterValues.filter((value) => value.valueId == data.id && value.valueTypeId == data.entityTypeId);
+
+    if (customValue) {
+      const customName = customValue.find((value) => value.typeId == 8);
+
+      if (customName) {
+        data.name = customName.vale;
+        return customName.value;
+      }
+      if (customName) return customName.value;
+    }
+    return null;
+  }
+
+
+  getName() {
+    // spell name
+    const customName = this.getCustomName(this.spellData);
+    if (customName) {
+      return utils.nameString(customName);
+    } else if (this.nameOverride) {
+      return utils.nameString(this.nameOverride);
+    } else {
+      return utils.nameString(this.spellData.definition.name);
+    }
+  }
+
+
   constructor({
-    ddbData, spellData, rawCharacter, namePostfix = null, isGeneric = null, updateExisting = null,
+    ddbData, spellData, rawCharacter = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
+    spellClass = null, dc = null, overrideDC = null, nameOverride = null,
   } = {}) {
     this.ddbData = ddbData;
     this.spellData = spellData;
     this.spellDefinition = spellData.definition;
     this.rawCharacter = rawCharacter;
     this.namePostfix = namePostfix;
+    this.nameOverride = nameOverride ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.nameOverride");
     this.originalName = utils.nameString(this.spellDefinition.name);
-    this.name = getName(this.spellData, this.rawCharacter);
+    this.name = this.getName(this.spellData, this.rawCharacter);
     this.data = {};
 
     this.isGeneric = isGeneric ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.generic");
@@ -80,6 +110,9 @@ export default class DDBSpell {
     this.lookupName = lookupName ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.lookupName");
     this.ability = ability ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.ability");
     this.school = DICTIONARY.spell.schools.find((s) => s.name === this.spellDefinition.school.toLowerCase());
+    this.spellClass = spellClass ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.class");
+    this.dc = dc ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.dc");
+    this.overrideDC = overrideDC ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.overrideDC");
 
     this._generateDataStub();
 
@@ -237,7 +270,6 @@ export default class DDBSpell {
       };
     }
   }
-
 
   _generateDuration() {
     if (this.spellDefinition.duration) {
@@ -693,11 +725,14 @@ export default class DDBSpell {
     foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
   }
 
-
   async parse() {
     this.data.system.level = this.spellDefinition.level;
     this.data.system.school = (this.school) ? this.school.id : null;
     this.data.system.source = DDBHelper.parseSource(this.spellDefinition);
+
+    if (this.spellClass) {
+      this.data.system.sourceClass = this.spellClass;
+    }
     this._generateProperties();
     this._generateMaterials();
     this._generateSpellPreparationMode();
@@ -710,42 +745,38 @@ export default class DDBSpell {
 
     this._generateActivity();
 
+    // TO DO: activities
+    // this.data.system.save = getSave(this.spellData);
+
     await this._applyEffects();
     await this._generateSummons();
   }
 
-}
+  static async parseSpell(data, character, { namePostfix = null } = {}) {
+    const spell = new DDBSpell({
+      ddbData: null,
+      spellData: data,
+      rawCharacter: character,
+      namePostfix: namePostfix,
+    });
+    await spell.parse();
 
-export async function parseSpell(data, character, { namePostfix = null } = {}) {
-
-  const spell = new DDBSpell({
-    ddbData: null,
-    spellData: data,
-    rawCharacter: character,
-    namePostfix: namePostfix,
-  });
-  spell.parse();
-
-  return spell.data;
-
-  // TO DO: activities
-  this.data.system.actionType = getActionType(this.spellData);
-
-  this.data.system.save = getSave(this.spellData);
-
-  this.data.system.consume.target = "";
-
-  // attach the spell ability id to the spell data so VTT always uses the
-  // correct one, useful if multi-classing and spells have different
-  // casting abilities
-  if (this.rawCharacter && this.rawCharacter.system.attributes.spellcasting !== this.ability) {
-    this.data.system.ability = this.ability;
-    if (this.data.system.save.scaling == "spell") {
-      this.data.system.save.scaling = this.ability;
-    }
+    return spell.data;
   }
-  if (this.data.system.ability === null) this.data.system.ability = "";
 
 
-  return this.data;
 }
+
+// TODO: remove
+// this.data.system.consume.target = "";
+
+// attach the spell ability id to the spell data so VTT always uses the
+// correct one, useful if multi-classing and spells have different
+// casting abilities
+// if (this.rawCharacter && this.rawCharacter.system.attributes.spellcasting !== this.ability) {
+//   this.data.system.ability = this.ability;
+//   if (this.data.system.save.scaling == "spell") {
+//     this.data.system.save.scaling = this.ability;
+//   }
+// }
+// if (this.data.system.ability === null) this.data.system.ability = "";
