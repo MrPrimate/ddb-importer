@@ -29,12 +29,15 @@ async function sustainedDamage({ options, damageType, damageDice, sourceItem, ca
   );
 }
 
-async function cancel(caster) {
+async function cancel(caster, options) {
   // Remove concentration and the effect causing it since the effect has been used
-  const concentration = MidiQOL.getConcentrationEffect(macroData.actor);
+  const concentration = MidiQOL.getConcentrationEffect(caster);
 
   if (concentration) {
     await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: caster.uuid, effects: [concentration.id] });
+  }
+  if (options.askerEffect) {
+    await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: caster.uuid, effects: [options.askerEffect] });
   }
   await DAE.unsetFlag(caster, "witchBoltSpell");
 }
@@ -47,8 +50,8 @@ if (args[0].macroPass === "postActiveEffects") {
   if (args[0].hitTargetUuids.length === 0) return {}; // did not hit anyone
 
   const effectData = [{
-    label: "WitchBolt (Concentration)",
-    name: "WitchBolt (Concentration)",
+    label: "WitchBolt Ongoing",
+    name: "WitchBolt Ongoing",
     img: args[0].item.img,
     duration: { rounds: 10, startTime: game.time.worldTime },
     origin: args[0].item.uuid,
@@ -57,17 +60,20 @@ if (args[0].macroPass === "postActiveEffects") {
     "flags.dae.macroRepeat": "startEveryTurn",
   }];
 
+  const effect = await args[0].actor.createEmbeddedDocuments("ActiveEffect", effectData);
+
   const options = {
     targets: args[0].hitTargetUuids,
     sourceUuid: args[0].tokenUuid,
     distance: args[0].item.system.range.value,
     userId: game.userId,
+    askerEffect: effect[0]._id,
   };
 
   await DAE.setFlag(args[0].actor, "witchBoltSpell", options);
 
-  // console.warn("WitchBolt", {options, effectData, args, actor: args[0].actor});
-  await args[0].actor.createEmbeddedDocuments("ActiveEffect", effectData);
+  // console.warn("WitchBolt", {options, effectData, args, actor: args[0].actor, effect});
+
 } else if (args[0] == "off") {
   const sourceItem = await fromUuid(lastArg.origin);
   const caster = sourceItem.parent;
@@ -104,7 +110,7 @@ if (args[0].macroPass === "postActiveEffects") {
     if (result) {
       sustainedDamage({options, damageType, damageDice, sourceItem, caster} );
     } else {
-      cancel(caster);
+      cancel(caster, options);
     }
   }
 }
