@@ -366,10 +366,10 @@ export default class DDBFeatureActivity {
     generateDescription = false,
     generateDuration = true,
     generateEffects = true,
+    generateHealing = false,
     generateRange = true,
     generateSave = false,
     generateTarget = true,
-    generateHealing = false,
   } = {}) {
 
     // override set to false on object if overriding
