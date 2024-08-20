@@ -1,6 +1,8 @@
-# Next Up
+# 5.2.30
 
 - Improve sense parsing in various failure states @sisimshow
+- Fix for Witchbolt macro in v12 midiqol
+- Tweaks to Druid Circle of Moon CR scaling.
 
 # 5.2.29
 
