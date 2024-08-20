@@ -198,12 +198,12 @@ export default class DDBSpell {
     };
 
     // handle classSpells
-    const featureClass = this.this.lookup === "classFeature"
+    const featureClass = this.lookup === "classFeature"
       && this.klass;
 
-    if (this.this.lookup === "classSpell" || featureClass) {
+    if (this.lookup === "classSpell" || featureClass) {
       this._generateClassPreparationMode();
-    } else if (this.this.lookup === "race" && this.spellDefinition.level !== 0) {
+    } else if (this.lookup === "race" && this.spellDefinition.level !== 0) {
       // set race spells as innate
       this.data.system.preparation.mode = "innate";
       if (this.spellData.usesSpellSlot) {
@@ -217,7 +217,7 @@ export default class DDBSpell {
       // these have limited uses (set with getUses())
       this.data.system.preparation.mode = "pact";
       this.data.system.preparation.prepared = false;
-    } else if (this.this.lookup === "item " && this.spellDefinition.level !== 0) {
+    } else if (this.lookup === "item " && this.spellDefinition.level !== 0) {
       this.data.system.preparation.mode = "prepared";
       this.data.system.preparation.prepared = false;
     } else {
@@ -234,7 +234,7 @@ export default class DDBSpell {
         // this was changed to "atwill"
         this.data.system.preparation.mode = "atwill";
       }
-      if (this.this.lookup === "classFeature") {
+      if (this.lookup === "classFeature") {
         if (this.spellData.alwaysPrepared) {
           this.data.system.preparation.mode = "always";
         }
