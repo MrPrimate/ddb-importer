@@ -298,6 +298,8 @@ export default class DDBClass {
       subclasses: {},
     };
 
+    this.rules = "2014";
+
     // setup ddb source
     this.ddbData = ddbData;
     this.ddbClass = ddbData.character.classes.find((c) => c.definition.id === classId);
