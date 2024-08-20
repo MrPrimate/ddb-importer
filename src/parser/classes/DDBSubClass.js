@@ -202,6 +202,37 @@ export default class DDBSubClass extends DDBClass {
       };
 
       this.data.system.advancement.push(desert, sea, tundra);
+    } else if (this.data.name.startsWith("Circle of the Moon") && this.rules === "2014") {
+      const cr = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `wild-shape-cr`,
+          type: "cr",
+          scale: {
+            2: {
+              value: 1,
+            },
+            6: {
+              value: 2,
+            },
+            19: {
+              value: 3,
+            },
+            12: {
+              value: 4,
+            },
+            15: {
+              value: 5,
+            },
+          },
+        },
+        value: {},
+        title: `Wild Shape CR`,
+        icon: null,
+      };
+      this.data.system.advancement.push(cr);
     }
   }
 
