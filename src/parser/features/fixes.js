@@ -543,6 +543,8 @@ export async function fixFeatures(features) {
 }
 
 export async function addExtraEffects(ddb, documents, character) {
+  // TODO: remove after corrections
+  return documents;
   const compendiumItem = character.flags.ddbimporter.compendium;
   const addCharacterEffects = compendiumItem
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
