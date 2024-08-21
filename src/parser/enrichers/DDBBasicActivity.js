@@ -219,6 +219,23 @@ export default class DDBBasicActivity {
     // }
   }
 
+  _generateHealing(includeBase = false) {
+    this.data.healing = {
+      includeBase,
+      parts: [],
+    };
+
+    // damage: {
+    //   critical: {
+    //     allow: false,
+    //     bonus: source.system.critical?.damage
+    //   },
+    //   onSave: (source.type === "spell") && (source.system.level === 0) ? "none" : "half",
+    //   includeBase: true,
+    //   parts: damageParts.map(part => this.transformDamagePartData(source, part)) ?? []
+    // }
+  }
+
   _generateSave() {
     this.data.save = {
       ability: Object.keys(CONFIG.DND5E.abilities)[0],
@@ -262,6 +279,7 @@ export default class DDBBasicActivity {
     generateDescription = false,
     generateDuration = true,
     generateEffects = true,
+    generateHealing = false,
     generateRange = true,
     generateSave = false,
     generateTarget = true,
@@ -280,6 +298,8 @@ export default class DDBBasicActivity {
 
     if (generateSave) this._generateSave();
     if (generateDamage) this._generateDamage();
+
+    if (generateHealing) this._generateHealing();
 
 
     // ATTACK has

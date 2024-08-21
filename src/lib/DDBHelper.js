@@ -30,39 +30,22 @@ const DDBHelper = {
     }
   },
 
-  globalDamageTagInfo: (mod) => {
-    const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
+  getDamageTag(mod, overrideDamageType) {
+    // const damageTagData = DDBHelper.globalDamageTagInfo(mod);
     const midiInstalled = game.modules.get("midi-qol")?.active;
     const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !midiInstalled;
-    const hintOrRestriction = globalDamageHints || damageRestrictionHints;
     const restriction = damageRestrictionHints && mod.restriction && mod.restriction !== "" ? mod.restriction : "";
-    const hintAndRestriction = globalDamageHints && restriction !== "" ? " - " : "";
 
-    return {
-      globalDamageHints,
-      damageRestrictionHints,
-      hintOrRestriction,
-      hintAndRestriction,
-      restriction,
-    };
-  },
-
-  getDamageTag(mod, overrideDamageType) {
-    const damageTagData = DDBHelper.globalDamageTagInfo(mod);
     const damageType = overrideDamageType
       ? overrideDamageType
       : mod.subType ? mod.subType : "";
-    const hintTag = damageType !== "" && damageTagData.globalDamageHints ? damageType : "";
-    const damageHint = damageTagData.hintOrRestriction
-      ? `${hintTag}${damageTagData.hintAndRestriction}${damageTagData.restriction}`
+    const damageHint = restriction
+      ? restriction
       : "";
-    const damageTag = damageTagData.hintOrRestriction && damageHint !== "" ? `[${damageHint}]` : "";
+    const damageTag = restriction && restriction !== "" ? `[${damageHint}]` : "";
     return {
-      globalDamageHints: damageTagData.globalDamageHints,
-      damageRestrictionHints: damageTagData.damageRestrictionHints,
-      hintOrRestriction: damageTagData.hintOrRestriction,
-      hintAndRestriction: damageTagData.hintAndRestriction,
-      restriction: damageTagData.restriction,
+      damageRestrictionHints,
+      restriction,
       damageType,
       damageHint,
       damageTag,

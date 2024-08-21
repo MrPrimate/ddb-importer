@@ -440,6 +440,11 @@ DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
 DDBCharacter.prototype.getInventory = async function getInventory() {
 
   let items = [];
+
+  // TODO: rework for activities
+
+  return items;
+
   // first, check custom name, price or weight
   this.source.ddb.character.characterValues.forEach((cv) => {
     // try to find a matching item based on the characterValues (an array of custom adjustements to different parts of the character)

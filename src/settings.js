@@ -551,13 +551,6 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
-        "use-damage-hints": {
-          name: "ddb-importer.settings.use-damage-hints.name",
-          hint: "ddb-importer.settings.use-damage-hints.hint",
-          config: true,
-          type: Boolean,
-          default: false,
-        },
         "add-damage-restrictions-to-hints": {
           name: "ddb-importer.settings.add-damage-restrictions-to-hints.name",
           hint: "ddb-importer.settings.add-damage-restrictions-to-hints.hint",

@@ -180,8 +180,8 @@ const utils = {
     return Math.floor((val - 10) / 2);
   },
 
-  diceStringResultBuild: (diceMap, dice, bonus = "", mods = "", diceHint = "", specialFlags = "") => {
-    const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
+  diceStringResultBuild: (diceMap, dice, bonus = "", mods = "", diceHint = "", specialFlags = "", addHint = false) => {
+    const globalDamageHints = addHint;
     const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? ' +' : ' '} ${bonus}`;
     const diceHintAdd = globalDamageHints && diceHint && diceMap;
     const hintString = diceHintAdd ? diceHint.replace("[]", "") : "";
