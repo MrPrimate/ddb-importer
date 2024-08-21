@@ -127,15 +127,15 @@ export default class DDBMonsterFeature {
         dc: null,
         ability: null,
       },
-      target = {
+      target: {
         template: {
           count: "",
           contiguous: false,
           type: "", // line
-          size: "", //60
+          size: "", // 60
           width: "",
           height: "",
-          units: "", //ft
+          units: "", // ft
         },
         affects: {
           count: "",
@@ -693,10 +693,10 @@ export default class DDBMonsterFeature {
         count: "",
         contiguous: false,
         type: "", // line
-        size: "", //60
+        size: "", // 60
         width: "",
         height: "",
-        units: "", //ft
+        units: "", // ft
       },
       affects: {
         count: "",
@@ -723,25 +723,25 @@ export default class DDBMonsterFeature {
     const sphereMatch = matchText.match(sphereSearch);
 
     if (coneMatch) {
-      target.value = parseInt(coneMatch[1]);
-      target.units = "ft";
-      target.type = "cone";
+      target.template.size = coneMatch[1];
+      target.template.units = "ft";
+      target.template.type = "cone";
     } else if (lineMatch) {
-      target.value = parseInt(lineMatch[1] ?? lineMatch[2]);
-      target.units = "ft";
-      target.type = "line";
+      target.template.size = lineMatch[1] ?? lineMatch[2];
+      target.template.units = "ft";
+      target.template.type = "line";
     } else if (cubeMatch) {
-      target.value = parseInt(cubeMatch[1]);
-      target.units = "ft";
-      target.type = "cube";
+      target.template.size = cubeMatch[1];
+      target.template.units = "ft";
+      target.template.type = "cube";
     } else if (sphereMatch) {
-      target.value = parseInt(sphereMatch[1]);
-      target.units = "ft";
-      target.type = "sphere";
+      target.template.size = sphereMatch[1];
+      target.template.units = "ft";
+      target.template.type = "sphere";
     }
 
-    if (target.type === "" && this.healingAction) {
-      target.type = "self";
+    if (target.template.type === "" && this.healingAction) {
+      target.template.type = "self";
     }
 
     return target;
@@ -1003,6 +1003,7 @@ ${this.feature.system.description.value}
   #linkResourcesConsumption() {
     logger.debug(`Resource linking for ${this.name}`);
 
+    // TODO: fix for activities
     if (
       foundry.utils.getProperty(this.feature, "system.uses.recovery")?.some((r) => r.period === "recharge")
     ) {
@@ -1209,7 +1210,6 @@ ${this.feature.system.description.value}
     foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.damage", this.actionInfo.damage);
     foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.baseAbility", this.actionInfo.baseAbility);
     foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.toHit", this.toHit);
-    foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.baseAbility", this.actionInfo.baseAbility);
     foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.proficient", this.actionInfo.proficient);
     foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.extraAttackBonus", this.actionInfo.extraAttackBonus);
 
