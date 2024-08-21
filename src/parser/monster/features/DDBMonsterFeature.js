@@ -4,6 +4,7 @@ import DICTIONARY from "../../../dictionary.js";
 import { generateTable } from "../../../lib/DDBTable.js";
 import SETTINGS from "../../../settings.js";
 import { parseDamageRolls, parseTags } from "../../../lib/DDBReferenceLinker.js";
+import DDBMonsterFeatureActivity from "./DDBMonsterFeatureActivity.js";
 
 export default class DDBMonsterFeature {
 
@@ -100,6 +101,8 @@ export default class DDBMonsterFeature {
     this.fullName = fullName ?? this.name;
     this.actionCopy = actionCopy ?? false;
 
+    this.activityType = null;
+
     this.hideDescription = hideDescription ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description");
     this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
     this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
@@ -113,19 +116,35 @@ export default class DDBMonsterFeature {
       baseItem: null,
       baseTool: null,
       damage: {
+        base: null,
+        onSave: null,
         parts: [],
         versatile: "",
       },
+      damageParts: [],
       formula: "",
       damageSave: {
         dc: null,
         ability: null,
       },
-      target: {
-        "value": null,
-        "width": null,
-        "units": "",
-        "type": "",
+      target = {
+        template: {
+          count: "",
+          contiguous: false,
+          type: "", // line
+          size: "", //60
+          width: "",
+          height: "",
+          units: "", //ft
+        },
+        affects: {
+          count: "",
+          type: "",
+          choice: false,
+          special: "",
+        },
+        prompt: true,
+        override: false,
       },
       duration: {
         "value": "",
@@ -151,21 +170,29 @@ export default class DDBMonsterFeature {
         "ver": false,
         "mgc": false,
       },
-      reach: "",
       range: {
         value: null,
         long: null,
         units: "",
+        reach: null,
       },
       activation: {
         type: "",
         cost: null,
         condition: "",
       },
+      // save: {
+      //   dc: null,
+      //   ability: "",
+      //   scaling: "flat",
+      //   half: false,
+      // },
       save: {
-        dc: null,
         ability: "",
-        scaling: "flat",
+        dc: {
+          calculation: "",
+          formula: "",
+        },
       },
       uses: {
         spent: null,
@@ -177,16 +204,14 @@ export default class DDBMonsterFeature {
     };
   }
 
-  damageModReplace(text, damageType) {
+  damageModReplace(text) {
     let result;
-    const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-    const damageHint = globalDamageHints && damageType ? `[${damageType}]` : "";
-    const diceParse = utils.parseDiceString(text, null, damageHint);
+    const diceParse = utils.parseDiceString(text, null);
     if (this.actionInfo.baseAbility) {
       const baseAbilityMod = this.ddbMonster.abilities[this.actionInfo.baseAbility].mod;
       const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
       const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
-      const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod, damageHint);
+      const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod);
       result = reParse.diceString;
     } else {
       result = diceParse.diceString;
@@ -281,7 +306,7 @@ export default class DDBMonsterFeature {
     }
 
     if (regainMatch) {
-      const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
+      const globalDamageHints = false;
       const damageHint = globalDamageHints ? `[healing]` : "";
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
       this.actionInfo.damage.parts.push([utils.parseDiceString(damageValue, null, damageHint).diceString, 'healing']);
@@ -329,19 +354,14 @@ export default class DDBMonsterFeature {
     return matches;
   }
 
-  #getRecharge() {
+  #getRechargeRecovery() {
     const matches = this.isRecharge;
-    if (matches) {
-      const value = matches[1].replace(/[––−-]/, "-").split("-").shift();
-      return {
-        value: parseInt(value),
-        charged: true,
-      };
-    }
-
+    if (!matches) return undefined;
+    const value = matches[1].replace(/[––−-]/, "-").split("-").shift();
     return {
-      value: null,
-      charged: false,
+      period: "recharge",
+      formula: value,
+      type: "recoverAll",
     };
   }
 
@@ -384,15 +404,13 @@ export default class DDBMonsterFeature {
       }
     }
 
-    const recharge = this.#getRecharge();
-    if (recharge.charged) {
-      recovery.formula = recharge.value;
-      recovery.period = "recharge";
-      isSecureContext.max = 1;
-    }
-
     if (recovery.period) {
       uses.recovery.push(recovery);
+    }
+
+    const recharge = this.#getRechargeRecovery();
+    if (recharge.length) {
+      uses.recovery.push(recharge);
     }
 
     return uses;
@@ -407,26 +425,35 @@ export default class DDBMonsterFeature {
   }
 
   getFeatSave() {
+
+    // save: {
+    //   ability: "",
+    //   dc: {
+    //     calculation: "custom",
+    //     formula: "",
+    //   },
+    // },
     const saveSearch = /DC (\d+) (\w+) (saving throw|check)/i;
     const match = this.strippedHtml.match(saveSearch);
     if (match) {
-      this.actionInfo.save.dc = parseInt(match[1]);
+      this.actionInfo.save.dc.formula = parseInt(match[1]);
+      this.actionInfo.save.dc.formula = "custom";
       this.actionInfo.save.ability = match[2].toLowerCase().substr(0, 3);
-      this.actionInfo.save.scaling = "flat";
     } else {
       const saveSelfSearch = /(\w+) saving throw against your spell save DC/i;
       const selfMatch = this.strippedHtml.match(saveSelfSearch);
       if (selfMatch) {
-        this.feature.system.actionType = "save";
-        this.actionInfo.save.dc = 10;
+        this.activityType = "save";
+        // this.actionInfo.save.dc = 10;
         this.actionInfo.save.ability = selfMatch[1].toLowerCase().substr(0, 3);
-        this.actionInfo.save.scaling = "flat";
+        this.actionInfo.save.dc.formula = "spellcasting";
       }
     }
 
     const halfSaveSearch = /or half as much damage on a successful one/i;
     const halfMatch = this.strippedHtml.match(halfSaveSearch);
     if (halfMatch) {
+      this.actionInfo.damage.onSave = "half";
       if (this.isAttack) {
         foundry.utils.setProperty(this.feature, "flags.midiProperties.otherSaveDamage", "halfdam");
       } else {
@@ -441,10 +468,8 @@ export default class DDBMonsterFeature {
   getReach() {
     const reachSearch = /reach\s*(\s*\d+\s*)\s*ft/;
     const match = this.strippedHtml.match(reachSearch);
-    if (match) {
-      return match[1];
-    }
-    return "";
+    if (!match) return null;
+    return match[1];
   }
 
   getRange() {
@@ -452,6 +477,7 @@ export default class DDBMonsterFeature {
       value: null,
       long: null,
       units: "",
+      reach: this.getReach(),
     };
 
     const rangeSearch1 = /range\s*(\d+)\s*\/\s*(\d+)\s*ft/;
@@ -553,7 +579,8 @@ export default class DDBMonsterFeature {
         // logger.info(`${key}: ${value}`);
         this.actionInfo.properties[key] = value;
       }
-      const versatileWeapon = this.actionInfo.properties.ver && this.ddbMonster.abilities['dex'].mod > this.ddbMonster.abilities['str'].mod;
+      const versatileWeapon = this.actionInfo.properties.ver
+        && this.ddbMonster.abilities['dex'].mod > this.ddbMonster.abilities['str'].mod;
       if (versatileWeapon || lookup.actionType == "rwak") {
         weaponAbilities = ["dex"];
       } else if (lookup.actionType == "mwak") {
@@ -652,11 +679,33 @@ export default class DDBMonsterFeature {
   }
 
   getTarget() {
+    // let target = {
+    //   value: null,
+    //   width: null,
+    //   units: "",
+    //   type: "",
+    // };
+
+    // TODO: target
+
     let target = {
-      value: null,
-      width: null,
-      units: "",
-      type: "",
+      template: {
+        count: "",
+        contiguous: false,
+        type: "", // line
+        size: "", //60
+        width: "",
+        height: "",
+        units: "", //ft
+      },
+      affects: {
+        count: "",
+        type: "",
+        choice: false,
+        special: "",
+      },
+      prompt: true,
+      override: false,
     };
 
     // 90-foot line that is 10 feet wide
@@ -751,6 +800,7 @@ ${this.feature.system.description.value}
     this.feature.system.save = this.actionInfo.save;
     // assumption - if we have parsed a save dc set action type to save
     if (this.feature.system.save.dc && !this.isAttack) {
+      // TODO: refactor saves for action type here
       this.feature.system.actionType = "save";
     }
 
@@ -791,6 +841,7 @@ ${this.feature.system.description.value}
       foundry.utils.setProperty(this.feature, "flags.midiProperties.magiceffect", true);
       this.feature.system.properties.mgc = true;
     } else if (this.actionInfo.save.dc) {
+      // TODO: refactor saves for action type here
       this.feature.system.actionType = "save";
     }
 
@@ -843,6 +894,7 @@ ${this.feature.system.description.value}
       this.feature.system.uses = this.actionInfo.uses;
       this.feature.system.save = this.actionInfo.save;
       // assumption - if we have parsed a save dc set action type to save
+      // TODO: refactor saves for action type here
       if (this.feature.system.save.dc) {
         this.feature.system.actionType = "save";
       // action.type = "weapon";
@@ -871,6 +923,7 @@ ${this.feature.system.description.value}
     this.feature.system.save = this.actionInfo.save;
     this.feature.system.target = this.actionInfo.target;
     // assumption - if we have parsed a save dc set action type to save
+    // TODO: refactor saves for action type here
     if (this.feature.system.save.dc) {
       this.feature.system.actionType = "save";
     }
@@ -919,6 +972,7 @@ ${this.feature.system.description.value}
       };
     }
 
+    // TODO: revisit saves and targets here
     this.feature.system.save = this.actionInfo.save;
     this.feature.system.target = this.actionInfo.target;
     // assumption - if we have parsed a save dc set action type to save
@@ -939,13 +993,7 @@ ${this.feature.system.description.value}
     }
     this.generateExtendedDamageInfo();
 
-    this.actionInfo.reach = this.getReach();
     this.actionInfo.range = this.getRange();
-    // On hindsight, reach is a weapon property, and probably shouldn't be present on most features
-    // it gets copied over to weapons elsewhere.
-    // if (this.actionInfo.reach != "" && Number.parseInt(this.actionInfo.reach) > 5) {
-    //   this.actionInfo.properties.rch = true;
-    // }
     this.actionInfo.activation = this.getActivation();
     this.actionInfo.save = this.getFeatSave();
     this.actionInfo.target = this.getTarget();
@@ -962,6 +1010,174 @@ ${this.feature.system.description.value}
       foundry.utils.setProperty(this.feature, "system.consume.target", this.feature._id);
       foundry.utils.setProperty(this.feature, "system.consume.amount", null);
     }
+  }
+
+  _getSaveActivity() {
+    this._generateDamage();
+
+    const saveActivity = new DDBMonsterFeatureActivity({
+      type: "save",
+      ddbMonsterFeature: this,
+    });
+
+    saveActivity.build({
+      generateSave: true,
+      generateRange: this.templateType !== "weapon",
+      generateDamage: this.templateType !== "weapon",
+    });
+
+    return saveActivity;
+  }
+
+  _getAttackActivity() {
+    this._generateDamage();
+
+    const attackActivity = new DDBMonsterFeatureActivity({
+      type: "attack",
+      ddbMonsterFeature: this,
+    });
+
+    attackActivity.build({
+      generateAttack: true,
+      generateRange: this.templateType !== "weapon",
+      generateDamage: this.templateType !== "weapon",
+    });
+    return attackActivity;
+  }
+
+  _getUtilityActivity() {
+    this._generateDamage();
+
+    const utilityActivity = new DDBMonsterFeatureActivity({
+      type: "utility",
+      ddbMonsterFeature: this,
+    });
+
+    utilityActivity.build({
+      generateActivation: true,
+      generateRange: this.templateType !== "weapon",
+      generateDamage: this.templateType !== "weapon",
+    });
+
+    return utilityActivity;
+  }
+
+  _getHealActivity() {
+    const healActivity = new DDBMonsterFeatureActivity({
+      type: "heal",
+      ddbMonsterFeature: this,
+    });
+
+    healActivity.build({
+      generateActivation: true,
+      generateDamage: false,
+      generateHealing: true,
+      generateRange: true,
+    });
+
+    return healActivity;
+  }
+
+  _getDamageActivity() {
+    this._generateDamage();
+
+    const damageActivity = new DDBMonsterFeatureActivity({
+      type: "damage",
+      ddbMonsterFeature: this,
+    });
+
+    damageActivity.build({
+      generateAttack: false,
+      generateRange: this.templateType !== "weapon",
+      generateDamage: this.templateType !== "weapon",
+    });
+    return damageActivity;
+  }
+
+  _getEnchantActivity() {
+    this._generateDamage();
+
+    const enchantActivity = new DDBMonsterFeatureActivity({
+      type: "enchant",
+      ddbMonsterFeature: this,
+    });
+
+    enchantActivity.build({
+      generateAttack: false,
+      generateRange: true,
+      generateDamage: false,
+    });
+    return enchantActivity;
+  }
+
+  _getSummonActivity() {
+    const summonActivity = new DDBMonsterFeatureActivity({
+      type: "summon",
+      ddbMonsterFeature: this,
+    });
+
+    summonActivity.build({
+      generateAttack: false,
+      generateRange: true,
+      generateDamage: false,
+    });
+    return summonActivity;
+  }
+
+  _getActivitiesType() {
+    // lets see if we have a save stat for things like Dragon born Breath Weapon
+    if (this.isAttack) {
+      return "attack";
+    } else if (this.actionInfo.save?.dc) {
+      return "save";
+    }
+    // TODO: can we determine if utility, heal or damage?
+    return "utility";
+  }
+
+  getActivity({ typeOverride = null, typeFallback = null } = {}) {
+    const type = typeOverride ?? this._getActivitiesType();
+    switch (type) {
+      case "save":
+        return this._getSaveActivity();
+      case "attack":
+        return this._getAttackActivity();
+      case "damage":
+        return this._getDamageActivity();
+      case "heal":
+        return this._getHealActivity();
+      case "utility":
+        return this._getUtilityActivity();
+      case "enchant":
+        return this._getEnchantActivity();
+      case "summon":
+        return this._getSummonActivity();
+      default:
+        if (typeFallback) return this.getActivity(typeFallback);
+        return undefined;
+    }
+  }
+
+  _generateActivity({ hintsOnly = false } = {}) {
+    if (hintsOnly && !this.featureEnricher.activity) return undefined;
+
+    const activity = this.getActivity({
+      typeOverride: this.featureEnricher.activity?.type ?? this.activityType,
+    });
+
+    console.warn(`Monster Feature Activity Check for ${this.data.name}`, {
+      this: this,
+      activity,
+      activityType: this.featureEnricher.activity?.type ?? this.activityType,
+    });
+
+    if (!activity) return undefined;
+
+    this.featureEnricher.applyActivityOverride(activity.data);
+    this.activities.push(activity);
+    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
+
+    return activity.data._id;
   }
 
   async parse() {
