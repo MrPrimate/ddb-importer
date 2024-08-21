@@ -37,7 +37,7 @@ export default class DDBSpellActivity {
     this.name = name;
     this.ddbSpell = ddbSpell;
     this.spellData = ddbSpell.spellData;
-    this.spellDefinition = this.spellDefinition;
+    this.spellDefinition = this.spellData.definition;
 
     this._init();
     this._generateDataStub();
@@ -297,13 +297,13 @@ export default class DDBSpellActivity {
         return {
           old: "cantrip",
           mode: "whole",
-          formula: scaleDamage,
+          formula: String(scaleDamage),
         };
       case "spellscale":
         return {
           old: "level",
           mode: "whole",
-          formula: scaleDamage,
+          formula: String(scaleDamage),
         };
       case "spelllevel":
       case null:
@@ -321,7 +321,7 @@ export default class DDBSpellActivity {
     }
   }
 
-  #buildDamagePart({ damageString, type } = {}) {
+  _buildDamagePart({ damageString, type } = {}) {
     const damage = {
       number: null,
       denomination: null,
@@ -342,6 +342,10 @@ export default class DDBSpellActivity {
 
     const scaling = this.getScaling();
     damage.scaling.mode = scaling.mode;
+
+    if (scaling.old === "none") {
+      return damage;
+    }
 
     const scalingMatch = scaling.formula.match(/^\s*(\d+)d(\d+)\s*$/i);
     if ((scalingMatch && (Number(scalingMatch[2]) === damage.denomination))
@@ -375,7 +379,7 @@ export default class DDBSpellActivity {
         const addMod = attack.usePrimaryStat || this.cantripBoost ? " + @mod" : "";
         let diceString = utils.parseDiceString(attack.die.diceString, addMod, damageTag).diceString;
         if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
-          const damage = this.#buildDamagePart({
+          const damage = this._buildDamagePart({
             damageString: diceString,
             type: attack.subType,
           });
@@ -394,7 +398,7 @@ export default class DDBSpellActivity {
     if (versatile !== "" && this.ddbSpell.data.damage) {
       this.ddbSpell.data.damage.versatile = versatile;
     } else if (versatile) {
-      const damage = this.#buildDamagePart({ damageString: versatile });
+      const damage = this._buildDamagePart({ damageString: versatile });
       this.additionalActivityDamageParts.push(damage);
     }
 
@@ -436,7 +440,7 @@ export default class DDBSpellActivity {
           ? `${healValue} + @mod${this.healingBonus}`
           : `${healValue}${this.healingBonus}`;
         if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
-          const damage = this.#buildDamagePart({
+          const damage = this._buildDamagePart({
             damageString: diceString,
             type: "healing",
           });

@@ -73,7 +73,7 @@ export default class DDBSpell {
     } else if (this.nameOverride) {
       return utils.nameString(this.nameOverride);
     } else {
-      return utils.nameString(this.spellData.definition.name);
+      return utils.nameString(this.spellDefinition.name);
     }
   }
 
@@ -92,6 +92,7 @@ export default class DDBSpell {
     this.originalName = utils.nameString(this.spellDefinition.name);
     this.name = this.getName(this.spellData, this.rawCharacter);
     this.data = {};
+    this.activities = [];
 
     this.isGeneric = isGeneric ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.generic");
     this.addSpellEffects = isGeneric
@@ -289,9 +290,12 @@ export default class DDBSpell {
 
   // Does the spell target creatures?
   targetsCreature() {
-    const creature = /You touch a creature|You touch a willing creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range/gi;
-    const creaturesRange = /(humanoid|monster|creature|target)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
-    return this.spellDefinition.description.match(creature) || this.spellDefinition.description.match(creaturesRange);
+    const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range/gi;
+    const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
+    const targets = /spell attack against the target|at a target in range/gi;
+    return this.spellDefinition.description.match(creature)
+      || this.spellDefinition.description.match(creaturesRange)
+      || this.spellDefinition.description.match(targets);
   }
 
   /**
@@ -547,7 +551,7 @@ export default class DDBSpell {
   _getSaveActivity() {
     const saveActivity = new DDBSpellActivity({
       type: "save",
-      ddbFeature: this,
+      ddbSpell: this,
     });
 
     saveActivity.build({
@@ -561,7 +565,7 @@ export default class DDBSpell {
   _getAttackActivity() {
     const attackActivity = new DDBSpellActivity({
       type: "attack",
-      ddbFeature: this,
+      ddbSpell: this,
     });
 
     attackActivity.build({
@@ -574,7 +578,7 @@ export default class DDBSpell {
   _getUtilityActivity() {
     const utilityActivity = new DDBSpellActivity({
       type: "utility",
-      ddbFeature: this,
+      ddbSpell: this,
     });
 
     utilityActivity.build({
@@ -587,7 +591,7 @@ export default class DDBSpell {
   _getHealActivity() {
     const healActivity = new DDBSpellActivity({
       type: "heal",
-      ddbFeature: this,
+      ddbSpell: this,
     });
 
     healActivity.build({
@@ -601,7 +605,7 @@ export default class DDBSpell {
   _getDamageActivity() {
     const damageActivity = new DDBSpellActivity({
       type: "damage",
-      ddbFeature: this,
+      ddbSpell: this,
     });
 
     damageActivity.build({
@@ -614,7 +618,7 @@ export default class DDBSpell {
   _getEnchantActivity() {
     const enchantActivity = new DDBSpellActivity({
       type: "enchant",
-      ddbFeature: this,
+      ddbSpell: this,
     });
 
     enchantActivity.build({
@@ -628,7 +632,7 @@ export default class DDBSpell {
   _getSummonActivity() {
     const summonActivity = new DDBSpellActivity({
       type: "summon",
-      ddbFeature: this,
+      ddbSpell: this,
     });
 
     summonActivity.build({
@@ -658,16 +662,16 @@ export default class DDBSpell {
     });
   }
 
-  _getActivitiesType(data) {
-    if (data.definition.requiresSavingThrow && !data.definition.requiresAttackRoll) {
+  _getActivitiesType() {
+    if (this.spellDefinition.requiresSavingThrow && !this.spellDefinition.requiresAttackRoll) {
       return "save";
-    } else if (data.definition.tags.includes("Damage") && data.definition.requiresAttackRoll) {
+    } else if (this.spellDefinition.tags.includes("Damage") && this.spellDefinition.requiresAttackRoll) {
       return "attack";
-    } else if (data.definition.tags.includes("Damage")) {
+    } else if (this.spellDefinition.tags.includes("Damage")) {
       return "damage";
-    } else if (data.definition.tags.includes("Healing")) {
+    } else if (this.spellDefinition.tags.includes("Healing")) {
       return "heal";
-    } else if (data.definition.tags.includes("Buff")) {
+    } else if (this.spellDefinition.tags.includes("Buff")) {
       return "utility";
     }
     // TODO: Enchants like for magic weapon etc
@@ -721,6 +725,8 @@ export default class DDBSpell {
   }
 
   async _applyEffects() {
+    //TODO: once spell effects adjusted
+    return;
     await spellEffectAdjustment(this.data, this.addSpellEffects);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
   }

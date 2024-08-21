@@ -371,13 +371,40 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
     const diceSearch = /(\d+)d(\d+)/;
     const diceMatch = edgeCase.edge.match(diceSearch);
     if (diceMatch) {
-      if (spell.system.damage.parts[0] && spell.system.damage.parts[0][0]) {
-        spell.system.damage.parts[0][0] = diceMatch[0];
-      } else if (spell.system.damage.parts[0]) {
-        spell.system.damage.parts[0] = [diceMatch[0]];
+      if (spell.system.activities.some((a) => a.damage?.parts)) {
+        const activity = spell.system.activities(Object.keys(spell.system.activities)[0]);
+          if (activity.damage?.parts) {
+            activity.damage.parts[0].number = null;
+            activity.damage.parts[0].denomination = null;
+            activity.damage.parts[0].custom = {
+              enabled: true,
+              formula: diceMatch[0],
+            };
+          } else {
+            console.error(`SPELL EDGE CASE FAILURE ${spell.name} - ${edgeCase.edge} - damage parts not found`, {
+              this: this,
+              spell,
+              type,
+              spellList,
+              edgeCase,
+            });
+          }
+        }
       } else {
-        spell.system.damage.parts = [[diceMatch[0]]];
+        console.error(`SPELL EDGE CASE FAILURE ${spell.name} - ${edgeCase.edge} - dice match not found`, {
+          this: this,
+          spell,
+          type,
+          spellList,
+          edgeCase,
+        });
       }
+      // } else if (spell.system.damage.parts[0]) {
+      //   // spell.system.damage.parts[0] = [diceMatch[0]];
+      // } else {
+      //   // spell.system.damage.parts = [[diceMatch[0]]];
+      // }
+
     }
 
     // save DC 12
@@ -386,6 +413,24 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
     if (saveMatch) {
       spell.system.save.dc = parseInt(saveMatch[1]);
       spell.system.save.scaling = "flat";
+
+      if (spell.system.activities.some((a) => a.damage?.save)) {
+        const activity = spell.system.activities(Object.keys(spell.system.activities)[0]);
+        if (activity.damage?.save) {
+          activity.save.dc = {
+            formula: saveMatch[1],
+            calculation: "custom",
+          };
+        } else {
+          console.error(`SPELL EDGE CASE FAILURE ${spell.name} - ${edgeCase.edge} - save match not found`, {
+            this: this,
+            spell,
+            type,
+            spellList,
+            edgeCase,
+          });
+        }
+      }
     }
 
   }
