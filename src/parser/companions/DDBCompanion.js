@@ -646,7 +646,7 @@ export default class DDBCompanion {
     logger.debug(`Beginning companion parse for ${name}`, { name, block: this.block });
 
     const actorName = `${name} ${namePostfix}`.trim();
-    this.npc = await newNPC(actorName);
+    this.npc = newNPC(actorName);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.companion.modifiers", {});
     this.npc.prototypeToken.name = actorName;
 

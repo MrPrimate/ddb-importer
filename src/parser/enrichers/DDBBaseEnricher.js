@@ -19,7 +19,7 @@ export default class DDBBaseEnricher {
     this.override = this.DOCUMENT_OVERRIDES[this.hintName];
   }
 
-  constructor({ document, name = null }) {
+  constructor({ document, name = null } = {}) {
     this.document = document;
     this.name = name ?? document.flags?.ddbimporter?.originalName ?? document.name;
     this._prepare();

@@ -1,7 +1,7 @@
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
 export default class DDDFeatureEnricher extends DDBBaseEnricher {
-  constructor({ document, name = null }) {
+  constructor({ document, name = null } = {}) {
     super({ document, name });
     this._prepare();
   }

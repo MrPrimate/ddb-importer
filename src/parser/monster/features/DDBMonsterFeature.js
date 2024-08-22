@@ -50,7 +50,6 @@ export default class DDBMonsterFeature {
       },
     };
     // these templates not good
-    this.feature.system.duration.value = "";
     this.feature.system.requirements = "";
     this.levelBonus = false;
   }
@@ -194,7 +193,7 @@ export default class DDBMonsterFeature {
         ability: "",
         dc: {
           calculation: "",
-          formula: "",
+          formula: null,
         },
       },
       uses: {
@@ -425,7 +424,7 @@ export default class DDBMonsterFeature {
     }
 
     const recharge = this.#getRechargeRecovery();
-    if (recharge.length) {
+    if (recharge) {
       uses.recovery.push(recharge);
     }
 
@@ -812,14 +811,14 @@ ${this.feature.system.description.value}
   }
 
   #buildAction() {
-    if (Number.isInteger(this.actionInfo.activation.value)) {
+    if (Number.isInteger(parseInt(this.actionInfo.activation.value))) {
       this.actionInfo.consumptionValue = this.actionInfo.activation.value;
     } else {
       // this.feature.system.activation.cost = 1;
       this.actionInfo.activation.value = 1;
     }
     // assumption - if we have parsed a save dc set action type to save
-    if (this.feature.system.save.dc && !this.isAttack) {
+    if (this.actionInfo.save.dc.formula && !this.isAttack) {
       this.activityType = "save";
     } else if (this.isAttack) {
       this.activityType = "attack";
@@ -911,7 +910,7 @@ ${this.feature.system.description.value}
       },
     });
 
-    if (Number.isInteger(this.actionInfo.activation.value)) {
+    if (Number.isInteger(parseInt(this.actionInfo.activation.value))) {
       this.actionInfo.consumptionValue = this.actionInfo.activation.value;
     } else {
       // this.feature.system.activation.cost = 1;
@@ -924,7 +923,7 @@ ${this.feature.system.description.value}
     if (!this.feature.flags.monsterMunch.actionCopy) {
       this.feature.system.uses = this.actionInfo.uses;
       // TODO: should we determine acttcks?
-      if (this.feature.system.save.dc) {
+      if (this.actionInfo.save.dc.formula) {
         this.activityType = "save";
       }
       if (this.templateType === "weapon") {
@@ -941,7 +940,7 @@ ${this.feature.system.description.value}
   }
 
   #buildSpecial() {
-    if (Number.isInteger(this.actionInfo.activation.value)) {
+    if (Number.isInteger(parseInt(this.actionInfo.activation.value))) {
       this.actionInfo.consumptionValue = this.actionInfo.activation.value;
     } else {
       this.actionInfo.activation.value = 1;
@@ -950,7 +949,7 @@ ${this.feature.system.description.value}
     this.feature.system.uses = this.actionInfo.uses;
     // assumption - if we have parsed a save dc set action type to save
     // TODO: refactor saves for action type here
-    if (this.feature.system.save.dc) {
+    if (this.actionInfo.save.dc.formula) {
       this.activityType = "save";
     }
     // todo: probably not this
@@ -1023,7 +1022,7 @@ ${this.feature.system.description.value}
     this.generateDamageInfo();
 
     this.actionInfo.range = this.getRange();
-    this.actionInfo.activation = this.getActivationValue();
+    this.actionInfo.activation = this.getActivation();
     this.actionInfo.save = this.getFeatSave();
     this.actionInfo.target = this.getTarget();
     this.actionInfo.uses = this.getUses();

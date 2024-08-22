@@ -9,8 +9,8 @@ export default class DDDMonsterEnricher extends DDBBaseEnricher {
     this.override = this.DOCUMENT_OVERRIDES[this.monsterName]?.[this.hintName];
   }
 
-  constructor({ document, name = null, monster }) {
-    super();
+  constructor({ document, name = null, monster } = {}) {
+    super({ document, name });
     this.monster = monster;
     this.monsterName = this.monster.name;
     this.document = document;

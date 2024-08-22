@@ -433,7 +433,7 @@ export default class DDBBasicActivity {
       },
     };
 
-    DDBBasicActivity.buildDamagePart(damage, damageString);
+    DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
     return damage;
   }
 
