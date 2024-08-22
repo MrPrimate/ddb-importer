@@ -5,6 +5,8 @@ import { generateTable } from "../../../lib/DDBTable.js";
 import SETTINGS from "../../../settings.js";
 import { parseDamageRolls, parseTags } from "../../../lib/DDBReferenceLinker.js";
 import DDBMonsterFeatureActivity from "./DDBMonsterFeatureActivity.js";
+import DDDMonsterEnricher from "../../enrichers/DDBMonsterEnricher.js";
+import DDBBasicActivity from "../../enrichers/DDBBasicActivity.js";
 
 export default class DDBMonsterFeature {
 
@@ -89,6 +91,12 @@ export default class DDBMonsterFeature {
     // if not attack set to a monster type action
     if (!this.isAttack) foundry.utils.setProperty(this.feature, "system.type.value", "monster");
 
+    this.featureEnricher = new DDDMonsterEnricher({
+      document: this.feature,
+      monster: this.ddbMonster.npc,
+      name: this.name,
+    });
+
   }
 
   constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription } = {}) {
@@ -122,6 +130,7 @@ export default class DDBMonsterFeature {
         versatile: "",
       },
       damageParts: [],
+      healingParts: [],
       formula: "",
       damageSave: {
         dc: null,
@@ -178,15 +187,9 @@ export default class DDBMonsterFeature {
       },
       activation: {
         type: "",
-        cost: null,
+        value: null,
         condition: "",
       },
-      // save: {
-      //   dc: null,
-      //   ability: "",
-      //   scaling: "flat",
-      //   half: false,
-      // },
       save: {
         ability: "",
         dc: {
@@ -201,6 +204,8 @@ export default class DDBMonsterFeature {
           // { period: "", type: 'recoverAll', formula: undefined },
         ],
       },
+      consumptionValue: null,
+      consumptionTargets: null,
     };
   }
 
@@ -221,7 +226,7 @@ export default class DDBMonsterFeature {
   }
 
   // eslint-disable-next-line complexity
-  generateExtendedDamageInfo() {
+  generateDamageInfo() {
     const hitIndex = this.strippedHtml.indexOf("Hit:");
     let hit = (hitIndex > 0) ? this.strippedHtml.slice(hitIndex) : `${this.strippedHtml}`;
     hit = hit.split("At the end of each")[0].split("At the start of each")[0];
@@ -287,7 +292,9 @@ export default class DDBMonsterFeature {
 
           if (!thisOther && dmg[1].trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
-            this.actionInfo.damage.parts.push([finalDamage, dmg[4]]);
+            // this.actionInfo.damage.parts.push([finalDamage, dmg[4]]);
+            const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4] });
+            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part });
           }
         } else if (versatile) {
           if (this.actionInfo.damage.versatile == "") this.actionInfo.damage.versatile = finalDamage;
@@ -298,25 +305,33 @@ export default class DDBMonsterFeature {
           if (!thisVersatile && dmg[1].trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
             this.actionInfo.damage.parts.push([finalDamage, dmg[4]]);
+            const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4] });
+            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part });
           }
         } else {
           this.actionInfo.damage.parts.push([finalDamage, dmg[4]]);
+          const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4] });
+          this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part });
         }
       }
     }
 
     if (regainMatch) {
-      const globalDamageHints = false;
-      const damageHint = globalDamageHints ? `[healing]` : "";
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
-      this.actionInfo.damage.parts.push([utils.parseDiceString(damageValue, null, damageHint).diceString, 'healing']);
-      this.feature.system.actionType = "heal";
+      this.actionInfo.damage.parts.push([utils.parseDiceString(damageValue, null).diceString, 'healing']);
+      this.activityType = "heal";
+      const part = DDBBasicActivity.buildDamagePart({
+        damageString: utils.parseDiceString(damageValue, null).diceString,
+        type: 'healing',
+      });
+      this.actionInfo.damageParts.push({ versatile, part });
     }
 
     const save = hit.match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
     if (save) {
       this.actionInfo.damageSave.dc = save[1];
       this.actionInfo.damageSave.ability = save[2] ? save[2].toLowerCase().substr(0, 3) : "";
+      this.activityType = "save";
     } else {
       const escape = hit.match(/escape DC ([0-9]+)/);
       if (escape) {
@@ -326,11 +341,8 @@ export default class DDBMonsterFeature {
     }
   }
 
-  getAction() {
+  getActionType() {
     let action = this.type;
-    // foundry doesn't support mythic actions pre 1.6
-    if (this.type === "mythic") action = "mythic";
-    if (this.type === "villain") action = "special";
     const actionAction = this.strippedHtml.toLowerCase().match(/as (a|an) action/);
     const bonusAction = this.strippedHtml.toLowerCase().match(/as a bonus action/);
     const reAction = this.strippedHtml.toLowerCase().match(/as a reaction/);
@@ -345,6 +357,10 @@ export default class DDBMonsterFeature {
     } else if (actionAction) {
       action = "action";
     }
+    if (this.type === "lair") action = "lair";
+    else if (this.type === "mythic") action = "mythic";
+    else if (this.type === "villain") action = "special";
+    else if (this.type === "legendary") action = "legendary";
     return action;
   }
 
@@ -416,12 +432,19 @@ export default class DDBMonsterFeature {
     return uses;
   }
 
-  getActivation() {
+  getActivationValue() {
     const matches = this.strippedHtml.match(/\(costs ([0-9]+) actions\)/i);
     if (matches) return parseInt(matches[1]);
     const nameMatch = this.name.match(/\(costs ([0-9]+) actions\)/i);
     if (nameMatch) return parseInt(nameMatch[1]);
     return null;
+  }
+
+  getActivation() {
+    const activation = foundry.utils.deepClone(this.actionInfo.activation);
+    activation.value = this.getActivationValue();
+    activation.type = this.getActionType();
+    return activation;
   }
 
   getFeatSave() {
@@ -789,66 +812,70 @@ ${this.feature.system.description.value}
   }
 
   #buildAction() {
-    if (Number.isInteger(this.actionInfo.activation)) {
-      this.feature.system.activation.cost = this.actionInfo.activation;
-      this.feature.system.consume.amount = this.actionInfo.activation;
+    if (Number.isInteger(this.actionInfo.activation.value)) {
+      this.actionInfo.consumptionValue = this.actionInfo.activation.value;
     } else {
-      this.feature.system.activation.cost = 1;
+      // this.feature.system.activation.cost = 1;
+      this.actionInfo.activation.value = 1;
     }
-    this.feature.system.activation.type = this.getAction();
-
-    this.feature.system.save = this.actionInfo.save;
     // assumption - if we have parsed a save dc set action type to save
     if (this.feature.system.save.dc && !this.isAttack) {
-      // TODO: refactor saves for action type here
-      this.feature.system.actionType = "save";
+      this.activityType = "save";
+    } else if (this.isAttack) {
+      this.activityType = "attack";
     }
 
-    this.feature.system.damage = this.actionInfo.damage;
-    this.feature.system.formula = this.actionInfo.formula;
-    for (const [key, value] of Object.entries(this.actionInfo.properties)) {
-      if (value) this.feature.system.properties.push(key);
+    if (this.templateType === "weapon") {
+      this.feature.system.damage = this.actionInfo.damage;
+      // todo: what about formula?
+      this.feature.system.formula = this.actionInfo.formula;
     }
+
     this.feature.system.proficient = this.actionInfo.proficient;
-    this.feature.system.ability = this.actionInfo.baseAbility;
-    this.feature.system.attack.bonus = `${this.actionInfo.extraAttackBonus}`;
+
+    if (this.templateType !== "feat" && (this.weaponAttack || this.spellAttack)) {
+      this.feature.system.equipped = true;
+    }
 
     if (this.weaponAttack) {
       if (this.templateType !== "feat") {
         this.feature.system.type.value = this.actionInfo.weaponType;
-        this.feature.system.equipped = true;
       }
       // console.log(actionInfo.weaponAttack);
       // console.log(actionInfo.meleeAttack);
       // console.log(actionInfo.rangedAttack);
-      if (this.meleeAttack) {
-        this.feature.system.actionType = "mwak";
-      } else if (this.rangedAttack) {
-        this.feature.system.actionType = "rwak";
-      }
+      // if (this.meleeAttack) {
+      //   this.feature.system.actionType = "mwak";
+      // } else if (this.rangedAttack) {
+      //   this.feature.system.actionType = "rwak";
+      // }
     } else if (this.spellAttack) {
-      if (this.meleeAttack) {
-        this.feature.system.actionType = "msak";
-      } else if (this.rangedAttack) {
-        this.feature.system.actionType = "rsak";
-      } else {
-        this.feature.system.actionType = "save";
-      }
-      if (this.templateType === "feat") {
-        this.feature.system.equipped = true;
-      }
+      // if (this.meleeAttack) {
+      //   this.feature.system.actionType = "msak";
+      // } else if (this.rangedAttack) {
+      //   this.feature.system.actionType = "rsak";
+      // } else {
+      //   this.feature.system.actionType = "save";
+      // }
+      // if (this.templateType === "feat") {
+      //   this.feature.system.equipped = true;
+      // }
       foundry.utils.setProperty(this.feature, "flags.midiProperties.magicdam", true);
       foundry.utils.setProperty(this.feature, "flags.midiProperties.magiceffect", true);
-      this.feature.system.properties.mgc = true;
+      this.actionInfo.properties.mgc = true;
     } else if (this.actionInfo.save.dc) {
       // TODO: refactor saves for action type here
       this.feature.system.actionType = "save";
     }
 
-    this.feature.system.range = this.actionInfo.range;
-    this.feature.system.target = this.actionInfo.target;
-    this.feature.system.duration = this.actionInfo.duration;
-    this.feature.system.uses = this.actionInfo.uses;
+    if (this.templateType === "weapon") {
+      this.feature.system.range = this.actionInfo.range;
+      this.feature.system.uses = this.actionInfo.uses;
+    }
+
+    for (const [key, value] of Object.entries(this.actionInfo.properties)) {
+      if (value) this.feature.system.properties.push(key);
+    }
 
     if (this.name.includes("/Day")) {
       this.feature.system.uses = this.getUses(true);
@@ -859,8 +886,9 @@ ${this.feature.system.description.value}
 
   #buildLair() {
     if (this.feature.name.trim() === "Lair Actions") {
-      this.feature.system.activation.cost = 1;
+      this.actionInfo.activation.value = 1;
     }
+    this.feature.system.activation.type = "lair";
     return this.feature;
   }
 
@@ -873,18 +901,21 @@ ${this.feature.system.description.value}
 
     this.feature.system.activation.type = "legendary";
 
-    // TODO: is consume removed?
-    this.feature.system.consume = {
+    this.consumptionTargets.push({
       type: "attribute",
       target: "resources.legact.value",
-      amount: 1,
-    };
+      value: this.actionInfo.activation.value ?? 1,
+      scaling: {
+        mode: "",
+        formula: "",
+      },
+    });
 
-    if (Number.isInteger(this.actionInfo.activation)) {
-      this.feature.system.activation.cost = this.actionInfo.activation;
-      this.feature.system.consume.amount = this.actionInfo.activation;
+    if (Number.isInteger(this.actionInfo.activation.value)) {
+      this.actionInfo.consumptionValue = this.actionInfo.activation.value;
     } else {
-      this.feature.system.activation.cost = 1;
+      // this.feature.system.activation.cost = 1;
+      this.actionInfo.activation.value = 1;
     }
 
     // only attempt to update these if we don't parse an action
@@ -892,67 +923,68 @@ ${this.feature.system.description.value}
     // these have been copied from the existing actions so we don't change
     if (!this.feature.flags.monsterMunch.actionCopy) {
       this.feature.system.uses = this.actionInfo.uses;
-      this.feature.system.save = this.actionInfo.save;
-      // assumption - if we have parsed a save dc set action type to save
-      // TODO: refactor saves for action type here
+      // TODO: should we determine acttcks?
       if (this.feature.system.save.dc) {
-        this.feature.system.actionType = "save";
-      // action.type = "weapon";
+        this.activityType = "save";
       }
-      this.feature.system.range = this.actionInfo.range;
-      this.feature.system.target = this.actionInfo.target;
-      this.feature.system.damage = this.actionInfo.damage;
+      if (this.templateType === "weapon") {
+        this.feature.system.range = this.actionInfo.range;
+        this.feature.system.uses = this.actionInfo.uses;
+      }
 
-      if (!this.feature.system.actionType && !this.isAttack && this.feature.system.damage.parts.length > 0) {
-        this.feature.system.actionType = "other";
+      // todo: determine damage parsing for activations here
+      if (!this.activityType && !this.isAttack && this.feature.system.damage.parts.length > 0) {
+        this.activityType = "utility";
       }
     }
 
   }
 
   #buildSpecial() {
-    this.feature.system.activation.type = this.getAction();
-    if (Number.isInteger(this.actionInfo.activation)) {
-      this.feature.system.activation.cost = this.actionInfo.activation;
-      this.feature.system.consume.amount = this.actionInfo.activation;
-    } else if (this.feature.system.activation.type !== "") {
-      this.feature.system.activation.cost = 1;
+    if (Number.isInteger(this.actionInfo.activation.value)) {
+      this.actionInfo.consumptionValue = this.actionInfo.activation.value;
+    } else {
+      this.actionInfo.activation.value = 1;
     }
 
     this.feature.system.uses = this.actionInfo.uses;
-    this.feature.system.save = this.actionInfo.save;
-    this.feature.system.target = this.actionInfo.target;
     // assumption - if we have parsed a save dc set action type to save
     // TODO: refactor saves for action type here
     if (this.feature.system.save.dc) {
-      this.feature.system.actionType = "save";
+      this.activityType = "save";
     }
+    // todo: probably not this
     this.feature.system.damage = this.actionInfo.damage;
     // assumption - if the action type is not set but there is damage, the action type is other
-    if (!this.feature.system.actionType && this.feature.system.damage.parts.length != 0) {
-      this.feature.system.actionType = "other";
+    // todo what to do here for damage check
+    if (!this.activityType && this.feature.system.damage.parts.length != 0) {
+      this.activityType = "utility";
     }
 
     // legendary resistance check
     const resistanceMatch = this.name.match(/Legendary Resistance \((\d+)\/Day/i);
     if (resistanceMatch) {
-      this.feature.system.activation.type = "special";
-      this.feature.system.activation.cost = null;
-      this.feature.system.consume = {
+      this.actionInfo.activation.type = "special";
+      this.actionInfo.activation.value = null;
+      this.consumptionTargets.push({
         type: "attribute",
         target: "resources.legres.value",
-        amount: 1,
-      };
+        value: 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
     }
 
     // if this special action has nothing to do, then we remove the activation type
-    if (this.feature.system.actionType === null
+    if (this.activityType === null
       && (this.feature.system.uses.max === null || this.feature.system.uses.max === 0)
       // TODO: ensure this is now correct
       && this.feature.system.uses.recovery.length === 0
     ) {
-      this.feature.system.activation = {
-        cost: null,
+      this.actionInfo.activation = {
+        value: null,
         type: "",
         condition: "",
       };
@@ -960,29 +992,26 @@ ${this.feature.system.description.value}
   }
 
   #buildVillain() {
-    this.feature.system.activation.type = this.getAction();
-
     if (this.name !== "Villain Actions") {
       this.feature.system.uses = {
         spent: 0,
-        max: 1,
+        max: this.actionInfo.uses.max,
         recovery: [
           { period: "sr", type: 'recoverAll', formula: undefined },
         ],
       };
     }
 
-    // TODO: revisit saves and targets here
-    this.feature.system.save = this.actionInfo.save;
-    this.feature.system.target = this.actionInfo.target;
     // assumption - if we have parsed a save dc set action type to save
-    if (this.feature.system.save.dc) {
-      this.feature.system.actionType = "save";
+    if (this.actionInfo.save.dc) {
+      this.activityType = "save";
     }
+
+    // todo: determine damage
     this.feature.system.damage = this.actionInfo.damage;
     // assumption - if the action type is not set but there is damage, the action type is other
-    if (!this.feature.system.actionType && this.feature.system.damage.parts.length != 0) {
-      this.feature.system.actionType = "other";
+    if (!this.activityType && this.feature.system.damage.parts.length != 0) {
+      this.activityType = "utility";
     }
 
   }
@@ -991,10 +1020,10 @@ ${this.feature.system.description.value}
     if (this.weaponAttack || this.spellAttack) {
       this.generateWeaponAttackInfo();
     }
-    this.generateExtendedDamageInfo();
+    this.generateDamageInfo();
 
     this.actionInfo.range = this.getRange();
-    this.actionInfo.activation = this.getActivation();
+    this.actionInfo.activation = this.getActivationValue();
     this.actionInfo.save = this.getFeatSave();
     this.actionInfo.target = this.getTarget();
     this.actionInfo.uses = this.getUses();
@@ -1019,6 +1048,8 @@ ${this.feature.system.description.value}
     const saveActivity = new DDBMonsterFeatureActivity({
       type: "save",
       ddbMonsterFeature: this,
+      nameIdPrefix: "save",
+      nameIdPostfix: this.type,
     });
 
     saveActivity.build({
@@ -1036,6 +1067,8 @@ ${this.feature.system.description.value}
     const attackActivity = new DDBMonsterFeatureActivity({
       type: "attack",
       ddbMonsterFeature: this,
+      nameIdPrefix: "attack",
+      nameIdPostfix: this.type,
     });
 
     attackActivity.build({
@@ -1052,10 +1085,11 @@ ${this.feature.system.description.value}
     const utilityActivity = new DDBMonsterFeatureActivity({
       type: "utility",
       ddbMonsterFeature: this,
+      nameIdPrefix: "utility",
+      nameIdPostfix: this.type,
     });
 
     utilityActivity.build({
-      generateActivation: true,
       generateRange: this.templateType !== "weapon",
       generateDamage: this.templateType !== "weapon",
     });
@@ -1067,10 +1101,11 @@ ${this.feature.system.description.value}
     const healActivity = new DDBMonsterFeatureActivity({
       type: "heal",
       ddbMonsterFeature: this,
+      nameIdPrefix: "heal",
+      nameIdPostfix: this.type,
     });
 
     healActivity.build({
-      generateActivation: true,
       generateDamage: false,
       generateHealing: true,
       generateRange: true,
@@ -1085,6 +1120,8 @@ ${this.feature.system.description.value}
     const damageActivity = new DDBMonsterFeatureActivity({
       type: "damage",
       ddbMonsterFeature: this,
+      nameIdPrefix: "damage",
+      nameIdPostfix: this.type,
     });
 
     damageActivity.build({
@@ -1101,6 +1138,8 @@ ${this.feature.system.description.value}
     const enchantActivity = new DDBMonsterFeatureActivity({
       type: "enchant",
       ddbMonsterFeature: this,
+      nameIdPrefix: "enchant",
+      nameIdPostfix: this.type,
     });
 
     enchantActivity.build({
@@ -1115,6 +1154,8 @@ ${this.feature.system.description.value}
     const summonActivity = new DDBMonsterFeatureActivity({
       type: "summon",
       ddbMonsterFeature: this,
+      nameIdPrefix: "summon",
+      nameIdPostfix: this.type,
     });
 
     summonActivity.build({
@@ -1127,13 +1168,11 @@ ${this.feature.system.description.value}
 
   _getActivitiesType() {
     // lets see if we have a save stat for things like Dragon born Breath Weapon
-    if (this.isAttack) {
-      return "attack";
-    } else if (this.actionInfo.save?.dc) {
-      return "save";
-    }
-    // TODO: can we determine if utility, heal or damage?
-    return "utility";
+    if (this.healingAction) return "heal";
+    if (this.isAttack) return "attack";
+    if (this.actionInfo.save?.dc) return "save";
+    // TODO: can we determine if utility or damage?
+    return null;
   }
 
   getActivity({ typeOverride = null, typeFallback = null } = {}) {
@@ -1166,7 +1205,7 @@ ${this.feature.system.description.value}
       typeOverride: this.featureEnricher.activity?.type ?? this.activityType,
     });
 
-    console.warn(`Monster Feature Activity Check for ${this.data.name}`, {
+    console.warn(`Monster Feature Activity Check for ${this.feature.name}`, {
       this: this,
       activity,
       activityType: this.featureEnricher.activity?.type ?? this.activityType,
@@ -1176,7 +1215,7 @@ ${this.feature.system.description.value}
 
     this.featureEnricher.applyActivityOverride(activity.data);
     this.activities.push(activity);
-    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
+    foundry.utils.setProperty(this.feature, `system.activities.${activity.data._id}`, activity.data);
 
     return activity.data._id;
   }
@@ -1206,6 +1245,8 @@ ${this.feature.system.description.value}
         logger.error(`Unknown action parsing type ${this.type}`, { DDBFeature: this });
         throw new Error(`Unknown action parsing type ${this.type}`);
     }
+
+    this._generateActivity();
 
     foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.damage", this.actionInfo.damage);
     foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.baseAbility", this.actionInfo.baseAbility);

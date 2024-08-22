@@ -23,6 +23,7 @@ import { banishmentEffect } from "./spells/banishment.js";
 import { barkskinEffect } from "./spells/barkskin.js";
 import { beaconofHopeEffect } from "./spells/beaconofHope.js";
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
+import { bladeWardEffect } from "./spells/bladeWard.js";
 import { blessEffect } from "./spells/bless.js";
 import { blindnessDeafnessEffect } from "./spells/blindnessDeafness.js";
 import { blurEffect } from "./spells/blur.js";
@@ -189,6 +190,10 @@ async function basicSpellEffects(document) {
     case "Evard's Black Tentacles":
     case "Black Tentacles": {
       document = await blackTentaclesEffect(document);
+      break;
+    }
+    case "Blade Ward": {
+      document = bladeWardEffect(document);
       break;
     }
     case "Bless": {
@@ -697,6 +702,7 @@ async function midiEffectAdjustment(document) {
 
 
 export async function spellEffectAdjustment(document, midiEffects = false) {
+  if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
   if (!document.effects) document.effects = [];
   document = await basicSpellEffects(document);
   if (midiEffects) document = await midiEffectAdjustment(document);

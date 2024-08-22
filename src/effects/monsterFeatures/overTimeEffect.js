@@ -161,9 +161,10 @@ export function getMonsterFeatureDamage(damageText, featureDoc = null) {
   const preParsed = foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionInfo.damage");
   if (preParsed) return preParsed;
   logger.debug("Monster feature damage miss", { damageText, featureDoc });
+  // todo : refactor for activities
   const feature = new DDBMonsterFeature("overTimeFeature", { html: damageText });
   feature.prepare();
-  feature.generateExtendedDamageInfo();
+  feature.generateDamageInfo();
   return feature.actionInfo.damage;
 }
 
@@ -239,6 +240,7 @@ export function generateOverTimeEffect(actor, document) {
     return effectCleanup(document, actor, effect);
   }
 
+  // todo : refactor for activities
   const saveFeature = new DDBMonsterFeature("overTimeSaveFeature", { html: document.system.description.value });
   saveFeature.prepare();
   const save = saveFeature.getFeatSave();

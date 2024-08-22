@@ -2,6 +2,7 @@ import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 
 export default class DDBSpellActivity {
 
@@ -322,23 +323,23 @@ export default class DDBSpellActivity {
   }
 
   _buildDamagePart({ damageString, type } = {}) {
-    const damage = {
-      number: null,
-      denomination: null,
-      bonus: "",
-      types: type ? [type] : [],
-      custom: {
-        enabled: false,
-        formula: "",
-      },
-      scaling: {
-        mode: "", // whole, half or ""
-        number: null,
-        formula: "",
-      },
-    };
+    // const damage = {
+    //   number: null,
+    //   denomination: null,
+    //   bonus: "",
+    //   types: type ? [type] : [],
+    //   custom: {
+    //     enabled: false,
+    //     formula: "",
+    //   },
+    //   scaling: {
+    //     mode: "", // whole, half or ""
+    //     number: null,
+    //     formula: "",
+    //   },
+    // };
 
-    DDBHelper.parseBasicDamageFormula(damage, damageString);
+    const damage = DDBBasicActivity.buildDamagePart({ damageString, type });
 
     const scaling = this.getScaling();
     damage.scaling.mode = scaling.mode;

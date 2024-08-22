@@ -1,20 +1,6 @@
+import utils from "../../../lib/utils.js";
+import logger from "../../../logger.js";
 
-// game.dnd5e.documents.activity
-// ActivityMixin(…)
-// AttackActivity(…)
-// DamageActivity(…)
-// EnchantActivity(…)
-// HealActivity(…)
-// SaveActivity(…)
-// SummonActivity(…)
-// UtilityActivity(…)
-
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
-import DDBBaseFeature from "../features/DDBBaseFeature.js";
-
-
-// CONFIG.DND5E.activityTypes
 
 export default class DDBMonsterFeatureActivity {
 
@@ -48,6 +34,7 @@ export default class DDBMonsterFeatureActivity {
     this.ddbMonsterFeature = ddbMonsterFeature;
     this.feature = ddbMonsterFeature.feature;
     this.actor = ddbMonsterFeature.ddbMonster.npc;
+    this.actionInfo = ddbMonsterFeature.actionInfo;
 
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
@@ -57,19 +44,8 @@ export default class DDBMonsterFeatureActivity {
 
   }
 
-  // note spells do not have activation
   _generateActivation() {
-    const description = this.feature.system?.description?.value;
-
-    if (!description) return;
-    const actionType = DDBBaseFeature.getParsedAction(description);
-    if (!actionType) return;
-    logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
-    this.data.activation = {
-      type: actionType,
-      value: 1,
-      condition: "",
-    };
+    this.data.activation = this.actionInfo.activation;
   }
 
   _generateConsumption() {
@@ -81,6 +57,20 @@ export default class DDBMonsterFeatureActivity {
     // "hitDice"
     // "material"
     // "itemUses"
+
+    if (this.actionInfo.consumptionTargets?.length > 0) {
+      targets = this.actionInfo.consumptionTargets;
+    } else if (this.actionInfo.consumptionValue) {
+      targets.push({
+        type: "itemUses",
+        target: "",
+        value: this.actionInfo.consumptionValue,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
+    }
 
     this.data.consumption = {
       targets,
@@ -99,12 +89,12 @@ export default class DDBMonsterFeatureActivity {
   }
 
   _generateDuration() {
-    // TODO: improve duration parsing
-    this.data.duration = {
-      value: null,
-      units: "inst",
-      special: "",
-    };
+    // this.data.duration = {
+    //   value: null,
+    //   units: "inst",
+    //   special: "",
+    // };
+    this.data.duration = this.actionInfo.duration;
   }
 
   _generateEffects() {
@@ -113,32 +103,33 @@ export default class DDBMonsterFeatureActivity {
   }
 
   _generateRange() {
-    this.data.range = {
-      value: null,
-      units: "ft",
-      special: "",
-    };
+    // this.data.range = {
+    //   value: null,
+    //   units: "ft",
+    //   special: "",
+    // };
+    this.data.range = this.actionInfo.range;
   }
 
   _generateTarget() {
-    let data = {
-      template: {
-        count: "",
-        contiguous: false,
-        type: "",
-        size: "",
-        width: "",
-        height: "",
-        units: "ft",
-      },
-      affects: {
-        count: "",
-        type: "",
-        choice: false,
-        special: "",
-      },
-      prompt: true,
-    };
+    // let data = {
+    //   template: {
+    //     count: "",
+    //     contiguous: false,
+    //     type: "",
+    //     size: "",
+    //     width: "",
+    //     height: "",
+    //     units: "ft",
+    //   },
+    //   affects: {
+    //     count: "",
+    //     type: "",
+    //     choice: false,
+    //     special: "",
+    //   },
+    //   prompt: true,
+    // };
 
     // if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
     //   data = foundry.utils.mergeObject(data, {
@@ -150,9 +141,7 @@ export default class DDBMonsterFeatureActivity {
     //   });
     // }
 
-    // TODO: improve target parsing
-    this.data.target = data;
-
+    this.data.target = this.actionInfo.target;
   }
 
 
@@ -191,26 +180,22 @@ export default class DDBMonsterFeatureActivity {
   }
 
   _generateSave() {
-    this.data.save = {
-      ability: Object.keys(CONFIG.DND5E.abilities)[0],
-      dc: {
-        calculation: "",
-        formula: "",
-      },
-    };
+    this.data.save = this.actionInfo.save;
   }
 
 
-  _generateAttack({ type = "melee", unarmed = false, spell = false } = {}) {
-    let classification = unarmed
-      ? "unarmed"
-      : spell
-        ? "spell"
-        : "weapon"; // unarmed, weapon, spell
+  _generateAttack() {
+    let classification = this.ddbMonsterFeature.spellAttack
+      ? "spell"
+      : "weapon"; // unarmed, weapon, spell
+
+    let type = this.ddbMonsterFeature.rangedAttack
+      ? "ranged"
+      : "melee";
 
     const attack = {
-      ability: Object.keys(CONFIG.DND5E.abilities)[0],
-      bonus: "",
+      ability: this.actionInfo.baseAbility,
+      bonus: `${this.actionInfo.extraAttackBonus}`,
       critical: {
         threshold: undefined,
       },
@@ -240,6 +225,9 @@ export default class DDBMonsterFeatureActivity {
   } = {}) {
 
     // override set to false on object if overriding
+
+
+
 
     if (generateActivation) this._generateActivation();
     if (generateAttack) this._generateAttack();

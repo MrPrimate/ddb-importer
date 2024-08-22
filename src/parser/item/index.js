@@ -171,7 +171,7 @@ function addExtraDDBFlags(ddbItem, item) {
   foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isConsumable", ddbItem.definition.isConsumable);
   foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isContainer", ddbItem.definition.isContainer);
   foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", ddbItem.definition.isCustomItem);
-  foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isHomebrew", ddbItem.definition.isHomebrew);
+  foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.homebrew", ddbItem.definition.isHomebrew);
   foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isMonkWeapon", ddbItem.definition.isMonkWeapon);
   foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isPack", ddbItem.definition.isPack);
   foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.levelInfusionGranted", ddbItem.definition.levelInfusionGranted);

@@ -19,6 +19,7 @@ import { hasteEffect } from "./spells/haste.js";
 
 
 export async function midiItemEffects(document) {
+  if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
 
   const name = document.flags.ddbimporter?.originalName || document.name;
 
@@ -71,6 +72,7 @@ export async function midiItemEffects(document) {
  * @param {*} document
  */
 export function equipmentEffectAdjustment(document) {
+  if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
   const name = document.flags.ddbimporter?.originalName ?? document.name;
   switch (name) {
     case "Armor of Invulnerability": {

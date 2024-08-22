@@ -7,6 +7,7 @@ import { generateEffects } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
 import DDBFeatureActivity from "./DDBFeatureActivity.js";
 import DDDFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
+import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 
 
 export default class DDBBaseFeature {
@@ -402,7 +403,7 @@ export default class DDBBaseFeature {
 
     if (die || this.useScaleValueLink) {
       if (this.useScaleValueLink) {
-        DDBHelper.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
+        DDBBasicActivity.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
       } else if (die.diceString) {
         const profBonus = CONFIG.DDB.levelProficiencyBonuses.find((b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0))?.bonus;
         const replaceProf = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
@@ -412,9 +413,9 @@ export default class DDBBaseFeature {
           : die.diceString;
         const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
         const damageString = utils.parseDiceString(diceString, mods).diceString;
-        DDBHelper.parseBasicDamageFormula(damage, damageString);
+        DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
       } else if (fixedBonus) {
-        DDBHelper.parseBasicDamageFormula(damage, fixedBonus + bonusString);
+        DDBBasicActivity.parseBasicDamageFormula(damage, fixedBonus + bonusString);
       }
     }
 
@@ -493,15 +494,15 @@ export default class DDBBaseFeature {
         : utils.parseDiceString(die, `${bonusString} + @mod`).diceString;
 
       // set the weapon damage
-      DDBHelper.parseBasicDamageFormula(damage, damageString);
+      DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
     } else if (actionDie !== null && actionDie !== undefined) {
       // The Lizardfolk jaws have a different base damage, its' detailed in
       // dice so lets capture that for actions if it exists
       const damageString = utils.parseDiceString(actionDie.diceString, `${bonusString} + @mod`).diceString;
-      DDBHelper.parseBasicDamageFormula(damage, damageString);
+      DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
     } else {
       // default to basics
-      DDBHelper.parseBasicDamageFormula(damage, `1${bonusString} + @mod`);
+      DDBBasicActivity.parseBasicDamageFormula(damage, `1${bonusString} + @mod`);
     }
 
     return damage;

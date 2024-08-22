@@ -373,22 +373,21 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
     if (diceMatch) {
       if (spell.system.activities.some((a) => a.damage?.parts)) {
         const activity = spell.system.activities(Object.keys(spell.system.activities)[0]);
-          if (activity.damage?.parts) {
-            activity.damage.parts[0].number = null;
-            activity.damage.parts[0].denomination = null;
-            activity.damage.parts[0].custom = {
-              enabled: true,
-              formula: diceMatch[0],
-            };
-          } else {
-            console.error(`SPELL EDGE CASE FAILURE ${spell.name} - ${edgeCase.edge} - damage parts not found`, {
-              this: this,
-              spell,
-              type,
-              spellList,
-              edgeCase,
-            });
-          }
+        if (activity.damage?.parts) {
+          activity.damage.parts[0].number = null;
+          activity.damage.parts[0].denomination = null;
+          activity.damage.parts[0].custom = {
+            enabled: true,
+            formula: diceMatch[0],
+          };
+        } else {
+          console.error(`SPELL EDGE CASE FAILURE ${spell.name} - ${edgeCase.edge} - damage parts not found`, {
+            this: this,
+            spell,
+            type,
+            spellList,
+            edgeCase,
+          });
         }
       } else {
         console.error(`SPELL EDGE CASE FAILURE ${spell.name} - ${edgeCase.edge} - dice match not found`, {

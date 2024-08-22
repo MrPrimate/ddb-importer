@@ -41,6 +41,7 @@ export default class GenericSpellFactory {
             spellLimitedUse: spell.limitedUse,
             castAtLevel: spell.castAtLevel,
             active: active,
+            homebrew: spell.definition.isHomebrew,
           },
         },
       };
@@ -78,6 +79,7 @@ export default class GenericSpellFactory {
                 lookupName: "generic",
                 level: spell.castAtLevel,
                 castAtLevel: spell.castAtLevel,
+                homebrew: spell.definition.isHomebrew,
               },
             },
           };
@@ -150,6 +152,7 @@ export default class GenericSpellFactory {
             spellLimitedUse: spell.limitedUse,
             castAtLevel: spell.castAtLevel,
             active: active,
+            homebrew: spell.definition.isHomebrew,
           },
         },
       };

@@ -376,6 +376,7 @@ async function midiFeatureEffects(ddb, character, document) {
  */
 // eslint-disable-next-line complexity
 export async function featureEffectAdjustment(ddb, character, document, midiEffects = false) {
+  if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
   if (!document.effects) document.effects = [];
 
   const name = document.flags.ddbimporter?.originalName ?? document.name;

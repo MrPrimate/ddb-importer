@@ -77,6 +77,7 @@ export default class CharacterSpellFactory {
               healingBoost: this.healingBoost,
               usesSpellSlot: spell.usesSpellSlot,
               forceMaterial: classInfo.definition.name === "Artificer",
+              homebrew: spell.definition.isHomebrew,
             },
           },
           "spell-class-filter-for-5e": {
@@ -174,6 +175,7 @@ export default class CharacterSpellFactory {
             healingBoost: this.healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
             forceMaterial: klass?.definition?.name === "Artificer",
+            homebrew: spell.definition.isHomebrew,
           },
         },
         "tidy5e-sheet": {
@@ -274,6 +276,7 @@ export default class CharacterSpellFactory {
             entityTypeId: spell.entityTypeId,
             healingBoost: this.healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
+            homebrew: spell.definition.isHomebrew,
           },
         },
       };
@@ -324,6 +327,7 @@ export default class CharacterSpellFactory {
             entityTypeId: spell.entityTypeId,
             healingBoost: this.healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
+            homebrew: spell.definition.isHomebrew,
           },
         },
       };
@@ -363,6 +367,7 @@ export default class CharacterSpellFactory {
             entityTypeId: spell.entityTypeId,
             healingBoost: this.healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
+            homebrew: spell.definition.isHomebrew,
           },
         },
       };

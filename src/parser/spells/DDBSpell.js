@@ -81,7 +81,7 @@ export default class DDBSpell {
   constructor({
     ddbData, spellData, rawCharacter = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
-    spellClass = null, dc = null, overrideDC = null, nameOverride = null,
+    spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null,
   } = {}) {
     this.ddbData = ddbData;
     this.spellData = spellData;
@@ -114,6 +114,7 @@ export default class DDBSpell {
     this.spellClass = spellClass ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.class");
     this.dc = dc ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.dc");
     this.overrideDC = overrideDC ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.overrideDC");
+    this.isHomebrew = isHomebrew ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.homebrew");
 
     this._generateDataStub();
 

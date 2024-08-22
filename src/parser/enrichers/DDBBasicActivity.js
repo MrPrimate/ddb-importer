@@ -402,4 +402,39 @@ export default class DDBBasicActivity {
 
   }
 
+  static parseBasicDamageFormula(data, formula) {
+    const basicMatchRegex = /^\s*(\d+)d(\d+)(?:\s*([+|-])\s*(@?[\w\d.-]+))?\s*$/i;
+    const damageMatch = formula.match(basicMatchRegex);
+
+    if (damageMatch && CONFIG.DND5E.dieSteps.includes(Number(damageMatch[2]))) {
+      data.number = Number(damageMatch[1]);
+      data.denomination = Number(damageMatch[2]);
+      if (damageMatch[4]) data.bonus = damageMatch[3] === "-" ? `-${damageMatch[4]}` : damageMatch[4];
+    } else {
+      data.custom.enabled = true;
+      data.custom.formula = formula;
+    }
+  }
+
+  static buildDamagePart({ damageString, type } = {}) {
+    const damage = {
+      number: null,
+      denomination: null,
+      bonus: "",
+      types: type ? [type] : [],
+      custom: {
+        enabled: false,
+        formula: "",
+      },
+      scaling: {
+        mode: "", // whole, half or ""
+        number: null,
+        formula: "",
+      },
+    };
+
+    DDBBasicActivity.buildDamagePart(damage, damageString);
+    return damage;
+  }
+
 }
