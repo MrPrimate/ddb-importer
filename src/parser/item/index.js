@@ -189,56 +189,62 @@ function enrichFlags(ddbItem, item) {
   if (ddbItem.definition?.stackable) item.flags.ddbimporter.dndbeyond['stackable'] = ddbItem.definition.stackable;
 }
 
+function parseItemFromFilterType(ddb, ddbItem, character, flags) {
+  const name = ddbItem.definition.name;
+  let item = {};
+  switch (ddbItem.definition.filterType) {
+    case "Weapon": {
+      if (ddbItem.definition.type === "Ammunition" || ddbItem.definition.subType === "Ammunition") {
+        item = parseAmmunition(ddbItem, "Ammunition");
+      } else {
+        item = parseWeapon(ddbItem, character, flags);
+      }
+      break;
+    }
+    case "Armor":
+      item = parseArmor(ddbItem, character, flags);
+      break;
+    case "Ring":
+    case "Wondrous item": {
+      if ([
+        "bead of",
+        "dust of",
+        "elemental gem",
+      ].some((consumablePrefix) => name.toLowerCase().startsWith(consumablePrefix.toLowerCase()))) {
+        item = parseConsumable(ddbItem, { consumableTypeOverride: "trinket", ddbTypeOverride: ddbItem.definition.type });
+      } else {
+        item = parseWonderous(ddbItem);
+      }
+      break;
+    }
+    case "Scroll":
+    case "Wand":
+    case "Rod":
+      item = parseConsumable(ddbItem);
+      break;
+    case "Staff":
+      item = parseStaff(ddbItem, character);
+      break;
+    case "Potion":
+      item = parseConsumable(ddbItem, { consumableTypeOverride: "potion", ddbTypeOverride: ddbItem.definition.type });
+      break;
+    case "Other Gear":
+      item = otherGear(ddb, ddbItem);
+      break;
+    default:
+      logger.warn("Item filterType not implemented for " + ddbItem.definition.name, ddbItem);
+      break;
+  }
+  return item;
+}
+
 // the filter type "Other Gear" represents the equipment while the other filters represents the magic items in ddb
 function parseItem(ddb, ddbItem, character, flags) {
   try {
     // is it a weapon?
     let item = {};
-    const name = ddbItem.definition.name;
     if (ddbItem.definition.filterType) {
-      switch (ddbItem.definition.filterType) {
-        case "Weapon": {
-          if (ddbItem.definition.type === "Ammunition" || ddbItem.definition.subType === "Ammunition") {
-            item = parseAmmunition(ddbItem, "Ammunition");
-          } else {
-            item = parseWeapon(ddbItem, character, flags);
-          }
-          break;
-        }
-        case "Armor":
-          item = parseArmor(ddbItem, character, flags);
-          break;
-        case "Ring":
-        case "Wondrous item": {
-          if ([
-            "bead of",
-            "dust of",
-            "elemental gem",
-          ].some((consumablePrefix) => name.toLowerCase().startsWith(consumablePrefix.toLowerCase()))) {
-            item = parseConsumable(ddbItem, { consumableTypeOverride: "trinket", ddbTypeOverride: ddbItem.definition.type });
-          } else {
-            item = parseWonderous(ddbItem);
-          }
-          break;
-        }
-        case "Scroll":
-        case "Wand":
-        case "Rod":
-          item = parseConsumable(ddbItem);
-          break;
-        case "Staff":
-          item = parseStaff(ddbItem, character);
-          break;
-        case "Potion":
-          item = parseConsumable(ddbItem, { consumableTypeOverride: "potion", ddbTypeOverride: ddbItem.definition.type });
-          break;
-        case "Other Gear":
-          item = otherGear(ddb, ddbItem);
-          break;
-        default:
-          logger.warn("Item filterType not implemented for " + ddbItem.definition.name, ddbItem);
-          break;
-      }
+      item = parseItemFromFilterType(ddb, ddbItem, character, flags);
     } else {
       // try parsing it as a custom item
       item = parseCustomItem(ddbItem);
@@ -442,8 +448,6 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
   let items = [];
 
   // TODO: rework for activities
-
-  return items;
 
   // first, check custom name, price or weight
   this.source.ddb.character.characterValues.forEach((cv) => {
