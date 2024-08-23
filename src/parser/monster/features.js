@@ -46,6 +46,10 @@ DDBMonster.prototype._generateFeatures = async function () {
     ...this.featureFactory.villain,
   );
 
+  this.items.forEach((item, i) => {
+    if (!item.sort) item.sort = i;
+  });
+
   // add any actor descriptions found in action blocks into the biography
   if (this.featureFactory.characterDescription.unexpected) {
     logger.warn(`Unexpected description for ${this.source.name}`, { description: this.featureFactory.characterDescription });

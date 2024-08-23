@@ -402,7 +402,7 @@ export default class DDBBasicActivity {
 
   }
 
-  static parseBasicDamageFormula(data, formula) {
+  static parseBasicDamageFormula(data, formula, { stripMod = false } = {}) {
     const basicMatchRegex = /^\s*(\d+)d(\d+)(?:\s*([+|-])\s*(@?[\w\d.-]+))?\s*$/i;
     const damageMatch = formula.match(basicMatchRegex);
 
@@ -410,13 +410,14 @@ export default class DDBBasicActivity {
       data.number = Number(damageMatch[1]);
       data.denomination = Number(damageMatch[2]);
       if (damageMatch[4]) data.bonus = damageMatch[3] === "-" ? `-${damageMatch[4]}` : damageMatch[4];
+      if (stripMod) data.bonus = data.bonus.replace(/@mod/, "").trim().replace(/^\+/, "").trim();
     } else {
       data.custom.enabled = true;
       data.custom.formula = formula;
     }
   }
 
-  static buildDamagePart({ damageString, type } = {}) {
+  static buildDamagePart({ damageString, type, stripMod = false } = {}) {
     const damage = {
       number: null,
       denomination: null,
@@ -433,7 +434,7 @@ export default class DDBBasicActivity {
       },
     };
 
-    DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
+    DDBBasicActivity.parseBasicDamageFormula(damage, damageString, { stripMod });
     return damage;
   }
 

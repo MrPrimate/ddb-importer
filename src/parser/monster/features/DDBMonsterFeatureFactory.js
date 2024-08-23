@@ -322,9 +322,9 @@ export default class DDBMonsterFeatureFactory {
 
 
     // build out skeleton actions
-    dom.querySelectorAll("strong").forEach((node) => {
+    dom.querySelectorAll("strong").forEach((node, i) => {
       const name = node.textContent.trim().replace(/\.$/, '').trim();
-      const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false } };
+      const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false, sort: i + 1 } };
 
       const actionMatch = this.features["action"].concat(
         this.features.reaction,
@@ -342,8 +342,13 @@ export default class DDBMonsterFeatureFactory {
         dupFeature.feature = foundry.utils.duplicate(actionMatch.feature);
         dupFeature.feature._id = foundry.utils.randomID();
         dupFeature.feature.name = action.name; // fix up name to make sure things like Attack are included
+        Object.keys(dupFeature.feature.system.activities).forEach((id) => {
+          dupFeature.feature.system.activities[id].activation.type = "legendary";
+        });
+        dupFeature.feature.sort = i + 1;
         this.features[type].push(dupFeature);
         action.options.actionCopy = true;
+        action.options.sort = i + 1;
       }
       this.featureBlocks[type].push(action);
 
@@ -358,8 +363,8 @@ export default class DDBMonsterFeatureFactory {
         let startFlag = false;
         const actionMatch = node.textContent.match(/can take (d+) legendary actions/);
         if (actionMatch) {
-          this.resource.legendary.value = parseInt(actionMatch[1]);
-          this.resource.legendary.max = parseInt(actionMatch[1]);
+          this.resources.legendary.value = parseInt(actionMatch[1]);
+          this.resources.legendary.max = parseInt(actionMatch[1]);
         }
 
         const nodeName = node.textContent.split('.')[0].trim();
@@ -595,11 +600,13 @@ export default class DDBMonsterFeatureFactory {
 
     // some features are duplicated and we parse these first
     for (const feature of this.features[type]) {
+      // console.warn({ deep: deepClone(feature), this: this, feature });
       await feature.parse();
     }
 
     // parse remaining feature blocks
     for (const feature of this.featureBlocks[type].filter((feature) => !feature.options.actionCopy)) {
+      logger.debug(`Generating Feature ${feature.name} for ${this.ddbMonster.name}`, { feature });
       feature.options["hideDescription"] = this.hideDescription;
       feature.options["updateExisting"] = this.updateExisting;
       const ddbFeature = new DDBMonsterFeature(feature.name, feature.options);

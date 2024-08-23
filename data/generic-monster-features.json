@@ -1,5 +1,13 @@
 [
   {
+    "name": "Amphibious",
+    "path": "icons/environment/creatures/frog-spotted-green.webp"
+  },
+  {
+    "name": "Claw",
+    "path": "icons/skills/melee/strike-slashes-red.webp"
+  },
+  {
     "name": "Cacophony",
     "path": "icons/magic/air/wind-tornado-spiral-brown.webp"
   },
@@ -3945,7 +3953,7 @@
   },
   {
     "name": "Legendary Resistance",
-    "path": "icons/magic/water/orb-water-bubbles.webp"
+    "path": "icons/equipment/shield/kite-wooden-oak-glow.webp"
   },
   {
     "name": "Leviathan Will",

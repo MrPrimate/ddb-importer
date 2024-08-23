@@ -127,12 +127,21 @@ function getIconPath(item, type, monsterName) {
   });
 
   if (!iconMatch && type === "monster") {
-    const genericMonsterIconMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => {
+    const genericMonsterIconMatch = CONFIG.DDBI.ICONS[typeValue]
+      .filter((entry) => !entry.monster)
+      .find((entry) => {
+        const sanitisedName = sanitiseName(entry.name);
+        const sanitisedItemName = sanitiseName(item.name);
+        return sanitisedName === sanitisedItemName;
+      });
+    if (genericMonsterIconMatch) return genericMonsterIconMatch.path;
+
+    const anyMonsterIconMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => {
       const sanitisedName = sanitiseName(entry.name);
       const sanitisedItemName = sanitiseName(item.name);
       return sanitisedName === sanitisedItemName;
     });
-    if (genericMonsterIconMatch) return genericMonsterIconMatch.path;
+    if (anyMonsterIconMatch) return anyMonsterIconMatch.path;
   }
 
   if (iconMatch) {

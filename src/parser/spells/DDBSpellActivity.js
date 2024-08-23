@@ -1,5 +1,4 @@
 import DICTIONARY from "../../dictionary.js";
-import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";

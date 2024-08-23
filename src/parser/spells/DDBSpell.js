@@ -282,6 +282,7 @@ export default class DDBSpell {
         units = this.spellDefinition.duration.durationType.toLowerCase().substring(0, 4);
       }
       this.data.system.duration = {
+        concentration: this.spellDefinition.concentration,
         value: this.spellDefinition.duration.durationInterval ?? "",
         units: units,
       };

@@ -200,6 +200,7 @@ export function generateConditionOnlyEffect(actor, document) {
   logger.debug(`Checking for condition effects for ${document.name} on ${actor.name}`);
   if (!document.effects) document.effects = [];
   let effect = baseMonsterFeatureEffect(document, `${document.name}`);
+  effect._id = foundry.utils.randomID();
   // add any condition effects
   const conditionResults = generateConditionEffect(effect, document.system.description.value, document.name);
   effect = conditionResults.effect;
@@ -210,6 +211,15 @@ export function generateConditionOnlyEffect(actor, document) {
   foundry.utils.setProperty(effect, "duration.seconds", durationSeconds);
   const durationRounds = Number.parseInt(durationSeconds / 6);
   foundry.utils.setProperty(effect, "duration.rounds", durationRounds);
+
+  Object.keys(document.system.activities).forEach((id) => {
+    document.system.activities[id].effects.push(
+      {
+        "_id": effect._id,
+        "onSave": false,
+      },
+    );
+  });
 
   const result = effectCleanup(document, actor, effect);
   return result;

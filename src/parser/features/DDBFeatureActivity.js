@@ -247,9 +247,8 @@ export default class DDBFeatureActivity {
 
   }
 
-
   _generateDamage(includeBase = false) {
-    // TODO revisit or multipart damage parsing
+    // TODO revisit for multipart damage parsing
     if (!this.ddbFeature.getDamage) return undefined;
     const damage = this.ddbFeature.getDamage();
 

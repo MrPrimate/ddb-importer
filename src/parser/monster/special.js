@@ -1,6 +1,11 @@
 // these are non-compliant monsters that currently don't meet parsing requirements
+
+import utils from "../../lib/utils.js";
+
 // these are temporary work arounds till parsing is fixed.
 export function specialCases(monster) {
+  //todo: move
+  return monster;
   switch (monster.name) {
     case "Reduced-threat Aboleth":
     case "Aboleth": {
@@ -153,7 +158,7 @@ export function specialCases(monster) {
   if (magicWeapons) {
     monster.items.forEach(function (item, index) {
       if (item.type === "weapon") {
-        this[index].system.properties.mgc = true;
+        utils.addToProperties(this[index].system.properties, "mgc");
       }
     }, monster.items);
   }

@@ -89,11 +89,6 @@ export default class DDBMonsterFeatureActivity {
   }
 
   _generateDuration() {
-    // this.data.duration = {
-    //   value: null,
-    //   units: "inst",
-    //   special: "",
-    // };
     this.data.duration = this.actionInfo.duration;
   }
 
@@ -103,52 +98,27 @@ export default class DDBMonsterFeatureActivity {
   }
 
   _generateRange() {
-    // this.data.range = {
-    //   value: null,
-    //   units: "ft",
-    //   special: "",
-    // };
     this.data.range = this.actionInfo.range;
   }
 
   _generateTarget() {
-    // let data = {
-    //   template: {
-    //     count: "",
-    //     contiguous: false,
-    //     type: "",
-    //     size: "",
-    //     width: "",
-    //     height: "",
-    //     units: "ft",
-    //   },
-    //   affects: {
-    //     count: "",
-    //     type: "",
-    //     choice: false,
-    //     special: "",
-    //   },
-    //   prompt: true,
-    // };
-
-    // if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
-    //   data = foundry.utils.mergeObject(data, {
-    //     template: {
-    //       type: DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value ?? "",
-    //       size: this.ddbDefinition.range.aoeSize,
-    //       width: "",
-    //     },
-    //   });
-    // }
-
     this.data.target = this.actionInfo.target;
   }
 
+  _getFeaturePartsDamage() {
+    let baseParts = this.ddbMonsterFeature.templateType === "weapon"
+      ? this.actionInfo.damageParts.slice(1)
+      : this.actionInfo.damageParts;
 
-  _generateDamage(includeBase = false) {
+    return baseParts;
+  }
+
+  _generateDamage({ parts = [], includeBase = true } = {}) {
     this.data.damage = {
       includeBase,
-      parts: [],
+      parts: parts.length > 0
+        ? parts
+        : this._getFeaturePartsDamage().map((data) => data.part),
     };
 
     // damage: {
@@ -162,21 +132,13 @@ export default class DDBMonsterFeatureActivity {
     // }
   }
 
-  _generateHealing(includeBase = false) {
+  _generateHealing({ parts = [], includeBase = false } = {}) {
     this.data.healing = {
       includeBase,
-      parts: [],
+      parts: parts.length > 0
+        ? parts
+        : this.actionInfo.healingParts.map((data) => data.part),
     };
-
-    // damage: {
-    //   critical: {
-    //     allow: false,
-    //     bonus: source.system.critical?.damage
-    //   },
-    //   onSave: (source.type === "spell") && (source.system.level === 0) ? "none" : "half",
-    //   includeBase: true,
-    //   parts: damageParts.map(part => this.transformDamagePartData(source, part)) ?? []
-    // }
   }
 
   _generateSave() {
@@ -211,6 +173,7 @@ export default class DDBMonsterFeatureActivity {
   }
 
   build({
+    damageParts = [],
     generateActivation = true,
     generateAttack = false,
     generateConsumption = true,
@@ -222,12 +185,10 @@ export default class DDBMonsterFeatureActivity {
     generateRange = true,
     generateSave = false,
     generateTarget = true,
+    includeBaseDamage = true,
   } = {}) {
 
     // override set to false on object if overriding
-
-
-
 
     if (generateActivation) this._generateActivation();
     if (generateAttack) this._generateAttack();
@@ -239,8 +200,8 @@ export default class DDBMonsterFeatureActivity {
     if (generateTarget) this._generateTarget();
 
     if (generateSave) this._generateSave();
-    if (generateDamage) this._generateDamage();
-    if (generateHealing) this._generateHealing();
+    if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage });
+    if (generateHealing) this._generateHealing({ parts: damageParts, includeBase: includeBaseDamage });
 
 
     // ATTACK has
