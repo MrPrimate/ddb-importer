@@ -11,6 +11,7 @@ The 4.0.x fundementally changes the structure of how documents are constructed i
 - Source parsing will now default to short names rather than long names, due to changes in new monster character sheet.
 - Changes to default description processing for features on character import.
 - Shadar Kai now gain resistance to magical sleep.
+- Monster Muncher/Importer now batches monsters to reduce long UI pauses.
 
 
 # 5.2.30
