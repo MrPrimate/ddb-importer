@@ -190,6 +190,23 @@ export default class DDBMonsterFeatureActivity {
 
     // override set to false on object if overriding
 
+    logger.debug(`Generating Activity for ${this.ddbMonsterFeature.name}`, {
+      damageParts,
+      generateActivation,
+      generateAttack,
+      generateConsumption,
+      generateDamage,
+      generateDescription,
+      generateDuration,
+      generateEffects,
+      generateHealing,
+      generateRange,
+      generateSave,
+      generateTarget,
+      includeBaseDamage,
+      this: this,
+    });
+
     if (generateActivation) this._generateActivation();
     if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption();

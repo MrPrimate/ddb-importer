@@ -293,7 +293,7 @@ export default class DDBMonsterFactory {
     await this.compendiumFolders.loadCompendium("monsters");
     this.munchNote("", true);
 
-    this.totalDocuments = this.source.length + 1;
+    this.totalDocuments = this.source.length;
 
     for (let i = 0; i < this.source.length; i += 100) {
       const sourceDocuments = this.source.slice(i, i + 100);
