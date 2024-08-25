@@ -72,7 +72,7 @@ export default class DDBItem {
 
     this.ddbData = ddbData;
     this.ddbItem = ddbItem;
-    this.ddbDefinition = this.ddbDefinition;
+    this.ddbDefinition = ddbItem.definition;
     this.rawCharacter = rawCharacter;
     this.isCompendiumItem = isCompendium;
     foundry.utils.setProperty(this.ddbItem, "isCompendiumItem", isCompendium);
@@ -220,8 +220,6 @@ export default class DDBItem {
   }
 
   #determineOtherGearTypeIdOneType() {
-    let item = {};
-
     switch (this.ddbDefinition.subType) {
       case "Potion":
         this.documentType = "consumable";
