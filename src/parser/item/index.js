@@ -29,129 +29,9 @@ import parseCustomItem from "./custom.js";
 
 import { getAttunement, getBaseItem, getPrice } from "./common.js";
 import utils from "../../lib/utils.js";
+import DDBItem from "./DDBItem.js";
 
-const CLOTHING_ITEMS = [
-  "Helm",
-  "Boots",
-  "Snowshoes",
-  "Vestments",
-  "Saddle, Exotic",
-  "Saddle, Military",
-  "Saddle, Pack",
-  "Saddle, Riding",
-];
 
-const EQUIPMENT_TRINKET = [
-  "Canoe",
-  "Censer",
-  "Crowbar",
-  "Grenade Launcher",
-  "Hammer",
-  "Hammer, Sledge",
-  "Hourglass",
-  "Ladder (10 foot)",
-  "Mess Kit",
-  "Mirror, Steel",
-  "Pick, Miner's",
-  "Pole (10-foot)",
-  "Shovel",
-  "Signal Whistle",
-  "Small Knife",
-  "Spellbook",
-  "Spyglass",
-  "Tent, Two-Person",
-  "Whetstone",
-];
-
-function getItemFromGearTypeIdOne(ddb, ddbItem) {
-  let item = {};
-
-  switch (ddbItem.definition.subType) {
-    case "Potion":
-      item = parseConsumable(ddbItem, { consumableTypeOverride: "potion", ddbTypeOverride: ddbItem.definition.subType });
-      break;
-    case "Tool":
-      item = parseTool(ddb, ddbItem, ddbItem.definition.subType);
-      break;
-    case "Ammunition":
-      item = parseAmmunition(ddbItem, ddbItem.definition.subType);
-      break;
-    case "Arcane Focus":
-    case "Holy Symbol":
-    case "Druidic Focus":
-      item = parseWonderous(ddbItem, { ddbTypeOverride: ddbItem.definition.subType });
-      break;
-    case "Mount":
-      item = parseLoot(ddbItem, "Mount");
-      break;
-    case "Vehicle":
-      item = parseLoot(ddbItem, "Vehicle");
-      break;
-    default: {
-      const isContainerTag = ddbItem.definition.tags.includes('Container');
-      const isOuterwearTag = ddbItem.definition.tags.includes('Outerwear')
-        || ddbItem.definition.tags.includes('Footwear');
-      if ((!ddbItem.definition.isContainer && isOuterwearTag && !isContainerTag)
-        || CLOTHING_ITEMS.includes(ddbItem.definition.name)
-      ) {
-        item = parseWonderous(ddbItem, { ddbTypeOverride: "Clothing", armorType: "clothing" });
-      } else if (EQUIPMENT_TRINKET.includes(ddbItem.definition.name)) {
-        item = parseWonderous(ddbItem, { ddbTypeOverride: ddbItem.definition.subType });
-      } else {
-        item = parseLoot(ddbItem, ddbItem.definition.subType);
-      }
-    }
-  }
-  return item;
-}
-
-function fallbackParse(ddb, ddbItem) {
-  if (ddbItem.definition.name.includes(" Ring")) {
-    return parseWonderous(ddbItem, { ddbTypeOverride: "Ring" });
-  } else if (ddbItem.definition.subType) {
-    return parseLoot(ddbItem, ddbItem.definition.subType);
-  } else {
-    return parseLoot(ddbItem, "Miscellaneous");
-  }
-}
-
-function otherGear(ddb, ddbItem) {
-  let item = {};
-
-  switch (ddbItem.definition.gearTypeId) {
-    case 1:
-      item = getItemFromGearTypeIdOne(ddb, ddbItem);
-      break;
-    case 4:
-      item = parseLoot(ddbItem, "Mount");
-      break;
-    case 5:
-      item = parseConsumable(ddbItem, { consumableTypeOverride: "potion", ddbTypeOverride: "Poison" });
-      break;
-    case 6:
-      item = parseConsumable(ddbItem, { consumableTypeOverride: "potion", ddbTypeOverride: "Potion" });
-      break;
-    case 11:
-      item = parseTool(ddb, ddbItem, "Tool");
-      break;
-    case 12:
-    case 17:
-    case 19:
-      item = parseLoot(ddbItem, "Vehicle");
-      break;
-    case 16:
-      item = parseLoot(ddbItem, "Equipment Pack");
-      break;
-    case 18:
-      // Change to parseGemstone (consummable) ?
-      item = parseLoot(ddbItem, "Gemstone");
-      break;
-    default:
-      item = fallbackParse(ddb, ddbItem);
-      logger.warn("Other Gear type missing from " + ddbItem.definition.name, ddbItem);
-  }
-  return item;
-}
 
 function addExtraDDBFlags(ddbItem, item) {
   item.flags.ddbimporter['id'] = ddbItem.id;
@@ -281,166 +161,6 @@ function parseItem(ddb, ddbItem, character, flags) {
 }
 
 
-/**
- * We get extra damage to a weapon attack here, for example Improved
- * Divine Smite
- * @param {*} data
- * @param {*} restrictions (array)
- */
-function getExtraDamage(ddb, restrictions) {
-  return DDBHelper.filterBaseModifiers(ddb, "damage", { restriction: restrictions }).map((mod) => {
-    const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
-    if (die) {
-      return [die.diceString, mod.subType];
-    } else if (mod.value) {
-      return [mod.value, mod.subType];
-    } else {
-      return [null, null];
-    }
-  });
-}
-
-function isMartialArtists(classes) {
-  return classes.some((cls) => cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts"));
-}
-
-function getWarlockFeatures(ddb, weapon) {
-  // Some features, notably hexblade abilities we scrape out here
-  const warlockFeatures = ddb.character.characterValues
-    .filter(
-      (characterValue) =>
-        characterValue.value
-        && characterValue.valueId == weapon.id
-        && DICTIONARY.character.characterValuesLookup.some(
-          (entry) => entry.typeId == characterValue.typeId,
-        ),
-    )
-    .map(
-      (characterValue) =>
-        DICTIONARY.character.characterValuesLookup.find(
-          (entry) => entry.typeId == characterValue.typeId,
-        ).name,
-    );
-
-  // Any Pact Weapon Features
-  const pactFeatures = ddb.character.options.class
-    .filter(
-      (option) =>
-        warlockFeatures.includes("pactWeapon")
-        && option.definition.name
-        && DICTIONARY.character.pactFeatures.includes(option.definition.name),
-    )
-    .map((option) => option.definition.name);
-
-  const features = warlockFeatures.concat(pactFeatures);
-  return features;
-}
-
-function getMonkFeatures(ddb, weapon) {
-  const kenseiWeapon = DDBHelper.getChosenClassModifiers(ddb).some((mod) =>
-    mod.friendlySubtypeName === weapon.definition.type
-    && mod.type === "kensei",
-  );
-
-  const monkWeapon = DDBHelper.getChosenClassModifiers(ddb).some((mod) =>
-    mod.friendlySubtypeName === weapon.definition.type
-    && mod.type == "monk-weapon",
-  ) || (weapon.definition.isMonkWeapon && isMartialArtists(ddb.character.classes));
-
-  let features = [];
-
-  if (kenseiWeapon) features.push("kenseiWeapon");
-  if (monkWeapon) features.push("monkWeapon");
-
-  return features;
-}
-
-
-function getMartialArtsDie(ddb) {
-  let result = {
-    diceCount: null,
-    diceMultiplier: null,
-    diceString: null,
-    diceValue: null,
-    fixedValue: null,
-  };
-
-  const die = ddb.character.classes
-    // is a martial artist
-    .filter((cls) => cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts"))
-    // get class features
-    .map((cls) => cls.classFeatures)
-    .flat()
-    // filter relevant features, those that are martial arts and have a levelscaling hd
-    .filter((feature) => feature.definition.name === "Martial Arts" && feature.levelScale && feature.levelScale.dice)
-    // get this dice object
-    .map((feature) => feature.levelScale.dice);
-
-  if (die && die.length > 0) {
-    result = die[0];
-  }
-
-  return result;
-
-}
-
-function getClassFeatures(ddb, weapon) {
-  const warlockFeatures = getWarlockFeatures(ddb, weapon);
-  const monkFeatures = getMonkFeatures(ddb, weapon);
-  return warlockFeatures.concat(monkFeatures);
-}
-
-DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
-  const ddb = this.source.ddb;
-  const character = this.raw.character;
-  let flags = {
-    damage: {
-      parts: [],
-    },
-    // Some features, notably hexblade abilities we scrape out here
-    classFeatures: getClassFeatures(ddb, ddbItem),
-    martialArtsDie: getMartialArtsDie(ddb),
-    maxMediumArmorDex: Math.max(
-      ...DDBHelper.filterBaseModifiers(ddb, "set", { subType: "ac-max-dex-armored-modifier", includeExcludedEffects: true }).map((mod) => mod.value),
-      ...DDBHelper.filterModifiersOld(ddbItem.definition?.grantedModifiers ?? ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-armored-modifier", ["", null], true).map((mod) => mod.value),
-      ...DDBHelper.filterModifiersOld(ddbItem.definition?.grantedModifiers ?? ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-modifier", ["", null], true).map((mod) => mod.value),
-      2,
-    ),
-    magicItemAttackInt: DDBHelper.filterBaseModifiers(ddb, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0,
-  };
-
-  if (flags.classFeatures.includes("Lifedrinker")) {
-    flags.damage.parts.push(["@abilities.cha.mod", "necrotic"]);
-  }
-
-  // for melee attacks get extras
-  if (ddbItem.definition.attackType === 1) {
-    // get improved divine smite etc for melee attacks
-    const extraDamage = getExtraDamage(ddb, ["Melee Weapon Attacks"]);
-
-    if (!!extraDamage.length > 0) {
-      flags.damage.parts = flags.damage.parts.concat(extraDamage);
-    }
-    // do we have great weapon fighting?
-    if (DDBHelper.hasChosenCharacterOption(ddb, "Great Weapon Fighting")) {
-      flags.classFeatures.push("greatWeaponFighting");
-    }
-    // do we have two weapon fighting style?
-    if (DDBHelper.hasChosenCharacterOption(ddb, "Two-Weapon Fighting")) {
-      flags.classFeatures.push("Two-Weapon Fighting");
-    }
-    if (DDBHelper.getCustomValueFromCharacter(ddbItem, character, 18)) {
-      flags.classFeatures.push("OffHand");
-    }
-  }
-  // ranged fighting style is added as a global modifier elsewhere
-  // as is defensive style
-
-  logger.debug(`Flags for ${ddbItem.name ?? ddbItem.definition.name}`, { ddbItem, flags });
-
-  return flags;
-};
-
 // TO DO: revisit to break up item parsing
 // eslint-disable-next-line complexity
 DDBCharacter.prototype.getInventory = async function getInventory() {
@@ -468,15 +188,18 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
     : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
 
   for (let ddbItem of this.source.ddb.character.inventory) {
-    const originalName = ddbItem.definition.name;
-    const adjustedName = DDBHelper.getName(this.source.ddb, ddbItem, this.raw.character);
-    const flags = this.getItemFlags(ddbItem);
-    foundry.utils.setProperty(ddbItem, "isCompendiumItem", isCompendiumItem);
 
-    const updateExisting = isCompendiumItem
-      ? game.settings.get("ddb-importer", "munching-policy-update-existing")
-      : false;
-    ddbItem.definition.description = await generateTable(adjustedName, ddbItem.definition.description, updateExisting);
+    const itemParser = new DDBItem({
+      ddbData: this.source.ddb,
+      ddbItem,
+      isCompendium: isCompendiumItem,
+      rawCharacter: this.raw.character,
+    });
+
+    await itemParser.build();
+
+    let item = Object.assign({}, itemParser.data);
+
 
     let item = Object.assign({}, parseItem(this.source.ddb, ddbItem, this.raw.character, flags));
 

@@ -1,21 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
 
-export function getDescription(data, document) {
-  const chatSnippet = data.definition.snippet ? data.definition.snippet : "";
-  const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
-
-  const attunementText = data.definition.canAttune && data.definition.attunementDescription && data.definition.attunementDescription !== ""
-    ? `<div class="item-attunement"><i>(Requires attunement by a ${data.definition.attunementDescription})</i></div>`
-    : "";
-
-  const valueDamageText = parseDamageRolls({ text: data.definition.description, document, actor: null });
-  const chatDamageText = chatAdd ? parseDamageRolls({ text: chatSnippet, document, actor: null }) : "";
-  return {
-    value: parseTags(attunementText + valueDamageText),
-    chat: chatAdd ? parseTags(chatDamageText) : "",
-  };
-}
 
 export function getCurrency(data) {
   return {

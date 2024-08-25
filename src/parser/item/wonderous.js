@@ -79,21 +79,23 @@ function getDamage(ddbData) {
 
 // eslint-disable-next-line complexity
 export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorType = "trinket" } = {}) {
-  const isContainer = ddbData.definition.isContainer;
-  const isClothingTag = ddbData.definition.tags.includes('Outerwear')
-    || ddbData.definition.tags.includes('Footwear')
-    || ddbData.definition.tags.includes('Clothing');
-  const tashasInstalled = game.modules.get("dnd-tashas-cauldron")?.active;
-  const isTattoo = ddbData.definition.name.toLowerCase().includes("tattoo");
-  const tattooType = tashasInstalled && isTattoo;
+  // const this.isContainer = ddbData.definition.isContainer;
+  // const this.isClothingTag = ddbData.definition.tags.includes('Outerwear')
+  //   || ddbData.definition.tags.includes('Footwear')
+  //   || ddbData.definition.tags.includes('Clothing');
+  // const this.isTashasInstalled = game.modules.get("dnd-tashas-cauldron")?.active;
+  // const this.isTattoo = ddbData.definition.name.toLowerCase().includes("tattoo");
+  // const this.tattooType = this.isTashasInstalled && this.isTattoo;
 
-  ddbTypeOverride = isTattoo
+  ddbTypeOverride = this.isTattoo
     ? "Tattoo"
-    : isClothingTag && !isContainer ? "Clothing" : ddbTypeOverride;
+    : this.isClothingTag && !this.isContainer
+      ? "Clothing"
+      : ddbTypeOverride;
 
-  const type = tattooType
+  const type = this.tattooType
     ? "dnd-tashas-cauldron.tattoo"
-    : isContainer ? "container" : "equipment";
+    : this.isContainer ? "container" : "equipment";
   /**
    * MAIN parseEquipment
    */
@@ -111,12 +113,12 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
     },
   };
 
-  if (isContainer) {
+  if (this.isContainer) {
     if (ddbData.currency) item.system.currency = getCurrency(ddbData);
     if (getWeightless(ddbData)) {
       item.system.properties = utils.addToProperties(item.system.properties, "weightlessContents");
     }
-  } else if (tattooType) {
+  } else if (this.tattooType) {
     item.system.type.value = ddbData.definition.name.toLowerCase().includes("spellwrought")
       ? "spellwrought"
       : "permanent";
@@ -133,7 +135,7 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
       dex: null,
     };
 
-    item.system.type.value = isClothingTag && !isContainer ? "clothing" : armorType;
+    item.system.type.value = this.isClothingTag && !this.isContainer ? "clothing" : armorType;
 
     /* "strength": 0 */
     item.system.strength = 0;
@@ -151,7 +153,7 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
   item.system.rarity = getItemRarity(ddbData);
   item.system.identified = true;
   item.system.uses = getUses(ddbData, true);
-  if (!isTattoo) item.system.capacity = getCapacity(ddbData);
+  if (!this.isTattoo) item.system.capacity = getCapacity(ddbData);
 
   item.system.activation = getActivation(ddbData.definition.description);
 

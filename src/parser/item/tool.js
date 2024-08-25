@@ -57,7 +57,7 @@ export default function parseTool(ddb, data, itemType) {
     flags: {
       ddbimporter: {
         dndbeyond: {
-          type: itemType,
+          type: itemType, //this.overrides.ddbType
         },
       },
     },

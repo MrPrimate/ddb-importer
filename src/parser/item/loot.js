@@ -136,10 +136,12 @@ export default function parseLoot(data, itemType) {
   loot.system.identified = true;
   loot.system.price = getPrice(data);
 
-  if (type.type === "loot") {
-    const lookup = LOOT_TYPES[itemType];
-    if (lookup) foundry.utils.setProperty(loot, "system.type.value", lookup);
-  } else if (type.type === "container") {
+  // if (type.type === "loot") {
+  //   const lookup = LOOT_TYPES[itemType];
+  //   if (lookup) foundry.utils.setProperty(loot, "system.type.value", lookup);
+  // } else
+
+  if (type.type === "container") {
     loot.system.capacity = getCapacity(data);
     if (data.currency) loot.system.currency = getCurrency(data);
     if (getWeightless(data)) {
