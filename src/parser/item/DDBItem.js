@@ -126,6 +126,20 @@ export default class DDBItem {
 
     this.#determineType();
 
+    this.actionInfo = {
+      activation: null,
+      consumption: null,
+      effects: null,
+      range: null,
+      target: null,
+      save: null,
+      duration: null,
+      attack: null,
+    };
+
+    this.damageParts = [];
+    this.healingParts = [];
+
   }
 
   _init() {
@@ -150,6 +164,8 @@ export default class DDBItem {
     // Spells will still have activation/duration/range/target,
     // weapons will still have range & damage (1 base part & 1 versatile part),
     // and all items will still have limited uses (but no consumption)
+
+    this.data.system.type.value = this.systemType.value;
   }
 
   /**
@@ -646,6 +662,72 @@ export default class DDBItem {
     };
   }
 
+  #getQuantity() {
+    return this.ddbDefinition.quantity
+      ? this.ddbDefinition.quantity
+      : this.ddbItem.quantity
+        ? this.ddbItem.quantity
+        : 1;
+  }
+
+  #getSingleItemWeight() {
+    const bundleSize = this.ddbDefinition?.bundleSize ? this.ddbDefinition.bundleSize : 1;
+    const totalWeight = this.ddbDefinition?.weight ? this.ddbDefinition.weight : 0;
+    const weight = totalWeight / bundleSize;
+    return {
+      value: weight,
+      units: "lb",
+    };
+  }
+
+  #getEquipped() {
+    if (this.ddbDefinition.canEquip !== undefined && this.ddbDefinition.canEquip === true) {
+      return this.ddbItem.equipped;
+    } else {
+      return false;
+    }
+  }
+
+  #getItemRarity() {
+    const tmpRarity = this.ddbDefinition.rarity;
+    const isMundaneItem = this.ddbDefinition?.rarity === "Common" && !this.ddbDefinition.magic;
+    const rarity = this.ddbDefinition.rarity && !isMundaneItem
+      ? tmpRarity.charAt(0).toLowerCase() + tmpRarity.slice(1).replace(/\s/g, "")
+      : "";
+    return rarity;
+  }
+
+  #getActivityRange() {
+    // range: { value: null, long: null, units: '' },
+    return {
+      value: this.ddbDefinition.range ? this.ddbDefinition.range : null,
+      long: this.ddbDefinition.longRange ? this.ddbDefinition.longRange : null,
+      units: (this.ddbDefinition.range || this.ddbDefinition.range) ? "ft." : "",
+    };
+  }
+
+  #getWeaponRange() {
+    // sometimes reach weapons have their range set as 5. it's not clear why.
+    const shortRange = this.ddbDefinition.range ? this.ddbDefinition.range : 5;
+    const reach = this.data.system.properties.includes("rch") && this.ddbDefinition.range == 5 ? 5 : 0;
+    return {
+      value: shortRange + reach,
+      long: (this.ddbDefinition.longRange && this.ddbDefinition.longRange != this.ddbDefinition.range)
+        ? this.ddbDefinition.longRange + reach
+        : "",
+      units: "ft",
+      reach: null,
+    };
+  }
+
+  #getMagicalBonus(returnZero = false) {
+    const boni = this.ddbDefinition.grantedModifiers.filter(
+      (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0,
+    );
+    const bonus = boni.reduce((prev, cur) => prev + cur.value, 0);
+    return bonus === 0 && !returnZero ? "" : bonus;
+  }
+
   _generateDamageParts() {
     switch (this.parsingType) {
       case "ammunition": {
@@ -673,7 +755,33 @@ export default class DDBItem {
 
     switch (this.parsingType) {
       case "ammunition": {
+        this.data.system.quantity = this.#getQuantity();
+        this.data.system.weight = this.#getSingleItemWeight();
+        this.data.system.equipped = this.#getEquipped();
+        this.data.system.rarity = this.#getItemRarity();
+        this.data.system.identified = true;
+        this.actionInfo.activation = { type: "action", value: 1, condition: "" };
+        this.actionInfo.range = this.#getActivityRange();
 
+        const magicalBonus = this.#getMagicalBonus(true);
+        if (magicalBonus > 0) {
+          this.data.system.properties.push("mgc");
+          this.data.system.magicalBonus = magicalBonus;
+        }
+
+        if (this.damageParts.length > 0) {
+          this.system.damage = {
+            replace: false,
+            base: this.damageParts[0],
+          };
+        }
+
+        // todo: more than one damage part?
+        // do we ever want to replace damage here?
+        // do we need to have a secondary damage part or save e.g. slaying arrow?
+
+        // ammunition damage
+        // "replace": true
         break;
       }
       case "armor": {
@@ -695,6 +803,7 @@ export default class DDBItem {
         break;
       }
       case "weapon": {
+        this.data.system.range = this.#getWeaponRange();
         break;
       }
       case "wonderous": {
@@ -706,6 +815,10 @@ export default class DDBItem {
       }
     }
 
+    if (this.overrides.ddbType) foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", this.overrides.ddbType);
+
+    this._buildActivity();
+    this._buildAdditionalActivities();
 
     this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 

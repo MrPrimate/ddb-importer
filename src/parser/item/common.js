@@ -21,15 +21,6 @@ export function getPrice(data) {
   return price;
 }
 
-export function getItemRarity(data) {
-  const tmpRarity = data.definition.rarity;
-  const isMundaneItem = data.definition?.rarity === "Common" && !data.definition.magic;
-  const rarity = data.definition.rarity && !isMundaneItem
-    ? tmpRarity.charAt(0).toLowerCase() + tmpRarity.slice(1).replace(/\s/g, "")
-    : "";
-  return rarity;
-}
-
 /**
  * Checks if the character can attune to an item and if yes, if he is attuned to it.
  */
@@ -41,16 +32,6 @@ export function getAttuned(data) {
   }
 }
 
-/**
- * Checks if the character can equip an item and if yes, if he is has it currently equipped.
- */
-export function getEquipped(data) {
-  if (data.definition.canEquip !== undefined && data.definition.canEquip === true) {
-    return data.equipped;
-  } else {
-    return false;
-  }
-}
 
 export function getRechargeFormula(description, maxCharges) {
   if (description === "" || !description) {
@@ -165,18 +146,6 @@ export function getWeaponProficient(data, weaponType, proficiencies) {
   return null;
 };
 
-/**
- * Searches for a magical attack bonus granted by this weapon
- * @param {obj} data item data
- */
-export function getMagicalBonus(data, returnZero = false) {
-  const boni = data.definition.grantedModifiers.filter(
-    (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0,
-  );
-  const bonus = boni.reduce((prev, cur) => prev + cur.value, 0);
-  return bonus === 0 && !returnZero ? "" : bonus;
-}
-
 export function getAttunement(item) {
   if (item.isAttuned || item.definition.canAttune) {
     if (item.definition.name.startsWith("Spell Gem")) {
@@ -224,23 +193,7 @@ export function getBaseItem(data) {
   return { baseItem, toolType };
 }
 
-export function getQuantity(data) {
-  return data.definition.quantity
-    ? data.definition.quantity
-    : data.quantity
-      ? data.quantity
-      : 1;
-}
 
-export function getSingleItemWeight(data) {
-  const bundleSize = data.definition?.bundleSize ? data.definition.bundleSize : 1;
-  const totalWeight = data.definition?.weight ? data.definition.weight : 0;
-  const weight = totalWeight / bundleSize;
-  return {
-    value: weight,
-    units: "lb",
-  };
-}
 
 export function getWeightless(data) {
   return data.definition.weightMultiplier === 0;

@@ -206,6 +206,8 @@ export default class DDBItemActivity {
       generateSave,
       generateTarget,
       includeBaseDamage,
+      saveOverride,
+      chatFlavor,
       this: this,
     });
 
