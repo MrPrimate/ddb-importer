@@ -13,6 +13,9 @@ The 4.0.x fundementally changes the structure of how documents are constructed i
 - Shadar Kai now gain resistance to magical sleep.
 - Monster Muncher/Importer now batches monsters to reduce long UI pauses.
 
+# 5.2.31
+
+- Goggles of night equipped to characters would double bonus.
 
 # 5.2.30
 

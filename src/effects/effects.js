@@ -207,6 +207,7 @@ export function getEffectExcludedModifiers(type, features, ac) {
   // items are basically their own thing, all or nuffin
   if (type === "item") {
     modifiers = modifiers.concat(
+      EFFECT_EXCLUDED_SENSE_MODIFIERS,
       EFFECT_EXCLUDED_COMMON_MODIFIERS,
       EFFECT_EXCLUDED_ABILITY_BONUSES,
       EFFECT_EXCLUDED_LANGUAGES_MODIFIERS,
