@@ -1,3 +1,7 @@
+# 5.2.31
+
+- Goggles of night equipped to characters would double bonus.
+
 # 5.2.30
 
 - Improve sense parsing in various failure states @sisimshow
