@@ -417,7 +417,7 @@ export default class DDBBasicActivity {
     }
   }
 
-  static buildDamagePart({ damageString, type, stripMod = false } = {}) {
+  static buildDamagePart({ dice = null, damageString = "", type, stripMod = false } = {}) {
     const damage = {
       number: null,
       denomination: null,
@@ -434,7 +434,14 @@ export default class DDBBasicActivity {
       },
     };
 
-    DDBBasicActivity.parseBasicDamageFormula(damage, damageString, { stripMod });
+    if (dice && !dice.multiplier) {
+      damage.number = dice.diceCount;
+      damage.denomination = dice.diceValue;
+      if (dice.fixedValue) damage.bonus = dice.fixedValue;
+      if (dice.value) damage.bonus = dice.value;
+    } else {
+      DDBBasicActivity.parseBasicDamageFormula(damage, damageString, { stripMod });
+    }
     return damage;
   }
 

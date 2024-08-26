@@ -4,6 +4,7 @@ import { generateTable } from "../../lib/DDBTable.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
+import { DDBItemDamage } from "./DDBItemDamage.js";
 
 export default class DDBItem {
 
@@ -90,6 +91,8 @@ export default class DDBItem {
       armorType: null,
       name: null,
     };
+
+    this.itemDamage = new DDBItemDamage(this);
 
     this.isContainer = this.ddbDefinition.isContainer;
     this.isContainerTag = this.ddbDefinition.tags.includes('Container');
@@ -568,7 +571,7 @@ export default class DDBItem {
   }
 
   #generateItemFlags() {
-    let flags = {
+    this.flags = {
       damage: {
         parts: [],
       },
@@ -584,8 +587,8 @@ export default class DDBItem {
       magicItemAttackInt: DDBHelper.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0,
     };
 
-    if (flags.classFeatures.includes("Lifedrinker")) {
-      flags.damage.parts.push(["@abilities.cha.mod", "necrotic"]);
+    if (this.flags.classFeatures.includes("Lifedrinker")) {
+      this.flags.damage.parts.push(["@abilities.cha.mod", "necrotic"]);
     }
 
     // for melee attacks get extras
@@ -594,26 +597,24 @@ export default class DDBItem {
       const extraDamage = this.#getExtraDamage(["Melee Weapon Attacks"]);
 
       if (!!extraDamage.length > 0) {
-        flags.damage.parts = flags.damage.parts.concat(extraDamage);
+        this.flags.damage.parts = this.flags.damage.parts.concat(extraDamage);
       }
       // do we have great weapon fighting?
       if (DDBHelper.hasChosenCharacterOption(this.ddbData, "Great Weapon Fighting")) {
-        flags.classFeatures.push("greatWeaponFighting");
+        this.flags.classFeatures.push("greatWeaponFighting");
       }
       // do we have two weapon fighting style?
       if (DDBHelper.hasChosenCharacterOption(this.ddbData, "Two-Weapon Fighting")) {
-        flags.classFeatures.push("Two-Weapon Fighting");
+        this.flags.classFeatures.push("Two-Weapon Fighting");
       }
       if (DDBHelper.getCustomValueFromCharacter(this.ddbItem, this.rawCharacter, 18)) {
-        flags.classFeatures.push("OffHand");
+        this.flags.classFeatures.push("OffHand");
       }
     }
     // ranged fighting style is added as a global modifier elsewhere
     // as is defensive style
 
-    logger.debug(`Flags for ${this.ddbItem.name ?? this.ddbDefinition.name}`, { ddbItem: this.ddbItem, flags });
-
-    this.flags = flags;
+    logger.debug(`Flags for ${this.ddbItem.name ?? this.ddbDefinition.name}`, { ddbItem: this.ddbItem, flags: this.flags });
   };
 
 
@@ -645,12 +646,34 @@ export default class DDBItem {
     };
   }
 
+  _generateDamageParts() {
+    switch (this.parsingType) {
+      case "ammunition": {
+        this.itemDamage.generateAmmunitionDamage(magicalDamageBonus);
+        break;
+      }
+      case "staff": {
+        this.itemDamage.generateStaffDamageParts(magicalDamageBonus)
+        break;
+      }
+      case "weapon": {
+        this.itemDamage.generateWeaponDamageParts();
+        break;
+      }
+      default: {
+        this.itemDamage.generateGrantedModifiersDamageParts();
+      }
+    }
+  }
+
   async build() {
     await this._prepare();
     this._generateDataStub();
+    this._generateDamageParts();
 
     switch (this.parsingType) {
       case "ammunition": {
+
         break;
       }
       case "armor": {

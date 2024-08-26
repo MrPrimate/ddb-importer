@@ -30,39 +30,6 @@ const DDBHelper = {
     }
   },
 
-  getDamageTag(mod, overrideDamageType) {
-    // const damageTagData = DDBHelper.globalDamageTagInfo(mod);
-    const midiInstalled = game.modules.get("midi-qol")?.active;
-    const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !midiInstalled;
-    const restriction = damageRestrictionHints && mod.restriction && mod.restriction !== "" ? mod.restriction : "";
-
-    const damageType = overrideDamageType
-      ? overrideDamageType
-      : mod.subType ? mod.subType : "";
-    const damageHint = restriction
-      ? restriction
-      : "";
-    const damageTag = restriction && restriction !== "" ? `[${damageHint}]` : "";
-    return {
-      damageRestrictionHints,
-      restriction,
-      damageType,
-      damageHint,
-      damageTag,
-    };
-  },
-
-  getDamageTagForMod: (mod) => {
-    const damageTagData = DDBHelper.getDamageTag(mod);
-    return damageTagData;
-  },
-
-  getDamageTagForItem(data) {
-    const damageType = DDBHelper.getDamageType(data);
-    const damageTagData = DDBHelper.getDamageTag({}, damageType);
-    return damageTagData;
-  },
-
   hasChosenCharacterOption: (ddb, optionName) => {
     const hasClassOptions = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
       .flat()
