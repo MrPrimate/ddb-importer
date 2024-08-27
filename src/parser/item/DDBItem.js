@@ -4,7 +4,7 @@ import { generateTable } from "../../lib/DDBTable.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
-import { DDBItemDamage } from "./DDBItemDamage.js";
+import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 
 export default class DDBItem {
 
@@ -92,7 +92,8 @@ export default class DDBItem {
       name: null,
     };
 
-    this.itemDamage = new DDBItemDamage(this);
+    this.characterProficiencies = foundry.utils.getProperty(this.rawCharacter, "flags.ddbimporter.dndbeyond.proficienciesIncludingEffects")
+      ?? [];
 
     this.isContainer = this.ddbDefinition.isContainer;
     this.isContainerTag = this.ddbDefinition.tags.includes('Container');
@@ -135,10 +136,15 @@ export default class DDBItem {
       save: null,
       duration: null,
       attack: null,
+      magicBonus: {
+        null: null,
+        zero: 0,
+      },
     };
 
     this.damageParts = [];
     this.healingParts = [];
+    this.additionalActivities = [];
 
   }
 
@@ -166,6 +172,251 @@ export default class DDBItem {
     // and all items will still have limited uses (but no consumption)
 
     this.data.system.type.value = this.systemType.value;
+  }
+
+  static #getDamageParts(modifiers, typeOverride = null) {
+    return modifiers
+      .filter((mod) => Number.isInteger(mod.value)
+        || (mod.dice ? mod.dice : mod.die ? mod.die : undefined) !== undefined,
+      )
+      .map((mod) => {
+        const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+        if (die) {
+          const damage = DDBBasicActivity.buildDamagePart({
+            damageString: die.diceString,
+            type: typeOverride ?? mod.subType,
+          });
+          return damage;
+        } else if (mod.value) {
+          const damage = DDBBasicActivity.buildDamagePart({
+            damageString: mod.value,
+            type: typeOverride ?? mod.subType,
+          });
+          return damage;
+        } else if (mod.fixedValue) {
+          const damage = DDBBasicActivity.buildDamagePart({
+            damageString: mod.fixedValue,
+            type: typeOverride ?? mod.subType,
+          });
+          return damage;
+        } else {
+          return null;
+        }
+      }).filter((part) => part !== null);
+  }
+
+  #generateAmmunitionDamage(magicalDamageBonus) {
+    // first damage part
+    // blowguns and other weapons rely on ammunition that provides the damage parts
+    if (this.ddbDefinition.damage && this.ddbDefinition.damage.diceString && this.ddbDefinition.damageType) {
+      const damageString = utils.parseDiceString(this.ddbDefinition.damage.diceString).diceString;
+      const damage = DDBBasicActivity.buildDamagePart({
+        damageString,
+        type: this.ddbDefinition.damageType.toLowerCase(),
+      });
+      damage.bonus = damage.bonus === "" ? magicalDamageBonus : ` + ${magicalDamageBonus}`;
+      this.damageParts.push(damage);
+    }
+
+    // additional damage parts
+    const additionalDamageParts = DDBItem.#getDamageParts(
+      this.ddbDefinition.grantedModifiers
+        .filter((mod) => mod.type === "damage" && (!mod.restriction || mod.restriction === "")),
+    );
+    this.damageParts.push(...additionalDamageParts);
+
+    // Add saving throw additional
+    // e.g. arrow of slaying is "DC 17 Constitution for Half Damage",
+    this.ddbDefinition.grantedModifiers
+      .filter((mod) => mod.type === "damage" && mod.restriction && mod.restriction !== "")
+      .forEach((mod) => {
+        const damageParts = DDBItem.#getDamageParts([mod]);
+
+        if (damageParts.length === 0) {
+          const saveSearch = /DC (\d+) (\w+) /i;
+          const saveMatch = mod.restriction.match(saveSearch);
+
+          this.additionalActivities.push({
+            type: this.saveMatch ? "save" : "damage",
+            options: {
+              generateDamage: true,
+              damageParts,
+              includeBaseDamage: false,
+              saveOverride: saveMatch
+                ? {
+                  formula: parseInt(saveMatch[1]),
+                  calculation: "custom",
+                  ability: saveMatch[2].toLowerCase().substr(0, 3),
+                }
+                : null,
+            },
+          });
+        }
+      });
+  }
+
+  #generateGrantedModifiersDamageParts() {
+    const healingModifiers = this.ddbDefinition.grantedModifiers.filter(
+      (mod) => mod.type === "bonus" && mod.subType === "hit-points",
+    );
+    if (healingModifiers) {
+      const healingDamageParts = DDBItem.#getDamageParts(healingModifiers, "healing");
+      this.healingParts.push(...healingDamageParts);
+    }
+
+    const additionalDamageParts = DDBItem.#getDamageParts(
+      this.ddbDefinition.grantedModifiers
+        .filter((mod) => mod.type === "damage" && CONFIG.DND5E.damageTypes[mod.subType]),
+    );
+    this.damageParts.push(...additionalDamageParts);
+
+  }
+
+  #generateStaffDamageParts() {
+    const magicalDamageBonus = this.actionInfo.magicBonus.zero ?? 0;
+    let weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
+    let versatile = weaponBehavior.properties.find((property) => property.name === "Versatile");
+    if (versatile && versatile.notes) {
+      const damage = DDBBasicActivity.buildDamagePart({
+        damageString: utils.parseDiceString(versatile.notes).diceString,
+        stripMod: true,
+        type: weaponBehavior.damageType.toLowerCase(),
+      });
+      damage.bonus = damage.bonus === "" ? magicalDamageBonus : ` + ${magicalDamageBonus}`;
+      this.additionalActivities.push({
+        name: `Versatile`,
+        options: {
+          generateDamage: true,
+          damageParts: [damage],
+          includeBaseDamage: false,
+        },
+      });
+    }
+
+    // first damage part
+    // blowguns and other weapons rely on ammunition that provides the damage parts
+    if (weaponBehavior.damage && weaponBehavior.damage.diceString && weaponBehavior.damageType) {
+      const damageString = utils.parseDiceString(weaponBehavior.damage.diceString).diceString;
+      const damage = DDBBasicActivity.buildDamagePart({
+        damageString,
+        type: weaponBehavior.damageType.toLowerCase(),
+        stripMod: true,
+      });
+      damage.bonus = damage.bonus === "" ? magicalDamageBonus : ` + ${magicalDamageBonus}`;
+      this.damageParts.push(damage);
+    }
+
+    // additional damage parts
+    this.#generateGrantedModifiersDamageParts();
+
+  }
+
+
+  #generateWeaponDamageParts() {
+    // const magicalDamageBonus = getWeaponMagicalBonus(data, flags, true);
+    // we can safely make these assumptions about GWF
+    // flags are only added for melee attacks
+    const greatWeaponFighting = this.flags.classFeatures.includes("greatWeaponFighting") ? "r<=2" : "";
+    const twoHanded = this.ddbDefinition.properties.find((property) => property.name === "Two-Handed");
+
+    const damageType = DDBHelper.getDamageType(this.ddbItem);
+
+    const versatile = this.ddbDefinition.properties.find((property) => property.name === "Versatile");
+    if (versatile && versatile.notes) {
+      const damage = DDBBasicActivity.buildDamagePart({
+        damageString: utils.parseDiceString(versatile.notes, null, "", greatWeaponFighting).diceString,
+        stripMod: true,
+        type: this.ddbDefinition.damageType.toLowerCase(),
+      });
+      this.additionalActivities.push({
+        name: `Versatile`,
+        options: {
+          generateDamage: true,
+          damageParts: [damage],
+          includeBaseDamage: false,
+        },
+      });
+    }
+
+    // if we have greatweapon fighting style and this is two handed, add the roll tweak
+    const fightingStyleDiceMod = twoHanded ? greatWeaponFighting : "";
+
+    // if we are a martial artist and the weapon is eligable we may need to use a bigger dice type.
+    // this martial arts die info is added to the weapon flags before parse weapon is called
+    const martialArtsDie = this.flags.martialArtsDie;
+
+    if (Number.isInteger(this.ddbDefinition.fixedDamage)) {
+      const damage = DDBBasicActivity.buildDamagePart({
+        damageString: utils.parseDiceString(this.ddbDefinition.fixedDamage, "", "", fightingStyleDiceMod).diceString,
+        stripMod: true,
+        type: damageType,
+      });
+      this.damageParts.push(damage);
+    } else if (this.ddbDefinition.damage && this.ddbDefinition.damage.diceString && damageType) {
+      let diceString = this.ddbDefinition.damage.diceString;
+      if (martialArtsDie.diceValue && this.ddbDefinition.damage.diceValue && martialArtsDie.diceValue > this.ddbDefinition.damage.diceValue) {
+        diceString = martialArtsDie.diceString;
+      }
+      const damage = DDBBasicActivity.buildDamagePart({
+        damageString: utils.parseDiceString(diceString, "", "", fightingStyleDiceMod).diceString,
+        stripMod: true,
+        type: damageType,
+      });
+      this.damageParts.push(damage);
+    }
+
+    // additional damage parts with no restrictions
+    this.ddbDefinition.grantedModifiers
+      .filter((mod) => mod.type === "damage" && (!mod.restriction || mod.restriction === ""))
+      .forEach((mod) => {
+        const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+        const damagePart = die ? die.diceString : mod.value;
+        if (damagePart) {
+          const damage = DDBBasicActivity.buildDamagePart({
+            damageString: utils.parseDiceString(damagePart, "", "", fightingStyleDiceMod).diceString,
+            stripMod: true,
+            type: mod.subType ? mod.subType : "",
+          });
+          this.damageParts.push(damage);
+        }
+      });
+
+    // loop over restricted damage types
+    this.ddbDefinition.grantedModifiers
+      .filter((mod) => mod.type === "damage" && mod.restriction && mod.restriction !== "")
+      .forEach((mod) => {
+        const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+        const damagePart = die ? die.diceString : `${mod.value}`;
+        if (damagePart) {
+          const damage = DDBBasicActivity.buildDamagePart({
+            damageString: damagePart,
+            stripMod: true,
+            type: mod.subType ? mod.subType : "",
+          });
+
+          this.additionalActivities.push({
+            name: `Restricted Attack: ${mod.restriction}`,
+            options: {
+              generateDamage: true,
+              damageParts: [damage],
+              includeBaseDamage: false,
+              chatFlavor: mod.restriction ?? "",
+            },
+          });
+        }
+      });
+
+    // add damage modifiers from other sources like improved divine smite
+    if (this.flags.damage.parts) {
+      this.flags.damage.parts.forEach((part) => {
+        const damage = DDBBasicActivity.buildDamagePart({
+          damageString: part[0],
+          stripMod: true,
+          type: part[1],
+        });
+        this.damageParts.push(damage);
+      });
+    }
   }
 
   /**
@@ -201,17 +452,7 @@ export default class DDBItem {
     return armorType;
   }
 
-  #getArmourValues() {
-    // get the armor class
-    const baseArmorClass = this.ddbDefinition.armorClass;
-    const bonusArmorClass = this.ddbDefinition.grantedModifiers.reduce((prev, cur) => {
-      if (cur.type === "bonus" && cur.subType === "armor-class" && Number.isInteger(cur.value)) {
-        return prev + cur.value;
-      } else {
-        return prev;
-      }
-    }, 0);
-
+  #generateArmorMaxDex() {
     let maxDexModifier;
     switch (this.systemType.value) {
       case "heavy":
@@ -224,18 +465,13 @@ export default class DDBItem {
         maxDexModifier = null;
         break;
     }
-
     const maxDexMods = DDBHelper.filterModifiersOld(this.ddbDefinition.grantedModifiers, "set", "ac-max-dex-modifier");
     const itemDexMaxAdjustment = DDBHelper.getModifierSum(maxDexMods, this.rawCharacter);
     if (maxDexModifier !== null && Number.isInteger(itemDexMaxAdjustment) && itemDexMaxAdjustment > maxDexModifier) {
       maxDexModifier = itemDexMaxAdjustment;
     }
 
-    return {
-      type: this.systemType.value,
-      value: baseArmorClass + bonusArmorClass,
-      dex: maxDexModifier,
-    };
+    this.system.armor.dex = maxDexModifier;
   }
 
   #determineOtherGearTypeIdOneType() {
@@ -458,6 +694,7 @@ export default class DDBItem {
         this.documentType = "consumable";
         this.systemType.value = this.ddbDefinition.filterType.toLowerCase();
         this.parsingType = "consumable";
+        this.overrides.ddbType = this.ddbDefinition.type;
         break;
       case "Staff":
         this.documentType = "weapon";
@@ -721,53 +958,220 @@ export default class DDBItem {
   }
 
   #getMagicalBonus(returnZero = false) {
-    const boni = this.ddbDefinition.grantedModifiers.filter(
-      (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0,
-    );
-    const bonus = boni.reduce((prev, cur) => prev + cur.value, 0);
+    const bonus = this.ddbDefinition.grantedModifiers
+      .filter(
+        (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0,
+      )
+      .reduce((prev, cur) => prev + cur.value, 0);
     return bonus === 0 && !returnZero ? "" : bonus;
+  }
+
+  #getMagicalArmorBonus() {
+    const bonus = this.ddbDefinition.grantedModifiers
+      .filter(
+        (mod) => mod.type === "bonus" && mod.subType === "armor-class" && mod.value && mod.value !== 0,
+      )
+      .reduce((prev, cur) => prev + cur.value, 0);
+    return bonus;
+  }
+
+  #generateBaseItem() {
+
+    let baseItem;
+    let toolType;
+
+    if (this.ddbDefinition.filterType === "Weapon") {
+      baseItem = this.ddbDefinition.type.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
+    } else if (this.ddbDefinition.filterType === "Armor" && this.ddbDefinition.baseArmorName) {
+      baseItem = this.ddbDefinition.baseArmorName.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
+    } else if (this.ddbDefinition.filterType === "Other Gear"
+      && ((this.ddbDefinition.gearTypeId === 1 && this.ddbDefinition.subType === "Tool")
+        || (this.ddbDefinition.gearTypeId === 11))) {
+      const toolProficiencies = DICTIONARY.character.proficiencies
+        .filter((prof) => prof.type === "Tool")
+        .map((prof) => {
+          return prof;
+        });
+
+      const baseTool = toolProficiencies.find((allProf) => allProf.name.toLowerCase() === this.ddbDefinition.name.toLowerCase());
+      if (baseTool && baseTool.baseTool) {
+        baseItem = baseTool.baseTool;
+        toolType = baseTool.toolType;
+      }
+    } else if (this.ddbDefinition.filterType === "Staff") {
+      baseItem = "quarterstaff";
+    }
+
+
+    if (baseItem) foundry.utils.setProperty(this.data, "system.type.baseItem", baseItem);
+    if (toolType) foundry.utils.setProperty(this.data, "system.type.value", toolType);
+
+  }
+
+  #generateProficient() {
+    if (this.characterProficiencies.some((proficiency) =>
+      proficiency.name === this.ddbDefinition.type
+      || proficiency.name === this.ddbDefinition.baseArmorName)
+    ) {
+      this.data.system.proficient = true;
+    }
   }
 
   _generateDamageParts() {
     switch (this.parsingType) {
       case "ammunition": {
-        this.itemDamage.generateAmmunitionDamage(magicalDamageBonus);
+        this.#generateAmmunitionDamage();
         break;
       }
       case "staff": {
-        this.itemDamage.generateStaffDamageParts(magicalDamageBonus)
+        this.#generateStaffDamageParts();
         break;
       }
       case "weapon": {
-        this.itemDamage.generateWeaponDamageParts();
+        this.#generateWeaponDamageParts();
         break;
       }
       default: {
-        this.itemDamage.generateGrantedModifiersDamageParts();
+        this.#generateGrantedModifiersDamageParts();
       }
+    }
+  }
+
+  _generateMagicalBonus() {
+    this.actionInfo.magicBonus.null = this.#getMagicalBonus();
+    this.actionInfo.magicBonus.zero = this.#getMagicalBonus(true);
+    switch (this.parsingType) {
+      case "armor": {
+        const magicBonus = this.#getMagicalArmorBonus();
+        if (magicBonus > 0) {
+          this.data.system.armor.magicalBonus = magicBonus;
+          utils.addToProperties(this.data.system.properties, "mgc");
+        }
+        break;
+      }
+      case "ammunition": {
+        if (this.actionInfo.magicBonus.zero > 0) {
+          utils.addToProperties(this.data.system.properties, "mgc");
+          this.data.system.magicalBonus = this.actionInfo.magicBonus.zero;
+        }
+        break;
+      }
+      case "staff": {
+
+        break;
+      }
+      case "weapon": {
+
+        break;
+      }
+      default: {
+        if (this.actionInfo.magicBonus.zero > 0) {
+          utils.addToProperties(this.data.system.properties, "mgc");
+          logger.error(`Magical Bonus detected, but not handled for ${this.name}`, {
+            this: this,
+          });
+        }
+      }
+    }
+  }
+
+  static getRechargeFormula(description, maxCharges) {
+    if (description === "" || !description) {
+      return `${maxCharges}`;
+    }
+
+    let chargeMatchFormula = /regains (\dd\d* \+ \d) expended charges/i;
+    let chargeMatchFixed = /regains (\d*) /i;
+    let chargeMatchLastDitch = /(\dd\d* \+ \d)/i;
+    let chargeNextDawn = /can't be used this way again until the next/i;
+
+    let matchFormula = chargeMatchFormula.exec(description);
+    let matchFixed = chargeMatchFixed.exec(description);
+    let matchLastDitch = chargeMatchLastDitch.exec(description);
+
+    let match = maxCharges;
+    if (matchFormula && matchFormula[1]) {
+      match = matchFormula[1];
+    } else if (matchFixed && matchFixed[1]) {
+      match = matchFixed[1];
+    } else if (matchLastDitch && matchLastDitch[1]) {
+      match = matchLastDitch[1];
+    } else if (description.search(chargeNextDawn) !== -1) {
+      match = maxCharges;
+    }
+
+    return `${match}`;
+  }
+
+  // TODO: refactor this function for activites and changed usage
+  // { value: "recoverAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.RecoverAll") },
+  // { value: "loseAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.LoseAll") },
+  // { value: "formula", label: game.i18n.localize("DND5E.USES.Recovery.Type.Formula") }
+  #generateUses(prompt = false) {
+    if (this.ddbItem.limitedUse !== undefined && this.ddbItem.limitedUse !== null && this.ddbItem.limitedUse.resetTypeDescription !== null) {
+      let resetType = DICTIONARY.resets.find((reset) => reset.id == this.ddbItem.limitedUse.resetType);
+
+      const recoveryFormula = DDBItem.getRechargeFormula(this.ddbItem.limitedUse.resetTypeDescription, this.ddbItem.limitedUse.maxUses);
+      const recoveryIsMax = `${recoveryFormula}` === `${this.ddbItem.limitedUse.maxUses}`;
+
+      const recovery = [];
+      if (resetType.value) {
+        recovery.push({
+          period: resetType.value,
+          type: recoveryIsMax ? "recoverAll" : "formula",
+          formula: recoveryIsMax ? "" : recoveryFormula,
+        });
+      }
+      this.data.uses = {
+        max: this.ddbItem.limitedUse.maxUses,
+        spent: this.ddbItem.limitedUse.numberUsed ?? 0,
+        recovery,
+        prompt,
+      };
+    } else {
+      this.data.uses = { spent: 0, max: 0, recovery: [], prompt };
+    }
+
+  }
+
+  #getConsumableUses() {
+    if (this.ddbItem.limitedUse) {
+      this.#generateUses(true);
+      if (this.data.uses.recovery.length === 0) {
+        // uses.per = "charges";
+        // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
+        this.data.uses.recovery.push({ period: "charges", type: "recoverAll" });
+      }
+      this.data.uses.autoDestroy = true;
+    } else {
+      // default
+      this.data.uses = {
+        spent: 0,
+        max: 1,
+        recovery: [
+          // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
+          { period: "charges" },
+        ],
+        // TODO: where do these now live?
+        autoDestroy: true,
+        autoUse: false,
+      };
     }
   }
 
   async build() {
     await this._prepare();
     this._generateDataStub();
+    this.#generateBaseItem();
     this._generateDamageParts();
+
 
     switch (this.parsingType) {
       case "ammunition": {
-        this.data.system.quantity = this.#getQuantity();
         this.data.system.weight = this.#getSingleItemWeight();
-        this.data.system.equipped = this.#getEquipped();
-        this.data.system.rarity = this.#getItemRarity();
-        this.data.system.identified = true;
+
         this.actionInfo.activation = { type: "action", value: 1, condition: "" };
         this.actionInfo.range = this.#getActivityRange();
-
-        const magicalBonus = this.#getMagicalBonus(true);
-        if (magicalBonus > 0) {
-          this.data.system.properties.push("mgc");
-          this.data.system.magicalBonus = magicalBonus;
-        }
 
         if (this.damageParts.length > 0) {
           this.system.damage = {
@@ -785,9 +1189,23 @@ export default class DDBItem {
         break;
       }
       case "armor": {
+        this.data.system.weight = this.#getSingleItemWeight();
+        this.data.system.armor.value = this.ddbDefinition.armorClass;
+        this.data.system.strength = this.ddbDefinition.strengthRequirement ?? 0;
+        if (this.ddbDefinition.stealthCheck === 2)
+          utils.addToProperties(this.data.system.properties, "stealthDisadvantage");
+        this.#generateArmorMaxDex();
+        this.#generateProficient();
+        this.#generateUses();
+        if (!this.data.name.toLowerCase().includes("armor")) {
+          foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.alternativeNames", [`${this.name} Armor`]);
+        }
         break;
       }
       case "consumable": {
+        this.actionInfo.activation = { type: "action", value: 1, condition: "" };
+        this.data.system.weight = this.#getSingleItemWeight();
+        this.#getConsumableUses();
         break;
       }
       case "loot": {
@@ -814,6 +1232,12 @@ export default class DDBItem {
         // no matching case, try custom item parse
       }
     }
+
+    this.data.system.equipped = this.#getEquipped();
+    this.data.system.rarity = this.#getItemRarity();
+    this.data.system.identified = true;
+    this.data.system.quantity = this.#getQuantity();
+    this._generateMagicalBonus();
 
     if (this.overrides.ddbType) foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", this.overrides.ddbType);
 

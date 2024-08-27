@@ -33,33 +33,33 @@ export function getAttuned(data) {
 }
 
 
-export function getRechargeFormula(description, maxCharges) {
-  if (description === "" || !description) {
-    return `${maxCharges}`;
-  }
+// export function getRechargeFormula(description, maxCharges) {
+//   if (description === "" || !description) {
+//     return `${maxCharges}`;
+//   }
 
-  let chargeMatchFormula = /regains (\dd\d* \+ \d) expended charges/i;
-  let chargeMatchFixed = /regains (\d*) /i;
-  let chargeMatchLastDitch = /(\dd\d* \+ \d)/i;
-  let chargeNextDawn = /can't be used this way again until the next/i;
+//   let chargeMatchFormula = /regains (\dd\d* \+ \d) expended charges/i;
+//   let chargeMatchFixed = /regains (\d*) /i;
+//   let chargeMatchLastDitch = /(\dd\d* \+ \d)/i;
+//   let chargeNextDawn = /can't be used this way again until the next/i;
 
-  let matchFormula = chargeMatchFormula.exec(description);
-  let matchFixed = chargeMatchFixed.exec(description);
-  let matchLastDitch = chargeMatchLastDitch.exec(description);
+//   let matchFormula = chargeMatchFormula.exec(description);
+//   let matchFixed = chargeMatchFixed.exec(description);
+//   let matchLastDitch = chargeMatchLastDitch.exec(description);
 
-  let match = maxCharges;
-  if (matchFormula && matchFormula[1]) {
-    match = matchFormula[1];
-  } else if (matchFixed && matchFixed[1]) {
-    match = matchFixed[1];
-  } else if (matchLastDitch && matchLastDitch[1]) {
-    match = matchLastDitch[1];
-  } else if (description.search(chargeNextDawn) !== -1) {
-    match = maxCharges;
-  }
+//   let match = maxCharges;
+//   if (matchFormula && matchFormula[1]) {
+//     match = matchFormula[1];
+//   } else if (matchFixed && matchFixed[1]) {
+//     match = matchFixed[1];
+//   } else if (matchLastDitch && matchLastDitch[1]) {
+//     match = matchLastDitch[1];
+//   } else if (description.search(chargeNextDawn) !== -1) {
+//     match = maxCharges;
+//   }
 
-  return `${match}`;
-}
+//   return `${match}`;
+// }
 
 // TODO: refactor this function for activites and changed usage
 // { value: "recoverAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.RecoverAll") },
@@ -69,57 +69,57 @@ export function getRechargeFormula(description, maxCharges) {
  * Gets Limited uses information, if any
  * uses: { value: 0, max: 0, per: null }
  */
-export function getUses(data, prompt = false) {
-  if (data.limitedUse !== undefined && data.limitedUse !== null && data.limitedUse.resetTypeDescription !== null) {
-    let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
+// export function getUses(data, prompt = false) {
+//   if (data.limitedUse !== undefined && data.limitedUse !== null && data.limitedUse.resetTypeDescription !== null) {
+//     let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
 
-    const recoveryFormula = getRechargeFormula(data.limitedUse.resetTypeDescription, data.limitedUse.maxUses);
-    const recoveryIsMax = `${recoveryFormula}` === `${data.limitedUse.maxUses}`;
+//     const recoveryFormula = getRechargeFormula(data.limitedUse.resetTypeDescription, data.limitedUse.maxUses);
+//     const recoveryIsMax = `${recoveryFormula}` === `${data.limitedUse.maxUses}`;
 
-    const recovery = [];
-    if (resetType.value) {
-      recovery.push({
-        period: resetType.value,
-        type: recoveryIsMax ? "recoverAll" : "formula",
-        formula: recoveryIsMax ? "" : recoveryFormula,
-      });
-    }
-    return {
-      max: data.limitedUse.maxUses,
-      spent: data.limitedUse.numberUsed ?? 0,
-      recovery,
-      prompt,
-    };
-  } else {
-    return { spent: 0, max: 0, recovery: [], prompt };
-  }
-}
+//     const recovery = [];
+//     if (resetType.value) {
+//       recovery.push({
+//         period: resetType.value,
+//         type: recoveryIsMax ? "recoverAll" : "formula",
+//         formula: recoveryIsMax ? "" : recoveryFormula,
+//       });
+//     }
+//     return {
+//       max: data.limitedUse.maxUses,
+//       spent: data.limitedUse.numberUsed ?? 0,
+//       recovery,
+//       prompt,
+//     };
+//   } else {
+//     return { spent: 0, max: 0, recovery: [], prompt };
+//   }
+// }
 
-export function getConsumableUses(data) {
-  if (data.limitedUse) {
-    let uses = getUses(data, true);
-    if (uses.recovery.length === 0) {
-      // uses.per = "charges";
-      // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
-      uses.recovery.push({ period: "charges", type: "recoverAll" });
-    }
-    uses.autoDestroy = true;
-    return uses;
-  } else {
-    // default
-    return {
-      spent: 0,
-      max: 1,
-      recovery: [
-        // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
-        { period: "charges" },
-      ],
-      // TODO: where do these now live?
-      autoDestroy: true,
-      autoUse: false,
-    };
-  }
-}
+// export function getConsumableUses(data) {
+//   if (data.limitedUse) {
+//     let uses = getUses(data, true);
+//     if (uses.recovery.length === 0) {
+//       // uses.per = "charges";
+//       // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
+//       uses.recovery.push({ period: "charges", type: "recoverAll" });
+//     }
+//     uses.autoDestroy = true;
+//     return uses;
+//   } else {
+//     // default
+//     return {
+//       spent: 0,
+//       max: 1,
+//       recovery: [
+//         // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
+//         { period: "charges" },
+//       ],
+//       // TODO: where do these now live?
+//       autoDestroy: true,
+//       autoUse: false,
+//     };
+//   }
+// }
 
 /**
  * Checks the proficiency of the character with this specific weapon

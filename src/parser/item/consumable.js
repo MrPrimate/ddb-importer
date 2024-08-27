@@ -117,16 +117,16 @@ export default function parseConsumable(ddbItem, { consumableTypeOverride = null
     },
   };
 
-  item.system.type.value = consumableTypeOverride?.toLowerCase() ?? ddbItem.definition.filterType.toLowerCase();
-  item.system.uses = getConsumableUses(ddbItem);
-  item.system.description = getDescription(ddbItem, item);
-  item.system.source = DDBHelper.parseSource(ddbItem.definition);
-  item.system.quantity = getQuantity(ddbItem);
-  item.system.weight = getSingleItemWeight(ddbItem);
-  item.system.equipped = getEquipped(ddbItem);
-  item.system.rarity = getItemRarity(ddbItem);
-  item.system.identified = true;
-  item.system.activation = { type: "action", cost: 1, condition: "" };
+  // item.system.type.value = consumableTypeOverride?.toLowerCase() ?? ddbItem.definition.filterType.toLowerCase();
+  // item.system.uses = getConsumableUses(ddbItem);
+  // item.system.description = getDescription(ddbItem, item);
+  // item.system.source = DDBHelper.parseSource(ddbItem.definition);
+  // item.system.quantity = getQuantity(ddbItem);
+  // item.system.weight = getSingleItemWeight(ddbItem);
+  // item.system.equipped = getEquipped(ddbItem);
+  // item.system.rarity = getItemRarity(ddbItem);
+  // item.system.identified = true;
+  // item.system.activation = { type: "action", cost: 1, condition: "" };
   item.system.duration = getDuration(ddbItem);
   item.system.actionType = getActionType(ddbItem);
 

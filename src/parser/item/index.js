@@ -129,9 +129,9 @@ function parseItem(ddb, ddbItem, character, flags) {
       // try parsing it as a custom item
       item = parseCustomItem(ddbItem);
     }
-    const baseItem = getBaseItem(ddbItem);
-    if (baseItem.baseItem) foundry.utils.setProperty(item, "system.type.baseItem", baseItem.baseItem);
-    if (baseItem.toolType) foundry.utils.setProperty(item, "system.type.value", baseItem.toolType);
+    // const baseItem = getBaseItem(ddbItem);
+    // if (baseItem.baseItem) foundry.utils.setProperty(item, "system.type.baseItem", baseItem.baseItem);
+    // if (baseItem.toolType) foundry.utils.setProperty(item, "system.type.value", baseItem.toolType);
     item.system.attuned = ddbItem.isAttuned;
     item.system.attunement = getAttunement(ddbItem);
     item.system.price = getPrice(ddbItem);
