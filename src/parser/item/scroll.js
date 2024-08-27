@@ -18,15 +18,15 @@ export default function parseScroll(data) {
     },
   };
 
-  scroll.system.type.value = "scroll";
-  scroll.system.uses = getConsumableUses(data);
-  scroll.system.description = getDescription(data, scroll);
-  scroll.system.source = DDBHelper.parseSource(data.definition);
-  scroll.system.quantity = getQuantity(data);
-  scroll.system.weight = getSingleItemWeight(data);
-  scroll.system.equipped = getEquipped(data);
-  scroll.system.rarity = getItemRarity(data);
-  scroll.system.identified = true;
+  // scroll.system.type.value = "scroll";
+  // scroll.system.uses = getConsumableUses(data);
+  // scroll.system.description = getDescription(data, scroll);
+  // scroll.system.source = DDBHelper.parseSource(data.definition);
+  // scroll.system.quantity = getQuantity(data);
+  // scroll.system.weight = getSingleItemWeight(data);
+  // scroll.system.equipped = getEquipped(data);
+  // scroll.system.rarity = getItemRarity(data);
+  // scroll.system.identified = true;
   scroll.system.activation = { type: "action", cost: 1, condition: "" };
   scroll.system.actionType = "other";
 

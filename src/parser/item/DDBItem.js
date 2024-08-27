@@ -5,6 +5,7 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
+import DDBItemEnricher from "../enrichers/DDBItemEnricher.js";
 
 export default class DDBItem {
 
@@ -90,10 +91,12 @@ export default class DDBItem {
       ddbType: null,
       armorType: null,
       name: null,
+      custom: false,
     };
 
     this.characterProficiencies = foundry.utils.getProperty(this.rawCharacter, "flags.ddbimporter.dndbeyond.proficienciesIncludingEffects")
       ?? [];
+    this.characterEffectAbilities = foundry.utils.getProperty(this.rawCharacter, "flags.ddbimporter.dndbeyond.effectAbilities");
 
     this.isContainer = this.ddbDefinition.isContainer;
     this.isContainerTag = this.ddbDefinition.tags.includes('Container');
@@ -128,6 +131,7 @@ export default class DDBItem {
     this.#determineType();
 
     this.actionInfo = {
+      ability: null,
       activation: null,
       consumption: null,
       effects: null,
@@ -140,11 +144,42 @@ export default class DDBItem {
         null: null,
         zero: 0,
       },
+      isFlat: false,
+      extraAttackBonus: "",
+      meleeAttack: true,
+    };
+
+    this.activityType = null;
+    this.activities = [];
+    this.activityTypes = [];
+
+
+    this.activityOptions = {
+      generateActivation: false,
+      generateAttack: false,
+      generateConsumption: false,
+      generateCheck: false,
+      generateDamage: false,
+      generateDescription: false,
+      generateDuration: false,
+      generateEffects: false,
+      generateHealing: false,
+      generateRange: false,
+      generateSave: false,
+      generateTarget: false,
+      includeBaseDamage: false,
     };
 
     this.damageParts = [];
     this.healingParts = [];
     this.additionalActivities = [];
+
+
+    this.featureEnricher = new DDBItemEnricher({
+      document: this.feature,
+      monster: this.ddbMonster.npc,
+      name: this.name,
+    });
 
   }
 
@@ -153,6 +188,14 @@ export default class DDBItem {
   }
 
   _generateDataStub() {
+    if (!this.documentType) {
+      logger.error(`Document type must be set: ${this.ddbDefinition.name}`, {
+        this: this,
+      });
+      throw Error("Document type must be set", {
+        this: this,
+      });
+    }
     this.data = {
       _id: foundry.utils.randomID(),
       name: this.name,
@@ -160,9 +203,10 @@ export default class DDBItem {
       system: utils.getTemplate(this.documentType),
       flags: {
         ddbimporter: {
+          originalName: this.originalName,
+          version: CONFIG.DDBI.version,
           dndbeyond: {
             type: this.ddbDefinition.type,
-            originalName: this.originalName,
           },
         },
       },
@@ -172,6 +216,106 @@ export default class DDBItem {
     // and all items will still have limited uses (but no consumption)
 
     this.data.system.type.value = this.systemType.value;
+    this.data.system.identified = true;
+  }
+
+  #getActivityDuration() {
+    let duration = {
+      value: null,
+      units: "",
+      special: "",
+    };
+
+    if (this.ddbDefinition.duration) {
+      if (this.ddbDefinition.duration.durationUnit !== null) {
+        duration.units = this.ddbDefinition.duration.durationUnit.toLowerCase();
+      } else {
+        duration.units = this.ddbDefinition.duration.durationType.toLowerCase().substring(0, 4);
+      }
+      if (this.ddbDefinition.duration.durationInterval) duration.value = this.ddbDefinition.duration.durationInterval;
+    } else {
+      const durationArray = [
+        { foundryUnit: "day", descriptionMatches: ["day", "days"] },
+        { foundryUnit: "hour", descriptionMatches: ["hour", "hours"] },
+        { foundryUnit: "inst", descriptionMatches: ["instant", "instantaneous"] },
+        { foundryUnit: "minute", descriptionMatches: ["minute", "minutes"] },
+        { foundryUnit: "month", descriptionMatches: ["month", "months"] },
+        { foundryUnit: "perm", descriptionMatches: ["permanent"] },
+        { foundryUnit: "round", descriptionMatches: ["round", "rounds"] },
+        // { foundryUnit: "spec", descriptionMatches: [null] },
+        { foundryUnit: "turn", descriptionMatches: ["turn", "turns"] },
+        { foundryUnit: "year", descriptionMatches: ["year", "years"] },
+      ];
+      // attempt to parse duration
+      const descriptionUnits = durationArray.map((unit) => unit.descriptionMatches).flat().join("|");
+      const durationExpression = new RegExp(`(\\d*)(?:\\s)(${descriptionUnits})`);
+      const durationMatch = this.ddbDefinition.description.match(durationExpression);
+
+      if (durationMatch) {
+        duration.units = durationArray.find((duration) => duration.descriptionMatches.includes(durationMatch[2])).foundryUnit;
+        duration.value = durationMatch[1];
+      }
+    }
+    return duration;
+  }
+
+  #checkForSavingThrowActivity() {
+    const save = {
+      ability: "",
+      dc: {
+        calculation: "custom",
+        formula: "",
+      },
+    };
+
+
+    const saveCheck = this.ddbDefinition.description.match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
+    if (saveCheck && saveCheck[2]) {
+      save.ability = saveCheck[2].toLowerCase().substr(0, 3);
+      save.dc.formula = saveCheck[1];
+      this.actionInfo.save = save;
+    }
+  }
+
+  #generateActivityActivation() {
+    // default
+    this.actionInfo.activation = { type: "action", value: 1, condition: "" };
+
+    if (this.parsingType === "wonderous") {
+      let action = "";
+      const actionRegex = /(bonus) action|(reaction)|as (?:an|a) (action)/i;
+
+      const match = this.ddbDefinition.description.match(actionRegex);
+      if (match) {
+        if (match[1]) action = "bonus";
+        else if (match[2]) action = "reaction";
+        else if (match[3]) action = "action";
+      }
+
+      this.actionInfo.activation = { type: "action", value: action ? 1 : null, condition: "" };
+    }
+
+  }
+
+  _generateActionInfo() {
+    this.actionInfo.duration = this.#getActivityDuration();
+    this.actionInfo.range = this.#getActivityRange();
+    this.actionInfo.activation = this.#generateActivityActivation();
+
+  }
+
+  #generateActivityType() {
+    if (this.actionInfo.save) {
+      this.activityType = "save";
+    } else if (this.parsingType === "consumable") {
+      if (this.ddbDefinition.tags.includes("Healing")) {
+        this.activityType = "heal";
+      } else if (this.ddbDefinition.tags.includes("Damage")) {
+        this.activityType = "damage";
+      }
+    } else if (this.parsingType === "weapon") {
+      this.activityType = "attack";
+    }
   }
 
   static #getDamageParts(modifiers, typeOverride = null) {
@@ -381,6 +525,7 @@ export default class DDBItem {
         }
       });
 
+    let restrictions = [];
     // loop over restricted damage types
     this.ddbDefinition.grantedModifiers
       .filter((mod) => mod.type === "damage" && mod.restriction && mod.restriction !== "")
@@ -403,9 +548,11 @@ export default class DDBItem {
               chatFlavor: mod.restriction ?? "",
             },
           });
+          restrictions.push(mod.restriction);
         }
       });
 
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.restrictions")
     // add damage modifiers from other sources like improved divine smite
     if (this.flags.damage.parts) {
       this.flags.damage.parts.forEach((part) => {
@@ -649,8 +796,20 @@ export default class DDBItem {
     }
   }
 
+  // eslint-disable-next-line complexity
   #determineType() {
-    if (!this.ddbDefinition.filterType) this.type.main = "custom";
+    if (!this.ddbDefinition.filterType) {
+      if (this.ddbDefinition.name.startsWith("Spell Scroll:")) {
+        this.documentType = "consumable";
+        this.systemType.value = "scroll";
+      } else {
+        this.documentType = "loot";
+      }
+      this.parsingType = "custom";
+      this.overrides.ddbType = "Custom Item";
+      this.overrides.custom = true;
+      return;
+    }
 
     switch (this.ddbDefinition.filterType) {
       case "Weapon": {
@@ -681,6 +840,19 @@ export default class DDBItem {
           this.systemType.value = "trinket";
           this.parsingType = "consumable";
           this.overrides.ddbType = this.ddbDefinition.type;
+        } else if (this.isTattoo) {
+          this.overrides.ddbType = "Tattoo";
+          const type = this.tattooType
+            ? "dnd-tashas-cauldron.tattoo"
+            : this.isContainer ? "container" : "equipment";
+          this.documentType = type;
+          this.parsingType = "wonderous";
+          if (this.tattooType) {
+            this.systemType.value = this.ddbDefinition.name.toLowerCase().includes("spellwrought")
+              ? "spellwrought"
+              : "permanent";
+            this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
+          }
         } else {
           this.documentType = "equipment";
           this.systemType.value = "trinket";
@@ -872,7 +1044,10 @@ export default class DDBItem {
 
 
   async _prepare() {
-    this.ddbDefinition.description = await generateTable(this.name, this.ddbDefinition.description, this.updateExisting);
+    this._generateDataStub();
+    this.#generateBaseItem();
+    this._generateActionInfo();
+    this._generateDamageParts();
   }
 
   #getDescription() {
@@ -891,16 +1066,8 @@ export default class DDBItem {
     };
   }
 
-  #getBasicRange() {
-    return {
-      value: this.ddbDefinition.range ? this.ddbDefinition.range : null,
-      long: this.ddbDefinition.longRange ? this.ddbDefinition.longRange : null,
-      units: (this.ddbDefinition.range || this.ddbDefinition.range) ? "ft" : "",
-    };
-  }
-
-  #getQuantity() {
-    return this.ddbDefinition.quantity
+  #generateQuantity() {
+    this.data.system.quantity = this.ddbDefinition.quantity
       ? this.ddbDefinition.quantity
       : this.ddbItem.quantity
         ? this.ddbItem.quantity
@@ -917,21 +1084,21 @@ export default class DDBItem {
     };
   }
 
-  #getEquipped() {
+  #generateEquipped() {
     if (this.ddbDefinition.canEquip !== undefined && this.ddbDefinition.canEquip === true) {
-      return this.ddbItem.equipped;
+      this.data.system.equipped = this.ddbItem.equipped;
     } else {
-      return false;
+      this.data.system.equipped = false;
     }
   }
 
-  #getItemRarity() {
+  #generateItemRarity() {
     const tmpRarity = this.ddbDefinition.rarity;
     const isMundaneItem = this.ddbDefinition?.rarity === "Common" && !this.ddbDefinition.magic;
     const rarity = this.ddbDefinition.rarity && !isMundaneItem
       ? tmpRarity.charAt(0).toLowerCase() + tmpRarity.slice(1).replace(/\s/g, "")
       : "";
-    return rarity;
+    this.data.system.rarity = rarity;
   }
 
   #getActivityRange() {
@@ -939,7 +1106,7 @@ export default class DDBItem {
     return {
       value: this.ddbDefinition.range ? this.ddbDefinition.range : null,
       long: this.ddbDefinition.longRange ? this.ddbDefinition.longRange : null,
-      units: (this.ddbDefinition.range || this.ddbDefinition.range) ? "ft." : "",
+      units: (this.ddbDefinition.range || this.ddbDefinition.range) ? "ft" : "",
     };
   }
 
@@ -957,6 +1124,16 @@ export default class DDBItem {
     };
   }
 
+  #getWeaponBehaviourRange() {
+    // range: { value: null, long: null, units: '' },
+    let weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
+    return {
+      value: weaponBehavior.range ? weaponBehavior.range : 5,
+      long: weaponBehavior.longRange ? weaponBehavior.longRange : 5,
+      units: "ft",
+    };
+  }
+
   #getMagicalBonus(returnZero = false) {
     const bonus = this.ddbDefinition.grantedModifiers
       .filter(
@@ -965,6 +1142,15 @@ export default class DDBItem {
       .reduce((prev, cur) => prev + cur.value, 0);
     return bonus === 0 && !returnZero ? "" : bonus;
   }
+
+  #getWeaponMagicalBonus(returnZero = false) {
+    const bonus = this.#getMagicalBonus(returnZero);
+    if (this.flags.classFeatures.includes("Improved Pact Weapon") && bonus === 0) {
+      return 1;
+    } else {
+      return bonus;
+    }
+  };
 
   #getMagicalArmorBonus() {
     const bonus = this.ddbDefinition.grantedModifiers
@@ -1045,28 +1231,30 @@ export default class DDBItem {
         const magicBonus = this.#getMagicalArmorBonus();
         if (magicBonus > 0) {
           this.data.system.armor.magicalBonus = magicBonus;
-          utils.addToProperties(this.data.system.properties, "mgc");
+          this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
         }
         break;
       }
+      case "staff":
       case "ammunition": {
         if (this.actionInfo.magicBonus.zero > 0) {
-          utils.addToProperties(this.data.system.properties, "mgc");
+          this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
           this.data.system.magicalBonus = this.actionInfo.magicBonus.zero;
         }
         break;
       }
-      case "staff": {
-
-        break;
-      }
       case "weapon": {
-
+        const magicalBonus = this.#getWeaponMagicalBonus(true);
+        this.actionInfo.magicBonus.zero = magicalBonus;
+        if (magicalBonus > 0) {
+          this.data.system.magicalBonus = magicalBonus;
+          this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
+        }
         break;
       }
       default: {
         if (this.actionInfo.magicBonus.zero > 0) {
-          utils.addToProperties(this.data.system.properties, "mgc");
+          this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
           logger.error(`Magical Bonus detected, but not handled for ${this.name}`, {
             this: this,
           });
@@ -1159,96 +1347,486 @@ export default class DDBItem {
     }
   }
 
-  async build() {
-    await this._prepare();
-    this._generateDataStub();
-    this.#generateBaseItem();
-    this._generateDamageParts();
+  async #generateDescription() {
+    if (this.parsingType === "custom") {
+      let description = this.ddbDefinition.description && this.ddbDefinition.description !== "null"
+        ? this.ddbDefinition.description
+        : "";
+      description = this.ddbDefinition.notes
+        ? description + `<p><blockquote>${this.ddbDefinition.notes}</blockquote></p>`
+        : description;
 
+      const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
+      this.data.system.description = {
+        value: description,
+        chat: chatAdd ? this.ddbDefinition.snippet ?? "" : "",
+      };
+    } else {
+      this.ddbDefinition.description = await generateTable(this.name, this.ddbDefinition.description, this.updateExisting);
+      this.data.system.description = this.#getDescription();
+    }
+  }
 
+  #generatePrice() {
+    const value = this.ddbDefinition.cost ? Number.parseFloat(this.ddbDefinition.cost) : 0;
+    this.data.system.price = {
+      "value": Number.isInteger(value) ? value : (value * 10),
+      "denomination": Number.isInteger(value) ? "gp" : "sp",
+    };
+  }
+
+  #generateCapacity() {
+    this.data.system.capacity =  (this.ddbDefinition.capacityWeight !== null)
+      ? {
+        "type": "weight",
+        "value": this.ddbDefinition.capacityWeight,
+      }
+      : {};
+  }
+
+  #generateCurrency() {
+    if (!this.ddbItem.currency) return;
+    this.data.system.currency = {
+      cp: this.ddbItem.currency?.cp ?? 0,
+      sp: this.ddbItem.currency?.sp ?? 0,
+      ep: this.ddbItem.currency?.ep ?? 0,
+      gp: this.ddbItem.currency?.gp ?? 0,
+      pp: this.ddbItem.currency?.pp ?? 0,
+    };
+  }
+
+  #generateWeightless() {
+    const isWeightless = this.ddbDefinition.weightMultiplier === 0;
+    if (isWeightless) {
+      this.data.system.properties = utils.addToProperties(loot.system.properties, "weightlessContents");
+    }
+  }
+
+  #generateStaffProperties() {
+    let weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
+    if (!weaponBehavior.properties || !Array.isArray(weaponBehavior.properties)) return;
+
+    DICTIONARY.weapon.properties.filter((p) =>
+      weaponBehavior.properties.find((prop) => prop.name === p.name) !== undefined,
+    ).map((p) => p.value).forEach((prop) => {
+      this.data.system.properties = utils.addToProperties(this.data.system.properties, prop);
+    });
+  }
+
+  #generateWeaponProperties() {
+    this.data.system.properties = DICTIONARY.weapon.properties
+      .filter((property) => {
+        // if it is a weapon property
+        if (this.ddbDefinition.properties
+          && Array.isArray(this.ddbDefinition.properties)
+          && this.ddbDefinition.properties.some((prop) => prop.name === property.name)
+        ) {
+          return true;
+        }
+        // if it is a granted property
+        if (this.ddbDefinition.grantedModifiers
+          && Array.isArray(this.ddbDefinition.grantedModifiers)
+          && this.ddbDefinition.grantedModifiers.some((prop) =>
+            prop.type === "weapon-property"
+            && prop.friendlySubtypeName === property.name,
+          )
+        ) {
+          return true;
+        }
+        // else not a property
+        return false;
+      })
+      .map((property) => property.value);
+  }
+
+  #getWeaponProficient() {
+    // if it's a simple weapon and the character is proficient in simple weapons:
+    if (
+      this.characterProficiencies.some((proficiency) => proficiency.name === "Simple Weapons")
+      && this.data.system.type.value.indexOf("simple") !== -1
+    ) {
+      return true;
+    } else if (
+      this.characterProficiencies.some((proficiency) => proficiency.name === "Martial Weapons")
+      && this.data.system.type.indexOf("martial") !== -1
+    ) {
+      return true;
+    } else {
+      const proficient = this.characterProficiencies.some((proficiency) =>
+        proficiency.name.toLowerCase() === this.ddbDefinition.type.toLowerCase()
+      );
+      if (proficient) return proficient;
+    }
+    return null;
+  };
+
+  #getAbility() {
+    // finesse weapons can choose freely, and is now automated
+    if (this.data.system.properties.fin) {
+      return null;
+    }
+
+    // thrown, but not finesse weapon: STR
+    if (this.data.system.properties.thr) {
+      return "str";
+    }
+
+    // if it's a ranged weapon, and hot a reach weapon (long = 10 (?))
+    if (this.data.system.range?.long > 5 && !this.data.system.properties.rch) {
+      return "dex";
+    }
+
+    // the default is null (auto based on base)
+    return null;
+  }
+
+  #getWeaponAbility() {
+    let result = "";
+    const ability = this.#getAbility();
+    const mockAbility = ability === null
+      ? this.data.system.properties.includes("fin") ? "dex" : "str"
+      : ability;
+
+    // warlocks can use cha for their Hex weapon
+    if (this.flags.classFeatures.includes("hexWarrior")) {
+      if (this.characterEffectAbilities.cha.value >= this.characterEffectAbilities[mockAbility].value) {
+        result = "cha";
+      }
+    }
+    // kensai monks
+    if (this.flags.classFeatures.includes("kensaiWeapon") || this.flags.classFeatures.includes("monkWeapon")) {
+      if (this.characterEffectAbilities.dex.value >= this.characterEffectAbilities[mockAbility].value) {
+        result = "dex";
+      }
+    }
+    if (this.flags.magicItemAttackInt && (this.ddbDefinition.magic || this.data.system.properties.includes("mgc"))) {
+      if (this.characterEffectAbilities.int.value > this.characterEffectAbilities[mockAbility].value) {
+        result = "int";
+      }
+    }
+    const setAbility = result && result !== ""
+      ? result
+      : mockAbility;
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.ability", setAbility);
+
+    return result;
+  }
+
+  #isHalfToolProficiencyRoundedUp(ab) {
+    const longAbility = DICTIONARY.character.abilities
+      .filter((ability) => ab === ability.value)
+      .map((ability) => ability.long)[0];
+    const roundUp = DDBHelper.filterBaseModifiers(this.ddbData, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks` });
+    return Array.isArray(roundUp) && roundUp.length;
+  }
+
+  #getToolProficiency(toolName, ability) {
+    const mods = DDBHelper.getAllModifiers(this.ddbData, { includeExcludedEffects: true });
+    const modifiers = mods
+      .filter((modifier) => modifier.friendlySubtypeName === toolName)
+      .map((mod) => mod.type);
+
+    const toolExpertise = this.ddbData.character?.classes
+      ? this.ddbData.character.classes.some((cls) =>
+        cls.classFeatures.some((feature) => feature.definition.name === "Tool Expertise" && cls.level >= feature.definition.requiredLevel),
+      )
+        ? 2
+        : 1
+      : 1;
+
+    const halfProficiency
+      = DDBHelper.getChosenClassModifiers(this.ddbData).find(
+        (modifier) =>
+          // Jack of All trades/half-rounded down
+          (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
+          // e.g. champion for specific ability checks
+          || this.#isHalfToolProficiencyRoundedUp(ability),
+      ) !== undefined
+        ? 0.5
+        : 0;
+
+    const proficient = modifiers.includes("expertise")
+      ? 2
+      : modifiers.includes("proficiency")
+        ? toolExpertise
+        : halfProficiency;
+
+    return proficient;
+  }
+
+  #generateAmmunitionSpecifics() {
+    this.activityOptions.generateActivation = true;
+    this.activityOptions.generateRange = true;
+
+    if (this.damageParts.length > 0) {
+      this.system.damage = {
+        replace: false,
+        base: this.damageParts[0],
+      };
+    }
+
+    // todo: more than one damage part?
+    // do we ever want to replace damage here?
+    // do we need to have a secondary damage part or save e.g. slaying arrow?
+
+    // ammunition damage
+    // "replace": true
+  }
+
+  #generateArmorSpecifics() {
+    this.data.system.armor.value = this.ddbDefinition.armorClass;
+    this.data.system.strength = this.ddbDefinition.strengthRequirement ?? 0;
+    if (this.ddbDefinition.stealthCheck === 2)
+      this.data.system.properties = utils.addToProperties(this.data.system.properties, "stealthDisadvantage");
+    this.#generateArmorMaxDex();
+    this.#generateProficient();
+    this.#generateUses();
+    if (!this.data.name.toLowerCase().includes("armor")) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.alternativeNames", [`${this.name} Armor`]);
+    }
+  }
+
+  #generateConsumableSpecifics() {
+    this.activityOptions.generateActivation = true;
+    if (this.data.system.type.value === "wand") {
+      this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
+    }
+    this.#getConsumableUses();
+  }
+
+  #generateLootSpecifics() {
+    if (this.systemType.value) {
+      this.#getConsumableUses();
+    }
+    if (this.documentType === "container") {
+      this.#generateCapacity();
+      this.#generateCurrency();
+      this.#generateWeightless();
+    }
+  }
+
+  #generateScrollSpecifics() {
+    this.activityOptions.generateActivation = true;
+    //todo: what kind of activity type are scrolls?
+    this.#getConsumableUses();
+  }
+
+  #generateStaffSpecifics() {
+    this.activityOptions.generateActivation = true;
+    this.activityOptions.generateAttack = true;
+    this.#generateStaffProperties();
+    this.data.system.proficient = this.#getWeaponProficient();
+    this.data.system.range = this.#getWeaponBehaviourRange();
+    this.actionInfo.ability = this.#getAbility();
+    this.actionInfo.meleeAttack = this.data.system.range.long === 5;
+    if (!game.modules.get("magicitems")?.active && !game.modules.get("items-with-spells-5e")?.active) {
+      this.#generateUses();
+    }
+  }
+
+  #generateToolSpecifics() {
+    this.activityOptions.generateCheck = true;
+    const defaultAbility = DICTIONARY.character.proficiencies.find((prof) => prof.name === tool.name);
+    this.actionInfo.ability = defaultAbility?.ability ?? "dex";
+    this.data.system.proficient = this.ddbData ? this.#getToolProficiency(this.ddbDefinition.name, this.actionInfo.ability) : 0;
+    this.#generateUses();
+  }
+
+  #generateWeaponSpecifics() {
+    this.activityOptions.generateAttack = true;
+    this.activityOptions.generateActivation = true;
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.damage", this.flags.damage);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.classFeatures", this.flags.classFeatures);
+    this.#generateWeaponProperties();
+    const proficientFeatures = ["pactWeapon", "kensaiWeapon"];
+    this.data.system.proficient = this.flags.classFeatures.some((feat) => proficientFeatures.includes(feat))
+      ? true
+      : this.#getWeaponProficient();
+    // Todo: Maybe not needed anymore?
+    if (this.flags.classFeatures.includes("OffHand")) this.actionInfo.activation.type = "bonus";
+    this.data.system.range = this.#getWeaponRange();
+    this.#generateUses(false);
+    this.data.system.uses.prompt = false;
+    this.actionInfo.ability = this.#getWeaponAbility();
+    if (this.ddbDefinition.attackType === 1) {
+      this.actionInfo.meleeAttack = true;
+    } else {
+      this.actionInfo.meleeAttack = false;
+    }
+  }
+
+  #generateWonderousSpecifics() {
+    if (this.isContainer) {
+      this.#generateCurrency();
+      this.#generateWeightless();
+    }
+    if (!this.isContainer && !this.tattooType) {
+      this.data.system.armor = {
+        value: null,
+        dex: null,
+      };
+      this.data.system.type.value = this.isClothingTag && !this.isContainer ? "clothing" : "trinket";
+      this.data.system.strength = 0;
+      this.data.system.properties = utils.removeFromProperties(this.data.system.properties, "stealthDisadvantage");
+      this.data.system.proficient = null;
+    }
+    this.#generateUses(true);
+    if (!this.isTattoo) {
+      this.#generateCapacity();
+    }
+  }
+
+  #generateAttunement() {
+    if (this.ddbItem.isAttuned || this.ddbDefinition.canAttune) {
+      if (this.ddbDefinition.name.startsWith("Spell Gem")) {
+        this.data.system.attunement = "optional";
+      } else {
+        this.data.system.attunement = "required";
+      }
+    }
+  }
+
+  // eslint-disable-next-line complexity
+  #generateTypeSpecifics() {
     switch (this.parsingType) {
       case "ammunition": {
-        this.data.system.weight = this.#getSingleItemWeight();
-
-        this.actionInfo.activation = { type: "action", value: 1, condition: "" };
-        this.actionInfo.range = this.#getActivityRange();
-
-        if (this.damageParts.length > 0) {
-          this.system.damage = {
-            replace: false,
-            base: this.damageParts[0],
-          };
-        }
-
-        // todo: more than one damage part?
-        // do we ever want to replace damage here?
-        // do we need to have a secondary damage part or save e.g. slaying arrow?
-
-        // ammunition damage
-        // "replace": true
+        this.#generateAmmunitionSpecifics();
         break;
       }
       case "armor": {
-        this.data.system.weight = this.#getSingleItemWeight();
-        this.data.system.armor.value = this.ddbDefinition.armorClass;
-        this.data.system.strength = this.ddbDefinition.strengthRequirement ?? 0;
-        if (this.ddbDefinition.stealthCheck === 2)
-          utils.addToProperties(this.data.system.properties, "stealthDisadvantage");
-        this.#generateArmorMaxDex();
-        this.#generateProficient();
-        this.#generateUses();
-        if (!this.data.name.toLowerCase().includes("armor")) {
-          foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.alternativeNames", [`${this.name} Armor`]);
-        }
+        this.#generateArmorSpecifics();
         break;
       }
       case "consumable": {
-        this.actionInfo.activation = { type: "action", value: 1, condition: "" };
-        this.data.system.weight = this.#getSingleItemWeight();
-        this.#getConsumableUses();
+        this.#generateConsumableSpecifics();
         break;
       }
       case "loot": {
+        this.#generateLootSpecifics();
         break;
       }
       case "scroll": {
+        this.#generateScrollSpecifics();
         break;
       }
       case "staff": {
+        this.#generateStaffSpecifics();
         break;
       }
       case "tool": {
+        this.#generateToolSpecifics();
         break;
       }
       case "weapon": {
-        this.data.system.range = this.#getWeaponRange();
+        this.#generateWeaponSpecifics();
         break;
       }
       case "wonderous": {
+        this.#generateWonderousSpecifics();
         break;
       }
       case "custom":
       default: {
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.id", this.ddbItem.id);
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.custom", true);
+        this.data.system.source = "Custom item";
         // no matching case, try custom item parse
       }
     }
+  }
 
-    this.data.system.equipped = this.#getEquipped();
-    this.data.system.rarity = this.#getItemRarity();
-    this.data.system.identified = true;
-    this.data.system.quantity = this.#getQuantity();
-    this._generateMagicalBonus();
+  // eslint-disable-next-line complexity
+  async build() {
+    try {
+      await this._prepare();
 
-    if (this.overrides.ddbType) foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", this.overrides.ddbType);
+      this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
+      this.data.system.weight = this.#getSingleItemWeight();
 
-    this._buildActivity();
-    this._buildAdditionalActivities();
+      if (this.ddbDefinition.magic)
+        this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
 
-    this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
+      this.#generateTypeSpecifics();
 
-    // should be one of the last things to do
-    this.data.system.description = this.#getDescription();
+      this.#generateEquipped();
+      this.#generateItemRarity();
+      this.#generateQuantity();
+      this.#generatePrice();
+      this._generateMagicalBonus();
 
+      if (this.overrides.ddbType)
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", this.overrides.ddbType);
+
+      this.#generateActivityType();
+      this._buildCoreActivities();
+      this._buildAdditionalActivities();
+
+      this.data.system.attuned = this.ddbItem.isAttuned;
+      this.#generateAttunement();
+
+      // should be one of the last things to do
+      await this.#generateDescription();
+
+      this.#addExtraDDBFlags();
+      DDBHelper.addCustomValues(this.ddbData, this.data);
+      this.#enrichFlags();
+    } catch (err) {
+      logger.warn(
+        `Unable to parse item: ${this.ddbDefinition.name}, ${this.ddbDefinition.type}/${this.ddbDefinition.filterType}. ${err.message}`,
+        {
+          this: this,
+        },
+      );
+      logger.error(err.stack);
+    }
+
+  }
+
+  #addExtraDDBFlags() {
+    this.data.flags.ddbimporter['id'] = this.ddbItem.id;
+    this.data.flags.ddbimporter['entityTypeId'] = this.ddbItem.entityTypeId;
+
+    if (this.ddbDefinition.avatarUrl)
+      this.data.flags.ddbimporter.dndbeyond['avatarUrl'] = this.ddbDefinition.avatarUrl.split('?')[0];
+    if (this.ddbDefinition.largeAvatarUrl)
+      this.data.flags.ddbimporter.dndbeyond['largeAvatarUrl'] = this.ddbDefinition.largeAvatarUrl.split('?')[0];
+    if (this.ddbDefinition.filterType) {
+      const filter = DICTIONARY.items.find((i) => i.filterType === this.ddbDefinition.filterType);
+      if (filter) this.data.flags.ddbimporter.dndbeyond['filterType'] = filter.filterType;
+    }
+
+    // container info
+    if (this.ddbItem.containerEntityId)
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.containerEntityId", this.ddbItem.containerEntityId);
+    if (this.ddbItem.containerEntityTypeId)
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.containerEntityTypeId", this.ddbItem.containerEntityTypeId);
+
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.isConsumable", this.ddbDefinition.isConsumable);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.isContainer", this.ddbDefinition.isContainer);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.isCustomItem", this.ddbDefinition.isCustomItem);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.homebrew", this.ddbDefinition.isHomebrew);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.isMonkWeapon", this.ddbDefinition.isMonkWeapon);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.isPack", this.ddbDefinition.isPack);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.levelInfusionGranted", this.ddbDefinition.levelInfusionGranted);
+
+    return this.data;
+  }
+
+  #enrichFlags() {
+    if (this.ddbDefinition?.entityTypeId)
+      this.data.flags.ddbimporter['definitionEntityTypeId'] = this.ddbDefinition.entityTypeId;
+    if (this.ddbDefinition?.id)
+      this.data.flags.ddbimporter['definitionId'] = this.ddbDefinition.id;
+    if (this.ddbItem.entityTypeId)
+      this.data.flags.ddbimporter['entityTypeId'] = this.ddbItem.entityTypeId;
+    if (this.ddbItem.id)
+      this.data.flags.ddbimporter['id'] = this.ddbItem.id;
+    if (this.ddbDefinition?.tags)
+      this.data.flags.ddbimporter.dndbeyond['tags'] = this.ddbDefinition.tags;
+    if (this.ddbDefinition?.sources)
+      this.data.flags.ddbimporter.dndbeyond['sources'] = this.ddbDefinition.sources;
+    if (this.ddbDefinition?.stackable)
+      this.data.flags.ddbimporter.dndbeyond['stackable'] = this.ddbDefinition.stackable;
   }
 
 }

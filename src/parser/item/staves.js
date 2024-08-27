@@ -24,21 +24,21 @@ function getWeaponType(data) {
  * Gets the weapons's properties (Finesse, Reach, Heavy etc.)
  * @param {obj} data Item data
  */
-function getProperties(data) {
-  let weaponBehavior = data.definition.weaponBehaviors[0];
-  if (!weaponBehavior.properties || !Array.isArray(weaponBehavior.properties)) return [];
-  let result = {};
-  DICTIONARY.weapon.properties.forEach((property) => {
-    if (weaponBehavior.properties && Array.isArray(weaponBehavior.properties)) {
-      result[property.value] = weaponBehavior.properties.find((prop) => prop.name === property.name) !== undefined;
-    }
-  });
+// function getProperties(data) {
+//   let weaponBehavior = data.definition.weaponBehaviors[0];
+//   if (!weaponBehavior.properties || !Array.isArray(weaponBehavior.properties)) return [];
+//   let result = {};
+//   DICTIONARY.weapon.properties.forEach((property) => {
+//     if (weaponBehavior.properties && Array.isArray(weaponBehavior.properties)) {
+//       result[property.value] = weaponBehavior.properties.find((prop) => prop.name === property.name) !== undefined;
+//     }
+//   });
 
-  result = DICTIONARY.weapon.properties.filter((p) =>
-    weaponBehavior.properties.find((prop) => prop.name === p.name) !== undefined,
-  ).map((p) => p.value);
-  return result;
-}
+//   result = DICTIONARY.weapon.properties.filter((p) =>
+//     weaponBehavior.properties.find((prop) => prop.name === p.name) !== undefined,
+//   ).map((p) => p.value);
+//   return result;
+// }
 
 
 /**
@@ -153,22 +153,22 @@ export default function parseStaff(data, character) {
     },
   };
 
-  staff.system.type.value = getWeaponType(data);
-  staff.system.properties = getProperties(data);
-  staff.system.proficient = getWeaponProficient(data, staff.system.type.value, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
-  staff.system.description = getDescription(data, staff);
-  staff.system.source = DDBHelper.parseSource(data.definition);
-  staff.system.quantity = getQuantity(data);
-  staff.system.weight = getSingleItemWeight(data);
-  staff.system.equipped = getEquipped(data);
-  staff.system.rarity = getItemRarity(data);
-  staff.system.identified = true;
-  staff.system.activation = { type: "action", cost: 1, condition: "" };
-  staff.system.range = getRange(data);
-  staff.system.ability = getAbility(staff.system.properties, staff.system.range, character.flags.ddbimporter.dndbeyond.effectAbilities);
-  staff.system.actionType = staff.system.range.long === 5 ? "mwak" : "rwak";
-  staff.system.attack.bonus = getMagicalBonus(data);
-  staff.system.damage = getDamage(data, getMagicalBonus(data, true));
+  // staff.system.type.value = getWeaponType(data);
+  // staff.system.properties = getProperties(data);
+  // staff.system.proficient = getWeaponProficient(data, staff.system.type.value, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
+  // staff.system.description = getDescription(data, staff);
+  // staff.system.source = DDBHelper.parseSource(data.definition);
+  // staff.system.quantity = getQuantity(data);
+  // staff.system.weight = getSingleItemWeight(data);
+  // staff.system.equipped = getEquipped(data);
+  // staff.system.rarity = getItemRarity(data);
+  // staff.system.identified = true;
+  // staff.system.activation = { type: "action", cost: 1, condition: "" };
+  // staff.system.range = getRange(data);
+  // staff.system.ability = getAbility(staff.system.properties, staff.system.range, character.flags.ddbimporter.dndbeyond.effectAbilities);
+  // staff.system.actionType = staff.system.range.long === 5 ? "mwak" : "rwak";
+  // staff.system.attack.bonus = getMagicalBonus(data);
+  // staff.system.damage = getDamage(data, getMagicalBonus(data, true));
 
   if (!game.modules.get("magicitems")?.active && !game.modules.get("items-with-spells-5e")?.active) {
     staff.system.uses = getUses(data);

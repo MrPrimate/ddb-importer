@@ -150,17 +150,18 @@ export default class DDBItemActivity {
       ? "spell"
       : "weapon"; // unarmed, weapon, spell
 
-    let type = this.ddbItemData.rangedAttack
-      ? "ranged"
-      : "melee";
+    // staff.system.actionType = staff.system.range.long === 5 ? "mwak" : "rwak";
+    let type = this.actionInfo.meleeAttack
+      ? "melee"
+      : "ranged";
 
     const attack = {
-      ability: this.actionInfo.baseAbility,
+      ability: this.actionInfo.ability,
       bonus: `${this.actionInfo.extraAttackBonus}`,
       critical: {
         threshold: undefined,
       },
-      flat: false, // almost never false for PC features
+      flat: this.actionInfo.isFlat, // almost never false for PC features
       type: {
         value: type,
         classification,
@@ -176,6 +177,7 @@ export default class DDBItemActivity {
     generateActivation = true,
     generateAttack = false,
     generateConsumption = true,
+    generateCheck = false,
     generateDamage = false,
     generateDescription = false,
     generateDuration = true,
@@ -197,6 +199,7 @@ export default class DDBItemActivity {
       generateActivation,
       generateAttack,
       generateConsumption,
+      generateCheck,
       generateDamage,
       generateDescription,
       generateDuration,
@@ -230,6 +233,7 @@ export default class DDBItemActivity {
     if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage });
     if (generateHealing) this._generateHealing({ parts: damageParts, includeBase: includeBaseDamage });
 
+    if (generateCheck) this._generateCheck();
 
     // ATTACK has
     // activation

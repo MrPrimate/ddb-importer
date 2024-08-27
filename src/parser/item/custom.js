@@ -18,31 +18,31 @@ export default function parseCustomItem(data) {
     },
   };
 
-  if (data.definition.name.startsWith("Spell Scroll:")) {
-    customItem.type = "consumable";
-    customItem.system.type.value = "scroll";
-  }
+  // if (data.definition.name.startsWith("Spell Scroll:")) {
+  //   customItem.type = "consumable";
+  //   customItem.system.type.value = "scroll";
+  // }
 
-  let description = data.definition.description && data.definition.description !== "null"
-    ? data.definition.description
-    : "";
-  description = data.definition.notes
-    ? description + `<p><blockquote>${data.definition.notes}</blockquote></p>`
-    : description;
+  // let description = data.definition.description && data.definition.description !== "null"
+  //   ? data.definition.description
+  //   : "";
+  // description = data.definition.notes
+  //   ? description + `<p><blockquote>${data.definition.notes}</blockquote></p>`
+  //   : description;
 
-  const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
-  customItem.system.description = {
-    value: description,
-    chat: chatAdd ? description : "",
-  };
+  // const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
+  // customItem.system.description = {
+  //   value: description,
+  //   chat: chatAdd ? description : "",
+  // };
 
-  customItem.system.source = "Custom item";
-  customItem.system.quantity = getQuantity(data);
-  customItem.system.weight = getSingleItemWeight(data);
-  customItem.system.price = getPrice(data);
-  customItem.system.equipped = getEquipped(data);
-  customItem.system.identified = true;
-  customItem.system.rarity = getItemRarity(data);
+  // customItem.system.source = "Custom item";
+  // customItem.system.quantity = getQuantity(data);
+  // customItem.system.weight = getSingleItemWeight(data);
+  // customItem.system.price = getPrice(data);
+  // customItem.system.equipped = getEquipped(data);
+  // customItem.system.identified = true;
+  // customItem.system.rarity = getItemRarity(data);
 
   return customItem;
 }

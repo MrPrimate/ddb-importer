@@ -56,19 +56,19 @@ function getProperties(data) {
 /**
  * Gets the range(s) of a given weapon
  */
-function getRange(data, weaponProperties) {
-  // range: { value: null, long: null, units: '' },
-  // sometimes reach weapons have their range set as 5. it's not clear why.
-  const shortRange = data.definition.range ? data.definition.range : 5;
-  const reach = weaponProperties.includes("rch") && data.definition.range == 5 ? 5 : 0;
-  return {
-    value: shortRange + reach,
-    long: (data.definition.longRange && data.definition.longRange != data.definition.range)
-      ? data.definition.longRange + reach
-      : "",
-    units: "ft",
-  };
-};
+// function getRange(data, weaponProperties) {
+//   // range: { value: null, long: null, units: '' },
+//   // sometimes reach weapons have their range set as 5. it's not clear why.
+//   const shortRange = data.definition.range ? data.definition.range : 5;
+//   const reach = weaponProperties.includes("rch") && data.definition.range == 5 ? 5 : 0;
+//   return {
+//     value: shortRange + reach,
+//     long: (data.definition.longRange && data.definition.longRange != data.definition.range)
+//       ? data.definition.longRange + reach
+//       : "",
+//     units: "ft",
+//   };
+// };
 
 /**
  * Gets the ability which the to hit modifier is baed on
@@ -81,24 +81,24 @@ function getRange(data, weaponProperties) {
  * @param {obj} weaponRange weapon range information
  * @param {obj} abilities character abilities (scores)
  */
-function getAbility(weaponProperties, weaponRange) {
-  // finesse weapons can choose freely, so we choose the higher one
-  if (weaponProperties.includes("fin")) {
-    return null;
-  }
+// function getAbility(weaponProperties, weaponRange) {
+//   // finesse weapons can choose freely, so we choose the higher one
+//   if (weaponProperties.includes("fin")) {
+//     return null;
+//   }
 
-  // thrown, but not finesse weapon: STR
-  if (weaponProperties.includes("thr")) {
-    return "str";
-  }
+//   // thrown, but not finesse weapon: STR
+//   if (weaponProperties.includes("thr")) {
+//     return "str";
+//   }
 
-  // if it's a ranged weapon, and not a reach weapon (long = 10 (?))
-  if (weaponRange.long > 5 && !weaponProperties.includes("rch")) {
-    return "dex";
-  }
-  // the default is STR
-  return null;
-}
+//   // if it's a ranged weapon, and not a reach weapon (long = 10 (?))
+//   if (weaponRange.long > 5 && !weaponProperties.includes("rch")) {
+//     return "dex";
+//   }
+//   // the default is STR
+//   return null;
+// }
 
 /**
  * Searches for a magical attack bonus granted by this weapon
@@ -228,13 +228,13 @@ function getDamage(data, flags) {
   return [result, otherFormula, chatFlavor, restrictions];
 }
 
-function getActionType(data) {
-  if (data.definition.attackType === 1) {
-    return "mwak";
-  } else {
-    return "rwak";
-  }
-}
+// function getActionType(data) {
+//   if (data.definition.attackType === 1) {
+//     return "mwak";
+//   } else {
+//     return "rwak";
+//   }
+// }
 
 export default function parseWeapon(data, character, flags) {
   let weapon = {
@@ -246,82 +246,82 @@ export default function parseWeapon(data, character, flags) {
       ddbimporter: {
         dndbeyond: {
           type: data.definition.type,
-          damage: flags.damage,
-          classFeatures: flags.classFeatures,
+          damage: this.flags.damage,
+          classFeatures: this.flags.classFeatures,
         },
       },
     },
   };
 
-  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
-  const characterProficiencies = character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects;
+  // const this.characterEffectAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+  // const this.characterProficiencies = character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects;
 
-  weapon.system.type.value = getWeaponType(data);
-  weapon.system.properties = getProperties(data);
+  // weapon.system.type.value = getWeaponType(data);
+  // weapon.system.properties = getProperties(data);
 
-  const proficientFeatures = ["pactWeapon", "kensaiWeapon"];
-  if (flags.classFeatures.some((feat) => proficientFeatures.includes(feat))) {
-    weapon.system.proficient = true;
-  } else {
-    weapon.system.proficient = getWeaponProficient(data, weapon.system.type.value, characterProficiencies);
-  }
+  // const proficientFeatures = ["pactWeapon", "kensaiWeapon"];
+  // if (this.flags.classFeatures.some((feat) => proficientFeatures.includes(feat))) {
+  //   weapon.system.proficient = true;
+  // } else {
+  //   weapon.system.proficient = getWeaponProficient(data, weapon.system.type.value, this.characterProficiencies);
+  // }
 
-  weapon.system.description = getDescription(data, weapon);
-  weapon.system.source = DDBHelper.parseSource(data.definition);
-  weapon.system.quantity = getQuantity(data);
-  weapon.system.weight = getSingleItemWeight(data);
-  weapon.system.equipped = getEquipped(data);
-  weapon.system.rarity = getItemRarity(data);
-  weapon.system.identified = true;
-  weapon.system.activation = { type: "action", cost: 1, condition: "" };
-  if (flags.classFeatures.includes("OffHand")) weapon.system.activation.type = "bonus";
+  // weapon.system.description = getDescription(data, weapon);
+  // weapon.system.source = DDBHelper.parseSource(data.definition);
+  // weapon.system.quantity = getQuantity(data);
+  // weapon.system.weight = getSingleItemWeight(data);
+  // weapon.system.equipped = getEquipped(data);
+  // weapon.system.rarity = getItemRarity(data);
+  // weapon.system.identified = true;
+  // weapon.system.activation = { type: "action", cost: 1, condition: "" };
+  // if (this.flags.classFeatures.includes("OffHand")) weapon.system.activation.type = "bonus";
 
-  weapon.system.range = getRange(data, weapon.system.properties);
-  weapon.system.uses = getUses(data, false);
-  // force weapons to always not use prompt
-  weapon.system.uses.prompt = false;
-  weapon.system.ability = "";
-  const ability = getAbility(weapon.system.properties, weapon.system.range);
-  const mockAbility = ability === null
-    ? weapon.system.properties.includes("fin") ? "dex" : "str"
-    : ability;
+  // weapon.system.range = getRange(data, weapon.system.properties);
+  // weapon.system.uses = getUses(data, false);
+  // // force weapons to always not use prompt
+  // weapon.system.uses.prompt = false;
+  // weapon.system.ability = "";
+  // const ability = getAbility(weapon.system.properties, weapon.system.range);
+  // const mockAbility = ability === null
+  //   ? weapon.system.properties.includes("fin") ? "dex" : "str"
+  //   : ability;
 
-  // warlocks can use cha for their Hex weapon
-  if (flags.classFeatures.includes("hexWarrior")) {
-    if (characterAbilities.cha.value >= characterAbilities[mockAbility].value) {
-      weapon.system.ability = "cha";
-    }
-  }
-  // kensai monks
-  if (flags.classFeatures.includes("kensaiWeapon") || flags.classFeatures.includes("monkWeapon")) {
-    if (characterAbilities.dex.value >= characterAbilities[mockAbility].value) {
-      weapon.system.ability = "dex";
-    }
-  }
-  if (flags.magicItemAttackInt && (data.definition.magic || weapon.system.properties.includes("mgc"))) {
-    if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
-      weapon.system.ability = "int";
-    }
-  }
-  const setAbility = weapon.system.ability && weapon.system.ability !== ""
-    ? weapon.system.ability
-    : mockAbility;
-  foundry.utils.setProperty(weapon, "flags.ddbimporter.dndbeyond.ability", setAbility);
+  // // warlocks can use cha for their Hex weapon
+  // if (this.flags.classFeatures.includes("hexWarrior")) {
+  //   if (this.characterEffectAbilities.cha.value >= this.characterEffectAbilities[mockAbility].value) {
+  //     weapon.system.ability = "cha";
+  //   }
+  // }
+  // // kensai monks
+  // if (this.flags.classFeatures.includes("kensaiWeapon") || this.flags.classFeatures.includes("monkWeapon")) {
+  //   if (this.characterEffectAbilities.dex.value >= this.characterEffectAbilities[mockAbility].value) {
+  //     weapon.system.ability = "dex";
+  //   }
+  // }
+  // if (this.flags.magicItemAttackInt && (data.definition.magic || weapon.system.properties.includes("mgc"))) {
+  //   if (this.characterEffectAbilities.int.value > this.characterEffectAbilities[mockAbility].value) {
+  //     weapon.system.ability = "int";
+  //   }
+  // }
+  // const setAbility = weapon.system.ability && weapon.system.ability !== ""
+  //   ? weapon.system.ability
+  //   : mockAbility;
+  // foundry.utils.setProperty(weapon, "flags.ddbimporter.dndbeyond.ability", setAbility);
 
-  weapon.system.actionType = getActionType(data);
-  const magicalBonus = getWeaponMagicalBonus(data, flags, true);
+  // weapon.system.actionType = getActionType(data);
+  // const magicalBonus = getWeaponMagicalBonus(data, this.flags, true);
 
-  if (magicalBonus > 0) {
-    weapon.system.magicalBonus = magicalBonus;
-    weapon.system.properties = utils.addToProperties(weapon.system.properties, "mgc");
-  }
+  // if (magicalBonus > 0) {
+  //   weapon.system.magicalBonus = magicalBonus;
+  //   weapon.system.properties = utils.addToProperties(weapon.system.properties, "mgc");
+  // }
 
-  [
-    weapon.system.damage,
-    weapon.system.formula,
-    weapon.system.chatFlavor,
-    weapon.flags.ddbimporter.dndbeyond.restrictions,
-  ] = getDamage(data, flags);
+  // [
+  //   weapon.system.damage,
+  //   weapon.system.formula,
+  //   weapon.system.chatFlavor,
+  //   weapon.flags.ddbimporter.dndbeyond.restrictions,
+  // ] = getDamage(data, this.flags);
 
 
   return weapon;

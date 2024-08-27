@@ -1,25 +1,25 @@
 import DICTIONARY from "../../dictionary.js";
 
 
-export function getCurrency(data) {
-  return {
-    cp: data.currency?.cp ?? 0,
-    sp: data.currency?.sp ?? 0,
-    ep: data.currency?.ep ?? 0,
-    gp: data.currency?.gp ?? 0,
-    pp: data.currency?.pp ?? 0,
-  };
-}
+// export function getCurrency(data) {
+//   return {
+//     cp: data.currency?.cp ?? 0,
+//     sp: data.currency?.sp ?? 0,
+//     ep: data.currency?.ep ?? 0,
+//     gp: data.currency?.gp ?? 0,
+//     pp: data.currency?.pp ?? 0,
+//   };
+// }
 
-export function getPrice(data) {
-  const value = data.definition.cost ? Number.parseFloat(data.definition.cost) : 0;
-  const price = {
-    "value": Number.isInteger(value) ? value : (value * 10),
-    "denomination": Number.isInteger(value) ? "gp" : "sp",
-  };
+// export function getPrice(data) {
+//   const value = data.definition.cost ? Number.parseFloat(data.definition.cost) : 0;
+//   const price = {
+//     "value": Number.isInteger(value) ? value : (value * 10),
+//     "denomination": Number.isInteger(value) ? "gp" : "sp",
+//   };
 
-  return price;
-}
+//   return price;
+// }
 
 /**
  * Checks if the character can attune to an item and if yes, if he is attuned to it.
@@ -127,35 +127,35 @@ export function getAttuned(data) {
  * @param {string} weaponType The DND5E weaponType
  * @param {array} proficiencies The character's proficiencies as an array of `{ name: 'PROFICIENCYNAME' }` objects
  */
-export function getWeaponProficient(data, weaponType, proficiencies) {
-  // if it's a simple weapon and the character is proficient in simple weapons:
-  if (
-    proficiencies.some((proficiency) => proficiency.name === "Simple Weapons")
-    && weaponType.indexOf("simple") !== -1
-  ) {
-    return true;
-  } else if (
-    proficiencies.some((proficiency) => proficiency.name === "Martial Weapons")
-    && weaponType.indexOf("martial") !== -1
-  ) {
-    return true;
-  } else {
-    const proficient = proficiencies.some((proficiency) => proficiency.name.toLowerCase() === data.definition.type.toLowerCase());
-    if (proficient) return proficient;
-  }
-  return null;
-};
+// export function getWeaponProficient(data, weaponType, proficiencies) {
+//   // if it's a simple weapon and the character is proficient in simple weapons:
+//   if (
+//     proficiencies.some((proficiency) => proficiency.name === "Simple Weapons")
+//     && weaponType.indexOf("simple") !== -1
+//   ) {
+//     return true;
+//   } else if (
+//     proficiencies.some((proficiency) => proficiency.name === "Martial Weapons")
+//     && weaponType.indexOf("martial") !== -1
+//   ) {
+//     return true;
+//   } else {
+//     const proficient = proficiencies.some((proficiency) => proficiency.name.toLowerCase() === data.definition.type.toLowerCase());
+//     if (proficient) return proficient;
+//   }
+//   return null;
+// };
 
-export function getAttunement(item) {
-  if (item.isAttuned || item.definition.canAttune) {
-    if (item.definition.name.startsWith("Spell Gem")) {
-      return "optional";
-    }
-    return "required";
-  } else {
-    return "";
-  }
-}
+// export function getAttunement(item) {
+//   if (item.isAttuned || item.definition.canAttune) {
+//     if (item.definition.name.startsWith("Spell Gem")) {
+//       return "optional";
+//     }
+//     return "required";
+//   } else {
+//     return "";
+//   }
+// }
 
 /**
  * Retrieves the base item and tool type based on the provided data definition.
@@ -199,14 +199,14 @@ export function getWeightless(data) {
   return data.definition.weightMultiplier === 0;
 }
 
-export function getCapacity(data) {
+// export function getCapacity(data) {
 
-  const capacity = (data.definition.capacityWeight !== null)
-    ? {
-      "type": "weight",
-      "value": data.definition.capacityWeight,
-    }
-    : {};
+//   const capacity = (data.definition.capacityWeight !== null)
+//     ? {
+//       "type": "weight",
+//       "value": data.definition.capacityWeight,
+//     }
+//     : {};
 
-  return capacity;
-}
+//   return capacity;
+// }

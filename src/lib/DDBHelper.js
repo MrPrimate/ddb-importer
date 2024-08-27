@@ -2,6 +2,7 @@ import DICTIONARY from "../dictionary.js";
 import logger from "../logger.js";
 import { getEffectExcludedModifiers } from "../effects/effects.js";
 import utils from "./utils.js";
+import DDBBasicActivity from "../parser/enrichers/DDBBasicActivity.js";
 
 const DDBHelper = {
 
@@ -814,32 +815,44 @@ const DDBHelper = {
     const dcOverride = DDBHelper.getCustomValue(foundryItem, ddb, 15);
     const dcBonus = DDBHelper.getCustomValue(foundryItem, ddb, 14);
 
-    if (toHitBonus) {
-      if (foundry.utils.hasProperty(foundryItem, "system.attack.bonus") && parseInt(foundryItem.system.attack.bonus) === 0) {
-        foundryItem.system.attack.bonus = toHitBonus;
-      } else {
-        foundryItem.system.attack.bonus += ` + ${toHitBonus}`;
+    foundryItem.system.activities.forEach((activity) => {
+      if (activity.type === "attack") {
+        if (toHitBonus) {
+          if (foundry.utils.hasProperty(activity, "bonus")
+            && (parseInt(activity.bonus) === 0
+            || activity.bonus === "")
+          ) {
+            activity.bonus = toHitBonus;
+          } else {
+            activity.bonus += ` + ${toHitBonus}`;
+          }
+        }
       }
-    }
-    if (damageBonus && foundryItem.system?.damage?.parts && foundryItem.system?.damage?.parts.length !== 0) {
-      foundryItem.system.damage.parts[0][0] = foundryItem.system.damage.parts[0][0].concat(` +${damageBonus}`);
-    } else if (damageBonus && foundryItem.system?.damage?.parts) {
-      const part = [`+${damageBonus}`, ""];
-      foundryItem.system.damage.parts.push(part);
-    }
+      if (activity.damage && damageBonus) {
+        const part = DDBBasicActivity.buildDamagePart({ damageString: damageBonus });
+        activity.damage.parts.push(part);
+      }
+      if (activity.type === "save") {
+        if (dcBonus) {
+          if (foundryItem.flags.ddbimporter.dndbeyond.dc) {
+            foundryItem.system.save.dc.formula = parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus;
+            foundryItem.system.save.dc.calculation = "custom";
+          }
+        }
+        if (dcOverride) {
+          foundryItem.system.save.dc.formula = dcOverride;
+          foundryItem.system.save.dc.calculation = "custom";
+        }
+      }
+    });
+
     if (costOverride) foundryItem.system.cost = costOverride;
     if (weightOverride) foundryItem.system.weight = weightOverride;
-    if (silvered) foundryItem.system.properties['sil'] = true;
-    if (adamantine) foundryItem.system.properties['ada'] = true;
-    if (dcBonus) {
-      if (foundryItem.flags.ddbimporter.dndbeyond.dc) {
-        foundryItem.system.save.dc = parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus;
-        foundryItem.system.save.scaling = "flat";
-      }
+    if (silvered) {
+      foundryItem.system.properties = utils.addToProperties(foundryItem.system.properties, "sil");
     }
-    if (dcOverride) {
-      foundryItem.system.save.dc = dcOverride;
-      foundryItem.system.save.scaling = "flat";
+    if (adamantine) {
+      foundryItem.system.properties = utils.addToProperties(foundryItem.system.properties, "ada");
     }
     return foundryItem;
   },

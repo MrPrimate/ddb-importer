@@ -87,15 +87,15 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
   // const this.isTattoo = ddbData.definition.name.toLowerCase().includes("tattoo");
   // const this.tattooType = this.isTashasInstalled && this.isTattoo;
 
-  ddbTypeOverride = this.isTattoo
-    ? "Tattoo"
-    : this.isClothingTag && !this.isContainer
-      ? "Clothing"
-      : ddbTypeOverride;
+  // ddbTypeOverride = this.isTattoo
+  //   ? "Tattoo"
+  //   : this.isClothingTag && !this.isContainer
+  //     ? "Clothing"
+  //     : ddbTypeOverride;
 
-  const type = this.tattooType
-    ? "dnd-tashas-cauldron.tattoo"
-    : this.isContainer ? "container" : "equipment";
+  // const type = this.tattooType
+  //   ? "dnd-tashas-cauldron.tattoo"
+  //   : this.isContainer ? "container" : "equipment";
   /**
    * MAIN parseEquipment
    */
@@ -114,15 +114,15 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
   };
 
   if (this.isContainer) {
-    if (ddbData.currency) item.system.currency = getCurrency(ddbData);
-    if (getWeightless(ddbData)) {
-      item.system.properties = utils.addToProperties(item.system.properties, "weightlessContents");
-    }
+    // if (ddbData.currency) item.system.currency = getCurrency(ddbData);
+    // if (getWeightless(ddbData)) {
+    //   item.system.properties = utils.addToProperties(item.system.properties, "weightlessContents");
+    // }
   } else if (this.tattooType) {
-    item.system.type.value = ddbData.definition.name.toLowerCase().includes("spellwrought")
-      ? "spellwrought"
-      : "permanent";
-    utils.addToProperties(item.system.properties, "mgc");
+    // item.system.type.value = ddbData.definition.name.toLowerCase().includes("spellwrought")
+    //   ? "spellwrought"
+    //   : "permanent";
+    // utils.addToProperties(item.system.properties, "mgc");
   } else {
     //
     // "armor": {
@@ -130,30 +130,30 @@ export default function parseWonderous(ddbData, { ddbTypeOverride = null, armorT
     // "value": 10,
     // "dex": null
     // }
-    item.system.armor = {
-      value: null,
-      dex: null,
-    };
+    // item.system.armor = {
+    //   value: null,
+    //   dex: null,
+    // };
 
-    item.system.type.value = this.isClothingTag && !this.isContainer ? "clothing" : armorType;
+    // item.system.type.value = this.isClothingTag && !this.isContainer ? "clothing" : armorType;
 
-    /* "strength": 0 */
-    item.system.strength = 0;
+    // /* "strength": 0 */
+    // item.system.strength = 0;
 
-    /* "stealth": false,*/
-    utils.removeFromProperties(item.system.properties, "stealthDisadvantage");
-    item.system.proficient = null;
+    // /* "stealth": false,*/
+    // utils.removeFromProperties(item.system.properties, "stealthDisadvantage");
+    // item.system.proficient = null;
   }
 
-  item.system.description = getDescription(ddbData, item);
-  item.system.source = DDBHelper.parseSource(ddbData.definition);
-  item.system.quantity = getQuantity(ddbData);
-  item.system.weight = getSingleItemWeight(ddbData);
-  item.system.equipped = getEquipped(ddbData);
-  item.system.rarity = getItemRarity(ddbData);
-  item.system.identified = true;
-  item.system.uses = getUses(ddbData, true);
-  if (!this.isTattoo) item.system.capacity = getCapacity(ddbData);
+  // item.system.description = getDescription(ddbData, item);
+  // item.system.source = DDBHelper.parseSource(ddbData.definition);
+  // item.system.quantity = getQuantity(ddbData);
+  // item.system.weight = getSingleItemWeight(ddbData);
+  // item.system.equipped = getEquipped(ddbData);
+  // item.system.rarity = getItemRarity(ddbData);
+  // item.system.identified = true;
+  // item.system.uses = getUses(ddbData, true);
+  // if (!this.isTattoo) item.system.capacity = getCapacity(ddbData);
 
   item.system.activation = getActivation(ddbData.definition.description);
 

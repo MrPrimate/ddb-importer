@@ -62,44 +62,44 @@ export function getDamage(data, actionType) {
   return damage;
 }
 
-export function getDuration(data) {
-  let duration = {
-    value: null,
-    units: "",
-  };
+// export function getDuration(data) {
+//   let duration = {
+//     value: null,
+//     units: "",
+//   };
 
-  if (data.definition.duration) {
-    if (data.definition.duration.durationUnit !== null) {
-      duration.units = data.definition.duration.durationUnit.toLowerCase();
-    } else {
-      duration.units = data.definition.duration.durationType.toLowerCase().substring(0, 4);
-    }
-    if (data.definition.duration.durationInterval) duration.value = data.definition.duration.durationInterval;
-  } else {
-    const durationArray = [
-      { foundryUnit: "day", descriptionMatches: ["day", "days"] },
-      { foundryUnit: "hour", descriptionMatches: ["hour", "hours"] },
-      { foundryUnit: "inst", descriptionMatches: ["instant", "instantaneous"] },
-      { foundryUnit: "minute", descriptionMatches: ["minute", "minutes"] },
-      { foundryUnit: "month", descriptionMatches: ["month", "months"] },
-      { foundryUnit: "perm", descriptionMatches: ["permanent"] },
-      { foundryUnit: "round", descriptionMatches: ["round", "rounds"] },
-      // { foundryUnit: "spec", descriptionMatches: [null] },
-      { foundryUnit: "turn", descriptionMatches: ["turn", "turns"] },
-      { foundryUnit: "year", descriptionMatches: ["year", "years"] },
-    ];
-    // attempt to parse duration
-    const descriptionUnits = durationArray.map((unit) => unit.descriptionMatches).flat().join("|");
-    const durationExpression = new RegExp(`(\\d*)(?:\\s)(${descriptionUnits})`);
-    const durationMatch = data.definition.description.match(durationExpression);
+//   if (data.definition.duration) {
+//     if (data.definition.duration.durationUnit !== null) {
+//       duration.units = data.definition.duration.durationUnit.toLowerCase();
+//     } else {
+//       duration.units = data.definition.duration.durationType.toLowerCase().substring(0, 4);
+//     }
+//     if (data.definition.duration.durationInterval) duration.value = data.definition.duration.durationInterval;
+//   } else {
+//     const durationArray = [
+//       { foundryUnit: "day", descriptionMatches: ["day", "days"] },
+//       { foundryUnit: "hour", descriptionMatches: ["hour", "hours"] },
+//       { foundryUnit: "inst", descriptionMatches: ["instant", "instantaneous"] },
+//       { foundryUnit: "minute", descriptionMatches: ["minute", "minutes"] },
+//       { foundryUnit: "month", descriptionMatches: ["month", "months"] },
+//       { foundryUnit: "perm", descriptionMatches: ["permanent"] },
+//       { foundryUnit: "round", descriptionMatches: ["round", "rounds"] },
+//       // { foundryUnit: "spec", descriptionMatches: [null] },
+//       { foundryUnit: "turn", descriptionMatches: ["turn", "turns"] },
+//       { foundryUnit: "year", descriptionMatches: ["year", "years"] },
+//     ];
+//     // attempt to parse duration
+//     const descriptionUnits = durationArray.map((unit) => unit.descriptionMatches).flat().join("|");
+//     const durationExpression = new RegExp(`(\\d*)(?:\\s)(${descriptionUnits})`);
+//     const durationMatch = data.definition.description.match(durationExpression);
 
-    if (durationMatch) {
-      duration.units = durationArray.find((duration) => duration.descriptionMatches.includes(durationMatch[2])).foundryUnit;
-      duration.value = durationMatch[1];
-    }
-  }
-  return duration;
-}
+//     if (durationMatch) {
+//       duration.units = durationArray.find((duration) => duration.descriptionMatches.includes(durationMatch[2])).foundryUnit;
+//       duration.value = durationMatch[1];
+//     }
+//   }
+//   return duration;
+// }
 
 
 export default function parseConsumable(ddbItem, { consumableTypeOverride = null, ddbTypeOverride = null } = {}) {
@@ -127,8 +127,8 @@ export default function parseConsumable(ddbItem, { consumableTypeOverride = null
   // item.system.rarity = getItemRarity(ddbItem);
   // item.system.identified = true;
   // item.system.activation = { type: "action", cost: 1, condition: "" };
-  item.system.duration = getDuration(ddbItem);
-  item.system.actionType = getActionType(ddbItem);
+  // item.system.duration = getDuration(ddbItem);
+  // item.system.actionType = getActionType(ddbItem);
 
   if (item.system.type.value === "potion") {
     item.system.damage = getDamage(ddbItem, getActionType(ddbItem));
