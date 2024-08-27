@@ -740,7 +740,11 @@ ${item.system.description.chat}
     }
     if (nonKlassItems.length > 0) {
       logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(nonKlassItems) });
-      await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
+      // await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
+      for (const i of nonKlassItems) {
+        console.warn(`Importing ${i.name}`, i);
+        await this.actor.createEmbeddedDocuments("Item", [i], options);
+      }
     }
   }
 

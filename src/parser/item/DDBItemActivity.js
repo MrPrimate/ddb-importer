@@ -1,5 +1,5 @@
-import utils from "../../../lib/utils.js";
-import logger from "../../../logger.js";
+import utils from "../../lib/utils.js";
+import logger from "../../logger.js";
 
 
 export default class DDBItemActivity {

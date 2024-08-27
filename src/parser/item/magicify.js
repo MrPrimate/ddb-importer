@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
-import { getUses, getRechargeFormula } from "./common.js";
+import DDBItem from "./DDBItem.js";
 
 const MAGICITEMS = {
   DAILY: "r1",
@@ -13,6 +13,26 @@ const MAGICITEMS = {
   DestroyCheckAlways: "d1",
   DestroyCheck1D20: "d2",
 };
+
+function getUses(data, prompt = false) {
+  if (data.limitedUse !== undefined && data.limitedUse !== null && data.limitedUse.resetTypeDescription !== null) {
+    let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
+
+    const recovery = DDBItem.getRechargeFormula(data.limitedUse.resetTypeDescription, data.limitedUse.maxUses);
+    return {
+      max: data.limitedUse.maxUses,
+      value: data.limitedUse.numberUsed
+        ? data.limitedUse.maxUses - data.limitedUse.numberUsed
+        : data.limitedUse.maxUses,
+      per: resetType ? resetType.value : "",
+      description: data.limitedUse.resetTypeDescription,
+      recovery,
+      prompt,
+    };
+  } else {
+    return { value: 0, max: 0, per: null, prompt };
+  }
+}
 
 // const ITEM_CONSUME_CORRECTIONS = {
 //   "Staff of Defense": 1,
@@ -255,7 +275,7 @@ function parseMagicItemsModule(data, itemSpells, isCompendiumItem) {
         magicItem.chargeType = MAGICITEMS.CHARGE_TYPE_PER_SPELL;
       } else {
         magicItem.charges = data.limitedUse.maxUses;
-        magicItem.recharge = getRechargeFormula(data.limitedUse.resetTypeDescription, magicItem.charges);
+        magicItem.recharge = DDBItem.getRechargeFormula(data.limitedUse.resetTypeDescription, magicItem.charges);
 
         if (data.limitedUse.resetType) {
           magicItem.rechargeUnit = DICTIONARY.magicitems.rechargeUnits.find(
@@ -377,7 +397,7 @@ export function basicMagicItem(item, data, itemSpells, isCompendiumItem) {
       foundry.utils.setProperty(item, "system.uses.max", `${limitedUse.maxUses}`);
       foundry.utils.setProperty(item, "system.uses.per", (limitedUse.resetType ?? "charges"));
 
-      const recharge = getRechargeFormula(data.definition.description, limitedUse.maxUses);
+      const recharge = DDBItem.getRechargeFormula(data.definition.description, limitedUse.maxUses);
       foundry.utils.setProperty(item, "system.uses.recovery", recharge);
     }
     return item;

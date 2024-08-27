@@ -815,7 +815,9 @@ const DDBHelper = {
     const dcOverride = DDBHelper.getCustomValue(foundryItem, ddb, 15);
     const dcBonus = DDBHelper.getCustomValue(foundryItem, ddb, 14);
 
-    foundryItem.system.activities.forEach((activity) => {
+    Object.keys(foundryItem.system.activities).forEach((id) => {
+      let activity = foundryItem.system.activities[id];
+
       if (activity.type === "attack") {
         if (toHitBonus) {
           if (foundry.utils.hasProperty(activity, "bonus")
@@ -844,6 +846,8 @@ const DDBHelper = {
           foundryItem.system.save.dc.calculation = "custom";
         }
       }
+
+      foundryItem.system.activities[id] = activity;
     });
 
     if (costOverride) foundryItem.system.cost = costOverride;
