@@ -9,7 +9,7 @@ if (!game.modules.get("ActiveAuras")?.active) {
 const lastArg = args[args.length - 1];
 
 async function attemptRemoval(targetToken, condition, item) {
-  if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor))
+  if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor)) {
     new Dialog({
       title: `Use action to attempt to remove ${condition}?`,
       buttons: {
