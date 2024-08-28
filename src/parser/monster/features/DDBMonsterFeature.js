@@ -1289,7 +1289,8 @@ ${this.feature.system.description.value}
   }
 
   _generateAdditionalActivities() {
-    console.warn("ADDITIONAL ACTIVITIES", this.additionalActivities);
+    if (this.additionalActivities.length === 0) return;
+    console.warn(`ADDITIONAL ITEM ACTIVITIES for ${this.feature.name}`, this.additionalActivities);
     this.additionalActivities.forEach((activityData, i) => {
       const id = this._generateActivity({
         hintsOnly: false,

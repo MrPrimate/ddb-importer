@@ -108,9 +108,13 @@ export default class DDBItem {
     this.isTattoo = this.ddbDefinition.name.toLowerCase().includes("tattoo");
     this.tattooType = this.isTashasInstalled && this.isTattoo;
 
-    this.itemTagTypes = this.ddbDefinition.tags && Array.isArray(this.ddbDefinition.tags)
+    this.itemTagTypes = this.ddbDefinition.type && this.ddbDefinition.tags && Array.isArray(this.ddbDefinition.tags)
       ? [this.ddbDefinition.type.toLowerCase(), ...this.ddbDefinition.tags.map((t) => t.toLowerCase())]
-      : [this.ddbDefinition.type.toLowerCase()];
+      : this.ddbDefinition.type
+        ? [this.ddbDefinition.type.toLowerCase()]
+        : this.ddbDefinition.tags && Array.isArray(this.ddbDefinition.tags)
+          ? this.ddbDefinition.tags.map((t) => t.toLowerCase())
+          : [];
 
     this.systemType = {
       value: null,
@@ -148,6 +152,8 @@ export default class DDBItem {
       isFlat: false,
       extraAttackBonus: "",
       meleeAttack: true,
+      spellAttack: false,
+      consumptionValue: null,
     };
 
     this.activityType = null;
@@ -174,11 +180,10 @@ export default class DDBItem {
     this.damageParts = [];
     this.healingParts = [];
     this.additionalActivities = [];
+    this.versatileDamage = "";
 
-
-    this.featureEnricher = new DDBItemEnricher({
-      document: this.feature,
-      monster: this.ddbMonster.npc,
+    this.itemEnricher = new DDBItemEnricher({
+      document: this.data,
       name: this.name,
     });
 
@@ -216,7 +221,13 @@ export default class DDBItem {
     // weapons will still have range & damage (1 base part & 1 versatile part),
     // and all items will still have limited uses (but no consumption)
 
-    this.data.system.type.value = this.systemType.value;
+    if (foundry.utils.hasProperty(this.data, "system.type.value")) {
+      this.data.system.type.value = this.systemType.value;
+    } else if (this.systemType.value) {
+      logger.error(`Unable to set type ${this.systemType.value} for ${this.ddbDefinition.name}`, {
+        this: this,
+      });
+    }
     this.data.system.identified = true;
   }
 
@@ -283,7 +294,7 @@ export default class DDBItem {
     this.actionInfo.activation = { type: "action", value: 1, condition: "" };
 
     if (this.parsingType === "wonderous") {
-      let action = "";
+      let action = "special";
       const actionRegex = /(bonus) action|(reaction)|as (?:an|a) (action)/i;
 
       const match = this.ddbDefinition.description.match(actionRegex);
@@ -293,7 +304,7 @@ export default class DDBItem {
         else if (match[3]) action = "action";
       }
 
-      this.actionInfo.activation = { type: "action", value: action ? 1 : null, condition: "" };
+      this.actionInfo.activation = { type: action ?? "", value: action ? 1 : null, condition: "" };
     }
 
   }
@@ -454,19 +465,20 @@ export default class DDBItem {
 
     const versatile = this.ddbDefinition.properties.find((property) => property.name === "Versatile");
     if (versatile && versatile.notes) {
-      const damage = DDBBasicActivity.buildDamagePart({
-        damageString: utils.parseDiceString(versatile.notes, null, "", greatWeaponFighting).diceString,
-        stripMod: true,
-        type: this.ddbDefinition.damageType.toLowerCase(),
-      });
-      this.additionalActivities.push({
-        name: `Versatile`,
-        options: {
-          generateDamage: true,
-          damageParts: [damage],
-          includeBaseDamage: false,
-        },
-      });
+      // const damage = DDBBasicActivity.buildDamagePart({
+      //   damageString: utils.parseDiceString(versatile.notes, null, "", greatWeaponFighting).diceString,
+      //   stripMod: true,
+      //   type: this.ddbDefinition.damageType.toLowerCase(),
+      // });
+      // this.additionalActivities.push({
+      //   name: `Versatile`,
+      //   options: {
+      //     generateDamage: true,
+      //     damageParts: [damage],
+      //     includeBaseDamage: false,
+      //   },
+      // });
+      this.versatileDamage = utils.parseDiceString(versatile.notes, null, "", greatWeaponFighting).diceString;
     }
 
     // if we have greatweapon fighting style and this is two handed, add the roll tweak
@@ -605,7 +617,7 @@ export default class DDBItem {
       maxDexModifier = itemDexMaxAdjustment;
     }
 
-    this.system.armor.dex = maxDexModifier;
+    this.data.system.armor.dex = maxDexModifier;
   }
 
   #determineOtherGearTypeIdOneType() {
@@ -1115,8 +1127,8 @@ export default class DDBItem {
     // range: { value: null, long: null, units: '' },
     let weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
     return {
-      value: weaponBehavior.range ? weaponBehavior.range : 5,
-      long: weaponBehavior.longRange ? weaponBehavior.longRange : 5,
+      value: weaponBehavior.range ?? 5,
+      long: weaponBehavior.longRange ?? 5,
       units: "ft",
     };
   }
@@ -1430,17 +1442,17 @@ export default class DDBItem {
     // if it's a simple weapon and the character is proficient in simple weapons:
     if (
       this.characterProficiencies.some((proficiency) => proficiency.name === "Simple Weapons")
-      && this.data.system.type.value.indexOf("simple") !== -1
+      && this.data.system.type.value.includes("simple")
     ) {
       return true;
     } else if (
       this.characterProficiencies.some((proficiency) => proficiency.name === "Martial Weapons")
-      && this.data.system.type.indexOf("martial") !== -1
+      && this.data.system.type.value.includes("martial")
     ) {
       return true;
     } else {
       const proficient = this.characterProficiencies.some((proficiency) =>
-        proficiency.name.toLowerCase() === this.ddbDefinition.type.toLowerCase()
+        proficiency.name.toLowerCase() === this.ddbDefinition.type.toLowerCase(),
       );
       if (proficient) return proficient;
     }
@@ -1546,7 +1558,7 @@ export default class DDBItem {
     this.activityOptions.generateRange = true;
 
     if (this.damageParts.length > 0) {
-      this.system.damage = {
+      this.data.system.damage = {
         replace: false,
         base: this.damageParts[0],
       };
@@ -1609,11 +1621,20 @@ export default class DDBItem {
     if (!game.modules.get("magicitems")?.active && !game.modules.get("items-with-spells-5e")?.active) {
       this.#generateUses();
     }
+    if (this.damageParts.length > 0) {
+      this.data.system.damage = {
+        base: this.damageParts[0],
+        versatile: this.versatileDamage,
+        parts: this.actionInfo.save
+          ? []
+          : this.damageParts.splice(1),
+      };
+    }
   }
 
   #generateToolSpecifics() {
     this.activityOptions.generateCheck = true;
-    const defaultAbility = DICTIONARY.character.proficiencies.find((prof) => prof.name === tool.name);
+    const defaultAbility = DICTIONARY.character.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
     this.actionInfo.ability = defaultAbility?.ability ?? "dex";
     this.data.system.proficient = this.ddbData ? this.#getToolProficiency(this.ddbDefinition.name, this.actionInfo.ability) : 0;
     this.#generateUses();
@@ -1639,6 +1660,15 @@ export default class DDBItem {
       this.actionInfo.meleeAttack = true;
     } else {
       this.actionInfo.meleeAttack = false;
+    }
+    if (this.damageParts.length > 0) {
+      this.data.system.damage = {
+        base: this.damageParts[0],
+        versatile: this.versatileDamage,
+        parts: this.actionInfo.save
+          ? []
+          : this.damageParts.splice(1),
+      };
     }
   }
 
@@ -1673,7 +1703,6 @@ export default class DDBItem {
     }
   }
 
-  // eslint-disable-next-line complexity
   #generateTypeSpecifics() {
     switch (this.parsingType) {
       case "ammunition": {
@@ -1744,8 +1773,8 @@ export default class DDBItem {
       if (this.overrides.ddbType)
         foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", this.overrides.ddbType);
 
-      this._buildCoreActivities();
-      this._buildAdditionalActivities();
+      this.#generateActivity();
+      this.#generateAdditionalActivities();
 
       this.data.system.attuned = this.ddbItem.isAttuned;
       this.#generateAttunement();
@@ -1820,15 +1849,15 @@ export default class DDBItem {
     const saveActivity = new DDBItemActivity({
       name,
       type: "save",
-      ddbMonsterFeature: this,
+      ddbItem: this,
       nameIdPrefix: "save",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
     saveActivity.build(foundry.utils.mergeObject({
       generateSave: true,
-      generateRange: this.templateType !== "weapon",
-      includeBaseDamage: this.templateType === "weapon",
+      generateRange: !["weapon", "staff"].includes(this.parsingType),
+      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
       generateDamage: true,
     }, options));
 
@@ -1839,22 +1868,22 @@ export default class DDBItem {
     const attackActivity = new DDBItemActivity({
       name,
       type: "attack",
-      ddbMonsterFeature: this,
+      ddbItem: this,
       nameIdPrefix: "attack",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    const parts = this.actionInfo.damageParts.length > 1
+    const parts = this.damageParts.length > 1
       ? this.isSave
         ? []
-        : this.actionInfo.damageParts.splice(1).map((s) => s.part)
+        : this.damageParts.splice(1).map((s) => s.part)
       : [];
 
     attackActivity.build(foundry.utils.mergeObject({
       generateAttack: true,
-      generateRange: this.templateType !== "weapon",
-      generateDamage: !this.isSave,
-      includeBaseDamage: this.templateType === "weapon",
+      generateRange: !["weapon", "staff"].includes(this.parsingType),
+      generateDamage: !this.actionInfo.save,
+      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
       damageParts: parts,
     }, options));
     return attackActivity;
@@ -1864,15 +1893,15 @@ export default class DDBItem {
     const utilityActivity = new DDBItemActivity({
       name,
       type: "utility",
-      ddbMonsterFeature: this,
+      ddbItem: this,
       nameIdPrefix: "utility",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
     utilityActivity.build(foundry.utils.mergeObject({
-      generateRange: this.templateType !== "weapon",
+      generateRange: !["weapon", "staff"].includes(this.parsingType),
       generateDamage: true,
-      includeBaseDamage: this.templateType === "weapon",
+      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
     }, options));
 
     return utilityActivity;
@@ -1882,7 +1911,7 @@ export default class DDBItem {
     const healActivity = new DDBItemActivity({
       name,
       type: "heal",
-      ddbMonsterFeature: this,
+      ddbItem: this,
       nameIdPrefix: "heal",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -1900,16 +1929,16 @@ export default class DDBItem {
     const damageActivity = new DDBItemActivity({
       name,
       type: "damage",
-      ddbMonsterFeature: this,
+      ddbItem: this,
       nameIdPrefix: "damage",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
     damageActivity.build(foundry.utils.mergeObject({
       generateAttack: false,
-      generateRange: this.templateType !== "weapon",
+      generateRange: !["weapon", "staff"].includes(this.parsingType),
       generateDamage: true,
-      includeBaseDamage: this.templateType === "weapon",
+      includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
     }, options));
     return damageActivity;
   }
@@ -1918,7 +1947,7 @@ export default class DDBItem {
     const enchantActivity = new DDBItemActivity({
       name,
       type: "enchant",
-      ddbMonsterFeature: this,
+      ddbItem: this,
       nameIdPrefix: "enchant",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -1935,7 +1964,7 @@ export default class DDBItem {
     const summonActivity = new DDBItemActivity({
       name,
       type: "summon",
-      ddbMonsterFeature: this,
+      ddbItem: this,
       nameIdPrefix: "summon",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -1948,12 +1977,31 @@ export default class DDBItem {
     return summonActivity;
   }
 
+  _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const summonActivity = new DDBItemActivity({
+      name,
+      type: "check",
+      ddbItem: this,
+      nameIdPrefix: "check",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    summonActivity.build(foundry.utils.mergeObject({
+      generateAttack: false,
+      generateRange: false,
+      generateDamage: false,
+      generateCheck: true,
+      generateActivation: true,
+    }, options));
+    return summonActivity;
+  }
+
   #addSaveAdditionalActivity(includeBase = false) {
     this.additionalActivities.push({
       type: "save",
       options: {
         generateDamage: this.damageParts.length > 1,
-        damageParts: this.templateType !== "weapon" || includeBase
+        damageParts: ["weapon", "staff"].includes(this.parsingType) || includeBase
           ? this.damageParts.map((dp) => dp.part)
           : this.damageParts.slice(1).map((dp) => dp.part),
         includeBaseDamage: false,
@@ -1972,9 +2020,12 @@ export default class DDBItem {
   }
 
   _getActivitiesType() {
+    if (this.parsingType === "tool") {
+      return "check";
+    }
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (this.healingParts.length > 0) {
-      if (!this.actionInfo.save && !this.parsingType === "weapon" && this.damageParts.length === 0) {
+      if (!this.actionInfo.save && !["weapon", "staff"].includes(this.parsingType) && this.damageParts.length === 0) {
         return "heal";
       } else {
         // generate an additional heal activity
@@ -1992,10 +2043,10 @@ export default class DDBItem {
     }
     if (this.actionInfo.save) return "save";
     if (this.damageParts.length > 0) return "damage";
-    if (this.actionInfo.activation.type === "special" && (!this.data.uses.max || this.data.uses.max === "")) {
+    if (this.actionInfo.activation?.type === "special" && (!this.data.uses.max || this.data.uses.max === "")) {
       return undefined;
     }
-    if (this.actionInfo.activation.type && !this.healingAction) return "utility";
+    if (this.actionInfo.activation?.type && !this.healingAction) return "utility";
     // TODO: can we determine if utility or damage?
     return null;
   }
@@ -2019,29 +2070,31 @@ export default class DDBItem {
         return this._getEnchantActivity(data, options);
       case "summon":
         return this._getSummonActivity(data, options);
+      case "check":
+        return this._getCheckActivity(data, options);
       default:
         if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
         return undefined;
     }
   }
 
-  _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null } = {},
+  #generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null } = {},
     optionsOverride = {},
   ) {
-    if (hintsOnly && !this.featureEnricher.activity) return undefined;
+    if (hintsOnly && !this.itemEnricher.activity) return undefined;
 
     const activity = this.getActivity({
-      typeOverride: typeOverride ?? this.featureEnricher.activity?.type,
+      typeOverride: typeOverride ?? this.itemEnricher.activity?.type,
       name,
       nameIdPostfix,
     }, optionsOverride);
 
 
-    console.warn(`Item Activity Check for ${this.feature.name}`, {
+    console.warn(`Item Activity Check for ${this.data.name}`, {
       this: this,
       activity,
       typeOverride,
-      enricherHint: this.featureEnricher.activity?.type,
+      enricherHint: this.itemEnricher.activity?.type,
       activityType: activity?.data?.type,
       optionsOverride,
       name,
@@ -2053,17 +2106,18 @@ export default class DDBItem {
 
     if (!this.activityType) this.activityType = activity.data.type;
 
-    this.featureEnricher.applyActivityOverride(activity.data);
+    this.itemEnricher.applyActivityOverride(activity.data);
     this.activities.push(activity);
-    foundry.utils.setProperty(this.feature, `system.activities.${activity.data._id}`, activity.data);
+    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
 
     return activity.data._id;
   }
 
-  _generateAdditionalActivities() {
-    console.warn("ADDITIONAL ACTIVITIES", this.additionalActivities);
+  #generateAdditionalActivities() {
+    if (this.additionalActivities.length === 0) return;
+    console.warn(`ADDITIONAL ITEM ACTIVITIES for ${this.data.name}`, this.additionalActivities);
     this.additionalActivities.forEach((activityData, i) => {
-      const id = this._generateActivity({
+      const id = this.#generateActivity({
         hintsOnly: false,
         name: activityData.name,
         nameIdPostfix: i,

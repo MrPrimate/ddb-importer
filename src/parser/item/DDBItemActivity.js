@@ -23,7 +23,7 @@ export default class DDBItemActivity {
   }
 
 
-  constructor({ type, name, ddbItemData, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+  constructor({ type, name, ddbItem, nameIdPrefix = null, nameIdPostfix = null } = {}) {
 
     this.type = type.toLowerCase();
     this.activityType = CONFIG.DND5E.activityTypes[this.type];
@@ -31,9 +31,10 @@ export default class DDBItemActivity {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
     this.name = name;
-    this.ddbItemData = ddbItemData;
-    this.data = ddbItemData.data;
-    this.actor = ddbItemData.rawCharacter;
+    this.ddbItem = ddbItem;
+    this.data = ddbItem.data;
+    this.actor = ddbItem.rawCharacter;
+    this.actionInfo = ddbItem.actionInfo;
 
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
@@ -64,6 +65,16 @@ export default class DDBItemActivity {
         type: "itemUses",
         target: "",
         value: this.actionInfo.consumptionValue,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
+    } else if (![0, null, undefined].includes(this.ddbItem.data.uses?.max)) {
+      targets.push({
+        type: "itemUses",
+        target: "",
+        value: 1,
         scaling: {
           mode: "",
           formula: "",
@@ -105,9 +116,9 @@ export default class DDBItemActivity {
   }
 
   _getFeaturePartsDamage() {
-    let baseParts = this.ddbItemData.templateType === "weapon"
-      ? this.actionInfo.damageParts.slice(1)
-      : this.actionInfo.damageParts;
+    let baseParts = this.ddbItem.templateType === "weapon"
+      ? this.ddbItem.damageParts.slice(1)
+      : this.ddbItem.damageParts;
 
     return baseParts;
   }
@@ -136,7 +147,7 @@ export default class DDBItemActivity {
       includeBase,
       parts: parts.length > 0
         ? parts
-        : this.actionInfo.healingParts.map((data) => data.part),
+        : this.ddbItem.healingParts.map((data) => data.part),
     };
   }
 
@@ -146,7 +157,7 @@ export default class DDBItemActivity {
 
 
   _generateAttack() {
-    let classification = this.ddbItemData.spellAttack
+    let classification = this.ddbItem.spellAttack
       ? "spell"
       : "weapon"; // unarmed, weapon, spell
 
@@ -172,6 +183,13 @@ export default class DDBItemActivity {
 
   }
 
+  _generateCheck() {
+    this.data.check = {
+      ability: this.actionInfo.ability,
+      dc: {},
+    };
+  }
+
   build({
     damageParts = [],
     generateActivation = true,
@@ -194,7 +212,7 @@ export default class DDBItemActivity {
 
     // override set to false on object if overriding
 
-    logger.debug(`Generating Activity for ${this.ddbItemData.name}`, {
+    logger.debug(`Generating Activity for ${this.ddbItem.name}`, {
       damageParts,
       generateActivation,
       generateAttack,
