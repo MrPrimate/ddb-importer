@@ -1,0 +1,66 @@
+{
+  "id": "ddb-importer",
+  "title": "D&D Beyond Importer [Dev Mode]",
+  "license": "MIT License",
+  "description": "Import your dndbeyond.com characters, spells, items, monsters, encounters, and adventures!",
+  "version": "999.0.0",
+  "download": "",
+  "manifest": "https://raw.githubusercontent.com/iksior/ddb-importer-mod/main/module.json",
+  "url": "  https://github.com/iksior/ddb-importer-mod",
+  "readme": "https://github.com/iksior/ddb-importer-mod/blob/main/README.md",
+  "changelog": "https://github.com/iksior/ddb-importer-mod/blob/main/CHANGELOG.md",
+  "compatibility": {
+    "minimum": "11.315",
+    "verified": 12
+  },
+  "authors": [
+    {
+      "name": "iksior",
+      "email": "iksior1@gmail.com",
+    }
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "3.2.0",
+          "verified": "3.2.0"
+        }
+      }
+    ],
+    "recommends": [
+      {
+       "id": "dae",
+       "type": "module",
+       "reason": "Provides improvements to active effects"
+      },
+      {
+        "id": "vision-5e",
+        "type": "module",
+        "reason": "Adds missing vision modes to 5e system"
+      }
+    ]
+  },
+  "scripts": [
+    "./vendor/jszip/jszip.min.js"
+  ],
+  "esmodules": ["src/index.js"],
+  "styles": [
+    "./css/default.css",
+    "./css/import.css",
+    "./css/journal.css",
+    "./css/notifications.css",
+    "./css/adventure.css"
+  ],
+  "packs": [],
+  "socket": true
+}
