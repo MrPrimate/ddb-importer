@@ -1,10 +1,10 @@
 {
-  "id": "ddb-importer",
+  "id": "ddb-importer-mod",
   "title": "D&D Beyond Importer [Dev Mode]",
   "license": "MIT License",
   "description": "Import your dndbeyond.com characters, spells, items, monsters, encounters, and adventures!",
   "version": "999.0.0",
-  "download": "",
+  "download": "https://github.com/iksior/ddb-importer-mod/archive/refs/tags/1.1.zip",
   "manifest": "https://raw.githubusercontent.com/iksior/ddb-importer-mod/main/module.json",
   "url": "  https://github.com/iksior/ddb-importer-mod",
   "readme": "https://github.com/iksior/ddb-importer-mod/blob/main/README.md",
