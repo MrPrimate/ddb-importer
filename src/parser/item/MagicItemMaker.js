@@ -76,11 +76,10 @@ export default class MagicItemMaker {
     let consumption = chargeType == MagicItemMaker.MAGICITEMS.CHARGE_TYPE_PER_SPELL ? 1 : itemSpell.system.level;
     let castLevel = itemSpell.system.level;
     let upcast = itemSpell.system.level;
+    const limitedUse = foundry.utils.getProperty(itemSpell, "flags.ddbimporter.dndbeyond.spellLimitedUse");
 
     // Do we have charge use data on spell?
-    if (itemSpell.flags.ddbimporter.dndbeyond.spellLimitedUse) {
-      const limitedUse = itemSpell.flags.ddbimporter.dndbeyond.spellLimitedUse;
-
+    if (limitedUse) {
       if (
         chargeType == MagicItemMaker.MAGICITEMS.CHARGE_TYPE_WHOLE_ITEM
         && !!limitedUse.minNumberConsumed
@@ -110,6 +109,7 @@ export default class MagicItemMaker {
       consumption,
       upcast,
       upcastCost: 1,
+      limitedUse,
     };
   }
 

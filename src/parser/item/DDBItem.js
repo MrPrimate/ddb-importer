@@ -1996,18 +1996,28 @@ export default class DDBItem {
     const activityConsumptionTarget = this.isPerSpell
       ? {
         type: "itemUses",
-        value: "1",
+        value: spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed,
         scaling: {},
       }
       : {
         type: "itemUses",
         target: `${this.data._id}`,
-        value: this.actionInfo.consumptionValue ?? 1,
+        value: spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1,
         scaling: {
           mode: "",
           formula: "",
         },
       };
+
+    // {
+    //     type: "itemUses",
+    //     target: "", // adjusted later
+    //     value: this._resourceCharges ?? 1,
+    //     scaling: {
+    //       mode: "",
+    //       formula: "",
+    //     },
+    //   }
 
     const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
       ? { calculation: "", formula: spell.flags.ddbimporter.dndbeyond?.dc }

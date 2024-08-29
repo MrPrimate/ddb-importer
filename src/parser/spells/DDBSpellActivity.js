@@ -102,17 +102,18 @@ export default class DDBSpellActivity {
           formula: "",
         },
       });
-    } else if (this.ddbSpell.resourceCharges !== null) {
-      targets.push({
-        type: "itemUses",
-        target: "", // adjusted later
-        value: this._resourceCharges ?? 1,
-        scaling: {
-          mode: "",
-          formula: "",
-        },
-      });
     }
+    //  else if (this.ddbSpell.resourceCharges !== null) {
+    //   targets.push({
+    //     type: "itemUses",
+    //     target: "", // adjusted later
+    //     value: this._resourceCharges ?? 1,
+    //     scaling: {
+    //       mode: "",
+    //       formula: "",
+    //     },
+    //   });
+    // }
 
     this.data.consumption = {
       targets,
