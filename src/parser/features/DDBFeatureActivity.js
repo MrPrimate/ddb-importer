@@ -296,7 +296,7 @@ export default class DDBFeatureActivity {
   _generateSave() {
     const fixedDC = this.ddbDefinition.fixedSaveDc ? this.ddbDefinition.fixedSaveDc : null;
     const calculation = fixedDC
-      ? "custom"
+      ? ""
       : (this.ddbDefinition.abilityModifierStatId)
         ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId).value
         : "spellcasting";

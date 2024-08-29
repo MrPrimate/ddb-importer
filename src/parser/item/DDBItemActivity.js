@@ -33,7 +33,6 @@ export default class DDBItemActivity {
     this.name = name;
     this.ddbItem = ddbItem;
     this.data = ddbItem.data;
-    this.actor = ddbItem.rawCharacter;
     this.actionInfo = ddbItem.actionInfo;
 
     this.nameIdPrefix = nameIdPrefix ?? "act";
@@ -116,7 +115,7 @@ export default class DDBItemActivity {
   }
 
   _getFeaturePartsDamage() {
-    let baseParts = this.ddbItem.templateType === "weapon"
+    let baseParts = ["weapon", "staff"].includes(this.parsingType)
       ? this.ddbItem.damageParts.slice(1)
       : this.ddbItem.damageParts;
 
@@ -128,7 +127,9 @@ export default class DDBItemActivity {
       includeBase,
       parts: parts.length > 0
         ? parts
-        : this._getFeaturePartsDamage().map((data) => data.part),
+        : ["weapon", "staff"].includes(this.parsingType)
+          ? this.ddbItem.damageParts.slice(1)
+          : this.ddbItem.damageParts,
     };
 
     // damage: {
@@ -338,19 +339,19 @@ export default class DDBItemActivity {
 
   }
 
-  static createActivity({ document, type, name, character } = {}, options = {}) {
-    const activity = new DDBItemActivity({
-      name: name ?? null,
-      type,
-      foundryFeature: document,
-      actor: character,
-    });
+  // static createActivity({ document, type, name, character } = {}, options = {}) {
+  //   const activity = new DDBItemActivity({
+  //     name: name ?? null,
+  //     type,
+  //     foundryFeature: document,
+  //     actor: character,
+  //   });
 
-    activity.build(options);
-    foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
+  //   activity.build(options);
+  //   foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
 
-    return activity.data._id;
+  //   return activity.data._id;
 
-  }
+  // }
 
 }

@@ -476,7 +476,7 @@ export default class DDBSpellActivity {
           ability: saveAbility,
           dc: {
             formula: this.spellData.overrideSaveDc,
-            calculation: "custom",
+            calculation: "",
           },
         };
       } else {

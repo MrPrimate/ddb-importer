@@ -815,40 +815,42 @@ const DDBHelper = {
     const dcOverride = DDBHelper.getCustomValue(foundryItem, ddb, 15);
     const dcBonus = DDBHelper.getCustomValue(foundryItem, ddb, 14);
 
-    Object.keys(foundryItem.system.activities).forEach((id) => {
-      let activity = foundryItem.system.activities[id];
+    if (foundryItem.system.activities) {
+      Object.keys(foundryItem.system.activities).forEach((id) => {
+        let activity = foundryItem.system.activities[id];
 
-      if (activity.type === "attack") {
-        if (toHitBonus) {
-          if (foundry.utils.hasProperty(activity, "bonus")
-            && (parseInt(activity.bonus) === 0
-            || activity.bonus === "")
-          ) {
-            activity.bonus = toHitBonus;
-          } else {
-            activity.bonus += ` + ${toHitBonus}`;
+        if (activity.type === "attack") {
+          if (toHitBonus) {
+            if (foundry.utils.hasProperty(activity, "bonus")
+              && (parseInt(activity.bonus) === 0
+              || activity.bonus === "")
+            ) {
+              activity.bonus = toHitBonus;
+            } else {
+              activity.bonus += ` + ${toHitBonus}`;
+            }
           }
         }
-      }
-      if (activity.damage && damageBonus) {
-        const part = DDBBasicActivity.buildDamagePart({ damageString: damageBonus });
-        activity.damage.parts.push(part);
-      }
-      if (activity.type === "save") {
-        if (dcBonus) {
-          if (foundryItem.flags.ddbimporter.dndbeyond.dc) {
-            foundryItem.system.save.dc.formula = parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus;
+        if (activity.damage && damageBonus) {
+          const part = DDBBasicActivity.buildDamagePart({ damageString: damageBonus });
+          activity.damage.parts.push(part);
+        }
+        if (activity.type === "save") {
+          if (dcBonus) {
+            if (foundryItem.flags.ddbimporter.dndbeyond.dc) {
+              foundryItem.system.save.dc.formula = parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus;
+              foundryItem.system.save.dc.calculation = "custom";
+            }
+          }
+          if (dcOverride) {
+            foundryItem.system.save.dc.formula = dcOverride;
             foundryItem.system.save.dc.calculation = "custom";
           }
         }
-        if (dcOverride) {
-          foundryItem.system.save.dc.formula = dcOverride;
-          foundryItem.system.save.dc.calculation = "custom";
-        }
-      }
 
-      foundryItem.system.activities[id] = activity;
-    });
+        foundryItem.system.activities[id] = activity;
+      });
+    }
 
     if (costOverride) foundryItem.system.cost = costOverride;
     if (weightOverride) foundryItem.system.weight = weightOverride;

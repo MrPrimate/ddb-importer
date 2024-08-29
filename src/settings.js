@@ -76,7 +76,7 @@ const COMPENDIUMS = [
     types: ["npc", "vehicle"],
   },
   {
-    title: "Races",
+    title: "Species",
     setting: "entity-race-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/bfe65858aaa13919ce3d86d938bcb05b.jpg",
@@ -84,7 +84,7 @@ const COMPENDIUMS = [
     types: ["race"],
   },
   {
-    title: "Racial Traits",
+    title: "Species Traits",
     setting: "entity-trait-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/bfe65858aaa13919ce3d86d938bcb05b.jpg",
@@ -158,6 +158,7 @@ const SRD_COMPENDIUM_LOOKUPS = [
   { type: "spells", name: "dnd5e.spells" },
   { type: "features", name: "dnd5e.classfeatures" },
   { type: "races", name: "dnd5e.races" },
+  { type: "species", name: "dnd5e.races" },
   { type: "traits", name: "dnd5e.races" },
   { type: "features", name: "dnd5e.classfeatures" },
   { type: "feat", name: "dnd5e.classfeatures" },
@@ -595,6 +596,13 @@ const SETTINGS = {
         "append-chris-premade-effect-description": {
           name: "ddb-importer.settings.append-chris-premade-effect-description.name",
           hint: "ddb-importer.settings.append-chris-premade-effect-description.hint",
+          config: true,
+          type: Boolean,
+          default: false,
+        },
+        "spells-on-items-as-activities": {
+          name: "ddb-importer.settings.spells-on-items-as-activities.name",
+          hint: "ddb-importer.settings.spells-on-items-as-activities.hint",
           config: true,
           type: Boolean,
           default: false,

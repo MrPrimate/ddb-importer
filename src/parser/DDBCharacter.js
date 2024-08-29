@@ -78,6 +78,9 @@ export default class DDBCharacter {
 
     this.armor = {};
 
+    this.matchedFeatures = [];
+    this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
+
   }
 
   /**
@@ -378,16 +381,18 @@ export default class DDBCharacter {
     );
   }
 
+  updateItemId(item) {
+    const itemMatch = DDBHelper.findMatchedDDBItem(item, this.possibleFeatures, this.matchedFeatures);
+    if (itemMatch) {
+      item._id = itemMatch._id;
+      this.matchedFeatures.push(itemMatch);
+    }
+  }
+
   updateItemIds(items) {
     if (!this.currentActor) return items;
-    const possibleFeatures = this.currentActor.getEmbeddedCollection("Item");
-    const matchedFeatures = [];
     items.forEach((item) => {
-      const itemMatch = DDBHelper.findMatchedDDBItem(item, possibleFeatures, matchedFeatures);
-      if (itemMatch) {
-        item._id = itemMatch._id;
-        matchedFeatures.push(itemMatch);
-      }
+      this.updateItemId(item);
     });
     return items;
   }

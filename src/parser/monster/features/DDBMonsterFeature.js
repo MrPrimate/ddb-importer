@@ -498,14 +498,14 @@ export default class DDBMonsterFeature {
     // save: {
     //   ability: "",
     //   dc: {
-    //     calculation: "custom",
+    //     calculation: "",
     //     formula: "",
     //   },
     // },
 
     if (this.savingThrow) {
       this.actionInfo.save.dc.formula = parseInt(this.savingThrow[1]);
-      this.actionInfo.save.dc.calculation = "custom";
+      this.actionInfo.save.dc.calculation = "";
       this.actionInfo.save.ability = this.savingThrow[2].toLowerCase().substr(0, 3);
     } else if (this.spellSave) {
       // this.actionInfo.save.dc = 10;
@@ -1034,13 +1034,13 @@ ${this.feature.system.description.value}
     logger.debug(`Resource linking for ${this.name}`);
 
     // TODO: fix for activities
-    if (
-      foundry.utils.getProperty(this.feature, "system.uses.recovery")?.some((r) => r.period === "recharge")
-    ) {
-      foundry.utils.setProperty(this.feature, "system.consume.type", "charges");
-      foundry.utils.setProperty(this.feature, "system.consume.target", this.feature._id);
-      foundry.utils.setProperty(this.feature, "system.consume.amount", null);
-    }
+    // if (
+    //   foundry.utils.getProperty(this.feature, "system.uses.recovery")?.some((r) => r.period === "recharge")
+    // ) {
+    //   foundry.utils.setProperty(this.feature, "system.consume.type", "charges");
+    //   foundry.utils.setProperty(this.feature, "system.consume.target", this.feature._id);
+    //   foundry.utils.setProperty(this.feature, "system.consume.amount", null);
+    // }
   }
 
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {

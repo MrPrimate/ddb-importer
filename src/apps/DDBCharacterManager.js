@@ -725,6 +725,27 @@ ${item.system.description.chat}
     return Promise.all(items);
   }
 
+  async enrichActivityImages(items, spellItems) {
+    const enrichedSpells = await this.enrichCharacterItems(spellItems);
+
+    for (const item of items) {
+      if (!foundry.utils.getProperty(item, "flags.ddbimporter.activityImgEnrichment")) continue;
+
+      for (const id of Object.keys(item.system.activities)) {
+        const activity = item.system.activities[id];
+        const enrichHint = foundry.utils.getProperty(activity, "flags.ddbimporter.spellHintName");
+        if (!enrichHint) continue;
+        const spellMatch = enrichedSpells.find((spell) =>
+          foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") ?? spell.name === enrichHint,
+        );
+        if (!spellMatch) continue;
+        activity.img = spellMatch.img;
+
+        item.system.activities[id] = activity;
+      }
+    }
+  }
+
   async createCharacterItems(items, keepIds) {
     const options = foundry.utils.duplicate(SETTINGS.DISABLE_FOUNDRY_UPGRADE);
     if (keepIds) options["keepId"] = true;
@@ -952,9 +973,10 @@ ${item.system.description.chat}
     this.showCurrentTask("Clearing items for recreation...");
     await this.clearItemsByUserSelection();
 
+    const spellsAsActivities = game.settings.get(SETTINGS.MODULE_ID, "spells-on-items-as-activities");
     // If there is no magicitems module fall back to importing the magic
     // item spells as normal spells fo the character
-    if (!magicItemsInstalled && !itemsWithSpellsInstalled) {
+    if (!spellsAsActivities && !magicItemsInstalled && !itemsWithSpellsInstalled) {
       logger.debug("No magic items module(s) found, adding spells to sheet.");
       items.push(
         this.result.itemSpells.filter((item) => {
@@ -1056,6 +1078,7 @@ ${item.system.description.chat}
       this.showCurrentTask("Adding DDB generated items");
       logger.debug(`Adding DDB generated items...`, items);
       items = await this.enrichCharacterItems(items);
+      await this.enrichActivityImages(items, this.result.itemSpells);
       await this.importCharacterItems(items, true);
     }
 

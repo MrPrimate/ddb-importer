@@ -2,7 +2,7 @@ import DICTIONARY from "../../dictionary.js";
 import DDBCharacter from "../DDBCharacter.js";
 
 // magic items support
-import { parseMagicItem } from "./magicify.js";
+import MagicItemMaker from "./MagicItemMaker.js";
 
 import { fixItems } from "./special.js";
 
@@ -14,6 +14,7 @@ import { midiItemEffects } from "../../effects/specialEquipment.js";
 
 
 import DDBItem from "./DDBItem.js";
+import logger from "../../logger.js";
 
 
 // TO DO: revisit to break up item parsing
@@ -21,8 +22,6 @@ import DDBItem from "./DDBItem.js";
 DDBCharacter.prototype.getInventory = async function getInventory() {
 
   let items = [];
-
-  // TODO: rework for activities
 
   // first, check custom name, price or weight
   this.source.ddb.character.characterValues.forEach((cv) => {
@@ -45,23 +44,37 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
   for (let ddbItem of this.source.ddb.character.inventory) {
 
     const itemParser = new DDBItem({
-      ddbData: this.source.ddb,
+      characterManager: this,
       ddbItem,
       isCompendium: isCompendiumItem,
-      rawCharacter: this.raw.character,
     });
 
     await itemParser.build();
 
+    if (itemParser.data) {
+      const itemSpells = this.raw.spells;
+
+      if (game.modules.get("magicitems")?.active) {
+        ddbItem.data.flags.magicitems = MagicItemMaker.parseMagicItemsModule(itemParser, itemSpells, !isCompendiumItem, true);
+      } else if (game.modules.get("items-with-spells-5e")?.active) {
+        MagicItemMaker.parseItemsWithSpellsModule(itemParser, itemSpells, !isCompendiumItem);
+      } else {
+        logger.debug(`$Item.name} Using basic magic item data`, {
+          item: foundry.utils.deepClone(ddbItem.data),
+          data: ddbItem.ddbItem,
+          itemSpells,
+          isCompendiumItem,
+        });
+      }
+    }
+
     let item = Object.assign({}, itemParser.data);
 
     if (item) {
-      // item.name = adjustedName;
-      item = parseMagicItem(item, ddbItem, this.raw.itemSpells, isCompendiumItem);
-      // item.flags.ddbimporter.originalName = originalName;
-      // item.flags.ddbimporter.version = CONFIG.DDBI.version;
       if (!item.effects) item.effects = [];
       if (!item.name || item.name === "") item.name = "Item";
+
+        // TODO: rework for activities
 
       // if (addEffects) {
       item = generateEffects({
@@ -91,7 +104,26 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
     }
   }
 
+    // TODO: rework for activities
+
   fixItems(items);
-  this.updateItemIds(items);
+
+  // hack till better impelementation
+  for (const item of items) {
+    if (item.effects.length > 0) {
+      for (const activityId of Object.keys(item.system.activities)) {
+        const activity = item.system.activities[activityId];
+        if (activity.effects.length !== 0) continue;
+        for (const effect of item.effects) {
+          const effectId = effect._id ?? foundry.utils.randomID();
+          effect._id = effectId;
+          activity.effects.push({ _id: effectId });
+        }
+        item.system.activities[activityId] = activity;
+      }
+    }
+  }
+
+  // this.updateItemIds(items);
   return items;
 };

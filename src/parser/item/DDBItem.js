@@ -7,6 +7,8 @@ import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 import DDBItemEnricher from "../enrichers/DDBItemEnricher.js";
 import DDBItemActivity from "./DDBItemActivity.js";
+import MagicItemMaker from "./MagicItemMaker.js";
+import SETTINGS from "../../settings.js";
 
 export default class DDBItem {
 
@@ -71,18 +73,19 @@ export default class DDBItem {
     "Junk": "junk",
   };
 
-  constructor({ ddbData, ddbItem, rawCharacter = null, isCompendium = false } = {}) {
+  constructor({ characterManager, ddbItem, isCompendium = false } = {}) {
 
-    this.ddbData = ddbData;
+    this.characterManager = characterManager;
+    this.ddbData = characterManager.source.ddb;
     this.ddbItem = ddbItem;
     this.ddbDefinition = ddbItem.definition;
-    this.rawCharacter = rawCharacter;
+    this.raw = characterManager.raw;
     this.isCompendiumItem = isCompendium;
     foundry.utils.setProperty(this.ddbItem, "isCompendiumItem", isCompendium);
 
 
     this.originalName = ddbItem.definition.name;
-    this.name = DDBHelper.getName(this.ddbData, ddbItem, this.rawCharacter);
+    this.name = DDBHelper.getName(this.ddbData, ddbItem, this.raw?.character);
     this.#generateItemFlags();
 
     this.documentType = null;
@@ -95,9 +98,9 @@ export default class DDBItem {
       custom: false,
     };
 
-    this.characterProficiencies = foundry.utils.getProperty(this.rawCharacter, "flags.ddbimporter.dndbeyond.proficienciesIncludingEffects")
+    this.characterProficiencies = foundry.utils.getProperty(this.raw?.character, "flags.ddbimporter.dndbeyond.proficienciesIncludingEffects")
       ?? [];
-    this.characterEffectAbilities = foundry.utils.getProperty(this.rawCharacter, "flags.ddbimporter.dndbeyond.effectAbilities");
+    this.characterEffectAbilities = foundry.utils.getProperty(this.raw?.character, "flags.ddbimporter.dndbeyond.effectAbilities");
 
     this.isContainer = this.ddbDefinition.isContainer;
     this.isContainerTag = this.ddbDefinition.tags.includes('Container');
@@ -107,6 +110,15 @@ export default class DDBItem {
     this.isTashasInstalled = game.modules.get("dnd-tashas-cauldron")?.active;
     this.isTattoo = this.ddbDefinition.name.toLowerCase().includes("tattoo");
     this.tattooType = this.isTashasInstalled && this.isTattoo;
+
+    // if the item is x per spell
+    this.isPerSpell = this.ddbItem.limitedUse
+      ? this.parsePerSpellMagicItem(this.ddbItem.limitedUse.resetTypeDescription)
+      : false;
+
+    this.magicChargeType = this.isPerSpell
+      ? MagicItemMaker.MAGICITEMS.CHARGE_TYPE_PER_SPELL
+      : MagicItemMaker.MAGICITEMS.CHARGE_TYPE_WHOLE_ITEM;
 
     this.itemTagTypes = this.ddbDefinition.type && this.ddbDefinition.tags && Array.isArray(this.ddbDefinition.tags)
       ? [this.ddbDefinition.type.toLowerCase(), ...this.ddbDefinition.tags.map((t) => t.toLowerCase())]
@@ -123,12 +135,13 @@ export default class DDBItem {
     };
 
     this.addAutomationEffects = this.isCompendiumItem
-      ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-      : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-effects")
+      : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects");
 
     this.updateExisting = this.isCompendiumItem
-      ? game.settings.get("ddb-importer", "munching-policy-update-existing")
+      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")
       : false;
+    this.spellsAsActivities = game.settings.get(SETTINGS.MODULE_ID, "spells-on-items-as-activities");
     this._init();
 
     this.data = {};
@@ -193,7 +206,7 @@ export default class DDBItem {
     logger.debug(`Generating Item ${this.ddbDefinition.name}`);
   }
 
-  _generateDataStub() {
+  #generateDataStub() {
     if (!this.documentType) {
       logger.error(`Document type must be set: ${this.ddbDefinition.name}`, {
         this: this,
@@ -229,6 +242,9 @@ export default class DDBItem {
       });
     }
     this.data.system.identified = true;
+
+    this.#addExtraDDBFlags();
+    this.#enrichFlags();
   }
 
   #getActivityDuration() {
@@ -261,7 +277,7 @@ export default class DDBItem {
       // attempt to parse duration
       const descriptionUnits = durationArray.map((unit) => unit.descriptionMatches).flat().join("|");
       const durationExpression = new RegExp(`(\\d*)(?:\\s)(${descriptionUnits})`);
-      const durationMatch = this.ddbDefinition.description.match(durationExpression);
+      const durationMatch = (this.ddbDefinition.description ?? "").match(durationExpression);
 
       if (durationMatch) {
         duration.units = durationArray.find((duration) => duration.descriptionMatches.includes(durationMatch[2])).foundryUnit;
@@ -271,20 +287,20 @@ export default class DDBItem {
     return duration;
   }
 
-  #checkForSavingThrowActivity() {
+  #generateSave() {
     const save = {
       ability: "",
       dc: {
-        calculation: "custom",
+        calculation: "",
         formula: "",
       },
     };
 
 
-    const saveCheck = this.ddbDefinition.description.match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
+    const saveCheck = (this.ddbDefinition.description ?? "").match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
     if (saveCheck && saveCheck[2]) {
       save.ability = saveCheck[2].toLowerCase().substr(0, 3);
-      save.dc.formula = saveCheck[1];
+      save.dc.formula = `${saveCheck[1]}`;
       this.actionInfo.save = save;
     }
   }
@@ -297,7 +313,7 @@ export default class DDBItem {
       let action = "special";
       const actionRegex = /(bonus) action|(reaction)|as (?:an|a) (action)/i;
 
-      const match = this.ddbDefinition.description.match(actionRegex);
+      const match = (this.ddbDefinition.description ?? "").match(actionRegex);
       if (match) {
         if (match[1]) action = "bonus";
         else if (match[2]) action = "reaction";
@@ -309,11 +325,11 @@ export default class DDBItem {
 
   }
 
-  _generateActionInfo() {
+  #generateActionInfo() {
     this.actionInfo.duration = this.#getActivityDuration();
     this.actionInfo.range = this.#getActivityRange();
     this.actionInfo.activation = this.#generateActivityActivation();
-
+    this.#generateSave();
   }
 
   static #getDamageParts(modifiers, typeOverride = null) {
@@ -386,8 +402,8 @@ export default class DDBItem {
               includeBaseDamage: false,
               saveOverride: saveMatch
                 ? {
-                  formula: parseInt(saveMatch[1]),
-                  calculation: "custom",
+                  formula: `${saveMatch[1]}`,
+                  calculation: "",
                   ability: saveMatch[2].toLowerCase().substr(0, 3),
                 }
                 : null,
@@ -612,7 +628,7 @@ export default class DDBItem {
         break;
     }
     const maxDexMods = DDBHelper.filterModifiersOld(this.ddbDefinition.grantedModifiers, "set", "ac-max-dex-modifier");
-    const itemDexMaxAdjustment = DDBHelper.getModifierSum(maxDexMods, this.rawCharacter);
+    const itemDexMaxAdjustment = DDBHelper.getModifierSum(maxDexMods, this.raw?.character);
     if (maxDexModifier !== null && Number.isInteger(itemDexMaxAdjustment) && itemDexMaxAdjustment > maxDexModifier) {
       maxDexModifier = itemDexMaxAdjustment;
     }
@@ -1031,7 +1047,7 @@ export default class DDBItem {
       if (DDBHelper.hasChosenCharacterOption(this.ddbData, "Two-Weapon Fighting")) {
         this.flags.classFeatures.push("Two-Weapon Fighting");
       }
-      if (DDBHelper.getCustomValueFromCharacter(this.ddbItem, this.rawCharacter, 18)) {
+      if (DDBHelper.getCustomValueFromCharacter(this.ddbItem, this.raw?.character, 18)) {
         this.flags.classFeatures.push("OffHand");
       }
     }
@@ -1042,11 +1058,11 @@ export default class DDBItem {
   };
 
 
-  async _prepare() {
-    this._generateDataStub();
+  async #prepare() {
+    this.#generateDataStub();
     this.#generateBaseItem();
-    this._generateActionInfo();
-    this._generateDamageParts();
+    this.#generateActionInfo();
+    this.#generateDamageParts();
   }
 
   #getDescription() {
@@ -1202,7 +1218,7 @@ export default class DDBItem {
     }
   }
 
-  _generateDamageParts() {
+  #generateDamageParts() {
     switch (this.parsingType) {
       case "ammunition": {
         this.#generateAmmunitionDamage();
@@ -1222,7 +1238,7 @@ export default class DDBItem {
     }
   }
 
-  _generateMagicalBonus() {
+  #generateMagicalBonus() {
     this.actionInfo.magicBonus.null = this.#getMagicalBonus();
     this.actionInfo.magicBonus.zero = this.#getMagicalBonus(true);
     switch (this.parsingType) {
@@ -1290,11 +1306,7 @@ export default class DDBItem {
     return `${match}`;
   }
 
-  // TODO: refactor this function for activites and changed usage
-  // { value: "recoverAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.RecoverAll") },
-  // { value: "loseAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.LoseAll") },
-  // { value: "formula", label: game.i18n.localize("DND5E.USES.Recovery.Type.Formula") }
-  #generateUses(prompt = false) {
+  _getUses(prompt = false) {
     if (this.ddbItem.limitedUse !== undefined && this.ddbItem.limitedUse !== null && this.ddbItem.limitedUse.resetTypeDescription !== null) {
       let resetType = DICTIONARY.resets.find((reset) => reset.id == this.ddbItem.limitedUse.resetType);
 
@@ -1302,47 +1314,133 @@ export default class DDBItem {
       const recoveryIsMax = `${recoveryFormula}` === `${this.ddbItem.limitedUse.maxUses}`;
 
       const recovery = [];
-      if (resetType.value) {
+      if (resetType.value && !["", "charges"].includes(resetType.value)) {
         recovery.push({
           period: resetType.value,
           type: recoveryIsMax ? "recoverAll" : "formula",
           formula: recoveryIsMax ? "" : recoveryFormula,
         });
       }
-      this.data.uses = {
+      return {
         max: this.ddbItem.limitedUse.maxUses,
         spent: this.ddbItem.limitedUse.numberUsed ?? 0,
         recovery,
         prompt,
       };
     } else {
-      this.data.uses = { spent: 0, max: 0, recovery: [], prompt };
+      return { spent: 0, max: null, recovery: [], prompt };
     }
-
   }
 
-  #getConsumableUses() {
+  static getMagicItemResetType(description) {
+    let resetType = null;
+
+    const chargeMatchFormula = /expended charges (?:\w+|each day) at (\w+)/i;
+    const usedAgainFormula = /(?:until|when) you (?:take|finish) a (short|long|short or long) rest/i;
+    const chargeNextDawnFormula = /can't be used this way again until the next (dawn|dusk)/i;
+
+    const chargeMatch = chargeMatchFormula.exec(description);
+    const untilMatch = usedAgainFormula.exec(description);
+    const dawnMatch = chargeNextDawnFormula.exec(description);
+
+    if (chargeMatch && chargeMatch[1] && ["dawn", "dusk"].includes(chargeMatch[1].toLowerCase())) {
+      resetType = chargeMatch[1].toLowerCase();
+    } else if (chargeMatch && chargeMatch[1] && ["sunset"].includes(chargeMatch[1].toLowerCase())) {
+      resetType = "dusk";
+    } else if (dawnMatch && dawnMatch[1]) {
+      resetType = utils.capitalize(dawnMatch[1].toLowerCase());
+    } else if (chargeMatch && chargeMatch[1]) {
+      resetType = "day";
+    } else if (untilMatch && untilMatch[1]) {
+      switch (untilMatch[1]) {
+        case "short or long":
+          resetType = "sr";
+          break;
+        default:
+          resetType = utils.capitalize(`${untilMatch[1]}Rest`);
+      }
+    }
+
+    // console.warn("reset type", {
+    //   chargeMatch,
+    //   untilMatch,
+    //   dawnMatch,
+    //   description,
+    //   resetType,
+    // });
+
+    return resetType;
+  }
+
+  _getCompendiumUses() {
+    if (!this.isCompendiumItem) return { spent: 0, max: null, recovery: [], prompt };
+    const maxUses = /has (\d*) charges/i;
+    const maxUsesMatches = maxUses.exec(this.ddbItem.definition.description);
+    const limitedUse = {
+      maxUses: (maxUsesMatches && maxUsesMatches[1]) ? maxUsesMatches[1] : null,
+      numberUsed: 0,
+      resetType: DDBItem.getMagicItemResetType(this.ddbItem.definition.description),
+      resetTypeDescription: this.ddbItem.definition.description,
+    };
+
+    if (limitedUse.maxUses) {
+      const recoveryFormula = DDBItem.getRechargeFormula(this.ddbItem.definition.description, limitedUse.maxUses);
+      const recoveryIsMax = `${recoveryFormula}` === `${this.ddbItem.limitedUse.maxUses}`;
+
+      const recovery = [];
+      if (limitedUse.resetType && !["", "charges"].includes(limitedUse.resetType)) {
+        recovery.push({
+          period: limitedUse.resetType,
+          type: recoveryIsMax ? "recoverAll" : "formula",
+          formula: recoveryIsMax ? "" : recoveryFormula,
+        });
+      }
+      this.actionInfo.consumptionValue = 1;
+      // todo: set activation consumption
+      return {
+        max: `${limitedUse.maxUses}`,
+        spent: 0,
+        recovery,
+        prompt,
+      };
+    } else {
+      return { spent: 0, max: null, recovery: [], prompt };
+    }
+  }
+
+  // { value: "recoverAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.RecoverAll") },
+  // { value: "loseAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.LoseAll") },
+  // { value: "formula", label: game.i18n.localize("DND5E.USES.Recovery.Type.Formula") }
+  _generateUses(prompt = false) {
+    this.data.system.uses = this.isCompendiumItem
+      ? this._getCompendiumUses()
+      : this._getUses(prompt);
+  }
+
+  _generateConsumableUses() {
     if (this.ddbItem.limitedUse) {
-      this.#generateUses(true);
-      if (this.data.uses.recovery.length === 0) {
+      this._generateUses(true);
+      if ([null, "", 0].includes(this.data.system.uses.max)) {
         // uses.per = "charges";
         // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
-        this.data.uses.recovery.push({ period: "charges", type: "recoverAll" });
+        // this.data.uses.recovery.push({ period: "charges", type: "recoverAll" });
       }
-      this.data.uses.autoDestroy = true;
+      this.data.system.uses.autoDestroy = true;
+      this.actionInfo.consumptionValue = 1;
     } else {
       // default
-      this.data.uses = {
+      this.data.system.uses = {
         spent: 0,
-        max: 1,
+        max: "1",
         recovery: [
           // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
-          { period: "charges" },
+          // { period: "charges" },
         ],
         // TODO: where do these now live?
         autoDestroy: true,
         autoUse: false,
       };
+      this.actionInfo.consumptionValue = 1;
     }
   }
 
@@ -1579,7 +1677,7 @@ export default class DDBItem {
       this.data.system.properties = utils.addToProperties(this.data.system.properties, "stealthDisadvantage");
     this.#generateArmorMaxDex();
     this.#generateProficient();
-    this.#generateUses();
+    this._generateUses();
     if (!this.data.name.toLowerCase().includes("armor")) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.alternativeNames", [`${this.name} Armor`]);
     }
@@ -1590,12 +1688,12 @@ export default class DDBItem {
     if (this.data.system.type.value === "wand") {
       this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
     }
-    this.#getConsumableUses();
+    this._generateConsumableUses();
   }
 
   #generateLootSpecifics() {
     if (this.systemType.value) {
-      this.#getConsumableUses();
+      this._generateConsumableUses();
     }
     if (this.documentType === "container") {
       this.#generateCapacity();
@@ -1607,7 +1705,7 @@ export default class DDBItem {
   #generateScrollSpecifics() {
     this.activityOptions.generateActivation = true;
     //todo: what kind of activity type are scrolls?
-    this.#getConsumableUses();
+    this._generateConsumableUses();
   }
 
   #generateStaffSpecifics() {
@@ -1619,7 +1717,7 @@ export default class DDBItem {
     this.actionInfo.ability = this.#getAbility();
     this.actionInfo.meleeAttack = this.data.system.range.long === 5;
     if (!game.modules.get("magicitems")?.active && !game.modules.get("items-with-spells-5e")?.active) {
-      this.#generateUses();
+      this._generateUses();
     }
     if (this.damageParts.length > 0) {
       this.data.system.damage = {
@@ -1637,7 +1735,7 @@ export default class DDBItem {
     const defaultAbility = DICTIONARY.character.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
     this.actionInfo.ability = defaultAbility?.ability ?? "dex";
     this.data.system.proficient = this.ddbData ? this.#getToolProficiency(this.ddbDefinition.name, this.actionInfo.ability) : 0;
-    this.#generateUses();
+    this._generateUses();
   }
 
   #generateWeaponSpecifics() {
@@ -1653,7 +1751,7 @@ export default class DDBItem {
     // Todo: Maybe not needed anymore?
     if (this.flags.classFeatures.includes("OffHand")) this.actionInfo.activation.type = "bonus";
     this.data.system.range = this.#getWeaponRange();
-    this.#generateUses(false);
+    this._generateUses(false);
     this.data.system.uses.prompt = false;
     this.actionInfo.ability = this.#getWeaponAbility();
     if (this.ddbDefinition.attackType === 1) {
@@ -1687,7 +1785,7 @@ export default class DDBItem {
       this.data.system.properties = utils.removeFromProperties(this.data.system.properties, "stealthDisadvantage");
       this.data.system.proficient = null;
     }
-    this.#generateUses(true);
+    this._generateUses(true);
     if (!this.isTattoo) {
       this.#generateCapacity();
     }
@@ -1751,10 +1849,224 @@ export default class DDBItem {
     }
   }
 
+  parsePerSpellMagicItem(useDescription) {
+    if (useDescription === "") {
+      // some times 1 use per day items, like circlet of blasting have nothing in
+      // the limited use description, fall back to this
+      let limitedUse = /can't be used this way again until the next|can’t be used to cast that spell again until the next/i;
+      if (this.ddbDefinition.description.replace("’", "'").search(limitedUse) !== -1) {
+        return true;
+      }
+      return false;
+    }
+
+    let perSpell = /each ([A-z]*|\n*) per/i;
+    let match = perSpell.exec(useDescription);
+    if (match) {
+      match = DICTIONARY.magicitems.nums.find((num) => num.id == match[1]).value;
+    } else {
+      match = false;
+    }
+    return match;
+  }
+
+  // if this.spellsAsActivities
+  #addSpellAsActivity(spell) {
+    logger.debug(`Adding spell ${spell.name} to item as activity ${this.data.name}`);
+    const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
+
+    const resetType = this.ddbItem.limitedUse?.resetType
+      ? DICTIONARY.resets.find((reset) =>
+        reset.id == this.ddbItem.limitedUse.resetType,
+      )?.value ?? undefined
+      : undefined;
+
+    const activityUses = {
+      spent: 0,
+      recovery: [
+        {
+          period: resetType,
+          type: "recoverAll",
+        },
+      ],
+      max: spellData.charges,
+    };
+
+    const activityConsumptionTarget = this.isPerSpell
+      ? {
+        type: "activityUses",
+        value: "1",
+        scaling: {},
+      }
+      : {
+        type: "itemUses",
+        target: "",
+        value: this.actionInfo.consumptionValue ?? 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      };
+
+    const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
+      ? { calculation: "", formula: spell.flags.ddbimporter.dndbeyond?.dc }
+      : { calculation: "spellcasting", formula: "" };
+
+    Object.keys(spell.system.activities).forEach((id, i) => {
+      const activity = foundry.utils.deepClone(spell.system.activities[id]);
+
+      const currentConsumptionValue = activity.consumption?.value;
+
+      if (currentConsumptionValue && activityConsumptionTarget.type === "itemUses") {
+        activityConsumptionTarget.value = currentConsumptionValue;
+      }
+
+      console.warn(`Copying Spell ${spell.name} Activity`, {
+        spell,
+        this: this,
+        id,
+        activity,
+      });
+
+      const spellLookupName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName");
+      activity.name = `${spellLookupName ?? spell.name} (${utils.capitalize(activity.type)})`;
+      const newId = utils.namedIDStub(spell.name, {
+        postfix: i,
+        prefix: activity.type,
+      });
+
+      if (!activity.activation?.override) activity.activation = spell.system.activation;
+      if (!activity.duration?.override) activity.duration = spell.system.duration;
+      if (!activity.range?.override) activity.range = spell.system.range;
+      if (!activity.target?.override) activity.target = spell.system.target;
+
+      activity._id = newId;
+
+      activity.consumption.targets = [activityConsumptionTarget];
+      activity.consumption.scaling = false;
+      activity.consumption.spellSlot = false;
+
+      if (this.isPerSpell && ["", "charges"].includes(resetType)) {
+        activity.uses = activityUses;
+      }
+
+      if (this.actionInfo.save?.dc) {
+        activity.save.dc = saveDC;
+      }
+
+      foundry.utils.setProperty(activity, "flags.ddbimporter.spellHintName", spellLookupName);
+
+      activity.description.chatFlavor = spell.system.description.value;
+      this.data.system.activities[newId] = activity;
+    });
+
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.activityImgEnrichment", true);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.isItemCharge", !this.isPerSpell);
+  }
+
+  #spellsAsSpells(spell) {
+    logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
+    const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
+
+    const resetType = this.ddbItem.limitedUse?.resetType
+      ? DICTIONARY.resets.find((reset) =>
+        reset.id == this.ddbItem.limitedUse.resetType,
+      )?.value ?? undefined
+      : undefined;
+
+    const uses = {
+      spent: 0,
+      recovery: [
+      ],
+      max: null,
+    };
+
+    if (this.isPerSpell) {
+      uses.recovery.push({
+        period: resetType,
+        type: "recoverAll",
+      });
+
+      foundry.utils.setProperty(spell, "system.uses", uses);
+    } else {
+      foundry.utils.setProperty(spell, "system.uses.recovery", []);
+      foundry.utils.setProperty(spell, "system.uses.max", null);
+    }
+
+    const activityConsumptionTarget = this.isPerSpell
+      ? {
+        type: "itemUses",
+        value: "1",
+        scaling: {},
+      }
+      : {
+        type: "itemUses",
+        target: `${this.data._id}`,
+        value: this.actionInfo.consumptionValue ?? 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      };
+
+    const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
+      ? { calculation: "", formula: spell.flags.ddbimporter.dndbeyond?.dc }
+      : { calculation: "spellcasting", formula: "" };
+
+    foundry.utils.setProperty(spell, "system.level", Number.parseInt(spellData.level));
+
+    Object.keys(spell.system.activities).forEach((id) => {
+      spell.system.activities[id].consumption.targets = [activityConsumptionTarget];
+      spell.system.activities[id].consumption.scaling = false;
+      spell.system.activities[id].consumption.spellSlot = false;
+      if (this.actionInfo.save?.dc) {
+        spell.system.activities[id].save.dc = saveDC;
+      }
+      spell.system.activities[id].description.chatFlavor = `Cast from ${this.data.name}`;
+    });
+
+    console.warn(`Adjusted Spell ${spell.name} as item consumption`, {
+      spell: deepClone(spell),
+      this: this,
+      id: `${this.data._id}`,
+    });
+
+  }
+
+  #basicMagicItem() {
+    // if using magic items modules, these changes are not needed and a seperate
+    // function processes the required data later.
+    if (game.modules.get("magicitems")?.active
+     || game.modules.get("items-with-spells-5e")?.active) return;
+    if (!this.ddbDefinition.magic) return;
+
+    (this.raw?.itemSpells ?? []).forEach((spell) => {
+      console.warn(`Checking Spell ${spell.name}`, {
+        spell,
+        this: this,
+      });
+      const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
+        && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
+      if (isItemSpell) {
+        logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
+        if (this.spellsAsActivities) this.#addSpellAsActivity(spell);
+        else this.#spellsAsSpells(spell);
+      }
+
+    });
+
+    // const spent = foundry.utils.getProperty(this.data, "system.uses.spent");
+    // const activation = this.actionInfo.activation?.type ?? "";
+
+    // if (activation === "" && spent === 0) {
+    //   this.data.system.activation.type = "special";
+    // }
+  }
+
   // eslint-disable-next-line complexity
   async build() {
     try {
-      await this._prepare();
+      await this.#prepare();
 
       this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
       this.data.system.weight = this.#getSingleItemWeight();
@@ -1768,10 +2080,13 @@ export default class DDBItem {
       this.#generateItemRarity();
       this.#generateQuantity();
       this.#generatePrice();
-      this._generateMagicalBonus();
+      this.#generateMagicalBonus();
 
       if (this.overrides.ddbType)
         foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", this.overrides.ddbType);
+
+
+      this.characterManager.updateItemId(this.data);
 
       this.#generateActivity();
       this.#generateAdditionalActivities();
@@ -1781,10 +2096,8 @@ export default class DDBItem {
 
       // should be one of the last things to do
       await this.#generateDescription();
-
-      this.#addExtraDDBFlags();
       DDBHelper.addCustomValues(this.ddbData, this.data);
-      this.#enrichFlags();
+      this.#basicMagicItem();
     } catch (err) {
       logger.warn(
         `Unable to parse item: ${this.ddbDefinition.name}, ${this.ddbDefinition.type}/${this.ddbDefinition.filterType}. ${err.message}`,
@@ -2046,7 +2359,11 @@ export default class DDBItem {
     if (this.actionInfo.activation?.type === "special" && (!this.data.uses.max || this.data.uses.max === "")) {
       return undefined;
     }
-    if (this.actionInfo.activation?.type && !this.healingAction) return "utility";
+    if (this.actionInfo.activation?.type
+      && !this.healingAction
+      && !["wand", "scroll"].includes(this.systemType.value)
+    ) return "utility";
+    if (this.parsingType === "consumable" && !["wand", "scroll"].includes(this.systemType.value)) return "utility";
     // TODO: can we determine if utility or damage?
     return null;
   }
@@ -2072,6 +2389,10 @@ export default class DDBItem {
         return this._getSummonActivity(data, options);
       case "check":
         return this._getCheckActivity(data, options);
+      case "spell":
+      case "teleport":
+      case "transform":
+      case "forward":
       default:
         if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
         return undefined;

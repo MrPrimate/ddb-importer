@@ -418,7 +418,7 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
         if (activity.damage?.save) {
           activity.save.dc = {
             formula: saveMatch[1],
-            calculation: "custom",
+            calculation: "",
           };
         } else {
           console.error(`SPELL EDGE CASE FAILURE ${spell.name} - ${edgeCase.edge} - save match not found`, {
