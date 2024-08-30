@@ -346,36 +346,53 @@ const notReplace = {
 
 
 // TODO: update for activities
-DDBCharacter.prototype.fixItemSpellResources = async function fixItemSpellResources() {
-  const possibleItems = this.currentActor.items.toObject();
-  let toUpdate = [];
+// DDBCharacter.prototype.fixItemSpellResources = async function fixItemSpellResources() {
+//   const possibleItems = this.currentActor.items.toObject();
+//   let toUpdate = [];
 
-  for (const spell of possibleItems) {
-    if (spell.type !== "spell") continue;
-    if (!foundry.utils.getProperty(spell, "flags.ddbimporter.isItemCharge")) continue;
-    if (foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookup") !== "item") continue;
-    const spellLookupId = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookupId");
-    if (!spellLookupId) continue;
-    const parentDoc = possibleItems.find((item) =>
-      spellLookupId === item.flags?.ddbimporter?.definitionId,
-    );
-    if (!parentDoc) continue;
-    toUpdate.push({
-      _id: spell._id,
-      // TODO: update for activities
-      "system.consume.target": parentDoc._id,
-      "system.uses.prompt": false,
-    });
-  }
+//   for (const spell of possibleItems) {
+//     if (spell.type !== "spell") continue;
+//     if (!foundry.utils.getProperty(spell, "flags.ddbimporter.isItemCharge")) continue;
+//     if (foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookup") !== "item") continue;
+//     const spellLookupId = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookupId");
+//     if (!spellLookupId) continue;
+//     const parentDoc = possibleItems.find((item) =>
+//       spellLookupId === item.flags?.ddbimporter?.definitionId,
+//     );
+//     if (!parentDoc) continue;
+//     toUpdate.push({
+//       _id: spell._id,
+//       // TODO: update for activities
+//       "system.consume.target": parentDoc._id,
+//       "system.uses.prompt": false,
+//     });
+//   }
 
-  logger.debug("itemSpellsToUpdate", toUpdate);
+//   {
+//     _id: "GGJwqQSD1RqJx7RE",
+//     "system.activities.ddbStepOfTheWinI.consumption": {
+//       "targets": [
+//           {
+//               "type": "itemUses",
+//               "target": "",
+//               "value": "1",
+//               "scaling": {
+//                   "mode": "",
+//                   "formula": ""
+//               }
+//           }
+//       ],
+//       "spellSlot": false
+//     }
+//   }
 
-  const results = await this.currentActor.updateEmbeddedDocuments("Item", toUpdate);
-  logger.debug("itemSpellsToUpdate results", results);
+//   logger.debug("itemSpellsToUpdate", toUpdate);
 
-};
+//   const results = await this.currentActor.updateEmbeddedDocuments("Item", toUpdate);
+//   logger.debug("itemSpellsToUpdate results", results);
 
-// TODO: update for activities
+// };
+
 DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
   // loop over resourceFeatureLinkMap
   const possibleItems = this.currentActor.items.toObject();
@@ -406,11 +423,21 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
             const update = {
               _id: child._id,
             };
-            const charge = foundry.utils.getProperty(child, "system.consume.amount") ?? 1;
-            foundry.utils.setProperty(update, "system.consume", {
-              type: chargeTypeMap[consumingDocName]?.type ?? "charges",
-              target: parent._id,
-              amount: charge,
+            Object.keys(child.system.activities).forEach((id) => {
+              const targets = child.system.activities[id].consumption.targets;
+              if (targets.length > 0) {
+                targets[0].target = parent._id;
+                foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
+              } else {
+                foundry.utils.setProperty(update, `system.activities.${id}.consumption`, {
+                  spellSlot: false,
+                  targets: [{
+                    type: "itemUse",
+                    value: 1,
+                    target: `${parent._id}`,
+                  }],
+                });
+              }
             });
             toUpdate.push(update);
           });
@@ -441,10 +468,16 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
           const update = {
             _id: child._id,
           };
-          foundry.utils.setProperty(update, "system.consume", {
-            type: "charges",
-            target: parent._id,
-            amount: value.cost,
+          Object.keys(child.system.activities).forEach((id) => {
+            const consumption = child.system.activities[id].consumption;
+            const targets = [{
+              target: parent._id,
+              value: `${value.cost}`,
+              type: "itemUses",
+            }];
+            consumption.targets = targets;
+            consumption.spellSlot = false;
+            foundry.utils.setProperty(update, `system.activities.${id}.consumption`, consumption);
           });
           toUpdate.push(update);
         }

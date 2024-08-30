@@ -1400,7 +1400,7 @@ ${item.system.description.chat}
       await createInfusedItems(this.ddbCharacter.source.ddb, this.actor);
 
       await this.ddbCharacter.autoLinkResources();
-      await this.ddbCharacter.fixItemSpellResources();
+      // await this.ddbCharacter.fixItemSpellResources();
 
       await this.ddbCharacter.addToCompendiums();
 
