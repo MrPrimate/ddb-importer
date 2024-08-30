@@ -8,6 +8,8 @@ export default class DDBBaseEnricher {
 
   ACTIVITY_HINTS = {};
 
+  ADDITIONAL_ACTIVITIES = {};
+
   DOCUMENT_OVERRIDES = {};
 
   EFFECT_HINTS = {};
@@ -17,16 +19,33 @@ export default class DDBBaseEnricher {
     this.activity = this.ACTIVITY_HINTS[this.hintName];
     this.effect = this.EFFECT_HINTS[this.hintName];
     this.override = this.DOCUMENT_OVERRIDES[this.hintName];
+    this.additionalActivities = this.ADDITIONAL_ACTIVITIES[this.hintName];
   }
 
   constructor({ document, name = null } = {}) {
     this.document = document;
     this.name = name ?? document.flags?.ddbimporter?.originalName ?? document.name;
+    this.additionalActivityClass = null;
     this._prepare();
   }
 
   applyActivityOverride(activity) {
+    console.warn(`applyActivityOverride for ${this.document.name}`, {
+      activity,
+      this: this,
+    });
     if (!this.activity) return activity;
+
+    if (this.activity.parent) {
+      for (const parent of this.activity.parent) {
+        const lookupName = foundry.utils.getProperty(this.document, "flags.ddbimporter.dndbeyond.lookupName");
+        if (lookupName !== parent.lookupName) continue;
+
+        const base = foundry.utils.deepClone(this.activity);
+        delete base.parent;
+        this.activity = foundry.utils.mergeObject(base, parent);
+      }
+    }
 
     if (this.activity.addItemConsume) {
       foundry.utils.setProperty(activity, "consumption.targets", [
@@ -59,11 +78,22 @@ export default class DDBBaseEnricher {
       });
     }
 
+    if (foundry.utils.hasProperty(this.activity, "flatAttack")) {
+      foundry.utils.setProperty(activity, "attack.bonus", this.activity.flatAttack);
+      foundry.utils.setProperty(activity, "attack.flat", true);
+    }
+
     if (this.activity.data) {
       activity = foundry.utils.mergeObject(activity, this.activity.data);
     }
 
     if (this.activity.func) this.activity.func(activity);
+
+    console.warn(`applyActivityOverride finished for ${this.document.name}`, {
+      activity: foundry.utils.deepClone(activity),
+      this: this,
+      thisActivity: foundry.utils.deepClone(this.activity),
+    });
 
     return activity;
   }
@@ -131,5 +161,24 @@ export default class DDBBaseEnricher {
 
     if (this.override.data) this.document = foundry.utils.mergeObject(this.document, this.override.data);
     return this.document;
+  }
+
+  addAdditionalActivities(ddbParent) {
+    if (!this.additionalActivities || !this.additionalActivityClass) return;
+
+    for (const data of this.additionalActivities) {
+      const activity = new this.additionalActivityClass(foundry.utils.mergeObject(data.constructor, {
+        ddbParent: ddbParent,
+        nameIdPrefix: "add",
+        nameIdPostfix: `${this.document.system.activities.length + 1}`,
+      }));
+      activity.build(data.build);
+      console.warn("addAdditionalActivities", {
+        activity,
+        this: this,
+        data,
+      });
+      this.document.system.activities[activity.data._id] = activity.data;
+    }
   }
 }

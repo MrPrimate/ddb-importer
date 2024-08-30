@@ -113,7 +113,7 @@ export default class DDBItem {
 
     // if the item is x per spell
     this.isPerSpell = this.ddbItem.limitedUse
-      ? this.parsePerSpellMagicItem(this.ddbItem.limitedUse.resetTypeDescription)
+      ? this.parsePerSpellMagicItem(this.ddbItem.limitedUse.resetTypeDescription ?? "")
       : false;
 
     this.magicChargeType = this.isPerSpell
@@ -195,7 +195,7 @@ export default class DDBItem {
     this.additionalActivities = [];
     this.versatileDamage = "";
 
-    this.itemEnricher = new DDBItemEnricher({
+    this.enricher = new DDBItemEnricher({
       document: this.data,
       name: this.name,
     });
@@ -431,24 +431,10 @@ export default class DDBItem {
   }
 
   #generateStaffDamageParts() {
-    const magicalDamageBonus = this.actionInfo.magicBonus.zero ?? 0;
     let weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
     let versatile = weaponBehavior.properties.find((property) => property.name === "Versatile");
     if (versatile && versatile.notes) {
-      const damage = DDBBasicActivity.buildDamagePart({
-        damageString: utils.parseDiceString(versatile.notes).diceString,
-        stripMod: true,
-        type: weaponBehavior.damageType.toLowerCase(),
-      });
-      damage.bonus = damage.bonus === "" ? magicalDamageBonus : ` + ${magicalDamageBonus}`;
-      this.additionalActivities.push({
-        name: `Versatile`,
-        options: {
-          generateDamage: true,
-          damageParts: [damage],
-          includeBaseDamage: false,
-        },
-      });
+      this.versatileDamage = utils.parseDiceString(versatile.notes).diceString;
     }
 
     // first damage part
@@ -460,7 +446,6 @@ export default class DDBItem {
         type: weaponBehavior.damageType.toLowerCase(),
         stripMod: true,
       });
-      damage.bonus = damage.bonus === "" ? magicalDamageBonus : ` + ${magicalDamageBonus}`;
       this.damageParts.push(damage);
     }
 
@@ -471,7 +456,6 @@ export default class DDBItem {
 
 
   #generateWeaponDamageParts() {
-    // const magicalDamageBonus = getWeaponMagicalBonus(data, flags, true);
     // we can safely make these assumptions about GWF
     // flags are only added for melee attacks
     const greatWeaponFighting = this.flags.classFeatures.includes("greatWeaponFighting") ? "r<=2" : "";
@@ -481,19 +465,6 @@ export default class DDBItem {
 
     const versatile = this.ddbDefinition.properties.find((property) => property.name === "Versatile");
     if (versatile && versatile.notes) {
-      // const damage = DDBBasicActivity.buildDamagePart({
-      //   damageString: utils.parseDiceString(versatile.notes, null, "", greatWeaponFighting).diceString,
-      //   stripMod: true,
-      //   type: this.ddbDefinition.damageType.toLowerCase(),
-      // });
-      // this.additionalActivities.push({
-      //   name: `Versatile`,
-      //   options: {
-      //     generateDamage: true,
-      //     damageParts: [damage],
-      //     includeBaseDamage: false,
-      //   },
-      // });
       this.versatileDamage = utils.parseDiceString(versatile.notes, null, "", greatWeaponFighting).diceString;
     }
 
@@ -1853,8 +1824,10 @@ export default class DDBItem {
     if (useDescription === "") {
       // some times 1 use per day items, like circlet of blasting have nothing in
       // the limited use description, fall back to this
-      let limitedUse = /can't be used this way again until the next|can’t be used to cast that spell again until the next/i;
-      if (this.ddbDefinition.description.replace("’", "'").search(limitedUse) !== -1) {
+      // can’t be used to cast that spell again until the next
+      // can't be used this way again until the next dawn.
+      let limitedUseRegex = /can't be used this way again until the next|can't be used to cast that spell again until the next/i;
+      if (limitedUseRegex.test(this.ddbDefinition.description.replace("’", "'").toLowerCase())) {
         return true;
       }
       return false;
@@ -1950,7 +1923,7 @@ export default class DDBItem {
         activity.uses = activityUses;
       }
 
-      if (this.actionInfo.save?.dc) {
+      if (this.actionInfo.save?.dc && activity.save?.dc) {
         activity.save.dc = saveDC;
       }
 
@@ -1982,6 +1955,9 @@ export default class DDBItem {
     };
 
     if (this.isPerSpell) {
+      // spells manage charges
+      this.data.system.uses = foundry.utils.deepClone(uses);
+      uses.max = spellData.limitedUse.maxNumberConsumed ?? 1;
       uses.recovery.push({
         period: resetType,
         type: "recoverAll",
@@ -2009,19 +1985,17 @@ export default class DDBItem {
         },
       };
 
-    // {
-    //     type: "itemUses",
-    //     target: "", // adjusted later
-    //     value: this._resourceCharges ?? 1,
-    //     scaling: {
-    //       mode: "",
-    //       formula: "",
-    //     },
-    //   }
-
     const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
       ? { calculation: "", formula: spell.flags.ddbimporter.dndbeyond?.dc }
       : { calculation: "spellcasting", formula: "" };
+
+    console.warn(`Spell update details for ${spell.name}`, {
+      resetType,
+      uses,
+      activityConsumptionTarget,
+      saveDC,
+      spellData,
+    });
 
     foundry.utils.setProperty(spell, "system.level", Number.parseInt(spellData.level));
 
@@ -2029,14 +2003,14 @@ export default class DDBItem {
       spell.system.activities[id].consumption.targets = [activityConsumptionTarget];
       spell.system.activities[id].consumption.scaling = false;
       spell.system.activities[id].consumption.spellSlot = false;
-      if (this.actionInfo.save?.dc) {
+      if (this.actionInfo.save?.dc && spell.system.activities[id].save?.dc) {
         spell.system.activities[id].save.dc = saveDC;
       }
       spell.system.activities[id].description.chatFlavor = `Cast from ${this.data.name}`;
     });
 
     console.warn(`Adjusted Spell ${spell.name} as item consumption`, {
-      spell: deepClone(spell),
+      spell: foundry.utils.deepClone(spell),
       this: this,
       id: `${this.data._id}`,
     });
@@ -2050,19 +2024,20 @@ export default class DDBItem {
      || game.modules.get("items-with-spells-5e")?.active) return;
     if (!this.ddbDefinition.magic) return;
 
-    (this.raw?.itemSpells ?? []).forEach((spell) => {
-      console.warn(`Checking Spell ${spell.name}`, {
-        spell,
-        this: this,
-      });
+    if (!this.raw.itemSpells) return;
+    this.raw.itemSpells.forEach((spell) => {
       const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
         && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
       if (isItemSpell) {
+        console.warn(`Adding Spell ${spell.name} for ${this.data.name}`, {
+          spell,
+          this: this,
+        });
+
         logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
         if (this.spellsAsActivities) this.#addSpellAsActivity(spell);
         else this.#spellsAsSpells(spell);
       }
-
     });
 
     // const spent = foundry.utils.getProperty(this.data, "system.uses.spent");
@@ -2099,7 +2074,9 @@ export default class DDBItem {
       this.characterManager.updateItemId(this.data);
 
       this.#generateActivity();
+      this.#addHealAdditionalActivities();
       this.#generateAdditionalActivities();
+      this.enricher.addAdditionalActivities(this);
 
       this.data.system.attuned = this.ddbItem.isAttuned;
       this.#generateAttunement();
@@ -2108,6 +2085,8 @@ export default class DDBItem {
       await this.#generateDescription();
       DDBHelper.addCustomValues(this.ddbData, this.data);
       this.#basicMagicItem();
+
+      this.enricher.addDocumentOverride();
     } catch (err) {
       logger.warn(
         `Unable to parse item: ${this.ddbDefinition.name}, ${this.ddbDefinition.type}/${this.ddbDefinition.filterType}. ${err.message}`,
@@ -2172,7 +2151,7 @@ export default class DDBItem {
     const saveActivity = new DDBItemActivity({
       name,
       type: "save",
-      ddbItem: this,
+      ddbParent: this,
       nameIdPrefix: "save",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -2181,6 +2160,9 @@ export default class DDBItem {
       generateSave: true,
       generateRange: !["weapon", "staff"].includes(this.parsingType),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
+      damageParts: ["weapon", "staff"].includes(this.parsingType)
+        ? this.damageParts.splice(1)
+        : null,
       generateDamage: true,
     }, options));
 
@@ -2191,23 +2173,17 @@ export default class DDBItem {
     const attackActivity = new DDBItemActivity({
       name,
       type: "attack",
-      ddbItem: this,
+      ddbParent: this,
       nameIdPrefix: "attack",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    const parts = this.damageParts.length > 1
-      ? this.isSave
-        ? []
-        : this.damageParts.splice(1).map((s) => s.part)
-      : [];
-
     attackActivity.build(foundry.utils.mergeObject({
       generateAttack: true,
       generateRange: !["weapon", "staff"].includes(this.parsingType),
+      // don't add extra damages if it's a save (assume its save damage)
       generateDamage: !this.actionInfo.save,
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
-      damageParts: parts,
     }, options));
     return attackActivity;
   }
@@ -2216,7 +2192,7 @@ export default class DDBItem {
     const utilityActivity = new DDBItemActivity({
       name,
       type: "utility",
-      ddbItem: this,
+      ddbParent: this,
       nameIdPrefix: "utility",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -2234,7 +2210,7 @@ export default class DDBItem {
     const healActivity = new DDBItemActivity({
       name,
       type: "heal",
-      ddbItem: this,
+      ddbParent: this,
       nameIdPrefix: "heal",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -2252,7 +2228,7 @@ export default class DDBItem {
     const damageActivity = new DDBItemActivity({
       name,
       type: "damage",
-      ddbItem: this,
+      ddbParent: this,
       nameIdPrefix: "damage",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -2270,7 +2246,7 @@ export default class DDBItem {
     const enchantActivity = new DDBItemActivity({
       name,
       type: "enchant",
-      ddbItem: this,
+      ddbParent: this,
       nameIdPrefix: "enchant",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -2287,7 +2263,7 @@ export default class DDBItem {
     const summonActivity = new DDBItemActivity({
       name,
       type: "summon",
-      ddbItem: this,
+      ddbParent: this,
       nameIdPrefix: "summon",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -2301,22 +2277,22 @@ export default class DDBItem {
   }
 
   _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const summonActivity = new DDBItemActivity({
+    const checkActivity = new DDBItemActivity({
       name,
       type: "check",
-      ddbItem: this,
+      ddbParent: this,
       nameIdPrefix: "check",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    summonActivity.build(foundry.utils.mergeObject({
+    checkActivity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: false,
       generateDamage: false,
       generateCheck: true,
       generateActivation: true,
     }, options));
-    return summonActivity;
+    return checkActivity;
   }
 
   #addSaveAdditionalActivity(includeBase = false) {
@@ -2325,21 +2301,25 @@ export default class DDBItem {
       options: {
         generateDamage: this.damageParts.length > 1,
         damageParts: ["weapon", "staff"].includes(this.parsingType) || includeBase
-          ? this.damageParts.map((dp) => dp.part)
-          : this.damageParts.slice(1).map((dp) => dp.part),
+          ? this.damageParts
+          : this.damageParts.slice(1),
         includeBaseDamage: false,
       },
     });
   }
 
-  #addHealAdditionalActivity() {
-    this.additionalActivities.push({
-      type: "heal",
-      options: {
-        generateDamage: false,
-        includeBaseDamage: false,
-      },
-    });
+  #addHealAdditionalActivities() {
+    for (const part of this.healingParts) {
+      this.additionalActivities.push({
+        type: "heal",
+        options: {
+          generateDamage: false,
+          includeBaseDamage: false,
+          generateHealing: true,
+          healingPart: part,
+        },
+      });
+    }
   }
 
   _getActivitiesType() {
@@ -2349,10 +2329,8 @@ export default class DDBItem {
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (this.healingParts.length > 0) {
       if (!this.actionInfo.save && !["weapon", "staff"].includes(this.parsingType) && this.damageParts.length === 0) {
-        return "heal";
-      } else {
-        // generate an additional heal activity
-        this.#addHealAdditionalActivity();
+        // we damage healing parts elsewhere
+        return null;
       }
     }
     if (["weapon", "staff"].includes(this.parsingType)) {
@@ -2412,10 +2390,10 @@ export default class DDBItem {
   #generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null } = {},
     optionsOverride = {},
   ) {
-    if (hintsOnly && !this.itemEnricher.activity) return undefined;
+    if (hintsOnly && !this.enricher.activity) return undefined;
 
     const activity = this.getActivity({
-      typeOverride: typeOverride ?? this.itemEnricher.activity?.type,
+      typeOverride: typeOverride ?? this.enricher.activity?.type,
       name,
       nameIdPostfix,
     }, optionsOverride);
@@ -2425,7 +2403,7 @@ export default class DDBItem {
       this: this,
       activity,
       typeOverride,
-      enricherHint: this.itemEnricher.activity?.type,
+      enricherHint: this.enricher.activity?.type,
       activityType: activity?.data?.type,
       optionsOverride,
       name,
@@ -2433,11 +2411,16 @@ export default class DDBItem {
       nameIdPostfix,
     });
 
-    if (!activity) return undefined;
+    if (!activity) {
+      logger.debug(`No Activity type found for ${this.data.name}`, {
+        this: this,
+      });
+      return undefined;
+    }
 
     if (!this.activityType) this.activityType = activity.data.type;
 
-    this.itemEnricher.applyActivityOverride(activity.data);
+    this.enricher.applyActivityOverride(activity.data);
     this.activities.push(activity);
     foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
 

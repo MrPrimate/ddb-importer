@@ -52,10 +52,11 @@ export default class DDBAttackAction extends DDBAction {
       this._generateSystemType(this.type);
       this._generateSystemSubType();
       this._generateActivity();
+      this.enricher.addAdditionalActivities(this);
 
       this._generateFlagHints();
       this._generateResourceFlags();
-      this.featureEnricher.addDocumentOverride();
+      this.enricher.addDocumentOverride();
       this._addEffects();
 
       this._addCustomValues();

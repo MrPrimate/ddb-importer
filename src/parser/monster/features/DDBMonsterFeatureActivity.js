@@ -5,7 +5,7 @@ import logger from "../../../logger.js";
 export default class DDBMonsterFeatureActivity {
 
   _init() {
-    logger.debug(`Generating DDBMonsterFeatureActivity ${this.name}`);
+    logger.debug(`Generating DDBMonsterFeatureActivity ${this.name ?? ""} for ${this.actor.name}`);
   }
 
   _generateDataStub() {
@@ -23,7 +23,7 @@ export default class DDBMonsterFeatureActivity {
   }
 
 
-  constructor({ type, name, ddbMonsterFeature, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null } = {}) {
 
     this.type = type.toLowerCase();
     this.activityType = CONFIG.DND5E.activityTypes[this.type];
@@ -31,10 +31,10 @@ export default class DDBMonsterFeatureActivity {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
     this.name = name;
-    this.ddbMonsterFeature = ddbMonsterFeature;
-    this.feature = ddbMonsterFeature.feature;
-    this.actor = ddbMonsterFeature.ddbMonster.npc;
-    this.actionInfo = ddbMonsterFeature.actionInfo;
+    this.ddbParent = ddbParent;
+    this.feature = ddbParent.feature;
+    this.actor = ddbParent.ddbMonster.npc;
+    this.actionInfo = ddbParent.actionInfo;
 
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
@@ -106,7 +106,7 @@ export default class DDBMonsterFeatureActivity {
   }
 
   _getFeaturePartsDamage() {
-    let baseParts = this.ddbMonsterFeature.templateType === "weapon"
+    let baseParts = this.ddbParent.templateType === "weapon"
       ? this.actionInfo.damageParts.slice(1)
       : this.actionInfo.damageParts;
 
@@ -132,13 +132,13 @@ export default class DDBMonsterFeatureActivity {
     // }
   }
 
-  _generateHealing({ parts = [], includeBase = false } = {}) {
-    this.data.healing = {
-      includeBase,
-      parts: parts.length > 0
-        ? parts
-        : this.actionInfo.healingParts.map((data) => data.part),
-    };
+  _generateHealing({ part = null } = {}) {
+    const healing = part
+      ? part
+      : this.actionInfo.healingParts.length > 0
+        ? this.actionInfo.healingParts.map((data) => data.part)[0]
+        : undefined;
+    this.data.healing = healing;
   }
 
   _generateSave() {
@@ -147,11 +147,11 @@ export default class DDBMonsterFeatureActivity {
 
 
   _generateAttack() {
-    let classification = this.ddbMonsterFeature.spellAttack
+    let classification = this.ddbParent.spellAttack
       ? "spell"
       : "weapon"; // unarmed, weapon, spell
 
-    let type = this.ddbMonsterFeature.rangedAttack
+    let type = this.ddbParent.rangedAttack
       ? "ranged"
       : "melee";
 
@@ -174,6 +174,7 @@ export default class DDBMonsterFeatureActivity {
 
   build({
     damageParts = [],
+    healingPart = null,
     generateActivation = true,
     generateAttack = false,
     generateConsumption = true,
@@ -190,8 +191,9 @@ export default class DDBMonsterFeatureActivity {
 
     // override set to false on object if overriding
 
-    logger.debug(`Generating Activity for ${this.ddbMonsterFeature.name}`, {
+    logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
       damageParts,
+      healingPart,
       generateActivation,
       generateAttack,
       generateConsumption,
@@ -218,7 +220,7 @@ export default class DDBMonsterFeatureActivity {
 
     if (generateSave) this._generateSave();
     if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage });
-    if (generateHealing) this._generateHealing({ parts: damageParts, includeBase: includeBaseDamage });
+    if (generateHealing) this._generateHealing({ part: healingPart });
 
 
     // ATTACK has

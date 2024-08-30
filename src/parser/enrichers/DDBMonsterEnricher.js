@@ -1,3 +1,4 @@
+import DDBMonsterFeatureActivity from "../monster/features/DDBMonsterFeatureActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
 export default class DDDMonsterEnricher extends DDBBaseEnricher {
@@ -16,6 +17,7 @@ export default class DDDMonsterEnricher extends DDBBaseEnricher {
     this.document = document;
     this.name = name ?? document.flags?.ddbimporter?.originalName ?? document.name;
     this._prepare();
+    this.additionalActivityClass = DDBMonsterFeatureActivity;
   }
 
 

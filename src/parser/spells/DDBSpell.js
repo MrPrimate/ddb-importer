@@ -93,6 +93,11 @@ export default class DDBSpell {
     this.name = this.getName(this.spellData, this.rawCharacter);
     this.data = {};
     this.activities = [];
+    this.activityTypes = [];
+    this.activityType = null;
+    this.additionalActivities = [];
+
+    this.healingParts = [];
 
     this.isGeneric = isGeneric ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.generic");
     this.addSpellEffects = isGeneric
@@ -118,7 +123,7 @@ export default class DDBSpell {
 
     this._generateDataStub();
 
-    this.spellEnricher = new DDBSpellEnricher({
+    this.enricher = new DDBSpellEnricher({
       document: this.data,
       name: this.originalName,
     });
@@ -550,98 +555,153 @@ export default class DDBSpell {
     }
   }
 
-  _getSaveActivity() {
-    const saveActivity = new DDBSpellActivity({
-      type: "save",
-      ddbSpell: this,
+  #generateHealingParts() {
+    const activityParser = new DDBSpellActivity({
+      type: "heal",
+      ddbParent: this,
     });
 
-    saveActivity.build({
+    const heals = this.spellDefinition.modifiers.filter((mod) =>
+      mod.type === "bonus"
+      && ["temporary-hit-points", "hit-points"].includes(mod.subType),
+    );
+
+    heals.forEach((heal) => {
+      let healingPart = {
+        part: null,
+        chatFlavor: null,
+      };
+      const restrictionText = heal.restriction && heal.restriction !== "" ? heal.restriction : "";
+      if (restrictionText !== "") {
+        healingPart.chatFlavor = `Restriction: ${restrictionText}`;
+      }
+
+      const healValue = (heal.die.diceString) ? heal.die.diceString : heal.die.fixedValue;
+      const diceString = heal.usePrimaryStat
+        ? `${healValue} + @mod${activityParser.healingBonus}`
+        : `${healValue}${activityParser.healingBonus}`;
+      if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
+        const damage = activityParser.buildDamagePart({
+          damageString: diceString,
+          type: heal.subType === "hit-points" ? "healing" : "temphp",
+        });
+        healingPart.part = damage;
+        this.healingParts.push(healingPart);
+      }
+    });
+  }
+
+  _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const saveActivity = new DDBSpellActivity({
+      name,
+      type: "save",
+      ddbParent: this,
+      nameIdPrefix: "save",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    saveActivity.build(foundry.utils.mergeObject({
       generateSave: true,
       generateDamage: true,
-    });
+    }, options));
 
     return saveActivity;
   }
 
-  _getAttackActivity() {
+  _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const attackActivity = new DDBSpellActivity({
+      name,
       type: "attack",
-      ddbSpell: this,
+      ddbParent: this,
+      nameIdPrefix: "attack",
+      nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    attackActivity.build({
+    attackActivity.build(foundry.utils.mergeObject({
       generateAttack: true,
       generateDamage: true,
-    });
+    }, options));
     return attackActivity;
   }
 
-  _getUtilityActivity() {
+  _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const utilityActivity = new DDBSpellActivity({
+      name,
       type: "utility",
-      ddbSpell: this,
+      ddbParent: this,
+      nameIdPrefix: "utility",
+      nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    utilityActivity.build({
+    utilityActivity.build(foundry.utils.mergeObject({
       generateDamage: false,
-    });
+    }, options));
 
     return utilityActivity;
   }
 
-  _getHealActivity() {
+  _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const healActivity = new DDBSpellActivity({
+      name,
       type: "heal",
-      ddbSpell: this,
+      ddbParent: this,
+      nameIdPrefix: "heal",
+      nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    healActivity.build({
-      generateDamage: true,
+    healActivity.build(foundry.utils.mergeObject({
+      generateDamage: false,
       generateHealing: true,
-    });
+    }, options));
 
     return healActivity;
   }
 
-  _getDamageActivity() {
+  _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const damageActivity = new DDBSpellActivity({
+      name,
       type: "damage",
-      ddbSpell: this,
+      ddbParent: this,
+      nameIdPrefix: "damage",
+      nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    damageActivity.build({
+    damageActivity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateDamage: true,
-    });
+    }, options));
     return damageActivity;
   }
 
-  _getEnchantActivity() {
+  _getEnchantActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const enchantActivity = new DDBSpellActivity({
+      name,
       type: "enchant",
-      ddbSpell: this,
+      ddbParent: this,
+      nameIdPrefix: "enchant",
+      nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    enchantActivity.build({
+    enchantActivity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateDamage: false,
-      generateEnchant: true,
-    });
+    }, options));
     return enchantActivity;
   }
 
-  _getSummonActivity() {
+  _getSummonActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const summonActivity = new DDBSpellActivity({
+      name,
       type: "summon",
-      ddbSpell: this,
+      ddbParent: this,
+      nameIdPrefix: "summon",
+      nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    summonActivity.build({
+    summonActivity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateDamage: false,
-      generateSummon: true,
-    });
+    }, options));
     return summonActivity;
   }
 
@@ -664,6 +724,25 @@ export default class DDBSpell {
     });
   }
 
+  _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const checkActivity = new DDBSpellActivity({
+      name,
+      type: "check",
+      ddbParent: this,
+      nameIdPrefix: "check",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    checkActivity.build(foundry.utils.mergeObject({
+      generateAttack: false,
+      generateRange: false,
+      generateDamage: false,
+      generateCheck: true,
+      generateActivation: true,
+    }, options));
+    return checkActivity;
+  }
+
   _getActivitiesType() {
     if (this.spellDefinition.requiresSavingThrow && !this.spellDefinition.requiresAttackRoll) {
       return "save";
@@ -671,8 +750,8 @@ export default class DDBSpell {
       return "attack";
     } else if (this.spellDefinition.tags.includes("Damage")) {
       return "damage";
-    } else if (this.spellDefinition.tags.includes("Healing")) {
-      return "heal";
+    } else if (this.spellDefinition.tags.includes("Healing") && this.healingParts.length === 0) {
+      return "utility"; // e.g. things like lesser restoration
     } else if (this.spellDefinition.tags.includes("Buff")) {
       return "utility";
     }
@@ -681,45 +760,72 @@ export default class DDBSpell {
     return undefined;
   }
 
-  getActivity({ typeOverride = null, typeFallback = null } = {}) {
+  getActivity({ typeOverride = null, typeFallback = null, name = null, nameIdPostfix = null } = {}, options = {}) {
     const type = typeOverride ?? this._getActivitiesType();
+    this.activityTypes.push(type);
+    const data = { name, nameIdPostfix };
     switch (type) {
       case "save":
-        return this._getSaveActivity();
+        return this._getSaveActivity(data, options);
       case "attack":
-        return this._getAttackActivity();
+        return this._getAttackActivity(data, options);
       case "damage":
-        return this._getDamageActivity();
+        return this._getDamageActivity(data, options);
       case "heal":
-        return this._getHealActivity();
+        return this._getHealActivity(data, options);
       case "utility":
-        return this._getUtilityActivity();
+        return this._getUtilityActivity(data, options);
       case "enchant":
-        return this._getEnchantActivity();
+        return this._getEnchantActivity(data, options);
       case "summon":
-        return this._getSummonActivity();
+        return this._getSummonActivity(data, options);
+      case "check":
+        return this._getCheckActivity(data, options);
+      case "spell":
+      case "teleport":
+      case "transform":
+      case "forward":
       default:
-        if (typeFallback) return this.getActivity(typeFallback);
-        return undefined;
+        if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
+        // return undefined;
+        // spells should always generate an activity
+        return this._getUtilityActivity(data, options);
     }
   }
 
-  _generateActivity({ hintsOnly = false } = {}) {
-    if (hintsOnly && !this.spellEnricher.activity) return undefined;
+  _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null } = {},
+    optionsOverride = {},
+  ) {
+    if (hintsOnly && !this.enricher.activity) return undefined;
 
     const activity = this.getActivity({
-      typeOverride: this.spellEnricher.activity?.type ?? this.activityType,
-    });
+      typeOverride: typeOverride ?? this.enricher.activity?.type,
+      name,
+      nameIdPostfix,
+    }, optionsOverride);
 
     console.warn(`Spell Activity Check for ${this.data.name}`, {
       this: this,
       activity,
-      activityType: this.spellEnricher.activity?.type ?? this.activityType,
+      typeOverride,
+      enricherHint: this.enricher.activity?.type,
+      activityType: activity?.data?.type,
+      optionsOverride,
+      name,
+      hintsOnly,
+      nameIdPostfix,
     });
 
-    if (!activity) return undefined;
+    if (!activity) {
+      logger.debug(`No Activity type found for ${this.data.name}`, {
+        this: this,
+      });
+      return undefined;
+    }
 
-    this.spellEnricher.applyActivityOverride(activity.data);
+    if (!this.activityType) this.activityType = activity.data.type;
+
+    this.enricher.applyActivityOverride(activity.data);
     this.activities.push(activity);
     foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
 
@@ -728,9 +834,45 @@ export default class DDBSpell {
 
   async _applyEffects() {
     //TODO: once spell effects adjusted
-    return;
-    await spellEffectAdjustment(this.data, this.addSpellEffects);
+    // await spellEffectAdjustment(this.data, this.addSpellEffects);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
+
+    let effect = this.enricher.createEffect();
+    if (effect) {
+      this.data.effects.push(effect);
+    }
+  }
+
+  #addHealAdditionalActivities() {
+    for (const part of this.healingParts) {
+      this.additionalActivities.push({
+        type: "heal",
+        options: {
+          generateDamage: false,
+          includeBaseDamage: false,
+          generateHealing: true,
+          healingPart: part,
+        },
+      });
+    }
+  }
+
+  #generateAdditionalActivities() {
+    if (this.additionalActivities.length === 0) return;
+    console.warn(`ADDITIONAL SPELL ACTIVITIES for ${this.data.name}`, this.additionalActivities);
+    this.additionalActivities.forEach((activityData, i) => {
+      const id = this._generateActivity({
+        hintsOnly: false,
+        name: activityData.name,
+        nameIdPostfix: i,
+        typeOverride: activityData.type,
+      }, activityData.options);
+      logger.debug(`Generated additional Activity with id ${id}`, {
+        this: this,
+        activityData,
+        id,
+      });
+    });
   }
 
   async parse() {
@@ -750,14 +892,20 @@ export default class DDBSpell {
     this._generateRange();
     this._generateTarget();
     this._generateUses();
+    this.#generateHealingParts(); // used in activity
 
     this._generateActivity();
+    this.#addHealAdditionalActivities();
+    this.#generateAdditionalActivities();
+    this.enricher.addAdditionalActivities(this);
 
     // TO DO: activities
     // this.data.system.save = getSave(this.spellData);
 
     await this._applyEffects();
     await this._generateSummons();
+
+    this.enricher.addDocumentOverride();
   }
 
   static async parseSpell(data, character, { namePostfix = null } = {}) {

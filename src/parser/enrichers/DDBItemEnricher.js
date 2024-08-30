@@ -1,9 +1,11 @@
+import DDBItemActivity from "../item/DDBItemActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
 export default class DDDItemEnricher extends DDBBaseEnricher {
   constructor({ document, name = null } = {}) {
     super({ document, name });
     this._prepare();
+    this.additionalActivityClass = DDBItemActivity;
   }
 
   NAME_HINTS = {};

@@ -103,7 +103,7 @@ export default class DDBMonsterFeature {
     // if not attack set to a monster type action
     if (!this.isAttack) foundry.utils.setProperty(this.feature, "system.type.value", "monster");
 
-    this.featureEnricher = new DDDMonsterEnricher({
+    this.enricher = new DDDMonsterEnricher({
       document: this.feature,
       monster: this.ddbMonster.npc,
       name: this.name,
@@ -1047,7 +1047,7 @@ ${this.feature.system.description.value}
     const saveActivity = new DDBMonsterFeatureActivity({
       name,
       type: "save",
-      ddbMonsterFeature: this,
+      ddbParent: this,
       nameIdPrefix: "save",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -1066,7 +1066,7 @@ ${this.feature.system.description.value}
     const attackActivity = new DDBMonsterFeatureActivity({
       name,
       type: "attack",
-      ddbMonsterFeature: this,
+      ddbParent: this,
       nameIdPrefix: "attack",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -1091,7 +1091,7 @@ ${this.feature.system.description.value}
     const utilityActivity = new DDBMonsterFeatureActivity({
       name,
       type: "utility",
-      ddbMonsterFeature: this,
+      ddbParent: this,
       nameIdPrefix: "utility",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -1109,7 +1109,7 @@ ${this.feature.system.description.value}
     const healActivity = new DDBMonsterFeatureActivity({
       name,
       type: "heal",
-      ddbMonsterFeature: this,
+      ddbParent: this,
       nameIdPrefix: "heal",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -1127,7 +1127,7 @@ ${this.feature.system.description.value}
     const damageActivity = new DDBMonsterFeatureActivity({
       name,
       type: "damage",
-      ddbMonsterFeature: this,
+      ddbParent: this,
       nameIdPrefix: "damage",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -1145,7 +1145,7 @@ ${this.feature.system.description.value}
     const enchantActivity = new DDBMonsterFeatureActivity({
       name,
       type: "enchant",
-      ddbMonsterFeature: this,
+      ddbParent: this,
       nameIdPrefix: "enchant",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -1162,7 +1162,7 @@ ${this.feature.system.description.value}
     const summonActivity = new DDBMonsterFeatureActivity({
       name,
       type: "summon",
-      ddbMonsterFeature: this,
+      ddbParent: this,
       nameIdPrefix: "summon",
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
@@ -1188,24 +1188,26 @@ ${this.feature.system.description.value}
     });
   }
 
-  #addHealAdditionalActivity() {
-    this.additionalActivities.push({
-      type: "heal",
-      options: {
-        generateDamage: false,
-        includeBaseDamage: false,
-      },
-    });
+  #addHealAdditionalActivities() {
+    for (const part of this.actionInfo.healingParts) {
+      this.additionalActivities.push({
+        type: "heal",
+        options: {
+          generateDamage: false,
+          includeBaseDamage: false,
+          generateHealing: true,
+          healingPart: part.part,
+        },
+      });
+    }
   }
 
   _getActivitiesType() {
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (this.healingAction) {
       if (!this.isAttack && !this.isSave && this.actionInfo.damageParts.length === 0) {
-        return "heal";
-      } else {
-        // generate an additional heal activity
-        this.#addHealAdditionalActivity();
+        // we generate heal activities as additionals;
+        return null;
       }
     }
     if (this.isAttack) {
@@ -1219,9 +1221,10 @@ ${this.feature.system.description.value}
     }
     if (this.isSave) return "save";
     if (this.actionInfo.damageParts.length > 0) return "damage";
-    if (!this.healingAction && this.actionInfo.healingParts.length > 0) return "heal";
+    // we generate heal activities as additionals;
+    if (!this.healingAction && this.actionInfo.healingParts.length > 0) return null;
     if (this.actionInfo.activation.type === "special" && !this.actionInfo.uses.max) {
-      return undefined;
+      return null;
     }
     if (this.actionInfo.activation.type && !this.healingAction) return "utility";
     // TODO: can we determine if utility or damage?
@@ -1256,10 +1259,10 @@ ${this.feature.system.description.value}
   _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null } = {},
     optionsOverride = {},
   ) {
-    if (hintsOnly && !this.featureEnricher.activity) return undefined;
+    if (hintsOnly && !this.enricher.activity) return undefined;
 
     const activity = this.getActivity({
-      typeOverride: typeOverride ?? this.featureEnricher.activity?.type,
+      typeOverride: typeOverride ?? this.enricher.activity?.type,
       name,
       nameIdPostfix,
     }, optionsOverride);
@@ -1269,7 +1272,7 @@ ${this.feature.system.description.value}
       this: this,
       activity,
       typeOverride,
-      enricherHint: this.featureEnricher.activity?.type,
+      enricherHint: this.enricher.activity?.type,
       activityType: activity?.data?.type,
       optionsOverride,
       name,
@@ -1281,7 +1284,7 @@ ${this.feature.system.description.value}
 
     if (!this.activityType) this.activityType = activity.data.type;
 
-    this.featureEnricher.applyActivityOverride(activity.data);
+    this.enricher.applyActivityOverride(activity.data);
     this.activities.push(activity);
     foundry.utils.setProperty(this.feature, `system.activities.${activity.data._id}`, activity.data);
 
@@ -1334,7 +1337,9 @@ ${this.feature.system.description.value}
 
     if (!this.actionCopy) {
       this._generateActivity();
+      this.#addHealAdditionalActivities();
       this._generateAdditionalActivities();
+      this.enricher.addAdditionalActivities(this);
     }
 
     foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.damage", this.actionInfo.damage);

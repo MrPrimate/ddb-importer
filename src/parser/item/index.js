@@ -100,6 +100,12 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       if (!isCompendiumItem) item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
       if (addAutomationEffects) item = await midiItemEffects(item);
 
+      // to do: we want to move this into item parser build
+      let effect = itemParser.enricher.createEffect();
+      if (effect) {
+        item.effects.push(effect);
+      }
+
       items.push(item);
     }
   }

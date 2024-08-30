@@ -6,7 +6,7 @@ import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 export default class DDBSpellActivity {
 
   _init() {
-    logger.debug(`Generating DDBSpellActivity ${this.name}`);
+    logger.debug(`Generating DDBSpellActivity ${this.name ?? ""} for ${this.ddbParent.name}`);
   }
 
   _generateDataStub() {
@@ -17,7 +17,7 @@ export default class DDBSpellActivity {
     });
 
     this.data = rawStub.toObject();
-    this.data._id = utils.namedIDStub(this.name ?? this.ddbSpell.data.name ?? this.type, {
+    this.data._id = utils.namedIDStub(this.name ?? this.ddbParent.data.name ?? this.type, {
       prefix: this.nameIdPrefix,
       postfix: this.nameIdPostfix,
     });
@@ -25,7 +25,7 @@ export default class DDBSpellActivity {
 
 
   constructor({
-    type, name = null, ddbSpell, nameIdPrefix = null, nameIdPostfix = null, spellEffects = null,
+    type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null, spellEffects = null,
     cantripBoost = null, healingBoost = null,
   } = {}) {
 
@@ -35,8 +35,8 @@ export default class DDBSpellActivity {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
     this.name = name;
-    this.ddbSpell = ddbSpell;
-    this.spellData = ddbSpell.spellData;
+    this.ddbParent = ddbParent;
+    this.spellData = ddbParent.spellData;
     this.spellDefinition = this.spellData.definition;
 
     this._init();
@@ -68,9 +68,9 @@ export default class DDBSpellActivity {
     // "material"
     // "itemUses"
 
-    if (this.ddbSpell.rawCharacter) {
-      Object.keys(this.ddbSpell.rawCharacter.system.resources).forEach((resource) => {
-        const detail = this.ddbSpell.rawCharacter.system.resources[resource];
+    if (this.ddbParent.rawCharacter) {
+      Object.keys(this.ddbParent.rawCharacter.system.resources).forEach((resource) => {
+        const detail = this.ddbParent.rawCharacter.system.resources[resource];
         if (this.spellDefinition.name === detail.label) {
           targets.push({
             type: "attribute",
@@ -91,7 +91,7 @@ export default class DDBSpellActivity {
     // right now most of these target other creatures
 
     const kiPointRegex = /(?:spend|expend) (\d) ki point/;
-    const match = this.ddbSpell.data.system.description.value.match(kiPointRegex);
+    const match = this.ddbParent.data.system.description.value.match(kiPointRegex);
     if (match) {
       targets.push({
         type: "itemUses",
@@ -322,7 +322,7 @@ export default class DDBSpellActivity {
     }
   }
 
-  _buildDamagePart({ damageString, type } = {}) {
+  buildDamagePart({ damageString, type } = {}) {
     // const damage = {
     //   number: null,
     //   denomination: null,
@@ -360,7 +360,16 @@ export default class DDBSpellActivity {
     return damage;
   }
 
-  _generateDamage() {
+  _generateDamage(damageParts, onSave = null) {
+
+    if (damageParts) {
+      this.data.damage = {
+        parts: damageParts,
+        onSave: onSave ?? (this.isCantrip ? "none" : "half"), // default to half
+      };
+      return;
+    }
+
     let parts = [];
     let versatile = "";
     let chatFlavor = [];
@@ -370,17 +379,13 @@ export default class DDBSpellActivity {
     if (attacks.length !== 0) {
       attacks.forEach((attack) => {
         const restrictionText = attack.restriction && attack.restriction !== "" ? attack.restriction : "";
-        const restriction = restrictionText !== "" ? restrictionText : "";
-        const damageHintText = attack.subType || "";
         if (!this.damageRestrictionHints && restrictionText !== "") {
-          const damageText = attack.die.diceString ? `${attack.die.diceString} - ` : "";
-          chatFlavor.push(`[${damageText}${damageHintText}] ${restrictionText}`);
+          chatFlavor.push(`Restriction: ${restrictionText}`);
         }
-        const damageTag = this.damageRestrictionHints && restriction ? `[${restriction}]` : "";
         const addMod = attack.usePrimaryStat || this.cantripBoost ? " + @mod" : "";
-        let diceString = utils.parseDiceString(attack.die.diceString, addMod, damageTag).diceString;
+        let diceString = utils.parseDiceString(attack.die.diceString, addMod).diceString;
         if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
-          const damage = this._buildDamagePart({
+          const damage = this.buildDamagePart({
             damageString: diceString,
             type: attack.subType,
           });
@@ -395,11 +400,11 @@ export default class DDBSpellActivity {
         : alternativeFormula;
     }
 
-    this.data.chatFlavor = chatFlavor.join(", ");
-    if (versatile !== "" && this.ddbSpell.data.damage) {
-      this.ddbSpell.data.damage.versatile = versatile;
+    this.data.description.chatFlavor = chatFlavor.join(", ");
+    if (versatile !== "" && this.ddbParent.data.damage) {
+      this.ddbParent.data.damage.versatile = versatile;
     } else if (versatile) {
-      const damage = this._buildDamagePart({ damageString: versatile });
+      const damage = this.buildDamagePart({ damageString: versatile });
       this.additionalActivityDamageParts.push(damage);
     }
 
@@ -420,52 +425,9 @@ export default class DDBSpellActivity {
 
   }
 
-  _generateHealing() {
-    let parts = [];
-    let chatFlavor = [];
-
-    // healing
-    const heals = this.spellDefinition.modifiers.filter((mod) => mod.type === "bonus" && mod.subType === "hit-points");
-    if (heals.length !== 0) {
-      heals.forEach((heal) => {
-        const restrictionText = heal.restriction && heal.restriction !== "" ? heal.restriction : "";
-        const restriction = restrictionText !== "" ? restrictionText : "";
-        if (restrictionText !== "") {
-          const damageText = heal.die.diceString ? `${heal.die.diceString} - ` : "";
-          chatFlavor.push(`[${damageText}healing] ${restrictionText}`);
-        }
-
-        const damageTag = this.damageRestrictionHints ? `[${restriction}]` : "";
-        const healValue = (heal.die.diceString) ? `${heal.die.diceString}${damageTag}` : heal.die.fixedValue;
-        const diceString = heal.usePrimaryStat
-          ? `${healValue} + @mod${this.healingBonus}`
-          : `${healValue}${this.healingBonus}`;
-        if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
-          const damage = this._buildDamagePart({
-            damageString: diceString,
-            type: "healing",
-          });
-          parts.push(damage);
-        }
-      });
-    }
-
-    this.data.chatFlavor = chatFlavor.join(", ");
-
-    this.data.healing = {
-      parts,
-      onSave: this.isCantrip ? "none" : "half", // default to half
-    };
-
-    // damage: {
-    //   critical: {
-    //     allow: false,
-    //     bonus: source.system.critical?.damage
-    //   },
-    //   onSave: (source.type === "spell") && (source.system.level === 0) ? "none" : "half",
-    //   includeBase: true,
-    //   parts: damageParts.map(part => this.transformDamagePartData(source, part)) ?? []
-    // }
+  _generateHealing(healingPart) {
+    if (healingPart.chatFlavor) this.data.description.chatFlavor = healingPart.chatFlavor;
+    this.data.healing = healingPart.part;
   }
 
   _generateSave() {
@@ -535,21 +497,39 @@ export default class DDBSpellActivity {
     generateHealing = false,
     generateSave = false,
     generateSummon = false,
+    healingPart = null,
+    damageParts = null,
+    chatFlavor = null,
+    onSave = null,
     // todo: add overrides for things like activation, targets etc for generating spell actions for items
   } = {}) {
+
+    logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
+      damageParts,
+      healingPart,
+      generateAttack,
+      generateConsumption,
+      generateDamage,
+      generateDescription,
+      generateEffects,
+      generateHealing,
+      generateSave,
+      chatFlavor,
+      onSave,
+      this: this,
+    });
 
     // override set to false on object if overriding
 
     if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption();
-    if (generateDescription) this._generateDescription();
+    if (generateDescription) this._generateDescription(chatFlavor);
     if (generateEffects) this._generateEffects();
     if (generateSave) this._generateSave();
-    if (generateDamage) this._generateDamage();
-    if (generateHealing) this._generateHealing();
+    if (generateDamage) this._generateDamage(damageParts, onSave);
     if (generateEnchant) this._generateEnchant();
     if (generateSummon) this._generateSummon();
-    if (generateHealing) this._generateHealing();
+    if (generateHealing) this._generateHealing(healingPart);
 
     // ATTACK has
     // activation

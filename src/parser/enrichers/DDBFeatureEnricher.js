@@ -1,9 +1,11 @@
+import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
 export default class DDDFeatureEnricher extends DDBBaseEnricher {
   constructor({ document, name = null } = {}) {
     super({ document, name });
     this._prepare();
+    this.additionalActivityClass = DDBFeatureActivity;
   }
 
   NAME_HINTS = {};

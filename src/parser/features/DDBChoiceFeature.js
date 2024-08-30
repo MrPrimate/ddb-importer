@@ -91,6 +91,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
       this._generateActivity();
+      this.enricher.addAdditionalActivities(this);
 
       this._generateDescription({ forceFull: false });
       this.data.flags.ddbimporter.dndbeyond.choice = {
@@ -107,7 +108,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
       this.data._id = foundry.utils.randomID();
 
-      this.featureEnricher.addDocumentOverride();
+      this.enricher.addDocumentOverride();
       this._addEffects(choice, this.type);
 
     } catch (err) {

@@ -25,7 +25,7 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 export default class DDBFeatureActivity {
 
   _init() {
-    logger.debug(`Generating DDBFeatureActivity ${this.name}`);
+    logger.debug(`Generating DDBFeatureActivity ${this.name ?? ""} for ${this.ddbParent.name}`);
   }
 
   _generateDataStub() {
@@ -36,14 +36,14 @@ export default class DDBFeatureActivity {
     });
 
     this.data = rawStub.toObject();
-    this.data._id = utils.namedIDStub(this.name ?? this.ddbFeature.data.name ?? this.type, {
+    this.data._id = utils.namedIDStub(this.name ?? this.ddbParent.data.name ?? this.type, {
       prefix: this.nameIdPrefix,
       postfix: this.nameIdPostfix,
     });
   }
 
 
-  constructor({ type, name = null, ddbFeature, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+  constructor({ type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null } = {}) {
 
     this.type = type.toLowerCase();
     this.activityType = CONFIG.DND5E.activityTypes[this.type];
@@ -51,7 +51,7 @@ export default class DDBFeatureActivity {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
     this.name = name;
-    this.ddbFeature = ddbFeature;
+    this.ddbParent = ddbParent;
 
     this._init();
     this._generateDataStub();
@@ -59,7 +59,7 @@ export default class DDBFeatureActivity {
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
 
-    this.ddbDefinition = this.ddbFeature.ddbDefinition;
+    this.ddbDefinition = this.ddbParent.ddbDefinition;
 
   }
 
@@ -114,9 +114,9 @@ export default class DDBFeatureActivity {
     // "material"
     // "itemUses"
 
-    if (this.ddbFeature.rawCharacter) {
-      Object.keys(this.ddbFeature.rawCharacter.system.resources).forEach((resource) => {
-        const detail = this.ddbFeature.rawCharacter.system.resources[resource];
+    if (this.ddbParent.rawCharacter) {
+      Object.keys(this.ddbParent.rawCharacter.system.resources).forEach((resource) => {
+        const detail = this.ddbParent.rawCharacter.system.resources[resource];
         if (this.ddbDefinition.name === detail.label) {
           targets.push({
             type: "attribute",
@@ -137,7 +137,7 @@ export default class DDBFeatureActivity {
     // right now most of these target other creatures
 
     const kiPointRegex = /(?:spend|expend) (\d) ki point/;
-    const match = this.ddbFeature.data.system.description.value.match(kiPointRegex);
+    const match = this.ddbParent.data.system.description.value.match(kiPointRegex);
     if (match) {
       targets.push({
         type: "itemUses",
@@ -148,7 +148,7 @@ export default class DDBFeatureActivity {
           formula: "",
         },
       });
-    } else if (this.ddbFeature.resourceCharges !== null) {
+    } else if (this.ddbParent.resourceCharges !== null) {
       targets.push({
         type: "itemUses",
         target: "", // adjusted later
@@ -249,8 +249,8 @@ export default class DDBFeatureActivity {
 
   _generateDamage(includeBase = false) {
     // TODO revisit for multipart damage parsing
-    if (!this.ddbFeature.getDamage) return undefined;
-    const damage = this.ddbFeature.getDamage();
+    if (!this.ddbParent.getDamage) return undefined;
+    const damage = this.ddbParent.getDamage();
 
     if (!damage) return undefined;
 
@@ -270,17 +270,14 @@ export default class DDBFeatureActivity {
     // }
   }
 
-  _generateHealing(includeBase = false) {
+  _generateHealing() {
     // TODO revisit or multipart damage parsing
-    if (!this.ddbFeature.getDamage) return undefined;
-    const damage = this.ddbFeature.getDamage();
+    if (!this.ddbParent.getDamage) return;
+    const damage = this.ddbParent.getDamage();
 
-    if (!damage) return undefined;
+    if (!damage) return;
 
-    this.data.damage = {
-      includeBase,
-      parts: [damage],
-    };
+    this.data.healing = damage;
 
     // damage: {
     //   critical: {
@@ -334,10 +331,10 @@ export default class DDBFeatureActivity {
       type = "ranged";
     }
 
-    const bonus = this.ddbFeature.getBonusDamage();
+    const bonus = this.ddbParent.getBonusDamage();
 
     const attack = {
-      ability: this.ddbFeature.getActionAttackAbility(),
+      ability: this.ddbParent.getActionAttackAbility(),
       bonus: bonus && bonus !== 0 ? String(bonus) : "",
       damage: {
         parts: [],

@@ -5,7 +5,7 @@ import logger from "../../logger.js";
 export default class DDBItemActivity {
 
   _init() {
-    logger.debug(`Generating DDBItemActivity ${this.name}`);
+    logger.debug(`Generating DDBItemActivity ${this.name ?? ""} for ${this.ddbParent.name}`);
   }
 
   _generateDataStub() {
@@ -23,7 +23,7 @@ export default class DDBItemActivity {
   }
 
 
-  constructor({ type, name, ddbItem, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null } = {}) {
 
     this.type = type.toLowerCase();
     this.activityType = CONFIG.DND5E.activityTypes[this.type];
@@ -31,9 +31,9 @@ export default class DDBItemActivity {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
     this.name = name;
-    this.ddbItem = ddbItem;
-    this.data = ddbItem.data;
-    this.actionInfo = ddbItem.actionInfo;
+    this.ddbParent = ddbParent;
+    this.data = ddbParent.data;
+    this.actionInfo = ddbParent.actionInfo;
 
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
@@ -69,7 +69,7 @@ export default class DDBItemActivity {
           formula: "",
         },
       });
-    } else if (![0, null, undefined].includes(this.ddbItem.data.uses?.max)) {
+    } else if (![0, null, undefined].includes(this.ddbParent.data.uses?.max)) {
       targets.push({
         type: "itemUses",
         target: "",
@@ -115,21 +115,21 @@ export default class DDBItemActivity {
   }
 
   _getFeaturePartsDamage() {
-    let baseParts = ["weapon", "staff"].includes(this.parsingType)
-      ? this.ddbItem.damageParts.slice(1)
-      : this.ddbItem.damageParts;
+    let baseParts = ["weapon", "staff"].includes(this.ddbParent.parsingType)
+      ? this.ddbParent.damageParts.slice(1)
+      : this.ddbParent.damageParts;
 
     return baseParts;
   }
 
-  _generateDamage({ parts = [], includeBase = true } = {}) {
+  _generateDamage({ parts, includeBase = true } = {}) {
     this.data.damage = {
       includeBase,
-      parts: parts.length > 0
+      parts: parts
         ? parts
-        : ["weapon", "staff"].includes(this.parsingType)
-          ? this.ddbItem.damageParts.slice(1)
-          : this.ddbItem.damageParts,
+        : ["weapon", "staff"].includes(this.ddbParent.parsingType)
+          ? this.ddbParent.damageParts.slice(1)
+          : this.ddbParent.damageParts,
     };
 
     // damage: {
@@ -143,13 +143,13 @@ export default class DDBItemActivity {
     // }
   }
 
-  _generateHealing({ parts = [], includeBase = false } = {}) {
-    this.data.healing = {
-      includeBase,
-      parts: parts.length > 0
-        ? parts
-        : this.ddbItem.healingParts.map((data) => data.part),
-    };
+  _generateHealing({ part = null } = {}) {
+    const healing = part
+      ? part
+      : this.actionInfo.healingParts.length > 0
+        ? this.actionInfo.healingParts[0]
+        : undefined;
+    this.data.healing = healing;
   }
 
   _generateSave() {
@@ -158,7 +158,7 @@ export default class DDBItemActivity {
 
 
   _generateAttack() {
-    let classification = this.ddbItem.spellAttack
+    let classification = this.ddbParent.spellAttack
       ? "spell"
       : "weapon"; // unarmed, weapon, spell
 
@@ -192,7 +192,8 @@ export default class DDBItemActivity {
   }
 
   build({
-    damageParts = [],
+    damageParts = null,
+    healingPart = null,
     generateActivation = true,
     generateAttack = false,
     generateConsumption = true,
@@ -213,8 +214,9 @@ export default class DDBItemActivity {
 
     // override set to false on object if overriding
 
-    logger.debug(`Generating Activity for ${this.ddbItem.name}`, {
+    logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
       damageParts,
+      healingPart,
       generateActivation,
       generateAttack,
       generateConsumption,
@@ -250,7 +252,7 @@ export default class DDBItemActivity {
       }
     }
     if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage });
-    if (generateHealing) this._generateHealing({ parts: damageParts, includeBase: includeBaseDamage });
+    if (generateHealing) this._generateHealing({ part: healingPart });
 
     if (generateCheck) this._generateCheck();
 

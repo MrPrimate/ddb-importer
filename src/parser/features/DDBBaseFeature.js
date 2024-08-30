@@ -140,7 +140,7 @@ export default class DDBBaseFeature {
     this._prepare();
     this.data.system.source = this.source;
 
-    this.featureEnricher = new DDDFeatureEnricher({
+    this.enricher = new DDDFeatureEnricher({
       document: this.data,
       name: this.originalName,
     });
@@ -603,7 +603,7 @@ export default class DDBBaseFeature {
       description: this.snippet !== "" ? this.snippet : this.description,
     });
 
-    let effect = this.featureEnricher.createEffect();
+    let effect = this.enricher.createEffect();
     if (effect) {
       this.data.effects.push(effect);
     }
@@ -681,7 +681,7 @@ export default class DDBBaseFeature {
 
     const saveActivity = new DDBFeatureActivity({
       type: "save",
-      ddbFeature: this,
+      ddbParent: this,
     });
 
     saveActivity.build({
@@ -698,7 +698,7 @@ export default class DDBBaseFeature {
 
     const attackActivity = new DDBFeatureActivity({
       type: "attack",
-      ddbFeature: this,
+      ddbParent: this,
     });
 
     attackActivity.build({
@@ -714,7 +714,7 @@ export default class DDBBaseFeature {
 
     const utilityActivity = new DDBFeatureActivity({
       type: "utility",
-      ddbFeature: this,
+      ddbParent: this,
     });
 
     utilityActivity.build({
@@ -729,7 +729,7 @@ export default class DDBBaseFeature {
   _getHealActivity() {
     const healActivity = new DDBFeatureActivity({
       type: "heal",
-      ddbFeature: this,
+      ddbParent: this,
     });
 
     healActivity.build({
@@ -747,7 +747,7 @@ export default class DDBBaseFeature {
 
     const damageActivity = new DDBFeatureActivity({
       type: "damage",
-      ddbFeature: this,
+      ddbParent: this,
     });
 
     damageActivity.build({
@@ -763,7 +763,7 @@ export default class DDBBaseFeature {
 
     const enchantActivity = new DDBFeatureActivity({
       type: "enchant",
-      ddbFeature: this,
+      ddbParent: this,
     });
 
     enchantActivity.build({
@@ -777,7 +777,7 @@ export default class DDBBaseFeature {
   _getSummonActivity() {
     const summonActivity = new DDBFeatureActivity({
       type: "summon",
-      ddbFeature: this,
+      ddbParent: this,
     });
 
     summonActivity.build({
@@ -821,27 +821,27 @@ export default class DDBBaseFeature {
       case "summon":
         return this._getSummonActivity();
       default:
-        if (typeFallback) return this.getActivity(typeFallback);
+        if (typeFallback) return this.getActivity({ typeOverride: typeFallback });
         return undefined;
     }
   }
 
   _generateActivity({ hintsOnly = false } = {}) {
-    if (hintsOnly && !this.featureEnricher.activity) return undefined;
+    if (hintsOnly && !this.enricher.activity) return undefined;
 
     const activity = this.getActivity({
-      typeOverride: this.featureEnricher.activity?.type ?? this.activityType,
+      typeOverride: this.enricher.activity?.type ?? this.activityType,
     });
 
     console.warn(`Feature Activity Check for ${this.data.name}`, {
       this: this,
       activity,
-      activityType: this.featureEnricher.activity?.type ?? this.activityType,
+      activityType: this.enricher.activity?.type ?? this.activityType,
     });
 
     if (!activity) return undefined;
 
-    this.featureEnricher.applyActivityOverride(activity.data);
+    this.enricher.applyActivityOverride(activity.data);
     this.activities.push(activity);
     foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
 
