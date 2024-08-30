@@ -1,3 +1,7 @@
+# 5.2.32
+
+- Tweak to pateron check when generating summoned actors that was causing character imports to fail.
+
 # 5.2.31
 
 - Goggles of night equipped to characters would double bonus.

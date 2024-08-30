@@ -45,8 +45,7 @@ export default class DDBCompanion {
   }
 
   static async addEnrichedImageData(document) {
-    const tier = PatreonHelper.getPatreonTier();
-    const tiers = PatreonHelper.calculateAccessMatrix(tier);
+    const tiers = await PatreonHelper.checkPatreon();
     if (!tiers.all || DDBProxy.isCustom()) return document;
     const name = document.name;
     // this endpoint is not supported in custom proxies
