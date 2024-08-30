@@ -15,6 +15,7 @@ The 4.0.x fundementally changes the structure of how documents are constructed i
 
 # 5.2.31
 
+- Tweak to pateron check when generating summoned actors that was causing character imports to fail.
 - Goggles of night equipped to characters would double bonus.
 
 # 5.2.30
