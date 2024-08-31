@@ -126,8 +126,12 @@ export default class DDBSpell {
       document: this.data,
       name: this.originalName,
     });
+    this.isCompanionSpell = SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName);
+    this.isCRSummonSpell = SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName);
+    this.isSummons = this.isCompanionSpell || this.isCRSummonSpell;
     this.DDBCompanionFactory = null; // lazy init
   }
+
 
   _generateProperties() {
     if (this.spellDefinition.components.includes(1)) this.data.system.properties.push("vocal");
@@ -690,7 +694,7 @@ export default class DDBSpell {
   }
 
   async #generateSummons() {
-    if (!SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName)) return;
+    if (!this.isSummons) return;
     this.ddbCompanionFactory = new DDBCompanionFactory(this.spellDefinition.description, {
       type: "spell",
       originDocument: this.data,
@@ -721,7 +725,10 @@ export default class DDBSpell {
       generateDamage: false,
     }, options));
 
-    await this.ddbCompanionFactory.addCompanionsToDocuments([], summonActivity.data);
+    if (this.isCompanionSpell)
+      await this.ddbCompanionFactory.addCompanionsToDocuments([], summonActivity.data);
+    else if (SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName))
+      await this.ddbCompanionFactory.addCRSummoning(summonActivity.data);
     return summonActivity;
   }
 
@@ -745,7 +752,7 @@ export default class DDBSpell {
   }
 
   _getActivitiesType() {
-    if (SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName)) {
+    if (this.isSummons) {
       return "summon";
     }
     if (this.spellDefinition.requiresSavingThrow && !this.spellDefinition.requiresAttackRoll) {

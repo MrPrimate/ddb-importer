@@ -310,6 +310,18 @@ const COMPANION_OPTIONS = {
     "Beast of the Sky",
   ],
 };
+const CR_SUMMONING_SPELLS = [
+  "Conjure Animals",
+  "Conjure Celestial",
+  "Conjure Elemental",
+  "Conjure Fey",
+  "Conjure Minor Elementals",
+  "Conjure Woodland Beings",
+  "Summon Greater Demon",
+  "Infernal Calling",
+  "Summon Lesser Demons",
+  "Find Familiar",
+];
 
 const DISABLE_FOUNDRY_UPGRADE = {
   applyFeatures: false,
@@ -353,6 +365,7 @@ const SETTINGS = {
     COMPANION_FEATURES,
     COMPANION_SPELLS,
     COMPANION_OPTIONS,
+    CR_SUMMONING_SPELLS,
   },
   URLS,
   POPUPS,
