@@ -7,10 +7,11 @@ import utils from "../../lib/utils.js";
 // Import parsing functions
 import { generateTable } from "../../lib/DDBTable.js";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";
-import { spellEffectAdjustment } from "../../effects/specialSpells.js";
+import { baseSpellEffect, spellEffectAdjustment } from "../../effects/specialSpells.js";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
 import DDBSpellActivity from "./DDBSpellActivity.js";
 import DDBSpellEnricher from "../enrichers/DDBSpellEnricher.js";
+import { addStatusEffectChange } from "../../effects/effects.js";
 
 export default class DDBSpell {
 
@@ -19,6 +20,7 @@ export default class DDBSpell {
       _id: utils.namedIDStub(this.name, { postfix: this.namePostfix }),
       type: "spell",
       system: utils.getTemplate("spell"),
+      effects: [],
       name: this.name,
       flags: {
         ddbimporter: {
@@ -848,15 +850,51 @@ export default class DDBSpell {
     return activity.data._id;
   }
 
+  #addConditionEffects() {
+    if ((this.spellDefinition.conditions ?? []).length === 0) return;
+
+    for (const data of this.spellDefinition.conditions.filter((c) => c.type === 1)) {
+      const condition = DICTIONARY.character.damageAdjustments
+        .filter((type) => type.type === 4)
+        .find((type) => type.id === data.conditionId);
+      if (condition) {
+        let effect = baseSpellEffect(this.data, `${this.data.name}: ${condition.name}`);
+        effect._id = foundry.utils.randomID();
+
+        // todo: add duration
+        addStatusEffectChange(effect, condition.foundryValue, 20, true);
+        this.data.effects.push(effect);
+      }
+    }
+  }
+
+  #activityEffectLinking() {
+    // hack till better impelementation
+    if (this.data.effects.length > 0) {
+      for (const activityId of Object.keys(this.data.system.activities)) {
+        const activity = this.data.system.activities[activityId];
+        if (activity.effects.length !== 0) continue;
+        for (const effect of this.data.effects) {
+          const effectId = effect._id ?? foundry.utils.randomID();
+          effect._id = effectId;
+          activity.effects.push({ _id: effectId });
+        }
+        this.data.system.activities[activityId] = activity;
+      }
+    }
+  }
+
   async _applyEffects() {
     //TODO: once spell effects adjusted
     // await spellEffectAdjustment(this.data, this.addSpellEffects);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
 
+    if (this.data.effects.length === 0) this.#addConditionEffects();
     let effect = this.enricher.createEffect();
     if (effect) {
       this.data.effects.push(effect);
     }
+    this.#activityEffectLinking();
   }
 
   #addHealAdditionalActivities() {

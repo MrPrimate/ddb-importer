@@ -149,7 +149,7 @@ const DICTIONARY = {
     { label: "Stunned", foundry: "stunned", ddbId: 14, levelId: null, ddbType: 1 },
     { label: "Unconscious", foundry: "unconscious", ddbId: 15, levelId: null, ddbType: 1 },
     { label: "Diseased", foundry: "diseased", ddbId: null, levelId: null, ddbType: null },
-    { label: "Disease", foundry: "diseased", ddbId: null, levelId: null, ddbType: null },
+    { label: "Disease", foundry: "diseased", ddbId: 16, levelId: null, ddbType: null },
   ],
   character: {
     class: [

@@ -109,6 +109,17 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
     .map((r) => r.value).flat().flat()
     .filter((v, i, a) => a.findIndex((t) => t.definition.name === v.definition.name) === i);
 
+  console.warn("CONDITION SPELLS", {
+    spells: filteredResults.filter((f) => {
+      return f.definition.conditions?.length > 0;
+    }).map((f) => {
+      return {
+        name: f.definition.name,
+        conditions: f.definition.conditions,
+      }
+    })
+  })
+
   const rawSpells = await GenericSpellFactory.getSpells(filteredResults);
 
   const spells = rawSpells
