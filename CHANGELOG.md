@@ -1,3 +1,7 @@
+# Next Up
+
+- Warding Bond macro fixes by @motomoto0295
+
 # 5.2.31
 
 - Tweak to pateron check when generating summoned actors that was causing character imports to fail.
