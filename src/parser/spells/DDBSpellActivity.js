@@ -61,6 +61,7 @@ export default class DDBSpellActivity {
   _generateConsumption() {
     let targets = [];
     let scaling = false;
+    let spellSlot = true;
 
     // types:
     // "attribute"
@@ -68,22 +69,22 @@ export default class DDBSpellActivity {
     // "material"
     // "itemUses"
 
-    if (this.ddbParent.rawCharacter) {
-      Object.keys(this.ddbParent.rawCharacter.system.resources).forEach((resource) => {
-        const detail = this.ddbParent.rawCharacter.system.resources[resource];
-        if (this.spellDefinition.name === detail.label) {
-          targets.push({
-            type: "attribute",
-            target: `resources.${resource}.value`,
-            value: 1,
-            scaling: {
-              mode: "",
-              formula: "",
-            },
-          });
-        }
-      });
-    }
+    // if (this.ddbParent.rawCharacter) {
+    //   Object.keys(this.ddbParent.rawCharacter.system.resources).forEach((resource) => {
+    //     const detail = this.ddbParent.rawCharacter.system.resources[resource];
+    //     if (this.spellDefinition.name === detail.label) {
+    //       targets.push({
+    //         type: "attribute",
+    //         target: `resources.${resource}.value`,
+    //         value: 1,
+    //         scaling: {
+    //           mode: "",
+    //           formula: "",
+    //         },
+    //       });
+    //     }
+    //   });
+    // }
 
     // Future check for hit dice expenditure?
     // expend one of its Hit Point Dice,
@@ -91,8 +92,9 @@ export default class DDBSpellActivity {
     // right now most of these target other creatures
 
     const kiPointRegex = /(?:spend|expend) (\d) ki point/;
-    const match = this.ddbParent.data.system.description.value.match(kiPointRegex);
+    const match = this.spellDefinition.description?.match(kiPointRegex);
     if (match) {
+      spellSlot = false;
       targets.push({
         type: "itemUses",
         target: "", // adjusted later
@@ -115,7 +117,26 @@ export default class DDBSpellActivity {
     //   });
     // }
 
+    // this is a spell with limited uses such as one granted by a feat
+    if (this.spellData.limitedUse) {
+      console.warn(`Spell with limited uses`, {
+        this: this,
+
+      });
+      spellSlot = false;
+      targets.push({
+        type: "itemUses",
+        target: "", // this item
+        value: this.spellData.limitedUse.minNumberConsumed ?? 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
+    }
+
     this.data.consumption = {
+      spellSlot: spellSlot,
       targets,
       scaling: {
         allowed: scaling,
