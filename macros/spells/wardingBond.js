@@ -18,7 +18,7 @@ async function setWardingBondHook() {
       caster.actor.applyDamage(hpChange);
     }
     if (newHP === 0) {
-      const effectIds = targetActor.effects.filter((e) => e.label === "Warding Bond").map((t) => t.id);
+      const effectIds = targetActor.effects.filter((e) => e.name === "Warding Bond").map((t) => t.id);
       await targetActor.deleteEmbeddedDocuments("ActiveEffect", effectIds);
     }
   });
