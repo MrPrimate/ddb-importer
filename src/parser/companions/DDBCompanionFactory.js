@@ -257,9 +257,11 @@ export default class DDBCompanionFactory {
     "Artificer Infusions": "Infusion: Homunculus Servant",
   };
 
-  async addCompanionsToDocuments(otherDocuments) {
-    const summonActors = game.user.isGM
-      ? await this.getExistingCompendiumCompanions()
+  async addCompanionsToDocuments(otherDocuments, activity) {
+    if (!this.originDocument || !this.summons) return;
+    const compendiumSummons = await this.getExistingCompendiumCompanions();
+    const summonActors = compendiumSummons.length > 0
+      ? compendiumSummons
       : await this.getExistingWorldCompanions({ limitToFactory: true });
     const profiles = summonActors
       .map((actor) => {
@@ -270,25 +272,26 @@ export default class DDBCompanionFactory {
           count: null,
         };
       });
-    if (this.originDocument && this.summons) {
-      const alternativeDocument = DDBCompanionFactory.COMPANION_REMAP[this.originDocument.name];
-      const updateDocument = alternativeDocument
-        ? (otherDocuments.find((s) =>
-          s.name === alternativeDocument || s.flags.ddbimporter?.originalName === alternativeDocument,
-        ) ?? this.originDocument)
-        : this.originDocument;
+    const alternativeDocument = DDBCompanionFactory.COMPANION_REMAP[this.originDocument.name];
+    const updateDocument = alternativeDocument
+      ? (otherDocuments.find((s) =>
+        s.name === alternativeDocument || s.flags.ddbimporter?.originalName === alternativeDocument,
+      ) ?? this.originDocument)
+      : this.originDocument;
 
-      logger.debug("Companion Data Load", {
-        originDocument: updateDocument,
-        profiles,
-        worldActors: summonActors,
-        factory: this,
-        summons: this.summons,
-      });
-      foundry.utils.setProperty(updateDocument, "system.summons", foundry.utils.deepClone(this.summons));
-      foundry.utils.setProperty(updateDocument, "system.summons.profiles", profiles);
-      foundry.utils.setProperty(updateDocument, "system.actionType", "summ");
-    }
+    logger.debug("Companion Data Load", {
+      originDocument: updateDocument,
+      profiles,
+      worldActors: summonActors,
+      factory: this,
+      summons: this.summons,
+    });
+    const summonsData = foundry.utils.deepClone(this.summons);
+    summonsData.profiles = profiles;
+    const activityData = foundry.utils.mergeObject(activity, summonsData);
+    delete this.originDocument.system.activities[activity._id];
+    updateDocument.system.activities[activity._id] = activityData;
+
   }
 
 }

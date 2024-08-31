@@ -126,6 +126,7 @@ export default class DDBSpell {
       document: this.data,
       name: this.originalName,
     });
+    this.DDBCompanionFactory = null; // lazy init
   }
 
   _generateProperties() {
@@ -688,7 +689,25 @@ export default class DDBSpell {
     return enchantActivity;
   }
 
-  _getSummonActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+  async #generateSummons() {
+    if (!SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName)) return;
+    this.ddbCompanionFactory = new DDBCompanionFactory(this.spellDefinition.description, {
+      type: "spell",
+      originDocument: this.data,
+    });
+    await this.ddbCompanionFactory.parse();
+    // always update compendium imports, but respect player import disable
+    if (this.isGeneric || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) {
+      await this.ddbCompanionFactory.updateOrCreateCompanions();
+    }
+
+    logger.debug(`parsed companions for ${this.data.name}`, {
+      factory: this.ddbCompanionFactory,
+      parsed: this.ddbCompanionFactory.companions,
+    });
+  }
+
+  async _getSummonActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const summonActivity = new DDBSpellActivity({
       name,
       type: "summon",
@@ -701,26 +720,9 @@ export default class DDBSpell {
       generateAttack: false,
       generateDamage: false,
     }, options));
+
+    await this.ddbCompanionFactory.addCompanionsToDocuments([], summonActivity.data);
     return summonActivity;
-  }
-
-  // TODO revisit summons for activity generation
-
-  async _generateSummons() {
-    if (!this.isGeneric && !game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) return;
-    if (!SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName)) return;
-    const ddbCompanionFactory = new DDBCompanionFactory(this.spellDefinition.description, {
-      type: "spell",
-      originDocument: this.data,
-    });
-    await ddbCompanionFactory.parse();
-    await ddbCompanionFactory.updateOrCreateCompanions();
-    await ddbCompanionFactory.addCompanionsToDocuments([]);
-
-    logger.debug(`parsed companions for ${this.data.name}`, {
-      factory: ddbCompanionFactory,
-      parsed: ddbCompanionFactory.companions,
-    });
   }
 
   _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
@@ -743,6 +745,9 @@ export default class DDBSpell {
   }
 
   _getActivitiesType() {
+    if (SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName)) {
+      return "summon";
+    }
     if (this.spellDefinition.requiresSavingThrow && !this.spellDefinition.requiresAttackRoll) {
       return "save";
     } else if (this.spellDefinition.tags.includes("Damage") && this.spellDefinition.requiresAttackRoll) {
@@ -759,7 +764,7 @@ export default class DDBSpell {
     return undefined;
   }
 
-  getActivity({ typeOverride = null, typeFallback = null, name = null, nameIdPostfix = null } = {}, options = {}) {
+  async getActivity({ typeOverride = null, typeFallback = null, name = null, nameIdPostfix = null } = {}, options = {}) {
     const type = typeOverride ?? this._getActivitiesType();
     this.activityTypes.push(type);
     const data = { name, nameIdPostfix };
@@ -776,8 +781,10 @@ export default class DDBSpell {
         return this._getUtilityActivity(data, options);
       case "enchant":
         return this._getEnchantActivity(data, options);
-      case "summon":
-        return this._getSummonActivity(data, options);
+      case "summon": {
+        const activity = await this._getSummonActivity(data, options);
+        return activity;
+      }
       case "check":
         return this._getCheckActivity(data, options);
       case "spell":
@@ -785,19 +792,22 @@ export default class DDBSpell {
       case "transform":
       case "forward":
       default:
-        if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
+        if (typeFallback) {
+          const activity = await this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
+          return activity;
+        }
         // return undefined;
         // spells should always generate an activity
         return this._getUtilityActivity(data, options);
     }
   }
 
-  _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null } = {},
+  async _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null } = {},
     optionsOverride = {},
   ) {
     if (hintsOnly && !this.enricher.activity) return undefined;
 
-    const activity = this.getActivity({
+    const activity = await this.getActivity({
       typeOverride: typeOverride ?? this.enricher.activity?.type,
       name,
       nameIdPostfix,
@@ -856,10 +866,12 @@ export default class DDBSpell {
     }
   }
 
-  #generateAdditionalActivities() {
+  async #generateAdditionalActivities() {
     if (this.additionalActivities.length === 0) return;
-    console.warn(`ADDITIONAL SPELL ACTIVITIES for ${this.data.name}`, this.additionalActivities);
-    this.additionalActivities.forEach((activityData, i) => {
+    logger.debug(`Additional Spell Activities for ${this.data.name}`, this.additionalActivities);
+    let i = 0;
+    for (const activityData of this.additionalActivities) {
+      i++;
       const id = this._generateActivity({
         hintsOnly: false,
         name: activityData.name,
@@ -871,7 +883,7 @@ export default class DDBSpell {
         activityData,
         id,
       });
-    });
+    }
   }
 
   async parse() {
@@ -893,16 +905,16 @@ export default class DDBSpell {
     this._generateUses();
     this.#generateHealingParts(); // used in activity
 
-    this._generateActivity();
+    await this.#generateSummons();
+    await this._generateActivity();
     this.#addHealAdditionalActivities();
-    this.#generateAdditionalActivities();
+    await this.#generateAdditionalActivities();
     this.enricher.addAdditionalActivities(this);
 
     // TO DO: activities
     // this.data.system.save = getSave(this.spellData);
 
     await this._applyEffects();
-    await this._generateSummons();
 
     // ensure the spell ability id is correct for the spell
     // this.data.system.spellcasting = {

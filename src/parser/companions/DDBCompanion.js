@@ -32,6 +32,8 @@ export default class DDBCompanion {
         attacks: false,
         saves: false,
       },
+      creatureSizes: [],
+      creatureTypes: [],
       bonuses: {
         ac: "",
         hp: "",
@@ -40,7 +42,11 @@ export default class DDBCompanion {
         healing: "",
       },
       profiles: [],
-      prompt: true,
+      summon: {
+        identifier: "",
+        mode: "", // cr for cr based cusooms
+        prompt: true,
+      },
     };
   }
 
