@@ -111,12 +111,11 @@ export default class DDBSpell {
     this.pactSpellsPrepared = game.settings.get("ddb-importer", "pact-spells-prepared");
     this.limitedUse = limitedUse ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.limitedUse");
     this.forceMaterial = forceMaterial ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.forceMaterial");
-    this.klass = klass ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.class");
+    this.spellClass = klass ?? spellClass ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.class");
     this.lookup = lookup ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.lookup");
     this.lookupName = lookupName ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.lookupName");
     this.ability = ability ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.ability");
     this.school = DICTIONARY.spell.schools.find((s) => s.name === this.spellDefinition.school.toLowerCase());
-    this.spellClass = spellClass ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.class");
     this.dc = dc ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.dc");
     this.overrideDC = overrideDC ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.overrideDC");
     this.isHomebrew = isHomebrew ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.homebrew");
@@ -168,7 +167,7 @@ export default class DDBSpell {
     const classPrepMode = utils.findByProperty(
       DICTIONARY.spell.preparationModes,
       "name",
-      this.klass,
+      this.spellClass,
     );
 
     if (this.spellData.restriction === "As Ritual Only"
@@ -206,7 +205,7 @@ export default class DDBSpell {
 
     // handle classSpells
     const featureClass = this.lookup === "classFeature"
-      && this.klass;
+      && this.spellClass;
 
     if (this.lookup === "classSpell" || featureClass) {
       this._generateClassPreparationMode();
@@ -905,6 +904,18 @@ export default class DDBSpell {
     await this._applyEffects();
     await this._generateSummons();
 
+    // ensure the spell ability id is correct for the spell
+    // this.data.system.spellcasting = {
+    // progression: spellProgression.value,
+    // ability: spellCastingAbility,
+    if (this.rawCharacter && !this.spellClass) {
+      this.data.system.ability = this.ability;
+      // if (this.data.system.save.scaling == "spell") {
+      //   this.data.system.save.scaling = this.ability;
+      // }
+    }
+
+
     this.enricher.addDocumentOverride();
   }
 
@@ -922,17 +933,3 @@ export default class DDBSpell {
 
 
 }
-
-// TODO: remove
-// this.data.system.consume.target = "";
-
-// attach the spell ability id to the spell data so VTT always uses the
-// correct one, useful if multi-classing and spells have different
-// casting abilities
-// if (this.rawCharacter && this.rawCharacter.system.attributes.spellcasting !== this.ability) {
-//   this.data.system.ability = this.ability;
-//   if (this.data.system.save.scaling == "spell") {
-//     this.data.system.save.scaling = this.ability;
-//   }
-// }
-// if (this.data.system.ability === null) this.data.system.ability = "";
