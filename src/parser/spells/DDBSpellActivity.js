@@ -119,10 +119,6 @@ export default class DDBSpellActivity {
 
     // this is a spell with limited uses such as one granted by a feat
     if (this.spellData.limitedUse) {
-      console.warn(`Spell with limited uses`, {
-        this: this,
-
-      });
       spellSlot = false;
       targets.push({
         type: "itemUses",
