@@ -8,6 +8,8 @@ import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
 import DDBFeatureActivity from "./DDBFeatureActivity.js";
 import DDDFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
+import SETTINGS from "../../settings.js";
+import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
 
 
 export default class DDBBaseFeature {
@@ -146,6 +148,9 @@ export default class DDBBaseFeature {
     });
 
     this.naturalWeapon = DDBBaseFeature.NATURAL_WEAPONS.includes(this.originalName);
+
+    this.isCompanionFeature = this._isCompanionFeature();
+    this.isCompanionFeatureOption = this._isCompanionFeatureOption();
   }
 
   _getClassFeatureDescription() {
@@ -788,9 +793,45 @@ export default class DDBBaseFeature {
     return summonActivity;
   }
 
+  _isCompanionFeature() {
+    return SETTINGS.COMPANIONS.COMPANION_FEATURES.includes(this.originalName)
+      // only run this on class features
+      && this.ddbData.character.classes
+        .some((k) => k.classFeatures.some((f) => f.definition.name == this.originalName));
+  }
+
+  _isCompanionFeatureOption() {
+    for (const [parentFeature, childNames] of Object.entries(SETTINGS.COMPANIONS.COMPANION_OPTIONS)) {
+      for (const childName of childNames) {
+        if (this.originalName === parentFeature
+          || this.originalName === `${parentFeature}: ${childName}`) {
+          this.companionFeatureOption = {
+            parentFeature,
+            childName,
+          };
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  _getSummonsDescription() {
+    if (this.isCompanionFeatureOption) {
+      const ddbOption = this.ddbData.character.options.class.find((o) => o.definition.name == this.companionFeatureOption.childName);
+      if (!ddbOption) return null;
+      return ddbOption.definition.description;
+    } else {
+      return this.spellDefinition.description;
+    }
+  }
+
   _getActivitiesType() {
-    // lets see if we have a save stat for things like Dragon born Breath Weapon
-    if (typeof this.ddbDefinition.saveStatId === "number") {
+
+    if (this.isCompanionFeature || this._isCompanionFeatureOption()) {
+      return "summon";
+    } else if (typeof this.ddbDefinition.saveStatId === "number") {
+      // lets see if we have a save stat for things like Dragon born Breath Weapon
       return "save";
     } else if (this.ddbDefinition.actionType === 1) {
       return "attack";

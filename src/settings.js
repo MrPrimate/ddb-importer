@@ -309,6 +309,9 @@ const COMPANION_OPTIONS = {
     "Beast of the Sea",
     "Beast of the Sky",
   ],
+  "Drake Companion": [
+    "Summon",
+  ],
 };
 const CR_SUMMONING_SPELLS = [
   "Conjure Animals",

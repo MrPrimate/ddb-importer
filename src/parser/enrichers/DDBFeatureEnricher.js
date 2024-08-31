@@ -69,6 +69,12 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "flags.midiProperties.toggleEffect": true,
       },
     },
+    "Drake Companion": {
+      data: {
+        "system.uses.max": "",
+        "system.uses.recovery": [],
+      },
+    },
   };
 
   EFFECT_HINTS = {

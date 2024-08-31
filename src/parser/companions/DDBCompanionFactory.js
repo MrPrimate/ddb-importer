@@ -7,6 +7,7 @@ import DDBCompanion from "./DDBCompanion.js";
 import { isEqual } from "../../../vendor/lowdash/isequal.js";
 import DDBSummonsManager from "./DDBSummonsManager.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 
 async function getFindFamiliarActivityData() {
   const ddbCompendium = CompendiumHelper.getCompendiumType("monster", false);
@@ -513,7 +514,17 @@ export default class DDBCompanionFactory {
     "Artificer Infusions": "Infusion: Homunculus Servant",
   };
 
-  async addCompanionsToDocuments(otherDocuments, activity) {
+  #getDocumentActivity(document = null) {
+    for (const id of Object.keys((document ?? this.originDocument).system.activities)) {
+      const activity = (document ?? this.originDocument).system.activities[id];
+      if (activity.type === "summon") return activity;
+    }
+    const activity = new DDBBasicActivity({ type: "summon" });
+    activity.build();
+    return activity.data;
+  }
+
+  async addCompanionsToDocuments(otherDocuments, activity = null) {
     if (!this.originDocument || !this.summons) return;
     const compendiumSummons = await this.getExistingCompendiumCompanions();
     const summonActors = compendiumSummons.length > 0
@@ -544,9 +555,12 @@ export default class DDBCompanionFactory {
     });
     const summonsData = foundry.utils.deepClone(this.summons);
     summonsData.profiles = profiles;
-    const activityData = foundry.utils.mergeObject(activity, summonsData);
-    delete this.originDocument.system.activities[activity._id];
-    updateDocument.system.activities[activity._id] = activityData;
+
+    const activityData = activity
+      ? foundry.utils.mergeObject(activity, summonsData)
+      : foundry.utils.mergeObject(this.#getDocumentActivity(updateDocument), summonsData);
+    delete this.originDocument.system.activities[activityData._id];
+    updateDocument.system.activities[activityData._id] = activityData;
 
   }
 
