@@ -757,14 +757,17 @@ ${item.system.description.chat}
 
     if (klassItems.length > 0) {
       logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(klassItems) });
-      await this.actor.createEmbeddedDocuments("Item", klassItems, options);
+      for (const klassItem of klassItems) {
+        console.warn(`Importing ${klassItem.name}`, klassItem);
+        await this.actor.createEmbeddedDocuments("Item", [klassItem], options);
+      }
     }
     if (nonKlassItems.length > 0) {
       logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(nonKlassItems) });
       // await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
-      for (const i of nonKlassItems) {
-        console.warn(`Importing ${i.name}`, i);
-        await this.actor.createEmbeddedDocuments("Item", [i], options);
+      for (const nonKlassItem of nonKlassItems) {
+        console.warn(`Importing ${nonKlassItem.name}`, nonKlassItem);
+        await this.actor.createEmbeddedDocuments("Item", [nonKlassItem], options);
       }
     }
   }
@@ -981,7 +984,7 @@ ${item.system.description.chat}
       items.push(
         this.result.itemSpells.filter((item) => {
           const active = item.flags.ddbimporter.dndbeyond && item.flags.ddbimporter.dndbeyond.active === true;
-          if (!active) logger.warn(`Missing active flag on item spell ${item.name}`);
+          if (!active) logger.info(`Missing active flag on item spell ${item.name}`);
           return active;
         }),
       );

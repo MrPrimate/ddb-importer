@@ -5,6 +5,7 @@ import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
+import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
@@ -248,10 +249,11 @@ export class DDBInfusion {
     const descriptions = this.ddbInfusion.actions.map((i) => `[[/item ${i.name}]]`);
 
     const uuids = cItems.map((i) => i.uuid);
-    if (this.activity.data.effects?.length > 0) this.activity.data.effects[0].riders.item = uuids;
+    // for now just add riders to first effect
+    if (this.activity.data.effects?.length > 0)
+      this.activity.data.effects[0].riders.item = uuids;
     this.data.effects.forEach((e) => {
-      // if (e.flags.ddbimporter?.infusion) e.flags.dnd5e.enchantment.riders.item.push(...uuids);
-      // this.activity.data.effects[0].riders.item = uuids;
+      if (e.flags.ddbimporter?.infusion) e.flags.dnd5e.enchantment.riders.item.push(...uuids);
       e.changes.push({
         key: "system.description.value",
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -373,10 +375,11 @@ export class DDBInfusion {
   }
 
   _addDescriptionToEffect(effect) {
+    const description = parseTemplateString(this.ddbData, this.rawCharacter, this.ddbInfusion.description, this.ddbInfusion).text;
     effect.changes.push({
       key: "system.description.value",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: `<hr> <br> ${this.ddbInfusion.description}`,
+      value: `<hr> <br> ${description}`,
     });
   }
 
@@ -399,6 +402,8 @@ export class DDBInfusion {
         },
       };
 
+      const description = parseTemplateString(this.ddbData, this.rawCharacter, this.ddbInfusion.snippet, this.ddbInfusion).text;
+
       switch (this.ddbInfusion.modifierDataType) {
         case "class-level": {
           const minLevel = effectData.value;
@@ -410,17 +415,17 @@ export class DDBInfusion {
             max: maxLevel,
           };
           // foundry.utils.setProperty(effect, "flags.dnd5e.enchantment.level", effectLink.level);
-          effect.description = this.ddbInfusion.snippet;
+          effect.description = description;
           this._addDescriptionToEffect(effect);
           break;
         }
         case "granted": {
-          effect.description = this.ddbInfusion.snippet;
+          effect.description = description;
           this._addDescriptionToEffect(effect);
           break;
         }
         case "damage-type-choice": {
-          effect.description = this.ddbInfusion.snippet;
+          effect.description = description;
           this._addDescriptionToEffect(effect);
           break;
         }

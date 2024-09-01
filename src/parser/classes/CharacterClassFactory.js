@@ -10,6 +10,7 @@ export default class CharacterClassFactory {
     this.source = this.ddbCharacter.source.ddb;
     this.ddbClasses = {
     };
+    this.originalClass = null;
   }
 
   async processCharacter() {
@@ -26,10 +27,13 @@ export default class CharacterClassFactory {
         this.ddbClasses[ddbSubClass.data.name] = ddbSubClass;
         documents.push(foundry.utils.deepClone(ddbSubClass.data));
       }
+      if (ddbClass.isStartingClass) this.originalClass = ddbClass.data._id;
     }
 
     logger.debug(`Processed ${documents.length} classes`, { documents });
     this.ddbCharacter.updateItemIds(documents);
+
+    // if (this.originalClass) this.character.system.details.originalClass = this.originalClass;
 
     return documents;
   }
