@@ -72,6 +72,8 @@ export async function midiItemEffects(document) {
  * @param {*} document
  */
 export function equipmentEffectAdjustment(document) {
+  // to do revisit these
+  return document;
   if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
   const name = document.flags.ddbimporter?.originalName ?? document.name;
   switch (name) {

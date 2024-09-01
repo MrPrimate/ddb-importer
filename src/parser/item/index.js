@@ -73,10 +73,6 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
     if (item) {
       if (!item.effects) item.effects = [];
       if (!item.name || item.name === "") item.name = "Item";
-
-        // TODO: rework for activities
-
-      // if (addEffects) {
       item = generateEffects({
         ddb: this.source.ddb,
         character: this.raw.character,
@@ -88,17 +84,12 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
           ? item.system.description.chat
           : item.system.description.value,
       });
-      // } else if (item.type === "equipment") {
-      //   if (foundry.utils.hasProperty(item, "system.armor.type") && ["trinket", "clothing"].includes(item.system.armor.type)) {
-      //     item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem);
-      //   }
-      // } else {
-      //   item = generateBaseACItemEffect(this.source.ddb, this.raw.character, ddbItem, item, isCompendiumItem);
-      // }
       item = await addRestrictionFlags(item, addAutomationEffects);
 
       if (!isCompendiumItem) item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
-      if (addAutomationEffects) item = await midiItemEffects(item);
+
+      //todo: refactor midi effects
+      // if (addAutomationEffects) item = await midiItemEffects(item);
 
       // to do: we want to move this into item parser build
       let effect = itemParser.enricher.createEffect();

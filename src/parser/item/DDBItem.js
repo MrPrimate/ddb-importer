@@ -1356,7 +1356,7 @@ export default class DDBItem {
 
     if (limitedUse.maxUses) {
       const recoveryFormula = DDBItem.getRechargeFormula(this.ddbItem.definition.description, limitedUse.maxUses);
-      const recoveryIsMax = `${recoveryFormula}` === `${this.ddbItem.limitedUse.maxUses}`;
+      const recoveryIsMax = `${recoveryFormula}` === `${limitedUse.maxUses}`;
 
       const recovery = [];
       if (limitedUse.resetType && !["", "charges"].includes(limitedUse.resetType)) {
@@ -1444,7 +1444,7 @@ export default class DDBItem {
   }
 
   #generateCapacity() {
-    this.data.system.capacity =  (this.ddbDefinition.capacityWeight !== null)
+    this.data.system.capacity = (this.ddbDefinition.capacityWeight !== null)
       ? {
         "type": "weight",
         "value": this.ddbDefinition.capacityWeight,
@@ -1466,7 +1466,7 @@ export default class DDBItem {
   #generateWeightless() {
     const isWeightless = this.ddbDefinition.weightMultiplier === 0;
     if (isWeightless) {
-      this.data.system.properties = utils.addToProperties(loot.system.properties, "weightlessContents");
+      this.data.system.properties = utils.addToProperties(this.data.system.properties, "weightlessContents");
     }
   }
 
