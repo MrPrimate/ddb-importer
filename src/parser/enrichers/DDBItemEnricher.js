@@ -21,4 +21,21 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   EFFECT_HINTS = {
 
   };
+
+  DOCUMENT_STUB = {
+    "Korolnor Scepter": {
+      // scepter can be used as a regular club
+      documentType: "weapon",
+      parsingType: "weapon",
+      systemType: {
+        value: "simpleM",
+        baseItem: "club",
+      },
+      copySRD: {
+        name: "Club",
+        type: "weapon",
+        uuid: "Compendium.dnd5e.items.Item.nfIRTECQIG81CvM4",
+      },
+    },
+  };
 }

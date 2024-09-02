@@ -62,4 +62,8 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
   EFFECT_HINTS = {
 
   };
+
+  DOCUMENT_STUB = {
+
+  };
 }

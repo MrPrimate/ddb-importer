@@ -8,6 +8,8 @@ export default class DDDMonsterEnricher extends DDBBaseEnricher {
     this.activity = this.ACTIVITY_HINTS[this.monsterName]?.[this.hintName];
     this.effect = this.EFFECT_HINTS[this.monsterName]?.[this.hintName];
     this.override = this.DOCUMENT_OVERRIDES[this.monsterName]?.[this.hintName];
+    this.additionalActivities = this.ADDITIONAL_ACTIVITIES[this.monsterName]?.[this.hintName];
+    this.documentStub = this.DOCUMENT_STUB[this.monsterName]?.[this.hintName];
   }
 
   constructor({ document, name = null, monster } = {}) {
@@ -32,6 +34,10 @@ export default class DDDMonsterEnricher extends DDBBaseEnricher {
   };
 
   EFFECT_HINTS = {
+
+  };
+
+  DOCUMENT_STUB = {
 
   };
 }

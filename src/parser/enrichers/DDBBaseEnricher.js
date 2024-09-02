@@ -14,12 +14,15 @@ export default class DDBBaseEnricher {
 
   EFFECT_HINTS = {};
 
+  DOCUMENT_STUB = {};
+
   _prepare() {
     this.hintName = this.NAME_HINTS[this.name] ?? this.name;
     this.activity = this.ACTIVITY_HINTS[this.hintName];
     this.effect = this.EFFECT_HINTS[this.hintName];
     this.override = this.DOCUMENT_OVERRIDES[this.hintName];
     this.additionalActivities = this.ADDITIONAL_ACTIVITIES[this.hintName];
+    this.documentStub = this.DOCUMENT_STUB[this.hintName];
   }
 
   constructor({ document, name = null } = {}) {
@@ -30,10 +33,10 @@ export default class DDBBaseEnricher {
   }
 
   applyActivityOverride(activity) {
-    console.warn(`applyActivityOverride for ${this.document.name}`, {
-      activity,
-      this: this,
-    });
+    // console.warn(`applyActivityOverride for ${this.document.name}`, {
+    //   activity,
+    //   this: this,
+    // });
     if (!this.activity) return activity;
 
     if (this.activity.parent) {
@@ -89,11 +92,11 @@ export default class DDBBaseEnricher {
 
     if (this.activity.func) this.activity.func(activity);
 
-    console.warn(`applyActivityOverride finished for ${this.document.name}`, {
-      activity: foundry.utils.deepClone(activity),
-      this: this,
-      thisActivity: foundry.utils.deepClone(this.activity),
-    });
+    // console.warn(`applyActivityOverride finished for ${this.document.name}`, {
+    //   activity: foundry.utils.deepClone(activity),
+    //   this: this,
+    //   thisActivity: foundry.utils.deepClone(this.activity),
+    // });
 
     return activity;
   }
@@ -173,12 +176,14 @@ export default class DDBBaseEnricher {
         nameIdPostfix: `${this.document.system.activities.length + 1}`,
       }));
       activity.build(data.build);
-      console.warn("addAdditionalActivities", {
-        activity,
-        this: this,
-        data,
-      });
+      // console.warn("addAdditionalActivities", {
+      //   activity,
+      //   this: this,
+      //   data,
+      // });
       this.document.system.activities[activity.data._id] = activity.data;
     }
   }
+
+
 }

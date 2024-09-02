@@ -91,4 +91,8 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       },
     },
   };
+
+  DOCUMENT_STUB = {
+
+  };
 }

@@ -404,7 +404,7 @@ export default class DDBBasicActivity {
 
   static parseBasicDamageFormula(data, formula, { stripMod = false } = {}) {
     const basicMatchRegex = /^\s*(\d+)d(\d+)(?:\s*([+|-])\s*(@?[\w\d.-]+))?\s*$/i;
-    const damageMatch = formula.match(basicMatchRegex);
+    const damageMatch = `${formula}`.match(basicMatchRegex);
 
     if (damageMatch && CONFIG.DND5E.dieSteps.includes(Number(damageMatch[2]))) {
       data.number = Number(damageMatch[1]);
