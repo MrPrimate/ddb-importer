@@ -59,7 +59,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       } else if (game.modules.get("items-with-spells-5e")?.active) {
         MagicItemMaker.parseItemsWithSpellsModule(itemParser, itemSpells, !isCompendiumItem);
       } else {
-        logger.debug(`$Item.name} Using basic magic item data`, {
+        logger.debug(`${itemParser.name} Using basic magic item data`, {
           item: foundry.utils.deepClone(ddbItem.data),
           data: ddbItem.ddbItem,
           itemSpells,
@@ -107,7 +107,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
 
   // hack till better impelementation
   for (const item of items) {
-    if (item.effects.length > 0) {
+    if (item.effects.length > 0 && item.system.activities) {
       for (const activityId of Object.keys(item.system.activities)) {
         const activity = item.system.activities[activityId];
         if (activity.effects.length !== 0) continue;
