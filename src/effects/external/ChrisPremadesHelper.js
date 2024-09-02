@@ -531,21 +531,21 @@ ${chat}
 
       if (restrictedItem.requiredEquipment) {
         for (const requiredEquipment of restrictedItem.requiredEquipment) {
-          const itemMatch = documents.some((d) => ddbName === requiredEquipment && DICTIONARY.types.inventory.includes(d.type));
+          const itemMatch = documents.some((d) => d.name === requiredEquipment && DICTIONARY.types.inventory.includes(d.type));
           if (!itemMatch) continue;
         }
       }
 
       if (restrictedItem.requiredFeature) {
         for (const requiredFeature of restrictedItem.requiredFeature) {
-          const itemMatch = documents.some((d) => ddbName === requiredFeature && d.type === "feat");
+          const itemMatch = documents.some((d) => d.name === requiredFeature && d.type === "feat");
           if (!itemMatch) continue;
         }
       }
 
       if (restrictedItem.requiredFeatures) {
         for (const requiredFeature of restrictedItem.requiredFeatures) {
-          const itemMatch = documents.some((d) => ddbName === requiredFeature && d.type === "feat");
+          const itemMatch = documents.some((d) => d.name === requiredFeature && d.type === "feat");
           if (!itemMatch) continue;
         }
       }
