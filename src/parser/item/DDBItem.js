@@ -195,6 +195,8 @@ export default class DDBItem {
     this.additionalActivities = [];
     this.versatileDamage = "";
 
+    this.addMagical = false;
+
     this.enricher = new DDBItemEnricher({
       document: this.data,
       name: this.name,
@@ -206,7 +208,11 @@ export default class DDBItem {
     logger.debug(`Generating Item ${this.ddbDefinition.name}`);
   }
 
-  #generateDataStub() {
+  async #generateDataStub() {
+    if (this.enricher.documentStub?.documentType) this.documentType = this.enricher.documentStub.documentType;
+    if (this.enricher.documentStub?.systemType) this.systemType = foundry.utils.mergeObject(this.systemType, this.enricher.documentStub.systemType);
+    if (this.enricher.documentStub?.parsingType) this.parsingType = this.enricher.documentStub.parsingType;
+
     if (!this.documentType) {
       logger.error(`Document type must be set: ${this.ddbDefinition.name}`, {
         this: this,
@@ -215,6 +221,7 @@ export default class DDBItem {
         this: this,
       });
     }
+
     this.data = {
       _id: foundry.utils.randomID(),
       name: this.name,
@@ -230,6 +237,15 @@ export default class DDBItem {
         },
       },
     };
+
+    if (this.enricher.documentStub?.copySRD) {
+      const srdDoc = await fromUuid(this.enricher.documentStub.copySRD.uuid);
+      const systemData = srdDoc.toObject().system;
+      systemData.source.book = "";
+      systemData.source.license = "";
+      this.data.system = systemData;
+    }
+
     // Spells will still have activation/duration/range/target,
     // weapons will still have range & damage (1 base part & 1 versatile part),
     // and all items will still have limited uses (but no consumption)
@@ -639,6 +655,11 @@ export default class DDBItem {
         this.#getLootType(this.ddbDefinition.subType);
         break;
       default: {
+        console.warn(`Default subtype for ${this.name}`, {
+          this: this,
+          clothingItem: DDBItem.CLOTHING_ITEMS.includes(this.ddbDefinition.name),
+          clothingExpressions: !this.isContainer && this.isOuterwearTag && !this.isContainerTag,
+        });
         if ((!this.isContainer && this.isOuterwearTag && !this.isContainerTag)
           || DDBItem.CLOTHING_ITEMS.includes(this.ddbDefinition.name)
         ) {
@@ -646,7 +667,7 @@ export default class DDBItem {
           this.systemType.value = "clothing";
           this.parsingType = "wonderous";
           this.overrides.ddbType = "Clothing";
-          this.overrides.armorType = "Clothing"; // might not need this anymore
+          this.overrides.armorType = "clothing"; // might not need this anymore
         } else if (DDBItem.EQUIPMENT_TRINKET.includes(this.ddbDefinition.name)) {
           this.documentType = "equipment";
           this.systemType.value = "trinket";
@@ -659,7 +680,9 @@ export default class DDBItem {
     }
   }
 
+  // eslint-disable-next-line complexity
   #getLootType(typeHint) {
+    this.overrides.ddbType = typeHint ?? this.ddbDefinition.subType;
     this.parsingType = "loot";
     this.documentType = "loot";
 
@@ -707,7 +730,9 @@ export default class DDBItem {
       // && data.definition.tags.includes('Combat'))
       // || data.definition.tags.includes('Healing'));
       itemType = "consumable";
-    } else if (itemType) {
+    }
+
+    if (itemType) {
       this.documentType = itemType;
       if (itemType === "consumable") {
         if (this.ddbDefinition.name.includes('vial') || this.ddbDefinition.name.includes('flask')) {
@@ -721,8 +746,16 @@ export default class DDBItem {
     }
 
     if (this.documentType === "loot") {
-      const lookup = DDBItem.LOOT_TYPES[itemType];
+      const lookup = DDBItem.LOOT_TYPES[typeHint]
+        ?? DDBItem.LOOT_TYPES[this.ddbDefinition.subType];
       if (lookup) this.systemType.value = lookup;
+      else {
+        console.error(`Failed to find loot type for ${this.ddbDefinition.name}`, {
+          this: this,
+          itemType,
+          lookup,
+        });
+      }
     }
   }
 
@@ -837,7 +870,7 @@ export default class DDBItem {
             this.systemType.value = this.ddbDefinition.name.toLowerCase().includes("spellwrought")
               ? "spellwrought"
               : "permanent";
-            this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
+            this.addMagical = true;
           }
         } else {
           this.documentType = "equipment";
@@ -1030,7 +1063,7 @@ export default class DDBItem {
 
 
   async #prepare() {
-    this.#generateDataStub();
+    await this.#generateDataStub();
     this.#generateBaseItem();
     this.#generateActionInfo();
     this.#generateDamageParts();
@@ -1217,14 +1250,14 @@ export default class DDBItem {
         const magicBonus = this.#getMagicalArmorBonus();
         if (magicBonus > 0) {
           this.data.system.armor.magicalBonus = magicBonus;
-          this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
+          this.addMagical = true;
         }
         break;
       }
       case "staff":
       case "ammunition": {
         if (this.actionInfo.magicBonus.zero > 0) {
-          this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
+          this.addMagical = true;
           this.data.system.magicalBonus = this.actionInfo.magicBonus.zero;
         }
         break;
@@ -1234,13 +1267,13 @@ export default class DDBItem {
         this.actionInfo.magicBonus.zero = magicalBonus;
         if (magicalBonus > 0) {
           this.data.system.magicalBonus = magicalBonus;
-          this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
+          this.addMagical = true;
         }
         break;
       }
       default: {
         if (this.actionInfo.magicBonus.zero > 0) {
-          this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
+          this.addMagical = true;
           logger.error(`Magical Bonus detected, but not handled for ${this.name}`, {
             this: this,
           });
@@ -1656,9 +1689,7 @@ export default class DDBItem {
 
   #generateConsumableSpecifics() {
     this.activityOptions.generateActivation = true;
-    if (this.data.system.type.value === "wand") {
-      this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
-    }
+    if (this.data.system.type.value === "wand") this.addMagical = true;
     this._generateConsumableUses();
   }
 
@@ -1751,7 +1782,8 @@ export default class DDBItem {
         value: null,
         dex: null,
       };
-      this.data.system.type.value = this.isClothingTag && !this.isContainer ? "clothing" : "trinket";
+      this.data.system.type.value = this.overrides.armorType
+        ?? (this.isClothingTag ? "clothing" : "trinket");
       this.data.system.strength = 0;
       this.data.system.properties = utils.removeFromProperties(this.data.system.properties, "stealthDisadvantage");
       this.data.system.proficient = null;
@@ -1894,12 +1926,12 @@ export default class DDBItem {
         activityConsumptionTarget.value = currentConsumptionValue;
       }
 
-      console.warn(`Copying Spell ${spell.name} Activity`, {
-        spell,
-        this: this,
-        id,
-        activity,
-      });
+      // console.warn(`Copying Spell ${spell.name} Activity`, {
+      //   spell,
+      //   this: this,
+      //   id,
+      //   activity,
+      // });
 
       const spellLookupName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName");
       activity.name = `${spellLookupName ?? spell.name} (${utils.capitalize(activity.type)})`;
@@ -1989,13 +2021,13 @@ export default class DDBItem {
       ? { calculation: "", formula: spell.flags.ddbimporter.dndbeyond?.dc }
       : { calculation: "spellcasting", formula: "" };
 
-    console.warn(`Spell update details for ${spell.name}`, {
-      resetType,
-      uses,
-      activityConsumptionTarget,
-      saveDC,
-      spellData,
-    });
+    // console.warn(`Spell update details for ${spell.name}`, {
+    //   resetType,
+    //   uses,
+    //   activityConsumptionTarget,
+    //   saveDC,
+    //   spellData,
+    // });
 
     foundry.utils.setProperty(spell, "system.level", Number.parseInt(spellData.level));
 
@@ -2009,11 +2041,11 @@ export default class DDBItem {
       spell.system.activities[id].description.chatFlavor = `Cast from ${this.data.name}`;
     });
 
-    console.warn(`Adjusted Spell ${spell.name} as item consumption`, {
-      spell: foundry.utils.deepClone(spell),
-      this: this,
-      id: `${this.data._id}`,
-    });
+    // console.warn(`Adjusted Spell ${spell.name} as item consumption`, {
+    //   spell: foundry.utils.deepClone(spell),
+    //   this: this,
+    //   id: `${this.data._id}`,
+    // });
 
   }
 
@@ -2029,10 +2061,10 @@ export default class DDBItem {
       const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
         && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
       if (isItemSpell) {
-        console.warn(`Adding Spell ${spell.name} for ${this.data.name}`, {
-          spell,
-          this: this,
-        });
+        // console.warn(`Adding Spell ${spell.name} for ${this.data.name}`, {
+        //   spell,
+        //   this: this,
+        // });
 
         logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
         if (this.spellsAsActivities) this.#addSpellAsActivity(spell);
@@ -2056,8 +2088,7 @@ export default class DDBItem {
       this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
       this.data.system.weight = this.#getSingleItemWeight();
 
-      if (this.ddbDefinition.magic)
-        this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
+      if (this.ddbDefinition.magic) this.addMagical = true;
 
       this.#generateTypeSpecifics();
 
@@ -2070,6 +2101,8 @@ export default class DDBItem {
       if (this.overrides.ddbType)
         foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", this.overrides.ddbType);
 
+      if (this.addMagical)
+        this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
 
       this.characterManager.updateItemId(this.data);
 
@@ -2399,17 +2432,17 @@ export default class DDBItem {
     }, optionsOverride);
 
 
-    console.warn(`Item Activity Check for ${this.data.name}`, {
-      this: this,
-      activity,
-      typeOverride,
-      enricherHint: this.enricher.activity?.type,
-      activityType: activity?.data?.type,
-      optionsOverride,
-      name,
-      hintsOnly,
-      nameIdPostfix,
-    });
+    // console.warn(`Item Activity Check for ${this.data.name}`, {
+    //   this: this,
+    //   activity,
+    //   typeOverride,
+    //   enricherHint: this.enricher.activity?.type,
+    //   activityType: activity?.data?.type,
+    //   optionsOverride,
+    //   name,
+    //   hintsOnly,
+    //   nameIdPostfix,
+    // });
 
     if (!activity) {
       logger.debug(`No Activity type found for ${this.data.name}`, {
@@ -2429,7 +2462,7 @@ export default class DDBItem {
 
   #generateAdditionalActivities() {
     if (this.additionalActivities.length === 0) return;
-    console.warn(`ADDITIONAL ITEM ACTIVITIES for ${this.data.name}`, this.additionalActivities);
+    // console.warn(`ADDITIONAL ITEM ACTIVITIES for ${this.data.name}`, this.additionalActivities);
     this.additionalActivities.forEach((activityData, i) => {
       const id = this.#generateActivity({
         hintsOnly: false,
