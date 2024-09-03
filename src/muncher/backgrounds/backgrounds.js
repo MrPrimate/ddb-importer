@@ -83,7 +83,7 @@ export async function getBackgrounds(data) {
 
   let backgrounds = [];
 
-  for (const background of data) {
+  for (const background of data.filter((bg) => !bg.sources.some((s) => [145, 148].includes(s.sourceId)))) {
     logger.debug(`${background.name} background parsing started...`);
     const parsedBackground = await buildBackground(background);
     backgrounds.push(parsedBackground);

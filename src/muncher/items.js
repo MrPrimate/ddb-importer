@@ -123,10 +123,14 @@ function getItemData(sourceFilter) {
         return data;
       })
       .then((data) => {
-        const genericsFilteredData = data.data.filter((item) => item.canBeAddedToInventory || useGenerics);
+        const genericsFilteredData = data.data
+          .filter((item) => item.canBeAddedToInventory || useGenerics)
+          .filter((item) => !item.sources.some((s) => [145, 148].includes(s.sourceId)));
         if (sources.length == 0 || !sourceFilter) return genericsFilteredData;
         return genericsFilteredData.filter((item) =>
-          item.sources.some((source) => sources.includes(source.sourceId))
+          item.sources
+            .filter((sources) => !sources.some((s) => [145, 148].includes(s.sourceId)))
+            .some((source) => sources.includes(source.sourceId))
         );
       })
       .then((data) => {

@@ -57,7 +57,7 @@ function buildBase(data) {
 }
 
 
-async function buildFeat(feat,) {
+async function buildFeat(feat) {
   let result = buildBase(feat);
 
   return result;
@@ -70,11 +70,13 @@ export async function getFeats(data) {
 
   let feats = [];
 
-  data.forEach((feat) => {
-    logger.debug(`${feat.name} feat parsing started...`);
-    const parsedFeat = buildFeat(feat);
-    feats.push(parsedFeat);
-  });
+  data
+    .filter((feat) => !feat.sources.some((s) => [145, 148].includes(s.sourceId)))
+    .forEach((feat) => {
+      logger.debug(`${feat.name} feat parsing started...`);
+      const parsedFeat = buildFeat(feat);
+      feats.push(parsedFeat);
+    });
 
   const itemHandler = await DDBItemImporter.buildHandler("feats", feats, updateBool, { chrisPremades: true });
   return itemHandler.documents;

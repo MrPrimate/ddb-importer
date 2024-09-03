@@ -680,7 +680,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       {
         name: "legacy-postfix",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-legacy-postfix"),
-        description: "Append (Legacy) to Legacy monster/race names? These are replaced by newer versions e.g. in Monsters of the Multiverse.",
+        description: "Append (Legacy) to Legacy names? These are replaced by newer versions e.g. in Monsters of the Multiverse or the 2024 rules",
         enabled: true,
       },
       {

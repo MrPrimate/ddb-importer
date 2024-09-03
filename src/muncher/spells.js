@@ -107,7 +107,10 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   const filteredResults = results
     .filter((r) => r.status === "fulfilled")
     .map((r) => r.value).flat().flat()
-    .filter((v, i, a) => a.findIndex((t) => t.definition.name === v.definition.name) === i);
+    .filter((v, i, a) => a.findIndex((t) => t.definition.name === v.definition.name
+      && t.definition.isLegacy === v.definition.isLegacy
+      && t.definition.isHomebrew === v.definition.isHomebrew) === i)
+    .filter((sp) => !sp.definition.sources.some((s) => [145, 148].includes(s.sourceId)));
 
   const rawSpells = await getSpells(filteredResults);
 

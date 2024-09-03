@@ -175,6 +175,8 @@ function addExtraDDBFlags(ddbItem, item) {
   foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isMonkWeapon", ddbItem.definition.isMonkWeapon);
   foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isPack", ddbItem.definition.isPack);
   foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.levelInfusionGranted", ddbItem.definition.levelInfusionGranted);
+  foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isLegacy", ddbItem.definition.isLegacy);
+  foundry.utils.setProperty(item, "flags.ddbimporter.isLegacy", ddbItem.definition.isLegacy);
 
   return item;
 }

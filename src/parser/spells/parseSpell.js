@@ -39,6 +39,7 @@ export async function parseSpell(data, character, { namePostfix = null } = {}) {
         sources: data.definition.sources,
         tags: data.definition.tags,
         version: CONFIG.DDBI.version,
+        isLegacy: data.definition.isLegacy,
       },
       "midi-qol": {
         removeAttackDamageButtons: "default",

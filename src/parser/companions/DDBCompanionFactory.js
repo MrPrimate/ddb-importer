@@ -270,7 +270,7 @@ export default class DDBCompanionFactory {
           count: null,
         };
       });
-    if (this.originDocument) {
+    if (this.originDocument && this.summons) {
       const alternativeDocument = DDBCompanionFactory.COMPANION_REMAP[this.originDocument.name];
       const updateDocument = alternativeDocument
         ? (otherDocuments.find((s) =>
@@ -286,7 +286,7 @@ export default class DDBCompanionFactory {
         summons: this.summons,
       });
       foundry.utils.setProperty(updateDocument, "system.summons", foundry.utils.deepClone(this.summons));
-      foundry.utils.setProperty(updateDocument, "system.summons.profiles", profiles);
+      foundry.utils.setProperty(updateDocument, "system.summons.profiles", profiles ?? []);
       foundry.utils.setProperty(updateDocument, "system.actionType", "summ");
     }
   }
