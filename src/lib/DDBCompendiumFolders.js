@@ -760,7 +760,13 @@ export class DDBCompendiumFolders {
       case "inventory":
       case "item":
       case "items": {
-        name = this.getItemCompendiumFolderName(document);
+        try {
+          name = this.getItemCompendiumFolderName(document);
+        } catch (e) {
+          console.warn(e);
+          console.warn(document)
+          throw e;
+        }
       }
       // no default
     }
