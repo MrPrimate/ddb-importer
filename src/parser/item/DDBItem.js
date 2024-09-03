@@ -246,6 +246,10 @@ export default class DDBItem {
       this.data.system = systemData;
     }
 
+    if (this.enricher.documentStub?.replaceDefaultActivity) {
+      this.data.system.activities = {};
+    }
+
     // Spells will still have activation/duration/range/target,
     // weapons will still have range & damage (1 base part & 1 versatile part),
     // and all items will still have limited uses (but no consumption)
@@ -475,11 +479,11 @@ export default class DDBItem {
     // we can safely make these assumptions about GWF
     // flags are only added for melee attacks
     const greatWeaponFighting = this.flags.classFeatures.includes("greatWeaponFighting") ? "r<=2" : "";
-    const twoHanded = this.ddbDefinition.properties.find((property) => property.name === "Two-Handed");
+    const twoHanded = (this.ddbDefinition.properties ?? []).find((property) => property.name === "Two-Handed");
 
     const damageType = DDBHelper.getDamageType(this.ddbItem);
 
-    const versatile = this.ddbDefinition.properties.find((property) => property.name === "Versatile");
+    const versatile = (this.ddbDefinition.properties ?? []).find((property) => property.name === "Versatile");
     if (versatile && versatile.notes) {
       this.versatileDamage = utils.parseDiceString(versatile.notes, null, "", greatWeaponFighting).diceString;
     }
@@ -2106,7 +2110,8 @@ export default class DDBItem {
 
       this.characterManager.updateItemId(this.data);
 
-      this.#generateActivity();
+      if (!this.enricher.documentStub?.stopDefaultActivity)
+        this.#generateActivity();
       this.#addHealAdditionalActivities();
       this.#generateAdditionalActivities();
       this.enricher.addAdditionalActivities(this);

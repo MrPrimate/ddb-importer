@@ -27,6 +27,8 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       // scepter can be used as a regular club
       documentType: "weapon",
       parsingType: "weapon",
+      stopDefaultActivity: true,
+      replaceDefaultActivity: false,
       systemType: {
         value: "simpleM",
         baseItem: "club",
