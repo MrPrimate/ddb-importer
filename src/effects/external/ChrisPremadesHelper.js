@@ -530,24 +530,13 @@ ${chat}
 
 
       if (restrictedItem.requiredEquipment) {
-        for (const requiredEquipment of restrictedItem.requiredEquipment) {
-          const itemMatch = documents.some((d) => (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredEquipment && DICTIONARY.types.inventory.includes(d.type));
-          if (!itemMatch) continue;
-        }
-      }
-
-      if (restrictedItem.requiredFeature) {
-        for (const requiredFeature of restrictedItem.requiredFeature) {
-          const itemMatch = documents.some((d) => (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredFeature && d.type === "feat");
-          if (!itemMatch) continue;
-        }
+        const itemMatch = restrictedItem.requiredEquipment.every((requiredEquipment) => documents.some((d) => (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredEquipment && DICTIONARY.types.inventory.includes(d.type)));
+        if (!itemMatch) continue;
       }
 
       if (restrictedItem.requiredFeatures) {
-        for (const requiredFeature of restrictedItem.requiredFeatures) {
-          const itemMatch = documents.some((d) => (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredFeature && d.type === "feat");
-          if (!itemMatch) continue;
-        }
+        const itemMatch = restrictedItem.requiredFeatures.every((requiredFeature) => documents.some((d) => (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredFeature && d.type === "feat"));
+        if (!itemMatch) continue;
       }
 
       // now replace the matched item with the replaced Item
