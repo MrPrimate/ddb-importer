@@ -1,15 +1,6 @@
 // import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
 
-function prepItem(item) {
-  if (item.name.startsWith("Potion of")) {
-    if (!item.system.duration) item.system.duration = { units: "", value: null };
-    if (!item.system.target) item.system.target = { value: null, width: null, units: "", type: "creature" };
-    if (!item.system.range) item.system.range = { value: null, long: null, units: "", type: "touch" };
-  } else if (item.name.startsWith("Vicious")) {
-    foundry.utils.setProperty(item, "system.critical", { damage: "+ 7", threshold: null });
-  }
-}
 
 function tattoos(item) {
   if (!item.name.toLowerCase().includes("tattoo")) return;
@@ -55,7 +46,6 @@ export function fixItems(items) {
   return;
   // eslint-disable-next-line complexity
   items.forEach((item) => {
-    prepItem(item);
     tattoos(item);
     const name = item.flags.ddbimporter?.originalName ?? item.name;
     switch (name) {

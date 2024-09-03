@@ -174,21 +174,7 @@ export default class DDBItem {
     this.activityTypes = [];
 
 
-    this.activityOptions = {
-      generateActivation: false,
-      generateAttack: false,
-      generateConsumption: false,
-      generateCheck: false,
-      generateDamage: false,
-      generateDescription: false,
-      generateDuration: false,
-      generateEffects: false,
-      generateHealing: false,
-      generateRange: false,
-      generateSave: false,
-      generateTarget: false,
-      includeBaseDamage: false,
-    };
+    this.activityOptions = {};
 
     this.damageParts = [];
     this.healingParts = [];
@@ -544,16 +530,22 @@ export default class DDBItem {
             type: mod.subType ? mod.subType : "",
           });
 
-          this.additionalActivities.push({
-            name: `Restricted Attack: ${mod.restriction}`,
-            options: {
-              generateDamage: true,
-              damageParts: [damage],
-              includeBaseDamage: false,
-              chatFlavor: mod.restriction ?? "",
-            },
-          });
-          restrictions.push(mod.restriction);
+          const viciousWeapon = this.originalName.startsWith("Vicious ");
+          if (!viciousWeapon) {
+            this.additionalActivities.push({
+              name: `Restricted Attack: ${mod.restriction}`,
+              options: {
+                generateDamage: true,
+                damageParts: [damage],
+                includeBaseDamage: false,
+                chatFlavor: mod.restriction ?? "",
+              },
+            });
+            restrictions.push(mod.restriction);
+          }
+          if (viciousWeapon) {
+            this.activityOptions.criticalDamage = "7";
+          }
         }
       });
 
@@ -1664,7 +1656,6 @@ export default class DDBItem {
   }
 
   #generateAmmunitionSpecifics() {
-    this.activityOptions.generateActivation = true;
     this.activityOptions.generateRange = true;
 
     if (this.damageParts.length > 0) {
@@ -1696,9 +1687,28 @@ export default class DDBItem {
   }
 
   #generateConsumableSpecifics() {
-    this.activityOptions.generateActivation = true;
     if (this.data.system.type.value === "wand") this.addMagical = true;
     this._generateConsumableUses();
+    if (["Potion", "Poison"].includes((this.overrides.ddbType ?? this.ddbDefinition.subType))) {
+      this.actionInfo.target = {
+        "template": {
+          "contiguous": false,
+          "units": "ft",
+          "type": "",
+        },
+        "affects": {
+          "choice": false,
+          "count": "1",
+          "type": "creature",
+          "special": "",
+        },
+      };
+      this.actionInfo.range = {
+        "units": "touch",
+        "override": false,
+        "special": "",
+      };
+    }
   }
 
   #generateLootSpecifics() {
@@ -1713,13 +1723,11 @@ export default class DDBItem {
   }
 
   #generateScrollSpecifics() {
-    this.activityOptions.generateActivation = true;
     //todo: what kind of activity type are scrolls?
     this._generateConsumableUses();
   }
 
   #generateStaffSpecifics() {
-    this.activityOptions.generateActivation = true;
     this.activityOptions.generateAttack = true;
     this.#generateStaffProperties();
     this.data.system.proficient = this.#getWeaponProficient();
@@ -1750,7 +1758,6 @@ export default class DDBItem {
 
   #generateWeaponSpecifics() {
     this.activityOptions.generateAttack = true;
-    this.activityOptions.generateActivation = true;
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.damage", this.flags.damage);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.classFeatures", this.flags.classFeatures);
     this.#generateWeaponProperties();
@@ -2116,7 +2123,7 @@ export default class DDBItem {
       this.characterManager.updateItemId(this.data);
 
       if (!this.enricher.documentStub?.stopDefaultActivity)
-        this.#generateActivity();
+        this.#generateActivity({}, this.activityOptions);
       this.#addHealAdditionalActivities();
       this.#generateAdditionalActivities();
       this.enricher.addAdditionalActivities(this);

@@ -107,7 +107,8 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   const filteredResults = results
     .filter((r) => r.status === "fulfilled")
     .map((r) => r.value).flat().flat()
-    .filter((v, i, a) => a.findIndex((t) => t.definition.name === v.definition.name) === i);
+    .filter((v, i, a) => a.findIndex((t) => t.definition.name === v.definition.name
+      && t.definition.isLegacy === v.definition.isLegacy) === i);
 
   console.warn("CONDITION SPELLS", {
     spells: filteredResults.filter((f) => {
@@ -118,7 +119,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
         conditions: f.definition.conditions,
       }
     })
-  })
+  });
 
   const rawSpells = await GenericSpellFactory.getSpells(filteredResults);
 

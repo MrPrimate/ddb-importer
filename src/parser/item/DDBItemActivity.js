@@ -124,8 +124,11 @@ export default class DDBItemActivity {
     return baseParts;
   }
 
-  _generateDamage({ parts, includeBase = true } = {}) {
+  _generateDamage({ parts, includeBase = true, criticalDamage = null } = {}) {
     this.data.damage = {
+      critical: {
+        bonus: `${criticalDamage}` ?? "",
+      },
       includeBase,
       parts: parts
         ? parts
@@ -159,7 +162,7 @@ export default class DDBItemActivity {
   }
 
 
-  _generateAttack() {
+  _generateAttack({ criticalThreshold = undefined } = {}) {
     let classification = this.ddbParent.spellAttack
       ? "spell"
       : "weapon"; // unarmed, weapon, spell
@@ -173,7 +176,7 @@ export default class DDBItemActivity {
       ability: this.actionInfo.ability,
       bonus: `${this.actionInfo.extraAttackBonus}`,
       critical: {
-        threshold: undefined,
+        threshold: criticalThreshold,
       },
       flat: this.actionInfo.isFlat, // almost never false for PC features
       type: {
@@ -220,6 +223,8 @@ export default class DDBItemActivity {
     targetOverrides = null,
     additionalTargets = null,
     usesOverride = null,
+    criticalDamage = null,
+    criticalThreshold = undefined,
   } = {}) {
 
     // override set to false on object if overriding
@@ -248,7 +253,7 @@ export default class DDBItemActivity {
     });
 
     if (generateActivation) this._generateActivation();
-    if (generateAttack) this._generateAttack();
+    if (generateAttack) this._generateAttack({ criticalThreshold });
     if (generateConsumption) this._generateConsumption({ targetOverrides, additionalTargets });
     if (generateDescription || chatFlavor) this._generateDescription(chatFlavor);
     if (generateDuration) this._generateDuration();
@@ -264,7 +269,7 @@ export default class DDBItemActivity {
         this._generateSave();
       }
     }
-    if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage });
+    if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage, criticalDamage });
     if (generateHealing) this._generateHealing({ part: healingPart });
 
     if (generateCheck) this._generateCheck();
