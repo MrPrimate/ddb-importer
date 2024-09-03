@@ -125,8 +125,7 @@ export default class DDBSpell {
     this._generateDataStub();
 
     this.enricher = new DDBSpellEnricher({
-      document: this.data,
-      name: this.originalName,
+      ddbParser: this,
     });
     this.isCompanionSpell = SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName);
     this.isCRSummonSpell = SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName);

@@ -2,8 +2,8 @@ import DDBSpellActivity from "../spells/DDBSpellActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
 export default class DDDSpellEnricher extends DDBBaseEnricher {
-  constructor({ document, name = null } = {}) {
-    super({ document, name });
+  constructor({ ddbParser, document, name = null } = {}) {
+    super({ ddbParser, document, name });
     this._prepare();
     this.additionalActivityClass = DDBSpellActivity;
   }

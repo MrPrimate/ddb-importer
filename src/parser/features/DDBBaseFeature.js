@@ -108,7 +108,7 @@ export default class DDBBaseFeature {
     this.name = utils.nameString(this.ddbDefinition.name);
     this.originalName = this.ddbData
       ? DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter, false)
-      : this.ddbDefinition.name;
+      : utils.nameString(this.ddbDefinition.name);
     this.type = type;
     this.source = source;
     this.isAction = false;
@@ -143,8 +143,7 @@ export default class DDBBaseFeature {
     this.data.system.source = this.source;
 
     this.enricher = new DDDFeatureEnricher({
-      document: this.data,
-      name: this.originalName,
+      ddbParser: this,
     });
 
     this.naturalWeapon = DDBBaseFeature.NATURAL_WEAPONS.includes(this.originalName);

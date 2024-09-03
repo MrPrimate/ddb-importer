@@ -283,8 +283,9 @@ function generateEffectDuration(foundryItem) {
   return duration;
 }
 
-export function baseEffect(foundryItem, label,
-  { transfer = true, disabled = false } = {},
+export function baseEffect(foundryItem, name,
+  { transfer = true, disabled = false, description = null, durationSeconds = null,
+    durationRounds = null, durationTurns = null } = {},
 ) {
   let effect = {
     img: foundryItem.img,
@@ -318,16 +319,21 @@ export function baseEffect(foundryItem, label,
       core: {},
     },
   };
-  effect.name = label;
+  effect.name = name;
   effect.statuses = [];
   effect.duration = generateEffectDuration(foundryItem);
+  if (description) effect.description = description;
+  if (durationSeconds) effect.duration.seconds = durationSeconds;
+  if (durationRounds) effect.duration.rounds = durationRounds;
+  if (durationTurns) effect.duration.turns = durationTurns;
   return effect;
 }
 
 export function baseEnchantmentEffect(foundryItem, label,
-  { transfer = false, disabled = false, origin = null, id = null } = {},
+  { transfer = false, disabled = false, origin = null, id = null, description = null, durationSeconds = null,
+    durationRounds = null, durationTurns = null } = {},
 ) {
-  const effect = baseEffect(foundryItem, label, { transfer, disabled });
+  const effect = baseEffect(foundryItem, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
   foundry.utils.setProperty(effect, "flags.dnd5e.type", "enchantment");
   foundry.utils.setProperty(effect, "flags.dnd5e.enchantment", {
     level: {
@@ -341,6 +347,37 @@ export function baseEnchantmentEffect(foundryItem, label,
   });
   effect._id = id ?? foundry.utils.randomID();
   effect.origin = origin ?? null;
+  return effect;
+}
+
+export function addMagicalBonusToEnchantmentEffect({ effect, nameAddition = null, bonus, bonusMode = "OVERRIDE",
+  makeMagical = true } = {},
+) {
+  const name = nameAddition ?? `(${effect.name})`;
+  effect.changes.push(
+    {
+      key: "name",
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      value: `{}, ${name}`,
+      priority: 20,
+    },
+    {
+      key: "system.magicalBonus",
+      mode: CONST.ACTIVE_EFFECT_MODES[bonusMode],
+      value: `${bonus}`,
+      priority: 20,
+    },
+  );
+  if (makeMagical) {
+    effect.changes.push(
+      {
+        key: "system.properties",
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: "mgc",
+        priority: 20,
+      },
+    );
+  }
   return effect;
 }
 

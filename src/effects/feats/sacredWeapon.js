@@ -9,7 +9,10 @@ export function sacredWeaponEffect(document) {
   document.system.damage.parts = [];
   document.system.chatFlavor = "";
 
-  let enchantmentEffect = baseEnchantmentEffect(document, `${name}`);
+  let enchantmentEffect = baseEnchantmentEffect(document, `${name}`, {
+    description: `The weapon shines with Sacred Energy.`,
+    durationSeconds: 60,
+  });
   enchantmentEffect.changes.push(
     {
       key: "name",
@@ -30,8 +33,6 @@ export function sacredWeaponEffect(document) {
       priority: 20,
     },
   );
-  enchantmentEffect.description = `The weapon shines with Sacred Energy.`;
-  foundry.utils.setProperty(enchantmentEffect, "duration.seconds", 60);
 
   if (CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules.atlInstalled) {
     let lightEffect = baseFeatEffect(document, `${name} (Light Effect)`, { transfer: false });

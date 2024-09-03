@@ -47,7 +47,7 @@ export default class DDBItemActivity {
     this.data.activation = this.actionInfo.activation;
   }
 
-  _generateConsumption() {
+  _generateConsumption({ targetOverrides = null, additionalTargets = null }) {
     let targets = [];
     let scaling = false;
 
@@ -81,8 +81,10 @@ export default class DDBItemActivity {
       });
     }
 
+    if (additionalTargets) targets.push(...additionalTargets);
+
     this.data.consumption = {
-      targets,
+      targets: targetOverrides ?? targets,
       scaling: {
         allowed: scaling,
         max: "",
@@ -191,6 +193,10 @@ export default class DDBItemActivity {
     };
   }
 
+  _generateUses(usesOverride = null) {
+    this.data.uses = usesOverride ?? this.actionInfo.uses;
+  }
+
   build({
     damageParts = null,
     healingPart = null,
@@ -206,10 +212,14 @@ export default class DDBItemActivity {
     generateRange = true,
     generateSave = false,
     generateTarget = true,
+    generateUses = false,
     includeBaseDamage = true,
 
     saveOverride = null,
     chatFlavor = null,
+    targetOverrides = null,
+    additionalTargets = null,
+    usesOverride = null,
   } = {}) {
 
     // override set to false on object if overriding
@@ -231,18 +241,21 @@ export default class DDBItemActivity {
       generateTarget,
       includeBaseDamage,
       saveOverride,
+      targetOverrides,
+      additionalTargets,
       chatFlavor,
       this: this,
     });
 
     if (generateActivation) this._generateActivation();
     if (generateAttack) this._generateAttack();
-    if (generateConsumption) this._generateConsumption();
+    if (generateConsumption) this._generateConsumption({ targetOverrides, additionalTargets });
     if (generateDescription || chatFlavor) this._generateDescription(chatFlavor);
     if (generateDuration) this._generateDuration();
     if (generateEffects) this._generateEffects();
     if (generateRange) this._generateRange();
     if (generateTarget) this._generateTarget();
+    if (generateUses) this._generateUses(usesOverride);
 
     if (generateSave) {
       if (saveOverride) {
@@ -255,6 +268,10 @@ export default class DDBItemActivity {
     if (generateHealing) this._generateHealing({ part: healingPart });
 
     if (generateCheck) this._generateCheck();
+
+    if (this.data.uses && (!this.data.uses?.max || this.data.uses?.max === "")) {
+      this.data.uses.spent = null;
+    }
 
     // ATTACK has
     // activation

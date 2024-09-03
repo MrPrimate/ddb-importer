@@ -1,4 +1,4 @@
-import { baseEffect, baseItemEffect } from "../../effects/effects.js";
+import { addMagicalBonusToEnchantmentEffect, baseEffect, baseEnchantmentEffect, baseItemEffect } from "../../effects/effects.js";
 import { baseFeatEffect } from "../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../effects/specialSpells.js";
@@ -25,23 +25,24 @@ export default class DDBBaseEnricher {
     this.documentStub = this.DOCUMENT_STUB[this.hintName];
   }
 
-  constructor({ document, name = null } = {}) {
-    this.document = document;
-    this.name = name ?? document.flags?.ddbimporter?.originalName ?? document.name;
+  constructor({ ddbParser, document, name = null } = {}) {
+    this.ddbParser = ddbParser;
+    this.document = ddbParser?.data ?? document;
+    this.name = ddbParser?.originalName ?? name ?? document.flags?.ddbimporter?.originalName ?? document.name;
     this.additionalActivityClass = null;
     this._prepare();
   }
 
+  get data() {
+    return this.ddbParser?.data ?? this.document;
+  }
+
   applyActivityOverride(activity) {
-    // console.warn(`applyActivityOverride for ${this.document.name}`, {
-    //   activity,
-    //   this: this,
-    // });
     if (!this.activity) return activity;
 
     if (this.activity.parent) {
       for (const parent of this.activity.parent) {
-        const lookupName = foundry.utils.getProperty(this.document, "flags.ddbimporter.dndbeyond.lookupName");
+        const lookupName = foundry.utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.lookupName");
         if (lookupName !== parent.lookupName) continue;
 
         const base = foundry.utils.deepClone(this.activity);
@@ -54,6 +55,19 @@ export default class DDBBaseEnricher {
       foundry.utils.setProperty(activity, "consumption.targets", [
         {
           type: "itemUses",
+          target: "",
+          value: "1",
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        },
+      ]);
+    }
+    if (this.activity.addActivityConsume) {
+      foundry.utils.setProperty(activity, "consumption.targets", [
+        {
+          type: "activityUses",
           target: "",
           value: "1",
           scaling: {
@@ -92,18 +106,12 @@ export default class DDBBaseEnricher {
 
     if (this.activity.func) this.activity.func(activity);
 
-    // console.warn(`applyActivityOverride finished for ${this.document.name}`, {
-    //   activity: foundry.utils.deepClone(activity),
-    //   this: this,
-    //   thisActivity: foundry.utils.deepClone(this.activity),
-    // });
+    if (this.activity.allowMagical) {
+      activity.restrictions.allowMagical = true;
+    }
 
     return activity;
   }
-
-  // async applyOverride(document, activity) {
-  //   await this._applyActivityOverride(activity);
-  // }
 
   createEffect() {
     if (!this.effect) return undefined;
@@ -114,21 +122,33 @@ export default class DDBBaseEnricher {
     let effectOptions = this.effect.options ?? {};
 
     switch (this.effect.type) {
+      case "enchant":
+        effect = baseEnchantmentEffect(this.data, name, effectOptions);
+        if (this.effect.magicalBonus) {
+          addMagicalBonusToEnchantmentEffect({
+            effect,
+            nameAddition: this.effect.magicalBonus.name,
+            bonus: this.effect.magicalBonus.bonus,
+            bonusMode: this.effect.magicalBonus.mode,
+            makeMagical: this.effect.magicalBonus.makeMagical,
+          });
+        }
+        break;
       case "feat":
-        effect = baseFeatEffect(this.document, name, effectOptions);
+        effect = baseFeatEffect(this.data, name, effectOptions);
         break;
       case "spell":
-        effect = baseSpellEffect(this.document, name, effectOptions);
+        effect = baseSpellEffect(this.data, name, effectOptions);
         break;
       case "monster":
-        effect = baseMonsterFeatureEffect(this.document, name, effectOptions);
+        effect = baseMonsterFeatureEffect(this.data, name, effectOptions);
         break;
       case "item":
-        effect = baseItemEffect(this.document, name, effectOptions);
+        effect = baseItemEffect(this.data, name, effectOptions);
         break;
       case "basic":
       default:
-        effect = baseEffect(this.document, name, effectOptions);
+        effect = baseEffect(this.data, name, effectOptions);
     }
 
     if (this.effect.data) {
@@ -143,9 +163,9 @@ export default class DDBBaseEnricher {
   }
 
   addDocumentOverride() {
-    if (!this.override) return this.document;
+    if (!this.override) return this.data;
     if (this.override.removeDamage) {
-      this.document.system.damage = {
+      this.data.system.damage = {
         number: null,
         denomination: null,
         bonus: "",
@@ -162,8 +182,8 @@ export default class DDBBaseEnricher {
       };
     }
 
-    if (this.override.data) this.document = foundry.utils.mergeObject(this.document, this.override.data);
-    return this.document;
+    if (this.override.data) this.data = foundry.utils.mergeObject(this.data, this.override.data);
+    return this.data;
   }
 
   addAdditionalActivities(ddbParent) {
@@ -173,15 +193,25 @@ export default class DDBBaseEnricher {
       const activity = new this.additionalActivityClass(foundry.utils.mergeObject(data.constructor, {
         ddbParent: ddbParent,
         nameIdPrefix: "add",
-        nameIdPostfix: `${this.document.system.activities.length + 1}`,
+        nameIdPostfix: `${this.data.system.activities.length + 1}`,
       }));
       activity.build(data.build);
-      // console.warn("addAdditionalActivities", {
-      //   activity,
-      //   this: this,
-      //   data,
-      // });
-      this.document.system.activities[activity.data._id] = activity.data;
+
+      if (data.overrides?.addActivityConsume) {
+        foundry.utils.setProperty(activity.data, "consumption.targets", [
+          {
+            type: "activityUses",
+            target: "",
+            value: "1",
+            scaling: {
+              mode: "",
+              formula: "",
+            },
+          },
+        ]);
+      }
+
+      this.data.system.activities[activity.data._id] = activity.data;
     }
   }
 

@@ -84,7 +84,7 @@ export default class DDBItem {
     foundry.utils.setProperty(this.ddbItem, "isCompendiumItem", isCompendium);
 
 
-    this.originalName = ddbItem.definition.name;
+    this.originalName = utils.nameString(ddbItem.definition.name);
     this.name = DDBHelper.getName(this.ddbData, ddbItem, this.raw?.character);
     this.#generateItemFlags();
 
@@ -198,8 +198,7 @@ export default class DDBItem {
     this.addMagical = false;
 
     this.enricher = new DDBItemEnricher({
-      document: this.data,
-      name: this.name,
+      ddbParser: this,
     });
 
   }
@@ -659,11 +658,11 @@ export default class DDBItem {
         this.#getLootType(this.ddbDefinition.subType);
         break;
       default: {
-        console.warn(`Default subtype for ${this.name}`, {
-          this: this,
-          clothingItem: DDBItem.CLOTHING_ITEMS.includes(this.ddbDefinition.name),
-          clothingExpressions: !this.isContainer && this.isOuterwearTag && !this.isContainerTag,
-        });
+        // console.warn(`Default subtype for ${this.name}`, {
+        //   this: this,
+        //   clothingItem: DDBItem.CLOTHING_ITEMS.includes(this.ddbDefinition.name),
+        //   clothingExpressions: !this.isContainer && this.isOuterwearTag && !this.isContainerTag,
+        // });
         if ((!this.isContainer && this.isOuterwearTag && !this.isContainerTag)
           || DDBItem.CLOTHING_ITEMS.includes(this.ddbDefinition.name)
         ) {
@@ -1278,9 +1277,10 @@ export default class DDBItem {
       default: {
         if (this.actionInfo.magicBonus.zero > 0) {
           this.addMagical = true;
-          logger.error(`Magical Bonus detected, but not handled for ${this.name}`, {
-            this: this,
-          });
+          if (!this.enricher.effect)
+            logger.error(`Magical Bonus detected, but not handled for ${this.name}`, {
+              this: this,
+            });
         }
       }
     }
@@ -1412,7 +1412,7 @@ export default class DDBItem {
         prompt,
       };
     } else {
-      return { spent: 0, max: null, recovery: [], prompt };
+      return { spent: null, max: null, recovery: [], prompt };
     }
   }
 
@@ -1423,6 +1423,10 @@ export default class DDBItem {
     this.data.system.uses = this.isCompendiumItem
       ? this._getCompendiumUses()
       : this._getUses(prompt);
+
+    if (!this.data.system.uses.max || this.data.system.uses.max === "") {
+      this.data.system.uses.spent = null;
+    }
   }
 
   _generateConsumableUses() {
@@ -2003,6 +2007,7 @@ export default class DDBItem {
     } else {
       foundry.utils.setProperty(spell, "system.uses.recovery", []);
       foundry.utils.setProperty(spell, "system.uses.max", null);
+      foundry.utils.setProperty(spell, "system.uses.spent", null);
     }
 
     const activityConsumptionTarget = this.isPerSpell
@@ -2125,6 +2130,8 @@ export default class DDBItem {
       this.#basicMagicItem();
 
       this.enricher.addDocumentOverride();
+
+      // todo: should effect generation be here?
     } catch (err) {
       logger.warn(
         `Unable to parse item: ${this.ddbDefinition.name}, ${this.ddbDefinition.type}/${this.ddbDefinition.filterType}. ${err.message}`,
