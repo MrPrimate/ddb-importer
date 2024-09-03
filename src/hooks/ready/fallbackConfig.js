@@ -3958,7 +3958,7 @@ export const fallbackDDBConfig = {
     {
       id: 148,
       name: "free-rules",
-      description: "D&amp;D Free Rules (2024)",
+      description: "D&D Free Rules (2024)",
       sourceCategoryId: 24,
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/43764/970/638599907621721321.jpeg",
