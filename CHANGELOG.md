@@ -1,6 +1,7 @@
-# Next Up
+# 5.2.32
 
 - Warding Bond macro fixes by @motomoto0295
+- Prevents content from 2024 Basic Rules or PHB Handbook being imported through the muncher. If these items are placed on a character for import, the importer will attempt to process them, although probably incorrectly.
 
 # 5.2.31
 
