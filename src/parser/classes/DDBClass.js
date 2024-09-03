@@ -299,6 +299,9 @@ export default class DDBClass {
     };
 
     this.rules = "2014";
+    this.is2014 = true;
+    // this.ddbDefinition.isLegacy
+    //   && this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     // setup ddb source
     this.ddbData = ddbData;

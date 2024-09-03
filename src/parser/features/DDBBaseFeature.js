@@ -150,6 +150,9 @@ export default class DDBBaseFeature {
 
     this.isCompanionFeature = this._isCompanionFeature();
     this.isCompanionFeatureOption = this._isCompanionFeatureOption();
+
+    this.is2014 = this.ddbDefinition.isLegacy
+      && this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
   }
 
   _getClassFeatureDescription() {

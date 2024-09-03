@@ -122,6 +122,9 @@ export default class DDBSpell {
     this.overrideDC = overrideDC ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.overrideDC");
     this.isHomebrew = isHomebrew ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.homebrew");
 
+    this.is2014 = this.ddbDefinition.isLegacy
+      && this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+
     this._generateDataStub();
 
     this.enricher = new DDBSpellEnricher({

@@ -83,6 +83,8 @@ export default class DDBItem {
     this.isCompendiumItem = isCompendium;
     foundry.utils.setProperty(this.ddbItem, "isCompendiumItem", isCompendium);
 
+    this.is2014 = this.ddbDefinition.isLegacy
+      && this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     this.originalName = utils.nameString(ddbItem.definition.name);
     this.name = DDBHelper.getName(this.ddbData, ddbItem, this.raw?.character);

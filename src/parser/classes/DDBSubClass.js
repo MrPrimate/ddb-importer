@@ -202,7 +202,7 @@ export default class DDBSubClass extends DDBClass {
       };
 
       this.data.system.advancement.push(desert, sea, tundra);
-    } else if (this.data.name.startsWith("Circle of the Moon") && this.rules === "2014") {
+    } else if (this.data.name.startsWith("Circle of the Moon") && this.is2014) {
       const cr = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",

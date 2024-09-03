@@ -31,6 +31,7 @@ export default class DDBBaseEnricher {
     this.name = ddbParser?.originalName ?? name ?? document.flags?.ddbimporter?.originalName ?? document.name;
     this.additionalActivityClass = null;
     this._prepare();
+    // to do refactor for 2014/2024 data sets
   }
 
   get data() {
