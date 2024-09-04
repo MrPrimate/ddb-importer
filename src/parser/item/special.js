@@ -13,55 +13,6 @@ export function fixItems(items) {
   items.forEach((item) => {
     const name = item.flags.ddbimporter?.originalName ?? item.name;
     switch (name) {
-      case "Potion of Healing (Greater)":
-      case "Potion of Greater Healing":
-        item.system.damage = { parts: [["4d4 + 4", "healing"]], versatile: "", value: "" };
-        // item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };
-        item.system.uses = {
-          spent: 0,
-          max: 1,
-          // TODO: charges is not correct here
-          recovery: [],
-          autoDestroy: true,
-          autoUse: true,
-        };
-        item.system["duration"]["value"] = 0;
-        item.system.actionType = "heal";
-        item.system["target"]["type"] = "creature";
-        item.system["range"]["type"] = "touch";
-        item.flags["ddbimporter"]["dndbeyond"]["alternativeNames"] = ["Potion of Greater Healing"];
-        break;
-      case "Potion of Healing (Superior)":
-      case "Potion of Superior Healing":
-        item.system.damage = { parts: [["8d4 + 8", "healing"]], versatile: "", value: "" };
-        // item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };
-        item.system.uses = {
-          spent: 0,
-          max: 1,
-          // TODO: check this is correct
-          recovery: [],
-          autoDestroy: true,
-          autoUse: true,
-        };
-        item.system["duration"]["value"] = 0;
-        item.system.actionType = "heal";
-        item.system["target"]["type"] = "creature";
-        item.system["range"]["type"] = "touch";
-        item.flags["ddbimporter"]["dndbeyond"]["alternativeNames"] = [
-          "Potion of Superior Healing",
-          "potion of superior healing",
-        ];
-        break;
-      case "Potion of Healing (Supreme)":
-      case "Potion of Supreme Healing":
-        item.system.damage = { parts: [["10d4 + 20", "healing"]], versatile: "", value: "" };
-        item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };
-        item.system["duration"]["value"] = 0;
-        item.system.actionType = "heal";
-        item.system["target"]["type"] = "creature";
-        item.system["range"]["type"] = "touch";
-        item.flags["ddbimporter"]["dndbeyond"]["alternativeNames"] = ["Potion of Supreme Healing"];
-        break;
       case "Iron Bands of Binding":
         item.system.activation = { type: "action", cost: 1, condition: "" };
         // item.system.uses = { value: 1, max: "1", per: "day" };

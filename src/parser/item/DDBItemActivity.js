@@ -193,8 +193,8 @@ export default class DDBItemActivity {
 
   }
 
-  _generateCheck() {
-    this.data.check = {
+  _generateCheck({ checkOverride = null }) {
+    this.data.check = checkOverride ?? {
       associated: this.actionInfo.associatedToolsOrAbilities,
       ability: this.actionInfo.ability,
       dc: {},
@@ -231,6 +231,7 @@ export default class DDBItemActivity {
     criticalDamage = null,
     criticalThreshold = undefined,
     activationOverride = null,
+    checkOverride = null,
   } = {}) {
 
     // override set to false on object if overriding
@@ -256,6 +257,7 @@ export default class DDBItemActivity {
       additionalTargets,
       activationOverride,
       chatFlavor,
+      checkOverride,
       this: this,
     });
 
@@ -279,7 +281,7 @@ export default class DDBItemActivity {
     if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage, criticalDamage });
     if (generateHealing) this._generateHealing({ part: healingPart });
 
-    if (generateCheck) this._generateCheck();
+    if (generateCheck) this._generateCheck({ checkOverride });
 
     if (this.data.uses && (!this.data.uses?.max || this.data.uses?.max === "")) {
       this.data.uses.spent = null;

@@ -28,6 +28,9 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     "Absorbing Tattoo, Psychic": "Absorbing Tattoo",
     "Absorbing Tattoo, Radiant": "Absorbing Tattoo",
     "Absorbing Tattoo, Thunder": "Absorbing Tattoo",
+    "Potion of Greater Healing": "Potion of Healing (Greater)",
+    "Potion of Superior Healing": "Potion of Healing (Superior)",
+    "Potion of Supreme Healing": "Potion of Healing (Supreme)",
   };
 
   ACTIVITY_HINTS = {
@@ -56,6 +59,22 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     "Donjon's Sundering Sphere": {
       type: "enchant",
     },
+    "Iron Bands of Binding": {
+      type: "attack",
+      data: {
+        attack: {
+          ability: "dex",
+          type: {
+            value: "ranged",
+            classification: "spell",
+          },
+        },
+        range: {
+          value: 60,
+          units: "ft",
+        },
+      },
+    },
     "Oil of Sharpness": {
       type: "enchant",
       allowMagical: true,
@@ -77,6 +96,57 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Potion of Healing (Greater)": {
+      type: "heal",
+      addItemConsume: true,
+      activationType: this.is2014 ? "action" : "reaction",
+      targetType: "creature",
+      data: {
+        healing: {
+          number: 4,
+          denomination: 4,
+          bonus: "4",
+          type: "healing",
+        },
+        range: {
+          units: "touch",
+        },
+      },
+    },
+    "Potion of Healing (Superior)": {
+      type: "heal",
+      addItemConsume: true,
+      activationType: this.is2014 ? "action" : "reaction",
+      targetType: "creature",
+      data: {
+        healing: {
+          number: 8,
+          denomination: 4,
+          bonus: "8",
+          type: "healing",
+        },
+        range: {
+          units: "touch",
+        },
+      },
+    },
+    "Potion of Healing (Supreme)": {
+      type: "heal",
+      addItemConsume: true,
+      activationType: this.is2014 ? "action" : "reaction",
+      targetType: "creature",
+      data: {
+        healing: {
+          number: 10,
+          denomination: 4,
+          bonus: "20",
+          type: "healing",
+        },
+        range: {
+          units: "touch",
+        },
+      },
+    },
     "Waterskin": {
       type: "utility",
       activationType: "special",
@@ -85,6 +155,35 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   };
 
   DOCUMENT_OVERRIDES = {
+    "Iron Bands of Binding": {
+      data: {
+        uses: {
+          spent: 0,
+          max: 1,
+          recovery: [{
+            period: "day",
+            type: "recoverAll",
+          }],
+          autoDestroy: true,
+          autoUse: true,
+        },
+      },
+    },
+    "Potion of Healing (Greater)": {
+      data: {
+        "flags.ddbimporter.dndbeyond.alternativeNames": "Potion of Greater Healing",
+      },
+    },
+    "Potion of Healing (Superior)": {
+      data: {
+        "flags.ddbimporter.dndbeyond.alternativeNames": "Potion of Superior Healing",
+      },
+    },
+    "Potion of Healing (Supreme)": {
+      data: {
+        "flags.ddbimporter.dndbeyond.alternativeNames": "Potion of Supreme Healing",
+      },
+    },
     "Warrior's Passkey": {
       data: {
         "system.damage.base": {
@@ -178,6 +277,28 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
             type: "reaction",
             value: 1,
             condition: "",
+          },
+        },
+        overrides: {
+          addItemConsume: true,
+        },
+      },
+    ],
+    "Iron Bands of Binding": [
+      {
+        constructor: {
+          name: "Escape Check",
+          type: "check",
+        },
+        build: {
+          generateCheck: true,
+          checkOverride: {
+            associated: [],
+            ability: "str",
+            dc: {
+              calculation: "",
+              formula: "20",
+            },
           },
         },
         overrides: {
