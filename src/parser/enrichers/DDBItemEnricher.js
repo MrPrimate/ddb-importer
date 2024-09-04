@@ -61,6 +61,7 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     },
     "Iron Bands of Binding": {
       type: "attack",
+      targetType: "creature",
       data: {
         attack: {
           ability: "dex",

@@ -13,25 +13,6 @@ export function fixItems(items) {
   items.forEach((item) => {
     const name = item.flags.ddbimporter?.originalName ?? item.name;
     switch (name) {
-      case "Iron Bands of Binding":
-        item.system.activation = { type: "action", cost: 1, condition: "" };
-        // item.system.uses = { value: 1, max: "1", per: "day" };
-        item.system.uses = {
-          spent: 0,
-          max: 1,
-          recovery: [{
-            period: "day",
-            type: "recoverAll",
-          }],
-          autoDestroy: true,
-          autoUse: true,
-        };
-        item.system.range = { value: 60, long: null, units: "ft" };
-        item.system.ability = "dex";
-        item.system.actionType = "rwak";
-        item.system.save = { ability: "str", dc: 20, scaling: "flat" };
-        item.system.target = { value: 1, width: null, units: "any", type: "creature" };
-        break;
       case "Far Realm Shard": {
         item.system.activation.type = "special";
         item.system.actionType = "save";
