@@ -151,6 +151,7 @@ export default class DDBItem {
     this.#determineType();
 
     this.actionInfo = {
+      associatedToolsOrAbilities: [],
       ability: null,
       activation: null,
       consumption: null,
@@ -1206,7 +1207,10 @@ export default class DDBItem {
 
 
     if (baseItem) foundry.utils.setProperty(this.data, "system.type.baseItem", baseItem);
-    if (toolType) foundry.utils.setProperty(this.data, "system.type.value", toolType);
+    if (toolType) {
+      foundry.utils.setProperty(this.data, "system.type.value", toolType);
+      this.actionInfo.associatedToolsOrAbilities.push(toolType);
+    }
 
   }
 

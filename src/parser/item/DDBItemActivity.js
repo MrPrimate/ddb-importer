@@ -191,6 +191,7 @@ export default class DDBItemActivity {
 
   _generateCheck() {
     this.data.check = {
+      associated: this.actionInfo.associatedToolsOrAbilities,
       ability: this.actionInfo.ability,
       dc: {},
     };
