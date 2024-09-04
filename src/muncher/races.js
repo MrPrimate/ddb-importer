@@ -36,7 +36,7 @@ function getRaceData() {
         }
         return data;
       })
-      .then((data) => getRaces(data.data))
+      .then((data) => getRaces(data.data.filter((d) => !d.sources.some((s) => [145, 148].includes(s.sourceId)))))
       .then((data) => resolve(data))
       .catch((error) => reject(error));
   });

@@ -39,7 +39,7 @@ function getSubClassesData(className) {
         }
         return data;
       })
-      .then((data) => resolve(data.data))
+      .then((data) => resolve(data.data.filter((d) => !d.sources.some((s) => [145, 148].includes(s.sourceId)))))
       .catch((error) => reject(error));
   });
 }
@@ -71,7 +71,7 @@ function getClassOptionsData(className) {
         }
         return data;
       })
-      .then((data) => resolve(data.data))
+      .then((data) => resolve(data.data.filter((d) => !d.sources.some((s) => [145, 148].includes(s.sourceId)))))
       .catch((error) => reject(error));
   });
 }
@@ -103,7 +103,7 @@ function getClassesData() {
         }
         return data;
       })
-      .then((data) => resolve(data.data))
+      .then((data) => resolve(data.data.filter((d) => !d.sources.some((s) => [145, 148].includes(s.sourceId)))))
       .catch((error) => reject(error));
   });
 }
