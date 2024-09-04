@@ -8,26 +8,14 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     this.additionalActivityClass = DDBSpellActivity;
   }
 
-  static basicDamagePart({
-    number = null, denomination = null, type = null, bonus = "", scalingMode = "whole",
-    scalingNumber = 1, scalingFormula = "",
-  } = {}) {
-    return {
-      number,
-      denomination,
-      bonus,
-      types: type ? [type] : [],
-      custom: {
-        enabled: false,
-        formula: "",
-      },
-      scaling: {
-        mode: scalingMode, // whole, half or ""
-        number: scalingNumber,
-        formula: scalingFormula,
-      },
-    };
-  }
+  DND_2014 = {
+    NAME_HINTS: {},
+    ACTIVITY_HINTS: {},
+    ADDITIONAL_ACTIVITIES: {},
+    DOCUMENT_OVERRIDES: {},
+    EFFECT_HINTS: {},
+    DOCUMENT_STUB: {},
+  };
 
   NAME_HINTS = {};
 
@@ -40,7 +28,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
         build: {
           generateDamage: true,
-          damageParts: [DDDSpellEnricher.basicDamagePart({ number: 1, denomination: 12, type: "necrotic" })],
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 12, type: "necrotic" })],
         },
       },
     ],

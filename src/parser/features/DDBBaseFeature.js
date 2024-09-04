@@ -829,7 +829,6 @@ export default class DDBBaseFeature {
   }
 
   _getActivitiesType() {
-
     if (this.isCompanionFeature || this._isCompanionFeatureOption()) {
       return "summon";
     } else if (typeof this.ddbDefinition.saveStatId === "number") {
@@ -843,7 +842,7 @@ export default class DDBBaseFeature {
       return "attack";
     }
     // TODO: can we determine if utility, heal or damage?
-    return "utility";
+    return null;
   }
 
   getActivity({ typeOverride = null, typeFallback = null } = {}) {

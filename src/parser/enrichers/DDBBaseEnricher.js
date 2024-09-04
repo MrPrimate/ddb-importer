@@ -4,6 +4,37 @@ import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../effects/specialSpells.js";
 
 export default class DDBBaseEnricher {
+
+  static basicDamagePart({
+    number = null, denomination = null, type = null, bonus = "", scalingMode = "whole",
+    scalingNumber = 1, scalingFormula = "",
+  } = {}) {
+    return {
+      number,
+      denomination,
+      bonus,
+      types: type ? [type] : [],
+      custom: {
+        enabled: false,
+        formula: "",
+      },
+      scaling: {
+        mode: scalingMode, // whole, half or ""
+        number: scalingNumber,
+        formula: scalingFormula,
+      },
+    };
+  }
+
+  DND_2014 = {
+    NAME_HINTS: {},
+    ACTIVITY_HINTS: {},
+    ADDITIONAL_ACTIVITIES: {},
+    DOCUMENT_OVERRIDES: {},
+    EFFECT_HINTS: {},
+    DOCUMENT_STUB: {},
+  };
+
   NAME_HINTS = {};
 
   ACTIVITY_HINTS = {};
@@ -17,19 +48,20 @@ export default class DDBBaseEnricher {
   DOCUMENT_STUB = {};
 
   _prepare() {
-    this.hintName = this.NAME_HINTS[this.name] ?? this.name;
-    this.activity = this.ACTIVITY_HINTS[this.hintName];
-    this.effect = this.EFFECT_HINTS[this.hintName];
-    this.override = this.DOCUMENT_OVERRIDES[this.hintName];
-    this.additionalActivities = this.ADDITIONAL_ACTIVITIES[this.hintName];
-    this.documentStub = this.DOCUMENT_STUB[this.hintName];
+    this.hintName = (this.is2014 ? this.DND_2014.NAME_HINTS[this.name] : null) ?? this.NAME_HINTS[this.name] ?? this.name;
+    this.activity = (this.is2014 ? this.DND_2014.ACTIVITY_HINTS[this.name] : null) ?? this.ACTIVITY_HINTS[this.hintName];
+    this.effect = (this.is2014 ? this.DND_2014.EFFECT_HINTS[this.name] : null) ?? this.EFFECT_HINTS[this.hintName];
+    this.override = (this.is2014 ? this.DND_2014.DOCUMENT_OVERRIDES[this.name] : null) ?? this.DOCUMENT_OVERRIDES[this.hintName];
+    this.additionalActivities = (this.is2014 ? this.DND_2014.ADDITIONAL_ACTIVITIES[this.name] : null) ?? this.ADDITIONAL_ACTIVITIES[this.hintName];
+    this.documentStub = (this.is2014 ? this.DND_2014.DOCUMENT_STUB[this.name] : null) ?? this.DOCUMENT_STUB[this.hintName];
   }
 
-  constructor({ ddbParser, document, name = null } = {}) {
+  constructor({ ddbParser, document, name = null, is2014 = null } = {}) {
     this.ddbParser = ddbParser;
     this.document = ddbParser?.data ?? document;
     this.name = ddbParser?.originalName ?? name ?? document.flags?.ddbimporter?.originalName ?? document.name;
     this.additionalActivityClass = null;
+    this.is2014 = is2014 ?? this.ddbParser?.is2014 ?? this.document.flags?.ddbimporter?.is2014 ?? false;
     this._prepare();
     // to do refactor for 2014/2024 data sets
   }
@@ -38,6 +70,12 @@ export default class DDBBaseEnricher {
     return this.ddbParser?.data ?? this.document;
   }
 
+  set data(data) {
+    if (this.ddbParser?.data) this.ddbParser.data = data;
+    else if (this.document) this.document = data;
+  }
+
+  // eslint-disable-next-line complexity
   applyActivityOverride(activity) {
     if (!this.activity) return activity;
 
@@ -79,8 +117,29 @@ export default class DDBBaseEnricher {
       ]);
     }
 
-    if (this.activity.targetSelf) {
-      foundry.utils.setProperty(activity, "target.affects.type", "self");
+    if (this.activity.targetType) {
+      if (activity.target?.affects)
+        foundry.utils.setProperty(activity, "target.affects.type", "self");
+      else {
+        foundry.utils.setProperty(activity, "target", {
+          template: {
+            count: "",
+            contiguous: false,
+            type: "",
+            size: "",
+            width: "",
+            height: "",
+            units: "ft",
+          },
+          affects: {
+            count: "",
+            type: "self",
+            choice: false,
+            special: "",
+          },
+          prompt: true,
+        });
+      }
       foundry.utils.setProperty(activity, "range", {
         value: null,
         units: "self",
@@ -88,12 +147,17 @@ export default class DDBBaseEnricher {
       });
     }
 
-    if (this.activity.specialActivation) {
-      foundry.utils.setProperty(activity, "activation", {
-        type: "special",
-        value: 1,
-        condition: "",
-      });
+    if (this.activity.activationType) {
+      activity.activation = {
+        type: this.activity.activationType,
+        value: activity.activation?.value ?? this.activity.activationValue ?? 1,
+        condition: activity.activation?.condition ?? "",
+      };
+    } else if (this.activity.activationValue) {
+      foundry.utils.setProperty(activity, "activation.value", this.activity.activationValue);
+    }
+    if (this.activity.activationCondition) {
+      foundry.utils.setProperty(activity, "activation.condition", this.activity.activationCondition);
     }
 
     if (foundry.utils.hasProperty(this.activity, "flatAttack")) {
@@ -197,6 +261,20 @@ export default class DDBBaseEnricher {
         nameIdPostfix: `${this.data.system.activities.length + 1}`,
       }));
       activity.build(data.build);
+
+      if (data.overrides?.addActivityConsume) {
+        foundry.utils.setProperty(activity.data, "consumption.targets", [
+          {
+            type: "activityUses",
+            target: "",
+            value: "1",
+            scaling: {
+              mode: "",
+              formula: "",
+            },
+          },
+        ]);
+      }
 
       if (data.overrides?.addActivityConsume) {
         foundry.utils.setProperty(activity.data, "consumption.targets", [

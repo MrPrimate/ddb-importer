@@ -1,41 +1,6 @@
 // import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
 
-
-function tattoos(item) {
-  if (!item.name.toLowerCase().includes("tattoo")) return;
-  const name = item.flags.ddbimporter?.originalName ?? item.name;
-  if (name.startsWith("Absorbing")) {
-    item.system.uses = {
-      spent: 0,
-      max: 1,
-      // TODO: charges is not correct here
-      recovery: [{ period: "charges", type: "recoverAll" }],
-      autoDestroy: false,
-      autoUse: true,
-    };
-    // foundry.utils.setProperty(item, "flags.ddbimporter.effectLabelOverride", `${item.name}`);
-    item.effects.map((effect) => {
-      effect.name = item.name;
-      return item;
-    });
-    item.system.activation.type = "reaction";
-    item.system.activation.cost = 1;
-    item.system.activation.condition = `When you take ${name.split(',').pop().trim().toLowerCase()} damage`;
-    item.system.actionType = "heal";
-    item.system.target = {
-      value: null,
-      width: null,
-      units: "",
-      type: "self",
-    };
-  } else if (name.includes("Blood Fury")) {
-    item.system.activation.type = "special";
-    item.system.actionType = "util";
-  }
-
-}
-
 /**
  * Some items we need to fix up or massage because they are modified
  * in interesting ways
@@ -46,21 +11,8 @@ export function fixItems(items) {
   return;
   // eslint-disable-next-line complexity
   items.forEach((item) => {
-    tattoos(item);
     const name = item.flags.ddbimporter?.originalName ?? item.name;
     switch (name) {
-      case "Waterskin":
-        item.system.activation.type = "special";
-        // item.system.uses = { value: 4, max: 4, per: "charges", autoDestroy: false, autoUse: true };
-        item.system.uses = {
-          spent: 0,
-          max: 4,
-          // TODO: charges is not correct here
-          recovery: [],
-          autoDestroy: false,
-          autoUse: true,
-        };
-        break;
       case "Potion of Healing":
         item.system.damage = { parts: [["2d4 + 2", "healing"]], versatile: "", value: "" };
         // item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };

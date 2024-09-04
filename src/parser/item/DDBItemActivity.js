@@ -43,8 +43,12 @@ export default class DDBItemActivity {
 
   }
 
-  _generateActivation() {
-    this.data.activation = this.actionInfo.activation;
+  _generateActivation({ activationOverride = null }) {
+    if (activationOverride) {
+      this.data.activation = activationOverride;
+    } else {
+      this.data.activation = this.actionInfo.activation;
+    }
   }
 
   _generateConsumption({ targetOverrides = null, additionalTargets = null }) {
@@ -151,8 +155,8 @@ export default class DDBItemActivity {
   _generateHealing({ part = null } = {}) {
     const healing = part
       ? part
-      : this.actionInfo.healingParts.length > 0
-        ? this.actionInfo.healingParts[0]
+      : this.healingParts.length > 0
+        ? this.healingParts[0]
         : undefined;
     this.data.healing = healing;
   }
@@ -226,6 +230,7 @@ export default class DDBItemActivity {
     usesOverride = null,
     criticalDamage = null,
     criticalThreshold = undefined,
+    activationOverride = null,
   } = {}) {
 
     // override set to false on object if overriding
@@ -249,11 +254,12 @@ export default class DDBItemActivity {
       saveOverride,
       targetOverrides,
       additionalTargets,
+      activationOverride,
       chatFlavor,
       this: this,
     });
 
-    if (generateActivation) this._generateActivation();
+    if (generateActivation) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack({ criticalThreshold });
     if (generateConsumption) this._generateConsumption({ targetOverrides, additionalTargets });
     if (generateDescription || chatFlavor) this._generateDescription(chatFlavor);

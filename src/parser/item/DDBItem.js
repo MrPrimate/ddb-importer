@@ -1793,6 +1793,12 @@ export default class DDBItem {
     }
   }
 
+  #generateTattooSpecifics() {
+    if (this.originalName.startsWith("Absorbing")) {
+
+    }
+  }
+
   #generateWonderousSpecifics() {
     if (this.isContainer) {
       this.#generateCurrency();

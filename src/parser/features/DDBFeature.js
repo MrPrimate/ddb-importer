@@ -296,10 +296,8 @@ export default class DDBFeature extends DDBBaseFeature {
         <p>${c.description}</p>`;
       } else {
         return `${p}<br>
-        <p>${c.label}</p>
-        `;
+        <p>${c.label}</p>`;
       }
-
     }, "");
     this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 
@@ -308,7 +306,7 @@ export default class DDBFeature extends DDBBaseFeature {
     //   choiceText,
     // });
 
-    this._generateDescription({ extra: choiceText });
+    this._generateDescription({ extra: `<section class="secret">${choiceText}</section>` });
     this._addEffects(undefined, this.type);
 
     // this._generateFlagHints();

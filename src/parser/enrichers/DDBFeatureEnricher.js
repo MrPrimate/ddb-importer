@@ -8,27 +8,36 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     this.additionalActivityClass = DDBFeatureActivity;
   }
 
+  DND_2014 = {
+    NAME_HINTS: {},
+    ACTIVITY_HINTS: {},
+    ADDITIONAL_ACTIVITIES: {},
+    DOCUMENT_OVERRIDES: {},
+    EFFECT_HINTS: {},
+    DOCUMENT_STUB: {},
+  };
+
   NAME_HINTS = {};
 
   ACTIVITY_HINTS = {
     "Hold Breath": {
       type: "utility",
       func: undefined,
-      targetSelf: true,
-      specialActivation: true,
+      targetType: "self",
+      activationType: "special",
     },
     "Partially Amphibious": {
       type: "utility",
       func: undefined,
-      targetSelf: true,
-      specialActivation: true,
+      targetType: "self",
+      activationType: "special",
       addItemConsume: true,
     },
     "Second Wind": {
       type: "heal",
       func: undefined,
       addItemConsume: true,
-      targetSelf: true,
+      targetType: "self",
       data: {
         healing: {
           number: 1,
@@ -54,6 +63,12 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "system.damage.bonus": "@mod",
       },
     },
+    "Drake Companion": {
+      data: {
+        "system.uses.max": "",
+        "system.uses.recovery": [],
+      },
+    },
     "Partially Amphibious": {
       data: {
         "system.uses": {
@@ -67,12 +82,6 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           ],
         },
         "flags.midiProperties.toggleEffect": true,
-      },
-    },
-    "Drake Companion": {
-      data: {
-        "system.uses.max": "",
-        "system.uses.recovery": [],
       },
     },
   };

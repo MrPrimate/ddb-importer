@@ -8,32 +8,98 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     this.additionalActivityClass = DDBItemActivity;
   }
 
-  NAME_HINTS = {};
+  DND_2014 = {
+    NAME_HINTS: {},
+    ACTIVITY_HINTS: {},
+    ADDITIONAL_ACTIVITIES: {},
+    DOCUMENT_OVERRIDES: {},
+    EFFECT_HINTS: {},
+    DOCUMENT_STUB: {},
+  };
+
+  NAME_HINTS = {
+    "Absorbing Tattoo, Acid": "Absorbing Tattoo",
+    "Absorbing Tattoo, Cold": "Absorbing Tattoo",
+    "Absorbing Tattoo, Fire": "Absorbing Tattoo",
+    "Absorbing Tattoo, Force": "Absorbing Tattoo",
+    "Absorbing Tattoo, Lightning": "Absorbing Tattoo",
+    "Absorbing Tattoo, Necrotic": "Absorbing Tattoo",
+    "Absorbing Tattoo, Poison": "Absorbing Tattoo",
+    "Absorbing Tattoo, Psychic": "Absorbing Tattoo",
+    "Absorbing Tattoo, Radiant": "Absorbing Tattoo",
+    "Absorbing Tattoo, Thunder": "Absorbing Tattoo",
+  };
 
   ACTIVITY_HINTS = {
-    "Oil of Sharpness": {
-      type: "enchant",
-      allowMagical: true,
-    },
     "Arcane Oil": {
       type: "enchant",
+    },
+    "Absorbing Tattoo": {
+      type: "utility",
+      addItemConsume: true,
+      activationType: "reaction",
+      activationCondition: `When you take ${this.ddbParser.originalName.split(',').pop().trim().toLowerCase()} damage`,
+      targetType: "self",
+      data: {
+        name: "Healing Reaction",
+      },
+    },
+    "Blood Fury Tattoo": {
+      type: "damage",
+      addItemConsume: true,
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 4, denomination: 6, type: "necrotic" })],
+        },
+      },
     },
     "Donjon's Sundering Sphere": {
       type: "enchant",
     },
+    "Oil of Sharpness": {
+      type: "enchant",
+      allowMagical: true,
+    },
+    "Potion of Healing": {
+      type: "heal",
+      addItemConsume: true,
+      activationType: this.is2014 ? "action" : "reaction",
+      targetType: "creature",
+      data: {
+        healing: {
+          number: 2,
+          denomination: 4,
+          bonus: "2",
+          type: "healing",
+        },
+        range: {
+          units: "touch",
+        },
+      },
+    },
+    "Waterskin": {
+      type: "utility",
+      activationType: "special",
+      addItemConsume: true,
+    },
   };
 
   DOCUMENT_OVERRIDES = {
+    "Waterskin": {
+      data: {
+        "system.uses": {
+          spent: 0,
+          max: 4,
+          recovery: [],
+          autoDestroy: false,
+          autoUse: true,
+        },
+      },
+    },
 
   };
 
   EFFECT_HINTS = {
-    "Oil of Sharpness": {
-      type: "enchant",
-      magicalBonus: {
-        bonus: "3",
-      },
-    },
     "Arcane Oil": {
       type: "enchant",
       magicalBonus: {
@@ -45,6 +111,12 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       type: "enchant",
       magicalBonus: {
         bonus: "1",
+      },
+    },
+    "Oil of Sharpness": {
+      type: "enchant",
+      magicalBonus: {
+        bonus: "3",
       },
     },
   };
@@ -69,6 +141,25 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   };
 
   ADDITIONAL_ACTIVITIES = {
+    "Blood Fury Tattoo": [
+      {
+        constructor: {
+          name: "Reactive Strike",
+          type: "utility",
+        },
+        build: {
+          generateActivation: true,
+          activationOverride: {
+            type: "reaction",
+            value: 1,
+            condition: "",
+          },
+        },
+        overrides: {
+          addItemConsume: true,
+        },
+      },
+    ],
     "Donjon's Sundering Sphere": [
       {
         constructor: {

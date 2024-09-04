@@ -112,6 +112,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
         const activity = item.system.activities[activityId];
         if (activity.effects.length !== 0) continue;
         for (const effect of item.effects) {
+          if (effect.transfer) continue;
           const effectId = effect._id ?? foundry.utils.randomID();
           effect._id = effectId;
           activity.effects.push({ _id: effectId });

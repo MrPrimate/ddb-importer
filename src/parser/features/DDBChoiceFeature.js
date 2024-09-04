@@ -142,7 +142,17 @@ export default class DDBChoiceFeature extends DDBFeature {
         choice,
         ddbFeature,
       });
-      features.push(choiceFeature.data);
+      if (choices.length === 1) {
+        ddbFeature.data.name = choiceFeature.data.name;
+        if (ddbFeature.data.system.activities.length === 0) {
+          ddbFeature.data.system.activities = choiceFeature.data.system.activities;
+        }
+        if (ddbFeature.data.effects.length === 0) {
+          ddbFeature.data.effects = choiceFeature.data.effects;
+        }
+      } else {
+        features.push(choiceFeature.data);
+      }
     });
     return features;
   }

@@ -233,13 +233,15 @@ export default class DDBFeatureActivity {
     };
 
     if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
+      const type = DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value ?? "";
       data = foundry.utils.mergeObject(data, {
         template: {
-          type: DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value ?? "",
-          size: this.ddbDefinition.range.aoeSize,
-          width: "",
+          type,
+          size: type === "line" ? `${this.ddbDefinition.range.range}` : `${this.ddbDefinition.range.aoeSize}`,
+          width: type === "line" ? `${this.ddbDefinition.range.aoeSize}` : "",
         },
       });
+      data.affects.type = "creature";
     }
 
     // TODO: improve target parsing
