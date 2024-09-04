@@ -119,7 +119,7 @@ export default class DDBBaseEnricher {
 
     if (this.activity.targetType) {
       if (activity.target?.affects)
-        foundry.utils.setProperty(activity, "target.affects.type", "self");
+        foundry.utils.setProperty(activity, "target.affects.type", this.activity.targetType);
       else {
         foundry.utils.setProperty(activity, "target", {
           template: {
@@ -133,7 +133,7 @@ export default class DDBBaseEnricher {
           },
           affects: {
             count: "",
-            type: "self",
+            type: this.activity.targetType,
             choice: false,
             special: "",
           },

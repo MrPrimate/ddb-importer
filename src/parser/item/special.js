@@ -13,22 +13,6 @@ export function fixItems(items) {
   items.forEach((item) => {
     const name = item.flags.ddbimporter?.originalName ?? item.name;
     switch (name) {
-      case "Potion of Healing":
-        item.system.damage = { parts: [["2d4 + 2", "healing"]], versatile: "", value: "" };
-        // item.system.uses = { value: 1, max: 1, per: "charges", autoDestroy: true, autoUse: true };
-        item.system.uses = {
-          spent: 0,
-          max: 1,
-          // TODO: charges is not correct here
-          recovery: [],
-          autoDestroy: false,
-          autoUse: true,
-        };
-        item.system["duration"]["value"] = 0;
-        item.system.actionType = "heal";
-        item.system["target"]["type"] = "creature";
-        item.system["range"]["type"] = "touch";
-        break;
       case "Potion of Healing (Greater)":
       case "Potion of Greater Healing":
         item.system.damage = { parts: [["4d4 + 4", "healing"]], versatile: "", value: "" };

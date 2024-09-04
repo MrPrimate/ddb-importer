@@ -2035,15 +2035,17 @@ export default class DDBItem {
         value: spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed,
         scaling: {},
       }
-      : {
-        type: "itemUses",
-        target: `${this.data._id}`,
-        value: spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1,
-        scaling: {
-          mode: "",
-          formula: "",
-        },
-      };
+      : spellData.limitedUse
+        ? {
+          type: "itemUses",
+          target: `${this.data._id}`,
+          value: spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1,
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        }
+        : null;
 
     const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
       ? { calculation: "", formula: spell.flags.ddbimporter.dndbeyond?.dc }
@@ -2060,7 +2062,8 @@ export default class DDBItem {
     foundry.utils.setProperty(spell, "system.level", Number.parseInt(spellData.level));
 
     Object.keys(spell.system.activities).forEach((id) => {
-      spell.system.activities[id].consumption.targets = [activityConsumptionTarget];
+      if (activityConsumptionTarget)
+        spell.system.activities[id].consumption.targets = [activityConsumptionTarget];
       spell.system.activities[id].consumption.scaling = false;
       spell.system.activities[id].consumption.spellSlot = false;
       if (this.actionInfo.save?.dc && spell.system.activities[id].save?.dc) {

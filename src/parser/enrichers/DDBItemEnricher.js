@@ -85,6 +85,16 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   };
 
   DOCUMENT_OVERRIDES = {
+    "Warrior's Passkey": {
+      data: {
+        "system.damage.base": {
+          number: 1,
+          denomination: 10,
+          bonus: "",
+          type: "force",
+        },
+      },
+    },
     "Waterskin": {
       data: {
         "system.uses": {
@@ -136,6 +146,21 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         name: "Club",
         type: "weapon",
         uuid: "Compendium.dnd5e.items.Item.nfIRTECQIG81CvM4",
+      },
+    },
+    "Warrior's Passkey": {
+      documentType: "weapon",
+      parsingType: "weapon",
+      stopDefaultActivity: true,
+      replaceDefaultActivity: false,
+      systemType: {
+        value: "martialM",
+        baseItem: "longsword",
+      },
+      copySRD: {
+        name: "Longsword +1",
+        type: "weapon",
+        uuid: "Compendium.dnd5e.items.Item.IPkf0XNowClwXnjQ",
       },
     },
   };

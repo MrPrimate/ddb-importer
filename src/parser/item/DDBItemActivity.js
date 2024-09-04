@@ -155,8 +155,8 @@ export default class DDBItemActivity {
   _generateHealing({ part = null } = {}) {
     const healing = part
       ? part
-      : this.healingParts.length > 0
-        ? this.healingParts[0]
+      : this.ddbParent.healingParts.length > 0
+        ? this.ddbParent.healingParts[0]
         : undefined;
     this.data.healing = healing;
   }
