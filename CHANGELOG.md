@@ -1,3 +1,7 @@
+# 5.2.33
+
+- Some more updates to prevent 2024 classes and races coming through when using the muncher tool.
+
 # 5.2.32
 
 - Warding Bond macro fixes by @motomoto0295
