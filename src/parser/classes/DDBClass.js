@@ -970,6 +970,7 @@ export default class DDBClass {
   }
 
   _generateWealth() {
+    if (!this.ddbClassDefinition.wealthDice) return;
     const diceString = this.ddbClassDefinition.wealthDice.diceString;
     const diceMultiplier = this.ddbClassDefinition.wealthDice.diceMultiplier;
     this.data.system.wealth = diceMultiplier && diceString
