@@ -1,3 +1,7 @@
+# 5.2.34
+
+- Fix dual class support for changes in data in 2024 DDB deployment.
+
 # 5.2.33
 
 - Some more updates to prevent 2024 classes and races coming through when using the muncher tool.
