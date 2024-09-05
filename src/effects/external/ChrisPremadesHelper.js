@@ -530,12 +530,22 @@ ${chat}
 
 
       if (restrictedItem.requiredEquipment) {
-        const itemMatch = restrictedItem.requiredEquipment.every((requiredEquipment) => documents.some((d) => (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredEquipment && DICTIONARY.types.inventory.includes(d.type)));
+        const itemMatch = restrictedItem.requiredEquipment
+          .every((requiredEquipment) =>
+            documents.some((d) =>
+              (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredEquipment
+              && DICTIONARY.types.inventory.includes(d.type)
+            ));
         if (!itemMatch) continue;
       }
 
       if (restrictedItem.requiredFeatures) {
-        const itemMatch = restrictedItem.requiredFeatures.every((requiredFeature) => documents.some((d) => (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredFeature && d.type === "feat"));
+        const itemMatch = restrictedItem.requiredFeatures
+          .every((requiredFeature) =>
+            documents.some((d) =>
+              (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredFeature
+              && d.type === "feat"
+            ));
         if (!itemMatch) continue;
       }
 
