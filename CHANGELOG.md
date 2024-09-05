@@ -1,4 +1,4 @@
-# NEXT UP
+# 4.0.0
 
 - BREAKING CHANGES!
 
@@ -13,6 +13,19 @@ The 4.0.x fundementally changes the structure of how documents are constructed i
 - Shadar Kai now gain resistance to magical sleep.
 - Monster Muncher/Importer now batches monsters to reduce long UI pauses.
 - AC Min field supported in effect generation.
+
+# 5.2.34
+
+- Fix dual class support for changes in data in 2024 DDB deployment.
+
+# 5.2.33
+
+- Some more updates to prevent 2024 classes and races coming through when using the muncher tool.
+
+# 5.2.32
+
+- Warding Bond macro fixes by @motomoto0295
+- Prevents content from 2024 Basic Rules or PHB Handbook being imported through the muncher. If these items are placed on a character for import, the importer will attempt to process them, although probably incorrectly.
 
 # 5.2.31
 
