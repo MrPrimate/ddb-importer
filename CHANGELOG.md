@@ -1,3 +1,7 @@
+# 5.2.35
+
+- Some fixes for CPR application for Unarmed Strike when using Tavern Brawler.
+
 # 5.2.34
 
 - Fix dual class support for changes in data in 2024 DDB deployment.
