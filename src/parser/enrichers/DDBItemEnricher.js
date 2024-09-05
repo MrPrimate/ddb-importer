@@ -10,10 +10,67 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
 
   DND_2014 = {
     NAME_HINTS: {},
-    ACTIVITY_HINTS: {},
-    ADDITIONAL_ACTIVITIES: {},
+    ACTIVITY_HINTS: {
+      "Alchemist's Fire": {
+        type: "attack",
+        addItemConsume: true,
+        targetType: "creature",
+        data: {
+          range: {
+            value: 20,
+            units: "ft",
+          },
+          attack: {
+            ability: "dex",
+            type: {
+              value: "ranged",
+              classification: "weapon",
+            },
+          },
+        },
+      },
+    },
+    ADDITIONAL_ACTIVITIES: {
+      "Alchemist's Fire": [
+        {
+          constructor: {
+            name: "Damage",
+            type: "damage",
+          },
+          build: {
+            generateCheck: true,
+            damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 4, type: "fire" })],
+          },
+        },
+        {
+          constructor: {
+            name: "Estinquish Flames Check",
+            type: "check",
+          },
+          build: {
+            generateCheck: true,
+            checkOverride: {
+              associated: [],
+              ability: "dex",
+              dc: {
+                calculation: "",
+                formula: "10",
+              },
+            },
+          },
+        },
+      ],
+    },
     DOCUMENT_OVERRIDES: {},
-    EFFECT_HINTS: {},
+    EFFECT_HINTS: {
+      "Alchemist's Fire": {
+        type: "item",
+        options: {
+          transfer: false,
+          description: "You are on fire, take [[/damage 1d4 fire]] at the start of your turn. You can use an action to distinguish with a [[/check dex 10]].",
+        },
+      },
+    },
     DOCUMENT_STUB: {},
   };
 
@@ -28,12 +85,23 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     "Absorbing Tattoo, Psychic": "Absorbing Tattoo",
     "Absorbing Tattoo, Radiant": "Absorbing Tattoo",
     "Absorbing Tattoo, Thunder": "Absorbing Tattoo",
+    "Alchemist's Fire (flask)": "Alchemist's Fire",
     "Potion of Greater Healing": "Potion of Healing (Greater)",
     "Potion of Superior Healing": "Potion of Healing (Superior)",
     "Potion of Supreme Healing": "Potion of Healing (Supreme)",
   };
 
   ACTIVITY_HINTS = {
+    "Absorbing Tattoo": {
+      type: "utility",
+      addItemConsume: true,
+      activationType: "reaction",
+      activationCondition: `When you take ${this.ddbParser.originalName.split(',').pop().trim().toLowerCase()} damage`,
+      targetType: "self",
+      data: {
+        name: "Healing Reaction",
+      },
+    },
     "Acid": {
       type: "save",
       addItemConsume: true,
@@ -78,18 +146,30 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Alchemist's Fire": {
+      type: "save",
+      addItemConsume: true,
+      targetType: "creature",
+      data: {
+        save: {
+          ability: "dex",
+          dc: {
+            calculation: "dex",
+            formula: "",
+          },
+        },
+        range: {
+          value: 20,
+          units: "ft",
+        },
+        damage: {
+          onSave: "none",
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6, type: "acid" })],
+        },
+      },
+    },
     "Arcane Oil": {
       type: "enchant",
-    },
-    "Absorbing Tattoo": {
-      type: "utility",
-      addItemConsume: true,
-      activationType: "reaction",
-      activationCondition: `When you take ${this.ddbParser.originalName.split(',').pop().trim().toLowerCase()} damage`,
-      targetType: "self",
-      data: {
-        name: "Healing Reaction",
-      },
     },
     "Bead of Force": {
       type: "save",
@@ -354,6 +434,14 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   };
 
   EFFECT_HINTS = {
+    "Alchemist's Fire": {
+      type: "item",
+      // statuses: ["Burning"], // might this be added later?
+      options: {
+        transfer: false,
+        description: "You are &Reference[Burning] take [[/damage 1d4 fire]] at the start of your turn.",
+      },
+    },
     "Arcane Oil": {
       type: "enchant",
       magicalBonus: {
