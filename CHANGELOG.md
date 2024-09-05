@@ -1,6 +1,19 @@
-# Next Up
+# 5.2.35
+
+- Some fixes for CPR application for Unarmed Strike when using Tavern Brawler.
+
+# 5.2.34
+
+- Fix dual class support for changes in data in 2024 DDB deployment.
+
+# 5.2.33
+
+- Some more updates to prevent 2024 classes and races coming through when using the muncher tool.
+
+# 5.2.32
 
 - Warding Bond macro fixes by @motomoto0295
+- Prevents content from 2024 Basic Rules or PHB Handbook being imported through the muncher. If these items are placed on a character for import, the importer will attempt to process them, although probably incorrectly.
 
 # 5.2.31
 
