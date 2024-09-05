@@ -34,6 +34,50 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   };
 
   ACTIVITY_HINTS = {
+    "Acid": {
+      type: "save",
+      addItemConsume: true,
+      targetType: "creature",
+      data: {
+        range: {
+          value: 20,
+          units: "ft",
+        },
+        damage: {
+          onSave: "none",
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6, type: "acid" })],
+        },
+        save: {
+          ability: "con",
+          dc: {
+            calculation: "dex",
+            formula: "",
+          },
+        },
+      },
+    },
+    "Acid (vial)": {
+      type: "attack",
+      addItemConsume: true,
+      targetType: "creature",
+      data: {
+        range: {
+          value: 20,
+          units: "ft",
+        },
+        damage: {
+          onSave: "none",
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6, type: "acid" })],
+        },
+        attack: {
+          ability: "dex",
+          type: {
+            value: "ranged",
+            classification: "weapon",
+          },
+        },
+      },
+    },
     "Arcane Oil": {
       type: "enchant",
     },
@@ -47,6 +91,39 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         name: "Healing Reaction",
       },
     },
+    "Bead of Force": {
+      type: "save",
+      addItemConsume: true,
+      targetType: "creature",
+      data: {
+        range: {
+          value: 60,
+          units: "ft",
+        },
+        damage: {
+          onSave: "none",
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 5, denomination: 4, type: "force" })],
+        },
+        target: {
+          template: {
+            count: "",
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            width: "",
+            height: "",
+            units: "ft",
+          },
+          affects: {
+            count: "",
+            type: "creature",
+            choice: false,
+            special: "",
+          },
+          prompt: true,
+        },
+      },
+    },
     "Blood Fury Tattoo": {
       type: "damage",
       addItemConsume: true,
@@ -58,6 +135,16 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     },
     "Donjon's Sundering Sphere": {
       type: "enchant",
+    },
+    "Far Realm Shard": {
+      type: "save",
+      activationType: "special",
+      data: {
+        damage: {
+          onSave: "none",
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 6, type: "psychic" })],
+        },
+      },
     },
     "Iron Bands of Binding": {
       type: "attack",
@@ -76,9 +163,42 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Needler Pistol": {
+      type: "save",
+      addItemConsume: true,
+      data: {
+        damage: {
+          onSave: "half",
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 4, type: "piercing" })],
+        },
+        target: {
+          template: {
+            count: "",
+            contiguous: false,
+            type: "cone",
+            size: "15",
+            width: "",
+            height: "",
+            units: "ft",
+          },
+          affects: {
+            count: "",
+            type: "creature",
+            choice: false,
+            special: "",
+          },
+          prompt: true,
+        },
+      },
+    },
     "Oil of Sharpness": {
       type: "enchant",
       allowMagical: true,
+    },
+    "Paralysis Pistol": {
+      type: "save",
+      addItemConsume: true,
+      targetType: "creature",
     },
     "Potion of Healing": {
       type: "heal",
@@ -158,14 +278,38 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   DOCUMENT_OVERRIDES = {
     "Iron Bands of Binding": {
       data: {
-        uses: {
+        "system.uses": {
           spent: 0,
           max: 1,
           recovery: [{
             period: "day",
             type: "recoverAll",
           }],
-          autoDestroy: true,
+          autoDestroy: false,
+          autoUse: true,
+        },
+      },
+    },
+    "Needler Pistol": {
+      "flags.ddbimporter.retainUseSpent": true,
+      data: {
+        "system.uses": {
+          spent: 0,
+          max: 10,
+          recovery: [],
+          autoDestroy: false,
+          autoUse: true,
+        },
+      },
+    },
+    "Paralysis Pistol": {
+      data: {
+        "flags.ddbimporter.retainUseSpent": true,
+        "system.uses": {
+          spent: 0,
+          max: 6,
+          recovery: [],
+          autoDestroy: false,
           autoUse: true,
         },
       },
@@ -217,6 +361,15 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         bonus: "2",
       },
     },
+    "Bead of Force": {
+      type: "item",
+      options: {
+        transfer: false,
+        description: "Trapped in a sphere of force!",
+        durationRounds: 10,
+        durationSeconds: 60,
+      },
+    },
     "Donjon's Sundering Sphere": {
       type: "enchant",
       magicalBonus: {
@@ -227,6 +380,17 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       type: "enchant",
       magicalBonus: {
         bonus: "3",
+      },
+    },
+    "Paralysis Pistol": {
+      name: "Paralysis",
+      type: "item",
+      statuses: ["Paralyzed"],
+      options: {
+        transfer: false,
+        description: "The target can repeat the save at the end of each os its turns.",
+        durationRounds: 10,
+        durationSeconds: 60,
       },
     },
   };
@@ -246,6 +410,20 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         name: "Club",
         type: "weapon",
         uuid: "Compendium.dnd5e.items.Item.nfIRTECQIG81CvM4",
+      },
+    },
+    "Needler Pistol": {
+      documentType: "consumable",
+      parsingType: "wonderous",
+      systemType: {
+        value: "trinket",
+      },
+    },
+    "Paralysis Pistol": {
+      documentType: "consumable",
+      parsingType: "wonderous",
+      systemType: {
+        value: "trinket",
       },
     },
     "Warrior's Passkey": {

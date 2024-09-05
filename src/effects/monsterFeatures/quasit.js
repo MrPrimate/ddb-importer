@@ -14,7 +14,7 @@ export function quasitEffects(npc) {
           priority: "20",
         },
       );
-      addStatusEffectChange(effect, "Poisoned", 20, true);
+      addStatusEffectChange({ effect, statusName: "Poisoned" });
 
       foundry.utils.setProperty(effect, "duration.seconds", 60);
       foundry.utils.setProperty(effect, "duration.rounds", 10);

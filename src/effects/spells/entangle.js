@@ -3,7 +3,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 
 export function entangleEffect(document) {
   let effect = baseSpellEffect(document, `${document.name} - Restrained`);
-  addStatusEffectChange(effect, "Restrained", 20, true);
+  addStatusEffectChange({ effect, statusName: "Restrained" });
 
   effect.changes.push(
     {

@@ -11,7 +11,7 @@ export function fireRuneEffect(document) {
 
 
   if (effectModules().midiQolInstalled) {
-    addStatusEffectChange(baseEffect, "Restrained", 20, true);
+    addStatusEffectChange({ effect: baseEffect, statusName: "Restrained" });
     baseEffect.changes.push(
       {
         key: "flags.midi-qol.OverTime",
@@ -28,7 +28,7 @@ export function fireRuneEffect(document) {
     );
   } else {
     let restrainedEffect = baseFeatEffect(document, `${document.name} (Restrained)`);
-    addStatusEffectChange(restrainedEffect, "Restrained", 20, true);
+    addStatusEffectChange({ effect: restrainedEffect, statusName: "Restrained" });
     foundry.utils.setProperty(restrainedEffect, "duration.seconds", 60);
     document.effects.push(restrainedEffect);
   }

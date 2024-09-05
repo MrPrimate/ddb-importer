@@ -234,11 +234,11 @@ export async function maneuversEffect(ddb, character, document) {
       break;
     }
     case "Maneuvers: Menacing Attack": {
-      addStatusEffectChange(effect, "Frightened", 20, true);
+      addStatusEffectChange({ effect, statusName: "Frightened" });
       break;
     }
     case "Maneuvers: Trip Attack": {
-      addStatusEffectChange(effect, "Prone", 20, true);
+      addStatusEffectChange({ effect, statusName: "Prone" });
       break;
     }
     case "Maneuvers: Parry": {

@@ -8,7 +8,7 @@ export function kiEmptyBodyEffect(document) {
     { key: "system.traits.dv.value", value: "force", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
   );
 
-  addStatusEffectChange(effect, "invisible");
+  addStatusEffectChange({ effect, statusName: "invisible" });
 
   document.system["target"]["type"] = "self";
   document.system.range = { value: null, units: "self", long: null };

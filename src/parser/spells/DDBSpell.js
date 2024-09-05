@@ -864,7 +864,7 @@ export default class DDBSpell {
         effect._id = foundry.utils.randomID();
 
         // todo: add duration
-        addStatusEffectChange(effect, condition.foundryValue, 20, true);
+        addStatusEffectChange({ effect, statusName: condition.foundryValue });
         this.data.effects.push(effect);
       }
     }

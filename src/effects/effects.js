@@ -256,7 +256,8 @@ export function effectModules() {
   return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
 }
 
-function generateEffectDuration(foundryItem) {
+// todo rework for activities
+function generateEffectDuration(foundryItem, activity) {
   let duration = {
     seconds: null,
     startTime: null,
@@ -265,18 +266,21 @@ function generateEffectDuration(foundryItem) {
     startRound: null,
     startTurn: null,
   };
-  switch (foundryItem.system?.duration?.units) {
+  const foundryData = foundryItem.system.duration ?? activity?.duration;
+  if (!foundryData) return duration;
+
+  switch (foundryData?.units) {
     case "turn":
-      duration.turns = foundryItem.system.duration.value;
+      duration.turns = foundryData.value;
       break;
     case "round":
-      duration.rounds = foundryItem.system.duration.value;
+      duration.rounds = foundryData.value;
       break;
     case "hour":
-      duration.seconds = foundryItem.system.duration.value * 60 * 60;
+      duration.seconds = foundryData.value * 60 * 60;
       break;
     case "minute":
-      duration.rounds = foundryItem.system.duration.value * 10;
+      duration.rounds = foundryData.value * 10;
       break;
     // no default
   }
@@ -322,7 +326,7 @@ export function baseEffect(foundryItem, name,
   effect.name = name;
   effect.statuses = [];
   effect.duration = generateEffectDuration(foundryItem);
-  if (description) effect.description = description;
+  effect.description = description ?? "";
   if (durationSeconds) effect.duration.seconds = durationSeconds;
   if (durationRounds) effect.duration.rounds = durationRounds;
   if (durationTurns) effect.duration.turns = durationTurns;
@@ -382,9 +386,11 @@ export function addMagicalBonusToEnchantmentEffect({ effect, nameAddition = null
 }
 
 export function baseItemEffect(foundryItem, label,
-  { transfer = true, disabled = false } = {},
+  { transfer = true, disabled = false, description = null, durationSeconds = null,
+    durationRounds = null, durationTurns = null } = {},
 ) {
-  return baseEffect(foundryItem, label, { transfer, disabled });
+  const effect = baseEffect(foundryItem, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
+  return effect;
 }
 
 export function getMidiCEOnFlags(midiFlags = {}) {
@@ -446,15 +452,72 @@ export function generateStatusEffectChange(statusName, priority = 20) {
   };
 }
 
-export function addStatusEffectChange(effect, statusName, priority = 20, macro = false, level = null) {
+export function addStatusEffectChange({ effect, statusName, priority = 20, level = null } = {}) {
   if (effectModules().daeInstalled) {
-    const key = generateStatusEffectChange(statusName, priority, macro);
+    const key = generateStatusEffectChange(statusName, priority);
     effect.changes.push(key);
   } else {
     effect.statuses.push(statusName.toLowerCase());
     if (level) foundry.utils.setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
   }
   return effect;
+}
+
+function getSpecialDuration(effect, match) {
+  // minutes
+  if (match[7]
+    && (match[7].includes("until the end of its next turn")
+    || match[7].includes("until the end of the target's next turn"))
+  ) {
+    foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
+  } else if (match[7] && match[7].includes("until the start of the")) {
+    foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
+  }
+  return effect;
+}
+
+function parseOutStatusCondition({ effect, text, nameHint = null } = {}) {
+  let results = {
+    success: false,
+    effect,
+  };
+
+  text = utils.nameString(text);
+  const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (\d+) (minute))?(.*)?(?:.|$)/;
+  let match = text.match(conditionSearch);
+  if (!match) {
+    const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) saving throw(?:,)? or (be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute))?(.*)?(?:.|$)/;
+    match = text.match(rawConditionSearch);
+  }
+
+  // console.warn("condition status", match);
+  if (match) {
+    results.success = true;
+    results.save = {
+      dc: parseInt(match.groups["dc"]),
+      ability: match.groups["ability"].toLowerCase().substr(0, 3),
+      scaling: "flat",
+    };
+    // group 4 condition - .e.g. "DC 18 Strength saving throw or be knocked prone"
+    const group4Condition = match.groups.condition
+      ? DICTIONARY.character.damageAdjustments
+        .filter((type) => type.type === 4)
+        .find(
+          (type) => type.name.toLowerCase() === match.groups.condition.toLowerCase()
+            || type.foundryValue === match.groups.condition.toLowerCase(),
+        )
+      : undefined;
+    if (group4Condition) {
+      results.condition = group4Condition.value;
+      addStatusEffectChange({ effect: results.effect, statusName: group4Condition.name });
+      effect = getSpecialDuration(results.effect, match);
+      if (nameHint) results.effect.name = `${nameHint}: ${group4Condition.name}`;
+    } else if (match[3] && match[3] === "die") {
+      addStatusEffectChange({ effect: results.effect, statusName: "Dead" });
+      if (nameHint) results.effect.name = `Condition: Dead`;
+    }
+  }
+  return results;
 }
 
 export function generateTokenMagicFXChange(macroValue, priority = 20) {
@@ -502,7 +565,7 @@ export function generateATLChange(atlKey, mode, value, priority = 20) {
 export function addSimpleConditionEffect(document, condition, { disabled, transfer } = {}) {
   document.effects = [];
   const effect = baseItemEffect(document, `${document.name} - ${utils.capitalize(condition)}`, { disabled, transfer });
-  addStatusEffectChange(effect, condition);
+  addStatusEffectChange({ effect, statusName: condition });
   document.effects.push(effect);
   return document;
 }

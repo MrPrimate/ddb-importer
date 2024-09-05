@@ -5,7 +5,7 @@ import { baseFeatEffect } from "../specialFeats.js";
 
 export function dauntingRoarEffect(document) {
   const effect = baseFeatEffect(document, document.name);
-  addStatusEffectChange(effect, "Frightened", 20, true);
+  addStatusEffectChange({ effect, statusName: "Frightened" });
   foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEndSource", "endCombat"]);
   effect.duration.seconds = 12;
   effect.duration.turns = 2;

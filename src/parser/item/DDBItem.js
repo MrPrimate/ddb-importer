@@ -304,11 +304,20 @@ export default class DDBItem {
       },
     };
 
+    const spellSaveCheck = (this.ddbDefinition.description ?? "").match(/succeed on a (.*?) saving throw (against your spell save DC)?/);
+    if (spellSaveCheck && spellSaveCheck[1]) {
+      save.ability = spellSaveCheck[1].toLowerCase().substr(0, 3);
+      if (spellSaveCheck[2]) {
+        save.dc.calculation = "spellcasting";
+      }
+      this.actionInfo.save = save;
+    }
 
     const saveCheck = (this.ddbDefinition.description ?? "").match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
     if (saveCheck && saveCheck[2]) {
       save.ability = saveCheck[2].toLowerCase().substr(0, 3);
       save.dc.formula = `${saveCheck[1]}`;
+      save.dc.calculation = "";
       this.actionInfo.save = save;
     }
   }

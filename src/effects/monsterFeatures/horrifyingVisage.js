@@ -15,7 +15,7 @@ export function horrifyingVisageEffect(document) {
       "priority": "20",
     },
   );
-  addStatusEffectChange(effect, "Frightened", 20, true);
+  addStatusEffectChange({ effect, statusName: "Frightened" });
   effect.transfer = false;
 
   document.effects.push(effect);

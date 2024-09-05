@@ -132,11 +132,11 @@ function generateConditionEffect(effect, text, nameHint = null) {
       : undefined;
     if (group4Condition) {
       results.condition = group4Condition.value;
-      addStatusEffectChange(results.effect, group4Condition.name, 20, true);
+      addStatusEffectChange({ effect: results.effect, statusName: group4Condition.name });
       effect = getSpecialDuration(results.effect, match);
       if (nameHint) results.effect.name = `${nameHint}: ${group4Condition.name}`;
     } else if (match[3] && match[3] === "die") {
-      addStatusEffectChange(results.effect, "Dead", 20, true);
+      addStatusEffectChange({ effect: results.effect, statusName: "Dead" });
       if (nameHint) results.effect.name = `Condition: Dead`;
     }
   }

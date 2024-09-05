@@ -8930,5 +8930,13 @@
   {
     "name": "Lighting Launcher (INT)",
     "path": "icons/magic/lightning/projectile-orb-blue.webp"
+  },
+  {
+    "name": "Needler Pistol",
+    "path": "icons/weapons/guns/rifle-fluted.webp"
+  },
+  {
+    "name": "Paralysis Pistol",
+    "path": "icons/tools/laboratory/alembic-glass-ball-blue.webp"
   }
 ]

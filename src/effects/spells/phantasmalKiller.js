@@ -3,7 +3,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 
 export async function phantasmalKillerEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  addStatusEffectChange(effect, "Frightened", 20, true);
+  addStatusEffectChange({ effect, statusName: "Frightened" });
   if (effectModules().midiQolInstalled) {
     effect.changes.push({
       key: "flags.midi-qol.OverTime",

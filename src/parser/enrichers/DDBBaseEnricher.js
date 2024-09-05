@@ -1,4 +1,4 @@
-import { addMagicalBonusToEnchantmentEffect, baseEffect, baseEnchantmentEffect, baseItemEffect } from "../../effects/effects.js";
+import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, baseEnchantmentEffect, baseItemEffect } from "../../effects/effects.js";
 import { baseFeatEffect } from "../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../effects/specialSpells.js";
@@ -214,6 +214,17 @@ export default class DDBBaseEnricher {
       case "basic":
       default:
         effect = baseEffect(this.data, name, effectOptions);
+    }
+
+    if (this.effect.statuses) {
+      for (const status of this.effect.statuses) {
+        const splitStatus = status.split(":");
+        addStatusEffectChange({
+          effect: effect,
+          statusName: splitStatus[0],
+          level: splitStatus.length > 1 ? splitStatus[1] : null,
+        });
+      }
     }
 
     if (this.effect.data) {

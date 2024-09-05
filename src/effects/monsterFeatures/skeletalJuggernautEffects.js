@@ -8,7 +8,7 @@ function avalancheOfBonesEffect(document) {
   foundry.utils.setProperty(document, "system.range", { value: null, long: null, units: "self" });
 
   let effect = baseFeatEffect(document, document.name);
-  addStatusEffectChange(effect, "Prone", 20, true);
+  addStatusEffectChange({ effect, statusName: "Prone" });
   foundry.utils.setProperty(effect, "duration.turns", 99);
   foundry.utils.setProperty(effect, "duration.seconds", 9999);
   effect.transfer = false;

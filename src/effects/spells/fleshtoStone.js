@@ -4,7 +4,7 @@ import { addStatusEffectChange, effectModules } from "../effects.js";
 
 export async function fleshtoStoneEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  addStatusEffectChange(effect, "Restrained", 20, true);
+  addStatusEffectChange({ effect, statusName: "Restrained" });
 
   if (effectModules().midiQolInstalled) {
     await DDBMacros.setItemMacroFlag(document, "spell", "fleshtoStone.js");

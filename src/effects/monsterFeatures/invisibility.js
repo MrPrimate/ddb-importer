@@ -6,7 +6,7 @@ export function invisibilityFeatureEffect(document) {
   if (document.type === "spell") return document;
 
   let effect = baseMonsterFeatureEffect(document, `${document.name} feature`);
-  addStatusEffectChange(effect, "Invisible", 20, true);
+  addStatusEffectChange({ effect, statusName: "Invisible" });
   foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
 
   const permanent = ["special"].includes(foundry.utils.getProperty(document, "flags.monsterMunch.type"));

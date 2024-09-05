@@ -3,7 +3,7 @@ import { baseFeatEffect } from "../specialFeats.js";
 
 export function patientDefenseEffect(document) {
   let effect = baseFeatEffect(document, document.name);
-  addStatusEffectChange(effect, "Dodge", 20, true);
+  addStatusEffectChange({ effect, statusName: "Dodge" });
 
   document.effects.push(effect);
   return document;

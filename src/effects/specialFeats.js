@@ -89,9 +89,10 @@ import { darkOnesOwnLuckffect } from "./feats/darkOnesOwnLuck.js";
 import { foeSlayerEffect } from "./feats/foeSlayer.js";
 
 export function baseFeatEffect(document, label,
-  { transfer = false, disabled = false } = {},
+  { transfer = false, disabled = false, description = null, durationSeconds = null,
+    durationRounds = null, durationTurns = null } = {},
 ) {
-  return baseEffect(document, label, { transfer, disabled });
+  return baseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
 }
 
 // eslint-disable-next-line complexity

@@ -6,7 +6,7 @@ export function giantSpiderEffects(npc) {
   for (let item of npc.items) {
     if (item.name.startsWith("Web")) {
       let effect = baseMonsterFeatureEffect(item, item.name);
-      addStatusEffectChange(effect, "Restrained", 20, true);
+      addStatusEffectChange({ effect, statusName: "Restrained" });
       effect.changes.push(
         {
           key: "flags.midi-qol.OverTime",

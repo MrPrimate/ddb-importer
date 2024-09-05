@@ -144,7 +144,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
     case "Reduced-threat Carrion Crawler": {
       npc.items.forEach(function(item, index) {
         if (item.name === "Tentacles") {
-          addStatusEffectChange(this[index].effects[0], "Paralyzed", 20, true);
+          addStatusEffectChange({ effect: this[index].effects[0], statusName: "Paralyzed" });
           this[index] = forceItemEffect(this[index]);
         }
       }, npc.items);

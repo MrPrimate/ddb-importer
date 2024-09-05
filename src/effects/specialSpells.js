@@ -137,9 +137,10 @@ import { zephyrStrikeEffect } from "./spells/zephyrStrike.js";
 
 
 export function baseSpellEffect(document, label,
-  { transfer = false, disabled = false } = {},
+  { transfer = false, disabled = false, description = null, durationSeconds = null,
+    durationRounds = null, durationTurns = null } = {},
 ) {
-  return baseEffect(document, label, { transfer, disabled });
+  return baseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
 }
 
 

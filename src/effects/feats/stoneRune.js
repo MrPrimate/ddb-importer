@@ -10,8 +10,8 @@ export function stoneRuneEffect(document) {
   let bonusEffect = baseFeatEffect(document, `${document.name} (Charm Effect)`);
   bonusEffect.statuses.push(`${document.name} (Charm Effect)`);
   foundry.utils.setProperty(bonusEffect, "duration.seconds", 60);
-  addStatusEffectChange(bonusEffect, "Charmed", 20, true);
-  addStatusEffectChange(bonusEffect, "Incapacitated", 20, true);
+  addStatusEffectChange({ effect: bonusEffect, statusName: "Charmed" });
+  addStatusEffectChange({ effect: bonusEffect, statusName: "Incapacitated" });
 
   if (effectModules().midiQolInstalled) {
     bonusEffect.changes.push(

@@ -4,7 +4,7 @@ import { addStatusEffectChange, effectModules } from "../effects.js";
 
 export async function hideousLaughterEffect(document) {
   let effect = baseSpellEffect(document, `${document.name} - Incapacitated`);
-  addStatusEffectChange(effect, "Incapacitated", 20, true);
+  addStatusEffectChange({ effect, statusName: "Incapacitated" });
 
   if (effectModules().midiQolInstalled) {
     effect.changes.push({
@@ -20,7 +20,7 @@ export async function hideousLaughterEffect(document) {
   document.effects.push(effect);
 
   let proneEffect = baseSpellEffect(document, `${document.name} - Prone`);
-  addStatusEffectChange(proneEffect, "Prone", 20, true);
+  addStatusEffectChange({ effect: proneEffect, statusName: "Prone" });
   document.effects.push(proneEffect);
 
   return document;

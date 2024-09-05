@@ -6,7 +6,7 @@ export async function silenceEffect(document) {
 
   if (!effectModules().activeAurasInstalled) {
     let effect = baseSpellEffect(document, `${document.name} - Deafened`);
-    addStatusEffectChange(effect, "Deafened", 20, true);
+    addStatusEffectChange({ effect, statusName: "Deafened" });
     document.effects.push(effect);
     return document;
   }
@@ -15,7 +15,7 @@ export async function silenceEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraOnly.js");
 
   let effect = baseSpellEffect(document, document.name);
-  addStatusEffectChange(effect, "Deafened", 20, true);
+  addStatusEffectChange({ effect, statusName: "Deafened" });
   effect.changes.push(
     {
       key: "flags.midi-qol.fail.spell.vocal",
