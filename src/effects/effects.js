@@ -6,6 +6,8 @@ import { equipmentEffectAdjustment } from "./specialEquipment.js";
 import { infusionEffectAdjustment } from "./specialInfusions.js";
 import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEffects.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
+import { abilityOverrideEffects } from "./abilityOverrides.js";
+import DDBEffectHelper from "./DDBEffectHelper.js";
 
 /**
  * Add supported effects here to exclude them from calculations.
@@ -461,63 +463,6 @@ export function addStatusEffectChange({ effect, statusName, priority = 20, level
     if (level) foundry.utils.setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
   }
   return effect;
-}
-
-function getSpecialDuration(effect, match) {
-  // minutes
-  if (match[7]
-    && (match[7].includes("until the end of its next turn")
-    || match[7].includes("until the end of the target's next turn"))
-  ) {
-    foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
-  } else if (match[7] && match[7].includes("until the start of the")) {
-    foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
-  }
-  return effect;
-}
-
-function parseOutStatusCondition({ effect, text, nameHint = null } = {}) {
-  let results = {
-    success: false,
-    effect,
-  };
-
-  text = utils.nameString(text);
-  const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (\d+) (minute))?(.*)?(?:.|$)/;
-  let match = text.match(conditionSearch);
-  if (!match) {
-    const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) saving throw(?:,)? or (be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute))?(.*)?(?:.|$)/;
-    match = text.match(rawConditionSearch);
-  }
-
-  // console.warn("condition status", match);
-  if (match) {
-    results.success = true;
-    results.save = {
-      dc: parseInt(match.groups["dc"]),
-      ability: match.groups["ability"].toLowerCase().substr(0, 3),
-      scaling: "flat",
-    };
-    // group 4 condition - .e.g. "DC 18 Strength saving throw or be knocked prone"
-    const group4Condition = match.groups.condition
-      ? DICTIONARY.character.damageAdjustments
-        .filter((type) => type.type === 4)
-        .find(
-          (type) => type.name.toLowerCase() === match.groups.condition.toLowerCase()
-            || type.foundryValue === match.groups.condition.toLowerCase(),
-        )
-      : undefined;
-    if (group4Condition) {
-      results.condition = group4Condition.value;
-      addStatusEffectChange({ effect: results.effect, statusName: group4Condition.name });
-      effect = getSpecialDuration(results.effect, match);
-      if (nameHint) results.effect.name = `${nameHint}: ${group4Condition.name}`;
-    } else if (match[3] && match[3] === "die") {
-      addStatusEffectChange({ effect: results.effect, statusName: "Dead" });
-      if (nameHint) results.effect.name = `Condition: Dead`;
-    }
-  }
-  return results;
 }
 
 export function generateTokenMagicFXChange(macroValue, priority = 20) {
@@ -1545,6 +1490,35 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
   return [foundryItem, effect];
 }
 
+export function getStatusEffect({ ddbItem, foundryItem, labelOverride } = {}) {
+  if (!foundryItem.effects) foundryItem.effects = [];
+
+  const conditionResult = DDBEffectHelper.parseStatusCondition({ text: ddbItem.definition.description, nameHint: labelOverride });
+
+  if (!conditionResult.success) return null;
+
+  let effect = baseItemEffect(foundryItem, labelOverride ?? conditionResult.effect.name ?? foundryItem.name, {
+    transfer: false,
+    description: `Apply status ${conditionResult.condition}`,
+  });
+  effect.changes.push(...conditionResult.effect.changes);
+  effect.statuses.push(...conditionResult.effect.statuses);
+  if (conditionResult.effect.name) effect.name = conditionResult.effect.name;
+  effect.flags = foundry.utils.mergeObject(effect.flags, conditionResult.effect.flags);
+  if (conditionResult.effect.duration.seconds) effect.duration.seconds = conditionResult.effect.duration.seconds;
+  if (conditionResult.effect.duration.rounds) effect.duration.rounds = conditionResult.effect.duration.rounds;
+
+  return effect;
+}
+
+function generateStatusEffects({ ddbItem, foundryItem, labelOverride } = {}) {
+  const effect = getStatusEffect({ ddbItem, foundryItem, labelOverride });
+  if (!effect) return foundryItem;
+  foundryItem.effects.push(effect);
+  return foundryItem;
+}
+
+
 /**
  * Generate supported effects for items
  * @param {*} ddb
@@ -1665,6 +1639,7 @@ function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, eff
         [foundryItem, effect] = generateACEffectChangesForItem(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect);
       } else {
         foundryItem = generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+        // foundryItem = generateStatusEffects({ ddbItem, foundryItem });
       }
       break;
     }

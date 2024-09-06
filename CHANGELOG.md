@@ -13,6 +13,7 @@ The 4.0.x fundementally changes the structure of how documents are constructed i
 - Shadar Kai now gain resistance to magical sleep.
 - Monster Muncher/Importer now batches monsters to reduce long UI pauses.
 - AC Min field supported in effect generation.
+- Massive improvements to wonderous/trinket item parsing.
 
 # 5.2.34
 

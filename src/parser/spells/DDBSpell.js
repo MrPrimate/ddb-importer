@@ -151,7 +151,7 @@ export default class DDBSpell {
     // this is mainly guessing
     if (this.spellDefinition.componentsDescription && this.spellDefinition.componentsDescription.length > 0) {
       let cost = 0;
-      let matches = this.spellDefinition.componentsDescription.toLowerCase().match(/([\d.,]+)\s*gp/);
+      let matches = (/([\d.,]+)\s*gp/i).exec(this.spellDefinition.componentsDescription);
       if (matches) {
         cost = parseInt(matches[1].replace(/,|\./g, ""));
       }
@@ -356,13 +356,13 @@ export default class DDBSpell {
     };
 
     const thickReg = new RegExp(/ (\d*) foot (thick|wide)/);
-    const thickMatch = this.spellDefinition.description.match(thickReg);
+    const thickMatch = thickReg.exec(this.spellDefinition.description);
     if (thickMatch && thickMatch[1] > 5) {
       target.template.width = parseInt(thickMatch[1]);
     }
 
     const heightReg = new RegExp(/ (\d*) foot (tall|high)/);
-    const heightMatch = this.spellDefinition.description.match(heightReg);
+    const heightMatch = heightReg.exec(this.spellDefinition.description);
     if (heightMatch && heightMatch[1] > 5) {
       target.template.height = parseInt(heightMatch[1]);
     }
@@ -438,7 +438,7 @@ export default class DDBSpell {
         target.template.size = 100;
       } else {
         const wallReg = new RegExp(/ (\d*) feet long/);
-        const matches = this.spellDefinition.description.match(wallReg);
+        const matches = wallReg.exec(this.spellDefinition.description);
         if (matches) {
           target.template.size = parseInt(matches[1]);
         }

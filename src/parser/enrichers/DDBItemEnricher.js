@@ -14,12 +14,12 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       "Alchemist's Fire": {
         type: "attack",
         addItemConsume: true,
-        targetType: "creature",
+        // targetType: "creature",
         data: {
-          range: {
-            value: 20,
-            units: "ft",
-          },
+          // range: {
+          //   value: 20,
+          //   units: "ft",
+          // },
           attack: {
             ability: "dex",
             type: {
@@ -107,10 +107,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       addItemConsume: true,
       targetType: "creature",
       data: {
-        range: {
-          value: 20,
-          units: "ft",
-        },
         damage: {
           onSave: "none",
           parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6, type: "acid" })],
@@ -129,10 +125,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       addItemConsume: true,
       targetType: "creature",
       data: {
-        range: {
-          value: 20,
-          units: "ft",
-        },
         damage: {
           onSave: "none",
           parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6, type: "acid" })],
@@ -158,10 +150,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
             formula: "",
           },
         },
-        range: {
-          value: 20,
-          units: "ft",
-        },
         damage: {
           onSave: "none",
           parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6, type: "acid" })],
@@ -174,33 +162,10 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     "Bead of Force": {
       type: "save",
       addItemConsume: true,
-      targetType: "creature",
       data: {
-        range: {
-          value: 60,
-          units: "ft",
-        },
         damage: {
           onSave: "none",
           parts: [DDBBaseEnricher.basicDamagePart({ number: 5, denomination: 4, type: "force" })],
-        },
-        target: {
-          template: {
-            count: "",
-            contiguous: false,
-            type: "radius",
-            size: "10",
-            width: "",
-            height: "",
-            units: "ft",
-          },
-          affects: {
-            count: "",
-            type: "creature",
-            choice: false,
-            special: "",
-          },
-          prompt: true,
         },
       },
     },
@@ -210,6 +175,13 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       data: {
         damage: {
           parts: [DDBBaseEnricher.basicDamagePart({ number: 4, denomination: 6, type: "necrotic" })],
+        },
+      },
+    },
+    "Bomb": {
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 6, type: "fire" })],
         },
       },
     },
@@ -228,18 +200,14 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     },
     "Iron Bands of Binding": {
       type: "attack",
-      targetType: "creature",
       data: {
         attack: {
+          bonus: "@prof",
           ability: "dex",
           type: {
             value: "ranged",
-            classification: "spell",
+            classification: "weapon",
           },
-        },
-        range: {
-          value: 60,
-          units: "ft",
         },
       },
     },
@@ -250,24 +218,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         damage: {
           onSave: "half",
           parts: [DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 4, type: "piercing" })],
-        },
-        target: {
-          template: {
-            count: "",
-            contiguous: false,
-            type: "cone",
-            size: "15",
-            width: "",
-            height: "",
-            units: "ft",
-          },
-          affects: {
-            count: "",
-            type: "creature",
-            choice: false,
-            special: "",
-          },
-          prompt: true,
         },
       },
     },
@@ -347,6 +297,9 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           units: "touch",
         },
       },
+    },
+    "Stink Bomb": {
+      targetType: "creature",
     },
     "Waterskin": {
       type: "utility",
@@ -470,17 +423,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         bonus: "3",
       },
     },
-    "Paralysis Pistol": {
-      name: "Paralysis",
-      type: "item",
-      statuses: ["Paralyzed"],
-      options: {
-        transfer: false,
-        description: "The target can repeat the save at the end of each os its turns.",
-        durationRounds: 10,
-        durationSeconds: 60,
-      },
-    },
   };
 
   DOCUMENT_STUB = {
@@ -539,6 +481,8 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           type: "utility",
         },
         build: {
+          generateTarget: false,
+          generateRange: false,
           generateActivation: true,
           activationOverride: {
             type: "reaction",
@@ -558,6 +502,8 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           type: "check",
         },
         build: {
+          generateTarget: false,
+          generateRange: false,
           generateCheck: true,
           checkOverride: {
             associated: [],
@@ -580,6 +526,8 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           type: "save",
         },
         build: {
+          generateTarget: false,
+          generateRange: false,
           generateSave: true,
           generateUses: true,
           usesOverride: {

@@ -131,7 +131,7 @@ export default class DDBItemActivity {
   _generateDamage({ parts, includeBase = true, criticalDamage = null } = {}) {
     this.data.damage = {
       critical: {
-        bonus: `${criticalDamage}` ?? "",
+        bonus: criticalDamage ?? "",
       },
       includeBase,
       parts: parts
@@ -286,6 +286,10 @@ export default class DDBItemActivity {
     if (this.data.uses && (!this.data.uses?.max || this.data.uses?.max === "")) {
       this.data.uses.spent = null;
     }
+
+    console.warn("Generated Activity", {
+      data: deepClone(this.data),
+    });
 
     // ATTACK has
     // activation

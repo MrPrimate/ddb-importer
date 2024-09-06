@@ -49,11 +49,11 @@ export default class DDBBaseEnricher {
 
   _prepare() {
     this.hintName = (this.is2014 ? this.DND_2014.NAME_HINTS[this.name] : null) ?? this.NAME_HINTS[this.name] ?? this.name;
-    this.activity = (this.is2014 ? this.DND_2014.ACTIVITY_HINTS[this.name] : null) ?? this.ACTIVITY_HINTS[this.hintName];
-    this.effect = (this.is2014 ? this.DND_2014.EFFECT_HINTS[this.name] : null) ?? this.EFFECT_HINTS[this.hintName];
-    this.override = (this.is2014 ? this.DND_2014.DOCUMENT_OVERRIDES[this.name] : null) ?? this.DOCUMENT_OVERRIDES[this.hintName];
-    this.additionalActivities = (this.is2014 ? this.DND_2014.ADDITIONAL_ACTIVITIES[this.name] : null) ?? this.ADDITIONAL_ACTIVITIES[this.hintName];
-    this.documentStub = (this.is2014 ? this.DND_2014.DOCUMENT_STUB[this.name] : null) ?? this.DOCUMENT_STUB[this.hintName];
+    this.activity = (this.is2014 ? this.DND_2014.ACTIVITY_HINTS[this.hintName] : null) ?? this.ACTIVITY_HINTS[this.hintName];
+    this.effect = (this.is2014 ? this.DND_2014.EFFECT_HINTS[this.hintName] : null) ?? this.EFFECT_HINTS[this.hintName];
+    this.override = (this.is2014 ? this.DND_2014.DOCUMENT_OVERRIDES[this.hintName] : null) ?? this.DOCUMENT_OVERRIDES[this.hintName];
+    this.additionalActivities = (this.is2014 ? this.DND_2014.ADDITIONAL_ACTIVITIES[this.hintName] : null) ?? this.ADDITIONAL_ACTIVITIES[this.hintName];
+    this.documentStub = (this.is2014 ? this.DND_2014.DOCUMENT_STUB[this.hintName] : null) ?? this.DOCUMENT_STUB[this.hintName];
   }
 
   constructor({ ddbParser, document, name = null, is2014 = null } = {}) {
@@ -140,11 +140,13 @@ export default class DDBBaseEnricher {
           prompt: true,
         });
       }
-      foundry.utils.setProperty(activity, "range", {
-        value: null,
-        units: "self",
-        special: "",
-      });
+      if ([undefined, null, ""].includes(foundry.utils.getProperty(activity, "range.units"))) {
+        foundry.utils.setProperty(activity, "range", {
+          value: null,
+          units: "self",
+          special: "",
+        });
+      }
     }
 
     if (this.activity.activationType) {

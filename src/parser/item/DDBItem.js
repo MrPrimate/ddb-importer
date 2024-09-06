@@ -9,6 +9,7 @@ import DDBItemEnricher from "../enrichers/DDBItemEnricher.js";
 import DDBItemActivity from "./DDBItemActivity.js";
 import MagicItemMaker from "./MagicItemMaker.js";
 import SETTINGS from "../../settings.js";
+import { getStatusEffect } from "../../effects/effects.js";
 
 export default class DDBItem {
 
@@ -1128,12 +1129,32 @@ export default class DDBItem {
   }
 
   #getActivityRange() {
-    // range: { value: null, long: null, units: '' },
-    return {
+    const range = {
       value: this.ddbDefinition.range ? this.ddbDefinition.range : null,
       long: this.ddbDefinition.longRange ? this.ddbDefinition.longRange : null,
       units: (this.ddbDefinition.range || this.ddbDefinition.range) ? "ft" : "",
+      special: "",
     };
+
+    if (this.ddbDefinition.description.includes("touch")) {
+      range.value = "touch";
+    }
+
+    const thrownRangeRegex = /(throw|thrown|throw this|throw it|throw the)( \w+| at a point)? (the|this|up to) (\d+) feet/ig;
+    const match = thrownRangeRegex.exec(this.ddbDefinition.description);
+    if (match) {
+      range.value = match[4];
+      range.units = "ft";
+    }
+
+    const canSeeWithinRegex = /creature( or object)? you can see within (\d+) feet/ig;
+    const match2 = canSeeWithinRegex.exec(this.ddbDefinition.description);
+    if (match2) {
+      range.value = match2[2];
+      range.units = "ft";
+    }
+
+    return range;
   }
 
   #getWeaponRange() {
@@ -1463,6 +1484,58 @@ export default class DDBItem {
     }
   }
 
+  targetsCreature() {
+    const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range|each creature within/gi;
+    const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
+    const targets = /attack against the target|at a target in range/gi;
+    return this.ddbDefinition.description.match(creature)
+      || this.ddbDefinition.description.match(creaturesRange)
+      || this.ddbDefinition.description.match(targets);
+  }
+
+  #generateTargets() {
+    this.actionInfo.target = {
+      prompt: true,
+      affects: {
+        count: "",
+        type: "",
+        choice: false,
+        special: "",
+      },
+      template: {
+        count: "",
+        contiguous: false,
+        type: "",
+        size: "",
+        width: "",
+        height: "",
+        units: "ft",
+      },
+    };
+
+    const targetsCreature = this.targetsCreature();
+    const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(this.ddbDefinition.description);
+
+    if (targetsCreature || creatureTargetCount) {
+      this.actionInfo.target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
+      this.actionInfo.target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
+    }
+    const aoeSizeRegex = /(?:within|in a) (\d+)(?: |-)(?:feet|foot) (cone|radius|sphere|line|cube|of it)/ig;
+    const aoeSizeMatch = aoeSizeRegex.exec(this.ddbDefinition.description);
+
+    console.warn(`Target generation for ${this.name}` ,{
+      targetsCreature,
+      creatureTargetCount,
+      aoeSizeMatch,
+    });
+
+    if (aoeSizeMatch) {
+      const type = aoeSizeMatch[2]?.trim() ?? "radius";
+      this.actionInfo.target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
+      this.actionInfo.target.template.size = aoeSizeMatch[1] ?? "";
+    }
+  }
+
   async #generateDescription() {
     if (this.parsingType === "custom") {
       let description = this.ddbDefinition.description && this.ddbDefinition.description !== "null"
@@ -1705,6 +1778,7 @@ export default class DDBItem {
     if (this.data.system.type.value === "wand") this.addMagical = true;
     this._generateConsumableUses();
     if (["Potion", "Poison"].includes((this.overrides.ddbType ?? this.ddbDefinition.subType))) {
+      console.warn("Consumable target generation");
       this.actionInfo.target = {
         "template": {
           "contiguous": false,
@@ -1723,12 +1797,15 @@ export default class DDBItem {
         "override": false,
         "special": "",
       };
+    } else {
+      this.#generateTargets();
     }
   }
 
   #generateLootSpecifics() {
     if (this.systemType.value) {
       this._generateConsumableUses();
+      this.#generateTargets();
     }
     if (this.documentType === "container") {
       this.#generateCapacity();
@@ -1828,6 +1905,7 @@ export default class DDBItem {
     if (!this.isTattoo) {
       this.#generateCapacity();
     }
+    this.#generateTargets();
   }
 
   #generateAttunement() {
@@ -2146,6 +2224,9 @@ export default class DDBItem {
 
       this.characterManager.updateItemId(this.data);
 
+      const statusEffect = getStatusEffect({ ddbItem: this.ddbItem, foundryItem: this.data });
+      if (statusEffect) this.data.effects.push(statusEffect);
+
       if (!this.enricher.documentStub?.stopDefaultActivity)
         this.#generateActivity({}, this.activityOptions);
       this.#addHealAdditionalActivities();
@@ -2428,7 +2509,7 @@ export default class DDBItem {
       && !["wand", "scroll"].includes(this.systemType.value)
     ) return "utility";
     if (this.parsingType === "consumable" && !["wand", "scroll"].includes(this.systemType.value)) return "utility";
-    // TODO: can we determine if utility or damage?
+    if (this.data.effects.length > 0) return "utility";
     return null;
   }
 
@@ -2475,17 +2556,18 @@ export default class DDBItem {
     }, optionsOverride);
 
 
-    // console.warn(`Item Activity Check for ${this.data.name}`, {
-    //   this: this,
-    //   activity,
-    //   typeOverride,
-    //   enricherHint: this.enricher.activity?.type,
-    //   activityType: activity?.data?.type,
-    //   optionsOverride,
-    //   name,
-    //   hintsOnly,
-    //   nameIdPostfix,
-    // });
+    console.warn(`Item Activity Check for ${this.data.name}`, {
+      this: this,
+      activity,
+      typeOverride,
+      enricherHint: this.enricher.activity?.type,
+      activityType: activity?.data?.type,
+      optionsOverride,
+      name,
+      hintsOnly,
+      nameIdPostfix,
+      activityData: activity?.data ? deepClone(activity) : null,
+    });
 
     if (!activity) {
       logger.debug(`No Activity type found for ${this.data.name}`, {

@@ -13,22 +13,6 @@ export function fixItems(items) {
   items.forEach((item) => {
     const name = item.flags.ddbimporter?.originalName ?? item.name;
     switch (name) {
-      case "Alchemist's Fire (flask)":
-      case "Alchemist's Fire": {
-        item.system.activation = { type: "action", cost: 1, condition: "" };
-        item.system.target = { value: 1, width: null, units: "any", type: "creature" };
-        item.system.range = { value: 20, long: null, units: "ft" };
-        item.system.ability = "dex";
-        item.system.actionType = "rwak";
-        item.system.chatFlavor = "improvised weapon";
-        item.system.damage = { parts: [["1d4[fire]", "fire"]], versatile: "", value: "" };
-        item.system.save = {
-          ability: "dex",
-          dc: 10,
-          scaling: "flat",
-        };
-        break;
-      }
       case "Bomb": {
         item.type = "consumable";
         item.system.activation = { type: "action", cost: 1, condition: "" };
