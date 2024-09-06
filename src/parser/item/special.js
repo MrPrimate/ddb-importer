@@ -13,29 +13,6 @@ export function fixItems(items) {
   items.forEach((item) => {
     const name = item.flags.ddbimporter?.originalName ?? item.name;
     switch (name) {
-      case "Bomb": {
-        item.type = "consumable";
-        item.system.activation = { type: "action", cost: 1, condition: "" };
-        item.system.target = { value: 5, width: null, units: "ft", type: "radius" };
-        item.system.range = { value: 60, long: null, units: "ft" };
-        item.system.ability = "dex";
-        item.system.actionType = "rwak";
-        item.system.chatFlavor = "improvised weapon";
-        item.system.damage = { parts: [["3d6[fire]", "fire"]], versatile: "", value: "" };
-        item.system.save = {
-          ability: "dex",
-          dc: 12,
-          scaling: "flat",
-        };
-        break;
-      }
-      case "Canaith Mandolin": {
-        foundry.utils.setProperty(item, "flags.magicitems.charges", "1");
-        foundry.utils.setProperty(item, "flags.magicitems.chargeType", "c2");
-        foundry.utils.setProperty(item, "flags.magicitems.recharge", "1");
-        foundry.utils.setProperty(item, "flags.magicitems.rechargeType", "t1");
-        break;
-      }
       case "Grenade, Fragmentation": {
         item.type = "consumable";
         item.system.activation = { type: "action", cost: 1, condition: "" };

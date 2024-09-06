@@ -70,6 +70,13 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           description: "You are on fire, take [[/damage 1d4 fire]] at the start of your turn. You can use an action to distinguish with a [[/check dex 10]].",
         },
       },
+      "Gnomengarde Grenade": {
+        type: "item",
+        options: {
+          transfer: false,
+          statuses: ["Stunned"],
+        },
+      },
     },
     DOCUMENT_STUB: {},
   };
@@ -198,6 +205,16 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Gnomengarde Grenade": {
+      data: {
+        name: "Fire Damage",
+        "flags.ddbimporter.noeffect": true,
+        damage: {
+          onSave: "half",
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 6, type: "fire" })],
+        },
+      },
+    },
     "Iron Bands of Binding": {
       type: "attack",
       data: {
@@ -309,6 +326,16 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   };
 
   DOCUMENT_OVERRIDES = {
+    "Canaith Mandolin": {
+      data: {
+        "flags.magicitems": {
+          charges: "1",
+          chargeType: "c2",
+          recharge: "1",
+          rechargeType: "t1",
+        },
+      },
+    },
     "Iron Bands of Binding": {
       data: {
         "system.uses": {
@@ -539,6 +566,19 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
         overrides: {
           addActivityConsume: true,
+        },
+      },
+    ],
+    "Gnomengarde Grenade": [
+      {
+        constructor: {
+          name: "Thunder Damage",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          onSave: "half",
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 6, type: "thunder" })],
         },
       },
     ],

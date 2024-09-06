@@ -1520,10 +1520,10 @@ export default class DDBItem {
       this.actionInfo.target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
       this.actionInfo.target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
-    const aoeSizeRegex = /(?:within|in a) (\d+)(?: |-)(?:feet|foot) (cone|radius|sphere|line|cube|of it)/ig;
+    const aoeSizeRegex = /(?:within|in a) (\d+)(?: |-)(?:feet|foot) (cone|radius|sphere|line|cube|of it|of the)/ig;
     const aoeSizeMatch = aoeSizeRegex.exec(this.ddbDefinition.description);
 
-    console.warn(`Target generation for ${this.name}` ,{
+    console.warn(`Target generation for ${this.name}`, {
       targetsCreature,
       creatureTargetCount,
       aoeSizeMatch,

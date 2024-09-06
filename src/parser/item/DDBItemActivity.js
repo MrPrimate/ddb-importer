@@ -128,8 +128,9 @@ export default class DDBItemActivity {
     return baseParts;
   }
 
-  _generateDamage({ parts, includeBase = true, criticalDamage = null } = {}) {
+  _generateDamage({ parts, includeBase = true, criticalDamage = null, onSave = null } = {}) {
     this.data.damage = {
+      onSave: onSave ?? "",
       critical: {
         bonus: criticalDamage ?? "",
       },
@@ -232,6 +233,7 @@ export default class DDBItemActivity {
     criticalThreshold = undefined,
     activationOverride = null,
     checkOverride = null,
+    onSave = null,
   } = {}) {
 
     // override set to false on object if overriding
@@ -258,6 +260,7 @@ export default class DDBItemActivity {
       activationOverride,
       chatFlavor,
       checkOverride,
+      onSave,
       this: this,
     });
 
@@ -278,7 +281,7 @@ export default class DDBItemActivity {
         this._generateSave();
       }
     }
-    if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage, criticalDamage });
+    if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage, criticalDamage, onSave });
     if (generateHealing) this._generateHealing({ part: healingPart });
 
     if (generateCheck) this._generateCheck({ checkOverride });
