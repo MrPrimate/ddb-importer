@@ -103,8 +103,8 @@ export default class DDBItemActivity {
     };
   }
 
-  _generateDuration() {
-    this.data.duration = this.actionInfo.duration;
+  _generateDuration({ durationOverride = null }) {
+    this.data.duration = durationOverride ?? this.actionInfo.duration;
   }
 
   _generateEffects() {
@@ -232,6 +232,7 @@ export default class DDBItemActivity {
     criticalDamage = null,
     criticalThreshold = undefined,
     activationOverride = null,
+    durationOverride = null,
     checkOverride = null,
     onSave = null,
   } = {}) {
@@ -258,6 +259,7 @@ export default class DDBItemActivity {
       targetOverrides,
       additionalTargets,
       activationOverride,
+      durationOverride,
       chatFlavor,
       checkOverride,
       onSave,
@@ -268,7 +270,7 @@ export default class DDBItemActivity {
     if (generateAttack) this._generateAttack({ criticalThreshold });
     if (generateConsumption) this._generateConsumption({ targetOverrides, additionalTargets });
     if (generateDescription || chatFlavor) this._generateDescription(chatFlavor);
-    if (generateDuration) this._generateDuration();
+    if (generateDuration) this._generateDuration({ durationOverride });
     if (generateEffects) this._generateEffects();
     if (generateRange) this._generateRange();
     if (generateTarget) this._generateTarget();

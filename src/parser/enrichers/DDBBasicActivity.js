@@ -422,7 +422,7 @@ export default class DDBBasicActivity {
       number: null,
       denomination: null,
       bonus: "",
-      types: type ? [type] : [],
+      types: type ? [type.toLowerCase()] : [],
       custom: {
         enabled: false,
         formula: "",

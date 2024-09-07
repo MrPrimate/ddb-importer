@@ -30,16 +30,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       "Alchemist's Fire": [
         {
           constructor: {
-            name: "Damage",
-            type: "damage",
-          },
-          build: {
-            generateCheck: true,
-            damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 4, type: "fire" })],
-          },
-        },
-        {
-          constructor: {
             name: "Estinquish Flames Check",
             type: "check",
           },
@@ -66,16 +56,16 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           description: "You are on fire, take [[/damage 1d4 fire]] at the start of your turn. You can use an action to distinguish with a [[/check dex 10]].",
         },
       },
-      "Gnomengarde Grenade": {
-        type: "item",
-        options: {
-          transfer: false,
-          statuses: ["Stunned"],
-        },
-      },
     },
     DOCUMENT_STUB: {},
   };
+
+  //
+  // Above this is 2014 Only Hints
+  //
+  //
+  //
+  //
 
   NAME_HINTS = {
     "Absorbing Tattoo, Acid": "Absorbing Tattoo",
@@ -110,10 +100,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       addItemConsume: true,
       targetType: "creature",
       data: {
-        damage: {
-          onSave: "none",
-          parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6, type: "acid" })],
-        },
         save: {
           ability: "con",
           dc: {
@@ -128,10 +114,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       addItemConsume: true,
       targetType: "creature",
       data: {
-        damage: {
-          onSave: "none",
-          parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6, type: "acid" })],
-        },
         attack: {
           ability: "dex",
           type: {
@@ -153,10 +135,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
             formula: "",
           },
         },
-        damage: {
-          onSave: "none",
-          parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6, type: "acid" })],
-        },
       },
     },
     "Arcane Oil": {
@@ -165,26 +143,28 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     "Bead of Force": {
       type: "save",
       addItemConsume: true,
-      data: {
-        damage: {
-          onSave: "none",
-          parts: [DDBBaseEnricher.basicDamagePart({ number: 5, denomination: 4, type: "force" })],
-        },
-      },
     },
     "Blood Fury Tattoo": {
       type: "damage",
       addItemConsume: true,
       data: {
-        damage: {
-          parts: [DDBBaseEnricher.basicDamagePart({ number: 4, denomination: 6, type: "necrotic" })],
-        },
+        // damage: {
+        //   parts: [DDBBaseEnricher.basicDamagePart({ number: 4, denomination: 6, type: "necrotic" })],
+        // },
       },
     },
     "Bomb": {
       data: {
-        damage: {
-          parts: [DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 6, type: "fire" })],
+        // damage: {
+        //   parts: [DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 6, type: "fire" })],
+        // },
+      },
+    },
+    "Concussion Grenade": {
+      data: {
+        range: {
+          value: "60",
+          unit: "ft",
         },
       },
     },
@@ -197,7 +177,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       data: {
         damage: {
           onSave: "none",
-          parts: [DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 6, type: "psychic" })],
         },
       },
     },
@@ -208,6 +187,7 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         damage: {
           onSave: "half",
           parts: [DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 6, type: "fire" })],
+          // todo : double damage action appears?
         },
       },
     },
@@ -230,7 +210,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       data: {
         damage: {
           onSave: "half",
-          parts: [DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 4, type: "piercing" })],
         },
       },
     },
@@ -322,6 +301,11 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   };
 
   DOCUMENT_OVERRIDES = {
+    "Alchemist's Fire": {
+      data: {
+        "system.uses.autoDestroy": false,
+      },
+    },
     "Canaith Mandolin": {
       data: {
         "flags.magicitems": {
@@ -412,7 +396,7 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   EFFECT_HINTS = {
     "Alchemist's Fire": {
       type: "item",
-      // statuses: ["Burning"], // might this be added later?
+      statuses: ["Burning"],
       options: {
         transfer: false,
         description: "You are &Reference[Burning] take [[/damage 1d4 fire]] at the start of your turn.",
@@ -438,6 +422,13 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       type: "enchant",
       magicalBonus: {
         bonus: "1",
+      },
+    },
+    "Gnomengarde Grenade": {
+      type: "item",
+      options: {
+        transfer: false,
+        statuses: ["Stunned"],
       },
     },
     "Oil of Sharpness": {

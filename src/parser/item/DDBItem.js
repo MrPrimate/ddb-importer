@@ -1527,7 +1527,7 @@ export default class DDBItem {
     let description = this.ddbDefinition.description.replace(/[–-–−]/g, "-");
     // console.warn(hit);
     // eslint-disable-next-line no-useless-escape
-    const damageExpression = new RegExp(/(?<prefix>(?:takes|taking|saving throw or take\s+)|(?:[\w]*\s+))(?:(?<flat>[0-9]+))?(?:\s*\(?(?<damageDice>[0-9]+d[0-9]+(?:\s*[-+]\s*(?:[0-9]+))*(?:\s+plus [^\)]+)?)\)?)?\s*(?<type>[\w ]*?)\s*damage(?<start>\sat the start of|\son a failed save)?/gi);
+    const damageExpression = new RegExp(/(?<prefix>(?:takes|taking|saving throw (?:\([\w ]*\) )?or take\s+)|(?:[\w]*\s+))(?:(?<flat>[0-9]+))?(?:\s*\(?(?<damageDice>[0-9]+d[0-9]+(?:\s*[-+]\s*(?:[0-9]+))*(?:\s+plus [^\)]+)?)\)?)\s*(?<type>[\w ]*?)\s*damage(?<start>\sat the start of|\son a failed save)?/gi);
 
     const matches = [...description.matchAll(damageExpression)];
 
@@ -1596,13 +1596,24 @@ export default class DDBItem {
     // }
 
     if (formula != "") {
-      const part = DDBBasicActivity.buildDamagePart({ damageString: formula, stripMod: this.templateType === "weapon" });
+      const part = DDBBasicActivity.buildDamagePart({ damageString: formula, stripMod: false });
       this.additionalActivities.push({
-        name: this.enricher.activity.otherName ?? `Other`,
+        name: this.enricher.activity?.other?.name ?? `Damage`,
+        type: "damage",
         options: {
           generateDamage: true,
           damageParts: [part],
           includeBaseDamage: false,
+          activationOverride: {
+            type: this.enricher.activity?.other?.activationType ?? "special",
+            value: this.enricher.activity?.other?.activationValue ?? null,
+            condition: "",
+          },
+          durationOverride: {
+            value: null,
+            units: "inst",
+            special: "",
+          },
         },
       });
     }
