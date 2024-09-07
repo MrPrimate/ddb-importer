@@ -1140,7 +1140,7 @@ export default class DDBItem {
       range.value = "touch";
     }
 
-    const thrownRangeRegex = /(throw|thrown|throw this|throw it|throw the)( \w+| at a point)? (the|this|up to) (\d+) feet/ig;
+    const thrownRangeRegex = /(throw|thrown|throw this|throw it|throw the|throw a (?:\w+))( \w+| at a point)? (the|this|up to) (\d+) feet/ig;
     const match = thrownRangeRegex.exec(this.ddbDefinition.description);
     if (match) {
       range.value = match[4];
@@ -1493,6 +1493,124 @@ export default class DDBItem {
       || this.ddbDefinition.description.match(targets);
   }
 
+  #escapeCheckGeneration() {
+    const escape = this.ddbDefinition.description.match(/escape DC ([0-9]+)/);
+    if (escape) {
+      const escape = this.ddbDefinition.description.match(/escape DC ([0-9]+)/);
+      if (escape) {
+        this.additionalActivities.push({
+          type: "check",
+          name: `Escape Check`,
+          options: {
+            generateCheck: true,
+            generateTargets: false,
+            generateRange: false,
+            checkOverride: {
+              "associated": [
+                "acr",
+                "ath",
+              ],
+              "ability": "",
+              "dc": {
+                "calculation": "",
+                "formula": escape[1],
+              },
+            },
+          },
+        });
+      }
+    }
+  }
+
+  // eslint-disable-next-line complexity
+  #generateDamageFromDescription() {
+    let description = this.ddbDefinition.description.replace(/[–-–−]/g, "-");
+    // console.warn(hit);
+    // eslint-disable-next-line no-useless-escape
+    const damageExpression = new RegExp(/(?<prefix>(?:takes|taking|saving throw or take\s+)|(?:[\w]*\s+))(?:(?<flat>[0-9]+))?(?:\s*\(?(?<damageDice>[0-9]+d[0-9]+(?:\s*[-+]\s*(?:[0-9]+))*(?:\s+plus [^\)]+)?)\)?)?\s*(?<type>[\w ]*?)\s*damage(?<start>\sat the start of|\son a failed save)?/gi);
+
+    const matches = [...description.matchAll(damageExpression)];
+
+    const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
+    const regainMatch = description.match(regainExpression);
+
+    logger.debug(`${this.name} Description Damage matches`, { description, matches, regainMatch });
+    let formula = "";
+    for (const dmg of matches) {
+      let other = false;
+      let thisOther = false;
+      if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
+        continue; // eslint-disable-line no-continue
+      }
+      // check for other
+      if (dmg.groups.start && dmg.groups.start.trim() == "at the start of") other = true;
+      const damage = dmg.groups.damageDice ?? dmg.groups.flat;
+
+      // Make sure we did match a damage
+      if (damage) {
+        const includesDiceRegExp = /[0-9]*d[0-9]+/;
+        const includesDice = includesDiceRegExp.test(damage);
+        const finalDamage = (this.actionInfo && includesDice)
+          ? utils.parseDiceString(damage.replace("plus", "+"), null).diceString
+          : damage.replace("plus", "+");
+
+        // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
+        // versatile for damage
+        // ignore if dmg[1] is and as it likely indicates the whole thing is a save
+        if ((((dmg.groups.start ?? "").trim() == "on a failed save" && (dmg.groups.prefix ?? "").trim() !== "and")
+            || (dmg.groups.prefix && dmg.groups.prefix.includes("saving throw")))
+          && this.damageParts.length >= 1
+        ) {
+          other = true;
+          thisOther = true;
+        }
+        // assumption here is that there is just one field added to versatile. this is going to be rare.
+        if (other) {
+          if (formula == "") formula = finalDamage;
+          else formula += ` + ${finalDamage}`;
+
+          if (!thisOther && dmg.groups.start.trim() == "plus") {
+            const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
+            this.damageParts.push(part);
+          }
+        } else {
+          const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
+          this.damageParts.push(part);
+        }
+      }
+    }
+
+    if (regainMatch) {
+      const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
+      const part = DDBBasicActivity.buildDamagePart({
+        damageString: utils.parseDiceString(damageValue, null).diceString,
+        type: 'healing',
+      });
+      this.healingParts.push(part);
+    }
+
+    // const save = description.match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
+    // if (save) {
+    //   this.actionInfo.damageSave.dc = save[1];
+    //   this.actionInfo.damageSave.ability = save[2] ? save[2].toLowerCase().substr(0, 3) : "";
+    // }
+
+    if (formula != "") {
+      const part = DDBBasicActivity.buildDamagePart({ damageString: formula, stripMod: this.templateType === "weapon" });
+      this.additionalActivities.push({
+        name: this.enricher.activity.otherName ?? `Other`,
+        options: {
+          generateDamage: true,
+          damageParts: [part],
+          includeBaseDamage: false,
+        },
+      });
+    }
+
+    this.#escapeCheckGeneration();
+
+  }
+
   #generateTargets() {
     this.actionInfo.target = {
       prompt: true,
@@ -1520,7 +1638,7 @@ export default class DDBItem {
       this.actionInfo.target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
       this.actionInfo.target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
-    const aoeSizeRegex = /(?:within|in a) (\d+)(?: |-)(?:feet|foot) (cone|radius|sphere|line|cube|of it|of the)/ig;
+    const aoeSizeRegex = /(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot)(?: |-)(cone|radius|sphere|line|cube|of it|of an|of the)( \w+[. ])?/ig;
     const aoeSizeMatch = aoeSizeRegex.exec(this.ddbDefinition.description);
 
     console.warn(`Target generation for ${this.name}`, {
@@ -1530,7 +1648,7 @@ export default class DDBItem {
     });
 
     if (aoeSizeMatch) {
-      const type = aoeSizeMatch[2]?.trim() ?? "radius";
+      const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
       this.actionInfo.target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
       this.actionInfo.target.template.size = aoeSizeMatch[1] ?? "";
     }
@@ -1797,8 +1915,10 @@ export default class DDBItem {
         "override": false,
         "special": "",
       };
+      this.#generateDamageFromDescription();
     } else {
       this.#generateTargets();
+      this.#generateDamageFromDescription();
     }
   }
 
@@ -1806,6 +1926,7 @@ export default class DDBItem {
     if (this.systemType.value) {
       this._generateConsumableUses();
       this.#generateTargets();
+      this.#generateDamageFromDescription();
     }
     if (this.documentType === "container") {
       this.#generateCapacity();
@@ -1906,6 +2027,7 @@ export default class DDBItem {
       this.#generateCapacity();
     }
     this.#generateTargets();
+    this.#generateDamageFromDescription();
   }
 
   #generateAttunement() {
