@@ -1524,7 +1524,11 @@ export default class DDBItem {
 
   // eslint-disable-next-line complexity
   #generateDamageFromDescription() {
-    let description = this.ddbDefinition.description.replace(/[–-–−]/g, "-");
+    if (this.damageParts.length > 0) {
+      logger.debug(`Skipping damage description parse as damage already created`);
+      return;
+    }
+    let description = utils.stripHtml(this.ddbDefinition.description).replace(/[–-–−]/g, "-");
     // console.warn(hit);
     // eslint-disable-next-line no-useless-escape
     const damageExpression = new RegExp(/(?<prefix>(?:takes|taking|saving throw (?:\([\w ]*\) )?or take\s+)|(?:[\w]*\s+))(?:(?<flat>[0-9]+))?(?:\s*\(?(?<damageDice>[0-9]+d[0-9]+(?:\s*[-+]\s*(?:[0-9]+))*(?:\s+plus [^\)]+)?)\)?)\s*(?<type>[\w ]*?)\s*damage(?<start>\sat the start of|\son a failed save)?/gi);
@@ -1535,10 +1539,9 @@ export default class DDBItem {
     const regainMatch = description.match(regainExpression);
 
     logger.debug(`${this.name} Description Damage matches`, { description, matches, regainMatch });
-    let formula = "";
+    const otherParts = [];
     for (const dmg of matches) {
       let other = false;
-      let thisOther = false;
       if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
         continue; // eslint-disable-line no-continue
       }
@@ -1554,27 +1557,20 @@ export default class DDBItem {
           ? utils.parseDiceString(damage.replace("plus", "+"), null).diceString
           : damage.replace("plus", "+");
 
-        // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
-        // versatile for damage
+        const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
+
+        // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into a second damage calculation
         // ignore if dmg[1] is and as it likely indicates the whole thing is a save
         if ((((dmg.groups.start ?? "").trim() == "on a failed save" && (dmg.groups.prefix ?? "").trim() !== "and")
             || (dmg.groups.prefix && dmg.groups.prefix.includes("saving throw")))
           && this.damageParts.length >= 1
         ) {
           other = true;
-          thisOther = true;
         }
         // assumption here is that there is just one field added to versatile. this is going to be rare.
         if (other) {
-          if (formula == "") formula = finalDamage;
-          else formula += ` + ${finalDamage}`;
-
-          if (!thisOther && dmg.groups.start.trim() == "plus") {
-            const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
-            this.damageParts.push(part);
-          }
+          otherParts.push(part);
         } else {
-          const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
           this.damageParts.push(part);
         }
       }
@@ -1589,20 +1585,13 @@ export default class DDBItem {
       this.healingParts.push(part);
     }
 
-    // const save = description.match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
-    // if (save) {
-    //   this.actionInfo.damageSave.dc = save[1];
-    //   this.actionInfo.damageSave.ability = save[2] ? save[2].toLowerCase().substr(0, 3) : "";
-    // }
-
-    if (formula != "") {
-      const part = DDBBasicActivity.buildDamagePart({ damageString: formula, stripMod: false });
+    if (otherParts.length > 0 && !this.enricher.activity?.other?.prevent) {
       this.additionalActivities.push({
         name: this.enricher.activity?.other?.name ?? `Damage`,
         type: "damage",
         options: {
           generateDamage: true,
-          damageParts: [part],
+          damageParts: otherParts,
           includeBaseDamage: false,
           activationOverride: {
             type: this.enricher.activity?.other?.activationType ?? "special",
@@ -1926,11 +1915,10 @@ export default class DDBItem {
         "override": false,
         "special": "",
       };
-      this.#generateDamageFromDescription();
     } else {
       this.#generateTargets();
-      this.#generateDamageFromDescription();
     }
+    this.#generateDamageFromDescription();
   }
 
   #generateLootSpecifics() {

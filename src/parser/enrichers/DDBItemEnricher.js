@@ -147,18 +147,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     "Blood Fury Tattoo": {
       type: "damage",
       addItemConsume: true,
-      data: {
-        // damage: {
-        //   parts: [DDBBaseEnricher.basicDamagePart({ number: 4, denomination: 6, type: "necrotic" })],
-        // },
-      },
-    },
-    "Bomb": {
-      data: {
-        // damage: {
-        //   parts: [DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 6, type: "fire" })],
-        // },
-      },
     },
     "Concussion Grenade": {
       data: {
@@ -187,7 +175,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         damage: {
           onSave: "half",
           parts: [DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 6, type: "fire" })],
-          // todo : double damage action appears?
         },
       },
     },
@@ -564,6 +551,7 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
         build: {
           generateSave: true,
+          generateDamage: true,
           onSave: "half",
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 6, type: "thunder" })],
         },

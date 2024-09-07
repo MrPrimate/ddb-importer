@@ -120,14 +120,6 @@ export default class DDBItemActivity {
     this.data.target = this.actionInfo.target;
   }
 
-  _getFeaturePartsDamage() {
-    let baseParts = ["weapon", "staff"].includes(this.ddbParent.parsingType)
-      ? this.ddbParent.damageParts.slice(1)
-      : this.ddbParent.damageParts;
-
-    return baseParts;
-  }
-
   _generateDamage({ parts, includeBase = true, criticalDamage = null, onSave = null } = {}) {
     this.data.damage = {
       onSave: onSave ?? "",
