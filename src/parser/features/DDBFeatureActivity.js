@@ -356,6 +356,10 @@ export default class DDBFeatureActivity {
 
   }
 
+  _generateRoll({ roll = null } = {}) {
+    this.data.roll = roll;
+  }
+
   build({
     generateActivation = true,
     generateAttack = false,
@@ -368,6 +372,8 @@ export default class DDBFeatureActivity {
     generateRange = true,
     generateSave = false,
     generateTarget = true,
+    generateRoll = false,
+    roll = null,
   } = {}) {
 
     // override set to false on object if overriding
@@ -384,6 +390,8 @@ export default class DDBFeatureActivity {
     if (generateSave) this._generateSave();
     if (generateDamage) this._generateDamage();
     if (generateHealing) this._generateHealing();
+
+    if (generateRoll)  this._generateRoll(roll);
 
 
     // ATTACK has

@@ -20,6 +20,22 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
   NAME_HINTS = {};
 
   ACTIVITY_HINTS = {
+    "Divine Intervention": {
+      type: "utility",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "1d100",
+          name: "Implore Aid",
+        },
+      },
+    },
+    "Harness Divine Power": {
+      type: "utility",
+      activationType: "bonus",
+      addItemConsume: true,
+    },
     "Hold Breath": {
       type: "utility",
       func: undefined,
@@ -67,6 +83,11 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       data: {
         "system.uses.max": "",
         "system.uses.recovery": [],
+      },
+    },
+    "Harness Divine Power": {
+      data: {
+        "flags.ddbimporter.retainOriginalConsumption": true,
       },
     },
     "Partially Amphibious": {

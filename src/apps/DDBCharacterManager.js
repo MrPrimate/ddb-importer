@@ -758,17 +758,17 @@ ${item.system.description.chat}
     if (klassItems.length > 0) {
       logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(klassItems) });
       for (const klassItem of klassItems) {
-        console.warn(`Importing ${klassItem.name}`, klassItem);
+        // console.warn(`Importing ${klassItem.name}`, klassItem);
         await this.actor.createEmbeddedDocuments("Item", [klassItem], options);
       }
     }
     if (nonKlassItems.length > 0) {
       logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(nonKlassItems) });
-      // await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
-      for (const nonKlassItem of nonKlassItems) {
-        console.warn(`Importing ${nonKlassItem.name}`, nonKlassItem);
-        await this.actor.createEmbeddedDocuments("Item", [nonKlassItem], options);
-      }
+      await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
+      // for (const nonKlassItem of nonKlassItems) {
+      //   console.warn(`Importing ${nonKlassItem.name}`, nonKlassItem);
+      //   await this.actor.createEmbeddedDocuments("Item", [nonKlassItem], options);
+      // }
     }
   }
 

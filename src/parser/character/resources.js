@@ -262,7 +262,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
 };
 
 const resourceFeatureLinkMap = {
-  "Channel Divinity": ["Channel Divinity:"],
+  "Channel Divinity": ["Channel Divinity:", "Harness Divine Power"],
   "Superiority Dice": ["Manoeuvres:", "Maneuvers:"],
   "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen"],
   "Bardic Inspiration": [
@@ -425,7 +425,14 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
             };
             Object.keys(child.system.activities).forEach((id) => {
               const targets = child.system.activities[id].consumption.targets;
-              if (targets.length > 0) {
+              if (foundry.utils.getProperty(child, "flags.ddbimporter.retainOriginalConsumption")) {
+                targets.push({
+                  type: "itemUse",
+                  value: 1,
+                  target: `${parent._id}`,
+                });
+                foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
+              } else if (targets.length > 0) {
                 targets[0].target = parent._id;
                 foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
               } else {
