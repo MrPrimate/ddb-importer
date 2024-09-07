@@ -33,8 +33,26 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
   const nbDice = level;
 
   // Get restrained condition id
-  const statusId = CONFIG.statusEffects.find(se => se.name === CONFIG.DND5E.conditionTypes["restrained"].label)?.id;
   const conEffect = MidiQOL.getConcentrationEffect(sourceActor, originItem);
+
+  const effect = {
+    changes: [
+      {
+        key: "flags.midi-qol.OverTime",
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+        value: `turn=start,damageRoll=${nbDice}d6,damageType=piercing,label=${originItem.name}: Effect,actionSave=roll,rollType=check,saveAbility=str,saveDC=@attributes.spelldc,killAnim=true`,
+        priority: 20,
+      },
+    ],
+    origin: originItem.uuid,
+    disabled: false,
+    transfer: false,
+    img: originItem.img,
+    name: originItem.name,
+    duration: DDBImporter?.EffectHelper.getRemainingDuration(conEffect.duration),
+  }
+
+  DDBImporter.EffectHelper.addStatusEffectChange(effect, "Restrained");
 
   // Temporary spell data for the ensnaring effect.
   // Note: we keep same id as origin spell to make sure that the AEs have the same origin
@@ -52,28 +70,7 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
       target: { type: "creature", value: 1 },
     },
     effects: [
-      {
-        changes: [
-          {
-            key: "StatusEffect",
-            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-            value: statusId,
-            priority: 20,
-          },
-          {
-            key: "flags.midi-qol.OverTime",
-            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-            value: `turn=start,damageRoll=${nbDice}d6,damageType=piercing,label=${originItem.name}: Effect,actionSave=roll,rollType=check,saveAbility=str,saveDC=@attributes.spelldc,killAnim=true`,
-            priority: 20,
-          },
-        ],
-        origin: originItem.uuid,
-        disabled: false,
-        transfer: false,
-        img: originItem.img,
-        name: originItem.name,
-        duration: DDBImporter?.EffectHelper.getRemainingDuration(conEffect.duration),
-      },
+      effect,
     ],
   };
 }

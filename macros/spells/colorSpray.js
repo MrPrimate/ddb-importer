@@ -28,9 +28,7 @@ for (let target of targets) {
       disabled: false,
       duration: { startRound: gameRound, startTime: game.time.worldTime },
       flags: { dae: { specialDuration: ["turnEndSource"] } },
-      changes: [
-        DDBImporter.EffectHelper.generateStatusEffectChange(game.i18n.localize("Blinded"), 20),
-      ]
+      statuses: ["blinded"],
     };
 
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: findTarget.actor.uuid, effects: [effectData] });

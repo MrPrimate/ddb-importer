@@ -10,7 +10,7 @@ import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
 import { fixFeatures, addExtraEffects } from "../parser/features/fixes.js";
 import { generateOverTimeEffect, damageOverTimeEffect, getOvertimeDamage, getMonsterFeatureDamage } from "./monsterFeatures/overTimeEffect.js";
-import { baseEffect, generateStatusEffectChange, addStatusEffectChange, generateTokenMagicFXChange, generateATLChange } from "./effects.js";
+import { baseEffect, generateDAEStatusEffectChange, addStatusEffectChange, generateTokenMagicFXChange, generateATLChange } from "./effects.js";
 import ExternalAutomations from "./external/ExternalAutomations.js";
 
 export default class DDBEffectHelper {
@@ -25,7 +25,7 @@ export default class DDBEffectHelper {
 
   static damageOverTimeEffect = damageOverTimeEffect;
 
-  static generateStatusEffectChange = generateStatusEffectChange;
+  static generateDAEStatusEffectChange = generateDAEStatusEffectChange;
 
   static addStatusEffectChange = addStatusEffectChange;
 

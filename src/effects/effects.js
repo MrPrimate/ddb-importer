@@ -445,9 +445,9 @@ export function generateBaseSkillEffect(id, label) {
   return skillEffect;
 }
 
-export function generateStatusEffectChange(statusName, priority = 20) {
+export function generateDAEStatusEffectChange(statusName, priority = 20) {
   return {
-    key: effectModules().daeInstalled ? "macro.StatusEffect" : "statuses",
+    key: "macro.StatusEffect",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     value: statusName.toLowerCase(),
     priority: priority,
@@ -456,7 +456,7 @@ export function generateStatusEffectChange(statusName, priority = 20) {
 
 export function addStatusEffectChange({ effect, statusName, priority = 20, level = null } = {}) {
   if (effectModules().daeInstalled) {
-    const key = generateStatusEffectChange(statusName, priority);
+    const key = generateDAEStatusEffectChange(statusName, priority);
     effect.changes.push(key);
   } else {
     effect.statuses.push(statusName.toLowerCase());
