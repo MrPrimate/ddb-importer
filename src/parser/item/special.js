@@ -13,6 +13,7 @@ export function fixItems(items) {
   items.forEach((item) => {
     const name = item.flags.ddbimporter?.originalName ?? item.name;
     switch (name) {
+      SMOKE GRENADE
       case "Grenade, Fragmentation": {
         item.type = "consumable";
         item.system.activation = { type: "action", cost: 1, condition: "" };
