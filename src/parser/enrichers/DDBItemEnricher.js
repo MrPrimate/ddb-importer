@@ -14,12 +14,8 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       "Alchemist's Fire": {
         type: "attack",
         addItemConsume: true,
-        // targetType: "creature",
+        targetType: "creature",
         data: {
-          // range: {
-          //   value: 20,
-          //   units: "ft",
-          // },
           attack: {
             ability: "dex",
             type: {
