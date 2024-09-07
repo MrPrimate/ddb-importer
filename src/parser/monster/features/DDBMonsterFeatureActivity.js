@@ -172,12 +172,21 @@ export default class DDBMonsterFeatureActivity {
 
   }
 
+  _generateCheck({ checkOverride = null }) {
+    this.data.check = checkOverride ?? {
+      associated: this.actionInfo.associatedToolsOrAbilities,
+      ability: this.actionInfo.ability,
+      dc: {},
+    };
+  }
+
   build({
     damageParts = [],
     healingPart = null,
     generateActivation = true,
     generateAttack = false,
     generateConsumption = true,
+    generateCheck = false,
     generateDamage = false,
     generateDescription = false,
     generateDuration = true,
@@ -187,6 +196,7 @@ export default class DDBMonsterFeatureActivity {
     generateSave = false,
     generateTarget = true,
     includeBaseDamage = true,
+    checkOverride = null,
   } = {}) {
 
     // override set to false on object if overriding
@@ -206,6 +216,8 @@ export default class DDBMonsterFeatureActivity {
       generateSave,
       generateTarget,
       includeBaseDamage,
+      generateCheck,
+      checkOverride,
       this: this,
     });
 
@@ -221,6 +233,8 @@ export default class DDBMonsterFeatureActivity {
     if (generateSave) this._generateSave();
     if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage });
     if (generateHealing) this._generateHealing({ part: healingPart });
+
+    if (generateCheck) this._generateCheck({ checkOverride });
 
 
     // ATTACK has

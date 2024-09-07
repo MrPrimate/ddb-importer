@@ -351,12 +351,29 @@ export default class DDBMonsterFeature {
     if (save) {
       this.actionInfo.damageSave.dc = save[1];
       this.actionInfo.damageSave.ability = save[2] ? save[2].toLowerCase().substr(0, 3) : "";
-    } else {
-      const escape = hit.match(/escape DC ([0-9]+)/);
-      if (escape) {
-        this.actionInfo.damageSave.dc = escape[1];
-        this.actionInfo.damageSave.ability = "Escape";
-      }
+    }
+    const escape = hit.match(/escape DC ([0-9]+)/);
+    if (escape) {
+      this.additionalActivities.push({
+        type: "check",
+        name: `Escape Check`,
+        options: {
+          generateCheck: true,
+          generateTargets: false,
+          generateRange: false,
+          checkOverride: {
+            "associated": [
+              "acr",
+              "ath",
+            ],
+            "ability": "",
+            "dc": {
+              "calculation": "",
+              "formula": escape[1],
+            },
+          },
+        },
+      });
     }
 
     if (this.actionInfo.damageParts.length > 0 && this.templateType === "weapon") {
@@ -1175,6 +1192,25 @@ ${this.feature.system.description.value}
     return summonActivity;
   }
 
+  _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const checkActivity = new DDBMonsterFeatureActivity({
+      name,
+      type: "check",
+      ddbParent: this,
+      nameIdPrefix: "check",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    checkActivity.build(foundry.utils.mergeObject({
+      generateAttack: false,
+      generateRange: false,
+      generateDamage: false,
+      generateCheck: true,
+      generateActivation: true,
+    }, options));
+    return checkActivity;
+  }
+
   #addSaveAdditionalActivity(includeBase = false) {
     this.additionalActivities.push({
       type: "save",
@@ -1250,6 +1286,8 @@ ${this.feature.system.description.value}
         return this._getEnchantActivity(data, options);
       case "summon":
         return this._getSummonActivity(data, options);
+      case "check":
+        return this._getCheckActivity(data, options);
       default:
         if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
         return undefined;
