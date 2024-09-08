@@ -77,41 +77,6 @@ export function equipmentEffectAdjustment(document) {
   if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
   const name = document.flags.ddbimporter?.originalName ?? document.name;
   switch (name) {
-    case "Armor of Invulnerability": {
-      // this effect is 1/day, we have to add it
-      let effect = baseItemEffect(document, `${document.name} - Invulnerability`, { transfer: false, disabled: false });
-      effect.changes.push(generateUnsignedAddChange("physical", 20, "system.traits.di.value"));
-      effect.duration = {
-        startTime: null,
-        seconds: 600,
-        rounds: null,
-        turns: null,
-        startRound: null,
-        startTurn: null,
-      };
-      effect.flags.dae.stackable = false;
-      document.system.uses = {
-        spent: 0,
-        max: "1",
-        recovery: [{
-          period: "day",
-          type: "recoverAll",
-        }],
-      };
-      document.system.target = {
-        value: null,
-        width: null,
-        units: "",
-        type: "self",
-      };
-      document.system.range = {
-        value: null,
-        long: null,
-        units: "self",
-      };
-      document.effects.push(effect);
-      break;
-    }
     case "Bracers of Archery": {
       // +2 damage to longbows/shortbows translates to +2 ranged weapon damage
       document.effects[0].changes.push({

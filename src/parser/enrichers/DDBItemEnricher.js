@@ -1,3 +1,4 @@
+import { generateUnsignedAddChange } from "../../effects/effects.js";
 import DDBItemActivity from "../item/DDBItemActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
@@ -139,6 +140,15 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     },
     "Arcane Oil": {
       type: "enchant",
+    },
+    "Armor of Invulnerability": {
+      type: "utility",
+      addItemConsume: true,
+      targetType: "self",
+      activationType: "action",
+      data: {
+        name: "Become Invulnerable!",
+      },
     },
     "Bead of Force": {
       type: "save",
@@ -470,6 +480,22 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         makeMagical: false,
         bonus: "2",
       },
+    },
+    "Armor of Invulnerability": {
+      type: "item",
+      name: "Invulnerable!",
+      options: {
+        transfer: false,
+        description: "You are invincible!",
+        durationRounds: 100,
+        durationSeconds: 600,
+      },
+      changes: [
+        generateUnsignedAddChange("bludgeoning", 20, "system.traits.di.value"),
+        generateUnsignedAddChange("piercing", 20, "system.traits.di.value"),
+        generateUnsignedAddChange("slashing", 20, "system.traits.di.value"),
+        generateUnsignedAddChange("mgc", 20, "system.traits.di.bypasses"),
+      ],
     },
     "Bead of Force": {
       type: "item",

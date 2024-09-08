@@ -1,4 +1,4 @@
-import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, baseEnchantmentEffect, baseItemEffect } from "../../effects/effects.js";
+import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, baseEnchantmentEffect, baseItemEffect, forceItemEffect } from "../../effects/effects.js";
 import { baseFeatEffect } from "../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../effects/specialSpells.js";
@@ -229,6 +229,10 @@ export default class DDBBaseEnricher {
       }
     }
 
+    if (this.effect.changes) {
+      effect.changes.push(...this.effect.changes);
+    }
+
     if (this.effect.data) {
       effect = foundry.utils.mergeObject(effect, this.effect.data);
     }
@@ -236,6 +240,8 @@ export default class DDBBaseEnricher {
     if (this.effect?.func) {
       this.effect.func(effect);
     }
+
+    forceItemEffect(this.data);
 
     return effect;
   }
