@@ -512,12 +512,21 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         bonus: "1",
       },
     },
+    "Dust of Sneezing and Choking": {
+      type: "item",
+      name: "Sneezing and Choking",
+      options: {
+        transfer: false,
+        description: "You are &Reference[incapacitated]{incapacitated} and &Reference[suffocating]{suffocating}.",
+      },
+      statuses: ["Incapacitated"], // "Suffocating"?
+    },
     "Gnomengarde Grenade": {
       type: "item",
       options: {
         transfer: false,
-        statuses: ["Stunned"],
       },
+      statuses: ["Stunned"],
     },
     "Oil of Sharpness": {
       type: "enchant",

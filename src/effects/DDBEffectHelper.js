@@ -1251,7 +1251,7 @@ export default class DDBEffectHelper {
     if (match) {
       if (match.groups.type === "check") results.check = true;
       results.condition = match.groups["condition"];
-      results.success = true;
+
       results.save = {
         dc: {
           formulas: match.groups["dc"] ?? "",
@@ -1277,13 +1277,19 @@ export default class DDBEffectHelper {
       } else if (match.groups.hint && match.groups.hint === "die") {
         DDBEffectHelper.addStatusEffectChange({ effect: results.effect, statusName: "Dead" });
         if (nameHint) results.effect.name = `Status: Dead`;
+      } else {
+        logger.debug(`Odd condition ${results.condition} found`, {
+          text,
+          nameHint,
+        });
+        return results;
       }
+      results.success = true;
+      const durationSeconds = DDBEffectHelper.getDuration(text);
+      foundry.utils.setProperty(results.effect, "duration.seconds", durationSeconds);
+      const durationRounds = Number.parseInt(durationSeconds / 6);
+      foundry.utils.setProperty(results.effect, "duration.rounds", durationRounds);
     }
-
-    const durationSeconds = DDBEffectHelper.getDuration(text);
-    foundry.utils.setProperty(results.effect, "duration.seconds", durationSeconds);
-    const durationRounds = Number.parseInt(durationSeconds / 6);
-    foundry.utils.setProperty(results.effect, "duration.rounds", durationRounds);
 
     return results;
   }

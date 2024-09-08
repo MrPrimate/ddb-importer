@@ -839,6 +839,7 @@ const DICTIONARY = {
       "Wand",
       "Rod",
       "Wondrous item",
+      "Miscellaneous",
     ],
     LOOT: [
       "Gemstone",

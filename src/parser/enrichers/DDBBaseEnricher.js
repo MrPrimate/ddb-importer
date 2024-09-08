@@ -241,6 +241,13 @@ export default class DDBBaseEnricher {
       this.effect.func(effect);
     }
 
+    // if (effect.statuses.length > 0
+    //   && !effect.duration?.rounds
+    //   && !effect.duration?.seconds
+    // ) {
+
+    // }
+
     forceItemEffect(this.data);
 
     return effect;

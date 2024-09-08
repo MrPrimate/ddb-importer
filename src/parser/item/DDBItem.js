@@ -1628,19 +1628,22 @@ export default class DDBItem {
       this.actionInfo.target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
       this.actionInfo.target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
-    const aoeSizeRegex = /(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot)(?: |-)(cone|radius|sphere|line|cube|of it|of an|of the)( \w+[. ])?/ig;
+    const aoeSizeRegex = /(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot)(?: |-)(cone|radius|sphere|line|cube|of it|of an|of the|of you)( \w+[. ])?/ig;
     const aoeSizeMatch = aoeSizeRegex.exec(this.ddbDefinition.description);
 
-    console.warn(`Target generation for ${this.name}`, {
-      targetsCreature,
-      creatureTargetCount,
-      aoeSizeMatch,
-    });
+    // console.warn(`Target generation for ${this.name}`, {
+    //   targetsCreature,
+    //   creatureTargetCount,
+    //   aoeSizeMatch,
+    // });
 
     if (aoeSizeMatch) {
       const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
       this.actionInfo.target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
       this.actionInfo.target.template.size = aoeSizeMatch[1] ?? "";
+      if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
+        this.actionInfo.range.units = "self";
+      }
     }
   }
 

@@ -73,7 +73,7 @@ export default class DDBItemActivity {
           formula: "",
         },
       });
-    } else if (![0, null, undefined].includes(this.ddbParent.data.uses?.max)) {
+    } else if (![0, null, undefined].includes(this.ddbParent.data.system.uses?.max)) {
       targets.push({
         type: "itemUses",
         target: "",
@@ -292,10 +292,6 @@ export default class DDBItemActivity {
     if (this.data.uses && (!this.data.uses?.max || this.data.uses?.max === "")) {
       this.data.uses.spent = null;
     }
-
-    console.warn("Generated Activity", {
-      data: deepClone(this.data),
-    });
 
     // ATTACK has
     // activation
