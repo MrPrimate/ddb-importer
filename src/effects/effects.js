@@ -459,6 +459,11 @@ export function addStatusEffectChange({ effect, statusName, priority = 20, level
     const key = generateDAEStatusEffectChange(statusName, priority);
     effect.changes.push(key);
   } else {
+    if (effect.description && effect.description.trim() === "") {
+      effect.description = `You have the &Reference[${statusName.toLowerCase()}] status condition.`;
+    } else if (effect.description && effect.description.startsWith("You have the &Reference[")) {
+      effect.description += `<br> You have the &Reference[${statusName.toLowerCase()}] status condition.`;
+    }
     effect.statuses.push(statusName.toLowerCase());
     if (level) foundry.utils.setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
   }

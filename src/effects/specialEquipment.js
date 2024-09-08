@@ -77,16 +77,6 @@ export function equipmentEffectAdjustment(document) {
   if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
   const name = document.flags.ddbimporter?.originalName ?? document.name;
   switch (name) {
-    case "Bracers of Archery": {
-      // +2 damage to longbows/shortbows translates to +2 ranged weapon damage
-      document.effects[0].changes.push({
-        key: "system.bonuses.rwak.damage",
-        value: "+2",
-        mode: 0,
-        priority: 20,
-      });
-      break;
-    }
     case "Demon Armor": {
       // Unarmed strikes bonus/weapons
       document.effects[0].changes.push(

@@ -166,6 +166,9 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Demon Armor": {
+      type: "enchant",
+    },
     "Donjon's Sundering Sphere": {
       type: "enchant",
     },
@@ -504,6 +507,72 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         description: "Trapped in a sphere of force!",
         durationRounds: 10,
         durationSeconds: 60,
+      },
+    },
+    "Bracers of Archery": {
+      noCreate: true,
+      changes: [
+        {
+          key: "system.bonuses.rwak.damage",
+          value: "2",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+      ],
+    },
+    // "Demon Armor": {
+    // previous DAE/Midi effect
+    //   noCreate: true,
+    //   changes: [
+    //     {
+    //       key: "items.Unarmed Strike.system.attack.bonus",
+    //       value: "1",
+    //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+    //       priority: 20,
+    //     },
+    //     {
+    //       key: "items.Unarmed Strike.system.damage.parts.0.0",
+    //       value: "1d8+@mod+1",
+    //       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    //       priority: 20,
+    //     },
+    //     {
+    //       key: "items.Unarmed Strike.system.properties.mgc",
+    //       value: "true",
+    //       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    //       priority: 20,
+    //     },
+    //   ],
+    // },
+    "Demon Armor": {
+      type: "enchant",
+      descriptionHint: true,
+      magicalBonus: {
+        makeMagical: true,
+        bonus: "1",
+      },
+      changes: [
+        {
+          key: "system.damage.base.number",
+          value: "1",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+        {
+          key: "system.damage.base.denomination",
+          value: "8",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+        {
+          key: "system.damage.base.custom.enabled",
+          value: "false",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+      ],
+      data: {
+        "restrictions.type": "weapon",
       },
     },
     "Donjon's Sundering Sphere": {

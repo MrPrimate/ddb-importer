@@ -1863,13 +1863,6 @@ export default class DDBItem {
         base: this.damageParts[0],
       };
     }
-
-    // todo: more than one damage part?
-    // do we ever want to replace damage here?
-    // do we need to have a secondary damage part or save e.g. slaying arrow?
-
-    // ammunition damage
-    // "replace": true
   }
 
   #generateArmorSpecifics() {
@@ -1989,12 +1982,6 @@ export default class DDBItem {
           ? []
           : this.damageParts.splice(1),
       };
-    }
-  }
-
-  #generateTattooSpecifics() {
-    if (this.originalName.startsWith("Absorbing")) {
-
     }
   }
 

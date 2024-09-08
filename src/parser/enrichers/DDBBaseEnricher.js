@@ -180,6 +180,7 @@ export default class DDBBaseEnricher {
     return activity;
   }
 
+  // eslint-disable-next-line complexity
   createEffect() {
     if (!this.effect) return undefined;
 
@@ -188,41 +189,45 @@ export default class DDBBaseEnricher {
     let name = this.effect.name ?? this.name;
     let effectOptions = this.effect.options ?? {};
 
-    switch (this.effect.type) {
-      case "enchant":
-        effect = baseEnchantmentEffect(this.data, name, effectOptions);
-        if (this.effect.magicalBonus) {
-          addMagicalBonusToEnchantmentEffect({
-            effect,
-            nameAddition: this.effect.magicalBonus.name,
-            bonus: this.effect.magicalBonus.bonus,
-            bonusMode: this.effect.magicalBonus.mode,
-            makeMagical: this.effect.magicalBonus.makeMagical,
-          });
-        }
-        break;
-      case "feat":
-        effect = baseFeatEffect(this.data, name, effectOptions);
-        break;
-      case "spell":
-        effect = baseSpellEffect(this.data, name, effectOptions);
-        break;
-      case "monster":
-        effect = baseMonsterFeatureEffect(this.data, name, effectOptions);
-        break;
-      case "item":
-        effect = baseItemEffect(this.data, name, effectOptions);
-        break;
-      case "basic":
-      default:
-        effect = baseEffect(this.data, name, effectOptions);
+    if (this.effect.noCreate) {
+      effect = this.data.effects[0];
+    } else {
+      switch (this.effect.type) {
+        case "enchant":
+          effect = baseEnchantmentEffect(this.data, name, effectOptions);
+          if (this.effect.magicalBonus) {
+            addMagicalBonusToEnchantmentEffect({
+              effect,
+              nameAddition: this.effect.magicalBonus.name,
+              bonus: this.effect.magicalBonus.bonus,
+              bonusMode: this.effect.magicalBonus.mode,
+              makeMagical: this.effect.magicalBonus.makeMagical,
+            });
+          }
+          break;
+        case "feat":
+          effect = baseFeatEffect(this.data, name, effectOptions);
+          break;
+        case "spell":
+          effect = baseSpellEffect(this.data, name, effectOptions);
+          break;
+        case "monster":
+          effect = baseMonsterFeatureEffect(this.data, name, effectOptions);
+          break;
+        case "item":
+          effect = baseItemEffect(this.data, name, effectOptions);
+          break;
+        case "basic":
+        default:
+          effect = baseEffect(this.data, name, effectOptions);
+      }
     }
 
     if (this.effect.statuses) {
       for (const status of this.effect.statuses) {
         const splitStatus = status.split(":");
         addStatusEffectChange({
-          effect: effect,
+          effect,
           statusName: splitStatus[0],
           level: splitStatus.length > 1 ? splitStatus[1] : null,
         });
@@ -241,16 +246,19 @@ export default class DDBBaseEnricher {
       this.effect.func(effect);
     }
 
-    // if (effect.statuses.length > 0
-    //   && !effect.duration?.rounds
-    //   && !effect.duration?.seconds
-    // ) {
-
-    // }
+    if (this.effect.descriptionHint && this.effect.type === "enchant") {
+      this.data.system.description.value = `${this.data.system.description.value}
+<br>
+<section class="secret">
+<i>This feature provides an enchantment to help provide it's functionality.</i>
+</section>`;
+    }
 
     forceItemEffect(this.data);
 
-    return effect;
+    return this.effect.noCreate
+      ? undefined
+      : effect;
   }
 
   addDocumentOverride() {
