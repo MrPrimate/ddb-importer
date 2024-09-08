@@ -1,3 +1,7 @@
+# 5.2.36
+
+- Item munch would not parse if source restrictions were selected.
+
 # 5.2.35
 
 - Some fixes for CPR application for Unarmed Strike when using Tavern Brawler.
