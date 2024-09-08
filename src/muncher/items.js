@@ -129,7 +129,6 @@ function getItemData(sourceFilter) {
         if (sources.length == 0 || !sourceFilter) return genericsFilteredData;
         return genericsFilteredData.filter((item) =>
           item.sources
-            .filter((sources) => !sources.some((s) => [145, 148].includes(s.sourceId)))
             .some((source) => sources.includes(source.sourceId))
         );
       })
