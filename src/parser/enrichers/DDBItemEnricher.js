@@ -1,4 +1,4 @@
-import { generateUnsignedAddChange } from "../../effects/effects.js";
+import { generateMultiplyChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import DDBItemActivity from "../item/DDBItemActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
@@ -80,6 +80,9 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     "Absorbing Tattoo, Radiant": "Absorbing Tattoo",
     "Absorbing Tattoo, Thunder": "Absorbing Tattoo",
     "Alchemist's Fire (flask)": "Alchemist's Fire",
+    "Moon Sickle, +1": "Moon Sickle",
+    "Moon Sickle, +2": "Moon Sickle",
+    "Moon Sickle, +3": "Moon Sickle",
     "Potion of Greater Healing": "Potion of Healing (Greater)",
     "Potion of Superior Healing": "Potion of Healing (Superior)",
     "Potion of Supreme Healing": "Potion of Healing (Supreme)",
@@ -157,6 +160,11 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     "Blood Fury Tattoo": {
       type: "damage",
       addItemConsume: true,
+    },
+    "Boots of Speed": {
+      type: "utility",
+      targetType: "self",
+      activationType: "bonus",
     },
     "Concussion Grenade": {
       data: {
@@ -509,6 +517,25 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         durationSeconds: 60,
       },
     },
+    "Belashyrra's Beholder Crown": {
+      type: "item",
+      changes: [
+        generateUpgradeChange(120, 10, "system.attributes.senses.darkvision"),
+      ],
+    },
+    "Boots of Speed": {
+      type: "item",
+      options: {
+        transfer: false,
+        durationSeconds: 600,
+        durationRounds: 100,
+      },
+      data: {
+        changes: [
+          generateMultiplyChange(2, 20, "system.attributes.movement.walk"),
+        ],
+      },
+    },
     "Bracers of Archery": {
       noCreate: true,
       changes: [
@@ -596,6 +623,17 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         transfer: false,
       },
       statuses: ["Stunned"],
+    },
+    "Moon Sickle": {
+      noCreate: true,
+      changes: [
+        {
+          key: "system.bonuses.heal.damage",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: "+ d4",
+          priority: "20",
+        },
+      ],
     },
     "Oil of Sharpness": {
       type: "enchant",

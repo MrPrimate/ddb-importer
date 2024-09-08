@@ -2,11 +2,10 @@ import utils from "../lib/utils.js";
 import DDBHelper from "../lib/DDBHelper.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { equipmentEffectAdjustment } from "./specialEquipment.js";
 import { infusionEffectAdjustment } from "./specialInfusions.js";
 import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEffects.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
-import { abilityOverrideEffects } from "./abilityOverrides.js";
+// import { abilityOverrideEffects } from "./abilityOverrides.js";
 import DDBEffectHelper from "./DDBEffectHelper.js";
 
 /**
@@ -1691,11 +1690,6 @@ export function generateEffects({ ddb, character, ddbItem, foundryItem, isCompen
   switch (type) {
     case "infusion": {
       foundryItem = infusionEffectAdjustment(foundryItem);
-      break;
-    }
-    case "equipment":
-    case "item": {
-      foundryItem = equipmentEffectAdjustment(foundryItem);
       break;
     }
     // spells and feats get called from respective parsers for async loading

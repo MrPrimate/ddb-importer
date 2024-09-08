@@ -4,7 +4,7 @@ import FolderHelper from "../lib/FolderHelper.js";
 import utils from "../lib/utils.js";
 import logger from "../logger.js";
 import { fixSpells } from "../parser/spells/special.js";
-import { equipmentEffectAdjustment, midiItemEffects } from "./specialEquipment.js";
+import { midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
 import { fixFeatures, addExtraEffects } from "../parser/features/fixes.js";
@@ -66,7 +66,7 @@ export default class DDBEffectHelper {
       if (foundry.utils.hasProperty(data, "flags.ActiveAuras")) delete data.flags.ActiveAuras;
 
       if (DICTIONARY.types.inventory.includes(data.type)) {
-        equipmentEffectAdjustment(data);
+        // equipmentEffectAdjustment(data); // removed, no longer called
         data = await midiItemEffects(data);
         // todo: fix items removed here, this is now included earlier in teh item parser
       } else if (data.type === "spell") {
@@ -1235,16 +1235,21 @@ export default class DDBEffectHelper {
     };
 
     text = utils.nameString(text);
-    const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (\d+) (minute))?(.*)?(?:.|$)/ig;
+    const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (\d+) (minute|round|hour))?(.*)?(?:.|$)/ig;
     let match = conditionSearch.exec(text);
     if (!match) {
-      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute))?(.*)?(?:.|$)/ig;
+      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute|round|hour))?(.*)?(?:.|$)/ig;
       match = rawConditionSearch.exec(text);
     }
 
     if (!match) {
       const onHitSearch = /On a hit, the target is (?<condition>\w+)? until/ig;
       match = onHitSearch.exec(text);
+    }
+
+    if (!match) {
+      const saveSearch = /On a failed save, a creature takes (\d+)?d(\d+) (\w+) damage and is (?<condition>\w+)(?: for (\d+) (minute|round|hour))?/ig;
+      match = saveSearch.exec(text);
     }
 
     // console.warn("condition status", match);
