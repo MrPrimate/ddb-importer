@@ -4,8 +4,6 @@ import DDBCharacter from "../DDBCharacter.js";
 // magic items support
 import MagicItemMaker from "./MagicItemMaker.js";
 
-import { fixItems } from "./special.js";
-
 // effects support
 import { generateEffects } from "../../effects/effects.js";
 import { parseInfusion } from "./infusions.js";
@@ -100,10 +98,6 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       items.push(item);
     }
   }
-
-    // TODO: rework for activities
-
-  fixItems(items);
 
   // hack till better impelementation
   for (const item of items) {

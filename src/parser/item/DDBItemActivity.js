@@ -120,7 +120,7 @@ export default class DDBItemActivity {
     this.data.target = this.actionInfo.target;
   }
 
-  _generateDamage({ parts, includeBase = true, criticalDamage = null, onSave = null } = {}) {
+  _generateDamage({ parts, includeBase = true, criticalDamage = null, onSave = null, scalingOverride = null } = {}) {
     this.data.damage = {
       onSave: onSave ?? "",
       critical: {
@@ -132,6 +132,7 @@ export default class DDBItemActivity {
         : ["weapon", "staff"].includes(this.ddbParent.parsingType)
           ? this.ddbParent.damageParts.slice(1)
           : this.ddbParent.damageParts,
+      scaling: scalingOverride ?? undefined,
     };
 
     // damage: {
@@ -226,6 +227,7 @@ export default class DDBItemActivity {
     activationOverride = null,
     durationOverride = null,
     checkOverride = null,
+    damageScalingOverride = null,
     onSave = null,
   } = {}) {
 
@@ -254,6 +256,7 @@ export default class DDBItemActivity {
       durationOverride,
       chatFlavor,
       checkOverride,
+      damageScalingOverride,
       onSave,
       this: this,
     });
@@ -275,7 +278,13 @@ export default class DDBItemActivity {
         this._generateSave();
       }
     }
-    if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage, criticalDamage, onSave });
+    if (generateDamage) this._generateDamage({
+      parts: damageParts,
+      includeBase: includeBaseDamage,
+      criticalDamage,
+      onSave,
+      scalingOverride: damageScalingOverride,
+    });
     if (generateHealing) this._generateHealing({ part: healingPart });
 
     if (generateCheck) this._generateCheck({ checkOverride });

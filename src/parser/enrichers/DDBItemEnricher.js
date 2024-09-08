@@ -178,6 +178,15 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Healer's Kit": {
+      type: "utility",
+      addItemConsume: true,
+      activationType: "action",
+      targetType: "creature",
+      data: {
+        "range.units": "touch",
+      },
+    },
     "Iron Bands of Binding": {
       type: "attack",
       data: {
@@ -215,12 +224,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       activationType: this.is2014 ? "action" : "reaction",
       targetType: "creature",
       data: {
-        healing: {
-          number: 2,
-          denomination: 4,
-          bonus: "2",
-          type: "healing",
-        },
         range: {
           units: "touch",
         },
@@ -232,12 +235,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       activationType: this.is2014 ? "action" : "reaction",
       targetType: "creature",
       data: {
-        healing: {
-          number: 4,
-          denomination: 4,
-          bonus: "4",
-          type: "healing",
-        },
         range: {
           units: "touch",
         },
@@ -249,12 +246,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       activationType: this.is2014 ? "action" : "reaction",
       targetType: "creature",
       data: {
-        healing: {
-          number: 8,
-          denomination: 4,
-          bonus: "8",
-          type: "healing",
-        },
         range: {
           units: "touch",
         },
@@ -266,12 +257,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       activationType: this.is2014 ? "action" : "reaction",
       targetType: "creature",
       data: {
-        healing: {
-          number: 10,
-          denomination: 4,
-          bonus: "20",
-          type: "healing",
-        },
         range: {
           units: "touch",
         },
@@ -279,6 +264,81 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     },
     "Stink Bomb": {
       targetType: "creature",
+    },
+    "Wand of Fireballs": {
+      type: "save",
+      addItemConsume: true,
+      // addScalingMode: "scaling",
+      data: {
+        save: {
+          ability: "dex",
+          dc: {
+            calculation: "",
+            formula: "15",
+          },
+        },
+        damage: {
+          onSave: "half",
+          parts: [foundry.utils.mergeObject(
+            DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 6, type: "fire" }),
+            {
+              scaling: {
+                "mode": "whole",
+                "number": 1,
+                "formula": "",
+              },
+            },
+          )],
+        },
+        "consumption.scaling": {
+          allowed: true,
+          max: "7",
+        },
+        range: {
+          value: "150",
+          units: "ft",
+        },
+        target: {
+          "affects": {
+            "count": "",
+            "type": "",
+          },
+          "template": {
+            "contiguous": false,
+            "type": "sphere",
+            "size": "20",
+            "units": "ft",
+          },
+        },
+      },
+    },
+    "Wand of Magic Missiles": {
+      type: "damage",
+      addItemConsume: true,
+      targetType: "creature",
+      data: {
+        damage: {
+          onSave: "half",
+          parts: [foundry.utils.mergeObject(
+            DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 4, bonus: "3", type: "force" }),
+            {
+              scaling: {
+                "mode": "whole",
+                "number": null,
+                "formula": "1d4 + 1",
+              },
+            },
+          )],
+        },
+        "consumption.scaling": {
+          allowed: true,
+          max: "7",
+        },
+        range: {
+          value: "120",
+          units: "ft",
+        },
+      },
     },
     "Waterskin": {
       type: "utility",
@@ -300,6 +360,21 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           chargeType: "c2",
           recharge: "1",
           rechargeType: "t1",
+        },
+      },
+    },
+    "Healer's Kit": {
+      data: {
+        "flags.ddbimporter": {
+          retainResourceConsumption: true,
+          retainUseSpent: true,
+        },
+        "system.uses": {
+          spent: 0,
+          max: 10,
+          recovery: [],
+          autoDestroy: false,
+          autoUse: true,
         },
       },
     },

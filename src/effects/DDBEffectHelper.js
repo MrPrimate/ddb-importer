@@ -3,7 +3,6 @@ import DICTIONARY from "../dictionary.js";
 import FolderHelper from "../lib/FolderHelper.js";
 import utils from "../lib/utils.js";
 import logger from "../logger.js";
-import { fixItems } from "../parser/item/special.js";
 import { fixSpells } from "../parser/spells/special.js";
 import { equipmentEffectAdjustment, midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
@@ -69,7 +68,7 @@ export default class DDBEffectHelper {
       if (DICTIONARY.types.inventory.includes(data.type)) {
         equipmentEffectAdjustment(data);
         data = await midiItemEffects(data);
-        fixItems([data]);
+        // todo: fix items removed here, this is now included earlier in teh item parser
       } else if (data.type === "spell") {
         data = await spellEffectAdjustment(data, true);
         await fixSpells(null, [data]);

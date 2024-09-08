@@ -1458,30 +1458,20 @@ export default class DDBItem {
   }
 
   _generateConsumableUses() {
+    this.actionInfo.consumptionValue = 1;
     if (this.ddbItem.limitedUse) {
       this._generateUses(true);
-      if ([null, "", 0].includes(this.data.system.uses.max)) {
-        // uses.per = "charges";
-        // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
-        // this.data.uses.recovery.push({ period: "charges", type: "recoverAll" });
-      }
-      this.data.system.uses.autoDestroy = true;
-      this.actionInfo.consumptionValue = 1;
     } else {
       // default
       this.data.system.uses = {
         spent: 0,
         max: "1",
-        recovery: [
-          // TODO: we don't uses charges anymore here (Depricated, figure out what to use.) Is this just a consume?
-          // { period: "charges" },
-        ],
-        // TODO: where do these now live?
+        recovery: [],
         autoDestroy: true,
         autoUse: false,
       };
-      this.actionInfo.consumptionValue = 1;
     }
+    this.data.system.uses.autoDestroy = !["wand", "trinket"].includes(this.systemType.value);
   }
 
   targetsCreature() {
@@ -1532,13 +1522,9 @@ export default class DDBItem {
     // console.warn(hit);
     // eslint-disable-next-line no-useless-escape
     const damageExpression = new RegExp(/(?<prefix>(?:takes|taking|saving throw (?:\([\w ]*\) )?or take\s+)|(?:[\w]*\s+))(?:(?<flat>[0-9]+))?(?:\s*\(?(?<damageDice>[0-9]+d[0-9]+(?:\s*[-+]\s*(?:[0-9]+))*(?:\s+plus [^\)]+)?)\)?)\s*(?<type>[\w ]*?)\s*damage(?<start>\sat the start of|\son a failed save)?/gi);
-
     const matches = [...description.matchAll(damageExpression)];
 
-    const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
-    const regainMatch = description.match(regainExpression);
-
-    logger.debug(`${this.name} Description Damage matches`, { description, matches, regainMatch });
+    logger.debug(`${this.name} Description Damage matches`, { description, matches });
     const otherParts = [];
     for (const dmg of matches) {
       let other = false;
@@ -1575,6 +1561,10 @@ export default class DDBItem {
         }
       }
     }
+
+    const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9 ]+d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i);
+    const regainMatch = description.match(regainExpression);
+    logger.debug(`${this.name} Description Healing matches`, { description, regainMatch });
 
     if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
@@ -2152,6 +2142,8 @@ export default class DDBItem {
       ? { calculation: "", formula: spell.flags.ddbimporter.dndbeyond?.dc }
       : { calculation: "spellcasting", formula: "" };
 
+    const scalingAllowed = !this.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
+    const scalingValue = this.data.system.uses.max ?? "";
     Object.keys(spell.system.activities).forEach((id, i) => {
       const activity = foundry.utils.deepClone(spell.system.activities[id]);
 
@@ -2183,7 +2175,10 @@ export default class DDBItem {
       activity._id = newId;
 
       activity.consumption.targets = [activityConsumptionTarget];
-      activity.consumption.scaling = false;
+      spell.system.activities[id].consumption.scaling.allowed = Boolean(scalingAllowed);
+      spell.system.activities[id].consumption.scaling.max = scalingAllowed
+        ? scalingValue
+        : "";
       activity.consumption.spellSlot = false;
 
       if (this.isPerSpell && ["", "charges"].includes(resetType)) {
@@ -2269,10 +2264,16 @@ export default class DDBItem {
 
     foundry.utils.setProperty(spell, "system.level", Number.parseInt(spellData.level));
 
+    const scalingAllowed = !this.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
+    const scalingValue = this.data.system.uses.max ?? "";
     Object.keys(spell.system.activities).forEach((id) => {
       if (activityConsumptionTarget)
         spell.system.activities[id].consumption.targets = [activityConsumptionTarget];
-      spell.system.activities[id].consumption.scaling = false;
+
+      spell.system.activities[id].consumption.scaling.allowed = Boolean(scalingAllowed);
+      spell.system.activities[id].consumption.scaling.max = scalingAllowed
+        ? scalingValue
+        : "";
       spell.system.activities[id].consumption.spellSlot = false;
       if (this.actionInfo.save?.dc && spell.system.activities[id].save?.dc) {
         spell.system.activities[id].save.dc = saveDC;
@@ -2600,6 +2601,7 @@ export default class DDBItem {
     }
   }
 
+  // eslint-disable-next-line complexity
   _getActivitiesType() {
     if (this.parsingType === "tool") {
       return "check";
@@ -2631,6 +2633,7 @@ export default class DDBItem {
     ) return "utility";
     if (this.parsingType === "consumable" && !["wand", "scroll"].includes(this.systemType.value)) return "utility";
     if (this.data.effects.length > 0) return "utility";
+    if (["cone", "radius", "sphere", "line", "cube"].includes(this.actionInfo.target?.template?.type)) return "utility";
     return null;
   }
 

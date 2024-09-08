@@ -97,8 +97,8 @@ export default class DDBBaseEnricher {
           target: "",
           value: "1",
           scaling: {
-            mode: "",
-            formula: "",
+            mode: this.activity.addScalingMode ?? "",
+            formula: this.activity.addScalingFormula ?? "",
           },
         },
       ]);
@@ -110,8 +110,8 @@ export default class DDBBaseEnricher {
           target: "",
           value: "1",
           scaling: {
-            mode: "",
-            formula: "",
+            mode: this.activity.addScalingMode ?? "",
+            formula: this.activity.addScalingFormula ?? "",
           },
         },
       ]);
