@@ -519,7 +519,7 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         transfer: false,
         description: "You are &Reference[incapacitated]{incapacitated} and &Reference[suffocating]{suffocating}.",
       },
-      statuses: ["Incapacitated"], // "Suffocating"?
+      statuses: ["Incapacitated", "Suffocating"], // ?
     },
     "Gnomengarde Grenade": {
       type: "item",
