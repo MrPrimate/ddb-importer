@@ -22,6 +22,18 @@ export default class DDBClass {
   };
 
   static PROFICIENCY_FEATURES = [
+    "Core Barbarian Traits",
+    "Core Bard Traits",
+    "Core Cleric Traits",
+    "Core Druid Traits",
+    "Core Fighter Traits",
+    "Core Monk Traits",
+    "Core Paladin Traits",
+    "Core Ranger Traits",
+    "Core Rogue Traits",
+    "Core Sorcerer Traits",
+    "Core Warlock Traits",
+    "Core Wizard Traits",
     "Proficiencies",
     "Primal Knowledge",
     "Master of Intrigue",
@@ -74,6 +86,18 @@ export default class DDBClass {
   ];
 
   static TOOL_FEATURES = [
+    "Core Barbarian Traits",
+    "Core Bard Traits",
+    "Core Cleric Traits",
+    "Core Druid Traits",
+    "Core Fighter Traits",
+    "Core Monk Traits",
+    "Core Paladin Traits",
+    "Core Ranger Traits",
+    "Core Rogue Traits",
+    "Core Sorcerer Traits",
+    "Core Warlock Traits",
+    "Core Wizard Traits",
     "Proficiencies",
     "Tool Proficiency",
     "Tools of the Trade",
@@ -84,15 +108,56 @@ export default class DDBClass {
   ];
 
   static ARMOR_FEATURES = [
+    "Core Barbarian Traits",
+    "Core Bard Traits",
+    "Core Cleric Traits",
+    "Core Druid Traits",
+    "Core Fighter Traits",
+    "Core Monk Traits",
+    "Core Paladin Traits",
+    "Core Ranger Traits",
+    "Core Rogue Traits",
+    "Core Sorcerer Traits",
+    "Core Warlock Traits",
+    "Core Wizard Traits",
     "Proficiencies",
     "Tools of the Trade",
     "Training in War and Song",
   ];
 
   static WEAPON_FEATURES = [
+    "Core Barbarian Traits",
+    "Core Bard Traits",
+    "Core Cleric Traits",
+    "Core Druid Traits",
+    "Core Fighter Traits",
+    "Core Monk Traits",
+    "Core Paladin Traits",
+    "Core Ranger Traits",
+    "Core Rogue Traits",
+    "Core Sorcerer Traits",
+    "Core Warlock Traits",
+    "Core Wizard Traits",
     "Proficiencies",
     "Firearm Proficiency",
     "Training in War and Song",
+  ];
+
+  static WEAPON_MASTERY_FEATURES = [
+    "Barbarian Weapon Masteries",
+    "Bard Weapon Masteries",
+    "Cleric Weapon Masteries",
+    "Druid Weapon Masteries",
+    "Fighter Weapon Masteries",
+    "Monk Weapon Masteries",
+    "Paladin Weapon Masteries",
+    "Ranger Weapon Masteries",
+    "Rogue Weapon Masteries",
+    "Sorcerer Weapon Masteries",
+    "Warlock Weapon Masteries",
+    "Wizard Weapon Masteries",
+    "Weapon Mastery",
+    "Weapon Masteries",
   ];
 
   static CONDITION_FEATURES = [
@@ -184,6 +249,12 @@ export default class DDBClass {
       .map((feature) => feature.id);
     this._weaponFeatures = this.classFeatures
       .filter((feature) => DDBClass.WEAPON_FEATURES.includes(utils.nameString(feature.name)));
+
+    this._weaponMasteryFeatureIds = this.classFeatures
+      .filter((feature) => DDBClass.WEAPON_MASTERY_FEATURES.includes(utils.nameString(feature.name)))
+      .map((feature) => feature.id);
+    this._weaponMasteryFeatures = this.classFeatures
+      .filter((feature) => DDBClass.WEAPON_MASTERY_FEATURES.includes(utils.nameString(feature.name)));
 
     this._languageOrSkillFeatureIds = this.classFeatures.concat(this._languageFeatures)
       .filter((feature) => DDBClass.LANGUAGE_OR_SKILL_FEATURE.includes(utils.nameString(feature.name)))
@@ -435,12 +506,10 @@ export default class DDBClass {
 
       if (!classFeaturesAdded && !this._excludedFeatureIds.includes(feature.id)) {
         const featureMatch = this.getFeatureCompendiumMatch(feature);
-        if (featureMatch) {
-          const title = (featureMatch)
-            ? `<p><b>@UUID[${featureMatch.uuid}]{${feature.name}}</b></p>`
-            : `<p><b>${feature.name}</b></p>`;
-          description += `${title}\n${feature.description}\n\n`;
-        }
+        const title = (featureMatch)
+          ? `<p><b>@UUID[${featureMatch.uuid}]{${feature.name}}</b></p>`
+          : `<p><b>${feature.name}</b></p>`;
+        description += `${title}\n${feature.description}\n\n`;
         classFeatures.push(feature.name);
       }
     });
@@ -461,11 +530,18 @@ export default class DDBClass {
 
   // don't generate feature advancements for these features
   static EXCLUDED_FEATURE_ADVANCEMENTS = [
+    "4: Ability Score Improvement",
+    "6: Ability Score Improvement",
+    "8: Ability Score Improvement",
+    "12: Ability Score Improvement",
+    "14: Ability Score Improvement",
+    "16: Ability Score Improvement",
     "Ability Score Improvement",
     "Expertise",
     "Bonus Proficiencies",
     "Bonus Proficiency",
     "Tool Proficiency",
+    "Weapon Mastery",
 
     "Speed",
     "Size",
@@ -650,7 +726,7 @@ export default class DDBClass {
         const skillFeatures = this._proficiencyFeatures.filter((f) => f.requiredLevel === i);
 
         for (const feature of skillFeatures) {
-          const baseProficiency = feature.name === "Proficiencies";
+          const baseProficiency = feature.name === "Proficiencies" || (feature.name.startsWith("Core") && feature.name.endsWith("Traits"));
           if (availableToMulticlass
             && baseProficiency
             && this.dictionary.multiclassSkill === 0
@@ -812,6 +888,34 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
+  _generateWeaponMasteryAdvancement(feature, level) {
+    const modFilters = {
+      type: "feat",
+      includeExcludedEffects: true,
+      classId: this.ddbClassDefinition.id,
+      exactLevel: level,
+      useUnfilteredModifiers: true,
+      filterOnFeatureIds: [feature.id],
+    };
+    const mods = this.options.noMods ? [] : DDBHelper.getChosenTypeModifiers(this.ddbData, modFilters);
+    return this.advancementHelper.getWeaponAdvancement(mods, feature, level);
+  }
+
+  _generateWeaponMasteryAdvancements() {
+    const advancements = [];
+
+    for (let i = 0; i <= 20; i++) {
+      const weaponFeatures = this._weaponMasteryFeatures.filter((f) => f.requiredLevel === i);
+
+      for (const feature of weaponFeatures) {
+        const advancement = this._generateWeaponMasteryAdvancement(feature, i);
+        if (advancement) advancements.push(advancement.toObject());
+      }
+    }
+
+    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+  }
+
   _generateExpertiseAdvancements() {
     const advancements = [];
 
@@ -911,7 +1015,7 @@ export default class DDBClass {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      const abilityAdvancementFeature = this.classFeatures.find((f) => f.name === "Ability Score Improvement" && f.requiredLevel === i);
+      const abilityAdvancementFeature = this.classFeatures.find((f) => f.name.includes("Ability Score Improvement") && f.requiredLevel === i);
 
       // eslint-disable-next-line no-continue
       if (!abilityAdvancementFeature) continue;

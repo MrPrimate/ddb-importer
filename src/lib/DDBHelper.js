@@ -426,7 +426,7 @@ const DDBHelper = {
     return isOptionalClassChoice;
   },
 
-  getChosenClassModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null, filterOnFeatureIds = [] } = {}) => {
+  getChosenTypeModifiers: (ddb, { type = "class", includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null, filterOnFeatureIds = [] } = {}) => {
     const classFeatureIds = DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel })
       .filter((id) => {
         if (filterOnFeatureIds.length === 0) return true;
@@ -434,7 +434,7 @@ const DDBHelper = {
       });
     // get items we are going to interact on
     const modifiers = DDBHelper
-      .getModifiers(ddb, 'class', includeExcludedEffects, effectOnly, useUnfilteredModifiers)
+      .getModifiers(ddb, type, includeExcludedEffects, effectOnly, useUnfilteredModifiers)
       .filter((mod) =>
         (
           availableToMulticlass === null
@@ -447,6 +447,20 @@ const DDBHelper = {
 
     // console.warn("getChosenClassModifiers", {classFeatureIds, modifiers});
     return modifiers;
+  },
+
+  getChosenClassModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null, filterOnFeatureIds = [] } = {}) => {
+    return DDBHelper.getChosenTypeModifiers(ddb, {
+      type: "class",
+      includeExcludedEffects,
+      effectOnly,
+      classId,
+      requiredLevel,
+      exactLevel,
+      availableToMulticlass,
+      useUnfilteredModifiers,
+      filterOnFeatureIds,
+    });
   },
 
   filterBaseCharacterModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {}) => {

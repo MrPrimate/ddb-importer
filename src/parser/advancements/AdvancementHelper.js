@@ -315,8 +315,9 @@ export default class AdvancementHelper {
 
   }
 
+  // eslint-disable-next-line complexity
   getSkillAdvancement(mods, feature, availableToMulticlass, level) {
-    const baseProficiency = feature.name === "Proficiencies";
+    const baseProficiency = feature.name === "Proficiencies" || (feature.name.startsWith("Core") && feature.name.endsWith("Traits"));
     const skillsFromMods = mods
       .filter((mod) =>
         DICTIONARY.character.skills.find((s) => s.label === mod.friendlySubtypeName),
@@ -355,7 +356,7 @@ export default class AdvancementHelper {
       ? undefined
       : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
 
-    const title = feature.name !== "Proficiencies" && !feature.name.startsWith("Background:")
+    const title = !baseProficiency && !feature.name.startsWith("Background:")
       ? feature.name
       : "Skills";
 
@@ -434,7 +435,9 @@ export default class AdvancementHelper {
       : languagesFromMods.map((choice) => `languages:${choice}`);
 
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "Languages",
+      title: feature.name && !feature.name.startsWith("Background:")
+        ? feature.name
+        : "Languages",
       configuration: {
         allowReplacements: true,
       },
@@ -505,7 +508,9 @@ export default class AdvancementHelper {
       : toolsFromMods.map((choice) => `tool:${choice}`);
 
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "Tool Proficiencies",
+      title: feature.name && !feature.name.startsWith("Background:")
+        ? feature.name
+        : "Tool Proficiencies",
       configuration: {
         allowReplacements: true,
       },
@@ -586,7 +591,9 @@ export default class AdvancementHelper {
       : armorsFromMods.map((choice) => `armor:${choice}`);
 
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "Armor Proficiencies",
+      title: feature.name && !feature.name.startsWith("Background:")
+        ? feature.name
+        : "Armor Proficiencies",
       classRestriction,
       configuration: {
         allowReplacements: false,
@@ -665,9 +672,93 @@ export default class AdvancementHelper {
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "Weapon Proficiencies",
+      title: feature.name && !feature.name.startsWith("Background:")
+        ? feature.name
+        : "Weapon Proficiencies",
       configuration: {
+        mode: "default",
         allowReplacements: false,
+      },
+      level: level,
+    });
+
+    // console.warn("weapons", {
+    //   pool,
+    //   chosen,
+    //   count,
+    //   grants: parsedWeapons.grants.map((grant) => `weapon:${grant}`),
+    // });
+
+    AdvancementHelper.advancementUpdate(advancement, {
+      pool,
+      chosen,
+      count,
+      grants: parsedWeapons.grants.map((grant) => `weapon:${grant}`),
+    });
+
+    return advancement;
+  }
+
+  getWeaponMasteryAdvancement(mods, feature, level) {
+    const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
+    const weaponMods = proficiencyMods
+      .filter((mod) =>
+        DICTIONARY.character.proficiencies
+          .some((prof) => prof.type === "Weapon" && prof.name === mod.friendlySubtypeName),
+      );
+
+    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+
+    const parsedWeapons = AdvancementHelper.parseHTMLWeaponMasteryProficiencies(feature.description);
+    const chosenWeapons = this.noMods
+      ? { chosen: [], choices: [] }
+      : this.getChoicesFromOptions(feature, "Weapon", level);
+
+    const weaponsFromMods = weaponMods.map((mod) => {
+      const weapon = DICTIONARY.character.proficiencies
+        .find((prof) => prof.type === "Weapon" && prof.name === mod.friendlySubtypeName);
+      return weapon.advancement === ""
+        ? weapon.foundryValue
+        : `${weapon.advancement}:${weapon.foundryValue}`;
+    });
+
+    const count = this.noMods || parsedWeapons.number > 0 || parsedWeapons.grants.length > 0
+      ? parsedWeapons.number > 0
+        ? parsedWeapons.number
+        : 1
+      : weaponMods.length;
+
+    // console.warn(`Weapon`, {
+    //   level,
+    //   feature,
+    //   mods,
+    //   proficiencyMods,
+    //   armorMods: weaponMods,
+    //   parsedArmors: parsedWeapons,
+    //   chosenArmors: chosenWeapons,
+    //   armorsFromMods: weaponsFromMods,
+    //   count,
+    // });
+
+    if (count === 0 && parsedWeapons.grants.length === 0) return null;
+
+    const pool = this.noMods || parsedWeapons.choices.length > 0 || parsedWeapons.grants.length > 0
+      ? parsedWeapons.choices.map((choice) => `weapon:${choice}`)
+      : weaponsFromMods.map((choice) => `weapon:${choice}`);
+
+
+    const chosen = this.noMods || chosenWeapons.chosen.length > 0
+      ? chosenWeapons.chosen.map((choice) => `weapon:${choice}`)
+        .concat(parsedWeapons.grants.map((grant) => `weapon:${grant}`))
+      : weaponsFromMods.map((choice) => `weapon:${choice}`);
+
+    advancement.updateSource({
+      title: feature.name && !feature.name.startsWith("Background:")
+        ? feature.name
+        : "Weapon Masteries",
+      configuration: {
+        mode: "mastery",
+        allowReplacements: true,
       },
       level: level,
     });
@@ -791,7 +882,9 @@ export default class AdvancementHelper {
       : conditionsFromMods.map((choice) => choice);
 
     advancement.updateSource({
-      title: feature.name !== "Proficiencies" && !feature.name.startsWith("Background:") ? feature.name : "",
+      title: feature.name && !feature.name.startsWith("Background:")
+        ? feature.name
+        : "",
       configuration: {
         allowReplacements: false,
         hint: parsedConditions.hint,
