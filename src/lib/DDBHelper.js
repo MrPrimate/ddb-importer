@@ -409,6 +409,87 @@ const DDBHelper = {
     );
   },
 
+  isModAGrantedFeatMod(ddb, mod, { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null } = {}) {
+    // const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
+    const feats = [];
+    ddb.character.classes.forEach((klass) => {
+      const validClass = classId === null
+        ? true
+        : (classId === klass.definition?.id || classId === klass.subclassDefinition?.id);
+
+      const validFeatures = klass.classFeatures.filter((feat) =>
+        feat.definition.id == mod.componentId
+        && feat.definition.entityTypeId == mod.componentTypeId
+        && (classFeatureIds === null || classFeatureIds.includes(feat.definition.id))
+        && (requiredLevel === null || feat.definition.requiredLevel >= requiredLevel)
+        && (exactLevel === null || feat.definition.requiredLevel == exactLevel)
+        // make sure this class feature is not replaced
+        && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == feat.definition.id),
+      );
+      if (validClass) {
+        validFeatures.forEach((feature) => {
+          feats.push(...(feature.definition.grantedFeats ?? []));
+        });
+      }
+    });
+
+    return feats.some((f) => f.featIds.includes(mod.definition.componentId));
+
+    // feat[]
+    //   {
+    //     "id": 16340,
+    //     "name": "Weapon Mastery",
+    //     "featIds": [
+    //         1789142
+    //     ]
+    // }
+
+    // modifier
+    //   {
+    //     "fixedValue": null,
+    //     "id": "62627888",
+    //     "entityId": 4,
+    //     "entityTypeId": 1782728300,
+    //     "type": "weapon-mastery",
+    //     "subType": "sap-longsword",
+    //     "dice": null,
+    //     "restriction": "",
+    //     "statId": null,
+    //     "requiresAttunement": false,
+    //     "duration": null,
+    //     "friendlyTypeName": "Weapon Mastery",
+    //     "friendlySubtypeName": "Sap (Longsword)",
+    //     "isGranted": true,
+    //     "bonusTypes": [],
+    //     "value": null,
+    //     "availableToMulticlass": true,
+    //     "modifierTypeId": 43,
+    //     "modifierSubTypeId": 1942,
+    //     "componentId": 1789142,
+    //     "componentTypeId": 1088085227,
+    //     "tagConstraints": []
+    // },
+
+
+    // feats:[]
+    // {
+    //   "componentTypeId": 67468084,
+    //   "componentId": 16340,
+    //   "definition": {
+    //       "id": 1789142,
+    //       "entityTypeId": 1088085227,
+
+    // options
+    // "feat": [
+    //   {
+    //       "componentId": 1789142,
+    //       "componentTypeId": 1088085227,
+    //       "definition": {
+    //           "id": 4496701,
+    //           "entityTypeId": 258900837,
+    //           "name": "Longsword (Sap)",
+  },
+
   isModAChosenClassMod: (ddb, mod, { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null } = {}) => {
     const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
     const isClassFeature = DDBHelper.isModClassFeature(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
@@ -421,9 +502,10 @@ const DDBHelper = {
     if (isOptionalClassOption) return true;
     // new class feature choice
     const isOptionalClassChoice = DDBHelper.isModOptionalClassChoice(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
-
+    if (isOptionalClassChoice) return true;
     // console.warn("isClassFeature2", {isClassFeature, mod, klassFeatureIds, classId, requiredLevel, exactLevel, isClassOption, isOptionalClassOption, isOptionalClassChoice});
-    return isOptionalClassChoice;
+    const isFeatMod = DDBHelper.isModAGrantedFeatMod(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
+    return isFeatMod;
   },
 
   getChosenTypeModifiers: (ddb, { type = "class", includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null, filterOnFeatureIds = [] } = {}) => {

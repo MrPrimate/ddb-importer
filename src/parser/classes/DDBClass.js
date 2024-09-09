@@ -898,7 +898,7 @@ export default class DDBClass {
       filterOnFeatureIds: [feature.id],
     };
     const mods = this.options.noMods ? [] : DDBHelper.getChosenTypeModifiers(this.ddbData, modFilters);
-    return this.advancementHelper.getWeaponAdvancement(mods, feature, level);
+    return this.advancementHelper.getWeaponMasteryAdvancement(mods, feature, level);
   }
 
   _generateWeaponMasteryAdvancements() {

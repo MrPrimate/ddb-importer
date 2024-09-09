@@ -154,13 +154,13 @@ export default class AdvancementHelper {
     };
   }
 
-  getChoicesFromOptions(feature, type, level) {
+  getChoicesFromOptions(feature, type, level, choiceType = null) {
     const chosen = new Set();
     const choices = new Set();
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
-    this.ddbData.character.choices[this.type].filter((choice) => {
+    this.ddbData.character.choices[choiceType ?? this.type].filter((choice) => {
       return feature.id === choice.componentId
         && feature.requiredLevel === level
         && choice.subType === 1
@@ -699,12 +699,42 @@ export default class AdvancementHelper {
     return advancement;
   }
 
+//   {
+//     "fixedValue": null,
+//     "id": "62627888",
+//     "entityId": 4,
+//     "entityTypeId": 1782728300,
+//     "type": "weapon-mastery",
+//     "subType": "sap-longsword",
+//     "dice": null,
+//     "restriction": "",
+//     "statId": null,
+//     "requiresAttunement": false,
+//     "duration": null,
+//     "friendlyTypeName": "Weapon Mastery",
+//     "friendlySubtypeName": "Sap (Longsword)",
+//     "isGranted": true,
+//     "bonusTypes": [],
+//     "value": null,
+//     "availableToMulticlass": true,
+//     "modifierTypeId": 43,
+//     "modifierSubTypeId": 1942,
+//     "componentId": 1789142,
+//     "componentTypeId": 1088085227,
+//     "tagConstraints": []
+// },
+
   getWeaponMasteryAdvancement(mods, feature, level) {
     const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
     const weaponMods = proficiencyMods
       .filter((mod) =>
         DICTIONARY.character.proficiencies
-          .some((prof) => prof.type === "Weapon" && prof.name === mod.friendlySubtypeName),
+          .some((prof) => {
+            const weaponRegex = /(\w+) \(([\w ]+)\)/ig;
+            const weaponName = weaponRegex.exec(mod.friendlySubtypeName);
+            if (weaponName) return false;
+            return prof.type === "Weapon" && prof.name === weaponName;
+          }),
       );
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
@@ -728,17 +758,17 @@ export default class AdvancementHelper {
         : 1
       : weaponMods.length;
 
-    // console.warn(`Weapon`, {
-    //   level,
-    //   feature,
-    //   mods,
-    //   proficiencyMods,
-    //   armorMods: weaponMods,
-    //   parsedArmors: parsedWeapons,
-    //   chosenArmors: chosenWeapons,
-    //   armorsFromMods: weaponsFromMods,
-    //   count,
-    // });
+    console.warn(`Weapon Mastery`, {
+      level,
+      feature,
+      mods,
+      proficiencyMods,
+      armorMods: weaponMods,
+      parsedArmors: parsedWeapons,
+      chosenArmors: chosenWeapons,
+      armorsFromMods: weaponsFromMods,
+      count,
+    });
 
     if (count === 0 && parsedWeapons.grants.length === 0) return null;
 
@@ -1596,6 +1626,17 @@ export default class AdvancementHelper {
       return stub;
     }
     return null;
+  }
+
+  static parseHTMLWeaponMasteryProficiencies(description) {
+    const parsedWeaponsProficiencies = {
+      choices: DICTIONARY.character.proficiencies
+        .filter((prof) => prof.type === "Weapon" && prof.foundryValue && prof.foundryValue !== "")
+        .map((prof) => prof.foundryValue),
+      grants: [],
+      number: 0,
+    };
+    return parsedWeaponsProficiencies;
   }
 
   // eslint-disable-next-line complexity

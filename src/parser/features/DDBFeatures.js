@@ -61,6 +61,7 @@ export default class DDBFeatures {
     "Core Warlock Traits",
     "Core Wizard Traits",
     "Weapon Mastery",
+    "Maneuver Options",
   ];
 
   static isDuplicateFeature(items, item) {
@@ -77,6 +78,7 @@ export default class DDBFeatures {
     const nameAllowed = !featName.startsWith("Proficiencies")
       && !featName.includes("Ability Score")
       && !featName.startsWith("Size")
+      && !featName.endsWith("Subclass")
       && !featName.match(/(\w+) Weapon Masteries($|:)/igm)
       // && !featName.startsWith("Skills")
       && (includeTashaVersatile || (!includeTashaVersatile && !DDBFeatures.TASHA_VERSATILE.includes(featName)))
