@@ -48,6 +48,19 @@ export default class DDBFeatures {
   static SKIPPED_FEATURES = [
     "Expertise",
     "Darkvision",
+    "Core Barbarian Traits",
+    "Core Bard Traits",
+    "Core Cleric Traits",
+    "Core Druid Traits",
+    "Core Fighter Traits",
+    "Core Monk Traits",
+    "Core Paladin Traits",
+    "Core Ranger Traits",
+    "Core Rogue Traits",
+    "Core Sorcerer Traits",
+    "Core Warlock Traits",
+    "Core Wizard Traits",
+    "Weapon Mastery",
   ];
 
   static isDuplicateFeature(items, item) {
@@ -62,13 +75,15 @@ export default class DDBFeatures {
     const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-include-versatile-features");
 
     const nameAllowed = !featName.startsWith("Proficiencies")
-      && !featName.startsWith("Ability Score")
+      && !featName.includes("Ability Score")
       && !featName.startsWith("Size")
+      && !featName.match(/(\w+) Weapon Masteries($|:)/igm)
       // && !featName.startsWith("Skills")
       && (includeTashaVersatile || (!includeTashaVersatile && !DDBFeatures.TASHA_VERSATILE.includes(featName)))
       && !DDBFeatures.LEGACY_SKIPPED_FEATURES.includes(featName)
       && !DDBFeatures.SKIPPED_FEATURES.includes(featName);
 
+    console.warn(`Checked ${featName}: ${nameAllowed}`);
     return nameAllowed;
   }
 
@@ -179,7 +194,8 @@ export default class DDBFeatures {
   async _addFeats() {
     // add feats
     logger.debug("Parsing feats");
-    for (const feat of this.ddbData.character.feats) {
+    const validFeats = this.ddbData.character.feats.filter((feat) => DDBFeatures.includedFeatureNameCheck(feat.definition.name));
+    for (const feat of validFeats) {
       const feats = await this.getFeaturesFromDefinition(feat, "feat");
       this.parsed.push(...feats);
     };

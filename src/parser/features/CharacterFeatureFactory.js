@@ -139,7 +139,9 @@ export default class CharacterFeatureFactory {
       this._getCustomActions(false),
     ]
       .flat()
-      .filter((action) => action.name && action.name !== "")
+      .filter((action) => action.name && action.name !== ""
+        && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name.startsWith(a)),
+      )
       .filter((action) => {
         const name = DDBHelper.getName(this.ddbData, action, this.rawCharacter);
         // const displayAsAttack = DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);

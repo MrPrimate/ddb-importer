@@ -6,6 +6,17 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 
 export default class DDBAction extends DDBBaseFeature {
 
+  static SKIPPED_ACTIONS = [
+    "Cleave",
+    "Graze",
+    "Nick",
+    "Push",
+    "Sap",
+    "Slow",
+    "Topple",
+    "Vex",
+  ];
+
   _init() {
     this.isAction = true;
     logger.debug(`Generating Action ${this.ddbDefinition.name}`);
