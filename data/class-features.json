@@ -9446,5 +9446,17 @@
   {
     "name": "Cleric Weapon Masteries",
     "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Tactical Shift",
+    "path": "icons/skills/trades/academics-investigation-puzzles.webp"
+  },
+  {
+    "name": "Tactical Mind",
+    "path": "icons/skills/trades/academics-investigation-study-blue.webp"
+  },
+  {
+    "name": "Tactical Master",
+    "path": "icons/skills/trades/academics-book-study-runes.webp"
   }
 ]

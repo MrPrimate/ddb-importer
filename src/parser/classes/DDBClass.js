@@ -285,6 +285,8 @@ export default class DDBClass {
           type: "class",
           isStartingClass: this.ddbClass.isStartingClass,
           ddbImg: this.ddbClass.definition.portraitAvatarUrl,
+          is2014: this.is2014,
+          is2024: !this.is2014,
         },
         obsidian: {
           source: {
@@ -376,7 +378,7 @@ export default class DDBClass {
     this.ddbClass = ddbData.character.classes.find((c) => c.definition.id === classId);
     this.ddbClassDefinition = this.ddbClass.definition;
 
-    this.is2014 = this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+    this.is2014 = this.ddbClassDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     // quick helpers
     this.classFeatureIds = this.ddbClass.definition.classFeatures.map((f) => f.id);
@@ -903,6 +905,10 @@ export default class DDBClass {
   _generateWeaponMasteryAdvancements() {
     const advancements = [];
 
+    // console.warn("Weapon Mastery Advancements", {
+    //   this: this,
+    // });
+
     for (let i = 0; i <= 20; i++) {
       const weaponFeatures = this._weaponMasteryFeatures.filter((f) => f.requiredLevel === i);
 
@@ -989,7 +995,10 @@ export default class DDBClass {
 
 
   async _addFoundryAdvancements() {
-    for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
+    const packIds = this.is2014
+      ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]
+      : []; // TODO: Add 5e compendium when official module released/srd rules for 2024
+    for (const packId of packIds) {
       const pack = CompendiumHelper.getCompendium(packId, false);
       if (!pack) continue;
       await pack.getIndex();
@@ -1088,7 +1097,10 @@ export default class DDBClass {
   }
 
   async _copyFoundryEquipment() {
-    for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
+    const packIds = this.is2014
+      ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]
+      : []; // TODO: Add 5e compendium when official module released/srd rules for 2024
+    for (const packId of packIds) {
       const pack = CompendiumHelper.getCompendium(packId, false);
       if (!pack) continue;
       await pack.getIndex();
@@ -1114,6 +1126,7 @@ export default class DDBClass {
     this._generateToolAdvancements();
     this._generateArmorAdvancements();
     this._generateWeaponAdvancements();
+    this._generateWeaponMasteryAdvancements();
     // FUTURE: Equipment? (for backgrounds), needs better handling in Foundry
     this._generateSkillOrLanguageAdvancements();
     this._generateConditionAdvancements();

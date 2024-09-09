@@ -32,6 +32,8 @@ export default class DDBSpell {
           sources: this.spellDefinition.sources,
           tags: this.spellDefinition.tags,
           version: CONFIG.DDBI.version,
+          is2014: this.is2014,
+          is2024: !this.is2014,
         },
         "midi-qol": {
           removeAttackDamageButtons: "default",

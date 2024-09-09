@@ -224,6 +224,8 @@ export default class DDBItem {
           dndbeyond: {
             type: this.ddbDefinition.type,
           },
+          is2014: this.is2014,
+          is2024: !this.is2014,
         },
       },
     };

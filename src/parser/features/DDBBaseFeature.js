@@ -69,6 +69,8 @@ export default class DDBBaseFeature {
           originalName: this.originalName,
           type: this.tagType,
           isCustomAction: this.ddbDefinition.isCustomAction,
+          is2014: this.is2014,
+          is2024: !this.is2014,
         },
         infusions: { infused: false },
         obsidian: {

@@ -39,6 +39,8 @@ export default class DDBSubClass extends DDBClass {
           id: this.ddbClass.subclassDefinition.id,
           type: "class",
           ddbImg: this.ddbClass.subclassDefinition.portraitAvatarUrl ?? this.ddbClass.definition.portraitAvatarUrl,
+          is2014: this.is2014,
+          is2024: !this.is2014,
         },
         obsidian: {
           source: {

@@ -356,9 +356,9 @@ export default class AdvancementHelper {
       ? undefined
       : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
 
-    const title = !baseProficiency && !feature.name.startsWith("Background:")
+    const title = !baseProficiency && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
       ? feature.name
-      : "Skills";
+      : "Skill Proficiencies";
 
     advancement.updateSource({
       title,
@@ -435,7 +435,7 @@ export default class AdvancementHelper {
       : languagesFromMods.map((choice) => `languages:${choice}`);
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
         ? feature.name
         : "Languages",
       configuration: {
@@ -508,7 +508,7 @@ export default class AdvancementHelper {
       : toolsFromMods.map((choice) => `tool:${choice}`);
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
         ? feature.name
         : "Tool Proficiencies",
       configuration: {
@@ -591,9 +591,9 @@ export default class AdvancementHelper {
       : armorsFromMods.map((choice) => `armor:${choice}`);
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
         ? feature.name
-        : "Armor Proficiencies",
+        : "Armor Training",
       classRestriction,
       configuration: {
         allowReplacements: false,
@@ -672,7 +672,7 @@ export default class AdvancementHelper {
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
         ? feature.name
         : "Weapon Proficiencies",
       configuration: {
@@ -725,15 +725,15 @@ export default class AdvancementHelper {
 // },
 
   getWeaponMasteryAdvancement(mods, feature, level) {
-    const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
+    const proficiencyMods = DDBHelper.filterModifiers(mods, "weapon-mastery");
     const weaponMods = proficiencyMods
       .filter((mod) =>
         DICTIONARY.character.proficiencies
           .some((prof) => {
             const weaponRegex = /(\w+) \(([\w ]+)\)/ig;
-            const weaponName = weaponRegex.exec(mod.friendlySubtypeName);
-            if (weaponName) return false;
-            return prof.type === "Weapon" && prof.name === weaponName;
+            const masteryDetails = weaponRegex.exec(mod.friendlySubtypeName);
+            if (!masteryDetails) return false;
+            return prof.type === "Weapon" && prof.name === masteryDetails[2];
           }),
       );
 
@@ -746,7 +746,12 @@ export default class AdvancementHelper {
 
     const weaponsFromMods = weaponMods.map((mod) => {
       const weapon = DICTIONARY.character.proficiencies
-        .find((prof) => prof.type === "Weapon" && prof.name === mod.friendlySubtypeName);
+        .find((prof) => {
+          const weaponRegex = /(\w+) \(([\w ]+)\)/ig;
+          const masteryDetails = weaponRegex.exec(mod.friendlySubtypeName);
+          if (!masteryDetails) return false;
+          return prof.type === "Weapon" && prof.name === masteryDetails[2];
+        });
       return weapon.advancement === ""
         ? weapon.foundryValue
         : `${weapon.advancement}:${weapon.foundryValue}`;
@@ -758,17 +763,17 @@ export default class AdvancementHelper {
         : 1
       : weaponMods.length;
 
-    console.warn(`Weapon Mastery`, {
-      level,
-      feature,
-      mods,
-      proficiencyMods,
-      armorMods: weaponMods,
-      parsedArmors: parsedWeapons,
-      chosenArmors: chosenWeapons,
-      armorsFromMods: weaponsFromMods,
-      count,
-    });
+    // console.warn(`Weapon Mastery`, {
+    //   level,
+    //   feature,
+    //   mods,
+    //   proficiencyMods,
+    //   weaponMods,
+    //   parsedWeapons,
+    //   chosenWeapons,
+    //   weaponsFromMods,
+    //   count,
+    // });
 
     if (count === 0 && parsedWeapons.grants.length === 0) return null;
 
@@ -783,7 +788,7 @@ export default class AdvancementHelper {
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
         ? feature.name
         : "Weapon Masteries",
       configuration: {
@@ -912,7 +917,7 @@ export default class AdvancementHelper {
       : conditionsFromMods.map((choice) => choice);
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
         ? feature.name
         : "",
       configuration: {
@@ -1022,14 +1027,15 @@ export default class AdvancementHelper {
     };
 
     feature.levelScales.forEach((scale) => {
+      const level = Math.max(scale.level, feature.requiredLevel ?? 1);
       const die = scale.dice ? scale.dice : scale.die ? scale.die : undefined;
       if (type === "dice") {
-        update.configuration.scale[scale.level] = {
+        update.configuration.scale[level] = {
           n: die.diceCount,
           die: die.diceValue,
         };
       } else if (type === "number") {
-        update.configuration.scale[scale.level] = {
+        update.configuration.scale[level] = {
           value: scale.fixedValue,
         };
       } else {
@@ -1042,7 +1048,7 @@ export default class AdvancementHelper {
         if (value === "") {
           value = scale.description;
         }
-        update.configuration.scale[scale.level] = {
+        update.configuration.scale[level] = {
           value,
         };
       }
@@ -1630,9 +1636,10 @@ export default class AdvancementHelper {
 
   static parseHTMLWeaponMasteryProficiencies(description) {
     const parsedWeaponsProficiencies = {
-      choices: DICTIONARY.character.proficiencies
-        .filter((prof) => prof.type === "Weapon" && prof.foundryValue && prof.foundryValue !== "")
-        .map((prof) => prof.foundryValue),
+      // choices: DICTIONARY.character.proficiencies
+      //   .filter((prof) => prof.type === "Weapon" && prof.foundryValue && prof.foundryValue !== "")
+      //   .map((prof) => prof.foundryValue),
+      choices: ["*"],
       grants: [],
       number: 0,
     };

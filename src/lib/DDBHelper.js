@@ -418,9 +418,7 @@ const DDBHelper = {
         : (classId === klass.definition?.id || classId === klass.subclassDefinition?.id);
 
       const validFeatures = klass.classFeatures.filter((feat) =>
-        feat.definition.id == mod.componentId
-        && feat.definition.entityTypeId == mod.componentTypeId
-        && (classFeatureIds === null || classFeatureIds.includes(feat.definition.id))
+        (classFeatureIds === null || classFeatureIds.includes(feat.definition.id))
         && (requiredLevel === null || feat.definition.requiredLevel >= requiredLevel)
         && (exactLevel === null || feat.definition.requiredLevel == exactLevel)
         // make sure this class feature is not replaced
@@ -433,7 +431,7 @@ const DDBHelper = {
       }
     });
 
-    return feats.some((f) => f.featIds.includes(mod.definition.componentId));
+    return feats.some((f) => f.featIds.includes(mod.componentId));
 
     // feat[]
     //   {
@@ -515,6 +513,10 @@ const DDBHelper = {
         return filterOnFeatureIds.includes(id);
       });
     // get items we are going to interact on
+    // console.warn("getChosenTypeModifiers", {
+    //   mods: DDBHelper.getModifiers(ddb, type, includeExcludedEffects, effectOnly, useUnfilteredModifiers),
+    //   classFeatureIds,
+    // });
     const modifiers = DDBHelper
       .getModifiers(ddb, type, includeExcludedEffects, effectOnly, useUnfilteredModifiers)
       .filter((mod) =>
