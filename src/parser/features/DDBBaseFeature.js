@@ -81,6 +81,7 @@ export default class DDBBaseFeature {
     // Spells will still have activation/duration/range/target,
     // weapons will still have range & damage (1 base part & 1 versatile part),
     // and all items will still have limited uses (but no consumption)
+    this.data.system.identifier = this.identifier;
   }
 
   _prepare() {
@@ -109,6 +110,7 @@ export default class DDBBaseFeature {
     this.originalName = this.ddbData
       ? DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter, false)
       : utils.nameString(this.ddbDefinition.name);
+    this.identifier = utils.referenceNameString(`${this.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
     this.type = type;
     this.source = source;
     this.isAction = false;

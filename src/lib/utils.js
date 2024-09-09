@@ -39,10 +39,8 @@ const utils = {
   },
 
   referenceNameString: (str) => {
-    return str.replace(/[^a-zA-Z0-9]/g, "-")
-      .replace(/-+/g, "-")
-      .trim()
-      .replace(/-$/g, '');
+    const identifier = str.replaceAll(/(\w+)([\\|/])(\w+)/g, "$1-$3");
+    return identifier.slugify({ strict: true });
   },
 
   idString: (str) => {

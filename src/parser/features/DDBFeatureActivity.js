@@ -40,6 +40,8 @@ export default class DDBFeatureActivity {
       prefix: this.nameIdPrefix,
       postfix: this.nameIdPostfix,
     });
+
+    // this.data.identifier = this.identifier;
   }
 
 

@@ -100,6 +100,9 @@ export default class DDBMonsterFeature {
     if (!this.feature) this.createBaseFeature();
     this.#generateAdjustedName();
 
+    this.identifier = utils.referenceNameString(this.feature.name.toLowerCase());
+    this.feature.system.identifier = this.identifier;
+
     // if not attack set to a monster type action
     if (!this.isAttack) foundry.utils.setProperty(this.feature, "system.type.value", "monster");
 

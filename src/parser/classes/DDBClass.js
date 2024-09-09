@@ -370,14 +370,13 @@ export default class DDBClass {
     };
 
     this.rules = "2014";
-    this.is2014 = true;
-    // this.ddbDefinition.isLegacy
-    //   && this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     // setup ddb source
     this.ddbData = ddbData;
     this.ddbClass = ddbData.character.classes.find((c) => c.definition.id === classId);
     this.ddbClassDefinition = this.ddbClass.definition;
+
+    this.is2014 = this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     // quick helpers
     this.classFeatureIds = this.ddbClass.definition.classFeatures.map((f) => f.id);
@@ -418,7 +417,7 @@ export default class DDBClass {
     this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
 
     this.isStartingClass = this.ddbClass.isStartingClass;
-    this.identifier = utils.referenceNameString(this.ddbClassDefinition.name.toLowerCase());
+    this.identifier = utils.referenceNameString(`${this.ddbClassDefinition.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
   }
 

@@ -85,6 +85,8 @@ export default class DDBFeature extends DDBBaseFeature {
         level: Number.parseInt(requiredLevel),
       };
     }
+
+    this.data.system.identifier = this.identifier;
   }
 
   // eslint-disable-next-line class-methods-use-this
