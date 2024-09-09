@@ -149,5 +149,13 @@
   {
     "name": "Equipment",
     "path": "icons/containers/bags/pack-leather-brown.webp"
+  },
+  {
+    "name": "Skillful",
+    "path": "icons/skills/trades/academics-merchant-scribe.webp"
+  },
+  {
+    "name": "Resourceful",
+    "path": "icons/skills/trades/construction-carpentry-hammer.webp"
   }
 ]

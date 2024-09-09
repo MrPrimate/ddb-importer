@@ -200,6 +200,14 @@
     "path": "icons/sundries/scrolls/scroll-writing-brown-gold.webp"
   },
   {
+    "name": "Luck",
+    "path": "icons/equipment/neck/necklace-charm-clover.webp"
+  },
+  {
+    "name": "Luck Points",
+    "path": "icons/equipment/neck/necklace-charm-clover.webp"
+  },
+  {
     "name": "Lucky",
     "path": "icons/equipment/neck/necklace-charm-clover.webp"
   },
@@ -478,5 +486,117 @@
   {
     "name": "Wood Elf Magic",
     "path": "icons/consumables/plants/leaf-veins-glowing-green.webp"
+  },
+  {
+    "name": "Archery",
+    "path": "icons/weapons/bows/longbow-recurve-leather-red.webp"
+  },
+  {
+    "name": "Blind Fighting",
+    "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
+  },
+  {
+    "name": "Defense",
+    "path": "icons/equipment/shield/buckler-wooden-boss-glowing-blue.webp"
+  },
+  {
+    "name": "Dueling",
+    "path": "icons/weapons/swords/swords-sharp-worn.webp"
+  },
+  {
+    "name": "Great Weapon Fighting",
+    "path": "icons/weapons/axes/axe-battle-skull-black.webp"
+  },
+  {
+    "name": "Interception",
+    "path": "icons/skills/melee/shield-damaged-broken-blue.webp"
+  },
+  {
+    "name": "Protection",
+    "path": "icons/equipment/shield/Scutum-steel-worn.webp"
+  },
+  {
+    "name": "Thrown Weapon Fighting",
+    "path": "icons/weapons/thrown/daggers-kunai-purple.webp"
+  },
+  {
+    "name": "Two-Weapon Fighting",
+    "path": "icons/weapons/thrown/daggers-guard-gold.webp"
+  },
+  {
+    "name": "Unarmed Fighting",
+    "path": "icons/skills/melee/unarmed-punch-fist-yellow-red.webp"
+  },
+  {
+    "name": "Crafter",
+    "path": "icons/skills/trades/textiles-cloth-dye-red.webp"
+  },
+  {
+    "name": "Musician",
+    "path": "icons/tools/instruments/harp-lap-brown.webp"
+  },
+  {
+    "name": "Crossbow Expert",
+    "path": "icons/weapons/crossbows/crossbow-blue.webp"
+  },
+  {
+    "name": "Fey-Touched",
+    "path": "icons/creatures/magical/fae-fairy-winged-glowing-green.webp"
+  },
+  {
+    "name": "Shadow-Touched",
+    "path": "icons/creatures/magical/humanoid-silhouette-dashing-blue.webp"
+  },
+  {
+    "name": "Speedy",
+    "path": "icons/skills/movement/feet-winged-sandals-tan.webp"
+  },
+  {
+    "name": "Boon of Combat Prowess",
+    "path": "icons/skills/melee/strike-sword-slashing-red.webp"
+  },
+  {
+    "name": "Boon of Dimensional Travel",
+    "path": "icons/magic/movement/portal-vortex-orange.webp"
+  },
+  {
+    "name": "Boon of Energy Resistance",
+    "path": "icons/magic/defensive/shield-barrier-glowing-triangle-orange.webp"
+  },
+  {
+    "name": "Boon of Fate",
+    "path": "icons/magic/perception/eye-ringed-green.webp"
+  },
+  {
+    "name": "Boon of Fortitude",
+    "path": "icons/magic/life/heart-area-circle-red-green.webp"
+  },
+  {
+    "name": "Boon of Irresistible Offense",
+    "path": "icons/skills/melee/strike-hammer-destructive-orange.webp"
+  },
+  {
+    "name": "Boon of Recovery",
+    "path": "icons/magic/life/heart-shadow-red.webp"
+  },
+  {
+    "name": "Boon of Skill",
+    "path": "icons/skills/social/diplomacy-unity-alliance.webp"
+  },
+  {
+    "name": "Boon of Speed",
+    "path": "icons/skills/movement/feet-winged-boots-glowing-yellow.webp"
+  },
+  {
+    "name": "Boon of Spell Recall",
+    "path": "icons/magic/symbols/star-yellow.webp"
+  },
+  {
+    "name": "Boon of the Night Spirit",
+    "path": "icons/magic/perception/silhouette-stealth-shadow.webp"
+  },
+  {
+    "name": "Boon of Truesight",
+    "path": "icons/magic/perception/third-eye-blue-red.webp"
   }
 ]

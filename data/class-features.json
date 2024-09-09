@@ -9406,5 +9406,45 @@
     "class": "Monk",
     "subclass": "Way of the Kensei",
     "path": "icons/skills/melee/strike-spear-red.webp"
+  },
+  {
+    "name": "Fighter Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Ranger Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Rogue Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Paladin Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Warlock Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Barbarian Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Monk Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Druid Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Wizard Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Cleric Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
   }
 ]
