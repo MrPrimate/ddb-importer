@@ -72,7 +72,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
       // auto condition effect
       if (item.type !== "spell") {
         // console.warn(`Auto-adding Condition Effect to ${item.name} in ${npc.name}`);
-        const overTimeResults = generateConditionOnlyEffect(npc, item);
+        const overTimeResults = generateConditionOnlyEffect(npc, item, item.flags.monsterMunch?.description);
         item = overTimeResults.document;
         npc = overTimeResults.actor;
       }
@@ -104,7 +104,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
 
     // auto overtime effect
     if (item.type !== "spell") {
-      const overTimeResults = generateOverTimeEffect(npc, item);
+      const overTimeResults = generateOverTimeEffect(npc, item, item.flags.monsterMunch?.description);
       item = overTimeResults.document;
       npc = overTimeResults.actor;
     }

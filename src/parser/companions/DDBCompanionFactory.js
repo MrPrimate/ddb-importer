@@ -107,22 +107,22 @@ const CR_DATA = {
   "Conjure Animals": {
     profiles: [
       {
-        "count": "1 * min(3, floor((@item.level - 1) / 2))",
+        "count": "1 * floor((@item.level - 1) / 2)",
         "cr": "2",
         "types": ["beast"],
       },
       {
-        "count": "2 * min(3, floor((@item.level - 1) / 2))",
+        "count": "2 * floor((@item.level - 1) / 2",
         "cr": "1",
         "types": ["beast"],
       },
       {
-        "count": "4 * min(3, floor((@item.level - 1) / 2))",
+        "count": "4 * floor((@item.level - 1) / 2)",
         "cr": "0.5",
         "types": ["beast"],
       },
       {
-        "count": "8 * min(3, floor((@item.level - 1) / 2))",
+        "count": "8 * floor((@item.level - 1) / 2)",
         "cr": "0.25",
         "types": ["beast"],
       },

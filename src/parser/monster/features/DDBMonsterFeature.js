@@ -46,6 +46,7 @@ export default class DDBMonsterFeature {
           fullName: this.fullName,
           actionCopy: this.actionCopy,
           type: this.type,
+          description: this.html,
         },
       },
     };
@@ -60,18 +61,19 @@ export default class DDBMonsterFeature {
     this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
 
     const matches = this.strippedHtml.match(
-      /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)\s+(plus PB\s|\+ PB\s)?to\s+hit/i,
+      /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?:Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\.)/i,
     );
 
     const healingRegex = /(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i;
     const healingMatch = healingRegex.test(this.strippedHtml);
 
-    const spellSaveSearch = /(\w+) saving throw against your spell save DC/i;
+    const spellSaveSearch = /(?<ability>\w+) saving throw against your spell save DC/i;
     const spellSave = this.strippedHtml.match(spellSaveSearch);
-    const saveSearch = /DC (\d+) (\w+) (saving throw|check)/i;
-    const saveMatch = this.strippedHtml.match(saveSearch);
+    const saveSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)/i;
+    const saveSearchNew = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)/i;
+    const saveMatch = this.strippedHtml.match(saveSearch) ?? this.strippedHtml.match(saveSearchNew);
 
-    const halfSaveSearch = /or half as much damage on a successful one/i;
+    const halfSaveSearch = /or half as much damage on a successful one|Success: Half damage/i;
     const halfMatch = halfSaveSearch.test(this.strippedHtml);
 
     // set calc flags
@@ -84,6 +86,8 @@ export default class DDBMonsterFeature {
     this.weaponAttack = matches
       ? (matches[2].toLowerCase() === "weapon" || matches[2] === "")
       : false;
+    // warning - unclear how to parse these out for 2024 monsters
+    // https://comicbook.com/gaming/news/dungeons-dragons-first-look-2025-monster-manual/
     this.spellAttack = matches ? matches[2].toLowerCase() === "spell" : false;
     this.meleeAttack = matches ? matches[1].indexOf("Melee") !== -1 : false;
     this.rangedAttack = matches ? matches[1].indexOf("Ranged") !== -1 : false;
@@ -316,9 +320,8 @@ export default class DDBMonsterFeature {
 
           if (!thisOther && dmg[1].trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
-            // this.actionInfo.damage.parts.push([finalDamage, dmg[4]]);
             const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
-            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part });
+            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
           }
         } else if (versatile) {
           if (this.actionInfo.damage.versatile == "") this.actionInfo.damage.versatile = finalDamage;
@@ -328,21 +331,18 @@ export default class DDBMonsterFeature {
           // }
           if (!thisVersatile && dmg[1].trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
-            this.actionInfo.damage.parts.push([finalDamage, dmg[4]]);
             const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
-            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part });
+            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
           }
         } else {
-          this.actionInfo.damage.parts.push([finalDamage, dmg[4]]);
           const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
-          this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part });
+          this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
         }
       }
     }
 
     if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
-      this.actionInfo.damage.parts.push([utils.parseDiceString(damageValue, null).diceString, 'healing']);
       const part = DDBBasicActivity.buildDamagePart({
         damageString: utils.parseDiceString(damageValue, null).diceString,
         type: 'healing',
@@ -350,11 +350,6 @@ export default class DDBMonsterFeature {
       this.actionInfo.healingParts.push({ versatile, part });
     }
 
-    const save = hit.match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
-    if (save) {
-      this.actionInfo.damageSave.dc = save[1];
-      this.actionInfo.damageSave.ability = save[2] ? save[2].toLowerCase().substr(0, 3) : "";
-    }
     const escape = hit.match(/escape DC ([0-9]+)/);
     if (escape) {
       this.additionalActivities.push({
@@ -524,12 +519,12 @@ export default class DDBMonsterFeature {
     // },
 
     if (this.savingThrow) {
-      this.actionInfo.save.dc.formula = parseInt(this.savingThrow[1]);
+      this.actionInfo.save.dc.formula = parseInt(this.savingThrow.groups.dc);
       this.actionInfo.save.dc.calculation = "";
-      this.actionInfo.save.ability = this.savingThrow[2].toLowerCase().substr(0, 3);
+      this.actionInfo.save.ability = this.savingThrow.groups.ability.toLowerCase().substr(0, 3);
     } else if (this.spellSave) {
       // this.actionInfo.save.dc = 10;
-      this.actionInfo.save.ability = this.spellSave[1].toLowerCase().substr(0, 3);
+      this.actionInfo.save.ability = this.spellSave.groups.ability.toLowerCase().substr(0, 3);
       this.actionInfo.save.dc.calculation = "spellcasting";
     }
     if (this.halfDamage) {
@@ -761,15 +756,6 @@ export default class DDBMonsterFeature {
   }
 
   getTarget() {
-    // let target = {
-    //   value: null,
-    //   width: null,
-    //   units: "",
-    //   type: "",
-    // };
-
-    // TODO: target
-
     let target = {
       template: {
         count: "",
@@ -859,6 +845,7 @@ export default class DDBMonsterFeature {
   }
 
   async #generateDescription() {
+    this.html = this.html.replace(/<strong> \.<\/strong>/, "").trim();
     let description = this.hideDescription ? this.#getHiddenDescription() : `${this.html}`;
     description = description.replaceAll("<em><strong></strong></em>", "");
     description = parseDamageRolls({ text: description, document: this.feature, actor: this.ddbMonster.npc });
@@ -879,8 +866,6 @@ ${this.feature.system.description.value}
 
     if (this.templateType === "weapon") {
       this.feature.system.damage = this.actionInfo.damage;
-      // todo: what about formula?
-      // this.feature.system.formula = this.actionInfo.formula;
     }
 
     this.feature.system.proficient = this.actionInfo.proficient;
@@ -1091,17 +1076,23 @@ ${this.feature.system.description.value}
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
+    const isFlatWeaponDamage = this.templateType === "weapon" && this.actionInfo.damageParts.length > 0
+      ? !this.actionInfo.damageParts[0].includesDice
+      : false;
+
     const parts = this.actionInfo.damageParts.length > 1
       ? this.isSave
         ? []
-        : this.actionInfo.damageParts.splice(1).map((s) => s.part)
-      : [];
+        : this.actionInfo.damageParts.splice(1).map((s) => s.part) // otherwise we assume the weapon attack wants the base damage
+      : isFlatWeaponDamage
+        ? this.actionInfo.damageParts.map((s) => s.part) // includes no dice, i.e. is flat, we want to ignore the base damage
+        : [];
 
     attackActivity.build(foundry.utils.mergeObject({
       generateAttack: true,
       generateRange: this.templateType !== "weapon",
       generateDamage: !this.isSave,
-      includeBaseDamage: this.templateType === "weapon",
+      includeBaseDamage: this.templateType === "weapon" && !isFlatWeaponDamage,
       damageParts: parts,
     }, options));
     return attackActivity;
@@ -1266,7 +1257,6 @@ ${this.feature.system.description.value}
       return null;
     }
     if (this.actionInfo.activation.type && !this.healingAction) return "utility";
-    // TODO: can we determine if utility or damage?
     return null;
   }
 

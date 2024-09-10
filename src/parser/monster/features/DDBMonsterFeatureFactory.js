@@ -243,6 +243,7 @@ export default class DDBMonsterFeatureFactory {
           outerHTML = outerHTML.replace(replaceName, "");
           const titleDom = utils.htmlToDocumentFragment(outerHTML);
           if (titleDom.textContent.startsWith(".")) outerHTML = outerHTML.replace(".", "");
+          if (titleDom.textContent.startsWith(" .")) outerHTML = outerHTML.replace(" .", "");
         }
         action.options.html += outerHTML;
       }
@@ -546,6 +547,7 @@ export default class DDBMonsterFeatureFactory {
         }
         const titleDom = utils.htmlToDocumentFragment(outerHTML);
         if (titleDom.textContent.startsWith(". ")) outerHTML = outerHTML.replace(". ", "");
+        if (titleDom.textContent.startsWith(" .")) outerHTML = outerHTML.replace(" .", "");
         action.options.html += outerHTML;
       }
 
@@ -570,7 +572,9 @@ export default class DDBMonsterFeatureFactory {
     this.html[type] = DDBMonsterFeatureFactory.replaceRollable(utils.replaceHtmlSpaces(`${html}`))
       .replace(/<\/strong> <strong>/g, "")
       .replace(/<\/strong><strong>/g, "")
+      .replace(/<strong> \.<\/strong>/g, ".")
       .replace(/<strong>\.<\/strong>/g, ".")
+      .replace(/<em> \.<\/em>/g, ".")
       .replace(/<em>\.<\/em>/g, ".")
       .replace(/&shy;/g, "");
 

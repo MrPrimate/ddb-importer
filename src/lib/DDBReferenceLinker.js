@@ -219,8 +219,24 @@ function parseLooseRuleReferences(text, superLoose = false) {
     // eslint-disable-next-line no-continue
     if (!superLoose && SUPER_LOOSE.includes(type)) continue;
     for (const [key, value] of Object.entries(entries)) {
-      // eslint-disable-next-line no-continue
       if (!value.reference) continue;
+      const newLinkRegex = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(${value.label})( (saving throw:|check:|average=true|average=false))?(<\\/\\w+>)?(\\sDC (\\d\\d))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
+      const replaceRuleNew = (match, p1, p2, p3, p4, p5, p6, p7, p8, p9) => {
+        if (p1 || (p5 && p5.includes("average="))) return match; // already a reference match don't match this
+        if (p5 && ["saving throw:", "check:"].includes(p5.toLowerCase().trim())) {
+          const rollType = p5.toLowerCase() === "check:" ? "check" : "save";
+          // console.warn("Unexpected Reference", { match, p1, p2, p3,p4, p5, p6, p7, p8, p9, rollType });
+          const tag = p6 ? p6 : "";
+          if (p7 && Number.isInteger(parseInt(p8))) {
+            return `${p2}${p3}${p4}${tag}[[/${rollType} ${key} ${p8} format=long]]{${p7}}${p9}`;
+          } else {
+            return `${p2}[[/${rollType} ${key} format=long]]${tag}${p9}`;
+          }
+        }
+        return match;
+      };
+      // eslint-disable-next-line no-continue
+      text = text.replaceAll(newLinkRegex, replaceRuleNew);
       const linkRegEx = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(DC (\\d\\d) )?(${value.label})( (saving throw|check|average=true|average=false))?( \\(DC 8 plus your ${value.label} modifier and Proficiency Bonus\\))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
       const replaceRule = (match, p1, p2, p3, p4, p5, p6, p7, p8, p9) => {
         if (p1 || (p7 && p7.includes("average="))) return match; // already a reference match don't match this
@@ -235,7 +251,7 @@ function parseLooseRuleReferences(text, superLoose = false) {
             return `${p2}[[/${rollType} ${key} format=long]]${p9}`;
           }
         }
-
+        if (type === "abilities") return match;
         return `${p2}${p3 ?? ""}&Reference[${key}]{${p5}}${p6 ?? ""}${p9}`;
       };
       text = text.replaceAll(linkRegEx, replaceRule);

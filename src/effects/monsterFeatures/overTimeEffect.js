@@ -42,13 +42,14 @@ function effectCleanup(document, actor, effect) {
   return { document, actor };
 }
 
-export function generateConditionOnlyEffect(actor, document) {
+export function generateConditionOnlyEffect(actor, document, otherDescription = null) {
   logger.debug(`Checking for condition effects for ${document.name} on ${actor.name}`);
+  const text = otherDescription ?? document.system.description.value;
   if (!document.effects) document.effects = [];
   let effect = baseMonsterFeatureEffect(document, `${document.name}`);
   effect._id = foundry.utils.randomID();
   // add any condition effects
-  const conditionResults = DDBEffectHelper.parseStatusCondition({ text: document.system.description.value, nameHint: document.name });
+  const conditionResults = DDBEffectHelper.parseStatusCondition({ text, nameHint: document.name });
   effect.changes.push(...conditionResults.effect.changes);
   effect.statuses.push(...conditionResults.effect.statuses);
   if (conditionResults.effect.name) effect.name = conditionResults.effect.name;
@@ -56,7 +57,7 @@ export function generateConditionOnlyEffect(actor, document) {
 
   const durationSeconds = foundry.utils.hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
     ? foundry.utils.getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
-    : DDBEffectHelper.getDuration(document.system.description.value);
+    : DDBEffectHelper.getDuration(text);
   foundry.utils.setProperty(effect, "duration.seconds", durationSeconds);
   const durationRounds = Number.parseInt(durationSeconds / 6);
   foundry.utils.setProperty(effect, "duration.rounds", durationRounds);
@@ -74,36 +75,38 @@ export function generateConditionOnlyEffect(actor, document) {
   return result;
 }
 
-export function generateOverTimeEffect(actor, document) {
+// eslint-disable-next-line complexity
+export function generateOverTimeEffect(actor, document, otherDescription = null) {
   logger.debug(`Checking for over time effects for ${document.name} on ${actor.name}`);
+  const text = otherDescription ?? document.system.description.value;
   if (!document.effects) document.effects = [];
   let effect = baseMonsterFeatureEffect(document, `${document.name}`);
   // add any condition effects
-  const conditionResults = DDBEffectHelper.parseStatusCondition({ text: document.system.description.value });
+  const conditionResults = DDBEffectHelper.parseStatusCondition({ text });
   effect.changes.push(...conditionResults.effect.changes);
   effect.statuses.push(...conditionResults.effect.statuses);
   if (conditionResults.effect.name) effect.name = conditionResults.effect.name;
   effect.flags = foundry.utils.mergeObject(effect.flags, conditionResults.effect.flags);
   if (conditionResults.success) {
     foundry.utils.setProperty(document, "flags.midiProperties.fulldam", true);
-    DDBEffectHelper.overTimeSaveEnd({ document, effect, save: conditionResults.save, text: document.system.description.value });
+    DDBEffectHelper.overTimeSaveEnd({ document, effect, save: conditionResults.save, text });
   }
 
   const durationSeconds = foundry.utils.getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
     ?? foundry.utils.getProperty(document.flags, "ddbimporter.overTime.durationSeconds")
-    ?? DDBEffectHelper.getDuration(document.system.description.value);
+    ?? DDBEffectHelper.getDuration(text);
   foundry.utils.setProperty(effect, "duration.seconds", durationSeconds);
   const durationRounds = Number.parseInt(durationSeconds / 6);
   foundry.utils.setProperty(effect, "duration.rounds", durationRounds);
 
-  const turn = DDBEffectHelper.startOrEnd(document.system.description.value);
+  const turn = DDBEffectHelper.startOrEnd(text);
   if (!turn) {
     logger.debug(`No turn over time effect for ${document.name} on ${actor.name}`);
     return effectCleanup(document, actor, effect);
   }
 
   // todo : refactor for activities
-  const saveFeature = new DDBMonsterFeature("overTimeSaveFeature", { html: document.system.description.value });
+  const saveFeature = new DDBMonsterFeature("overTimeSaveFeature", { html: text });
   saveFeature.prepare();
   const save = saveFeature.getFeatSave();
   if (!Number.isInteger(Number.parseInt(save.dc))) return effectCleanup(document, actor, effect);
@@ -111,7 +114,7 @@ export function generateOverTimeEffect(actor, document) {
   const saveAbility = save.ability;
   const dc = save.dc;
 
-  const dmg = getOvertimeDamage(document.system.description.value, document);
+  const dmg = getOvertimeDamage(text, document);
   if (!dmg) {
     logger.debug(`Adding non damage Overtime effect for ${document.name} on ${actor.name}`);
     return effectCleanup(document, actor, effect);

@@ -699,30 +699,30 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-//   {
-//     "fixedValue": null,
-//     "id": "62627888",
-//     "entityId": 4,
-//     "entityTypeId": 1782728300,
-//     "type": "weapon-mastery",
-//     "subType": "sap-longsword",
-//     "dice": null,
-//     "restriction": "",
-//     "statId": null,
-//     "requiresAttunement": false,
-//     "duration": null,
-//     "friendlyTypeName": "Weapon Mastery",
-//     "friendlySubtypeName": "Sap (Longsword)",
-//     "isGranted": true,
-//     "bonusTypes": [],
-//     "value": null,
-//     "availableToMulticlass": true,
-//     "modifierTypeId": 43,
-//     "modifierSubTypeId": 1942,
-//     "componentId": 1789142,
-//     "componentTypeId": 1088085227,
-//     "tagConstraints": []
-// },
+  //   {
+  //     "fixedValue": null,
+  //     "id": "62627888",
+  //     "entityId": 4,
+  //     "entityTypeId": 1782728300,
+  //     "type": "weapon-mastery",
+  //     "subType": "sap-longsword",
+  //     "dice": null,
+  //     "restriction": "",
+  //     "statId": null,
+  //     "requiresAttunement": false,
+  //     "duration": null,
+  //     "friendlyTypeName": "Weapon Mastery",
+  //     "friendlySubtypeName": "Sap (Longsword)",
+  //     "isGranted": true,
+  //     "bonusTypes": [],
+  //     "value": null,
+  //     "availableToMulticlass": true,
+  //     "modifierTypeId": 43,
+  //     "modifierSubTypeId": 1942,
+  //     "componentId": 1789142,
+  //     "componentTypeId": 1088085227,
+  //     "tagConstraints": []
+  // },
 
   getWeaponMasteryAdvancement(mods, feature, level) {
     const proficiencyMods = DDBHelper.filterModifiers(mods, "weapon-mastery");

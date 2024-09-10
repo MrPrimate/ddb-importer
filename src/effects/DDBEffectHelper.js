@@ -1235,11 +1235,21 @@ export default class DDBEffectHelper {
     };
 
     text = utils.nameString(text);
-    const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (\d+) (minute|round|hour))?(.*)?(?:.|$)/ig;
+    const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
     let match = conditionSearch.exec(text);
     if (!match) {
-      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute|round|hour))?(.*)?(?:.|$)/ig;
+      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
       match = rawConditionSearch.exec(text);
+    }
+
+    if (!match) {
+      const rawConditionSearch2 = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)(?:[ .,])(.*)Failure: The target has the (?<condition>\w+)(?: for (\d+) (minute|round|hour)| until)?/ig;
+      match = rawConditionSearch2.exec(text);
+    }
+
+    if (!match) {
+      const monsterAndCondition = /the target has the (?<condition>\w+) condition/ig;
+      match = monsterAndCondition.exec(text);
     }
 
     if (!match) {
