@@ -106,7 +106,7 @@ export default class DDBFeatures {
     });
     // only background features get advancements for now
     if (type === "background") {
-      ddbFeature.generateAbilityScoreAdvancement();
+      ddbFeature.generateBackgroundAbilityScoreAdvancement();
       await ddbFeature.generateAdvancements();
       await ddbFeature.buildBackgroundFeatAdvancements();
     }

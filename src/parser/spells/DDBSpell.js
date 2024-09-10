@@ -941,6 +941,7 @@ export default class DDBSpell {
     this.data.system.level = this.spellDefinition.level;
     this.data.system.school = (this.school) ? this.school.id : null;
     this.data.system.source = DDBHelper.parseSource(this.spellDefinition);
+    this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
     if (this.spellClass) {
       this.data.system.sourceClass = this.spellClass;

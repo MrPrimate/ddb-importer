@@ -208,6 +208,7 @@ export default class DDBClass {
   _generateSource() {
     const classSource = DDBHelper.parseSource(this.ddbClassDefinition);
     this.data.system.source = classSource;
+    this.data.system.source.rules = this.is2014 ? "2014" : "2024";
   }
 
   _fleshOutCommonDataStub() {

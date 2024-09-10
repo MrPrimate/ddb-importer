@@ -10,7 +10,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
 
   DND_2014 = {
     NAME_HINTS: {},
-    ACTIVITY_HINTS: {},
+    ACTIVITY_HINTS: {
+      // todo: spellcasting for counterspell check activity
+    },
     ADDITIONAL_ACTIVITIES: {},
     DOCUMENT_OVERRIDES: {},
     EFFECT_HINTS: {},

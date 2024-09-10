@@ -212,6 +212,8 @@ export default class DDBCharacter {
           foundry.utils.mergeObject(action.flags, newFlags, { overwrite: true, insertKeys: true, insertValues: true });
         }
 
+        action.system.source = featureMatch.system.source;
+
         if (featureMatch.system.activities?.length > 0) {
           action.system.activities.push(...featureMatch.system.activities);
         }

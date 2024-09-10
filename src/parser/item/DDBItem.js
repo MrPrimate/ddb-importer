@@ -2348,6 +2348,7 @@ export default class DDBItem {
       await this.#prepare();
 
       this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
+      this.data.system.source.rules = this.is2014 ? "2014" : "2024";
       this.data.system.weight = this.#getSingleItemWeight();
 
       if (this.ddbDefinition.magic) this.addMagical = true;

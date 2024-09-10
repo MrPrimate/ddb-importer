@@ -56,6 +56,7 @@ export class DDBInfusion {
     }
 
     this.data.system.source = DDBHelper.parseSource(this.ddbInfusion);
+    this.data.system.source.rules = "2014";
 
     if (this.requiredLevel && this.requiredLevel > 1) {
       this.data.system.requirements = ` ${utils.ordinalSuffixOf(this.requiredLevel)}-level Artificer`;

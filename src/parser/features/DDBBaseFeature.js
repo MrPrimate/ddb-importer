@@ -142,7 +142,6 @@ export default class DDBBaseFeature {
     }
 
     this._prepare();
-    this.data.system.source = this.source;
 
     this.enricher = new DDDFeatureEnricher({
       ddbParser: this,
@@ -155,6 +154,18 @@ export default class DDBBaseFeature {
 
     this.is2014 = this.ddbDefinition.isLegacy
       && this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+
+    const localSource = this.source && utils.isObject(this.source)
+      ? this.source
+      : DDBHelper.parseSource(this.ddbDefinition);
+
+    console.warn("DDB Sources", {
+      this: this.source,
+      localSource,
+      parse: DDBHelper.parseSource(this.ddbDefinition),
+    });
+    this.data.system.source = localSource;
+    this.data.system.source.rules = this.is2014 ? "2014" : "2024";
   }
 
   _getClassFeatureDescription() {
@@ -875,12 +886,6 @@ export default class DDBBaseFeature {
 
     const activity = this.getActivity({
       typeOverride: this.enricher.activity?.type ?? this.activityType,
-    });
-
-    console.warn(`Feature Activity Check for ${this.data.name}`, {
-      this: this,
-      activity,
-      activityType: this.enricher.activity?.type ?? this.activityType,
     });
 
     if (!activity) return undefined;

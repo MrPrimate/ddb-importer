@@ -133,7 +133,7 @@ export default class DDBFeature extends DDBBaseFeature {
     this._generateActivity({ hintsOnly: true });
     this.enricher.addAdditionalActivities(this);
 
-    this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
+    // this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 
     this._generateDescription({ forceFull: true });
     this._addEffects(undefined, this.type);
@@ -171,12 +171,17 @@ export default class DDBFeature extends DDBBaseFeature {
   }
 
 
-  generateAbilityScoreAdvancement() {
+  generateBackgroundAbilityScoreAdvancement() {
     const advancements = [];
 
     console.warn(`ABILITY SCORE ADVANCEMENT NOT IMPLEMENTED`, {
       this: this,
     });
+
+    // this.ddbDefinition.grantedFeats
+
+
+
 
     // get list of feats from background
     // get feat ids from feats[]
@@ -335,7 +340,7 @@ export default class DDBFeature extends DDBBaseFeature {
       this._generateSystemType();
       this._generateSystemSubType();
 
-      this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
+      // this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 
       logger.debug(`Found background ${this.ddbDefinition.name}`);
       logger.debug(`Found ${this._choices.map((c) => c.label).join(",")}`);
@@ -378,7 +383,7 @@ export default class DDBFeature extends DDBBaseFeature {
         <p>${c.label}</p>`;
       }
     }, "");
-    this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
+    // this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 
     // console.warn("CHOICE TEXT", {
     //   choices: this._choices,
