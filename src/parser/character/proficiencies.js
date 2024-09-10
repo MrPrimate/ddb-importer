@@ -37,6 +37,20 @@ DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(in
     });
 };
 
+DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(includeItemEffects = false) {
+  return DDBHelper
+    .filterBaseModifiers(this.source.ddb, "weapon-mastery", { restriction: null, includeExcludedEffects: includeItemEffects })
+    .map((prof) => {
+      const weaponRegex = /(\w+) \(([\w ]+)\)/ig;
+      const masteryDetails = weaponRegex.exec(prof.friendlySubtypeName);
+      const dnd5eNameArray = masteryDetails[2].trim().toLowerCase().split(",");
+      const dnd5eName = dnd5eNameArray.length === 2
+        ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`.replaceAll(" ", "")
+        : dnd5eNameArray[0].replaceAll(" ", "");
+      return { weapon: masteryDetails[2].trim(), mastery: masteryDetails[1].trim(), dnd5eName };
+    });
+};
+
 
 DDBCharacter.prototype.getArmorProficiencies = function getArmorProficiencies(proficiencyArray) {
   const values = new Set();
@@ -159,9 +173,10 @@ DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(prof
 
 };
 
-DDBCharacter.prototype.getWeaponProficiencies = function getWeaponProficiencies(proficiencyArray) {
+DDBCharacter.prototype.getWeaponProficiencies = function getWeaponProficiencies(proficiencyArray, masteriesArray = []) {
   const values = new Set();
   const custom = [];
+  const masteries = [];
 
   // lookup the characters's proficiencies in the DICT
   const allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Weapon");
@@ -175,8 +190,8 @@ DDBCharacter.prototype.getWeaponProficiencies = function getWeaponProficiencies(
       const systemWeaponIds = CONFIG.DND5E.weaponIds;
       const dnd5eNameArray = prof.name.toLowerCase().split(",");
       const dnd5eName = dnd5eNameArray.length === 2
-        ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`
-        : prof.name.toLowerCase();
+        ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`.replaceAll(" ", "")
+        : prof.name.toLowerCase().replaceAll(" ", "");
       if (systemWeaponIds && dnd5eName in systemWeaponIds) {
         values.add(dnd5eName);
       } else if (allProficiencies.some((p) => p.name === prof.name) && !custom.includes(prof.name)) {
@@ -189,6 +204,8 @@ DDBCharacter.prototype.getWeaponProficiencies = function getWeaponProficiencies(
     processWeaponProficiency(prof);
   });
 
+  masteries.push(...masteriesArray.map((m) => m.dnd5eName));
+
   if (this.source?.ddb) {
     // load custom proficiencies in characterValues
     const customProfs = this._getCustomProficiencies("Weapons");
@@ -198,6 +215,10 @@ DDBCharacter.prototype.getWeaponProficiencies = function getWeaponProficiencies(
   }
 
   return {
+    mastery: {
+      bonus: [],
+      value: Array.from(masteries),
+    },
     value: Array.from(values),
     custom: [...new Set(custom)].join("; "),
   };
@@ -266,11 +287,13 @@ DDBCharacter.prototype._generateProficiencies = function _generateProficiencies(
 
   this.proficiencies = this._getCoreProficiencies(false).concat(customProficiencies);
   this.proficienciesIncludingEffects = this._getCoreProficiencies(true).concat(customProficiencies);
+  this.weaponMasteries = this._getCoreMasteries(false);
 
   this.raw.character.flags.ddbimporter.dndbeyond.proficiencies = this.proficiencies;
   this.raw.character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects = this.proficienciesIncludingEffects;
+  this.raw.character.flags.ddbimporter.dndbeyond.weaponMasteries = this.weaponMasteries;
 
-  this.raw.character.system.traits.weaponProf = this.getWeaponProficiencies(this.proficiencies);
+  this.raw.character.system.traits.weaponProf = this.getWeaponProficiencies(this.proficiencies, this.weaponMasteries);
   this.raw.character.system.traits.armorProf = this.getArmorProficiencies(this.proficiencies);
   this.raw.character.system.tools = this.getToolProficiencies(this.proficiencies);
   this._generateLanguages();

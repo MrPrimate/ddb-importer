@@ -84,6 +84,10 @@ export function generateBackground(bg) {
   let result = getBackgroundTemplate();
 
   // console.warn(bg)
+  if (bg.definition) result.definition = bg.definition;
+  else result.definition = bg;
+
+  result.definition.originalDescription = bg.description;
 
   if (bg.id) result.id = bg.id;
   if (bg.entityTypeId) result.entityTypeId = bg.entityTypeId;
@@ -98,7 +102,6 @@ export function generateBackground(bg) {
   } else if (bg.shortDescription) {
     result.description += bg.shortDescription.replace("\r\n", "");
   }
-  if (bg.definition) result.definition = bg.definition;
   if (bg.sources) result.definition.sources = bg.sources;
 
   if (bg.isHomebrew === true) {
@@ -130,14 +133,12 @@ export function generateBackground(bg) {
     result.description += `<h2>${bg.featureName}</h2>`;
     result.description += bg.featureDescription.replace("\r\n", "");
   }
-  if (bg.spellListIds) result.spellListIds = bg.spellListIds;
 
   // update definition
   result.definition.name = result.name;
   result.description = utils.replaceHtmlSpaces(result.description);
   result.definition.description = result.description;
-  result.definition.id = result.id;
-  result.definition.spellListIds = result.spellListIds;
+
   return result;
 }
 

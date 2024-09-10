@@ -9,8 +9,6 @@ import DDBFeatureActivity from "./DDBFeatureActivity.js";
 import DDDFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 import SETTINGS from "../../settings.js";
-import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
-
 
 export default class DDBBaseFeature {
 

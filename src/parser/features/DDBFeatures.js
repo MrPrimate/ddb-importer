@@ -85,7 +85,6 @@ export default class DDBFeatures {
       && !DDBFeatures.LEGACY_SKIPPED_FEATURES.includes(featName)
       && !DDBFeatures.SKIPPED_FEATURES.includes(featName);
 
-    console.warn(`Checked ${featName}: ${nameAllowed}`);
     return nameAllowed;
   }
 
@@ -107,6 +106,7 @@ export default class DDBFeatures {
     });
     // only background features get advancements for now
     if (type === "background") {
+      ddbFeature.generateAbilityScoreAdvancement();
       await ddbFeature.generateAdvancements();
       await ddbFeature.buildBackgroundFeatAdvancements();
     }

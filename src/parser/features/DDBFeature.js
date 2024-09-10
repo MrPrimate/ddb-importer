@@ -170,6 +170,83 @@ export default class DDBFeature extends DDBBaseFeature {
     }
   }
 
+
+  generateAbilityScoreAdvancement() {
+    const advancements = [];
+
+    console.warn(`ABILITY SCORE ADVANCEMENT NOT IMPLEMENTED`, {
+      this: this,
+    });
+
+    // get list of feats from background
+    // get feat ids from feats[]
+    // find boosts granted by modifier in modifiers
+
+    // for (let i = 0; i <= 20; i++) {
+    //   const abilityAdvancementFeature = this.classFeatures.find((f) => f.name.includes("Ability Score Improvement") && f.requiredLevel === i);
+
+    //   // eslint-disable-next-line no-continue
+    //   if (!abilityAdvancementFeature) continue;
+    //   const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
+    //   advancement.updateSource({ configuration: { points: 2 }, level: i, value: { type: "asi" } });
+
+    //   // if advancement has taken ability improvements
+    //   const modFilters = {
+    //     includeExcludedEffects: true,
+    //     classId: this.ddbClassDefinition.id,
+    //     exactLevel: i,
+    //     useUnfilteredModifiers: true,
+    //   };
+    //   const mods = DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+
+    //   const assignments = {};
+    //   DICTIONARY.character.abilities.forEach((ability) => {
+    //     const count = DDBHelper.filterModifiers(mods, "bonus", { subType: `${ability.long}-score` }).length;
+    //     if (count > 0) assignments[ability.value] = count;
+    //   });
+
+    //   // create a leveled advancement
+    //   if (Object.keys(assignments).length > 0) {
+    //     advancement.updateSource({
+    //       value: {
+    //         assignments,
+    //       },
+    //     });
+    //   } else if (abilityAdvancementFeature.requiredLevel <= this.ddbClass.level) {
+    //     // feat id selection happens later once features have been generated
+    //     // "type": "feat",
+    //     // "feat": {
+    //     //   "vu8kJ2iTCEiGQ1mv": "Compendium.world.ddb-test2-ddb-feats.Item.3mfeQMT6Fh1VRubU"
+    //     // }
+    //     advancement.updateSource({
+    //       value: {
+    //         type: "feat",
+    //         feat: {
+    //         },
+    //       },
+    //     });
+    //     // abilityAdvancementFeature.id: 313
+    //     // abilityAdvancementFeature.entityTypeId: 12168134
+    //     const featChoice = this.ddbData.character.feats.find((f) =>
+    //       f.componentId == abilityAdvancementFeature.id
+    //       && f.componentTypeId == abilityAdvancementFeature.entityTypeId,
+    //     );
+    //     const featureMatch = featChoice ? this.getFeatCompendiumMatch(featChoice.definition.name) : null;
+    //     if (featureMatch) {
+    //       this._advancementMatches.features[advancement._id] = {};
+    //       this._advancementMatches.features[advancement._id][featureMatch.name] = featureMatch.uuid;
+    //     } else {
+    //       logger.info("Missing asi feat linking match for", { abilityAdvancementFeature, featChoice, this: this });
+    //     }
+
+    //   }
+
+    //   advancements.push(advancement.toObject());
+    // }
+
+    // this.data.system.advancement = this.data.system.advancement.concat(advancements);
+  }
+
   _generateSkillAdvancements() {
     const mods = this.advancementHelper.noMods
       ? []

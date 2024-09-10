@@ -134,7 +134,7 @@ export default class DDBItem {
 
     this.systemType = {
       value: null,
-      subType: null,
+      subtype: null,
       baseItem: null,
     };
 
@@ -1868,6 +1868,20 @@ export default class DDBItem {
         base: this.damageParts[0],
       };
     }
+
+    const ammoType = DICTIONARY.character.proficiencies
+      .find((prof) =>
+        prof.type === "Ammunition"
+        && (
+          prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(",")[0].trim()
+          || prof.name.toLowerCase() === this.ddbDefinition.name.toLowerCase().split(" ")[0].trim()
+        ),
+      )?.ammunitionType;
+
+    if (ammoType) {
+      foundry.utils.setProperty(this.data, "system.type.subtype", ammoType);
+      this.systemType.subtype = ammoType;
+    }
   }
 
   #generateArmorSpecifics() {
@@ -1968,7 +1982,7 @@ export default class DDBItem {
     this.data.system.proficient = this.flags.classFeatures.some((feat) => proficientFeatures.includes(feat))
       ? true
       : this.#getWeaponProficient();
-    // Todo: Maybe not needed anymore?
+
     if (this.flags.classFeatures.includes("OffHand")) this.actionInfo.activation.type = "bonus";
     this.data.system.range = this.#getWeaponRange();
     this._generateUses(false);
@@ -1988,6 +2002,19 @@ export default class DDBItem {
           : this.damageParts.splice(1),
       };
     }
+
+    const dictionaryWeapon = DICTIONARY.character.proficiencies
+      .find((prof) =>
+        prof.type === "Weapon" && prof.name.toLowerCase() === this.ddbDefinition.type.toLowerCase(),
+      );
+
+    if (dictionaryWeapon?.ammunitionType) {
+      foundry.utils.setProperty(this.data, "system.ammunition.type", dictionaryWeapon.ammunitionType);
+    }
+    if (dictionaryWeapon?.mastery) {
+      foundry.utils.setProperty(this.data, "system.mastery", dictionaryWeapon.mastery);
+    }
+
   }
 
   #generateWonderousSpecifics() {
