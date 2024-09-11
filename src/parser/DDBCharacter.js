@@ -175,14 +175,29 @@ export default class DDBCharacter {
     const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
 
     this.data.actions = this.raw.actions.map((action) => {
+      const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
       const featureMatch = this.raw.features.find((feature) => {
-        const featureNamePrefix = feature.name.split(":")[0].trim();
+        const originalFeatureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+        const featureNamePrefix = originalFeatureName.split(":")[0].trim();
         const replaceRegex = new RegExp(`${featureNamePrefix}(?:\\s*)-`);
         const featureFlagType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
         const actionFlagType = foundry.utils.getProperty(action, "flags.ddbimporter.type");
-        const replacedActionName = action.name.replace(replaceRegex, `${featureNamePrefix}:`);
+        const replacedActionName = originalActionName.replace(replaceRegex, `${featureNamePrefix}:`);
+        console.warn(`Checking "${originalActionName}" against "${originalFeatureName}"`, {
+          action,
+          feature,
+          replacedActionName,
+          originalFeatureName,
+          featureFlagType,
+          actionFlagType,
+          nameMatch: originalFeatureName === originalActionName
+            || replacedActionName === originalFeatureName,
+          flagMatch: featureFlagType === actionFlagType,
+        });
         return (
-          feature.name === action.name
+          originalFeatureName === originalActionName
+          || replacedActionName === originalFeatureName
+          || feature.name === action.name
           || replacedActionName === feature.name
         )
         && featureFlagType === actionFlagType;
@@ -225,8 +240,8 @@ export default class DDBCharacter {
       .filter((feature) =>
         actionAndFeature
         || !this.data.actions.some((action) =>
-          (action.name.trim().toLowerCase() === feature.name.trim().toLowerCase()
-          || foundry.utils.getProperty(action, "flags.ddbimporter.featureNameMatch") === feature.name)
+          ((foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name).trim().toLowerCase() === (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name).trim().toLowerCase()
+          || foundry.utils.getProperty(action, "flags.ddbimporter.featureNameMatch") === (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name))
           && foundry.utils.getProperty(action, "flags.ddbimporter.isCustomAction") !== true
           && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type"),
         ),

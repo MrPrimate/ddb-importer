@@ -100,6 +100,9 @@ export default class CharacterFeatureFactory {
       this._getCustomActions(true),
     ]
       .flat()
+      .filter((action) => action.name && action.name !== ""
+        && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name.startsWith(a)),
+      )
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
       .map((action) => {
         const ddbAttackAction = new DDBAttackAction({
@@ -123,7 +126,9 @@ export default class CharacterFeatureFactory {
 
   actionParsed(actionName) {
     // const attacksAsFeatures = game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features");
-    const exists = this.parsed.actions.some((attack) => attack.name === actionName);
+    const exists = this.parsed.actions.some((attack) =>
+      foundry.utils.getProperty(attack, "flags.ddbimporter.originalName") ?? attack.name === actionName,
+    );
     return exists;
     // return attacksAsFeatures && exists;
   }

@@ -55,6 +55,7 @@ export default class DDBFeature extends DDBBaseFeature {
       _id: foundry.utils.randomID(),
       name: utils.nameString(this.ddbDefinition.name),
       type: this.documentType,
+      effects: [],
       system: utils.getTemplate(this.documentType),
       flags: {
         ddbimporter: {
@@ -180,7 +181,103 @@ export default class DDBFeature extends DDBBaseFeature {
 
     // this.ddbDefinition.grantedFeats
 
+  //   [
+  //     {
+  //         "id": 16335,
+  //         "name": "Lucky",
+  //         "featIds": [
+  //             1789160
+  //         ]
+  //     },
+  //     {
+  //         "id": 16336,
+  //         "name": "Ability Scores",
+  //         "featIds": [
+  //             1789210
+  //         ]
+  //     }
+  // ]
 
+  // feats:[]
+//   {
+//     "componentTypeId": 67468084,
+//     "componentId": 16336,
+//     "definition": {
+//         "id": 1789210,
+//         "entityTypeId": 1088085227,
+//         "definitionKey": "1088085227:1789210",
+//         "name": "Wayfarer Ability Score Improvements",
+//         "description": "<p>The Wayfarer Background allows you to choose between Dexterity, Wisdom, and Charisma. Increase one of these scores by 2 and another one by 1, or increase all three by 1. None of these increases can raise a score above 20.</p>",
+//         "snippet": "",
+//         "activation": {
+//             "activationTime": null,
+//             "activationType": null
+//         },
+//         "sourceId": null,
+//         "sourcePageNumber": null,
+//         "creatureRules": [],
+//         "prerequisites": [],
+//         "isHomebrew": false,
+//         "sources": [
+//             {
+//                 "sourceId": 145,
+//                 "pageNumber": 185,
+//                 "sourceType": 1
+//             }
+//         ],
+//         "spellListIds": [],
+//         "isRepeatable": false,
+//         "repeatableParentId": null,
+//         "categories": [
+//             {
+//                 "id": 491,
+//                 "entityTypeId": 1088085227,
+//                 "entityId": 1789210,
+//                 "definitionKey": "1088085227:1789210",
+//                 "entityTagId": 2,
+//                 "tagName": "__INITIAL_ASI"
+//             },
+//             {
+//                 "id": 490,
+//                 "entityTypeId": 1088085227,
+//                 "entityId": 1789210,
+//                 "definitionKey": "1088085227:1789210",
+//                 "entityTagId": 3,
+//                 "tagName": "__DISPLAY_WITH_DATA_ORIGIN"
+//             }
+//         ]
+//     },
+//     "definitionId": 0
+// }
+
+// modifiers.feats: []
+
+// {
+//   "fixedValue": 1,
+//   "id": "62627298",
+//   "entityId": 1,
+//   "entityTypeId": 1472902489,
+//   "type": "bonus",
+//   "subType": "strength-score",
+//   "dice": null,
+//   "restriction": "",
+//   "statId": null,
+//   "requiresAttunement": false,
+//   "duration": null,
+//   "friendlyTypeName": "Bonus",
+//   "friendlySubtypeName": "Strength Score",
+//   "isGranted": false,
+//   "bonusTypes": [],
+//   "value": 1,
+//   "availableToMulticlass": true,
+//   "modifierTypeId": 1,
+//   "modifierSubTypeId": 2,
+//   "componentId": 1789093,
+//   "componentTypeId": 1088085227,
+//   "tagConstraints": []
+// }
+
+    const grantedFeatIds = this.ddbDefinition.grantedFeats
 
 
     // get list of feats from background

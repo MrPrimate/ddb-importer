@@ -42,6 +42,157 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       targetType: "self",
       activationType: "special",
     },
+    "Lay on Hands: Healing Pool": {
+      type: "heal",
+      name: "Healing",
+      // todo change to use scaling
+    },
+    "Maneuver: Ambush": {
+      type: "utility",
+    },
+    "Maneuver: Bait and Switch": {
+      type: "utility",
+    },
+    "Maneuver: Disarming Attack (Str.)": {
+      type: "save",
+      data: {
+        damage: {
+          onSave: "none",
+        },
+        save: {
+          ability: "str",
+          dc: {
+            calculation: "",
+            formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
+          },
+        },
+      },
+    },
+    "Maneuver: Goading Attack (Str.)": {
+      type: "save",
+      data: {
+        damage: {
+          onSave: "none",
+        },
+        save: {
+          ability: "wis",
+          dc: {
+            calculation: "",
+            formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
+          },
+        },
+      },
+    },
+    "Maneuver: Menacing Attack (Str.)": {
+      type: "save",
+      data: {
+        damage: {
+          onSave: "none",
+        },
+        save: {
+          ability: "wis",
+          dc: {
+            calculation: "",
+            formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
+          },
+        },
+      },
+    },
+    "Maneuver: Parry": {
+      type: "utility",
+      roll: {
+        prompt: false,
+        visible: false,
+        formula: "@scale.fighter.combat-superiority-die",
+        name: "Reduce Damage Roll",
+      },
+    },
+    "Maneuver: Pushing Attack (Str.)": {
+      type: "save",
+      data: {
+        damage: {
+          onSave: "none",
+        },
+        save: {
+          ability: "str",
+          dc: {
+            calculation: "",
+            formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
+          },
+        },
+      },
+    },
+    "Maneuver: Precision Attack": {
+      type: "utility",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "@scale.fighter.combat-superiority-die",
+          name: "Add to Attack Roll",
+        },
+      },
+    },
+    "Maneuver: Rally": {
+      type: "heal",
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@scale.fighter.combat-superiority-die",
+          },
+          types: ["temphp"],
+        },
+      },
+    },
+    "Maneuver: Riposte": {
+      type: "damage",
+      data: {
+        damage: {
+          onSave: "none",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.fighter.combat-superiority-die" })],
+        },
+      },
+    },
+    "Maneuver: Sweeping Attack": {
+      type: "damage",
+      data: {
+        damage: {
+          onSave: "none",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.fighter.combat-superiority-die", types: ["bludgeoning", "piercing", "slashing"] })],
+        },
+      },
+    },
+    "Maneuver: Tactical Assessment": {
+      type: "check",
+      data: {
+        name: "Roll Check (Apply Effect First)",
+        "flags.ddbimporter.noeffect": true,
+        check: {
+          associated: ["his", "inv", "ins"],
+          ability: "",
+          dc: {
+            calculation: "",
+            formula: "",
+          },
+        },
+      },
+    },
+    "Maneuver: Trip Attack (Str.)": {
+      type: "save",
+      data: {
+        damage: {
+          onSave: "full",
+        },
+        save: {
+          ability: "str",
+          dc: {
+            calculation: "",
+            formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
+          },
+        },
+      },
+    },
     "Partially Amphibious": {
       type: "utility",
       func: undefined,
@@ -70,6 +221,27 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     },
   };
 
+  ADDITIONAL_ACTIVITIES = {
+    "Maneuver: Tactical Assessment": [
+      {
+        constructor: {
+          name: "Bonus Dice Effect",
+          type: "utility",
+        },
+        build: {
+          generateTarget: false,
+          generateRange: false,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+        },
+      },
+    ],
+  };
+
   DOCUMENT_OVERRIDES = {
     "Action Surge": {
       removeDamage: true,
@@ -85,9 +257,49 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "system.uses.recovery": [],
       },
     },
+    "Epic Boon: Choose an Epic Boon feat": {
+      data: {
+        "name": "Epic Boon",
+      },
+    },
     "Harness Divine Power": {
       data: {
         "flags.ddbimporter.retainOriginalConsumption": true,
+      },
+    },
+    "Lay on Hands: Healing Pool": {
+      data: {
+        name: "Lay on Hands",
+      },
+    },
+    "Maneuver: Disarming Attack (Str.)": {
+      data: {
+        name: "Maneuver: Disarming Attack",
+      },
+    },
+    "Maneuver: Goading Attack (Str.)": {
+      data: {
+        name: "Maneuver: Goading Attack",
+      },
+    },
+    "Maneuver: Menacing Attack (Str.)": {
+      data: {
+        name: "Maneuver: Menacing Attack",
+      },
+    },
+    "Maneuver: Parry (Str.)": {
+      data: {
+        name: "Maneuver: Parry",
+      },
+    },
+    "Maneuver: Pushing Attack (Str.)": {
+      data: {
+        name: "Maneuver: Pushing Attack",
+      },
+    },
+    "Maneuver: Trip Attack (Str.)": {
+      data: {
+        name: "Maneuver: Trip Attack",
       },
     },
     "Partially Amphibious": {
@@ -113,6 +325,102 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       data: {
         "duration.rounds": 600,
       },
+    },
+    "Maneuver: Ambush": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.attributes.init.bonus",
+          value: "@scale.fighter.combat-superiority-die",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+      ],
+    },
+    "Maneuver: Bait and Switch": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.attributes.ac.bonus",
+          value: "@scale.fighter.combat-superiority-die",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+      ],
+    },
+    "Maneuver: Evasive Footwork": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.attributes.ac.bonus",
+          value: "@scale.fighter.combat-superiority-die",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+      ],
+    },
+    // Future Enhancement: Add a macro that rolls dice and applies dr effect
+    // "Maneuver: Parry": {
+    //   type: "feat",
+    //   options: {
+    //     transfer: false,
+    //   },
+    //   changes: [
+    //     {
+    //       key: "system.traits.dm.amount.bludgeoning",
+    //       value: "-@scale.fighter.combat-superiority-die",
+    //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+    //       priority: 20,
+    //     },
+    //     {
+    //       key: "system.traits.dm.amount.piercing",
+    //       value: "-@scale.fighter.combat-superiority-die",
+    //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+    //       priority: 20,
+    //     },
+    //     {
+    //       key: "system.traits.dm.amount.slashing",
+    //       value: "-@scale.fighter.combat-superiority-die",
+    //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+    //       priority: 20,
+    //     },
+    //   ],
+    // },
+    "Maneuver: Tactical Assessment": {
+      name: "Tactical Assessment Bonus",
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.skills.his.bonuses.check",
+          value: "@scale.fighter.combat-superiority-die",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+        {
+          key: "system.skills.inv.bonuses.check",
+          value: "@scale.fighter.combat-superiority-die",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+        {
+          key: "system.skills.ins.bonuses.check",
+          value: "@scale.fighter.combat-superiority-die",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+      ],
     },
     "Partially Amphibious": {
       type: "feat",

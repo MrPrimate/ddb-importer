@@ -316,7 +316,7 @@ export default class AdvancementHelper {
   }
 
   // eslint-disable-next-line complexity
-  getSkillAdvancement(mods, feature, availableToMulticlass, level) {
+  getSkillAdvancement(mods, feature, availableToMulticlass, level, multiclassSkillCount = 0) {
     const baseProficiency = feature.name === "Proficiencies" || (feature.name.startsWith("Core") && feature.name.endsWith("Traits"));
     const skillsFromMods = mods
       .filter((mod) =>
@@ -336,7 +336,7 @@ export default class AdvancementHelper {
     const count = this.noMods || parsedSkills.number > 0 || parsedSkills.grants.length > 0
       ? parsedSkills.number
       : baseProficiency && availableToMulticlass
-        ? this.dictionary.multiclassSkill
+        ? multiclassSkillCount
         : mods.length;
 
     // console.warn(`Parsing skill advancement for level ${level}`, {

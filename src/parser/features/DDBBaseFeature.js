@@ -57,6 +57,7 @@ export default class DDBBaseFeature {
       name: DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter),
       type: this.documentType,
       system: utils.getTemplate(this.documentType),
+      effects: [],
       flags: {
         ddbimporter: {
           id: this.ddbDefinition.id,
@@ -159,11 +160,6 @@ export default class DDBBaseFeature {
       ? this.source
       : DDBHelper.parseSource(this.ddbDefinition);
 
-    console.warn("DDB Sources", {
-      this: this.source,
-      localSource,
-      parse: DDBHelper.parseSource(this.ddbDefinition),
-    });
     this.data.system.source = localSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
   }
@@ -627,6 +623,21 @@ export default class DDBBaseFeature {
     if (effect) {
       this.data.effects.push(effect);
     }
+
+    if (this.data.effects.length > 0 && this.data.system.activities) {
+      for (const activityId of Object.keys(this.data.system.activities)) {
+        const activity = this.data.system.activities[activityId];
+        if (activity.effects.length !== 0) continue;
+        if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
+        for (const effect of this.data.effects) {
+          if (effect.transfer) continue;
+          const effectId = effect._id ?? foundry.utils.randomID();
+          effect._id = effectId;
+          activity.effects.push({ _id: effectId });
+        }
+        this.data.system.activities[activityId] = activity;
+      }
+    }
   }
 
 
@@ -634,17 +645,18 @@ export default class DDBBaseFeature {
     DDBHelper.addCustomValues(this.ddbData, this.data);
   }
 
+  // eslint-disable-next-line complexity
   _generateSystemSubType() {
     let subType = null;
 
     if (this.type === "class") {
-      let subType = null;
       if (this.data.name.startsWith("Ki:")) subType = "Ki";
       // many ki abilities do not start with ki
       else if (this.data.name.startsWith("Channel Divinity:")) subType = "channelDivinity";
       else if (this.data.name.startsWith("Artificer Infusion:")) subType = "artificerInfusion";
       else if (this.data.name.startsWith("Invocation:")) subType = "eldritchInvocation";
       else if (this.data.name.startsWith("Fighting Style:")) subType = "fightingStyle";
+      else if (this.data.name.startsWith("Maneuver:")) subType = "maneuver";
       else if (this.data.name.startsWith("Battle Master Maneuver:")) subType = "maneuver";
       else if (this.data.name.startsWith("Metamagic:")) subType = "metamagic";
       else if (this.data.name.startsWith("Pact of the")) subType = "pact";
@@ -660,15 +672,14 @@ export default class DDBBaseFeature {
 
 
     } else if (this.type === "feat") {
-    // TODO: feat subtypes
-    // for 2024 now have for feats
-    // subtypes: {
-    //   general: "DND5E.Feature.Feat.General",
-    //   origin: "DND5E.Feature.Feat.Origin",
-    //   fightingStyle: "DND5E.Feature.Feat.FightingStyle",
-    //   epicBoon: "DND5E.Feature.Feat.EpicBoon"
-    // }
-
+      if (this.ddbDefinition.categories.some((c) => c.tagName === "Origin"))
+        subType = "origin";
+      else if (this.ddbDefinition.categories.some((c) => c.tagName === "Fighting Style"))
+        subType = "fightingStyle";
+      else if (this.ddbDefinition.categories.some((c) => c.tagName === "Epic Boon"))
+        subType = "epicBoon";
+      else
+        subType = "general";
     }
 
     if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
@@ -842,19 +853,14 @@ export default class DDBBaseFeature {
   }
 
   _getActivitiesType() {
-    if (this.isCompanionFeature || this._isCompanionFeatureOption()) {
-      return "summon";
-    } else if (typeof this.ddbDefinition.saveStatId === "number") {
-      // lets see if we have a save stat for things like Dragon born Breath Weapon
-      return "save";
-    } else if (this.ddbDefinition.actionType === 1) {
-      return "attack";
-    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) {
-      return "attack";
-    } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) {
-      return "attack";
-    }
-    // TODO: can we determine if utility, heal or damage?
+    if (this.isCompanionFeature || this._isCompanionFeatureOption()) return "summon";
+    // lets see if we have a save stat for things like Dragon born Breath Weapon
+    if (typeof this.ddbDefinition.saveStatId === "number") return "save";
+    if (this.ddbDefinition.actionType === 1) return "attack";
+    if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) return "attack";
+    if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) return "attack";
+    if (this.data.system.uses?.max && this.data.system.uses.max !== "0") return "utility";
+    if (this.data.effects.length > 0 || this.enricher.effect) return "utility";
     return null;
   }
 

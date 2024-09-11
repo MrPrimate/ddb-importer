@@ -6,17 +6,17 @@ import { baseSpellEffect } from "../../effects/specialSpells.js";
 export default class DDBBaseEnricher {
 
   static basicDamagePart({
-    number = null, denomination = null, type = null, bonus = "", scalingMode = "whole",
-    scalingNumber = 1, scalingFormula = "",
+    number = null, denomination = null, type = null, types = [], bonus = "", scalingMode = "whole",
+    scalingNumber = 1, scalingFormula = "", customFormula = null,
   } = {}) {
     return {
       number,
       denomination,
       bonus,
-      types: type ? [type] : [],
+      types: type ? [type] : types,
       custom: {
-        enabled: false,
-        formula: "",
+        enabled: customFormula !== null,
+        formula: customFormula,
       },
       scaling: {
         mode: scalingMode, // whole, half or ""

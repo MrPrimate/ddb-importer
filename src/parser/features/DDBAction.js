@@ -15,6 +15,10 @@ export default class DDBAction extends DDBBaseFeature {
     "Slow",
     "Topple",
     "Vex",
+    "Maneuver: Trip Attack (Dex.",
+    "Maneuver: Disarming Attack (Dex.",
+    "Maneuver: Parry (Dex.",
+    "Maneuver: Menacing Attack (Dex.",
   ];
 
   _init() {

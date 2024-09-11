@@ -62,6 +62,15 @@ export default class DDBFeatures {
     "Core Wizard Traits",
     "Weapon Mastery",
     "Maneuver Options",
+    "Lay On Hands: Heal",
+    "Lay On Hands: Purify Poison",
+    "Lay On Hands",
+    "Epic Boon: Choose an Epic Boon feat",
+    "Epic Boon",
+    "Maneuver: Trip Attack (Dex.)",
+    "Maneuver: Disarming Attack (Dex.)",
+    "Maneuver: Parry (Dex.)",
+    "Maneuver: Menacing Attack (Dex.)",
   ];
 
   static isDuplicateFeature(items, item) {
@@ -80,6 +89,7 @@ export default class DDBFeatures {
       && !featName.startsWith("Size")
       && !featName.endsWith("Subclass")
       && !featName.match(/(\w+) Weapon Masteries($|:)/igm)
+      && !featName.startsWith("Weapon Mastery -")
       // && !featName.startsWith("Skills")
       && (includeTashaVersatile || (!includeTashaVersatile && !DDBFeatures.TASHA_VERSATILE.includes(featName)))
       && !DDBFeatures.LEGACY_SKIPPED_FEATURES.includes(featName)

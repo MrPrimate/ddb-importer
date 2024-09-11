@@ -335,7 +335,7 @@ export default class DDBClass {
     // this excludes the subclass features
     this.data.system.description.value += await this._buildClassFeaturesDescription();
     // not all classes have equipment descriptions
-    if (this.ddbClass.definition.equipmentDescription && !this._isSubClass) {
+    if (this.ddbClass.definition.equipmentDescription && !this._isSubClass && this.is2014) {
       // eslint-disable-next-line require-atomic-updates
       this.data.system.description.value += `<h1>Starting Equipment</h1>\n${this.ddbClass.definition.equipmentDescription}\n\n`;
     }
@@ -371,8 +371,6 @@ export default class DDBClass {
       class: {},
       subclasses: {},
     };
-
-    this.rules = "2014";
 
     // setup ddb source
     this.ddbData = ddbData;
@@ -508,9 +506,12 @@ export default class DDBClass {
 
       if (!classFeaturesAdded && !this._excludedFeatureIds.includes(feature.id)) {
         const featureMatch = this.getFeatureCompendiumMatch(feature);
+        const levelName = (/^\d+/).test(feature.name)
+          ? feature.name
+          : `${feature.requiredLevel}: ${feature.name}`;
         const title = (featureMatch)
-          ? `<p><b>@UUID[${featureMatch.uuid}]{${feature.name}}</b></p>`
-          : `<p><b>${feature.name}</b></p>`;
+          ? `<p><b>@UUID[${featureMatch.uuid}]{Level ${levelName}}</b></p>`
+          : `<p><b>Level ${levelName}</b></p>`;
         description += `${title}\n${feature.description}\n\n`;
         classFeatures.push(feature.name);
       }
@@ -715,7 +716,7 @@ export default class DDBClass {
     const skillChooseMods = DDBHelper.filterModifiers(mods, "proficiency", filterModOptions);
     const skillMods = skillChooseMods.concat(skillExplicitMods);
 
-    return this.advancementHelper.getSkillAdvancement(skillMods, feature, availableToMulticlass, i);
+    return this.advancementHelper.getSkillAdvancement(skillMods, feature, availableToMulticlass, i, this.dictionary.multiclassSkill);
   }
 
   _generateSkillAdvancements() {
