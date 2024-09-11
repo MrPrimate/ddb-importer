@@ -183,17 +183,17 @@ export default class DDBCharacter {
         const featureFlagType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
         const actionFlagType = foundry.utils.getProperty(action, "flags.ddbimporter.type");
         const replacedActionName = originalActionName.replace(replaceRegex, `${featureNamePrefix}:`);
-        console.warn(`Checking "${originalActionName}" against "${originalFeatureName}"`, {
-          action,
-          feature,
-          replacedActionName,
-          originalFeatureName,
-          featureFlagType,
-          actionFlagType,
-          nameMatch: originalFeatureName === originalActionName
-            || replacedActionName === originalFeatureName,
-          flagMatch: featureFlagType === actionFlagType,
-        });
+        // console.warn(`Checking "${originalActionName}" against "${originalFeatureName}"`, {
+        //   action,
+        //   feature,
+        //   replacedActionName,
+        //   originalFeatureName,
+        //   featureFlagType,
+        //   actionFlagType,
+        //   nameMatch: originalFeatureName === originalActionName
+        //     || replacedActionName === originalFeatureName,
+        //   flagMatch: featureFlagType === actionFlagType,
+        // });
         return (
           originalFeatureName === originalActionName
           || replacedActionName === originalFeatureName

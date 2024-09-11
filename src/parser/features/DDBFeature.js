@@ -128,7 +128,7 @@ export default class DDBFeature extends DDBBaseFeature {
     this._generateSystemType();
     this._generateSystemSubType();
 
-    // this._generateLimitedUse();
+    this._generateLimitedUse();
     // this._generateRange();
 
     this._generateActivity({ hintsOnly: true });

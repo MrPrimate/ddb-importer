@@ -229,6 +229,7 @@ export default class DDBFeatures {
             && advancement.configuration.identifier === featureName,
           ));
 
+      // TODO: fix level scales for activities
       if (scaleKlass) {
         const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
         if (foundry.utils.hasProperty(feature, "system.damage.parts") && feature.system.damage.parts.length > 0) {

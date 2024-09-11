@@ -68,6 +68,15 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Maneuver: Distracting Strike": {
+      type: "damage",
+      data: {
+        damage: {
+          onSave: "none",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.fighter.combat-superiority-die" })],
+        },
+      },
+    },
     "Maneuver: Goading Attack (Str.)": {
       type: "save",
       data: {
@@ -80,6 +89,15 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
             calculation: "",
             formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
           },
+        },
+      },
+    },
+    "Maneuver: Lunging Attack": {
+      type: "damage",
+      data: {
+        damage: {
+          onSave: "none",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.fighter.combat-superiority-die" })],
         },
       },
     },
@@ -98,7 +116,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Maneuver: Parry": {
+    "Maneuver: Parry (Str.)": {
       type: "utility",
       roll: {
         prompt: false,
