@@ -1722,6 +1722,13 @@
     "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-blue-yellow.webp"
   },
   {
+    "name": "Ultimate Combat Superiorityy",
+    "class_feature": "Ultimate Combat Superiority",
+    "class": "Fighter",
+    "subclass": "Battle Master",
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-purple.webp"
+  },
+  {
     "name": "Combat Wild Shape",
     "class_feature": "Combat Wild Shape",
     "class": "Druid",
@@ -9458,5 +9465,13 @@
   {
     "name": "Tactical Master",
     "path": "icons/skills/trades/academics-book-study-runes.webp"
+  },
+  {
+    "name": "Hunter's Mark",
+    "path": "icons/weapons/bows/shortbow-recurve-yellow.webp"
+  },
+  {
+    "name": "Studdied Attacks",
+    "path": "icons/sundries/documents/blueprint-axe.webp"
   }
 ]

@@ -1820,5 +1820,17 @@
     "name": "Draconic Legacy",
     "race": "Kobold",
     "path": "icons/creatures/reptiles/dragon-winged-blue.webp"
+  },
+  {
+    "name": "Draconic Flight",
+    "path": "icons/creatures/abilities/wing-batlike-white-blue.webp"
+  },
+  {
+    "name":"Giant Ancestry",
+    "path": "icons/environment/wilderness/altar-hidden.webp"
+  },
+  {
+    "name": "Large Form",
+    "path": "icons/creatures/magical/construct-stone-earth-gray.webp"
   }
 ]
