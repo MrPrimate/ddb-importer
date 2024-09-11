@@ -5,7 +5,7 @@ export function protectionfromPoisonEffect(document) {
   effect.changes.push({
     key: "system.traits.dr.value",
     value: "poison",
-    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     priority: 0,
   });
   document.effects.push(effect);

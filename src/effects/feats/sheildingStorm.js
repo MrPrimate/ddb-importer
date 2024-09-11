@@ -17,7 +17,7 @@ export function shieldingStormEffect(ddb, document) {
   let effect = baseFeatEffect(document, `${document.name} Aura`, { transfer: true });
   effect.changes.push({
     "key": "system.traits.dr.value",
-    "mode": CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+    "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
     "value": damageType,
     "priority": 20,
   });

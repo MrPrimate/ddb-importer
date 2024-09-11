@@ -22,7 +22,7 @@ export async function stormSoulEffect(ddb, document) {
     {
       key: "system.traits.dr.value",
       value: damageType,
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 20,
     },
   );
