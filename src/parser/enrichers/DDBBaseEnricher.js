@@ -254,6 +254,11 @@ export default class DDBBaseEnricher {
 </section>`;
     }
 
+    if (this.effect.descriptionSuffix) {
+      this.data.system.description.value += this.effect.descriptionSuffix;
+      if (this.data.system.description.chat !== "") this.data.system.description.chat += this.effect.descriptionSuffix;
+    }
+
     forceItemEffect(this.data);
 
     return this.effect.noCreate

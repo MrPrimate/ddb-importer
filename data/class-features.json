@@ -469,6 +469,10 @@
     "path": "icons/magic/life/heart-glowing-red.webp"
   },
   {
+    "name": "Aura of Devotion Spells",
+    "path": "icons/magic/life/heart-glowing-red.webp"
+  },
+  {
     "name": "Aura of Hate",
     "class_feature": "Aura of Hate",
     "class": "Paladin",
@@ -1475,6 +1479,17 @@
     "class": "Paladin",
     "subclass": "",
     "path": "icons/weapons/swords/sword-gold-holy.webp"
+  },
+  {
+    "name": "Sacred Weapon",
+    "class_feature": "Sacred Weapon",
+    "class": "Paladin",
+    "subclass": "",
+    "path": "icons/weapons/swords/sword-gold-holy.webp"
+  },
+  {
+    "name": "Paladin's Smite",
+    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
   },
   {
     "name": "Channel Divinity: Slow Time",
@@ -9473,5 +9488,9 @@
   {
     "name": "Studied Attacks",
     "path": "icons/sundries/documents/blueprint-axe.webp"
+  },
+  {
+    "name": "Faithful Steed",
+    "path": "icons/environment/creatures/horse-tan.webp"
   }
 ]

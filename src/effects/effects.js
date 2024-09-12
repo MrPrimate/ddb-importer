@@ -355,7 +355,7 @@ export function baseEnchantmentEffect(foundryItem, label,
   return effect;
 }
 
-export function addMagicalBonusToEnchantmentEffect({ effect, nameAddition = null, bonus, bonusMode = "OVERRIDE",
+export function addMagicalBonusToEnchantmentEffect({ effect, nameAddition = null, bonus = null, bonusMode = "OVERRIDE",
   makeMagical = true } = {},
 ) {
   const name = nameAddition ?? `(${effect.name})`;
@@ -366,13 +366,18 @@ export function addMagicalBonusToEnchantmentEffect({ effect, nameAddition = null
       value: `{}, ${name}`,
       priority: 20,
     },
-    {
-      key: "system.magicalBonus",
-      mode: CONST.ACTIVE_EFFECT_MODES[bonusMode],
-      value: `${bonus}`,
-      priority: 20,
-    },
   );
+  if (bonus) {
+    effect.changes.push(
+      {
+        key: "system.magicalBonus",
+        mode: CONST.ACTIVE_EFFECT_MODES[bonusMode],
+        value: `${bonus}`,
+        priority: 20,
+      },
+    );
+  }
+
   if (makeMagical) {
     effect.changes.push(
       {

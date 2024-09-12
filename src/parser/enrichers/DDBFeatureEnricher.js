@@ -32,7 +32,29 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       "Breath Weapon (Lightning)": {},
       "Breath Weapon (Poison)": {},
     },
-    EFFECT_HINTS: {},
+    EFFECT_HINTS: {
+      "Sacred Weapon": {
+        type: "enchant",
+        name: "Sacred Weapon",
+        magicalBonus: {
+          makeMagical: true,
+        },
+        descriptionSuffix: `<br><p>[[/ddbifunc functionName="sacredWeaponLight" functionType="feat"]]{Toggle Sacred Weapon Light}</div></p>`,
+        changes: [
+          {
+            key: "attack.bonus",
+            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+            value: "@abilities.cha.mod",
+            priority: 20,
+          },
+        ],
+        options: {
+          name: "Sacred Weapon",
+          description: `The weapon shines with Sacred Energy.`,
+          durationSeconds: 60,
+        },
+      },
+    },
     DOCUMENT_STUB: {},
   };
 
@@ -195,12 +217,6 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       type: "utility",
       addItemConsume: true,
       itemConsumeValue: "5",
-    },
-    "Maneuver: Ambush": {
-      type: "utility",
-    },
-    "Maneuver: Bait and Switch": {
-      type: "utility",
     },
     "Maneuver: Disarming Attack (Str.)": {
       type: "save",
@@ -389,6 +405,11 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           name: "Maneuver Roll",
         },
       },
+    },
+    "Sacred Weapon": {
+      type: "enchant",
+      activationType: "special",
+      targetType: "self",
     },
     "Second Wind": {
       type: "heal",
@@ -741,6 +762,33 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       type: "feat",
       data: {
         "duration.rounds": 600,
+      },
+    },
+    "Sacred Weapon": {
+      type: "enchant",
+      name: "Sacred Weapon",
+      magicalBonus: {
+        makeMagical: true,
+      },
+      descriptionSuffix: `<br><p>[[/ddbifunc functionName="sacredWeaponLight2024" functionType="feat"]]{Toggle Sacred Weapon Light}</div></p>`,
+      changes: [
+        {
+          key: "attack.bonus",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          value: "@abilities.cha.mod",
+          priority: 20,
+        },
+        {
+          key: "damage.base.types",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: "radiant",
+          priority: 20,
+        },
+      ],
+      options: {
+        name: "Sacred Weapon",
+        description: `The weapon shines with Sacred Energy.`,
+        durationSeconds: 60,
       },
     },
   };

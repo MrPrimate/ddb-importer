@@ -43,7 +43,7 @@ export default class DDBItemActivity {
 
   }
 
-  _generateActivation({ activationOverride = null }) {
+  _generateActivation({ activationOverride = null } = {}) {
     if (activationOverride) {
       this.data.activation = activationOverride;
     } else {
@@ -51,7 +51,7 @@ export default class DDBItemActivity {
     }
   }
 
-  _generateConsumption({ targetOverrides = null, additionalTargets = null }) {
+  _generateConsumption({ targetOverrides = null, additionalTargets = null } = {}) {
     let targets = [];
     let scaling = false;
 
@@ -97,13 +97,13 @@ export default class DDBItemActivity {
 
   }
 
-  _generateDescription(overRide = null) {
+  _generateDescription({ overRide = null } = {}) {
     this.data.description = {
       chatFlavor: overRide ?? this.data.system?.chatFlavor ?? "",
     };
   }
 
-  _generateDuration({ durationOverride = null }) {
+  _generateDuration({ durationOverride = null } = {}) {
     this.data.duration = durationOverride ?? this.actionInfo.duration;
   }
 
@@ -116,7 +116,7 @@ export default class DDBItemActivity {
     this.data.range = this.actionInfo.range;
   }
 
-  _generateTarget({ targetOverride = null }) {
+  _generateTarget({ targetOverride = null } = {}) {
     this.data.target = targetOverride ?? this.actionInfo.target;
   }
 
@@ -187,7 +187,7 @@ export default class DDBItemActivity {
 
   }
 
-  _generateCheck({ checkOverride = null }) {
+  _generateCheck({ checkOverride = null } = {}) {
     this.data.check = checkOverride ?? {
       associated: this.actionInfo.associatedToolsOrAbilities,
       ability: this.actionInfo.ability,
@@ -195,7 +195,7 @@ export default class DDBItemActivity {
     };
   }
 
-  _generateUses(usesOverride = null) {
+  _generateUses({ usesOverride = null } = {}) {
     this.data.uses = usesOverride ?? this.actionInfo.uses;
   }
 
@@ -264,12 +264,12 @@ export default class DDBItemActivity {
     if (generateActivation) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack({ criticalThreshold });
     if (generateConsumption) this._generateConsumption({ targetOverrides, additionalTargets });
-    if (generateDescription || chatFlavor) this._generateDescription(chatFlavor);
+    if (generateDescription || chatFlavor) this._generateDescription({ overRide: chatFlavor });
     if (generateDuration) this._generateDuration({ durationOverride });
     if (generateEffects) this._generateEffects();
     if (generateRange) this._generateRange();
     if (generateTarget) this._generateTarget();
-    if (generateUses) this._generateUses(usesOverride);
+    if (generateUses) this._generateUses({ usesOverride });
 
     if (generateSave) {
       if (saveOverride) {
