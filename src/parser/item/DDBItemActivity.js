@@ -116,8 +116,8 @@ export default class DDBItemActivity {
     this.data.range = this.actionInfo.range;
   }
 
-  _generateTarget() {
-    this.data.target = this.actionInfo.target;
+  _generateTarget({ targetOverride = null }) {
+    this.data.target = targetOverride ?? this.actionInfo.target;
   }
 
   _generateDamage({ parts, includeBase = true, criticalDamage = null, onSave = null, scalingOverride = null } = {}) {

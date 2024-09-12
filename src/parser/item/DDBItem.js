@@ -90,7 +90,6 @@ export default class DDBItem {
     this.originalName = utils.nameString(ddbItem.definition.name);
     this.name = DDBHelper.getName(this.ddbData, ddbItem, this.raw?.character);
     this.#generateItemFlags();
-    this.identifier = utils.referenceNameString(`${this.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
     this.documentType = null;
     this.parsingType = null;
@@ -229,8 +228,6 @@ export default class DDBItem {
         },
       },
     };
-
-    this.data.system.identifier = this.identifier;
 
     if (this.enricher.documentStub?.copySRD) {
       const srdDoc = await fromUuid(this.enricher.documentStub.copySRD.uuid);
@@ -2387,6 +2384,8 @@ export default class DDBItem {
       this.#basicMagicItem();
 
       this.enricher.addDocumentOverride();
+
+      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
       // todo: should effect generation be here?
     } catch (err) {
