@@ -788,7 +788,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       options: {
         name: "Sacred Weapon",
         description: `The weapon shines with Sacred Energy.`,
-        durationSeconds: 60,
+        durationSeconds: 600,
       },
     },
   };
