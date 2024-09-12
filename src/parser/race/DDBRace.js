@@ -11,6 +11,8 @@ import AdvancementHelper from "../advancements/AdvancementHelper.js";
 
 export default class DDBRace {
 
+  static SPECIAL_ADVANCEMENTS = {};
+
   static getGroupName(ids, baseRaceName) {
     const ddbGroup = CONFIG.DDB.raceGroups.find((r) => ids.includes(r.id));
     if (ddbGroup) {
@@ -72,6 +74,9 @@ export default class DDBRace {
     this.baseRaceName = this.race.baseRaceName;
     this.groupName = DDBRace.getGroupName(this.race.groupIds, this.baseRaceName);
     this.isSubRace = this.race.isSubRace || this.groupName !== this.raceName;
+
+    this.is2014 = this.race.isLegacy
+      && this.race.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     this.data.flags.ddbimporter = {
       type: "race",
@@ -462,6 +467,70 @@ export default class DDBRace {
     }
   }
 
+  // #generateScaleValueAdvancements() {
+
+  //   for (const trait of this.race.racialTraits) {
+
+  //     continue;
+
+  //     let specialFeatures = [];
+
+  //     let advancement = AdvancementHelper.generateScaleValueAdvancement(trait);
+  //     const specialLookup = DDBRace.SPECIAL_ADVANCEMENTS[advancement.title];
+  //     if (specialLookup) {
+  //       if (specialLookup.additionalAdvancements) {
+  //         specialLookup.additionalFunctions.forEach((fn) => {
+  //           specialFeatures.push(fn(advancement));
+  //         });
+  //       }
+  //       if (specialLookup.fixFunction) advancement = specialLookup.fixFunction(advancement, specialLookup.functionArgs);
+  //     }
+
+  //     this.data.system.advancement.push(advancement);
+  //     this.data.system.advancement.push(...specialFeatures);
+
+  //   }
+
+  // }
+
+  #advancementFixes() {
+    if (this.is2014) return;
+    if (this.data.name.startsWith("Dragonborn")) {
+      const breathWeapon = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `breath-weapon`,
+          type: "dice",
+          scale: {
+            1: {
+              number: 1,
+              faces: 10,
+            },
+            5: {
+              number: 2,
+              faces: 10,
+            },
+            11: {
+              number: 3,
+              faces: 10,
+            },
+            17: {
+              number: 4,
+              faces: 10,
+            },
+          },
+        },
+        value: {},
+        title: `Breath Weapon Dice`,
+        icon: null,
+      };
+      this.data.system.advancement.push(breathWeapon);
+    }
+
+  }
+
   async build() {
     try {
       await this._generateRaceImage();
@@ -484,6 +553,7 @@ export default class DDBRace {
     });
 
     this.#generateAbilityAdvancement();
+    this.#advancementFixes();
     this.#generateSenses();
 
     // set final type

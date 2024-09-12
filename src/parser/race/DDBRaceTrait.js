@@ -68,6 +68,10 @@ export default class DDBRaceTrait {
 
     this.data.system.source = DDBHelper.parseSource(this.trait);
 
+    if (this.trait.requiredLevel) {
+      this.data.system.prerequisite.level = this.trait.requiredLevel;
+    }
+
     if (this.baseRaceName) this.data.system.requirements = this.baseRaceName;
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
     if (legacyName && this.isLegacy) {
