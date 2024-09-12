@@ -212,7 +212,8 @@ export default class DDBClass {
   }
 
   _fleshOutCommonDataStub() {
-    this.data.system.identifier = this.identifier;
+    // this.data.system.identifier = utils.referenceNameString(`${this.ddbClassDefinition.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+    this.data.system.identifier = utils.referenceNameString(`${this.ddbClassDefinition.name.toLowerCase()}`);
     this._determineClassFeatures();
 
     this._proficiencyFeatureIds = this.classFeatures
@@ -418,7 +419,6 @@ export default class DDBClass {
     this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
 
     this.isStartingClass = this.ddbClass.isStartingClass;
-    this.identifier = utils.referenceNameString(`${this.ddbClassDefinition.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
   }
 

@@ -817,11 +817,11 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-use-action-and-feature": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
+          // "character-update-policy-use-action-and-feature": {
+          //   scope: "player",
+          //   type: Boolean,
+          //   default: false,
+          // },
           "character-update-policy-dae-effect-copy": {
             scope: "player",
             type: Boolean,

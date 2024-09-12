@@ -192,13 +192,13 @@ const MuncherSettings = {
       //     "Import D&D Beyond Actions as Features, not weapons.",
       //   enabled: true,
       // },
-      {
-        name: "use-action-and-feature",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-action-and-feature"),
-        description:
-          "[CAUTION] If a feature is marked as an action, import both the action and the feature. This might lead to some weird behaviour.",
-        enabled: true,
-      },
+      // {
+      //   name: "use-action-and-feature",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-action-and-feature"),
+      //   description:
+      //     "[CAUTION] If a feature is marked as an action, import both the action and the feature. This might lead to some weird behaviour.",
+      //   enabled: true,
+      // },
       {
         name: "ignore-non-ddb-items",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-ignore-non-ddb-items"),
