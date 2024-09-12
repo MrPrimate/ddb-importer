@@ -47,7 +47,6 @@ export default class DDBSpell {
         "tidy5e-sheet": this.spellData.flags["tidy5e-sheet"],
       },
     };
-    this.data.system.identifier = this.identifier;
   }
 
   getCustomName(data) {
@@ -96,7 +95,6 @@ export default class DDBSpell {
     this.nameOverride = nameOverride ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.nameOverride");
     this.originalName = utils.nameString(this.spellDefinition.name);
     this.name = this.getName(this.spellData, this.rawCharacter);
-    this.identifier = utils.referenceNameString(`${this.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
     this.data = {};
     this.activities = [];
     this.activityTypes = [];
@@ -981,6 +979,7 @@ export default class DDBSpell {
 
 
     this.enricher.addDocumentOverride();
+    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }
 
   static async parseSpell(data, character, { namePostfix = null } = {}) {
