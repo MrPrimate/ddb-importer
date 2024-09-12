@@ -101,7 +101,8 @@ export default class CharacterFeatureFactory {
     ]
       .flat()
       .filter((action) => action.name && action.name !== ""
-        && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name.startsWith(a)),
+        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => action.name.startsWith(a))
+        && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name === a),
       )
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
       .map((action) => {
@@ -117,9 +118,6 @@ export default class CharacterFeatureFactory {
         return ddbAttackAction.data;
       });
 
-    logger.warn("ATTACK ACTIONS", {
-      attackActions,
-    });
     logger.debug("attack actions", attackActions);
     this.parsed.actions = this.parsed.actions.concat(attackActions);
   }
@@ -127,32 +125,45 @@ export default class CharacterFeatureFactory {
   actionParsed(actionName) {
     // const attacksAsFeatures = game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features");
     const exists = this.parsed.actions.some((attack) =>
-      foundry.utils.getProperty(attack, "flags.ddbimporter.originalName") ?? attack.name === actionName,
+      (foundry.utils.getProperty(attack, "flags.ddbimporter.originalName") ?? attack.name) === actionName,
     );
     return exists;
     // return attacksAsFeatures && exists;
   }
 
   _generateOtherActions() {
-    const otherActions = [
-      // do class options here have a class id, needed for optional class features
-      this.ddbData.character.actions.class.filter((action) =>
-        DDBHelper.findClassByFeatureId(this.ddbData, action.componentId),
-      ),
+    // do class options here have a class id, needed for optional class features
+    const classActions = this.ddbData.character.actions.class.filter((action) =>
+      DDBHelper.findClassByFeatureId(this.ddbData, action.componentId),
+    );
+
+    const actionsToBuild = [
+      classActions,
       this.ddbData.character.actions.race,
       this.ddbData.character.actions.feat,
       this._getCustomActions(false),
     ]
       .flat()
       .filter((action) => action.name && action.name !== ""
-        && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name.startsWith(a)),
+        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => action.name.startsWith(a))
+        && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name === a),
       )
       .filter((action) => {
         const name = DDBHelper.getName(this.ddbData, action, this.rawCharacter);
         // const displayAsAttack = DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
         // lets grab other actions and add, make sure we don't get attack based ones that haven't parsed
-        return !this.actionParsed(name);
-      })
+        const isParsed = this.actionParsed(name);
+        console.warn("isParsed", { action, ddbname: name, isParsed});
+        return !isParsed;
+      });
+
+    console.warn("otherActions", {
+      classActions,
+      parsedActions: deepClone(this.parsed.actions),
+      actionsToBuild,
+    });
+
+    const otherActions = actionsToBuild
       .map((action) => {
         logger.debug(`Getting Other Action ${action.name}`);
 

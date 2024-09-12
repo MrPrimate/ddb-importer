@@ -41,7 +41,6 @@ export default class DDBFeatureActivity {
       postfix: this.nameIdPostfix,
     });
 
-    // this.data.identifier = this.identifier;
   }
 
 
@@ -154,7 +153,17 @@ export default class DDBFeatureActivity {
       targets.push({
         type: "itemUses",
         target: "", // adjusted later
-        value: this._resourceCharges ?? 1,
+        value: this.ddbParent.resourceCharges ?? 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
+    } else if (this.ddbParent.data.system.uses.max) {
+      targets.push({
+        type: "itemUses",
+        target: "", // adjusted later
+        value: 1,
         scaling: {
           mode: "",
           formula: "",
@@ -214,7 +223,12 @@ export default class DDBFeatureActivity {
     }
   }
 
-  _generateTarget() {
+  _generateTarget({ targetOverride = null }) {
+    if (targetOverride) {
+      this.data.target = targetOverride;
+      return;
+    }
+
     let data = {
       template: {
         count: "",
@@ -251,16 +265,16 @@ export default class DDBFeatureActivity {
 
   }
 
-  _generateDamage(includeBase = false) {
+  _generateDamage({ parts = null, includeBase = false }) {
     // TODO revisit for multipart damage parsing
-    if (!this.ddbParent.getDamage) return undefined;
-    const damage = this.ddbParent.getDamage();
+    if (!this.ddbParent.getDamage || !parts) return;
+    const damage = parts ?? [this.ddbParent.getDamage()];
 
     if (!damage) return undefined;
 
     this.data.damage = {
       includeBase,
-      parts: [damage],
+      parts: damage,
     };
 
     // damage: {
@@ -376,6 +390,10 @@ export default class DDBFeatureActivity {
     generateTarget = true,
     generateRoll = false,
     roll = null,
+
+    targetOverride = null,
+    includeBase = false,
+    damageParts = null,
   } = {}) {
 
     // override set to false on object if overriding
@@ -387,13 +405,13 @@ export default class DDBFeatureActivity {
     if (generateDuration) this._generateDuration();
     if (generateEffects) this._generateEffects();
     if (generateRange) this._generateRange();
-    if (generateTarget) this._generateTarget();
+    if (generateTarget) this._generateTarget({ targetOverride });
 
     if (generateSave) this._generateSave();
-    if (generateDamage) this._generateDamage();
+    if (generateDamage) this._generateDamage({ includeBase, parts: damageParts });
     if (generateHealing) this._generateHealing();
 
-    if (generateRoll)  this._generateRoll(roll);
+    if (generateRoll) this._generateRoll(roll);
 
 
     // ATTACK has

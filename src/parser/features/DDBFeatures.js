@@ -2,6 +2,8 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
+import AdvancementHelper from "../advancements/AdvancementHelper.js";
+import DDBBaseFeature from "./DDBBaseFeature.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBClassFeatures from "./DDBClassFeatures.js";
 import DDBFeature from "./DDBFeature.js";
@@ -62,8 +64,6 @@ export default class DDBFeatures {
     "Core Wizard Traits",
     "Weapon Mastery",
     "Maneuver Options",
-    "Lay On Hands: Heal",
-    "Lay On Hands: Purify Poison",
     "Lay On Hands",
     "Epic Boon: Choose an Epic Boon feat",
     "Epic Boon",
@@ -132,7 +132,8 @@ export default class DDBFeatures {
       .filter(
         (trait) => DDBFeatures.includedFeatureNameCheck(trait.definition.name)
           && !trait.definition.hideInSheet
-          && !this.excludedOriginFeatures.includes(trait.definition.id),
+          && !this.excludedOriginFeatures.includes(trait.definition.id)
+          && (trait.requiredLevel === undefined || trait.requiredLevel >= this.ddbCharacter.totalLevels)
       );
 
     for (const feat of traits) {

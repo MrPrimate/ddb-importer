@@ -18,6 +18,9 @@ export default class DDBFeature extends DDBBaseFeature {
     feat: "feat",
   };
 
+  static LEVEL_SCALE_EXCLUSION_USES = [];
+
+
   _init() {
     this.documentType = DDBFeature.DOC_TYPE[this.type];
     this.tagType = this.type;
@@ -93,6 +96,16 @@ export default class DDBFeature extends DDBBaseFeature {
   // eslint-disable-next-line class-methods-use-this
   _prepare() {
     // override this feature
+
+    this.excludedScaleUses = DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.ddbDefinition.name)
+      || DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.data.name);
+
+    this.scaleValueUsesLink = DDBHelper.getScaleValueLink(this.ddbData, this.ddbFeature);
+
+    this.useUsesScaleValueLink = !this.excludedScaleUses
+      && this.scaleValueUsesLink
+      && this.scaleValueUsesLink !== ""
+      && this.scaleValueUsesLink !== "{{scalevalue-unknown}}";
   }
 
   _buildNatural() {
@@ -144,6 +157,7 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._addCustomValues();
 
     this.enricher.addDocumentOverride();
+    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }
 
   async _generateFeatureAdvancements() {
@@ -453,6 +467,7 @@ export default class DDBFeature extends DDBBaseFeature {
       this.data.name = this.data.name.split("Background: ").pop();
 
       this.enricher.addDocumentOverride();
+      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
     } catch (err) {
       logger.warn(
@@ -495,6 +510,7 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._addCustomValues();
 
     this.enricher.addDocumentOverride();
+    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }
 
 

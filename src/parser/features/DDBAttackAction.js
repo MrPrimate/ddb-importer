@@ -1,3 +1,4 @@
+import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBAction from "./DDBAction.js";
 
@@ -60,6 +61,7 @@ export default class DDBAttackAction extends DDBAction {
       this._addEffects();
 
       this._addCustomValues();
+      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
     } catch (err) {
       logger.warn(

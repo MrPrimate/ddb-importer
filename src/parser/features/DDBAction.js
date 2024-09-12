@@ -7,6 +7,11 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 export default class DDBAction extends DDBBaseFeature {
 
   static SKIPPED_ACTIONS = [
+    "Lay On Hands: Heal",
+    // "Lay On Hands: Purify Poison",
+  ];
+
+  static SKIPPED_ACTIONS_STARTSWITH = [
     "Cleave",
     "Graze",
     "Nick",
@@ -204,6 +209,8 @@ export default class DDBAction extends DDBBaseFeature {
       this.enricher.addDocumentOverride();
       this._addEffects();
       this._addCustomValues();
+
+      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
     } catch (err) {
       logger.warn(

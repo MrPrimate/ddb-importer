@@ -47,6 +47,10 @@ export default class DDBBaseFeature {
     "Trunk",
   ];
 
+  static SPECIAL_ADVANCEMENTS = [
+
+  ];
+
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
@@ -82,14 +86,9 @@ export default class DDBBaseFeature {
     // Spells will still have activation/duration/range/target,
     // weapons will still have range & damage (1 base part & 1 versatile part),
     // and all items will still have limited uses (but no consumption)
-    this.data.system.identifier = this.identifier;
   }
 
-  _prepare() {
-    if (this.ddbDefinition.infusionFlags) {
-      foundry.utils.setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
-    }
-
+  _generateLevelScale() {
     this.excludedScale = DDBBaseFeature.LEVEL_SCALE_EXCLUSION.includes(this.ddbDefinition.name)
       || DDBBaseFeature.LEVEL_SCALE_EXCLUSION.includes(this.data.name);
     this.levelScaleInfusion = DDBBaseFeature.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
@@ -98,6 +97,14 @@ export default class DDBBaseFeature {
     this.useScaleValueLink = !this.excludedScale
       && this.scaleValueLink
       && this.scaleValueLink !== "{{scalevalue-unknown}}";
+  }
+
+  _prepare() {
+    if (this.ddbDefinition.infusionFlags) {
+      foundry.utils.setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
+    }
+
+    this._generateLevelScale();
   }
 
   constructor({
@@ -111,7 +118,6 @@ export default class DDBBaseFeature {
     this.originalName = this.ddbData
       ? DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter, false)
       : utils.nameString(this.ddbDefinition.name);
-    this.identifier = utils.referenceNameString(`${this.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
     this.type = type;
     this.source = source;
     this.isAction = false;
@@ -119,6 +125,9 @@ export default class DDBBaseFeature {
     this.levelScaleInfusion = false;
     this.scaleValueLink = "";
     this.useScaleValueLink = false;
+    this.excludedScaleUses = false;
+    this.scaleValueUsesLink = "";
+    this.useUsesScaleValueLink = false;
     this.documentType = documentType;
     this.tagType = "other";
     this.activities = [];
@@ -288,11 +297,21 @@ export default class DDBBaseFeature {
 
   // eslint-disable-next-line complexity
   _generateLimitedUse() {
+    let resetType = DICTIONARY.resets.find((type) => type.id === this.ddbDefinition.limitedUse?.resetType);
+
+    if (!resetType) {
+      const resetTypeRegex = /(?:(Short) or )?(Long) Rest/ig;
+      const match = resetTypeRegex.exec(this.ddbDefinition.description);
+      if (match && match[1]) {
+        resetType = DICTIONARY.resets.find((type) => type.id === match[1]);
+      } else if (match && match[2]) {
+        resetType = DICTIONARY.resets.find((type) => type.id === match[2]);
+      }
+    }
     if (
       this.ddbDefinition.limitedUse
       && (this.ddbDefinition.limitedUse.maxUses || this.ddbDefinition.limitedUse.statModifierUsesId || this.ddbDefinition.limitedUse.useProficiencyBonus)
     ) {
-      const resetType = DICTIONARY.resets.find((type) => type.id === this.ddbDefinition.limitedUse.resetType);
       let maxUses = (this.ddbDefinition.limitedUse.maxUses && this.ddbDefinition.limitedUse.maxUses !== -1) ? this.ddbDefinition.limitedUse.maxUses : 0;
       const statModifierUsesId = foundry.utils.getProperty(this.ddbDefinition, "limitedUse.statModifierUsesId");
       if (statModifierUsesId) {
@@ -328,6 +347,10 @@ export default class DDBBaseFeature {
         }
       }
 
+      if (this.useUsesScaleValueLink && this.scaleValueUsesLink) {
+        maxUses = this.scaleValueUsesLink;
+      }
+
       const finalMaxUses = (maxUses)
         ? Number.isInteger(maxUses)
           ? parseInt(maxUses)
@@ -338,6 +361,24 @@ export default class DDBBaseFeature {
       this.data.system.uses = {
         spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
         max: (finalMaxUses != 0) ? finalMaxUses : null,
+        recovery: [
+          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
+        ],
+      };
+    } else if (this.useUsesScaleValueLink && this.scaleValueUsesLink) {
+      let maxUses = this.scaleValueUsesLink;
+
+      this.data.system.uses = {
+        spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
+        max: (maxUses !== "") ? maxUses : null,
+        recovery: [
+          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
+        ],
+      };
+    } else if (foundry.utils.hasProperty(this.ddbDefinition, "limitedUse.value")) {
+      this.data.system.uses = {
+        spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
+        max: this.ddbDefinition.limitedUse.value,
         recovery: [
           { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
         ],
