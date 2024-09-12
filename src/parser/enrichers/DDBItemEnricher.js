@@ -313,7 +313,7 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
         "consumption.scaling": {
           allowed: true,
-          max: "7",
+          max: "@item.uses.max - @item.uses.spent",
         },
         range: {
           value: "150",
@@ -353,7 +353,7 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
         "consumption.scaling": {
           allowed: true,
-          max: "7",
+          max: "@item.uses.max - @item.uses.spent",
         },
         range: {
           value: "120",

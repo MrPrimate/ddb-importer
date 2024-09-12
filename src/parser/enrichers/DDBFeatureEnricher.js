@@ -10,9 +10,28 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
 
   DND_2014 = {
     NAME_HINTS: {},
-    ACTIVITY_HINTS: {},
-    ADDITIONAL_ACTIVITIES: {},
-    DOCUMENT_OVERRIDES: {},
+    ACTIVITY_HINTS: {
+      "Relentless": {},
+      "Breath Weapon (Acid)": {},
+      "Breath Weapon (Cold)": {},
+      "Breath Weapon (Fire)": {},
+      "Breath Weapon (Lightning)": {},
+      "Breath Weapon (Poison)": {},
+    },
+    ADDITIONAL_ACTIVITIES: {
+      "Breath Weapon (Acid)": {},
+      "Breath Weapon (Cold)": {},
+      "Breath Weapon (Fire)": {},
+      "Breath Weapon (Lightning)": {},
+      "Breath Weapon (Poison)": {},
+    },
+    DOCUMENT_OVERRIDES: {
+      "Breath Weapon (Acid)": {},
+      "Breath Weapon (Cold)": {},
+      "Breath Weapon (Fire)": {},
+      "Breath Weapon (Lightning)": {},
+      "Breath Weapon (Poison)": {},
+    },
     EFFECT_HINTS: {},
     DOCUMENT_STUB: {},
   };
@@ -20,6 +39,111 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
   NAME_HINTS = {};
 
   ACTIVITY_HINTS = {
+    "Breath Weapon (Acid)": {
+      name: "Cone",
+      type: "save",
+      data: {
+        damage: {
+          onSave: "half",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "acid" })],
+        },
+        target: {
+          affects: {
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "cone",
+            size: "15",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Breath Weapon (Cold)": {
+      name: "Cone",
+      type: "save",
+      data: {
+        damage: {
+          onSave: "half",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "cold" })],
+        },
+        target: {
+          affects: {
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "cone",
+            size: "15",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Breath Weapon (Fire)": {
+      name: "Cone",
+      type: "save",
+      data: {
+        damage: {
+          onSave: "half",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "fire" })],
+        },
+        target: {
+          affects: {
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "cone",
+            size: "15",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Breath Weapon (Lightning)": {
+      name: "Cone",
+      type: "save",
+      data: {
+        damage: {
+          onSave: "half",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "lightning" })],
+        },
+        target: {
+          affects: {
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "cone",
+            size: "15",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Breath Weapon (Poison)": {
+      name: "Cone",
+      type: "save",
+      data: {
+        damage: {
+          onSave: "half",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "poison" })],
+        },
+        target: {
+          affects: {
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "cone",
+            size: "15",
+            units: "ft",
+          },
+        },
+      },
+    },
     "Divine Intervention": {
       type: "utility",
       data: {
@@ -42,10 +166,35 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       targetType: "self",
       activationType: "special",
     },
-    "Lay on Hands: Healing Pool": {
+    "Lay On Hands: Healing Pool": {
       type: "heal",
       name: "Healing",
-      // todo change to use scaling
+      addItemConsume: true,
+      addScalingMode: "amount",
+      addScalingFormula: "1",
+      data: {
+        "consumption.scaling": {
+          allowed: true,
+          max: "@item.uses.max - @item.uses.spent",
+        },
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "1",
+          },
+          types: ["healing"],
+          scaling: {
+            number: null,
+            mode: "whole",
+            formula: "1",
+          },
+        },
+      },
+    },
+    "Lay On Hands: Purify Poison": {
+      type: "utility",
+      addItemConsume: true,
+      itemConsumeValue: "5",
     },
     "Maneuver: Ambush": {
       type: "utility",
@@ -73,7 +222,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       data: {
         damage: {
           onSave: "none",
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.fighter.combat-superiority-die" })],
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
         },
       },
     },
@@ -97,7 +246,16 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       data: {
         damage: {
           onSave: "none",
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.fighter.combat-superiority-die" })],
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
+        },
+      },
+    },
+    "Maneuver: Lunging Dash": {
+      type: "damage",
+      data: {
+        damage: {
+          onSave: "none",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
         },
       },
     },
@@ -118,11 +276,13 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     },
     "Maneuver: Parry (Str.)": {
       type: "utility",
-      roll: {
-        prompt: false,
-        visible: false,
-        formula: "@scale.fighter.combat-superiority-die",
-        name: "Reduce Damage Roll",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "@scale.battle-master.combat-superiority-die",
+          name: "Reduce Damage Roll",
+        },
       },
     },
     "Maneuver: Pushing Attack (Str.)": {
@@ -146,7 +306,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.fighter.combat-superiority-die",
+          formula: "@scale.battle-master.combat-superiority-die",
           name: "Add to Attack Roll",
         },
       },
@@ -157,7 +317,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         healing: {
           custom: {
             enabled: true,
-            formula: "@scale.fighter.combat-superiority-die",
+            formula: "@scale.battle-master.combat-superiority-die",
           },
           types: ["temphp"],
         },
@@ -168,7 +328,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       data: {
         damage: {
           onSave: "none",
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.fighter.combat-superiority-die" })],
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
         },
       },
     },
@@ -177,7 +337,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       data: {
         damage: {
           onSave: "none",
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.fighter.combat-superiority-die", types: ["bludgeoning", "piercing", "slashing"] })],
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die", types: ["bludgeoning", "piercing", "slashing"] })],
         },
       },
     },
@@ -218,6 +378,18 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       activationType: "special",
       addItemConsume: true,
     },
+    "Relentless": {
+      type: "utility",
+      activationType: "special",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "1d8",
+          name: "Maneuver Roll",
+        },
+      },
+    },
     "Second Wind": {
       type: "heal",
       func: undefined,
@@ -240,6 +412,126 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
   };
 
   ADDITIONAL_ACTIVITIES = {
+    "Breath Weapon (Acid)": [
+      {
+        constructor: {
+          name: "Line",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: true,
+          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "acid" })],
+          targetOverride: {
+            affects: {
+              type: "creature",
+            },
+            template: {
+              contiguous: false,
+              type: "line",
+              size: "30",
+              units: "ft",
+            },
+          },
+        },
+      },
+    ],
+    "Breath Weapon (Cold)": [
+      {
+        constructor: {
+          name: "Line",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: true,
+          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "cold" })],
+          targetOverride: {
+            affects: {
+              type: "creature",
+            },
+            template: {
+              contiguous: false,
+              type: "line",
+              size: "30",
+              units: "ft",
+            },
+          },
+        },
+      },
+    ],
+    "Breath Weapon (Lightning)": [
+      {
+        constructor: {
+          name: "Line",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: true,
+          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "lightning" })],
+          targetOverride: {
+            affects: {
+              type: "creature",
+            },
+            template: {
+              contiguous: false,
+              type: "line",
+              size: "30",
+              units: "ft",
+            },
+          },
+        },
+      },
+    ],
+    "Breath Weapon (Fire)": [
+      {
+        constructor: {
+          name: "Line",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: true,
+          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "fire" })],
+          targetOverride: {
+            affects: {
+              type: "creature",
+            },
+            template: {
+              contiguous: false,
+              type: "line",
+              size: "30",
+              units: "ft",
+            },
+          },
+        },
+      },
+    ],
+    "Breath Weapon (Poison)": [
+      {
+        constructor: {
+          name: "Line",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: true,
+          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "poison" })],
+          targetOverride: {
+            affects: {
+              type: "creature",
+            },
+            template: {
+              contiguous: false,
+              type: "line",
+              size: "30",
+              units: "ft",
+            },
+          },
+        },
+      },
+    ],
     "Maneuver: Tactical Assessment": [
       {
         constructor: {
@@ -269,6 +561,11 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "system.damage.bonus": "@mod",
       },
     },
+    "Combat Superiority": {
+      data: {
+        "system.uses.max": "@scale.battle-master.combat-superiority-uses",
+      },
+    },
     "Drake Companion": {
       data: {
         "system.uses.max": "",
@@ -285,9 +582,9 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "flags.ddbimporter.retainOriginalConsumption": true,
       },
     },
-    "Lay on Hands: Healing Pool": {
+    "Lay On Hands: Healing Pool": {
       data: {
-        name: "Lay on Hands",
+        name: "Lay On Hands",
       },
     },
     "Maneuver: Disarming Attack (Str.)": {
@@ -352,7 +649,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       changes: [
         {
           key: "system.attributes.init.bonus",
-          value: "@scale.fighter.combat-superiority-die",
+          value: "@scale.battle-master.combat-superiority-die",
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           priority: 20,
         },
@@ -366,7 +663,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       changes: [
         {
           key: "system.attributes.ac.bonus",
-          value: "@scale.fighter.combat-superiority-die",
+          value: "@scale.battle-master.combat-superiority-die",
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           priority: 20,
         },
@@ -380,7 +677,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       changes: [
         {
           key: "system.attributes.ac.bonus",
-          value: "@scale.fighter.combat-superiority-die",
+          value: "@scale.battle-master.combat-superiority-die",
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           priority: 20,
         },
@@ -395,19 +692,19 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     //   changes: [
     //     {
     //       key: "system.traits.dm.amount.bludgeoning",
-    //       value: "-@scale.fighter.combat-superiority-die",
+    //       value: "-@scale.battle-master.combat-superiority-die",
     //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     //       priority: 20,
     //     },
     //     {
     //       key: "system.traits.dm.amount.piercing",
-    //       value: "-@scale.fighter.combat-superiority-die",
+    //       value: "-@scale.battle-master.combat-superiority-die",
     //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     //       priority: 20,
     //     },
     //     {
     //       key: "system.traits.dm.amount.slashing",
-    //       value: "-@scale.fighter.combat-superiority-die",
+    //       value: "-@scale.battle-master.combat-superiority-die",
     //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     //       priority: 20,
     //     },
@@ -422,19 +719,19 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       changes: [
         {
           key: "system.skills.his.bonuses.check",
-          value: "@scale.fighter.combat-superiority-die",
+          value: "@scale.battle-master.combat-superiority-die",
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           priority: 20,
         },
         {
           key: "system.skills.inv.bonuses.check",
-          value: "@scale.fighter.combat-superiority-die",
+          value: "@scale.battle-master.combat-superiority-die",
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           priority: 20,
         },
         {
           key: "system.skills.ins.bonuses.check",
-          value: "@scale.fighter.combat-superiority-die",
+          value: "@scale.battle-master.combat-superiority-die",
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           priority: 20,
         },

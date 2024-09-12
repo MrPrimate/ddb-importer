@@ -95,7 +95,7 @@ export default class DDBBaseEnricher {
         {
           type: "itemUses",
           target: "",
-          value: "1",
+          value: this.activity.itemConsumeValue ?? "1",
           scaling: {
             mode: this.activity.addScalingMode ?? "",
             formula: this.activity.addScalingFormula ?? "",
@@ -108,7 +108,7 @@ export default class DDBBaseEnricher {
         {
           type: "activityUses",
           target: "",
-          value: "1",
+          value: this.activity.itemConsumeValue ?? "1",
           scaling: {
             mode: this.activity.addScalingMode ?? "",
             formula: this.activity.addScalingFormula ?? "",
