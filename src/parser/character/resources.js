@@ -262,6 +262,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
 };
 
 const resourceFeatureLinkMap = {
+  "Lay On Hands: Healing Pool": ["Lay On Hands:"],
   "Channel Divinity": ["Channel Divinity:", "Harness Divine Power"],
   "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
   "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen"],
