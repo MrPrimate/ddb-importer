@@ -172,7 +172,8 @@ export default class DDBCharacter {
    * Removes duplicate features/actions based on import preferences
    */
   _filterActionFeatures() {
-    const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
+    const actionAndFeature = false;
+    // game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
 
     this.data.actions = this.raw.actions.map((action) => {
       const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
@@ -231,6 +232,16 @@ export default class DDBCharacter {
 
         if (featureMatch.system.activities?.length > 0) {
           action.system.activities.push(...featureMatch.system.activities);
+        }
+        if (featureMatch.system.uses.max
+          && (utils.isString(featureMatch.system.uses.max)
+          || !action.system.uses.max)
+        ) {
+          action.system.uses.max = featureMatch.system.uses.max;
+        }
+
+        if (featureMatch.system.prerequisites.level) {
+          action.system.prerequisites.level = featureMatch.system.prerequisites.level;
         }
       }
       return action;
