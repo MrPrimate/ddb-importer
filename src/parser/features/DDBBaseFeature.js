@@ -47,8 +47,11 @@ export default class DDBBaseFeature {
     "Trunk",
   ];
 
-  static SPECIAL_ADVANCEMENTS = [
+  static SPECIAL_ADVANCEMENTS = {};
 
+  static UTILITY_FEATURES = [
+    "Channel Divinity:",
+    "Maneuver:",
   ];
 
   _init() {
@@ -902,6 +905,7 @@ export default class DDBBaseFeature {
     if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) return "attack";
     if (this.data.system.uses?.max && this.data.system.uses.max !== "0") return "utility";
     if (this.data.effects.length > 0 || this.enricher.effect) return "utility";
+    if (DDBBaseFeature.UTILITY_FEATURES.some((f) => this.originalName.startsWith(f))) return "utility";
     return null;
   }
 

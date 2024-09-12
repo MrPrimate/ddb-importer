@@ -9,6 +9,7 @@ export default class DDBAction extends DDBBaseFeature {
   static SKIPPED_ACTIONS = [
     "Lay On Hands: Heal",
     // "Lay On Hands: Purify Poison",
+    "Sacred Weapon: Imbue Weapon",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

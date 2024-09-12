@@ -223,7 +223,7 @@ export default class DDBFeatureActivity {
     }
   }
 
-  _generateTarget({ targetOverride = null }) {
+  _generateTarget({ targetOverride = null } = {}) {
     if (targetOverride) {
       this.data.target = targetOverride;
       return;
@@ -265,7 +265,7 @@ export default class DDBFeatureActivity {
 
   }
 
-  _generateDamage({ parts = null, includeBase = false }) {
+  _generateDamage({ parts = null, includeBase = false } = {}) {
     // TODO revisit for multipart damage parsing
     if (!this.ddbParent.getDamage || !parts) return;
     const damage = parts ?? [this.ddbParent.getDamage()];
@@ -411,7 +411,7 @@ export default class DDBFeatureActivity {
     if (generateDamage) this._generateDamage({ includeBase, parts: damageParts });
     if (generateHealing) this._generateHealing();
 
-    if (generateRoll) this._generateRoll(roll);
+    if (generateRoll) this._generateRoll({ roll });
 
 
     // ATTACK has

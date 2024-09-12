@@ -186,10 +186,12 @@ export default class DDBRace {
   }
 
   #addFeatureDescription(trait) {
+    // for whatever reason 2024 races still have a hidden ability score entry
+    if (!this.is2014 && trait.name.startsWith("Ability Score ")) return;
     const featureMatch = this.compendiumRacialTraits.find((match) =>
       foundry.utils.hasProperty(match, "flags.ddbimporter.baseName") && foundry.utils.hasProperty(match, "flags.ddbimporter.entityRaceId")
       && utils.nameString(trait.name) === utils.nameString(match.flags.ddbimporter.baseName)
-      && match.flags.ddbimporter.entityRaceId === trait.entityRaceId,
+      && match.flags.ddbimporter.entityRaceId === trait.entityRaceId
     );
     const title = (featureMatch) ? `<p><b>@Compendium[${this._compendiumLabel}.${featureMatch._id}]{${trait.name}}</b></p>` : `<p><b>${trait.name}</b></p>`;
     this.data.system.description.value += `${title}\n${trait.description}\n\n`;
@@ -283,6 +285,7 @@ export default class DDBRace {
   }
 
   #generateAbilityAdvancement() {
+    if (!this.is2014) return;
     this.race.racialTraits.forEach((t) => {
       const trait = t.definition;
       if (!["Ability Score Increase", "Ability Score Increases"].includes(trait.name.trim())) return;
@@ -459,6 +462,11 @@ export default class DDBRace {
       const basicOptions = {
         subType: senseName,
       };
+      DDBHelper.filterModifiers((this.ddbData?.character?.modifiers?.race ?? []), "sense", basicOptions).forEach((sense) => {
+        if (Number.isInteger(sense.value) && sense.value > this.data.system.senses[senseName]) {
+          this.data.system.senses[senseName] = parseInt(sense.value);
+        }
+      });
       DDBHelper.filterModifiers((this.ddbData?.character?.modifiers?.race ?? []), "set-base", basicOptions).forEach((sense) => {
         if (Number.isInteger(sense.value) && sense.value > this.data.system.senses[senseName]) {
           this.data.system.senses[senseName] = parseInt(sense.value);
