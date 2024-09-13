@@ -306,6 +306,7 @@ export default class DDBCharacter {
       logger.debug("Character Spells parse complete");
       await this._characterFeatureFactory.processActions();
       this.raw.actions = this._characterFeatureFactory.processed.actions;
+      this.raw.actions.push(...this._infusionFactory.processed.actions);
       logger.debug("Action parse complete");
       await this._generateInventory();
       logger.debug("Inventory generation complete");
