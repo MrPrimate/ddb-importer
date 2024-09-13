@@ -1,3 +1,4 @@
+import utils from "../../lib/utils.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
@@ -579,7 +580,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     },
     "Arcane Propulsion Armor Gauntlet": {
       data: {
-        "system.damage.bonus": "@mod",
+        "system.properties": utils.addToProperties(this.data.system.properties, "mgc"),
       },
     },
     "Combat Superiority": {
