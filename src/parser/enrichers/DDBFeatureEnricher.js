@@ -75,6 +75,27 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Bardic Inspiration": {
+      targetType: "creature",
+      addItemConsumed: true,
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "@scale.bard.bardic-inspiration",
+          name: "Inspiration Roll",
+        },
+        duration: {
+          value: "10",
+          units: "minutes",
+        },
+        range: {
+          value: 60,
+          long: null,
+          units: "ft",
+        },
+      },
+    },
     "Breath Weapon (Acid)": {
       name: "Cone",
       type: "save",
@@ -177,6 +198,22 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
             size: "15",
             units: "ft",
           },
+        },
+      },
+    },
+    "Cutting Words": {
+      targetType: "creature",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "@scale.bard.bardic-inspiration",
+          name: "Subtraction Roll",
+        },
+        range: {
+          value: 60,
+          long: null,
+          units: "ft",
         },
       },
     },
@@ -478,6 +515,22 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Song of Rest": {
+      type: "heal",
+      data: {
+        duration: {
+          value: "1",
+          units: "hour",
+        },
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@scale.bard.song-of-rest",
+          },
+          types: ["healing"],
+        },
+      },
+    },
     "Stunning Strike": {
       type: "save",
       targetType: "creature",
@@ -725,9 +778,23 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "flags.midiProperties.toggleEffect": true,
       },
     },
+    "Summon Wildfire Spirit: Command": {
+      data: {
+        "system.uses": {
+          spent: null,
+          max: "",
+        },
+      },
+    },
   };
 
   EFFECT_HINTS = {
+    "Bardic Inspiration": {
+      type: "feat",
+      options: {
+        durationSeconds: 600,
+      },
+    },
     "Empty Body": {
       type: "feat",
       options: {

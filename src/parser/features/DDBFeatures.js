@@ -3,6 +3,7 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
+import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 import DDBBaseFeature from "./DDBBaseFeature.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBClassFeatures from "./DDBClassFeatures.js";
@@ -48,6 +49,7 @@ export default class DDBFeatures {
   ];
 
   static SKIPPED_FEATURES = [
+    "Equipment",
     "Expertise",
     "Darkvision",
     "Core Barbarian Traits",
@@ -233,10 +235,31 @@ export default class DDBFeatures {
       // TODO: fix level scales for activities
       if (scaleKlass) {
         const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
-        if (foundry.utils.hasProperty(feature, "system.damage.parts") && feature.system.damage.parts.length > 0) {
-          feature.system.damage.parts[0][0] = `@scale.${identifier}.${featureName}`;
+        const damage = DDBBasicActivity.buildDamagePart({
+          damageString: `@scale.${identifier}.${featureName}`,
+        });
+        if (foundry.utils.hasProperty(feature, "system.damage.base")) {
+          feature.system.damage.base.custom = damage.custom;
         } else {
-          foundry.utils.setProperty(feature, "system.damage.parts", [[`@scale.${identifier}.${featureName}`]]);
+          for (const [key, activity] of Object.entries(feature.system.activities)) {
+            if (activity.damage && activity.damage.parts.length === 0) {
+              console.warn(`adding scale for ${feature.name} ${key}`, {
+                feature,
+                activity: deepClone(activity),
+                damage,
+              });
+              activity.damage.parts = [damage];
+            } else if (activity.damage && activity.damage.parts.length > 0) {
+              console.warn(`Replacing scale for ${feature.name} ${key}`, {
+                feature,
+                activity: deepClone(activity),
+                damage,
+              });
+              activity.damage.parts[0].custom = damage.custom;
+            }
+            feature.system.activities[key] = activity;
+          }
+
         }
       }
     });

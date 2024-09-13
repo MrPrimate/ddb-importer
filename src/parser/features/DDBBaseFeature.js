@@ -133,7 +133,7 @@ export default class DDBBaseFeature {
       foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
     }
 
-    this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
+    // this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
   }
 
   _generateActionTypes() {

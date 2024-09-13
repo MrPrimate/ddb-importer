@@ -15,22 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Bardic Inspiration": {
-        feature.system.actionType = "util";
-        feature.system.duration = {
-          value: 10,
-          units: "minute",
-        };
-        feature.system.target = {
-          value: 1,
-          width: null,
-          units: "",
-          type: "creature",
-        };
-        feature.system.range.value = 60;
-        feature.system.range.units = "ft";
-        break;
-      }
       case "Blessed Healer": {
         feature.system.activation.type = "special";
         feature.system.activation.cost = null;
@@ -439,36 +423,6 @@ export async function fixFeatures(features) {
         feature.system.damage = { parts: [["2d6", "fire"]], versatile: "", value: "" };
         feature.system.ability = "wis";
         feature.system.save = { ability: "dex", dc: null, scaling: "spell" };
-        break;
-      }
-      case "Unarmored Defense": {
-        if (feature.effects.length === 1) {
-          const klass = foundry.utils.getProperty(feature, "flags.ddbimporter.class");
-          if (klass == "Barbarian") {
-            feature.effects[0].changes = [
-              {
-                key: "system.attributes.ac.calc",
-                value: "unarmoredBarb",
-                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-                priority: 15,
-              },
-            ];
-          } else if (klass === "Monk") {
-            feature.effects[0].changes = [
-              {
-                key: "system.attributes.ac.calc",
-                value: "unarmoredMonk",
-                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-                priority: 15,
-              },
-            ];
-          }
-        }
-        break;
-      }
-      case "Wild Shape": {
-        feature.system.actionType = "";
-        feature.system.damage = { parts: [], versatile: "", value: "" };
         break;
       }
       case "Wrath of the Storm": {
