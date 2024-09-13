@@ -2,6 +2,7 @@ import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, 
 import { baseFeatEffect } from "../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../effects/specialSpells.js";
+import utils from "../../lib/utils.js";
 
 export default class DDBBaseEnricher {
 
@@ -235,7 +236,11 @@ export default class DDBBaseEnricher {
     }
 
     if (this.effect.changes) {
-      effect.changes.push(...this.effect.changes);
+      const changes = utils.isFunction(this.effect.changes)
+        ? this.effect.changes(this.data)
+        : this.effect.changes;
+      if (this.effect.changesOverwrite) effect.changes = changes;
+      else effect.changes.push(...changes);
     }
 
     if (this.effect.data) {

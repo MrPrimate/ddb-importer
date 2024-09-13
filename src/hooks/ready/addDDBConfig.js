@@ -15,7 +15,7 @@ function addLanguages() {
       ))];
 
     CONFIG.DND5E.languages.ddb = {
-      label: "D&D Beyond",
+      label: "D&D Beyond Rare Languages",
       children: {
       },
     };

@@ -12,7 +12,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
-import DDBBaseFeature from "./DDBBaseFeature.js";
 
 
 // CONFIG.DND5E.activityTypes
@@ -65,16 +64,7 @@ export default class DDBFeatureActivity {
   }
 
   _generateParsedActivation() {
-    const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-      ? this.ddbDefinition.description
-      : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
-        ? this.ddbDefinition.snippet
-        : null;
-
-    // console.warn(`Generating Parsed Activation for ${this.name}`, {description});
-
-    if (!description) return;
-    const actionType = DDBBaseFeature.getParsedAction(description);
+    const actionType = this.ddbParent.getParsedActionType();
     if (!actionType) return;
     logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
     this.data.activation = {
@@ -223,6 +213,61 @@ export default class DDBFeatureActivity {
     }
   }
 
+  _getDescriptionTarget() {
+    const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
+    let target = {
+      prompt: true,
+      affects: {
+        count: "",
+        type: "",
+        choice: false,
+        special: "",
+      },
+      template: {
+        count: "",
+        contiguous: false,
+        type: "",
+        size: "",
+        width: "",
+        height: "",
+        units: "ft",
+      },
+    };
+
+    const targetsCreature = this.ddbParent.targetsCreature();
+    const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(description);
+
+    if (targetsCreature || creatureTargetCount) {
+      target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
+      target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
+    }
+    const aoeSizeRegex = /(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot)(?: |-)(cone|radius|sphere|line|cube|of it|of an|of the|of you)( \w+[. ])?/ig;
+    const aoeSizeMatch = aoeSizeRegex.exec(description);
+
+    // console.warn(`Target generation for ${this.name}`, {
+    //   targetsCreature,
+    //   creatureTargetCount,
+    //   aoeSizeMatch,
+    // });
+
+    if (aoeSizeMatch) {
+      const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
+      target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
+      target.template.size = aoeSizeMatch[1] ?? "";
+      if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
+        this.data.range.units = "self";
+      }
+    }
+
+    if (description.includes("creature of your choice")) {
+      if (this.data.damage?.parts?.length > 0 || ["save", "attack", "damage"].includes(this.type))
+        target.affects.type = "enemy";
+      target.affects.choice = true;
+    }
+
+    return target;
+  }
+
   _generateTarget({ targetOverride = null } = {}) {
     if (targetOverride) {
       this.data.target = targetOverride;
@@ -258,6 +303,8 @@ export default class DDBFeatureActivity {
         },
       });
       data.affects.type = "creature";
+    } else {
+      data = this._getDescriptionTarget();
     }
 
     // TODO: improve target parsing
@@ -367,6 +414,10 @@ export default class DDBFeatureActivity {
       },
     };
 
+    if (this.ddbDefinition.isMartialArts) {
+      this.ddbParent.data.system.properties = utils.addToProperties(this.ddbParent.data.system.properties, "fin");
+    }
+
     this.data.attack = attack;
     foundry.utils.setProperty(this.data.damage, "includeBase", true);
 
@@ -404,12 +455,11 @@ export default class DDBFeatureActivity {
     if (generateDescription) this._generateDescription();
     if (generateDuration) this._generateDuration();
     if (generateEffects) this._generateEffects();
-    if (generateRange) this._generateRange();
-    if (generateTarget) this._generateTarget({ targetOverride });
-
     if (generateSave) this._generateSave();
     if (generateDamage) this._generateDamage({ includeBase, parts: damageParts });
     if (generateHealing) this._generateHealing();
+    if (generateRange) this._generateRange();
+    if (generateTarget) this._generateTarget({ targetOverride });
 
     if (generateRoll) this._generateRoll({ roll });
 

@@ -2366,7 +2366,7 @@ export default class DDBItem {
 
       this.characterManager.updateItemId(this.data);
 
-      const statusEffect = getStatusEffect({ ddbItem: this.ddbItem, foundryItem: this.data });
+      const statusEffect = getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
       if (statusEffect) this.data.effects.push(statusEffect);
 
       if (!this.enricher.documentStub?.stopDefaultActivity)
@@ -2387,7 +2387,6 @@ export default class DDBItem {
 
       this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
-      // todo: should effect generation be here?
     } catch (err) {
       logger.warn(
         `Unable to parse item: ${this.ddbDefinition.name}, ${this.ddbDefinition.type}/${this.ddbDefinition.filterType}. ${err.message}`,

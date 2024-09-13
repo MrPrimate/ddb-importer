@@ -31,7 +31,6 @@ import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
 import { heavyArmorMasterEffect } from "./feats/heavyArmorMaster.js";
 import { hillRuneEffect } from "./feats/hillRune.js";
 import { indomitableEffect } from "./feats/indomitable.js";
-import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
 import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
 import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
@@ -182,11 +181,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Evasion": {
       document = evasionEffect(document);
-      break;
-    }
-    case "Empty Body":
-    case "Ki: Empty Body": {
-      document = kiEmptyBodyEffect(document);
       break;
     }
     case "Favored Foe": {

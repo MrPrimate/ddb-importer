@@ -3,7 +3,7 @@ import { baseItemEffect } from "../effects.js";
 
 export function auraOfHateEffect(document) {
 
-  let alliesEffect = baseItemEffect(document, `${document.name} (Self) - Passive`);
+  let alliesEffect = baseItemEffect(document, `${document.name} (Self)`);
   alliesEffect.changes.push({
     "key": "system.bonuses.mwak.damage",
     "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -18,7 +18,7 @@ export function auraOfHateEffect(document) {
 
   if (!game.modules.get("ActiveAuras")?.active) return document;
 
-  let otherEffect = baseItemEffect(document, `${document.name} (Fiends & Undead) - Passive`);
+  let otherEffect = baseItemEffect(document, `${document.name} (Fiends & Undead)`);
   otherEffect.flags.ActiveAuras = {
     aura: "All",
     radius: "@scale.oathbreaker.aura-of-hate",

@@ -205,16 +205,25 @@ export default class DDBCharacter {
       });
       if (featureMatch) {
         foundry.utils.setProperty(action, "flags.ddbimporter.featureNameMatch", featureMatch.name);
-        // console.warn(`Removing duplicate feature ${featureMatch.name} from action ${action.name}`, {
-        //   action,
-        //   feature: featureMatch,
-        // });
         if (action.system.description.value === "") {
           action.system.description.value = featureMatch.system.description.value;
         }
 
         if (action.system.description.chat === "") {
           action.system.description.chat = featureMatch.system.description.chat;
+        }
+
+        action.system.source = featureMatch.system.source;
+
+
+        for (const [key, activity] of Object.entries(featureMatch.system.activities)) {
+          if (!action.system.activities[key]) {
+            action.system.activities[key] = activity;
+            continue;
+          }
+          if (action.system.activities[key] && action.system.activities[key].effects?.length === 0) {
+            action.system.activities[key].effects = featureMatch.system.activities[key].effects;
+          }
         }
 
         if (action.effects && action.effects.length === 0
@@ -228,11 +237,6 @@ export default class DDBCharacter {
           foundry.utils.mergeObject(action.flags, newFlags, { overwrite: true, insertKeys: true, insertValues: true });
         }
 
-        action.system.source = featureMatch.system.source;
-
-        if (featureMatch.system.activities?.length > 0) {
-          action.system.activities.push(...featureMatch.system.activities);
-        }
         if (featureMatch.system.uses.max
           && (utils.isString(featureMatch.system.uses.max)
           || !action.system.uses.max)
@@ -241,7 +245,7 @@ export default class DDBCharacter {
         }
 
         if (featureMatch.system.prerequisites.level) {
-          action.system.prerequisites.level = featureMatch.system.prerequisites.level;
+          foundry.utils.setProperty(action, "system.prerequisites.level", featureMatch.system.prerequisites.level);
         }
       }
       return action;

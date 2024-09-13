@@ -1156,6 +1156,26 @@ export default class DDBClass {
           },
         };
       };
+    } else if (this.data.name === "Monk") {
+      const ki = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: this.is2014 ? "ki-points" : "focus-points",
+          type: "number",
+          scale: {},
+        },
+        value: {},
+        title: this.is2014 ? "Ki Points" : "Focus Points",
+        icon: null,
+      };
+      Array.from(utils.arrayRange(18, 1, 2)).forEach((i) => {
+        ki.configuration.scale[i] = {
+          value: i,
+        };
+      });
+      this.data.system.advancement.push(ki);
     }
   }
 

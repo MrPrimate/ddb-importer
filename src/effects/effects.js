@@ -1499,10 +1499,12 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
   return [foundryItem, effect];
 }
 
-export function getStatusEffect({ ddbItem, foundryItem, labelOverride } = {}) {
+export function getStatusEffect({ ddbDefinition, foundryItem, labelOverride } = {}) {
   if (!foundryItem.effects) foundryItem.effects = [];
 
-  const conditionResult = DDBEffectHelper.parseStatusCondition({ text: ddbItem.definition.description, nameHint: labelOverride });
+  const text = ddbDefinition.description ?? ddbDefinition.snippet ?? "";
+
+  const conditionResult = DDBEffectHelper.parseStatusCondition({ text, nameHint: labelOverride });
 
   if (!conditionResult.success) return null;
 
@@ -1520,14 +1522,6 @@ export function getStatusEffect({ ddbItem, foundryItem, labelOverride } = {}) {
   return effect;
 }
 
-function generateStatusEffects({ ddbItem, foundryItem, labelOverride } = {}) {
-  const effect = getStatusEffect({ ddbItem, foundryItem, labelOverride });
-  if (!effect) return foundryItem;
-  foundryItem.effects.push(effect);
-  return foundryItem;
-}
-
-
 /**
  * Generate supported effects for items
  * @param {*} ddb
@@ -1541,9 +1535,10 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
 
   const label = labelOverride
     ? labelOverride
-    : `${foundryItem.name} - Passive`;
+    : `${foundryItem.name}`;
 
   let effect = baseItemEffect(foundryItem, label);
+  foundry.utils.setProperty(effect, "flags.ddbimporter.passive", true);
   effect.description = description;
 
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return [foundryItem, effect];

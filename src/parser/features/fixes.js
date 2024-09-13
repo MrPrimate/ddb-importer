@@ -15,22 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Arcane Propulsion Armor Gauntlet": {
-        feature.system.damage.parts[0][0] += " + @mod";
-        break;
-      }
-      case "Arms of the Astral Self: Summon": {
-        feature.system.target.type = "enemy";
-        feature.system.target.units = "all";
-        feature.system.range.value = 10;
-        feature.system.range.units = "ft";
-        break;
-      }
-      case "Arms of the Astral Self (DEX/STR)": {
-        feature.system.properties.push("fin");
-        feature.system.ability = "";
-        break;
-      }
       case "Bardic Inspiration": {
         feature.system.actionType = "util";
         feature.system.duration = {
@@ -103,14 +87,6 @@ export async function fixFeatures(features) {
         feature.system.activation.condition = "Reduce a hostile creature to 0 HP";
         break;
       }
-      case "Deflect Missiles": {
-        feature.system.damage = { parts: [["1d10 + @mod + @classes.monk.levels"]], versatile: "", value: "" };
-        break;
-      }
-      case "Divine Intervention":
-        feature.system.damage = { parts: [["1d100", ""]], versatile: "", value: "" };
-        feature.system.actionType = "other";
-        break;
       case "Draconic Resilience": {
         if (feature.effects.length === 1) {
           const toKeepChanges = feature.effects[0].changes.filter((change) => !change.key.includes("system.attributes.ac"));
@@ -251,22 +227,6 @@ export async function fixFeatures(features) {
           max: null,
           recovery: [],
         };
-        break;
-      }
-      case "Lay on Hands": {
-        feature.system.activation = { type: "action", cost: 1, condition: "" };
-        feature.system.range = {
-          type: "touch",
-          value: null,
-          long: null,
-          units: "touch",
-        };
-        feature.system.target.value = 1;
-        feature.system.target.type = "creature";
-        feature.system.actionType = "other";
-        feature.system.duration.units = "inst";
-        feature.system.consume.amount = 0;
-        feature.system.uses.prompt = false;
         break;
       }
       case "Mantle of Inspiration": {
@@ -467,16 +427,6 @@ export async function fixFeatures(features) {
         feature.system.range.units = "self";
         feature.system.consume = { type: "", target: "", amount: null };
         break;
-      case "Stunning Strike":
-        feature.system.actionType = "save";
-        feature.system.save = { ability: "con", dc: null, scaling: "wis" };
-        feature.system.target = { value: null, width: null, units: "touch", type: "creature" };
-        feature.system.range.units = "ft";
-        break;
-      case "Superiority Dice": {
-        foundry.utils.setProperty(feature.system, "damage.parts", [["@scale.battle-master.combat-superiority-die"]]);
-        break;
-      }
       case "Summon Wildfire Spirit": {
         foundry.utils.setProperty(document, "system.target.value", 1);
         foundry.utils.setProperty(document, "system.target.type", "space");

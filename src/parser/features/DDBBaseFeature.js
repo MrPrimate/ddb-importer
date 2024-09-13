@@ -3,7 +3,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
-import { generateEffects } from "../../effects/effects.js";
+import { generateEffects, getStatusEffect } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
 import DDBFeatureActivity from "./DDBFeatureActivity.js";
 import DDDFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
@@ -29,6 +29,7 @@ export default class DDBBaseFeature {
     "Arms of the Astral Self (WIS)",
     "Arms of the Astral Self (DEX)",
     "Arms of the Astral Self (DEX/STR)",
+    "Arms of the Astral Self",
     "Body of the Astral Self",
     "Starry Form: Archer",
     "Sneak Attack",
@@ -102,20 +103,78 @@ export default class DDBBaseFeature {
       && this.scaleValueLink !== "{{scalevalue-unknown}}";
   }
 
+  _generateFlagHints() {
+    // obsidian and klass names (used in effect enrichment)
+    if (this._actionType.class) {
+      const klass = DDBHelper.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "class");
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "class");
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.text", klass.definition.name);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
+      const subKlass = DDBHelper.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
+      const subClass = foundry.utils.getProperty(subKlass, "subclassDefinition");
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass?.name);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass?.id);
+    } else if (this._actionType.race) {
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "race");
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "race");
+    } else if (this._actionType.feat) {
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "feat");
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "feat");
+    }
+
+    // scaling details
+    const klassActionComponent = DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.id)
+      ?? DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
+    if (klassActionComponent) {
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
+    }
+
+    this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
+  }
+
+  _generateActionTypes() {
+    this._actionType = {
+      class: this.ddbData.character.actions.class
+        .filter((ddbAction) => DDBHelper.findClassByFeatureId(this.ddbData, ddbAction.componentId))
+        .find((ddbAction) => {
+          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
+          return name === this.data.name;
+        }),
+      race: this.ddbData.character.actions.race
+        .some((ddbAction) => {
+          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
+          return name === this.data.name;
+        }),
+      feat: this.ddbData.character.actions.feat
+        .some((ddbAction) => {
+          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
+          return name === this.data.name;
+        }),
+    };
+  }
+
   _prepare() {
     if (this.ddbDefinition.infusionFlags) {
       foundry.utils.setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
     }
 
     this._generateLevelScale();
+    this._generateActionTypes();
+    this._generateFlagHints();
   }
 
   constructor({
     ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false, activityType = null,
+    extraFlags = {},
   } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbFeature = ddbDefinition;
+    this.extraFlags = extraFlags;
     this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
     this.name = utils.nameString(this.ddbDefinition.name);
     this.originalName = this.ddbData
@@ -176,7 +235,7 @@ export default class DDBBaseFeature {
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
   }
 
-  _getClassFeatureDescription() {
+  _getClassFeatureDescription(nameMatch = false) {
     if (!this.ddbData) return "";
     const componentId = this.ddbDefinition.componentId;
     const componentTypeId = this.ddbDefinition.componentTypeId;
@@ -191,7 +250,10 @@ export default class DDBBaseFeature {
       const feature = findFeatureKlass.classFeatures
         .find((feature) =>
           feature.definition.id == componentId
-          && feature.definition.entityTypeId == componentTypeId,
+          && feature.definition.entityTypeId == componentTypeId
+          && (!nameMatch
+            || (nameMatch && feature.definition.name == this.originalName)
+          ),
         );
       if (feature) {
         return parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
@@ -217,7 +279,14 @@ export default class DDBBaseFeature {
 
   }
 
-  static getParsedAction(description) {
+  getParsedActionType() {
+    const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
+      ? this.ddbDefinition.description
+      : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
+        ? this.ddbDefinition.snippet
+        : null;
+
+    if (!description) return undefined;
     // pcs don't have mythic
     const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
     if (actionAction) return "action";
@@ -266,9 +335,11 @@ export default class DDBBaseFeature {
 
     this.description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
       ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature).text
-      : this.type === "race"
-        ? this._getRaceFeatureDescription()
-        : this._getClassFeatureDescription();
+      : !useCombinedSetting || forceFull
+        ? this.type === "race"
+          ? this._getRaceFeatureDescription()
+          : this._getClassFeatureDescription(!(useCombinedSetting || forceFull))
+        : "";
 
     const extraDescription = extra && extra !== ""
       ? parseTemplateString(this.ddbData, this.rawCharacter, extra, this.ddbFeature).text
@@ -277,7 +348,7 @@ export default class DDBBaseFeature {
     const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");
     if (!chatAdd) {
       const snippet = utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
-      const descriptionSnippet = !useCombinedSetting || forceFull ? null : snippet;
+      const descriptionSnippet = (!useCombinedSetting || forceFull) && this.description !== "" ? null : snippet;
       const fullDescription = DDBBaseFeature.buildFullDescription(this.description, descriptionSnippet);
 
       return {
@@ -668,6 +739,11 @@ export default class DDBBaseFeature {
       this.data.effects.push(effect);
     }
 
+    console.warn(`Effect Addition ${this.name}`, {
+      dataEffects: this.data.effects,
+      activities: this.data.system.activities,
+      this: this,
+    })
     if (this.data.effects.length > 0 && this.data.system.activities) {
       for (const activityId of Object.keys(this.data.system.activities)) {
         const activity = this.data.system.activities[activityId];
@@ -896,6 +972,25 @@ export default class DDBBaseFeature {
     }
   }
 
+  isForceResourceLinked() {
+    for (const linkedFeatures of Object.values(DICTIONARY.RESOURCE_LINKS)) {
+      if (linkedFeatures.some((child) => this.originalName.startsWith(child))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  targetsCreature() {
+    const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
+    const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range|each creature within/gi;
+    const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
+    const targets = /attack against the target|at a target in range/gi;
+    return description.match(creature)
+      || description.match(creaturesRange)
+      || description.match(targets);
+  }
+
   _getActivitiesType() {
     if (this.isCompanionFeature || this._isCompanionFeatureOption()) return "summon";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
@@ -906,6 +1001,8 @@ export default class DDBBaseFeature {
     if (this.data.system.uses?.max && this.data.system.uses.max !== "0") return "utility";
     if (this.data.effects.length > 0 || this.enricher.effect) return "utility";
     if (DDBBaseFeature.UTILITY_FEATURES.some((f) => this.originalName.startsWith(f))) return "utility";
+    if (this.isForceResourceLinked()) return "utility";
+    if (this.getParsedActionType()) return "utility";
     return null;
   }
 
@@ -932,7 +1029,13 @@ export default class DDBBaseFeature {
     }
   }
 
-  _generateActivity({ hintsOnly = false } = {}) {
+  _generateActivity({ hintsOnly = false, statusEffects = true } = {}) {
+
+    if (statusEffects) {
+      const statusEffect = getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
+      if (statusEffect) this.data.effects.push(statusEffect);
+    }
+
     if (hintsOnly && !this.enricher.activity) return undefined;
 
     const activity = this.getActivity({

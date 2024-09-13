@@ -20,6 +20,7 @@ export default class DDBAttackAction extends DDBAction {
     "Arcane Propulsion Armor Gauntlet",
     "Arms of the Astral Self (WIS)",
     "Arms of the Astral Self (DEX/STR)",
+    "Arms of the Astral Self",
     "Bite",
     "Claw",
     "Gore",
@@ -56,7 +57,6 @@ export default class DDBAttackAction extends DDBAction {
       this._generateActivity();
       this.enricher.addAdditionalActivities(this);
 
-      this._generateFlagHints();
       this._generateResourceFlags();
       this.enricher.addDocumentOverride();
       this._addEffects();

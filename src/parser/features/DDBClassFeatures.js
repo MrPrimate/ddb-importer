@@ -23,13 +23,14 @@ export default class DDBClassFeatures {
       .map((f) => f.affectedClassFeatureId);
   }
 
-  _getFeatures(featureDefinition, type, source, filterByLevel = true) {
+  _getFeatures(featureDefinition, type, source, filterByLevel = true, flags = {}) {
     const feature = new DDBFeature({
       ddbData: this.ddbData,
       ddbDefinition: featureDefinition,
       rawCharacter: this.rawCharacter,
       type,
       source,
+      extraFlags: flags,
     });
     feature.build();
     const allowedByLevel = !filterByLevel || (filterByLevel && feature.hasRequiredLevel);
@@ -63,16 +64,24 @@ export default class DDBClassFeatures {
     const classFeatureList = classFeatures
       .filter((feat) => !this.excludedFeatures.includes(feat.definition.id))
       .map((feat) => {
-        let items = this._getFeatures(feat, "class", className);
-        return items.map((item) => {
-          item.flags.ddbimporter.dndbeyond.class = className;
-          foundry.utils.setProperty(item.flags, "ddbimporter.class", klass.definition.name);
-          foundry.utils.setProperty(item.flags, "ddbimporter.classId", klass.definition.id);
-          item.flags.obsidian.source.text = className;
-          // add feature to all features list
-          this.featureList.class.push(foundry.utils.duplicate(item));
-          return item;
+        let items = this._getFeatures(feat, "class", className, {
+          "ddbimporter": {
+            class: klass.definition.name,
+            classId: klass.definition.id,
+          },
+          "flags.obsidian.source.text": className,
         });
+        this.featureList.class.push(...foundry.utils.duplicate(items));
+        return items;
+        // return items.map((item) => {
+        //   item.flags.ddbimporter.dndbeyond.class = className;
+        //   foundry.utils.setProperty(item.flags, "ddbimporter.class", klass.definition.name);
+        //   foundry.utils.setProperty(item.flags, "ddbimporter.classId", klass.definition.id);
+        //   item.flags.obsidian.source.text = className;
+        //   // add feature to all features list
+        //   this.featureList.class.push(foundry.utils.duplicate(item));
+        //   return item;
+        // });
       })
       .flat()
       .sort((a, b) => {
@@ -114,21 +123,32 @@ export default class DDBClassFeatures {
         && !this.excludedFeatures.includes(feat.definition.id),
     );
 
+    const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
     const subClassFeatureList = subClassFeatures
       .map((feat) => {
-        let items = this._getFeatures(feat, "class", subClassName);
-        return items.map((item) => {
-          item.flags.ddbimporter.dndbeyond.class = subClassName;
-          item.flags.obsidian.source.text = className;
-          foundry.utils.setProperty(item.flags, "ddbimporter.class", klass.definition.name);
-          foundry.utils.setProperty(item.flags, "ddbimporter.classId", klass.definition.id);
-          const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
-          foundry.utils.setProperty(item.flags, "ddbimporter.subClass", subClass?.name);
-          foundry.utils.setProperty(item.flags, "ddbimporter.subClassId", subClass?.id);
-          // add feature to all features list
-          this.featureList.subClass.push(foundry.utils.duplicate(item));
-          return item;
+        let items = this._getFeatures(feat, "class", subClassName, {
+          "ddbimporter": {
+            class: klass.definition.name,
+            classId: klass.definition.id,
+            subClass: subClass?.name,
+            subClassId: subClass?.id,
+          },
+          "flags.obsidian.source.text": className,
         });
+        this.featureList.subClass.push(...foundry.utils.duplicate(items));
+        return items;
+        // return items.map((item) => {
+        //   item.flags.ddbimporter.dndbeyond.class = subClassName;
+        //   item.flags.obsidian.source.text = className;
+        //   foundry.utils.setProperty(item.flags, "ddbimporter.class", klass.definition.name);
+        //   foundry.utils.setProperty(item.flags, "ddbimporter.classId", klass.definition.id);
+        //   const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
+        //   foundry.utils.setProperty(item.flags, "ddbimporter.subClass", subClass?.name);
+        //   foundry.utils.setProperty(item.flags, "ddbimporter.subClassId", subClass?.id);
+        //   // add feature to all features list
+        //   this.featureList.subClass.push(foundry.utils.duplicate(item));
+        //   return item;
+        // });
       })
       .flat()
       .sort((a, b) => {

@@ -873,6 +873,54 @@ const DICTIONARY = {
       "Wondrous item",
     ],
   },
+  RESOURCE_LINKS: {
+    "Lay On Hands: Healing Pool": ["Lay On Hands:"],
+    "Channel Divinity": ["Channel Divinity:", "Harness Divine Power", "Sacred Weapon"],
+    "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
+    "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen"],
+    "Bardic Inspiration": [
+      "Mote of Potential", "Unsettling Words", "Mantle of Inspiration",
+      "Cutting Words", "Peerless Skill", "Tales from Beyond", "Blade Flourish",
+      "Defensive Flourish", "Slashing Flourish", "Mobile Flourish",
+      "Psychic Blades",
+    ],
+    "Wild Shape": ["Symbiotic Entity", "Starry Form", "Wild Companion", "Summon Wildfire Spirit"],
+    "Grit Points": [
+      "Trick Shots:", "Bullying Shot", "Dazing Shot", "Deadeye Shot", "Disarming Shot",
+      "Forceful Shot", "Piercing Shot", "Violent Shot", "Winging Shot",
+    ],
+    "Adept Marksman": [
+      "Trick Shots:", "Bullying Shot", "Deadeye Shot", "Disarming Shot", "Piercing Shot", "Rapid Repair",
+      "Dazing Shot", "Forceful Shot", "Winging Shot", "Violent Shot",
+    ],
+    "Psionic Power: Psionic Energy": [
+      "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",
+      "Psionic Power: Psi-Bolstered Knack", "Soul Blades: Homing Strikes", "Soul Blades: Psychic Teleportation",
+      "Psionic Power: Recovery",
+    ],
+    "Ki Points": [
+      "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind",
+      "Deflect Missiles Attack", "Arms of the Astral Self: Summon", "Stunning Strike",
+      "Empty Body", "Diamond Soul", "Visage of the Astral Self", "Quickened Healing",
+      "Focused Aim", "Sharpen the Blade", "Deft Strike", "Shadow Arts",
+      "Extort Truth", "Mind of Mercury", "Debilitating Barrage", "Tipsy Sway",
+      "Drunkard’s Luck", "Drunkard's Luck", "Touch of the Long Death",
+      "Quivering Palm", "Radiant Sun Bolt", "Searing Arc Strike",
+      "Breath of Winter", "Clench of the North Wind", "Eternal Mountain Defense",
+      "Fangs of the Fire Snake", "Fist of Four Thunders", "Fist of Unbroken Air",
+      "Flames of the Phoenix", "Gong of the Summit", "Mist Stance",
+      "Ride the Wind", "River of Hungry Flame", "Rush of the Gale Spirits",
+      "Shape the Flowing River", "Sweeping Cinder Strike", "Water Whip",
+      "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm", "Hand of Ultimate Mercy",
+      "Awakened Astral Self",
+    ],
+    "Infuse Item": ["Infusion:"],
+    // "Lay on Hands Pool": ["Lay on Hands"],
+    "Maneuver Points": [
+      "Carrion Raven Martial Maneuvers:", "Slippery Otter: Activate", "Blade Breaker Maneuvers:",
+    ],
+    "Jinx Points": ["Misfortunes:", "Curse Caster"],
+  },
 };
 
 export default DICTIONARY;

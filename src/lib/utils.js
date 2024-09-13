@@ -1,3 +1,7 @@
+const Range = function* (total = 0, step = 1, from = 0) {
+  for (let i = 0; i < total; yield from + i++ * step) {}
+};
+
 const utils = {
   debug: () => {
     return true;
@@ -20,6 +24,8 @@ const utils = {
       await callback(array[index], index, array);
     }
   },
+
+  arrayRange: Range,
 
   removeCompendiumLinks: (text) => {
     const linkRegExTag = /@\w+\[(.*)\](\{.*?\})/g;

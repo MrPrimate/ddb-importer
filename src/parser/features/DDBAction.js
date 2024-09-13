@@ -32,28 +32,6 @@ export default class DDBAction extends DDBBaseFeature {
     logger.debug(`Generating Action ${this.ddbDefinition.name}`);
   }
 
-  _prepare() {
-    super._prepare();
-
-    this._actionType = {
-      class: this.ddbData.character.actions.class
-        .filter((ddbAction) => DDBHelper.findClassByFeatureId(this.ddbData, ddbAction.componentId))
-        .find((ddbAction) => {
-          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
-          return name === this.data.name;
-        }),
-      race: this.ddbData.character.actions.race
-        .some((ddbAction) => {
-          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
-          return name === this.data.name;
-        }),
-      feat: this.ddbData.character.actions.feat
-        .some((ddbAction) => {
-          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
-          return name === this.data.name;
-        }),
-    };
-  }
 
   displayAsAttack() {
     const customDisplay = this.rawCharacter
@@ -163,55 +141,22 @@ export default class DDBAction extends DDBBaseFeature {
     }
   }
 
-  _generateFlagHints() {
-    // obsidian and klass names (used in effect enrichment)
-    if (this._actionType.class) {
-      const klass = DDBHelper.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
-      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "class");
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "class");
-      foundry.utils.setProperty(this.data.flags, "obsidian.source.text", klass.definition.name);
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
-      const subKlass = DDBHelper.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
-      const subClass = foundry.utils.getProperty(subKlass, "subclassDefinition");
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass?.name);
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass?.id);
-    } else if (this._actionType.race) {
-      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "race");
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "race");
-    } else if (this._actionType.feat) {
-      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "feat");
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "feat");
-    }
-
-    // scaling details
-    const klassActionComponent = DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.id)
-      ?? DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
-    if (klassActionComponent) {
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
-    }
-  }
-
   build() {
     try {
       this._generateSystemType();
       this._generateSystemSubType();
-      // MOVED: this._generateActivation();
       this._generateDescription();
       this._generateLimitedUse();
       this._generateRange();
       this._generateActivity();
       this.enricher.addAdditionalActivities(this);
-      this._generateFlagHints();
       this._generateResourceFlags();
 
       this.enricher.addDocumentOverride();
       this._addEffects();
       this._addCustomValues();
 
-      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
 
     } catch (err) {
       logger.warn(

@@ -69,6 +69,7 @@ export default class DDBFeature extends DDBBaseFeature {
             requiredLevel: this.ddbDefinition.requiredLevel,
             displayOrder: this.ddbDefinition.displayOrder,
             featureType: this.ddbDefinition.featureType,
+            class: this.ddbDefinition.className,
             classId: this.ddbDefinition.classId,
             entityId: this.ddbDefinition.entityId,
             entityRaceId: this.ddbDefinition.entityRaceId,
@@ -96,11 +97,13 @@ export default class DDBFeature extends DDBBaseFeature {
   // eslint-disable-next-line class-methods-use-this
   _prepare() {
     // override this feature
+    this._generateActionTypes();
+    this._generateFlagHints();
 
     this.excludedScaleUses = DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.ddbDefinition.name)
       || DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.data.name);
 
-    this.scaleValueUsesLink = DDBHelper.getScaleValueLink(this.ddbData, this.ddbFeature);
+    this.scaleValueUsesLink = DDBHelper.getScaleValueLink(this.ddbData, this.ddbFeature, true);
 
     this.useUsesScaleValueLink = !this.excludedScaleUses
       && this.scaleValueUsesLink
@@ -140,21 +143,13 @@ export default class DDBFeature extends DDBBaseFeature {
   _buildBasic() {
     this._generateSystemType();
     this._generateSystemSubType();
-
     this._generateLimitedUse();
-    // this._generateRange();
 
     this._generateActivity({ hintsOnly: true });
     this.enricher.addAdditionalActivities(this);
 
-    // this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
-
     this._generateDescription({ forceFull: true });
     this._addEffects(undefined, this.type);
-
-    // this._generateFlagHints();
-    // this._generateResourceFlags();
-    // this._addCustomValues();
 
     this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);

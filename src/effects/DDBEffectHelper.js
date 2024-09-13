@@ -1173,6 +1173,12 @@ export default class DDBEffectHelper {
         return roundMatch[1] * 6;
       }
     }
+    const smallMatchRe = text.includes("until the end of its next turn")
+      || text.includes("until the end of the target's next turn")
+      || text.includes("until the end of your next turn");
+    if (smallMatchRe) {
+      return 6;
+    }
     return DDBEffectHelper.DEFAULT_DURATION_SECONDS;
   }
 
@@ -1260,6 +1266,11 @@ export default class DDBEffectHelper {
     if (!match) {
       const saveSearch = /On a failed save, a creature takes (\d+)?d(\d+) (\w+) damage and is (?<condition>\w+)(?: for (\d+) (minute|round|hour))?/ig;
       match = saveSearch.exec(text);
+    }
+
+    if (!match) {
+      const successSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) or be (?<condition>\w+) until /ig;
+      match = successSearch.exec(text);
     }
 
     // console.warn("condition status", match);

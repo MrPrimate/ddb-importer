@@ -107,13 +107,15 @@ const DDBHelper = {
     }
   },
 
-  getScaleValueLink: (ddb, feature) => {
+  getScaleValueLink: (ddb, feature, flatOnly = false) => {
     const featDefinition = feature.definition ? feature.definition : feature;
 
     const klass = ddb.character.classes.find((cls) =>
       (cls.definition.id === featDefinition.classId
       || cls.subclassDefinition?.id === featDefinition.classId)
-      && featDefinition.levelScales?.length > 0,
+      && featDefinition.levelScales?.length > 0
+      && (!flatOnly
+        || (flatOnly && featDefinition.levelScales.every((s) => s.fixedValue !== null))),
     );
 
     if (klass) {

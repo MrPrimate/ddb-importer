@@ -62,6 +62,19 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
   NAME_HINTS = {};
 
   ACTIVITY_HINTS = {
+    "Arms of the Astral Self (DEX/STR)": {
+      data: {
+        "attack.ability": "",
+      },
+    },
+    "Arms of the Astral Self: Summon": {
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts", type: "force" })],
+          onSave: "none",
+        },
+      },
+    },
     "Breath Weapon (Acid)": {
       name: "Cone",
       type: "save",
@@ -167,6 +180,25 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Deflect Missiles": {
+      targetType: "self",
+      data: {
+        "consumption.targets": [],
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "1d10 + @mod + @classes.monk.levels",
+          name: "Reduce Damage Amount",
+        },
+      },
+    },
+    "Deflect Missiles Attack": {
+      activationType: "special",
+      targetType: "creature",
+      data: {
+        "damage.parts": [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts + @mod", types: ["piercing", "slashing", "bludgeoning"] })],
+      },
+    },
     "Divine Intervention": {
       type: "utility",
       data: {
@@ -177,6 +209,9 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           name: "Implore Aid",
         },
       },
+    },
+    "Empty Body": {
+      targetType: "self",
     },
     "Harness Divine Power": {
       type: "utility",
@@ -395,6 +430,18 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       activationType: "special",
       addItemConsume: true,
     },
+    "Quickened Healing": {
+      type: "heal",
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@item.monk.@scale.monk.martial-arts + @prof",
+          },
+          types: ["healing"],
+        },
+      },
+    },
     "Relentless": {
       type: "utility",
       activationType: "special",
@@ -426,6 +473,20 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           scaling: {
             mode: "whole",
             number: null,
+            formula: "",
+          },
+        },
+      },
+    },
+    "Stunning Strike": {
+      type: "save",
+      targetType: "creature",
+      data: {
+        "range.units": "touch",
+        save: {
+          ability: "con",
+          dc: {
+            calculation: "wis",
             formula: "",
           },
         },
@@ -583,6 +644,11 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "system.properties": utils.addToProperties(this.data.system.properties, "mgc"),
       },
     },
+    "Arms of the Astral Self (DEX/STR)": {
+      data: {
+        name: "Arms of the Astral Self",
+      },
+    },
     "Combat Superiority": {
       data: {
         "system.uses.max": "@scale.battle-master.combat-superiority-uses",
@@ -602,6 +668,11 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     "Harness Divine Power": {
       data: {
         "flags.ddbimporter.retainOriginalConsumption": true,
+      },
+    },
+    "Ki Points": {
+      data: {
+        "system.uses.max": "@scale.monk.ki-points",
       },
     },
     "Lay On Hands: Healing Pool": {
@@ -657,6 +728,28 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
   };
 
   EFFECT_HINTS = {
+    "Empty Body": {
+      type: "feat",
+      options: {
+        durationSeconds: 60,
+      },
+      statuses: ["invisible"],
+      changes: [
+        { key: "system.traits.dr.value", value: "acid", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "bludgeoning", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "cold", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "fire", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "force", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "lightning", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "necrotic", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "piercing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "poison", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "psychic", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "radiant", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "slashing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "thunder", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+      ],
+    },
     "Hold Breath": {
       type: "feat",
       data: {
@@ -765,6 +858,15 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "duration.rounds": 600,
       },
     },
+    "Patient Defense": {
+      type: "feat",
+      options: {
+        name: "Dodge",
+        label: "Dodge",
+        durationRounds: 1,
+      },
+      statuses: ["dodging"],
+    },
     "Sacred Weapon": {
       type: "enchant",
       name: "Sacred Weapon",
@@ -790,6 +892,60 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         name: "Sacred Weapon",
         description: `The weapon shines with Sacred Energy.`,
         durationSeconds: 600,
+      },
+    },
+    "Tongue of the Sun and Moon": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "system.traits.languages.value",
+          value: "standard:*",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+        {
+          key: "system.traits.languages.value",
+          value: "exotic:*",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+        {
+          key: "system.traits.languages.value",
+          value: "ddb:*",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+      ],
+    },
+    "Unarmored Defense": {
+      type: "feat",
+      noCreate: true,
+      changesOverwrite: true,
+      changes: (data) => {
+        const klass = foundry.utils.getProperty(data, "flags.ddbimporter.dndbeyond.class");
+        if (klass === "Barbarian") {
+          return [
+            {
+              key: "system.attributes.ac.calc",
+              value: "unarmoredBarb",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              priority: 15,
+            },
+          ];
+        } else if (klass === "Monk") {
+          return [
+            {
+              key: "system.attributes.ac.calc",
+              value: "unarmoredMonk",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              priority: 15,
+            },
+          ];
+        }
+        return [];
       },
     },
   };
