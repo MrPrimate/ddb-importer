@@ -1,3 +1,4 @@
+import { generateUpgradeChange } from "../../effects/effects.js";
 import utils from "../../lib/utils.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
@@ -10,7 +11,9 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
   }
 
   DND_2014 = {
-    NAME_HINTS: {},
+    NAME_HINTS: {
+      "Channel Divinity: Sacred Weapon": "Sacred Weapon",
+    },
     ACTIVITY_HINTS: {
       "Relentless": {},
       "Breath Weapon (Acid)": {},
@@ -59,7 +62,12 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     DOCUMENT_STUB: {},
   };
 
-  NAME_HINTS = {};
+  NAME_HINTS = {
+    "Invoke Duplicity": "Channel Divinity: Invoke Duplicity",
+    "Preserve Life": "Channel Divinity: Preserve Life",
+    "Radiance of the Dawn": "Channel Divinity: Radiance of the Dawn",
+    "War God's Blessing": "Channel Divinity: War God's Blessing",
+  };
 
   ACTIVITY_HINTS = {
     "Arms of the Astral Self (DEX/STR)": {
@@ -93,6 +101,35 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           value: 60,
           long: null,
           units: "ft",
+        },
+      },
+    },
+    "Blessed Healer": {
+      type: "heal",
+      activationType: "special",
+      name: "Heal Self",
+      targetType: "self",
+      addScalingMode: "amount",
+      addScalingFormula: "1",
+      data: {
+        description: {
+          chatFlavor: "Choose level of spell for scaling",
+        },
+        "consumption.scaling": {
+          allowed: true,
+          max: "9",
+        },
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "3",
+          },
+          types: ["healing"],
+          scaling: {
+            number: null,
+            mode: "whole",
+            formula: "1",
+          },
         },
       },
     },
@@ -198,6 +235,81 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
             size: "15",
             units: "ft",
           },
+        },
+      },
+    },
+    "Celestial Revelation": {
+      type: "damage",
+      data: {
+        damage: {
+          parts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", types: ["radiant", "necrotic"] }),
+          ],
+        },
+      },
+    },
+    "Celestial Revelation (Heavenly Wings)": {
+      type: "utility",
+      activationType: "special",
+    },
+    "Celestial Revelation (Inner Radiance)": {
+      type: "damage",
+      activationType: "special",
+      data: {
+        damage: {
+          parts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "radiant" }),
+          ],
+        },
+      },
+    },
+    "Celestial Revelation (Radiant Consumption)": {
+      type: "damage",
+      activationType: "special",
+      data: {
+        damage: {
+          parts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "radiant" }),
+          ],
+        },
+      },
+    },
+    "Celestial Revelation (Radiant Soul)": {
+      type: "damage",
+      activationType: "special",
+      data: {
+        damage: {
+          parts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "radiant" }),
+          ],
+        },
+      },
+    },
+    "Celestial Revelation (Necrotic Shroud)": {
+      type: "save",
+      activationType: "special",
+      targetType: "enemy",
+    },
+    "Channel Divinity: Preserve Life": {
+      type: "heal",
+      targetType: "ally",
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@classes.cleric.levels * 5",
+          },
+          types: ["healing"],
+        },
+      },
+    },
+    "Channel Divinity: Radiance of the Dawn": {
+      type: "save",
+      targetType: "enemy",
+      data: {
+        damage: {
+          onSave: "half",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "2d10 + @classes.cleric.levels", type: "radiant" })],
         },
       },
     },
@@ -702,6 +814,9 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         name: "Arms of the Astral Self",
       },
     },
+    "Celestial Revelation (Inner Radiance)": {
+      descriptionSuffix: `<br><p>[[/ddbifunc functionName="innerRadiance" functionType="feat"]]{Toggle Inner Radiance Light}</div></p>`,
+    },
     "Combat Superiority": {
       data: {
         "system.uses.max": "@scale.battle-master.combat-superiority-uses",
@@ -794,6 +909,16 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       options: {
         durationSeconds: 600,
       },
+    },
+    "Celestial Revelation (Heavenly Wings)": {
+      type: "feat",
+      options: {
+        transfer: false,
+        durationSeconds: 60,
+      },
+      changes: [
+        generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+      ],
     },
     "Empty Body": {
       type: "feat",

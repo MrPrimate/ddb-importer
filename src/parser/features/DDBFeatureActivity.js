@@ -241,7 +241,7 @@ export default class DDBFeatureActivity {
       target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
       target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
-    const aoeSizeRegex = /(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot)(?: |-)(cone|radius|sphere|line|cube|of it|of an|of the|of you)( \w+[. ])?/ig;
+    const aoeSizeRegex = /(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
     const aoeSizeMatch = aoeSizeRegex.exec(description);
 
     // console.warn(`Target generation for ${this.name}`, {
@@ -259,9 +259,12 @@ export default class DDBFeatureActivity {
       }
     }
 
-    if (description.includes("creature of your choice")) {
+    const chooseRegex = /creature of your choice|choose (\w+) creatures within/ig;
+    if (chooseRegex.test(description)) {
       if (this.data.damage?.parts?.length > 0 || ["save", "attack", "damage"].includes(this.type))
         target.affects.type = "enemy";
+      else if (["heal"].includes(this.type))
+        target.affects.type = "ally";
       target.affects.choice = true;
     }
 

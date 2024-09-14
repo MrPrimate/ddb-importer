@@ -15,52 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Blessed Healer": {
-        feature.system.activation.type = "special";
-        feature.system.activation.cost = null;
-        feature.system.actionType = "heal";
-        feature.system["target"]["type"] = "self";
-        feature.system.range = { value: null, units: "self", long: null };
-        feature.system.uses = {
-          spent: null,
-          max: null,
-          recovery: [],
-        };
-        break;
-      }
-      case "Celestial Revelation": {
-        feature.system.activation.type = "";
-        feature.system.actionType = "";
-        feature.system.uses = {
-          spent: null,
-          max: null,
-          recovery: [],
-        };
-        break;
-      }
-      case "Channel Divinity: Radiance of the Dawn":
-        feature.system.damage = {
-          parts: [["2d10[radiant] + @classes.cleric.levels", "radiant"]],
-          versatile: "",
-          value: "",
-        };
-        break;
-      case "Channel Divinity: Sacred Weapon":
-        feature.system["target"]["type"] = "self";
-        feature.system.duration = {
-          value: 1,
-          units: "minute",
-        };
-        break;
-      case "Daunting Roar": {
-        feature.system.target = {
-          value: 10,
-          units: "ft",
-          type: "radius",
-        };
-        feature.system.range.units = "self";
-        break;
-      }
       case "Dark One’s Blessing":
       case "Dark One's Blessing": {
         feature.system.damage = { parts: [["@classes.warlock.level + @mod", "temphp"]], versatile: "", value: "" };

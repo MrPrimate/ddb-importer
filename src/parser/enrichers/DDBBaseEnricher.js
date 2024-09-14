@@ -292,6 +292,12 @@ export default class DDBBaseEnricher {
     }
 
     if (this.override.data) this.data = foundry.utils.mergeObject(this.data, this.override.data);
+
+    if (this.override.descriptionSuffix) {
+      this.data.system.description.value += this.override.descriptionSuffix;
+      if (this.data.system.description.chat !== "") this.data.system.description.chat += this.override.descriptionSuffix;
+    }
+
     return this.data;
   }
 

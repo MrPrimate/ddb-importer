@@ -54,7 +54,8 @@ export default class DDBAttackAction extends DDBAction {
       this._generateProperties();
       this._generateSystemType(this.type);
       this._generateSystemSubType();
-      this._generateActivity();
+      if (!this.enricher.documentStub?.stopDefaultActivity)
+        this._generateActivity();
       this.enricher.addAdditionalActivities(this);
 
       this._generateResourceFlags();

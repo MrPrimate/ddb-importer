@@ -1269,7 +1269,7 @@ export default class DDBEffectHelper {
     }
 
     if (!match) {
-      const successSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) or be (?<condition>\w+) until /ig;
+      const successSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) or (?:be|become) (?<condition>\w+) (of you )?until /ig;
       match = successSearch.exec(text);
     }
 

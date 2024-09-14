@@ -90,7 +90,8 @@ export default class DDBChoiceFeature extends DDBFeature {
       // foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.choice", choice);
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
-      this._generateActivity();
+      if (!this.enricher.documentStub?.stopDefaultActivity)
+        this._generateActivity();
       this.enricher.addAdditionalActivities(this);
 
       this._generateDescription({ forceFull: false });

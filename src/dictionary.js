@@ -920,6 +920,7 @@ const DICTIONARY = {
       "Carrion Raven Martial Maneuvers:", "Slippery Otter: Activate", "Blade Breaker Maneuvers:",
     ],
     "Jinx Points": ["Misfortunes:", "Curse Caster"],
+    // "Celestial Revelation": ["Celestial Revelation (", "Celestial Revelation:"],
   },
 };
 

@@ -148,7 +148,8 @@ export default class DDBAction extends DDBBaseFeature {
       this._generateDescription();
       this._generateLimitedUse();
       this._generateRange();
-      this._generateActivity();
+      if (!this.enricher.documentStub?.stopDefaultActivity)
+        this._generateActivity();
       this.enricher.addAdditionalActivities(this);
       this._generateResourceFlags();
 

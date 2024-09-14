@@ -18,7 +18,9 @@ export default class DDBFeature extends DDBBaseFeature {
     feat: "feat",
   };
 
-  static LEVEL_SCALE_EXCLUSION_USES = [];
+  static LEVEL_SCALE_EXCLUSION_USES = [
+    "Destroy Undead",
+  ];
 
 
   _init() {

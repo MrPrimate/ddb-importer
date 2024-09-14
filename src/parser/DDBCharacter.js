@@ -175,6 +175,7 @@ export default class DDBCharacter {
     const actionAndFeature = false;
     // game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
 
+    // eslint-disable-next-line complexity
     this.data.actions = this.raw.actions.map((action) => {
       const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
       const featureMatch = this.raw.features.find((feature) => {
@@ -215,14 +216,38 @@ export default class DDBCharacter {
 
         action.system.source = featureMatch.system.source;
 
-
+        // console.warn(`Found match for ${originalActionName} and ${featureMatch.name}`, {
+        //   action: foundry.utils.deepClone(action),
+        //   feature: foundry.utils.deepClone(featureMatch),
+        // });
         for (const [key, activity] of Object.entries(featureMatch.system.activities)) {
+          // console.warn(`Checking activity ${key}`, activity);
           if (!action.system.activities[key]) {
             action.system.activities[key] = activity;
             continue;
           }
           if (action.system.activities[key] && action.system.activities[key].effects?.length === 0) {
             action.system.activities[key].effects = featureMatch.system.activities[key].effects;
+          }
+        }
+
+        if (Object.keys(featureMatch.system.activities).length === 0
+          && Object.keys(action.system.activities).length > 0
+          && featureMatch.effects.length > 0
+          && action.effects.length === 0
+        ) {
+          for (const key of Object.keys(action.system.activities)) {
+            const effects = [];
+            for (const effect of featureMatch.effects) {
+              // eslint-disable-next-line max-depth
+              if (effect.transfer) continue;
+              // eslint-disable-next-line max-depth
+              if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
+              const effectId = effect._id ?? foundry.utils.randomID();
+              effect._id = effectId;
+              effects.push({ _id: effectId });
+            }
+            action.system.activities[key].effects = effects;
           }
         }
 
@@ -244,7 +269,7 @@ export default class DDBCharacter {
           action.system.uses.max = featureMatch.system.uses.max;
         }
 
-        if (featureMatch.system.prerequisites.level) {
+        if (foundry.utils.hasProperty(featureMatch, "system.prerequisites.level")) {
           foundry.utils.setProperty(action, "system.prerequisites.level", featureMatch.system.prerequisites.level);
         }
       }
