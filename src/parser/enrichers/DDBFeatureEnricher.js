@@ -41,8 +41,12 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       "Dark One's Own Luck": {},
       "Eldritch Invocations: Ghostly Gaze": {
         data: {
+          "duration": {
+            value: 1,
+            units: "minute",
+          },
           "system.uses": {
-            value: this.ddbParser?.ddbData.character.actions.class.find((a) => a.name === "Ghostly Gaze").limitedUse.numberUsed,
+            value: this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Ghostly Gaze")?.limitedUse?.numberUsed ?? null,
             max: 1,
             recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
           },
@@ -339,6 +343,20 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           value: 60,
           long: null,
           units: "ft",
+        },
+      },
+    },
+    "Dark One's Blessing": {
+      type: "heal",
+      targetType: "self",
+      data: {
+        "activation.condition": "Reduce a hostile creature to 0 HP",
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@abilities.cha.mod + @classes.warlock.levels",
+          },
+          types: ["temphp"],
         },
       },
     },
@@ -947,6 +965,25 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       },
       changes: [
         generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+      ],
+    },
+    "Draconic Resilience": {
+      type: "feat",
+      noCreate: true,
+      changesOverwrite: true,
+      changes: [
+        {
+          key: "system.attributes.hp.bonuses.overall",
+          value: "1 * @classes.sorcerer.levels",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 10,
+        },
+        {
+          key: "system.attributes.ac.calc",
+          value: "draconic",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 10,
+        },
       ],
     },
     "Empty Body": {

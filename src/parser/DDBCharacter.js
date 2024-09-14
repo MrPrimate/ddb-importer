@@ -206,7 +206,7 @@ export default class DDBCharacter {
       });
       if (featureMatch) {
         foundry.utils.setProperty(action, "flags.ddbimporter.featureNameMatch", featureMatch.name);
-        if (action.system.description.value === "") {
+        if (action.system.description.value === "" || true) {
           action.system.description.value = featureMatch.system.description.value;
         }
 

@@ -15,32 +15,8 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Dark One’s Blessing":
-      case "Dark One's Blessing": {
-        feature.system.damage = { parts: [["@classes.warlock.level + @mod", "temphp"]], versatile: "", value: "" };
-        feature.system.actionType = "heal";
-        feature.system.ability = "cha";
-        feature.system.target.type = "self";
-        feature.system.range.units = "self";
-        feature.system.activation.condition = "Reduce a hostile creature to 0 HP";
-        break;
-      }
-      case "Draconic Resilience": {
-        if (feature.effects.length === 1) {
-          const toKeepChanges = feature.effects[0].changes.filter((change) => !change.key.includes("system.attributes.ac"));
-          feature.effects[0].changes = [
-            ...toKeepChanges,
-            {
-              key: "system.attributes.ac.calc",
-              value: "draconic",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              priority: 15,
-            },
-          ];
-        }
-        break;
-      }
       case "Eldritch Cannon: Force Ballista":
+        // ADD USE SNIPPET FUNCTION
         feature.system.target.value = 1;
         feature.system.target.type = "creature";
         feature.system.range.value = 120;
@@ -97,13 +73,6 @@ export async function fixFeatures(features) {
       case "Giant's Might": {
         feature.system["target"]["type"] = "self";
         feature.system.range = { value: null, units: "self", long: null };
-        feature.system.duration = {
-          value: 1,
-          units: "minute",
-        };
-        break;
-      }
-      case "Ghostly Gaze": {
         feature.system.duration = {
           value: 1,
           units: "minute",

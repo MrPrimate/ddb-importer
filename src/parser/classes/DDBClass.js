@@ -472,7 +472,7 @@ export default class DDBClass {
    */
   getFeatureCompendiumMatch(feature) {
     return this._compendiums.features.index.find((match) =>
-      ((foundry.utils.hasProperty(match, "flags.ddbimporter.featureName") && feature.name.trim().toLowerCase() == match.flags.ddbimporter.featureName.trim().toLowerCase())
+      ((feature.name.trim().toLowerCase() == foundry.utils.getProperty(match, "flags.ddbimporter.featureName")?.trim().toLowerCase())
         || (!foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
           && (feature.name.trim().toLowerCase() == match.name.trim().toLowerCase()
           || `${feature.name} (${this.ddbClassDefinition.name})`.trim().toLowerCase() == match.name.trim().toLowerCase()))
