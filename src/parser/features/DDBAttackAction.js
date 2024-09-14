@@ -44,6 +44,9 @@ export default class DDBAttackAction extends DDBAction {
       if (this.ddbData.isMartialArts) {
         foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", "Martial Arts");
       };
+      if (this.is2014 && DDBAction.SKIPPED_2014_ONLY_ACTIONS.includes(this.originalName)) {
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.skip", true);
+      }
       this.data.system.proficient = this.ddbDefinition.isProficient ? 1 : 0;
       this._generateDescription();
       this.data.system.equipped = true;

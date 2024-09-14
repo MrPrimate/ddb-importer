@@ -10,6 +10,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Lay On Hands: Heal",
     // "Lay On Hands: Purify Poison",
     "Sacred Weapon: Imbue Weapon",
+    "Ghostly Gaze",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
@@ -25,6 +26,9 @@ export default class DDBAction extends DDBBaseFeature {
     "Maneuver: Disarming Attack (Dex.",
     "Maneuver: Parry (Dex.",
     "Maneuver: Menacing Attack (Dex.",
+  ];
+
+  static SKIPPED_2014_ONLY_ACTIONS = [
   ];
 
   _init() {
@@ -143,6 +147,9 @@ export default class DDBAction extends DDBBaseFeature {
 
   build() {
     try {
+      if (this.is2014 && DDBAction.SKIPPED_2014_ONLY_ACTIONS.includes(this.originalName)) {
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.skip", true);
+      }
       this._generateSystemType();
       this._generateSystemSubType();
       this._generateDescription();

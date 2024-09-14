@@ -114,9 +114,11 @@ export default class CharacterFeatureFactory {
         });
         ddbAttackAction.build();
 
+        logger.debug(`Building Attack Action ${action.name}`, { ddbAttackAction });
+
         // console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);
         return ddbAttackAction.data;
-      });
+      }).filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
 
     logger.debug("attack actions", attackActions);
     this.parsed.actions = this.parsed.actions.concat(attackActions);
@@ -173,10 +175,10 @@ export default class CharacterFeatureFactory {
           rawCharacter: this.rawCharacter,
         });
         ddbAction.build();
-        // console.warn(`ddbAction for ${action.name}`, ddbAction);
+        logger.debug(`Building Other Action ${action.name}`, { ddbAction });
 
         return ddbAction.data;
-      });
+      }).filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
 
     logger.debug("other actions", otherActions);
     this.parsed.actions = this.parsed.actions.concat(otherActions);

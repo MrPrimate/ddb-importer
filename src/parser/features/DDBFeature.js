@@ -67,6 +67,11 @@ export default class DDBFeature extends DDBBaseFeature {
           id: this.ddbDefinition.id,
           type: this.tagType,
           entityTypeId: this.ddbDefinition.entityTypeId,
+          is2014: this.is2014,
+          is2024: !this.is2014,
+          componentId: this.ddbDefinition.componentId,
+          componentTypeId: this.ddbDefinition.componentTypeId,
+          originalName: this.originalName,
           dndbeyond: {
             requiredLevel: this.ddbDefinition.requiredLevel,
             displayOrder: this.ddbDefinition.displayOrder,

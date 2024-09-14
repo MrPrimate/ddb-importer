@@ -15,12 +15,15 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       "Channel Divinity: Sacred Weapon": "Sacred Weapon",
     },
     ACTIVITY_HINTS: {
-      "Relentless": {},
       "Breath Weapon (Acid)": {},
       "Breath Weapon (Cold)": {},
       "Breath Weapon (Fire)": {},
       "Breath Weapon (Lightning)": {},
       "Breath Weapon (Poison)": {},
+      "Eldritch Invocations: Ghostly Gaze": {
+        type: "utility",
+      },
+      "Relentless": {},
     },
     ADDITIONAL_ACTIVITIES: {
       "Breath Weapon (Acid)": {},
@@ -35,6 +38,16 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       "Breath Weapon (Fire)": {},
       "Breath Weapon (Lightning)": {},
       "Breath Weapon (Poison)": {},
+      "Dark One's Own Luck": {},
+      "Eldritch Invocations: Ghostly Gaze": {
+        data: {
+          "system.uses": {
+            value: this.ddbParser?.ddbData.character.actions.class.find((a) => a.name === "Ghostly Gaze").limitedUse.numberUsed,
+            max: 1,
+            recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
+          },
+        },
+      },
     },
     EFFECT_HINTS: {
       "Sacred Weapon": {
@@ -326,6 +339,17 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           value: 60,
           long: null,
           units: "ft",
+        },
+      },
+    },
+    "Dark One's Own Luck": {
+      targetType: "self",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "1d10",
+          name: "Roll for your luck",
         },
       },
     },
@@ -820,6 +844,11 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     "Combat Superiority": {
       data: {
         "system.uses.max": "@scale.battle-master.combat-superiority-uses",
+      },
+    },
+    "Dark One's Own Luck": {
+      data: {
+        "system.uses.max": "@abilities.cha.mod",
       },
     },
     "Drake Companion": {

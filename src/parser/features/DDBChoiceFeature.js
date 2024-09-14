@@ -63,6 +63,9 @@ export default class DDBChoiceFeature extends DDBFeature {
         this.data.name = nameMatch[1];
         this.resourceCharges = Number.parseInt(nameMatch[2]);
       }
+      this.originalName = this.data.name;
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.originalName", this.originalName);
+      this._addEnricher();
       this._generateSystemSubType();
 
       // get description for chris premades

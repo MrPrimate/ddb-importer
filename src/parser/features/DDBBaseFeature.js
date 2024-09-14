@@ -59,6 +59,12 @@ export default class DDBBaseFeature {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
 
+  _addEnricher() {
+    this.enricher = new DDDFeatureEnricher({
+      ddbParser: this,
+    });
+  }
+
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
@@ -167,6 +173,13 @@ export default class DDBBaseFeature {
     this._generateFlagHints();
   }
 
+  _getActionParent() {
+    if (this.ddbDefinition.componentId)
+      return DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
+    else
+      return null;
+  }
+
   constructor({
     ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false, activityType = null,
     extraFlags = {},
@@ -215,17 +228,16 @@ export default class DDBBaseFeature {
 
     this._prepare();
 
-    this.enricher = new DDDFeatureEnricher({
-      ddbParser: this,
-    });
-
     this.naturalWeapon = DDBBaseFeature.NATURAL_WEAPONS.includes(this.originalName);
 
     this.isCompanionFeature = this._isCompanionFeature();
     this.isCompanionFeatureOption = this._isCompanionFeatureOption();
 
-    this.is2014 = this.ddbDefinition.isLegacy
-      && this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+    this._parent = this._getActionParent();
+    this.is2014 = ((foundry.utils.hasProperty(this.ddbDefinition.isLegacy) && this.ddbDefinition.isLegacy)
+        || this._parent?.definition?.isLegacy)
+      && (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? [])
+        .some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     const localSource = this.source && utils.isObject(this.source)
       ? this.source
@@ -233,6 +245,8 @@ export default class DDBBaseFeature {
 
     this.data.system.source = localSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
+
+    this._addEnricher();
   }
 
   _getClassFeatureDescription(nameMatch = false) {
