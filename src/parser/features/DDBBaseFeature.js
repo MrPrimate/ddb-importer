@@ -216,6 +216,10 @@ export default class DDBBaseFeature {
 
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
 
+    this._parent = this._getActionParent();
+    this.is2014 = (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? [])
+      .some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+
     this._generateDataStub();
 
     // Grim Hollow puts points in names. WHY
@@ -232,12 +236,6 @@ export default class DDBBaseFeature {
 
     this.isCompanionFeature = this._isCompanionFeature();
     this.isCompanionFeatureOption = this._isCompanionFeatureOption();
-
-    this._parent = this._getActionParent();
-    this.is2014 = ((foundry.utils.hasProperty(this.ddbDefinition.isLegacy) && this.ddbDefinition.isLegacy)
-        || this._parent?.definition?.isLegacy)
-      && (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? [])
-        .some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     const localSource = this.source && utils.isObject(this.source)
       ? this.source
