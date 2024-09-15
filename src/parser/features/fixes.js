@@ -37,15 +37,6 @@ export async function fixFeatures(features) {
         feature.system.damage = { parts: [["@prof", "bludgeoning"]], versatile: "", value: "" };
         break;
       }
-      case "Giant's Might": {
-        feature.system["target"]["type"] = "self";
-        feature.system.range = { value: null, units: "self", long: null };
-        feature.system.duration = {
-          value: 1,
-          units: "minute",
-        };
-        break;
-      }
       case "Hand of Healing": {
         feature.system.actionType = "heal";
         break;

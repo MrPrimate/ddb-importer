@@ -1,4 +1,4 @@
-import { generateUpgradeChange } from "../../effects/effects.js";
+import { generateATLChange, generateUpgradeChange } from "../../effects/effects.js";
 import utils from "../../lib/utils.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
@@ -485,6 +485,12 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     "Giant's Might": {
       type: "utility",
       targetType: "self",
+      data: {
+        duration: {
+          value: "1",
+          units: "minute",
+        },
+      },
     },
     "Harness Divine Power": {
       type: "utility",
@@ -911,6 +917,8 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           type: "damage",
         },
         build: {
+          noeffect: true,
+          generateConsumption: false,
           generateTarget: false,
           generateRange: false,
           generateActivation: true,
@@ -1123,6 +1131,26 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         { key: "system.traits.dr.value", value: "radiant", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
         { key: "system.traits.dr.value", value: "slashing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
         { key: "system.traits.dr.value", value: "thunder", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+      ],
+    },
+    "Giant's Might": {
+      type: "feat",
+      options: {
+        durationSeconds: 60,
+        description: "You also gain advantage on Strength checks and saving throws.",
+        transfer: false,
+      },
+      atlChanges: [
+        generateATLChange("ATL.width", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
+        generateATLChange("ATL.height", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
+      ],
+      changes: [
+        {
+          key: "system.traits.size",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          value: "lg",
+          priority: 25,
+        },
       ],
     },
     "Hold Breath": {

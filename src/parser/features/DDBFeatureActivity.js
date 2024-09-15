@@ -99,7 +99,11 @@ export default class DDBFeatureActivity {
     };
   }
 
-  _generateConsumption() {
+  _generateConsumption({ consumptionOverride = null } = {}) {
+    if (consumptionOverride) {
+      this.data.consumption = consumptionOverride;
+      return;
+    }
     let targets = [];
     let scaling = false;
 
@@ -453,13 +457,15 @@ export default class DDBFeatureActivity {
     includeBase = false,
     damageParts = null,
     activationOverride = null,
+    noeffect = false,
+    consumptionOverride = null,
   } = {}) {
 
     // override set to false on object if overriding
 
     if (generateActivation) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack();
-    if (generateConsumption) this._generateConsumption();
+    if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDescription) this._generateDescription();
     if (generateDuration) this._generateDuration();
     if (generateEffects) this._generateEffects();
@@ -471,6 +477,12 @@ export default class DDBFeatureActivity {
 
     if (generateRoll) this._generateRoll({ roll });
 
+    if (noeffect) {
+      const ids = foundry.utils.getProperty(this.ddbParent.data, "flags.ddbimporter.noeffect") ?? [];
+      ids.push(this.data._id);
+      foundry.utils.setProperty(this.ddbParent.data, "flags.ddbimporter.noEffectIds", ids);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
+    }
 
     // ATTACK has
     // activation

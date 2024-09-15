@@ -1,4 +1,4 @@
-import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, baseEnchantmentEffect, baseItemEffect, forceItemEffect } from "../../effects/effects.js";
+import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, baseEnchantmentEffect, baseItemEffect, effectModules, forceItemEffect } from "../../effects/effects.js";
 import { baseFeatEffect } from "../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../effects/specialSpells.js";
@@ -241,6 +241,10 @@ export default class DDBBaseEnricher {
         : this.effect.changes;
       if (this.effect.changesOverwrite) effect.changes = changes;
       else effect.changes.push(...changes);
+    }
+
+    if (this.effect.atlChanges && effectModules().atlInstalled) {
+      effect.changes.push(...this.effect.atlChanges);
     }
 
     if (this.effect.data) {
