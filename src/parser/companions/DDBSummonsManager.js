@@ -141,6 +141,93 @@ const DANCING_LIGHTS_BASE = {
   },
 };
 
+const ELRITCH_CANNON_ABILITY_STUB = {
+  "id": 1,
+  "entityTypeId": 1120657896,
+  "limitedUse": null,
+  "name": "",
+  "description": "",
+  "snippet": "",
+  "abilityModifierStatId": 1,
+  "saveStatId": null,
+  "attackTypeRange": 1,
+  "actionType": 1,
+  "attackSubtype": 3,
+  "dice": null,
+  "value": null,
+  "damageTypeId": 1,
+  "isMartialArts": false,
+  "isProficient": true,
+  "spellRangeType": null,
+  "displayAsAttack": null,
+  "range": null,
+  "activation": {
+    "activationTime": 1,
+    "activationType": 1,
+  },
+  "componentId": 0,
+  "componentTypeId": 0,
+};
+
+function getEldritchCannonStub(size) {
+  const cannon = foundry.utils.merge(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+    name: "Eldritch Cannon",
+    img: "icons/weapons/guns/gun-blunderbuss-gold.webp",
+    system: {
+      "abilities": {
+        "str": {
+          "value": 10,
+        },
+        "dex": {
+          "value": 10,
+        },
+        "con": {
+          "value": 10,
+        },
+        "int": {
+          "value": 10,
+        },
+        "wis": {
+          "value": 10,
+        },
+        "cha": {
+          "value": 10,
+        },
+      },
+      "attributes": {
+        "movement": {
+          "burrow": null,
+          "climb": null,
+          "fly": null,
+          "swim": null,
+          "walk": null,
+          "units": null,
+          "hover": true,
+        },
+        "ac": {
+          "flat": 18,
+          "calc": "flat",
+        },
+        "hp": {
+          "value": 1,
+          "max": 1,
+        },
+      },
+      "traits": {
+        "size": size,
+      },
+    },
+    "prototypeToken": {
+      "name": "Eldritch Cannon",
+      "width": 0.5,
+      "height": 0.5,
+      "texture": {
+        "src": "icons/weapons/guns/gun-blunderbuss-gold.webp",
+      },
+    },
+  });
+  return cannon;
+}
 
 async function getSRDActors() {
   const results = {};
@@ -561,7 +648,8 @@ const JB2A_LICENSE = `<p>The assets in this actor are kindly provided by JB2A an
 
 export default class DDBSummonsManager {
 
-  constructor() {
+  constructor({ ddbData } = {}) {
+    this.ddbData = ddbData;
     this.indexFilter = { fields: [
       "name",
       "flags.ddbimporter.compendiumId",
@@ -569,6 +657,19 @@ export default class DDBSummonsManager {
       "flags.ddbimporter.summons",
     ] };
     this.itemHandler = null;
+  }
+
+  async generateDDBDataActors(ddbFeature) {
+    if (!ddbFeature) return;
+    if (!this.ddbData) return;
+    if (ddbFeature.originalName === "Eldritch Cannon") {
+      for (const size of ["Small", "Tiny"]) {
+        const cannonBase = getEldritchCannonStub(size.toLowerCase());
+        return cannonBase;
+      }
+    }
+    // todo for say eldrich cannon
+    return;
   }
 
   async init() {

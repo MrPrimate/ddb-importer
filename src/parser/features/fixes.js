@@ -15,28 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Eldritch Cannon: Force Ballista":
-        // ADD USE SNIPPET FUNCTION
-        feature.system.target.value = 1;
-        feature.system.target.type = "creature";
-        feature.system.range.value = 120;
-        feature.system.range.units = "ft";
-        feature.system.ability = "int";
-        feature.system.actionType = "rsak";
-        feature.system.chatFlavor = "On hit pushed 5 ft away.";
-        feature.system.damage = { parts: [["2d8[force]", "force"]], versatile: "", value: "" };
-        break;
-      case "Eldritch Cannon: Flamethrower":
-        feature.system.damage = { parts: [["2d8[fire]", "fire"]], versatile: "", value: "" };
-        break;
-      case "Eldritch Cannon: Protector":
-        feature.system.target.units = "any";
-        feature.system.target.type = "ally";
-        feature.system.range.value = 10;
-        feature.system.ability = "int";
-        feature.system.actionType = "heal";
-        feature.system.damage = { parts: [["1d8 + @mod", "temphp"]], versatile: "", value: "" };
-        break;
       case "Extra Attack": {
         feature.system.activation = { type: "", cost: 0, condition: "" };
         feature.system.actionType = "";

@@ -401,6 +401,67 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Eldritch Cannon: Flamethrower": {
+      type: "save",
+      targetType: "creature",
+      data: {
+        description: {
+          chatFlavor: "Ignites flammable objects.",
+        },
+        damage: {
+          onSave: "half",
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 8, type: "fire" })],
+        },
+      },
+    },
+    "Eldritch Cannon: Force Ballista": {
+      type: "attack",
+      targetType: "creature",
+      data: {
+        description: {
+          chatFlavor: "On hit pushed 5 ft away.",
+        },
+        range: {
+          value: 120,
+          units: "ft",
+        },
+        target: {},
+        attack: {
+          ability: "int",
+          type: {
+            value: "ranged",
+            classification: "spell",
+          },
+        },
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 8, type: "force" })],
+        },
+      },
+    },
+    "Eldritch Cannon: Protector": {
+      type: "heal",
+      targetType: "creature",
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "1d8 + @abilities.int.mod",
+          },
+          types: ["temphp"],
+        },
+        target: {
+          affects: {
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
     "Empty Body": {
       targetType: "self",
     },
@@ -873,6 +934,21 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       data: {
         "system.uses.max": "",
         "system.uses.recovery": [],
+      },
+    },
+    "Eldritch Cannon: Flamethrower": {
+      data: {
+        "system.uses": { value: null, max: null },
+      },
+    },
+    "Eldritch Cannon: Force Ballista": {
+      data: {
+        "system.uses": { value: null, max: null },
+      },
+    },
+    "Eldritch Cannon: Protector": {
+      data: {
+        "system.uses": { value: null, max: null },
       },
     },
     "Epic Boon: Choose an Epic Boon feat": {
