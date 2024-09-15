@@ -75,7 +75,11 @@ export default class DDBFeatureActivity {
   }
 
   // note spells do not have activation
-  _generateActivation() {
+  _generateActivation({ activationOverride = null } = {}) {
+    if (activationOverride) {
+      this.data.activation = activationOverride;
+      return;
+    }
     // console.warn(`Generating Activation for ${this.name}`);
     if (!this.ddbDefinition.activation) {
       this._generateParsedActivation();
@@ -448,11 +452,12 @@ export default class DDBFeatureActivity {
     targetOverride = null,
     includeBase = false,
     damageParts = null,
+    activationOverride = null,
   } = {}) {
 
     // override set to false on object if overriding
 
-    if (generateActivation) this._generateActivation();
+    if (generateActivation) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption();
     if (generateDescription) this._generateDescription();

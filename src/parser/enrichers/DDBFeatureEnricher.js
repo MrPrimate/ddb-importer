@@ -80,6 +80,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
   };
 
   NAME_HINTS = {
+    "Interception": "Fighting Style: Interception",
     "Invoke Duplicity": "Channel Divinity: Invoke Duplicity",
     "Preserve Life": "Channel Divinity: Preserve Life",
     "Radiance of the Dawn": "Channel Divinity: Radiance of the Dawn",
@@ -463,6 +464,26 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "Empty Body": {
+      targetType: "self",
+    },
+    "Fighting Style: Interception": {
+      type: "utility",
+      targetType: "creature",
+      data: {
+        target: {
+          "affects.type": "creature",
+          template: {},
+        },
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "1d10 + @prof",
+          name: "Reduce Damage Roll",
+        },
+      },
+    },
+    "Giant's Might": {
+      type: "utility",
       targetType: "self",
     },
     "Harness Divine Power": {
@@ -880,6 +901,26 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
               units: "ft",
             },
           },
+        },
+      },
+    ],
+    "Giant's Might": [
+      {
+        constructor: {
+          name: "Bonus Damage",
+          type: "damage",
+        },
+        build: {
+          generateTarget: false,
+          generateRange: false,
+          generateActivation: true,
+          generateDamage: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6 })],
         },
       },
     ],

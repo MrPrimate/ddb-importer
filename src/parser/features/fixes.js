@@ -15,17 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Extra Attack": {
-        feature.system.activation = { type: "", cost: 0, condition: "" };
-        feature.system.actionType = "";
-        feature.system.range.value = null;
-        break;
-      }
-      case "Fighting Style: Interception":
-        feature.system.damage = { parts: [["1d10 + @prof", ""]], versatile: "", value: "" };
-        feature.system.target.type = "self";
-        feature.system.range.units = "self";
-        break;
       case "Form of the Beast: Tail (reaction)":
         feature.system.actionType = "other";
         feature.system.target.type = "self";
