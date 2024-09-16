@@ -6,6 +6,10 @@ import DDBFeature from "./DDBFeature.js";
 
 export default class DDBChoiceFeature extends DDBFeature {
 
+  static KEEP_CHOICE_FEATURE = [
+    "Genie's Vessel",
+  ];
+
   _prepare() {
     this._levelScale = null;
     this._levelScales = null;
@@ -147,7 +151,9 @@ export default class DDBChoiceFeature extends DDBFeature {
         choice,
         ddbFeature,
       });
-      if (choices.length === 1) {
+      if (choices.length === 1
+        && !DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
+      ) {
         ddbFeature.data.name = choiceFeature.data.name;
         if (Object.keys(ddbFeature.data.system.activities).length === 0) {
           ddbFeature.data.system.activities = choiceFeature.data.system.activities;

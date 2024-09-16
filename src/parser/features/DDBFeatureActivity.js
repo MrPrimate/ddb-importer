@@ -365,29 +365,18 @@ export default class DDBFeatureActivity {
   }
 
   _generateHealing({ part = null } = {}) {
-
     if (part) {
       this.data.healing = part;
       return;
     }
 
-    // TODO revisit or multipart damage parsing
     if (!this.ddbParent.getDamage) return;
     const damage = this.ddbParent.getDamage();
 
     if (!damage) return;
 
+    if (damage.types.length === 0) damage.types.push("healing");
     this.data.healing = damage;
-
-    // damage: {
-    //   critical: {
-    //     allow: false,
-    //     bonus: source.system.critical?.damage
-    //   },
-    //   onSave: (source.type === "spell") && (source.system.level === 0) ? "none" : "half",
-    //   includeBase: true,
-    //   parts: damageParts.map(part => this.transformDamagePartData(source, part)) ?? []
-    // }
   }
 
   _generateSave() {

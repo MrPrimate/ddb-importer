@@ -15,16 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Genie's Vessel: Genie's Wrath (Dao)": {
-        feature.system.activation.type = "special";
-        feature.system.target.value = 1;
-        feature.system.target.type = "creature";
-        feature.system.range.units = "spec";
-        feature.system.actionType = "util";
-        feature.system.duration.units = "inst";
-        feature.system.damage = { parts: [["@prof", "bludgeoning"]], versatile: "", value: "" };
-        break;
-      }
       case "Hand of Healing": {
         feature.system.actionType = "heal";
         break;

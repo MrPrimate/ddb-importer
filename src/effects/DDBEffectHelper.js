@@ -1254,7 +1254,7 @@ export default class DDBEffectHelper {
     }
 
     if (!match) {
-      const monsterAndCondition = /the target has the (?<condition>\w+) condition/ig;
+      const monsterAndCondition = /(the target has the|subject that creature to the) (?<condition>\w+) condition/ig;
       match = monsterAndCondition.exec(text);
     }
 

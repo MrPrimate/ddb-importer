@@ -554,6 +554,23 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Hand of Healing": {
+      type: "heal",
+      targetType: "creature",
+      data: {
+        "range.units": "touch",
+        "healing.custom.formula": "@scale.way-of-mercy.hand-of-healing + @abilities.wis.mod",
+      },
+    },
+    "Hand of Harm": {
+      type: "damage",
+      targetType: "creature",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts", type: "necrotic" })],
+        },
+      },
+    },
     "Harness Divine Power": {
       type: "utility",
       activationType: "bonus",
