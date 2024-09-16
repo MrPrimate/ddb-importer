@@ -279,7 +279,7 @@ export default class DDBFeatureActivity {
     return target;
   }
 
-  _generateTarget({ targetOverride = null } = {}) {
+  _generateTarget({ targetOverride = null, targetSelf = null, noTemplate = null } = {}) {
     if (targetOverride) {
       this.data.target = targetOverride;
       return;
@@ -318,6 +318,22 @@ export default class DDBFeatureActivity {
       data = this._getDescriptionTarget();
     }
 
+    if (targetSelf) {
+      data.affects.type = "self";
+    }
+
+    if (noTemplate) {
+      data.template = {
+        count: "",
+        contiguous: false,
+        type: "",
+        size: "",
+        width: "",
+        height: "",
+        units: "ft",
+      };
+    }
+
     // TODO: improve target parsing
     this.data.target = data;
 
@@ -325,7 +341,9 @@ export default class DDBFeatureActivity {
 
   _generateDamage({ parts = null, includeBase = false } = {}) {
     // TODO revisit for multipart damage parsing
-    if (!this.ddbParent.getDamage || !parts) return;
+    if (!this.ddbParent.getDamage && !parts) {
+      return;
+    }
     const damage = parts ?? [this.ddbParent.getDamage()];
 
     if (!damage) return undefined;
@@ -346,7 +364,13 @@ export default class DDBFeatureActivity {
     // }
   }
 
-  _generateHealing() {
+  _generateHealing({ part = null } = {}) {
+
+    if (part) {
+      this.data.healing = part;
+      return;
+    }
+
     // TODO revisit or multipart damage parsing
     if (!this.ddbParent.getDamage) return;
     const damage = this.ddbParent.getDamage();
@@ -454,12 +478,37 @@ export default class DDBFeatureActivity {
     roll = null,
 
     targetOverride = null,
+    targetSelf = null,
+    noTemplate = null,
     includeBase = false,
     damageParts = null,
+    healingPart = null,
     activationOverride = null,
     noeffect = false,
     consumptionOverride = null,
   } = {}) {
+
+
+    console.warn(`Build for ${this.ddbDefinition.name} ${this.type} activity`, {
+      generateActivation,
+      generateAttack,
+      generateConsumption,
+      generateDescription,
+      generateDuration,
+      generateEffects,
+      generateHealing,
+      generateRange,
+      generateSave,
+      generateTarget,
+      generateRoll,
+      roll,
+      targetOverride,
+      targetSelf,
+      noTemplate,
+      includeBase,
+      damageParts,
+
+    })
 
     // override set to false on object if overriding
 
@@ -471,9 +520,9 @@ export default class DDBFeatureActivity {
     if (generateEffects) this._generateEffects();
     if (generateSave) this._generateSave();
     if (generateDamage) this._generateDamage({ includeBase, parts: damageParts });
-    if (generateHealing) this._generateHealing();
+    if (generateHealing) this._generateHealing({ part: healingPart });
     if (generateRange) this._generateRange();
-    if (generateTarget) this._generateTarget({ targetOverride });
+    if (generateTarget) this._generateTarget({ targetOverride, targetSelf, noTemplate });
 
     if (generateRoll) this._generateRoll({ roll });
 

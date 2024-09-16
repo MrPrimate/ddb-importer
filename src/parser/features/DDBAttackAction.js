@@ -29,6 +29,9 @@ export default class DDBAttackAction extends DDBAction {
     "Trunk",
     "Claws",
     "Fangs",
+    "Form of the Beast: Bite",
+    "Form of the Beast: Claws",
+    "Form of the Beast: Tail",
   ];
 
   _init() {

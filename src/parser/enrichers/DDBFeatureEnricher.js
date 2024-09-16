@@ -482,6 +482,15 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Form of the Beast: Tail": {
+      noTemplate: true,
+      data: {
+        range: {
+          value: 10,
+          units: "ft",
+        },
+      },
+    },
     "Giant's Might": {
       type: "utility",
       targetType: "self",
@@ -910,6 +919,51 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Form of the Beast: Bite": [
+      {
+        constructor: {
+          name: "Healing Bonus (1/your turn)",
+          type: "heal",
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: true,
+          targetSelf: true,
+          generateRange: false,
+          generateActivation: true,
+          generateDamage: false,
+          generateHealing: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "healing" }),
+        },
+      },
+    ],
+    "Form of the Beast: Tail": [
+      {
+        constructor: {
+          name: "Reactive Attack",
+          type: "attack",
+        },
+        build: {
+          noTemplate: true,
+          generateConsumption: false,
+          generateTarget: true,
+          generateRange: false,
+          generateActivation: true,
+          generateDamage: true,
+          generateAttack: true,
+          activationOverride: {
+            type: "reaction",
+            value: 1,
+            condition: "",
+          },
+        },
+      },
+    ],
     "Giant's Might": [
       {
         constructor: {
@@ -1003,6 +1057,27 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     "Epic Boon: Choose an Epic Boon feat": {
       data: {
         "name": "Epic Boon",
+      },
+    },
+    "Form of the Beast: Bite": {
+      data: {
+        "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
+          ? utils.addToProperties(this.data.system.properties, "mgc")
+          : this.data.system.properties),
+      },
+    },
+    "Form of the Beast: Claws": {
+      data: {
+        "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
+          ? utils.addToProperties(this.data.system.properties, "mgc")
+          : this.data.system.properties),
+      },
+    },
+    "Form of the Beast: Tail": {
+      data: {
+        "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
+          ? utils.addToProperties(this.data.system.properties, "mgc")
+          : this.data.system.properties),
       },
     },
     "Harness Divine Power": {

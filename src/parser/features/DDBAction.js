@@ -11,6 +11,7 @@ export default class DDBAction extends DDBBaseFeature {
     // "Lay On Hands: Purify Poison",
     "Sacred Weapon: Imbue Weapon",
     "Ghostly Gaze",
+    "Form of the Beast: Tail (reaction)",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

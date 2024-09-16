@@ -27,6 +27,18 @@ export default class DDBBaseEnricher {
     };
   }
 
+  hasClassFeature({ featureName, className = null, subClassName = null } = {}) {
+    if (!this.ddbParser?.ddbData) return false;
+
+    const result = this.ddbParser.ddbData.character.classes.some((klass) =>
+      klass.classFeatures.some((feature) => feature.definition.name === featureName && klass.level >= feature.definition.requiredLevel)
+      && ((className === null || klass.definition.name === className)
+        && (subClassName === null || klass.subclassDefinition?.name === subClassName)),
+    );
+
+    return result;
+  }
+
   DND_2014 = {
     NAME_HINTS: {},
     ACTIVITY_HINTS: {},
@@ -148,6 +160,18 @@ export default class DDBBaseEnricher {
           special: "",
         });
       }
+    }
+
+    if (this.activity.noTemplate) {
+      foundry.utils.setProperty(activity, "target.template", {
+        count: "",
+        contiguous: false,
+        type: "",
+        size: "",
+        width: "",
+        height: "",
+        units: "ft",
+      });
     }
 
     if (this.activity.activationType) {

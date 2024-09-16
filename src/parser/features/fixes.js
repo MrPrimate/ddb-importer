@@ -15,11 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Form of the Beast: Tail (reaction)":
-        feature.system.actionType = "other";
-        feature.system.target.type = "self";
-        feature.system.range.units = "self";
-        break;
       case "Guardian Armor: Defensive Field": {
         feature.system.damage = { parts: [["@classes.artificer.levels", "temphp"]], versatile: "", value: "" };
         feature.system.target.type = "self";
