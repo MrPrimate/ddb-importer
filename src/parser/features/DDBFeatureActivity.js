@@ -10,6 +10,7 @@
 // UtilityActivity(…)
 
 import DICTIONARY from "../../dictionary.js";
+import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 
@@ -185,12 +186,27 @@ export default class DDBFeatureActivity {
     };
   }
 
-  _generateDuration() {
-    // TODO: improve duration parsing
+  _generateDuration({ durationOverride = null } = {}) {
+    if (durationOverride) {
+      this.data.duration = durationOverride;
+      return;
+    }
+    const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
+    const duration = DDBEffectHelper.getDuration(description, false);
+
+    if (duration.type === null) {
+      this.data.duration = {
+        value: null,
+        units: "inst",
+        special: "",
+      };
+      return;
+    }
+
     this.data.duration = {
-      value: null,
-      units: "inst",
-      special: "",
+      value: duration.value,
+      units: duration.units,
+      special: duration.special,
     };
   }
 
@@ -218,7 +234,14 @@ export default class DDBFeatureActivity {
         units: "ft",
         special: "",
       };
+      const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
+      const touchRegex = /touch a creature|creature you touch/ig;
+      const touch = touchRegex.exec(description);
+      if (touch) {
+        this.data.range.units = "touch";
+      }
     }
+
   }
 
   _getDescriptionTarget() {
@@ -400,7 +423,11 @@ export default class DDBFeatureActivity {
     };
   }
 
-  _generateAttack({ unarmed = false, spell = false } = {}) {
+  _generateAttack({ attackOverride = null, unarmed = false, spell = false } = {}) {
+    if (attackOverride) {
+      this.data.attack = attackOverride;
+      return;
+    }
     let type = "melee";
     let classification = unarmed
       ? "unarmed"
@@ -475,6 +502,7 @@ export default class DDBFeatureActivity {
     activationOverride = null,
     noeffect = false,
     consumptionOverride = null,
+    attackOverride = null,
   } = {}) {
 
 
@@ -496,13 +524,13 @@ export default class DDBFeatureActivity {
       noTemplate,
       includeBase,
       damageParts,
-
+      attackOverride,
     })
 
     // override set to false on object if overriding
 
     if (generateActivation) this._generateActivation({ activationOverride });
-    if (generateAttack) this._generateAttack();
+    if (generateAttack) this._generateAttack({ attackOverride, unarmed: null, spell: null });
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDescription) this._generateDescription();
     if (generateDuration) this._generateDuration();

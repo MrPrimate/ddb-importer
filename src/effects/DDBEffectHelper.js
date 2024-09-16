@@ -1157,29 +1157,77 @@ export default class DDBEffectHelper {
 
   static DEFAULT_DURATION_SECONDS = 60;
 
-  static getDuration(text) {
-    const re = /for (\d+) (minute|hour)/;
+  static getDuration(text, returnDefault = true) {
+    const result = {
+      type: returnDefault ? "second" : null,
+      second: returnDefault ? DDBEffectHelper.DEFAULT_DURATION_SECONDS : null,
+      round: returnDefault ? (DDBEffectHelper.DEFAULT_DURATION_SECONDS / 6) : null,
+      minute: null,
+      hour: null,
+      special: "",
+      value: null,
+      units: "inst",
+    };
+    const re = /for (\d+) (minute|hour|round|day|month|year)/; // turn|day|month|year
     const match = text.match(re);
     if (match) {
-      let minutes = parseInt(match[1]) * 60;
-      if (match[2] === "hour") {
-        minutes *= 60;
+      let seconds = parseInt(match[1]);
+      result.type = match[2];
+      result.units = match[2];
+      result.value = match[1];
+      switch (match[2]) {
+        case "minute": {
+          result.minute = match[1];
+          seconds *= 60;
+          break;
+        }
+        case "hour": {
+          result.hour = match[1];
+          seconds *= 60 * 60;
+          break;
+        }
+        case "round": {
+          seconds *= 6;
+          result.round = match[1];
+          break;
+        }
+        case "turn": {
+          result.turns = match[1];
+          break;
+        }
+        case "day": {
+          result.day = match[1];
+          seconds *= 60 * 60 * 24;
+          break;
+        }
+        case "year": {
+          result.year = match[1];
+          seconds *= 60 * 60 * 24 * 365;
+          break;
+        }
+        case "month": {
+          result.month = match[1];
+          seconds *= 60 * 60 * 24 * 30;
+          break;
+        }
+        // no default
       }
-      return minutes;
-    } else {
-      const reRounds = /for (\d+) round/;
-      const roundMatch = text.match(reRounds);
-      if (roundMatch) {
-        return roundMatch[1] * 6;
-      }
+
+      result.second = seconds;
+      return result;
     }
-    const smallMatchRe = text.includes("until the end of its next turn")
-      || text.includes("until the end of the target's next turn")
-      || text.includes("until the end of your next turn");
-    if (smallMatchRe) {
-      return 6;
+
+    const smallMatchRe = /until the (?:end|start) of its next turn|until the (?:end|start) of the target's next turn|until the (?:end|start) of your next turn/ig;
+    const smallMatch = smallMatchRe.exec(text);
+    if (smallMatch) {
+      result.type = "special";
+      result.units = "spec";
+      result.second = 6;
+      result.turns = 1;
+      result.special = smallMatch[0];
+      return result;
     }
-    return DDBEffectHelper.DEFAULT_DURATION_SECONDS;
+    return result;
   }
 
   // A selection of example conditions
@@ -1311,10 +1359,9 @@ export default class DDBEffectHelper {
         return results;
       }
       results.success = true;
-      const durationSeconds = DDBEffectHelper.getDuration(text);
-      foundry.utils.setProperty(results.effect, "duration.seconds", durationSeconds);
-      const durationRounds = Number.parseInt(durationSeconds / 6);
-      foundry.utils.setProperty(results.effect, "duration.rounds", durationRounds);
+      const duration = DDBEffectHelper.getDuration(text);
+      foundry.utils.setProperty(results.effect, "duration.seconds", duration.second);
+      foundry.utils.setProperty(results.effect, "duration.rounds", duration.round);
     }
 
     return results;

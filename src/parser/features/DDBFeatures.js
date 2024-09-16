@@ -66,7 +66,8 @@ export default class DDBFeatures {
     "Core Wizard Traits",
     "Weapon Mastery",
     "Maneuver Options",
-    "Lay On Hands",
+    "Lay On Hands", // 2024
+    "Lay on Hands", // 2014
     "Epic Boon: Choose an Epic Boon feat",
     "Epic Boon",
     "Maneuver: Trip Attack (Dex.)",

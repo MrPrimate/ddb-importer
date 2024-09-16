@@ -13,6 +13,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
   DND_2014 = {
     NAME_HINTS: {
       "Channel Divinity: Sacred Weapon": "Sacred Weapon",
+      "Lay on Hands Pool": "Lay On Hands: Healing Pool",
     },
     ACTIVITY_HINTS: {
       "Breath Weapon (Acid)": {},
@@ -20,6 +21,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       "Breath Weapon (Fire)": {},
       "Breath Weapon (Lightning)": {},
       "Breath Weapon (Poison)": {},
+      // "Celestial Revelation": {},
       "Eldritch Invocations: Ghostly Gaze": {
         type: "utility",
       },
@@ -76,7 +78,11 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    DOCUMENT_STUB: {},
+    DOCUMENT_STUB: {
+      // "Celestial Revelation": {
+      //   stopDefaultActivity: true,
+      // },
+    },
   };
 
   NAME_HINTS = {
@@ -257,7 +263,8 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "Celestial Revelation": {
-      type: "damage",
+      type: this.is2014 ? "utility" : "damage",
+      noTemplate: true,
       data: {
         damage: {
           parts: [
@@ -576,6 +583,43 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       activationType: "bonus",
       addItemConsume: true,
     },
+    "Healing Hands": {
+      type: "heal",
+      targetType: "creature",
+      data: {
+        // "range.units": "touch",
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "(@prof)d4",
+          },
+          types: ["healing"],
+        },
+      },
+    },
+    "Healing Light": {
+      type: "heal",
+      addItemConsume: true,
+      addScalingMode: "amount",
+      data: {
+        "consumption.scaling": {
+          allowed: true,
+          max: "@item.uses.max - @item.uses.spent",
+        },
+        healing: {
+          number: 1,
+          denomination: 6,
+          custom: {
+            enabled: false,
+          },
+          types: ["healing"],
+          scaling: {
+            number: 1,
+            mode: "whole",
+          },
+        },
+      },
+    },
     "Hold Breath": {
       type: "utility",
       func: undefined,
@@ -794,6 +838,18 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       activationType: "special",
       addItemConsume: true,
     },
+    "Pact Boon: Pact of the Talisman": {
+      type: "utility",
+      targetType: "self",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "1d4",
+          name: "Roll Ability Check Bonus",
+        },
+      },
+    },
     "Quickened Healing": {
       type: "heal",
       data: {
@@ -804,6 +860,12 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           },
           types: ["healing"],
         },
+      },
+    },
+    "Rage": {
+      targetType: "self",
+      data: {
+        "range.units": "self",
       },
     },
     "Relentless": {
@@ -821,6 +883,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     "Sacred Weapon": {
       type: "enchant",
       activationType: "special",
+      noTemplate: true,
       targetType: "self",
     },
     "Second Wind": {
@@ -839,6 +902,62 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
             number: null,
             formula: "",
           },
+        },
+      },
+    },
+    "Shifting: Beasthide": {
+      type: "heal",
+      activationType: "bonus",
+      targetSelf: true,
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "(@prof * 2) + 1d6",
+          },
+          types: ["temphp"],
+        },
+      },
+    },
+    "Shifting: Longtooth": {
+      type: "heal",
+      activationType: "bonus",
+      targetSelf: true,
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@prof * 2",
+          },
+          types: ["temphp"],
+        },
+      },
+    },
+    "Shifting: Swiftstride": {
+      type: "heal",
+      activationType: "bonus",
+      targetSelf: true,
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@prof * 2",
+          },
+          types: ["temphp"],
+        },
+      },
+    },
+    "Shifting: Wildhunt": {
+      type: "heal",
+      activationType: "bonus",
+      targetSelf: true,
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@prof * 2",
+          },
+          types: ["temphp"],
         },
       },
     },
@@ -1080,6 +1199,32 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Shifting: Longtooth": [
+      {
+        constructor: {
+          name: "Longtooth Attack",
+          type: "attack",
+        },
+        build: {
+          generateAttack: true,
+          generateConsumption: false,
+          generateTarget: true,
+          generateDamage: true,
+          attackOverride: {
+            ability: "str",
+            type: {
+              value: "melee",
+              classification: "weapon",
+            },
+          },
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, type: "piercing" })],
+          activationOverride: {
+            type: "bonus",
+            value: 1,
+          },
+        },
+      },
+    ],
   };
 
   DOCUMENT_OVERRIDES = {
@@ -1161,9 +1306,19 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "flags.ddbimporter.retainOriginalConsumption": true,
       },
     },
+    "Healing Light": {
+      data: {
+        "system.uses.max": "1 + @classes.warlock.levels",
+      },
+    },
     "Ki Points": {
       data: {
         "system.uses.max": "@scale.monk.ki-points",
+      },
+    },
+    "Lay on Hands Pool": {
+      data: {
+        name: "Lay On Hands",
       },
     },
     "Lay On Hands: Healing Pool": {
@@ -1216,6 +1371,38 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "flags.midiProperties.toggleEffect": true,
       },
     },
+    "Shifting: Beasthide": {
+      data: {
+        "system.uses": {
+          spent: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Shift")?.limitedUse?.numberUsed ?? null,
+          max: "@prof",
+        },
+      },
+    },
+    "Shifting: Longtooth": {
+      data: {
+        "system.uses": {
+          spent: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Shift")?.limitedUse?.numberUsed ?? null,
+          max: "@prof",
+        },
+      },
+    },
+    "Shifting: Swiftstride": {
+      data: {
+        "system.uses": {
+          spent: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Shift")?.limitedUse?.numberUsed ?? null,
+          max: "@prof",
+        },
+      },
+    },
+    "Shifting: Wildhunt": {
+      data: {
+        "system.uses": {
+          spent: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Shift")?.limitedUse?.numberUsed ?? null,
+          max: "@prof",
+        },
+      },
+    },
     "Summon Wildfire Spirit: Command": {
       data: {
         "system.uses": {
@@ -1231,6 +1418,12 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       type: "feat",
       options: {
         durationSeconds: 600,
+      },
+    },
+    "Celestial Revelation": {
+      type: "feat",
+      options: {
+        transfer: false,
       },
     },
     "Celestial Revelation (Heavenly Wings)": {
@@ -1421,6 +1614,56 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       },
       statuses: ["dodging"],
     },
+    "Rage": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.bonuses.mwak.damage",
+          value: "+ @scale.barbarian.rage",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 0,
+        },
+        {
+          key: "system.traits.dr.value",
+          value: "piercing",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 0,
+        },
+        {
+          key: "system.traits.dr.value",
+          value: "slashing",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+        {
+          key: "system.traits.dr.value",
+          value: "bludgeoning",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+        {
+          key: "flags.midi-qol.advantage.ability.save.str",
+          value: "1",
+          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+          priority: 20,
+        },
+        {
+          key: "flags.midi-qol.advantage.ability.check.str",
+          value: "1",
+          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+          priority: 20,
+        },
+        {
+          key: "macro.tokenMagic",
+          value: "outline",
+          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+          priority: 10,
+        },
+      ],
+    },
     "Sacred Weapon": {
       type: "enchant",
       name: "Sacred Weapon",
@@ -1446,6 +1689,40 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         name: "Sacred Weapon",
         description: `The weapon shines with Sacred Energy.`,
         durationSeconds: 600,
+      },
+    },
+    "Shifting: Beasthide": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.attributes.ac.bonus",
+          value: "1",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+      ],
+    },
+    "Shifting: Swiftstride": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.attributes.movement.walk",
+          value: "10",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+      ],
+    },
+    "Shifting: Wildhunt": {
+      type: "feat",
+      options: {
+        transfer: false,
       },
     },
     "Tongue of the Sun and Moon": {

@@ -13,6 +13,10 @@ export default class DDBSimpleMacro {
         name: "layOnHands",
         label: "Lay On Hands Macro",
       },
+      "lay-on-hands-pool": {
+        name: "layOnHands",
+        label: "Lay On Hands Macro",
+      },
       "arcane-recovery": {
         name: "arcaneRecovery",
         label: "Arcane Recovery Macro",

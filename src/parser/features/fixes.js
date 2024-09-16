@@ -15,35 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Hand of Healing": {
-        feature.system.actionType = "heal";
-        break;
-      }
-      case "Harness Divine Power": {
-        feature.system.damage = { parts: [], versatile: "", value: "" };
-        break;
-      }
-      case "Healing Hands": {
-        feature.system.damage = {
-          parts: [["@details.level[healing]", "healing"]],
-          versatile: "",
-          value: "",
-        };
-        feature.system.actionType = "heal";
-        feature.system.target.type = "creature";
-        feature.system.range = {
-          type: "touch",
-          value: null,
-          long: null,
-          units: "touch",
-        };
-        break;
-      }
-      case "Healing Light": {
-        feature.system.actionType = "heal";
-        feature.system.damage = { parts: [["1d6", "healing"]], versatile: "", value: "" };
-        break;
-      }
       case "Hound of Ill Omen": {
         feature.system.consume.amount = 3;
         break;
@@ -133,13 +104,6 @@ export async function fixFeatures(features) {
         } else if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") == "class") {
           feature.system.activation.type = "special";
         }
-        break;
-      }
-      case "Rage": {
-        feature.system.duration = {
-          value: 1,
-          units: "minute",
-        };
         break;
       }
       case "Raging Storm: Desert": {

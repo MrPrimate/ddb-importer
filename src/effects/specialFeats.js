@@ -44,7 +44,6 @@ import { planarWarriorEffect } from "./feats/planarWarrior.js";
 import { potentCantripEffect } from "./feats/potentCantrip.js";
 import { powerfulBuild } from "./feats/powerfulBuild.js";
 import { radiantSoulEffect } from "./feats/radiantSoul.js";
-import { rageEffect } from "./feats/rage.js";
 import { recklessAttackEffect } from "./feats/recklessAttack.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
 import { sacredWeaponEffect } from "./feats/sacredWeapon.js";
@@ -442,10 +441,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Pact Magic": {
       document = pactMagicEffect(document);
-      break;
-    }
-    case "Rage": {
-      document = rageEffect(document);
       break;
     }
     case "Channel Divinity: Sacred Weapon":

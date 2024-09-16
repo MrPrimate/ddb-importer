@@ -1,3 +1,4 @@
+import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, baseEnchantmentEffect, baseItemEffect, effectModules, forceItemEffect } from "../../effects/effects.js";
 import { baseFeatEffect } from "../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
@@ -245,6 +246,12 @@ export default class DDBBaseEnricher {
         case "basic":
         default:
           effect = baseEffect(this.data, name, effectOptions);
+      }
+
+      const duration = DDBEffectHelper.getDuration(this.data.system.description.value, false);
+      if (duration.type) {
+        foundry.utils.setProperty(effect, "duration.seconds", duration.second);
+        foundry.utils.setProperty(effect, "duration.rounds", duration.round);
       }
     }
 

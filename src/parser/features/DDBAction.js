@@ -12,6 +12,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Sacred Weapon: Imbue Weapon",
     "Ghostly Gaze",
     "Form of the Beast: Tail (reaction)",
+    "Shift",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

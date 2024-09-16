@@ -55,12 +55,11 @@ export function generateConditionOnlyEffect(actor, document, otherDescription = 
   if (conditionResults.effect.name) effect.name = conditionResults.effect.name;
   effect.flags = foundry.utils.mergeObject(effect.flags, conditionResults.effect.flags);
 
-  const durationSeconds = foundry.utils.hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
+  const duration = foundry.utils.hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
     ? foundry.utils.getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
     : DDBEffectHelper.getDuration(text);
-  foundry.utils.setProperty(effect, "duration.seconds", durationSeconds);
-  const durationRounds = Number.parseInt(durationSeconds / 6);
-  foundry.utils.setProperty(effect, "duration.rounds", durationRounds);
+  foundry.utils.setProperty(effect, "duration.seconds", duration.second);
+  foundry.utils.setProperty(effect, "duration.rounds", duration.round);
 
   Object.keys(document.system.activities).forEach((id) => {
     document.system.activities[id].effects.push(
