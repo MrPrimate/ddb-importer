@@ -23,7 +23,7 @@ export default class DDBClassFeatures {
       .map((f) => f.affectedClassFeatureId);
   }
 
-  _getFeatures(featureDefinition, type, source, filterByLevel = true, flags = {}) {
+  async _getFeatures(featureDefinition, type, source, filterByLevel = true, flags = {}) {
     const feature = new DDBFeature({
       ddbData: this.ddbData,
       ddbDefinition: featureDefinition,
@@ -32,6 +32,7 @@ export default class DDBClassFeatures {
       source,
       extraFlags: flags,
     });
+    await feature._initEnricher();
     feature.build();
     const allowedByLevel = !filterByLevel || (filterByLevel && feature.hasRequiredLevel);
 
@@ -43,13 +44,13 @@ export default class DDBClassFeatures {
 
     if (!allowedByLevel) return [];
     const choiceFeatures = feature.isChoiceFeature
-      ? DDBChoiceFeature.buildChoiceFeatures(feature)
+      ? await DDBChoiceFeature.buildChoiceFeatures(feature)
       : [];
     return [feature.data].concat(choiceFeatures);
   }
 
 
-  _generateClassFeatures(klass) {
+  async _generateClassFeatures(klass) {
 
     const className = klass.definition.name;
     const classFeatureIds = klass.definition.classFeatures.map((f) => f.id);
@@ -61,10 +62,10 @@ export default class DDBClassFeatures {
         && feat.definition.requiredLevel <= klass.level,
     );
 
-    const classFeatureList = classFeatures
+    const classFeatureList = (await Promise.all(classFeatures
       .filter((feat) => !this.excludedFeatures.includes(feat.definition.id))
-      .map((feat) => {
-        let items = this._getFeatures(feat, "class", className, {
+      .map(async (feat) => {
+        let items = await this._getFeatures(feat, "class", className, {
           "ddbimporter": {
             class: klass.definition.name,
             classId: klass.definition.id,
@@ -82,7 +83,7 @@ export default class DDBClassFeatures {
         //   this.featureList.class.push(foundry.utils.duplicate(item));
         //   return item;
         // });
-      })
+      })))
       .flat()
       .sort((a, b) => {
         return a.flags.ddbimporter.dndbeyond.displayOrder - b.flags.ddbimporter.dndbeyond.displayOrder;
@@ -105,7 +106,7 @@ export default class DDBClassFeatures {
     this._processed.push(...this.featureList.class, ...classFeatureList);
   }
 
-  _generateSubClassFeatures(klass) {
+  async _generateSubClassFeatures(klass) {
     const subClassFeatureIds = klass.classFeatures
       .filter((f) => f.definition.classId === klass.subclassDefinition.id)
       .map((f) => f.definition.id);
@@ -124,9 +125,9 @@ export default class DDBClassFeatures {
     );
 
     const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
-    const subClassFeatureList = subClassFeatures
-      .map((feat) => {
-        let items = this._getFeatures(feat, "class", subClassName, {
+    const subClassFeatureList = (await Promise.all(subClassFeatures
+      .map(async (feat) => {
+        let items = await this._getFeatures(feat, "class", subClassName, {
           "ddbimporter": {
             class: klass.definition.name,
             classId: klass.definition.id,
@@ -149,7 +150,7 @@ export default class DDBClassFeatures {
         //   this.featureList.subClass.push(foundry.utils.duplicate(item));
         //   return item;
         // });
-      })
+      })))
       .flat()
       .sort((a, b) => {
         return a.flags.ddbimporter.dndbeyond.displayOrder - b.flags.ddbimporter.dndbeyond.displayOrder;
@@ -185,19 +186,18 @@ export default class DDBClassFeatures {
 
   }
 
-  build() {
-
+  async build() {
     // subclass features can often be duplicates of class features.
-    this.ddbData.character.classes.forEach((klass) => {
+    for (const klass of this.ddbData.character.classes) {
       logger.debug(`Processing class features for ${klass.definition.name}`);
-      this._generateClassFeatures(klass);
+      await this._generateClassFeatures(klass);
       // subclasses
       if (klass.subclassDefinition && klass.subclassDefinition.classFeatures) {
         logger.debug(`Processing subclass features for ${klass.subclassDefinition.name}`);
-        this._generateSubClassFeatures(klass);
+        await this._generateSubClassFeatures(klass);
       }
       logger.debug(`ddbClassFeatures for ${klass.definition.name}`, { ddbClassFeatures: this });
-    });
+    }
     // return this.data;
   }
 

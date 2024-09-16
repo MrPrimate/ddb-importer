@@ -53,12 +53,11 @@ export default class DDBFeatureActivity {
     }
     this.name = name;
     this.ddbParent = ddbParent;
+    this.nameIdPrefix = nameIdPrefix ?? "act";
+    this.nameIdPostfix = nameIdPostfix ?? "";
 
     this._init();
     this._generateDataStub();
-
-    this.nameIdPrefix = nameIdPrefix ?? "act";
-    this.nameIdPostfix = nameIdPostfix ?? "";
 
     this.ddbDefinition = this.ddbParent.ddbDefinition;
 
@@ -137,7 +136,9 @@ export default class DDBFeatureActivity {
     // right now most of these target other creatures
 
     const kiPointRegex = /(?:spend|expend) (\d) ki point/;
-    const match = this.ddbParent.data.system.description.value.match(kiPointRegex);
+    const sorceryPoint = /spend (\d) sorcery points/ig;
+    const match = this.ddbParent.data.system.description.value.match(kiPointRegex)
+      ?? this.ddbParent.data.system.description.value.match(sorceryPoint);
     if (match) {
       targets.push({
         type: "itemUses",

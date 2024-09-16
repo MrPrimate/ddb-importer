@@ -26,7 +26,7 @@ export default class DDBFeature extends DDBBaseFeature {
   _init() {
     this.documentType = DDBFeature.DOC_TYPE[this.type];
     this.tagType = this.type;
-    logger.debug(`Generating Feature ${this.ddbDefinition.name}`);
+    logger.debug(`Init Feature ${this.ddbDefinition.name}`);
     this._class = this.noMods
       ? null
       : this.ddbData.character.classes.find((klass) =>

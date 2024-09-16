@@ -51,7 +51,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   }
 
-  build(choice) {
+  async build(choice) {
     try {
       this._generateSystemType();
 
@@ -78,6 +78,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       this.originalName = this.data.name;
       foundry.utils.setProperty(this.data, "flags.ddbimporter.originalName", this.originalName);
       this._addEnricher();
+      await this._initEnricher();
       this._generateSystemSubType();
 
       // get description for chris premades
@@ -151,7 +152,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     }
   }
 
-  static buildChoiceFeatures(ddbFeature, allFeatures = false) {
+  static async buildChoiceFeatures(ddbFeature, allFeatures = false) {
     const choices = allFeatures ? ddbFeature._choices : ddbFeature._chosen;
     logger.debug(`Processing Choice Features ${ddbFeature._chosen.map((c) => c.label).join(",")}`, {
       choices: ddbFeature._choices,
@@ -160,14 +161,15 @@ export default class DDBChoiceFeature extends DDBFeature {
       allFeatures,
     });
     const features = [];
-    choices.forEach((choice) => {
+    for (const choice of choices) {
       const choiceFeature = new DDBChoiceFeature({
         ddbData: ddbFeature.ddbData,
         ddbDefinition: foundry.utils.deepClone(ddbFeature.ddbDefinition),
         type: ddbFeature.type,
         rawCharacter: ddbFeature.rawCharacter,
       });
-      choiceFeature.build(choice);
+      await choiceFeature._initEnricher();
+      await choiceFeature.build(choice);
       logger.debug(`DDBChoiceFeature.buildChoiceFeatures: ${choiceFeature.ddbDefinition.name}`, {
         choiceFeature,
         choice,
@@ -175,7 +177,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       });
       console.warn(`Choice generation ${choiceFeature.data.name}`, {
         data: deepClone(choiceFeature.data),
-      })
+      });
       if (choices.length === 1
         && !DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
       ) {
@@ -189,7 +191,10 @@ export default class DDBChoiceFeature extends DDBFeature {
       } else {
         features.push(choiceFeature.data);
       }
-    });
+    }
+
+    console.warn("Features NW", deepClone(features));
+
     return features;
   }
 

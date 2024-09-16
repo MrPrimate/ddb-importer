@@ -1,3 +1,4 @@
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import utils from "../../lib/utils.js";
@@ -350,6 +351,43 @@ async function getSRDActors() {
         "name": "Arcane Sword (Astral Blue)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_400x400.webm`,
         "img": `modules/${jb2aMod}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_Thumb.webp`,
+      }),
+    };
+  }
+
+  const dddCompendium = CompendiumHelper.getCompendiumType("monster", false);
+  let direWolf;
+  let direWolfVersion = 2;
+  if (dddCompendium) {
+    await dddCompendium.getIndex();
+    const potentialDireWolves = dddCompendium.index.find((a) => a.name === "Dire Wolf");
+    if (potentialDireWolves) {
+      direWolf = await fromUuid(potentialDireWolves.uuid);
+    }
+  }
+  if (!direWolf) {
+    direWolf = await pack.getDocument("EYiQZ3rFL25fEJY5");
+    direWolfVersion = 1;
+  }
+
+  if (direWolf) {
+    results["HoundOfIllOmen"] = {
+      name: "Hound of Ill Omen",
+      version: `${direWolfVersion}`,
+      required: null,
+      isJB2A: false,
+      needsJB2A: false,
+      needsJB2APatreon: false,
+      folderName: "Shadow Sorcerer",
+      data: foundry.utils.mergeObject(direWolf.toObject(), {
+        "name": "Hound of Ill Omen",
+        "prototypeToken": {
+          name: "Hound of Ill Omen",
+          width: 1,
+          height: 1,
+        },
+        "prototypeToken.name": "Hound of Ill Omen",
+        "system.traits.size": "med",
       }),
     };
   }
@@ -735,6 +773,49 @@ export default class DDBSummonsManager {
 
       await manager.addToCompendium(companion);
     }
+  }
+
+  addProfilesToActivity(activity, summonsKeys = [], data = {}) {
+
+    const summonActors = this.itemHandler.compendium.index.filter((i) =>
+      summonsKeys.includes(i.flags?.ddbimporter?.summons?.summonsKey),
+    );
+    const profiles = summonActors
+      .map((actor) => {
+        return {
+          _id: actor._id,
+          name: actor.name,
+          uuid: actor.uuid,
+          count: 1,
+        };
+      });
+
+    console.warn(`Gettings Summons profiles`, {
+      summonActors, profiles, data, summonsKeys,
+      this: this,
+    })
+
+    data.profiles = profiles;
+
+    // const summons = {
+    //   "match": match ?? {
+    //     "proficiency": false,
+    //     "attacks": true,
+    //     "saves": false,
+    //   },
+    //   "bonuses": bonuses ?? {
+    //     "ac": "",
+    //     "hp": "",
+    //     "attackDamage": "",
+    //     "saveDamage": "",
+    //     "healing": "",
+    //   },
+    //   "profiles": profiles,
+    //   "prompt": true,
+    // };
+
+    activity = foundry.utils.mergeObject(activity, data);
+
   }
 
 

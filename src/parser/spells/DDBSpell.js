@@ -81,6 +81,9 @@ export default class DDBSpell {
     }
   }
 
+  async init() {
+    await this.enricher.init();
+  }
 
   constructor({
     ddbData, spellData, rawCharacter = null, namePostfix = null, isGeneric = null, updateExisting = null,
@@ -989,6 +992,7 @@ export default class DDBSpell {
       rawCharacter: character,
       namePostfix: namePostfix,
     });
+    await spell.init();
     await spell.parse();
 
     return spell.data;

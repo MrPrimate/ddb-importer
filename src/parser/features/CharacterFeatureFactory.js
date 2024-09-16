@@ -81,8 +81,8 @@ export default class CharacterFeatureFactory {
     this.parsed.actions.push(this.getUnarmedStrike(overrides));
   }
 
-  _generateAttackActions() {
-    const attackActions = [
+  async _generateAttackActions() {
+    const attackActionsBase = [
       // do class options here have a class id, needed for optional class features
       this.ddbData.character.actions.class
         .filter((action) => DDBHelper.findClassByFeatureId(this.ddbData, action.componentId))
@@ -106,20 +106,24 @@ export default class CharacterFeatureFactory {
         && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name === a),
       )
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
-      .map((action) => {
+
+    const attackActions = (await Promise.all(attackActionsBase
+      .map(async (action) => {
         const ddbAttackAction = new DDBAttackAction({
           ddbData: this.ddbData,
           ddbDefinition: action,
           rawCharacter: this.rawCharacter,
           type: action.actionSource,
         });
+        await ddbAttackAction._initEnricher();
         ddbAttackAction.build();
 
         logger.debug(`Building Attack Action ${action.name}`, { ddbAttackAction });
 
         // console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);
         return ddbAttackAction.data;
-      }).filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
+      })))
+      .filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
 
     logger.debug("attack actions", attackActions);
     this.parsed.actions = this.parsed.actions.concat(attackActions);
@@ -134,7 +138,7 @@ export default class CharacterFeatureFactory {
     // return attacksAsFeatures && exists;
   }
 
-  _generateOtherActions() {
+  async _generateOtherActions() {
     // do class options here have a class id, needed for optional class features
     const classActions = this.ddbData.character.actions.class.filter((action) =>
       DDBHelper.findClassByFeatureId(this.ddbData, action.componentId),
@@ -166,8 +170,8 @@ export default class CharacterFeatureFactory {
       actionsToBuild,
     });
 
-    const otherActions = actionsToBuild
-      .map((action) => {
+    const otherActions = (await Promise.all(actionsToBuild
+      .map(async(action) => {
         logger.debug(`Getting Other Action ${action.name}`);
 
         const ddbAction = new DDBAction({
@@ -175,20 +179,22 @@ export default class CharacterFeatureFactory {
           ddbDefinition: action,
           rawCharacter: this.rawCharacter,
         });
+        await ddbAction._initEnricher();
         ddbAction.build();
         logger.debug(`Building Other Action ${action.name}`, { ddbAction });
 
         return ddbAction.data;
-      }).filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
+      })))
+      .filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
 
     logger.debug("other actions", otherActions);
     this.parsed.actions = this.parsed.actions.concat(otherActions);
   }
 
   async processActions() {
-    this._generateAttackActions();
+    await this._generateAttackActions();
     this._generateUnarmedStrikeAction();
-    this._generateOtherActions();
+    await this._generateOtherActions();
 
     this.processed.actions = foundry.utils.duplicate(this.parsed.actions);
 

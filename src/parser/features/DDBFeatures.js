@@ -109,7 +109,7 @@ export default class DDBFeatures {
       type,
       source,
     });
-
+    await ddbFeature._initEnricher();
     ddbFeature.build();
     logger.debug(`DDBFeatures.getFeaturesFromDefinition (type: ${type}): ${ddbFeature.ddbDefinition.name}`, {
       ddbFeature,
@@ -123,7 +123,7 @@ export default class DDBFeatures {
       await ddbFeature.buildBackgroundFeatAdvancements();
     }
     const choiceFeatures = ddbFeature.isChoiceFeature
-      ? DDBChoiceFeature.buildChoiceFeatures(ddbFeature)
+      ? await DDBChoiceFeature.buildChoiceFeatures(ddbFeature)
       : [];
     return [ddbFeature.data].concat(choiceFeatures);
   }
@@ -183,7 +183,7 @@ export default class DDBFeatures {
       ddbData: this.ddbData,
       rawCharacter: this.rawCharacter,
     });
-    this._ddbClassFeatures.build();
+    await this._ddbClassFeatures.build();
     await this._buildOptionalClassFeatures();
 
     logger.debug("ddbClassFeatures._buildClassFeatures", {

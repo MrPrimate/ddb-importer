@@ -637,6 +637,16 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Hound of Ill Omen": {
+      type: "summon",
+      noTemplate: true,
+      profileKeys: ["HoundOfIllOmen"],
+      summons: {
+        "creatureSizes": ["med"],
+        "creatureTypes": ["monstrosity"],
+        "bonuses.hp": "@classes.sorcerer.levels / 2",
+      },
+    },
     "Intimidating Presence": {
       type: "save",
       targetType: "creature",

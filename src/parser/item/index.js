@@ -46,7 +46,6 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       ddbItem,
       isCompendium: isCompendiumItem,
     });
-
     await itemParser.build();
 
     if (itemParser.data) {

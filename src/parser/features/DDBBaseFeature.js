@@ -66,6 +66,10 @@ export default class DDBBaseFeature {
     });
   }
 
+  async _initEnricher() {
+    await this.enricher.init();
+  }
+
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),

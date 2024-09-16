@@ -4,6 +4,7 @@ import { baseFeatEffect } from "../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../effects/specialSpells.js";
 import utils from "../../lib/utils.js";
+import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 
 export default class DDBBaseEnricher {
 
@@ -80,6 +81,11 @@ export default class DDBBaseEnricher {
     // to do refactor for 2014/2024 data sets
   }
 
+  async init() {
+    this.manager = new DDBSummonsManager();
+    await this.manager.init();
+  }
+
   get data() {
     return this.ddbParser?.data ?? this.document;
   }
@@ -92,6 +98,17 @@ export default class DDBBaseEnricher {
   // eslint-disable-next-line complexity
   applyActivityOverride(activity) {
     if (!this.activity) return activity;
+
+    if (this.activity.type === "summon") {
+      console.warn(`Summons for ${this.ddbParser.originalName}`, {
+        this: this,
+        activity: activity,
+        thisACtivity: this.activity,
+      });
+      if (!this.manager) return;
+      this.manager.addProfilesToActivity(activity, this.activity.profileKeys, this.activity.summons);
+    }
+
 
     if (this.activity.parent) {
       for (const parent of this.activity.parent) {

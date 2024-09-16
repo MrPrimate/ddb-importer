@@ -1073,6 +1073,7 @@ export default class DDBItem {
 
 
   async #prepare() {
+    await this.enricher.init();
     await this.#generateDataStub();
     this.#generateBaseItem();
     this.#generateActionInfo();
