@@ -491,6 +491,46 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Genie's Vessel: Genie's Wrath (Dao)": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "bludgeoning" })],
+        },
+      },
+    },
+    "Genie's Vessel: Genie's Wrath (Djinni)": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "thunder" })],
+        },
+      },
+    },
+    "Genie's Vessel: Genie's Wrath (Efreeti)": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "fire" })],
+        },
+      },
+    },
+    "Genie's Vessel: Genie's Wrath (Marid)": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "cold" })],
+        },
+      },
+    },
     "Giant's Might": {
       type: "utility",
       targetType: "self",
@@ -498,6 +538,19 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         duration: {
           value: "1",
           units: "minute",
+        },
+      },
+    },
+    "Guardian Armor: Defensive Field": {
+      type: "heal",
+      targetType: "self",
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@classes.artificer.levels",
+          },
+          types: ["temphp"],
         },
       },
     },
@@ -511,6 +564,12 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       func: undefined,
       targetType: "self",
       activationType: "special",
+      data: {
+        duration: {
+          value: "15",
+          units: "minute",
+        },
+      },
     },
     "Lay On Hands: Healing Pool": {
       type: "heal",

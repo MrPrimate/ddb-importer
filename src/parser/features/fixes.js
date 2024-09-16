@@ -15,13 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Guardian Armor: Defensive Field": {
-        feature.system.damage = { parts: [["@classes.artificer.levels", "temphp"]], versatile: "", value: "" };
-        feature.system.target.type = "self";
-        feature.system.range.units = "self";
-        feature.system.actionType = "heal";
-        break;
-      }
       case "Genie's Vessel: Genie's Wrath (Dao)": {
         feature.system.activation.type = "special";
         feature.system.target.value = 1;
@@ -59,12 +52,6 @@ export async function fixFeatures(features) {
       case "Healing Light": {
         feature.system.actionType = "heal";
         feature.system.damage = { parts: [["1d6", "healing"]], versatile: "", value: "" };
-        break;
-      }
-      case "Hold Breath": {
-        feature.system.duration = { value: 1, units: "hour" };
-        feature.system["target"]["type"] = "self";
-        feature.system.range = { value: null, units: "self", long: null };
         break;
       }
       case "Hound of Ill Omen": {
