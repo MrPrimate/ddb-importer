@@ -91,7 +91,7 @@ export default class DDBEffectHelper {
           },
         };
 
-        await fixFeatures([data]);
+        // await fixFeatures([data]); // removed, no longer called
         data = (await addExtraEffects(null, [data], mockCharacter))[0];
       }
 
@@ -1223,7 +1223,7 @@ export default class DDBEffectHelper {
       result.type = "special";
       result.units = "spec";
       result.second = 6;
-      result.turns = 1;
+      result.round = 1;
       result.special = smallMatch[0];
       return result;
     }
@@ -1261,6 +1261,71 @@ export default class DDBEffectHelper {
   // DC 13 Constitution saving throw or be poisoned for 1 hour. If the saving throw fails by 5 or more, the target is also unconscious while poisoned in this way. The target wakes up if it takes damage or if another creature takes an action to shake it awake.
 
 
+  static dcParser({ text } = {}) {
+    const results = {
+      save: {
+        dc: {
+          formula: "",
+          calculation: "",
+        },
+        ability: null,
+      },
+      match: null,
+    };
+
+    let parserText = utils.nameString(text);
+    const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
+    let match = conditionSearch.exec(parserText);
+    if (!match) {
+      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
+      match = rawConditionSearch.exec(parserText);
+    }
+
+    if (!match) {
+      const rawConditionSearch2 = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)(?:[ .,])(.*)Failure: The target has the (?<condition>\w+)(?: for (\d+) (minute|round|hour)| until)?/ig;
+      match = rawConditionSearch2.exec(parserText);
+    }
+
+    if (!match) {
+      const monsterAndCondition = /(the target has the|subject that creature to the) (?<condition>\w+) condition/ig;
+      match = monsterAndCondition.exec(parserText);
+    }
+
+    if (!match) {
+      const onHitSearch = /On a hit, the target is (?<condition>\w+)? until/ig;
+      match = onHitSearch.exec(parserText);
+    }
+
+    if (!match) {
+      const saveSearch = /On a failed save, a creature takes (\d+)?d(\d+) (\w+) damage and is (?<condition>\w+)(?: for (\d+) (minute|round|hour))?/ig;
+      match = saveSearch.exec(parserText);
+    }
+
+    if (!match) {
+      const successSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check)(?: \(DC equal to 8 \+ your proficiency bonus \+ your (?<modifier>\w+) modifier\))? or (?:be|become) (?<condition>\w+) (of you )?until /ig;
+      match = successSearch.exec(parserText);
+    }
+
+    if (!match) {
+      const snipetSearch = /succeed on a (?<ability>\w+) saving throw \(DC {{savedc:(?<modifier>\w+)}}\)? or be (?<condition>\w+) until/ig;
+      match = snipetSearch.exec(parserText);
+    }
+
+    if (match) {
+      if (match.groups.type === "check") results.check = true;
+      results.save = {
+        dc: {
+          formulas: match.groups["dc"] ?? "",
+          calculation: match.groups["modifier"]?.toLowerCase().substr(0, 3) ?? "",
+        },
+        ability: match.groups["ability"]?.toLowerCase().substr(0, 3) ?? "",
+      };
+    }
+
+    results.match = match;
+    return results;
+  }
+
   static parseStatusCondition({ text, nameHint = null } = {}) {
     let results = {
       success: false,
@@ -1288,51 +1353,16 @@ export default class DDBEffectHelper {
       },
     };
 
-    text = utils.nameString(text);
-    const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
-    let match = conditionSearch.exec(text);
-    if (!match) {
-      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
-      match = rawConditionSearch.exec(text);
-    }
-
-    if (!match) {
-      const rawConditionSearch2 = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)(?:[ .,])(.*)Failure: The target has the (?<condition>\w+)(?: for (\d+) (minute|round|hour)| until)?/ig;
-      match = rawConditionSearch2.exec(text);
-    }
-
-    if (!match) {
-      const monsterAndCondition = /(the target has the|subject that creature to the) (?<condition>\w+) condition/ig;
-      match = monsterAndCondition.exec(text);
-    }
-
-    if (!match) {
-      const onHitSearch = /On a hit, the target is (?<condition>\w+)? until/ig;
-      match = onHitSearch.exec(text);
-    }
-
-    if (!match) {
-      const saveSearch = /On a failed save, a creature takes (\d+)?d(\d+) (\w+) damage and is (?<condition>\w+)(?: for (\d+) (minute|round|hour))?/ig;
-      match = saveSearch.exec(text);
-    }
-
-    if (!match) {
-      const successSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) or (?:be|become) (?<condition>\w+) (of you )?until /ig;
-      match = successSearch.exec(text);
-    }
+    let parserText = utils.nameString(text);
+    const matchResults = DDBEffectHelper.dcParser({ text: parserText });
 
     // console.warn("condition status", match);
-    if (match) {
+    if (matchResults.match) {
+      const match = matchResults.match;
       if (match.groups.type === "check") results.check = true;
       results.condition = match.groups["condition"];
 
-      results.save = {
-        dc: {
-          formulas: match.groups["dc"] ?? "",
-          calculation: "",
-        },
-        ability: match.groups["ability"]?.toLowerCase().substr(0, 3) ?? "",
-      };
+      results.save = matchResults.save;
       // group 4 condition - .e.g. "DC 18 Strength saving throw or be knocked prone"
       const group4Condition = match.groups.condition
         ? DICTIONARY.character.damageAdjustments
@@ -1359,7 +1389,7 @@ export default class DDBEffectHelper {
         return results;
       }
       results.success = true;
-      const duration = DDBEffectHelper.getDuration(text);
+      const duration = DDBEffectHelper.getDuration(parserText);
       foundry.utils.setProperty(results.effect, "duration.seconds", duration.second);
       foundry.utils.setProperty(results.effect, "duration.rounds", duration.round);
     }

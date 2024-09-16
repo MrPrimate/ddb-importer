@@ -9,6 +9,7 @@ import DDBFeatureActivity from "./DDBFeatureActivity.js";
 import DDDFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 import SETTINGS from "../../settings.js";
+import { generateTable } from "../../lib/DDBTable.js";
 
 export default class DDBBaseFeature {
 
@@ -1067,6 +1068,12 @@ export default class DDBBaseFeature {
   build() {
     // override this feature
     return false;
+  }
+
+  static async finalFixes(feature) {
+    const tableDescription = await generateTable(feature.name, feature.system.description.value, true, feature.type);
+    // eslint-disable-next-line require-atomic-updates
+    feature.system.description.value = tableDescription;
   }
 
 }

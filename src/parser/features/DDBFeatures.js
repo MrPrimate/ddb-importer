@@ -2,13 +2,12 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
-import AdvancementHelper from "../advancements/AdvancementHelper.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 import DDBBaseFeature from "./DDBBaseFeature.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBClassFeatures from "./DDBClassFeatures.js";
 import DDBFeature from "./DDBFeature.js";
-import { addExtraEffects, fixFeatures } from "./fixes.js";
+import { addExtraEffects } from "./fixes.js";
 
 
 export default class DDBFeatures {
@@ -294,7 +293,9 @@ export default class DDBFeatures {
 
     this._setLevelScales();
 
-    await fixFeatures(this.parsed);
+    for (const feature of this.parsed) {
+      await DDBBaseFeature.finalFixes(feature);
+    }
     this.fixAcEffects();
     this.data = await addExtraEffects(this.ddbData, this.parsed, this.rawCharacter);
   }

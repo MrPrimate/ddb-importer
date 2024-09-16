@@ -404,15 +404,33 @@ export default class DDBFeatureActivity {
 
   _generateSave() {
     const fixedDC = this.ddbDefinition.fixedSaveDc ? this.ddbDefinition.fixedSaveDc : null;
-    const calculation = fixedDC
+    let calculation = fixedDC
       ? ""
       : (this.ddbDefinition.abilityModifierStatId)
         ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId).value
         : "spellcasting";
 
-    const saveAbility = (this.ddbDefinition.saveStatId)
+    let saveAbility = (this.ddbDefinition.saveStatId)
       ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.saveStatId).value
       : null;
+
+    console.warn(`Save generation for ${this.ddbParent.name}`, {
+      this: this,
+      calculation,
+      saveAbility,
+    })
+    if (!saveAbility) {
+      const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
+      const textMatch = DDBEffectHelper.dcParser({ text: description });
+      console.warn(`No save ability for ${this.ddbParent.name}`, {
+        textMatch,
+        description,
+      })
+      if (textMatch.match) {
+        this.data.save = textMatch.save;
+        return;
+      }
+    }
 
     this.data.save = {
       ability: saveAbility ?? Object.keys(CONFIG.DND5E.abilities)[0],

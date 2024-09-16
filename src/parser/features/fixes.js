@@ -9,7 +9,7 @@ import { featureEffectAdjustment } from "../../effects/specialFeats.js";
  */
 // eslint-disable-next-line complexity
 export async function fixFeatures(features) {
-  return features;
+  // THESE FEATURES ARE NOT CURRENTLY CALLED AND HAVE NOT BEEN MIGRATED
   for (let feature of features) {
     const name = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
     // eslint-disable-next-line no-continue
@@ -82,14 +82,6 @@ export async function fixFeatures(features) {
         feature.system.properties.push("thr");
         break;
       }
-      case "Quickened Healing": {
-        feature.system.actionType = "heal";
-        feature.system.target.type = "self";
-        feature.system.range.units = "self";
-        feature.system.damage.parts[0][0] += " + @prof[healing]";
-        feature.system.damage.parts[0][1] = "healing";
-        break;
-      }
       case "Celestial Revelation (Radiant Soul)":
       case "Radiant Soul": {
         if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") == "race") {
@@ -156,50 +148,6 @@ export async function fixFeatures(features) {
         feature.system.damage.parts = [["@scale.path-of-the-storm-herald.storm-aura-tundra", "temphp"]];
         break;
       }
-      case "Shifting": {
-        feature.system.actionType = "heal";
-        feature.system.target.type = "self";
-        feature.system.range = { value: null, long: null, units: "self" };
-        feature.system.duration.units = "inst";
-        feature.system.ability = "con";
-        feature.system.actionType = "heal";
-        feature.system.damage = { parts: [["@details.level + max(1,@mod)", "temphp"]], versatile: "", value: "" };
-        break;
-      }
-      case "Shift": {
-        feature.system.actionType = "heal";
-        feature.system.target.type = "self";
-        feature.system.range = { value: null, long: null, units: "self" };
-        feature.system.duration = {
-          value: 1,
-          units: "minute",
-        };
-        feature.system.ability = "con";
-        feature.system.actionType = "heal";
-        feature.system.damage = { parts: [["2 * @prof", "temphp"]], versatile: "", value: "" };
-        break;
-      }
-      case "Sneak Attack": {
-        if (!foundry.utils.getProperty(feature, "flags.ddbimporter.action")) {
-          feature.system.actionType = "other";
-          feature.system.activation = { type: "special", cost: 0, condition: "" };
-        }
-        break;
-      }
-      case "Song of Rest": {
-        feature.system.activation = { type: "hour", cost: 1, condition: "" };
-        feature.system.actionType = "heal";
-        feature.system.target.type = "creature";
-        feature.system.range = { value: null, long: null, units: "spec" };
-        feature.system.damage.parts[0][1] = "healing";
-        foundry.utils.setProperty(feature, "flags.midiProperties.magicdam", true);
-        foundry.utils.setProperty(feature, "flags.midiProperties.magiceffect", true);
-        break;
-      }
-      case "Surprise Attack":
-        feature.system.damage = { parts: [["2d6", ""]], versatile: "", value: "" };
-        feature.system.activation.type = "special";
-        break;
       case "Starry Form: Archer":
         feature.system.actionType = "rsak";
         feature.system.target.value = 1;

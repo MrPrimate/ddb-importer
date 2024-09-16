@@ -338,6 +338,11 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Cunning Action": {
+      type: "utility",
+      targetType: "self",
+      activationType: "bonus",
+    },
     "Cutting Words": {
       targetType: "creature",
       data: {
@@ -630,6 +635,13 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           value: "15",
           units: "minute",
         },
+      },
+    },
+    "Intimidating Presence": {
+      type: "save",
+      targetType: "creature",
+      data: {
+
       },
     },
     "Lay On Hands: Healing Pool": {
@@ -961,6 +973,21 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Sneak Attack": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "special",
+      noTemplate: true,
+      data: {
+        "range.units": "spec",
+        damage: {
+          custom: {
+            enabled: true,
+            formula: "@scale.rogue.sneak-attack",
+          },
+        },
+      },
+    },
     "Song of Rest": {
       type: "heal",
       data: {
@@ -988,6 +1015,19 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
             calculation: "wis",
             formula: "",
           },
+        },
+      },
+    },
+    "Surprise Attack": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "special",
+      noTemplate: true,
+      data: {
+        "range.units": "spec",
+        damage: {
+          number: 2,
+          denomination: 6,
         },
       },
     },
@@ -1369,6 +1409,14 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           ],
         },
         "flags.midiProperties.toggleEffect": true,
+      },
+    },
+    "Shifting": {
+      data: {
+        "system.uses": {
+          spent: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Shift")?.limitedUse?.numberUsed ?? null,
+          max: "@prof",
+        },
       },
     },
     "Shifting: Beasthide": {
