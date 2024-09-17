@@ -18,10 +18,6 @@ import logger from "../../logger.js";
 // CONFIG.DND5E.activityTypes
 
 
-// TODO
-// check effects for recharge and uses chages
-
-
 export default class DDBFeatureActivity {
 
   _init() {
@@ -135,10 +131,12 @@ export default class DDBFeatureActivity {
     // you can spend one Hit Die to heal yourself.
     // right now most of these target other creatures
 
+    const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
     const kiPointRegex = /(?:spend|expend) (\d) ki point/;
     const sorceryPoint = /spend (\d) sorcery points/ig;
-    const match = this.ddbParent.data.system.description.value.match(kiPointRegex)
-      ?? this.ddbParent.data.system.description.value.match(sorceryPoint);
+    const match = kiPointRegex.exec(description)
+      ?? sorceryPoint.exec(description);
+
     if (match) {
       targets.push({
         type: "itemUses",
@@ -358,19 +356,19 @@ export default class DDBFeatureActivity {
       };
     }
 
-    // TODO: improve target parsing
     this.data.target = data;
 
   }
 
   _generateDamage({ parts = null, includeBase = false } = {}) {
-    // TODO revisit for multipart damage parsing
     if (!this.ddbParent.getDamage && !parts) {
       return;
     }
-    const damage = parts ?? [this.ddbParent.getDamage()];
+    const damage = (parts ?? [this.ddbParent.getDamage()]).filter((part) => {
+      return part.denomination || part.custom.enabled;
+    });
 
-    if (!damage) return undefined;
+    if (!damage || damage.length === 0) return;
 
     this.data.damage = {
       includeBase,
@@ -415,20 +413,9 @@ export default class DDBFeatureActivity {
       ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.saveStatId).value
       : null;
 
-    console.warn(`Save generation for ${this.ddbParent.name}`, {
-      this: this,
-      calculation,
-      saveAbility,
-    })
     if (!saveAbility) {
-      const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
-      const textMatch = DDBEffectHelper.dcParser({ text: description });
-      console.warn(`No save ability for ${this.ddbParent.name}`, {
-        textMatch,
-        description,
-      })
-      if (textMatch.match) {
-        this.data.save = textMatch.save;
+      if (this.ddbParent._descriptionSave) {
+        this.data.save = this.ddbParent._descriptionSave;
         return;
       }
     }
@@ -544,7 +531,7 @@ export default class DDBFeatureActivity {
       includeBase,
       damageParts,
       attackOverride,
-    })
+    });
 
     // override set to false on object if overriding
 

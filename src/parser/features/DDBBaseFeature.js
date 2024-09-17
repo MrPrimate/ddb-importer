@@ -10,6 +10,7 @@ import DDDFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 import SETTINGS from "../../settings.js";
 import { generateTable } from "../../lib/DDBTable.js";
+import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 
 export default class DDBBaseFeature {
 
@@ -147,7 +148,18 @@ export default class DDBBaseFeature {
     // this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
   }
 
+  _generateSaveFromDescription() {
+    const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
+    const textMatch = DDBEffectHelper.dcParser({ text: description });
+    if (textMatch.match) {
+      this._descriptionSave = textMatch.save;
+    } else {
+      this._descriptionSave = null;
+    }
+  }
+
   _generateActionTypes() {
+    this._generateSaveFromDescription();
     this._actionType = {
       class: this.ddbData.character.actions.class
         .filter((ddbAction) => DDBHelper.findClassByFeatureId(this.ddbData, ddbAction.componentId))
@@ -1011,7 +1023,7 @@ export default class DDBBaseFeature {
   _getActivitiesType() {
     if (this.isCompanionFeature || this._isCompanionFeatureOption()) return "summon";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
-    if (typeof this.ddbDefinition.saveStatId === "number") return "save";
+    if (typeof this.ddbDefinition.saveStatId === "number" || this._descriptionSave) return "save";
     if (this.ddbDefinition.actionType === 1) return "attack";
     if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) return "attack";
     if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) return "attack";

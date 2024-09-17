@@ -220,14 +220,16 @@ export default class DDBCharacter {
         //   action: foundry.utils.deepClone(action),
         //   feature: foundry.utils.deepClone(featureMatch),
         // });
-        for (const [key, activity] of Object.entries(featureMatch.system.activities)) {
-          // console.warn(`Checking activity ${key}`, activity);
-          if (!action.system.activities[key]) {
-            action.system.activities[key] = activity;
-            continue;
-          }
-          if (action.system.activities[key] && action.system.activities[key].effects?.length === 0) {
-            action.system.activities[key].effects = featureMatch.system.activities[key].effects;
+        if (Object.keys(action.system.activities).length === 0) {
+          for (const [key, activity] of Object.entries(featureMatch.system.activities)) {
+            // console.warn(`Checking activity ${key}`, activity);
+            if (!action.system.activities[key]) {
+              action.system.activities[key] = activity;
+              continue;
+            }
+            if (action.system.activities[key] && action.system.activities[key].effects?.length === 0) {
+              action.system.activities[key].effects = featureMatch.system.activities[key].effects;
+            }
           }
         }
 

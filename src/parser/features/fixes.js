@@ -15,47 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Hound of Ill Omen": {
-        feature.system.consume.amount = 3;
-        break;
-      }
-      case "Intimidating Presence": {
-        feature.system.duration = { value: 2, units: "turns" };
-        feature.system.target.value = 1;
-        feature.system.target.type = "creature";
-        feature.system.range = { value: 30, units: "ft", long: null };
-        feature.system.actionType = "save";
-        feature.system.save.ability = "wis";
-        feature.system.save.scaling = "cha";
-        break;
-      }
-      case "Hypnotic Gaze": {
-        feature.system.uses = {
-          spent: null,
-          max: null,
-          recovery: [],
-        };
-        break;
-      }
-      case "Mantle of Inspiration": {
-        feature.system.damage.parts[0][1] = "temphp";
-        break;
-      }
-      case "Metamagic - Heightened Spell": {
-        feature.system.consume.amount = 3;
-        break;
-      }
-      case "Metamagic - Quickened Spell": {
-        feature.system.consume.amount = 2;
-        break;
-      }
-      case "Mind Link Response": {
-        feature.system.target.value = 1;
-        feature.system.target.type = "creature";
-        feature.system.duration = { value: 1, units: "hour" };
-        feature.system.range.units = "spec";
-        break;
-      }
       case "Momentary Stasis": {
         feature.system.actionType = "save";
         feature.system.save.ability = "con";

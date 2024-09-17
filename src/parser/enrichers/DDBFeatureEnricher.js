@@ -644,15 +644,12 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       summons: {
         "creatureSizes": ["med"],
         "creatureTypes": ["monstrosity"],
-        "bonuses.hp": "@classes.sorcerer.levels / 2",
+        "bonuses.hp": "(@classes.sorcerer.levels / 2)",
       },
     },
     "Intimidating Presence": {
-      type: "save",
+      // type: "save",
       targetType: "creature",
-      data: {
-
-      },
     },
     "Lay On Hands: Healing Pool": {
       type: "heal",
@@ -850,6 +847,46 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
             calculation: "",
             formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
           },
+        },
+      },
+    },
+    "Mantle of Inspiration": {
+      type: "heal",
+      data: {
+        "description.chatFlavor": "Each creature can immediately use its reaction to move up to its speed, without provoking opportunity attacks.",
+        "range.units": "self",
+        target: {
+          template: {
+            count: "",
+            contiguous: false,
+            type: "radius",
+            size: "60",
+            width: "",
+            height: "",
+            units: "ft",
+          },
+          affects: {
+            count: "@abilities.cha.mod",
+            type: "ally",
+            choice: true,
+            special: "",
+          },
+          prompt: true,
+        },
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@scale.college-of-glamour.mantle-of-inspiration",
+          },
+          types: ["temphp"],
+        },
+      },
+    },
+    "Mind Link Response": {
+      data: {
+        range: {
+          units: "spec",
+          special: "Withing sight",
         },
       },
     },
@@ -1359,6 +1396,15 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     "Healing Light": {
       data: {
         "system.uses.max": "1 + @classes.warlock.levels",
+      },
+    },
+    "Hypnotic Gaze": {
+      data: {
+        "system.uses": {
+          value: null,
+          max: null,
+          recovery: [],
+        },
       },
     },
     "Ki Points": {

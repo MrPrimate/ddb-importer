@@ -375,6 +375,12 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
             logger.debug("child", child);
             const update = {
               _id: child._id,
+              system: {
+                uses: {
+                  spent: null,
+                  max: "",
+                },
+              },
             };
             Object.keys(child.system.activities).forEach((id) => {
               const targets = child.system.activities[id].consumption.targets;

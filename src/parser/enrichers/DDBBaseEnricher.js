@@ -63,6 +63,7 @@ export default class DDBBaseEnricher {
   DOCUMENT_STUB = {};
 
   _prepare() {
+    if (this.isCustomAction) return;
     this.hintName = (this.is2014 ? this.DND_2014.NAME_HINTS[this.name] : null) ?? this.NAME_HINTS[this.name] ?? this.name;
     this.activity = (this.is2014 ? this.DND_2014.ACTIVITY_HINTS[this.hintName] : null) ?? this.ACTIVITY_HINTS[this.hintName];
     this.effect = (this.is2014 ? this.DND_2014.EFFECT_HINTS[this.hintName] : null) ?? this.EFFECT_HINTS[this.hintName];
@@ -75,6 +76,7 @@ export default class DDBBaseEnricher {
     this.ddbParser = ddbParser;
     this.document = ddbParser?.data ?? document;
     this.name = ddbParser?.originalName ?? name ?? document.flags?.ddbimporter?.originalName ?? document.name;
+    this.isCustomAction = this.document.flags?.ddbimporter?.isCustomAction;
     this.additionalActivityClass = null;
     this.is2014 = is2014 ?? this.ddbParser?.is2014 ?? this.document.flags?.ddbimporter?.is2014 ?? false;
     this._prepare();
