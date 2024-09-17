@@ -214,7 +214,11 @@ export default class DDBFeatureActivity {
     // Enchantments need effects here
   }
 
-  _generateRange() {
+  _generateRange({ rangeOverride = null } = {}) {
+    if (rangeOverride) {
+      this.data.range = rangeOverride;
+      return;
+    }
     if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
       this.data.range = {
         value: null,
@@ -526,6 +530,7 @@ export default class DDBFeatureActivity {
     consumptionOverride = null,
     attackOverride = null,
     saveOverride = null,
+    rangeOverride = null,
   } = {}) {
 
 
@@ -549,6 +554,7 @@ export default class DDBFeatureActivity {
       damageParts,
       attackOverride,
       saveOverride,
+      rangeOverride,
     });
 
     // override set to false on object if overriding
@@ -562,7 +568,7 @@ export default class DDBFeatureActivity {
     if (generateSave) this._generateSave({ saveOverride });
     if (generateDamage) this._generateDamage({ includeBase, parts: damageParts });
     if (generateHealing) this._generateHealing({ part: healingPart });
-    if (generateRange) this._generateRange();
+    if (generateRange) this._generateRange({ rangeOverride });
     if (generateTarget) this._generateTarget({ targetOverride, targetSelf, noTemplate });
 
     if (generateRoll) this._generateRoll({ roll });

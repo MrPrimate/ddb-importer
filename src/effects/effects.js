@@ -267,7 +267,7 @@ function generateEffectDuration(foundryItem, activity) {
     startRound: null,
     startTurn: null,
   };
-  const foundryData = foundryItem.system.duration ?? activity?.duration;
+  const foundryData = foundryItem?.system?.duration ?? activity?.duration;
   if (!foundryData) return duration;
 
   switch (foundryData?.units) {

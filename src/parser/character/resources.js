@@ -382,7 +382,9 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
                 },
               },
             };
-            Object.keys(child.system.activities).forEach((id) => {
+            const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities");
+            for (const id of Object.keys(child.system.activities)) {
+              if (ignoredConsumptionActivities?.includes(child.system.activities[id].name)) continue;
               const targets = child.system.activities[id].consumption.targets;
               if (foundry.utils.getProperty(child, "flags.ddbimporter.retainOriginalConsumption")) {
                 targets.push({
@@ -404,7 +406,8 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
                   }],
                 });
               }
-            });
+            }
+
             toUpdate.push(update);
           });
         }

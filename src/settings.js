@@ -325,6 +325,9 @@ const CR_SUMMONING_SPELLS = [
   "Summon Lesser Demons",
   "Find Familiar",
 ];
+const CR_SUMMONING_FEATURES = [
+  "Wild Companion",
+];
 
 const DISABLE_FOUNDRY_UPGRADE = {
   applyFeatures: false,
@@ -369,6 +372,7 @@ const SETTINGS = {
     COMPANION_SPELLS,
     COMPANION_OPTIONS,
     CR_SUMMONING_SPELLS,
+    CR_SUMMONING_FEATURES,
   },
   URLS,
   POPUPS,

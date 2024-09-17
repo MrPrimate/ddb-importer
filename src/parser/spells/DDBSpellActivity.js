@@ -476,10 +476,9 @@ export default class DDBSpellActivity {
       && this.spellDefinition.range.rangeValue > 0
       ? "ranged"
       : "melee";
-    let classification = "spell";
 
     const attack = {
-      ability: "",
+      ability: "spellcasting",
       bonus: "",
       critical: {
         threshold: undefined,
@@ -487,7 +486,7 @@ export default class DDBSpellActivity {
       flat: false, // almost never false for PC features
       type: {
         value: type,
-        classification,
+        classification: "spell",
       },
     };
 

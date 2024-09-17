@@ -507,6 +507,11 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Full of Stars": {
+      type: "utility",
+      targetType: "self",
+      activationType: "special",
+    },
     "Genie's Vessel: Genie's Wrath (Dao)": {
       type: "damage",
       targetType: "creature",
@@ -1207,6 +1212,15 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Starry Form": {
+      type: "utility",
+      noTemplate: true,
+      targetType: "self",
+      activationType: "bonus",
+      data: {
+        name: "Activate Starry Form",
+      },
+    },
     "Steel Defender": {
       noConsumeTargets: true,
       noTemplate: true,
@@ -1350,6 +1364,16 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         damage: {
           parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6 })],
         },
+      },
+    },
+    "Wild Shape": {
+      type: "utility",
+      data: {
+        duration: {
+          value: "(floor(@classes.druid.levels / 2))",
+          units: "hour",
+        },
+        img: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
       },
     },
     "Wrath of the Storm": {
@@ -1706,6 +1730,99 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Starry Form": [
+      {
+        constructor: {
+          name: "Archer Attack",
+          type: "attack",
+        },
+        build: {
+          generateAttack: true,
+          generateConsumption: false,
+          generateTarget: true,
+          generateDamage: true,
+          attackOverride: {
+            ability: "spellcasting",
+            type: {
+              classification: "spell",
+              value: "range",
+            },
+          },
+          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.circle-of-stars.starry-form + @mod", type: "radiant" })],
+          targetOverride: {
+            affects: {
+              count: "1",
+              type: "creature",
+            },
+          },
+          rangeOverride: {
+            value: "60",
+            units: "ft",
+          },
+          activationOverride: {
+            type: "bonus",
+            value: 1,
+            condition: "",
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Chalice Healing",
+          type: "heal",
+        },
+        build: {
+          generateAttack: false,
+          generateConsumption: false,
+          generateTarget: true,
+          generateDamage: false,
+          generateHealing: true,
+          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.circle-of-stars.starry-form + @mod", type: "healing" }),
+          targetOverride: {
+            affects: {
+              count: "1",
+              type: "creature",
+            },
+          },
+          rangeOverride: {
+            value: "30",
+            units: "ft",
+          },
+          activationOverride: {
+            type: "bonus",
+            value: 1,
+            condition: "",
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Dragon Constitution",
+          type: "utility",
+        },
+        build: {
+          generateAttack: false,
+          generateConsumption: false,
+          generateTarget: true,
+          generateDamage: false,
+          generateHealing: false,
+          targetOverride: {
+            affects: {
+              count: "1",
+              type: "self",
+            },
+          },
+          rangeOverride: {
+            units: "self",
+          },
+          activationOverride: {
+            type: "bonus",
+            value: 1,
+            condition: "",
+          },
+        },
+      },
+    ],
   };
 
   DOCUMENT_OVERRIDES = {
@@ -1901,6 +2018,11 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Starry Form": {
+      data: {
+        "flags.ddbimporter.ignoredConsumptionActivities": ["Archer Attack", "Chalice Healing", "Dragon Constitution"]
+      },
+    },
     "Steel Defender": {
       data: {
         "system.uses": {
@@ -1929,6 +2051,11 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           "type.value": "simpleM",
           properties: ["fin", "thr"].concat(this.data.system.properties ?? []),
         },
+      },
+    },
+    "Wild Shape": {
+      data: {
+        "system.uses.max": "@scale.druid.wild-shape-uses",
       },
     },
   };
@@ -1995,6 +2122,14 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         { key: "system.traits.dr.value", value: "radiant", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
         { key: "system.traits.dr.value", value: "slashing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
         { key: "system.traits.dr.value", value: "thunder", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+      ],
+    },
+    "Full of Stars": {
+      type: "feat",
+      changes: [
+        { key: "system.traits.dr.value", value: "bludgeoning", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "piercing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "slashing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
       ],
     },
     "Giant's Might": {
@@ -2406,6 +2541,66 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       options: {
         transfer: false,
       },
+    },
+    "Starry Form": {
+      multiple: [
+        {
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            flags: {
+              ddbimporter: {
+                activityMatch: "Activate Starry Form",
+              },
+            },
+          },
+          atlChanges: [
+            generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '20'),
+            generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '10'),
+            generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#f3f5e5'),
+            generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.35'),
+            generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": ""starlight"", "speed": 5,"intensity": 5}'),
+          ],
+        },
+        {
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            flags: {
+              ddbimporter: {
+                activityMatch: "Dragon Constitution",
+              },
+            },
+          },
+          changes: [],
+        },
+        {
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            name: "Dragon Form: Twinkling Constellations",
+            flags: {
+              ddbimporter: {
+                activityMatch: "Dragon Constitution",
+              },
+            },
+          },
+          changes: [
+            {
+              key: "system.attributes.movement.fly",
+              value: "20",
+              mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+              priority: 20,
+            },
+          ],
+        },
+      ],
     },
     "Tongue of the Sun and Moon": {
       type: "feat",

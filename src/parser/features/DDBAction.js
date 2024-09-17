@@ -33,6 +33,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Maneuver: Disarming Attack (Dex.",
     "Maneuver: Parry (Dex.",
     "Maneuver: Menacing Attack (Dex.",
+    "Starry Form:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [
