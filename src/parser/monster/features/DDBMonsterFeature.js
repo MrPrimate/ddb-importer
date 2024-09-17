@@ -110,6 +110,8 @@ export default class DDBMonsterFeature {
     // if not attack set to a monster type action
     if (!this.isAttack) foundry.utils.setProperty(this.feature, "system.type.value", "monster");
 
+    this.isCompanion = foundry.utils.getProperty(this.ddbMonster, "npc.flags.ddbimporter.entityTypeId") === "companion-feature";
+
     this.enricher = new DDDMonsterEnricher({
       document: this.feature,
       monster: this.ddbMonster.npc,
@@ -283,13 +285,14 @@ export default class DDBMonsterFeature {
       }
       // check for other
       if (dmg[5] && dmg[5].trim() == "at the start of") other = true;
-      const profBonus = dmg[3]?.includes(" + PB") || dmg[3]?.includes(" plus PB") ? "@prof" : "";
+      const hasProfBonus = dmg[3]?.includes(" + PB") || dmg[3]?.includes(" plus PB");
+      const profBonus = hasProfBonus && !this.isCompanion ? "@prof" : "";
       const levelBonus = dmg[3] && (/the spell[’']s level/i).test(dmg[3]); // ? "@item.level" : "";
       if (levelBonus) {
         this.levelBonus = true;
         foundry.utils.setProperty(this, "flags.ddbimporter.levelBonus", true);
       }
-      const damage = profBonus !== "" || levelBonus
+      const damage = hasProfBonus || levelBonus
         ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" plus PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
         : dmg[3] ?? dmg[2];
 

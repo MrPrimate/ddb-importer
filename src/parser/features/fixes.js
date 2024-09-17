@@ -34,34 +34,6 @@ export async function fixFeatures(features) {
         break;
       case "Starry Form: Dragon":
         break;
-      case "Stone's Endurance":
-      case "Stone’s Endurance":
-        feature.system.damage = { parts: [["1d12 + @mod", ""]], versatile: "", value: "" };
-        feature.system.actionType = "other";
-        feature.system.ability = "con";
-        feature.system.target.type = "self";
-        feature.system.range.units = "self";
-        feature.system.consume = { type: "", target: "", amount: null };
-        break;
-      case "Summon Wildfire Spirit": {
-        foundry.utils.setProperty(document, "system.target.value", 1);
-        foundry.utils.setProperty(document, "system.target.type", "space");
-        foundry.utils.setProperty(document, "system.range.units", "ft");
-        foundry.utils.setProperty(document, "system.range.value", 30);
-        foundry.utils.setProperty(document, "system.duration", {
-          value: 1,
-          units: "hour",
-        });
-        feature.system.damage = { parts: [["2d6", "fire"]], versatile: "", value: "" };
-        feature.system.ability = "wis";
-        feature.system.save = { ability: "dex", dc: null, scaling: "spell" };
-        break;
-      }
-      case "Wrath of the Storm": {
-        feature.system.damage = { parts: [["2d8", "lightning"]], versatile: "", value: "" };
-        break;
-      }
-      // no default
     }
 
     if (name.endsWith(" Breath Weapon") && feature.system.target?.type === "line") {

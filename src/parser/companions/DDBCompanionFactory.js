@@ -515,11 +515,12 @@ export default class DDBCompanionFactory {
   };
 
   #getDocumentActivity(document = null) {
-    for (const id of Object.keys((document ?? this.originDocument).system.activities)) {
-      const activity = (document ?? this.originDocument).system.activities[id];
+    const foundryDocument = document ?? this.originDocument;
+    for (const id of Object.keys(foundryDocument.system.activities)) {
+      const activity = foundryDocument.system.activities[id];
       if (activity.type === "summon") return activity;
     }
-    const activity = new DDBBasicActivity({ type: "summon" });
+    const activity = new DDBBasicActivity({ type: "summon", foundryFeature: foundryDocument });
     activity.build();
     return activity.data;
   }

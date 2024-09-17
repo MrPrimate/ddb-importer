@@ -120,7 +120,7 @@ function parseMatch(ddb, character, match, feature) {
           `Unable to parse option class info. classOption ComponentId is: ${classOption.componentId}.  ComponentId is ${featureDef.componentId}`,
         );
       }
-    } else if (["Enhanced Defense", "Enhanced Arcane Focus"].includes(featureDef.name)) {
+    } else if (["Enhanced Defense", "Enhanced Arcane Focus", "Enhanced Weapon"].includes(featureDef.name)) {
       result = result.replace("classlevel", "@classes.artificer.levels`");
       linktext = result.replace("classlevel", ` (Artificer Level) `);
     } else {

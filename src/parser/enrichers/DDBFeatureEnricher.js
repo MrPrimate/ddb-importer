@@ -1207,6 +1207,22 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Steel Defender": {
+      noConsumeTargets: true,
+      noTemplate: true,
+    },
+    "Stone's Endurance": {
+      type: "utility",
+      activationType: "reaction",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "1d12 + @abilities.con.mod",
+          name: "Reduce Damage Roll",
+        },
+      },
+    },
     "Storm Soul: Dessert": {
       type: "utility",
       activationType: "special",
@@ -1332,8 +1348,15 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       data: {
         "range.units": "spec",
         damage: {
-          number: 2,
-          denomination: 6,
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6 })],
+        },
+      },
+    },
+    "Wrath of the Storm": {
+      data: {
+        damage: {
+          onSave: "half",
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 8, types: ["thunder", "lightning"] })],
         },
       },
     },
@@ -1875,6 +1898,15 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "system.uses": {
           spent: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Shift")?.limitedUse?.numberUsed ?? null,
           max: "@prof",
+        },
+      },
+    },
+    "Steel Defender": {
+      data: {
+        "system.uses": {
+          spent: null,
+          max: "",
+          recovery: [],
         },
       },
     },

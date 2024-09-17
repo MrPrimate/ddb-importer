@@ -114,11 +114,22 @@ export default class DDBMonsterFeatureActivity {
   }
 
   _generateDamage({ parts = [], includeBase = true } = {}) {
+    const companion = foundry.utils.getProperty(this.ddbParent.ddbMonster, "npc.flags.ddbimporter.entityTypeId") === "companion-feature";
+
+    let damageParts = parts.length > 0
+      ? parts
+      : this._getFeaturePartsDamage().map((data) => data.part);
+
+    if (companion) {
+      damageParts = damageParts.map((data) => {
+        data.bonus = data.bonus.replace("@prof", "");
+        return data;
+      });
+    }
+
     this.data.damage = {
       includeBase,
-      parts: parts.length > 0
-        ? parts
-        : this._getFeaturePartsDamage().map((data) => data.part),
+      parts: damageParts,
     };
 
     // damage: {
@@ -157,7 +168,7 @@ export default class DDBMonsterFeatureActivity {
 
     const attack = {
       ability: this.actionInfo.baseAbility,
-      bonus: `${this.actionInfo.extraAttackBonus}`,
+      bonus: this.actionInfo.extraAttackBonus && `${this.actionInfo.extraAttackBonus}`.trim() !== "0" ? `${this.actionInfo.extraAttackBonus}` : "",
       critical: {
         threshold: undefined,
       },

@@ -30,7 +30,7 @@ export default class DDBBasicActivity {
     });
 
     this.data = rawStub.toObject();
-    this.data._id = utils.namedIDStub(this.name ?? this.foundryFeature.name ?? this.type, {
+    this.data._id = utils.namedIDStub(this.name ?? this.foundryFeature?.name ?? this.type, {
       prefix: this.nameIdPrefix,
       postfix: this.nameIdPostfix,
     });
@@ -56,12 +56,26 @@ export default class DDBBasicActivity {
 
   }
 
+  getParsedAction() {
+    const description = this.foundryFeature.system?.description?.value;
+    if (!description) return undefined;
+    // pcs don't have mythic
+    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
+    if (actionAction) return "action";
+    const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/ig);
+    if (bonusAction) return "bonus";
+    const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/ig);
+    if (reAction) return "reaction";
+
+    return undefined;
+  }
+
   // note spells do not have activation
   _generateActivation() {
     const description = this.foundryFeature.system?.description?.value;
 
     if (!description) return;
-    const actionType = DDBBaseFeature.getParsedAction(description);
+    const actionType = this.getParsedAction(description);
     if (!actionType) return;
     logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
     this.data.activation = {

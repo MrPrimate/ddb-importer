@@ -123,6 +123,9 @@ export default class DDBBaseEnricher {
       }
     }
 
+    if (this.activity.noConsumeTargets) {
+      foundry.utils.setProperty(activity, "consumption.targets", []);
+    }
     if (this.activity.addItemConsume) {
       foundry.utils.setProperty(activity, "consumption.targets", [
         {
