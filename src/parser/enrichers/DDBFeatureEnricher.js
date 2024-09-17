@@ -933,6 +933,34 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         }],
       },
     },
+    "Psionic Power: Psi-Bolstered Knack": {
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "@scale.soulknife.psionic-power",
+          name: "Roll Additional Bonus",
+        },
+      },
+    },
+    "Psionic Power: Psychic Whispers": {
+      data: {
+        target: {
+          affects: {
+            count: "@prof",
+            type: "ally",
+            choice: true,
+            special: "",
+          },
+        },
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "@scale.soulknife.psionic-power",
+          name: "Hours active roll",
+        },
+      },
+    },
     "Quickened Healing": {
       type: "heal",
       data: {
@@ -1072,6 +1100,16 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
             formula: "@scale.bard.song-of-rest",
           },
           types: ["healing"],
+        },
+      },
+    },
+    "Soul Blades: Homing Strikes": {
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "@scale.soulknife.psionic-power",
+          name: "Roll Attack Bonus",
         },
       },
     },
