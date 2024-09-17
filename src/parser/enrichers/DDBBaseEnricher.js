@@ -227,102 +227,107 @@ export default class DDBBaseEnricher {
 
   // eslint-disable-next-line complexity
   createEffect() {
-    if (!this.effect) return undefined;
+    const effects = [];
+    if (!this.effect) return effects;
 
     let effect;
 
-    let name = this.effect.name ?? this.name;
-    let effectOptions = this.effect.options ?? {};
+    const effectHints = this.effect.multiple ?? [this.effect];
 
-    if (this.effect.noCreate) {
-      effect = this.data.effects[0];
-    } else {
-      switch (this.effect.type) {
-        case "enchant":
-          effect = baseEnchantmentEffect(this.data, name, effectOptions);
-          if (this.effect.magicalBonus) {
-            addMagicalBonusToEnchantmentEffect({
-              effect,
-              nameAddition: this.effect.magicalBonus.name,
-              bonus: this.effect.magicalBonus.bonus,
-              bonusMode: this.effect.magicalBonus.mode,
-              makeMagical: this.effect.magicalBonus.makeMagical,
-            });
-          }
-          break;
-        case "feat":
-          effect = baseFeatEffect(this.data, name, effectOptions);
-          break;
-        case "spell":
-          effect = baseSpellEffect(this.data, name, effectOptions);
-          break;
-        case "monster":
-          effect = baseMonsterFeatureEffect(this.data, name, effectOptions);
-          break;
-        case "item":
-          effect = baseItemEffect(this.data, name, effectOptions);
-          break;
-        case "basic":
-        default:
-          effect = baseEffect(this.data, name, effectOptions);
+
+    for (const effectHint of effectHints) {
+      let name = effectHint.name ?? this.name;
+      let effectOptions = effectHint.options ?? {};
+
+      if (effectHint.noCreate) {
+        effect = this.data.effects[0];
+      } else {
+        switch (effectHint.type) {
+          case "enchant":
+            effect = baseEnchantmentEffect(this.data, name, effectOptions);
+            if (effectHint.magicalBonus) {
+              addMagicalBonusToEnchantmentEffect({
+                effect,
+                nameAddition: effectHint.magicalBonus.name,
+                bonus: effectHint.magicalBonus.bonus,
+                bonusMode: effectHint.magicalBonus.mode,
+                makeMagical: effectHint.magicalBonus.makeMagical,
+              });
+            }
+            break;
+          case "feat":
+            effect = baseFeatEffect(this.data, name, effectOptions);
+            break;
+          case "spell":
+            effect = baseSpellEffect(this.data, name, effectOptions);
+            break;
+          case "monster":
+            effect = baseMonsterFeatureEffect(this.data, name, effectOptions);
+            break;
+          case "item":
+            effect = baseItemEffect(this.data, name, effectOptions);
+            break;
+          case "basic":
+          default:
+            effect = baseEffect(this.data, name, effectOptions);
+        }
+
+        const duration = DDBEffectHelper.getDuration(this.data.system.description.value, false);
+        if (duration.type) {
+          foundry.utils.setProperty(effect, "duration.seconds", duration.second);
+          foundry.utils.setProperty(effect, "duration.rounds", duration.round);
+        }
       }
 
-      const duration = DDBEffectHelper.getDuration(this.data.system.description.value, false);
-      if (duration.type) {
-        foundry.utils.setProperty(effect, "duration.seconds", duration.second);
-        foundry.utils.setProperty(effect, "duration.rounds", duration.round);
+      if (effectHint.statuses) {
+        for (const status of effectHint.statuses) {
+          const splitStatus = status.split(":");
+          addStatusEffectChange({
+            effect,
+            statusName: splitStatus[0],
+            level: splitStatus.length > 1 ? splitStatus[1] : null,
+          });
+        }
       }
-    }
 
-    if (this.effect.statuses) {
-      for (const status of this.effect.statuses) {
-        const splitStatus = status.split(":");
-        addStatusEffectChange({
-          effect,
-          statusName: splitStatus[0],
-          level: splitStatus.length > 1 ? splitStatus[1] : null,
-        });
+      if (effectHint.changes) {
+        const changes = utils.isFunction(effectHint.changes)
+          ? effectHint.changes(this.data)
+          : effectHint.changes;
+        if (effectHint.changesOverwrite) effect.changes = changes;
+        else effect.changes.push(...changes);
       }
-    }
 
-    if (this.effect.changes) {
-      const changes = utils.isFunction(this.effect.changes)
-        ? this.effect.changes(this.data)
-        : this.effect.changes;
-      if (this.effect.changesOverwrite) effect.changes = changes;
-      else effect.changes.push(...changes);
-    }
+      if (effectHint.atlChanges && effectModules().atlInstalled) {
+        effect.changes.push(...effectHint.atlChanges);
+      }
 
-    if (this.effect.atlChanges && effectModules().atlInstalled) {
-      effect.changes.push(...this.effect.atlChanges);
-    }
+      if (effectHint.data) {
+        effect = foundry.utils.mergeObject(effect, effectHint.data);
+      }
 
-    if (this.effect.data) {
-      effect = foundry.utils.mergeObject(effect, this.effect.data);
-    }
+      if (effectHint?.func) {
+        effectHint.func(effect);
+      }
 
-    if (this.effect?.func) {
-      this.effect.func(effect);
-    }
+      if (effectHint.descriptionHint && effectHint.type === "enchant") {
+        this.data.system.description.value = `${this.data.system.description.value}
+  <br>
+  <section class="secret">
+  <i>This feature provides an enchantment to help provide it's functionality.</i>
+  </section>`;
+      }
 
-    if (this.effect.descriptionHint && this.effect.type === "enchant") {
-      this.data.system.description.value = `${this.data.system.description.value}
-<br>
-<section class="secret">
-<i>This feature provides an enchantment to help provide it's functionality.</i>
-</section>`;
-    }
+      if (effectHint.descriptionSuffix) {
+        this.data.system.description.value += effectHint.descriptionSuffix;
+        if (this.data.system.description.chat !== "") this.data.system.description.chat += effectHint.descriptionSuffix;
+      }
 
-    if (this.effect.descriptionSuffix) {
-      this.data.system.description.value += this.effect.descriptionSuffix;
-      if (this.data.system.description.chat !== "") this.data.system.description.chat += this.effect.descriptionSuffix;
+      if (!effectHint.noCreate) effects.push(effect);
     }
-
     forceItemEffect(this.data);
 
-    return this.effect.noCreate
-      ? undefined
-      : effect;
+    return effects;
   }
 
   addDocumentOverride() {

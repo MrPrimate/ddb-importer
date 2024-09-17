@@ -763,10 +763,8 @@ export default class DDBBaseFeature {
       description: this.snippet !== "" ? this.snippet : this.description,
     });
 
-    let effect = this.enricher.createEffect();
-    if (effect) {
-      this.data.effects.push(effect);
-    }
+    const effects = this.enricher.createEffect();
+    this.data.effects.push(...effects);
 
     console.warn(`Effect Addition ${this.name}`, {
       dataEffects: this.data.effects,
@@ -780,6 +778,9 @@ export default class DDBBaseFeature {
         if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
         for (const effect of this.data.effects) {
           if (effect.transfer) continue;
+          if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
+          const activityNameRequired = foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch");
+          if (activityNameRequired && activity.name !== activityNameRequired) continue;
           const effectId = effect._id ?? foundry.utils.randomID();
           effect._id = effectId;
           activity.effects.push({ _id: effectId });

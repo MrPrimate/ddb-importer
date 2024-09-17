@@ -17,6 +17,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Psychic Blades: Bonus Attack (STR)",
     "Psychic Blades: Bonus Attack (DEX)",
     "Psychic Blades: Attack (STR)",
+    "Summon Wildfire Spirit: Command",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

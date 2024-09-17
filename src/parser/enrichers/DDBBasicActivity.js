@@ -398,10 +398,8 @@ export default class DDBBasicActivity {
     activity.build(options);
     enricher?.applyActivityOverride(activity.data);
 
-    let effect = enricher?.createEffect();
-    if (effect) {
-      document.effects.push(effect);
-    }
+    const effects = enricher?.createEffect() ?? [];
+    document.effects.push(...effects);
 
     enricher?.addDocumentOverride();
     foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);

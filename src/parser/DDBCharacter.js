@@ -174,6 +174,7 @@ export default class DDBCharacter {
   _filterActionFeatures() {
     const actionAndFeature = false;
     // game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
+    const alwaysUseFeatureDescription = true;
 
     // eslint-disable-next-line complexity
     this.data.actions = this.raw.actions.map((action) => {
@@ -205,8 +206,9 @@ export default class DDBCharacter {
         && featureFlagType === actionFlagType;
       });
       if (featureMatch) {
-        foundry.utils.setProperty(action, "flags.ddbimporter.featureNameMatch", featureMatch.name);
-        if (action.system.description.value === "" || true) {
+        const originalFeatureName = foundry.utils.getProperty(featureMatch, "flags.ddbimporter.originalName") ?? featureMatch.name;
+        foundry.utils.setProperty(action, "flags.ddbimporter.featureNameMatch", originalFeatureName);
+        if (action.system.description.value === "" || alwaysUseFeatureDescription) {
           action.system.description.value = featureMatch.system.description.value;
         }
 
@@ -216,10 +218,10 @@ export default class DDBCharacter {
 
         action.system.source = featureMatch.system.source;
 
-        // console.warn(`Found match for ${originalActionName} and ${featureMatch.name}`, {
-        //   action: foundry.utils.deepClone(action),
-        //   feature: foundry.utils.deepClone(featureMatch),
-        // });
+        console.warn(`Found match for ${originalActionName} and ${featureMatch.name}`, {
+          action: foundry.utils.deepClone(action),
+          feature: foundry.utils.deepClone(featureMatch),
+        });
         if (Object.keys(action.system.activities).length === 0) {
           for (const [key, activity] of Object.entries(featureMatch.system.activities)) {
             // console.warn(`Checking activity ${key}`, activity);
@@ -231,7 +233,14 @@ export default class DDBCharacter {
               action.system.activities[key].effects = featureMatch.system.activities[key].effects;
             }
           }
+        } else {
+          for (const key of Object.keys(featureMatch.system.activities)) {
+            if (action.system.activities[key] && action.system.activities[key].effects?.length === 0) {
+              action.system.activities[key].effects = featureMatch.system.activities[key].effects;
+            }
+          }
         }
+
 
         if (Object.keys(featureMatch.system.activities).length === 0
           && Object.keys(action.system.activities).length > 0
@@ -245,6 +254,9 @@ export default class DDBCharacter {
               if (effect.transfer) continue;
               // eslint-disable-next-line max-depth
               if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
+              const activityNameRequired = foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch");
+              // eslint-disable-next-line max-depth
+              if (activityNameRequired && action.system.activities[key].name !== activityNameRequired) continue;
               const effectId = effect._id ?? foundry.utils.randomID();
               effect._id = effectId;
               effects.push({ _id: effectId });

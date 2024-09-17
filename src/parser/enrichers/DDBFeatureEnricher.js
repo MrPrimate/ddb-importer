@@ -309,7 +309,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       data: {
         damage: {
           parts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "radiant" }),
+            DDBBaseEnricher.basicDamagePart({ customFormula: foundry.utils.getProperty(this.data, "flags.ddbimporter.type") === "class" ? "@abilities.cha.mod" : "@prof", type: "radiant" }),
           ],
         },
       },
@@ -648,7 +648,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       summons: {
         "creatureSizes": ["med"],
         "creatureTypes": ["monstrosity"],
-        "bonuses.hp": "(@classes.sorcerer.levels / 2)",
+        "bonuses.hp": "floor(@classes.sorcerer.levels / 2)",
       },
     },
     "Intimidating Presence": {
@@ -979,6 +979,93 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "range.units": "self",
       },
     },
+    "Raging Storm: Desert": {
+      type: "save",
+      activationType: "reaction",
+      targetType: "creature",
+      data: {
+        "range.units": "self",
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "floor(@classes.barbarian.levels / 2)", types: ["fire"] })],
+        },
+        target: {
+          save: {
+            ability: "dex",
+            dc: {
+              calculation: "con",
+              formula: "",
+            },
+          },
+          affects: {
+            count: "1",
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+          prompt: false,
+        },
+      },
+    },
+    "Raging Storm: Sea": {
+      type: "save",
+      activationType: "reaction",
+      targetType: "creature",
+      data: {
+        save: {
+          ability: "str",
+          dc: {
+            calculation: "con",
+            formula: "",
+          },
+        },
+        "range.units": "self",
+        target: {
+          affects: {
+            count: "1",
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+          prompt: false,
+        },
+      },
+    },
+    "Raging Storm: Tundra": {
+      type: "save",
+      activationType: "reaction",
+      targetType: "creature",
+      data: {
+        save: {
+          ability: "str",
+          dc: {
+            calculation: "con",
+            formula: "",
+          },
+        },
+        "range.units": "self",
+        target: {
+          affects: {
+            count: "1",
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+          prompt: false,
+        },
+      },
+    },
     "Relentless": {
       type: "utility",
       activationType: "special",
@@ -1014,6 +1101,13 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
             formula: "",
           },
         },
+      },
+    },
+    "Shielding Storm": {
+      type: "utility",
+      activationType: "special",
+      data: {
+        name: "Shielding Storm: Desert",
       },
     },
     "Shifting: Beasthide": {
@@ -1110,6 +1204,109 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
           visible: false,
           formula: "@scale.soulknife.psionic-power",
           name: "Roll Attack Bonus",
+        },
+      },
+    },
+    "Storm Soul: Dessert": {
+      type: "utility",
+      activationType: "special",
+    },
+    "Storm Soul: Sea": {
+      type: "utility",
+      activationType: "special",
+    },
+    "Storm Soul: Tundra": {
+      type: "utility",
+      activationType: "special",
+    },
+    "Storm Soul: Tundra - Freeze Water": {
+      data: {
+        target: {
+          affects: {
+            type: "space",
+          },
+          template: {
+            contiguous: false,
+            type: "cube",
+            size: "5",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Storm Aura: Desert": {
+      type: "damage",
+      activationType: "bonus",
+      data: {
+        "range.units": "self",
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.path-of-the-storm-herald.storm-aura-desert", types: ["fire"] })],
+        },
+        target: {
+          affects: {
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Storm Aura: Sea": {
+      type: "save",
+      activationType: "bonus",
+      data: {
+        "range.units": "self",
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.path-of-the-storm-herald.storm-aura-sea", types: ["lightning"] })],
+        },
+        target: {
+          save: {
+            ability: "dex",
+            dc: {
+              calculation: "con",
+              formula: "",
+            },
+          },
+          affects: {
+            count: "1",
+            choice: true,
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Storm Aura: Tundra": {
+      type: "heal",
+      activationType: "bonus",
+      data: {
+        "range.units": "self",
+        target: {
+          affects: {
+            type: "ally",
+          },
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+        },
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@scale.path-of-the-storm-herald.storm-aura-tundra",
+          },
+          types: ["temphp"],
         },
       },
     },
@@ -1348,6 +1545,44 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Shielding Storm": [
+      {
+        constructor: {
+          name: "Shielding Storm: Sea",
+          type: "utility",
+        },
+        build: {
+          generateDamage: false,
+          generateAttack: false,
+          generateTarget: false,
+          generateRange: false,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Shielding Storm: Tundra",
+          type: "utility",
+        },
+        build: {
+          generateDamage: false,
+          generateAttack: false,
+          generateTarget: false,
+          generateRange: false,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+        },
+      },
+    ],
     "Shifting: Longtooth": [
       {
         constructor: {
@@ -1371,6 +1606,53 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
             type: "bonus",
             value: 1,
           },
+        },
+      },
+    ],
+    "Summon Wildfire Spirit": [
+      {
+        constructor: {
+          name: "Wildfire Summoning Damage",
+          type: "save",
+        },
+        build: {
+          noeffect: true,
+          generateConsumption: false,
+          generateTarget: true,
+          generateRange: false,
+          generateActivation: true,
+          generateDamage: true,
+          generateSave: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+          saveOverride: {
+            ability: "dex",
+            dc: {
+              calculation: "spellcasting",
+              formula: "",
+            },
+          },
+          targetOverride: {
+            template: {
+              count: "",
+              contiguous: false,
+              type: "radius",
+              size: "10",
+              width: "",
+              height: "",
+              units: "ft",
+            },
+            affects: {
+              count: "",
+              type: "creature",
+              choice: false,
+              special: "",
+            },
+          },
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6, type: "fire" })],
         },
       },
     ],
@@ -1909,6 +2191,32 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Raging Storm: Tundra": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.attributes.movement.all",
+          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+          value: "*0",
+          priority: "20",
+        },
+        {
+          key: "system.attributes.movement.walk",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          value: "0",
+          priority: "60",
+        },
+        {
+          key: "system.attributes.movement.fly",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          value: "0",
+          priority: "60",
+        },
+      ],
+    },
     "Sacred Weapon": {
       type: "enchant",
       name: "Sacred Weapon",
@@ -1935,6 +2243,103 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         description: `The weapon shines with Sacred Energy.`,
         durationSeconds: 600,
       },
+    },
+    "Shielding Storm": {
+      multiple: [
+        {
+          name: "Shielding Storm: Desert",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            flags: {
+              ddbimporter: {
+                activityMatch: "Shielding Storm: Desert",
+              },
+              ActiveAuras: {
+                aura: "Allies",
+                radius: "10",
+                isAura: true,
+                ignoreSelf: true,
+                inactive: false,
+                hidden: false,
+                displayTemp: true,
+              },
+            },
+          },
+          changes: [
+            {
+              key: "system.traits.dr.value",
+              value: "fire",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              priority: 20,
+            },
+          ],
+        },
+        {
+          name: "Shielding Storm: Sea",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            flags: {
+              ddbimporter: {
+                activityMatch: "Shielding Storm: Sea",
+              },
+              ActiveAuras: {
+                aura: "Allies",
+                radius: "10",
+                isAura: true,
+                ignoreSelf: true,
+                inactive: false,
+                hidden: false,
+                displayTemp: true,
+              },
+            },
+          },
+          changes: [
+            {
+              key: "system.traits.dr.value",
+              value: "lightning",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              priority: 20,
+            },
+          ],
+        },
+        {
+          name: "Shielding Storm: Tundra",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            flags: {
+              ddbimporter: {
+                activityMatch: "Shielding Storm: Tundra",
+              },
+              ActiveAuras: {
+                aura: "Allies",
+                radius: "10",
+                isAura: true,
+                ignoreSelf: true,
+                inactive: false,
+                hidden: false,
+                displayTemp: true,
+              },
+            },
+          },
+          changes: [
+            {
+              key: "system.traits.dr.value",
+              value: "cold",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              priority: 20,
+            },
+          ],
+        },
+      ],
     },
     "Shifting: Beasthide": {
       type: "feat",

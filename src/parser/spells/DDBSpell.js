@@ -897,10 +897,9 @@ export default class DDBSpell {
     foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
 
     if (this.data.effects.length === 0) this.#addConditionEffects();
-    let effect = this.enricher.createEffect();
-    if (effect) {
-      this.data.effects.push(effect);
-    }
+    const effects = this.enricher.createEffect();
+    this.data.effects.push(...effects);
+
     this.#activityEffectLinking();
   }
 

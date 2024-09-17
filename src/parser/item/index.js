@@ -85,14 +85,11 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
 
       if (!isCompendiumItem) item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
 
-      //todo: refactor midi effects
+      // todo: refactor midi effects
       // if (addAutomationEffects) item = await midiItemEffects(item);
 
-      // to do: we want to move this into item parser build
-      let effect = itemParser.enricher.createEffect();
-      if (effect) {
-        item.effects.push(effect);
-      }
+      const effects = itemParser.enricher.createEffect();
+      item.effects.push(...effects);
 
       items.push(item);
     }
@@ -107,6 +104,9 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
         if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
         for (const effect of item.effects) {
           if (effect.transfer) continue;
+          if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
+          const activityNameRequired = foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch");
+          if (activityNameRequired && activity.name !== activityNameRequired) continue;
           const effectId = effect._id ?? foundry.utils.randomID();
           effect._id = effectId;
           activity.effects.push({ _id: effectId });

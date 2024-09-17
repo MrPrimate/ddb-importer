@@ -413,7 +413,11 @@ export default class DDBFeatureActivity {
     this.data.healing = damage;
   }
 
-  _generateSave() {
+  _generateSave({ saveOverride = null } = {}) {
+    if (saveOverride) {
+      this.data.save = saveOverride;
+      return;
+    }
     const fixedDC = this.ddbDefinition.fixedSaveDc ? this.ddbDefinition.fixedSaveDc : null;
     let calculation = fixedDC
       ? ""
@@ -521,6 +525,7 @@ export default class DDBFeatureActivity {
     noeffect = false,
     consumptionOverride = null,
     attackOverride = null,
+    saveOverride = null,
   } = {}) {
 
 
@@ -543,6 +548,7 @@ export default class DDBFeatureActivity {
       includeBase,
       damageParts,
       attackOverride,
+      saveOverride,
     });
 
     // override set to false on object if overriding
@@ -553,7 +559,7 @@ export default class DDBFeatureActivity {
     if (generateDescription) this._generateDescription();
     if (generateDuration) this._generateDuration();
     if (generateEffects) this._generateEffects();
-    if (generateSave) this._generateSave();
+    if (generateSave) this._generateSave({ saveOverride });
     if (generateDamage) this._generateDamage({ includeBase, parts: damageParts });
     if (generateHealing) this._generateHealing({ part: healingPart });
     if (generateRange) this._generateRange();

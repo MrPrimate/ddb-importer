@@ -67,8 +67,6 @@ import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { warCasterEffect } from "./feats/warCaster.js";
 import { furyOfTheSmallEffect } from "./feats/furryOfTheSmall.js";
 import { intimidatingPresenceEffect } from "./feats/intimidatingPresence.js";
-import { shieldingStormEffect } from "./feats/sheildingStorm.js";
-import { stormSoulEffect } from "./feats/stormSoul.js";
 import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
 import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
 import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
@@ -341,13 +339,13 @@ async function midiFeatureEffects(ddb, character, document) {
       document = await stormAuraTundraEffect(document);
       break;
     }
-    case "Storm Soul: Desert":
-    case "Storm Soul: Sea":
-    case "Storm Soul: Tundra":
-    case "Storm Soul": {
-      if (ddb) document = await stormSoulEffect(ddb, document);
-      break;
-    }
+    // case "Storm Soul: Desert":
+    // case "Storm Soul: Sea":
+    // case "Storm Soul: Tundra":
+    // case "Storm Soul": {
+    //   if (ddb) document = await stormSoulEffect(ddb, document);
+    //   break;
+    // }
     case "Swiftstride Reaction": {
       document = forceManualReaction(document);
       break;
@@ -450,10 +448,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Song of Victory": {
       document = songOfVictoryEffect(document);
-      break;
-    }
-    case "Shielding Storm": {
-      if (ddb) document = shieldingStormEffect(ddb, document);
       break;
     }
     case "Steady Aim": {

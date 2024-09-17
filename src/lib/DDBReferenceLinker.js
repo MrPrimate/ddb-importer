@@ -243,8 +243,7 @@ function parseLooseRuleReferences(text, superLoose = false) {
         if (p7 && ["saving throw", "check"].includes(p7.toLowerCase())) {
           const rollType = p7.toLowerCase() === "check" ? "check" : "save";
           if (p3 && Number.isInteger(parseInt(p4))) {
-            return `${p2}[[/${rollType} ${key} ${p4} format=long]]${p9}
-            }`;
+            return `${p2}[[/${rollType} ${key} ${p4} format=long]]${p9}`;
           } else if (p8 && p8.includes("DC 8 plus your")) {
             return `${p2}[[/${rollType} ${key} dc=8+@${key}.mod+@prof ${p4} format=long]]${p9}`;
           } else {
