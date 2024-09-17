@@ -1307,8 +1307,13 @@ export default class DDBEffectHelper {
     }
 
     if (!match) {
-      const snipetSearch = /succeed on a (?<ability>\w+) saving throw \(DC {{savedc:(?<modifier>\w+)}}\)? or be (?<condition>\w+) until/ig;
+      const snipetSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) \(DC {{savedc:(?<modifier>\w+)}}\)? or be (?<condition>\w+) until/ig;
       match = snipetSearch.exec(parserText);
+    }
+
+    if (!match) {
+      const spellcasterSearch = /a (?<ability>\w+) (?<type>saving throw|check) against your (?<spellcasting>spell save DC|spellcasting|spell casting)/ig;
+      match = spellcasterSearch.exec(parserText);
     }
 
     if (match) {
@@ -1316,7 +1321,7 @@ export default class DDBEffectHelper {
       results.save = {
         dc: {
           formulas: match.groups["dc"] ?? "",
-          calculation: match.groups["modifier"]?.toLowerCase().substr(0, 3) ?? "",
+          calculation: match.groups["spellcasting"] ? "spellcasting" : (match.groups["modifier"]?.toLowerCase().substr(0, 3) ?? ""),
         },
         ability: match.groups["ability"]?.toLowerCase().substr(0, 3) ?? "",
       };

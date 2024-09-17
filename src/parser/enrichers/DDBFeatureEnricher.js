@@ -1703,6 +1703,45 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Momentary Stasis": {
+      type: "feat",
+      options: {
+        durationRounds: 1,
+      },
+      changes: [
+        {
+          key: "system.attributes.movement.walk",
+          value: "0",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 90,
+        },
+        {
+          key: "system.attributes.movement.all",
+          value: "0",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 90,
+        },
+        {
+          key: "system.attributes.movement.fly",
+          value: "0",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 90,
+        },
+        {
+          key: "system.attributes.movement.swim",
+          value: "0",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 90,
+        },
+        {
+          key: "system.attributes.movement.climb",
+          value: "0",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 90,
+        },
+      ],
+      statuses: ["incapacitated"],
+    },
     "Partially Amphibious": {
       type: "feat",
       data: {

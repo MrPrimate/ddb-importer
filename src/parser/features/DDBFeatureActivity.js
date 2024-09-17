@@ -229,8 +229,8 @@ export default class DDBFeatureActivity {
       };
     } else {
       this.data.range = {
-        value: 5,
-        units: "ft",
+        value: ["utility", "summons", "enchant"].includes(this.type) ? null : 5,
+        units: ["utility", "summons", "enchant"].includes(this.type) ? "self" : "ft",
         special: "",
       };
       const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
@@ -243,6 +243,7 @@ export default class DDBFeatureActivity {
 
   }
 
+  // eslint-disable-next-line complexity
   _getDescriptionTarget() {
     const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
     let target = {
@@ -271,7 +272,7 @@ export default class DDBFeatureActivity {
       target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
       target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
-    const aoeSizeRegex = /(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
+    const aoeSizeRegex = /(?:within|in a|fills a) (?<within>\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
     const aoeSizeMatch = aoeSizeRegex.exec(description);
 
     // console.warn(`Target generation for ${this.name}`, {
@@ -281,21 +282,30 @@ export default class DDBFeatureActivity {
     // });
 
     if (aoeSizeMatch) {
-      const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
-      target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
-      target.template.size = aoeSizeMatch[1] ?? "";
-      if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
-        this.data.range.units = "self";
+      if (aoeSizeMatch[2] && ["of you"].includes(aoeSizeMatch[2].trim())) {
+        this.data.range.value = aoeSizeMatch.groups.within ?? "";
+        this.data.range.units = "ft";
+      } else {
+        const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
+        target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
+        target.template.size = aoeSizeMatch.groups.within ?? "";
       }
     }
 
-    const chooseRegex = /creature of your choice|choose (\w+) creatures within/ig;
-    if (chooseRegex.test(description)) {
+    const chooseRegex = /creature of your choice|choose (?<num>\w+) creatures within/ig;
+    const chooseMatch = chooseRegex.exec(description);
+    if (chooseMatch) {
       if (this.data.damage?.parts?.length > 0 || ["save", "attack", "damage"].includes(this.type))
         target.affects.type = "enemy";
       else if (["heal"].includes(this.type))
         target.affects.type = "ally";
       target.affects.choice = true;
+      if (chooseMatch.groups.num) {
+        const number = Number.isInteger(parseInt(chooseMatch.groups.num))
+          ? chooseMatch.groups.num
+          : DICTIONARY.numbers.find((num) => chooseMatch.groups.num.toLowerCase() === num.natural)?.num ?? chooseMatch.groups.num;
+        target.affects.count = number;
+      }
     }
 
     return target;
@@ -364,9 +374,11 @@ export default class DDBFeatureActivity {
     if (!this.ddbParent.getDamage && !parts) {
       return;
     }
-    const damage = (parts ?? [this.ddbParent.getDamage()]).filter((part) => {
-      return part.denomination || part.custom.enabled;
-    });
+    const damage = (parts ?? [this.ddbParent.getDamage()])
+      .filter((part) => {
+        if (!part) return false;
+        return part.denomination || part.custom.enabled;
+      });
 
     if (!damage || damage.length === 0) return;
 
