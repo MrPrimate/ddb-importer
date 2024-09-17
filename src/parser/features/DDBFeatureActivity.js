@@ -132,7 +132,7 @@ export default class DDBFeatureActivity {
     // right now most of these target other creatures
 
     const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
-    const kiPointRegex = /(?:spend|expend) (\d) ki point/;
+    const kiPointRegex = /(?:spend|expend) (\d) (?:ki|focus) point/;
     const sorceryPoint = /spend (\d) sorcery points/ig;
     const match = kiPointRegex.exec(description)
       ?? sorceryPoint.exec(description);

@@ -91,7 +91,7 @@ export default class DDBSpellActivity {
     // you can spend one Hit Die to heal yourself.
     // right now most of these target other creatures
 
-    const kiPointRegex = /(?:spend|expend) (\d) ki point/;
+    const kiPointRegex = /(?:spend|expend) (\d) (?:ki|focus) point/;
     const match = this.spellDefinition.description?.match(kiPointRegex);
     if (match) {
       spellSlot = false;

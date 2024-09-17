@@ -117,7 +117,7 @@ export default class DDBBasicActivity {
     // you can spend one Hit Die to heal yourself.
     // right now most of these target other creatures
 
-    const kiPointRegex = /(?:spend|expend) (\d) ki point/;
+    const kiPointRegex = /(?:spend|expend) (\d) (?:ki|focus) point/;
     const match = this.foundryFeature.system?.description?.value.match(kiPointRegex);
     if (match) {
       targets.push({

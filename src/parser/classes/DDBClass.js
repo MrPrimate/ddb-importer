@@ -1133,8 +1133,6 @@ export default class DDBClass {
     this._generateSkillOrLanguageAdvancements();
     this._generateConditionAdvancements();
     this._generateSpellCastingProgression();
-    // FUTURE: choice options such as fighting styles, this requires improved feature parsing
-    await this._addFoundryAdvancements();
   }
 
   // fixes
@@ -1156,6 +1154,54 @@ export default class DDBClass {
           },
         };
       };
+      if (this.is2014) {
+        const wildshape = {
+          _id: foundry.utils.randomID(),
+          type: "ScaleValue",
+          configuration: {
+            distance: { units: "" },
+            identifier: "wild-shape-uses",
+            type: "number",
+            scale: {
+              2: {
+                value: 2,
+              },
+              20: {
+                value: 99,
+              },
+            },
+          },
+          value: {},
+          title: "Wild Shape Uses",
+          icon: null,
+        };
+        this.data.system.advancement.push(wildshape);
+      } else {
+        const wildshape = {
+          _id: foundry.utils.randomID(),
+          type: "ScaleValue",
+          configuration: {
+            distance: { units: "" },
+            identifier: "wild-shape-uses",
+            type: "number",
+            scale: {
+              2: {
+                value: 2,
+              },
+              6: {
+                value: 3,
+              },
+              17: {
+                value: 4,
+              },
+            },
+          },
+          value: {},
+          title: "Wild Shape Uses",
+          icon: null,
+        };
+        this.data.system.advancement.push(wildshape);
+      }
     } else if (this.data.name === "Monk") {
       const ki = {
         _id: foundry.utils.randomID(),
@@ -1206,6 +1252,9 @@ export default class DDBClass {
     await this._generateDescriptionStub(character);
 
     this._fixes();
+
+    // FUTURE: choice options such as fighting styles, this requires improved feature parsing
+    await this._addFoundryAdvancements();
   }
 
 }
