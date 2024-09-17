@@ -13,6 +13,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Ghostly Gaze",
     "Form of the Beast: Tail (reaction)",
     "Shift",
+    "Polearm Master - Opportunity Attack",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

@@ -909,6 +909,17 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Polearm Master - Bonus Attack": {
+      type: "attack",
+      activationType: "bonus",
+      targetType: "creature",
+      data: {
+        "reach.value": "10",
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ number:1, denomination: 4, types: ["bludgeoning"] })],
+        },
+      },
+    },
     "Quickened Healing": {
       type: "heal",
       data: {

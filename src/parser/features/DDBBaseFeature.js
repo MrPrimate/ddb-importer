@@ -820,7 +820,7 @@ export default class DDBBaseFeature {
       // missing: multiattack
 
 
-    } else if (this.type === "feat") {
+    } else if (this.type === "feat" && this.ddbDefinition.categories) {
       if (this.ddbDefinition.categories.some((c) => c.tagName === "Origin"))
         subType = "origin";
       else if (this.ddbDefinition.categories.some((c) => c.tagName === "Fighting Style"))

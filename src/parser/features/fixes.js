@@ -15,11 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Momentary Stasis": {
-        feature.system.actionType = "save";
-        feature.system.save.ability = "con";
-        break;
-      }
       case "Polearm Master - Bonus Attack": {
         feature.system.actionType = "mwak";
         feature.system.range = { value: 10, long: null, units: "ft" };
