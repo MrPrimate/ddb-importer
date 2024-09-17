@@ -15,27 +15,6 @@ export async function fixFeatures(features) {
     // eslint-disable-next-line no-continue
     if (foundry.utils.getProperty(feature, "flags.ddbimporter.isCustomAction") === true) continue;
     switch (name) {
-      case "Polearm Master - Bonus Attack": {
-        feature.system.actionType = "mwak";
-        feature.system.range = { value: 10, long: null, units: "ft" };
-        break;
-      }
-      case "Psionic Power: Recovery": {
-        feature.system.damage = { parts: [], versatile: "", value: "" };
-        foundry.utils.setProperty(feature, "system.consume.amount", -1);
-        break;
-      }
-      case "Psychic Blades: Attack (DEX)":
-      case "Psychic Blades: Attack (STR)":
-      case "Psychic Blades: Bonus Attack (DEX)":
-      case "Psychic Blades: Bonus Attack (STR)":
-      case "Psychic Blades: Bonus Attack":
-      case "Psychic Blades: Attack": {
-        feature.system.actionType = "mwak";
-        feature.system.properties.push("fin");
-        feature.system.properties.push("thr");
-        break;
-      }
       case "Celestial Revelation (Radiant Soul)":
       case "Radiant Soul": {
         if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") == "race") {

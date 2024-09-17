@@ -14,6 +14,9 @@ export default class DDBAction extends DDBBaseFeature {
     "Form of the Beast: Tail (reaction)",
     "Shift",
     "Polearm Master - Opportunity Attack",
+    "Psychic Blades: Bonus Attack (STR)",
+    "Psychic Blades: Bonus Attack (DEX)",
+    "Psychic Blades: Attack (STR)",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

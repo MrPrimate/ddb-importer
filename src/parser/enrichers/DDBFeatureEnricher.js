@@ -91,6 +91,10 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     "Preserve Life": "Channel Divinity: Preserve Life",
     "Radiance of the Dawn": "Channel Divinity: Radiance of the Dawn",
     "War God's Blessing": "Channel Divinity: War God's Blessing",
+    "Psychic Blades: Attack (DEX)": "Psychic Blades: Attack",
+    "Psychic Blades: Attack (STR)": "Psychic Blades: Attack",
+    "Psychic Blades: Bonus Attack (DEX)": "Psychic Blades: Bonus Attack",
+    "Psychic Blades: Bonus Attack (STR)": "Psychic Blades: Bonus Attack",
   };
 
   ACTIVITY_HINTS = {
@@ -920,6 +924,15 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Psionic Power: Recovery": {
+      data: {
+        "consumption.targets": [{
+          type: "itemUses",
+          target: "", // adjusted later
+          value: "-1",
+        }],
+      },
+    },
     "Quickened Healing": {
       type: "heal",
       data: {
@@ -1323,6 +1336,33 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Psychic Blades: Attack": [
+      {
+        constructor: {
+          name: "Bonus Action Attack",
+          type: "attack",
+        },
+        build: {
+          generateAttack: true,
+          generateConsumption: false,
+          includeBase: false,
+          generateTarget: true,
+          generateDamage: true,
+          attackOverride: {
+            ability: "cha",
+            type: {
+              value: "melee",
+              classification: "weapon",
+            },
+          },
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 4, type: "psychic" })],
+          activationOverride: {
+            type: "bonus",
+            value: 1,
+          },
+        },
+      },
+    ],
   };
 
   DOCUMENT_OVERRIDES = {
@@ -1523,6 +1563,19 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "system.uses": {
           spent: null,
           max: "",
+        },
+      },
+    },
+    "Psychic Blades: Attack": {
+      data: {
+        name: "Psychic Blades",
+        system: {
+          mastery: "vex",
+          range: {
+            long: 120,
+          },
+          "type.value": "simpleM",
+          properties: ["fin", "thr"].concat(this.data.system.properties ?? []),
         },
       },
     },
