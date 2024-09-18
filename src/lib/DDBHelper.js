@@ -167,7 +167,6 @@ const DDBHelper = {
    */
   // eslint-disable-next-line complexity
   getSourceData: (definition) => {
-    const fullSource = game.settings.get("ddb-importer", "use-full-source");
     const results = [];
     if (definition.sources?.length > 0) {
       // is basic rules (e.g. SRD)
@@ -184,7 +183,7 @@ const DDBHelper = {
         const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === ds.sourceId);
 
         results.push({
-          book: ddbSource ? (fullSource ? ddbSource.description : ddbSource.name) : "Homebrew",
+          book: ddbSource ? ddbSource.name : "Homebrew",
           page: ds.pageNumber ?? "",
           license: "",
           custom: "",
@@ -195,7 +194,7 @@ const DDBHelper = {
       for (const sourceId of definition.sourceIds) {
         const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === sourceId);
         results.push({
-          book: ddbSource ? (fullSource ? ddbSource.description : ddbSource.name) : "Homebrew",
+          book: ddbSource ? ddbSource.name : "Homebrew",
           page: definition.sourcePageNumber ?? "",
           license: "",
           custom: "",
@@ -205,7 +204,7 @@ const DDBHelper = {
     } else if (definition.sourceId) {
       const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === definition.sourceId);
       results.push({
-        book: ddbSource ? (fullSource ? ddbSource.description : ddbSource.name) : "Homebrew",
+        book: ddbSource ? ddbSource.name : "Homebrew",
         page: definition.sourcePageNumber ?? "",
         license: "",
         custom: "",
