@@ -94,7 +94,7 @@ export default class CharacterSpellFactory {
         // Check for duplicate spells, normally domain ones
         // We will import spells from a different class that are the same though
         // as they may come from with different spell casting mods
-        const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+        const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
         foundry.utils.setProperty(parsedSpell, "system.sourceClass", classInfo.definition.name.toLowerCase());
         const duplicateSpell = this.items.findIndex(
           (existingSpell) => {
@@ -194,13 +194,13 @@ export default class CharacterSpellFactory {
           && spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
       );
       if (!this.items[duplicateSpell]) {
-        const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+        const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
         this.items.push(parsedSpell);
       } else if (spell.alwaysPrepared) {
         // if our new spell is always known we overwrite!
         // it's probably domain
-        const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+        const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
         this.items[duplicateSpell] = parsedSpell;
       } else {
@@ -229,7 +229,7 @@ export default class CharacterSpellFactory {
         unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = type;
         delete unlimitedSpell.id;
         delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-        const parsedSpell = await DDBSpell.parseSpell(unlimitedSpell, this.character, { namePostfix: `${this._getSpellCount(unlimitedSpell.definition.name)}` });
+        const parsedSpell = await DDBSpell.parseSpell(unlimitedSpell, this.character, { ddbData: this.ddb, namePostfix: `${this._getSpellCount(unlimitedSpell.definition.name)}` });
         this.items.push(parsedSpell);
       }
     }
@@ -282,7 +282,7 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "race");
-      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
       this.items.push(parsedSpell);
     }
   }
@@ -333,7 +333,7 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "feat");
-      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
       this.items.push(parsedSpell);
     }
   }
@@ -373,7 +373,7 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "background");
-      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
       this.items.push(parsedSpell);
     }
   }

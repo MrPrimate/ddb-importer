@@ -58,8 +58,12 @@ export default class DDBSpellActivity {
     this.additionalActivityDamageParts = [];
   }
 
-  _generateConsumption() {
-    let targets = [];
+  _generateConsumption({ consumptionOverride = null, additionalTargets = [] } = {}) {
+    if (consumptionOverride) {
+      this.data.consumption = consumptionOverride;
+      return;
+    }
+    let targets = additionalTargets ?? [];
     let scaling = false;
     let spellSlot = true;
 
@@ -68,54 +72,6 @@ export default class DDBSpellActivity {
     // "hitDice"
     // "material"
     // "itemUses"
-
-    // if (this.ddbParent.rawCharacter) {
-    //   Object.keys(this.ddbParent.rawCharacter.system.resources).forEach((resource) => {
-    //     const detail = this.ddbParent.rawCharacter.system.resources[resource];
-    //     if (this.spellDefinition.name === detail.label) {
-    //       targets.push({
-    //         type: "attribute",
-    //         target: `resources.${resource}.value`,
-    //         value: 1,
-    //         scaling: {
-    //           mode: "",
-    //           formula: "",
-    //         },
-    //       });
-    //     }
-    //   });
-    // }
-
-    // Future check for hit dice expenditure?
-    // expend one of its Hit Point Dice,
-    // you can spend one Hit Die to heal yourself.
-    // right now most of these target other creatures
-
-    const kiPointRegex = /(?:spend|expend) (\d) (?:ki|focus) point/;
-    const match = this.spellDefinition.description?.match(kiPointRegex);
-    if (match) {
-      spellSlot = false;
-      targets.push({
-        type: "itemUses",
-        target: "", // adjusted later
-        value: match[1],
-        scaling: {
-          mode: "",
-          formula: "",
-        },
-      });
-    }
-    //  else if (this.ddbSpell.resourceCharges !== null) {
-    //   targets.push({
-    //     type: "itemUses",
-    //     target: "", // adjusted later
-    //     value: this._resourceCharges ?? 1,
-    //     scaling: {
-    //       mode: "",
-    //       formula: "",
-    //     },
-    //   });
-    // }
 
     // this is a spell with limited uses such as one granted by a feat
     if (this.spellData.limitedUse) {
@@ -377,7 +333,8 @@ export default class DDBSpellActivity {
     return damage;
   }
 
-  _generateDamage(damageParts, onSave = null) {
+
+  _generateDamage({ damageParts = null, onSave = null } = {}) {
 
     if (damageParts) {
       this.data.damage = {
@@ -442,12 +399,16 @@ export default class DDBSpellActivity {
 
   }
 
-  _generateHealing(healingPart) {
+  _generateHealing({ healingPart } = {}) {
     if (healingPart.chatFlavor) this.data.description.chatFlavor = healingPart.chatFlavor;
     this.data.healing = healingPart.part;
   }
 
-  _generateSave() {
+  _generateSave({ saveOverride = null } = {}) {
+    if (saveOverride) {
+      this.data.save = saveOverride;
+      return;
+    }
     if (this.spellDefinition.requiresSavingThrow && this.spellDefinition.saveDcAbilityId) {
       const saveAbility = DICTIONARY.character.abilities
         .find((ability) => ability.id === this.spellDefinition.saveDcAbilityId)?.value;
@@ -503,6 +464,40 @@ export default class DDBSpellActivity {
     logger.debug(`Stubbed summon generation for ${this.name}`);
   }
 
+  _generateRange({ rangeOverride = null } = {}) {
+    if (rangeOverride) {
+      this.data.range = rangeOverride;
+      this.data.range.override = true;
+    }
+  }
+
+  _generateRoll({ roll = null } = {}) {
+    if (roll) {
+      this.data.roll = roll;
+    }
+  }
+
+  _generateTarget({ targetOverride = null } = {}) {
+    if (targetOverride) {
+      this.data.target = targetOverride;
+      this.data.target.override = true;
+    }
+  }
+
+  _generateActivation({ activationOverride = null } = {}) {
+    if (activationOverride) {
+      this.data.activation = activationOverride;
+      this.data.activation.override = true;
+    }
+  }
+
+  _generateDuration({ durationOverride = null } = {}) {
+    if (durationOverride) {
+      this.data.duration = durationOverride;
+      this.data.duration.override = true;
+    }
+  }
+
   build({
     generateAttack = false,
     generateConsumption = true,
@@ -511,13 +506,21 @@ export default class DDBSpellActivity {
     generateEffects = true,
     generateEnchant = false,
     generateHealing = false,
+    generateRoll = false,
     generateSave = false,
     generateSummon = false,
     healingPart = null,
     damageParts = null,
     chatFlavor = null,
     onSave = null,
-    // todo: add overrides for things like activation, targets etc for generating spell actions for items
+    noeffect = false,
+    roll = null,
+    noSpellslot = false,
+    targetOverride = null,
+    rangeOverride = null,
+    activationOverride = null,
+    durationOverride = null,
+    saveOverride = null,
   } = {}) {
 
     logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
@@ -533,19 +536,44 @@ export default class DDBSpellActivity {
       chatFlavor,
       onSave,
       this: this,
+      noeffect,
+      roll,
+      noSpellslot,
+      targetOverride,
+      rangeOverride,
+      activationOverride,
+      durationOverride,
+      saveOverride,
     });
 
     // override set to false on object if overriding
 
+    if (activationOverride) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption();
     if (generateDescription) this._generateDescription(chatFlavor);
     if (generateEffects) this._generateEffects();
-    if (generateSave) this._generateSave();
-    if (generateDamage) this._generateDamage(damageParts, onSave);
+    if (generateSave) this._generateSave({ saveOverride });
+    if (generateDamage) this._generateDamage({ damageParts, onSave });
     if (generateEnchant) this._generateEnchant();
     if (generateSummon) this._generateSummon();
-    if (generateHealing) this._generateHealing(healingPart);
+    if (generateHealing) this._generateHealing({ healingPart });
+    if (rangeOverride) this._generateRange({ rangeOverride });
+    if (targetOverride) this._generateTarget({ targetOverride });
+    if (durationOverride) this._generateDuration({ durationOverride });
+
+    if (generateRoll) this._generateRoll({ roll });
+
+    if (noSpellslot) {
+      foundry.utils.setProperty(this.data, "consumption.spellSlot", false);
+    }
+
+    if (noeffect) {
+      const ids = foundry.utils.getProperty(this.ddbParent.data, "flags.ddbimporter.noeffect") ?? [];
+      ids.push(this.data._id);
+      foundry.utils.setProperty(this.ddbParent.data, "flags.ddbimporter.noEffectIds", ids);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
+    }
 
     // ATTACK has
     // activation

@@ -876,12 +876,15 @@ export default class DDBSpell {
   }
 
   #activityEffectLinking() {
-    // hack till better impelementation
     if (this.data.effects.length > 0) {
       for (const activityId of Object.keys(this.data.system.activities)) {
         const activity = this.data.system.activities[activityId];
         if (activity.effects.length !== 0) continue;
+        if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
         for (const effect of this.data.effects) {
+          if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
+          const activityNameRequired = foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch");
+          if (activityNameRequired && activity.name !== activityNameRequired) continue;
           const effectId = effect._id ?? foundry.utils.randomID();
           effect._id = effectId;
           activity.effects.push({ _id: effectId });
@@ -937,6 +940,30 @@ export default class DDBSpell {
     }
   }
 
+  getRangeAdjustmentMultiplier() {
+    if (!this.ddbParser?.ddbData) return 1;
+    const rangeAdjustmentMods = DDBHelper.filterBaseModifiers(this.ddbParser.ddbData, "bonus", { subType: "spell-attack-range-multiplier" }).filter((modifier) => modifier.isGranted);
+
+    const multiplier = rangeAdjustmentMods.reduce((current, mod) => {
+      if (Number.isInteger(mod.fixedValue) && mod.fixedValue > current) {
+        current = mod.fixedValue;
+      } else if (Number.isInteger(mod.value) && mod.value > current) {
+        current = mod.value;
+      }
+      return current;
+    }, 1);
+
+    return multiplier;
+  }
+
+  adjustRange(multiplier, spell) {
+    // this needs to be adjusted and implemented for 2024 and 2014, not currently called
+    if (this.data.spell.system.actionType === "rsak" && Number.isInteger(spell.system.range?.value)) {
+      foundry.utils.setProperty(spell, "system.range.value", spell.system.range.value * multiplier);
+    }
+    return spell;
+  }
+
   async parse() {
     this.data.system.level = this.spellDefinition.level;
     this.data.system.school = (this.school) ? this.school.id : null;
@@ -949,7 +976,7 @@ export default class DDBSpell {
     this._generateProperties();
     this._generateMaterials();
     this._generateSpellPreparationMode();
-    this._generateDescription();
+    await this._generateDescription();
     this._generateActivation();
     this._generateDuration();
     this._generateRange();
@@ -958,9 +985,14 @@ export default class DDBSpell {
     this.#generateHealingParts(); // used in activity
 
     await this.#generateSummons();
-    await this._generateActivity();
-    this.#addHealAdditionalActivities();
-    await this.#generateAdditionalActivities();
+
+    if (!this.enricher.documentStub?.stopDefaultActivity)
+      await this._generateActivity();
+
+    if (!this.enricher.activity?.stopHealSpellActivity)
+      this.#addHealAdditionalActivities();
+    if (!this.enricher.documentStub?.stopSpellAutoAdditionalActivities)
+      await this.#generateAdditionalActivities();
     this.enricher.addAdditionalActivities(this);
 
     // TO DO: activities
@@ -979,14 +1011,17 @@ export default class DDBSpell {
       // }
     }
 
+    if (this.ddbData) {
+      DDBHelper.addCustomValues(this.ddbData, this.data);
+    }
 
     this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }
 
-  static async parseSpell(data, character, { namePostfix = null } = {}) {
+  static async parseSpell(data, character, { namePostfix = null, ddbData = null } = {}) {
     const spell = new DDBSpell({
-      ddbData: null,
+      ddbData,
       spellData: data,
       rawCharacter: character,
       namePostfix: namePostfix,
