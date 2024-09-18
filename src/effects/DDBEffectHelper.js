@@ -3,7 +3,6 @@ import DICTIONARY from "../dictionary.js";
 import FolderHelper from "../lib/FolderHelper.js";
 import utils from "../lib/utils.js";
 import logger from "../logger.js";
-import { fixSpells } from "../parser/spells/special.js";
 import { midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
@@ -71,7 +70,7 @@ export default class DDBEffectHelper {
         // todo: fix items removed here, this is now included earlier in teh item parser
       } else if (data.type === "spell") {
         data = await spellEffectAdjustment(data, true);
-        await fixSpells(null, [data]);
+        // await fixSpells(null, [data]); //moved into parsing
       } else if (data.type === "feat") {
         const mockCharacter = {
           system: utils.getTemplate("character"),

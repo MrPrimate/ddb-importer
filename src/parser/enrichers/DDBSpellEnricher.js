@@ -52,13 +52,13 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ? this._getEldritchInvocations()
       : null;
 
-    const bonus = eldritchBlastMods.damage
+    const bonus = eldritchBlastMods?.damage
       ? `${eldritchBlastMods["damage"]}`
       : "";
 
     const damage = [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 10, type: "force", bonus })];
 
-    if (eldritchBlastMods.range && Number.parseInt(eldritchBlastMods.range)) {
+    if (eldritchBlastMods?.range && Number.parseInt(eldritchBlastMods.range)) {
       this.document.data.system.range = `${Number.parseInt(this.document.system.range.value) + Number.parseInt(eldritchBlastMods["range"])}`;
     }
 
@@ -86,6 +86,17 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
             prompt: false,
             visible: false,
             formula: "4d10 + (2*@item.level)d10",
+            name: "HP Effected",
+          },
+        },
+      },
+      "Sleep": {
+        type: "utility",
+        data: {
+          roll: {
+            prompt: false,
+            visible: false,
+            formula: "3d8 + (2*@item.level)d8",
             name: "HP Effected",
           },
         },
@@ -331,6 +342,38 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         name: "Place Template",
       },
     },
+    "Spike Growth": {
+      type: "utility",
+      data: {
+        name: "Place Template",
+      },
+    },
+    "Spirit Shroud": {
+      type: "damage",
+      data: {
+        damage: {
+          parts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "1d8", types: ["radiant", "necrotic", "cold"], scalingMode: "half", scalingNumber: "1" }),
+          ],
+        },
+      },
+    },
+    "Spiritual Weapon": {
+      type: "utility",
+      data: {
+        name: "Summon",
+        target: {
+          override: true,
+          template: {
+            size: "2.5",
+            type: "radius",
+          },
+        },
+      },
+    },
+    "Tidal Wave": {
+      type: "save",
+    },
     "Thunder Step": {
       data: {
         range: {
@@ -347,6 +390,28 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
             contiguous: false,
             type: "radius",
             size: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Vitriolic Sphere": {
+      type: "save",
+      data: {
+        name: "Save",
+        damage: {
+          onSave: "half",
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 10, denomination: 4, type: "acid", scalingMode: "whole", scalingNumber: "2" })],
+        },
+        target: {
+          override: true,
+          affects: {
+            type: "creature",
+          },
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "20",
             units: "ft",
           },
         },
@@ -641,6 +706,41 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Spiritual Weapon": [
+      {
+        constructor: {
+          name: "Attack",
+          type: "attack",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: false,
+          generateAttack: true,
+          onsave: false,
+          noSpellslot: true,
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 8, type: "force", scalingMode: "half", scalingNumber: 1 })],
+          activationOverride: { type: "bonus", condition: "" },
+        },
+      },
+    ],
+    "Spike Growth": [
+      {
+        constructor: {
+          name: "Movement Damage",
+          type: "damage",
+        },
+        build: {
+          generateDamage: true,
+          generateSave: false,
+          generateConsumption: false,
+          noSpellslot: true,
+          onsave: false,
+          noeffect: true,
+          activationOverride: { type: "", condition: "Moves 5ft" },
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 4, type: "piercing" })],
+        },
+      },
+    ],
     "Toll the Dead": [
       {
         constructor: {
@@ -650,6 +750,25 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         build: {
           generateDamage: true,
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 12, type: "necrotic" })],
+        },
+      },
+    ],
+    "Vitriolic Sphere": [
+      {
+        constructor: {
+          name: "Secondary Acid Damage",
+          type: "damage",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: false,
+          noSpellslot: true,
+          generateAttack: false,
+          onsave: false,
+          noeffect: true,
+          activationOverride: { type: "spec", condition: "End of next turn" },
+          durationOverride: { units: "inst", concentration: false },
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 5, denomination: 4, type: "acid" })],
         },
       },
     ],
@@ -704,6 +823,32 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         "system.range": {
           value: "30",
           units: "ft",
+        },
+      },
+    },
+    "Thunderclap": {
+      data: {
+        "system.range": {
+          units: "spec",
+        },
+        "system.target": {
+          template: {
+            size: "15",
+            type: "cube",
+          },
+        },
+      },
+    },
+    "Tidal Wave": {
+      data: {
+        "system.target": {
+          template: {
+            contiguous: false,
+            type: "line",
+            size: "30",
+            width: "10",
+            units: "ft",
+          },
         },
       },
     },

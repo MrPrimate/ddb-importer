@@ -1,4 +1,3 @@
-import { fixSpells } from "./special.js";
 import utils from "../../lib/utils.js";
 import { getLookups } from "./metadata.js";
 import { hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
@@ -51,10 +50,6 @@ export default class GenericSpellFactory {
       items.push(parsedSpell);
     }
 
-    if (items) {
-      await fixSpells(null, items);
-    }
-
     return items;
   }
 
@@ -86,10 +81,6 @@ export default class GenericSpellFactory {
 
           return DDBSpell.parseSpell(spell, null);
         }));
-
-    if (items) {
-      await fixSpells(null, items);
-    }
 
     return items;
   }
@@ -158,10 +149,6 @@ export default class GenericSpellFactory {
       };
       const namePostfix = `It${GenericSpellFactory.getSpellCount(spellCountDict, spell.definition.name)}`;
       items.push(await DDBSpell.parseSpell(spell, character, { namePostfix: namePostfix }));
-    }
-
-    if (items) {
-      await fixSpells(ddb, items);
     }
 
     return items;
