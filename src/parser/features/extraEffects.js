@@ -1,7 +1,7 @@
 import { featureEffectAdjustment } from "../../effects/specialFeats.js";
 
 export async function addExtraEffects(ddb, documents, character) {
-  // TODO: remove after corrections
+  // KNOWN_ISSUE_4_0: remove after corrections
   return documents;
   const compendiumItem = character.flags.ddbimporter.compendium;
   const addCharacterEffects = compendiumItem

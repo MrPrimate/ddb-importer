@@ -269,14 +269,12 @@ export default class DDBFeature extends DDBBaseFeature {
     // }
 
     const modifiers = this.ddbData.character.modifiers.feat.filter((m) =>
-      feats.some((f) =>
-        m.componentTypeId == f.definition.entityTypeId
-      )
+      feats.some((f) => m.componentTypeId == f.definition.entityTypeId),
     );
 
     if (modifiers.length === 0) return;
 
-    // TODO: revist this to use the race/species advancement detection.
+    // KNOWN_ISSUE_4_0: revist this to use the race/species advancement detection.
     const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
     advancement.updateSource({ configuration: { points: 3 }, level: 0, value: { type: "asi" } });
 

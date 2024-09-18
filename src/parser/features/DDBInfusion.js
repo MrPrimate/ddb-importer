@@ -11,7 +11,7 @@ import logger from "../../logger.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
-import { addExtraEffects } from "./fixes.js";
+import { addExtraEffects } from "./extraEffects.js";
 
 export class DDBInfusion {
 
@@ -513,7 +513,6 @@ export class DDBInfusion {
     this._generateEnchantments();
     this._buildActions();
     this._specials();
-    // await this._addExtraEffects();
     await this._addActionsToEffects();
 
     await this.addInfusionsToCompendium([this.data]);

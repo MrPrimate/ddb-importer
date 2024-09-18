@@ -5,7 +5,7 @@ import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBBaseFeature from "./DDBBaseFeature.js";
 import DDBFeatures from "./DDBFeatures.js";
-import { addExtraEffects } from "./fixes.js";
+import { addExtraEffects } from "./extraEffects.js";
 
 export default class CharacterFeatureFactory {
   constructor(ddbCharacter) {

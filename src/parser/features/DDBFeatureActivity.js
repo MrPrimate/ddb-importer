@@ -276,7 +276,7 @@ export default class DDBFeatureActivity {
       target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
       target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
-    const aoeSizeRegex = /(?:within|in a|fills a) (?<within>\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
+    const aoeSizeRegex = /(?:within|in a|fills a) (?<within>\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
     const aoeSizeMatch = aoeSizeRegex.exec(description);
 
     // console.warn(`Target generation for ${this.name}`, {

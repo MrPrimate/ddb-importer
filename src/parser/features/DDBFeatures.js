@@ -7,7 +7,7 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBClassFeatures from "./DDBClassFeatures.js";
 import DDBFeature from "./DDBFeature.js";
-import { addExtraEffects } from "./fixes.js";
+import { addExtraEffects } from "./extraEffects.js";
 
 
 export default class DDBFeatures {
