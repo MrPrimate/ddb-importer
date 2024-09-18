@@ -102,15 +102,9 @@ export default class DDBBaseEnricher {
     if (!this.activity) return activity;
 
     if (this.activity.type === "summon") {
-      console.warn(`Summons for ${this.ddbParser.originalName}`, {
-        this: this,
-        activity: activity,
-        thisACtivity: this.activity,
-      });
-      if (!this.manager) return;
+      if (!this.manager) return activity;
       this.manager.addProfilesToActivity(activity, this.activity.profileKeys, this.activity.summons);
     }
-
 
     if (this.activity.parent) {
       for (const parent of this.activity.parent) {
@@ -197,6 +191,12 @@ export default class DDBBaseEnricher {
       });
     }
 
+    if (this.activity.overrideTemplate)
+      foundry.utils.setProperty(activity, "target.override", true);
+
+    if (this.activity.overrideRange)
+      foundry.utils.setProperty(activity, "range.override", true);
+
     if (this.activity.activationType) {
       activity.activation = {
         type: this.activity.activationType,
@@ -209,6 +209,9 @@ export default class DDBBaseEnricher {
     if (this.activity.activationCondition) {
       foundry.utils.setProperty(activity, "activation.condition", this.activity.activationCondition);
     }
+
+    if (this.activity.overrideActivation)
+      foundry.utils.setProperty(activity, "activation.override", true);
 
     if (foundry.utils.hasProperty(this.activity, "flatAttack")) {
       foundry.utils.setProperty(activity, "attack.bonus", this.activity.flatAttack);
@@ -305,6 +308,10 @@ export default class DDBBaseEnricher {
         effect.changes.push(...effectHint.atlChanges);
       }
 
+      if (effectModules().tokenMagicInstalled) {
+        effect.changes.push(...effectHint.tokenMagicChanges);
+      }
+
       if (effectHint.data) {
         effect = foundry.utils.mergeObject(effect, effectHint.data);
       }
@@ -351,6 +358,18 @@ export default class DDBBaseEnricher {
           formula: "",
         },
       };
+    }
+
+    if (this.override.noTemplate) {
+      foundry.utils.setProperty(this.data.system, "target.template", {
+        count: "",
+        contiguous: false,
+        type: "",
+        size: "",
+        width: "",
+        height: "",
+        units: "ft",
+      });
     }
 
     if (this.override.data) this.data = foundry.utils.mergeObject(this.data, this.override.data);

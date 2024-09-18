@@ -12,7 +12,6 @@ import { absorbElementsEffect } from "./spells/absorbElements.js";
 import { acidArrowEffect } from "./spells/acidArrow.js";
 import { aidEffect } from "./spells/aid.js";
 import { alterSelfEffect } from "./spells/alterSelf.js";
-import { animalFriendshipEffect } from "./spells/animalFriendship.js";
 import { arcaneEyeEffect } from "./spells/arcaneEye.js";
 import { arcaneHandEffect } from "./spells/arcaneHand.js";
 import { arcaneSwordEffect } from "./spells/arcaneSword.js";
@@ -24,7 +23,6 @@ import { barkskinEffect } from "./spells/barkskin.js";
 import { beaconofHopeEffect } from "./spells/beaconofHope.js";
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
 import { bladeWardEffect } from "./spells/bladeWard.js";
-import { blessEffect } from "./spells/bless.js";
 import { blindnessDeafnessEffect } from "./spells/blindnessDeafness.js";
 import { blurEffect } from "./spells/blur.js";
 import { boomingBladeEffect } from "./spells/boomingBlade.js";
@@ -150,22 +148,6 @@ async function basicSpellEffects(document) {
 
   logger.debug(`Adding basic effects to ${name}`);
   switch (name) {
-    case "Absorb Elements": {
-      document = await absorbElementsEffect(document);
-      break;
-    }
-    case "Aid": {
-      document = await aidEffect(document);
-      break;
-    }
-    case "Animal Friendship": {
-      document = animalFriendshipEffect(document);
-      break;
-    }
-    case "Aura of Life": {
-      document = await auraOfLifeEffect(document);
-      break;
-    }
     case "Arcane Eye": {
       document = await arcaneEyeEffect(document);
       break;
@@ -195,10 +177,6 @@ async function basicSpellEffects(document) {
     }
     case "Blade Ward": {
       document = bladeWardEffect(document);
-      break;
-    }
-    case "Bless": {
-      document = blessEffect(document);
       break;
     }
     case "Blindness/Deafness": {
@@ -442,6 +420,14 @@ async function midiEffectAdjustment(document) {
 
   logger.debug(`Adding effects to ${name}`);
   switch (name) {
+    case "Absorb Elements": {
+      document = await absorbElementsEffect(document);
+      break;
+    }
+    case "Aid": {
+      document = await aidEffect(document);
+      break;
+    }
     case "Melf's Acid Arrow":
     case "Acid Arrow": {
       document = acidArrowEffect(document);
@@ -453,6 +439,10 @@ async function midiEffectAdjustment(document) {
     }
     case "Armor of Agathys": {
       document = await armorOfAgathysEffect(document);
+      break;
+    }
+    case "Aura of Life": {
+      document = await auraOfLifeEffect(document);
       break;
     }
     case "Banishment": {

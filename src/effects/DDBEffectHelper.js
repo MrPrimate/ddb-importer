@@ -7,7 +7,7 @@ import { fixSpells } from "../parser/spells/special.js";
 import { midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
-import { addExtraEffects } from "../parser/features/fixes.js";
+import { addExtraEffects } from "../parser/features/extraEffects.js";
 import { generateOverTimeEffect, damageOverTimeEffect, getOvertimeDamage, getMonsterFeatureDamage } from "./monsterFeatures/overTimeEffect.js";
 import { baseEffect, generateDAEStatusEffectChange, addStatusEffectChange, generateTokenMagicFXChange, generateATLChange } from "./effects.js";
 import ExternalAutomations from "./external/ExternalAutomations.js";

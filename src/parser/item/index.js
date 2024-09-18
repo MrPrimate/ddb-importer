@@ -95,7 +95,6 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
     }
   }
 
-  // hack till better impelementation
   for (const item of items) {
     if (item.effects.length > 0 && item.system.activities) {
       for (const activityId of Object.keys(item.system.activities)) {

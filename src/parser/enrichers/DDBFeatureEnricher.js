@@ -925,7 +925,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       data: {
         "reach.value": "10",
         damage: {
-          parts: [DDBBaseEnricher.basicDamagePart({ number:1, denomination: 4, types: ["bludgeoning"] })],
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 4, types: ["bludgeoning"] })],
         },
       },
     },
@@ -2020,7 +2020,7 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     },
     "Starry Form": {
       data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": ["Archer Attack", "Chalice Healing", "Dragon Constitution"]
+        "flags.ddbimporter.ignoredConsumptionActivities": ["Archer Attack", "Chalice Healing", "Dragon Constitution"],
       },
     },
     "Steel Defender": {
