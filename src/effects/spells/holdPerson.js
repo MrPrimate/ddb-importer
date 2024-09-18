@@ -13,7 +13,7 @@ export function holdPersonEffect(document) {
       priority: "20",
     });
   }
-  document.effects.push(effect);
+  document.effects = [effect];
 
   return document;
 }

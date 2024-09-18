@@ -3,6 +3,7 @@ import { effectModules } from "../effects.js";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export async function absorbElementsEffect(document) {
+  document.effects = [];
   const effect = baseSpellEffect(document, `${document.name} - Extra Damage`);
   effect.changes.push(
     {
