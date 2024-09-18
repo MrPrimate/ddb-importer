@@ -441,6 +441,12 @@ const SETTINGS = {
         type: Boolean,
         default: true,
       },
+      "register-source-books": {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: true,
+      },
     },
     // ready settings
     READY: {
@@ -561,13 +567,6 @@ const SETTINGS = {
         "show-resource-chooser-default": {
           name: "ddb-importer.settings.show-resource-chooser-default.name",
           hint: "ddb-importer.settings.show-resource-chooser-default.hint",
-          config: true,
-          type: Boolean,
-          default: false,
-        },
-        "use-full-source": {
-          name: "ddb-importer.settings.use-full-source.name",
-          hint: "ddb-importer.settings.use-full-source.hint",
           config: true,
           type: Boolean,
           default: false,

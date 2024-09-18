@@ -14,6 +14,7 @@ The 4.0.x fundementally changes the structure of how documents are constructed i
 - Monster Muncher/Importer now batches monsters to reduce long UI pauses.
 - AC Min field supported in effect generation.
 - Massive improvements to wonderous/trinket item parsing.
+- Adds DDB Source to Source Book Registry.
 
 # 5.2.34
 
