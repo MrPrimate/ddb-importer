@@ -709,9 +709,10 @@ export default class DDBCharacterManager extends FormApplication {
 
     items = items.map((item) => {
       if (!item.effects) item.effects = [];
-      if (foundry.utils.hasProperty(item, "system.description.value")) {
+      const description = foundry.utils.getProperty(item, "system.description.value");
+      if (description) {
         item.system.description.value = `<div class="ddb">
-${item.system.description.value}
+${description}
 </div>`;
         item.system.description.chat = item.system.description.chat.trim() !== ""
           ? `<div class="ddb">
@@ -722,7 +723,7 @@ ${item.system.description.chat}
       return item;
     });
 
-    return Promise.all(items);
+    return items;
   }
 
   async enrichActivityImages(items, spellItems) {
@@ -868,8 +869,13 @@ ${item.system.description.chat}
       }
       if (foundry.utils.getProperty(ddbItemFlags, "retainResourceConsumption") ?? false) {
         logger.debug(`Retaining resources for ${item.name}`);
-        // todo: fix this for activities
-        item.system.consume = foundry.utils.deepClone(existingItem.system.consume);
+        for (const [key, activity] of Object.entries(item.system.activities)) {
+          const original = foundry.utils.getProperty(existingItem.system.activities[key]);
+          if (original) {
+            activity.consumption = original.consumption;
+            item.system.activities[key] = activity;
+          }
+        }
         item.system.uses.recovery = foundry.utils.deepClone(existingItem.system.uses.recovery);
         item.flags.ddbimporter.retainResourceConsumption = true;
         if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e") ?? false) {
