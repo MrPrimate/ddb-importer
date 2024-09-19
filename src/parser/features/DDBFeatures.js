@@ -135,7 +135,7 @@ export default class DDBFeatures {
         (trait) => DDBFeatures.includedFeatureNameCheck(trait.definition.name)
           && !trait.definition.hideInSheet
           && !this.excludedOriginFeatures.includes(trait.definition.id)
-          && (trait.requiredLevel === undefined || trait.requiredLevel >= this.ddbCharacter.totalLevels)
+          && (trait.requiredLevel === undefined || trait.requiredLevel >= this.ddbCharacter.totalLevels),
       );
 
     for (const feat of traits) {
@@ -232,7 +232,7 @@ export default class DDBFeatures {
             && advancement.configuration.identifier === featureName,
           ));
 
-      // TODO: fix level scales for activities
+      // KNOWN_ISSUE_4_0: fix level scales for activities
       if (scaleKlass) {
         const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
         const damage = DDBBasicActivity.buildDamagePart({
@@ -243,18 +243,18 @@ export default class DDBFeatures {
         } else {
           for (const [key, activity] of Object.entries(feature.system.activities)) {
             if (activity.damage && activity.damage.parts.length === 0) {
-              console.warn(`adding scale for ${feature.name} ${key}`, {
-                feature,
-                activity: deepClone(activity),
-                damage,
-              });
+              // console.warn(`adding scale for ${feature.name} ${key}`, {
+              //   feature,
+              //   activity: deepClone(activity),
+              //   damage,
+              // });
               activity.damage.parts = [damage];
             } else if (activity.damage && activity.damage.parts.length > 0) {
-              console.warn(`Replacing scale for ${feature.name} ${key}`, {
-                feature,
-                activity: deepClone(activity),
-                damage,
-              });
+              // console.warn(`Replacing scale for ${feature.name} ${key}`, {
+              //   feature,
+              //   activity: deepClone(activity),
+              //   damage,
+              // });
               activity.damage.parts[0].custom = damage.custom;
             }
             feature.system.activities[key] = activity;

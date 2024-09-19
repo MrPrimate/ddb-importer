@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { generateATLChange, baseEnchantmentEffect } from "../effects.js";
+import { generateATLChange } from "../effects.js";
 
 export function sacredWeaponEffect(document) {
 
@@ -14,7 +14,7 @@ export function sacredWeaponEffect(document) {
     lightEffect._id = foundry.utils.randomID();
     document.effects.push(lightEffect);
     // foundry.utils.setProperty(enchantmentEffect, "flags.dnd5e.enchantment.riders.effect", [lightEffect._id]);
-    // TODO: Add light effect to activity
+    // KNOWN_ISSUE_4_0: Add light effect to activity
   }
 
   return document;

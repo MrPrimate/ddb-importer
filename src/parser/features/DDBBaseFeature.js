@@ -460,7 +460,7 @@ export default class DDBBaseFeature {
           : maxUses
         : null;
 
-      // TODO: revist to check recovery type
+      // KNOWN_ISSUE_4_0: revist to check recovery type
       this.data.system.uses = {
         spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
         max: (finalMaxUses != 0) ? finalMaxUses : null,
@@ -784,11 +784,11 @@ export default class DDBBaseFeature {
       }
     }
 
-    console.warn(`Effect Addition ${this.name}`, {
-      dataEffects: this.data.effects,
-      activities: this.data.system.activities,
-      this: this,
-    })
+    // console.warn(`Effect Addition ${this.name}`, {
+    //   dataEffects: this.data.effects,
+    //   activities: this.data.system.activities,
+    //   this: this,
+    // });
   }
 
 

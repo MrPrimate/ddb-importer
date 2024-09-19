@@ -491,6 +491,8 @@ export default class DDBMonsterFeature {
     if (recharge) {
       uses.recovery.push(recharge);
       if (uses.max === null) uses.max = 1;
+      uses.spent = 0;
+      this.actionInfo.consumptionValue = 1;
     }
 
     return uses;
@@ -896,8 +898,8 @@ ${this.feature.system.description.value}
     if (this.templateType === "weapon") {
       this.feature.system.damage = this.actionInfo.damage;
       this.feature.system.range = this.actionInfo.range;
-      this.feature.system.uses = this.actionInfo.uses;
     }
+    this.feature.system.uses = this.actionInfo.uses;
 
     for (const [key, value] of Object.entries(this.actionInfo.properties)) {
       if (value) this.feature.system.properties.push(key);
@@ -956,9 +958,10 @@ ${this.feature.system.description.value}
         this.feature.system.range = this.actionInfo.range;
       }
     } else {
-      Object.keys(this.feature.system.activities).forEach((id) => {
+      for (const id of Object.keys(this.feature.system.activities)) {
         this.feature.system.activities[id].activation = this.actionInfo.activation;
-      });
+        this.feature.system.activities[id].consumption.targets = this.actionInfo.consumptionTargets;
+      }
     }
 
   }
@@ -991,6 +994,10 @@ ${this.feature.system.description.value}
           formula: "",
         },
       });
+      this.feature.system.uses = {
+        max: null,
+        value: null,
+      };
     }
 
     // if this special action has nothing to do, then we remove the activation type
@@ -1036,19 +1043,6 @@ ${this.feature.system.description.value}
     this.actionInfo.save = this.getFeatSave();
     this.actionInfo.target = this.getTarget();
     this.actionInfo.uses = this.getUses();
-  }
-
-  #linkResourcesConsumption() {
-    logger.debug(`Resource linking for ${this.name}`);
-
-    // TODO: fix for activities
-    // if (
-    //   foundry.utils.getProperty(this.feature, "system.uses.recovery")?.some((r) => r.period === "recharge")
-    // ) {
-    //   foundry.utils.setProperty(this.feature, "system.consume.type", "charges");
-    //   foundry.utils.setProperty(this.feature, "system.consume.target", this.feature._id);
-    //   foundry.utils.setProperty(this.feature, "system.consume.amount", null);
-    // }
   }
 
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
@@ -1302,17 +1296,17 @@ ${this.feature.system.description.value}
     }, optionsOverride);
 
 
-    console.warn(`Monster Feature Activity Check for ${this.feature.name}`, {
-      this: this,
-      activity,
-      typeOverride,
-      enricherHint: this.enricher.activity?.type,
-      activityType: activity?.data?.type,
-      optionsOverride,
-      name,
-      hintsOnly,
-      nameIdPostfix,
-    });
+    // console.warn(`Monster Feature Activity Check for ${this.feature.name}`, {
+    //   this: this,
+    //   activity,
+    //   typeOverride,
+    //   enricherHint: this.enricher.activity?.type,
+    //   activityType: activity?.data?.type,
+    //   optionsOverride,
+    //   name,
+    //   hintsOnly,
+    //   nameIdPostfix,
+    // });
 
     if (!activity) return undefined;
 
@@ -1327,7 +1321,7 @@ ${this.feature.system.description.value}
 
   _generateAdditionalActivities() {
     if (this.additionalActivities.length === 0) return;
-    console.warn(`ADDITIONAL ITEM ACTIVITIES for ${this.feature.name}`, this.additionalActivities);
+    // console.warn(`ADDITIONAL ITEM ACTIVITIES for ${this.feature.name}`, this.additionalActivities);
     this.additionalActivities.forEach((activityData, i) => {
       const id = this._generateActivity({
         hintsOnly: false,
@@ -1384,7 +1378,6 @@ ${this.feature.system.description.value}
     foundry.utils.setProperty(this.feature, "flags.monsterMunch.actionInfo.extraAttackBonus", this.actionInfo.extraAttackBonus);
 
     await this.#generateDescription();
-    this.#linkResourcesConsumption();
 
     logger.debug(`Parsed Feature ${this.name} for ${this.ddbMonster.name}`, { feature: this });
 

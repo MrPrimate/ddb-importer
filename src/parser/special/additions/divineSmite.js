@@ -1,6 +1,3 @@
-// import DICTIONARY from '../dictionary.js';
-import utils from "../../../lib/utils.js";
-
 export function getDivineSmiteSpell(feature) {
   const restriction = "Against undead or fiends";
 

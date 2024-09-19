@@ -65,9 +65,9 @@ export default class DDBEffectHelper {
       if (foundry.utils.hasProperty(data, "flags.ActiveAuras")) delete data.flags.ActiveAuras;
 
       if (DICTIONARY.types.inventory.includes(data.type)) {
-        // equipmentEffectAdjustment(data); // removed, no longer called
+        // KNOWN_ISSUE_4_0 equipmentEffectAdjustment(data); // removed, no longer called
         data = await midiItemEffects(data);
-        // todo: fix items removed here, this is now included earlier in teh item parser
+        // KNOWN_ISSUE_4_0: fix items removed here, this is now included earlier in teh item parser
       } else if (data.type === "spell") {
         data = await spellEffectAdjustment(data, true);
         // await fixSpells(null, [data]); //moved into parsing
@@ -90,7 +90,7 @@ export default class DDBEffectHelper {
           },
         };
 
-        // await fixFeatures([data]); // removed, no longer called
+        // KNOWN_ISSUE_4_0 await fixFeatures([data]); // removed, no longer called
         data = (await addExtraEffects(null, [data], mockCharacter))[0];
       }
 
@@ -1384,6 +1384,7 @@ export default class DDBEffectHelper {
         else results.effect.name = `Status: ${group4Condition.name}`;
       } else if (match.groups.hint && match.groups.hint === "die") {
         DDBEffectHelper.addStatusEffectChange({ effect: results.effect, statusName: "Dead" });
+        results.condition = "dead";
         if (nameHint) results.effect.name = `Status: Dead`;
       } else {
         logger.debug(`Odd condition ${results.condition} found`, {

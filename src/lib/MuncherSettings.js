@@ -652,23 +652,23 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         description: `Use Automation Effects from Chris's Premades module? These provide high quality automations for spells, features, monsters, etc. (Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module).<br>These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
-      {
-        name: "use-srd",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd"),
-        description:
-          "[CAUTION] Use SRD compendium things instead of importing. This is not recommended, and may break adventure munching functionality.",
-        enabled: true,
-      },
+      // {
+      //   name: "use-srd",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd"),
+      //   description:
+      //     "[CAUTION] Use SRD compendium things instead of importing. This is not recommended, and may break adventure munching functionality.",
+      //   enabled: true,
+      // },
       {
         name: "exclude-legacy",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy"),
-        description: "Exclude legacy monsters/races from import? These are replaced by newer versions e.g. in Monsters of the Multiverse.",
+        description: "Exclude legacy things from import? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
         enabled: true,
       },
       {
         name: "legacy-postfix",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-legacy-postfix"),
-        description: "Append (Legacy) to Legacy monster/race names? These are replaced by newer versions e.g. in Monsters of the Multiverse.",
+        description: "Append (Legacy) to Legacy names? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
         enabled: true,
       },
       {

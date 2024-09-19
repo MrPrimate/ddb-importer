@@ -28,7 +28,7 @@ export function elementalWeaponEffect(document) {
   for (const element of elementTypes) {
     for (const e of enchantments) {
       let effect = baseEnchantmentEffect(document, `${document.name}: ${utils.capitalize(element.type)} +${e.bonus}`, {
-        description: `This weapon has become a +${e.bonus} magic weapon, granting a bonus to attack and damage rolls.`
+        description: `This weapon has become a +${e.bonus} magic weapon, granting a bonus to attack and damage rolls.`,
       });
       e.img = element.img;
       foundry.utils.setProperty(effect, "flags.dnd5e.enchantment.level", { min: e.min, max: e.max });

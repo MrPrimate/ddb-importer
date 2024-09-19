@@ -1,11 +1,13 @@
+/* eslint-disable no-unreachable */
 // these are non-compliant monsters that currently don't meet parsing requirements
 
 import utils from "../../lib/utils.js";
 
 // these are temporary work arounds till parsing is fixed.
 export function specialCases(monster) {
-  //todo: move
+  // KNOWN_ISSUE_4_0: move
   return monster;
+
   switch (monster.name) {
     case "Reduced-threat Aboleth":
     case "Aboleth": {
@@ -100,8 +102,10 @@ export function specialCases(monster) {
           this[index].system.actionType = "heal";
         }
       }, monster.items);
+      // eslint-disable-next-line no-unreachable
       break;
     }
+    // eslint-disable-next-line no-unreachable
     case "Nosferatu": {
       monster.items.forEach(function (item, index) {
         if (item.name === "Bite") {
@@ -109,6 +113,7 @@ export function specialCases(monster) {
           this[index].system.damage.parts.splice(2, 1);
         }
       }, monster.items);
+      // eslint-disable-next-line no-unreachable
       break;
     }
     // no default

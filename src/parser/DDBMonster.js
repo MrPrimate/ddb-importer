@@ -16,7 +16,6 @@ import PatreonHelper from "../lib/PatreonHelper.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import utils from "../lib/utils.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
-import { effectModules } from "../effects/effects.js";
 
 export default class DDBMonster {
 
@@ -285,7 +284,8 @@ export default class DDBMonster {
 
     // final cleanup
     this.items = this.items.map((item) => {
-      delete item.flags.monsterMunch.description;
+      if (foundry.utils.hasProperty(item, "flags.monsterMunch.description"))
+        delete item.flags.monsterMunch.description;
       return item;
     });
 

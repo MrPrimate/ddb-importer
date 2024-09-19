@@ -182,12 +182,24 @@ const FOUNDRY_COMPENDIUM_MAP = {
     "dnd5e.classes",
     "dnd-tashas-cauldron.tcoe-character-options",
   ],
+  "classes2024": [
+    "dnd-tashas-cauldron.tcoe-character-options",
+    "dnd-players-handbook.classes",
+  ],
   "spells": [
     "dnd5e.spells",
+    "dnd-tashas-cauldron.tcoe-character-options",
+  ],
+  "spells2024": [
+    "dnd-players-handbook.spells",
+    "dnd-tashas-cauldron.tcoe-character-options",
   ],
   "items": [
-    "dnd5e.items",
     "dnd-tashas-cauldron.tcoe-magic-items",
+  ],
+  "items2024": [
+    "dnd-tashas-cauldron.tcoe-magic-items",
+    "dnd-players-handbook.equipment",
   ],
 };
 
@@ -442,6 +454,12 @@ const SETTINGS = {
         default: true,
       },
       "register-source-books": {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: true,
+      },
+      "no-source-book-pages": {
         scope: "world",
         config: false,
         type: Boolean,
@@ -1067,7 +1085,7 @@ const SETTINGS = {
           },
           "munching-policy-exclude-legacy": {
             type: Boolean,
-            default: false,
+            default: true,
           },
           "munching-policy-legacy-postfix": {
             type: Boolean,

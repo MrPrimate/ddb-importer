@@ -999,7 +999,7 @@ export default class DDBClass {
   async _addFoundryAdvancements() {
     const packIds = this.is2014
       ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]
-      : []; // TODO: Add 5e compendium when official module released/srd rules for 2024
+      : SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes2024"];
     for (const packId of packIds) {
       const pack = CompendiumHelper.getCompendium(packId, false);
       if (!pack) continue;
@@ -1101,7 +1101,7 @@ export default class DDBClass {
   async _copyFoundryEquipment() {
     const packIds = this.is2014
       ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]
-      : []; // TODO: Add 5e compendium when official module released/srd rules for 2024
+      : SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes2024"];
     for (const packId of packIds) {
       const pack = CompendiumHelper.getCompendium(packId, false);
       if (!pack) continue;
@@ -1229,7 +1229,7 @@ export default class DDBClass {
     this.data.system.primaryAbility = {
       value: this.ddbClassDefinition.primaryAbilities.map((a) => DICTIONARY.character.abilities.id === a)?.value,
       all: false, // if multiclassing selected does muticlass require all to be 13, or just 1?
-    };  //TODO: can i use preq data in ddb for this?
+    }; // KNOWN_ISSUE_4_0: can i use preq data in ddb for this?
   };
 
   // GENERATE CLASS

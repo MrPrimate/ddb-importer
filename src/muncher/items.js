@@ -103,6 +103,9 @@ function getItemData(sourceFilter) {
     ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").flat()
     : [];
 
+  const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
+
+
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/items`, {
       method: "POST",
@@ -139,6 +142,10 @@ function getItemData(sourceFilter) {
           return data;
         }
       })
+      .then((data) => {
+        if (!excludeLegacy) return data;
+        return data.filter((r) => !r.isLegacy);
+      })
       .then((data) => getCharacterInventory(data))
       .then((items) => generateImportItems(items))
       .then((data) => resolve(data))
@@ -148,7 +155,7 @@ function getItemData(sourceFilter) {
 
 async function addMagicItemSpells(items, spells, updateBool) {
   if (spells.length === 0) return;
-  const itemHandler = new DDBItemImporter("itemspells", spells);
+  const itemHandler = new DDBItemImporter("itemspells", spells, { matchFlags: ["is2014", "is2024"] });
   await itemHandler.init();
   const itemSpells = await itemHandler.updateCompendium(updateBool);
   // scan the inventory for each item with spells and copy the imported data over
@@ -203,7 +210,7 @@ export async function parseItems(ids = null, deleteBeforeUpdate = null) {
 
   await Iconizer.preFetchDDBIconImages();
 
-  const itemHandler = new DDBItemImporter("items", items, { deleteBeforeUpdate });
+  const itemHandler = new DDBItemImporter("items", items, { deleteBeforeUpdate, matchFlags: ["is2014", "is2024"] });
   await itemHandler.init();
   await itemHandler.srdFiddling();
   await itemHandler.iconAdditions();
@@ -220,7 +227,7 @@ export async function parseItems(ids = null, deleteBeforeUpdate = null) {
   const updateResults = await itemHandler.updateCompendium(updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
-  logger.debug({ finalItems: itemHandler.documents, updateResults, updatePromiseResults });
+  logger.debug("Final Item Import Data", { finalItems: itemHandler.documents, updateResults, updatePromiseResults });
   DDBMuncher.munchNote("");
   logger.timeEnd("Item Import Time");
   return updateResults;

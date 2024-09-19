@@ -12,6 +12,12 @@ import { hasteEffect } from "./spells/haste.js";
 
 
 export async function midiItemEffects(document) {
+
+  // KNOWN_ISSUE_4_0
+
+  return document;
+
+  // eslint-disable-next-line no-unreachable
   if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
 
   const name = document.flags.ddbimporter?.originalName || document.name;
@@ -49,5 +55,6 @@ export async function midiItemEffects(document) {
     // no default
   }
 
+  // eslint-disable-next-line consistent-return
   return forceItemEffect(document);
 }

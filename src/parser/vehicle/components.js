@@ -41,7 +41,7 @@ function getLimitedUse(action) {
       per: resetType ? resetType.value : "",
       recovery: resetType
         ? [
-          // TODO: ensure charges is not returned here
+          // KNOWN_ISSUE_4_0: ensure charges is not returned here
           { period: resetType.value, type: 'recoverAll', formula: undefined },
         ]
         : [],

@@ -105,7 +105,7 @@ export default class CharacterFeatureFactory {
         && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => action.name.startsWith(a))
         && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name === a),
       )
-      .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
+      .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter));
 
     const attackActions = (await Promise.all(attackActionsBase
       .map(async (action) => {
@@ -160,15 +160,15 @@ export default class CharacterFeatureFactory {
         // const displayAsAttack = DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
         // lets grab other actions and add, make sure we don't get attack based ones that haven't parsed
         const isParsed = this.actionParsed(name);
-        console.warn("isParsed", { action, ddbname: name, isParsed});
+        // console.warn("isParsed", { action, ddbname: name, isParsed });
         return !isParsed;
       });
 
-    console.warn("otherActions", {
-      classActions,
-      parsedActions: deepClone(this.parsed.actions),
-      actionsToBuild,
-    });
+    // console.warn("otherActions", {
+    //   classActions,
+    //   parsedActions: deepClone(this.parsed.actions),
+    //   actionsToBuild,
+    // });
 
     const otherActions = (await Promise.all(actionsToBuild
       .map(async(action) => {

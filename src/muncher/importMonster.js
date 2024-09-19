@@ -38,10 +38,6 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
           if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e")) {
             foundry.utils.setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
           }
-        // TODO: evaluate this
-        } else if (foundry.utils.getProperty(item, "system.consume.target")
-          && foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge")) {
-          item.system.consume.target = existingItem.id;
         }
 
         if (!item.effects
@@ -295,38 +291,38 @@ async function swapItems(data) {
   }
 }
 
-async function linkResourcesConsumption(actor) {
-  // TODO: I think this is actually in recovery
-  // is consume gone?
-  if (actor.items.some((item) =>
-    foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge"),
-  )) {
-    logger.debug(`Resource linking for ${actor.name}`);
-    actor.items.forEach((item) => {
-      if (foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge")) {
-        const itemID = item._id ?? foundry.utils.randomID(16);
-        item._id = itemID;
-        if (item.type === "weapon") {
-          item.type = "feat";
-          delete item.system.type.value;
-          item.system.type = {
-            value: "monster",
-            subtype: "",
-          };
-        }
-        // item.system.uses.recovery = [
-        //   { period: "recharge", type: 'recoverAll', formula: "5" },
-        // ];
-        item.system.consume = {
-          type: "charges",
-          target: itemID,
-          amount: null,
-        };
-      }
-    });
-  }
-  return actor;
-}
+// async function linkResourcesConsumption(actor) {
+//   // TODO: I think this is actually in recovery
+//   // is consume gone?
+//   if (actor.items.some((item) =>
+//     foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge"),
+//   )) {
+//     logger.debug(`Resource linking for ${actor.name}`);
+//     actor.items.forEach((item) => {
+//       if (foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge")) {
+//         const itemID = item._id ?? foundry.utils.randomID(16);
+//         item._id = itemID;
+//         if (item.type === "weapon") {
+//           item.type = "feat";
+//           delete item.system.type.value;
+//           item.system.type = {
+//             value: "monster",
+//             subtype: "",
+//           };
+//         }
+//         // item.system.uses.recovery = [
+//         //   { period: "recharge", type: 'recoverAll', formula: "5" },
+//         // ];
+//         item.system.consume = {
+//           type: "charges",
+//           target: itemID,
+//           amount: null,
+//         };
+//       }
+//     });
+//   }
+//   return actor;
+// }
 
 // async function buildNPC(data, srdIconLibrary, iconMap) {
 export async function buildNPC(data, type = "monster", temporary = true, update = false, handleBuild = false) {
@@ -339,7 +335,7 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
   // eslint-disable-next-line require-atomic-updates
   data.items = await Iconizer.updateIcons(data.items, false, true, data.name);
   data = Iconizer.addActorEffectIcons(data);
-  if (!["monster", "summons"].includes(type)) data = await linkResourcesConsumption(data);
+  // if (!["monster", "summons"].includes(type)) data = await linkResourcesConsumption(data);
 
   if (handleBuild) {
     // create the new npc

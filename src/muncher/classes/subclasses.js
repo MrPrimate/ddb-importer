@@ -62,7 +62,7 @@ export async function getSubClasses(subClassData, klassData) {
   logger.debug("get subclasses started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
-  const classHandler = new DDBItemImporter("class", [], { deleteBeforeUpdate: false });
+  const classHandler = new DDBItemImporter("class", [], { deleteBeforeUpdate: false, matchFlags: ["is2014", "is2024"] });
   await classHandler.init();
   const classDocs = await classHandler.compendium.getDocuments();
 

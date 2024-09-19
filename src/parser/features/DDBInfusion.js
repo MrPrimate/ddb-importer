@@ -175,7 +175,7 @@ export class DDBInfusion {
       deleteBeforeUpdate: false,
       removeSRDDuplicates: false,
       filterDuplicates: false,
-      matchFlags: ["infusionId"],
+      matchFlags: ["infusionId", "is2014", "is2024"],
       useCompendiumFolders: true,
     };
 
@@ -206,7 +206,7 @@ export class DDBInfusion {
   }
 
   _buildActions() {
-    // TODO: I suspect (some of?) these actions can be moved to activities now?
+    // KNOWN_ISSUE_4_0: I suspect (some of?) these actions can be moved to activities now?
     // build actions for this.ddbInfusion.actions
     // for example radiant weapon reaction
     if (!this.ddbInfusion.actions) return;

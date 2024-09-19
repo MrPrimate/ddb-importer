@@ -257,7 +257,6 @@ export function effectModules() {
   return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
 }
 
-// todo rework for activities
 function generateEffectDuration(foundryItem, activity) {
   let duration = {
     seconds: null,
@@ -1508,7 +1507,8 @@ export function getStatusEffect({ ddbDefinition, foundryItem, labelOverride } = 
 
   if (!conditionResult.success) return null;
 
-  let effect = baseItemEffect(foundryItem, labelOverride ?? conditionResult.effect.name ?? foundryItem.name, {
+  const effectLabel = (labelOverride ?? conditionResult.effect.name ?? foundryItem.name ?? conditionResult.condition);
+  let effect = baseItemEffect(foundryItem, effectLabel, {
     transfer: false,
     description: `Apply status ${conditionResult.condition}`,
   });
@@ -1518,6 +1518,8 @@ export function getStatusEffect({ ddbDefinition, foundryItem, labelOverride } = 
   effect.flags = foundry.utils.mergeObject(effect.flags, conditionResult.effect.flags);
   if (conditionResult.effect.duration.seconds) effect.duration.seconds = conditionResult.effect.duration.seconds;
   if (conditionResult.effect.duration.rounds) effect.duration.rounds = conditionResult.effect.duration.rounds;
+
+  if (!effect.name) effect.name = "Status Effect";
 
   return effect;
 }

@@ -43,7 +43,7 @@ export async function addMagicItemSpells(input) {
   // check for existing spells in spell compendium & srdCompendium
   const [compendiumSpells, compendiumItemSpells] = await getCompendiumItemSpells(input.itemSpells);
   // if spells not found create world version
-  const itemImporter = new DDBItemImporter("spell", input.itemSpells);
+  const itemImporter = new DDBItemImporter("spell", input.itemSpells, { matchFlags: ["is2014", "is2024"] });
   itemImporter.removeItems(compendiumSpells);
   const remainingSpells = {
     itemSpells: await Iconizer.updateMagicItemImages(itemImporter.documents),

@@ -261,11 +261,11 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
   });
 };
 
-const chargeTypeMap = {
-  "Lay on Hands": {
-    "type": "none",
-  },
-};
+// const chargeTypeMap = {
+//   "Lay on Hands": {
+//     "type": "none",
+//   },
+// };
 
 const resourceSpellLinkMap = {
   "Ki Points": [
@@ -318,7 +318,7 @@ const notReplace = {
 };
 
 
-// TODO: update for activities
+// KNOWN_ISSUE_4_0: update for activities
 // DDBCharacter.prototype.fixItemSpellResources = async function fixItemSpellResources() {
 //   const possibleItems = this.currentActor.items.toObject();
 //   let toUpdate = [];

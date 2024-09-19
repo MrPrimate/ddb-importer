@@ -218,7 +218,7 @@ export default class DDBCharacter {
 
         action.system.source = featureMatch.system.source;
 
-        console.warn(`Found match for ${originalActionName} and ${featureMatch.name}`, {
+        logger.debug(`Found match for ${originalActionName} and ${featureMatch.name}`, {
           action: foundry.utils.deepClone(action),
           feature: foundry.utils.deepClone(featureMatch),
         });

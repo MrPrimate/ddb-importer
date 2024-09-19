@@ -85,8 +85,8 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
 
       if (!isCompendiumItem) item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
 
-      // todo: refactor midi effects
-      // if (addAutomationEffects) item = await midiItemEffects(item);
+      // KNOWN_ISSUE_4_0: refactor midi effects
+      if (addAutomationEffects) item = await midiItemEffects(item);
 
       const effects = itemParser.enricher.createEffect();
       item.effects.push(...effects);

@@ -1634,6 +1634,8 @@ export default class AdvancementHelper {
     return null;
   }
 
+  // KNOWN_ISSUE_4_0
+  // eslint-disable-next-line no-unused-vars
   static parseHTMLWeaponMasteryProficiencies(description) {
     const parsedWeaponsProficiencies = {
       // choices: DICTIONARY.character.proficiencies

@@ -110,21 +110,21 @@ export default class DDBChoiceFeature extends DDBFeature {
         this._generateActivity();
       this.enricher.addAdditionalActivities(this);
 
-      console.warn(`Choice generation ${this.data.name}`, {
-        choice,
-        ddbDefinition: deepClone(this.ddbDefinition),
-        this: this,
-        description: deepClone(this.data.system.description)
-      });
+      // console.warn(`Choice generation ${this.data.name}`, {
+      //   choice,
+      //   ddbDefinition: deepClone(this.ddbDefinition),
+      //   this: this,
+      //   description: deepClone(this.data.system.description),
+      // });
       this._generateDescription({ forceFull: false });
 
 
-      console.warn(`Choice generation ${this.data.name} 2`, {
-        choice,
-        ddbDefinition: deepClone(this.ddbDefinition),
-        this: this,
-        description: deepClone(this.data.system.description)
-      });
+      // console.warn(`Choice generation ${this.data.name} 2`, {
+      //   choice,
+      //   ddbDefinition: deepClone(this.ddbDefinition),
+      //   this: this,
+      //   description: deepClone(this.data.system.description),
+      // });
       this.data.flags.ddbimporter.dndbeyond.choice = {
         label: choice.label,
         choiceId: choice.choiceId,
@@ -175,9 +175,9 @@ export default class DDBChoiceFeature extends DDBFeature {
         choice,
         ddbFeature,
       });
-      console.warn(`Choice generation ${choiceFeature.data.name}`, {
-        data: deepClone(choiceFeature.data),
-      });
+      // console.warn(`Choice generation ${choiceFeature.data.name}`, {
+      //   data: deepClone(choiceFeature.data),
+      // });
       if (choices.length === 1
         && !DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
       ) {
@@ -192,8 +192,6 @@ export default class DDBChoiceFeature extends DDBFeature {
         features.push(choiceFeature.data);
       }
     }
-
-    console.warn("Features NW", deepClone(features));
 
     return features;
   }

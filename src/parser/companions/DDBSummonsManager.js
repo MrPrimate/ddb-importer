@@ -5,7 +5,8 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import { addNPC } from "../../muncher/importMonster.js";
 
-// TODO: SUmmons are now activities
+
+// KNOWN_ISSUE_4_0 fix up summon spells
 
 const SUMMONS_ACTOR_STUB = {
   "type": "npc",
@@ -142,6 +143,7 @@ const DANCING_LIGHTS_BASE = {
   },
 };
 
+// eslint-disable-next-line no-unused-vars
 const ELRITCH_CANNON_ABILITY_STUB = {
   "id": 1,
   "entityTypeId": 1120657896,
@@ -698,16 +700,16 @@ export default class DDBSummonsManager {
   }
 
   async generateDDBDataActors(ddbFeature) {
-    if (!ddbFeature) return;
-    if (!this.ddbData) return;
+    if (!ddbFeature) return undefined;
+    if (!this.ddbData) return undefined;
     if (ddbFeature.originalName === "Eldritch Cannon") {
       for (const size of ["Small", "Tiny"]) {
         const cannonBase = getEldritchCannonStub(size.toLowerCase());
         return cannonBase;
       }
     }
-    // todo for say eldrich cannon
-    return;
+    // KNOWN_ISSUE_4_0 for say eldrich cannon
+    return undefined;
   }
 
   async init() {
@@ -716,6 +718,7 @@ export default class DDBSummonsManager {
 
     this.itemHandler = new DDBItemImporter("summons", [], {
       indexFilter: this.indexFilter,
+      matchFlags: ["is2014", "is2024"],
     });
     await this.itemHandler.init();
   }
@@ -789,11 +792,6 @@ export default class DDBSummonsManager {
           count: 1,
         };
       });
-
-    console.warn(`Gettings Summons profiles`, {
-      summonActors, profiles, data, summonsKeys,
-      this: this,
-    })
 
     data.profiles = profiles;
 

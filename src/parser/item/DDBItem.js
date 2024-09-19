@@ -254,6 +254,11 @@ export default class DDBItem {
     }
     this.data.system.identified = true;
 
+    const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+    if (legacyName && this.is2014) {
+      this.data.name += " (Legacy)";
+    }
+
     this.#addExtraDDBFlags();
     this.#enrichFlags();
   }
@@ -564,7 +569,7 @@ export default class DDBItem {
         }
       });
 
-    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.restrictions")
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.restrictions");
     // add damage modifiers from other sources like improved divine smite
     if (this.flags.damage.parts) {
       this.flags.damage.parts.forEach((part) => {
@@ -760,7 +765,7 @@ export default class DDBItem {
         ?? DDBItem.LOOT_TYPES[this.ddbDefinition.subType];
       if (lookup) this.systemType.value = lookup;
       else {
-        console.error(`Failed to find loot type for ${this.ddbDefinition.name}`, {
+        logger.error(`Failed to find loot type for ${this.ddbDefinition.name}`, {
           this: this,
           itemType,
           lookup,
@@ -1435,7 +1440,7 @@ export default class DDBItem {
         });
       }
       this.actionInfo.consumptionValue = 1;
-      // todo: set activation consumption
+
       return {
         max: `${limitedUse.maxUses}`,
         spent: 0,
@@ -1899,7 +1904,6 @@ export default class DDBItem {
     if (this.data.system.type.value === "wand") this.addMagical = true;
     this._generateConsumableUses();
     if (["Potion", "Poison"].includes((this.overrides.ddbType ?? this.ddbDefinition.subType))) {
-      console.warn("Consumable target generation");
       this.actionInfo.target = {
         "template": {
           "contiguous": false,
@@ -1938,7 +1942,7 @@ export default class DDBItem {
   }
 
   #generateScrollSpecifics() {
-    //todo: what kind of activity type are scrolls?
+    // KNOWN_ISSUE_4_0: what kind of activity type are scrolls?
     this._generateConsumableUses();
   }
 
@@ -2702,18 +2706,18 @@ export default class DDBItem {
     }, optionsOverride);
 
 
-    console.warn(`Item Activity Check for ${this.data.name}`, {
-      this: this,
-      activity,
-      typeOverride,
-      enricherHint: this.enricher.activity?.type,
-      activityType: activity?.data?.type,
-      optionsOverride,
-      name,
-      hintsOnly,
-      nameIdPostfix,
-      activityData: activity?.data ? deepClone(activity) : null,
-    });
+    // console.warn(`Item Activity Check for ${this.data.name}`, {
+    //   this: this,
+    //   activity,
+    //   typeOverride,
+    //   enricherHint: this.enricher.activity?.type,
+    //   activityType: activity?.data?.type,
+    //   optionsOverride,
+    //   name,
+    //   hintsOnly,
+    //   nameIdPostfix,
+    //   activityData: activity?.data ? foundry.utils.deepClone(activity) : null,
+    // });
 
     if (!activity) {
       logger.debug(`No Activity type found for ${this.data.name}`, {

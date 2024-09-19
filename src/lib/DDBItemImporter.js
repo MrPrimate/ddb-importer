@@ -39,11 +39,15 @@ export default class DDBItemImporter {
   #flagMatch(item1, item2) {
     // console.warn("flagMatch", {item1, item2, matchFlags});
     if (this.matchFlags.length === 0) return true;
-    const matched = this.matchFlags.some((flag) =>
-      foundry.utils.hasProperty(item1, `flags.ddbimporter.${flag}`)
-      && foundry.utils.hasProperty(item2, `flags.ddbimporter.${flag}`)
-      && item1.flags.ddbimporter[flag] === item2.flags.ddbimporter[flag],
-    );
+    const matched = this.matchFlags.some((flag) => {
+      // assume 2014 rule if this is the flag request
+      const defaultFlagValue = flag === "is2014" ? true : undefined;
+      const flagValue1 = foundry.utils.getProperty(item1, `flags.ddbimporter.${flag}`) ?? defaultFlagValue;
+      if (!flagValue1) return false;
+      const flagValue2 = foundry.utils.getProperty(item2, `flags.ddbimporter.${flag}`) ?? defaultFlagValue;
+      if (!flagValue2) return false;
+      return flagValue1 === flagValue2;
+    });
     return matched;
   }
 
@@ -356,16 +360,16 @@ ${item.system.description.chat}
 
     let results = [];
     // update existing items
-    DDBMuncher.munchNote(`Creating and updating ${inputItems.length} ${this.type} items in compendium...`, true);
+    DDBMuncher.munchNote(`Creating and updating ${inputItems.length} ${this.type} documents in compendium...`, true);
 
     if (updateExisting) {
       results = await this.updateCompendiumItems(inputItems);
-      logger.debug(`Updated ${results.length} existing ${this.type} items in compendium`);
+      logger.debug(`Updated ${results.length} existing ${this.type} documents in compendium`);
     }
 
     // create new items
     const createResults = await this.createCompendiumItems(inputItems);
-    logger.debug(`Created ${createResults.length} new ${this.type} items in compendium`);
+    logger.debug(`Created ${createResults.length} new ${this.type} documents in compendium`);
     DDBMuncher.munchNote("", true);
 
     this.results = createResults.concat(results);
@@ -454,6 +458,7 @@ ${item.system.description.chat}
       keepDDBId,
       deleteCompendiumId,
       linkItemFlags,
+      matchFlags: ["is2014", "is2024"],
     };
     const results = await itemImporter.loadPassedItemsFromCompendium(items, loadOptions);
 
@@ -461,7 +466,7 @@ ${item.system.description.chat}
   }
 
   async srdFiddling(removeDuplicates = true, matchDDBId = false) {
-    const useSrd = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd");
+    const useSrd = false; // game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd");
 
     if (useSrd) {
       logger.debug("Replacing SRD compendium items");

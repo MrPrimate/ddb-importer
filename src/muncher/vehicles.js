@@ -117,7 +117,7 @@ export async function parseTransports(ids = null) {
   let vehicleJSON = await getVehicleData(ids);
   let vehicles = await processVehicleData(vehicleJSON);
 
-  const vehicleHandler = new DDBItemImporter("vehicles", vehicles);
+  const vehicleHandler = new DDBItemImporter("vehicles", vehicles, { matchFlags: ["is2014", "is2024"] });
   await vehicleHandler.init();
 
   if (!updateBool || !updateImages) {

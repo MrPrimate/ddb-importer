@@ -763,8 +763,7 @@ export class DDBCompendiumFolders {
         try {
           name = this.getItemCompendiumFolderName(document);
         } catch (e) {
-          console.warn(e);
-          console.warn(document)
+          logger.error("Error in getItemCompendiumFolderName", { error: e, document });
           throw e;
         }
       }

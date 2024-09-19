@@ -534,28 +534,28 @@ export default class DDBFeatureActivity {
   } = {}) {
 
 
-    console.warn(`Build for ${this.ddbDefinition.name} ${this.type} activity`, {
-      generateActivation,
-      generateAttack,
-      generateConsumption,
-      generateDescription,
-      generateDuration,
-      generateEffects,
-      generateHealing,
-      generateRange,
-      generateSave,
-      generateTarget,
-      generateRoll,
-      roll,
-      targetOverride,
-      targetSelf,
-      noTemplate,
-      includeBase,
-      damageParts,
-      attackOverride,
-      saveOverride,
-      rangeOverride,
-    });
+    // console.warn(`Build for ${this.ddbDefinition.name} ${this.type} activity`, {
+    //   generateActivation,
+    //   generateAttack,
+    //   generateConsumption,
+    //   generateDescription,
+    //   generateDuration,
+    //   generateEffects,
+    //   generateHealing,
+    //   generateRange,
+    //   generateSave,
+    //   generateTarget,
+    //   generateRoll,
+    //   roll,
+    //   targetOverride,
+    //   targetSelf,
+    //   noTemplate,
+    //   includeBase,
+    //   damageParts,
+    //   attackOverride,
+    //   saveOverride,
+    //   rangeOverride,
+    // });
 
     // override set to false on object if overriding
 

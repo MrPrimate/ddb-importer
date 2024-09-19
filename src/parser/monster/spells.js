@@ -361,7 +361,7 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
         break;
       // no default
     }
-    spell.name = `${spell.name} (${edgeCase.edge})`;
+    spell.name = edgeCase.edge.includes("save DC") ? spell.name : `${spell.name} (${edgeCase.edge})`;
     spell.system.description.value = `<p><b>Special Notes: ${edgeCase.edgeDescription ?? edgeCase.edge}.</b></p>\n\n${spell.system.description.value}`;
 
     if (spell.system.description.chat !== "") {
@@ -371,67 +371,33 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
     const diceSearch = /(\d+)d(\d+)/;
     const diceMatch = edgeCase.edge.match(diceSearch);
     if (diceMatch) {
-      if (spell.system.activities.some((a) => a.damage?.parts)) {
-        const activity = spell.system.activities(Object.keys(spell.system.activities)[0]);
-        if (activity.damage?.parts) {
-          activity.damage.parts[0].number = null;
-          activity.damage.parts[0].denomination = null;
-          activity.damage.parts[0].custom = {
-            enabled: true,
-            formula: diceMatch[0],
-          };
-        } else {
-          console.error(`SPELL EDGE CASE FAILURE ${spell.name} - ${edgeCase.edge} - damage parts not found`, {
-            this: this,
-            spell,
-            type,
-            spellList,
-            edgeCase,
-          });
-        }
-      } else {
-        console.error(`SPELL EDGE CASE FAILURE ${spell.name} - ${edgeCase.edge} - dice match not found`, {
-          this: this,
-          spell,
-          type,
-          spellList,
-          edgeCase,
-        });
+      for (const key of Object.keys(spell.system.activities)) {
+        const activity = spell.system.activities[key];
+        if (!activity.damage?.parts || activity.damage.parts.length === 0) continue;
+        activity.damage.parts[0].number = null;
+        activity.damage.parts[0].denomination = null;
+        activity.damage.parts[0].custom = {
+          enabled: true,
+          formula: diceMatch[0],
+        };
+        spell.system.activities[key] = activity;
       }
-      // } else if (spell.system.damage.parts[0]) {
-      //   // spell.system.damage.parts[0] = [diceMatch[0]];
-      // } else {
-      //   // spell.system.damage.parts = [[diceMatch[0]]];
-      // }
-
     }
 
     // save DC 12
     const saveSearch = /save DC (\d+)/;
     const saveMatch = edgeCase.edge.match(saveSearch);
     if (saveMatch) {
-      spell.system.save.dc = parseInt(saveMatch[1]);
-      spell.system.save.scaling = "flat";
-
-      if (spell.system.activities.some((a) => a.damage?.save)) {
-        const activity = spell.system.activities(Object.keys(spell.system.activities)[0]);
-        if (activity.damage?.save) {
-          activity.save.dc = {
-            formula: saveMatch[1],
-            calculation: "",
-          };
-        } else {
-          console.error(`SPELL EDGE CASE FAILURE ${spell.name} - ${edgeCase.edge} - save match not found`, {
-            this: this,
-            spell,
-            type,
-            spellList,
-            edgeCase,
-          });
-        }
+      for (const key of Object.keys(spell.system.activities)) {
+        const activity = spell.system.activities[key];
+        if (!activity?.save) continue;
+        activity.save.dc = {
+          formula: saveMatch[1],
+          calculation: "",
+        };
+        spell.system.activities[key] = activity;
       }
     }
-
   }
 
   // remove material components?

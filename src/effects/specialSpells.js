@@ -694,6 +694,9 @@ async function midiEffectAdjustment(document) {
 
 export async function spellEffectAdjustment(document, midiEffects = false) {
   if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
+  // KNOWN_ISSUE_4_0: spell effect fixes
+  return document;
+  // eslint-disable-next-line no-unreachable
   if (!document.effects) document.effects = [];
   document = await basicSpellEffects(document);
   if (midiEffects) document = await midiEffectAdjustment(document);

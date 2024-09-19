@@ -534,7 +534,7 @@ ${chat}
           .every((requiredEquipment) =>
             documents.some((d) =>
               (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredEquipment
-              && DICTIONARY.types.inventory.includes(d.type)
+              && DICTIONARY.types.inventory.includes(d.type),
             ));
         if (!itemMatch) continue;
       }
@@ -544,7 +544,7 @@ ${chat}
           .every((requiredFeature) =>
             documents.some((d) =>
               (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredFeature
-              && d.type === "feat"
+              && d.type === "feat",
             ));
         if (!itemMatch) continue;
       }

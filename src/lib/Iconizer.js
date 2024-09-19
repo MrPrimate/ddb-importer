@@ -369,7 +369,7 @@ export default class Iconizer {
             const imageNamePrefix = useDeepPaths ? "" : "item";
             const downloadOptions = { type: "item", name: item.name, download: downloadImages, remoteImages, targetDirectory, pathPostfix, imageNamePrefix };
             const smallImage = await FileHelper.getImagePath(avatarUrl, downloadOptions);
-            logger.debug(`Final image ${smallImage}`);
+            // logger.debug(`Final image ${smallImage}`);
             itemImage.img = smallImage;
           }
         }
