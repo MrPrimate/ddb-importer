@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Spell: Magic Weapon Enchantment
+
 # 6.0.0
 
 MAJOR BREAKING CHANGES!
