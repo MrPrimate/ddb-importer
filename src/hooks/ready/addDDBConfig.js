@@ -37,7 +37,7 @@ function addSources() {
   if (!ddbRaw) return;
 
   const sources = {};
-  for (const source of ddbRaw.filter((s) => s.isReleased)) {
+  for (const source of ddbRaw.filter((s) => s.isReleased && [1, 148, 145])) {
     sources[source.name] = source.description;
   }
   Object.assign(CONFIG.DND5E.sourceBooks, sources);
