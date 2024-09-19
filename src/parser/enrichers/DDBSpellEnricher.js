@@ -298,6 +298,22 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         name: "Cast",
       },
     },
+    "Prismatic Wall": {
+      type: "utility",
+      data: {
+        name: "Place Wall",
+        target: {
+          override: true,
+          template: {
+            type: "wall",
+            size: "90",
+            width: "1/12",
+            height: "30",
+            units: "ft",
+          },
+        },
+      },
+    },
     "Pyrotechnics": {
       type: "save",
       data: {
@@ -412,6 +428,166 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
             contiguous: false,
             type: "radius",
             size: "20",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Wall of Sand": {
+      type: "save",
+      data: {
+        name: "Place Wall",
+        target: {
+          override: true,
+          template: {
+            type: "wall",
+            size: "30",
+            width: "10",
+            height: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Wall of Water": {
+      type: "save",
+      data: {
+        name: "Place Wall",
+        target: {
+          override: true,
+          template: {
+            type: "wall",
+            size: "30",
+            width: "1",
+            height: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Wall of Fire": {
+      type: "save",
+      damageParts: [0],
+      data: {
+        img: "icons/magic/fire/flame-burning-fence.webp",
+        name: "Place Wall",
+        target: {
+          override: true,
+          template: {
+            type: "wall",
+            size: "60",
+            width: "1",
+            height: "20",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Wall of Force": {
+      type: "utility",
+      data: {
+        name: "Place Panels",
+        img: "icons/magic/water/barrier-ice-wall-snow.webp",
+        target: {
+          override: true,
+          template: {
+            count: "10",
+            contiguous: true,
+            type: "wall",
+            size: "10",
+            width: "0.02",
+            height: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Wall of Light": {
+      type: "save",
+      damageParts: [0],
+      data: {
+        name: "Place Wall",
+        target: {
+          override: true,
+          template: {
+            type: "wall",
+            size: "60",
+            width: "5",
+            height: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Wall of Stone": {
+      type: "save",
+      data: {
+        name: "Place Square Panels",
+        target: {
+          override: true,
+          template: {
+            count: "10",
+            contiguous: true,
+            type: "wall",
+            size: "10",
+            width: "0.5",
+            height: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Wall of Thorns": {
+      type: "save",
+      damageParts: [0],
+      data: {
+        name: "Place Wall",
+        img: "icons/magic/nature/root-vine-entwined-thorns.webp",
+        target: {
+          override: true,
+          template: {
+            type: "wall",
+            size: "60",
+            width: "5",
+            height: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Wall of Ice": {
+      type: "save",
+      damageParts: [0],
+      data: {
+        name: "Place Panels",
+        img: "icons/magic/water/barrier-ice-wall-snow.webp",
+        target: {
+          override: true,
+          template: {
+            count: "10",
+            contiguous: true,
+            type: "wall",
+            size: "10",
+            width: "1",
+            height: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
+    "Wind Wall": {
+      type: "save",
+      damageParts: [0],
+      data: {
+        target: {
+          override: true,
+          template: {
+            count: "5",
+            contiguous: true,
+            type: "wall",
+            size: "10",
+            width: "1",
+            height: "15",
             units: "ft",
           },
         },
@@ -646,6 +822,75 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Prismatic Wall": [
+      {
+        constructor: {
+          name: "Create Globe",
+          type: "utility",
+        },
+        build: {
+          generateDamage: false,
+          generateConsumption: true,
+          generateSave: false,
+          generateTarget: true,
+          targetOverride: {
+            override: true,
+            template: {
+              contiguous: false,
+              type: "radius",
+              size: "15",
+              units: "ft",
+            },
+            affects: {},
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Blinding Save",
+          type: "save",
+        },
+        build: {
+          generateDamage: false,
+          generateConsumption: false,
+          generateSave: true,
+          generateTarget: true,
+          noSpellslot: true,
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "enemy",
+            },
+            activationOverride: { type: "spec", condition: "Within 20ft" },
+            durationOverride: { units: "inst", concentration: false },
+            template: {},
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Damage Save",
+          type: "save",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: false,
+          generateSave: true,
+          generateTarget: true,
+          noSpellslot: true,
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "creature",
+            },
+            activationOverride: { type: "spec", condition: "Moving through" },
+            durationOverride: { units: "inst", concentration: false },
+            template: {},
+          },
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, types: ["fire", "acid", "lightning", "poison", "cold"] })],
+        },
+      },
+    ],
     "Pyrotechnics": [
       {
         constructor: {
@@ -772,6 +1017,285 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Wall of Fire": [
+      {
+        constructor: {
+          name: "Place Ring",
+          type: "save",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: true,
+          generateSave: true,
+          generateTarget: true,
+          img: "icons/magic/fire/barrier-wall-flame-ring-yellow.webp",
+          partialDamageParts: [0],
+          targetOverride: {
+            override: true,
+            template: {
+              count: "1",
+              contiguous: false,
+              type: "cylinder",
+              size: "10",
+              height: "20",
+              units: "ft",
+            },
+            affects: {},
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Damage",
+          type: "damage",
+        },
+        build: {
+          img: "icons/magic/fire/flame-burning-skeleton-explosion.webp",
+          generateDamage: true,
+          generateConsumption: false,
+          generateTarget: true,
+          partialDamageParts: [0],
+          noSpellslot: true,
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "creature",
+            },
+            activationOverride: { type: "", condition: "" },
+            durationOverride: { units: "inst", concentration: false },
+            template: {},
+          },
+        },
+      },
+    ],
+    "Wall of Force": [
+      {
+        constructor: {
+          name: "Create Dome/Globe",
+          type: "utility",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: true,
+          generateSave: true,
+          generateTarget: true,
+          targetOverride: {
+            override: true,
+            template: {
+              count: "1",
+              contiguous: false,
+              type: "sphere",
+              size: "10",
+              units: "ft",
+            },
+            affects: {},
+          },
+        },
+      },
+    ],
+    "Wall of Light": [
+      {
+        constructor: {
+          name: "Turn End Damage",
+          type: "damage",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: false,
+          generateTarget: true,
+          partialDamageParts: [0],
+          noSpellslot: true,
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "creature",
+            },
+            activationOverride: { type: "spec", condition: "Ends turn in Light" },
+            durationOverride: { units: "inst", concentration: false },
+            template: {},
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Beam of Radiance Attack",
+          type: "attack",
+        },
+        build: {
+          generateAttack: true,
+          generateDamage: true,
+          generateConsumption: false,
+          generateTarget: true,
+          partialDamageParts: [0],
+          noSpellslot: true,
+          rangeOverride: { value: 60, units: "ft" },
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "creature",
+            },
+            activationOverride: { type: "spec", condition: "" },
+            durationOverride: { units: "inst", concentration: false },
+            template: {},
+          },
+        },
+      },
+    ],
+    "Wall of Ice": [
+      {
+        constructor: {
+          name: "Create Dome/Globe",
+          type: "save",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: true,
+          generateSave: true,
+          generateTarget: true,
+          img: "icons/magic/water/barrier-ice-shield.webp",
+          partialDamageParts: [0],
+          targetOverride: {
+            override: true,
+            template: {
+              count: "1",
+              contiguous: false,
+              type: "sphere",
+              size: "10",
+              units: "ft",
+            },
+            affects: {},
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Frigid Air Save",
+          type: "save",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: false,
+          generateSave: true,
+          img: "icons/magic/water/snowflake-ice-blue-white.webp",
+          generateTarget: true,
+          partialDamageParts: [1],
+          noSpellslot: true,
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "creature",
+            },
+            activationOverride: { type: "spec", condition: "Moving through/starting in Frigid Air" },
+            durationOverride: { units: "inst", concentration: false },
+            template: {},
+          },
+        },
+      },
+    ],
+    "Wall of Stone": [
+      {
+        constructor: {
+          name: "Place Long Panels",
+          type: "save",
+        },
+        build: {
+          generateDamage: false,
+          generateConsumption: true,
+          generateSave: true,
+          generateTarget: true,
+          targetOverride: {
+            override: true,
+            template: {
+              count: "10",
+              contiguous: true,
+              type: "wall",
+              size: "20",
+              width: "0.25",
+              height: "10",
+              units: "ft",
+            },
+            affects: {},
+          },
+        },
+      },
+    ],
+    "Wall of Thorns": [
+      {
+        constructor: {
+          name: "Create Circle",
+          type: "save",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: true,
+          generateSave: true,
+          generateTarget: true,
+          img: "icons/magic/nature/trap-spikes-thorns-green.webp",
+          partialDamageParts: [0],
+          targetOverride: {
+            override: true,
+            template: {
+              count: "1",
+              contiguous: false,
+              type: "cylinder",
+              size: "20",
+              height: "20",
+              width: "5",
+              units: "ft",
+            },
+            affects: {},
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Save to Travel Through Wall",
+          type: "save",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: false,
+          generateSave: true,
+          img: "icons/magic/nature/root-vine-entangled-humanoid.webp",
+          generateTarget: true,
+          partialDamageParts: [1],
+          noSpellslot: true,
+          targetOverride: {
+            override: true,
+            affects: {
+              type: "creature",
+            },
+            activationOverride: { type: "spec", condition: "Moving through/starting in Frigid Air" },
+            durationOverride: { units: "inst", concentration: false },
+            template: {},
+          },
+        },
+      },
+    ],
+    "Wall of Water": [
+      {
+        constructor: {
+          name: "Create Ring",
+          type: "utility",
+        },
+        build: {
+          generateDamage: false,
+          generateConsumption: true,
+          generateTarget: true,
+          targetOverride: {
+            override: true,
+            template: {
+              count: "1",
+              contiguous: false,
+              type: "sphere",
+              size: "10",
+              units: "ft",
+            },
+            affects: {},
+          },
+        },
+      },
+    ],
   };
 
   DOCUMENT_OVERRIDES = {
@@ -818,6 +1342,19 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Prismatic Wall": {
+      data: {
+        "system.target": {
+          template: {
+            contiguous: false,
+            type: "",
+            size: "",
+            width: "",
+            units: "",
+          },
+        },
+      },
+    },
     "Produce Flame": {
       data: {
         "system.range": {
@@ -852,6 +1389,91 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Wall of Thorns": {
+      data: {
+        "system.target": {
+          template: {
+            contiguous: false,
+            type: "",
+            size: "",
+            width: "",
+            units: "",
+          },
+        },
+      },
+    },
+    "Wall of Water": {
+      data: {
+        "system.target": {
+          template: {
+            contiguous: false,
+            type: "",
+            size: "",
+            width: "",
+            units: "",
+          },
+        },
+      },
+    },
+    "Wall of Fire": {
+      data: {
+        "system.target": {
+          template: {
+            contiguous: false,
+            type: "",
+            size: "",
+            width: "",
+            units: "",
+          },
+        },
+      },
+    },
+    "Wall of Force": {
+      data: {
+        "system.target": {
+          template: {
+            contiguous: false,
+            type: "",
+            size: "",
+            width: "",
+            units: "",
+          },
+        },
+      },
+    },
+    "Wall of Light": {
+      data: {
+        "system.range": {
+          units: "",
+        },
+      },
+    },
+    "Wall of Stone": {
+      data: {
+        "system.target": {
+          template: {
+            contiguous: false,
+            type: "",
+            size: "",
+            width: "",
+            units: "",
+          },
+        },
+      },
+    },
+    "Wall of Ice": {
+      data: {
+        "system.target": {
+          template: {
+            contiguous: false,
+            type: "",
+            size: "",
+            width: "",
+            units: "",
+          },
+        },
+      },
+    },
   };
 
   EFFECT_HINTS = {
@@ -864,9 +1486,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
             { key: "system.traits.dr.value", value: element.toLowerCase(), mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
           ],
           data: {
-            ddbimporter: {
-              activityMatch: "Absorb Elements Effect",
-            },
+            "flags.ddbimporter.activityMatch": "Absorb Elements Effect",
           },
         };
       }),
@@ -961,15 +1581,58 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       name: "Hunter's Mark",
       type: "spell",
     },
+    "Prismatic Wall": {
+      clearAutoEffects: true,
+      multiple: [
+        {
+          name: "Blinded",
+          type: "spell",
+          statuses: ["Blinded"],
+          options: {
+            durationSeconds: 60,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Blinding Save",
+          },
+        },
+        {
+          name: "Restrained",
+          type: "spell",
+          statuses: ["Restrained"],
+          options: {
+            durationSeconds: 6,
+            description: "Save at the end of each turn, 3 failures results in &Reference[Petrified]",
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Damage Save",
+          },
+        },
+        {
+          name: "Petrified",
+          type: "spell",
+          statuses: ["Petrified"],
+          data: {
+            "flags.ddbimporter.activityMatch": "Damage Save",
+          },
+        },
+        {
+          name: "Blinded",
+          type: "spell",
+          statuses: ["Blinded"],
+          options: {
+            durationSeconds: 60,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Damage Save",
+          },
+        },
+      ],
+    },
     "Pyrotechnics": {
       type: "spell",
       statuses: ["Blinded"],
       data: {
-        flags: {
-          ddbimporter: {
-            activityMatch: "Fireworks",
-          },
-        },
+        "flags.ddbimporter.activityMatch": "Fireworks",
       },
     },
     "Protection from Energy": {
@@ -993,6 +1656,17 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     "Searing Smite": {
       type: "spell",
       name: "On fire from Searing Smite",
+    },
+    "Wall of Light": {
+      type: "spell",
+      name: "Blinded",
+      statuses: ["Blinded"],
+      options: {
+        durationSeconds: 600,
+      },
+      data: {
+        "flags.ddbimporter.activityMatch": "Place Wall",
+      },
     },
   };
 

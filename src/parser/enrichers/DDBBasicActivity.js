@@ -11,7 +11,6 @@
 
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
-import DDBBaseFeature from "../features/DDBBaseFeature.js";
 
 
 // CONFIG.DND5E.activityTypes
@@ -159,7 +158,7 @@ export default class DDBBasicActivity {
   }
 
   _generateDuration() {
-    // TODO: improve duration parsing
+    // KNOWN_ISSUE_4_0: improve duration parsing
     this.data.duration = {
       value: null,
       units: "inst",
@@ -210,7 +209,7 @@ export default class DDBBasicActivity {
     //   });
     // }
 
-    // TODO: improve target parsing
+    // KNOWN_ISSUE_4_0: improve target parsing
     this.data.target = data;
 
   }

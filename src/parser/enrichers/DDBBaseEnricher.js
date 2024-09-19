@@ -218,6 +218,14 @@ export default class DDBBaseEnricher {
       foundry.utils.setProperty(activity, "attack.flat", true);
     }
 
+    if (this.activity.damageParts) {
+      const parts = [];
+      for (const part of this.activity.damageParts) {
+        parts.push(activity.damage.parts[part]);
+      }
+      activity.damage.parts = parts;
+    }
+
     if (this.activity.data) {
       activity = foundry.utils.mergeObject(activity, this.activity.data);
     }
