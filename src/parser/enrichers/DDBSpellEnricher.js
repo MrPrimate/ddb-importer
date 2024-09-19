@@ -298,6 +298,15 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         name: "Cast",
       },
     },
+    "Magic Weapon": {
+      type: "enchant",
+      data: {
+        restrictions: {
+          type: "weapon",
+          allowMagical: false,
+        },
+      },
+    },
     "Prismatic Wall": {
       type: "utility",
       data: {
@@ -1580,6 +1589,32 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     "Hunter's Mark": {
       name: "Hunter's Mark",
       type: "spell",
+    },
+    "Magic Weapon": {
+      multiple: [
+        { bonus: "1", min: null, max: 3 },
+        { bonus: "2", min: 4, max: 5 },
+        { bonus: "3", min: 6, max: null },
+      ].map((data) => {
+        return {
+          type: "enchant",
+          name: `Magic Weapon +${data.bonus}`,
+          magicalBonus: {
+            makeMagical: true,
+            bonus: data.bonus,
+            nameAddition: `+${data.bonus}`,
+          },
+          options: {
+            description: `This weapon has become a +${data.bonus} magic weapon, granting a bonus to attack and damage rolls.`,
+          },
+          data: {
+            "flags.ddbimporter.effectIdLevel": {
+              min: data.min,
+              max: data.max,
+            },
+          },
+        };
+      }),
     },
     "Prismatic Wall": {
       clearAutoEffects: true,

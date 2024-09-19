@@ -892,7 +892,12 @@ export default class DDBSpell {
           if (activityNameRequired && activity.name !== activityNameRequired) continue;
           const effectId = effect._id ?? foundry.utils.randomID();
           effect._id = effectId;
-          activity.effects.push({ _id: effectId });
+          const level = foundry.utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null };
+          const riders = {
+            effect: [],
+            item: [],
+          };
+          activity.effects.push({ _id: effectId, level, riders });
         }
         this.data.system.activities[activityId] = activity;
       }

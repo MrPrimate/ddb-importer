@@ -88,7 +88,6 @@ import { lightEffect } from "./spells/light.js";
 import { longstriderEffect } from "./spells/longstrider.js";
 import { mageArmorEffect } from "./spells/mageArmor.js";
 import { mageHandEffect } from "./spells/mageHand.js";
-import { magicWeaponEffect } from "./spells/magicWeapon.js";
 import { massSuggestionEffect } from "./spells/massSuggestion.js";
 import { mindBlankEffect } from "./spells/mindBlank.js";
 import { mirrorImageEffect } from "./spells/mirrorImage.js";
@@ -314,10 +313,6 @@ async function basicSpellEffects(document) {
     }
     case "Mage Hand": {
       document = await mageHandEffect(document);
-      break;
-    }
-    case "Magic Weapon": {
-      document = magicWeaponEffect(document);
       break;
     }
     case "Mass Suggestion": {
