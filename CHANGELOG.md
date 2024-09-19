@@ -6,10 +6,10 @@
 
 MAJOR BREAKING CHANGES!
 
-The 4.0.x fundementally changes the structure of how documents are constructed in Foundry (allowing multiple "activities" per spell). You're existing imported content will migrate (mostly successfuly), however future imports from D&D Beyond will not match the current imports 1:1.
+The 4.0.x fundementally changes the structure of how documents are constructed in Foundry (allowing multiple "activities" per spell). You're existing imported content will migrate (mostly successfully); however, future imports from D&D Beyond will not match the current imports 1:1.
 
 - Support for v4.0.0 of the D&D system.
-- Many features and actions such as Metamagic action/feature no longer duplicated.
+- Many features and actions, such as Metamagic action/feature, are no longer duplicated.
 - Features such as Metamagic will now import a feature called Metamagic with a full list of choices as a hidden text.
 - Parsing with damage hints has been removed.
 - Adds DDB Source to Source Book Registry.
@@ -17,15 +17,15 @@ The 4.0.x fundementally changes the structure of how documents are constructed i
 - Changes to default description processing for features on character import.
 - Shadar Kai now gain resistance to magical sleep.
 - Monster Muncher/Importer now batches monsters to reduce long UI pauses.
-- AC Min field supported in effect generation.
+- The AC Min field is supported in effect generation.
 - Massive improvements to wonderous/trinket item parsing.
-- Fixes to the DDB button on onster and item sheets that could break formatting of the sheet.
+- Fixes to the DDB button on monster and item sheets that could break the formatting of the sheet.
 
-WARNING! Consider this a beta level release - i.e. it broadly works, but there are known issues and several features won't be working in 4.0.x for a few weeks (noteable class, feat, background importing, and updating back to DDB).
+WARNING! Consider this a beta-level release - i.e. it broadly works, but there are known issues, and several features won't be working in 4.0.x for a few weeks (notably class, feat, background importing, and updating back to DDB).
 
-There will be a period of frequent updates in the next couple of weeks as a bunch of basic missing effects are added, and bug reports come in for miscofigured spells/items/features.
+There will be a period of frequent updates in the next couple of weeks as a bunch of basic missing effects are added and bug reports come in for misconfigured spells/items/features.
 
-Many of the 2024 spells and features have not been checked yet so may import incorrectly.
+Many of the 2024 spells and features still need to be checked so may import incorrectly.
 
 I shall be tracking the changes in the following github issue: https://github.com/MrPrimate/ddb-importer/issues/505 (and you can see some of the known issues there already).
 
