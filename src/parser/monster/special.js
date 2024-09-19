@@ -9,16 +9,7 @@ export function specialCases(monster) {
   return monster;
 
   switch (monster.name) {
-    case "Reduced-threat Aboleth":
-    case "Aboleth": {
-      monster.items.forEach(function (item, index) {
-        if (item.name === "Tentacle") {
-          this[index].system.formula = item.system.damage.parts[1][0];
-          this[index].system.damage.parts.splice(1, 1);
-        }
-      }, monster.items);
-      break;
-    }
+
     case "Clay Golem": {
       monster.items.forEach(function (item, index) {
         if (item.name.startsWith("Haste")) {
@@ -143,13 +134,7 @@ export function specialCases(monster) {
   }
 
   monster.items.forEach(function (item, index) {
-    if (item.name.startsWith("Sneak Attack")) {
-      this[index].system.uses = {
-        "spent": null,
-        "max": "",
-        "recovery": [],
-      };
-    } else if (item.name.startsWith("Soothing Word")) {
+    if (item.name.startsWith("Soothing Word")) {
       this[index].system.target = {
         value: 1,
         width: null,
