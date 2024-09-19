@@ -62,7 +62,7 @@ export async function getSubClasses(subClassData, klassData) {
   logger.debug("get subclasses started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
-  const classHandler = new DDBItemImporter("class", [], { deleteBeforeUpdate: false });
+  const classHandler = new DDBItemImporter("class", [], { deleteBeforeUpdate: false, matchFlags: ["is2014", "is2024"] });
   await classHandler.init();
   const classDocs = await classHandler.compendium.getDocuments();
 
@@ -85,13 +85,13 @@ export async function getSubClasses(subClassData, klassData) {
     const filteredFeatures = subClass.classFeatures
       .filter((feature) =>
         !klassData.classFeatures.some((f) =>
-          feature.id === f.id
-        )
+          feature.id === f.id,
+        ),
       );
     for (const feature of filteredFeatures) {
       const existingFeature = classFeatures.some((f) =>
         f.name === feature.name
-        && f.flags.ddbimporter.classId === subClass.id
+        && f.flags.ddbimporter.classId === subClass.id,
       );
       logger.debug(`${feature.name} subclass feature starting...`, { existingFeature, feature });
       if (!NO_TRAITS.includes(feature.name.trim()) && !existingFeature) {
@@ -116,7 +116,7 @@ export async function getSubClasses(subClassData, klassData) {
         "flags.ddbimporter.class",
         "flags.ddbimporter.featureName",
         "flags.ddbimporter.subClass",
-        "flags.ddbimporter.parentClassId"
+        "flags.ddbimporter.parentClassId",
       ],
     },
   };
@@ -124,13 +124,13 @@ export async function getSubClasses(subClassData, klassData) {
   logger.debug(`Creating ${klassData.name} subclass features`, {
     classFeatures,
     featureHandlerOptions,
-    updateBool
+    updateBool,
   });
   const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
   await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
 
   const firstPassFeatures = await featureHandler.compendiumIndex.filter((i) =>
-    featureHandler.documents.some((orig) => i.name === orig.name)
+    featureHandler.documents.some((orig) => i.name === orig.name),
   );
   let compendiumClassFeatures = [];
 

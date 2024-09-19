@@ -15,7 +15,7 @@ export async function venomTrollEffects(npc) {
           priority: "20",
         },
       );
-      addStatusEffectChange(effect, "Poisoned", 20, true);
+      addStatusEffectChange({ effect, statusName: "Poisoned" });
 
       foundry.utils.setProperty(effect, "duration.seconds", 60);
       foundry.utils.setProperty(effect, "duration.rounds", 10);
@@ -41,7 +41,7 @@ export async function venomTrollEffects(npc) {
         "value": 5,
         "width": null,
         "units": "ft",
-        "type": "creature"
+        "type": "creature",
       };
       item.system.range.units = "spec";
       item.system.duration.units = "inst";

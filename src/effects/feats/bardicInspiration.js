@@ -35,7 +35,7 @@ export function bardicInspirationEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "Bardic Inspiration",
       priority: "20",
-    }
+    },
   );
   inspiredEffect.transfer = false;
   inspiredEffect.disabled = false;
@@ -57,7 +57,7 @@ export function bardicInspirationEffect(document) {
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         value: diceString,
         priority: "20",
-      }
+      },
     );
   }
 

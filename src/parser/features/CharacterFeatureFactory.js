@@ -3,11 +3,11 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import logger from "../../logger.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
+import DDBBaseFeature from "./DDBBaseFeature.js";
 import DDBFeatures from "./DDBFeatures.js";
-import { addExtraEffects, fixFeatures } from "./fixes.js";
+import { addExtraEffects } from "./extraEffects.js";
 
 export default class CharacterFeatureFactory {
-
   constructor(ddbCharacter) {
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbCharacter.source.ddb;
@@ -25,7 +25,6 @@ export default class CharacterFeatureFactory {
 
     this.data = [];
   }
-
 
   _getCustomActions(displayedAsAttack) {
     const customActions = this.ddbData.character.customActions
@@ -59,7 +58,6 @@ export default class CharacterFeatureFactory {
     return customActions;
   }
 
-
   /**
    * Everyone has an Unarmed Strike
    */
@@ -68,7 +66,11 @@ export default class CharacterFeatureFactory {
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, overrides);
 
-    const unarmedStrikeAction = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: strikeMock, rawCharacter: this.rawCharacter });
+    const unarmedStrikeAction = new DDBAttackAction({
+      ddbData: this.ddbData,
+      ddbDefinition: strikeMock,
+      rawCharacter: this.rawCharacter,
+    });
     unarmedStrikeAction.build();
 
     // console.warn(`unarmedStrikeAction for Unarmed strike`, unarmedStrikeAction);
@@ -79,9 +81,8 @@ export default class CharacterFeatureFactory {
     this.parsed.actions.push(this.getUnarmedStrike(overrides));
   }
 
-
-  _generateAttackActions() {
-    const attackActions = [
+  async _generateAttackActions() {
+    const attackActionsBase = [
       // do class options here have a class id, needed for optional class features
       this.ddbData.character.actions.class
         .filter((action) => DDBHelper.findClassByFeatureId(this.ddbData, action.componentId))
@@ -100,76 +101,114 @@ export default class CharacterFeatureFactory {
       this._getCustomActions(true),
     ]
       .flat()
-      .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter))
-      .map((action) => {
-        const ddbAttackAction = new DDBAttackAction({ ddbData: this.ddbData, ddbDefinition: action, rawCharacter: this.rawCharacter, type: action.actionSource });
+      .filter((action) => action.name && action.name !== ""
+        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => action.name.startsWith(a))
+        && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name === a),
+      )
+      .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter));
+
+    const attackActions = (await Promise.all(attackActionsBase
+      .map(async (action) => {
+        const ddbAttackAction = new DDBAttackAction({
+          ddbData: this.ddbData,
+          ddbDefinition: action,
+          rawCharacter: this.rawCharacter,
+          type: action.actionSource,
+        });
+        await ddbAttackAction._initEnricher();
         ddbAttackAction.build();
+
+        logger.debug(`Building Attack Action ${action.name}`, { ddbAttackAction });
 
         // console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);
         return ddbAttackAction.data;
-      });
+      })))
+      .filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
+
     logger.debug("attack actions", attackActions);
     this.parsed.actions = this.parsed.actions.concat(attackActions);
   }
 
-
   actionParsed(actionName) {
     // const attacksAsFeatures = game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features");
-    const exists = this.parsed.actions.some((attack) => attack.name === actionName);
+    const exists = this.parsed.actions.some((attack) =>
+      (foundry.utils.getProperty(attack, "flags.ddbimporter.originalName") ?? attack.name) === actionName,
+    );
     return exists;
     // return attacksAsFeatures && exists;
   }
 
-  _generateOtherActions() {
-    const otherActions = [
-      // do class options here have a class id, needed for optional class features
-      this.ddbData.character.actions.class.filter((action) => DDBHelper.findClassByFeatureId(this.ddbData, action.componentId)),
+  async _generateOtherActions() {
+    // do class options here have a class id, needed for optional class features
+    const classActions = this.ddbData.character.actions.class.filter((action) =>
+      DDBHelper.findClassByFeatureId(this.ddbData, action.componentId),
+    );
+
+    const actionsToBuild = [
+      classActions,
       this.ddbData.character.actions.race,
       this.ddbData.character.actions.feat,
       this._getCustomActions(false),
     ]
       .flat()
-      .filter((action) => action.name && action.name !== "")
-      .filter(
-        (action) => {
-          const name = DDBHelper.getName(this.ddbData, action, this.rawCharacter);
-          // const displayAsAttack = DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
-          // lets grab other actions and add, make sure we don't get attack based ones that haven't parsed
-          return !this.actionParsed(name);
-        }
+      .filter((action) => action.name && action.name !== ""
+        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => action.name.startsWith(a))
+        && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name === a),
       )
-      .map((action) => {
+      .filter((action) => {
+        const name = DDBHelper.getName(this.ddbData, action, this.rawCharacter);
+        // const displayAsAttack = DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
+        // lets grab other actions and add, make sure we don't get attack based ones that haven't parsed
+        const isParsed = this.actionParsed(name);
+        // console.warn("isParsed", { action, ddbname: name, isParsed });
+        return !isParsed;
+      });
+
+    // console.warn("otherActions", {
+    //   classActions,
+    //   parsedActions: deepClone(this.parsed.actions),
+    //   actionsToBuild,
+    // });
+
+    const otherActions = (await Promise.all(actionsToBuild
+      .map(async(action) => {
         logger.debug(`Getting Other Action ${action.name}`);
 
-        const ddbAction = new DDBAction({ ddbData: this.ddbData, ddbDefinition: action, rawCharacter: this.rawCharacter });
+        const ddbAction = new DDBAction({
+          ddbData: this.ddbData,
+          ddbDefinition: action,
+          rawCharacter: this.rawCharacter,
+        });
+        await ddbAction._initEnricher();
         ddbAction.build();
-        // console.warn(`ddbAction for ${action.name}`, ddbAction);
+        logger.debug(`Building Other Action ${action.name}`, { ddbAction });
 
         return ddbAction.data;
-      });
+      })))
+      .filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
 
     logger.debug("other actions", otherActions);
     this.parsed.actions = this.parsed.actions.concat(otherActions);
   }
 
   async processActions() {
-    this._generateAttackActions();
+    await this._generateAttackActions();
     this._generateUnarmedStrikeAction();
-    this._generateOtherActions();
+    await this._generateOtherActions();
 
     this.processed.actions = foundry.utils.duplicate(this.parsed.actions);
 
     this.processed.actions.sort().sort((a, b) => {
-      if (!a.system.activation.activationType) {
+      if (!Object.values(a.system.activities).some((a) => foundry.utils.hasProperty(a, "activation.type"))) {
         return 1;
-      } else if (!b.system.activation.activationType) {
+      } else if (!Object.values(b.system.activities).some((b) => foundry.utils.hasProperty(b, "activation.type"))) {
         return -1;
       } else {
         const aActionTypeID = DICTIONARY.actions.activationTypes.find(
-          (type) => type.value === a.system.activation.activationType
+          (type) => type.value === Object.values(a.system.activities).find((a) => foundry.utils.hasProperty(a, "activation.type")).activation.type,
         ).id;
         const bActionTypeID = DICTIONARY.actions.activationTypes.find(
-          (type) => type.value === b.system.activation.activationType
+          (type) => type.value === Object.values(b.system.activities).find((b) => foundry.utils.hasProperty(b, "activation.type")).activation.type,
         ).id;
         if (aActionTypeID > bActionTypeID) {
           return 1;
@@ -181,7 +220,10 @@ export default class CharacterFeatureFactory {
       }
     });
 
-    await fixFeatures(this.processed.actions);
+    for (const action of this.processed.actions) {
+      await DDBBaseFeature.finalFixes(action);
+    }
+
     this.processed.actions = await addExtraEffects(this.ddbData, this.processed.actions, this.rawCharacter);
     this.updateIds("actions");
     this.data.push(...this.processed.actions);
@@ -235,7 +277,11 @@ export default class CharacterFeatureFactory {
         logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
         added[characterFeature._id] = uuid;
         foundry.utils.setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
-        foundry.utils.setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${feature._id}.${advancement._id}`);
+        foundry.utils.setProperty(
+          characterFeature,
+          "flags.dnd5e.advancementOrigin",
+          `${feature._id}.${advancement._id}`,
+        );
       }
     }
 
@@ -261,7 +307,9 @@ export default class CharacterFeatureFactory {
             foundry.utils.setProperty(feature, "flags.dnd5e.advancementOrigin", `${background._id}`);
           }
         } else if (typeFlag === "class" && foundry.utils.hasProperty(feature, "flags.ddbimporter.class")) {
-          const klass = this.ddbCharacter.data.classes.find((k) => k.name === foundry.utils.getProperty(feature, "flags.ddbimporter.class"));
+          const klass = this.ddbCharacter.data.classes.find(
+            (k) => k.name === foundry.utils.getProperty(feature, "flags.ddbimporter.class"),
+          );
           if (klass) {
             foundry.utils.setProperty(feature, "flags.dnd5e.advancementOrigin", `${klass._id}`);
           }

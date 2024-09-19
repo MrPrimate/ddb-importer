@@ -13,7 +13,7 @@ export function getActorConditionStates(actor, ddb, keepLocal = false) {
       const conditionApplied = DDBEffectHelper.getConditionEffectAppliedAndActive(condition.label, actor);
       const ddbCondition = ddb.character.conditions.some((conditionState) =>
         conditionState.id === condition.ddbId
-        && conditionState.level === condition.levelId
+        && conditionState.level === condition.levelId,
       );
       condition.ddbCondition = ddbCondition;
       condition.applied = conditionApplied !== undefined;

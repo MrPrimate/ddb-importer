@@ -13,7 +13,7 @@ export function getDamageImmunities(ddb) {
     if (adjustment && damageTypes.includes(adjustment.name.toLowerCase())) {
       values.push(adjustment.name.toLowerCase());
     } else if (adjustment && adjustment.slug === "bludgeoning-piercing-and-slashing-from-nonmagical-attacks") {
-      values.push("physical");
+      values.push("bludgeoning", "piercing", "slashing");
     } else if (adjustment) {
       const midiQolInstalled = game.modules.get("midi-qol")?.active;
       if (midiQolInstalled) {

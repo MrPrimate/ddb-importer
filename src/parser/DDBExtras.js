@@ -9,7 +9,7 @@ import FolderHelper from "../lib/FolderHelper.js";
 function getCustomValue(ddbCharacter, typeId, valueId, valueTypeId) {
   const characterValues = ddbCharacter.characterValues;
   const customValue = characterValues.find(
-    (value) => value.valueId == valueId && value.valueTypeId == valueTypeId && value.typeId == typeId
+    (value) => value.valueId == valueId && value.valueTypeId == valueTypeId && value.typeId == typeId,
   );
 
   if (customValue) {
@@ -252,7 +252,7 @@ function revertExtraMunchDefaults(munchSettings) {
 function addOwnerSkillProficiencies(ddbCharacter, mock) {
   let newSkills = [];
   const proficiencyBonus = CONFIG.DDB.challengeRatings.find(
-    (cr) => cr.id == mock.challengeRatingId
+    (cr) => cr.id == mock.challengeRatingId,
   ).proficiencyBonus;
 
   DICTIONARY.character.skills.forEach((skill) => {

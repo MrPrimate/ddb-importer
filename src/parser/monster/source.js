@@ -1,15 +1,16 @@
+import DDBHelper from "../../lib/DDBHelper.js";
 import DDBMonster from "../DDBMonster.js";
 
 DDBMonster.prototype._generateSource = function _generateSource() {
-  const fullSource = game.settings.get("ddb-importer", "use-full-source");
   const sourceObject = CONFIG.DDB.sources.find((cnf) => cnf.id == this.source.sourceId);
-  const sourceBook = (sourceObject)
-    ? (fullSource) ? sourceObject.description : sourceObject.name
+  const book = (sourceObject)
+    ? sourceObject.name
     : "Homebrew";
-  this.npc.system.details.source = {
-    book: sourceBook,
+
+  this.npc.system.details.source = DDBHelper._tweakSourceData({
+    book,
     page: this.source.sourcePageNumber,
     custom: "",
     license: "",
-  };
+  });
 };

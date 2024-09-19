@@ -12,7 +12,7 @@ export class DDBAdventureImporter extends AdventureImporter {
   /** @inheritDoc */
   async getData() {
     return foundry.utils.mergeObject(await super.getData(), {
-      importOptions: this.importOptions || {}
+      importOptions: this.importOptions || {},
     });
   }
 

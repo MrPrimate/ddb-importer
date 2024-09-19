@@ -12,7 +12,7 @@ if (args[0] === "each") {
     ],
     origin: lastArg.origin,
     disabled: false,
-    img: lastArg.efData.icon,
+    img: lastArg.efData.img,
     label: `Cloak of Displacement - Enforced Disadvantage`,
     name: `Cloak of Displacement - Enforced Disadvantage`,
   };

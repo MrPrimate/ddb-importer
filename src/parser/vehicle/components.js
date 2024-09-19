@@ -36,15 +36,21 @@ function getLimitedUse(action) {
     const finalMaxUses = (maxUses) ? parseInt(maxUses) : null;
 
     return {
-      value: (finalMaxUses !== null && finalMaxUses != 0) ? maxUses - action.limitedUse.numberUsed : null,
+      spent: action.limitedUse.numberUsed ?? 0,
       max: (finalMaxUses != 0) ? finalMaxUses : null,
       per: resetType ? resetType.value : "",
+      recovery: resetType
+        ? [
+          // KNOWN_ISSUE_4_0: ensure charges is not returned here
+          { period: resetType.value, type: 'recoverAll', formula: undefined },
+        ]
+        : [],
     };
   } else {
     return {
-      value: null,
+      spent: null,
       max: null,
-      per: "",
+      recovery: [],
     };
   }
 }
@@ -114,7 +120,7 @@ function getWeaponProperties(action, weapon) {
     "value": 1,
     "width": null,
     "units": "",
-    "type": "creature"
+    "type": "creature",
   };
   if (Number.isInteger(action.numberOfTargets)) weapon.system.target.value = action.numberOfTargets;
 
@@ -160,13 +166,13 @@ function buildComponents(ddb, configurations, component) {
   item.system.armor = {
     value: null,
     type: "vehicle",
-    dex: null
+    dex: null,
   };
   item.system.hp = {
     value: null,
     max: null,
     dt: null,
-    conditions: ""
+    conditions: "",
   };
 
   if (component.groupType === "action-station") {
@@ -226,7 +232,7 @@ function buildComponents(ddb, configurations, component) {
       item.system.armor = {
         value: parseInt(component.definition.armorClass),
         type: "vehicle",
-        dex: null
+        dex: null,
       };
     }
 
@@ -235,7 +241,7 @@ function buildComponents(ddb, configurations, component) {
         value: parseInt(component.definition.hitPoints),
         max: parseInt(component.definition.hitPoints),
         dt: null,
-        conditions: ""
+        conditions: "",
       };
       if (component.definition.damageThreshold) {
         item.system.hp.dt = component.definition.damageThreshold;

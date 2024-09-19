@@ -56,7 +56,7 @@ const RESTRICTION_MAPPINGS = [
   {
     // name: "Plants",
     ddb: ["against a plant (an ordinary plant or a creature with the Plant type) or a wooden object that isn’t being worn or carried"],
-    restriction: `["plant"].includes("@raceOrType")`
+    restriction: `["plant"].includes("@raceOrType")`,
   },
   //  "Javelin of Lightning"
   {
@@ -77,7 +77,7 @@ const RESTRICTION_MAPPINGS = [
       "Against Undead Targets",
       "Against undead targets.",
       "(Against undead)",
-      "An undead creature hit by the weapon takes an extra 1d8 radiant damage."
+      "An undead creature hit by the weapon takes an extra 1d8 radiant damage.",
     ],
     restriction: `["undead"].includes("@raceOrType")`,
   },

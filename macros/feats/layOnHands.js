@@ -93,7 +93,7 @@ async function removePoisonMessage(actor, item) {
 function getPoolId(actor) {
   return actor.items.find((d) => {
     const name = foundry.utils.getProperty(d, "flags.ddbimporter.originalName") ?? d.name;
-    return name === "Lay on Hands Pool";
+    return ["Lay on Hands Pool", "Lay On Hands: Healing Pool"].includes(name);
   })?._id;
 }
 
@@ -131,12 +131,12 @@ if (scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFuncti
   // does not work on undead/constructs
   let invalid = ["undead", "construct"].some(type => (theTarget?.actor.system.details.type?.value || "").toLowerCase().includes(type));
   if (invalid) {
-      ui.notifications.warn("Lay on Hands can't affect undead/constructs")
+      ui.notifications.warn("Lay On Hands can't affect undead/constructs")
       return false;
   }
   let consumeTarget = args[0].itemData.system.consume.target;
   if (!consumeTarget || consumeTarget === "") {
-    ui.notifications.warn("Lay on Hands can't find your resource pool.")
+    ui.notifications.warn("Lay On Hands can't find your resource pool.")
       return false;
   }
   const available = getProperty(actor.system, consumeTarget);
@@ -146,7 +146,7 @@ if (scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFuncti
   // prompt for how much to use...
   let d = new Promise((resolve, reject) => {
     let theDialog = new Dialog({
-      title: "Lay on Hands",
+      title: "Lay On Hands",
       content: `How many points to use? ${available} available<input id="mqlohpoints" type="number" min="0" step="1.0" max="${available}"></input>`,
       buttons: {
         heal: {

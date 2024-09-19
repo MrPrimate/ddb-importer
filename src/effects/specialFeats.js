@@ -30,9 +30,7 @@ import { giantsMightEffect } from "./feats/giantsMight.js";
 import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
 import { heavyArmorMasterEffect } from "./feats/heavyArmorMaster.js";
 import { hillRuneEffect } from "./feats/hillRune.js";
-import { holdBreathEffect } from "./feats/holdBreath.js";
 import { indomitableEffect } from "./feats/indomitable.js";
-import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
 import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
 import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
@@ -46,7 +44,6 @@ import { planarWarriorEffect } from "./feats/planarWarrior.js";
 import { potentCantripEffect } from "./feats/potentCantrip.js";
 import { powerfulBuild } from "./feats/powerfulBuild.js";
 import { radiantSoulEffect } from "./feats/radiantSoul.js";
-import { rageEffect } from "./feats/rage.js";
 import { recklessAttackEffect } from "./feats/recklessAttack.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
 import { sacredWeaponEffect } from "./feats/sacredWeapon.js";
@@ -70,8 +67,6 @@ import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { warCasterEffect } from "./feats/warCaster.js";
 import { furyOfTheSmallEffect } from "./feats/furryOfTheSmall.js";
 import { intimidatingPresenceEffect } from "./feats/intimidatingPresence.js";
-import { shieldingStormEffect } from "./feats/sheildingStorm.js";
-import { stormSoulEffect } from "./feats/stormSoul.js";
 import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
 import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
 import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
@@ -90,9 +85,10 @@ import { darkOnesOwnLuckffect } from "./feats/darkOnesOwnLuck.js";
 import { foeSlayerEffect } from "./feats/foeSlayer.js";
 
 export function baseFeatEffect(document, label,
-  { transfer = false, disabled = false } = {}
+  { transfer = false, disabled = false, description = null, durationSeconds = null,
+    durationRounds = null, durationTurns = null } = {},
 ) {
-  return baseEffect(document, label, { transfer, disabled });
+  return baseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
 }
 
 // eslint-disable-next-line complexity
@@ -182,11 +178,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Evasion": {
       document = evasionEffect(document);
-      break;
-    }
-    case "Empty Body":
-    case "Ki: Empty Body": {
-      document = kiEmptyBodyEffect(document);
       break;
     }
     case "Favored Foe": {
@@ -348,13 +339,13 @@ async function midiFeatureEffects(ddb, character, document) {
       document = await stormAuraTundraEffect(document);
       break;
     }
-    case "Storm Soul: Desert":
-    case "Storm Soul: Sea":
-    case "Storm Soul: Tundra":
-    case "Storm Soul": {
-      if (ddb) document = await stormSoulEffect(ddb, document);
-      break;
-    }
+    // case "Storm Soul: Desert":
+    // case "Storm Soul: Sea":
+    // case "Storm Soul: Tundra":
+    // case "Storm Soul": {
+    //   if (ddb) document = await stormSoulEffect(ddb, document);
+    //   break;
+    // }
     case "Swiftstride Reaction": {
       document = forceManualReaction(document);
       break;
@@ -377,6 +368,7 @@ async function midiFeatureEffects(ddb, character, document) {
  */
 // eslint-disable-next-line complexity
 export async function featureEffectAdjustment(ddb, character, document, midiEffects = false) {
+  if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
   if (!document.effects) document.effects = [];
 
   const name = document.flags.ddbimporter?.originalName ?? document.name;
@@ -441,21 +433,12 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       document = heavyArmorMasterEffect(document);
       break;
     }
-    case "Partially Amphibious":
-    case "Hold Breath": {
-      document = holdBreathEffect(document);
-      break;
-    }
     case "Hill Rune": {
       document = hillRuneEffect(document);
       break;
     }
     case "Pact Magic": {
       document = pactMagicEffect(document);
-      break;
-    }
-    case "Rage": {
-      document = rageEffect(document);
       break;
     }
     case "Channel Divinity: Sacred Weapon":
@@ -465,10 +448,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Song of Victory": {
       document = songOfVictoryEffect(document);
-      break;
-    }
-    case "Shielding Storm": {
-      if (ddb) document = shieldingStormEffect(ddb, document);
       break;
     }
     case "Steady Aim": {

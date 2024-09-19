@@ -16,7 +16,7 @@ DDBCharacter.prototype._getCustomSaveProficiency = function _getCustomSaveProfic
   // Overwrite the proficient value with any custom set over rides
   if (this.source.ddb.character.characterValues) {
     const customProficiency = this.source.ddb.character.characterValues.find(
-      (value) => value.typeId === 41 && value.valueId == ability.id && value.value
+      (value) => value.typeId === 41 && value.valueId == ability.id && value.value,
     );
     if (customProficiency) {
       if (customProficiency.value === 1) {
@@ -88,7 +88,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
         (mod) =>
           mod.entityId === ability.id
           && mod.restriction
-          && modRestrictions.some((m) => mod.restriction.startsWith(m))
+          && modRestrictions.some((m) => mod.restriction.startsWith(m)),
       )
       .reduce(
         (prev, cur) => {
@@ -99,7 +99,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
             cap: Math.max(prev.cap, max),
           };
         },
-        { value: 0, cap: 20 + abilityScoreMaxBonus }
+        { value: 0, cap: 20 + abilityScoreMaxBonus },
       );
     // applied regardless of cap
     const bonusStat = this.source.ddb.character.bonusStats.find((stat) => stat.id === ability.id).value || 0;

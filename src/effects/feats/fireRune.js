@@ -11,7 +11,7 @@ export function fireRuneEffect(document) {
 
 
   if (effectModules().midiQolInstalled) {
-    addStatusEffectChange(baseEffect, "Restrained", 20, true);
+    addStatusEffectChange({ effect: baseEffect, statusName: "Restrained" });
     baseEffect.changes.push(
       {
         key: "flags.midi-qol.OverTime",
@@ -24,11 +24,11 @@ export function fireRuneEffect(document) {
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         value: `label=${document.name} (End of Turn Save),turn=end,saveDC=@attributes.spelldc,saveAbility=${document.system.save.ability},savingThrow=true,saveMagic=true,saveRemove=true,killAnim=true`,
         priority: "20",
-      }
+      },
     );
   } else {
     let restrainedEffect = baseFeatEffect(document, `${document.name} (Restrained)`);
-    addStatusEffectChange(restrainedEffect, "Restrained", 20, true);
+    addStatusEffectChange({ effect: restrainedEffect, statusName: "Restrained" });
     foundry.utils.setProperty(restrainedEffect, "duration.seconds", 60);
     document.effects.push(restrainedEffect);
   }

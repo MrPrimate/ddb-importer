@@ -12,13 +12,13 @@ function copyToClipboard(text) {
 
 function getNoteButton(name, type) {
   return $(
-    `<a id='ddb-note-${name}' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy ${type} ${name} </a>`
+    `<a id='ddb-note-${name}' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy ${type} ${name} </a>`,
   );
 }
 
 function getTableButton() {
   return $(
-    `<a id='ddb-table-name' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy table details </a>`
+    `<a id='ddb-table-name' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy table details </a>`,
   );
 }
 

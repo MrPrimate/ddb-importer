@@ -12,10 +12,10 @@ export function horrifyingVisageEffect(document) {
       "key": "flags.midi-qol.OverTime",
       "mode": CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       "value": "turn=end,saveAbility=wis,saveDC=13,saveMagic=true,label=Frightened,killAnim=true",
-      "priority": "20"
+      "priority": "20",
     },
   );
-  addStatusEffectChange(effect, "Frightened", 20, true);
+  addStatusEffectChange({ effect, statusName: "Frightened" });
   effect.transfer = false;
 
   document.effects.push(effect);

@@ -25,7 +25,7 @@ import { beholderEyeRayLegendaryEffect } from "./monsterFeatures/beholderEyeRayL
 import { multiAttackEffect } from "./monsterFeatures/multiAttack.js";
 
 export function baseMonsterFeatureEffect(document, label,
-  { transfer = false, disabled = false } = {}
+  { transfer = false, disabled = false } = {},
 ) {
   return baseEffect(document, label, { transfer, disabled });
 }
@@ -72,7 +72,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
       // auto condition effect
       if (item.type !== "spell") {
         // console.warn(`Auto-adding Condition Effect to ${item.name} in ${npc.name}`);
-        const overTimeResults = generateConditionOnlyEffect(npc, item);
+        const overTimeResults = generateConditionOnlyEffect(npc, item, item.flags.monsterMunch?.description);
         item = overTimeResults.document;
         npc = overTimeResults.actor;
       }
@@ -104,7 +104,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
 
     // auto overtime effect
     if (item.type !== "spell") {
-      const overTimeResults = generateOverTimeEffect(npc, item);
+      const overTimeResults = generateOverTimeEffect(npc, item, item.flags.monsterMunch?.description);
       item = overTimeResults.document;
       npc = overTimeResults.actor;
     }
@@ -144,7 +144,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
     case "Reduced-threat Carrion Crawler": {
       npc.items.forEach(function(item, index) {
         if (item.name === "Tentacles") {
-          addStatusEffectChange(this[index].effects[0], "Paralyzed", 20, true);
+          addStatusEffectChange({ effect: this[index].effects[0], statusName: "Paralyzed" });
           this[index] = forceItemEffect(this[index]);
         }
       }, npc.items);

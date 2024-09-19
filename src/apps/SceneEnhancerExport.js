@@ -11,7 +11,7 @@ import FileHelper from "../lib/FileHelper.js";
 function getNotes(scene, bookCode) {
   // get all notes in the Journal related to this scene
   const relatedJournalEntries = game.journal.filter((journal) =>
-    journal.flags.ddb?.bookCode && journal.flags.ddb.bookCode === bookCode
+    journal.flags.ddb?.bookCode && journal.flags.ddb.bookCode === bookCode,
   );
 
   // get all notes placed on the map
@@ -78,7 +78,7 @@ function getNotes(scene, bookCode) {
           iconTint: note.iconTint,
           textColor: note.textColor,
           textAnchor: note.textAnchor,
-          positions: [{ x: note.x, y: note.y }]
+          positions: [{ x: note.x, y: note.y }],
         };
         notes.push(n);
       }
@@ -100,7 +100,7 @@ function getNotes(scene, bookCode) {
       iconTint: note.iconTint,
       textColor: note.textColor,
       textAnchor: note.textAnchor,
-      positions: [{ x: note.x, y: note.y }]
+      positions: [{ x: note.x, y: note.y }],
     }));
 
   const notes = journalNotes.concat(unLinkedNotes)
@@ -158,6 +158,19 @@ export function collectSceneData(scene, bookCode) {
       delete l._id;
       return l;
     }),
+    regions: scene.regions ?? [],
+    environment: scene.environment
+      ? foundry.utils.deepClone(scene.environment)
+      : undefined,
+    fog: {
+      colors: scene.fog.colors,
+      exploration: scene.fog.exploration,
+      overlay: scene.fog.overlay,
+    },
+    foreground: scene.foreground
+      ? foundry.utils.deepClone(scene.foreground)
+      : undefined,
+    foregroundElevation: scene.foregroundElevation,
   };
 
   delete data.background.src;

@@ -20,7 +20,7 @@ function buildBaseOverrideEffect(label) {
     img: "icons/svg/anchor.svg",
     flags: {
       dae: { transfer: true },
-      ddbimporter: { disabled: false, itemId: null, entityTypeId: null }
+      ddbimporter: { disabled: false, itemId: null, entityTypeId: null },
     },
   };
   effect.name = label;

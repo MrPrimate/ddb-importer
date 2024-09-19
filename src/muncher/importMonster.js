@@ -33,13 +33,11 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
         }
         if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")) {
           item.system.consume = existingItem.system.consume;
+          item.system.uses.recovery = existingItem.system.uses.recovery;
           foundry.utils.setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
           if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e")) {
             foundry.utils.setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
           }
-        } else if (foundry.utils.getProperty(item, "system.consume.target")
-          && foundry.utils.getProperty(item, "system.recharge.value")) {
-          item.system.consume.target = existingItem.id;
         }
 
         if (!item.effects
@@ -150,7 +148,7 @@ async function addNPCToCompendium(npc, type = "monster") {
 
 // eslint-disable-next-line complexity, no-unused-vars
 export async function getNPCImage(npcData, { type = "monster", forceUpdate = false, forceUseFullToken = false,
-  forceUseTokenAvatar = false, disableAutoTokenizeOverride = false } = {}
+  forceUseTokenAvatar = false, disableAutoTokenizeOverride = false } = {},
 ) {
   // check to see if we have munched flags to work on
   if (!foundry.utils.hasProperty(npcData, "flags.monsterMunch.img")) {
@@ -226,7 +224,7 @@ export async function getNPCImage(npcData, { type = "monster", forceUpdate = fal
         force: forceUpdate || updateImages,
         imageNamePrefix,
         pathPostfix,
-        targetDirectory
+        targetDirectory,
       };
       // eslint-disable-next-line require-atomic-updates
       npcData.prototypeToken.texture.src = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
@@ -282,7 +280,7 @@ async function swapItems(data) {
     logger.debug("Swapping items", itemsToRemove);
     // console.warn(itemsToRemove);
     const lessUpdatedItems = data.items.filter((item) =>
-      !itemsToRemove.some((target) => item.name === target.name && item.type === target.type)
+      !itemsToRemove.some((target) => item.name === target.name && item.type === target.type),
     );
     // console.log(lessUpdatedItems);
     const newItems = lessUpdatedItems.concat(updatedItems);
@@ -293,31 +291,38 @@ async function swapItems(data) {
   }
 }
 
-async function linkResourcesConsumption(actor) {
-  if (actor.items.some((item) => item.system.recharge?.value)) {
-    logger.debug(`Resource linking for ${actor.name}`);
-    actor.items.forEach((item) => {
-      if (item.system?.recharge?.value) {
-        const itemID = foundry.utils.randomID(16);
-        item._id = itemID;
-        if (item.type === "weapon") {
-          item.type = "feat";
-          delete item.system.type.value;
-          item.system.type = {
-            value: "monster",
-            subtype: "",
-          };
-        }
-        item.system.consume = {
-          type: "charges",
-          target: itemID,
-          amount: null,
-        };
-      }
-    });
-  }
-  return actor;
-}
+// async function linkResourcesConsumption(actor) {
+//   // TODO: I think this is actually in recovery
+//   // is consume gone?
+//   if (actor.items.some((item) =>
+//     foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge"),
+//   )) {
+//     logger.debug(`Resource linking for ${actor.name}`);
+//     actor.items.forEach((item) => {
+//       if (foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge")) {
+//         const itemID = item._id ?? foundry.utils.randomID(16);
+//         item._id = itemID;
+//         if (item.type === "weapon") {
+//           item.type = "feat";
+//           delete item.system.type.value;
+//           item.system.type = {
+//             value: "monster",
+//             subtype: "",
+//           };
+//         }
+//         // item.system.uses.recovery = [
+//         //   { period: "recharge", type: 'recoverAll', formula: "5" },
+//         // ];
+//         item.system.consume = {
+//           type: "charges",
+//           target: itemID,
+//           amount: null,
+//         };
+//       }
+//     });
+//   }
+//   return actor;
+// }
 
 // async function buildNPC(data, srdIconLibrary, iconMap) {
 export async function buildNPC(data, type = "monster", temporary = true, update = false, handleBuild = false) {
@@ -330,7 +335,7 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
   // eslint-disable-next-line require-atomic-updates
   data.items = await Iconizer.updateIcons(data.items, false, true, data.name);
   data = Iconizer.addActorEffectIcons(data);
-  if (!["monster", "summons"].includes(type)) data = await linkResourcesConsumption(data);
+  // if (!["monster", "summons"].includes(type)) data = await linkResourcesConsumption(data);
 
   if (handleBuild) {
     // create the new npc
@@ -441,7 +446,7 @@ export async function generateIconMap(monsters) {
       promises.push(
         Iconizer.copySRDIcons(monster.items, srdImageLibrary, itemMap).then((items) => {
           monster.items = items;
-        })
+        }),
       );
     });
   }

@@ -22,6 +22,18 @@ export default class DDBClass {
   };
 
   static PROFICIENCY_FEATURES = [
+    "Core Barbarian Traits",
+    "Core Bard Traits",
+    "Core Cleric Traits",
+    "Core Druid Traits",
+    "Core Fighter Traits",
+    "Core Monk Traits",
+    "Core Paladin Traits",
+    "Core Ranger Traits",
+    "Core Rogue Traits",
+    "Core Sorcerer Traits",
+    "Core Warlock Traits",
+    "Core Wizard Traits",
     "Proficiencies",
     "Primal Knowledge",
     "Master of Intrigue",
@@ -74,6 +86,18 @@ export default class DDBClass {
   ];
 
   static TOOL_FEATURES = [
+    "Core Barbarian Traits",
+    "Core Bard Traits",
+    "Core Cleric Traits",
+    "Core Druid Traits",
+    "Core Fighter Traits",
+    "Core Monk Traits",
+    "Core Paladin Traits",
+    "Core Ranger Traits",
+    "Core Rogue Traits",
+    "Core Sorcerer Traits",
+    "Core Warlock Traits",
+    "Core Wizard Traits",
     "Proficiencies",
     "Tool Proficiency",
     "Tools of the Trade",
@@ -84,15 +108,56 @@ export default class DDBClass {
   ];
 
   static ARMOR_FEATURES = [
+    "Core Barbarian Traits",
+    "Core Bard Traits",
+    "Core Cleric Traits",
+    "Core Druid Traits",
+    "Core Fighter Traits",
+    "Core Monk Traits",
+    "Core Paladin Traits",
+    "Core Ranger Traits",
+    "Core Rogue Traits",
+    "Core Sorcerer Traits",
+    "Core Warlock Traits",
+    "Core Wizard Traits",
     "Proficiencies",
     "Tools of the Trade",
     "Training in War and Song",
   ];
 
   static WEAPON_FEATURES = [
+    "Core Barbarian Traits",
+    "Core Bard Traits",
+    "Core Cleric Traits",
+    "Core Druid Traits",
+    "Core Fighter Traits",
+    "Core Monk Traits",
+    "Core Paladin Traits",
+    "Core Ranger Traits",
+    "Core Rogue Traits",
+    "Core Sorcerer Traits",
+    "Core Warlock Traits",
+    "Core Wizard Traits",
     "Proficiencies",
     "Firearm Proficiency",
     "Training in War and Song",
+  ];
+
+  static WEAPON_MASTERY_FEATURES = [
+    "Barbarian Weapon Masteries",
+    "Bard Weapon Masteries",
+    "Cleric Weapon Masteries",
+    "Druid Weapon Masteries",
+    "Fighter Weapon Masteries",
+    "Monk Weapon Masteries",
+    "Paladin Weapon Masteries",
+    "Ranger Weapon Masteries",
+    "Rogue Weapon Masteries",
+    "Sorcerer Weapon Masteries",
+    "Warlock Weapon Masteries",
+    "Wizard Weapon Masteries",
+    "Weapon Mastery",
+    "Weapon Masteries",
   ];
 
   static CONDITION_FEATURES = [
@@ -143,10 +208,12 @@ export default class DDBClass {
   _generateSource() {
     const classSource = DDBHelper.parseSource(this.ddbClassDefinition);
     this.data.system.source = classSource;
+    this.data.system.source.rules = this.is2014 ? "2014" : "2024";
   }
 
   _fleshOutCommonDataStub() {
-    this.data.system.identifier = utils.referenceNameString(this.ddbClassDefinition.name.toLowerCase());
+    // this.data.system.identifier = utils.referenceNameString(`${this.ddbClassDefinition.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+    this.data.system.identifier = utils.referenceNameString(`${this.ddbClassDefinition.name.toLowerCase()}`);
     this._determineClassFeatures();
 
     this._proficiencyFeatureIds = this.classFeatures
@@ -185,6 +252,12 @@ export default class DDBClass {
     this._weaponFeatures = this.classFeatures
       .filter((feature) => DDBClass.WEAPON_FEATURES.includes(utils.nameString(feature.name)));
 
+    this._weaponMasteryFeatureIds = this.classFeatures
+      .filter((feature) => DDBClass.WEAPON_MASTERY_FEATURES.includes(utils.nameString(feature.name)))
+      .map((feature) => feature.id);
+    this._weaponMasteryFeatures = this.classFeatures
+      .filter((feature) => DDBClass.WEAPON_MASTERY_FEATURES.includes(utils.nameString(feature.name)));
+
     this._languageOrSkillFeatureIds = this.classFeatures.concat(this._languageFeatures)
       .filter((feature) => DDBClass.LANGUAGE_OR_SKILL_FEATURE.includes(utils.nameString(feature.name)))
       .map((feature) => feature.id);
@@ -214,12 +287,14 @@ export default class DDBClass {
           type: "class",
           isStartingClass: this.ddbClass.isStartingClass,
           ddbImg: this.ddbClass.definition.portraitAvatarUrl,
+          is2014: this.is2014,
+          is2024: !this.is2014,
         },
         obsidian: {
           source: {
             type: "class",
             text: this.ddbClass.definition.name,
-          }
+          },
         },
       },
       img: null,
@@ -261,7 +336,7 @@ export default class DDBClass {
     // this excludes the subclass features
     this.data.system.description.value += await this._buildClassFeaturesDescription();
     // not all classes have equipment descriptions
-    if (this.ddbClass.definition.equipmentDescription && !this._isSubClass) {
+    if (this.ddbClass.definition.equipmentDescription && !this._isSubClass && this.is2014) {
       // eslint-disable-next-line require-atomic-updates
       this.data.system.description.value += `<h1>Starting Equipment</h1>\n${this.ddbClass.definition.equipmentDescription}\n\n`;
     }
@@ -271,7 +346,7 @@ export default class DDBClass {
         this.ddbData,
         character,
         this.data.system.description.value,
-        this.data
+        this.data,
       ).text;
     }
   }
@@ -286,13 +361,13 @@ export default class DDBClass {
           "flags.ddbimporter.subClass",
           "flags.ddbimporter.parentClassId",
           "flags.ddbimporter.featureName",
-        ]
+        ],
       },
       feats: {
         fields: [
           "name",
           "flags.ddbimporter",
-        ]
+        ],
       },
       class: {},
       subclasses: {},
@@ -304,6 +379,8 @@ export default class DDBClass {
     this.ddbData = ddbData;
     this.ddbClass = ddbData.character.classes.find((c) => c.definition.id === classId);
     this.ddbClassDefinition = this.ddbClass.definition;
+
+    this.is2014 = this.ddbClassDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     // quick helpers
     this.classFeatureIds = this.ddbClass.definition.classFeatures.map((f) => f.id);
@@ -343,6 +420,8 @@ export default class DDBClass {
 
     this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
 
+    this.isStartingClass = this.ddbClass.isStartingClass;
+
   }
 
   // this excludes any class/sub class features
@@ -378,7 +457,7 @@ export default class DDBClass {
       .filter((feature) =>
         !excludedFeatures.includes(feature.definition.id)
         && !excludedIds.includes(feature.definition.id)
-        && feature.definition.classId === this.ddbClassDefinition.id
+        && feature.definition.classId === this.ddbClassDefinition.id,
       )
       .map((feature) => feature.definition);
 
@@ -395,7 +474,7 @@ export default class DDBClass {
    */
   getFeatureCompendiumMatch(feature) {
     return this._compendiums.features.index.find((match) =>
-      ((foundry.utils.hasProperty(match, "flags.ddbimporter.featureName") && feature.name.trim().toLowerCase() == match.flags.ddbimporter.featureName.trim().toLowerCase())
+      ((feature.name.trim().toLowerCase() == foundry.utils.getProperty(match, "flags.ddbimporter.featureName")?.trim().toLowerCase())
         || (!foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
           && (feature.name.trim().toLowerCase() == match.name.trim().toLowerCase()
           || `${feature.name} (${this.ddbClassDefinition.name})`.trim().toLowerCase() == match.name.trim().toLowerCase()))
@@ -403,7 +482,7 @@ export default class DDBClass {
       && foundry.utils.hasProperty(match, "flags.ddbimporter")
       && (match.flags.ddbimporter.class == this.ddbClassDefinition.name
         || match.flags.ddbimporter.parentClassId == this.ddbClassDefinition.id
-        || match.flags.ddbimporter.classId == this.ddbClassDefinition.id)
+        || match.flags.ddbimporter.classId == this.ddbClassDefinition.id),
     );
   }
 
@@ -415,7 +494,7 @@ export default class DDBClass {
         || (!foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
           && (smallName == match.name.trim().toLowerCase()
           || smallName.split(":")[0].trim() == match.name.trim().toLowerCase()))
-      )
+      ),
     );
   }
 
@@ -429,12 +508,13 @@ export default class DDBClass {
 
       if (!classFeaturesAdded && !this._excludedFeatureIds.includes(feature.id)) {
         const featureMatch = this.getFeatureCompendiumMatch(feature);
-        if (featureMatch) {
-          const title = (featureMatch)
-            ? `<p><b>@UUID[${featureMatch.uuid}]{${feature.name}}</b></p>`
-            : `<p><b>${feature.name}</b></p>`;
-          description += `${title}\n${feature.description}\n\n`;
-        }
+        const levelName = (/^\d+/).test(feature.name)
+          ? feature.name
+          : `${feature.requiredLevel}: ${feature.name}`;
+        const title = (featureMatch)
+          ? `<p><b>@UUID[${featureMatch.uuid}]{Level ${levelName}}</b></p>`
+          : `<p><b>Level ${levelName}</b></p>`;
+        description += `${title}\n${feature.description}\n\n`;
         classFeatures.push(feature.name);
       }
     });
@@ -455,11 +535,18 @@ export default class DDBClass {
 
   // don't generate feature advancements for these features
   static EXCLUDED_FEATURE_ADVANCEMENTS = [
+    "4: Ability Score Improvement",
+    "6: Ability Score Improvement",
+    "8: Ability Score Improvement",
+    "12: Ability Score Improvement",
+    "14: Ability Score Improvement",
+    "16: Ability Score Improvement",
     "Ability Score Improvement",
     "Expertise",
     "Bonus Proficiencies",
     "Bonus Proficiency",
     "Tool Proficiency",
+    "Weapon Mastery",
 
     "Speed",
     "Size",
@@ -492,13 +579,13 @@ export default class DDBClass {
 
             const update = {
               configuration: {
-                items: [{ uuid: featureMatch.uuid }]
+                items: [{ uuid: featureMatch.uuid }],
               },
               value: {},
               level: feature.requiredLevel,
               title: "Features",
               icon: "",
-              classRestriction: ""
+              classRestriction: "",
             };
             advancement.updateSource(update);
             advancements.push(advancement.toObject());
@@ -625,13 +712,13 @@ export default class DDBClass {
     const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
-      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
+      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType),
     );
     const filterModOptions = { subType: `choose-a-${this.ddbClassDefinition.name.toLowerCase()}-skill` };
     const skillChooseMods = DDBHelper.filterModifiers(mods, "proficiency", filterModOptions);
     const skillMods = skillChooseMods.concat(skillExplicitMods);
 
-    return this.advancementHelper.getSkillAdvancement(skillMods, feature, availableToMulticlass, i);
+    return this.advancementHelper.getSkillAdvancement(skillMods, feature, availableToMulticlass, i, this.dictionary.multiclassSkill);
   }
 
   _generateSkillAdvancements() {
@@ -644,7 +731,7 @@ export default class DDBClass {
         const skillFeatures = this._proficiencyFeatures.filter((f) => f.requiredLevel === i);
 
         for (const feature of skillFeatures) {
-          const baseProficiency = feature.name === "Proficiencies";
+          const baseProficiency = feature.name === "Proficiencies" || (feature.name.startsWith("Core") && feature.name.endsWith("Traits"));
           if (availableToMulticlass
             && baseProficiency
             && this.dictionary.multiclassSkill === 0
@@ -806,6 +893,38 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
+  _generateWeaponMasteryAdvancement(feature, level) {
+    const modFilters = {
+      type: "feat",
+      includeExcludedEffects: true,
+      classId: this.ddbClassDefinition.id,
+      exactLevel: level,
+      useUnfilteredModifiers: true,
+      filterOnFeatureIds: [feature.id],
+    };
+    const mods = this.options.noMods ? [] : DDBHelper.getChosenTypeModifiers(this.ddbData, modFilters);
+    return this.advancementHelper.getWeaponMasteryAdvancement(mods, feature, level);
+  }
+
+  _generateWeaponMasteryAdvancements() {
+    const advancements = [];
+
+    // console.warn("Weapon Mastery Advancements", {
+    //   this: this,
+    // });
+
+    for (let i = 0; i <= 20; i++) {
+      const weaponFeatures = this._weaponMasteryFeatures.filter((f) => f.requiredLevel === i);
+
+      for (const feature of weaponFeatures) {
+        const advancement = this._generateWeaponMasteryAdvancement(feature, i);
+        if (advancement) advancements.push(advancement.toObject());
+      }
+    }
+
+    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+  }
+
   _generateExpertiseAdvancements() {
     const advancements = [];
 
@@ -880,19 +999,22 @@ export default class DDBClass {
 
 
   async _addFoundryAdvancements() {
-    for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
+    const packIds = this.is2014
+      ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]
+      : SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes2024"];
+    for (const packId of packIds) {
       const pack = CompendiumHelper.getCompendium(packId, false);
       if (!pack) continue;
       await pack.getIndex();
       const klassMatch = pack.index.find((k) =>
         k.name === this.ddbClassDefinition.name
-        && k.type === "class"
+        && k.type === "class",
       );
       if (!klassMatch) continue;
       const foundryKlass = await pack.getDocument(klassMatch._id);
       const scaleAdvancements = foundryKlass.system.advancement.filter((foundryA) =>
         foundryA.type === "ScaleValue"
-        && !this.data.system.advancement.some((ddbA) => ddbA.configuration.identifier === foundryA.configuration.identifier)
+        && !this.data.system.advancement.some((ddbA) => ddbA.configuration.identifier === foundryA.configuration.identifier),
       ).map((advancement) => {
         return advancement.toObject();
       });
@@ -905,7 +1027,7 @@ export default class DDBClass {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      const abilityAdvancementFeature = this.classFeatures.find((f) => f.name === "Ability Score Improvement" && f.requiredLevel === i);
+      const abilityAdvancementFeature = this.classFeatures.find((f) => f.name.includes("Ability Score Improvement") && f.requiredLevel === i);
 
       // eslint-disable-next-line no-continue
       if (!abilityAdvancementFeature) continue;
@@ -951,7 +1073,7 @@ export default class DDBClass {
         // abilityAdvancementFeature.entityTypeId: 12168134
         const featChoice = this.ddbData.character.feats.find((f) =>
           f.componentId == abilityAdvancementFeature.id
-          && f.componentTypeId == abilityAdvancementFeature.entityTypeId
+          && f.componentTypeId == abilityAdvancementFeature.entityTypeId,
         );
         const featureMatch = featChoice ? this.getFeatCompendiumMatch(featChoice.definition.name) : null;
         if (featureMatch) {
@@ -979,13 +1101,16 @@ export default class DDBClass {
   }
 
   async _copyFoundryEquipment() {
-    for (const packId of SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]) {
+    const packIds = this.is2014
+      ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes"]
+      : SETTINGS.FOUNDRY_COMPENDIUM_MAP["classes2024"];
+    for (const packId of packIds) {
       const pack = CompendiumHelper.getCompendium(packId, false);
       if (!pack) continue;
       await pack.getIndex();
       const klassMatch = pack.index.find((k) =>
         k.name === this.ddbClassDefinition.name
-        && k.type === "class"
+        && k.type === "class",
       );
       if (!klassMatch) continue;
       const foundryKlass = await pack.getDocument(klassMatch._id);
@@ -1005,12 +1130,11 @@ export default class DDBClass {
     this._generateToolAdvancements();
     this._generateArmorAdvancements();
     this._generateWeaponAdvancements();
+    this._generateWeaponMasteryAdvancements();
     // FUTURE: Equipment? (for backgrounds), needs better handling in Foundry
     this._generateSkillOrLanguageAdvancements();
     this._generateConditionAdvancements();
     this._generateSpellCastingProgression();
-    // FUTURE: choice options such as fighting styles, this requires improved feature parsing
-    await this._addFoundryAdvancements();
   }
 
   // fixes
@@ -1032,14 +1156,90 @@ export default class DDBClass {
           },
         };
       };
+      if (this.is2014) {
+        const wildshape = {
+          _id: foundry.utils.randomID(),
+          type: "ScaleValue",
+          configuration: {
+            distance: { units: "" },
+            identifier: "wild-shape-uses",
+            type: "number",
+            scale: {
+              2: {
+                value: 2,
+              },
+              20: {
+                value: 99,
+              },
+            },
+          },
+          value: {},
+          title: "Wild Shape Uses",
+          icon: null,
+        };
+        this.data.system.advancement.push(wildshape);
+      } else {
+        const wildshape = {
+          _id: foundry.utils.randomID(),
+          type: "ScaleValue",
+          configuration: {
+            distance: { units: "" },
+            identifier: "wild-shape-uses",
+            type: "number",
+            scale: {
+              2: {
+                value: 2,
+              },
+              6: {
+                value: 3,
+              },
+              17: {
+                value: 4,
+              },
+            },
+          },
+          value: {},
+          title: "Wild Shape Uses",
+          icon: null,
+        };
+        this.data.system.advancement.push(wildshape);
+      }
+    } else if (this.data.name === "Monk") {
+      const ki = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: this.is2014 ? "ki-points" : "focus-points",
+          type: "number",
+          scale: {},
+        },
+        value: {},
+        title: this.is2014 ? "Ki Points" : "Focus Points",
+        icon: null,
+      };
+      Array.from(utils.arrayRange(18, 1, 2)).forEach((i) => {
+        ki.configuration.scale[i] = {
+          value: i,
+        };
+      });
+      this.data.system.advancement.push(ki);
     }
   }
+
+  _generatePrimaryAbility() {
+    this.data.system.primaryAbility = {
+      value: this.ddbClassDefinition.primaryAbilities.map((a) => DICTIONARY.character.abilities.id === a)?.value,
+      all: false, // if multiclassing selected does muticlass require all to be 13, or just 1?
+    }; // KNOWN_ISSUE_4_0: can i use preq data in ddb for this?
+  };
 
   // GENERATE CLASS
 
   async generateFromCharacter(character) {
     await this._buildCompendiumIndex("features");
     this._setClassLevel();
+    this._generatePrimaryAbility();
     this._fleshOutCommonDataStub();
 
     // these are class specific
@@ -1054,6 +1254,9 @@ export default class DDBClass {
     await this._generateDescriptionStub(character);
 
     this._fixes();
+
+    // FUTURE: choice options such as fighting styles, this requires improved feature parsing
+    await this._addFoundryAdvancements();
   }
 
 }

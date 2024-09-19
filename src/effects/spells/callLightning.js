@@ -3,6 +3,9 @@ import DDBMacros from "../DDBMacros.js";
 
 export async function callLightningEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  document.system.damage = { parts: [], versatile: "", value: "" };
+  document.system.save.ability = "";
+
   effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "callLightning.js" }));
   foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
   foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);

@@ -11,7 +11,7 @@ import { getAllClassFeatures } from "./filterModifiers.js";
 DDBCharacter.prototype.isArmored = function isArmored() {
   return (
     this.source.ddb.character.inventory.filter(
-      (item) => item.equipped && item.definition.armorClass && item.definition.armorTypeId !== 4
+      (item) => item.equipped && item.definition.armorClass && item.definition.armorTypeId !== 4,
     ).length >= 1
   );
 };
@@ -25,7 +25,7 @@ DDBCharacter.prototype.isUnArmored = function isUnArmored() {
 
 function getMinimumBaseAC(modifiers) {
   let hasBaseArmor = modifiers.filter(
-    (modifier) => modifier.type === "set" && modifier.subType === "minimum-base-armor" && modifier.isGranted
+    (modifier) => modifier.type === "set" && modifier.subType === "minimum-base-armor" && modifier.isGranted,
   );
   let baseAC = [];
   hasBaseArmor.forEach((base) => {
@@ -89,7 +89,7 @@ function getEquippedAC(equippedGear) {
 function getUnarmoredAC(modifiers, character) {
   let unarmoredACValues = [];
   let isUnarmored = modifiers.filter(
-    (modifier) => modifier.type === "set" && modifier.subType === "unarmored-armor-class" && modifier.isGranted
+    (modifier) => modifier.type === "set" && modifier.subType === "unarmored-armor-class" && modifier.isGranted,
   );
   // if (isUnarmored.length === 0) {
   //   // Some items will have an unarmoured bonus, but won't set a base, so if we are in this
@@ -103,7 +103,7 @@ function getUnarmoredAC(modifiers, character) {
   const ignoreDex = modifiers.some((modifier) => modifier.type === "ignore" && modifier.subType === "unarmored-dex-ac-bonus");
 
   const maxUnamoredDexMods = modifiers.filter(
-    (modifier) => modifier.type === "set" && modifier.subType === "ac-max-dex-modifier" && modifier.isGranted
+    (modifier) => modifier.type === "set" && modifier.subType === "ac-max-dex-modifier" && modifier.isGranted,
   ).map((mods) => mods.value);
   const maxUnamoredDexMod = ignoreDex ? 0 : Math.min(...maxUnamoredDexMods, 20);
 
@@ -398,7 +398,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
   // get a list of equipped armor
   // we make a distinction so we can loop over armor
   this.armor.equippedArmor = this.source.ddb.character.inventory.filter(
-    (item) => item.equipped && item.definition.filterType === "Armor"
+    (item) => item.equipped && item.definition.filterType === "Armor",
   );
   this.armor.baseAC = 10;
   // for things like fighters fighting style
@@ -406,7 +406,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
   this.armor.bonusEffects = [];
   // lets get equipped gear
   this.armor.equippedGear = this.source.ddb.character.inventory.filter(
-    (item) => item.equipped && item.definition.filterType !== "Armor"
+    (item) => item.equipped && item.definition.filterType !== "Armor",
   );
   this.armor.unarmoredACBonus = DDBHelper
     .filterBaseModifiers(this.source.ddb, "bonus", { subType: "unarmored-armor-class" })
@@ -436,7 +436,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     // check for things like fighters fighting style defense
     const armorBonusSources = [DDBHelper.getChosenClassModifiers(this.source.ddb), this.source.ddb.character.modifiers.race].flat();
     const armoredBonuses = armorBonusSources.filter(
-      (modifier) => modifier.subType === "armored-armor-class" && modifier.isGranted
+      (modifier) => modifier.subType === "armored-armor-class" && modifier.isGranted,
     );
     const effect = generateBonusACEffect(armoredBonuses, "AC: Armored Misc Bonuses", "armored-armor-class", null);
     if (effect.changes.length > 0) this.armor.bonusEffects.push(effect);
@@ -448,7 +448,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     DDBHelper.getChosenClassModifiers(this.source.ddb),
     DDBHelper.getModifiers(this.source.ddb, "race"),
     DDBHelper.getModifiers(this.source.ddb, "background"),
-    DDBHelper.getModifiers(this.source.ddb, "feat")
+    DDBHelper.getModifiers(this.source.ddb, "feat"),
   ];
 
   DDBHelper.filterModifiersOld(this.armor.miscModifiers, "bonus", "armor-class", ["", null], true).forEach((bonus) => {
@@ -460,7 +460,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
 
   this.source.ddb.character.characterValues.filter((value) =>
     (value.typeId === 3 || value.typeId === 2)
-    && value.value !== 0
+    && value.value !== 0,
   ).forEach((custom) => {
     const name = custom.notes && custom.notes.trim() !== "" ? custom.notes : "AC: Custom Bonus";
     const effect = generateBonusACEffect([], name, "custom", null);
@@ -484,7 +484,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     case "Lizardfolk":
       this.armor.baseAC = Math.max(getUnarmoredAC(this.source.ddb.character.modifiers.race, this.raw.character));
       this.armor.equippedArmor.push(
-        getBaseArmor(this.armor.baseAC, "Natural Armor", this.source.ddb.character.race.fullName)
+        getBaseArmor(this.armor.baseAC, "Natural Armor", this.source.ddb.character.race.fullName),
       );
       break;
     case "Autognome":
@@ -493,10 +493,10 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     case "Tortle":
       this.armor.baseAC = Math.max(
         getMinimumBaseAC(this.source.ddb.character.modifiers.race, this.raw.character),
-        getUnarmoredAC(this.source.ddb.character.modifiers.race, this.raw.character)
+        getUnarmoredAC(this.source.ddb.character.modifiers.race, this.raw.character),
       );
       this.armor.equippedArmor.push(
-        getBaseArmor(this.armor.baseAC, "Natural Armor", this.source.ddb.character.race.fullName)
+        getBaseArmor(this.armor.baseAC, "Natural Armor", this.source.ddb.character.race.fullName),
       );
       break;
     default:
@@ -550,19 +550,25 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
   if (classFeatures.some((kf) =>
     kf.className === "Sorcerer"
     && kf.subclassName === "Draconic Bloodline"
-    && kf.name === "Draconic Resilience"
+    && kf.name === "Draconic Resilience",
   )) calc = "draconic";
 
   if (classFeatures.some((kf) =>
     kf.className === "Monk"
     && kf.subclassName === null
-    && kf.name === "Unarmored Defense"
+    && kf.name === "Unarmored Defense",
   )) calc = "unarmoredMonk";
+
+  if (classFeatures.some((kf) =>
+    kf.className === "Bard"
+    && kf.subclassName === "College of Dance"
+    && kf.name === "Unarmored Defense",
+  )) calc = "unarmoredBard";
 
   if (classFeatures.some((kf) =>
     kf.className === "Barbarian"
     && kf.subclassName === null
-    && kf.name === "Unarmored Defense"
+    && kf.name === "Unarmored Defense",
   )) calc = "unarmoredBarb";
 
   if (this.armor.results.maxType === "Natural") {

@@ -135,9 +135,15 @@
                   <div style="text-align:center"><b>{{sourceDescription}}</b></div>
                   {{/if}}
                   <button type="button" id="munch-monsters-start" class="munch-button"
-                      {{#if tiers.all}}enabled{{else}}disabled{{/if}}>{{#if tiers.all}}Monster Munch!{{else}}Monster Munch for Patreon Supporters! (or run your own proxy){{/if}}</button>
-                  <button type="button" id="munch-vehicles-start" class="munch-button"
-                      {{#if tiers.experimentalMid}}enabled{{else}}disabled{{/if}}>{{#if tiers.experimentalMid}}[Experimental BETA] Vehicle Munch!{{else}}[Experimental BETA] Vehicle Munch for Undying+ Patreon Supporters!{{/if}}</button>
+                      {{#if tiers.all}}enabled{{else}}disabled{{/if}}>{{#if tiers.all}}Monster Munch!{{else}}Monster Munch for Patreon Supporters! (or run your own proxy){{/if}}
+                  </button>
+                  <button type="button" id="munch-vehicles-start" class="munch-button" disabled>
+                      Vehicle import is not yet available for this version of the D&D 5e System
+                  </button>
+                  <!--
+                      {{#if tiers.experimentalMid}}enabled{{else}}disabled{{/if}}>{{#if tiers.experimentalMid}}[Experimental BETA] Vehicle Munch!{{else}}[Experimental BETA] Vehicle Munch for Undying+ Patreon Supporters!{{/if}}
+                  -->
+                  </button>
               </div>
               <div style="text-align:center"><i>Make sure you have imported spells before Monsters!</i> Tokens will use default token settings.</div>
           </div>
@@ -154,13 +160,9 @@
                   <div>
                     <button type="button" id="munch-xanthar-price" class="munch-button"><i class="fas fa-coins"></i> Set Magic Item Prices</button>
                   </div>
-                  <p>Reset compendium actor images back to munch defaults.</p>
+                  <p>Reset compendium actor images back to munched defaults.</p>
                   <div>
                     <button type="button" id="munch-reset-images" class="munch-button"><i class="fas fa-person-booth"></i> Reset compendium actor images</button>
-                  </div>
-                  <p>Check scenes for base64 data, and fix if possible (can improve load times).</p>
-                  <div>
-                    <button type="button" id="munch-fix-base64" class="munch-button"><i class="fas fa-map"></i> Check & fix Scenes</button>
                   </div>
                   <p>Update world actors with compendium actors (only targets DDB imported monsters).</p>
                   {{#each worldUpdateConfig}}
@@ -218,13 +220,29 @@
               </div>
                 <div>
                   <button type="button" id="munch-feats-start" class="munch-button"
-                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Feat Munch{{else}} Feat for Patreon Supporters{{/if}}</button>
+                  disabled>Feat import is not yet available for this version of the D&D 5e System</button>
+                  <!--
+                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Feat Munch{{else}} Feat for Patreon Supporters{{/if}}
+                  -->
+                  </button>
                   <button type="button" id="munch-backgrounds-start" class="munch-button"
-                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Background Munch{{else}} Backgrounds for Patreon Supporters{{/if}}</button>
+                  disabled>Background import is not yet available for this version of the D&D 5e System</button>
+                  <!--
+                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Background Munch{{else}} Backgrounds for Patreon Supporters{{/if}}
+                  -->
+                  </button>
                   <button type="button" id="munch-races-start" class="munch-button"
-                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Race and Racial Traits Munch{{else}}Races for Patreon Supporters{{/if}}</button>
+                  disabled>Species and Species Traits import is not yet available for this version of the D&D 5e System</button>
+                  <!--
+                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Race and Racial Traits Munch{{else}}Races for Patreon Supporters{{/if}}
+                  -->
+                  </button>
                   <button type="button" id="munch-classes-start" class="munch-button"
-                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}[Experimental] Class and Class Features Munch (partial, incomplete){{else}}[Experimental] Classes and features (limited) for Patreon Supporters{{/if}}</button>
+                  disabled>Class and Class Features import is not yet available for this version of the D&D 5e System</button>
+                  <!--
+                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}[Experimental] Class and Class Features Munch (partial, incomplete){{else}}[Experimental] Classes and features (limited) for Patreon Supporters{{/if}}
+                  -->
+                  </button>
               </div>
           </div>
       </div>

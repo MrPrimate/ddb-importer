@@ -3,7 +3,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 
 export function geasEffect(document) {
   let effect = baseSpellEffect(document, `${document.name} - Charmed`);
-  addStatusEffectChange(effect, "Charmed", 20, true);
+  addStatusEffectChange({ effect, statusName: "Charmed" });
   document.effects.push(effect);
 
   return document;

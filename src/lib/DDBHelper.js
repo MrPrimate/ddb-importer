@@ -2,6 +2,7 @@ import DICTIONARY from "../dictionary.js";
 import logger from "../logger.js";
 import { getEffectExcludedModifiers } from "../effects/effects.js";
 import utils from "./utils.js";
+import DDBBasicActivity from "../parser/enrichers/DDBBasicActivity.js";
 
 const DDBHelper = {
 
@@ -18,7 +19,7 @@ const DDBHelper = {
     if (data.definition.damageType) {
       const damageTypeReplace = data.definition.grantedModifiers.find((mod) =>
         mod.type === "replace-damage-type"
-        && (!mod.restriction || mod.restriction === "")
+        && (!mod.restriction || mod.restriction === ""),
       );
 
       const damageType = damageTypeReplace
@@ -28,56 +29,6 @@ const DDBHelper = {
     } else {
       return undefined;
     }
-  },
-
-  globalDamageTagInfo: (mod) => {
-    const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-    const midiInstalled = game.modules.get("midi-qol")?.active;
-    const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !midiInstalled;
-    const hintOrRestriction = globalDamageHints || damageRestrictionHints;
-    const restriction = damageRestrictionHints && mod.restriction && mod.restriction !== "" ? mod.restriction : "";
-    const hintAndRestriction = globalDamageHints && restriction !== "" ? " - " : "";
-
-    return {
-      globalDamageHints,
-      damageRestrictionHints,
-      hintOrRestriction,
-      hintAndRestriction,
-      restriction,
-    };
-  },
-
-  getDamageTag(mod, overrideDamageType) {
-    const damageTagData = DDBHelper.globalDamageTagInfo(mod);
-    const damageType = overrideDamageType
-      ? overrideDamageType
-      : mod.subType ? mod.subType : "";
-    const hintTag = damageType !== "" && damageTagData.globalDamageHints ? damageType : "";
-    const damageHint = damageTagData.hintOrRestriction
-      ? `${hintTag}${damageTagData.hintAndRestriction}${damageTagData.restriction}`
-      : "";
-    const damageTag = damageTagData.hintOrRestriction && damageHint !== "" ? `[${damageHint}]` : "";
-    return {
-      globalDamageHints: damageTagData.globalDamageHints,
-      damageRestrictionHints: damageTagData.damageRestrictionHints,
-      hintOrRestriction: damageTagData.hintOrRestriction,
-      hintAndRestriction: damageTagData.hintAndRestriction,
-      restriction: damageTagData.restriction,
-      damageType,
-      damageHint,
-      damageTag,
-    };
-  },
-
-  getDamageTagForMod: (mod) => {
-    const damageTagData = DDBHelper.getDamageTag(mod);
-    return damageTagData;
-  },
-
-  getDamageTagForItem(data) {
-    const damageType = DDBHelper.getDamageType(data);
-    const damageTagData = DDBHelper.getDamageTag({}, damageType);
-    return damageTagData;
   },
 
   hasChosenCharacterOption: (ddb, optionName) => {
@@ -95,7 +46,7 @@ const DDBHelper = {
 
     if (option) {
       const klass = ddb.character.classes.find((klass) =>
-        klass.classFeatures.some((feature) => feature.definition.id === option.componentId)
+        klass.classFeatures.some((feature) => feature.definition.id === option.componentId),
       );
       return klass;
     }
@@ -156,13 +107,15 @@ const DDBHelper = {
     }
   },
 
-  getScaleValueLink: (ddb, feature) => {
+  getScaleValueLink: (ddb, feature, flatOnly = false) => {
     const featDefinition = feature.definition ? feature.definition : feature;
 
     const klass = ddb.character.classes.find((cls) =>
       (cls.definition.id === featDefinition.classId
       || cls.subclassDefinition?.id === featDefinition.classId)
       && featDefinition.levelScales?.length > 0
+      && (!flatOnly
+        || (flatOnly && featDefinition.levelScales.every((s) => s.fixedValue !== null))),
     );
 
     if (klass) {
@@ -207,6 +160,18 @@ const DDBHelper = {
     };
   },
 
+
+  _tweakSourceData: (source) => {
+    if (["PHB-2024", "free-rules"].includes(source.book)) {
+      source.book = "PHB 2024";
+    } else if (source.book === "BR") {
+      source.book = "SRD 5.1";
+      source.license = "CC-BY-4.0";
+    }
+    if (game.settings.get("ddb-importer", "no-source-book-pages"))
+      source.page = "";
+  },
+
   /**
    *
    * Gets the sourcebook for a subset of dndbeyond sources
@@ -214,7 +179,6 @@ const DDBHelper = {
    */
   // eslint-disable-next-line complexity
   getSourceData: (definition) => {
-    const fullSource = game.settings.get("ddb-importer", "use-full-source");
     const results = [];
     if (definition.sources?.length > 0) {
       // is basic rules (e.g. SRD)
@@ -230,34 +194,41 @@ const DDBHelper = {
       for (const ds of sources) {
         const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === ds.sourceId);
 
-        results.push({
-          book: ddbSource ? (fullSource ? ddbSource.description : ddbSource.name) : "Homebrew",
+        const source = {
+          book: ddbSource ? ddbSource.name : "Homebrew",
           page: ds.pageNumber ?? "",
           license: "",
           custom: "",
           id: ddbSource ? ddbSource.id : 9999999,
-        });
+        };
+        DDBHelper._tweakSourceData(source);
+        results.push(source);
       }
     } else if (definition.sourceIds) {
       for (const sourceId of definition.sourceIds) {
         const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === sourceId);
-        results.push({
-          book: ddbSource ? (fullSource ? ddbSource.description : ddbSource.name) : "Homebrew",
+        const source = {
+          book: ddbSource ? ddbSource.name : "Homebrew",
           page: definition.sourcePageNumber ?? "",
           license: "",
           custom: "",
           id: ddbSource ? ddbSource.id : 9999999,
-        });
+        };
+
+        DDBHelper._tweakSourceData(source);
+        results.push(source);
       }
     } else if (definition.sourceId) {
       const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === definition.sourceId);
-      results.push({
-        book: ddbSource ? (fullSource ? ddbSource.description : ddbSource.name) : "Homebrew",
+      const source = {
+        book: ddbSource ? ddbSource.name : "Homebrew",
         page: definition.sourcePageNumber ?? "",
         license: "",
         custom: "",
         id: ddbSource ? ddbSource.id : 9999999,
-      });
+      };
+      DDBHelper._tweakSourceData(source);
+      results.push(source);
     }
     return results;
   },
@@ -295,12 +266,12 @@ const DDBHelper = {
           || (item.isAttuned && item.equipped) // if it is attuned and equipped
           || (item.isAttuned && !item.definition.canEquip) // if it is attuned but can't equip
             || (!item.definition.canAttune && item.equipped)) // can't attune but is equipped
-          && item.definition.grantedModifiers.length > 0
+          && item.definition.grantedModifiers.length > 0,
       )
       .flatMap((item) => item.definition.grantedModifiers)
       .filter((mod) => !excludedModifiers.some((exMod) =>
         mod.type === exMod.type
-        && (mod.subType === exMod.subType || !exMod.subType))
+        && (mod.subType === exMod.subType || !exMod.subType)),
       );
 
     return modifiers;
@@ -309,7 +280,7 @@ const DDBHelper = {
   getActiveItemEffectModifiers: (ddb) => {
     return DDBHelper.getActiveItemModifiers(ddb, true).filter((mod) =>
       getEffectExcludedModifiers("item", true, true).some((exMod) => mod.type === exMod.type
-      && (mod.subType === exMod.subType || !exMod.subType))
+      && (mod.subType === exMod.subType || !exMod.subType)),
     );
   },
 
@@ -327,13 +298,13 @@ const DDBHelper = {
       modifiers = baseMods
         .filter((mod) => excludedModifiers.some((exMod) =>
           mod.type === exMod.type
-        && (mod.subType === exMod.subType || !exMod.subType))
+        && (mod.subType === exMod.subType || !exMod.subType)),
         );
     } else {
       modifiers = baseMods
         .filter((mod) => !excludedModifiers.some((exMod) =>
           mod.type === exMod.type
-        && (mod.subType === exMod.subType || !exMod.subType))
+        && (mod.subType === exMod.subType || !exMod.subType)),
         );
     }
 
@@ -347,7 +318,7 @@ const DDBHelper = {
         (modifier) =>
           modifier.type === type
           && (subType !== null ? modifier.subType === subType : true)
-          && (!restriction ? true : restriction.includes(modifier.restriction))
+          && (!restriction ? true : restriction.includes(modifier.restriction)),
       );
   },
 
@@ -359,7 +330,7 @@ const DDBHelper = {
     return ddb.character.classes
       .filter((klass) => classId === klass.definition?.id || classId === klass.subclassDefinition?.id)
       .some((klass) =>
-        klass.classFeatures.some((feat) => feat.definition.id == componentId)
+        klass.classFeatures.some((feat) => feat.definition.id == componentId),
       );
   },
 
@@ -368,12 +339,12 @@ const DDBHelper = {
       .filter((klass) =>
         (classId === null
           ? true
-          : (classId === klass.definition?.id || classId === klass.subclassDefinition?.id))
+          : (classId === klass.definition?.id || classId === klass.subclassDefinition?.id)),
       ).map((klass) => klass.classFeatures)
       .flat()
       .filter((feat) =>
         (requiredLevel === null || feat.definition.requiredLevel >= requiredLevel)
-        && (exactLevel === null || feat.definition.requiredLevel == exactLevel)
+        && (exactLevel === null || feat.definition.requiredLevel == exactLevel),
       ).map((feat) => feat.definition.id);
   },
 
@@ -389,7 +360,7 @@ const DDBHelper = {
         && (requiredLevel === null || feat.definition.requiredLevel >= requiredLevel)
         && (exactLevel === null || feat.definition.requiredLevel == exactLevel)
         // make sure this class feature is not replaced
-        && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == feat.definition.id)
+        && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == feat.definition.id),
       ));
   },
 
@@ -408,12 +379,12 @@ const DDBHelper = {
         ddb.character.choices.class.some((choice) =>
           choice.componentId == option.componentId
           && choice.componentTypeId == option.componentTypeId
-          && foundry.utils.hasProperty(choice, "optionValue")
+          && foundry.utils.hasProperty(choice, "optionValue"),
         )
         || !ddb.character.choices.class.some((choice) =>
           choice.componentId == option.componentId
           && choice.componentTypeId == option.componentTypeId)
-      )
+      ),
     );
   },
 
@@ -433,14 +404,14 @@ const DDBHelper = {
         ddb.character.choices.class.some((choice) =>
           choice.componentId == option.componentId
           && choice.componentTypeId == option.componentTypeId
-          && choice.optionValue
+          && choice.optionValue,
         )
         || ddb.classOptions?.some((classOption) =>
           classOption.id == option.componentId
           && classOption.entityTypeId == option.componentTypeId
-          && (classId === null || classId === classOption.classId)
+          && (classId === null || classId === classOption.classId),
         )
-      )
+      ),
     );
   },
 
@@ -453,9 +424,88 @@ const DDBHelper = {
       && choice.componentId == mod.componentId
       && ddb.character.optionalClassFeatures?.some((f) =>
         f.classFeatureId == choice.componentId
-        && (!f.affectedClassFeatureId || klassFeatureIds.includes(f.affectedClassFeatureId))
-      )
+        && (!f.affectedClassFeatureId || klassFeatureIds.includes(f.affectedClassFeatureId)),
+      ),
     );
+  },
+
+  isModAGrantedFeatMod(ddb, mod, { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null } = {}) {
+    // const klassFeatureIds = classFeatureIds ? classFeatureIds : DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel });
+    const feats = [];
+    ddb.character.classes.forEach((klass) => {
+      const validClass = classId === null
+        ? true
+        : (classId === klass.definition?.id || classId === klass.subclassDefinition?.id);
+
+      const validFeatures = klass.classFeatures.filter((feat) =>
+        (classFeatureIds === null || classFeatureIds.includes(feat.definition.id))
+        && (requiredLevel === null || feat.definition.requiredLevel >= requiredLevel)
+        && (exactLevel === null || feat.definition.requiredLevel == exactLevel)
+        // make sure this class feature is not replaced
+        && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == feat.definition.id),
+      );
+      if (validClass) {
+        validFeatures.forEach((feature) => {
+          feats.push(...(feature.definition.grantedFeats ?? []));
+        });
+      }
+    });
+
+    return feats.some((f) => f.featIds.includes(mod.componentId));
+
+    // feat[]
+    //   {
+    //     "id": 16340,
+    //     "name": "Weapon Mastery",
+    //     "featIds": [
+    //         1789142
+    //     ]
+    // }
+
+    // modifier
+    //   {
+    //     "fixedValue": null,
+    //     "id": "62627888",
+    //     "entityId": 4,
+    //     "entityTypeId": 1782728300,
+    //     "type": "weapon-mastery",
+    //     "subType": "sap-longsword",
+    //     "dice": null,
+    //     "restriction": "",
+    //     "statId": null,
+    //     "requiresAttunement": false,
+    //     "duration": null,
+    //     "friendlyTypeName": "Weapon Mastery",
+    //     "friendlySubtypeName": "Sap (Longsword)",
+    //     "isGranted": true,
+    //     "bonusTypes": [],
+    //     "value": null,
+    //     "availableToMulticlass": true,
+    //     "modifierTypeId": 43,
+    //     "modifierSubTypeId": 1942,
+    //     "componentId": 1789142,
+    //     "componentTypeId": 1088085227,
+    //     "tagConstraints": []
+    // },
+
+
+    // feats:[]
+    // {
+    //   "componentTypeId": 67468084,
+    //   "componentId": 16340,
+    //   "definition": {
+    //       "id": 1789142,
+    //       "entityTypeId": 1088085227,
+
+    // options
+    // "feat": [
+    //   {
+    //       "componentId": 1789142,
+    //       "componentTypeId": 1088085227,
+    //       "definition": {
+    //           "id": 4496701,
+    //           "entityTypeId": 258900837,
+    //           "name": "Longsword (Sap)",
   },
 
   isModAChosenClassMod: (ddb, mod, { classFeatureIds = null, classId = null, requiredLevel = null, exactLevel = null } = {}) => {
@@ -470,20 +520,25 @@ const DDBHelper = {
     if (isOptionalClassOption) return true;
     // new class feature choice
     const isOptionalClassChoice = DDBHelper.isModOptionalClassChoice(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
-
+    if (isOptionalClassChoice) return true;
     // console.warn("isClassFeature2", {isClassFeature, mod, klassFeatureIds, classId, requiredLevel, exactLevel, isClassOption, isOptionalClassOption, isOptionalClassChoice});
-    return isOptionalClassChoice;
+    const isFeatMod = DDBHelper.isModAGrantedFeatMod(ddb, mod, { classFeatureIds: klassFeatureIds, classId, requiredLevel, exactLevel });
+    return isFeatMod;
   },
 
-  getChosenClassModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null, filterOnFeatureIds = [] } = {}) => {
+  getChosenTypeModifiers: (ddb, { type = "class", includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null, filterOnFeatureIds = [] } = {}) => {
     const classFeatureIds = DDBHelper.getClassFeatureIds(ddb, { classId, requiredLevel, exactLevel })
       .filter((id) => {
         if (filterOnFeatureIds.length === 0) return true;
         return filterOnFeatureIds.includes(id);
       });
     // get items we are going to interact on
+    // console.warn("getChosenTypeModifiers", {
+    //   mods: DDBHelper.getModifiers(ddb, type, includeExcludedEffects, effectOnly, useUnfilteredModifiers),
+    //   classFeatureIds,
+    // });
     const modifiers = DDBHelper
-      .getModifiers(ddb, 'class', includeExcludedEffects, effectOnly, useUnfilteredModifiers)
+      .getModifiers(ddb, type, includeExcludedEffects, effectOnly, useUnfilteredModifiers)
       .filter((mod) =>
         (
           availableToMulticlass === null
@@ -491,11 +546,25 @@ const DDBHelper = {
           || mod.availableToMulticlass === null
           || mod.availableToMulticlass === availableToMulticlass
         )
-        && DDBHelper.isModAChosenClassMod(ddb, mod, { classFeatureIds, classId, requiredLevel, exactLevel })
+        && DDBHelper.isModAChosenClassMod(ddb, mod, { classFeatureIds, classId, requiredLevel, exactLevel }),
       );
 
     // console.warn("getChosenClassModifiers", {classFeatureIds, modifiers});
     return modifiers;
+  },
+
+  getChosenClassModifiers: (ddb, { includeExcludedEffects = false, effectOnly = false, classId = null, requiredLevel = null, exactLevel = null, availableToMulticlass = null, useUnfilteredModifiers = null, filterOnFeatureIds = [] } = {}) => {
+    return DDBHelper.getChosenTypeModifiers(ddb, {
+      type: "class",
+      includeExcludedEffects,
+      effectOnly,
+      classId,
+      requiredLevel,
+      exactLevel,
+      availableToMulticlass,
+      useUnfilteredModifiers,
+      filterOnFeatureIds,
+    });
   },
 
   filterBaseCharacterModifiers: (ddb, type, { subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false, classId = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {}) => {
@@ -604,39 +673,68 @@ const DDBHelper = {
    * @param {string} type character property: "class", "race" etc.
    * @param {object} feat options to search for
    */
-  getChoices: (ddb, type, feat) => {
+  getChoices: (ddb, type, feat, selectionOnly = true) => {
     const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
     const featDefinition = feat.definition ? feat.definition : feat;
 
     if (ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
       // find a choice in the related choices-array
       const choices = ddb.character.choices[type].filter(
-        (characterChoice) => characterChoice.componentId && characterChoice.componentId === id
+        (characterChoice) => characterChoice.componentId && characterChoice.componentId === id,
       );
 
       if (choices) {
         const choiceDefinitions = ddb.character.choices.choiceDefinitions;
 
-        const options = choices
+        const validChoices = choices
           .filter(
             (choice) => {
               const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
               const validOption = optionChoice && optionChoice.options.find((option) => option.id === choice.optionValue);
               return validOption;
-            })
-          .map((choice) => {
-            // console.warn(choice);
+            });
+
+        // console.warn("valid options", {
+        //   validOptions: validChoices,
+        // });
+
+        if (!selectionOnly && validChoices.length > 0) {
+          const results = [];
+          for (const choice of validChoices) {
             const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-            let result = optionChoice.options.find((option) => option.id === choice.optionValue);
-            result.componentId = choice.componentId;
-            result.componentTypeId = choice.componentTypeId;
-            result.choiceId = choice.id;
-            result.parentChoiceId = choice.parentChoiceId;
-            result.subType = choice.subType;
-            result.type = type;
-            result.wasOption = false;
-            return result;
-          });
+            const options = optionChoice.options.map((option) => {
+              option.componentId = choice.componentId;
+              option.componentTypeId = choice.componentTypeId;
+              option.choiceId = choice.id;
+              option.parentChoiceId = choice.parentChoiceId;
+              option.subType = choice.subType;
+              option.type = type;
+              option.wasOption = false;
+              return option;
+            });
+            results.push(...options);
+          }
+          if (results.length > 0) return results;
+        }
+
+        const options = validChoices.map((choice) => {
+          const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+          // console.warn("details", {
+          //   choices,
+          //   choice,
+          //   optionChoice,
+          //   choiceDefinitions,
+          // });
+          let result = optionChoice.options.find((option) => option.id === choice.optionValue);
+          result.componentId = choice.componentId;
+          result.componentTypeId = choice.componentTypeId;
+          result.choiceId = choice.id;
+          result.parentChoiceId = choice.parentChoiceId;
+          result.subType = choice.subType;
+          result.type = type;
+          result.wasOption = false;
+          return result;
+        });
 
         if (options.length > 0) return options;
 
@@ -647,13 +745,15 @@ const DDBHelper = {
               (option) =>
                 // id match
                 (!featDefinition.componentTypeId && !featDefinition.entityTypeId && id == option.componentId)
-                || (!featDefinition.componentTypeId && foundry.utils.hasProperty(featDefinition, "entityTypeId")
-                  && featDefinition.entityTypeId == option.componentTypeId && id == option.componentId
-                )
-                // && // the choice id matches the option componentID
-                // (featDefinition.componentTypeId == option.componentTypeId || // either the choice componenttype and optiontype match or
-                //   featDefinition.componentTypeId == option.definition.entityTypeId) && // the choice componentID matches the option definition entitytypeid
-                // option.componentTypeId == featDefinition.entityTypeId
+                || (!featDefinition.componentTypeId
+                  && foundry.utils.hasProperty(featDefinition, "entityTypeId")
+                  && featDefinition.entityTypeId == option.componentTypeId
+                  && id == option.componentId
+                ),
+              // && // the choice id matches the option componentID
+              // (featDefinition.componentTypeId == option.componentTypeId || // either the choice componenttype and optiontype match or
+              //   featDefinition.componentTypeId == option.definition.entityTypeId) && // the choice componentID matches the option definition entitytypeid
+              // option.componentTypeId == featDefinition.entityTypeId
             )
             .map((option) => {
               return {
@@ -683,7 +783,7 @@ const DDBHelper = {
     if (ddb.character?.choices && ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
       // find a choice in the related choices-array
       const choice = ddb.character.choices[type].find(
-        (characterChoice) => characterChoice.optionValue && characterChoice.optionValue === optionId
+        (characterChoice) => characterChoice.optionValue && characterChoice.optionValue === optionId,
       );
       if (choice) return choice.componentId;
     }
@@ -725,7 +825,7 @@ const DDBHelper = {
       if (!cls.subclassDefinition.classFeatures) return false;
 
       const subClassFeatures = cls.subclassDefinition.classFeatures.filter((f) =>
-        !classFeatures.some((cf) => cf.id === f.id)
+        !classFeatures.some((cf) => cf.id === f.id),
       );
 
       return subClassFeatures.some((feature) => feature.id === featId);
@@ -787,7 +887,7 @@ const DDBHelper = {
     const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
     const customValue = characterValues.filter((value) =>
       value.valueId == ddbItem.id
-      && value.valueTypeId == ddbItem.entityTypeId
+      && value.valueTypeId == ddbItem.entityTypeId,
     );
 
     if (customValue) {
@@ -805,7 +905,7 @@ const DDBHelper = {
         (value.valueId == foundryItem.flags.ddbimporter.dndbeyond?.id
           && value.valueTypeId == foundryItem.flags.ddbimporter.dndbeyond?.entityTypeId)
         || (value.valueId == foundryItem.flags.ddbimporter.id
-          && value.valueTypeId == foundryItem.flags.ddbimporter.entityTypeId)
+          && value.valueTypeId == foundryItem.flags.ddbimporter.entityTypeId),
     );
 
     if (customValue) {
@@ -833,32 +933,50 @@ const DDBHelper = {
     const dcOverride = DDBHelper.getCustomValue(foundryItem, ddb, 15);
     const dcBonus = DDBHelper.getCustomValue(foundryItem, ddb, 14);
 
-    if (toHitBonus) {
-      if (foundry.utils.hasProperty(foundryItem, "system.attack.bonus") && parseInt(foundryItem.system.attack.bonus) === 0) {
-        foundryItem.system.attack.bonus = toHitBonus;
-      } else {
-        foundryItem.system.attack.bonus += ` + ${toHitBonus}`;
-      }
+    if (foundryItem.system.activities) {
+      Object.keys(foundryItem.system.activities).forEach((id) => {
+        let activity = foundryItem.system.activities[id];
+
+        if (activity.type === "attack") {
+          if (toHitBonus) {
+            if (foundry.utils.hasProperty(activity, "bonus")
+              && (parseInt(activity.bonus) === 0
+              || activity.bonus === "")
+            ) {
+              activity.bonus = toHitBonus;
+            } else {
+              activity.bonus += ` + ${toHitBonus}`;
+            }
+          }
+        }
+        if (activity.damage && damageBonus) {
+          const part = DDBBasicActivity.buildDamagePart({ damageString: damageBonus });
+          activity.damage.parts.push(part);
+        }
+        if (activity.type === "save") {
+          if (dcBonus) {
+            if (foundryItem.flags.ddbimporter.dndbeyond.dc) {
+              foundryItem.system.save.dc.formula = parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus;
+              foundryItem.system.save.dc.calculation = "custom";
+            }
+          }
+          if (dcOverride) {
+            foundryItem.system.save.dc.formula = dcOverride;
+            foundryItem.system.save.dc.calculation = "custom";
+          }
+        }
+
+        foundryItem.system.activities[id] = activity;
+      });
     }
-    if (damageBonus && foundryItem.system?.damage?.parts && foundryItem.system?.damage?.parts.length !== 0) {
-      foundryItem.system.damage.parts[0][0] = foundryItem.system.damage.parts[0][0].concat(` +${damageBonus}`);
-    } else if (damageBonus && foundryItem.system?.damage?.parts) {
-      const part = [`+${damageBonus}`, ""];
-      foundryItem.system.damage.parts.push(part);
-    }
+
     if (costOverride) foundryItem.system.cost = costOverride;
     if (weightOverride) foundryItem.system.weight = weightOverride;
-    if (silvered) foundryItem.system.properties['sil'] = true;
-    if (adamantine) foundryItem.system.properties['ada'] = true;
-    if (dcBonus) {
-      if (foundryItem.flags.ddbimporter.dndbeyond.dc) {
-        foundryItem.system.save.dc = parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus;
-        foundryItem.system.save.scaling = "flat";
-      }
+    if (silvered) {
+      foundryItem.system.properties = utils.addToProperties(foundryItem.system.properties, "sil");
     }
-    if (dcOverride) {
-      foundryItem.system.save.dc = dcOverride;
-      foundryItem.system.save.scaling = "flat";
+    if (adamantine) {
+      foundryItem.system.properties = utils.addToProperties(foundryItem.system.properties, "ada");
     }
     return foundryItem;
   },
@@ -997,7 +1115,7 @@ const DDBHelper = {
 
       return (simpleMatch && choiceMatch) || overrideMatch;
     });
-  }
+  },
 
 };
 

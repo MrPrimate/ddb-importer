@@ -153,8 +153,8 @@ function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, html }
         "ddbimporter": {
           "parentName": parentName,
           "keys": keys,
-          "diceKeys": diceKeys
-        }
+          "diceKeys": diceKeys,
+        },
       },
       "img": "icons/svg/d20-grey.svg",
       "description": "",

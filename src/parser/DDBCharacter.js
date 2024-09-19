@@ -15,6 +15,9 @@ import utils from "../lib/utils.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DDBHelper from "../lib/DDBHelper.js";
 import { DDBInfusionFactory } from "./features/DDBInfusionFactory.js";
+import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
+import DDBItemImporter from "../lib/DDBItemImporter.js";
+import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 
 export default class DDBCharacter {
@@ -74,6 +77,9 @@ export default class DDBCharacter {
     this.spellCompendium = CompendiumHelper.getCompendiumType("spell");
 
     this.armor = {};
+
+    this.matchedFeatures = [];
+    this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
 
   }
 
@@ -166,22 +172,97 @@ export default class DDBCharacter {
    * Removes duplicate features/actions based on import preferences
    */
   _filterActionFeatures() {
-    const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
+    const actionAndFeature = false;
+    // game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
+    const alwaysUseFeatureDescription = true;
 
+    // eslint-disable-next-line complexity
     this.data.actions = this.raw.actions.map((action) => {
-      const featureMatch = this.raw.features.find((feature) => feature.name === action.name
-        && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type"));
-      if (featureMatch) {
-        // console.warn(`Removing duplicate feature ${featureMatch.name} from action ${action.name}`, {
+      const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
+      const featureMatch = this.raw.features.find((feature) => {
+        const originalFeatureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+        const featureNamePrefix = originalFeatureName.split(":")[0].trim();
+        const replaceRegex = new RegExp(`${featureNamePrefix}(?:\\s*)-`);
+        const featureFlagType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
+        const actionFlagType = foundry.utils.getProperty(action, "flags.ddbimporter.type");
+        const replacedActionName = originalActionName.replace(replaceRegex, `${featureNamePrefix}:`);
+        // console.warn(`Checking "${originalActionName}" against "${originalFeatureName}"`, {
         //   action,
-        //   feature: featureMatch,
+        //   feature,
+        //   replacedActionName,
+        //   originalFeatureName,
+        //   featureFlagType,
+        //   actionFlagType,
+        //   nameMatch: originalFeatureName === originalActionName
+        //     || replacedActionName === originalFeatureName,
+        //   flagMatch: featureFlagType === actionFlagType,
         // });
-        if (action.system.description.value === "") {
+        return (
+          originalFeatureName === originalActionName
+          || replacedActionName === originalFeatureName
+          || feature.name === action.name
+          || replacedActionName === feature.name
+        )
+        && featureFlagType === actionFlagType;
+      });
+      if (featureMatch) {
+        const originalFeatureName = foundry.utils.getProperty(featureMatch, "flags.ddbimporter.originalName") ?? featureMatch.name;
+        foundry.utils.setProperty(action, "flags.ddbimporter.featureNameMatch", originalFeatureName);
+        if (action.system.description.value === "" || alwaysUseFeatureDescription) {
           action.system.description.value = featureMatch.system.description.value;
         }
 
         if (action.system.description.chat === "") {
           action.system.description.chat = featureMatch.system.description.chat;
+        }
+
+        action.system.source = featureMatch.system.source;
+
+        logger.debug(`Found match for ${originalActionName} and ${featureMatch.name}`, {
+          action: foundry.utils.deepClone(action),
+          feature: foundry.utils.deepClone(featureMatch),
+        });
+        if (Object.keys(action.system.activities).length === 0) {
+          for (const [key, activity] of Object.entries(featureMatch.system.activities)) {
+            // console.warn(`Checking activity ${key}`, activity);
+            if (!action.system.activities[key]) {
+              action.system.activities[key] = activity;
+              continue;
+            }
+            if (action.system.activities[key] && action.system.activities[key].effects?.length === 0) {
+              action.system.activities[key].effects = featureMatch.system.activities[key].effects;
+            }
+          }
+        } else {
+          for (const key of Object.keys(featureMatch.system.activities)) {
+            if (action.system.activities[key] && action.system.activities[key].effects?.length === 0) {
+              action.system.activities[key].effects = featureMatch.system.activities[key].effects;
+            }
+          }
+        }
+
+
+        if (Object.keys(featureMatch.system.activities).length === 0
+          && Object.keys(action.system.activities).length > 0
+          && featureMatch.effects.length > 0
+          && action.effects.length === 0
+        ) {
+          for (const key of Object.keys(action.system.activities)) {
+            const effects = [];
+            for (const effect of featureMatch.effects) {
+              // eslint-disable-next-line max-depth
+              if (effect.transfer) continue;
+              // eslint-disable-next-line max-depth
+              if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
+              const activityNameRequired = foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch");
+              // eslint-disable-next-line max-depth
+              if (activityNameRequired && action.system.activities[key].name !== activityNameRequired) continue;
+              const effectId = effect._id ?? foundry.utils.randomID();
+              effect._id = effectId;
+              effects.push({ _id: effectId });
+            }
+            action.system.activities[key].effects = effects;
+          }
         }
 
         if (action.effects && action.effects.length === 0
@@ -194,6 +275,17 @@ export default class DDBCharacter {
           delete newFlags.ddbimporter;
           foundry.utils.mergeObject(action.flags, newFlags, { overwrite: true, insertKeys: true, insertValues: true });
         }
+
+        if (featureMatch.system.uses.max
+          && (utils.isString(featureMatch.system.uses.max)
+          || !action.system.uses.max)
+        ) {
+          action.system.uses.max = featureMatch.system.uses.max;
+        }
+
+        if (foundry.utils.hasProperty(featureMatch, "system.prerequisites.level")) {
+          foundry.utils.setProperty(action, "system.prerequisites.level", featureMatch.system.prerequisites.level);
+        }
       }
       return action;
     });
@@ -202,10 +294,11 @@ export default class DDBCharacter {
       .filter((feature) =>
         actionAndFeature
         || !this.data.actions.some((action) =>
-          action.name.trim().toLowerCase() === feature.name.trim().toLowerCase()
+          ((foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name).trim().toLowerCase() === (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name).trim().toLowerCase()
+          || foundry.utils.getProperty(action, "flags.ddbimporter.featureNameMatch") === (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name))
           && foundry.utils.getProperty(action, "flags.ddbimporter.isCustomAction") !== true
-          && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type")
-        )
+          && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type"),
+        ),
       )
       .map((feature) => {
         const actionMatch = actionAndFeature && this.data.actions.some((action) => feature.name === action.name);
@@ -256,6 +349,7 @@ export default class DDBCharacter {
       logger.debug("Character Spells parse complete");
       await this._characterFeatureFactory.processActions();
       this.raw.actions = this._characterFeatureFactory.processed.actions;
+      this.raw.actions.push(...this._infusionFactory.processed.actions);
       logger.debug("Action parse complete");
       await this._generateInventory();
       logger.debug("Inventory generation complete");
@@ -287,6 +381,7 @@ export default class DDBCharacter {
 
       this._addVision5eEffects();
       this._linkItemsToContainers();
+      // this.addToCompendiums();
 
     } catch (error) {
       logger.error(error);
@@ -354,20 +449,22 @@ export default class DDBCharacter {
 
   isMartialArtist() {
     return this.source.ddb.character.classes.some((cls) =>
-      cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts")
+      cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts"),
     );
+  }
+
+  updateItemId(item) {
+    const itemMatch = DDBHelper.findMatchedDDBItem(item, this.possibleFeatures, this.matchedFeatures);
+    if (itemMatch) {
+      item._id = itemMatch._id;
+      this.matchedFeatures.push(itemMatch);
+    }
   }
 
   updateItemIds(items) {
     if (!this.currentActor) return items;
-    const possibleFeatures = this.currentActor.getEmbeddedCollection("Item");
-    const matchedFeatures = [];
     items.forEach((item) => {
-      const itemMatch = DDBHelper.findMatchedDDBItem(item, possibleFeatures, matchedFeatures);
-      if (itemMatch) {
-        item._id = itemMatch._id;
-        matchedFeatures.push(itemMatch);
-      }
+      this.updateItemId(item);
     });
     return items;
   }
@@ -379,7 +476,7 @@ export default class DDBCharacter {
         && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
         && foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
         && parseInt(item.flags.ddbimporter.containerEntityId) === parseInt(this.source.ddb.character.id)
-        && !foundry.utils.getProperty(item, "flags.ddbimporter.ignoreItemImport")
+        && !foundry.utils.getProperty(item, "flags.ddbimporter.ignoreItemImport"),
       );
 
     this.data.inventory.forEach((item) => {
@@ -387,13 +484,79 @@ export default class DDBCharacter {
         && parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(this.source.ddb.character.id)
       ) {
         const containerItem = containerItems.find((container) =>
-          parseInt(container.flags.ddbimporter.id) === parseInt(item.flags.ddbimporter.containerEntityId)
+          parseInt(container.flags.ddbimporter.id) === parseInt(item.flags.ddbimporter.containerEntityId),
         );
         if (containerItem) {
           foundry.utils.setProperty(item, "system.container", containerItem._id);
         }
       }
     });
+  }
+
+  async addToCompendiums() {
+    if (!game.settings.get(SETTINGS.MODULE_ID, "add-features-to-compendiums")) return;
+
+    const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "update-add-features-to-compendiums");
+
+    const documents = this.currentActor.getEmbeddedCollection("Item")
+      .toObject()
+      .filter((doc) =>
+        foundry.utils.hasProperty(doc, "flags.ddbimporter.class"),
+      );
+
+    const subKlasses = new Set(documents
+      .filter((doc) => foundry.utils.hasProperty(doc, "flags.ddbimporter.subClass"))
+      .map((doc) => {
+        return {
+          subClass: foundry.utils.getProperty(doc, "flags.ddbimporter.subClass"),
+          class: foundry.utils.getProperty(doc, "flags.ddbimporter.class"),
+        };
+      }));
+
+    const featureCompendiumFolders = new DDBCompendiumFolders("features");
+    await featureCompendiumFolders.loadCompendium("features");
+
+    for (const subKlass of subKlasses) {
+      await featureCompendiumFolders.createSubClassFeatureFolder(subKlass.subClass, subKlass.class);
+    }
+    const classFeaturesCompData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Class Features");
+    await createDDBCompendium(classFeaturesCompData);
+
+
+    const featureHandlerOptions = {
+      chrisPremades: true,
+      removeSRDDuplicates: false,
+      filterDuplicates: false,
+      deleteBeforeUpdate: false,
+      matchFlags: ["id"],
+      useCompendiumFolders: true,
+      indexFilter: {
+        fields: [
+          "name",
+          "flags.ddbimporter",
+        ],
+      },
+    };
+
+    // "flags.ddbimporter.classId",
+    // "flags.ddbimporter.class",
+    // "flags.ddbimporter.featureName",
+    // "flags.ddbimporter.subClass",
+    // "flags.ddbimporter.parentClassId"
+
+    const klassNames = new Set(documents.map((doc) => foundry.utils.getProperty(doc, "flags.ddbimporter.class")));
+
+    for (const klassName of klassNames) {
+      const classFeatures = documents.filter((doc) =>
+        klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.class"),
+        // && !foundry.utils.getProperty(doc, "flags.ddbimporter.action")
+      );
+
+      const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateFeatures, featureHandlerOptions);
+      // console.warn(featureHandler);
+      await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
+    }
+
   }
 
 }

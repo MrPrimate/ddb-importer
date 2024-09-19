@@ -4,6 +4,7 @@ import DDBMacros from "../DDBMacros.js";
 import { effectModules } from "../effects.js";
 
 export async function auraOfLifeEffect(document) {
+  document.effects = [];
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     {

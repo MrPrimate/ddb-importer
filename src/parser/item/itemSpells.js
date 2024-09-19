@@ -43,7 +43,7 @@ export async function addMagicItemSpells(input) {
   // check for existing spells in spell compendium & srdCompendium
   const [compendiumSpells, compendiumItemSpells] = await getCompendiumItemSpells(input.itemSpells);
   // if spells not found create world version
-  const itemImporter = new DDBItemImporter("spell", input.itemSpells);
+  const itemImporter = new DDBItemImporter("spell", input.itemSpells, { matchFlags: ["is2014", "is2024"] });
   itemImporter.removeItems(compendiumSpells);
   const remainingSpells = {
     itemSpells: await Iconizer.updateMagicItemImages(itemImporter.documents),
@@ -63,7 +63,7 @@ export async function addMagicItemSpells(input) {
       logger.debug("item.flags.magicitems.spells", magicItemsSpells);
       for (let [i, spell] of Object.entries(magicItemsSpells)) {
         const itemSpell = itemSpells.find((iSpell) => iSpell.name === spell.name
-          && (iSpell.compendium || iSpell.magicItem.subFolder === item.name)
+          && (iSpell.compendium || iSpell.magicItem.subFolder === item.name),
         );
         if (itemSpell) {
           for (const [key, value] of Object.entries(itemSpell.magicItem)) {
@@ -95,7 +95,7 @@ export async function addMagicItemSpells(input) {
       logger.debug("item.flags.items-with-spells-5e.item-spells", item.flags["items-with-spells-5e"]["item-spells"]);
       itemsWithSpells.forEach((spellData, i) => {
         const itemSpell = itemSpells.find((iSpell) => iSpell.name === spellData.flags.ddbimporter.spellName
-          && (iSpell.compendium || iSpell.magicItem.subFolder === item.name)
+          && (iSpell.compendium || iSpell.magicItem.subFolder === item.name),
         );
         if (itemSpell) {
           item.flags["items-with-spells-5e"]["item-spells"][i].uuid = `Compendium.${itemSpell.magicItem.pack}.${itemSpell._id}`;

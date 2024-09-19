@@ -7,7 +7,7 @@ export async function ragingStormSeaEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "feat", "ragingStormSea.js");
 
   const effect = baseFeatEffect(document, document.name);
-  addStatusEffectChange(effect, "Prone", 20, true);
+  addStatusEffectChange({ effect, statusName: "Prone" });
   document.effects.push(effect);
 
   const evaluationEffect = baseFeatEffect(document, `${document.name} (Trigger Checker)`, { transfer: true });

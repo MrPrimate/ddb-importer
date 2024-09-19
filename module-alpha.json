@@ -10,7 +10,7 @@
   "readme": "https://github.com/MrPrimate/ddb-importer/blob/main/README.md",
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "compatibility": {
-    "minimum": "11.315",
+    "minimum": "12.330",
     "verified": 12
   },
   "authors": [
@@ -35,79 +35,14 @@
         "id": "dnd5e",
         "type": "system",
         "compatibility": {
-          "minimum": "3.2.0",
-          "verified": "3.2.0"
+          "minimum": "4.0.0",
+          "verified": "4.0.0"
         }
       }
     ],
     "requires": [
-      {
-        "id": "dae",
-        "type": "module",
-        "reason": "Provides improvements to active effects"
-       },
-      {
-        "id": "midi-qol",
-        "type": "module",
-        "reason": "THE Automation powerhouse for automated effects"
-      },
-      {
-        "id": "times-up",
-        "type": "module",
-        "reason": "Ensure effects expire properly"
-      },
-      {
-        "id": "ActiveAuras",
-        "type": "module",
-        "reason": "Creates Aura effects for Paladins and AoE spells"
-      },
-      {
-        "id": "ATL",
-        "type": "module",
-        "reason": "Allows effects that adjust the token size/vision etc"
-      },
-      {
-        "id": "vision-5e",
-        "type": "module",
-        "reason": "Adds missing vision modes to 5e system"
-      }
     ],
     "recommends": [
-      {
-        "id": "items-with-spells-5e",
-        "type": "module",
-        "reason": "Provides ability to embed items with spells"
-      },
-      {
-        "id": "link-item-resource-5e",
-        "type": "module",
-        "reason": "Links items and resources up, so consumption of one reduces the other"
-      },
-      {
-        "id": "arbron-summoner",
-        "type": "module",
-        "reason": "Provides the ability to summon creatures with Summon spells"
-      },
-      {
-        "id": "autoanimations",
-        "type": "module",
-        "reason": "Automated Animations"
-      },
-      {
-        "id": "JB2A_DnD5e",
-        "type": "module",
-        "reason": "Animation asset pack, use this or the Patreon version. Patreon recommended."
-      },
-      {
-        "id": "chris-premades",
-        "type": "module",
-        "reason": "Amazing effects by Chris"
-      },
-      {
-        "id": "tokenmagic",
-        "type": "module",
-        "reason": "Provides some cool token effects"
-      }
     ]
   },
   "scripts": [

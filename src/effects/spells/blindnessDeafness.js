@@ -19,10 +19,10 @@ export async function blindnessDeafnessEffect(document) {
     document.effects.push(effect);
   } else {
     let blindnessEffect = baseSpellEffect(document, "Blindness");
-    addStatusEffectChange(blindnessEffect, "Blinded", 20, true);
+    addStatusEffectChange({ effect: blindnessEffect, statusName: "Blinded" });
     document.effects.push(blindnessEffect);
     let deafenedEffect = baseSpellEffect(document, "Deafness");
-    addStatusEffectChange(deafenedEffect, "Deafened", 20, true);
+    addStatusEffectChange({ effect: deafenedEffect, statusName: "Deafened" });
     document.effects.push(deafenedEffect);
   }
 

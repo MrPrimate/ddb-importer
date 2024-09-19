@@ -174,7 +174,7 @@ export default class DDBMuncher extends Application {
           '.munching-item-config input[type="checkbox"]',
           '.munching-monster-config input[type="checkbox"]',
           '.munching-monster-world-update-config input[type="checkbox"]',
-        ].join(",")
+        ].join(","),
       )
       .on("change", (event) => {
         MuncherSettings.updateMuncherSettings(html, event, this);
@@ -221,7 +221,7 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-migrate-compendium-monster"]').prop('disabled', false);
       $('button[id^="munch-migrate-compendium-spell"]').prop('disabled', false);
       $('button[id^="munch-migrate-compendium-item"]').prop('disabled', false);
-      $('button[id^="munch-fix-base64"]').prop('disabled', false);
+      // $('button[id^="munch-fix-base64"]').prop('disabled', false);
       $('button[id^="munch-reset-images"]').prop('disabled', false);
       $('button[id^="munch-xanthar-price"]').prop('disabled', false);
 
@@ -230,14 +230,14 @@ export default class DDBMuncher extends Application {
         $('button[id^="munch-source-select"]').prop('disabled', false);
       }
       if (tiers.supporter) {
-        $('button[id^="munch-races-start"]').prop('disabled', false);
-        $('button[id^="munch-feats-start"]').prop('disabled', false);
+        // $('button[id^="munch-races-start"]').prop('disabled', false);
+        // $('button[id^="munch-feats-start"]').prop('disabled', false);
         $('button[id^="munch-frames-start"]').prop('disabled', false);
-        $('button[id^="munch-classes-start"]').prop('disabled', false);
-        $('button[id^="munch-backgrounds-start"]').prop('disabled', false);
+        // $('button[id^="munch-classes-start"]').prop('disabled', false);
+        // $('button[id^="munch-backgrounds-start"]').prop('disabled', false);
       }
       if (tiers.experimentalMid) {
-        $('button[id^="munch-vehicles-start"]').prop('disabled', false);
+        // $('button[id^="munch-vehicles-start"]').prop('disabled', false);
       }
     }
   }

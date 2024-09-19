@@ -28,6 +28,18 @@
     "path": "icons/magic/fire/dagger-rune-enchant-flame-orange.webp"
   },
   {
+    "name": "One Extra Attack",
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-orange.webp"
+  },
+  {
+    "name": "Two Extra Attacks",
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-orange.webp"
+  },
+  {
+    "name": "Three Extra Attacks",
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-orange.webp"
+  },
+  {
     "name": "Feat",
     "path": "icons/magic/light/explosion-star-glow-yellow.webp"
   },
@@ -68,7 +80,15 @@
     "path": "icons/magic/control/buff-strength-muscle-damage.webp"
   },
   {
+    "name": "Armor of Magical Strength",
+    "path": "icons/magic/control/buff-strength-muscle-damage.webp"
+  },
+  {
     "name": "Infusion: Boots of the Winding Path",
+    "path": "icons/equipment/feet/boots-armored-green.webp"
+  },
+  {
+    "name": "Boots of the Winding Path",
     "path": "icons/equipment/feet/boots-armored-green.webp"
   },
   {
@@ -88,11 +108,23 @@
     "path": "icons/equipment/head/helm-barbute-horned-glowing.webp"
   },
   {
+    "name": "Helm of Awareness",
+    "path": "icons/equipment/head/helm-barbute-horned-glowing.webp"
+  },
+  {
     "name": "Infusion: Homunculus Servant",
     "path": "icons/commodities/gems/gem-cut-faceted-princess-purple.webp"
   },
   {
+    "name": "Homunculus Servant",
+    "path": "icons/commodities/gems/gem-cut-faceted-princess-purple.webp"
+  },
+  {
     "name": "Infusion: Mind Sharpener",
+    "path": "icons/equipment/chest/coat-collared-red-gold.webp"
+  },
+  {
+    "name": "Mind Sharpener",
     "path": "icons/equipment/chest/coat-collared-red-gold.webp"
   },
   {
@@ -149,5 +181,33 @@
   {
     "name": "Equipment",
     "path": "icons/containers/bags/pack-leather-brown.webp"
+  },
+  {
+    "name": "Skillful",
+    "path": "icons/skills/trades/academics-merchant-scribe.webp"
+  },
+  {
+    "name": "Resourceful",
+    "path": "icons/skills/trades/construction-carpentry-hammer.webp"
+  },
+  {
+    "name": "Arcane Propulsion Armor Gauntlet",
+    "path": "icons/equipment/hand/gauntlet-armored-grey.webp"
+  },
+  {
+    "name": "Infiltrator Armor: Lightning Launcher",
+    "path": "icons/magic/lightning/bolt-strike-sparks-teal.webp"
+  },
+  {
+    "name": "Lightning Launcher",
+    "path": "icons/magic/lightning/bolt-strike-sparks-teal.webp"
+  },
+  {
+    "name": "Guardian Armor: Thunder Gauntlets",
+    "path": "icons/magic/lightning/bolt-forked-large-blue.webp"
+  },
+  {
+    "name": "Psychic Blades",
+    "path": "icons/skills/melee/strike-sword-blood-red.webp"
   }
 ]

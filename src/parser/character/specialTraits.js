@@ -23,34 +23,34 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() 
 
   // powerful build/equine build
   this.raw.character.flags.dnd5e.powerfulBuild = this.source.ddb.character.race.racialTraits.some((trait) =>
-    ["Equine Build", "Powerful Build, Hippo Build", "Little Giant"].includes(trait.definition.name)
+    ["Equine Build", "Powerful Build, Hippo Build", "Little Giant"].includes(trait.definition.name),
   );
 
   // tavern brawler feat
   this.raw.character.flags.dnd5e.tavernBrawlerFeat = this.source.ddb.character.feats.some(
-    (trait) => trait.definition.name === "Tavern Brawler"
+    (trait) => trait.definition.name === "Tavern Brawler",
   );
 
   // savage attacks
   const savageAttacks = this.source.ddb.character.race.racialTraits.some(
-    (trait) => trait.definition.name === "Savage Attacks"
+    (trait) => trait.definition.name === "Savage Attacks",
   );
   this.raw.character.flags.dnd5e.savageAttacks = savageAttacks;
   if (savageAttacks) this.raw.character.flags.dnd5e.meleeCriticalDamageDice += 1;
 
   // halfling lucky
   this.raw.character.flags.dnd5e.halflingLucky = this.source.ddb.character.race.racialTraits.some(
-    (trait) => trait.definition.name === "Lucky"
+    (trait) => trait.definition.name === "Lucky",
   );
 
   // elven accuracy
   this.raw.character.flags.dnd5e.elvenAccuracy = this.source.ddb.character.feats.some(
-    (feat) => feat.definition.name === "Elven Accuracy"
+    (feat) => feat.definition.name === "Elven Accuracy",
   );
 
   // alert feat
   this.raw.character.flags.dnd5e.initiativeAlert = this.source.ddb.character.feats.some(
-    (feat) => feat.definition.name === "Alert"
+    (feat) => feat.definition.name === "Alert",
   );
 
   // advantage on initiative
@@ -74,10 +74,10 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() 
     if (cls.subclassDefinition) {
       // Improved Critical
       const improvedCritical = cls.subclassDefinition.classFeatures.some(
-        (feature) => feature.name === "Improved Critical" && cls.level >= feature.requiredLevel
+        (feature) => feature.name === "Improved Critical" && cls.level >= feature.requiredLevel,
       );
       const superiorCritical = cls.subclassDefinition.classFeatures.some(
-        (feature) => feature.name === "Superior Critical" && cls.level >= feature.requiredLevel
+        (feature) => feature.name === "Superior Critical" && cls.level >= feature.requiredLevel,
       );
 
       if (superiorCritical) {
@@ -88,33 +88,33 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() 
 
       // Remarkable Athlete
       this.raw.character.flags.dnd5e.remarkableAthlete = cls.subclassDefinition.classFeatures.some(
-        (feature) => feature.name === "Remarkable Athlete" && cls.level >= feature.requiredLevel
+        (feature) => feature.name === "Remarkable Athlete" && cls.level >= feature.requiredLevel,
       );
 
       // wild magic surge for 5e Helpers
       this.raw.character.flags.dnd5e.wildMagic = cls.subclassDefinition.classFeatures.some(
-        (feature) => feature.name === "Wild Magic Surge" && cls.level >= feature.requiredLevel
+        (feature) => feature.name === "Wild Magic Surge" && cls.level >= feature.requiredLevel,
       );
     }
 
     // Brutal Critical
     this.raw.character.flags.dnd5e.meleeCriticalDamageDice += cls.definition.classFeatures.filter(
-      (feature) => feature.name === "Brutal Critical" && cls.level >= feature.requiredLevel
+      (feature) => feature.name === "Brutal Critical" && cls.level >= feature.requiredLevel,
     ).length;
 
     // Diamond Soul
     this.raw.character.flags.dnd5e.diamondSoul = cls.definition.classFeatures.some(
-      (feature) => feature.name === "Diamond Soul" && cls.level >= feature.requiredLevel
+      (feature) => feature.name === "Diamond Soul" && cls.level >= feature.requiredLevel,
     );
 
     // Jack of All Trades
     this.raw.character.flags.dnd5e.jackOfAllTrades = cls.definition.classFeatures.some(
-      (feature) => feature.name === "Jack of All Trades" && cls.level >= feature.requiredLevel
+      (feature) => feature.name === "Jack of All Trades" && cls.level >= feature.requiredLevel,
     );
 
     // Reliable Talent
     this.raw.character.flags.dnd5e.reliableTalent = cls.definition.classFeatures.some(
-      (feature) => feature.name === "Reliable Talent" && cls.level >= feature.requiredLevel
+      (feature) => feature.name === "Reliable Talent" && cls.level >= feature.requiredLevel,
     );
   });
 };

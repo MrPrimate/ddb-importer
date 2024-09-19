@@ -28,7 +28,7 @@ DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getChar
     .map((adjustment) => {
       const entry = DICTIONARY.character.damageAdjustments.find((type) =>
         type.id === adjustment.adjustmentId
-        && type.type === typeId
+        && type.type === typeId,
       );
       if (!entry) return undefined;
       const valueData = foundry.utils.hasProperty(entry, "foundryValues")

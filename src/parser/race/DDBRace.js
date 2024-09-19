@@ -11,6 +11,8 @@ import AdvancementHelper from "../advancements/AdvancementHelper.js";
 
 export default class DDBRace {
 
+  static SPECIAL_ADVANCEMENTS = {};
+
   static getGroupName(ids, baseRaceName) {
     const ddbGroup = CONFIG.DDB.raceGroups.find((r) => ids.includes(r.id));
     if (ddbGroup) {
@@ -40,7 +42,7 @@ export default class DDBRace {
         },
         obsidian: {
           source: {
-            type: "race"
+            type: "race",
           },
         },
       },
@@ -72,6 +74,9 @@ export default class DDBRace {
     this.baseRaceName = this.race.baseRaceName;
     this.groupName = DDBRace.getGroupName(this.race.groupIds, this.baseRaceName);
     this.isSubRace = this.race.isSubRace || this.groupName !== this.raceName;
+
+    this.is2014 = this.race.isLegacy
+      && this.race.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     this.data.flags.ddbimporter = {
       type: "race",
@@ -181,10 +186,12 @@ export default class DDBRace {
   }
 
   #addFeatureDescription(trait) {
+    // for whatever reason 2024 races still have a hidden ability score entry
+    if (!this.is2014 && trait.name.startsWith("Ability Score ")) return;
     const featureMatch = this.compendiumRacialTraits.find((match) =>
       foundry.utils.hasProperty(match, "flags.ddbimporter.baseName") && foundry.utils.hasProperty(match, "flags.ddbimporter.entityRaceId")
       && utils.nameString(trait.name) === utils.nameString(match.flags.ddbimporter.baseName)
-      && match.flags.ddbimporter.entityRaceId === trait.entityRaceId
+      && match.flags.ddbimporter.entityRaceId === trait.entityRaceId,
     );
     const title = (featureMatch) ? `<p><b>@Compendium[${this._compendiumLabel}.${featureMatch._id}]{${trait.name}}</b></p>` : `<p><b>${trait.name}</b></p>`;
     this.data.system.description.value += `${title}\n${trait.description}\n\n`;
@@ -278,6 +285,7 @@ export default class DDBRace {
   }
 
   #generateAbilityAdvancement() {
+    if (!this.is2014) return;
     this.race.racialTraits.forEach((t) => {
       const trait = t.definition;
       if (!["Ability Score Increase", "Ability Score Increases"].includes(trait.name.trim())) return;
@@ -295,7 +303,7 @@ export default class DDBRace {
       : DDBHelper.getModifiers(this.ddbData, "race");
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
-      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
+      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType),
     );
     const advancement = this.advancementHelper.getSkillAdvancement(skillExplicitMods, trait, undefined, 0);
 
@@ -341,7 +349,7 @@ export default class DDBRace {
           "0": 1,
         },
         restriction: {
-          type: "feat"
+          type: "feat",
         },
       },
     });
@@ -350,7 +358,7 @@ export default class DDBRace {
 
     const feat = this.ddbData?.character?.feats?.find((f) =>
       f.componentId === trait.id
-      && f.componentTypeId === trait.entityTypeId
+      && f.componentTypeId === trait.entityTypeId,
     );
     if (!feat) {
       logger.warn(`Unable to link advancement to feat`, { advancement, trait, this: this });
@@ -454,12 +462,81 @@ export default class DDBRace {
       const basicOptions = {
         subType: senseName,
       };
+      DDBHelper.filterModifiers((this.ddbData?.character?.modifiers?.race ?? []), "sense", basicOptions).forEach((sense) => {
+        if (Number.isInteger(sense.value) && sense.value > this.data.system.senses[senseName]) {
+          this.data.system.senses[senseName] = parseInt(sense.value);
+        }
+      });
       DDBHelper.filterModifiers((this.ddbData?.character?.modifiers?.race ?? []), "set-base", basicOptions).forEach((sense) => {
         if (Number.isInteger(sense.value) && sense.value > this.data.system.senses[senseName]) {
           this.data.system.senses[senseName] = parseInt(sense.value);
         }
       });
     }
+  }
+
+  // #generateScaleValueAdvancements() {
+
+  //   for (const trait of this.race.racialTraits) {
+
+  //     continue;
+
+  //     let specialFeatures = [];
+
+  //     let advancement = AdvancementHelper.generateScaleValueAdvancement(trait);
+  //     const specialLookup = DDBRace.SPECIAL_ADVANCEMENTS[advancement.title];
+  //     if (specialLookup) {
+  //       if (specialLookup.additionalAdvancements) {
+  //         specialLookup.additionalFunctions.forEach((fn) => {
+  //           specialFeatures.push(fn(advancement));
+  //         });
+  //       }
+  //       if (specialLookup.fixFunction) advancement = specialLookup.fixFunction(advancement, specialLookup.functionArgs);
+  //     }
+
+  //     this.data.system.advancement.push(advancement);
+  //     this.data.system.advancement.push(...specialFeatures);
+
+  //   }
+
+  // }
+
+  #advancementFixes() {
+    if (this.is2014) return;
+    if (this.data.name.startsWith("Dragonborn")) {
+      const breathWeapon = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `breath-weapon`,
+          type: "dice",
+          scale: {
+            1: {
+              number: 1,
+              faces: 10,
+            },
+            5: {
+              number: 2,
+              faces: 10,
+            },
+            11: {
+              number: 3,
+              faces: 10,
+            },
+            17: {
+              number: 4,
+              faces: 10,
+            },
+          },
+        },
+        value: {},
+        title: `Breath Weapon Dice`,
+        icon: null,
+      };
+      this.data.system.advancement.push(breathWeapon);
+    }
+
   }
 
   async build() {
@@ -484,6 +561,7 @@ export default class DDBRace {
     });
 
     this.#generateAbilityAdvancement();
+    this.#advancementFixes();
     this.#generateSenses();
 
     // set final type

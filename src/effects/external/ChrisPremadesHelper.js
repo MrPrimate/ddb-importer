@@ -62,7 +62,7 @@ export default class ChrisPremadesHelper {
   static async getChrisCompendiumIndex(compendiumName, matchedProperties = {}) {
     const gamePack = CompendiumHelper.getCompendium(compendiumName);
     const index = await gamePack.getIndex({
-      fields: ["name", "type", "flags.cf", "folder"].concat(Object.keys(matchedProperties))
+      fields: ["name", "type", "flags.cf", "folder"].concat(Object.keys(matchedProperties)),
     });
     return index;
   }
@@ -151,13 +151,13 @@ export default class ChrisPremadesHelper {
     }
 
     const packIndex = await gamePack.getIndex({
-      fields: ['name', 'type', 'folder'].concat(Object.keys(matchedProperties))
+      fields: ['name', 'type', 'folder'].concat(Object.keys(matchedProperties)),
     });
 
     const match = packIndex.find((item) =>
       item.name === name
       && (!folderId || (folderId && item.folder === folderId))
-      && (Object.keys(matchedProperties).length === 0 || utils.matchProperties(item, matchedProperties))
+      && (Object.keys(matchedProperties).length === 0 || utils.matchProperties(item, matchedProperties)),
     );
 
     logger.debug(`Looking for ${name} in ${key} with properties`, {
@@ -181,7 +181,7 @@ export default class ChrisPremadesHelper {
   }
 
   static async getDocumentFromName(documentName, type,
-    { folderName = null, isMonster = false, matchedProperties = {} } = {}
+    { folderName = null, isMonster = false, matchedProperties = {} } = {},
   ) {
 
     const compendiums = await ChrisPremadesHelper.getChrisCompendiums(type, isMonster);
@@ -211,7 +211,7 @@ export default class ChrisPremadesHelper {
       const match = c.index.find((doc) =>
         doc.name === documentName
         && (!folderId || (folderId && doc.folder === folderId))
-        && (Object.keys(matchedProperties).length === 0 || utils.matchProperties(doc, matchedProperties))
+        && (Object.keys(matchedProperties).length === 0 || utils.matchProperties(doc, matchedProperties)),
       );
 
       if (!match) continue;
@@ -225,7 +225,7 @@ export default class ChrisPremadesHelper {
 
   constructor(document,
     { chrisNameOverride = null, isMonster = false, folderName = null, ignoreNotFound = true, type = null,
-      matchedProperties = {} } = {}
+      matchedProperties = {} } = {},
   ) {
     this.original = foundry.utils.deepClone(document);
     this.document = document;
@@ -534,7 +534,7 @@ ${chat}
           .every((requiredEquipment) =>
             documents.some((d) =>
               (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredEquipment
-              && DICTIONARY.types.inventory.includes(d.type)
+              && DICTIONARY.types.inventory.includes(d.type),
             ));
         if (!itemMatch) continue;
       }
@@ -544,7 +544,7 @@ ${chat}
           .every((requiredFeature) =>
             documents.some((d) =>
               (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredFeature
-              && d.type === "feat"
+              && d.type === "feat",
             ));
         if (!itemMatch) continue;
       }

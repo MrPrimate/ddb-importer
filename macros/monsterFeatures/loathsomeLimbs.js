@@ -8,18 +8,17 @@ const generateLimbEffect = (roll, targetActor) => {
     const name = 'Severed Leg';
     if (getEffects(name, targetActor) >= 2) return;
     ChatMessage.create({ content: `${targetActor.name}'s has severed a leg` });
-    return { name, stackable: 'count', changes: [{ key: 'system.attributes.movement.walk', mode: 2, value: -5 }] };
+    return { name, stackable: 'count', changes: [{ key: 'system.attributes.movement.walk', mode: 2, value: -5 }], statuses: [] };
   } else if (roll.rolls[0].total < 17) {
     const name = 'Severed Arm';
     if (getEffects(name, targetActor) >= 2) return;
     ChatMessage.create({ content: `${targetActor.name}'s has severed an arm` });
-    return { name, stackable: 'count', changes: [{ key: 'flags.midi-qol.disadvantage.attack.all', mode: 0, value: 1 }] };
+    return { name, stackable: 'count', changes: [{ key: 'flags.midi-qol.disadvantage.attack.all', mode: 0, value: 1 }], statuses: [] };
   } else {
     const name = 'Decapitated';
     if (getEffects(name, targetActor) >= 1) return;
     ChatMessage.create({ content: `${targetActor.name}'s has been decapitated` });
-    const change = DDBImporter.EffectHelper.generateStatusEffectChange("Blinded", 20);
-    return { name, stackable: 'noneName', changes: [change] };
+    return { name, stackable: 'noneName', changes: [change], statuses: ["blinded"] };
   }
 };
 
@@ -38,8 +37,8 @@ if (['slashing', 'bludgeoning'].some((dt) => {
     changes: stacked.changes,
     img: item.img,
     flags: { dae: { stackable: stacked.stackable } },
-    statuses: [stacked.name],
-    origin: item.uuid
+    statuses: [stacked.name, ...stacked.statuses],
+    origin: item.uuid,
   };
   await MidiQOL.socket().executeAsGM('createEffects', { actorUuid: workflow.targets.first().actor.uuid, effects: [effectData] });
 }

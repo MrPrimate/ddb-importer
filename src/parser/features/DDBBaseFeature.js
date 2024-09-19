@@ -3,14 +3,72 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
-import { generateEffects } from "../../effects/effects.js";
+import { generateEffects, getStatusEffect } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
-
+import DDBFeatureActivity from "./DDBFeatureActivity.js";
+import DDDFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
+import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
+import SETTINGS from "../../settings.js";
+import { generateTable } from "../../lib/DDBTable.js";
+import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 
 export default class DDBBaseFeature {
 
+  static LEVEL_SCALE_EXCLUSION = [
+    "Fire Rune",
+    "Cloud Rune",
+    "Stone Rune",
+    "Frost Rune",
+    "Hill Rune",
+    "Storm Rune",
+    "Drake Companion: Summon",
+    "Drake Companion: Command",
+    "Drake Companion",
+  ];
+
+  static LEVEL_SCALE_INFUSIONS = [
+    "Unarmed Strike",
+    "Arms of the Astral Self (WIS)",
+    "Arms of the Astral Self (DEX)",
+    "Arms of the Astral Self (DEX/STR)",
+    "Arms of the Astral Self",
+    "Body of the Astral Self",
+    "Starry Form: Archer",
+    "Sneak Attack",
+  ];
+
+  static NATURAL_WEAPONS = [
+    "Bite",
+    "Claw",
+    "Claws",
+    "Claws",
+    "Fangs",
+    "Gore",
+    "Sting",
+    "Talon",
+    "Talons",
+    "Trunk",
+  ];
+
+  static SPECIAL_ADVANCEMENTS = {};
+
+  static UTILITY_FEATURES = [
+    "Channel Divinity:",
+    "Maneuver:",
+  ];
+
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
+  }
+
+  _addEnricher() {
+    this.enricher = new DDDFeatureEnricher({
+      ddbParser: this,
+    });
+  }
+
+  async _initEnricher() {
+    await this.enricher.init();
   }
 
   _generateDataStub() {
@@ -19,6 +77,7 @@ export default class DDBBaseFeature {
       name: DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter),
       type: this.documentType,
       system: utils.getTemplate(this.documentType),
+      effects: [],
       flags: {
         ddbimporter: {
           id: this.ddbDefinition.id,
@@ -29,14 +88,95 @@ export default class DDBBaseFeature {
           originalName: this.originalName,
           type: this.tagType,
           isCustomAction: this.ddbDefinition.isCustomAction,
+          is2014: this.is2014,
+          is2024: !this.is2014,
         },
         infusions: { infused: false },
         obsidian: {
           source: {
             type: this.tagType,
           },
-        }
+        },
       },
+    };
+    // Spells will still have activation/duration/range/target,
+    // weapons will still have range & damage (1 base part & 1 versatile part),
+    // and all items will still have limited uses (but no consumption)
+  }
+
+  _generateLevelScale() {
+    this.excludedScale = DDBBaseFeature.LEVEL_SCALE_EXCLUSION.includes(this.ddbDefinition.name)
+      || DDBBaseFeature.LEVEL_SCALE_EXCLUSION.includes(this.data.name);
+    this.levelScaleInfusion = DDBBaseFeature.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
+      || DDBBaseFeature.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
+    this.scaleValueLink = DDBHelper.getScaleValueString(this.ddbData, this.ddbDefinition).value;
+    this.useScaleValueLink = !this.excludedScale
+      && this.scaleValueLink
+      && this.scaleValueLink !== "{{scalevalue-unknown}}";
+  }
+
+  _generateFlagHints() {
+    // obsidian and klass names (used in effect enrichment)
+    if (this._actionType.class) {
+      const klass = DDBHelper.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "class");
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "class");
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.text", klass.definition.name);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
+      const subKlass = DDBHelper.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
+      const subClass = foundry.utils.getProperty(subKlass, "subclassDefinition");
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass?.name);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass?.id);
+    } else if (this._actionType.race) {
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "race");
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "race");
+    } else if (this._actionType.feat) {
+      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "feat");
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "feat");
+    }
+
+    // scaling details
+    const klassActionComponent = DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.id)
+      ?? DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
+    if (klassActionComponent) {
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
+      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
+    }
+
+    // this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
+  }
+
+  _generateSaveFromDescription() {
+    const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
+    const textMatch = DDBEffectHelper.dcParser({ text: description });
+    if (textMatch.match) {
+      this._descriptionSave = textMatch.save;
+    } else {
+      this._descriptionSave = null;
+    }
+  }
+
+  _generateActionTypes() {
+    this._generateSaveFromDescription();
+    this._actionType = {
+      class: this.ddbData.character.actions.class
+        .filter((ddbAction) => DDBHelper.findClassByFeatureId(this.ddbData, ddbAction.componentId))
+        .find((ddbAction) => {
+          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
+          return name === this.data.name;
+        }),
+      race: this.ddbData.character.actions.race
+        .some((ddbAction) => {
+          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
+          return name === this.data.name;
+        }),
+      feat: this.ddbData.character.actions.feat
+        .some((ddbAction) => {
+          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
+          return name === this.data.name;
+        }),
     };
   }
 
@@ -44,30 +184,58 @@ export default class DDBBaseFeature {
     if (this.ddbDefinition.infusionFlags) {
       foundry.utils.setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
     }
+
+    this._generateLevelScale();
+    this._generateActionTypes();
+    this._generateFlagHints();
   }
 
-  constructor({ ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false } = {}) {
+  _getActionParent() {
+    if (this.ddbDefinition.componentId)
+      return DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
+    else
+      return null;
+  }
+
+  constructor({
+    ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false, activityType = null,
+    extraFlags = {},
+  } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbFeature = ddbDefinition;
+    this.extraFlags = extraFlags;
     this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
     this.name = utils.nameString(this.ddbDefinition.name);
     this.originalName = this.ddbData
       ? DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter, false)
-      : this.ddbDefinition.name;
+      : utils.nameString(this.ddbDefinition.name);
     this.type = type;
     this.source = source;
     this.isAction = false;
+    this.excludedScale = false;
+    this.levelScaleInfusion = false;
+    this.scaleValueLink = "";
+    this.useScaleValueLink = false;
+    this.excludedScaleUses = false;
+    this.scaleValueUsesLink = "";
+    this.useUsesScaleValueLink = false;
     this.documentType = documentType;
     this.tagType = "other";
+    this.activities = [];
     this.data = {};
     this.noMods = noMods;
     this._init();
     this.snippet = "";
     this.description = "";
-    this._resourceCharges = null;
+    this.resourceCharges = null;
+    this.activityType = activityType;
 
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
+
+    this._parent = this._getActionParent();
+    this.is2014 = (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? [])
+      .some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     this._generateDataStub();
 
@@ -76,67 +244,27 @@ export default class DDBBaseFeature {
     const nameMatch = this.name.match(namePointRegex);
     if (nameMatch) {
       this.data.name = nameMatch[1];
-      this._resourceCharges = Number.parseInt(nameMatch[2]);
+      this.resourceCharges = Number.parseInt(nameMatch[2]);
     }
 
     this._prepare();
-    this.data.system.source = this.source;
+
+    this.naturalWeapon = DDBBaseFeature.NATURAL_WEAPONS.includes(this.originalName);
+
+    this.isCompanionFeature = this._isCompanionFeature();
+    this.isCompanionFeatureOption = this._isCompanionFeatureOption();
+
+    const localSource = this.source && utils.isObject(this.source)
+      ? this.source
+      : DDBHelper.parseSource(this.ddbDefinition);
+
+    this.data.system.source = localSource;
+    this.data.system.source.rules = this.is2014 ? "2014" : "2024";
+
+    this._addEnricher();
   }
 
-
-  static _getParsedAction(description) {
-    // foundry doesn't support mythic actions pre 1.6
-    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
-    if (actionAction) return "action";
-    const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/ig);
-    if (bonusAction) return "bonus";
-    const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/ig);
-    if (reAction) return "reaction";
-
-    return undefined;
-  }
-
-  _generateParsedActivation() {
-    const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-      ? this.ddbDefinition.description
-      : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
-        ? this.ddbDefinition.snippet
-        : null;
-
-    // console.warn(`Generating Parsed Activation for ${this.name}`, {description});
-
-    if (!description) return;
-    const actionType = DDBBaseFeature._getParsedAction(description);
-    if (!actionType) return;
-    logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
-    this.data.system.activation = {
-      type: actionType,
-      cost: 1,
-      condition: "",
-    };
-  }
-
-  _generateActivation() {
-    // console.warn(`Generating Activation for ${this.name}`);
-    if (!this.ddbDefinition.activation) {
-      this._generateParsedActivation();
-      return;
-    }
-    const actionType = DICTIONARY.actions.activationTypes
-      .find((type) => type.id === this.ddbDefinition.activation.activationType);
-    if (!actionType) {
-      this._generateParsedActivation();
-      return;
-    }
-
-    this.data.system.activation = {
-      type: actionType.value,
-      cost: this.ddbDefinition.activation.activationTime || 1,
-      condition: "",
-    };
-  }
-
-  _getClassFeatureDescription() {
+  _getClassFeatureDescription(nameMatch = false) {
     if (!this.ddbData) return "";
     const componentId = this.ddbDefinition.componentId;
     const componentTypeId = this.ddbDefinition.componentTypeId;
@@ -144,7 +272,7 @@ export default class DDBBaseFeature {
     const findFeatureKlass = this.ddbData.character.classes
       .find((cls) => cls.classFeatures.find((feature) =>
         feature.definition.id == componentId
-        && feature.definition.entityTypeId == componentTypeId
+        && feature.definition.entityTypeId == componentTypeId,
       ));
 
     if (findFeatureKlass) {
@@ -152,6 +280,9 @@ export default class DDBBaseFeature {
         .find((feature) =>
           feature.definition.id == componentId
           && feature.definition.entityTypeId == componentTypeId
+          && (!nameMatch
+            || (nameMatch && feature.definition.name == this.originalName)
+          ),
         );
       if (feature) {
         return parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
@@ -160,7 +291,6 @@ export default class DDBBaseFeature {
     return "";
   }
 
-
   _getRaceFeatureDescription() {
     const componentId = this.ddbDefinition.componentId;
     const componentTypeId = this.ddbDefinition.componentTypeId;
@@ -168,7 +298,7 @@ export default class DDBBaseFeature {
     const feature = this.ddbData.character.race.racialTraits
       .find((trait) =>
         trait.definition.id == componentId
-        && trait.definition.entityTypeId == componentTypeId
+        && trait.definition.entityTypeId == componentTypeId,
       );
 
     if (feature) {
@@ -176,6 +306,25 @@ export default class DDBBaseFeature {
     }
     return "";
 
+  }
+
+  getParsedActionType() {
+    const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
+      ? this.ddbDefinition.description
+      : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
+        ? this.ddbDefinition.snippet
+        : null;
+
+    if (!description) return undefined;
+    // pcs don't have mythic
+    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
+    if (actionAction) return "action";
+    const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/ig);
+    if (bonusAction) return "bonus";
+    const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/ig);
+    if (reAction) return "reaction";
+
+    return undefined;
   }
 
   static buildFullDescription(main, summary, title) {
@@ -192,7 +341,7 @@ export default class DDBBaseFeature {
       ${main.trim()}
     </p>
   </details>`;
-    } else if (main.trim() === "") {
+    } else if (summary && main.trim() === "") {
       result += summary.trim();
     } else {
       result += main.trim();
@@ -201,10 +350,9 @@ export default class DDBBaseFeature {
     return result;
   }
 
-  _generateDescription(forceFull = false) {
+  getDescription({ forceFull = false, extra = "" } = {}) {
     // for now none actions probably always want the full text
-    const useFullSetting = game.settings.get("ddb-importer", "character-update-policy-use-full-description");
-    const useFull = forceFull || useFullSetting;
+    const useCombinedSetting = game.settings.get("ddb-importer", "character-update-policy-use-combined-description");
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
     this.snippet = this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
@@ -216,57 +364,72 @@ export default class DDBBaseFeature {
 
     this.description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
       ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature).text
-      : this.type === "race"
-        ? this._getRaceFeatureDescription()
-        : this._getClassFeatureDescription();
+      : !useCombinedSetting || forceFull
+        ? this.type === "race"
+          ? this._getRaceFeatureDescription()
+          : this._getClassFeatureDescription(!(useCombinedSetting || forceFull))
+        : "";
+
+    const extraDescription = extra && extra !== ""
+      ? parseTemplateString(this.ddbData, this.rawCharacter, extra, this.ddbFeature).text
+      : "";
 
     const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");
     if (!chatAdd) {
       const snippet = utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
-      const fullDescription = DDBBaseFeature.buildFullDescription(this.description, snippet);
-      const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
+      const descriptionSnippet = (!useCombinedSetting || forceFull) && this.description !== "" ? null : snippet;
+      const fullDescription = DDBBaseFeature.buildFullDescription(this.description, descriptionSnippet);
 
-      this.data.system.description = {
-        value: value + macroHelper,
+      return {
+        value: fullDescription + extraDescription + macroHelper,
         chat: chatAdd ? snippet + macroHelper : "",
       };
     } else {
       const snippet = this.description !== "" && utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
 
-      this.data.system.description = {
-        value: this.description,
+      return {
+        value: this.description + extraDescription + macroHelper,
         chat: snippet + macroHelper,
       };
     }
+  }
 
+  _generateDescription({ forceFull = false, extra = "" } = {}) {
+    this.data.system.description = this.getDescription({ forceFull, extra });
   }
 
   // eslint-disable-next-line complexity
   _generateLimitedUse() {
+    let resetType = DICTIONARY.resets.find((type) => type.id === this.ddbDefinition.limitedUse?.resetType);
+
+    if (!resetType) {
+      const resetTypeRegex = /(?:(Short) or )?(Long) Rest/ig;
+      const match = resetTypeRegex.exec(this.ddbDefinition.description);
+      if (match && match[1]) {
+        resetType = DICTIONARY.resets.find((type) => type.id === match[1]);
+      } else if (match && match[2]) {
+        resetType = DICTIONARY.resets.find((type) => type.id === match[2]);
+      }
+    }
     if (
       this.ddbDefinition.limitedUse
       && (this.ddbDefinition.limitedUse.maxUses || this.ddbDefinition.limitedUse.statModifierUsesId || this.ddbDefinition.limitedUse.useProficiencyBonus)
     ) {
-      const resetType = DICTIONARY.resets.find((type) => type.id === this.ddbDefinition.limitedUse.resetType);
       let maxUses = (this.ddbDefinition.limitedUse.maxUses && this.ddbDefinition.limitedUse.maxUses !== -1) ? this.ddbDefinition.limitedUse.maxUses : 0;
-      let intMaxUses = maxUses;
       const statModifierUsesId = foundry.utils.getProperty(this.ddbDefinition, "limitedUse.statModifierUsesId");
       if (statModifierUsesId) {
         const ability = DICTIONARY.character.abilities.find((ability) => ability.id === statModifierUsesId).value;
 
         if (maxUses === 0) {
           maxUses = `@abilities.${ability}.mod`;
-          intMaxUses = this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
         } else {
           switch (this.ddbDefinition.limitedUse.operator) {
             case 2:
               maxUses = `${maxUses} * @abilities.${ability}.mod`;
-              intMaxUses *= this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
               break;
             case 1:
             default:
               maxUses = `${maxUses} + @abilities.${ability}.mod`;
-              intMaxUses += this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
           }
         }
       }
@@ -275,19 +438,20 @@ export default class DDBBaseFeature {
       if (useProficiencyBonus) {
         if (maxUses === 0) {
           maxUses = `@prof`;
-          intMaxUses = this.rawCharacter.flags.ddbimporter.dndbeyond.profBonus;
         } else {
           switch (this.ddbDefinition.limitedUse.proficiencyBonusOperator) {
             case 2:
               maxUses = `${maxUses} * @prof`;
-              intMaxUses *= this.rawCharacter.flags.ddbimporter.dndbeyond.profBonus;
               break;
             case 1:
             default:
               maxUses = `${maxUses} + @prof`;
-              intMaxUses += this.rawCharacter.flags.ddbimporter.dndbeyond.profBonus;
           }
         }
+      }
+
+      if (this.useUsesScaleValueLink && this.scaleValueUsesLink) {
+        maxUses = this.scaleValueUsesLink;
       }
 
       const finalMaxUses = (maxUses)
@@ -296,53 +460,52 @@ export default class DDBBaseFeature {
           : maxUses
         : null;
 
-      intMaxUses = Number.isInteger(intMaxUses) ? parseInt(intMaxUses) : null;
+      // KNOWN_ISSUE_4_0: revist to check recovery type
+      this.data.system.uses = {
+        spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
+        max: (finalMaxUses != 0) ? finalMaxUses : null,
+        recovery: [
+          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
+        ],
+      };
+    } else if (this.useUsesScaleValueLink && this.scaleValueUsesLink) {
+      let maxUses = this.scaleValueUsesLink;
 
       this.data.system.uses = {
-        value: (intMaxUses !== null && intMaxUses != 0) ? intMaxUses - this.ddbDefinition.limitedUse.numberUsed : null,
-        max: (finalMaxUses != 0) ? finalMaxUses : null,
-        per: resetType ? resetType.value : "",
+        spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
+        max: (maxUses !== "") ? maxUses : null,
+        recovery: [
+          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
+        ],
+      };
+    } else if (foundry.utils.hasProperty(this.ddbDefinition, "limitedUse.value")) {
+      this.data.system.uses = {
+        spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
+        max: this.ddbDefinition.limitedUse.value,
+        recovery: [
+          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
+        ],
       };
     }
   }
 
-  _generateResourceConsumption() {
-    if (!this.rawCharacter) return;
-
-    Object.keys(this.rawCharacter.system.resources).forEach((resource) => {
-      const detail = this.rawCharacter.system.resources[resource];
-      if (this.ddbDefinition.name === detail.label) {
-        this.data.system.consume = {
-          type: "attribute",
-          target: `resources.${resource}.value`,
-          amount: 1,
-        };
-      }
-    });
-
-    const kiPointRegex = /(?:spend|expend) (\d) ki point/;
-    const match = this.data.system.description.value.match(kiPointRegex);
-    if (match) {
-      foundry.utils.setProperty(this.data, "system.consume.amount", match[1]);
-    } else if (this._resourceCharges !== null) {
-      foundry.utils.setProperty(this.data, "system.consume.amount", this._resourceCharges);
-    }
-
-  }
-
+  // weapons still have range
   _generateRange() {
+    if (this.documentType !== "weapon") return;
     if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
       this.data.system.range = { value: null, units: "self", long: "" };
       this.data.system.target = {
         value: this.ddbDefinition.range.aoeSize,
         type: DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value,
         units: "ft",
+        reach: null,
       };
     } else if (this.ddbDefinition.range && this.ddbDefinition.range.range) {
       this.data.system.range = {
         value: this.ddbDefinition.range.range,
         units: "ft",
         long: this.ddbDefinition.range.long || "",
+        reach: null,
       };
     } else {
       this.data.system.range = { value: 5, units: "ft", long: "" };
@@ -356,6 +519,153 @@ export default class DDBBaseFeature {
       return this.ddbData.character.classes.some((k) => k.classFeatures.some((feature) => feature.definition.name === "Martial Arts"));
     }
 
+  }
+
+  getDamageType() {
+    return this.ddbDefinition.damageTypeId
+      ? DICTIONARY.actions.damageType.find((type) => type.id === this.ddbDefinition.damageTypeId).name
+      : null;
+  }
+
+  getDamageDie() {
+    return this.ddbDefinition.dice
+      ? this.ddbDefinition.dice
+      : this.ddbDefinition.die
+        ? this.ddbDefinition.die
+        : undefined;
+  }
+
+  getDamage(bonuses = []) {
+    const damageType = this.getDamageType();
+    const damage = {
+      number: null,
+      denomination: null,
+      bonus: "",
+      types: damageType ? [damageType] : [],
+      custom: {
+        enabled: false,
+        formula: "",
+      },
+      scaling: {
+        mode: "whole",
+        number: null,
+        formula: "",
+      },
+    };
+    const die = this.getDamageDie();
+    const fixedBonus = die?.fixedValue
+      ? (this.ddbDefinition.snippet ?? this.ddbDefinition.description ?? "").includes("{{proficiency#signed}}")
+        ? " + @prof"
+        : ` + ${die.fixedValue}`
+      : "";
+
+    const bonusString = bonuses.join(" ");
+
+    if (die || this.useScaleValueLink) {
+      if (this.useScaleValueLink) {
+        DDBBasicActivity.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
+      } else if (die.diceString) {
+        const profBonus = CONFIG.DDB.levelProficiencyBonuses.find((b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0))?.bonus;
+        const replaceProf = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
+          && Number.parseInt(die.fixedValue) === Number.parseInt(profBonus);
+        const diceString = replaceProf
+          ? die.diceString.replace(`+ ${profBonus}`, "")
+          : die.diceString;
+        const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
+        const damageString = utils.parseDiceString(diceString, mods).diceString;
+        DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
+      } else if (fixedBonus) {
+        DDBBasicActivity.parseBasicDamageFormula(damage, fixedBonus + bonusString);
+      }
+    }
+
+    return damage;
+
+  }
+
+  _generateDamage() {
+    if (this.documentType !== "weapon") return;
+    const damage = this.getDamage();
+    if (!damage) return;
+    this.data.system.damage = {
+      base: damage,
+      versatile: "",
+    };
+  }
+
+  getMartialArtsDamage(bonuses = []) {
+    const damageType = this.getDamageType();
+    const actionDie = this.ddbDefinition.dice
+      ? this.ddbDefinition.dice
+      : this.ddbDefinition.die
+        ? this.ddbDefinition.die
+        : undefined;
+    const bonusString = bonuses.join(" ");
+
+    const damage = {
+      number: null,
+      denomination: null,
+      bonus: "",
+      types: damageType ? [damageType] : [],
+      custom: {
+        enabled: false,
+        formula: "",
+      },
+      scaling: {
+        mode: "whole",
+        number: null,
+        formula: "",
+      },
+    };
+
+    // are we dealing with martial artist (rather than just the feature being martial arts)
+    if (this.isMartialArtist()) {
+      const dies = this.ddbData.character.classes
+        .filter((klass) => this.isMartialArtist(klass))
+        .map((klass) => {
+          const feature = klass.classFeatures.find((feature) => feature.definition.name === "Martial Arts");
+          const levelScaleDie = feature?.levelScale?.dice
+            ? feature.levelScale.dice
+            : feature?.levelScale.die
+              ? feature.levelScale.die
+              : undefined;
+
+          if (levelScaleDie?.diceString) {
+            const scaleValueLink = DDBHelper.getScaleValueLink(this.ddbData, feature);
+            const scaleString = scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
+              ? scaleValueLink
+              : levelScaleDie.diceString;
+            if (actionDie?.diceValue > levelScaleDie.diceValue) {
+              return actionDie.diceString;
+            }
+            return scaleString;
+          } else if (actionDie !== null && actionDie !== undefined) {
+            // On some races bite is considered a martial art, damage
+            // is different and on the action itself
+            return actionDie.diceString;
+          } else {
+            return "1";
+          }
+        });
+      const die = dies.length > 0 ? dies[0] : "";
+
+      const damageString = die.includes("@")
+        ? `${die}${bonusString} + @mod`
+        : utils.parseDiceString(die, `${bonusString} + @mod`).diceString;
+
+      // set the weapon damage
+      DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
+    } else if (actionDie !== null && actionDie !== undefined) {
+      // The Lizardfolk jaws have a different base damage, its' detailed in
+      // dice so lets capture that for actions if it exists
+      const damageString = utils.parseDiceString(actionDie.diceString, `${bonusString} + @mod`).diceString;
+      DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
+    } else {
+      // default to basics
+      DDBBasicActivity.parseBasicDamageFormula(damage, `1${bonusString} + @mod`);
+    }
+
+    return damage;
   }
 
   _generateResourceFlags() {
@@ -399,7 +709,7 @@ export default class DDBBaseFeature {
             && (choice.componentTypeId == option.componentTypeId // either the choice componenttype and optiontype match or
               || choice.componentTypeId == option.definition.entityTypeId) // the choice componentID matches the option definition entitytypeid
             && option.definition.entityTypeId == mod.componentTypeId // mod componentId matches option entity type id
-            && choice.id == mod.componentId // choice id and mod id match
+            && choice.id == mod.componentId, // choice id and mod id match
         );
         // console.log(`choiceMatch ${choiceMatch}`);
         if (choiceMatch) return true;
@@ -414,13 +724,13 @@ export default class DDBBaseFeature {
           // logger.log("Class check - feature effect parsing");
           const classFeatureMatch = this.ddbData.character.classes.some((klass) =>
             klass.classFeatures.some(
-              (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id
-            )
+              (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id,
+            ),
           );
           if (classFeatureMatch) return true;
         } else if (type === "feat") {
           const featMatch = this.ddbData.character.feats.some(
-            (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id
+            (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id,
           );
           if (featMatch) return true;
         } else if (type === "race") {
@@ -428,7 +738,7 @@ export default class DDBBaseFeature {
             (t) =>
               t.definition.entityTypeId == mod.componentTypeId
               && t.definition.id == mod.componentId
-              && t.definition.id == this.ddbDefinition.id
+              && t.definition.id == this.ddbDefinition.id,
           );
           if (traitMatch) return true;
         }
@@ -452,6 +762,33 @@ export default class DDBBaseFeature {
       type: "feat",
       description: this.snippet !== "" ? this.snippet : this.description,
     });
+
+    const effects = this.enricher.createEffect();
+    this.data.effects.push(...effects);
+
+    if (this.data.effects.length > 0 && this.data.system.activities) {
+      for (const activityId of Object.keys(this.data.system.activities)) {
+        const activity = this.data.system.activities[activityId];
+        if (activity.effects.length !== 0) continue;
+        if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
+        for (const effect of this.data.effects) {
+          if (effect.transfer) continue;
+          if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
+          const activityNameRequired = foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch");
+          if (activityNameRequired && activity.name !== activityNameRequired) continue;
+          const effectId = effect._id ?? foundry.utils.randomID();
+          effect._id = effectId;
+          activity.effects.push({ _id: effectId });
+        }
+        this.data.system.activities[activityId] = activity;
+      }
+    }
+
+    // console.warn(`Effect Addition ${this.name}`, {
+    //   dataEffects: this.data.effects,
+    //   activities: this.data.system.activities,
+    //   this: this,
+    // });
   }
 
 
@@ -459,15 +796,18 @@ export default class DDBBaseFeature {
     DDBHelper.addCustomValues(this.ddbData, this.data);
   }
 
+  // eslint-disable-next-line complexity
   _generateSystemSubType() {
+    let subType = null;
+
     if (this.type === "class") {
-      let subType = null;
       if (this.data.name.startsWith("Ki:")) subType = "Ki";
       // many ki abilities do not start with ki
       else if (this.data.name.startsWith("Channel Divinity:")) subType = "channelDivinity";
       else if (this.data.name.startsWith("Artificer Infusion:")) subType = "artificerInfusion";
       else if (this.data.name.startsWith("Invocation:")) subType = "eldritchInvocation";
       else if (this.data.name.startsWith("Fighting Style:")) subType = "fightingStyle";
+      else if (this.data.name.startsWith("Maneuver:")) subType = "maneuver";
       else if (this.data.name.startsWith("Battle Master Maneuver:")) subType = "maneuver";
       else if (this.data.name.startsWith("Metamagic:")) subType = "metamagic";
       else if (this.data.name.startsWith("Pact of the")) subType = "pact";
@@ -481,18 +821,277 @@ export default class DDBBaseFeature {
       // missing: Arcane Shot : arcaneShot
       // missing: multiattack
 
-      if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
+
+    } else if (this.type === "feat" && this.ddbDefinition.categories) {
+      if (this.ddbDefinition.categories.some((c) => c.tagName === "Origin"))
+        subType = "origin";
+      else if (this.ddbDefinition.categories.some((c) => c.tagName === "Fighting Style"))
+        subType = "fightingStyle";
+      else if (this.ddbDefinition.categories.some((c) => c.tagName === "Epic Boon"))
+        subType = "epicBoon";
+      else
+        subType = "general";
     }
+
+    if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
+  }
+
+  _generateWeaponType() {
+    if (this.documentType !== "weapon") return;
+
+    const entry = this.naturalWeapon
+      ? "natural"
+      : DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === this.ddbDefinition.attackSubtype)?.value;
+    const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === this.ddbDefinition.attackTypeRange);
+    this.data.system.type.value = entry
+      ? entry
+      : range
+        ? `simple${range.value}`
+        : "simpleM";
   }
 
   _generateSystemType() {
-    foundry.utils.setProperty(this.data, "system.type.value", this.type);
+    if (this.documentType === "weapon") {
+      this._generateWeaponType();
+    } else {
+      foundry.utils.setProperty(this.data, "system.type.value", this.type);
+    }
+  }
+
+  _getSaveActivity() {
+    this._generateDamage();
+
+    const saveActivity = new DDBFeatureActivity({
+      type: "save",
+      ddbParent: this,
+    });
+
+    saveActivity.build({
+      generateSave: true,
+      generateRange: this.documentType !== "weapon",
+      generateDamage: this.documentType !== "weapon",
+    });
+
+    return saveActivity;
+  }
+
+  _getAttackActivity() {
+    this._generateDamage();
+
+    const attackActivity = new DDBFeatureActivity({
+      type: "attack",
+      ddbParent: this,
+    });
+
+    attackActivity.build({
+      generateAttack: true,
+      generateRange: this.documentType !== "weapon",
+      generateDamage: this.documentType !== "weapon",
+    });
+    return attackActivity;
+  }
+
+  _getUtilityActivity() {
+    this._generateDamage();
+
+    const utilityActivity = new DDBFeatureActivity({
+      type: "utility",
+      ddbParent: this,
+    });
+
+    utilityActivity.build({
+      generateActivation: true,
+      generateRange: this.documentType !== "weapon",
+      generateDamage: this.documentType !== "weapon",
+    });
+
+    return utilityActivity;
+  }
+
+  _getHealActivity() {
+    const healActivity = new DDBFeatureActivity({
+      type: "heal",
+      ddbParent: this,
+    });
+
+    healActivity.build({
+      generateActivation: true,
+      generateDamage: false,
+      generateHealing: true,
+      generateRange: true,
+    });
+
+    return healActivity;
+  }
+
+  _getDamageActivity() {
+    this._generateDamage();
+
+    const damageActivity = new DDBFeatureActivity({
+      type: "damage",
+      ddbParent: this,
+    });
+
+    damageActivity.build({
+      generateAttack: false,
+      generateRange: this.documentType !== "weapon",
+      generateDamage: this.documentType !== "weapon",
+    });
+    return damageActivity;
+  }
+
+  _getEnchantActivity() {
+    this._generateDamage();
+
+    const enchantActivity = new DDBFeatureActivity({
+      type: "enchant",
+      ddbParent: this,
+    });
+
+    enchantActivity.build({
+      generateAttack: false,
+      generateRange: true,
+      generateDamage: false,
+    });
+    return enchantActivity;
+  }
+
+  _getSummonActivity() {
+    const summonActivity = new DDBFeatureActivity({
+      type: "summon",
+      ddbParent: this,
+    });
+
+    summonActivity.build({
+      generateAttack: false,
+      generateRange: true,
+      generateDamage: false,
+    });
+    return summonActivity;
+  }
+
+  _isCompanionFeature() {
+    return SETTINGS.COMPANIONS.COMPANION_FEATURES.includes(this.originalName)
+      // only run this on class features
+      && this.ddbData.character.classes
+        .some((k) => k.classFeatures.some((f) => f.definition.name == this.originalName));
+  }
+
+  _isCompanionFeatureOption() {
+    for (const [parentFeature, childNames] of Object.entries(SETTINGS.COMPANIONS.COMPANION_OPTIONS)) {
+      for (const childName of childNames) {
+        if (this.originalName === parentFeature
+          || this.originalName === `${parentFeature}: ${childName}`) {
+          this.companionFeatureOption = {
+            parentFeature,
+            childName,
+          };
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  _getSummonsDescription() {
+    if (this.isCompanionFeatureOption) {
+      const ddbOption = this.ddbData.character.options.class.find((o) => o.definition.name == this.companionFeatureOption.childName);
+      if (!ddbOption) return null;
+      return ddbOption.definition.description;
+    } else {
+      return this.spellDefinition.description;
+    }
+  }
+
+  isForceResourceLinked() {
+    for (const linkedFeatures of Object.values(DICTIONARY.RESOURCE_LINKS)) {
+      if (linkedFeatures.some((child) => this.originalName.startsWith(child))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  targetsCreature() {
+    const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
+    const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range|each creature within/gi;
+    const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
+    const targets = /attack against the target|at a target in range/gi;
+    return description.match(creature)
+      || description.match(creaturesRange)
+      || description.match(targets);
+  }
+
+  _getActivitiesType() {
+    if (this.isCompanionFeature || this._isCompanionFeatureOption()) return "summon";
+    // lets see if we have a save stat for things like Dragon born Breath Weapon
+    if (typeof this.ddbDefinition.saveStatId === "number" || this._descriptionSave) return "save";
+    if (this.ddbDefinition.actionType === 1) return "attack";
+    if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) return "attack";
+    if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) return "attack";
+    if (this.data.system.uses?.max && this.data.system.uses.max !== "0") return "utility";
+    if (this.data.effects.length > 0 || this.enricher.effect) return "utility";
+    if (DDBBaseFeature.UTILITY_FEATURES.some((f) => this.originalName.startsWith(f))) return "utility";
+    if (this.isForceResourceLinked()) return "utility";
+    if (this.getParsedActionType()) return "utility";
+    return null;
+  }
+
+  getActivity({ typeOverride = null, typeFallback = null } = {}) {
+    const type = typeOverride ?? this._getActivitiesType();
+    switch (type) {
+      case "save":
+        return this._getSaveActivity();
+      case "attack":
+        return this._getAttackActivity();
+      case "damage":
+        return this._getDamageActivity();
+      case "heal":
+        return this._getHealActivity();
+      case "utility":
+        return this._getUtilityActivity();
+      case "enchant":
+        return this._getEnchantActivity();
+      case "summon":
+        return this._getSummonActivity();
+      default:
+        if (typeFallback) return this.getActivity({ typeOverride: typeFallback });
+        return undefined;
+    }
+  }
+
+  _generateActivity({ hintsOnly = false, statusEffects = true } = {}) {
+
+    if (statusEffects) {
+      const statusEffect = getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
+      if (statusEffect) this.data.effects.push(statusEffect);
+    }
+
+    if (hintsOnly && !this.enricher.activity) return undefined;
+
+    const activity = this.getActivity({
+      typeOverride: this.enricher.activity?.type ?? this.activityType,
+    });
+
+    if (!activity) return undefined;
+
+    this.enricher.applyActivityOverride(activity.data);
+    this.activities.push(activity);
+    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
+
+    return activity.data._id;
   }
 
   // eslint-disable-next-line class-methods-use-this
   build() {
     // override this feature
     return false;
+  }
+
+  static async finalFixes(feature) {
+    const tableDescription = await generateTable(feature.name, feature.system.description.value, true, feature.type);
+    // eslint-disable-next-line require-atomic-updates
+    feature.system.description.value = tableDescription;
   }
 
 }

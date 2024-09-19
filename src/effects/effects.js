@@ -2,10 +2,11 @@ import utils from "../lib/utils.js";
 import DDBHelper from "../lib/DDBHelper.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { equipmentEffectAdjustment } from "./specialEquipment.js";
 import { infusionEffectAdjustment } from "./specialInfusions.js";
 import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEffects.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
+// import { abilityOverrideEffects } from "./abilityOverrides.js";
+import DDBEffectHelper from "./DDBEffectHelper.js";
 
 /**
  * Add supported effects here to exclude them from calculations.
@@ -256,7 +257,7 @@ export function effectModules() {
   return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
 }
 
-function generateEffectDuration(foundryItem) {
+function generateEffectDuration(foundryItem, activity) {
   let duration = {
     seconds: null,
     startTime: null,
@@ -265,26 +266,30 @@ function generateEffectDuration(foundryItem) {
     startRound: null,
     startTurn: null,
   };
-  switch (foundryItem.system?.duration?.units) {
+  const foundryData = foundryItem?.system?.duration ?? activity?.duration;
+  if (!foundryData) return duration;
+
+  switch (foundryData?.units) {
     case "turn":
-      duration.turns = foundryItem.system.duration.value;
+      duration.turns = foundryData.value;
       break;
     case "round":
-      duration.rounds = foundryItem.system.duration.value;
+      duration.rounds = foundryData.value;
       break;
     case "hour":
-      duration.seconds = foundryItem.system.duration.value * 60 * 60;
+      duration.seconds = foundryData.value * 60 * 60;
       break;
     case "minute":
-      duration.rounds = foundryItem.system.duration.value * 10;
+      duration.rounds = foundryData.value * 10;
       break;
     // no default
   }
   return duration;
 }
 
-export function baseEffect(foundryItem, label,
-  { transfer = true, disabled = false } = {}
+export function baseEffect(foundryItem, name,
+  { transfer = true, disabled = false, description = null, durationSeconds = null,
+    durationRounds = null, durationTurns = null } = {},
 ) {
   let effect = {
     img: foundryItem.img,
@@ -318,21 +323,26 @@ export function baseEffect(foundryItem, label,
       core: {},
     },
   };
-  effect.name = label;
+  effect.name = name;
   effect.statuses = [];
   effect.duration = generateEffectDuration(foundryItem);
+  effect.description = description ?? "";
+  if (durationSeconds) effect.duration.seconds = durationSeconds;
+  if (durationRounds) effect.duration.rounds = durationRounds;
+  if (durationTurns) effect.duration.turns = durationTurns;
   return effect;
 }
 
 export function baseEnchantmentEffect(foundryItem, label,
-  { transfer = false, disabled = false, origin = null, id = null } = {}
+  { transfer = false, disabled = false, origin = null, id = null, description = null, durationSeconds = null,
+    durationRounds = null, durationTurns = null } = {},
 ) {
-  const effect = baseEffect(foundryItem, label, { transfer, disabled });
+  const effect = baseEffect(foundryItem, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
   foundry.utils.setProperty(effect, "flags.dnd5e.type", "enchantment");
   foundry.utils.setProperty(effect, "flags.dnd5e.enchantment", {
     level: {
       min: null,
-      max: null
+      max: null,
     },
     riders: {
       effect: [],
@@ -344,10 +354,48 @@ export function baseEnchantmentEffect(foundryItem, label,
   return effect;
 }
 
-export function baseItemEffect(foundryItem, label,
-  { transfer = true, disabled = false } = {}
+export function addMagicalBonusToEnchantmentEffect({ effect, nameAddition = null, bonus = null, bonusMode = "OVERRIDE",
+  makeMagical = true } = {},
 ) {
-  return baseEffect(foundryItem, label, { transfer, disabled });
+  const name = nameAddition ?? `(${effect.name})`;
+  effect.changes.push(
+    {
+      key: "name",
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      value: `{}, ${name}`,
+      priority: 20,
+    },
+  );
+  if (bonus) {
+    effect.changes.push(
+      {
+        key: "system.magicalBonus",
+        mode: CONST.ACTIVE_EFFECT_MODES[bonusMode],
+        value: `${bonus}`,
+        priority: 20,
+      },
+    );
+  }
+
+  if (makeMagical) {
+    effect.changes.push(
+      {
+        key: "system.properties",
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: "mgc",
+        priority: 20,
+      },
+    );
+  }
+  return effect;
+}
+
+export function baseItemEffect(foundryItem, label,
+  { transfer = true, disabled = false, description = null, durationSeconds = null,
+    durationRounds = null, durationTurns = null } = {},
+) {
+  const effect = baseEffect(foundryItem, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
+  return effect;
 }
 
 export function getMidiCEOnFlags(midiFlags = {}) {
@@ -400,20 +448,25 @@ export function generateBaseSkillEffect(id, label) {
   return skillEffect;
 }
 
-export function generateStatusEffectChange(statusName, priority = 20) {
+export function generateDAEStatusEffectChange(statusName, priority = 20) {
   return {
-    key: effectModules().daeInstalled ? "macro.StatusEffect" : "statuses",
+    key: "macro.StatusEffect",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     value: statusName.toLowerCase(),
     priority: priority,
   };
 }
 
-export function addStatusEffectChange(effect, statusName, priority = 20, macro = false, level = null) {
+export function addStatusEffectChange({ effect, statusName, priority = 20, level = null } = {}) {
   if (effectModules().daeInstalled) {
-    const key = generateStatusEffectChange(statusName, priority, macro);
+    const key = generateDAEStatusEffectChange(statusName, priority);
     effect.changes.push(key);
   } else {
+    if (effect.description && effect.description.trim() === "") {
+      effect.description = `You have the &Reference[${statusName.toLowerCase()}] status condition.`;
+    } else if (effect.description && effect.description.startsWith("You have the &Reference[")) {
+      effect.description += `<br> You have the &Reference[${statusName.toLowerCase()}] status condition.`;
+    }
     effect.statuses.push(statusName.toLowerCase());
     if (level) foundry.utils.setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
   }
@@ -465,7 +518,7 @@ export function generateATLChange(atlKey, mode, value, priority = 20) {
 export function addSimpleConditionEffect(document, condition, { disabled, transfer } = {}) {
   document.effects = [];
   const effect = baseItemEffect(document, `${document.name} - ${utils.capitalize(condition)}`, { disabled, transfer });
-  addStatusEffectChange(effect, condition);
+  addStatusEffectChange({ effect, statusName: condition });
   document.effects.push(effect);
   return document;
 }
@@ -474,8 +527,8 @@ export function generateChange(bonus, priority, key, mode) {
   return {
     key: key,
     value: bonus,
-    mode: mode,
-    priority: priority,
+    mode,
+    priority,
   };
 }
 
@@ -667,37 +720,37 @@ function addWeaponAttackBonuses(modifiers, name) {
     modifiers,
     name,
     "melee-attacks",
-    "system.bonuses.mwak.attack"
+    "system.bonuses.mwak.attack",
   );
   const rangedAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "ranged-attacks",
-    "system.bonuses.rwak.attack"
+    "system.bonuses.rwak.attack",
   );
   const meleeWeaponAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "melee-weapon-attacks",
-    "system.bonuses.mwak.attack"
+    "system.bonuses.mwak.attack",
   );
   const rangedWeaponAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "ranged-weapon-attacks",
-    "system.bonuses.rwak.attack"
+    "system.bonuses.rwak.attack",
   );
   const weaponAttackMeleeBonus = addAddBonusEffect(
     modifiers,
     name,
     "weapon-attacks",
-    "system.bonuses.mwak.attack"
+    "system.bonuses.mwak.attack",
   );
   const weaponAttackRangedBonus = addAddBonusEffect(
     modifiers,
     name,
     "weapon-attacks",
-    "system.bonuses.rwak.attack"
+    "system.bonuses.rwak.attack",
   );
   return [
     ...meleeAttackBonus,
@@ -715,56 +768,56 @@ function addSpellAttackBonuses(modifiers, name) {
     modifiers,
     name,
     "spell-attacks",
-    "system.bonuses.msak.attack"
+    "system.bonuses.msak.attack",
   );
   const melee2SpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "melee-spell-attacks",
-    "system.bonuses.msak.attack"
+    "system.bonuses.msak.attack",
   );
   const rangedSpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "spell-attacks",
-    "system.bonuses.rsak.attack"
+    "system.bonuses.rsak.attack",
   );
   const ranged2SpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "ranged-spell-attacks",
-    "system.bonuses.rsak.attack"
+    "system.bonuses.rsak.attack",
   );
   const warlockMeleeSpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "warlock-spell-attacks",
-    "system.bonuses.msak.attack"
+    "system.bonuses.msak.attack",
   );
   const warlockRangedSpellAttackBonus = addAddBonusEffect(
     modifiers,
     name,
     "warlock-spell-attacks",
-    "system.bonuses.msak.attack"
+    "system.bonuses.msak.attack",
   );
   const warlockSpellDCBonus = addAddBonusEffect(
     modifiers,
     name,
     "warlock-spell-save-dc",
-    "system.bonuses.spell.dc"
+    "system.bonuses.spell.dc",
   );
   const spellDCBonus = addAddBonusEffect(
     modifiers,
     name,
     "spell-save-dc",
-    "system.bonuses.spell.dc"
+    "system.bonuses.spell.dc",
   );
   const healingSpellBonus = addCustomEffect(
     modifiers,
     name,
     "spell-group-healing",
     "system.bonuses.heal.damage",
-    " + @item.level"
+    " + @item.level",
   );
 
   return [
@@ -821,14 +874,14 @@ export function getGenericConditionAffectData(modifiers, condition, typeId, forc
       return DICTIONARY.character.damageAdjustments.some((adj) =>
         adj.type === typeId
         && ddbLookup.id === adj.id
-        && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue"))
+        && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue")),
       );
     })
     .map((modifier) => {
       const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
       const entry = DICTIONARY.character.damageAdjustments.find((adj) =>
         adj.type === typeId
-        && ddbLookup.id === adj.id
+        && ddbLookup.id === adj.id,
       );
       if (!entry) return undefined;
       const valueData = foundry.utils.hasProperty(entry, "foundryValues")
@@ -1445,6 +1498,32 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
   return [foundryItem, effect];
 }
 
+export function getStatusEffect({ ddbDefinition, foundryItem, labelOverride } = {}) {
+  if (!foundryItem.effects) foundryItem.effects = [];
+
+  const text = ddbDefinition.description ?? ddbDefinition.snippet ?? "";
+
+  const conditionResult = DDBEffectHelper.parseStatusCondition({ text, nameHint: labelOverride });
+
+  if (!conditionResult.success) return null;
+
+  const effectLabel = (labelOverride ?? conditionResult.effect.name ?? foundryItem.name ?? conditionResult.condition);
+  let effect = baseItemEffect(foundryItem, effectLabel, {
+    transfer: false,
+    description: `Apply status ${conditionResult.condition}`,
+  });
+  effect.changes.push(...conditionResult.effect.changes);
+  effect.statuses.push(...conditionResult.effect.statuses);
+  if (conditionResult.effect.name) effect.name = conditionResult.effect.name;
+  effect.flags = foundry.utils.mergeObject(effect.flags, conditionResult.effect.flags);
+  if (conditionResult.effect.duration.seconds) effect.duration.seconds = conditionResult.effect.duration.seconds;
+  if (conditionResult.effect.duration.rounds) effect.duration.rounds = conditionResult.effect.duration.rounds;
+
+  if (!effect.name) effect.name = "Status Effect";
+
+  return effect;
+}
+
 /**
  * Generate supported effects for items
  * @param {*} ddb
@@ -1458,9 +1537,10 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
 
   const label = labelOverride
     ? labelOverride
-    : `${foundryItem.name} - Passive`;
+    : `${foundryItem.name}`;
 
   let effect = baseItemEffect(foundryItem, label);
+  foundry.utils.setProperty(effect, "flags.ddbimporter.passive", true);
   effect.description = description;
 
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return [foundryItem, effect];
@@ -1565,6 +1645,7 @@ function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, eff
         [foundryItem, effect] = generateACEffectChangesForItem(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect);
       } else {
         foundryItem = generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+        // foundryItem = generateStatusEffects({ ddbItem, foundryItem });
       }
       break;
     }
@@ -1582,7 +1663,7 @@ export function generateEffects({ ddb, character, ddbItem, foundryItem, isCompen
 
   if (type === "item" && foundry.utils.hasProperty(ddbItem, "definition.grantedModifiers")) {
     ddbItem.definition.grantedModifiers = ddbItem.definition.grantedModifiers.filter((modifier) =>
-      modifier.type !== "damage" && modifier.subType !== null
+      modifier.type !== "damage" && modifier.subType !== null,
     );
   }
 
@@ -1611,11 +1692,6 @@ export function generateEffects({ ddb, character, ddbItem, foundryItem, isCompen
   switch (type) {
     case "infusion": {
       foundryItem = infusionEffectAdjustment(foundryItem);
-      break;
-    }
-    case "equipment":
-    case "item": {
-      foundryItem = equipmentEffectAdjustment(foundryItem);
       break;
     }
     // spells and feats get called from respective parsers for async loading

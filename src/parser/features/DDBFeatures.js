@@ -2,10 +2,12 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
+import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
+import DDBBaseFeature from "./DDBBaseFeature.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBClassFeatures from "./DDBClassFeatures.js";
 import DDBFeature from "./DDBFeature.js";
-import { addExtraEffects, fixFeatures } from "./fixes.js";
+import { addExtraEffects } from "./extraEffects.js";
 
 
 export default class DDBFeatures {
@@ -46,8 +48,31 @@ export default class DDBFeatures {
   ];
 
   static SKIPPED_FEATURES = [
+    "Equipment",
     "Expertise",
     "Darkvision",
+    "Core Barbarian Traits",
+    "Core Bard Traits",
+    "Core Cleric Traits",
+    "Core Druid Traits",
+    "Core Fighter Traits",
+    "Core Monk Traits",
+    "Core Paladin Traits",
+    "Core Ranger Traits",
+    "Core Rogue Traits",
+    "Core Sorcerer Traits",
+    "Core Warlock Traits",
+    "Core Wizard Traits",
+    "Weapon Mastery",
+    "Maneuver Options",
+    "Lay On Hands", // 2024
+    "Lay on Hands", // 2014
+    "Epic Boon: Choose an Epic Boon feat",
+    "Epic Boon",
+    "Maneuver: Trip Attack (Dex.)",
+    "Maneuver: Disarming Attack (Dex.)",
+    "Maneuver: Parry (Dex.)",
+    "Maneuver: Menacing Attack (Dex.)",
   ];
 
   static isDuplicateFeature(items, item) {
@@ -62,8 +87,11 @@ export default class DDBFeatures {
     const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-include-versatile-features");
 
     const nameAllowed = !featName.startsWith("Proficiencies")
-      && !featName.startsWith("Ability Score")
+      && !featName.includes("Ability Score")
       && !featName.startsWith("Size")
+      && !featName.endsWith("Subclass")
+      && !featName.match(/(\w+) Weapon Masteries($|:)/igm)
+      && !featName.startsWith("Weapon Mastery -")
       // && !featName.startsWith("Skills")
       && (includeTashaVersatile || (!includeTashaVersatile && !DDBFeatures.TASHA_VERSATILE.includes(featName)))
       && !DDBFeatures.LEGACY_SKIPPED_FEATURES.includes(featName)
@@ -81,23 +109,23 @@ export default class DDBFeatures {
       type,
       source,
     });
-
+    await ddbFeature._initEnricher();
     ddbFeature.build();
-    logger.debug(`DDBFeatures.getFeaturesFromDefinition: ${ddbFeature.ddbDefinition.name}`, {
+    logger.debug(`DDBFeatures.getFeaturesFromDefinition (type: ${type}): ${ddbFeature.ddbDefinition.name}`, {
       ddbFeature,
       featDefinition,
       this: this,
     });
     // only background features get advancements for now
     if (type === "background") {
+      ddbFeature.generateBackgroundAbilityScoreAdvancement();
       await ddbFeature.generateAdvancements();
       await ddbFeature.buildBackgroundFeatAdvancements();
     }
-    if (ddbFeature.isChoiceFeature) {
-      return DDBChoiceFeature.buildChoiceFeatures(ddbFeature);
-    } else {
-      return [ddbFeature.data];
-    }
+    const choiceFeatures = ddbFeature.isChoiceFeature
+      ? await DDBChoiceFeature.buildChoiceFeatures(ddbFeature)
+      : [];
+    return [ddbFeature.data].concat(choiceFeatures);
   }
 
   async _buildRacialTraits() {
@@ -107,6 +135,7 @@ export default class DDBFeatures {
         (trait) => DDBFeatures.includedFeatureNameCheck(trait.definition.name)
           && !trait.definition.hideInSheet
           && !this.excludedOriginFeatures.includes(trait.definition.id)
+          && (trait.requiredLevel === undefined || trait.requiredLevel >= this.ddbCharacter.totalLevels),
       );
 
     for (const feat of traits) {
@@ -154,7 +183,7 @@ export default class DDBFeatures {
       ddbData: this.ddbData,
       rawCharacter: this.rawCharacter,
     });
-    this._ddbClassFeatures.build();
+    await this._ddbClassFeatures.build();
     await this._buildOptionalClassFeatures();
 
     logger.debug("ddbClassFeatures._buildClassFeatures", {
@@ -180,7 +209,8 @@ export default class DDBFeatures {
   async _addFeats() {
     // add feats
     logger.debug("Parsing feats");
-    for (const feat of this.ddbData.character.feats) {
+    const validFeats = this.ddbData.character.feats.filter((feat) => DDBFeatures.includedFeatureNameCheck(feat.definition.name));
+    for (const feat of validFeats) {
       const feats = await this.getFeaturesFromDefinition(feat, "feat");
       this.parsed.push(...feats);
     };
@@ -199,15 +229,37 @@ export default class DDBFeatures {
       const scaleKlass = this.ddbCharacter.raw.classes.find((klass) =>
         klass.system.advancement
           .some((advancement) => advancement.type === "ScaleValue"
-            && advancement.configuration.identifier === featureName
+            && advancement.configuration.identifier === featureName,
           ));
 
+      // KNOWN_ISSUE_4_0: fix level scales for activities
       if (scaleKlass) {
         const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
-        if (foundry.utils.hasProperty(feature, "system.damage.parts") && feature.system.damage.parts.length > 0) {
-          feature.system.damage.parts[0][0] = `@scale.${identifier}.${featureName}`;
+        const damage = DDBBasicActivity.buildDamagePart({
+          damageString: `@scale.${identifier}.${featureName}`,
+        });
+        if (foundry.utils.hasProperty(feature, "system.damage.base")) {
+          feature.system.damage.base.custom = damage.custom;
         } else {
-          foundry.utils.setProperty(feature, "system.damage.parts", [[`@scale.${identifier}.${featureName}`]]);
+          for (const [key, activity] of Object.entries(feature.system.activities)) {
+            if (activity.damage && activity.damage.parts.length === 0) {
+              // console.warn(`adding scale for ${feature.name} ${key}`, {
+              //   feature,
+              //   activity: deepClone(activity),
+              //   damage,
+              // });
+              activity.damage.parts = [damage];
+            } else if (activity.damage && activity.damage.parts.length > 0) {
+              // console.warn(`Replacing scale for ${feature.name} ${key}`, {
+              //   feature,
+              //   activity: deepClone(activity),
+              //   damage,
+              // });
+              activity.damage.parts[0].custom = damage.custom;
+            }
+            feature.system.activities[key] = activity;
+          }
+
         }
       }
     });
@@ -241,7 +293,9 @@ export default class DDBFeatures {
 
     this._setLevelScales();
 
-    await fixFeatures(this.parsed);
+    for (const feature of this.parsed) {
+      await DDBBaseFeature.finalFixes(feature);
+    }
     this.fixAcEffects();
     this.data = await addExtraEffects(this.ddbData, this.parsed, this.rawCharacter);
   }

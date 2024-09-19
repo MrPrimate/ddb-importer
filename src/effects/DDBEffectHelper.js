@@ -3,14 +3,12 @@ import DICTIONARY from "../dictionary.js";
 import FolderHelper from "../lib/FolderHelper.js";
 import utils from "../lib/utils.js";
 import logger from "../logger.js";
-import { fixItems } from "../parser/item/special.js";
-import { fixSpells } from "../parser/spells/special.js";
-import { equipmentEffectAdjustment, midiItemEffects } from "./specialEquipment.js";
+import { midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
-import { fixFeatures, addExtraEffects } from "../parser/features/fixes.js";
+import { addExtraEffects } from "../parser/features/extraEffects.js";
 import { generateOverTimeEffect, damageOverTimeEffect, getOvertimeDamage, getMonsterFeatureDamage } from "./monsterFeatures/overTimeEffect.js";
-import { baseEffect, generateStatusEffectChange, addStatusEffectChange, generateTokenMagicFXChange, generateATLChange } from "./effects.js";
+import { baseEffect, generateDAEStatusEffectChange, addStatusEffectChange, generateTokenMagicFXChange, generateATLChange } from "./effects.js";
 import ExternalAutomations from "./external/ExternalAutomations.js";
 
 export default class DDBEffectHelper {
@@ -25,7 +23,7 @@ export default class DDBEffectHelper {
 
   static damageOverTimeEffect = damageOverTimeEffect;
 
-  static generateStatusEffectChange = generateStatusEffectChange;
+  static generateDAEStatusEffectChange = generateDAEStatusEffectChange;
 
   static addStatusEffectChange = addStatusEffectChange;
 
@@ -67,12 +65,12 @@ export default class DDBEffectHelper {
       if (foundry.utils.hasProperty(data, "flags.ActiveAuras")) delete data.flags.ActiveAuras;
 
       if (DICTIONARY.types.inventory.includes(data.type)) {
-        equipmentEffectAdjustment(data);
+        // KNOWN_ISSUE_4_0 equipmentEffectAdjustment(data); // removed, no longer called
         data = await midiItemEffects(data);
-        fixItems([data]);
+        // KNOWN_ISSUE_4_0: fix items removed here, this is now included earlier in teh item parser
       } else if (data.type === "spell") {
         data = await spellEffectAdjustment(data, true);
-        await fixSpells(null, [data]);
+        // await fixSpells(null, [data]); //moved into parsing
       } else if (data.type === "feat") {
         const mockCharacter = {
           system: utils.getTemplate("character"),
@@ -92,7 +90,7 @@ export default class DDBEffectHelper {
           },
         };
 
-        await fixFeatures([data]);
+        // KNOWN_ISSUE_4_0 await fixFeatures([data]); // removed, no longer called
         data = (await addExtraEffects(null, [data], mockCharacter))[0];
       }
 
@@ -874,7 +872,7 @@ export default class DDBEffectHelper {
     return DDBEffectHelper.getActorEffects(actor).some(
       (activeEffect) =>
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
-        && !activeEffect?.disabled
+        && !activeEffect?.disabled,
     );
   }
 
@@ -882,7 +880,7 @@ export default class DDBEffectHelper {
     return DDBEffectHelper.getActorEffects(actor).find(
       (activeEffect) =>
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
-        && !activeEffect?.disabled
+        && !activeEffect?.disabled,
     );
   }
 
@@ -1025,7 +1023,7 @@ export default class DDBEffectHelper {
           type: "damage",
           itemId,
           itemUuid,
-        }
+        },
       },
 
     });
@@ -1048,7 +1046,7 @@ export default class DDBEffectHelper {
     const rollConfig = {
       rollConfigs: [{
         parts: formulas,
-        type: damageType
+        type: damageType,
       }],
       flavor: flavor ?? title,
       event,
@@ -1059,8 +1057,8 @@ export default class DDBEffectHelper {
           targets: CONFIG.Item.documentClass._formatAttackTargets(),
           roll: { type: "damage", itemId, itemUuid },
         },
-        speaker: ChatMessage.implementation.getSpeaker()
-      }
+        speaker: ChatMessage.implementation.getSpeaker(),
+      },
     };
 
     if (Hooks.call("dnd5e.preRollDamage", undefined, rollConfig) === false) return;
@@ -1070,7 +1068,7 @@ export default class DDBEffectHelper {
 
   static syntheticItemWorkflowOptions({
     targets = undefined, showFullCard = false, useSpellSlot = false, castLevel = false, consume = false,
-    configureDialog = false, targetConfirmation = undefined
+    configureDialog = false, targetConfirmation = undefined,
   } = {}) {
     return [
       {
@@ -1092,8 +1090,316 @@ export default class DDBEffectHelper {
           autoFastDamage: true,
           autoRollAttack: true,
           targetConfirmation,
-        }
-      }
+        },
+      },
     ];
   }
+
+  static overTimeDamage({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc } = {}) {
+    return {
+      key: "flags.midi-qol.OverTime",
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      value: `turn=${turn},label=${document.name} (${utils.capitalize(turn)} of Turn),damageRoll=${damage},damageType=${damageType},saveRemove=${saveRemove},saveDC=${dc},saveAbility=${saveAbility},saveDamage=${saveDamage},killAnim=true`,
+      priority: "20",
+    };
+  }
+
+  static overTimeSave({ document, turn, saveAbility, saveRemove = true, dc } = {}) {
+    const turnValue = turn === "action" ? "end" : turn;
+    const actionSave = turn === "action" ? ",actionSave=true" : "";
+    return {
+      key: "flags.midi-qol.OverTime",
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      value: `turn=${turnValue},label=${document.name} (${utils.capitalize(turn)} of Turn),saveRemove=${saveRemove},saveDC=${dc},saveAbility=${saveAbility},killAnim=true${actionSave}`,
+      priority: "20",
+    };
+  }
+
+  static startOrEnd(text) {
+    const re = /at the (start|end) of each/i;
+    const match = text.match(re);
+    if (match) {
+      return match[1];
+    } else {
+      return undefined;
+    }
+  }
+
+  static overTimeSaveEnd({ document, effect, save, text }) {
+    const saveSearch = /repeat the saving throw at the (end|start) of each/;
+    const match = text.match(saveSearch);
+    if (match) {
+      effect.changes.push(DDBEffectHelper.overTimeSave({ document, turn: match[1], saveAbility: save.ability, dc: save.dc }));
+    } else {
+      const actionSaveSearch = /can use its action to repeat the saving throw/;
+      const actionSaveMatch = text.match(actionSaveSearch);
+      if (actionSaveMatch) {
+        effect.changes.push(DDBEffectHelper.overTimeSave({ document, turn: "action", saveAbility: save.ability, dc: save.dc }));
+      }
+    }
+  }
+
+
+  static getSpecialDuration(effect, match) {
+    // minutes
+    if (match[7]
+      && (match[7].includes("until the end of its next turn")
+      || match[7].includes("until the end of the target's next turn"))
+    ) {
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
+    } else if (match[7] && match[7].includes("until the start of the")) {
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
+    }
+    return effect;
+  }
+
+
+  static DEFAULT_DURATION_SECONDS = 60;
+
+  static getDuration(text, returnDefault = true) {
+    const result = {
+      type: returnDefault ? "second" : null,
+      second: returnDefault ? DDBEffectHelper.DEFAULT_DURATION_SECONDS : null,
+      round: returnDefault ? (DDBEffectHelper.DEFAULT_DURATION_SECONDS / 6) : null,
+      minute: null,
+      hour: null,
+      special: "",
+      value: null,
+      units: "inst",
+    };
+    const re = /for (\d+) (minute|hour|round|day|month|year)/; // turn|day|month|year
+    const match = text.match(re);
+    if (match) {
+      let seconds = parseInt(match[1]);
+      result.type = match[2];
+      result.units = match[2];
+      result.value = match[1];
+      switch (match[2]) {
+        case "minute": {
+          result.minute = match[1];
+          seconds *= 60;
+          break;
+        }
+        case "hour": {
+          result.hour = match[1];
+          seconds *= 60 * 60;
+          break;
+        }
+        case "round": {
+          seconds *= 6;
+          result.round = match[1];
+          break;
+        }
+        case "turn": {
+          result.turns = match[1];
+          break;
+        }
+        case "day": {
+          result.day = match[1];
+          seconds *= 60 * 60 * 24;
+          break;
+        }
+        case "year": {
+          result.year = match[1];
+          seconds *= 60 * 60 * 24 * 365;
+          break;
+        }
+        case "month": {
+          result.month = match[1];
+          seconds *= 60 * 60 * 24 * 30;
+          break;
+        }
+        // no default
+      }
+
+      result.second = seconds;
+      return result;
+    }
+
+    const smallMatchRe = /until the (?:end|start) of its next turn|until the (?:end|start) of the target's next turn|until the (?:end|start) of your next turn/ig;
+    const smallMatch = smallMatchRe.exec(text);
+    if (smallMatch) {
+      result.type = "special";
+      result.units = "spec";
+      result.second = 6;
+      result.round = 1;
+      result.special = smallMatch[0];
+      return result;
+    }
+    return result;
+  }
+
+  // A selection of example conditions
+  // DC 18 Strength saving throw or be knocked prone
+  // DC 14 Constitution saving throw or become poisoned for 1 minute.
+  // DC 12 Constitution saving throw or be poisoned for 1 minute
+  // DC 15 Wisdom saving throw or be frightened until the end of its next turn.
+  // DC 15 Charisma saving throw or be charmed
+  // DC 12 Charisma saving throw or become cursed
+  // DC 10 Intelligence saving throw or it can’t take a reaction until the end of its next turn
+  // DC 12 Constitution saving throw or contract bluerot
+  // DC 17 Strength saving throw or be thrown up to 30 feet away in a straight line
+  // DC 13 Constitution saving throw or lose the ability to use reactions until the start of the weird’s
+  // DC 16 Wisdom saving throw or move 1 round forward in time
+  // DC 15 Constitution saving throw, or for 1 minute, its speed is reduced by 10 feet; it can take either an action or a bonus action on each of its turns, not both; and it can’t take reactions.
+  // DC 15 Constitution saving throw or have disadvantage on its attack rolls until the end of its next turn
+  // DC 15 Wisdom saving throw or be frightened until the end of its next turn
+  // DC 13 Strength saving throw or take an extra 3 (1d6) piercing damage and be grappled (escape DC 13)
+  // DC 15 Constitution saving throw or gain 1 level of exhaustion
+  // DC 20 Constitution saving throw or be paralyzed for 1 minute
+  // DC 17 Constitution saving throw or be cursed with loup garou lycanthropy
+  // DC 12 Constitution saving throw or be cursed with mummy rot
+  // DC 18 Strength saving throw or be swallowed by the neothelid. A swallowed creature is blinded and restrained, it has total cover against attacks and other effects outside the neothelid, and it takes 35 (10d6) acid damage at the start of each of the neothelid’s turns.</p><p>If the neothelid takes 30 damage or more on a single turn from a creature inside it, the neothelid must succeed on a DC 18 Constitution saving throw at the end of that turn or regurgitate all swallowed creatures, which fall prone in a space within 10 feet of the neothelid. If the neothelid dies, a swallowed creature is no longer restrained by it and can escape from the corpse by using 20 feet of movement, exiting prone.
+  // (before DC) it can’t regain hit points for 1 minute
+  // DC 14 Dexterity saving throw or suffer one additional effect of the shadow dancer’s choice:</p><ul>\n<li>The target is grappled (escape DC 14) if it is a Medium or smaller creature. Until the grapple ends, the target is restrained, and the shadow dancer can’t grapple another target.</li>\n<li>The target is knocked prone.</li>\n<li>The target takes 22 (4d10) necrotic damage.</li>\n</ul>\n</section>\nThe Shadow Dancer attacks with its Spiked Chain.
+  // DC 15 Constitution saving throw or be stunned until the end of its next turn.
+  // DC 15 Constitution saving throw or die.
+  // DC 20 Strength saving throw or be pulled up to 25 feet toward the balor.
+  // DC 11 Constitution saving throw or be poisoned until the end of the target’s next turn.
+  // DC 14 Wisdom saving throw or be frightened of the quori for 1 minute.
+  // DC 13 Constitution saving throw or be poisoned for 1 hour. If the saving throw fails by 5 or more, the target is also unconscious while poisoned in this way. The target wakes up if it takes damage or if another creature takes an action to shake it awake.
+
+
+  static dcParser({ text } = {}) {
+    const results = {
+      save: {
+        dc: {
+          formula: "",
+          calculation: "",
+        },
+        ability: null,
+      },
+      match: null,
+    };
+
+    let parserText = utils.nameString(text);
+    const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
+    let match = conditionSearch.exec(parserText);
+    if (!match) {
+      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
+      match = rawConditionSearch.exec(parserText);
+    }
+
+    if (!match) {
+      const rawConditionSearch2 = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)(?:[ .,])(.*)Failure: The target has the (?<condition>\w+)(?: for (\d+) (minute|round|hour)| until)?/ig;
+      match = rawConditionSearch2.exec(parserText);
+    }
+
+    if (!match) {
+      const monsterAndCondition = /(the target has the|subject that creature to the) (?<condition>\w+) condition/ig;
+      match = monsterAndCondition.exec(parserText);
+    }
+
+    if (!match) {
+      const onHitSearch = /On a hit, the target is (?<condition>\w+)? until/ig;
+      match = onHitSearch.exec(parserText);
+    }
+
+    if (!match) {
+      const saveSearch = /On a failed save, a creature takes (\d+)?d(\d+) (\w+) damage and is (?<condition>\w+)(?: for (\d+) (minute|round|hour))?/ig;
+      match = saveSearch.exec(parserText);
+    }
+
+    if (!match) {
+      const successSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check)(?: \(DC equal to 8 \+ your proficiency bonus \+ your (?<modifier>\w+) modifier\))? or (?:be|become) (?<condition>\w+) (of you )?until /ig;
+      match = successSearch.exec(parserText);
+    }
+
+    if (!match) {
+      const snipetSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) \(DC {{savedc:(?<modifier>\w+)}}\)? or be (?<condition>\w+) until/ig;
+      match = snipetSearch.exec(parserText);
+    }
+
+    if (!match) {
+      const spellcasterSearch = /a (?<ability>\w+) (?<type>saving throw|check) against your (?<spellcasting>spell save DC|spellcasting|spell casting)/ig;
+      match = spellcasterSearch.exec(parserText);
+    }
+
+    if (match) {
+      if (match.groups.type === "check") results.check = true;
+      results.save = {
+        dc: {
+          formulas: match.groups["dc"] ?? "",
+          calculation: match.groups["spellcasting"] ? "spellcasting" : (match.groups["modifier"]?.toLowerCase().substr(0, 3) ?? ""),
+        },
+        ability: match.groups["ability"]?.toLowerCase().substr(0, 3) ?? "",
+      };
+    }
+
+    results.match = match;
+    return results;
+  }
+
+  static parseStatusCondition({ text, nameHint = null } = {}) {
+    let results = {
+      success: false,
+      check: false,
+      save: {
+        dc: {
+          formula: "",
+          calculation: "",
+        },
+        ability: null,
+      },
+      condition: null,
+      effect: {
+        name: "",
+        changes: [],
+        flags: {},
+        statuses: [],
+        duration: {
+          seconds: null,
+          rounds: null,
+          turns: null,
+          startRound: null,
+          startTurn: null,
+        },
+      },
+    };
+
+    let parserText = utils.nameString(text);
+    const matchResults = DDBEffectHelper.dcParser({ text: parserText });
+
+    // console.warn("condition status", match);
+    if (matchResults.match) {
+      const match = matchResults.match;
+      if (match.groups.type === "check") results.check = true;
+      results.condition = match.groups["condition"];
+
+      results.save = matchResults.save;
+      // group 4 condition - .e.g. "DC 18 Strength saving throw or be knocked prone"
+      const group4Condition = match.groups.condition
+        ? DICTIONARY.character.damageAdjustments
+          .filter((type) => type.type === 4)
+          .find(
+            (type) => type.name.toLowerCase() === match.groups.condition.toLowerCase()
+              || type.foundryValue === match.groups.condition.toLowerCase(),
+          )
+        : undefined;
+      if (group4Condition) {
+        results.condition = group4Condition.value;
+        DDBEffectHelper.addStatusEffectChange({ effect: results.effect, statusName: group4Condition.name });
+        results.effect = DDBEffectHelper.getSpecialDuration(results.effect, match);
+        if (nameHint) results.effect.name = `${nameHint}: ${group4Condition.name}`;
+        else results.effect.name = `Status: ${group4Condition.name}`;
+      } else if (match.groups.hint && match.groups.hint === "die") {
+        DDBEffectHelper.addStatusEffectChange({ effect: results.effect, statusName: "Dead" });
+        results.condition = "dead";
+        if (nameHint) results.effect.name = `Status: Dead`;
+      } else {
+        logger.debug(`Odd condition ${results.condition} found`, {
+          text,
+          nameHint,
+        });
+        return results;
+      }
+      results.success = true;
+      const duration = DDBEffectHelper.getDuration(parserText);
+      foundry.utils.setProperty(results.effect, "duration.seconds", duration.second);
+      foundry.utils.setProperty(results.effect, "duration.rounds", duration.round);
+    }
+
+    return results;
+  }
+
 }

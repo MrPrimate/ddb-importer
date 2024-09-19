@@ -1,6 +1,7 @@
 import { baseSpellEffect } from "../specialSpells.js";
 
 export function acidArrowEffect(document) {
+  document.effects = [];
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push({
     key: "flags.midi-qol.OverTime",

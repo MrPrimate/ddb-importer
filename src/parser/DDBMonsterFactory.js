@@ -12,7 +12,7 @@ import {
   addNPC,
   generateIconMap,
   copyExistingMonsterImages,
-  useSRDMonsterImages
+  useSRDMonsterImages,
 } from "../muncher/importMonster.js";
 import Iconizer from "../lib/Iconizer.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
@@ -60,6 +60,18 @@ export default class DDBMonsterFactory {
     this.type = type;
     this.compendiumFolders = new DDBCompendiumFolders(type);
     this.update = forceUpdate ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
+    this.updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
+    this.uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
+
+    this.useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
+    this.legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+    this.addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
+    this.addChrisPremades = game.settings.get("ddb-importer", "munching-policy-use-chris-premades");
+
+
+    this.currentDocument = 1;
+    this.totalDocuments = 0;
+    this.monstersParsed = [];
   }
 
   /**
@@ -68,7 +80,7 @@ export default class DDBMonsterFactory {
    * @returns
    */
   async fetchDDBMonsterSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
-    homebrewOnly = false, exactMatch = false, excludeLegacy = false }
+    homebrewOnly = false, exactMatch = false, excludeLegacy = false },
   ) {
     const cobaltCookie = getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
@@ -123,8 +135,8 @@ export default class DDBMonsterFactory {
           return data;
         })
         .then((data) => {
-          this.munchNote(`Retrieved ${data.data.length + 1} monsters, starting parse...`, true, false);
-          logger.info(`Retrieved ${data.data.length + 1} monsters`);
+          this.munchNote(`Retrieved ${data.data.length + 1} monsters from DDB`, true, false);
+          logger.info(`Retrieved ${data.data.length + 1} monsters from DDB`);
           this.source = data.data;
           resolve(this.source);
         })
@@ -137,26 +149,29 @@ export default class DDBMonsterFactory {
    * Use this.fetchDDBMonsterSourceData() if you need to get monster data from ddb
    * @returns
    */
-  async parse() {
+  async parse(monsters = []) {
     let foundryActors = [];
     let failedMonsterNames = [];
 
-    const useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
-    const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-    const addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
-    const addChrisPremades = game.settings.get("ddb-importer", "munching-policy-use-chris-premades");
+    const monsterSource = monsters.length > 0 ? monsters : this.source;
 
     const totalMonsters = this.source.length + 1;
-    let i = 1;
+    let i = this.currentDocument;
     logger.time("Monster Parsing");
-    for (const monster of this.source) {
+    for (const monster of monsterSource) {
       const name = `${monster.name}${monster.isLegacy ? " legacy" : ""}`;
       try {
-        this.munchNote(`Parsing ${i}/${totalMonsters} (${name})`, false, true);
+        this.munchNote(`[${i}/${this.currentDocument + monsterSource.length - 1} of ${totalMonsters}] Parsing Foundry Actor for ${name}`, false, true);
         i++;
         logger.debug(`Attempting to parse ${i}/${totalMonsters} ${monster.name}`);
         logger.time(`Monster Parse ${name}`);
-        const ddbMonster = new DDBMonster(monster, { extra: this.extra, useItemAC, legacyName, addMonsterEffects, addChrisPremades });
+        const ddbMonster = new DDBMonster(monster, {
+          extra: this.extra,
+          useItemAC: this.useItemAC,
+          legacyName: this.legacyName,
+          addMonsterEffects: this.addMonsterEffects,
+          addChrisPremades: this.addChrisPremades,
+        });
         await ddbMonster.parse();
         foundryActors.push(foundry.utils.duplicate(ddbMonster.npc));
         logger.timeEnd(`Monster Parse ${name}`);
@@ -178,61 +193,56 @@ export default class DDBMonsterFactory {
     this.munchNote(
       `Parsed ${result.actors.length} monsters, failed ${result.failedMonsterNames.length} monsters`,
       false,
-      true
+      true,
     );
     logger.info(`Parsed ${result.actors.length} monsters, failed ${result.failedMonsterNames.length} monsters`);
     if (result.failedMonsterNames && result.failedMonsterNames.length !== 0) {
       logger.error(`Failed to parse`, result.failedMonsterNames);
     }
 
-    this.npcs = result.actors;
+    this.npcs.push(...result.actors);
     return result;
   }
 
-  /**
-   * Downloads, parses, prepares
-   */
-  async createMonsterDocuments(ids = null) {
-    logger.time("Monster Process Time");
-    const updateBool = this.update;
-    const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
-    const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-
+  async #prepareImporter() {
     // to speed up file checking we pregenerate existing files now.
     logger.info("Checking for existing files...");
     this.munchNote(`Checking existing image files...`);
     CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.clear();
     CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.clear();
     await Iconizer.preFetchDDBIconImages();
-    await FileHelper.generateCurrentFiles(uploadDirectory);
+    await FileHelper.generateCurrentFiles(this.uploadDirectory);
     await FileHelper.generateCurrentFiles("[data] modules/ddb-importer/data");
 
     if (game.canvas3D?.CONFIG?.UI) {
       // generate 3d model cache
       await game.canvas3D.CONFIG.UI.TokenBrowser.preloadData();
     }
+  }
 
-    logger.info("Check complete getting monster data...");
-    this.munchNote(`Getting monster data from DDB...`);
-    await this.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(ids));
-    this.munchNote("");
-    const monsterResults = await this.parse();
+  /**
+   * Downloads, parses, prepares
+   */
+  async #createMonsterDocuments({ monsters = [], i = 0 } = {}) {
+    logger.time(`Monster Process Time ${i}`);
+
+    const monsterResults = await this.parse(monsters);
 
     const itemHandler = new DDBItemImporter(this.type, monsterResults.actors);
     await itemHandler.init();
 
     logger.debug("Item Importer Loaded");
-    if (!updateBool || !updateImages) {
+    if (!this.update || !this.updateImages) {
       this.munchNote(`Calculating which monsters to update...`, true);
       const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents, "npc", { keepDDBId: true });
       const existingMonstersTotal = existingMonsters.length + 1;
-      if (!updateBool) {
+      if (!this.update) {
         logger.debug("Removing existing monsters from import list");
         logger.debug(`Matched ${existingMonstersTotal}`);
         this.munchNote(`Removing ${existingMonstersTotal} from update...`);
         itemHandler.removeItems(existingMonsters, true);
       }
-      if (!updateImages) {
+      if (!this.updateImages) {
         logger.debug("Copying monster images across...");
         this.munchNote(`Copying images for ${existingMonstersTotal} monsters...`);
         itemHandler.documents = copyExistingMonsterImages(itemHandler.documents, existingMonsters);
@@ -246,9 +256,8 @@ export default class DDBMonsterFactory {
     await generateIconMap(itemHandler.documents);
     await useSRDMonsterImages(itemHandler.documents);
 
-    logger.timeEnd("Monster Process Time");
-    logger.debug("Monster Document Generation", {
-      ids,
+    logger.timeEnd(`Monster Process Time ${i}`);
+    logger.debug(`Monster Document Generation ${i}`, {
       itemHandler,
     });
 
@@ -256,36 +265,52 @@ export default class DDBMonsterFactory {
 
   }
 
+  async #loadIntoCompendiums(documents) {
+    const startingCount = this.currentDocument;
+    for (const monster of documents) {
+      this.munchNote(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${monster.name} to compendium`, false, true);
+      logger.debug(`Preparing ${monster.name} data for import`);
+      const munched = await addNPC(monster, "monster");
+      this.monstersParsed.push(munched);
+      this.currentDocument += 1;
+    }
+  }
+
   /**
    * Downloads, parses and imports monsters into a compendium
    */
   async processIntoCompendium(ids = null) {
-    logger.time("Monster Import Time");
 
-    const documents = await this.createMonsterDocuments(ids);
+    logger.time("Monster Import Time");
+    await this.#prepareImporter();
+
+    logger.info("Check complete getting monster data...");
+    this.munchNote(`Getting monster data from DDB...`);
+    await this.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(ids));
+    this.munchNote("");
 
     this.munchNote(`Checking compendium folders..`, true);
     await this.compendiumFolders.loadCompendium("monsters");
     this.munchNote("", true);
 
-    let monstersParsed = [];
-    let currentMonster = 1;
-    const monsterCount = documents.length;
-    this.munchNote(`Preparing dinner for ${monsterCount} monsters!`, true);
-    for (const monster of documents) {
-      this.munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name} to compendium`, false, true);
-      logger.debug(`Preparing ${monster.name} data for import`);
-      const munched = await addNPC(monster, "monster");
-      monstersParsed.push(munched);
-      currentMonster += 1;
+    this.totalDocuments = this.source.length;
+
+    for (let i = 0; i < this.source.length; i += 100) {
+      const sourceDocuments = this.source.slice(i, i + 100);
+      logger.debug(`Processing documents for ${i + 1} to ${i + 100}`, { sourceDocuments, this: this });
+      const documents = await this.#createMonsterDocuments({ monsters: this.source.slice(i, i + 100), i });
+      const monsterCount = this.currentDocument + documents.length;
+      this.munchNote(`Preparing dinner for monsters ${i + 1} to ${monsterCount} of ${this.totalDocuments}!`, true);
+      await this.#loadIntoCompendiums(documents);
     }
-    logger.debug("Monsters Parsed", monstersParsed);
+
+    logger.debug("Monsters Parsed", this.monstersParsed);
     this.munchNote("", false, true);
 
     logger.timeEnd("Monster Import Time");
     if (ids !== null) {
-      return Promise.all(monstersParsed);
+      return Promise.all(this.monstersParsed);
     }
-    return monsterCount;
+    return this.totalDocuments;
   }
 }

@@ -60,14 +60,14 @@ export default async () => {
       compatibleMinimumCore,
       needToUpdate,
       minimumCoreVersion,
-      minimumSystemVersion
+      minimumSystemVersion,
     });
 
     if (preRelease) logger.debug(`Prerelease of ${MODULE_TITLE} detected`);
 
     if (needToUpdate) {
       let text = $(
-        `<h2>${MODULE_TITLE} Update!</h2><p>A new <b>${MODULE_NAME}</b> version is available. Please update to <b>v${latestVersion}</b> if you are experiencing issues and before reporting a bug.</p>`
+        `<h2>${MODULE_TITLE} Update!</h2><p>A new <b>${MODULE_NAME}</b> version is available. Please update to <b>v${latestVersion}</b> if you are experiencing issues and before reporting a bug.</p>`,
       );
       game.modules.get("ddb-importer").api?.notification.show(text, null);
     }

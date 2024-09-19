@@ -20,20 +20,13 @@ const renderPopup = (type, url) => {
     POPUPS[type] = window.open(
       url,
       "ddb_sheet_popup",
-      `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`
+      `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`,
     );
   }
   return true;
 };
 
-function getCharacterButton(document, actor) {
-
-  const characterLink = game.settings.get("ddb-importer", "character-link-title");
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
-  const buttonText = characterLink
-    ? `<a class="ddb-open-url" title="DDB Importer"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`
-    : '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
-
+function characterButtonClick(event, document, actor) {
   let url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
     ? document.flags.ddbimporter.dndbeyond.url
     : null;
@@ -41,64 +34,66 @@ function getCharacterButton(document, actor) {
   let jsonURL = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.json")
     ? document.flags.ddbimporter.dndbeyond.json
     : null;
-
-  let button = $(buttonText);
-  if (!characterLink && (!url || url.trim() === "")) button.removeClass("inactive");
-
-  button.click((event) => {
-    if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
-      new DDBAdventureFlags(document, {}).render(true);
-    } else if (event.shiftKey) {
+  if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
+    new DDBAdventureFlags(document, {}).render(true);
+  } else if (event.shiftKey) {
+    event.preventDefault();
+    return renderPopup("web", url);
+  } else if (event.altKey && jsonURL) {
+    event.preventDefault();
+    return renderPopup("json", jsonURL);
+  } else if (event.altKey && !jsonURL) {
+    // get the character ID
+    const characterId = url.split("/").pop();
+    if (characterId) {
       event.preventDefault();
-      return renderPopup("web", url);
-    } else if (event.altKey && jsonURL) {
-      event.preventDefault();
-      return renderPopup("json", jsonURL);
-    } else if (event.altKey && !jsonURL) {
-      // get the character ID
-      const characterId = url.split("/").pop();
-      if (characterId) {
-        event.preventDefault();
-        return renderPopup("json", API_ENDPOINT + characterId);
-      }
-    } else if ((!event.shiftKey && !event.ctrlKey && !event.altKey) || url === null) {
-      const setupComplete = DDBSetup.isSetupComplete(false);
+      return renderPopup("json", API_ENDPOINT + characterId);
+    }
+  } else if ((!event.shiftKey && !event.ctrlKey && !event.altKey) || url === null) {
+    const setupComplete = DDBSetup.isSetupComplete(false);
 
-      if (setupComplete) {
-        const characterImport = new DDBCharacterManager(DDBCharacterManager.defaultOptions, actor);
-        characterImport.render(true);
-      } else {
-        new DDBSetup().render(true);
-      }
-
-      return true;
+    if (setupComplete) {
+      const characterImport = new DDBCharacterManager(DDBCharacterManager.defaultOptions, actor);
+      characterImport.render(true);
+    } else {
+      new DDBSetup().render(true);
     }
 
-    return false;
-  });
+    return true;
+  }
+
+  return false;
+}
+
+function getCharacterButton(document, actor) {
+  const buttonText = '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
+
+  let url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
+    ? document.flags.ddbimporter.dndbeyond.url
+    : null;
+
+  let button = $(buttonText);
+  if (!url || url.trim() === "") button.removeClass("inactive");
+
+  button.click((event) => characterButtonClick(event, document, actor));
 
   return button;
 }
 
-function getNPCButton(document) {
-  const monsterLink = game.settings.get("ddb-importer", "monster-link-title");
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
-
+function npcButtonClick(event, document) {
   let url = document.flags.monsterMunch.url;
+  if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
+    new DDBAdventureFlags(document, {}).render(true);
+  } else {
+    logger.debug(`Clicked for url ${url}`);
+    renderPopup("web", url);
+  }
+}
 
-  let button = monsterLink
-    ? $(`<a class="ddb-open-url" title="D&D Beyond"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`)
-    : $('<button type="button" id="ddbImporterButton"><i class="fab fa-d-and-d-beyond"></button>');
-
+function getNPCButton(document) {
+  let button = $('<button type="button" id="ddbImporterButton"><i class="fab fa-d-and-d-beyond"></button>');
   // eslint-disable-next-line no-unused-vars
-  button.click((event) => {
-    if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
-      new DDBAdventureFlags(document, {}).render(true);
-    } else {
-      logger.debug(`Clicked for url ${url}`);
-      renderPopup("web", url);
-    }
-  });
+  button.click((event) => npcButtonClick(event, document));
 
   return button;
 }
@@ -126,7 +121,7 @@ export function tidySheets() {
         const button = getCharacterButton(params.app.document, params.data.actor);
         $ddbCharacterName.append(button);
       },
-    })
+    }),
   );
 
   // api.registerNpcContent(
@@ -148,6 +143,46 @@ export function tidySheets() {
   // );
 }
 
+function handlePCHeaderButton(config, buttons) {
+  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  buttons.unshift({
+    label: `DDB Importer`,
+    class: 'ddb-open-url',
+    icon: `fab fa-d-and-d-beyond${whiteTitle}`,
+    onclick: (event) => characterButtonClick(event, config.document, config.actor),
+  });
+}
+
+function handleNPCHeaderButton(config, buttons) {
+  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  buttons.unshift({
+    label: `Open on D&D Beyond`,
+    class: 'ddb-open-url',
+    icon: `fab fa-d-and-d-beyond${whiteTitle}`,
+    onclick: (event) => npcButtonClick(event, config.document),
+  });
+}
+
+function createActorHeaderButtons(config, buttons) {
+
+  if (!config.object.isOwner) return;
+  if (!(config.object instanceof Actor)) return;
+  const isCharacterSheet = config.constructor.name === "ActorSheet5eCharacter2";
+  const isNpcSheet = config.constructor.name === "ActorSheet5eNPC2";
+
+  if (!isCharacterSheet && !isNpcSheet) return;
+
+  if (!game.settings.get("ddb-importer", "character-link-title") && isCharacterSheet) return;
+  if (!game.settings.get("ddb-importer", "monster-link-title") && isNpcSheet) return;
+
+  if (isCharacterSheet) {
+    handlePCHeaderButton(config, buttons);
+  } else if (isNpcSheet) {
+    handleNPCHeaderButton(config, buttons);
+  }
+
+}
+
 export default function () {
   /**
    * Character sheets
@@ -166,19 +201,15 @@ export default function () {
   //   : '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
 
   tidySheets();
+  Hooks.on('getActorSheet5eHeaderButtons', createActorHeaderButtons);
   pcSheetNames.forEach((sheetName) => {
     Hooks.on("render" + sheetName, (app, html, data) => {
       // only for GMs or the owner of this character
       if (!data.owner || !data.actor || (!allowAllSync && trustedUsersOnly && !game.user.isTrusted)) return;
       if ($(html).find("#ddbImporterButton").length > 0) return;
 
-      const button = getCharacterButton(app.document, data.actor);
-
-      if (characterLink) {
-        html.closest('.app').find('.ddb-open-url').remove();
-        let titleElement = html.closest('.app').find('.window-title');
-        if (!app._minimized) button.insertAfter(titleElement);
-      } else {
+      if (!characterLink) {
+        const button = getCharacterButton(app.document, data.actor);
         let wrap = $('<div class="ddbCharacterName"></div>');
         $(html).find("input[name='name']").wrap(wrap);
         $(html).find("input[name='name']").parent().prepend(button);
@@ -201,13 +232,8 @@ export default function () {
       if (!app.document.flags?.monsterMunch?.url) return;
       if ($(html).find("#ddbImporterButton").length > 0) return;
 
-      let button = getNPCButton(app.document);
-
-      if (monsterLink) {
-        html.closest('.app').find('.ddb-open-url').remove();
-        let titleElement = html.closest('.app').find('.window-title');
-        if (!app._minimized) button.insertAfter(titleElement);
-      } else {
+      if (!monsterLink) {
+        let button = getNPCButton(app.document);
         let wrap = $('<div class="ddbCharacterName"></div>');
         $(html).find("input[name='name']").wrap(wrap);
         $(html).find("input[name='name']").parent().prepend(button);

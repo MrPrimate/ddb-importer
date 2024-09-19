@@ -1,5 +1,5 @@
 import utils from "../../lib/utils.js";
-import { baseEnchantmentEffect } from "../effects.js";
+import { addMagicalBonusToEnchantmentEffect, baseEnchantmentEffect } from "../effects.js";
 
 export function elementalWeaponEffect(document) {
   document.system.damage.parts = [];
@@ -27,36 +27,24 @@ export function elementalWeaponEffect(document) {
   });
   for (const element of elementTypes) {
     for (const e of enchantments) {
-      let effect = baseEnchantmentEffect(document, `${document.name}: ${utils.capitalize(element.type)} +${e.bonus}`);
+      let effect = baseEnchantmentEffect(document, `${document.name}: ${utils.capitalize(element.type)} +${e.bonus}`, {
+        description: `This weapon has become a +${e.bonus} magic weapon, granting a bonus to attack and damage rolls.`,
+      });
       e.img = element.img;
       foundry.utils.setProperty(effect, "flags.dnd5e.enchantment.level", { min: e.min, max: e.max });
+      addMagicalBonusToEnchantmentEffect({
+        effect,
+        nameAddition: `+${e.bonus} (${utils.capitalize(element.type)})`,
+        bonus: e.bonus,
+      });
       effect.changes.push(
-        {
-          key: "name",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: `{}, +${e.bonus} (${utils.capitalize(element.type)})`,
-          priority: 20,
-        },
-        {
-          key: "system.properties",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: "mgc",
-          priority: 20,
-        },
-        {
-          key: "system.magicalBonus",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: e.bonus,
-          priority: 20,
-        },
         {
           key: "system.damage.parts",
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           value: `[["${e.bonus}d4[${element.type}]", "${element.type}"]]`,
           priority: 20,
-        }
+        },
       );
-      e.description = `This weapon has become a +${e.bonus} magic weapon, granting a bonus to attack and damage rolls.`;
       document.effects.push(effect);
     }
   }

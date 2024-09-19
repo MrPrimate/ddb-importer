@@ -18,7 +18,7 @@ DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill
     // Jack of All trades/half-rounded down
       (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
         // e.g. champion for specific ability checks
-        || this._isHalfProficiencyRoundedUp(skill, modifiers)
+        || this._isHalfProficiencyRoundedUp(skill, modifiers),
   ) !== undefined
     ? 0.5
     : 0;
@@ -32,7 +32,7 @@ DDBCharacter.prototype.getCustomSkillProficiency = function getCustomSkillProfic
   // Overwrite the proficient value with any custom set over rides
   if (this.source.ddb.character.characterValues) {
     const customProficiency = this.source.ddb.character.characterValues.find(
-      (value) => value.typeId === 26 && value.valueId == skill.valueId && value.value
+      (value) => value.typeId === 26 && value.valueId == skill.valueId && value.value,
     );
     if (customProficiency) {
       return DICTIONARY.character.customSkillProficiencies.find((prof) => prof.value === customProficiency.value)
@@ -47,7 +47,7 @@ DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(sk
   let mod;
   if (this.source.ddb.character.characterValues) {
     const customAbility = this.source.ddb.character.characterValues.find(
-      (value) => value.typeId === 27 && value.valueId == skill.valueId
+      (value) => value.typeId === 27 && value.valueId == skill.valueId,
     );
     if (customAbility) {
       const ability = DICTIONARY.character.abilities.find((ability) => ability.id == customAbility.value);
@@ -62,7 +62,7 @@ DDBCharacter.prototype.getCustomSkillBonus = function getCustomSkillBonus(skill)
   // Get any custom skill bonuses
   if (this.source.ddb.character.characterValues) {
     const customBonus = this.source.ddb.character.characterValues.filter(
-      (value) => (value.typeId == 24 || value.typeId == 25) && value.valueId == skill.valueId
+      (value) => (value.typeId == 24 || value.typeId == 25) && value.valueId == skill.valueId,
     ).reduce((total, bonus) => {
       return total + bonus.value;
     }, 0);
@@ -78,7 +78,7 @@ DDBCharacter.prototype._setSpecialSkills = function _setSpecialSkills() {
   this.source.ddb.character.classes.forEach((klass) => {
     if (klass.subclassDefinition) {
       const silverTongue = klass.subclassDefinition.classFeatures.some(
-        (feature) => feature.name === "Silver Tongue" && klass.level >= feature.requiredLevel
+        (feature) => feature.name === "Silver Tongue" && klass.level >= feature.requiredLevel,
       );
       if (silverTongue) {
         this.raw.character.system.skills["per"].roll.min = 10;
@@ -122,7 +122,7 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
       if (customSkillMatch) {
         logger.debug(`Adding custom skill ${value.label}`, { key, value, customSkillMatch });
         const prof = DICTIONARY.character.customSkillProficiencies.find((proficiency) =>
-          proficiency.value === customSkillMatch.proficiencyLevel
+          proficiency.value === customSkillMatch.proficiencyLevel,
         ).proficient;
         const miscBonus = customSkillMatch.miscBonus && customSkillMatch.miscBonus !== "" && customSkillMatch.miscBonus !== 0
           ? `+ ${customSkillMatch.miscBonus}`
@@ -142,7 +142,7 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
             roll: {
               min: null,
               max: null,
-              mode: 0
+              mode: 0,
             },
           };
         }
@@ -181,7 +181,7 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
         key: `system.skills.${skill.name}.ability`,
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         value: `${customAbility}`,
-        priority: "20"
+        priority: "20",
       };
 
       const changeIndex = this.raw.character.effects.findIndex((effect) => effect.name === label);
@@ -204,7 +204,7 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
       roll: {
         min: null,
         max: null,
-        mode: 0
+        mode: 0,
       },
     };
   });

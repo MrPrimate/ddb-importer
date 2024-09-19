@@ -6,6 +6,18 @@ import DDBFeature from "./DDBFeature.js";
 
 export default class DDBChoiceFeature extends DDBFeature {
 
+  static KEEP_CHOICE_FEATURE = [
+    "Genie's Vessel",
+  ];
+
+  static KEEP_CHOICE_FEATURE_NAME = [
+    "Pact Boon",
+  ];
+
+  static KEEP_CHOICE_DESCRIPTION = [
+    "Pact Boon",
+  ];
+
   _prepare() {
     this._levelScale = null;
     this._levelScales = null;
@@ -39,8 +51,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   }
 
-
-  build(choice) {
+  async build(choice) {
     try {
       this._generateSystemType();
 
@@ -51,9 +62,10 @@ export default class DDBChoiceFeature extends DDBFeature {
         return;
       }
 
-      this.data.name = choice.label
+      const replaceRegex = new RegExp(`${this.data.name}(?:\\s*)- `);
+      this.data.name = !DDBChoiceFeature.KEEP_CHOICE_FEATURE_NAME.includes(this.ddbDefinition.name) && choice.label
         ? choice.label.startsWith(this.data.name.trim())
-          ? choice.label
+          ? choice.label.replace(replaceRegex, `${this.data.name}: `)
           : `${this.data.name}: ${choice.label}`
         : this.data.name;
       this.data.name = utils.nameString(this.data.name);
@@ -61,35 +73,58 @@ export default class DDBChoiceFeature extends DDBFeature {
       const nameMatch = this.data.name.match(namePointRegex);
       if (nameMatch) {
         this.data.name = nameMatch[1];
-        this._resourceCharges = Number.parseInt(nameMatch[2]);
+        this.resourceCharges = Number.parseInt(nameMatch[2]);
       }
+      this.originalName = this.data.name;
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.originalName", this.originalName);
+      this._addEnricher();
+      await this._initEnricher();
       this._generateSystemSubType();
 
       // get description for chris premades
-      this._generateDescription(true);
+      this.ddbDefinition.description = choice.description;
+      this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";
+      this._generateDescription({ forceFull: true });
       foundry.utils.setProperty(this.data, "flags.ddbimporter.initialFeature", foundry.utils.deepClone(this.data.system.description));
 
-      if (choice.wasOption && choice.description) {
-        this.ddbDefinition.description = choice.description;
-        this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";
-      } else {
-        if (this.ddbDefinition.description) {
-          this.ddbDefinition.description = choice.description
-            ? this.ddbDefinition.description + "<h3>" + choice.label + "</h3>" + choice.description
-            : this.ddbDefinition.description;
-        }
-        if (this.ddbDefinition.snippet) {
-          this.ddbDefinition.snippet = choice.description
-            ? this.ddbDefinition.snippet + "<h3>" + choice.label + "</h3>" + choice.description
-            : this.ddbDefinition.snippet;
-        }
-      }
+      // if (choice.wasOption && choice.description) {
+      //   this.ddbDefinition.description = choice.description;
+      //   this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";
+      // } else {
+      //   if (this.ddbDefinition.description) {
+      //     this.ddbDefinition.description = choice.description
+      //       ? this.ddbDefinition.description + "<h3>" + choice.label + "</h3>" + choice.description
+      //       : this.ddbDefinition.description;
+      //   }
+      //   if (this.ddbDefinition.snippet) {
+      //     this.ddbDefinition.snippet = choice.description
+      //       ? this.ddbDefinition.snippet + "<h3>" + choice.label + "</h3>" + choice.description
+      //       : this.ddbDefinition.snippet;
+      //   }
+      // }
       // add these flags in so they can be used by the description parser
+      // foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.choice", choice);
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
-      this._generateActivation();
-      this._generateResourceConsumption();
-      this._generateDescription(false);
+      if (!this.enricher.documentStub?.stopDefaultActivity)
+        this._generateActivity();
+      this.enricher.addAdditionalActivities(this);
+
+      // console.warn(`Choice generation ${this.data.name}`, {
+      //   choice,
+      //   ddbDefinition: deepClone(this.ddbDefinition),
+      //   this: this,
+      //   description: deepClone(this.data.system.description),
+      // });
+      this._generateDescription({ forceFull: false });
+
+
+      // console.warn(`Choice generation ${this.data.name} 2`, {
+      //   choice,
+      //   ddbDefinition: deepClone(this.ddbDefinition),
+      //   this: this,
+      //   description: deepClone(this.data.system.description),
+      // });
       this.data.flags.ddbimporter.dndbeyond.choice = {
         label: choice.label,
         choiceId: choice.choiceId,
@@ -103,38 +138,61 @@ export default class DDBChoiceFeature extends DDBFeature {
       };
 
       this.data._id = foundry.utils.randomID();
+
+      this.enricher.addDocumentOverride();
       this._addEffects(choice, this.type);
+      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
     } catch (err) {
       logger.warn(
         `Unable to Generate Choice Action: ${this.name}, please log a bug report. Err: ${err.message}`,
-        "extension"
+        "extension",
       );
       logger.error("Error", err);
     }
   }
 
-  static buildChoiceFeatures(ddbFeature) {
-    logger.debug(`Processing Choice Features ${ddbFeature._choices.map((c) => c.label).join(",")}`, {
+  static async buildChoiceFeatures(ddbFeature, allFeatures = false) {
+    const choices = allFeatures ? ddbFeature._choices : ddbFeature._chosen;
+    logger.debug(`Processing Choice Features ${ddbFeature._chosen.map((c) => c.label).join(",")}`, {
       choices: ddbFeature._choices,
+      chosen: ddbFeature._chosen,
       feature: ddbFeature,
+      allFeatures,
     });
     const features = [];
-    ddbFeature._choices.forEach((choice) => {
+    for (const choice of choices) {
       const choiceFeature = new DDBChoiceFeature({
         ddbData: ddbFeature.ddbData,
         ddbDefinition: foundry.utils.deepClone(ddbFeature.ddbDefinition),
         type: ddbFeature.type,
         rawCharacter: ddbFeature.rawCharacter,
       });
-      choiceFeature.build(choice);
+      await choiceFeature._initEnricher();
+      await choiceFeature.build(choice);
       logger.debug(`DDBChoiceFeature.buildChoiceFeatures: ${choiceFeature.ddbDefinition.name}`, {
         choiceFeature,
         choice,
         ddbFeature,
       });
-      features.push(choiceFeature.data);
-    });
+      // console.warn(`Choice generation ${choiceFeature.data.name}`, {
+      //   data: deepClone(choiceFeature.data),
+      // });
+      if (choices.length === 1
+        && !DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
+      ) {
+        ddbFeature.data.name = choiceFeature.data.name;
+        if (Object.keys(ddbFeature.data.system.activities).length === 0) {
+          ddbFeature.data.system.activities = choiceFeature.data.system.activities;
+        }
+        if (ddbFeature.data.effects.length === 0) {
+          ddbFeature.data.effects = choiceFeature.data.effects;
+        }
+      } else {
+        features.push(choiceFeature.data);
+      }
+    }
+
     return features;
   }
 

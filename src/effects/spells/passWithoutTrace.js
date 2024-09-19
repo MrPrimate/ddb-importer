@@ -8,7 +8,7 @@ export function passWithoutTraceEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       value: '+ 10',
       priority: "20",
-    }
+    },
   );
 
   document.effects.push(effect);

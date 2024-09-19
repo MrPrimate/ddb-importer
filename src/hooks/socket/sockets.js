@@ -54,7 +54,7 @@ export class DDBSocket {
           break;
         default:
           logger.error(
-            `Unknown recipient '${recipient}' when trying to execute '${functionName}' for 'DDB Importer internal socket handler.`
+            `Unknown recipient '${recipient}' when trying to execute '${functionName}' for 'DDB Importer internal socket handler.`,
           );
           return;
       }
@@ -84,12 +84,12 @@ export class DDBSocket {
         break;
       case "EXCEPTION":
         request.reject(
-          new Error(`An exception occurred during remote execution of DDB function '${request.functionName}'. Please see ${game.users.get(message.userId).name}'s error console for details.`)
+          new Error(`An exception occurred during remote execution of DDB function '${request.functionName}'. Please see ${game.users.get(message.userId).name}'s error console for details.`),
         );
         break;
       default:
         request.reject(
-          new Error(`Unknown result type '${type}' for DDB function '${request.functionName}'. Catastrophic error.`)
+          new Error(`Unknown result type '${type}' for DDB function '${request.functionName}'. Catastrophic error.`),
         );
         break;
     }
@@ -113,7 +113,7 @@ export class DDBSocket {
       id: foundry.utils.randomID(),
     };
     const promise = new Promise((resolve, reject) =>
-      this.requests.set(message.id, { functionName, resolve, reject, recipient })
+      this.requests.set(message.id, { functionName, resolve, reject, recipient }),
     );
     game.socket.emit(this.name, message);
     return promise;

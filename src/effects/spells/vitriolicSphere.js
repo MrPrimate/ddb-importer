@@ -12,7 +12,7 @@ export function vitriolicSphereEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: `turn=end,label=${document.name} (End of Turn),damageRoll=5d4,damageType=acid,removeCondition=true,killAnim=true`,
       priority: "20",
-    }
+    },
   );
   foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
   foundry.utils.setProperty(effect, "duration.rounds", 1);

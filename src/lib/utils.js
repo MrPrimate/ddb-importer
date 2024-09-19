@@ -1,3 +1,9 @@
+// eslint-disable-next-line func-style
+const Range = function *(total = 0, step = 1, from = 0) {
+  // eslint-disable-next-line no-mixed-operators, no-empty
+  for (let i = 0; i < total; yield from + i++ * step) {}
+};
+
 const utils = {
   debug: () => {
     return true;
@@ -21,6 +27,8 @@ const utils = {
     }
   },
 
+  arrayRange: Range,
+
   removeCompendiumLinks: (text) => {
     const linkRegExTag = /@\w+\[(.*)\](\{.*?\})/g;
     const linkRegExNoTag = /@\w+\[(.*)\]/g;
@@ -39,10 +47,8 @@ const utils = {
   },
 
   referenceNameString: (str) => {
-    return str.replace(/[^a-zA-Z0-9]/g, "-")
-      .replace(/-+/g, "-")
-      .trim()
-      .replace(/-$/g, '');
+    const identifier = str.replaceAll(/(\w+)([\\|/])(\w+)/g, "$1-$3");
+    return identifier.slugify({ strict: true });
   },
 
   idString: (str) => {
@@ -180,13 +186,13 @@ const utils = {
     return Math.floor((val - 10) / 2);
   },
 
-  diceStringResultBuild: (diceMap, dice, bonus = "", mods = "", diceHint = "", specialFlags = "") => {
-    const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
+  diceStringResultBuild: (diceMap, dice, bonus = "", mods = "", diceHint = "", specialFlags = "", addHint = false) => {
+    const globalDamageHints = addHint;
     const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? ' +' : ' '} ${bonus}`;
     const diceHintAdd = globalDamageHints && diceHint && diceMap;
     const hintString = diceHintAdd ? diceHint.replace("[]", "") : "";
     const diceHintString = diceMap.map(({ sign, count, die }, index) =>
-      `${index ? `${sign} ` : ''}${count}d${die}${specialFlags}${hintString}`
+      `${index ? `${sign} ` : ''}${count}d${die}${specialFlags}${hintString}`,
     ).join(' ');
 
     const result = {
@@ -197,7 +203,7 @@ const utils = {
       diceString: [
         diceHintString,
         mods,
-        resultBonus
+        resultBonus,
       ].join('').trim(),
     };
     return result;
@@ -218,7 +224,7 @@ const utils = {
       const {
         rawSign = '+',
         count,
-        die
+        die,
       } = groups;
 
       // sign. We only take the sign standing exactly in front of the dice string
@@ -229,12 +235,12 @@ const utils = {
         dice.push({
           sign,
           count: parseInt(sign + count),
-          die: parseInt(die)
+          die: parseInt(die),
         });
       } else {
         bonuses.push({
           sign,
-          count: parseInt(sign + count)
+          count: parseInt(sign + count),
         });
       }
     }
@@ -256,8 +262,8 @@ const utils = {
         diceMap.push(
           dieGroup.reduce((acc, item) => ({
             ...acc,
-            count: acc.count + item.count
-          }))
+            count: acc.count + item.count,
+          })),
         );
       }
     }
@@ -518,7 +524,7 @@ const utils = {
             callback: () => {
               resolve("");
             },
-          }
+          },
         },
         default: "ok",
         close: () => {
@@ -540,7 +546,7 @@ const utils = {
       CONFIG.DDBI.POPUPS[type] = window.open(
         url,
         "ddb_sheet_popup",
-        `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`
+        `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`,
       );
     }
     return true;

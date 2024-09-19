@@ -26,11 +26,11 @@ const CLASS_TEMPLATE = {
     "obsidian": {
       "source": {
         "type": "class",
-        "text": ""
-      }
+        "text": "",
+      },
     },
   },
-  "img": null
+  "img": null,
 };
 
 export const NO_TRAITS = [
@@ -123,14 +123,14 @@ export async function generateFeatureAdvancements(klass, compendiumClassFeatures
             type: "ItemGrant",
             configuration: {
               items: [
-                `Compendium.${compendiumLabel}.${featureMatch._id}`
-              ]
+                `Compendium.${compendiumLabel}.${featureMatch._id}`,
+              ],
             },
             value: {},
             level: feature.requiredLevel,
             title: "Features",
             icon: "",
-            classRestriction: ""
+            classRestriction: "",
           };
           advancements.push(advancement);
         } else {
@@ -302,7 +302,7 @@ export async function buildBaseClass(klass) {
 
   const proficiencyOption = klass.classFeatures.find((feature) =>
     feature.name === "Proficiencies"
-    && feature.requiredLevel === 1
+    && feature.requiredLevel === 1,
   );
 
   const dom = utils.htmlToDocumentFragment(proficiencyOption.description);

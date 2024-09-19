@@ -469,6 +469,10 @@
     "path": "icons/magic/life/heart-glowing-red.webp"
   },
   {
+    "name": "Aura of Devotion Spells",
+    "path": "icons/magic/life/heart-glowing-red.webp"
+  },
+  {
     "name": "Aura of Hate",
     "class_feature": "Aura of Hate",
     "class": "Paladin",
@@ -1477,6 +1481,17 @@
     "path": "icons/weapons/swords/sword-gold-holy.webp"
   },
   {
+    "name": "Sacred Weapon",
+    "class_feature": "Sacred Weapon",
+    "class": "Paladin",
+    "subclass": "",
+    "path": "icons/weapons/swords/sword-gold-holy.webp"
+  },
+  {
+    "name": "Paladin's Smite",
+    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
+  },
+  {
     "name": "Channel Divinity: Slow Time",
     "class_feature": "Channel Divinity: Slow Time",
     "class": "Cleric",
@@ -1720,6 +1735,13 @@
     "class": "Fighter",
     "subclass": "Battle Master",
     "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-blue-yellow.webp"
+  },
+  {
+    "name": "Ultimate Combat Superiorityy",
+    "class_feature": "Ultimate Combat Superiority",
+    "class": "Fighter",
+    "subclass": "Battle Master",
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-purple.webp"
   },
   {
     "name": "Combat Wild Shape",
@@ -9406,5 +9428,69 @@
     "class": "Monk",
     "subclass": "Way of the Kensei",
     "path": "icons/skills/melee/strike-spear-red.webp"
+  },
+  {
+    "name": "Fighter Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Ranger Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Rogue Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Paladin Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Warlock Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Barbarian Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Monk Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Druid Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Wizard Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Cleric Weapon Masteries",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Tactical Shift",
+    "path": "icons/skills/trades/academics-investigation-puzzles.webp"
+  },
+  {
+    "name": "Tactical Mind",
+    "path": "icons/skills/trades/academics-investigation-study-blue.webp"
+  },
+  {
+    "name": "Tactical Master",
+    "path": "icons/skills/trades/academics-book-study-runes.webp"
+  },
+  {
+    "name": "Hunter's Mark",
+    "path": "icons/weapons/bows/shortbow-recurve-yellow.webp"
+  },
+  {
+    "name": "Studied Attacks",
+    "path": "icons/sundries/documents/blueprint-axe.webp"
+  },
+  {
+    "name": "Faithful Steed",
+    "path": "icons/environment/creatures/horse-tan.webp"
   }
 ]

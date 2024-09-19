@@ -4,7 +4,7 @@ import { addStatusEffectChange } from "../effects.js";
 export function tidalWaveEffect(document) {
 
   let effect = baseSpellEffect(document, `${document.name} - Prone`);
-  addStatusEffectChange(effect, "Prone", 20, true);
+  addStatusEffectChange({ effect, statusName: "Prone" });
   effect.duration = {
     seconds: 99999,
     rounds: 999,

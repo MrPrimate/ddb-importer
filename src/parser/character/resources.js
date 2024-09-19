@@ -22,7 +22,7 @@ DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedRes
 
       if (action.limitedUse.statModifierUsesId) {
         const ability = DICTIONARY.character.abilities.find(
-          (ability) => ability.id === action.limitedUse.statModifierUsesId
+          (ability) => ability.id === action.limitedUse.statModifierUsesId,
         ).value;
 
         switch (action.limitedUse.operator) {
@@ -205,7 +205,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
           "img": this.source.ddb.character.decorations?.avatarUrl
             ? this.source.ddb.character.decorations.avatarUrl
             : CONST.DEFAULT_TOKEN,
-          "cssClass": "character-resource-selection sheet"
+          "cssClass": "character-resource-selection sheet",
         },
         buttons: {
           default: {
@@ -217,7 +217,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               this.setDefaultResources(sortedResources);
               this._generateResources();
               resolve(this.raw.character);
-            }
+            },
           },
           custom: {
             // icon: '<i class="fas fa-sort"></i>',
@@ -226,7 +226,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               const formData = $('.character-resource-selection').serializeArray();
               this._generateResourceSelectionFromForm(formData, "custom");
               resolve(this.raw.character);
-            }
+            },
           },
           disable: {
             callback: async () => {
@@ -234,7 +234,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               this._generateResourceSelectionFromForm(formData, "disable");
               this._generateResources();
               resolve(this.raw.character);
-            }
+            },
           },
           remove: {
             callback: async () => {
@@ -242,7 +242,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               this._generateResourceSelectionFromForm(formData, "remove");
               this._generateResources();
               resolve(this.raw.character);
-            }
+            },
           },
         },
         default: "default",
@@ -261,61 +261,34 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
   });
 };
 
-const resourceFeatureLinkMap = {
-  "Channel Divinity": ["Channel Divinity:"],
-  "Superiority Dice": ["Manoeuvres:", "Maneuvers:"],
-  "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen"],
-  "Bardic Inspiration": [
-    "Mote of Potential", "Unsettling Words", "Mantle of Inspiration",
-    "Cutting Words", "Peerless Skill", "Tales from Beyond", "Blade Flourish",
-    "Defensive Flourish", "Slashing Flourish", "Mobile Flourish",
-    "Psychic Blades",
-  ],
-  "Wild Shape": ["Symbiotic Entity", "Starry Form", "Wild Companion", "Summon Wildfire Spirit"],
-  "Grit Points": [
-    "Trick Shots:", "Bullying Shot", "Dazing Shot", "Deadeye Shot", "Disarming Shot",
-    "Forceful Shot", "Piercing Shot", "Violent Shot", "Winging Shot",
-  ],
-  "Adept Marksman": [
-    "Trick Shots:", "Bullying Shot", "Deadeye Shot", "Disarming Shot", "Piercing Shot", "Rapid Repair",
-    "Dazing Shot", "Forceful Shot", "Winging Shot", "Violent Shot"
-  ],
-  "Psionic Power: Psionic Energy": [
-    "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",
-    "Psionic Power: Psi-Bolstered Knack", "Soul Blades: Homing Strikes", "Soul Blades: Psychic Teleportation",
-    "Psionic Power: Recovery",
-  ],
-  "Ki Points": [
-    "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind",
-    "Deflect Missiles Attack", "Arms of the Astral Self: Summon", "Stunning Strike",
-    "Empty Body", "Diamond Soul", "Visage of the Astral Self", "Quickened Healing",
-    "Focused Aim", "Sharpen the Blade", "Deft Strike", "Shadow Arts",
-    "Extort Truth", "Mind of Mercury", "Debilitating Barrage", "Tipsy Sway",
-    "Drunkard’s Luck", "Drunkard's Luck", "Touch of the Long Death",
-    "Quivering Palm", "Radiant Sun Bolt", "Searing Arc Strike",
-    "Breath of Winter", "Clench of the North Wind", "Eternal Mountain Defense",
-    "Fangs of the Fire Snake", "Fist of Four Thunders", "Fist of Unbroken Air",
-    "Flames of the Phoenix", "Gong of the Summit", "Mist Stance",
-    "Ride the Wind", "River of Hungry Flame", "Rush of the Gale Spirits",
-    "Shape the Flowing River", "Sweeping Cinder Strike", "Water Whip",
-    "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm", "Hand of Ultimate Mercy",
-  ],
-  "Infuse Item": ["Infusion:"],
-  // "Lay on Hands Pool": ["Lay on Hands"],
-  "Maneuver Points": [
-    "Carrion Raven Martial Maneuvers:", "Slippery Otter: Activate", "Blade Breaker Maneuvers:"
-  ],
-  "Jinx Points": ["Misfortunes:", "Curse Caster"]
-};
-
-const chargeTypeMap = {
-  "Lay on Hands": {
-    "type": "none",
-  },
-};
+// const chargeTypeMap = {
+//   "Lay on Hands": {
+//     "type": "none",
+//   },
+// };
 
 const resourceSpellLinkMap = {
   "Ki Points": [
+    { name: "Astral Projection", cost: 8, lookupName: "Empty Body" },
+    { name: "Darkness", cost: 2, lookupName: "Shadow Arts" },
+    { name: "Darkvision", cost: 2, lookupName: "Shadow Arts" },
+    { name: "Pass Without Trace", cost: 2, lookupName: "Shadow Arts" },
+    { name: "Silence", cost: 2, lookupName: "Shadow Arts" },
+    { name: "Burning Hands", cost: 2, lookupName: "Searing Arc Strike" },
+    { name: "Cone of Cold", cost: 6, lookupName: "Breath of Winter" },
+    { name: "Hold Person", cost: 3, lookupName: "Clench of the North Wind" },
+    { name: "Stoneskin", cost: 5, lookupName: "Eternal Mountain Defense" },
+    { name: "Thunderwave", cost: 2, lookupName: "Fist of Four Thunders" },
+    { name: "Fireball", cost: 4, lookupName: "Flames of the Phoenix" },
+    { name: "Shatter", cost: 3, lookupName: "Gong of the Summit" },
+    { name: "Gaseous Form", cost: 4, lookupName: "Mist Stance" },
+    { name: "Fly", cost: 4, lookupName: "Ride the Wind" },
+    { name: "Wall of Fire", cost: 5, lookupName: "River of Hungry Flame" },
+    { name: "Gust of Wind", cost: 2, lookupName: "Rush of the Gale Spirits" },
+    { name: "Burning Hands", cost: 2, lookupName: "Sweeping Cinder Strike" },
+    { name: "Wall of Stone", cost: 6, lookupName: "Wave of Rolling Earth" },
+  ],
+  "Focus Points": [
     { name: "Astral Projection", cost: 8, lookupName: "Empty Body" },
     { name: "Darkness", cost: 2, lookupName: "Shadow Arts" },
     { name: "Darkvision", cost: 2, lookupName: "Shadow Arts" },
@@ -345,41 +318,60 @@ const notReplace = {
 };
 
 
-DDBCharacter.prototype.fixItemSpellResources = async function fixItemSpellResources() {
-  const possibleItems = this.currentActor.items.toObject();
-  let toUpdate = [];
+// KNOWN_ISSUE_4_0: update for activities
+// DDBCharacter.prototype.fixItemSpellResources = async function fixItemSpellResources() {
+//   const possibleItems = this.currentActor.items.toObject();
+//   let toUpdate = [];
 
-  for (const spell of possibleItems) {
-    if (spell.type !== "spell") continue;
-    if (!foundry.utils.getProperty(spell, "flags.ddbimporter.isItemCharge")) continue;
-    if (foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookup") !== "item") continue;
-    const spellLookupId = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookupId");
-    if (!spellLookupId) continue;
-    const parentDoc = possibleItems.find((item) =>
-      spellLookupId === item.flags?.ddbimporter?.definitionId
-    );
-    if (!parentDoc) continue;
-    toUpdate.push({
-      _id: spell._id,
-      "system.consume.target": parentDoc._id,
-      "system.uses.prompt": false,
-    });
-  }
+//   for (const spell of possibleItems) {
+//     if (spell.type !== "spell") continue;
+//     if (!foundry.utils.getProperty(spell, "flags.ddbimporter.isItemCharge")) continue;
+//     if (foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookup") !== "item") continue;
+//     const spellLookupId = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookupId");
+//     if (!spellLookupId) continue;
+//     const parentDoc = possibleItems.find((item) =>
+//       spellLookupId === item.flags?.ddbimporter?.definitionId,
+//     );
+//     if (!parentDoc) continue;
+//     toUpdate.push({
+//       _id: spell._id,
+//       // TODO: update for activities
+//       "system.consume.target": parentDoc._id,
+//       "system.uses.prompt": false,
+//     });
+//   }
 
-  logger.debug("itemSpellsToUpdate", toUpdate);
+//   {
+//     _id: "GGJwqQSD1RqJx7RE",
+//     "system.activities.ddbStepOfTheWinI.consumption": {
+//       "targets": [
+//           {
+//               "type": "itemUses",
+//               "target": "",
+//               "value": "1",
+//               "scaling": {
+//                   "mode": "",
+//                   "formula": ""
+//               }
+//           }
+//       ],
+//       "spellSlot": false
+//     }
+//   }
 
-  const results = await this.currentActor.updateEmbeddedDocuments("Item", toUpdate);
-  logger.debug("itemSpellsToUpdate results", results);
+//   logger.debug("itemSpellsToUpdate", toUpdate);
 
-};
+//   const results = await this.currentActor.updateEmbeddedDocuments("Item", toUpdate);
+//   logger.debug("itemSpellsToUpdate results", results);
 
+// };
 
 DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
   // loop over resourceFeatureLinkMap
   const possibleItems = this.currentActor.items.toObject();
   let toUpdate = [];
 
-  for (const [resourceDocName, consumingDocs] of Object.entries(resourceFeatureLinkMap)) {
+  for (const [resourceDocName, consumingDocs] of Object.entries(DICTIONARY.RESOURCE_LINKS)) {
     logger.debug(`Generic Resource Linking: Checking ${resourceDocName}`, consumingDocs);
     const parent = possibleItems.find((doc) => {
       const name = doc.flags.ddbimporter?.originalName ?? doc.name;
@@ -402,14 +394,40 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
             if (foundry.utils.getProperty(child, "flags.ddbimporter.retainResourceConsumption")) return;
             logger.debug("child", child);
             const update = {
-              _id: child._id
+              _id: child._id,
+              system: {
+                uses: {
+                  spent: null,
+                  max: "",
+                },
+              },
             };
-            const charge = foundry.utils.getProperty(child, "system.consume.amount") ?? 1;
-            foundry.utils.setProperty(update, "system.consume", {
-              type: chargeTypeMap[consumingDocName]?.type ?? "charges",
-              target: parent._id,
-              amount: charge,
-            });
+            const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities");
+            for (const id of Object.keys(child.system.activities)) {
+              if (ignoredConsumptionActivities?.includes(child.system.activities[id].name)) continue;
+              const targets = child.system.activities[id].consumption.targets;
+              if (foundry.utils.getProperty(child, "flags.ddbimporter.retainOriginalConsumption")) {
+                targets.push({
+                  type: "itemUses",
+                  value: 1,
+                  target: `${parent._id}`,
+                });
+                foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
+              } else if (targets.length > 0) {
+                targets[0].target = parent._id;
+                foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
+              } else {
+                foundry.utils.setProperty(update, `system.activities.${id}.consumption`, {
+                  spellSlot: false,
+                  targets: [{
+                    type: "itemUses",
+                    value: 1,
+                    target: `${parent._id}`,
+                  }],
+                });
+              }
+            }
+
             toUpdate.push(update);
           });
         }
@@ -437,12 +455,18 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
           if (foundry.utils.getProperty(child, "flags.ddbimporter.retainResourceConsumption")) return;
           logger.debug("child", child);
           const update = {
-            _id: child._id
+            _id: child._id,
           };
-          foundry.utils.setProperty(update, "system.consume", {
-            type: "charges",
-            target: parent._id,
-            amount: value.cost,
+          Object.keys(child.system.activities).forEach((id) => {
+            const consumption = child.system.activities[id].consumption;
+            const targets = [{
+              target: parent._id,
+              value: `${value.cost}`,
+              type: "itemUses",
+            }];
+            consumption.targets = targets;
+            consumption.spellSlot = false;
+            foundry.utils.setProperty(update, `system.activities.${id}.consumption`, consumption);
           });
           toUpdate.push(update);
         }

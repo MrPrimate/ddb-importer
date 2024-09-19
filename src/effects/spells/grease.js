@@ -6,7 +6,7 @@ export async function greaseEffect(document) {
 
   if (!effectModules().activeAurasInstalled || !effectModules().midiQolInstalled) {
     let effect = baseSpellEffect(document, `${document.name} - Prone`);
-    addStatusEffectChange(effect, "Prone", 20, true);
+    addStatusEffectChange({ effect, statusName: "Prone" });
     document.effects.push(effect);
 
     return document;

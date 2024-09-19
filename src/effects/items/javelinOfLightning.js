@@ -15,9 +15,9 @@ export async function javelinOfLightningEffect(document) {
 
   // foundry.utils.setProperty(document.effects[0], "flags.dae.specialDuration", ["isDamaged"]);
   document.system.uses = {
-    value: null,
+    spent: null,
     max: "",
-    per: "",
+    recovery: [],
   };
 
   document.system.formula = "";

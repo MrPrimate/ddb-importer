@@ -4,7 +4,7 @@ import DDBMacros from "../DDBMacros.js";
 export async function flameBladeEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
-    DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "flameBlade.js" })
+    DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "flameBlade.js" }),
   );
 
   effect.changes.push(
@@ -19,7 +19,7 @@ export async function flameBladeEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
       value: "10",
       priority: 20,
-    }
+    },
   );
   foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
   foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);

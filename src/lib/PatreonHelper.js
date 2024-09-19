@@ -89,7 +89,7 @@ const PatreonHelper = {
           let currentEmail = PatreonHelper.getPatreonUser(local);
           logger.debug("Fetched Patreon tier information", {
             user: data.email,
-            tier: data.data
+            tier: data.data,
           });
           if (data.email !== currentEmail) {
             PatreonHelper.setPatreonUser(data.email, local).then(() => {

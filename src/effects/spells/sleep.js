@@ -10,7 +10,7 @@ export async function sleepEffect(document) {
     document.system.damage = { parts: [["5d8", "midi-none"]], versatile: "", value: "" };
   } else {
     let effect = baseSpellEffect(document, `${document.name} - Unconscious`);
-    addStatusEffectChange(effect, "Unconscious", 20, true);
+    addStatusEffectChange({ effect, statusName: "Unconscious" });
     document.effects.push(effect);
   }
 

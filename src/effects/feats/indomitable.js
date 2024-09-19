@@ -20,7 +20,7 @@ export function indomitableEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: "Use Indomitable to Succeed?",
       priority: "20",
-    }
+    },
   );
   document.effects.push(effect);
   return document;

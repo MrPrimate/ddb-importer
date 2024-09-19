@@ -1,6 +1,5 @@
 // Main module class
 import DDBMuncher from "../apps/DDBMuncher.js";
-import { getSpells } from "../parser/spells/getGenericSpells.js";
 import FileHelper from "../lib/FileHelper.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -14,6 +13,7 @@ import Iconizer from "../lib/Iconizer.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
 import utils from "../lib/utils.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
+import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
@@ -49,7 +49,7 @@ function getSpellData(className, sourceFilter) {
       .then((data) => {
         if (sources.length == 0 || !sourceFilter) return data.data;
         return data.data.filter((spell) =>
-          spell.definition.sources.some((source) => sources.includes(source.sourceId))
+          spell.definition.sources.some((source) => sources.includes(source.sourceId)),
         );
       })
       .then((data) => {
@@ -88,28 +88,56 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
 
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
-  const results = await Promise.allSettled([
-    getSpellData("Cleric", sourceFilter),
-    getSpellData("Druid", sourceFilter),
-    getSpellData("Sorcerer", sourceFilter),
-    getSpellData("Warlock", sourceFilter),
-    getSpellData("Wizard", sourceFilter),
-    getSpellData("Paladin", sourceFilter),
-    getSpellData("Ranger", sourceFilter),
-    getSpellData("Bard", sourceFilter),
-    getSpellData("Graviturgy", sourceFilter),
-    getSpellData("Chronurgy", sourceFilter),
-    getSpellData("Artificer", sourceFilter),
-  ]);
+
+  const clericSpells = await getSpellData("Cleric", sourceFilter);
+  const druidSpells = await getSpellData("Druid", sourceFilter);
+  const sorcererSpells = await getSpellData("Sorcerer", sourceFilter);
+  const warlockSpells = await getSpellData("Warlock", sourceFilter);
+  const wizardSpells = await getSpellData("Wizard", sourceFilter);
+  const paladinSpells = await getSpellData("Paladin", sourceFilter);
+  const rangerSpells = await getSpellData("Ranger", sourceFilter);
+  const bardSpells = await getSpellData("Bard", sourceFilter);
+  const graviturgySpells = await getSpellData("Graviturgy", sourceFilter);
+  const chronurgySpells = await getSpellData("Chronurgy", sourceFilter);
+  const artificerSpells = await getSpellData("Artificer", sourceFilter);
+
+  const results = [
+    ...clericSpells,
+    ...druidSpells,
+    ...sorcererSpells,
+    ...warlockSpells,
+    ...wizardSpells,
+    ...paladinSpells,
+    ...rangerSpells,
+    ...bardSpells,
+    ...graviturgySpells,
+    ...chronurgySpells,
+    ...artificerSpells,
+  ];
 
   DDBMuncher.munchNote("Parsing spell data.");
 
-  const filteredResults = results
-    .filter((r) => r.status === "fulfilled")
-    .map((r) => r.value).flat().flat()
-    .filter((v, i, a) => a.findIndex((t) => t.definition.name === v.definition.name) === i);
+  const excludeLegacy = game.settings.get("ddb-importer", "munching-policy-exclude-legacy");
 
-  const rawSpells = await getSpells(filteredResults);
+  const filteredResults = results
+    .filter((r) => !excludeLegacy || (excludeLegacy && !r.definition.isLegacy))
+    .filter((v, i, a) => a.findIndex((t) =>
+      t.definition.name === v.definition.name
+      && t.definition.isLegacy === v.definition.isLegacy) === i);
+
+  // console.warn("CONDITION SPELLS", {
+  //   spells: filteredResults.filter((f) => {
+  //     return f.definition.conditions?.length > 0;
+  //   }).map((f) => {
+  //     return {
+  //       name: f.definition.name,
+  //       conditions: f.definition.conditions,
+  //     }
+  //   })
+  // });
+
+  const rawSpells = await GenericSpellFactory.getSpells(filteredResults);
+
 
   const spells = rawSpells
     .filter((spell) => spell?.name)
@@ -118,15 +146,13 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
       return spell;
     });
 
-  if (results.some((r) => r.status === "rejected")) {
-    DDBMuncher.munchNote("Failed to parse some spells, see the developer console (F12) for details.");
-    logger.error("Failed spell parsing", results);
-  }
-
   await Iconizer.preFetchDDBIconImages();
 
-  const uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
-  const itemHandler = new DDBItemImporter("spells", uniqueSpells, { deleteBeforeUpdate });
+  const uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name
+    && t.flags.ddbimporter.is2014 === v.flags.ddbimporter.is2014
+    && t.flags.ddbimporter.is2024 === v.flags.ddbimporter.is2024) === i);
+
+  const itemHandler = new DDBItemImporter("spells", uniqueSpells, { deleteBeforeUpdate, matchFlags: ["is2014", "is2024"] });
   await itemHandler.init();
   await itemHandler.srdFiddling();
   await itemHandler.iconAdditions();

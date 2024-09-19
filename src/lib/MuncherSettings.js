@@ -89,7 +89,7 @@ const MuncherSettings = {
         name: "spell-use",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-spell-use"),
         description: "Spell Slots",
-      }
+      },
     ];
     const importPolicies2 = [
       {
@@ -174,15 +174,15 @@ const MuncherSettings = {
         enabled: true,
       },
       {
-        name: "use-full-description",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-full-description"),
-        description: "For actions use full description and snippets, else use snippets only.",
+        name: "use-combined-description",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-combined-description"),
+        description: "If selected will use the short snippet snippet, with the full description in a collapsed box.",
         enabled: true,
       },
       {
         name: "add-description-to-chat",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "add-description-to-chat"),
-        description: "Add the snippet to the chat card (otherwise will use description).",
+        description: "Use the short description for the chat card (otherwise will use normal description).",
         enabled: true,
       },
       // {
@@ -192,13 +192,13 @@ const MuncherSettings = {
       //     "Import D&D Beyond Actions as Features, not weapons.",
       //   enabled: true,
       // },
-      {
-        name: "use-action-and-feature",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-action-and-feature"),
-        description:
-          "[CAUTION] If a feature is marked as an action, import both the action and the feature. This might lead to some weird behaviour.",
-        enabled: true,
-      },
+      // {
+      //   name: "use-action-and-feature",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-action-and-feature"),
+      //   description:
+      //     "[CAUTION] If a feature is marked as an action, import both the action and the feature. This might lead to some weird behaviour.",
+      //   enabled: true,
+      // },
       {
         name: "ignore-non-ddb-items",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-ignore-non-ddb-items"),
@@ -391,26 +391,14 @@ const MuncherSettings = {
     logger.debug(`Updating munching-policy-${selection} to ${checked}`);
     if (selection === "add-description-to-chat") {
       game.settings.set(SETTINGS.MODULE_ID, "add-description-to-chat", checked);
-      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-full-description", false);
-      MuncherSettings.toggleByName("character-import-policy-use-full-description", false);
-      // $(html).find("#character-import-policy-use-full-description").prop("checked", false);
+      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-combined-description", false);
+      MuncherSettings.toggleByName("character-import-policy-use-combined-description", false);
     } else {
       game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-" + selection, checked);
     }
 
-    // if (selection === "dae-copy" && checked) {
-    //   $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
-    //   game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
-    // } else if (selection === "dae-effect-copy" && checked) {
-    //   $(html).find("#character-import-policy-add-item-effects").prop("checked", true);
-    //   game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects", true);
-    //   $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
-    //   game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects", true);
-    // }
-
-    if (selection === "use-full-description") {
+    if (selection === "use-combined-description") {
       game.settings.set(SETTINGS.MODULE_ID, "add-description-to-chat", false);
-      // $(html).find("#character-import-policy-add-description-to-chat").prop("checked", false);
       MuncherSettings.toggleByName("character-import-policy-add-description-to-chat", false);
     }
   },
@@ -549,13 +537,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       {
         name: "use-full-token-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image"),
-        description: "Use avatar image for token rather than token image (full art).",
+        description: "Use portrait image for token rather than token image (i.e. full art).",
         enabled: true,
       },
       {
         name: "use-token-avatar-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image"),
-        description: "Use token image for avatar rather than avatar image (close up).",
+        description: "Use token image for portrait rather than the portrait image (i.e. close up).",
         enabled: true,
       },
       {
@@ -633,7 +621,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match"),
           description: "Exact name match?",
           enabled: tiers.homebrew,
-        }
+        },
       ]
       : [];
 
@@ -664,23 +652,23 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         description: `Use Automation Effects from Chris's Premades module? These provide high quality automations for spells, features, monsters, etc. (Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module).<br>These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
-      {
-        name: "use-srd",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd"),
-        description:
-          "[CAUTION] Use SRD compendium things instead of importing. This is not recommended, and may break adventure munching functionality.",
-        enabled: true,
-      },
+      // {
+      //   name: "use-srd",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd"),
+      //   description:
+      //     "[CAUTION] Use SRD compendium things instead of importing. This is not recommended, and may break adventure munching functionality.",
+      //   enabled: true,
+      // },
       {
         name: "exclude-legacy",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy"),
-        description: "Exclude legacy monsters/races from import? These are replaced by newer versions e.g. in Monsters of the Multiverse.",
+        description: "Exclude legacy things from import? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
         enabled: true,
       },
       {
         name: "legacy-postfix",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-legacy-postfix"),
-        description: "Append (Legacy) to Legacy monster/race names? These are replaced by newer versions e.g. in Monsters of the Multiverse.",
+        description: "Append (Legacy) to Legacy names? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
         enabled: true,
       },
       {
@@ -688,7 +676,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         isChecked: enableSources,
         description: "Restrict import to specific source book(s)? (DDB sets this as the <i>first</i> book a monster appears in).",
         enabled: true,
-      }
+      },
     ];
 
     const worldUpdateConfig = [

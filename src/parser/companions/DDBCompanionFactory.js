@@ -6,6 +6,263 @@ import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../munc
 import DDBCompanion from "./DDBCompanion.js";
 import { isEqual } from "../../../vendor/lowdash/isequal.js";
 import DDBSummonsManager from "./DDBSummonsManager.js";
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
+
+async function getFindFamiliarActivityData() {
+  const ddbCompendium = CompendiumHelper.getCompendiumType("monster", false);
+  await ddbCompendium?.getIndex();
+
+  const activity = {
+    "creatureTypes": [
+      "celestial",
+      "fey",
+      "fiend",
+    ],
+    "profiles": [
+      {
+        "name": "Bat",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Bat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.qav2dvMIUiMQCCsy",
+      },
+      {
+        "name": "Cat",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Cat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.hIf83RD3ZVW4Egfi",
+      },
+      {
+        "name": "Crab",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Crab")?.uuid ?? "Compendium.dnd5e.monsters.Actor.8RgUhb31VvjUNZU1",
+      },
+      {
+        "name": "Fish",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Quipper")?.uuid ?? "Compendium.dnd5e.monsters.Actor.nkyCGJ9wXeAZkyyz",
+      },
+      {
+        "name": "Frog",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Frog")?.uuid ?? "Compendium.dnd5e.monsters.Actor.EZgiprHXA2D7Uyb3",
+      },
+      {
+        "name": "Hawk",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Hawk")?.uuid ?? "Compendium.dnd5e.monsters.Actor.fnkPNfIpS62LqOu4",
+      },
+      {
+        "name": "Lizard",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Lizard")?.uuid ?? "Compendium.dnd5e.monsters.Actor.I2x01hzOjVN4NUjf",
+      },
+      {
+        "name": "Octopus",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Octopus")?.uuid ?? "Compendium.dnd5e.monsters.Actor.3UUNbGiG2Yf1ZPxM",
+      },
+      {
+        "name": "Owl",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Owl")?.uuid ?? "Compendium.dnd5e.monsters.Actor.d0prpsGSAorDadec",
+      },
+      {
+        "name": "Poisonous Snake",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Poisonous Snake")?.uuid ?? "Compendium.dnd5e.monsters.Actor.D5rwVIxmfFrdyyxT",
+      },
+      {
+        "name": "Rat",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Rat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.pozQUPTnLZW8epox",
+      },
+      {
+        "name": "Raven",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Raven")?.uuid ?? "Compendium.dnd5e.monsters.Actor.LPdX5YLlwci0NDZx",
+      },
+      {
+        "name": "Sea Horse",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Sea Horse")?.uuid ?? "Compendium.dnd5e.monsters.Actor.FWSDiq9SZsdiBAa8",
+      },
+      {
+        "name": "Spider",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Spider")?.uuid ?? "Compendium.dnd5e.monsters.Actor.28gU50HtG8Kp7uIz",
+      },
+      {
+        "name": "Weasel",
+        "uuid": ddbCompendium?.index.find((i) => i.name === "Weasel")?.uuid ?? "Compendium.dnd5e.monsters.Actor.WOdeacKCYVhgLDuN",
+      },
+    ],
+    "creatureSizes": [],
+    "match": {
+      "attacks": false,
+      "proficiency": false,
+      "saves": false,
+    },
+    summon: {
+      identifier: "",
+      mode: "",
+      prompt: true,
+    },
+    "bonuses": {
+      "ac": "",
+      "hp": "",
+      "attackDamage": "",
+      "saveDamage": "",
+      "healing": "",
+    },
+  };
+  return activity;
+}
+
+const CR_DATA = {
+  "Conjure Animals": {
+    profiles: [
+      {
+        "count": "1 * floor((@item.level - 1) / 2)",
+        "cr": "2",
+        "types": ["beast"],
+      },
+      {
+        "count": "2 * floor((@item.level - 1) / 2",
+        "cr": "1",
+        "types": ["beast"],
+      },
+      {
+        "count": "4 * floor((@item.level - 1) / 2)",
+        "cr": "0.5",
+        "types": ["beast"],
+      },
+      {
+        "count": "8 * floor((@item.level - 1) / 2)",
+        "cr": "0.25",
+        "types": ["beast"],
+      },
+    ],
+    creatureTypes: ["beast"],
+  },
+  "Conjure Celestial": {
+    profiles: [
+      {
+        "count": "1",
+        "cr": "4",
+        "level": {
+          "min": null,
+          "max": 8,
+        },
+        "types": ["celestial"],
+      },
+      {
+        "count": "1",
+        "cr": "5",
+        "level": {
+          "min": 9,
+          "max": null,
+        },
+        "types": ["celestial"],
+      },
+    ],
+    creatureTypes: [],
+  },
+  "Conjure Elemental": {
+    profiles: [
+      {
+        "count": "1",
+        "cr": "@item.level",
+        "types": ["elemental"],
+      },
+    ],
+    creatureTypes: ["elemental"],
+  },
+  "Conjure Fey": {
+    profiles: [
+      {
+        "count": "1",
+        "cr": "@item.level",
+        "types": ["fey"],
+      },
+    ],
+    creatureTypes: ["fey"],
+  },
+  "Conjure Minor Elementals": {
+    profiles: [
+      {
+        "count": "1 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "2",
+        "types": ["elemental"],
+      },
+      {
+        "count": "2 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "1",
+        "types": ["elemental"],
+      },
+      {
+        "count": "4 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.5",
+        "types": ["elemental"],
+      },
+      {
+        "count": "8 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.25",
+        "types": ["elemental"],
+      },
+    ],
+    creatureTypes: [],
+  },
+  "Conjure Woodland Beings": {
+    profiles: [
+      {
+        "count": "1 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "2",
+        "types": ["fey"],
+      },
+      {
+        "count": "2 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "1",
+        "types": ["fey"],
+      },
+      {
+        "count": "4 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.5",
+        "types": ["fey"],
+      },
+      {
+        "count": "8 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.25",
+        "types": ["fey"],
+      },
+    ],
+    creatureTypes: ["fey"],
+  },
+  "Summon Greater Demon": {
+    profiles: [
+      {
+        "count": "1",
+        "cr": "@item.level + 1",
+        "types": ["fiend"],
+      },
+    ],
+    creatureTypes: [],
+  },
+  "Summon Lesser Demons": {
+    profiles: [
+      {
+        "count": "2 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "1",
+        "types": ["fiend"],
+      },
+      {
+        "count": "4 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.5",
+        "types": ["fiend"],
+      },
+      {
+        "count": "8 * min(3, floor((@item.level - 2) / 2))",
+        "cr": "0.25",
+        "types": ["fiend"],
+      },
+    ],
+    creatureTypes: [],
+  },
+  "Infernal Calling": {
+    profiles: [
+      {
+        "count": "1",
+        "cr": "@item.level + 1",
+        "types": ["fiend"],
+      },
+    ],
+    creatureTypes: [],
+  },
+};
 
 export default class DDBCompanionFactory {
 
@@ -135,9 +392,9 @@ export default class DDBCompanionFactory {
 
     const existingCompanions = await Promise.all(this.itemHandler.compendiumIndex
       .filter((companion) => foundry.utils.hasProperty(companion, "flags.ddbimporter.id")
-        && this.companions.some((c) => foundry.utils.getProperty(c, "data.flags.ddbimporter.id") === companion.flags.ddbimporter.id)
+        && this.companions.some((c) => foundry.utils.getProperty(c, "data.flags.ddbimporter.id") === companion.flags.ddbimporter.id),
       )
-      .map(async (companion) => this.itemHandler.compendium.getDocument(companion._id))
+      .map(async (companion) => this.itemHandler.compendium.getDocument(companion._id)),
     );
 
     return existingCompanions;
@@ -154,7 +411,7 @@ export default class DDBCompanionFactory {
       .filter((companion) => foundry.utils.hasProperty(companion, "folder.id")
         && ((!folderOverride && this.folderIds.has(companion.folder.id))
           || folderOverride?.id === companion.folder.id)
-        && (!limitToFactory || (limitToFactory && companionNames.includes(companion.name)))
+        && (!limitToFactory || (limitToFactory && companionNames.includes(companion.name))),
       )
       .map((companion) => companion);
     return existingCompanions;
@@ -173,7 +430,7 @@ export default class DDBCompanionFactory {
       existingCompanions.some(
         (exist) =>
           exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
-          && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+          && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId,
       ));
 
     const results = [];
@@ -181,7 +438,7 @@ export default class DDBCompanionFactory {
     for (const companion of updateCompanions) {
       const existingCompanion = await existingCompanions.find((exist) =>
         exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
-        && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+        && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId,
       );
       companion.folder = existingCompanion.folder?.id;
       companion._id = existingCompanion._id;
@@ -205,7 +462,7 @@ export default class DDBCompanionFactory {
       !existingCompanions.some(
         (exist) =>
           exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
-          && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+          && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId,
       ));
 
     const results = [];
@@ -257,9 +514,22 @@ export default class DDBCompanionFactory {
     "Artificer Infusions": "Infusion: Homunculus Servant",
   };
 
-  async addCompanionsToDocuments(otherDocuments) {
-    const summonActors = game.user.isGM
-      ? await this.getExistingCompendiumCompanions()
+  #getDocumentActivity(document = null) {
+    const foundryDocument = document ?? this.originDocument;
+    for (const id of Object.keys(foundryDocument.system.activities)) {
+      const activity = foundryDocument.system.activities[id];
+      if (activity.type === "summon") return activity;
+    }
+    const activity = new DDBBasicActivity({ type: "summon", foundryFeature: foundryDocument });
+    activity.build();
+    return activity.data;
+  }
+
+  async addCompanionsToDocuments(otherDocuments, activity = null) {
+    if (!this.originDocument || !this.summons) return;
+    const compendiumSummons = await this.getExistingCompendiumCompanions();
+    const summonActors = compendiumSummons.length > 0
+      ? compendiumSummons
       : await this.getExistingWorldCompanions({ limitToFactory: true });
     const profiles = summonActors
       .map((actor) => {
@@ -270,25 +540,49 @@ export default class DDBCompanionFactory {
           count: null,
         };
       });
-    if (this.originDocument) {
-      const alternativeDocument = DDBCompanionFactory.COMPANION_REMAP[this.originDocument.name];
-      const updateDocument = alternativeDocument
-        ? (otherDocuments.find((s) =>
-          s.name === alternativeDocument || s.flags.ddbimporter?.originalName === alternativeDocument
-        ) ?? this.originDocument)
-        : this.originDocument;
+    const alternativeDocument = DDBCompanionFactory.COMPANION_REMAP[this.originDocument.name];
+    const updateDocument = alternativeDocument
+      ? (otherDocuments.find((s) =>
+        s.name === alternativeDocument || s.flags.ddbimporter?.originalName === alternativeDocument,
+      ) ?? this.originDocument)
+      : this.originDocument;
 
-      logger.debug("Companion Data Load", {
-        originDocument: updateDocument,
-        profiles,
-        worldActors: summonActors,
-        factory: this,
-        summons: this.summons,
-      });
-      foundry.utils.setProperty(updateDocument, "system.summons", foundry.utils.deepClone(this.summons));
-      foundry.utils.setProperty(updateDocument, "system.summons.profiles", profiles);
-      foundry.utils.setProperty(updateDocument, "system.actionType", "summ");
-    }
+    logger.debug("Companion Data Load", {
+      originDocument: updateDocument,
+      profiles,
+      worldActors: summonActors,
+      factory: this,
+      summons: this.summons,
+    });
+    const summonsData = foundry.utils.deepClone(this.summons);
+    summonsData.profiles = profiles;
+
+    const activityData = activity
+      ? foundry.utils.mergeObject(activity, summonsData)
+      : foundry.utils.mergeObject(this.#getDocumentActivity(updateDocument), summonsData);
+    delete this.originDocument.system.activities[activityData._id];
+    updateDocument.system.activities[activityData._id] = activityData;
+
+  }
+
+  async addCRSummoning(activity) {
+    const summonsData = CR_DATA[this.originDocument.name]
+      ? {
+        summon: {
+          prompt: true,
+          mode: "cr",
+        },
+        profiles: CR_DATA[this.originDocument.name].profiles,
+        creatureTypes: CR_DATA[this.originDocument.name].creatureTypes,
+      }
+      : this.originDocument.name === "Find Familiar"
+        ? await getFindFamiliarActivityData()
+        : null;
+
+    if (!summonsData) return;
+    const activityData = foundry.utils.mergeObject(activity, summonsData);
+    delete this.originDocument.system.activities[activity._id];
+    this.originDocument.system.activities[activity._id] = activityData;
   }
 
 }

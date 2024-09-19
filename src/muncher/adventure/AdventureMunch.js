@@ -268,7 +268,7 @@ export default class AdventureMunch extends FormApplication {
     } catch (err) {
       logger.error(err);
       logger.warn(
-        `Unable to verify import path, this may be due to permissions on the server. You may be able to ignore this message.`
+        `Unable to verify import path, this may be due to permissions on the server. You may be able to ignore this message.`,
       );
     }
 
@@ -292,7 +292,7 @@ export default class AdventureMunch extends FormApplication {
       const folderData = f;
 
       const existingFolder = game.folders.find((folder) =>
-        folder._id === folderData._id && folder.type === folderData.type
+        folder._id === folderData._id && folder.type === folderData.type,
       );
 
       if (existingFolder) {
@@ -330,7 +330,7 @@ export default class AdventureMunch extends FormApplication {
         const pack = CompendiumHelper.getCompendiumType(folderData.type);
         let newFolder = pack.folders.find((folder) =>
           (folder._id === folderData._id || folder.flags.importid === folderData._id)
-          && folder.type === folderData.type
+          && folder.type === folderData.type,
         );
 
         if (!newFolder) {
@@ -460,7 +460,7 @@ export default class AdventureMunch extends FormApplication {
       {
         classes: ["dialog", "adventure-import-export"],
         template: "modules/ddb-importer/handlebars/adventure/import-complete.hbs",
-      }
+      },
     ).render(true);
   }
 
@@ -753,7 +753,7 @@ export default class AdventureMunch extends FormApplication {
           width: 700,
           classes: ["dialog", "adventure-import-selection"],
           template: "modules/ddb-importer/handlebars/adventure/choose-scenes.hbs",
-        }
+        },
       ).render(true);
     });
 
@@ -804,7 +804,7 @@ export default class AdventureMunch extends FormApplication {
         if (this.adventure.system !== game.data.system.id) {
           ui.notifications.error(
             `Invalid system for Adventure ${this.adventure.name}.  Expects ${this.adventure.system}`,
-            { permanent: true }
+            { permanent: true },
           );
           throw new Error(`Invalid system for Adventure ${this.adventure.name}.  Expects ${this.adventure.system}`);
         }
@@ -812,10 +812,10 @@ export default class AdventureMunch extends FormApplication {
         if (parseFloat(this.adventure.version) < 4.0) {
           ui.notifications.error(
             `This Adventure (${this.adventure.name}) was generated for v9.  Please regenerate your config file for Adventure Muncher.`,
-            { permanent: true }
+            { permanent: true },
           );
           throw new Error(
-            `This Adventure (${this.adventure.name}) was generated for v9.  Please regenerate your config file for Adventure Muncher.`
+            `This Adventure (${this.adventure.name}) was generated for v9.  Please regenerate your config file for Adventure Muncher.`,
           );
         }
 
@@ -911,7 +911,7 @@ export default class AdventureMunch extends FormApplication {
         logger.debug(`Actor found for ${actorData.actorId}, with name ${worldActor.name}`);
       } else {
         const monsterHit = monsterIndex.find((monster) =>
-          monster.flags?.ddbimporter?.id && monster.flags.ddbimporter.id == actorData.ddbId
+          monster.flags?.ddbimporter?.id && monster.flags.ddbimporter.id == actorData.ddbId,
         );
         if (monsterHit) {
           logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id} (temporary? ${this.importToAdventureCompendium})`);
@@ -952,7 +952,7 @@ export default class AdventureMunch extends FormApplication {
           ddbId: token.flags.ddbActorFlags.id,
           actorId: token.actorId,
           compendiumId: token.flags.compendiumActorId,
-          folderId: token.flags.actorFolderId
+          folderId: token.flags.actorFolderId,
         };
       })
       .filter((obj, pos, arr) => {
@@ -1047,7 +1047,7 @@ export default class AdventureMunch extends FormApplication {
         if (page.text.content) {
           const journalImages = AdventureMunchHelpers.reMatchAll(
             /(src|href)="(?!http(?:s*):\/\/)([\w0-9\-._~%!$&'()*+,;=:@/]*)"/,
-            page.text.content
+            page.text.content,
           );
           if (journalImages) {
             logger.debug(`Updating Image links for ${page.name}`);
@@ -1140,7 +1140,7 @@ export default class AdventureMunch extends FormApplication {
         adventure = await Adventure.createDocuments([adventureData], {
           pack: pack.metadata.id,
           keepId: true,
-          keepEmbeddedIds: true
+          keepEmbeddedIds: true,
         });
         ui.notifications.info(game.i18n.format("ADVENTURE.CreateSuccess", { name: adventureData.name }));
 
@@ -1367,7 +1367,7 @@ export default class AdventureMunch extends FormApplication {
             width: 700,
             classes: ["dialog", "adventure-import-updates"],
             template: "modules/ddb-importer/handlebars/adventure/import-updates.hbs",
-          }
+          },
         ).render(true);
       } else {
         resolve(this._importFile(type));
@@ -1583,7 +1583,7 @@ export default class AdventureMunch extends FormApplication {
     $(".import-progress-bar")
       .width(`${Math.trunc((count / total) * 100)}%`)
       .html(
-        `<span>${game.i18n.localize("ddb-importer.label.Working")} (${game.i18n.localize(localizedType)})...</span>`
+        `<span>${game.i18n.localize("ddb-importer.label.Working")} (${game.i18n.localize(localizedType)})...</span>`,
       );
   }
 

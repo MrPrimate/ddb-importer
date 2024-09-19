@@ -1,37 +1,7 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { generateATLChange, baseEnchantmentEffect } from "../effects.js";
+import { generateATLChange } from "../effects.js";
 
 export function sacredWeaponEffect(document) {
-  if (document.system.actionType === null) return document;
-  const name = document.name.split(":").pop();
-  document.system.actionType = "ench";
-
-  document.system.damage.parts = [];
-  document.system.chatFlavor = "";
-
-  let enchantmentEffect = baseEnchantmentEffect(document, `${name}`);
-  enchantmentEffect.changes.push(
-    {
-      key: "name",
-      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-      value: `{}, (${name})`,
-      priority: 20,
-    },
-    {
-      key: "system.properties",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: "mgc",
-      priority: 20,
-    },
-    {
-      key: "system.attack.bonus",
-      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-      value: "@abilities.cha.mod",
-      priority: 20,
-    },
-  );
-  enchantmentEffect.description = `The weapon shines with Sacred Energy.`;
-  foundry.utils.setProperty(enchantmentEffect, "duration.seconds", 60);
 
   if (CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules.atlInstalled) {
     let lightEffect = baseFeatEffect(document, `${name} (Light Effect)`, { transfer: false });
@@ -43,14 +13,9 @@ export function sacredWeaponEffect(document) {
     foundry.utils.setProperty(lightEffect, "duration.seconds", 60);
     lightEffect._id = foundry.utils.randomID();
     document.effects.push(lightEffect);
-    foundry.utils.setProperty(enchantmentEffect, "flags.dnd5e.enchantment.riders.effect", [lightEffect._id]);
-  } else {
-    const macroToggle = `<br><p>[[/ddbifunc functionName="sacredWeaponLight" functionType="feat"]]{Toggle Sacred Weapon Light}</div></p>`;
-    document.system.description.value += macroToggle;
-    if (document.system.description.chat !== "") document.system.description.chat += macroToggle;
+    // foundry.utils.setProperty(enchantmentEffect, "flags.dnd5e.enchantment.riders.effect", [lightEffect._id]);
+    // KNOWN_ISSUE_4_0: Add light effect to activity
   }
-
-  document.effects.push(enchantmentEffect);
 
   return document;
 }

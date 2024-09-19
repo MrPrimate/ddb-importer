@@ -3,7 +3,7 @@ import DDBMonster from "../DDBMonster.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 
 DDBMonster.prototype.BAD_AC_MONSTERS = [
-  "arkhan the cruel"
+  "arkhan the cruel",
 ];
 
 DDBMonster.prototype._generateAC = async function _generateAC() {

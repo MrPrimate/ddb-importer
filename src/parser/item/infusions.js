@@ -7,14 +7,14 @@ function getInfusionItemMap(ddb, item) {
   return ddb.infusions.item.find((mapping) =>
     mapping.itemId === item.flags.ddbimporter.definitionId
     && mapping.inventoryMappingId === item.flags.ddbimporter.id
-    && mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
+    && mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId,
   );
 }
 
 function getInfusionDetail(ddb, definitionKey) {
   if (!ddb.infusions?.infusions?.definitionData) return undefined;
   return ddb.infusions.infusions.definitionData.find(
-    (infusion) => infusion.definitionKey === definitionKey
+    (infusion) => infusion.definitionKey === definitionKey,
   );
 }
 
@@ -75,40 +75,45 @@ export async function createInfusedItems(ddb, actor) {
     const infusedItem = ddb.infusions.item.find((mapping) =>
       mapping.itemId === item.flags?.ddbimporter?.definitionId
       && mapping.inventoryMappingId === item.flags?.ddbimporter?.id
-      && mapping.itemTypeId === item.flags?.ddbimporter?.definitionEntityTypeId
+      && mapping.itemTypeId === item.flags?.ddbimporter?.definitionEntityTypeId,
     );
-    if (infusedItem) {
-      // add infused item effect
-      const infusionFeature = actor.items.find((i) =>
-        foundry.utils.getProperty(i, "flags.ddbimporter.dndbeyond.defintionKey") === infusedItem.definitionKey
-      );
-      if (infusionFeature) {
-        const infusionEffectCount = infusionFeature.effects.size;
-        const infusionEffects = infusionFeature.getEmbeddedCollection("ActiveEffect")
-          .filter((e) => {
-            const enchantment = foundry.utils.getProperty(e, "flags.dnd5e.type") === "enchantment";
-            if (!enchantment) return false;
-            if (infusionEffectCount === 1) return true;
-            const enchantmentLevel = foundry.utils.getProperty(e, "flags.dnd5e.enchantment.level");
-            const appropriateLevel = (rollData.classes.artificer?.levels ?? 0) >= enchantmentLevel.min
-              && ((rollData.classes.artificer?.levels ?? 0) <= enchantmentLevel.max || enchantmentLevel.max === null);
-            return appropriateLevel;
-          });
-        if (infusionEffects) {
-          // eslint-disable-next-line max-depth
-          for (const infusionEffect of infusionEffects) {
-            const effectData = infusionEffect.toObject();
-            effectData.origin = infusionFeature.uuid;
-            const applied = await ActiveEffect.create(effectData, {
-              parent: item,
-              keepOrigin: true,
-            });
-            logger.debug(`Applied infusion effect from ${infusionFeature.name} to ${item.name}`, {
-              effect: effectData,
-              applied,
-            });
-          }
-        }
+    if (!infusedItem) continue;
+    // add infused item effect
+    const infusionFeature = actor.items.find((i) =>
+      foundry.utils.getProperty(i, "flags.ddbimporter.dndbeyond.defintionKey") === infusedItem.definitionKey,
+    );
+
+    if (!infusionFeature) continue;
+    const infusionActivities = infusionFeature.system.activities.getByType("enchant");
+
+    for (const activity of infusionActivities) {
+      const infusionEffectCount = activity.effects.size;
+
+      const infusionEffectIds = activity.effects.filter((e) => {
+        if (infusionEffectCount === 1) return true;
+        const artificerLevel = rollData.classes.artificer?.levels ?? 0;
+        const appropriateLevel = artificerLevel >= e.level.min
+          && (artificerLevel <= e.level.max || e.level.max === null);
+        return appropriateLevel;
+      }).map((e) => e._id);
+
+      const infusionEffects = (infusionFeature.getEmbeddedCollection("ActiveEffect") ?? [])
+        .filter((e) => infusionEffectIds.includes(e._id));
+
+      if (infusionEffects.length === 0) continue;
+
+      for (const infusionEffect of infusionEffects) {
+        const effectData = infusionEffect.toObject();
+        effectData.origin = activity.uuid;
+
+        const applied = await ActiveEffect.create(effectData, {
+          parent: item,
+          keepOrigin: true,
+        });
+        logger.debug(`Applied infusion effect from ${infusionFeature.name} to ${item.name}`, {
+          effect: effectData,
+          applied,
+        });
       }
     }
   }

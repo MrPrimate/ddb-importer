@@ -25,7 +25,7 @@ DDBCharacter.prototype._importCompanions = async function() {
 
 DDBCharacter.prototype._getCompanionFeature = async function(featureName) {
   const feature = this.data.features.concat(this.data.actions).find((s) =>
-    s.name === featureName || s.flags.ddbimporter?.originalName === featureName
+    s.name === featureName || s.flags.ddbimporter?.originalName === featureName,
   );
   if (!feature) return;
   const ddbFeature = this.getClassFeature(featureName);
@@ -38,7 +38,7 @@ DDBCharacter.prototype._getCompanionOption = async function(parentFeature, child
     s.name === parentFeature
     || s.flags.ddbimporter?.originalName === parentFeature
     || s.name === `${parentFeature}: ${childName}`
-    || s.flags.ddbimporter?.originalName === `${parentFeature}: ${childName}`
+    || s.flags.ddbimporter?.originalName === `${parentFeature}: ${childName}`,
   );
   if (!feature) return;
   const ddbOption = this.source.ddb.character.options.class.find((o) => o.definition.name == childName);

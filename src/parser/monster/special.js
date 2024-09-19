@@ -1,6 +1,13 @@
+/* eslint-disable no-unreachable */
 // these are non-compliant monsters that currently don't meet parsing requirements
+
+import utils from "../../lib/utils.js";
+
 // these are temporary work arounds till parsing is fixed.
 export function specialCases(monster) {
+  // KNOWN_ISSUE_4_0: move
+  return monster;
+
   switch (monster.name) {
     case "Reduced-threat Aboleth":
     case "Aboleth": {
@@ -95,8 +102,10 @@ export function specialCases(monster) {
           this[index].system.actionType = "heal";
         }
       }, monster.items);
+      // eslint-disable-next-line no-unreachable
       break;
     }
+    // eslint-disable-next-line no-unreachable
     case "Nosferatu": {
       monster.items.forEach(function (item, index) {
         if (item.name === "Bite") {
@@ -104,6 +113,7 @@ export function specialCases(monster) {
           this[index].system.damage.parts.splice(2, 1);
         }
       }, monster.items);
+      // eslint-disable-next-line no-unreachable
       break;
     }
     // no default
@@ -135,10 +145,9 @@ export function specialCases(monster) {
   monster.items.forEach(function (item, index) {
     if (item.name.startsWith("Sneak Attack")) {
       this[index].system.uses = {
-        "value": null,
+        "spent": null,
         "max": "",
-        "per": null,
-        "recovery": ""
+        "recovery": [],
       };
     } else if (item.name.startsWith("Soothing Word")) {
       this[index].system.target = {
@@ -154,7 +163,7 @@ export function specialCases(monster) {
   if (magicWeapons) {
     monster.items.forEach(function (item, index) {
       if (item.type === "weapon") {
-        this[index].system.properties.mgc = true;
+        utils.addToProperties(this[index].system.properties, "mgc");
       }
     }, monster.items);
   }

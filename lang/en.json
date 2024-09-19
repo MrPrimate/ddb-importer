@@ -38,6 +38,8 @@
       "campaign-id.hint": "Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/12345 or 12345",
       "append-chris-premade-effect-description.name": "Append Chris Premades description?",
       "append-chris-premade-effect-description.hint": "If using Chris's Premades, append the description from Chris's premades to the replaced document?",
+      "spells-on-items-as-activities.name": "Spells on Items As Activities",
+      "spells-on-items-as-activities.hint": "If checked spells on items will be created as activities, rather than usage linked from spells",
       "beta-key.name": "Patreon supporter Beta Key",
       "beta-key.hint": "Some Patreon supporter tiers have access to Beta features, enter your key here",
       "auto-create-compendium.name": "Auto create compendiums if not present?",

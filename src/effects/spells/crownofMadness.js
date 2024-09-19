@@ -3,7 +3,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 
 export function crownofMadnessEffect(document) {
   let effect = baseSpellEffect(document, `${document.name} - Charmed`);
-  addStatusEffectChange(effect, "Charmed", 20, true);
+  addStatusEffectChange({ effect, statusName: "Charmed" });
 
   if (effectModules().midiQolInstalled) {
     effect.changes.push({

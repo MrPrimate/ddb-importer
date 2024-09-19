@@ -63,7 +63,7 @@ export default class DDBCharacterManager extends FormApplication {
       SETTINGS.POPUPS[type] = window.open(
         url,
         "ddb_sheet_popup",
-        `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`
+        `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`,
       );
     }
     return true;
@@ -147,7 +147,7 @@ export default class DDBCharacterManager extends FormApplication {
   async copySupportedCharacterItemFlags(items) {
     items.forEach((item) => {
       const originalItem = this.actorOriginal.items.find(
-        (originalItem) => item.name === originalItem.name && item.type === originalItem.type
+        (originalItem) => item.name === originalItem.name && item.type === originalItem.type,
       );
       if (originalItem) {
         DDBItemImporter.copySupportedItemFlags(originalItem, item);
@@ -182,7 +182,7 @@ export default class DDBCharacterManager extends FormApplication {
           const originalItem = this.actorOriginal.items.find((originalItem) =>
             item.name === originalItem.name
             && item.type === originalItem.type
-            && item.flags?.ddbimporter?.id === originalItem.flags?.ddbimporter?.id
+            && item.flags?.ddbimporter?.id === originalItem.flags?.ddbimporter?.id,
           );
           if (originalItem) {
             if (!item.effects) item.effects = [];
@@ -195,7 +195,7 @@ export default class DDBCharacterManager extends FormApplication {
             }
           }
           return item;
-        })
+        }),
       );
     });
   }
@@ -216,8 +216,8 @@ export default class DDBCharacterManager extends FormApplication {
                 : false;
               const nameMatch = item.name === originalItem.name || originalNameMatch;
               return nameMatch && item.type === originalItem.type;
-            })
-        )
+            }),
+        ),
       );
     });
   }
@@ -241,7 +241,7 @@ export default class DDBCharacterManager extends FormApplication {
         (item) =>
           includedItems.includes(item.type)
           && !excludedList.some((excluded) => excluded._id === item.id)
-          && !this.nonMatchedItemIds.includes(item.id)
+          && !this.nonMatchedItemIds.includes(item.id),
       )
       .filter((item) => !item.flags.ddbimporter?.ignoreItemImport)
       .map((item) => item.id);
@@ -249,7 +249,7 @@ export default class DDBCharacterManager extends FormApplication {
     logger.debug("Removing the following character items", toRemove);
     if (toRemove.length > 0) {
       await this.actor.deleteEmbeddedDocuments("Item", toRemove, {
-        itemsWithSpells5e: { alsoDeleteChildSpells: false }
+        itemsWithSpells5e: { alsoDeleteChildSpells: false },
       });
     }
     return toRemove;
@@ -357,7 +357,7 @@ export default class DDBCharacterManager extends FormApplication {
           '.effect-import-config input[type="checkbox"]',
           '.extras-import-config input[type="checkbox"]',
           '.import-config input[type="checkbox"]',
-        ].join(",")
+        ].join(","),
       )
       .on("change", (event) => {
         this.html = html;
@@ -384,7 +384,7 @@ export default class DDBCharacterManager extends FormApplication {
         game.settings.set(
           "ddb-importer",
           "sync-policy-" + event.currentTarget.dataset.section,
-          event.currentTarget.checked
+          event.currentTarget.checked,
         );
       });
 
@@ -571,7 +571,7 @@ export default class DDBCharacterManager extends FormApplication {
             currentActor: this.actor,
             ddb: null,
             characterId,
-            selectResources: false
+            selectResources: false,
           };
           const getOptions = {
             syncId: null,
@@ -709,9 +709,10 @@ export default class DDBCharacterManager extends FormApplication {
 
     items = items.map((item) => {
       if (!item.effects) item.effects = [];
-      if (foundry.utils.hasProperty(item, "system.description.value")) {
+      const description = foundry.utils.getProperty(item, "system.description.value");
+      if (description) {
         item.system.description.value = `<div class="ddb">
-${item.system.description.value}
+${description}
 </div>`;
         item.system.description.chat = item.system.description.chat.trim() !== ""
           ? `<div class="ddb">
@@ -722,7 +723,28 @@ ${item.system.description.chat}
       return item;
     });
 
-    return Promise.all(items);
+    return items;
+  }
+
+  async enrichActivityImages(items, spellItems) {
+    const enrichedSpells = await this.enrichCharacterItems(spellItems);
+
+    for (const item of items) {
+      if (!foundry.utils.getProperty(item, "flags.ddbimporter.activityImgEnrichment")) continue;
+
+      for (const id of Object.keys(item.system.activities)) {
+        const activity = item.system.activities[id];
+        const enrichHint = foundry.utils.getProperty(activity, "flags.ddbimporter.spellHintName");
+        if (!enrichHint) continue;
+        const spellMatch = enrichedSpells.find((spell) =>
+          foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") ?? spell.name === enrichHint,
+        );
+        if (!spellMatch) continue;
+        activity.img = spellMatch.img;
+
+        item.system.activities[id] = activity;
+      }
+    }
   }
 
   async createCharacterItems(items, keepIds) {
@@ -736,11 +758,18 @@ ${item.system.description.chat}
 
     if (klassItems.length > 0) {
       logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(klassItems) });
-      await this.actor.createEmbeddedDocuments("Item", klassItems, options);
+      for (const klassItem of klassItems) {
+        // console.warn(`Importing ${klassItem.name}`, klassItem);
+        await this.actor.createEmbeddedDocuments("Item", [klassItem], options);
+      }
     }
     if (nonKlassItems.length > 0) {
       logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(nonKlassItems) });
       await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
+      // for (const nonKlassItem of nonKlassItems) {
+      //   console.warn(`Importing ${nonKlassItem.name}`, nonKlassItem);
+      //   await this.actor.createEmbeddedDocuments("Item", [nonKlassItem], options);
+      // }
     }
   }
 
@@ -764,7 +793,7 @@ ${item.system.description.chat}
         const ddbMatchedItem = ddbItems.some((ddbItem) =>
           item.name === ddbItem.name
           && item.type === ddbItem.type
-          && item.flags?.ddbimporter?.id === ddbItem.flags?.ddbimporter?.id
+          && item.flags?.ddbimporter?.id === ddbItem.flags?.ddbimporter?.id,
         );
         if (!ddbMatchedItem) {
           // if item not replaced by compendium swap or
@@ -791,7 +820,7 @@ ${item.system.description.chat}
           foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", {
             name: item.name,
             type: item.type,
-            ddbId: item.flags.ddbimporter?.id
+            ddbId: item.flags.ddbimporter?.id,
           });
         }
 
@@ -840,11 +869,21 @@ ${item.system.description.chat}
       }
       if (foundry.utils.getProperty(ddbItemFlags, "retainResourceConsumption") ?? false) {
         logger.debug(`Retaining resources for ${item.name}`);
-        item.system.consume = foundry.utils.deepClone(existingItem.system.consume);
+        for (const [key, activity] of Object.entries(item.system.activities)) {
+          const original = foundry.utils.getProperty(existingItem.system.activities[key]);
+          if (original) {
+            activity.consumption = original.consumption;
+            item.system.activities[key] = activity;
+          }
+        }
+        item.system.uses.recovery = foundry.utils.deepClone(existingItem.system.uses.recovery);
         item.flags.ddbimporter.retainResourceConsumption = true;
         if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e") ?? false) {
           foundry.utils.setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
         }
+      }
+      if (foundry.utils.getProperty(ddbItemFlags, "retainUseSpent") ?? false) {
+        item.system.uses.spent = foundry.utils.deepClone(existingItem.system.uses.spent);
       }
     }
     if (foundry.utils.getProperty(ddbItemFlags, "ddbCustomAdded") ?? false) {
@@ -947,16 +986,17 @@ ${item.system.description.chat}
     this.showCurrentTask("Clearing items for recreation...");
     await this.clearItemsByUserSelection();
 
+    const spellsAsActivities = game.settings.get(SETTINGS.MODULE_ID, "spells-on-items-as-activities");
     // If there is no magicitems module fall back to importing the magic
     // item spells as normal spells fo the character
-    if (!magicItemsInstalled && !itemsWithSpellsInstalled) {
+    if (!spellsAsActivities && !magicItemsInstalled && !itemsWithSpellsInstalled) {
       logger.debug("No magic items module(s) found, adding spells to sheet.");
       items.push(
         this.result.itemSpells.filter((item) => {
           const active = item.flags.ddbimporter.dndbeyond && item.flags.ddbimporter.dndbeyond.active === true;
-          if (!active) logger.warn(`Missing active flag on item spell ${item.name}`);
+          if (!active) logger.info(`Missing active flag on item spell ${item.name}`);
           return active;
-        })
+        }),
       );
       items = items.flat();
     }
@@ -1015,7 +1055,7 @@ ${item.system.description.chat}
       srdCompendiumItems = compendiumItems.concat(
         compendiumInventoryItems,
         compendiumSpellItems,
-        compendiumFeatureItems
+        compendiumFeatureItems,
       );
       // remove existing items from those to be imported
       items = await DDBCharacterManager.removeItems(items, srdCompendiumItems);
@@ -1051,6 +1091,7 @@ ${item.system.description.chat}
       this.showCurrentTask("Adding DDB generated items");
       logger.debug(`Adding DDB generated items...`, items);
       items = await this.enrichCharacterItems(items);
+      await this.enrichActivityImages(items, this.result.itemSpells);
       await this.importCharacterItems(items, true);
     }
 
@@ -1106,15 +1147,15 @@ ${item.system.description.chat}
         && (item.flags.ddbimporter?.ignoreItemImport
           || excludedItems.some((ei) => ei._id === item._id)
           || this.nonMatchedItemIds.includes(item._id)
-        )
+        ),
       )
       .map((item) => item._id);
 
     const itemEffects = this.effectBackup.filter((ae) =>
-      ae.origin?.includes(".Item.")
+      ae.origin?.includes(".Item."),
     );
     const ignoredEffects = this.effectBackup.filter((ae) =>
-      ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
+      ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0]),
     );
     const coreStatusEffects = this.effectBackup.filter((ae) => {
       const isStatus = ae.statuses.length > 0;
@@ -1127,11 +1168,11 @@ ${item.system.description.chat}
       !ignoredItemIds.some((id) => ae._id === id)
       && !ae.flags.ddbimporter?.characterEffect
       && !ae.statuses.length > 0
-      && !ae.origin?.includes(".Item.")
+      && !ae.origin?.includes(".Item."),
     );
     // effects that are added by the ddb importer that are not item effects
     const ddbGeneratedCharEffects = this.effectBackup.filter((ae) =>
-      !ae.origin?.includes(".Item.") && ae.flags.ddbimporter?.characterEffect
+      !ae.origin?.includes(".Item.") && ae.flags.ddbimporter?.characterEffect,
     );
 
     const spellEffects = [];
@@ -1157,7 +1198,7 @@ ${item.system.description.chat}
         // clear down status effects
         && !coreStatusEffects.map((ae) => ae._id).includes(e._id)
         // ignore spell effects
-        && !spellEffects.map((ae) => ae._id).includes(e._id)
+        && !spellEffects.map((ae) => ae._id).includes(e._id),
       );
 
     logger.debug("Effect Removal Results", {
@@ -1283,7 +1324,7 @@ ${item.system.description.chat}
         this.result.character.system.attributes.hd = this.actorOriginal.system.attributes.hd;
         this.result.classes = this.result.classes.map((klass) => {
           const originalKlass = this.actorOriginal.items.find(
-            (original) => original.name === klass.name && original.type === "class"
+            (original) => original.name === klass.name && original.type === "class",
           );
           if (originalKlass) {
             klass.system.hitDiceUsed = originalKlass.system.hitDiceUsed;
@@ -1352,7 +1393,7 @@ ${item.system.description.chat}
         // and that have a different active state and activate them
         const targetEffects = this.actor.effects.filter((ae) => {
           const previousEffectDiff = this.actorOriginal.effects.find(
-            (oae) => oae.name === ae.name && oae.disabled !== ae.disabled
+            (oae) => oae.name === ae.name && oae.disabled !== ae.disabled,
           );
           if (previousEffectDiff) return true;
           return false;
@@ -1372,7 +1413,9 @@ ${item.system.description.chat}
       await createInfusedItems(this.ddbCharacter.source.ddb, this.actor);
 
       await this.ddbCharacter.autoLinkResources();
-      await this.ddbCharacter.fixItemSpellResources();
+      // await this.ddbCharacter.fixItemSpellResources();
+
+      await this.ddbCharacter.addToCompendiums();
 
       if (this.settings.useChrisPremades) {
         await ExternalAutomations.addChrisEffectsToActorDocuments(this.actor);
@@ -1400,7 +1443,7 @@ export async function importCharacter(actor, html) {
     const ddbCharacterOptions = {
       currentActor: actor,
       characterId,
-      selectResources: true
+      selectResources: true,
     };
     const getOptions = {
       syncId: null,

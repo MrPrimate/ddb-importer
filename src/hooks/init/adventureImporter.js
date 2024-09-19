@@ -3,7 +3,7 @@ import SETTINGS from "../../settings.js";
 
 export default function () {
   DocumentSheetConfig.registerSheet(Adventure, SETTINGS.MODULE_ID, DDBAdventureImporter, {
-    label: "DDB Adventure Importer"
+    label: "DDB Adventure Importer",
   });
 
   // Hooks.on("renderJournalSheet", (app, html) => {

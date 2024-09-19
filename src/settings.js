@@ -76,7 +76,7 @@ const COMPENDIUMS = [
     types: ["npc", "vehicle"],
   },
   {
-    title: "Races",
+    title: "Species",
     setting: "entity-race-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/bfe65858aaa13919ce3d86d938bcb05b.jpg",
@@ -84,7 +84,7 @@ const COMPENDIUMS = [
     types: ["race"],
   },
   {
-    title: "Racial Traits",
+    title: "Species Traits",
     setting: "entity-trait-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/bfe65858aaa13919ce3d86d938bcb05b.jpg",
@@ -158,6 +158,7 @@ const SRD_COMPENDIUM_LOOKUPS = [
   { type: "spells", name: "dnd5e.spells" },
   { type: "features", name: "dnd5e.classfeatures" },
   { type: "races", name: "dnd5e.races" },
+  { type: "species", name: "dnd5e.races" },
   { type: "traits", name: "dnd5e.races" },
   { type: "features", name: "dnd5e.classfeatures" },
   { type: "feat", name: "dnd5e.classfeatures" },
@@ -181,12 +182,24 @@ const FOUNDRY_COMPENDIUM_MAP = {
     "dnd5e.classes",
     "dnd-tashas-cauldron.tcoe-character-options",
   ],
+  "classes2024": [
+    "dnd-tashas-cauldron.tcoe-character-options",
+    "dnd-players-handbook.classes",
+  ],
   "spells": [
     "dnd5e.spells",
+    "dnd-tashas-cauldron.tcoe-character-options",
+  ],
+  "spells2024": [
+    "dnd-players-handbook.spells",
+    "dnd-tashas-cauldron.tcoe-character-options",
   ],
   "items": [
-    "dnd5e.items",
     "dnd-tashas-cauldron.tcoe-magic-items",
+  ],
+  "items2024": [
+    "dnd-tashas-cauldron.tcoe-magic-items",
+    "dnd-players-handbook.equipment",
   ],
 };
 
@@ -308,7 +321,25 @@ const COMPANION_OPTIONS = {
     "Beast of the Sea",
     "Beast of the Sky",
   ],
+  "Drake Companion": [
+    "Summon",
+  ],
 };
+const CR_SUMMONING_SPELLS = [
+  "Conjure Animals",
+  "Conjure Celestial",
+  "Conjure Elemental",
+  "Conjure Fey",
+  "Conjure Minor Elementals",
+  "Conjure Woodland Beings",
+  "Summon Greater Demon",
+  "Infernal Calling",
+  "Summon Lesser Demons",
+  "Find Familiar",
+];
+const CR_SUMMONING_FEATURES = [
+  "Wild Companion",
+];
 
 const DISABLE_FOUNDRY_UPGRADE = {
   applyFeatures: false,
@@ -352,6 +383,8 @@ const SETTINGS = {
     COMPANION_FEATURES,
     COMPANION_SPELLS,
     COMPANION_OPTIONS,
+    CR_SUMMONING_SPELLS,
+    CR_SUMMONING_FEATURES,
   },
   URLS,
   POPUPS,
@@ -420,6 +453,18 @@ const SETTINGS = {
         type: Boolean,
         default: true,
       },
+      "register-source-books": {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: true,
+      },
+      "no-source-book-pages": {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: true,
+      },
     },
     // ready settings
     READY: {
@@ -435,7 +480,7 @@ const SETTINGS = {
           name: comp.title,
           type: String,
           default: `DDB ${comp.title}`,
-        }])
+        }]),
       ),
       // dir locations
       DIRECTORIES: {
@@ -544,20 +589,6 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
-        "use-full-source": {
-          name: "ddb-importer.settings.use-full-source.name",
-          hint: "ddb-importer.settings.use-full-source.hint",
-          config: true,
-          type: Boolean,
-          default: true,
-        },
-        "use-damage-hints": {
-          name: "ddb-importer.settings.use-damage-hints.name",
-          hint: "ddb-importer.settings.use-damage-hints.hint",
-          config: true,
-          type: Boolean,
-          default: true,
-        },
         "add-damage-restrictions-to-hints": {
           name: "ddb-importer.settings.add-damage-restrictions-to-hints.name",
           hint: "ddb-importer.settings.add-damage-restrictions-to-hints.hint",
@@ -605,7 +636,14 @@ const SETTINGS = {
           config: true,
           type: Boolean,
           default: false,
-        }
+        },
+        "spells-on-items-as-activities": {
+          name: "ddb-importer.settings.spells-on-items-as-activities.name",
+          hint: "ddb-importer.settings.spells-on-items-as-activities.hint",
+          config: true,
+          type: Boolean,
+          default: false,
+        },
       },
       // ????
       MISC: {
@@ -795,20 +833,15 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-use-full-description": {
-            scope: "player",
-            type: Boolean,
-            default: true,
-          },
-          "character-update-policy-use-action-and-feature": {
+          "character-update-policy-use-combined-description": {
             scope: "player",
             type: Boolean,
             default: false,
           },
-          // "character-update-policy-use-actions-as-features": {
+          // "character-update-policy-use-action-and-feature": {
           //   scope: "player",
           //   type: Boolean,
-          //   default: true,
+          //   default: false,
           // },
           "character-update-policy-dae-effect-copy": {
             scope: "player",
@@ -1052,7 +1085,7 @@ const SETTINGS = {
           },
           "munching-policy-exclude-legacy": {
             type: Boolean,
-            default: false,
+            default: true,
           },
           "munching-policy-legacy-postfix": {
             type: Boolean,
@@ -1247,7 +1280,7 @@ const SETTINGS = {
           "munching-policy-use-generic-items": {
             type: Boolean,
             default: false,
-          }
+          },
         },
         ENCOUNTER: {
           "encounter-import-policy-create-scene": {

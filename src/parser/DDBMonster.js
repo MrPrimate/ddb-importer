@@ -28,7 +28,7 @@ export default class DDBMonster {
   }
 
   constructor(ddbObject = null, { existingNpc = null, extra = false, useItemAC = true,
-    legacyName = true, addMonsterEffects = false, addChrisPremades = false } = {}, overrides = {}
+    legacyName = true, addMonsterEffects = false, addChrisPremades = false } = {}, overrides = {},
   ) {
     this.source = ddbObject;
 
@@ -196,7 +196,7 @@ export default class DDBMonster {
 
   async parse() {
     if (!this.name) this.name = this.source.name;
-    this.npc = foundry.utils.duplicate(await newNPC(this.name, this.source.id));
+    this.npc = foundry.utils.duplicate(newNPC(this.name, this.source.id));
     this._calculateImage();
 
     this.npc.prototypeToken.name = this.name;
@@ -273,7 +273,7 @@ export default class DDBMonster {
           document: item,
           type: "monsterfeature",
           folderName: this.npc.name,
-          isMonster: true
+          isMonster: true,
         });
       }
     }
@@ -281,6 +281,13 @@ export default class DDBMonster {
 
     this._generateTaggerFlags();
     this._generate3DModels();
+
+    // final cleanup
+    this.items = this.items.map((item) => {
+      if (foundry.utils.hasProperty(item, "flags.monsterMunch.description"))
+        delete item.flags.monsterMunch.description;
+      return item;
+    });
 
     logger.debug(`Generated ${this.name}`, this);
     return this.npc;

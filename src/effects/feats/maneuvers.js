@@ -105,7 +105,7 @@ export async function maneuversEffect(ddb, character, document) {
     "key": "system.bonuses.mwak.damage",
     "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
     "value": `+ ${diceString}`,
-    "priority": "20"
+    "priority": "20",
   };
   // damage effect
   switch (name) {
@@ -131,7 +131,7 @@ export async function maneuversEffect(ddb, character, document) {
     "key": "system.bonuses.rwak.damage",
     "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
     "value": `+ ${diceString}`,
-    "priority": "20"
+    "priority": "20",
   };
   // damage effect
   switch (name) {
@@ -155,8 +155,8 @@ export async function maneuversEffect(ddb, character, document) {
           "key": "flags.midi-qol.advantage.attack.all",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": "1",
-          "priority": "20"
-        }
+          "priority": "20",
+        },
       );
       document.effects.push(effect);
       break;
@@ -169,8 +169,8 @@ export async function maneuversEffect(ddb, character, document) {
             "key": `system.skills.${skill}.bonuses.check`,
             "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
             "value": `+ ${diceString}`,
-            "priority": "20"
-          }
+            "priority": "20",
+          },
         );
       });
       document.effects.push(effect);
@@ -183,8 +183,8 @@ export async function maneuversEffect(ddb, character, document) {
             "key": `system.skills.${skill}.bonuses.check`,
             "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
             "value": `+ ${diceString}`,
-            "priority": "20"
-          }
+            "priority": "20",
+          },
         );
       });
       document.effects.push(effect);
@@ -196,14 +196,14 @@ export async function maneuversEffect(ddb, character, document) {
           "key": "system.skills.ste.bonuses.check",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": `+ ${diceString}`,
-          "priority": "20"
+          "priority": "20",
         },
         {
           "key": "system.attributes.init.bonus",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": `+ ${diceString}`,
-          "priority": "20"
-        }
+          "priority": "20",
+        },
       );
       document.effects.push(effect);
       break;
@@ -215,8 +215,8 @@ export async function maneuversEffect(ddb, character, document) {
           "key": "system.attributes.ac.bonus",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": `+ ${diceString}`,
-          "priority": "20"
-        }
+          "priority": "20",
+        },
       );
       document.effects.push(effect);
       break;
@@ -227,18 +227,18 @@ export async function maneuversEffect(ddb, character, document) {
           "key": "system.skills.ath.bonuses.check",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": `+ ${diceString}`,
-          "priority": "20"
+          "priority": "20",
         },
       );
       document.effects.push(effect);
       break;
     }
     case "Maneuvers: Menacing Attack": {
-      addStatusEffectChange(effect, "Frightened", 20, true);
+      addStatusEffectChange({ effect, statusName: "Frightened" });
       break;
     }
     case "Maneuvers: Trip Attack": {
-      addStatusEffectChange(effect, "Prone", 20, true);
+      addStatusEffectChange({ effect, statusName: "Prone" });
       break;
     }
     case "Maneuvers: Parry": {
@@ -248,8 +248,8 @@ export async function maneuversEffect(ddb, character, document) {
           "key": "flags.midi-qol.DR.all",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": "1",
-          "priority": "20"
-        }
+          "priority": "20",
+        },
       );
       break;
     }

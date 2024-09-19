@@ -4,7 +4,7 @@ import { addStatusEffectChange, effectModules } from "../effects.js";
 
 export async function contagionEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  addStatusEffectChange(effect, "Poisoned", 20, true);
+  addStatusEffectChange({ effect, statusName: "Poisoned" });
 
   if (effectModules().midiQolInstalled) {
     effect.flags.dae.macroRepeat = "endEveryTurn";

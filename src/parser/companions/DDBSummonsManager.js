@@ -1,8 +1,12 @@
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import { addNPC } from "../../muncher/importMonster.js";
+
+
+// KNOWN_ISSUE_4_0 fix up summon spells
 
 const SUMMONS_ACTOR_STUB = {
   "type": "npc",
@@ -25,7 +29,7 @@ const SUMMONS_ACTOR_STUB = {
       },
       "cha": {
         "value": 100,
-      }
+      },
     },
     "attributes": {
       "movement": {
@@ -35,18 +39,18 @@ const SUMMONS_ACTOR_STUB = {
         "swim": null,
         "walk": null,
         "units": null,
-        "hover": true
+        "hover": true,
       },
       "ac": {
         "flat": 1000,
-        "calc": "flat"
+        "calc": "flat",
       },
       "hp": {
         "value": 1000,
         "max": 1000,
         "temp": 0,
         "tempmax": 0,
-        "bonuses": {}
+        "bonuses": {},
       },
     },
     "traits": {
@@ -72,7 +76,7 @@ const SUMMONS_ACTOR_STUB = {
       "scaleY": 1,
       "rotation": 0,
       "tint": "#ffffff",
-      "alphaThreshold": 0.75
+      "alphaThreshold": 0.75,
     },
     "hexagonalShape": 0,
     "lockRotation": false,
@@ -81,10 +85,10 @@ const SUMMONS_ACTOR_STUB = {
     "disposition": CONST.TOKEN_DISPOSITIONS.SECRET,
     "displayBars": 0,
     "bar1": {
-      "attribute": null
+      "attribute": null,
     },
     "bar2": {
-      "attribute": null
+      "attribute": null,
     },
     "ring": {
       "enabled": false,
@@ -129,16 +133,104 @@ const DANCING_LIGHTS_BASE = {
         "type": "torch",
         "speed": 3,
         "intensity": 3,
-        "reverse": false
+        "reverse": false,
       },
       "darkness": {
         "min": 0,
-        "max": 1
-      }
+        "max": 1,
+      },
     },
   },
 };
 
+// eslint-disable-next-line no-unused-vars
+const ELRITCH_CANNON_ABILITY_STUB = {
+  "id": 1,
+  "entityTypeId": 1120657896,
+  "limitedUse": null,
+  "name": "",
+  "description": "",
+  "snippet": "",
+  "abilityModifierStatId": 1,
+  "saveStatId": null,
+  "attackTypeRange": 1,
+  "actionType": 1,
+  "attackSubtype": 3,
+  "dice": null,
+  "value": null,
+  "damageTypeId": 1,
+  "isMartialArts": false,
+  "isProficient": true,
+  "spellRangeType": null,
+  "displayAsAttack": null,
+  "range": null,
+  "activation": {
+    "activationTime": 1,
+    "activationType": 1,
+  },
+  "componentId": 0,
+  "componentTypeId": 0,
+};
+
+function getEldritchCannonStub(size) {
+  const cannon = foundry.utils.merge(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+    name: "Eldritch Cannon",
+    img: "icons/weapons/guns/gun-blunderbuss-gold.webp",
+    system: {
+      "abilities": {
+        "str": {
+          "value": 10,
+        },
+        "dex": {
+          "value": 10,
+        },
+        "con": {
+          "value": 10,
+        },
+        "int": {
+          "value": 10,
+        },
+        "wis": {
+          "value": 10,
+        },
+        "cha": {
+          "value": 10,
+        },
+      },
+      "attributes": {
+        "movement": {
+          "burrow": null,
+          "climb": null,
+          "fly": null,
+          "swim": null,
+          "walk": null,
+          "units": null,
+          "hover": true,
+        },
+        "ac": {
+          "flat": 18,
+          "calc": "flat",
+        },
+        "hp": {
+          "value": 1,
+          "max": 1,
+        },
+      },
+      "traits": {
+        "size": size,
+      },
+    },
+    "prototypeToken": {
+      "name": "Eldritch Cannon",
+      "width": 0.5,
+      "height": 0.5,
+      "texture": {
+        "src": "icons/weapons/guns/gun-blunderbuss-gold.webp",
+      },
+    },
+  });
+  return cannon;
+}
 
 async function getSRDActors() {
   const results = {};
@@ -261,6 +353,43 @@ async function getSRDActors() {
         "name": "Arcane Sword (Astral Blue)",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_400x400.webm`,
         "img": `modules/${jb2aMod}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_Thumb.webp`,
+      }),
+    };
+  }
+
+  const dddCompendium = CompendiumHelper.getCompendiumType("monster", false);
+  let direWolf;
+  let direWolfVersion = 2;
+  if (dddCompendium) {
+    await dddCompendium.getIndex();
+    const potentialDireWolves = dddCompendium.index.find((a) => a.name === "Dire Wolf");
+    if (potentialDireWolves) {
+      direWolf = await fromUuid(potentialDireWolves.uuid);
+    }
+  }
+  if (!direWolf) {
+    direWolf = await pack.getDocument("EYiQZ3rFL25fEJY5");
+    direWolfVersion = 1;
+  }
+
+  if (direWolf) {
+    results["HoundOfIllOmen"] = {
+      name: "Hound of Ill Omen",
+      version: `${direWolfVersion}`,
+      required: null,
+      isJB2A: false,
+      needsJB2A: false,
+      needsJB2APatreon: false,
+      folderName: "Shadow Sorcerer",
+      data: foundry.utils.mergeObject(direWolf.toObject(), {
+        "name": "Hound of Ill Omen",
+        "prototypeToken": {
+          name: "Hound of Ill Omen",
+          width: 1,
+          height: 1,
+        },
+        "prototypeToken.name": "Hound of Ill Omen",
+        "system.traits.size": "med",
       }),
     };
   }
@@ -559,7 +688,8 @@ const JB2A_LICENSE = `<p>The assets in this actor are kindly provided by JB2A an
 
 export default class DDBSummonsManager {
 
-  constructor() {
+  constructor({ ddbData } = {}) {
+    this.ddbData = ddbData;
     this.indexFilter = { fields: [
       "name",
       "flags.ddbimporter.compendiumId",
@@ -569,12 +699,26 @@ export default class DDBSummonsManager {
     this.itemHandler = null;
   }
 
+  async generateDDBDataActors(ddbFeature) {
+    if (!ddbFeature) return undefined;
+    if (!this.ddbData) return undefined;
+    if (ddbFeature.originalName === "Eldritch Cannon") {
+      for (const size of ["Small", "Tiny"]) {
+        const cannonBase = getEldritchCannonStub(size.toLowerCase());
+        return cannonBase;
+      }
+    }
+    // KNOWN_ISSUE_4_0 for say eldrich cannon
+    return undefined;
+  }
+
   async init() {
     this.compendiumFolders = new DDBCompendiumFolders("summons");
     await this.compendiumFolders.loadCompendium("summons");
 
     this.itemHandler = new DDBItemImporter("summons", [], {
       indexFilter: this.indexFilter,
+      matchFlags: ["is2014", "is2024"],
     });
     await this.itemHandler.init();
   }
@@ -607,7 +751,7 @@ export default class DDBSummonsManager {
       ) continue;
       if (value.needsJB2APatreon && !game.modules.get('jb2a_patreon')?.active) continue;
       const existingSummons = manager.itemHandler.compendium.index.find((i) =>
-        i.flags?.ddbimporter?.summons?.summonsKey === key
+        i.flags?.ddbimporter?.summons?.summonsKey === key,
       );
 
       if (existingSummons && existingSummons.flags.ddbimporter.summons.version >= value.version) continue;
@@ -632,6 +776,44 @@ export default class DDBSummonsManager {
 
       await manager.addToCompendium(companion);
     }
+  }
+
+  addProfilesToActivity(activity, summonsKeys = [], data = {}) {
+
+    const summonActors = this.itemHandler.compendium.index.filter((i) =>
+      summonsKeys.includes(i.flags?.ddbimporter?.summons?.summonsKey),
+    );
+    const profiles = summonActors
+      .map((actor) => {
+        return {
+          _id: actor._id,
+          name: actor.name,
+          uuid: actor.uuid,
+          count: 1,
+        };
+      });
+
+    data.profiles = profiles;
+
+    // const summons = {
+    //   "match": match ?? {
+    //     "proficiency": false,
+    //     "attacks": true,
+    //     "saves": false,
+    //   },
+    //   "bonuses": bonuses ?? {
+    //     "ac": "",
+    //     "hp": "",
+    //     "attackDamage": "",
+    //     "saveDamage": "",
+    //     "healing": "",
+    //   },
+    //   "profiles": profiles,
+    //   "prompt": true,
+    // };
+
+    activity = foundry.utils.mergeObject(activity, data);
+
   }
 
 

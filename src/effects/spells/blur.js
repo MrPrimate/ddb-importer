@@ -9,7 +9,7 @@ export function blurEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: '1',
       priority: "20",
-    }
+    },
   );
 
   if (effectModules().tokenMagicInstalled) {

@@ -1,4 +1,4 @@
-import { baseEnchantmentEffect } from "../effects.js";
+import { addMagicalBonusToEnchantmentEffect, baseEnchantmentEffect } from "../effects.js";
 
 export function magicWeaponEffect(document) {
   const enchantments = [
@@ -14,29 +14,15 @@ export function magicWeaponEffect(document) {
     },
   });
   for (const e of enchantments) {
-    let effect = baseEnchantmentEffect(document, `${document.name}: +${e.bonus}`);
+    let effect = baseEnchantmentEffect(document, `${document.name}: +${e.bonus}`, {
+      description: `This weapon has become a +${e.bonus} magic weapon, granting a bonus to attack and damage rolls.`,
+    });
     foundry.utils.setProperty(effect, "flags.dnd5e.enchantment.level", { min: e.min, max: e.max });
-    effect.changes.push(
-      {
-        key: "name",
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        value: `{}, +${e.bonus}`,
-        priority: 20,
-      },
-      {
-        key: "system.properties",
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        value: "mgc",
-        priority: 20,
-      },
-      {
-        key: "system.magicalBonus",
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        value: e.bonus,
-        priority: 20,
-      },
-    );
-    e.description = `This weapon has become a +${e.bonus} magic weapon, granting a bonus to attack and damage rolls.`;
+    addMagicalBonusToEnchantmentEffect({
+      effect,
+      nameAddition: `+${e.bonus}`,
+      bonus: e.bonus,
+    });
     document.effects.push(effect);
   }
 

@@ -227,7 +227,7 @@ export function registerApi() {
       loadMacroFile: DDBMacros.loadMacroFile,
       macros: DDBMacros.MACROS,
       getMacro: DDBMacros.getMacro,
-      executeSimpleMacro: DDBSimpleMacro.execute
+      executeSimpleMacro: DDBSimpleMacro.execute,
     },
     chris: {
       generateEffect: ExternalAutomations.applyChrisPremadeEffect,

@@ -9,7 +9,7 @@ export function getType(ddb) {
     //   "isSwarm": false,
     //   "size": ""
     // },
-    "custom": ""
+    "custom": "",
   };
 
   const type = CONFIG.DDB.monsterTypes.find((c) => ddb.typeId == c.id);

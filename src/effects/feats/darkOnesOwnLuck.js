@@ -33,7 +33,7 @@ export function darkOnesOwnLuckffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "+1d10",
       priority: 20,
-    }
+    },
   );
 
   return document;

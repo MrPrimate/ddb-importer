@@ -12,7 +12,6 @@ import { absorbElementsEffect } from "./spells/absorbElements.js";
 import { acidArrowEffect } from "./spells/acidArrow.js";
 import { aidEffect } from "./spells/aid.js";
 import { alterSelfEffect } from "./spells/alterSelf.js";
-import { animalFriendshipEffect } from "./spells/animalFriendship.js";
 import { arcaneEyeEffect } from "./spells/arcaneEye.js";
 import { arcaneHandEffect } from "./spells/arcaneHand.js";
 import { arcaneSwordEffect } from "./spells/arcaneSword.js";
@@ -23,7 +22,7 @@ import { banishmentEffect } from "./spells/banishment.js";
 import { barkskinEffect } from "./spells/barkskin.js";
 import { beaconofHopeEffect } from "./spells/beaconofHope.js";
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
-import { blessEffect } from "./spells/bless.js";
+import { bladeWardEffect } from "./spells/bladeWard.js";
 import { blindnessDeafnessEffect } from "./spells/blindnessDeafness.js";
 import { blurEffect } from "./spells/blur.js";
 import { boomingBladeEffect } from "./spells/boomingBlade.js";
@@ -136,9 +135,10 @@ import { zephyrStrikeEffect } from "./spells/zephyrStrike.js";
 
 
 export function baseSpellEffect(document, label,
-  { transfer = false, disabled = false } = {}
+  { transfer = false, disabled = false, description = null, durationSeconds = null,
+    durationRounds = null, durationTurns = null } = {},
 ) {
-  return baseEffect(document, label, { transfer, disabled });
+  return baseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
 }
 
 
@@ -148,22 +148,6 @@ async function basicSpellEffects(document) {
 
   logger.debug(`Adding basic effects to ${name}`);
   switch (name) {
-    case "Absorb Elements": {
-      document = await absorbElementsEffect(document);
-      break;
-    }
-    case "Aid": {
-      document = await aidEffect(document);
-      break;
-    }
-    case "Animal Friendship": {
-      document = animalFriendshipEffect(document);
-      break;
-    }
-    case "Aura of Life": {
-      document = await auraOfLifeEffect(document);
-      break;
-    }
     case "Arcane Eye": {
       document = await arcaneEyeEffect(document);
       break;
@@ -191,8 +175,8 @@ async function basicSpellEffects(document) {
       document = await blackTentaclesEffect(document);
       break;
     }
-    case "Bless": {
-      document = blessEffect(document);
+    case "Blade Ward": {
+      document = bladeWardEffect(document);
       break;
     }
     case "Blindness/Deafness": {
@@ -436,6 +420,14 @@ async function midiEffectAdjustment(document) {
 
   logger.debug(`Adding effects to ${name}`);
   switch (name) {
+    case "Absorb Elements": {
+      document = await absorbElementsEffect(document);
+      break;
+    }
+    case "Aid": {
+      document = await aidEffect(document);
+      break;
+    }
     case "Melf's Acid Arrow":
     case "Acid Arrow": {
       document = acidArrowEffect(document);
@@ -447,6 +439,10 @@ async function midiEffectAdjustment(document) {
     }
     case "Armor of Agathys": {
       document = await armorOfAgathysEffect(document);
+      break;
+    }
+    case "Aura of Life": {
+      document = await auraOfLifeEffect(document);
       break;
     }
     case "Banishment": {
@@ -697,6 +693,10 @@ async function midiEffectAdjustment(document) {
 
 
 export async function spellEffectAdjustment(document, midiEffects = false) {
+  if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
+  // KNOWN_ISSUE_4_0: spell effect fixes
+  return document;
+  // eslint-disable-next-line no-unreachable
   if (!document.effects) document.effects = [];
   document = await basicSpellEffects(document);
   if (midiEffects) document = await midiEffectAdjustment(document);

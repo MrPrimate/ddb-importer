@@ -1,14 +1,5 @@
-// import DICTIONARY from '../dictionary.js';
-import utils from "../../../lib/utils.js";
-import DDBHelper from "../../../lib/DDBHelper.js";
-
 export function getDivineSmiteSpell(feature) {
   const restriction = "Against undead or fiends";
-
-  const damageTagInfo = DDBHelper.getDamageTag({ subType: "radiant", restriction: "" });
-  const regularDamage = utils.parseDiceString("2d8", "", damageTagInfo.damageTag).diceString;
-  const extraDamageTagInfo = DDBHelper.getDamageTag({ subType: "radiant", restriction });
-  const extraDamage = utils.parseDiceString("1d8", "", extraDamageTagInfo.damageTag).diceString;
 
   let result = {
     flags: {
@@ -53,9 +44,9 @@ export function getDivineSmiteSpell(feature) {
         units: "",
       },
       uses: {
-        value: 0,
+        spent: 0,
         max: 0,
-        per: "",
+        recovery: "",
       },
       consume: {
         type: "",
@@ -71,7 +62,7 @@ export function getDivineSmiteSpell(feature) {
       critical: null,
       damage: {
         parts: [
-          [`${regularDamage}`, "radiant"],
+          ["2d8", "radiant"],
         ],
         versatile: "",
       },
@@ -101,7 +92,7 @@ export function getDivineSmiteSpell(feature) {
     },
   };
 
-  result.system.formula = `${regularDamage} + ${extraDamage}`;
+  result.system.formula = `2d8 + 1d8`;
   result.system.chatFlavor = `Use Other damage ${restriction.toLowerCase()}`;
   if (game.modules.get("midi-qol")?.active) {
     // result.system.activation.condition = `["undead", "fiend"].includes("@raceOrType")`;

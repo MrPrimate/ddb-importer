@@ -47,7 +47,7 @@ DDBMonster.prototype.getDamageAdjustments = function getDamageAdjustments(type) 
     }
 
     if (midiQolInstalled) {
-      if (adjustment.slug.toLowerCase().includes("bludgeoning-piercing-and-slashing-from-nonmagical")) values.add("physical");
+      if (adjustment.slug.toLowerCase().includes("bludgeoning-piercing-and-slashing-from-nonmagical")) values.add("bludgeoning", "piercing", "slashing");
       if (adjustment.slug.toLowerCase().includes("silvered")) values.add("silver");
       if (adjustment.slug.toLowerCase().includes("adamantine")) values.add("adamant");
       // if (adjustment.slug.toLowerCase().includes("magic")) values.add("magic");

@@ -2,6 +2,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
 
 export async function armorOfAgathysEffect(document) {
+  document.effects = [];
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     {
@@ -17,7 +18,6 @@ export async function armorOfAgathysEffect(document) {
   document.effects.push(effect);
 
   await DDBMacros.setItemMacroFlag(document, "spell", "armorOfAgathys.js");
-  foundry.utils.setProperty(document, "system.actionType", "util");
 
   return document;
 }

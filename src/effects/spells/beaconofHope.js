@@ -9,7 +9,7 @@ export function beaconofHopeEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       priority: 20,
     },
-    { key: "flags.midi-qol.advantage.deathSave", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 20 }
+    { key: "flags.midi-qol.advantage.deathSave", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 20 },
   );
   document.effects.push(effect);
 

@@ -9,7 +9,7 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
     tremorsense: 0,
     truesight: 0,
     units: "ft",
-    special: ""
+    special: "",
   };
   let special = [];
 

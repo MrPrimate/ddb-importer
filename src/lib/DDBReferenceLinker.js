@@ -119,15 +119,15 @@ function getRuleLookups() {
 
   const baseRules = {
     "rules": {},
-    "conditions": CONFIG.DND5E.conditionTypes,
-    "skills": CONFIG.DND5E.skills,
-    "abilities": CONFIG.DND5E.abilities,
-    "creatureTypes": CONFIG.DND5E.creatureTypes,
-    "damageTypes": CONFIG.DND5E.damageTypes,
-    "spellComponents": CONFIG.DND5E.spellComponents,
-    "spellTags": CONFIG.DND5E.spellTags,
-    "spellSchools": CONFIG.DND5E.spellSchools,
-    "areaTargetTypes": CONFIG.DND5E.areaTargetTypes
+    "conditions": CONFIG.DND5E.conditionTypes ?? {},
+    "skills": CONFIG.DND5E.skills ?? {},
+    "abilities": CONFIG.DND5E.abilities ?? {},
+    "creatureTypes": CONFIG.DND5E.creatureTypes ?? {},
+    "damageTypes": CONFIG.DND5E.damageTypes ?? {},
+    "spellComponents": CONFIG.DND5E.spellComponents ?? {},
+    "spellTags": CONFIG.DND5E.spellTags ?? {},
+    "spellSchools": CONFIG.DND5E.spellSchools ?? {},
+    "areaTargetTypes": CONFIG.DND5E.areaTargetTypes ?? {},
   };
 
   const rules = {};
@@ -219,18 +219,39 @@ function parseLooseRuleReferences(text, superLoose = false) {
     // eslint-disable-next-line no-continue
     if (!superLoose && SUPER_LOOSE.includes(type)) continue;
     for (const [key, value] of Object.entries(entries)) {
-      // eslint-disable-next-line no-continue
       if (!value.reference) continue;
-      const linkRegEx = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(DC (\\d\\d) )?(${value.label})( (saving throw|average=true|average=false))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
-      const replaceRule = (match, p1, p2, p3, p4, p5, p6, p7, p8) => {
-        // console.warn("match", { match, p1, p2, p3, p4, p5, p6, p7, p8 });
-        if (p1 || (p7 && p7.includes("average="))) return match; // already a reference match don't match this
-        if (p3 && Number.isInteger(parseInt(p4)) && p7) {
-          if (p7.toLowerCase() === "saving throw") {
-            return `${p2}[[/save ${key} ${p4} format=long]]${p8}`;
+      const newLinkRegex = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(${value.label})( (saving throw:|check:|average=true|average=false))?(<\\/\\w+>)?(\\sDC (\\d\\d))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
+      const replaceRuleNew = (match, p1, p2, p3, p4, p5, p6, p7, p8, p9) => {
+        if (p1 || (p5 && p5.includes("average="))) return match; // already a reference match don't match this
+        if (p5 && ["saving throw:", "check:"].includes(p5.toLowerCase().trim())) {
+          const rollType = p5.toLowerCase() === "check:" ? "check" : "save";
+          // console.warn("Unexpected Reference", { match, p1, p2, p3,p4, p5, p6, p7, p8, p9, rollType });
+          const tag = p6 ? p6 : "";
+          if (p7 && Number.isInteger(parseInt(p8))) {
+            return `${p2}${p3}${p4}${tag}[[/${rollType} ${key} ${p8} format=long]]{${p7}}${p9}`;
+          } else {
+            return `${p2}[[/${rollType} ${key} format=long]]${tag}${p9}`;
           }
         }
-        return `${p2}${p3 ?? ""}&Reference[${key}]{${p5}}${p6 ?? ""}${p8}`;
+        return match;
+      };
+      // eslint-disable-next-line no-continue
+      text = text.replaceAll(newLinkRegex, replaceRuleNew);
+      const linkRegEx = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(DC (\\d\\d) )?(${value.label})( (saving throw|check|average=true|average=false))?( \\(DC 8 plus your ${value.label} modifier and Proficiency Bonus\\))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
+      const replaceRule = (match, p1, p2, p3, p4, p5, p6, p7, p8, p9) => {
+        if (p1 || (p7 && p7.includes("average="))) return match; // already a reference match don't match this
+        if (p7 && ["saving throw", "check"].includes(p7.toLowerCase())) {
+          const rollType = p7.toLowerCase() === "check" ? "check" : "save";
+          if (p3 && Number.isInteger(parseInt(p4))) {
+            return `${p2}[[/${rollType} ${key} ${p4} format=long]]${p9}`;
+          } else if (p8 && p8.includes("DC 8 plus your")) {
+            return `${p2}[[/${rollType} ${key} dc=8+@${key}.mod+@prof ${p4} format=long]]${p9}`;
+          } else {
+            return `${p2}[[/${rollType} ${key} format=long]]${p9}`;
+          }
+        }
+        if (type === "abilities") return match;
+        return `${p2}${p3 ?? ""}&Reference[${key}]{${p5}}${p6 ?? ""}${p9}`;
       };
       text = text.replaceAll(linkRegEx, replaceRule);
     }
@@ -275,7 +296,7 @@ function parseHardReferenceTag(type, text) {
 
 function damageRollGenerator({ text, damageType, actor, document, extraMods = [] } = {}) {
   let result;
-  const damageHint = damageType ? ` type=${damageType}` : "";
+  const damageHint = damageType ? ` type=${damageType.toLowerCase()}` : "";
   const diceParse = utils.parseDiceString(text, null, "");
   const baseAbility = foundry.utils.getProperty(document, "flags.monsterMunch.actionInfo.baseAbility");
   const mods = extraMods.join(" + ");
@@ -327,7 +348,7 @@ export function parseDamageRolls({ text, document, actor } = {}) {
   let hit = (hitIndex > 0) ? strippedHtml.slice(hitIndex) : `${strippedHtml}`;
   hit = hit.split("At the end of each")[0].split("At the start of each")[0];
   hit = hit.replace(/[–-–−]/g, "-");
-  const damageExpression = new RegExp(/((?:takes\s+|plus\s+|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^)]+)?)\)?)\s*([\w ]*?)\s*damage/gi);
+  const damageExpression = new RegExp(/((?:takes\s+|plus\s+|or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^)]+)?)\)?)\s*([\w ]*?)\s*damage/gi);
 
   const matches = [...hit.matchAll(damageExpression)];
   const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
@@ -407,7 +428,7 @@ export function parseToHitRoll({ text, document } = {}) {
   if (!document) return text;
 
   const matches = utils.stripHtml(`${text}`).trim().match(
-    /(?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)(?:,)?\s+(plus PB\s|\+ PB\s)?to\s+hit/i
+    /(?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)(?:,)?\s+(plus PB\s|\+ PB\s)?to\s+hit/i,
   );
 
   const toHit = matches && Number.isInteger(parseInt(matches[1]));

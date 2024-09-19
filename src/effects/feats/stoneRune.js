@@ -10,8 +10,8 @@ export function stoneRuneEffect(document) {
   let bonusEffect = baseFeatEffect(document, `${document.name} (Charm Effect)`);
   bonusEffect.statuses.push(`${document.name} (Charm Effect)`);
   foundry.utils.setProperty(bonusEffect, "duration.seconds", 60);
-  addStatusEffectChange(bonusEffect, "Charmed", 20, true);
-  addStatusEffectChange(bonusEffect, "Incapacitated", 20, true);
+  addStatusEffectChange({ effect: bonusEffect, statusName: "Charmed" });
+  addStatusEffectChange({ effect: bonusEffect, statusName: "Incapacitated" });
 
   if (effectModules().midiQolInstalled) {
     bonusEffect.changes.push(
@@ -20,7 +20,7 @@ export function stoneRuneEffect(document) {
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         value: `label=${document.name} (End of Turn Save),turn=end,saveDC=@attributes.spelldc,saveAbility=${document.system.save.ability},savingThrow=true,saveMagic=true,saveRemove=true,killAnim=true`,
         priority: "20",
-      }
+      },
     );
   }
 

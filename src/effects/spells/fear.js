@@ -3,7 +3,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 
 export function fearEffect(document) {
   let effect = baseSpellEffect(document, `${document.name} - Frightened`);
-  addStatusEffectChange(effect, "Frightened", 20, true);
+  addStatusEffectChange({ effect, statusName: "Frightened" });
   document.effects.push(effect);
 
   return document;

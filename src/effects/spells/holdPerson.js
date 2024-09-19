@@ -3,7 +3,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 
 export function holdPersonEffect(document) {
   let effect = baseSpellEffect(document, `${document.name} - Paralyzed`);
-  addStatusEffectChange(effect, "Paralyzed", 20, true);
+  addStatusEffectChange({ effect, statusName: "Paralyzed" });
 
   if (effectModules().midiQolInstalled) {
     effect.changes.push({
@@ -13,7 +13,7 @@ export function holdPersonEffect(document) {
       priority: "20",
     });
   }
-  document.effects.push(effect);
+  document.effects = [effect];
 
   return document;
 }

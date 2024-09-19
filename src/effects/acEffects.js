@@ -127,14 +127,8 @@ function addACSetEffect(modifiers, name, subType) {
     logger.debug(`Generating ${subType} AC set for ${name}: ${formula}`);
     effects.push(
       {
-        key: "system.attributes.ac.formula",
+        key: "system.attributes.ac.min",
         value: formula,
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        priority: 15,
-      },
-      {
-        key: "system.attributes.ac.calc",
-        value: "custom",
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         priority: 15,
       },

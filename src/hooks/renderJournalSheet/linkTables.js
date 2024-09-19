@@ -31,7 +31,7 @@ export function linkTables(type, html) {
 
       if (table?.flags?.ddb?.contentChunkId || pack) {
         const button = $(
-          `<a title="Click: Roll | Shift-Click: Self Roll" class="ddbimporter roll"><i class="fas fa-dice-d20"></i>  Roll!</a>`
+          `<a title="Click: Roll | Shift-Click: Self Roll" class="ddbimporter roll"><i class="fas fa-dice-d20"></i>  Roll!</a>`,
         );
 
         $(link).after(button);

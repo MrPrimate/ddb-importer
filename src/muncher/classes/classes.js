@@ -53,7 +53,7 @@ async function addSRDAdvancements(advancements, klass) {
     const srdKlass = await pack.getDocument(klassMatch._id);
     const scaleAdvancements = srdKlass.system.advancement.filter((srdA) =>
       srdA.type === "ScaleValue"
-      && !advancements.some((ddbA) => ddbA.configuration.identifier === srdA.configuration.identifier)
+      && !advancements.some((ddbA) => ddbA.configuration.identifier === srdA.configuration.identifier),
     ).map((advancement) => {
       return advancement.toObject();
     });
@@ -105,7 +105,7 @@ export async function getClasses(data) {
     for (const feature of klass.classFeatures.sort((a, b) => a.requiredLevel - b.requiredLevel)) {
       const existingFeature = classFeatures.some((f) =>
         f.flags.ddbimporter.featureName === feature.name
-        && f.flags.ddbimporter.classId === klass.id
+        && f.flags.ddbimporter.classId === klass.id,
       );
       logger.debug(`${feature.name} class feature starting...`, { existingFeature, feature });
       if (!NO_TRAITS.includes(feature.name) && !existingFeature) {
@@ -128,11 +128,11 @@ export async function getClasses(data) {
   logger.debug(`Creating class features`, {
     classFeatures,
     featureHandlerOptions,
-    updateBool
+    updateBool,
   });
   const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
   const firstPassFeatures = await featureHandler.compendiumIndex.filter((i) =>
-    featureHandler.documents.some((orig) => i.name === orig.name)
+    featureHandler.documents.some((orig) => i.name === orig.name),
   );
   let compendiumClassFeatures = [];
 

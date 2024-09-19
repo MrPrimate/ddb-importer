@@ -27,7 +27,7 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
     // is there a 'inntate-speed-[type]ing' race/class modifier?
     const innateType = DICTIONARY.character.speeds.find((s) => s.type === type).innate;
     let innateSpeeds = this.source.ddb.character.modifiers.race.filter(
-      (modifier) => modifier.type === "set" && modifier.subType === `innate-speed-${innateType}`
+      (modifier) => modifier.type === "set" && modifier.subType === `innate-speed-${innateType}`,
     );
     let base = movementTypes[type];
 

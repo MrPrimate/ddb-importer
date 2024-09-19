@@ -1380,6 +1380,10 @@
     "path": "icons/weapons/guns/gun-worn-gold.webp"
   },
   {
+    "name": "Needles",
+    "path": "icons/weapons/thrown/dart-feathered.webp"
+  },
+  {
     "name": "Blowgun Needles",
     "path": "icons/weapons/thrown/dart-feathered.webp"
   },
@@ -1972,7 +1976,27 @@
     "path": "icons/equipment/head/hood-cloth-brown.webp"
   },
   {
+    "name": "Traveler's Clothes",
+    "path": "icons/equipment/head/hood-cloth-brown.webp"
+  },
+  {
+    "name": "Common Clothes",
+    "path": "icons/equipment/leg/pants-brown-leather-pants.webp"
+  },
+  {
+    "name": "Costume Clothes",
+    "path": "icons/equipment/head/mask-carved-wood-pink.webp"
+  },
+  {
+    "name": "Fine Clothes",
+    "path": "icons/equipment/hand/glove-frayed-cloth-white.webp"
+  },
+  {
     "name": "Clothing, cold weather",
+    "path": "icons/equipment/back/cloak-heavy-collared-fur-green.webp"
+  },
+  {
+    "name": "Cold weather clothing",
     "path": "icons/equipment/back/cloak-heavy-collared-fur-green.webp"
   },
   {
@@ -8930,5 +8954,13 @@
   {
     "name": "Lighting Launcher (INT)",
     "path": "icons/magic/lightning/projectile-orb-blue.webp"
+  },
+  {
+    "name": "Needler Pistol",
+    "path": "icons/weapons/guns/rifle-fluted.webp"
+  },
+  {
+    "name": "Paralysis Pistol",
+    "path": "icons/tools/laboratory/alembic-glass-ball-blue.webp"
   }
 ]

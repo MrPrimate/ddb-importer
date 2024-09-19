@@ -127,12 +127,21 @@ function getIconPath(item, type, monsterName) {
   });
 
   if (!iconMatch && type === "monster") {
-    const genericMonsterIconMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => {
+    const genericMonsterIconMatch = CONFIG.DDBI.ICONS[typeValue]
+      .filter((entry) => !entry.monster)
+      .find((entry) => {
+        const sanitisedName = sanitiseName(entry.name);
+        const sanitisedItemName = sanitiseName(item.name);
+        return sanitisedName === sanitisedItemName;
+      });
+    if (genericMonsterIconMatch) return genericMonsterIconMatch.path;
+
+    const anyMonsterIconMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => {
       const sanitisedName = sanitiseName(entry.name);
       const sanitisedItemName = sanitiseName(item.name);
       return sanitisedName === sanitisedItemName;
     });
-    if (genericMonsterIconMatch) return genericMonsterIconMatch.path;
+    if (anyMonsterIconMatch) return anyMonsterIconMatch.path;
   }
 
   if (iconMatch) {
@@ -261,9 +270,6 @@ export default class Iconizer {
             item.img = pathMatched;
             if (item.effects) {
               item.effects.forEach((effect) => {
-                if (!effect.icon || effect.icon === "") {
-                  effect.icon = pathMatched;
-                }
                 if (!effect.img || effect.img === "") {
                   effect.img = pathMatched;
                 }
@@ -363,7 +369,7 @@ export default class Iconizer {
             const imageNamePrefix = useDeepPaths ? "" : "item";
             const downloadOptions = { type: "item", name: item.name, download: downloadImages, remoteImages, targetDirectory, pathPostfix, imageNamePrefix };
             const smallImage = await FileHelper.getImagePath(avatarUrl, downloadOptions);
-            logger.debug(`Final image ${smallImage}`);
+            // logger.debug(`Final image ${smallImage}`);
             itemImage.img = smallImage;
           }
         }
@@ -601,16 +607,11 @@ export default class Iconizer {
     items.forEach((item) => {
       if (item.effects && (item.img && (item.img !== "" || item.img !== CONST.DEFAULT_TOKEN))) {
         item.effects.forEach((effect) => {
-
-          if (!effect.icon || effect.icon === "" || effect.icon === CONST.DEFAULT_TOKEN) {
-            effect.icon = item.img;
-          }
           if (!effect.img || effect.img === "" || effect.img === CONST.DEFAULT_TOKEN) {
             effect.img = item.img;
           }
         });
       }
-
     });
     return items;
   }
@@ -623,7 +624,6 @@ export default class Iconizer {
       if (name) {
         const actorItem = actor.items.find((i) => i.name === name);
         if (actorItem) {
-          effect.icon = actorItem.img;
           effect.img = actorItem.img;
         }
       }

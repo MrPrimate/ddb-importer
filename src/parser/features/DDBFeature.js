@@ -10,11 +10,6 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 
 export default class DDBFeature extends DDBBaseFeature {
 
-  static FORCE_UNARMED = [
-    "Trunk",
-    "Claws",
-  ];
-
   static DOC_TYPE = {
     class: "feat", // class feature
     subclass: "feat", // subclass feature
@@ -23,10 +18,15 @@ export default class DDBFeature extends DDBBaseFeature {
     feat: "feat",
   };
 
+  static LEVEL_SCALE_EXCLUSION_USES = [
+    "Destroy Undead",
+  ];
+
+
   _init() {
     this.documentType = DDBFeature.DOC_TYPE[this.type];
     this.tagType = this.type;
-    logger.debug(`Generating Feature ${this.ddbDefinition.name}`);
+    logger.debug(`Init Feature ${this.ddbDefinition.name}`);
     this._class = this.noMods
       ? null
       : this.ddbData.character.classes.find((klass) =>
@@ -35,9 +35,15 @@ export default class DDBFeature extends DDBBaseFeature {
         || (this.ddbDefinition.className && klass.definition.name === this.ddbDefinition.className
           && ((!this.ddbDefinition.subclassName || this.ddbDefinition.subclassName === "")
             || (this.ddbDefinition.subclassName && klass.subclassDefinition?.name === this.ddbDefinition.subclassName))
-        )
+        ),
       );
-    this._choices = this.noMods ? [] : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition);
+    this._choices = this.noMods
+      ? []
+      : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition, false).reduce((p, c) => {
+        if (!p.some((e) => e.id === c.id)) p.push(c);
+        return p;
+      }, []);
+    this._chosen = this.noMods ? [] : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition, true);
     this.isChoiceFeature = this._choices.length > 0;
     this.include = !this.isChoiceFeature;
     this.hasRequiredLevel = !this._class || (this._class && this._class.level >= this.ddbDefinition.requiredLevel);
@@ -54,16 +60,23 @@ export default class DDBFeature extends DDBBaseFeature {
       _id: foundry.utils.randomID(),
       name: utils.nameString(this.ddbDefinition.name),
       type: this.documentType,
+      effects: [],
       system: utils.getTemplate(this.documentType),
       flags: {
         ddbimporter: {
           id: this.ddbDefinition.id,
           type: this.tagType,
           entityTypeId: this.ddbDefinition.entityTypeId,
+          is2014: this.is2014,
+          is2024: !this.is2014,
+          componentId: this.ddbDefinition.componentId,
+          componentTypeId: this.ddbDefinition.componentTypeId,
+          originalName: this.originalName,
           dndbeyond: {
             requiredLevel: this.ddbDefinition.requiredLevel,
             displayOrder: this.ddbDefinition.displayOrder,
             featureType: this.ddbDefinition.featureType,
+            class: this.ddbDefinition.className,
             classId: this.ddbDefinition.classId,
             entityId: this.ddbDefinition.entityId,
             entityRaceId: this.ddbDefinition.entityRaceId,
@@ -75,7 +88,7 @@ export default class DDBFeature extends DDBBaseFeature {
             type: this.tagType,
           },
         },
-      }
+      },
     };
 
     const requiredLevel = foundry.utils.getProperty(this.ddbDefinition, "requiredLevel");
@@ -84,14 +97,28 @@ export default class DDBFeature extends DDBBaseFeature {
         level: Number.parseInt(requiredLevel),
       };
     }
+
+    this.data.system.identifier = this.identifier;
   }
 
   // eslint-disable-next-line class-methods-use-this
   _prepare() {
     // override this feature
+    this._generateActionTypes();
+    this._generateFlagHints();
+
+    this.excludedScaleUses = DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.ddbDefinition.name)
+      || DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.data.name);
+
+    this.scaleValueUsesLink = DDBHelper.getScaleValueLink(this.ddbData, this.ddbFeature, true);
+
+    this.useUsesScaleValueLink = !this.excludedScaleUses
+      && this.scaleValueUsesLink
+      && this.scaleValueUsesLink !== ""
+      && this.scaleValueUsesLink !== "{{scalevalue-unknown}}";
   }
 
-  _buildUnarmed() {
+  _buildNatural() {
     const override = {
       name: this.data.name,
       description: this.ddbDefinition.description,
@@ -106,6 +133,7 @@ export default class DDBFeature extends DDBBaseFeature {
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, override);
 
+    logger.debug(`Building Natural Attack for ${this.data.name}`);
     const ddbAttackAction = new DDBAttackAction({
       ddbData: this.ddbData,
       ddbDefinition: strikeMock,
@@ -113,6 +141,7 @@ export default class DDBFeature extends DDBBaseFeature {
       type: this.type,
       documentType: "weapon",
     });
+    ddbAttackAction.naturalWeapon = true;
     ddbAttackAction.build();
 
     this.data = ddbAttackAction.data;
@@ -121,21 +150,16 @@ export default class DDBFeature extends DDBBaseFeature {
   _buildBasic() {
     this._generateSystemType();
     this._generateSystemSubType();
+    this._generateLimitedUse();
 
-    // this._generateLimitedUse();
-    // this._generateRange();
-    // this._generateResourceConsumption();
-    // this._generateActivation();
-    // this._generateLevelScaleDice();
+    this._generateActivity({ hintsOnly: true });
+    this.enricher.addAdditionalActivities(this);
 
-    this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
-
-    this._generateDescription(true);
+    this._generateDescription({ forceFull: true });
     this._addEffects(undefined, this.type);
 
-    // this._generateFlagHints();
-    // this._generateResourceFlags();
-    // this._addCustomValues();
+    this.enricher.addDocumentOverride();
+    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }
 
   async _generateFeatureAdvancements() {
@@ -163,13 +187,120 @@ export default class DDBFeature extends DDBBaseFeature {
     }
   }
 
+
+  generateBackgroundAbilityScoreAdvancement() {
+    const advancements = [];
+
+    // this.ddbDefinition.grantedFeats
+    //   [
+    //     {
+    //         "id": 16335,
+    //         "name": "Lucky",
+    //         "featIds": [
+    //             1789160
+    //         ]
+    //     },
+    //     {
+    //         "id": 16336,
+    //         "name": "Ability Scores",
+    //         "featIds": [
+    //             1789210
+    //         ]
+    //     }
+    // ]
+
+    const feats = this.ddbData.character.feats.filter((f) => {
+      return this.ddbDefinition.grantedFeats.some((backgroundFeat) => {
+        if (f.componentId !== backgroundFeat.id) return false;
+        if (!backgroundFeat.featIds.includes(f.definition.id)) return false;
+        if (!f.definition.categories.some((c) => c.tagName === "__INITIAL_ASI")) return false;
+        return true;
+      });
+    });
+
+    // feats:[]
+    //   {
+    //     "componentTypeId": 67468084,
+    //     "componentId": 16336,
+    //     "definition": {
+    //         "id": 1789210,
+    //         "entityTypeId": 1088085227,
+    //         "definitionKey": "1088085227:1789210",
+    //         "name": "Wayfarer Ability Score Improvements",
+    //
+    //         "categories": [
+    //             {
+    //                 "id": 491,
+    //                 "entityTypeId": 1088085227,
+    //                 "entityId": 1789210,
+    //                 "definitionKey": "1088085227:1789210",
+    //                 "entityTagId": 2,
+    //                 "tagName": "__INITIAL_ASI"
+    //             },
+    //         ]
+    //     },
+    // }
+
+    // modifiers.feats: []
+
+    // {
+    //   "fixedValue": 1,
+    //   "id": "62627298",
+    //   "entityId": 1,
+    //   "entityTypeId": 1472902489,
+    //   "type": "bonus",
+    //   "subType": "strength-score",
+    //   "dice": null,
+    //   "restriction": "",
+    //   "statId": null,
+    //   "requiresAttunement": false,
+    //   "duration": null,
+    //   "friendlyTypeName": "Bonus",
+    //   "friendlySubtypeName": "Strength Score",
+    //   "isGranted": false,
+    //   "bonusTypes": [],
+    //   "value": 1,
+    //   "availableToMulticlass": true,
+    //   "modifierTypeId": 1,
+    //   "modifierSubTypeId": 2,
+    //   "componentId": 1789093,
+    //   "componentTypeId": 1088085227,
+    //   "tagConstraints": []
+    // }
+
+    const modifiers = this.ddbData.character.modifiers.feat.filter((m) =>
+      feats.some((f) => m.componentTypeId == f.definition.entityTypeId),
+    );
+
+    if (modifiers.length === 0) return;
+
+    // KNOWN_ISSUE_4_0: revist this to use the race/species advancement detection.
+    const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
+    advancement.updateSource({ configuration: { points: 3 }, level: 0, value: { type: "asi" } });
+
+    const assignments = {};
+    DICTIONARY.character.abilities.forEach((ability) => {
+      const count = DDBHelper.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
+      if (count > 0) assignments[ability.value] = count;
+    });
+
+    advancement.updateSource({
+      value: {
+        assignments,
+      },
+    });
+    advancements.push(advancement.toObject());
+
+    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+  }
+
   _generateSkillAdvancements() {
     const mods = this.advancementHelper.noMods
       ? []
       : DDBHelper.getModifiers(this.ddbData, this.type);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
-      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType)
+      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType),
     );
     const advancement = this.advancementHelper.getSkillAdvancement(skillExplicitMods, this.ddbDefinition, undefined, 0);
     this._addAdvancement(advancement);
@@ -236,7 +367,7 @@ export default class DDBFeature extends DDBBaseFeature {
     const advancementLinkData = foundry.utils.getProperty(this.data, "flags.ddbimporter.advancementLink") ?? [];
     const advancementData = {
       _id: advancement._id,
-      features: {}
+      features: {},
     };
     advancementData[advancement._id] = {};
     feats.forEach((f) => {
@@ -251,12 +382,12 @@ export default class DDBFeature extends DDBBaseFeature {
       this._generateSystemType();
       this._generateSystemSubType();
 
-      this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
+      // this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 
       logger.debug(`Found background ${this.ddbDefinition.name}`);
       logger.debug(`Found ${this._choices.map((c) => c.label).join(",")}`);
 
-      this._generateDescription(true);
+      this._generateDescription({ forceFull: true });
       this.data.system.description.value += `<h3>Proficiencies</h3><ul>`;
       this._choices.forEach((choice) => {
         this._addEffects(choice, this.type);
@@ -266,34 +397,72 @@ export default class DDBFeature extends DDBBaseFeature {
       this.data.img = "icons/skills/trades/academics-book-study-purple.webp";
       this.data.name = this.data.name.split("Background: ").pop();
 
+      this.enricher.addDocumentOverride();
+      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+
     } catch (err) {
       logger.warn(
         `Unable to Generate Background Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
-        "extension"
+        "extension",
       );
       logger.error("Error", err);
     }
   }
 
+  _buildChoiceFeature() {
+    this._generateSystemType();
+    this._generateSystemSubType();
+
+    // this._generateLimitedUse();
+    // this._generateRange();
+
+    const choiceText = this._choices.reduce((p, c) => {
+      if (c.description) {
+        return `${p}<br>
+        <h3>${c.label}</h3>
+        <p>${c.description}</p>`;
+      } else {
+        return `${p}<br>
+        <p>${c.label}</p>`;
+      }
+    }, "");
+    // this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
+
+    // console.warn("CHOICE TEXT", {
+    //   choices: this._choices,
+    //   choiceText,
+    // });
+
+    this._generateDescription({ extra: `<section class="secret">${choiceText}</section>` });
+    this._addEffects(undefined, this.type);
+
+    // this._generateFlagHints();
+    // this._generateResourceFlags();
+    // this._addCustomValues();
+
+    this.enricher.addDocumentOverride();
+    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+  }
+
 
   build() {
     try {
-      if (DDBFeature.FORCE_UNARMED.includes(this.data.name)) {
-        this._buildUnarmed();
+      if (this.naturalWeapon) {
+        this._buildNatural();
       } else if (this.type === "background") {
         // work around till background parsing support advancements
         this.isChoiceFeature = false;
         this._buildBackground();
       } else if (this.isChoiceFeature) {
-        logger.debug(`${this.name} has multiple choices and you  need to pass this instance to DDBChoiceFeature`);
-        //  DDBChoiceFeature.buildChoiceFeatures(this);
+        logger.debug(`${this.name} has multiple choices and you need to pass this instance to DDBChoiceFeature`);
+        this._buildChoiceFeature();
       } else {
         this._buildBasic();
       }
     } catch (err) {
       logger.warn(
         `Unable to Generate Basic Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
-        "extension"
+        "extension",
       );
       logger.error("Error", err);
     }

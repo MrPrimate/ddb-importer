@@ -8,7 +8,7 @@ function avalancheOfBonesEffect(document) {
   foundry.utils.setProperty(document, "system.range", { value: null, long: null, units: "self" });
 
   let effect = baseFeatEffect(document, document.name);
-  addStatusEffectChange(effect, "Prone", 20, true);
+  addStatusEffectChange({ effect, statusName: "Prone" });
   foundry.utils.setProperty(effect, "duration.turns", 99);
   foundry.utils.setProperty(effect, "duration.seconds", 9999);
   effect.transfer = false;
@@ -25,7 +25,7 @@ function fallingApartEffect(document) {
       "key": "flags.midi-qol.OverTime",
       "mode": CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       "value": `turn=start, damageRoll=10, damageType=none, condition=@attributes.hp.value > 0 && @attributes.hp.value < @attributes.hp.max, label=${document.name}`,
-      "priority": "20"
+      "priority": "20",
     },
   );
   effect.transfer = true;

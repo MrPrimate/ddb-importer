@@ -8,7 +8,7 @@ export function comprehendLanguagesEffect(document) {
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: '1',
       priority: "20",
-    }
+    },
   );
 
   document.effects.push(effect);

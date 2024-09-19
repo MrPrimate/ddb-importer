@@ -32,6 +32,8 @@ export default class DDBCompanion {
         attacks: false,
         saves: false,
       },
+      creatureSizes: [],
+      creatureTypes: [],
       bonuses: {
         ac: "",
         hp: "",
@@ -40,7 +42,11 @@ export default class DDBCompanion {
         healing: "",
       },
       profiles: [],
-      prompt: true,
+      summon: {
+        identifier: "",
+        mode: "", // cr for cr based cusooms
+        prompt: true,
+      },
     };
   }
 
@@ -56,7 +62,7 @@ export default class DDBCompanion {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-        }
+        },
       });
 
       const j = await response.json();
@@ -250,7 +256,7 @@ export default class DDBCompanion {
     if (hitDice) {
       const hitDiceAdjustment = {
         "key": "system.attributes.hp.formula",
-        "value": `(@classes.${hitDice[2]}.levels)[d${hitDice[1]}]`
+        "value": `(@classes.${hitDice[2]}.levels)[d${hitDice[1]}]`,
       };
       this.npc.flags.ddbimporter.summons.changes.push(hitDiceAdjustment);
     }
@@ -645,7 +651,7 @@ export default class DDBCompanion {
     logger.debug(`Beginning companion parse for ${name}`, { name, block: this.block });
 
     const actorName = `${name} ${namePostfix}`.trim();
-    this.npc = await newNPC(actorName);
+    this.npc = newNPC(actorName);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.companion.modifiers", {});
     this.npc.prototypeToken.name = actorName;
 

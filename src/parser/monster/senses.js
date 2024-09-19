@@ -62,8 +62,8 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
             {
               "id": "lightPerception",
               "range": value,
-              "enabled": true
-            }
+              "enabled": true,
+            },
           );
         }
       }
@@ -79,7 +79,7 @@ DDBMonster.prototype._generateSenses = function _generateSenses() {
     tremorsense: 0,
     truesight: 0,
     units: "ft",
-    special: ""
+    special: "",
   };
   const senseLookup = CONFIG.DDB.senses;
 

@@ -67,7 +67,7 @@ export class DDBAdventureFlags extends FormApplication {
             description: "Keep avatar?  (The image needs to be manually set in the export data)",
             isChecked: item.flags?.ddbimporter?.keepAvatar ?? false,
           },
-        ]
+        ],
       },
       item: {
         isItem: DICTIONARY.types.monster.includes(this.object.type) || this.object.type === "spell",
@@ -76,8 +76,8 @@ export class DDBAdventureFlags extends FormApplication {
             name: "customItem",
             description: "Keep this custom item",
             isChecked: item.flags?.ddbimporter?.customItem ?? false,
-          }
-        ]
+          },
+        ],
       },
     };
 
@@ -96,7 +96,7 @@ export class DDBAdventureFlags extends FormApplication {
       .find(
         [
           '.flag-policy input[type="checkbox"]',
-        ].join(",")
+        ].join(","),
       )
       .on("change", async (event) => {
         const selection = event.currentTarget.dataset.section;
@@ -106,9 +106,9 @@ export class DDBAdventureFlags extends FormApplication {
         await this.object.update({
           flags: {
             "ddbimporter": {
-              [selection]: checked
-            }
-          }
+              [selection]: checked,
+            },
+          },
         });
       });
   }

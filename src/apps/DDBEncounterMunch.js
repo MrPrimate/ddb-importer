@@ -96,7 +96,7 @@ export default class DDBEncounterMunch extends Application {
         const characterInGame = game.actors.find(
           (actor) =>
             actor.flags?.ddbimporter?.dndbeyond?.characterId
-            && actor.flags.ddbimporter.dndbeyond.characterId == character.id
+            && actor.flags.ddbimporter.dndbeyond.characterId == character.id,
         );
         if (characterInGame) {
           goodCharacterData.push({ id: characterInGame.id, name: characterInGame.name, ddbId: character.id });
@@ -218,17 +218,17 @@ export default class DDBEncounterMunch extends Application {
       "D&D Beyond Encounters",
       "#6f0006",
       "#98020a",
-      false
+      false,
     );
 
     logger.debug("Trying to import monsters from compendium", monstersToAddToWorld);
     await utils.asyncForEach(monstersToAddToWorld, async (actor) => {
       let worldActor = game.actors.find(
-        (a) => a.folder?.id == encounterMonsterFolder.id && a.flags?.ddbimporter?.id == actor.ddbId
+        (a) => a.folder?.id == encounterMonsterFolder.id && a.flags?.ddbimporter?.id == actor.ddbId,
       );
       if (!worldActor) {
         logger.info(
-          `Importing monster ${actor.name} with DDB ID ${actor.ddbId} from ${monsterPack.metadata.name} with id ${actor.id}`
+          `Importing monster ${actor.name} with DDB ID ${actor.ddbId} from ${monsterPack.metadata.name} with id ${actor.id}`,
         );
         try {
           worldActor = await game.actors.importFromCompendium(monsterPack, actor.id, {
@@ -238,7 +238,7 @@ export default class DDBEncounterMunch extends Application {
           logger.error(err);
           logger.warn(`Unable to import actor ${actor.name} with id ${actor.id} from DDB Compendium`);
           logger.debug(
-            `Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.id}", { folder: "${encounterMonsterFolder.id}" });`
+            `Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.id}", { folder: "${encounterMonsterFolder.id}" });`,
           );
         }
       }
@@ -278,7 +278,7 @@ export default class DDBEncounterMunch extends Application {
         "D&D Beyond Encounters",
         "#6f0006",
         "#98020a",
-        false
+        false,
       );
       journal.folder = journalFolder.id;
       journal.content = `<h1>${this.encounter.name}</h1>`;
@@ -303,7 +303,7 @@ export default class DDBEncounterMunch extends Application {
       }
 
       let worldJournal = game.journal.find(
-        (a) => a.folder == journalFolder.id && a.flags?.ddbimporter?.encounterId == this.encounter.id
+        (a) => a.folder == journalFolder.id && a.flags?.ddbimporter?.encounterId == this.encounter.id,
       );
       if (!worldJournal) {
         logger.info(`Importing journal ${journal.name}`);
@@ -334,7 +334,7 @@ export default class DDBEncounterMunch extends Application {
       "D&D Beyond Encounters",
       "#6f0006",
       "#98020a",
-      false
+      false,
     );
 
     let sceneData = {
@@ -415,7 +415,7 @@ export default class DDBEncounterMunch extends Application {
           const characterInGame = game.actors.find(
             (actor) =>
               actor.flags?.ddbimporter?.dndbeyond?.characterId
-              && actor.flags.ddbimporter.dndbeyond.characterId == character.id
+              && actor.flags.ddbimporter.dndbeyond.characterId == character.id,
           );
           if (characterInGame) {
             const onScene = useExistingScene && worldScene.tokens
@@ -469,7 +469,7 @@ export default class DDBEncounterMunch extends Application {
             foundry.utils.setProperty(
               linkedToken,
               `delta.system.attributes.hp.value`,
-              worldMonster.currentHitPoints + worldMonster.temporaryHitPoints
+              worldMonster.currentHitPoints + worldMonster.temporaryHitPoints,
             );
           }
         }
@@ -484,7 +484,7 @@ export default class DDBEncounterMunch extends Application {
       if (importDDBIScene) {
         worldScene = game.scenes.find(
           (a) => a.folder == this.folders["scene"].id
-          && a.flags?.ddbimporter?.encounterId == this.encounter.id
+          && a.flags?.ddbimporter?.encounterId == this.encounter.id,
         );
       }
 
@@ -492,7 +492,7 @@ export default class DDBEncounterMunch extends Application {
         logger.info(`Updating scene ${sceneData.name}`);
         const existingCombats = game.combats.filter((c) =>
           c.scene?.id == worldScene.id
-          && c.flags?.ddbimporter?.encounterId == this.encounter.id
+          && c.flags?.ddbimporter?.encounterId == this.encounter.id,
         );
         await Combat.deleteDocuments(existingCombats.map((c) => c.id));
         if (importDDBIScene) {
@@ -568,7 +568,7 @@ export default class DDBEncounterMunch extends Application {
 
       const rollMonsterInitiative = game.settings.get(
         "ddb-importer",
-        "encounter-import-policy-roll-monster-initiative"
+        "encounter-import-policy-roll-monster-initiative",
       );
       combatants
         .filter((c) => rollMonsterInitiative && c.actor.type === "npc" && c.initiative === null)
@@ -585,7 +585,7 @@ export default class DDBEncounterMunch extends Application {
 
     $(html)
       .find(
-        ['.munching-generic-config input[type="checkbox"]', '.munching-monster-config input[type="checkbox"]'].join(",")
+        ['.munching-generic-config input[type="checkbox"]', '.munching-monster-config input[type="checkbox"]'].join(","),
       )
       .on("change", (event) => {
         MuncherSettings.updateMuncherSettings(html, event);
@@ -600,7 +600,7 @@ export default class DDBEncounterMunch extends Application {
           '.effect-import-config input[type="checkbox"]',
           '.extras-import-config input[type="checkbox"]',
           '.import-config input[type="checkbox"]',
-        ].join(",")
+        ].join(","),
       )
       .on("change", (event) => {
         MuncherSettings.updateActorSettings(html, event);
@@ -619,7 +619,7 @@ export default class DDBEncounterMunch extends Application {
         game.settings.set(
           "ddb-importer",
           "sync-policy-" + event.currentTarget.dataset.section,
-          event.currentTarget.checked
+          event.currentTarget.checked,
         );
       });
 
@@ -646,7 +646,7 @@ export default class DDBEncounterMunch extends Application {
         game.settings.set(
           "ddb-importer",
           "encounter-import-policy-" + event.currentTarget.dataset.section,
-          event.currentTarget.checked
+          event.currentTarget.checked,
         );
       });
 

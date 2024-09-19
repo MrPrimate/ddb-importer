@@ -11,7 +11,7 @@ export async function spiritShroudEffect(document) {
       key: "flags.midi-qol.spiritShroud",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "@uuid",
-      priority: 20
+      priority: 20,
     },
     {
       key: "system.attributes.movement.all",

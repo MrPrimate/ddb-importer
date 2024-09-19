@@ -16,9 +16,7 @@ for (const target of lastArg.targets) {
     disabled: false,
     duration: { rounds: 10, seconds: 60, startRound: gameRound, startTime: game.time.worldTime },
     flags: { dae: { specialDuration: ["isDamaged"] } },
-    changes: [
-      DDBImporter.EffectHelper.generateStatusEffectChange("Unconscious", 20),
-    ]
+    statuses: ["unconscious"],
   };
 
   await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.actor.uuid, effects: [effectData] });

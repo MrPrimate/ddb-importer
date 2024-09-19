@@ -1,3 +1,4 @@
+import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBAction from "./DDBAction.js";
 
@@ -16,8 +17,21 @@ export default class DDBAttackAction extends DDBAction {
     "Guardian Armor: Thunder Gauntlets (STR)",
     "Infiltrator Armor: Lightning Launcher",
     "Infiltrator Armor: Lightning Launcher (DEX)",
+    "Arcane Propulsion Armor Gauntlet",
     "Arms of the Astral Self (WIS)",
     "Arms of the Astral Self (DEX/STR)",
+    "Arms of the Astral Self",
+    "Bite",
+    "Claw",
+    "Gore",
+    "Sting",
+    "Talon",
+    "Trunk",
+    "Claws",
+    "Fangs",
+    "Form of the Beast: Bite",
+    "Form of the Beast: Claws",
+    "Form of the Beast: Tail",
   ];
 
   _init() {
@@ -33,36 +47,34 @@ export default class DDBAttackAction extends DDBAction {
       if (this.ddbData.isMartialArts) {
         foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", "Martial Arts");
       };
+      if (this.is2014 && DDBAction.SKIPPED_2014_ONLY_ACTIONS.includes(this.originalName)) {
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.skip", true);
+      }
       this.data.system.proficient = this.ddbDefinition.isProficient ? 1 : 0;
       this._generateDescription();
       this.data.system.equipped = true;
       this.data.system.rarity = "";
       this.data.system.identified = true;
-      this._generateActivation();
       this._generateRange();
-      this._generateAttackType();
-      this._generateWeaponType();
       this._generateLimitedUse();
-      this._generateResourceConsumption();
       this._generateProperties();
       this._generateSystemType(this.type);
       this._generateSystemSubType();
+      if (!this.enricher.documentStub?.stopDefaultActivity)
+        this._generateActivity();
+      this.enricher.addAdditionalActivities(this);
 
-      if (["line", "cone"].includes(this.data.system.target?.type)) {
-        foundry.utils.setProperty(this.data, "system.duration.units", "inst");
-      }
-
-      this._generateFlagHints();
       this._generateResourceFlags();
+      this.enricher.addDocumentOverride();
       this._addEffects();
-      this._generateLevelScaleDice();
 
       this._addCustomValues();
+      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
     } catch (err) {
       logger.warn(
         `Unable to Generate Attack Action: ${this.name}, please log a bug report. Err: ${err.message}`,
-        "extension"
+        "extension",
       );
       logger.error("Error", err);
     }

@@ -361,7 +361,7 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
         break;
       // no default
     }
-    spell.name = `${spell.name} (${edgeCase.edge})`;
+    spell.name = edgeCase.edge.includes("save DC") ? spell.name : `${spell.name} (${edgeCase.edge})`;
     spell.system.description.value = `<p><b>Special Notes: ${edgeCase.edgeDescription ?? edgeCase.edge}.</b></p>\n\n${spell.system.description.value}`;
 
     if (spell.system.description.chat !== "") {
@@ -371,12 +371,16 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
     const diceSearch = /(\d+)d(\d+)/;
     const diceMatch = edgeCase.edge.match(diceSearch);
     if (diceMatch) {
-      if (spell.system.damage.parts[0] && spell.system.damage.parts[0][0]) {
-        spell.system.damage.parts[0][0] = diceMatch[0];
-      } else if (spell.system.damage.parts[0]) {
-        spell.system.damage.parts[0] = [diceMatch[0]];
-      } else {
-        spell.system.damage.parts = [[diceMatch[0]]];
+      for (const key of Object.keys(spell.system.activities)) {
+        const activity = spell.system.activities[key];
+        if (!activity.damage?.parts || activity.damage.parts.length === 0) continue;
+        activity.damage.parts[0].number = null;
+        activity.damage.parts[0].denomination = null;
+        activity.damage.parts[0].custom = {
+          enabled: true,
+          formula: diceMatch[0],
+        };
+        spell.system.activities[key] = activity;
       }
     }
 
@@ -384,10 +388,16 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
     const saveSearch = /save DC (\d+)/;
     const saveMatch = edgeCase.edge.match(saveSearch);
     if (saveMatch) {
-      spell.system.save.dc = parseInt(saveMatch[1]);
-      spell.system.save.scaling = "flat";
+      for (const key of Object.keys(spell.system.activities)) {
+        const activity = spell.system.activities[key];
+        if (!activity?.save) continue;
+        activity.save.dc = {
+          formula: saveMatch[1],
+          calculation: "",
+        };
+        spell.system.activities[key] = activity;
+      }
     }
-
   }
 
   // remove material components?
@@ -396,7 +406,7 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
       value: "",
       consumed: false,
       cost: 0,
-      supply: 0
+      supply: 0,
     };
     spell.system.properties = utils.removeFromProperties(spell.system.properties, "material");
   }
@@ -505,10 +515,9 @@ DDBMonster.prototype.addSpells = async function() {
           prepared: false,
         };
         spell.system.uses = {
-          value: null,
-          max: "",
-          per: null,
-          recovery: "",
+          spent: null,
+          max: null,
+          recovery: [],
         };
       }
       this.getSpellEdgeCase(spell, "atwill", this.spellList);
@@ -571,10 +580,9 @@ DDBMonster.prototype.addSpells = async function() {
           }
           if (isAtWill && spellInfo.type === "atwill") {
             spell.system.uses = {
-              value: null,
-              max: "",
-              per: null,
-              recovery: "",
+              spent: null,
+              max: null,
+              recovery: [],
             };
           } else {
             const perLookup = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
@@ -584,10 +592,11 @@ DDBMonster.prototype.addSpells = async function() {
                 ? perLookup.type
                 : "day";
             spell.system.uses = {
-              value: parseInt(spellInfo.value),
+              spent: 0,
               max: spellInfo.value ?? "",
-              per,
-              recovery: "",
+              recovery: [
+                { period: per, type: "recoverAll", formula: undefined },
+              ],
             };
           }
           this.getSpellEdgeCase(spell, "innate", this.spellList);

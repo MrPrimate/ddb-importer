@@ -4,16 +4,16 @@ import { baseSpellEffect } from "../specialSpells.js";
 export function hypnoticPatternEffect(document) {
   if (effectModules().midiQolInstalled) {
     let effectHypnoticPatternCharmed = baseSpellEffect(document, `${document.name} - Charmed`);
-    addStatusEffectChange(effectHypnoticPatternCharmed, "Charmed", 20, true);
+    addStatusEffectChange({ effect: effectHypnoticPatternCharmed, statusName: "Charmed" });
     document.effects.push(effectHypnoticPatternCharmed);
 
     let effectHypnoticPatternIncapacitated = baseSpellEffect(document, `${document.name} - Incapacitated`);
-    addStatusEffectChange(effectHypnoticPatternIncapacitated, "Incapacitated", 20, true);
+    addStatusEffectChange({ effect: effectHypnoticPatternIncapacitated, statusName: "Incapacitated" });
     document.effects.push(effectHypnoticPatternIncapacitated);
   } else {
     let effect = baseSpellEffect(document, document.name);
-    addStatusEffectChange(effect, "Charmed", 20, true);
-    addStatusEffectChange(effect, "Incapacitated", 20, true);
+    addStatusEffectChange({ effect, statusName: "Charmed" });
+    addStatusEffectChange({ effect, statusName: "Incapacitated" });
     document.effects.push(effect);
   }
 

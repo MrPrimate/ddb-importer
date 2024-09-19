@@ -10,7 +10,7 @@ export async function colorSprayEffect(document) {
     await DDBMacros.setItemMacroFlag(document, "spell", "colorSpray.js");
   } else {
     let effect = baseSpellEffect(document, `${document.name} - Blinded`);
-    addStatusEffectChange(effect, "Blinded", 20, true);
+    addStatusEffectChange({ effect, statusName: "Blinded" });
     document.effects.push(effect);
 
   }
