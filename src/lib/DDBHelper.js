@@ -160,6 +160,18 @@ const DDBHelper = {
     };
   },
 
+
+  _tweakSourceData: (source) => {
+    if (["PHB-2024", "free-rules"].includes(source.book)) {
+      source.book = "PHB 2024";
+    } else if (source.book === "BR") {
+      source.book = "SRD 5.1";
+      source.license = "CC-BY-4.0";
+    }
+    if (game.settings.get("ddb-importer", "no-source-book-pages"))
+      source.page = "";
+  },
+
   /**
    *
    * Gets the sourcebook for a subset of dndbeyond sources
@@ -182,34 +194,41 @@ const DDBHelper = {
       for (const ds of sources) {
         const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === ds.sourceId);
 
-        results.push({
+        const source = {
           book: ddbSource ? ddbSource.name : "Homebrew",
           page: ds.pageNumber ?? "",
           license: "",
           custom: "",
           id: ddbSource ? ddbSource.id : 9999999,
-        });
+        };
+        DDBHelper._tweakSourceData(source);
+        results.push(source);
       }
     } else if (definition.sourceIds) {
       for (const sourceId of definition.sourceIds) {
         const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === sourceId);
-        results.push({
+        const source = {
           book: ddbSource ? ddbSource.name : "Homebrew",
           page: definition.sourcePageNumber ?? "",
           license: "",
           custom: "",
           id: ddbSource ? ddbSource.id : 9999999,
-        });
+        };
+
+        DDBHelper._tweakSourceData(source);
+        results.push(source);
       }
     } else if (definition.sourceId) {
       const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === definition.sourceId);
-      results.push({
+      const source = {
         book: ddbSource ? ddbSource.name : "Homebrew",
         page: definition.sourcePageNumber ?? "",
         license: "",
         custom: "",
         id: ddbSource ? ddbSource.id : 9999999,
-      });
+      };
+      DDBHelper._tweakSourceData(source);
+      results.push(source);
     }
     return results;
   },
