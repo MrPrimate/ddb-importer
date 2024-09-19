@@ -47,6 +47,11 @@ export default class DDBSpell {
         "tidy5e-sheet": this.spellData.flags["tidy5e-sheet"],
       },
     };
+
+    const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+    if (legacyName && this.is2014) {
+      this.data.name += " (Legacy)";
+    }
   }
 
   getCustomName(data) {
@@ -559,7 +564,7 @@ export default class DDBSpell {
         max: finalMaxUses,
         recovery: resetType
           ? [{
-            // TODO: if charges returned here maybe don't?
+            // KNOWN_ISSUE_4_0: if charges returned here maybe don't?
             period: resetType.value,
             type: 'recoverAll',
           }]
@@ -775,8 +780,8 @@ export default class DDBSpell {
     } else if (this.spellDefinition.tags.includes("Buff")) {
       return "utility";
     }
-    // TODO: Enchants like for magic weapon etc
-    // TODO: Summoning
+    // KNOWN_ISSUE_4_0: Enchants like for magic weapon etc
+    // KNOWN_ISSUE_4_0: Summoning
     return undefined;
   }
 
@@ -829,17 +834,17 @@ export default class DDBSpell {
       nameIdPostfix,
     }, optionsOverride);
 
-    console.warn(`Spell Activity Check for ${this.data.name}`, {
-      this: this,
-      activity,
-      typeOverride,
-      enricherHint: this.enricher.activity?.type,
-      activityType: activity?.data?.type,
-      optionsOverride,
-      name,
-      hintsOnly,
-      nameIdPostfix,
-    });
+    // console.warn(`Spell Activity Check for ${this.data.name}`, {
+    //   this: this,
+    //   activity,
+    //   typeOverride,
+    //   enricherHint: this.enricher.activity?.type,
+    //   activityType: activity?.data?.type,
+    //   optionsOverride,
+    //   name,
+    //   hintsOnly,
+    //   nameIdPostfix,
+    // });
 
     if (!activity) {
       logger.debug(`No Activity type found for ${this.data.name}`, {
@@ -868,7 +873,7 @@ export default class DDBSpell {
         let effect = baseSpellEffect(this.data, `${this.data.name}: ${condition.name}`);
         effect._id = foundry.utils.randomID();
 
-        // todo: add duration
+        // KNOWN_ISSUE_4_0: add duration
         addStatusEffectChange({ effect, statusName: condition.foundryValue });
         this.data.effects.push(effect);
       }
@@ -895,11 +900,12 @@ export default class DDBSpell {
   }
 
   async _applyEffects() {
-    //TODO: once spell effects adjusted
-    // await spellEffectAdjustment(this.data, this.addSpellEffects);
+    // KNOWN_ISSUE_4_0: once spell effects adjusted
+    await spellEffectAdjustment(this.data, this.addSpellEffects);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
 
     if (this.data.effects.length === 0) this.#addConditionEffects();
+    if (this.enricher.effect?.clearAutoEffects) this.data.effects = [];
     const effects = this.enricher.createEffect();
     this.data.effects.push(...effects);
 

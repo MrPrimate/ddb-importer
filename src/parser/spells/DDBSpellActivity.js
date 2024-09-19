@@ -264,7 +264,7 @@ export default class DDBSpellActivity {
         });
     }
 
-    // TODO: we can probs determine if something is doing a half scale here
+    // KNOWN_ISSUE_4_0: we can probs determine if something is doing a half scale here
 
     switch (scaleType) {
       case "characterlevel":
@@ -334,7 +334,7 @@ export default class DDBSpellActivity {
   }
 
 
-  _generateDamage({ damageParts = null, onSave = null } = {}) {
+  _generateDamage({ damageParts = null, onSave = null, partialDamageParts } = {}) {
 
     if (damageParts) {
       this.data.damage = {
@@ -380,6 +380,15 @@ export default class DDBSpellActivity {
     } else if (versatile) {
       const damage = this.buildDamagePart({ damageString: versatile });
       this.additionalActivityDamageParts.push(damage);
+    }
+
+
+    if (partialDamageParts) {
+      const partialParts = [];
+      for (const part of partialDamageParts) {
+        partialParts.push(parts[part]);
+      }
+      parts = partialParts;
     }
 
     this.data.damage = {
@@ -521,6 +530,8 @@ export default class DDBSpellActivity {
     activationOverride = null,
     durationOverride = null,
     saveOverride = null,
+    img = null,
+    partialDamageParts = null,
   } = {}) {
 
     logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
@@ -544,6 +555,8 @@ export default class DDBSpellActivity {
       activationOverride,
       durationOverride,
       saveOverride,
+      img,
+      partialDamageParts,
     });
 
     // override set to false on object if overriding
@@ -554,7 +567,7 @@ export default class DDBSpellActivity {
     if (generateDescription) this._generateDescription(chatFlavor);
     if (generateEffects) this._generateEffects();
     if (generateSave) this._generateSave({ saveOverride });
-    if (generateDamage) this._generateDamage({ damageParts, onSave });
+    if (generateDamage) this._generateDamage({ damageParts, onSave, partialDamageParts });
     if (generateEnchant) this._generateEnchant();
     if (generateSummon) this._generateSummon();
     if (generateHealing) this._generateHealing({ healingPart });
@@ -573,6 +586,9 @@ export default class DDBSpellActivity {
       ids.push(this.data._id);
       foundry.utils.setProperty(this.ddbParent.data, "flags.ddbimporter.noEffectIds", ids);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
+    }
+    if (img) {
+      foundry.utils.setProperty(this.data, "img", img);
     }
 
     // ATTACK has
