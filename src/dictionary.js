@@ -896,7 +896,13 @@ const DICTIONARY = {
     "Psionic Power: Psionic Energy": [
       "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",
       "Psionic Power: Psi-Bolstered Knack", "Soul Blades: Homing Strikes", "Soul Blades: Psychic Teleportation",
-      "Psionic Power: Recovery",
+      "Psionic Power: Recovery", "Psychic Blades: Homing Strikes", "Psychic Teleportation",
+    ],
+    "Psionic Power: Psionic Energy Dice": [
+      "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",
+      "Psionic Power: Psi-Bolstered Knack", "Soul Blades: Homing Strikes", "Soul Blades: Psychic Teleportation",
+      "Psionic Power: Recovery", "Psychic Blades: Homing Strikes", "Psychic Teleportation",
+      "Psionic Power: Psychic Whispers", "Psychic Whispers",
     ],
     "Ki Points": [
       "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind",

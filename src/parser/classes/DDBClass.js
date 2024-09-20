@@ -1224,6 +1224,28 @@ export default class DDBClass {
         };
       });
       this.data.system.advancement.push(ki);
+    } else if (this.data.name === "Rogue" && !this.is2014) {
+      const cunningStrike = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "cunning-strike-uses",
+          type: "number",
+          scale: {
+            5: {
+              value: 1,
+            },
+            11: {
+              value: 2,
+            },
+          },
+        },
+        value: {},
+        title: "Cunning Strike Uses",
+        icon: null,
+      };
+      this.data.system.advancement.push(cunningStrike);
     }
   }
 

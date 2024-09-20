@@ -351,6 +351,23 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       targetType: "self",
       activationType: "bonus",
     },
+    "Cunning Strike": {
+      type: "save",
+      targetType: "creature",
+      activationType: "spec",
+      data: {
+        name: "Poison",
+        save: {
+          ability: "con",
+          dc: { calculation: "dex", formula: "" },
+        },
+        activation: {
+          type: "",
+          condition: "Dealing Sneak Attack damage",
+        },
+        duration: { units: "inst" },
+      },
+    },
     "Cutting Words": {
       targetType: "creature",
       data: {
@@ -409,6 +426,23 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       targetType: "creature",
       data: {
         "damage.parts": [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts + @mod", types: ["piercing", "slashing", "bludgeoning"] })],
+      },
+    },
+    "Devious Strikes": {
+      type: "save",
+      targetType: "creature",
+      activationType: "spec",
+      data: {
+        name: "Daze",
+        save: {
+          ability: "con",
+          dc: { calculation: "dex", formula: "" },
+        },
+        activation: {
+          type: "",
+          condition: "Dealing Sneak Attack damage",
+        },
+        duration: { units: "inst" },
       },
     },
     "Divine Intervention": {
@@ -1183,10 +1217,9 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       data: {
         "range.units": "spec",
         damage: {
-          custom: {
-            enabled: true,
-            formula: "@scale.rogue.sneak-attack",
-          },
+          parts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.rogue.sneak-attack", types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
+          ],
         },
       },
     },
@@ -1376,6 +1409,10 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Uncanny Dodge": {
+      type: "utility",
+      activationType: "reaction",
+    },
     "Wild Shape": {
       type: "utility",
       data: {
@@ -1514,6 +1551,195 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
               units: "ft",
             },
           },
+        },
+      },
+    ],
+    "Cunning Strike": [
+      {
+        constructor: {
+          name: "Trip",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: false,
+          generateTarget: true,
+          generateRange: false,
+          generateActivation: true,
+          activationOverride: {
+            type: "",
+            condition: "Dealing Sneak Attack damage",
+          },
+          saveOverride: {
+            ability: "dex",
+            dc: { calculation: "dex", formula: "" },
+          },
+          targetOverride: {
+            affects: {
+              count: "",
+              type: "creature",
+              choice: false,
+              special: "",
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Withdraw",
+          type: "utility",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: false,
+          generateTarget: true,
+          targetSelf: true,
+          generateRange: false,
+          noeffect: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "",
+            condition: "Dealing Sneak Attack damage",
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Modified Sneak Attack Damage",
+          type: "damage",
+        },
+        build: {
+          generateDamage: true,
+          generateActivation: true,
+          generateRange: true,
+          generateConsumption: true,
+          noeffect: true,
+          activationOverride: {
+            type: "spec",
+            condition: "",
+          },
+          rangeOverride: {
+            units: "spec",
+          },
+          targetOverride: {
+            affects: {
+              count: "",
+              type: "creature",
+              choice: false,
+              special: "",
+            },
+          },
+          consumptionOverride: {
+            scaling: {
+              allowed: true,
+              max: "@scale.rogue.sneak-attack.number",
+            },
+          },
+          damageParts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6", types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
+          ],
+        },
+      },
+    ],
+    "Devious Strikes": [
+      {
+        constructor: {
+          name: "Knock Out",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: false,
+          generateTarget: true,
+          generateRange: false,
+          generateActivation: true,
+          activationOverride: {
+            type: "",
+            condition: "Dealing Sneak Attack damage",
+          },
+          saveOverride: {
+            ability: "con",
+            dc: { calculation: "dex", formula: "" },
+          },
+          targetOverride: {
+            affects: {
+              count: "",
+              type: "creature",
+              choice: false,
+              special: "",
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Obscure",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: false,
+          generateTarget: true,
+          generateRange: false,
+          generateActivation: true,
+          generateDuration: true,
+          durationOverride: {
+            value: "1",
+            units: "min",
+          },
+          activationOverride: {
+            type: "",
+            condition: "Dealing Sneak Attack damage",
+          },
+          saveOverride: {
+            ability: "dex",
+            dc: { calculation: "dex", formula: "" },
+          },
+          targetOverride: {
+            affects: {
+              count: "",
+              type: "creature",
+              choice: false,
+              special: "",
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Modified Sneak Attack Damage",
+          type: "damage",
+        },
+        build: {
+          generateDamage: true,
+          generateActivation: true,
+          generateRange: true,
+          generateConsumption: true,
+          noeffect: true,
+          activationOverride: {
+            type: "spec",
+            condition: "",
+          },
+          rangeOverride: {
+            units: "spec",
+          },
+          targetOverride: {
+            affects: {
+              count: "",
+              type: "creature",
+              choice: false,
+              special: "",
+            },
+          },
+          consumptionOverride: {
+            scaling: {
+              allowed: true,
+              max: "@scale.rogue.sneak-attack.number",
+            },
+          },
+          damageParts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6", types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
+          ],
         },
       },
     ],
@@ -2091,6 +2317,62 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
       },
       changes: [
         generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+      ],
+    },
+    "Cunning Strike": {
+      clearAutoEffects: true,
+      multiple: [
+        {
+          name: "Poisoned",
+          type: "feat",
+          options: {
+            transfer: false,
+            durationSeconds: 60,
+          },
+          statuses: ["Poisoned"],
+          data: {
+            "flags.ddbimporter.activityMatch": "Poison",
+          },
+        },
+        {
+          name: "Prone",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          statuses: ["Prone"],
+          data: {
+            "flags.ddbimporter.activityMatch": "Trip",
+          },
+        },
+      ],
+    },
+    "Devious Strikes": {
+      clearAutoEffects: true,
+      multiple: [
+        {
+          name: "Knocked Out",
+          type: "feat",
+          options: {
+            transfer: false,
+            durationSeconds: 60,
+          },
+          statuses: ["Unconscious"],
+          data: {
+            "flags.ddbimporter.activityMatch": "Knock Out",
+          },
+        },
+        {
+          name: "Blinded",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          statuses: ["Blinded"],
+          data: {
+            "flags.ddbimporter.activityMatch": "Obscure",
+          },
+        },
       ],
     },
     "Draconic Resilience": {

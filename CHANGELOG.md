@@ -1,7 +1,10 @@
 # Next Up
 
-- Psychic Blades for 2024 Rogue
+- Cunning Strike, Devious Strikes implemented for 2024 Rogue.
+- Psychic Blades for 2024 Rogue Soulbade.
+- Some icon improvements.
 - Some backgrounds would break the character import.
+- Remove level number prefix from feature name in some classes.
 
 # 6.0.1
 

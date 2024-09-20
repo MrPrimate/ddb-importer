@@ -9496,5 +9496,17 @@
   {
     "name": "Psychic Teleportation",
     "path": "icons/magic/movement/trail-streak-zigzag-teal.webp"
+  },
+  {
+    "name": "Cunning Strike",
+    "path": "icons/skills/melee/blade-tip-acid-poison-green.webp"
+  },
+  {
+    "name": "Improved Cunning Strike",
+    "path": "icons/skills/melee/blade-tip-smoke-green.webp"
+  },
+  {
+    "name": "Devious Strikes",
+    "path": "icons/skills/melee/strike-sword-stabbed-brown.webp"
   }
 ]
