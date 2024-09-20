@@ -239,9 +239,16 @@ export default class DDBBaseFeature {
 
     this._generateDataStub();
 
+    const intMatch = /^(\d+: )(.*)$/;
+    const intNameMatch = intMatch.exec(this.data.name);
+    if (intNameMatch) {
+      this.name = intNameMatch[2].trim();
+      this.data.name = intNameMatch[2].trim();
+    }
+
     // Grim Hollow puts points in names. WHY
     const namePointRegex = /(.*) \((\d) points?\)/i;
-    const nameMatch = this.name.match(namePointRegex);
+    const nameMatch = namePointRegex.exec(this.name.match);
     if (nameMatch) {
       this.data.name = nameMatch[1];
       this.resourceCharges = Number.parseInt(nameMatch[2]);
@@ -763,6 +770,7 @@ export default class DDBBaseFeature {
       description: this.snippet !== "" ? this.snippet : this.description,
     });
 
+    if (this.enricher.effect?.clearAutoEffects) this.data.effects = [];
     const effects = this.enricher.createEffect();
     this.data.effects.push(...effects);
 

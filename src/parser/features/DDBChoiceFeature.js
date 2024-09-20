@@ -69,6 +69,11 @@ export default class DDBChoiceFeature extends DDBFeature {
           : `${this.data.name}: ${choice.label}`
         : this.data.name;
       this.data.name = utils.nameString(this.data.name);
+      const intMatch = /^(\d+: )(.*)$/;
+      const intNameMatch = intMatch.exec(this.data.name);
+      if (intNameMatch) {
+        this.data.name = intNameMatch[2].trim();
+      }
       const namePointRegex = /(.*) \((\d) points?\)/i;
       const nameMatch = this.data.name.match(namePointRegex);
       if (nameMatch) {
