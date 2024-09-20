@@ -48,7 +48,6 @@ import { divineWordEffect } from "./spells/divineWord.js";
 import { dominateBeastEffect } from "./spells/dominateBeast.js";
 import { dominateMonsterEffect } from "./spells/dominateMonster.js";
 import { dominatePersonEffect } from "./spells/dominatePerson.js";
-import { elementalWeaponEffect } from "./spells/elementalWeapon.js";
 import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
 import { enlargeReduceEffect } from "./spells/enlargeReduce.js";
 import { ensnaringStrikeEffect } from "./spells/ensnaringStrike.js";
@@ -224,10 +223,6 @@ async function basicSpellEffects(document) {
     }
     case "Dominate Person": {
       document = dominatePersonEffect(document);
-      break;
-    }
-    case "Elemental Weapon": {
-      document = elementalWeaponEffect(document);
       break;
     }
     case "Ensnaring Strike": {
