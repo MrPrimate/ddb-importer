@@ -1832,5 +1832,25 @@
   {
     "name": "Large Form",
     "path": "icons/creatures/magical/construct-stone-earth-gray.webp"
+  },
+  {
+    "name": "Gnomish Cunning",
+    "path": "icons/commodities/gems/gem-rough-spiral-teal.webp"
+  },
+  {
+    "name": "Gnomish Lineage",
+    "path": "icons/equipment/back/cloak-plain-green.webp"
+  },
+  {
+    "name": "Gnomish Lineage Spells",
+    "path": "icons/equipment/back/cloak-plain-green.webp"
+  },
+  {
+    "name": "Create Tiny Clockwork Device",
+    "path": "icons/commodities/tech/cog-steel.webp"
+  },
+  {
+    "name": "Tiny Clockwork Device",
+    "path": "icons/commodities/tech/cog-bronze.webp"
   }
 ]

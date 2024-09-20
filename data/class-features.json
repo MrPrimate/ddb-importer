@@ -9492,5 +9492,9 @@
   {
     "name": "Faithful Steed",
     "path": "icons/environment/creatures/horse-tan.webp"
+  },
+  {
+    "name": "Psychic Teleportation",
+    "path": "icons/magic/movement/trail-streak-zigzag-teal.webp"
   }
 ]
