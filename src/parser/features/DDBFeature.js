@@ -210,7 +210,7 @@ export default class DDBFeature extends DDBBaseFeature {
     // ]
 
     const feats = this.ddbData.character.feats.filter((f) => {
-      return this.ddbDefinition.grantedFeats.some((backgroundFeat) => {
+      return (this.ddbDefinition.grantedFeats ?? []).some((backgroundFeat) => {
         if (f.componentId !== backgroundFeat.id) return false;
         if (!backgroundFeat.featIds.includes(f.definition.id)) return false;
         if (!f.definition.categories.some((c) => c.tagName === "__INITIAL_ASI")) return false;
