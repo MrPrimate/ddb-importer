@@ -6,6 +6,7 @@ import DDBAttackAction from "./DDBAttackAction.js";
 import DDBBaseFeature from "./DDBBaseFeature.js";
 import DDBFeatures from "./DDBFeatures.js";
 import { addExtraEffects } from "./extraEffects.js";
+import DDBFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 
 export default class CharacterFeatureFactory {
   constructor(ddbCharacter) {
@@ -24,6 +25,7 @@ export default class CharacterFeatureFactory {
     };
 
     this.data = [];
+    this.enricher = new DDBFeatureEnricher();
   }
 
   _getCustomActions(displayedAsAttack) {
@@ -70,6 +72,7 @@ export default class CharacterFeatureFactory {
       ddbData: this.ddbData,
       ddbDefinition: strikeMock,
       rawCharacter: this.rawCharacter,
+      enricher: this.enricher,
     });
     unarmedStrikeAction.build();
 
@@ -114,8 +117,8 @@ export default class CharacterFeatureFactory {
           ddbDefinition: action,
           rawCharacter: this.rawCharacter,
           type: action.actionSource,
+          enricher: this.enricher,
         });
-        await ddbAttackAction._initEnricher();
         ddbAttackAction.build();
 
         logger.debug(`Building Attack Action ${action.name}`, { ddbAttackAction });
@@ -178,8 +181,8 @@ export default class CharacterFeatureFactory {
           ddbData: this.ddbData,
           ddbDefinition: action,
           rawCharacter: this.rawCharacter,
+          enricher: this.enricher,
         });
-        await ddbAction._initEnricher();
         ddbAction.build();
         logger.debug(`Building Other Action ${action.name}`, { ddbAction });
 
@@ -192,6 +195,7 @@ export default class CharacterFeatureFactory {
   }
 
   async processActions() {
+    await this.enricher.init();
     await this._generateAttackActions();
     this._generateUnarmedStrikeAction();
     await this._generateOtherActions();

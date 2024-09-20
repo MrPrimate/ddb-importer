@@ -72,15 +72,22 @@ export default class DDBBaseEnricher {
     this.documentStub = (this.is2014 ? this.DND_2014.DOCUMENT_STUB[this.hintName] : null) ?? this.DOCUMENT_STUB[this.hintName];
   }
 
-  constructor({ ddbParser, document, name = null, is2014 = null } = {}) {
+  constructor() {
+    this.ddbParser = null;
+    this.document = null;
+    this.name = null;
+    this.isCustomAction = null;
+    this.additionalActivityClass = null;
+    this.is2014 = null;
+  }
+
+  load({ ddbParser, document, name = null, is2014 = null } = {}) {
     this.ddbParser = ddbParser;
     this.document = ddbParser?.data ?? document;
     this.name = ddbParser?.originalName ?? name ?? document.flags?.ddbimporter?.originalName ?? document.name;
     this.isCustomAction = this.document.flags?.ddbimporter?.isCustomAction;
-    this.additionalActivityClass = null;
     this.is2014 = is2014 ?? this.ddbParser?.is2014 ?? this.document.flags?.ddbimporter?.is2014 ?? false;
     this._prepare();
-    // to do refactor for 2014/2024 data sets
   }
 
   async init() {

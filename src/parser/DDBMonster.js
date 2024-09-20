@@ -28,7 +28,7 @@ export default class DDBMonster {
   }
 
   constructor(ddbObject = null, { existingNpc = null, extra = false, useItemAC = true,
-    legacyName = true, addMonsterEffects = false, addChrisPremades = false } = {}, overrides = {},
+    legacyName = true, addMonsterEffects = false, addChrisPremades = false, enricher = null } = {}, overrides = {},
   ) {
     this.source = ddbObject;
 
@@ -67,6 +67,7 @@ export default class DDBMonster {
     }
     this.stockImage = false;
 
+    this.enricher = enricher;
     this.featureFactory = new DDBMonsterFeatureFactory({ ddbMonster: this });
   }
 

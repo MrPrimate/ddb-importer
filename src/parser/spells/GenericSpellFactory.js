@@ -2,12 +2,13 @@ import utils from "../../lib/utils.js";
 import { getLookups } from "./metadata.js";
 import { hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import DDBSpell from "./DDBSpell.js";
-
+import DDDSpellEnricher from "../enrichers/DDBSpellEnricher.js";
 
 export default class GenericSpellFactory {
 
   static async getGenericItemSpells(itemList, itemSpells) {
     let items = [];
+    const enricher = new DDDSpellEnricher();
 
     // feat spells are handled slightly differently
     for (const spell of itemSpells.filter((s) => s.definition)) {
@@ -45,7 +46,7 @@ export default class GenericSpellFactory {
         },
       };
       const namePostfix = utils.namedIDStub(itemInfo.definition.name, { prefix: "", length: 5 });
-      const parsedSpell = await DDBSpell.parseSpell(spell, null, { namePostfix: namePostfix });
+      const parsedSpell = await DDBSpell.parseSpell(spell, null, { namePostfix: namePostfix, enricher });
 
       items.push(parsedSpell);
     }
@@ -96,6 +97,7 @@ export default class GenericSpellFactory {
     let items = [];
     const proficiencyModifier = character.system.attributes.prof;
     const lookups = getLookups(ddb.character);
+    const enricher = new DDDSpellEnricher();
 
     const spellCountDict = {};
 
@@ -148,7 +150,7 @@ export default class GenericSpellFactory {
         },
       };
       const namePostfix = `It${GenericSpellFactory.getSpellCount(spellCountDict, spell.definition.name)}`;
-      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix: namePostfix }));
+      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix: namePostfix, enricher }));
     }
 
     return items;

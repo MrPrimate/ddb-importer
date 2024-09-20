@@ -5,8 +5,8 @@ import { generateTable } from "../../../lib/DDBTable.js";
 import SETTINGS from "../../../settings.js";
 import { parseDamageRolls, parseTags } from "../../../lib/DDBReferenceLinker.js";
 import DDBMonsterFeatureActivity from "./DDBMonsterFeatureActivity.js";
-import DDDMonsterEnricher from "../../enrichers/DDBMonsterEnricher.js";
 import DDBBasicActivity from "../../enrichers/DDBBasicActivity.js";
+import DDBMonsterEnricher from "../../enrichers/DDBMonsterEnricher.js";
 
 export default class DDBMonsterFeature {
 
@@ -112,7 +112,7 @@ export default class DDBMonsterFeature {
 
     this.isCompanion = foundry.utils.getProperty(this.ddbMonster, "npc.flags.ddbimporter.entityTypeId") === "companion-feature";
 
-    this.enricher = new DDDMonsterEnricher({
+    this.enricher.load({
       document: this.feature,
       monster: this.ddbMonster.npc,
       name: this.name,
@@ -229,6 +229,7 @@ export default class DDBMonsterFeature {
     this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
     this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
 
+    this.enricher = ddbMonster.enricher ?? new DDBMonsterEnricher();
     this.prepare();
 
     // copy source details from parent
@@ -237,6 +238,7 @@ export default class DDBMonsterFeature {
     this.additionalActivities = [];
     this.actionInfo = {};
     this.resetActionInfo();
+
   }
 
   damageModReplace(text) {

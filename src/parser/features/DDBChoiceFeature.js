@@ -2,6 +2,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBFeature from "./DDBFeature.js";
+import DDBFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 
 
 export default class DDBChoiceFeature extends DDBFeature {
@@ -82,8 +83,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       }
       this.originalName = this.data.name;
       foundry.utils.setProperty(this.data, "flags.ddbimporter.originalName", this.originalName);
-      this._addEnricher();
-      await this._initEnricher();
+      this._loadEnricher();
       this._generateSystemSubType();
 
       // get description for chris premades
@@ -166,14 +166,16 @@ export default class DDBChoiceFeature extends DDBFeature {
       allFeatures,
     });
     const features = [];
+    const enricher = new DDBFeatureEnricher();
+    await enricher.init();
     for (const choice of choices) {
       const choiceFeature = new DDBChoiceFeature({
         ddbData: ddbFeature.ddbData,
         ddbDefinition: foundry.utils.deepClone(ddbFeature.ddbDefinition),
         type: ddbFeature.type,
         rawCharacter: ddbFeature.rawCharacter,
+        enricher,
       });
-      await choiceFeature._initEnricher();
       await choiceFeature.build(choice);
       logger.debug(`DDBChoiceFeature.buildChoiceFeatures: ${choiceFeature.ddbDefinition.name}`, {
         choiceFeature,

@@ -6,7 +6,6 @@ import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import { generateEffects, getStatusEffect } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
 import DDBFeatureActivity from "./DDBFeatureActivity.js";
-import DDDFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 import SETTINGS from "../../settings.js";
 import { generateTable } from "../../lib/DDBTable.js";
@@ -61,14 +60,10 @@ export default class DDBBaseFeature {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
 
-  _addEnricher() {
-    this.enricher = new DDDFeatureEnricher({
+  _loadEnricher() {
+    this.enricher.load({
       ddbParser: this,
     });
-  }
-
-  async _initEnricher() {
-    await this.enricher.init();
   }
 
   _generateDataStub() {
@@ -199,7 +194,7 @@ export default class DDBBaseFeature {
 
   constructor({
     ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false, activityType = null,
-    extraFlags = {},
+    extraFlags = {}, enricher = null,
   } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
@@ -268,7 +263,8 @@ export default class DDBBaseFeature {
     this.data.system.source = localSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
-    this._addEnricher();
+    this.enricher = enricher;
+    this._loadEnricher();
   }
 
   _getClassFeatureDescription(nameMatch = false) {

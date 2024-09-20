@@ -3,10 +3,14 @@ import DDBItemActivity from "../item/DDBItemActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
 export default class DDDItemEnricher extends DDBBaseEnricher {
-  constructor({ ddbParser, document, name = null } = {}) {
-    super({ ddbParser, document, name });
-    this._prepare();
+  constructor() {
+    super();
     this.additionalActivityClass = DDBItemActivity;
+  }
+
+  load({ ddbParser, document, name = null } = {}) {
+    super.load({ ddbParser, document, name });
+    this._prepare();
   }
 
   DND_2014 = {
@@ -89,15 +93,17 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   };
 
   ACTIVITY_HINTS = {
-    "Absorbing Tattoo": {
-      type: "utility",
-      addItemConsume: true,
-      activationType: "reaction",
-      activationCondition: `When you take ${this.ddbParser.originalName.split(',').pop().trim().toLowerCase()} damage`,
-      targetType: "self",
-      data: {
-        name: "Healing Reaction",
-      },
+    "Absorbing Tattoo": () => {
+      return {
+        type: "utility",
+        addItemConsume: true,
+        activationType: "reaction",
+        activationCondition: `When you take ${this.ddbParser.originalName.split(',').pop().trim().toLowerCase()} damage`,
+        targetType: "self",
+        data: {
+          name: "Healing Reaction",
+        },
+      };
     },
     "Acid": {
       type: "save",

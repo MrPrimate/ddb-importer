@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import { generateTokenMagicFXChange } from "../../effects/effects.js";
+import { generateATLChange, generateTokenMagicFXChange } from "../../effects/effects.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
@@ -7,10 +7,14 @@ import DDBSpellActivity from "../spells/DDBSpellActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
 export default class DDDSpellEnricher extends DDBBaseEnricher {
-  constructor({ ddbParser, document, name = null } = {}) {
-    super({ ddbParser, document, name });
-    this._prepare();
+  constructor() {
+    super();
     this.additionalActivityClass = DDBSpellActivity;
+  }
+
+  load({ ddbParser, document, name = null } = {}) {
+    super.load({ ddbParser, document, name });
+    this._prepare();
   }
 
 

@@ -93,7 +93,7 @@ export default class DDBSpell {
   constructor({
     ddbData, spellData, rawCharacter = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
-    spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null,
+    spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
   } = {}) {
     this.ddbData = ddbData;
     this.spellData = spellData;
@@ -137,7 +137,8 @@ export default class DDBSpell {
 
     this._generateDataStub();
 
-    this.enricher = new DDBSpellEnricher({
+    this.enricher = enricher ?? new DDBSpellEnricher();
+    this.enricher.load({
       ddbParser: this,
     });
     this.isCompanionSpell = SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName);
@@ -1032,12 +1033,13 @@ export default class DDBSpell {
     this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }
 
-  static async parseSpell(data, character, { namePostfix = null, ddbData = null } = {}) {
+  static async parseSpell(data, character, { namePostfix = null, ddbData = null, enricher = null } = {}) {
     const spell = new DDBSpell({
       ddbData,
       spellData: data,
       rawCharacter: character,
       namePostfix: namePostfix,
+      enricher,
     });
     await spell.init();
     await spell.parse();

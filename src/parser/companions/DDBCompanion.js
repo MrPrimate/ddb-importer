@@ -6,6 +6,7 @@ import DDBMonster from "../DDBMonster.js";
 import DDBMonsterFactory from "../DDBMonsterFactory.js";
 import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFactory.js";
 import { newNPC } from "../monster/templates/monster.js";
+import DDBMonsterEnricher from "../enrichers/DDBMonsterEnricher.js";
 
 export default class DDBCompanion {
 
@@ -48,6 +49,7 @@ export default class DDBCompanion {
         prompt: true,
       },
     };
+    this.enricher = new DDBMonsterEnricher();
   }
 
   static async addEnrichedImageData(document) {
@@ -538,7 +540,8 @@ export default class DDBCompanion {
 
 
   async getFeature(text, type) {
-    const options = { extra: true, useItemAC: this.useItemAC, legacyName: this.legacyName, addMonsterEffects: this.addMonsterEffects, addChrisPremades: this.addChrisPremades };
+    await this.enricher.init();
+    const options = { enricher: this.enricher, extra: true, useItemAC: this.useItemAC, legacyName: this.legacyName, addMonsterEffects: this.addMonsterEffects, addChrisPremades: this.addChrisPremades };
     const ddbMonster = new DDBMonster(null, options);
     ddbMonster.name = this.name;
     ddbMonster.npc = foundry.utils.duplicate(this.npc);

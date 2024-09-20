@@ -3,11 +3,15 @@ import utils from "../../lib/utils.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
-export default class DDDFeatureEnricher extends DDBBaseEnricher {
-  constructor({ ddbParser, document, name = null } = {}) {
-    super({ ddbParser, document, name });
-    this._prepare();
+export default class DDBFeatureEnricher extends DDBBaseEnricher {
+  constructor() {
+    super();
     this.additionalActivityClass = DDBFeatureActivity;
+  }
+
+  load({ ddbParser, document, name = null } = {}) {
+    super.load({ ddbParser, document, name });
+    this._prepare();
   }
 
   DND_2014 = {
@@ -2065,10 +2069,12 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     "Action Surge": {
       removeDamage: true,
     },
-    "Arcane Propulsion Armor Gauntlet": {
-      data: {
-        "system.properties": utils.addToProperties(this.data.system.properties, "mgc"),
-      },
+    "Arcane Propulsion Armor Gauntlet": () => {
+      return {
+        data: {
+          "system.properties": utils.addToProperties(this.data.system.properties, "mgc"),
+        },
+      };
     },
     "Arms of the Astral Self (DEX/STR)": {
       data: {
@@ -2114,26 +2120,32 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         "name": "Epic Boon",
       },
     },
-    "Form of the Beast: Bite": {
-      data: {
-        "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
-          ? utils.addToProperties(this.data.system.properties, "mgc")
-          : this.data.system.properties),
-      },
+    "Form of the Beast: Bite": () => {
+      return {
+        data: {
+          "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
+            ? utils.addToProperties(this.data.system.properties, "mgc")
+            : this.data.system.properties),
+        },
+      };
     },
-    "Form of the Beast: Claws": {
-      data: {
-        "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
-          ? utils.addToProperties(this.data.system.properties, "mgc")
-          : this.data.system.properties),
-      },
+    "Form of the Beast: Claws": () => {
+      return {
+        data: {
+          "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
+            ? utils.addToProperties(this.data.system.properties, "mgc")
+            : this.data.system.properties),
+        },
+      };
     },
-    "Form of the Beast: Tail": {
-      data: {
-        "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
-          ? utils.addToProperties(this.data.system.properties, "mgc")
-          : this.data.system.properties),
-      },
+    "Form of the Beast: Tail": () => {
+      return {
+        data: {
+          "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
+            ? utils.addToProperties(this.data.system.properties, "mgc")
+            : this.data.system.properties),
+        },
+      };
     },
     "Harness Divine Power": {
       data: {
@@ -2276,18 +2288,20 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Psychic Blades: Attack": {
-      data: {
-        name: "Psychic Blades",
-        system: {
-          mastery: "vex",
-          range: {
-            long: 120,
+    "Psychic Blades: Attack": () => {
+      return {
+        data: {
+          name: "Psychic Blades",
+          system: {
+            mastery: "vex",
+            range: {
+              long: 120,
+            },
+            "type.value": "simpleM",
+            properties: ["fin", "thr"].concat(this.data.system.properties ?? []),
           },
-          "type.value": "simpleM",
-          properties: ["fin", "thr"].concat(this.data.system.properties ?? []),
         },
-      },
+      };
     },
     "Wild Shape": {
       data: {

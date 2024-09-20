@@ -3,6 +3,7 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
+import DDBFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 import DDBBaseFeature from "./DDBBaseFeature.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBClassFeatures from "./DDBClassFeatures.js";
@@ -25,6 +26,7 @@ export default class DDBFeatures {
     this.parsed = [];
 
     this.data = [];
+    this.enricher = new DDBFeatureEnricher();
   }
 
   static LEGACY_SKIPPED_FEATURES = [
@@ -108,8 +110,8 @@ export default class DDBFeatures {
       rawCharacter: this.rawCharacter,
       type,
       source,
+      enricher: this.enricher,
     });
-    await ddbFeature._initEnricher();
     ddbFeature.build();
     logger.debug(`DDBFeatures.getFeaturesFromDefinition (type: ${type}): ${ddbFeature.ddbDefinition.name}`, {
       ddbFeature,
@@ -286,6 +288,7 @@ export default class DDBFeatures {
   }
 
   async build() {
+    await this.enricher.init();
     await this._buildRacialTraits();
     await this._buildClassFeatures();
     await this._addFeats();

@@ -18,8 +18,13 @@ export default class DDDMonsterEnricher extends DDBBaseEnricher {
       ?? this.DOCUMENT_STUB[this.monsterName]?.[this.hintName];
   }
 
-  constructor({ document, name = null, monster, is2014 = null } = {}) {
-    super({ document, name });
+  constructor() {
+    super();
+    this.additionalActivityClass = DDBMonsterFeatureActivity;
+  }
+
+  load({ document, name = null, monster, is2014 = null } = {}) {
+    super.load({ document, name });
     this.monster = monster;
     this.monsterName = this.monster.name;
     this.document = document;
