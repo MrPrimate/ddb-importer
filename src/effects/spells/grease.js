@@ -1,17 +1,14 @@
 import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
-import { addStatusEffectChange, effectModules } from "../effects.js";
+import { effectModules } from "../effects.js";
 
 export async function greaseEffect(document) {
 
   if (!effectModules().activeAurasInstalled || !effectModules().midiQolInstalled) {
-    let effect = baseSpellEffect(document, `${document.name} - Prone`);
-    addStatusEffectChange({ effect, statusName: "Prone" });
-    document.effects.push(effect);
-
     return document;
   }
 
+  document.effects = [];
   // if we have active auras use a more advanced macro
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(

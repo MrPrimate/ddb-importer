@@ -1,19 +1,9 @@
 import { effectModules } from "../effects.js";
-import { baseSpellEffect } from "../specialSpells.js";
 // import DDBMacros from "../DDBMacros.js";
 
 export async function chillTouchEffect(document) {
-  let effect = baseSpellEffect(document, document.name);
-  effect.changes.push(
-    {
-      key: "system.traits.di.value",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: "healing",
-      priority: "30",
-    },
-  );
   if (effectModules().midiQolInstalled) {
-    effect.changes.push(
+    document.effect[0].changes.push(
       {
         key: "flags.midi-qol.onUseMacroName",
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
@@ -25,9 +15,8 @@ export async function chillTouchEffect(document) {
     // const itemMacroText = await DDBMacros.loadMacroFile("spell", "chillTouch.js");
     // document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
     // effect.changes.push(DDBMacros.generateMacroChange());
-    foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEndSource"]);
+    foundry.utils.setProperty(document.effect[0], "flags.dae.specialDuration", ["turnEndSource"]);
   }
-  document.effects.push(effect);
 
   return document;
 }

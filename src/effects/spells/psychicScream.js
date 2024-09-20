@@ -1,12 +1,9 @@
-import { addStatusEffectChange, effectModules } from "../effects.js";
-import { baseSpellEffect } from "../specialSpells.js";
+import { effectModules } from "../effects.js";
 
 export function psychicScreamEffect(document) {
-  let effect = baseSpellEffect(document, `${document.name} - Stunned`);
-  addStatusEffectChange({ effect, statusName: "Stunned" });
 
   if (effectModules().midiQolInstalled) {
-    effect.changes.push(
+    document.effects[0].changes.push(
       {
         key: "flags.midi-qol.OverTime",
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
@@ -14,11 +11,10 @@ export function psychicScreamEffect(document) {
         priority: "20",
       },
     );
-    effect.duration.rounds = 99;
+    document.effects[0].duration.rounds = 99;
     foundry.utils.setProperty(document, "flags.midiProperties.halfdam", true);
     foundry.utils.setProperty(document, "flags.midiProperties.saveDamage", "halfdam");
   }
-  document.effects.push(effect);
 
   return document;
 }

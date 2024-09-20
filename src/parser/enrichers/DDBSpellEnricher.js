@@ -100,6 +100,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           },
         },
       },
+      "Ray of Sickness": {
+        noeffect: true,
+      },
       "Sleep": {
         type: "utility",
         data: {
@@ -131,9 +134,58 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           },
         },
       ],
+      "Ray of Sickness": [
+        {
+          constructor: {
+            name: "Save vs Poisoned",
+            type: "save",
+          },
+          build: {
+            generateDamage: false,
+            generateConsumption: false,
+            generateSave: true,
+            generateTarget: true,
+            noSpellslot: true,
+            saveOverride: { ability: "con", dc: { calculation: "spellcasting" } },
+          },
+        },
+      ],
     },
     DOCUMENT_OVERRIDES: {},
-    EFFECT_HINTS: {},
+    EFFECT_HINTS: {
+      "Blade Ward": {
+        tpye: "spell",
+        changes: [
+          {
+            key: "system.traits.dr.value",
+            value: "bludgeoning",
+            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+            priority: 20,
+          },
+          {
+            key: "system.traits.dr.value",
+            value: "slashing",
+            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+            priority: 20,
+          },
+          {
+            key: "system.traits.dr.value",
+            value: "piercing",
+            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+            priority: 20,
+          },
+        ],
+        data: {
+          "flags.dae.specialDuration": ["turnEnd"],
+        },
+      },
+      "Mass Suggestion": {
+        type: "spell",
+      },
+      "Suggestion": {
+        type: "spell",
+      },
+    },
     DOCUMENT_STUB: {},
   };
 
@@ -222,6 +274,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       type: "save",
     },
     "Divine Favor": {
+      type: "utility",
       targetType: "self",
     },
     "Dragon's Breath": {
@@ -252,6 +305,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           allowMagical: false,
         },
       },
+    },
+    "Fire Shield": {
+      type: "utility",
     },
     "Gust of Wind": {
       data: {
@@ -298,7 +354,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         name: "Cast",
       },
     },
-    "Heroe's Feast": {
+    "Heroes' Feast": {
       data: {
         duration: {
           value: 1,
@@ -1571,6 +1627,16 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Bane": {
+      type: "spell",
+      changes: [
+        { key: "system.bonuses.mwak.attack", value: "-1d4", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
+        { key: "system.bonuses.rwak.attack", value: "-1d4", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
+        { key: "system.bonuses.msak.attack", value: "-1d4", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
+        { key: "system.bonuses.rsak.attack", value: "-1d4", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
+        { key: "system.bonuses.abilities.save", value: "-1d4", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 20 },
+      ],
+    },
     "Barkskin": {
       type: "spell",
       changes: [
@@ -1600,6 +1666,39 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     "Booming Blade": {
       type: "spell",
+    },
+    "Chill Touch": {
+      type: "spell",
+      changes: [
+        {
+          key: "system.traits.di.value",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: "healing",
+          priority: "30",
+        },
+      ],
+    },
+    "Darkvision": {
+      type: "spell",
+      changes: [
+        {
+          key: "system.attributes.senses.darkvision",
+          value: "60",
+          mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+          priority: 20,
+        },
+      ],
+      atlChanges: [
+        generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 60, 5),
+        generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
+      ],
+    },
+    "Divine Favor": {
+      type: "spell",
+      changes: [
+        { key: "system.bonuses.mwak.damage", value: "1d4[Radiant]", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
+        { key: "system.bonuses.rwak.damage", value: "1d4[Radiant]", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
+      ],
     },
     "Elemental Weapon": {
       multiple: [
@@ -1644,6 +1743,66 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         });
       }).flat(),
     },
+    "Feeblemind": {
+      type: "spell",
+      changes: [
+        { key: "system.abilities.cha.value", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 50 },
+        { key: "system.abilities.int.value", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 50 },
+        { key: "flags.midi-qol.fail.spell.all", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 20 },
+      ],
+    },
+    "Fire Shield": {
+      multiple: [
+        {
+          name: "Cold Shield",
+          type: "spell",
+          changes: [
+            {
+              key: "system.traits.dr.value",
+              value: "fire",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              priority: 0,
+            },
+          ],
+        },
+        {
+          name: "Warm Shield",
+          type: "spell",
+          changes: [
+            {
+              key: "system.traits.dr.value",
+              value: "cold",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              priority: 0,
+            },
+          ],
+        },
+      ],
+    },
+    "Fly": {
+      type: "spell",
+      changes: [
+        {
+          key: "system.attributes.movement.fly",
+          value: "60",
+          mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+          priority: 20,
+        },
+      ],
+    },
+    "Haste": {
+      type: "spell",
+      changes: [
+        { key: "system.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "+2", priority: "20" },
+        {
+          key: "flags.midi-qol.advantage.ability.save.dex",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          value: "1",
+          priority: "20",
+        },
+        { key: "system.attributes.movement.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "*2", priority: "30" },
+      ],
+    },
     "Heroism": {
       type: "spell",
       options: {
@@ -1653,7 +1812,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         { key: "system.traits.ci.value", value: "frightened", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 20 },
       ],
     },
-    "Heroe's Feast": {
+    "Heroes' Feast": {
       type: "spell",
       changes: [
         { key: "system.traits.ci.value", value: "frightened", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 20 },
@@ -1665,17 +1824,15 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       type: "spell",
       name: "Hexed",
     },
-    "Hold Person": {
-      type: "spell",
-      statuses: ["Paralyzed"],
-    },
-    "Hold Monster": {
-      type: "spell",
-      statuses: ["Paralyzed"],
-    },
     "Hunter's Mark": {
       name: "Hunter's Mark",
       type: "spell",
+    },
+    "Invisibility": {
+      noCreate: true,
+      data: {
+        "flags.dae.specialDuration": ["1Attack", "1Spell"],
+      },
     },
     "Light": {
       type: "spell",
@@ -1723,6 +1880,49 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           },
         };
       }),
+    },
+    "Mass Suggestion": {
+      type: "spell",
+      statuses: ["Charmed"],
+    },
+    "Mirror Image": {
+      type: "spell",
+      tokenMagicChanges: [
+        generateTokenMagicFXChange("images"),
+      ],
+    },
+    "Mind Blank": {
+      type: "spell",
+      changes: [
+        {
+          key: "system.traits.di.value",
+          value: "psychic",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+      ],
+    },
+    "Pass Without Trace": {
+      type: "spell",
+      changes: [
+        {
+          key: 'system.skills.ste.bonuses.check',
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: '+ 10',
+          priority: "20",
+        },
+      ],
+    },
+    "Protection from Poison": {
+      type: "spell",
+      changes: [
+        {
+          key: "system.traits.dr.value",
+          value: "poison",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 0,
+        },
+      ],
     },
     "Prismatic Wall": {
       clearAutoEffects: true,
@@ -1802,6 +2002,89 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       type: "spell",
       name: "On fire from Searing Smite",
     },
+    "Shield": {
+      type: "spell",
+      changes: [
+        {
+          key: "system.attributes.ac.bonus",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: "+5",
+          priority: "20",
+        },
+      ],
+      tokenMagicChanges: [
+        generateTokenMagicFXChange("water-field"),
+      ],
+      data: {
+        "flags.dae.specialDuration": ["turnStart"],
+      },
+    },
+    "Shield of Faith": {
+      type: "spell",
+      changes: [
+        {
+          key: "system.attributes.ac.bonus",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: "+2",
+          priority: "20",
+        },
+      ],
+      tokenMagicChanges: [
+        generateTokenMagicFXChange("bloom"),
+      ],
+    },
+    "Slow": {
+      type: "spell",
+      changes: [
+        { key: "system.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "-2", priority: "20" },
+        { key: "system.attributes.movement.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "/2", priority: "20" },
+        { key: "system.abilities.dex.bonuses.save", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "-2", priority: "20" },
+      ],
+    },
+    "Spider Climb": {
+      type: "spell",
+      changes: [
+        {
+          key: "system.attributes.movement.climb",
+          value: "@attributes.movement.walk",
+          mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+          priority: 20,
+        },
+      ],
+    },
+    "Suggestion": {
+      type: "spell",
+      statuses: ["Charmed"],
+    },
+    "Stoneskin": {
+      type: "spell",
+      changes: [
+        {
+          key: "system.traits.dr.value",
+          value: "bludgeoning",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 0,
+        },
+        {
+          key: "system.traits.dr.value",
+          value: "piercing",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 0,
+        },
+        {
+          key: "system.traits.dr.value",
+          value: "slashing",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 0,
+        },
+        {
+          key: "system.traits.dr.bypass",
+          value: "mgc",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 0,
+        },
+      ],
+    },
     "Wall of Light": {
       type: "spell",
       name: "Blinded",
@@ -1812,6 +2095,28 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       data: {
         "flags.ddbimporter.activityMatch": "Place Wall",
       },
+    },
+    "Warding Bond": {
+      type: "spell",
+      changes: [
+        { key: "system.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "+ 1", priority: "20" },
+        { key: "system.traits.dr.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "1", priority: "20" },
+        { key: "system.traits.dr.all", value: "", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
+        { key: "system.traits.dr.value", value: "acid", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "bludgeoning", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "cold", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "fire", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "force", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "lightning", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "necrotic", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "piercing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "poison", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "psychic", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "radiant", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "slashing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.traits.dr.value", value: "thunder", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        { key: "system.bonuses.abilities.save", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "+ 1", priority: "20" },
+      ],
     },
   };
 

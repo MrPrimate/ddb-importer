@@ -1,19 +1,15 @@
-import { addStatusEffectChange, effectModules } from "../effects.js";
-import { baseSpellEffect } from "../specialSpells.js";
+import { effectModules } from "../effects.js";
 
 export function crownofMadnessEffect(document) {
-  let effect = baseSpellEffect(document, `${document.name} - Charmed`);
-  addStatusEffectChange({ effect, statusName: "Charmed" });
 
   if (effectModules().midiQolInstalled) {
-    effect.changes.push({
+    document.effect[0].changes.push({
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "label=Crown of Madness (End of Turn),turn=end,saveDC=@attributes.spelldc,saveAbility=wis,saveMagic=true,killAnim=true",
       priority: "20",
     });
   }
-  document.effects.push(effect);
 
   return document;
 }

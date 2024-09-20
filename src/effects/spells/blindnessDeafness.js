@@ -1,9 +1,10 @@
 import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
-import { addStatusEffectChange, effectModules } from "../effects.js";
+import { effectModules } from "../effects.js";
 
 export async function blindnessDeafnessEffect(document) {
   if (effectModules().midiQolInstalled) {
+    document.effects = [];
     let effect = baseSpellEffect(document, document.name);
     effect.changes.push({
       key: "flags.midi-qol.OverTime",
@@ -17,15 +18,7 @@ export async function blindnessDeafnessEffect(document) {
     effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "blindnessDeafness.js" }));
     DDBMacros.setMidiOnUseMacroFlag(document, "spell", "blindnessDeafness.js", ["postActiveEffects"]);
     document.effects.push(effect);
-  } else {
-    let blindnessEffect = baseSpellEffect(document, "Blindness");
-    addStatusEffectChange({ effect: blindnessEffect, statusName: "Blinded" });
-    document.effects.push(blindnessEffect);
-    let deafenedEffect = baseSpellEffect(document, "Deafness");
-    addStatusEffectChange({ effect: deafenedEffect, statusName: "Deafened" });
-    document.effects.push(deafenedEffect);
   }
-
 
   return document;
 }

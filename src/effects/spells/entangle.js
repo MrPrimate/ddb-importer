@@ -1,11 +1,6 @@
-import { addStatusEffectChange } from "../effects.js";
-import { baseSpellEffect } from "../specialSpells.js";
-
 export function entangleEffect(document) {
-  let effect = baseSpellEffect(document, `${document.name} - Restrained`);
-  addStatusEffectChange({ effect, statusName: "Restrained" });
 
-  effect.changes.push(
+  document.effect[0].changes.push(
     {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
@@ -20,11 +15,9 @@ export function entangleEffect(document) {
     },
   );
 
-  foundry.utils.setProperty(effect, "duration.seconds", 60);
-  foundry.utils.setProperty(effect, "duration.rounds", 10);
-  foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
-
-  document.effects.push(effect);
+  foundry.utils.setProperty(document.effect[0], "duration.seconds", 60);
+  foundry.utils.setProperty(document.effect[0], "duration.rounds", 10);
+  foundry.utils.setProperty(document.effect[0], "flags.dae.stackable", "noneName");
 
   return document;
 }

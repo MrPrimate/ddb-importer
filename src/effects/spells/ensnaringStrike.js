@@ -1,9 +1,10 @@
 import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
-import { addStatusEffectChange, effectModules } from "../effects.js";
+import { effectModules } from "../effects.js";
 
 export async function ensnaringStrikeEffect(document) {
   if (effectModules().midiQolInstalled) {
+    document.effects = [];
     let effect = baseSpellEffect(document, document.name);
     await DDBMacros.setItemMacroFlag(document, "spell", "ensnaringStrike.js");
     effect.changes.push(
@@ -18,10 +19,6 @@ export async function ensnaringStrikeEffect(document) {
     document.system.save.ability = "";
     document.system.target.type = "self";
     // DDBMacros.setMidiOnUseMacroFlag(document, "spell", "ensnaringStrike.js", ["preTargeting"]);
-  } else {
-    let effect = baseSpellEffect(document, `${document.name} - Restrained`);
-    addStatusEffectChange({ effect, statusName: "Restrained" });
-    document.effects.push(effect);
   }
 
   return document;

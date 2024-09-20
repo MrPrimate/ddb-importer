@@ -1,11 +1,8 @@
-import { addStatusEffectChange, effectModules } from "../effects.js";
-import { baseSpellEffect } from "../specialSpells.js";
+import { effectModules } from "../effects.js";
 
 export async function phantasmalKillerEffect(document) {
-  let effect = baseSpellEffect(document, document.name);
-  addStatusEffectChange({ effect, statusName: "Frightened" });
   if (effectModules().midiQolInstalled) {
-    effect.changes.push({
+    document.effects[0].changes.push({
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value:
@@ -14,8 +11,6 @@ export async function phantasmalKillerEffect(document) {
     });
     document.system.damage = { parts: [], versatile: "", value: "" };
   }
-
-  document.effects.push(effect);
 
   return document;
 }

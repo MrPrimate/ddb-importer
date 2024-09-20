@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.2
 
 - Cunning Strike, Devious Strikes implemented for 2024 Rogue.
 - Psychic Blades for 2024 Rogue Soulbade.
@@ -6,9 +6,7 @@
 - Some backgrounds would break the character import.
 - Remove level number prefix from feature name in some classes.
 - Fix for Eldritch Blast breaking import if some invocations selected.
-- Spell: Barkskin and Mage Armor effects.
-- Light effect if using ATL.
-
+- Spells: a huge number of effects added back in.
 
 # 6.0.1
 

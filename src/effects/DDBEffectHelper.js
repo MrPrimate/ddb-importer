@@ -1281,6 +1281,11 @@ export default class DDBEffectHelper {
     }
 
     if (!match) {
+      const rawNoDC = /(?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
+      match = rawNoDC.exec(parserText);
+    }
+
+    if (!match) {
       const rawConditionSearch2 = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)(?:[ .,])(.*)Failure: The target has the (?<condition>\w+)(?: for (\d+) (minute|round|hour)| until)?/ig;
       match = rawConditionSearch2.exec(parserText);
     }

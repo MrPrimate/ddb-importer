@@ -1,16 +1,14 @@
 import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
-import { effectModules, addStatusEffectChange } from "../effects.js";
+import { effectModules } from "../effects.js";
 
 export async function webEffect(document) {
 
   if (!effectModules().activeAurasInstalled || !effectModules().midiQolInstalled) {
-    let effectWebRestrained = baseSpellEffect(document, `${document.name} - Restrained`);
-    addStatusEffectChange({ effect: effectWebRestrained, statusName: "Restrained" });
-    document.effects.push(effectWebRestrained);
     return document;
   }
 
+  document.effects = [];
   // if we have active auras use a more advanced macro
   await DDBMacros.setItemMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file);
 
@@ -50,8 +48,6 @@ export async function webEffect(document) {
   });
 
   document.effects.push(effect);
-  document.system.actionType = "other";
-  document.system.save.ability = "";
 
   return document;
 }

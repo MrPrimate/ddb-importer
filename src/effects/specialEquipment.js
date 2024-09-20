@@ -8,7 +8,6 @@ import {
 import { cloakOfDisplacementEffect } from "./items/cloakOfDisplacement.js";
 import { javelinOfLightningEffect } from "./items/javelinOfLightning.js";
 import { pearlOfPowerEffect } from "./items/pearlOfPower.js";
-import { hasteEffect } from "./spells/haste.js";
 
 
 export async function midiItemEffects(document) {
@@ -40,7 +39,7 @@ export async function midiItemEffects(document) {
       break;
     }
     case "Potion of Speed": {
-      document = hasteEffect(document);
+      // document = hasteEffect(document);
       break;
     }
     case "Spellguard Shield": {

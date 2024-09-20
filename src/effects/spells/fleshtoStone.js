@@ -3,6 +3,7 @@ import DDBMacros from "../DDBMacros.js";
 import { addStatusEffectChange, effectModules } from "../effects.js";
 
 export async function fleshtoStoneEffect(document) {
+  document.effects = [];
   let effect = baseSpellEffect(document, document.name);
   addStatusEffectChange({ effect, statusName: "Restrained" });
 
