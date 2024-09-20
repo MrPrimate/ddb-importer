@@ -1562,6 +1562,17 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Barkskin": {
+      type: "spell",
+      changes: [
+        {
+          key: "system.attributes.ac.min",
+          mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+          value: "16",
+          priority: "100",
+        },
+      ],
+    },
     "Bless": {
       type: "spell",
       options: {
