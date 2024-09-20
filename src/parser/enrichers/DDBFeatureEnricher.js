@@ -95,6 +95,10 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     "Psychic Blades: Attack (STR)": "Psychic Blades: Attack",
     "Psychic Blades: Bonus Attack (DEX)": "Psychic Blades: Bonus Attack",
     "Psychic Blades: Bonus Attack (STR)": "Psychic Blades: Bonus Attack",
+    "Psychic Blades": "Psychic Blades: Attack",
+    "Psychic Blades: Homing Strikes": "Soul Blades: Homing Strikes",
+    "Psychic Blades: Psychic Teleportation": "Soul Blades: Psychic Teleportation",
+    "Psychic Teleportation": "Soul Blades: Psychic Teleportation",
   };
 
   ACTIVITY_HINTS = {
@@ -1204,12 +1208,18 @@ export default class DDDFeatureEnricher extends DDBBaseEnricher {
     },
     "Soul Blades: Homing Strikes": {
       data: {
+        img: "systems/dnd5e/icons/svg/damage/force.svg",
         roll: {
           prompt: false,
           visible: false,
           formula: "@scale.soulknife.psionic-power",
           name: "Roll Attack Bonus",
         },
+      },
+    },
+    "Soul Blades: Psychic Teleportation": {
+      data: {
+        img: "systems/dnd5e/icons/svg/trait-saves.svg",
       },
     },
     "Starry Form": {

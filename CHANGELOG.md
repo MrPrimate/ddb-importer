@@ -1,3 +1,8 @@
+# Next Up
+
+- Psychic Blades for 2024 Rogue
+- Some backgrounds would break the character import.
+
 # 6.0.1
 
 - Spell: Magic Weapon Enchantment, Elemental Weapon Enchantment.
