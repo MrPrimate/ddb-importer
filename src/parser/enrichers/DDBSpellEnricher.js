@@ -1657,6 +1657,27 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       name: "Hunter's Mark",
       type: "spell",
     },
+    "Light": {
+      type: "spell",
+      atlChanges: [
+        generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'),
+        generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
+        generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+        generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+        generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": "pulse", "speed": 3,"intensity": 1}'),
+      ],
+    },
+    "Mage Armor": {
+      type: "spell",
+      changes: [
+        {
+          key: "system.attributes.ac.calc",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          value: "mage",
+          priority: "5",
+        },
+      ],
+    },
     "Magic Weapon": {
       multiple: [
         { bonus: "1", min: null, max: 3 },
@@ -1748,12 +1769,14 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         };
       }),
     },
-    "Ray of Enfeeblement": {
-      type: "spell",
-      name: "Enfeebled",
-      options: {
-        description: this.ddbParser?.spellDefinition?.description ?? "",
-      },
+    "Ray of Enfeeblement": () => {
+      return {
+        type: "spell",
+        name: "Enfeebled",
+        options: {
+          description: this.ddbParser?.spellDefinition?.description ?? "",
+        },
+      };
     },
     "Searing Smite": {
       type: "spell",

@@ -19,7 +19,6 @@ import { armorOfAgathysEffect } from "./spells/armorOfAgathys.js";
 import { auraOfLifeEffect } from "./spells/auraOfLife.js";
 import { baneEffect } from "./spells/bane.js";
 import { banishmentEffect } from "./spells/banishment.js";
-import { barkskinEffect } from "./spells/barkskin.js";
 import { beaconofHopeEffect } from "./spells/beaconofHope.js";
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
 import { bladeWardEffect } from "./spells/bladeWard.js";
@@ -85,7 +84,6 @@ import { invisibilityEffect } from "./spells/invisibility.js";
 import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
 import { lightEffect } from "./spells/light.js";
 import { longstriderEffect } from "./spells/longstrider.js";
-import { mageArmorEffect } from "./spells/mageArmor.js";
 import { mageHandEffect } from "./spells/mageHand.js";
 import { massSuggestionEffect } from "./spells/massSuggestion.js";
 import { mindBlankEffect } from "./spells/mindBlank.js";
@@ -162,10 +160,6 @@ async function basicSpellEffects(document) {
     }
     case "Bane": {
       document = baneEffect(document);
-      break;
-    }
-    case "Barkskin": {
-      document = barkskinEffect(document);
       break;
     }
     case "Evard's Black Tentacles":
@@ -300,10 +294,6 @@ async function basicSpellEffects(document) {
     }
     case "Light": {
       document = lightEffect(document);
-      break;
-    }
-    case "Mage Armor": {
-      document = mageArmorEffect(document);
       break;
     }
     case "Mage Hand": {
