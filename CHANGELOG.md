@@ -7,6 +7,7 @@
 - Remove level number prefix from feature name in some classes.
 - Fix for Eldritch Blast breaking import if some invocations selected.
 - Spell: Barkskin and Mage Armor effects.
+- Light effect if using ATL.
 
 
 # 6.0.1

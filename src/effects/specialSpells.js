@@ -82,7 +82,6 @@ import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
 import { insectPlagueEffect } from "./spells/insectPlague.js";
 import { invisibilityEffect } from "./spells/invisibility.js";
 import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
-import { lightEffect } from "./spells/light.js";
 import { longstriderEffect } from "./spells/longstrider.js";
 import { mageHandEffect } from "./spells/mageHand.js";
 import { massSuggestionEffect } from "./spells/massSuggestion.js";
@@ -290,10 +289,6 @@ async function basicSpellEffects(document) {
     }
     case "Invisibility": {
       document = await invisibilityEffect(document);
-      break;
-    }
-    case "Light": {
-      document = lightEffect(document);
       break;
     }
     case "Mage Hand": {

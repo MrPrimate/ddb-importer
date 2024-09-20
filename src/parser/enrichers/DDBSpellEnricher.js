@@ -1371,6 +1371,11 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Light": {
+      data: {
+        "flags.midiProperties.autoFailFriendly": true,
+      },
+    },
     "Primal Savagery": {
       data: {
         "system.range": {
