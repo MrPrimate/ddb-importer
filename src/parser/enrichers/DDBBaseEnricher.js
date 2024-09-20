@@ -316,7 +316,7 @@ export default class DDBBaseEnricher {
         effect.changes.push(...effectHint.atlChanges);
       }
 
-      if (effectModules().tokenMagicInstalled) {
+      if (effectHint.tokenMagicChanges && effectModules().tokenMagicInstalled) {
         effect.changes.push(...effectHint.tokenMagicChanges);
       }
 

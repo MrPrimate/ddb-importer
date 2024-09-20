@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Spell: Magic Weapon Enchantment
+- Fix for some parsing failing breaking if Token Magic was installed.
 
 # 6.0.0
 
