@@ -779,6 +779,8 @@ export default class DDBSpell {
       return "utility"; // e.g. things like lesser restoration
     } else if (this.spellDefinition.tags.includes("Buff")) {
       return "utility";
+    } else if (this.enricher.effect) {
+      return "utility";
     }
     // KNOWN_ISSUE_4_0: Enchants like for magic weapon etc
     // KNOWN_ISSUE_4_0: Summoning
