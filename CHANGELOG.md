@@ -6,6 +6,7 @@
 - Some backgrounds would break the character import.
 - Remove level number prefix from feature name in some classes.
 - Fix for Eldritch Blast breaking import if some invocations selected.
+- Spell: Barkskin and Mage Armor effects.
 
 
 # 6.0.1
