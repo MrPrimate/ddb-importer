@@ -5,6 +5,8 @@
 - Some icon improvements.
 - Some backgrounds would break the character import.
 - Remove level number prefix from feature name in some classes.
+- Fix for Eldritch Blast breaking import if some invocations selected.
+
 
 # 6.0.1
 

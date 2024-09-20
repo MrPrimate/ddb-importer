@@ -48,22 +48,27 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     };
   }
 
-  eldritchBlastAdjustments() {
+  eldritchBlastRangeAdjustments(initialRange) {
     const eldritchBlastMods = this.ddbParser?.ddbData
       ? this._getEldritchInvocations()
       : null;
 
+    if (eldritchBlastMods?.range && Number.parseInt(eldritchBlastMods.range)) {
+      const range = Number.parseInt(initialRange) + Number.parseInt(eldritchBlastMods.range);
+      return `${range}`;
+    }
+    return initialRange;
+  }
+
+  eldritchBlastDamageBonus() {
+    const eldritchBlastMods = this.ddbParser?.ddbData
+      ? this._getEldritchInvocations()
+      : null;
     const bonus = eldritchBlastMods?.damage
       ? `${eldritchBlastMods["damage"]}`
       : "";
 
-    const damage = [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 10, type: "force", bonus })];
-
-    if (eldritchBlastMods?.range && Number.parseInt(eldritchBlastMods.range)) {
-      this.document.data.system.range = `${Number.parseInt(this.document.system.range.value) + Number.parseInt(eldritchBlastMods["range"])}`;
-    }
-
-    return damage;
+    return bonus;
   }
 
   DND_2014 = {
@@ -227,10 +232,12 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     "Eldritch Blast": {
       type: "attack",
-      data: {
-        damage: {
-          parts: this.eldritchBlastAdjustments(),
-        },
+      data: () => {
+        return {
+          damage: {
+            parts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 10, type: "force", scalingMode: "none", bonus: this.eldritchBlastDamageBonus() })],
+          },
+        };
       },
     },
     "Elemental Weapon": {
@@ -1333,6 +1340,13 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       data: {
         "flags.midiProperties.nodam": true,
       },
+    },
+    "Eldritch Blast": () => {
+      return {
+        data: {
+          "system.range.value": this.eldritchBlastRangeAdjustments(this.data?.system?.range?.value ?? 0),
+        },
+      };
     },
     "Flaming Sphere": {
       data: {

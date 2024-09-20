@@ -227,7 +227,10 @@ export default class DDBBaseEnricher {
     }
 
     if (this.activity.data) {
-      activity = foundry.utils.mergeObject(activity, this.activity.data);
+      const data = utils.isFunction(this.activity.data)
+        ? this.activity.data()
+        : this.activity.data;
+      activity = foundry.utils.mergeObject(activity, data);
     }
 
     if (this.activity.func) this.activity.func(activity);
@@ -349,8 +352,12 @@ export default class DDBBaseEnricher {
   }
 
   addDocumentOverride() {
-    if (!this.override) return this.data;
-    if (this.override.removeDamage) {
+    const override = utils.isFunction(this.override)
+      ? this.override()
+      : this.override;
+
+    if (!override) return this.data;
+    if (override.removeDamage) {
       this.data.system.damage = {
         number: null,
         denomination: null,
@@ -368,7 +375,7 @@ export default class DDBBaseEnricher {
       };
     }
 
-    if (this.override.noTemplate) {
+    if (override.noTemplate) {
       foundry.utils.setProperty(this.data.system, "target.template", {
         count: "",
         contiguous: false,
@@ -380,11 +387,11 @@ export default class DDBBaseEnricher {
       });
     }
 
-    if (this.override.data) this.data = foundry.utils.mergeObject(this.data, this.override.data);
+    if (override.data) this.data = foundry.utils.mergeObject(this.data, override.data);
 
-    if (this.override.descriptionSuffix) {
-      this.data.system.description.value += this.override.descriptionSuffix;
-      if (this.data.system.description.chat !== "") this.data.system.description.chat += this.override.descriptionSuffix;
+    if (override.descriptionSuffix) {
+      this.data.system.description.value += override.descriptionSuffix;
+      if (this.data.system.description.chat !== "") this.data.system.description.chat += override.descriptionSuffix;
     }
 
     return this.data;
