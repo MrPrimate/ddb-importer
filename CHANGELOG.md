@@ -1,3 +1,9 @@
+# 6.0.3
+
+- Artificers would fail to import
+- Some characters would fail to import with `null (reading load)` error message
+- Some characters would fail to import with a ` RangeError: Maximum call stack size exceeded ` message.
+
 # 6.0.2
 
 - Cunning Strike, Devious Strikes implemented for 2024 Rogue.

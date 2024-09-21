@@ -62,14 +62,18 @@ export default class DDBBaseEnricher {
 
   DOCUMENT_STUB = {};
 
+  static _loadDataStub(stub) {
+    return utils.isFunction(stub) ? stub() : stub;
+  }
+
   _prepare() {
     if (this.isCustomAction) return;
     this.hintName = (this.is2014 ? this.DND_2014.NAME_HINTS[this.name] : null) ?? this.NAME_HINTS[this.name] ?? this.name;
-    this.activity = (this.is2014 ? this.DND_2014.ACTIVITY_HINTS[this.hintName] : null) ?? this.ACTIVITY_HINTS[this.hintName];
-    this.effect = (this.is2014 ? this.DND_2014.EFFECT_HINTS[this.hintName] : null) ?? this.EFFECT_HINTS[this.hintName];
-    this.override = (this.is2014 ? this.DND_2014.DOCUMENT_OVERRIDES[this.hintName] : null) ?? this.DOCUMENT_OVERRIDES[this.hintName];
+    this.activity = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.ACTIVITY_HINTS[this.hintName] : null) ?? this.ACTIVITY_HINTS[this.hintName]);
+    this.effect = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.EFFECT_HINTS[this.hintName] : null) ?? this.EFFECT_HINTS[this.hintName]);
+    this.override = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.DOCUMENT_OVERRIDES[this.hintName] : null) ?? this.DOCUMENT_OVERRIDES[this.hintName]);
     this.additionalActivities = (this.is2014 ? this.DND_2014.ADDITIONAL_ACTIVITIES[this.hintName] : null) ?? this.ADDITIONAL_ACTIVITIES[this.hintName];
-    this.documentStub = (this.is2014 ? this.DND_2014.DOCUMENT_STUB[this.hintName] : null) ?? this.DOCUMENT_STUB[this.hintName];
+    this.documentStub = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.DOCUMENT_STUB[this.hintName] : null) ?? this.DOCUMENT_STUB[this.hintName]);
   }
 
   constructor() {
@@ -108,55 +112,57 @@ export default class DDBBaseEnricher {
   applyActivityOverride(activity) {
     if (!this.activity) return activity;
 
-    if (this.activity.type === "summon") {
+    let activityHint = utils.isFunction(this.activity) ? this.activity() : this.activity;
+
+    if (activityHint.type === "summon") {
       if (!this.manager) return activity;
-      this.manager.addProfilesToActivity(activity, this.activity.profileKeys, this.activity.summons);
+      this.manager.addProfilesToActivity(activity, activityHint.profileKeys, activityHint.summons);
     }
 
-    if (this.activity.parent) {
-      for (const parent of this.activity.parent) {
+    if (activityHint.parent) {
+      for (const parent of activityHint.parent) {
         const lookupName = foundry.utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.lookupName");
         if (lookupName !== parent.lookupName) continue;
 
-        const base = foundry.utils.deepClone(this.activity);
+        const base = foundry.utils.deepClone(activityHint);
         delete base.parent;
-        this.activity = foundry.utils.mergeObject(base, parent);
+        activityHint = foundry.utils.mergeObject(base, parent);
       }
     }
 
-    if (this.activity.noConsumeTargets) {
+    if (activityHint.noConsumeTargets) {
       foundry.utils.setProperty(activity, "consumption.targets", []);
     }
-    if (this.activity.addItemConsume) {
+    if (activityHint.addItemConsume) {
       foundry.utils.setProperty(activity, "consumption.targets", [
         {
           type: "itemUses",
           target: "",
-          value: this.activity.itemConsumeValue ?? "1",
+          value: activityHint.itemConsumeValue ?? "1",
           scaling: {
-            mode: this.activity.addScalingMode ?? "",
-            formula: this.activity.addScalingFormula ?? "",
+            mode: activityHint.addScalingMode ?? "",
+            formula: activityHint.addScalingFormula ?? "",
           },
         },
       ]);
     }
-    if (this.activity.addActivityConsume) {
+    if (activityHint.addActivityConsume) {
       foundry.utils.setProperty(activity, "consumption.targets", [
         {
           type: "activityUses",
           target: "",
-          value: this.activity.itemConsumeValue ?? "1",
+          value: activityHint.itemConsumeValue ?? "1",
           scaling: {
-            mode: this.activity.addScalingMode ?? "",
-            formula: this.activity.addScalingFormula ?? "",
+            mode: activityHint.addScalingMode ?? "",
+            formula: activityHint.addScalingFormula ?? "",
           },
         },
       ]);
     }
 
-    if (this.activity.targetType) {
+    if (activityHint.targetType) {
       if (activity.target?.affects)
-        foundry.utils.setProperty(activity, "target.affects.type", this.activity.targetType);
+        foundry.utils.setProperty(activity, "target.affects.type", activityHint.targetType);
       else {
         foundry.utils.setProperty(activity, "target", {
           template: {
@@ -170,7 +176,7 @@ export default class DDBBaseEnricher {
           },
           affects: {
             count: "",
-            type: this.activity.targetType,
+            type: activityHint.targetType,
             choice: false,
             special: "",
           },
@@ -186,7 +192,7 @@ export default class DDBBaseEnricher {
       }
     }
 
-    if (this.activity.noTemplate) {
+    if (activityHint.noTemplate) {
       foundry.utils.setProperty(activity, "target.template", {
         count: "",
         contiguous: false,
@@ -198,51 +204,51 @@ export default class DDBBaseEnricher {
       });
     }
 
-    if (this.activity.overrideTemplate)
+    if (activityHint.overrideTemplate)
       foundry.utils.setProperty(activity, "target.override", true);
 
-    if (this.activity.overrideRange)
+    if (activityHint.overrideRange)
       foundry.utils.setProperty(activity, "range.override", true);
 
-    if (this.activity.activationType) {
+    if (activityHint.activationType) {
       activity.activation = {
-        type: this.activity.activationType,
-        value: activity.activation?.value ?? this.activity.activationValue ?? 1,
+        type: activityHint.activationType,
+        value: activity.activation?.value ?? activityHint.activationValue ?? 1,
         condition: activity.activation?.condition ?? "",
       };
-    } else if (this.activity.activationValue) {
-      foundry.utils.setProperty(activity, "activation.value", this.activity.activationValue);
+    } else if (activityHint.activationValue) {
+      foundry.utils.setProperty(activity, "activation.value", activityHint.activationValue);
     }
-    if (this.activity.activationCondition) {
-      foundry.utils.setProperty(activity, "activation.condition", this.activity.activationCondition);
+    if (activityHint.activationCondition) {
+      foundry.utils.setProperty(activity, "activation.condition", activityHint.activationCondition);
     }
 
-    if (this.activity.overrideActivation)
+    if (activityHint.overrideActivation)
       foundry.utils.setProperty(activity, "activation.override", true);
 
-    if (foundry.utils.hasProperty(this.activity, "flatAttack")) {
-      foundry.utils.setProperty(activity, "attack.bonus", this.activity.flatAttack);
+    if (foundry.utils.hasProperty(activityHint, "flatAttack")) {
+      foundry.utils.setProperty(activity, "attack.bonus", activityHint.flatAttack);
       foundry.utils.setProperty(activity, "attack.flat", true);
     }
 
-    if (this.activity.damageParts) {
+    if (activityHint.damageParts) {
       const parts = [];
-      for (const part of this.activity.damageParts) {
+      for (const part of activityHint.damageParts) {
         parts.push(activity.damage.parts[part]);
       }
       activity.damage.parts = parts;
     }
 
-    if (this.activity.data) {
-      const data = utils.isFunction(this.activity.data)
-        ? this.activity.data()
-        : this.activity.data;
+    if (activityHint.data) {
+      const data = utils.isFunction(activityHint.data)
+        ? activityHint.data()
+        : activityHint.data;
       activity = foundry.utils.mergeObject(activity, data);
     }
 
-    if (this.activity.func) this.activity.func(activity);
+    if (activityHint.func) activityHint.func(activity);
 
-    if (this.activity.allowMagical) {
+    if (activityHint.allowMagical) {
       activity.restrictions.allowMagical = true;
     }
 
@@ -411,11 +417,12 @@ export default class DDBBaseEnricher {
     if (!this.additionalActivities || !this.additionalActivityClass) return;
 
     for (const data of this.additionalActivities) {
-      const activity = new this.additionalActivityClass(foundry.utils.mergeObject(data.constructor, {
-        ddbParent: ddbParent,
+      const activationData = foundry.utils.mergeObject(data.constructor, {
         nameIdPrefix: "add",
-        nameIdPostfix: `${this.data.system.activities.length + 1}`,
-      }));
+        nameIdPostfix: `${this.data.system.activities.length ?? 0 + 1}`,
+      });
+      activationData.ddbParent = ddbParent;
+      const activity = new this.additionalActivityClass(activationData);
       activity.build(data.build);
 
       if (data.overrides?.addActivityConsume) {

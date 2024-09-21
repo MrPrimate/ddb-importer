@@ -837,18 +837,6 @@ export default class DDBSpell {
       nameIdPostfix,
     }, optionsOverride);
 
-    // console.warn(`Spell Activity Check for ${this.data.name}`, {
-    //   this: this,
-    //   activity,
-    //   typeOverride,
-    //   enricherHint: this.enricher.activity?.type,
-    //   activityType: activity?.data?.type,
-    //   optionsOverride,
-    //   name,
-    //   hintsOnly,
-    //   nameIdPostfix,
-    // });
-
     if (!activity) {
       logger.debug(`No Activity type found for ${this.data.name}`, {
         this: this,

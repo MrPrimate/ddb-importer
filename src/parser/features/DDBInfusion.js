@@ -9,6 +9,7 @@ import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
+import DDBFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import { addExtraEffects } from "./extraEffects.js";
@@ -93,6 +94,7 @@ export class DDBInfusion {
     this.addToCompendium = addToCompendium;
     this.nameIdPostfix = nameIdPostfix;
     this.activityType = this._getActivityType();
+    this.enricher = new DDBFeatureEnricher();
   }
 
   _buildBaseActivity() {
@@ -226,11 +228,13 @@ export class DDBInfusion {
           ddbDefinition: actionData,
           rawCharacter: this.rawCharacter,
           type: actionData.actionSource,
+          enricher: this.enricher,
         })
         : new DDBAction({
           ddbData: this.ddbData,
           ddbDefinition: actionData,
           rawCharacter: this.rawCharacter,
+          enricher: this.enricher,
         });
       action.build();
       foundry.utils.setProperty(action.data, "flags.ddbimporter.class", "Artificer");
@@ -254,7 +258,7 @@ export class DDBInfusion {
     if (this.activity.data.effects?.length > 0)
       this.activity.data.effects[0].riders.item = uuids;
     this.data.effects.forEach((e) => {
-      if (e.flags.ddbimporter?.infusion) e.flags.dnd5e.enchantment.riders.item.push(...uuids);
+      // if (e.flags.ddbimporter?.infusion) e.flags.dnd5e.enchantment.riders.item.push(...uuids);
       e.changes.push({
         key: "system.description.value",
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -511,6 +515,7 @@ export class DDBInfusion {
     this._generateEnchantmentType();
 
     this._generateEnchantments();
+    await this.enricher.init();
     this._buildActions();
     this._specials();
     await this._addActionsToEffects();

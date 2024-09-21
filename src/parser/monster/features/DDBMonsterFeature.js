@@ -1298,18 +1298,6 @@ ${this.feature.system.description.value}
     }, optionsOverride);
 
 
-    // console.warn(`Monster Feature Activity Check for ${this.feature.name}`, {
-    //   this: this,
-    //   activity,
-    //   typeOverride,
-    //   enricherHint: this.enricher.activity?.type,
-    //   activityType: activity?.data?.type,
-    //   optionsOverride,
-    //   name,
-    //   hintsOnly,
-    //   nameIdPostfix,
-    // });
-
     if (!activity) return undefined;
 
     if (!this.activityType) this.activityType = activity.data.type;

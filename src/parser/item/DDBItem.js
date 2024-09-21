@@ -2706,19 +2706,6 @@ export default class DDBItem {
     }, optionsOverride);
 
 
-    // console.warn(`Item Activity Check for ${this.data.name}`, {
-    //   this: this,
-    //   activity,
-    //   typeOverride,
-    //   enricherHint: this.enricher.activity?.type,
-    //   activityType: activity?.data?.type,
-    //   optionsOverride,
-    //   name,
-    //   hintsOnly,
-    //   nameIdPostfix,
-    //   activityData: activity?.data ? foundry.utils.deepClone(activity) : null,
-    // });
-
     if (!activity) {
       logger.debug(`No Activity type found for ${this.data.name}`, {
         this: this,
