@@ -3,7 +3,26 @@
     "module-name": "D&D Beyond Importer",
     "activities": {
       "macro": {
-        "Title": "Macro"
+        "Title": "Macro",
+        "Button": "Execute Macro",
+        "Config": "Macro Configuration",
+        "FIELDS": {
+          "macro": {
+            "label": "Macro",
+            "function": {
+              "label": "Macro Name"
+            },
+            "parameters": {
+              "label": "Function Parameters"
+            },
+            "visible": {
+              "label": "Visible to all players?"
+            },
+            "name": {
+              "label": "Name"
+            }
+          }
+        }
       }
     },
     "settings": {

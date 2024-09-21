@@ -1,3 +1,8 @@
+# Next Up
+
+- Adds the custom Activity to call DDB Macro functions and World Macros.
+- Darkness spell effect using said activity.
+
 # 6.0.3
 
 - Artificers would fail to import

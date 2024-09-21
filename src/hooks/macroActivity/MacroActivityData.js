@@ -18,7 +18,7 @@ export default class MacroActivityData extends dnd5e.dataModels.activity.BaseAct
       macro: new SchemaField({
         function: new StringField(),
         name: new StringField(),
-        isFunction: new BooleanField(),
+        // isFunction: new BooleanField(),
         visible: new BooleanField(),
         parameters: new StringField(),
       }),

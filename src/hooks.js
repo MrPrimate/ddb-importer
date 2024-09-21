@@ -48,6 +48,7 @@ export function init() {
   logger.info("Init complete");
   DDBEffectHooks.loadHooks();
   registerCustomEnrichers();
+  addActivitiesHooks();
 }
 
 // foundry is ready
@@ -72,7 +73,6 @@ export async function onceReady() {
     itemSheets();
     setupUpdateCreatedOrigins();
     activateUpdateHooks();
-    addActivitiesHooks();
   }, 500);
 
   anchorInjection();

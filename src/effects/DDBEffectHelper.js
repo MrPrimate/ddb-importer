@@ -301,6 +301,12 @@ export default class DDBEffectHelper {
     }
   }
 
+  static getSceneTargets() {
+    let targets = canvas.tokens.controlled.filter((t) => t.actor);
+    if (targets.length && game.user.character) targets = game.user.character.getActiveTokens();
+    return targets;
+  }
+
   static async checkTargetInRange({ sourceUuid, targetUuid, distance }) {
     if (!game.modules.get("midi-qol")?.active) {
       ui.notifications.error("checkTargetInRange requires midiQoL, not checking");

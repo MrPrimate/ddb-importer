@@ -6,11 +6,10 @@
         {{ formField fields.description.fields.chatFlavor value=source.description.chatFlavor }}
     </fieldset>
     <fieldset>
-        <legend>{{ localize "DND5E.ACTIVITY.SECTIONS.Behavior" }}</legend>
+        <legend>{{ localize "ddb-importer.activities.macro.Config" }}</legend>
         {{ formField fields.macro.fields.name value=source.macro.name hint=false localize=true }}
         {{ formField fields.macro.fields.function value=source.macro.function hint=false localize=true }}
         {{ formField fields.macro.fields.parameters value=source.macro.parameters hint=false localize=true }}
-        {{ formField fields.macro.fields.isFunction value=source.macro.isFunction input=inputs.createCheckboxInput }}
         {{ formField fields.macro.fields.visible value=source.macro.visible input=inputs.createCheckboxInput }}
     </fieldset>
 </section>
