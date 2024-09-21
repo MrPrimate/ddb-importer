@@ -273,6 +273,18 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     "Counterspell": {
       type: "save",
     },
+    "Darkness": {
+      type: "ddbmacro",
+      data: {
+        img: "icons/magic/unholy/orb-glowing-purple.webp",
+        macro: {
+          name: "Toggle Darkness",
+          function: "ddb.spell.darkness",
+          visible: false,
+          parameters: "",
+        },
+      },
+    },
     "Divine Favor": {
       type: "utility",
       targetType: "self",

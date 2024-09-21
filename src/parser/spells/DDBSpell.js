@@ -611,7 +611,7 @@ export default class DDBSpell {
   }
 
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const saveActivity = new DDBSpellActivity({
+    const activity = new DDBSpellActivity({
       name,
       type: "save",
       ddbParent: this,
@@ -619,16 +619,16 @@ export default class DDBSpell {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    saveActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateSave: true,
       generateDamage: true,
     }, options));
 
-    return saveActivity;
+    return activity;
   }
 
   _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const attackActivity = new DDBSpellActivity({
+    const activity = new DDBSpellActivity({
       name,
       type: "attack",
       ddbParent: this,
@@ -636,15 +636,15 @@ export default class DDBSpell {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    attackActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: true,
       generateDamage: true,
     }, options));
-    return attackActivity;
+    return activity;
   }
 
   _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const utilityActivity = new DDBSpellActivity({
+    const activity = new DDBSpellActivity({
       name,
       type: "utility",
       ddbParent: this,
@@ -652,15 +652,15 @@ export default class DDBSpell {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    utilityActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateDamage: false,
     }, options));
 
-    return utilityActivity;
+    return activity;
   }
 
   _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const healActivity = new DDBSpellActivity({
+    const activity = new DDBSpellActivity({
       name,
       type: "heal",
       ddbParent: this,
@@ -668,16 +668,16 @@ export default class DDBSpell {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    healActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateDamage: false,
       generateHealing: true,
     }, options));
 
-    return healActivity;
+    return activity;
   }
 
   _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const damageActivity = new DDBSpellActivity({
+    const activity = new DDBSpellActivity({
       name,
       type: "damage",
       ddbParent: this,
@@ -685,15 +685,15 @@ export default class DDBSpell {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    damageActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateDamage: true,
     }, options));
-    return damageActivity;
+    return activity;
   }
 
   _getEnchantActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const enchantActivity = new DDBSpellActivity({
+    const activity = new DDBSpellActivity({
       name,
       type: "enchant",
       ddbParent: this,
@@ -701,11 +701,11 @@ export default class DDBSpell {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    enchantActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateDamage: false,
     }, options));
-    return enchantActivity;
+    return activity;
   }
 
   async #generateSummons() {
@@ -727,7 +727,7 @@ export default class DDBSpell {
   }
 
   async _getSummonActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const summonActivity = new DDBSpellActivity({
+    const activity = new DDBSpellActivity({
       name,
       type: "summon",
       ddbParent: this,
@@ -735,20 +735,20 @@ export default class DDBSpell {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    summonActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateDamage: false,
     }, options));
 
     if (this.isCompanionSpell)
-      await this.ddbCompanionFactory.addCompanionsToDocuments([], summonActivity.data);
+      await this.ddbCompanionFactory.addCompanionsToDocuments([], activity.data);
     else if (SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName))
-      await this.ddbCompanionFactory.addCRSummoning(summonActivity.data);
-    return summonActivity;
+      await this.ddbCompanionFactory.addCRSummoning(activity.data);
+    return activity;
   }
 
   _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const checkActivity = new DDBSpellActivity({
+    const activity = new DDBSpellActivity({
       name,
       type: "check",
       ddbParent: this,
@@ -756,14 +756,45 @@ export default class DDBSpell {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    checkActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: false,
       generateDamage: false,
       generateCheck: true,
       generateActivation: true,
     }, options));
-    return checkActivity;
+    return activity;
+  }
+
+  _getDDBMacroActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const activity = new DDBSpellActivity({
+      name,
+      type: "ddbmacro",
+      ddbParent: this,
+      nameIdPrefix: "mac",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    activity.build(foundry.utils.mergeObject({
+      generateAttack: false,
+      generateRange: false,
+      generateDamage: false,
+      generateCheck: false,
+      generateActivation: true,
+      generateTarget: true,
+      generateDDBMacro: true,
+      targetOverride: {
+        override: true,
+        template: {
+          contiguous: false,
+          type: "",
+          size: "",
+          units: "ft",
+        },
+        affects: {},
+      },
+    }, options));
+    return activity;
   }
 
   _getActivitiesType() {
@@ -811,6 +842,9 @@ export default class DDBSpell {
       }
       case "check":
         return this._getCheckActivity(data, options);
+      case "ddbmacro": {
+        return this._getDDBMacroActivity(data, options);
+      }
       case "spell":
       case "teleport":
       case "transform":

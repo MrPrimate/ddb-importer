@@ -408,6 +408,12 @@ export default class DDBSpellActivity {
 
   }
 
+  _generateDDBMacro({ ddbMacroOverride = null } = {}) {
+    if (ddbMacroOverride) {
+      this.data.macro = ddbMacroOverride;
+    }
+  }
+
   _generateHealing({ healingPart } = {}) {
     if (healingPart.chatFlavor) this.data.description.chatFlavor = healingPart.chatFlavor;
     this.data.healing = healingPart.part;
@@ -511,6 +517,7 @@ export default class DDBSpellActivity {
     generateAttack = false,
     generateConsumption = true,
     generateDamage = false,
+    generateDDBMacro = false,
     generateDescription = false,
     generateEffects = true,
     generateEnchant = false,
@@ -532,32 +539,35 @@ export default class DDBSpellActivity {
     saveOverride = null,
     img = null,
     partialDamageParts = null,
+    ddbMacroOverride = null,
   } = {}) {
 
-    logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
-      damageParts,
-      healingPart,
-      generateAttack,
-      generateConsumption,
-      generateDamage,
-      generateDescription,
-      generateEffects,
-      generateHealing,
-      generateSave,
-      chatFlavor,
-      onSave,
-      this: this,
-      noeffect,
-      roll,
-      noSpellslot,
-      targetOverride,
-      rangeOverride,
-      activationOverride,
-      durationOverride,
-      saveOverride,
-      img,
-      partialDamageParts,
-    });
+    // logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
+    //   damageParts,
+    //   healingPart,
+    //   generateAttack,
+    //   generateDDBMacro,
+    //   generateConsumption,
+    //   generateDamage,
+    //   generateDescription,
+    //   generateEffects,
+    //   generateHealing,
+    //   generateSave,
+    //   chatFlavor,
+    //   onSave,
+    //   this: this,
+    //   noeffect,
+    //   roll,
+    //   noSpellslot,
+    //   targetOverride,
+    //   rangeOverride,
+    //   activationOverride,
+    //   durationOverride,
+    //   saveOverride,
+    //   img,
+    //   partialDamageParts,
+    //   ddbMacroOverride,
+    // });
 
     // override set to false on object if overriding
 
@@ -574,6 +584,7 @@ export default class DDBSpellActivity {
     if (rangeOverride) this._generateRange({ rangeOverride });
     if (targetOverride) this._generateTarget({ targetOverride });
     if (durationOverride) this._generateDuration({ durationOverride });
+    if (generateDDBMacro) this._generateDDBMacro({ ddbMacroOverride });
 
     if (generateRoll) this._generateRoll({ roll });
 
