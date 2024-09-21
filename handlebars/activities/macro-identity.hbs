@@ -1,0 +1,16 @@
+<section class="tab activity-{{ tab.id }} {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+    <fieldset>
+    <legend>{{ localize "DND5E.ACTIVITY.Title.one" }}</legend>
+        {{ formField fields.name value=source.name placeholder=placeholder.name }}
+        {{ formField fields.img value=source.img placeholder=placeholder.img }}
+        {{ formField fields.description.fields.chatFlavor value=source.description.chatFlavor }}
+    </fieldset>
+    <fieldset>
+        <legend>{{ localize "DND5E.ACTIVITY.SECTIONS.Behavior" }}</legend>
+        {{ formField fields.macro.fields.name value=source.macro.name hint=false localize=true }}
+        {{ formField fields.macro.fields.function value=source.macro.function hint=false localize=true }}
+        {{ formField fields.macro.fields.parameters value=source.macro.parameters hint=false localize=true }}
+        {{ formField fields.macro.fields.isFunction value=source.macro.isFunction input=inputs.createCheckboxInput }}
+        {{ formField fields.macro.fields.visible value=source.macro.visible input=inputs.createCheckboxInput }}
+    </fieldset>
+</section>

@@ -36,7 +36,7 @@ import registerNotifications from "./lib/Notification.js";
 import { activateUpdateHooks } from "./updater/character.js";
 import { registerCustomEnrichers } from "./hooks/ready/enrichers.js";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.js";
-
+import addActivitiesHooks from "./hooks/macroActivity/loadActivity.js";
 
 // foundry is initializing
 export function init() {
@@ -72,6 +72,7 @@ export async function onceReady() {
     itemSheets();
     setupUpdateCreatedOrigins();
     activateUpdateHooks();
+    addActivitiesHooks();
   }, 500);
 
   anchorInjection();

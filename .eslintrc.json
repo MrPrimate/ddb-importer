@@ -27,6 +27,7 @@
     "DAE": true,
     "DDBImporter": true,
     "Dialog": true,
+    "dnd5e": true,
     "dnd5eCustomSkills": true,
     "DocumentSheetConfig": true,
     "FilePicker": true,

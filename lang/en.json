@@ -1,6 +1,11 @@
 {
   "ddb-importer": {
     "module-name": "D&D Beyond Importer",
+    "activities": {
+      "macro": {
+        "Title": "Macro"
+      }
+    },
     "settings": {
       "user-hint-setting": "If you are unaware of the purpose of a specific setting, it's recommended to leave it at the default value. Several of the settings rely on additional modules and are only recommended if you want to add that level of automation to your game.",
       "user-hint-effects": "Several settings make mention of ActiveEffects. Please be aware that these are not <em>animation</em> effects.",
