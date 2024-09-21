@@ -129,3 +129,9 @@ li.context-item i.active {
 .ddb-advanced-dialog table.ddb-selection-table td.colspan2 {
   column-span: 2;
 }
+
+header > a.header-button.control.open-item-ddb-importer,
+header > a.header-button.control.ddb-open-url {
+  width: auto;
+  aspect-ratio: auto;
+}
