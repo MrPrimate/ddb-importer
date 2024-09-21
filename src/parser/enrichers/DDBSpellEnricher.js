@@ -191,6 +191,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
 
   NAME_HINTS = {
     "Melf's Acid Arrow": "Acid Arrow",
+    "Bigby's Hand": "Arcane Hand",
+    "Mordenkainen's Sword": "Arcane Sword",
+    "Evard's Black Tentacles": "Black Tentacles",
   };
 
   ACTIVITY_HINTS = {
@@ -210,6 +213,52 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     "Aura of Life": {
       type: "utility",
+    },
+    "Arcane Eye": {
+      type: "summon",
+      noTemplate: true,
+      profileKeys: ["ArcaneEye"],
+    },
+    "Arcane Hand": {
+      type: "summon",
+      noTemplate: true,
+      profileKeys: [
+        "ArcaneHandRed",
+        "ArcaneHandPurple",
+        "ArcaneHandGreen",
+        "ArcaneHandBlue",
+        "ArcaneHandRock",
+        "ArcaneHandRainbow",
+      ],
+      summons: {
+        "match": {
+          "proficiency": false,
+          "attacks": true,
+          "saves": false,
+        },
+        "bonuses": {
+          "ac": "",
+          "hp": "@attributes.hp.max",
+          "attackDamage": "",
+          "saveDamage": "",
+          "healing": "",
+        },
+      },
+    },
+    "Arcane Sword": {
+      type: "summon",
+      noTemplate: true,
+      profileKeys: [
+        "ArcaneSwordSpectralGreen",
+        "ArcaneSwordAstralBlue",
+      ],
+      summons: {
+        "match": {
+          "proficiency": false,
+          "attacks": true,
+          "saves": false,
+        },
+      },
     },
     "Booming Blade": {
       type: "damage",
@@ -272,6 +321,22 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     "Counterspell": {
       type: "save",
+    },
+    "Dancing Lights": {
+      type: "summon",
+      noTemplate: true,
+      profileKeys: [
+        "DancingLightsYellow",
+        "DancingLightsBlueTeal",
+        "DancingLightsGreen",
+        "DancingLightsBlueYellow",
+        "DancingLightsPink",
+        "DancingLightsPurpleGreen",
+        "DancingLightsRed",
+      ],
+      summons: {
+
+      },
     },
     "Darkness": {
       type: "ddbmacro",
@@ -387,6 +452,20 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         name: "Cast",
       },
     },
+    "Mage Hand": {
+      type: "summon",
+      noTemplate: true,
+      profileKeys: [
+        "MageHandRed",
+        "MageHandPurple",
+        "MageHandGreen",
+        "MageHandBlue",
+        "MageHandRock",
+        "MageHandRainbow",
+      ],
+      summons: {
+      },
+    },
     "Magic Weapon": {
       type: "enchant",
       data: {
@@ -449,6 +528,15 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         lookupName: "Circlet of Blasting",
         flatAttack: "5",
       }],
+    },
+    "Shillelagh": {
+      type: "enchant",
+      data: {
+        restrictions: {
+          type: "weapon",
+          allowMagical: true,
+        },
+      },
     },
     "Spirit Guardians": {
       type: "utility",
@@ -2030,6 +2118,63 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       data: {
         "flags.dae.specialDuration": ["turnStart"],
       },
+    },
+    "Shillelagh": () => {
+      return ["Physical", "Spellcasting"].map((type) => {
+        return [
+          { level: 1, denomination: 8 },
+          { level: 5, denomination: 10 },
+          { level: 11, denomination: 12 },
+          { level: 17, number: 2, denomination: 6 },
+        ].map((data) => {
+          const changes = [
+            {
+              key: "name",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: `{} [${this.data.name}]`,
+              priority: 20,
+            },
+            {
+              key: "system.properties",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              value: "mgc",
+              priority: 20,
+            },
+            {
+              key: "system.damage.base.number",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: `${data.number ?? 1}`,
+              priority: 20,
+            },
+            {
+              key: "system.damage.base.denomination",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: `${data.denomination}`,
+              priority: 20,
+            },
+            {
+              key: "system.damage.base.types",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              value: "force",
+              priority: 20,
+            },
+          ];
+          const spellcastingChanges = type === "Spellcasting"
+            ? [{
+              key: "system.ability",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: "spellcasting",
+              priority: 20,
+            }]
+            : [];
+
+          return {
+            name: `Shillelagh (${type}) - Level ${data.level}`,
+            type: "enchant",
+            changes: [...changes, ...spellcastingChanges],
+          };
+        });
+      }).flat();
     },
     "Shield of Faith": {
       type: "spell",

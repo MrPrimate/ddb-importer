@@ -12,9 +12,6 @@ import { absorbElementsEffect } from "./spells/absorbElements.js";
 import { acidArrowEffect } from "./spells/acidArrow.js";
 import { aidEffect } from "./spells/aid.js";
 import { alterSelfEffect } from "./spells/alterSelf.js";
-import { arcaneEyeEffect } from "./spells/arcaneEye.js";
-import { arcaneHandEffect } from "./spells/arcaneHand.js";
-import { arcaneSwordEffect } from "./spells/arcaneSword.js";
 import { armorOfAgathysEffect } from "./spells/armorOfAgathys.js";
 import { auraOfLifeEffect } from "./spells/auraOfLife.js";
 import { banishmentEffect } from "./spells/banishment.js";
@@ -35,8 +32,6 @@ import { contagionEffect } from "./spells/contagion.js";
 import { createBonfireEffect } from "./spells/createBonfire.js";
 import { crownofMadnessEffect } from "./spells/crownofMadness.js";
 import { crownofStarsEffect } from "./spells/crownofStars.js";
-import { dancingLightsEffect } from "./spells/dancingLights.js";
-import { darknessEffect } from "./spells/darkness.js";
 import { darkvisionEffect } from "./spells/darkvision.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
@@ -67,7 +62,6 @@ import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
 import { insectPlagueEffect } from "./spells/insectPlague.js";
 import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
 import { longstriderEffect } from "./spells/longstrider.js";
-import { mageHandEffect } from "./spells/mageHand.js";
 import { mistyStepEffect } from "./spells/mistyStep.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
@@ -78,7 +72,6 @@ import { rayofFrostEffect } from "./spells/rayofFrost.js";
 import { regenerateEffect } from "./spells/regenerate.js";
 import { resilientSphereEffect } from "./spells/resilientSphere.js";
 import { resistanceEffect } from "./spells/resistance.js";
-import { shillelaghEffect } from "./spells/shillelagh.js";
 import { silenceEffect } from "./spells/silence.js";
 import { sleepEffect } from "./spells/sleep.js";
 import { spikeGrowthEffect } from "./spells/spikeGrowth.js";
@@ -104,54 +97,6 @@ export function baseSpellEffect(document, label,
     durationRounds = null, durationTurns = null } = {},
 ) {
   return baseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
-}
-
-
-// eslint-disable-next-line complexity
-async function basicSpellEffects(document) {
-  const name = document.flags.ddbimporter?.originalName ?? document.name;
-
-  logger.debug(`Adding basic effects to ${name}`);
-  switch (name) {
-    case "Arcane Eye": {
-      document = await arcaneEyeEffect(document);
-      break;
-    }
-    case "Bigby's Hand":
-    case "Arcane Hand": {
-      document = await arcaneHandEffect(document);
-      break;
-    }
-    case "Mordenkainen's Sword":
-    case "Arcane Sword": {
-      document = await arcaneSwordEffect(document);
-      break;
-    }
-    case "Evard's Black Tentacles":
-    case "Black Tentacles": {
-      document = await blackTentaclesEffect(document);
-      break;
-    }
-    case "Darkness": {
-      document = await darknessEffect(document);
-      break;
-    }
-    case "Dancing Lights": {
-      document = await dancingLightsEffect(document);
-      break;
-    }
-    case "Mage Hand": {
-      document = await mageHandEffect(document);
-      break;
-    }
-    case "Shillelagh": {
-      document = shillelaghEffect(document);
-      break;
-    }
-    // no default
-  }
-
-  return document;
 }
 
 /**
@@ -203,6 +148,11 @@ async function midiEffectAdjustment(document) {
     }
     case "Beacon of Hope": {
       document = beaconofHopeEffect(document);
+      break;
+    }
+    case "Evard's Black Tentacles":
+    case "Black Tentacles": {
+      document = await blackTentaclesEffect(document);
       break;
     }
     case "Blur": {
@@ -523,7 +473,6 @@ export async function spellEffectAdjustment(document, midiEffects = false) {
   return document;
   // eslint-disable-next-line no-unreachable
   if (!document.effects) document.effects = [];
-  document = await basicSpellEffects(document);
   if (midiEffects) document = await midiEffectAdjustment(document);
   try {
     document = forceItemEffect(document);

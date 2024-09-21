@@ -1,15 +1,8 @@
 import { baseSpellEffect } from "../specialSpells.js";
 import DDBMacros from "../DDBMacros.js";
-import { effectModules, addStatusEffectChange } from "../effects.js";
 
 export async function blackTentaclesEffect(document) {
-  if (!effectModules().activeAurasInstalled || !effectModules().midiQolInstalled) {
-    let effect = baseSpellEffect(document, `${document.name} - Restrained`);
-    addStatusEffectChange({ effect, statusName: "Restrained" });
-    document.effects.push(effect);
-
-    return document;
-  }
+  document.effects = [];
 
   let effect = baseSpellEffect(document, document.name);
   await DDBMacros.setItemMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_ON_ENTRY.file);

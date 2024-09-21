@@ -794,24 +794,6 @@ export default class DDBSummonsManager {
       });
 
     data.profiles = profiles;
-
-    // const summons = {
-    //   "match": match ?? {
-    //     "proficiency": false,
-    //     "attacks": true,
-    //     "saves": false,
-    //   },
-    //   "bonuses": bonuses ?? {
-    //     "ac": "",
-    //     "hp": "",
-    //     "attackDamage": "",
-    //     "saveDamage": "",
-    //     "healing": "",
-    //   },
-    //   "profiles": profiles,
-    //   "prompt": true,
-    // };
-
     activity = foundry.utils.mergeObject(activity, data);
 
   }

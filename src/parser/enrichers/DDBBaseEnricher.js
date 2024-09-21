@@ -262,8 +262,11 @@ export default class DDBBaseEnricher {
 
     let effect;
 
-    const effectHints = this.effect.multiple ?? [this.effect];
-
+    const effectHints = this.effect.multiple
+      ? utils.isFunction(this.effect.multiple)
+        ? this.effect.multiple()
+        : this.effect.multiple
+      : [this.effect];
 
     for (const effectHintFunction of effectHints) {
       const effectHint = utils.isFunction(effectHintFunction)
