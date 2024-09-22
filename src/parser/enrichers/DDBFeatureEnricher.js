@@ -1814,6 +1814,27 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Lay On Hands: Healing Pool": [
+      {
+        constructor: {
+          name: "Lay On Hands Macro",
+          type: "ddbmacro",
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: false,
+          generateRange: false,
+          generateActivation: true,
+          generateDDBMacro: true,
+          ddbMacroOverride: {
+            name: "Lay On Hands Macro",
+            function: "ddb.feat.layOnHands",
+            visible: false,
+            parameters: "",
+          },
+        },
+      },
+    ],
     "Maneuver: Tactical Assessment": [
       {
         constructor: {

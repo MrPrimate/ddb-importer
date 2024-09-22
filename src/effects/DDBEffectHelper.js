@@ -1024,7 +1024,7 @@ export default class DDBEffectHelper {
       speaker: ChatMessage.getSpeaker({ actor }),
       flavor,
       "flags.dnd5e": {
-        targets: CONFIG.Item.documentClass._formatAttackTargets(),
+        targets: dnd5e.utils.getTargetDescriptors(),
         roll: {
           type: "damage",
           itemId,
@@ -1060,7 +1060,7 @@ export default class DDBEffectHelper {
       fastForward,
       messageData: {
         "flags.dnd5e": {
-          targets: CONFIG.Item.documentClass._formatAttackTargets(),
+          targets: dnd5e.utils.getTargetDescriptors(),
           roll: { type: "damage", itemId, itemUuid },
         },
         speaker: ChatMessage.implementation.getSpeaker(),

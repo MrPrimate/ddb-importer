@@ -500,6 +500,12 @@ export default class DDBFeatureActivity {
 
   }
 
+  _generateDDBMacro({ ddbMacroOverride = null } = {}) {
+    if (ddbMacroOverride) {
+      this.data.macro = ddbMacroOverride;
+    }
+  }
+
   _generateRoll({ roll = null } = {}) {
     this.data.roll = roll;
   }
@@ -509,6 +515,7 @@ export default class DDBFeatureActivity {
     generateAttack = false,
     generateConsumption = true,
     generateDamage = false,
+    generateDDBMacro = false,
     generateDescription = false,
     generateDuration = true,
     generateEffects = true,
@@ -531,6 +538,7 @@ export default class DDBFeatureActivity {
     attackOverride = null,
     saveOverride = null,
     rangeOverride = null,
+    ddbMacroOverride = null,
   } = {}) {
 
 
@@ -570,6 +578,8 @@ export default class DDBFeatureActivity {
     if (generateHealing) this._generateHealing({ part: healingPart });
     if (generateRange) this._generateRange({ rangeOverride });
     if (generateTarget) this._generateTarget({ targetOverride, targetSelf, noTemplate });
+    if (generateDDBMacro) this._generateDDBMacro({ ddbMacroOverride });
+
 
     if (generateRoll) this._generateRoll({ roll });
 

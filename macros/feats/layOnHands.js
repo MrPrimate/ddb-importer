@@ -50,7 +50,7 @@ async function healingMessage({actor, hpToAdd, itemId}) {
 }
 
 function removeDiseaseMessage(actor, item) {
-  const targets = CONFIG.Item.documentClass._formatAttackTargets();
+  const targets = dnd5e.utils.getTargetDescriptors();
   const names = targets.length > 0
     ? targets.length > 1
        ? `${targets.map((t) => t.name).join(", ")}, are`
@@ -72,7 +72,7 @@ async function removePoison() {
 }
 
 async function removePoisonMessage(actor, item) {
-  const targets = CONFIG.Item.documentClass._formatAttackTargets();
+  const targets = dnd5e.utils.getTargetDescriptors();
   const names = targets.length > 0
     ? targets.length > 1
         ? `${targets.map((t) => t.name).join(", ")}, are`
