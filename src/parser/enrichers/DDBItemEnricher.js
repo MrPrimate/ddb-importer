@@ -252,6 +252,24 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       type: "save",
       addItemConsume: true,
       targetType: "creature",
+      data: {
+        range: {
+          value: "60",
+          units: "ft",
+        },
+        target: {
+          "affects": {
+            "count": "1",
+            "type": "creature",
+          },
+          "template": {
+            "contiguous": false,
+            "type": "",
+            "size": "",
+            "units": "ft",
+          },
+        },
+      },
     },
     "Potion of Healing": {
       type: "heal",

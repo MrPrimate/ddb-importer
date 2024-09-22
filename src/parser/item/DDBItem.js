@@ -549,7 +549,6 @@ export default class DDBItem {
 
           const viciousWeapon = this.originalName.startsWith("Vicious ");
           if (!viciousWeapon) {
-            console.warn("Restricted attack", {damage, this: this, enricher: this.enricher});
             this.additionalActivities.push({
               name: `Restricted Attack: ${mod.restriction}`,
               options: {
