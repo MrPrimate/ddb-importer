@@ -40,6 +40,7 @@ async function placeTemplate({ origin, targetActor, distance, flag } = {}) {
       distance: template.distance,
       targetActorId: targetActor.id,
       config: lightConfig,
+      isTemplate: true,
     };
     await targetActor.update({
       [`flags.world.${flag}`]: {
@@ -101,6 +102,8 @@ if (targetsToken) {
   const params = {
     targetActorId: targetActor.id,
     config: lightConfig,
+    targetsToken: true,
+    tokenUuids: dnd5e.utils.getTargetDescriptors().map(t => t.uuid),
   };
 
   if (isOn) {

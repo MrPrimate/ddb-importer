@@ -107,29 +107,31 @@ if (parameters.isTemplate) {
     }
   }
 } else if (parameters.targetsToken) {
-  const token = await fromUuid(parameters.tokenUuid);
-  const isApplied = foundry.utils.getProperty(token, `flags.world.${flag}`);
+  for (const tokenUuid of parameters.tokenUuids) {
+    const token = await fromUuid(tokenUuid);
+    const isApplied = foundry.utils.getProperty(token, `flags.world.${flag}`);
 
-  if (isApplied && isApplied.enabled) {
-    await token.update({
-      light: isApplied.backup,
-      [`flags.world.${flag}`]: {
-        enabled: false,
-        backup: null,
-      },
-    });
-  } else {
-    const currentLight = foundry.utils.getProperty(token, "light");
-    console.warn(currentLight);
+    if (isApplied && isApplied.enabled) {
+      await token.update({
+        light: isApplied.backup,
+        [`flags.world.${flag}`]: {
+          enabled: false,
+          backup: null,
+        },
+      });
+    } else {
+      const currentLight = foundry.utils.getProperty(token, "light");
+      console.warn(currentLight);
 
-    const data = {
-      light: parameters.lightConfig ?? {},
-      [`flags.world.${flag}`]: {
-        enabled: true,
-        backup: foundry.utils.deepClone(currentLight),
-      },
-    };
+      const data = {
+        light: parameters.lightConfig ?? {},
+        [`flags.world.${flag}`]: {
+          enabled: true,
+          backup: foundry.utils.deepClone(currentLight),
+        },
+      };
 
-    await token.update(data);
+      await token.update(data);
+    }
   }
 }
