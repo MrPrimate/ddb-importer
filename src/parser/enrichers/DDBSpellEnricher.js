@@ -2119,62 +2119,64 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         "flags.dae.specialDuration": ["turnStart"],
       },
     },
-    "Shillelagh": () => {
-      return ["Physical", "Spellcasting"].map((type) => {
-        return [
-          { level: 1, denomination: 8 },
-          { level: 5, denomination: 10 },
-          { level: 11, denomination: 12 },
-          { level: 17, number: 2, denomination: 6 },
-        ].map((data) => {
-          const changes = [
-            {
-              key: "name",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: `{} [${this.data.name}]`,
-              priority: 20,
-            },
-            {
-              key: "system.properties",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              value: "mgc",
-              priority: 20,
-            },
-            {
-              key: "system.damage.base.number",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: `${data.number ?? 1}`,
-              priority: 20,
-            },
-            {
-              key: "system.damage.base.denomination",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: `${data.denomination}`,
-              priority: 20,
-            },
-            {
-              key: "system.damage.base.types",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              value: "force",
-              priority: 20,
-            },
-          ];
-          const spellcastingChanges = type === "Spellcasting"
-            ? [{
-              key: "system.ability",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: "spellcasting",
-              priority: 20,
-            }]
-            : [];
+    "Shillelagh": {
+      multiple: () => {
+        return ["Physical", "Wisdom", "Charisma", "Dexterity"].map((type) => { // Spellcasting is not supported
+          return [
+            { level: 1, denomination: 8 },
+            { level: 5, denomination: 10 },
+            { level: 11, denomination: 12 },
+            { level: 17, number: 2, denomination: 6 },
+          ].map((data) => {
+            const changes = [
+              {
+                key: "name",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                value: `{} [${this.data.name.split("(")[0]}]`,
+                priority: 20,
+              },
+              {
+                key: "system.properties",
+                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                value: "mgc",
+                priority: 20,
+              },
+              {
+                key: "system.damage.base.number",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                value: `${data.number ?? 1}`,
+                priority: 20,
+              },
+              {
+                key: "system.damage.base.denomination",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                value: `${data.denomination}`,
+                priority: 20,
+              },
+              {
+                key: "system.damage.base.types",
+                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                value: "force",
+                priority: 20,
+              },
+            ];
+            const spellcastingChanges = type !== "Physical"
+              ? [{
+                key: "system.ability",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                value: type.toLowerCase().substr(0, 3),
+                priority: 20,
+              }]
+              : [];
 
-          return {
-            name: `Shillelagh (${type}) - Level ${data.level}`,
-            type: "enchant",
-            changes: [...changes, ...spellcastingChanges],
-          };
-        });
-      }).flat();
+            return {
+              name: `Shillelagh (${type}) - Level ${data.level}`,
+              type: "enchant",
+              changes: [...changes, ...spellcastingChanges],
+            };
+          });
+        }).flat();
+      },
     },
     "Shield of Faith": {
       type: "spell",
