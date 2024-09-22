@@ -9,7 +9,7 @@ import { generateEffects } from "../../effects/effects.js";
 import { parseInfusion } from "./infusions.js";
 import { addRestrictionFlags } from "../../effects/restrictions.js";
 import { midiItemEffects } from "../../effects/specialEquipment.js";
-
+import DDBItemEnricher from "../enrichers/DDBItemEnricher.js";
 
 import DDBItem from "./DDBItem.js";
 import logger from "../../logger.js";
@@ -39,12 +39,16 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
 
+  const enricher = new DDBItemEnricher();
+  await enricher.init();
+
   for (let ddbItem of this.source.ddb.character.inventory) {
 
     const itemParser = new DDBItem({
       characterManager: this,
       ddbItem,
       isCompendium: isCompendiumItem,
+      enricher,
     });
     await itemParser.build();
 

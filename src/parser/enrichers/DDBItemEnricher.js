@@ -90,6 +90,11 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     "Potion of Greater Healing": "Potion of Healing (Greater)",
     "Potion of Superior Healing": "Potion of Healing (Superior)",
     "Potion of Supreme Healing": "Potion of Healing (Supreme)",
+    "Flame Tongue Greatsword": "Flame Tongue",
+    "Flame Tongue Longsword": "Flame Tongue",
+    "Flame Tongue Rapier": "Flame Tongue",
+    "Flame Tongue Scimitar": "Flame Tongue",
+    "Flame Tongue Shortsword": "Flame Tongue",
   };
 
   ACTIVITY_HINTS = {
@@ -194,6 +199,9 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           onSave: "none",
         },
       },
+    },
+    "Flame Tongue": {
+      additionalDamageIncludeBase: true,
     },
     "Gnomengarde Grenade": {
       data: {

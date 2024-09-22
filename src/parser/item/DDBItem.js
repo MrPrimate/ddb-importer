@@ -5,7 +5,6 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
-import DDBItemEnricher from "../enrichers/DDBItemEnricher.js";
 import DDBItemActivity from "./DDBItemActivity.js";
 import MagicItemMaker from "./MagicItemMaker.js";
 import SETTINGS from "../../settings.js";
@@ -74,7 +73,7 @@ export default class DDBItem {
     "Junk": "junk",
   };
 
-  constructor({ characterManager, ddbItem, isCompendium = false } = {}) {
+  constructor({ characterManager, ddbItem, isCompendium = false, enricher = null } = {}) {
 
     this.characterManager = characterManager;
     this.ddbData = characterManager.source.ddb;
@@ -187,9 +186,7 @@ export default class DDBItem {
 
     this.addMagical = false;
 
-    this.enricher = new DDBItemEnricher({
-      ddbParser: this,
-    });
+    this.enricher = enricher;
 
   }
 
@@ -552,12 +549,13 @@ export default class DDBItem {
 
           const viciousWeapon = this.originalName.startsWith("Vicious ");
           if (!viciousWeapon) {
+            console.warn("Restricted attack", {damage, this: this, enricher: this.enricher});
             this.additionalActivities.push({
               name: `Restricted Attack: ${mod.restriction}`,
               options: {
                 generateDamage: true,
                 damageParts: [damage],
-                includeBaseDamage: false,
+                includeBaseDamage: this.enricher.activity?.additionalDamageIncludeBase ?? false,
                 chatFlavor: mod.restriction ?? "",
               },
             });
@@ -1078,7 +1076,9 @@ export default class DDBItem {
 
 
   async #prepare() {
-    await this.enricher.init();
+    this.enricher.load({
+      ddbParser: this,
+    });
     await this.#generateDataStub();
     this.#generateBaseItem();
     this.#generateActionInfo();

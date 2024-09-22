@@ -182,6 +182,54 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       "Mass Suggestion": {
         type: "spell",
       },
+      "Shillelagh": {
+        multiple: () => {
+          return ["Physical", "Spellcasting"].map((type) => {
+            const changes = [
+              {
+                key: "name",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                value: `{} [${this.data.name.split("(")[0]}]`,
+                priority: 20,
+              },
+              {
+                key: "system.properties",
+                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                value: "mgc",
+                priority: 20,
+              },
+              {
+                key: "system.damage.base.number",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                value: "1",
+                priority: 20,
+              },
+              {
+                key: "system.damage.base.denomination",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                value: "8",
+                priority: 20,
+              },
+            ];
+            const spellcastingChanges = type !== "Physical"
+              ? [
+                {
+                  key: "system.ability",
+                  mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                  value: "spellcasting",
+                  priority: 20,
+                },
+              ]
+              : [];
+
+            return {
+              name: `Shillelagh (${type})`,
+              type: "enchant",
+              changes: [...changes, ...spellcastingChanges],
+            };
+          });
+        },
+      },
       "Suggestion": {
         type: "spell",
       },
@@ -2121,7 +2169,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     "Shillelagh": {
       multiple: () => {
-        return ["Physical", "Wisdom", "Charisma", "Dexterity"].map((type) => { // Spellcasting is not supported
+        return ["Physical", "Spellcasting"].map((type) => {
           return [
             { level: 1, denomination: 8 },
             { level: 5, denomination: 10 },
@@ -2161,12 +2209,14 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
               },
             ];
             const spellcastingChanges = type !== "Physical"
-              ? [{
-                key: "system.ability",
-                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-                value: type.toLowerCase().substr(0, 3),
-                priority: 20,
-              }]
+              ? [
+                {
+                  key: "system.ability",
+                  mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                  value: "spellcasting",
+                  priority: 20,
+                },
+              ]
               : [];
 
             return {

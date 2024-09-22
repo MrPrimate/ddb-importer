@@ -2,7 +2,9 @@
 
 - Adds the custom Activity to call DDB Macro functions and World Macros.
 - Darkness spell effect using said activity.
-- Spell Enchantment and Summoning Effects.
+- Spell Enchantment and Summoning Effects. (Arcane Eye, Arcane Hand, Arcane Sword, Dancing Lights, Mage Hand, Shillelagh)
+- Flame Tounge Weapons Damage Fix.
+- Fixed a bug causing some item effects to not apply or parse correctly.
 
 # 6.0.3
 
