@@ -93,7 +93,7 @@ if (isOn && !targetsToken) {
   await placeTemplate({ origin, targetActor, distance, flag });
 } else if (isOff && !targetsToken) {
   // const params = await DAE.getFlag(targetActor, "darknessSpell");
-  DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id, token: token._id }, { args: ["off", flagData.params] });
+  DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, { args: ["off", flagData.params] });
   await targetActor.update({
     [`flags.world.${flag}`]: {
       active: false,
@@ -117,8 +117,8 @@ if (targetsToken) {
   }
 
   if (isOn) {
-    DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id, token: token._id }, { args: ["on", params] });
+    DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, { args: ["on", params] });
   } else if (isOff) {
-    DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id, token: token._id }, { args: ["off", params] });
+    DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, { args: ["off", params] });
   }
 }
