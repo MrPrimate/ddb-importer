@@ -778,6 +778,28 @@ export default class DDBSummonsManager {
     }
   }
 
+  static DEFAULT_SUMMON = {
+    match: {
+      proficiency: false,
+      attacks: false,
+      saves: false,
+    },
+    bonuses: {
+      ac: "",
+      hp: "",
+      attackDamage: "",
+      saveDamage: "",
+      healing: "",
+    },
+    profiles: [],
+    creatureSizes: [],
+    creatureTypes: [],
+    summon: {
+      prompt: true,
+      mode: "",
+    },
+  };
+
   addProfilesToActivity(activity, summonsKeys = [], data = {}) {
 
     const summonActors = this.itemHandler.compendium.index.filter((i) =>
@@ -793,8 +815,11 @@ export default class DDBSummonsManager {
         };
       });
 
-    data.profiles = profiles;
-    activity = foundry.utils.mergeObject(activity, data);
+    const baseData = foundry.utils.mergeObject(
+      foundry.utils.deepClone(DDBSummonsManager.DEFAULT_SUMMON), data);
+
+    baseData.profiles = profiles;
+    activity = foundry.utils.mergeObject(activity, baseData);
 
   }
 
