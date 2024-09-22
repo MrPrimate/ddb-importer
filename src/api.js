@@ -42,6 +42,7 @@ import ChrisPremadesHelper from "./effects/external/ChrisPremadesHelper.js";
 import ExternalAutomations from "./effects/external/ExternalAutomations.js";
 import DDBSimpleMacro from "./effects/DDBSimpleMacro.js";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.js";
+import Crosshairs from "./lib/Crosshairs.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -144,6 +145,7 @@ export function registerApi() {
       MuncherSettings,
       NameMatcher,
       OriginFixer,
+      Crosshairs,
     },
     settings: {
       muncherSettings: MuncherSettings.getMuncherSettings,

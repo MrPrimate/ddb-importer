@@ -50,6 +50,8 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
 
   async _executeDDBMacro(targetUuids = []) {
 
+    console.warn(this)
+
     const ids = {
       effect: null,
       actor: this.actor.uuid,

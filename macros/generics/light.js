@@ -82,6 +82,11 @@ if (isSimpleDDBMacro) {
   }
 }
 
+// const position = await DDBImporter.lib.Crosshairs.aimCrosshair({
+//   drawBoundries: false,
+//   trackDistance: false,
+// });
+
 
 // handle template light
 if (isOn && !targetsToken) {
@@ -106,9 +111,13 @@ if (targetsToken) {
     tokenUuids: dnd5e.utils.getTargetDescriptors().map(t => t.uuid),
   };
 
+  if (params.tokenUuids.length === 0) {
+    ui.notifications.warn('Please target a token to apply the light effect to and try again.');
+    return;
+  }
+
   if (isOn) {
     DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id, token: token._id }, { args: ["on", params] });
-
   } else if (isOff) {
     DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id, token: token._id }, { args: ["off", params] });
   }

@@ -598,6 +598,29 @@ const utils = {
     }
     return i + "th";
   },
+
+  async wait(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  },
+
+  async waitFor(fn, maxIter = 600, iterWaitTime = 100) {
+    let i = 0;
+    const continueWait = (current, max) => {
+      // Negative maxIter will wait forever
+      if (maxIter < 0) return true;
+
+      return current < max;
+    };
+
+    while (!fn(i, i * iterWaitTime) && continueWait(i, maxIter)) {
+      i++;
+      await utils.wait(iterWaitTime);
+    }
+    return i !== maxIter;
+  },
+
 };
 
 export default utils;
