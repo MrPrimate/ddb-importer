@@ -865,113 +865,144 @@ export default class DDBBaseFeature {
   _getSaveActivity() {
     this._generateDamage();
 
-    const saveActivity = new DDBFeatureActivity({
+    const activity = new DDBFeatureActivity({
       type: "save",
       ddbParent: this,
     });
 
-    saveActivity.build({
+    activity.build({
       generateSave: true,
       generateRange: this.documentType !== "weapon",
       generateDamage: this.documentType !== "weapon",
     });
 
-    return saveActivity;
+    return activity;
   }
 
   _getAttackActivity() {
     this._generateDamage();
 
-    const attackActivity = new DDBFeatureActivity({
+    const activity = new DDBFeatureActivity({
       type: "attack",
       ddbParent: this,
     });
 
-    attackActivity.build({
+    activity.build({
       generateAttack: true,
       generateRange: this.documentType !== "weapon",
       generateDamage: this.documentType !== "weapon",
     });
-    return attackActivity;
+    return activity;
   }
 
   _getUtilityActivity() {
     this._generateDamage();
 
-    const utilityActivity = new DDBFeatureActivity({
+    const activity = new DDBFeatureActivity({
       type: "utility",
       ddbParent: this,
     });
 
-    utilityActivity.build({
+    activity.build({
       generateActivation: true,
       generateRange: this.documentType !== "weapon",
       generateDamage: this.documentType !== "weapon",
     });
 
-    return utilityActivity;
+    return activity;
   }
 
   _getHealActivity() {
-    const healActivity = new DDBFeatureActivity({
+    const activity = new DDBFeatureActivity({
       type: "heal",
       ddbParent: this,
     });
 
-    healActivity.build({
+    activity.build({
       generateActivation: true,
       generateDamage: false,
       generateHealing: true,
       generateRange: true,
     });
 
-    return healActivity;
+    return activity;
   }
 
   _getDamageActivity() {
     this._generateDamage();
 
-    const damageActivity = new DDBFeatureActivity({
+    const activity = new DDBFeatureActivity({
       type: "damage",
       ddbParent: this,
     });
 
-    damageActivity.build({
+    activity.build({
       generateAttack: false,
       generateRange: this.documentType !== "weapon",
       generateDamage: this.documentType !== "weapon",
     });
-    return damageActivity;
+    return activity;
   }
 
   _getEnchantActivity() {
     this._generateDamage();
 
-    const enchantActivity = new DDBFeatureActivity({
+    const activity = new DDBFeatureActivity({
       type: "enchant",
       ddbParent: this,
     });
 
-    enchantActivity.build({
+    activity.build({
       generateAttack: false,
       generateRange: true,
       generateDamage: false,
     });
-    return enchantActivity;
+    return activity;
   }
 
   _getSummonActivity() {
-    const summonActivity = new DDBFeatureActivity({
+    const activity = new DDBFeatureActivity({
       type: "summon",
       ddbParent: this,
     });
 
-    summonActivity.build({
+    activity.build({
       generateAttack: false,
       generateRange: true,
       generateDamage: false,
     });
-    return summonActivity;
+    return activity;
+  }
+
+  _getDDBMacroActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const activity = new DDBFeatureActivity({
+      name,
+      type: "ddbmacro",
+      ddbParent: this,
+      nameIdPrefix: "mac",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    activity.build(foundry.utils.mergeObject({
+      generateAttack: false,
+      generateRange: false,
+      generateDamage: false,
+      generateCheck: false,
+      generateActivation: true,
+      generateTarget: true,
+      generateDDBMacro: true,
+      targetOverride: {
+        override: true,
+        template: {
+          contiguous: false,
+          type: "",
+          size: "",
+          units: "ft",
+        },
+        affects: {},
+      },
+    }, options));
+    return activity;
   }
 
   _isCompanionFeature() {
@@ -1058,6 +1089,8 @@ export default class DDBBaseFeature {
         return this._getEnchantActivity();
       case "summon":
         return this._getSummonActivity();
+      case "ddbmacro":
+        return this._getDDBMacroActivity();
       default:
         if (typeFallback) return this.getActivity({ typeOverride: typeFallback });
         return undefined;

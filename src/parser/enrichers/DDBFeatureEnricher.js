@@ -103,9 +103,21 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Psychic Blades: Homing Strikes": "Soul Blades: Homing Strikes",
     "Psychic Blades: Psychic Teleportation": "Soul Blades: Psychic Teleportation",
     "Psychic Teleportation": "Soul Blades: Psychic Teleportation",
+    "Font Of Magic": "Font of Magic",
   };
 
   ACTIVITY_HINTS = {
+    "Arcane Recovery": {
+      type: "ddbmacro",
+      data: {
+        macro: {
+          name: "Arcane Recovery",
+          function: "ddb.feat.arcaneRecovery",
+          visible: false,
+          parameters: "",
+        },
+      },
+    },
     "Arms of the Astral Self (DEX/STR)": {
       data: {
         "attack.ability": "",
@@ -350,6 +362,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Convert Sorcery Points": {
+      type: "ddbmacro",
+      data: {
+        name: "Font of Magic",
+        macro: {
+          name: "Convert Sorcery Points/Spell Slots",
+          function: "ddb.feat.fontOfMagic",
+          visible: false,
+          parameters: "",
+        },
+      },
+    },
     "Cunning Action": {
       type: "utility",
       targetType: "self",
@@ -537,6 +561,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           visible: false,
           formula: "1d10 + @prof",
           name: "Reduce Damage Roll",
+        },
+      },
+    },
+    "Font of Magic": {
+      type: "ddbmacro",
+      data: {
+        name: "Font of Magic",
+        macro: {
+          name: "Convert Sorcery Points/Spell Slots",
+          function: "ddb.feat.fontOfMagic",
+          visible: false,
+          parameters: "",
         },
       },
     },
