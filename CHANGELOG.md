@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.4
 
 - Adds the custom Activity to call DDB Macro functions and World Macros.
 - Darkness spell, Arcane Reovery, Font of Magic, and Lay on Hands effect using said activity.
