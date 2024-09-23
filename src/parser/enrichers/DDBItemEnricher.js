@@ -471,17 +471,17 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     },
     "Potion of Healing (Greater)": {
       data: {
-        "flags.ddbimporter.dndbeyond.alternativeNames": "Potion of Greater Healing",
+        "flags.ddbimporter.dndbeyond.alternativeNames": ["Potion of Greater Healing"],
       },
     },
     "Potion of Healing (Superior)": {
       data: {
-        "flags.ddbimporter.dndbeyond.alternativeNames": "Potion of Superior Healing",
+        "flags.ddbimporter.dndbeyond.alternativeNames": ["Potion of Superior Healing"],
       },
     },
     "Potion of Healing (Supreme)": {
       data: {
-        "flags.ddbimporter.dndbeyond.alternativeNames": "Potion of Supreme Healing",
+        "flags.ddbimporter.dndbeyond.alternativeNames": ["Potion of Supreme Healing"],
       },
     },
     "Warrior's Passkey": {
