@@ -1,3 +1,7 @@
+# Next Up
+
+-If you had a Light Perception already set in your default detection modes when using vision 5e some monsters would fail to parse if they had restricted vision.
+
 # 6.0.4
 
 - Adds the custom Activity to call DDB Macro functions and World Macros.
