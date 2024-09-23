@@ -1,3 +1,8 @@
+# 6.0.6
+
+- Add blind beyond this radius to special field of appropriate monsters.
+- Fix an issue where item importer would crash if using SRD icons.
+
 # 6.0.5
 
 - If you had a Light Perception already set in your default detection modes when using vision 5e some monsters would fail to parse if they had restricted vision.
