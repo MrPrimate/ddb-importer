@@ -58,7 +58,7 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
         }
         // add these modes if supported by vision 5e
         if (vision5eInstalled && blindBeyondMatch) {
-          this.npc.prototypeToken.detectionModes = this.npc.prototypeToken.detectionModes.fitler((m) =>
+          this.npc.prototypeToken.detectionModes = this.npc.prototypeToken.detectionModes.filter((m) =>
             m.id !== "lightPerception",
           );
           this.npc.prototypeToken.detectionModes.push(
@@ -84,6 +84,7 @@ DDBMonster.prototype._generateSenses = function _generateSenses() {
     units: "ft",
     special: "",
   };
+  const special = [];
   const senseLookup = CONFIG.DDB.senses;
 
   this.source.senses.forEach((sense) => {
@@ -92,14 +93,18 @@ DDBMonster.prototype._generateSenses = function _generateSenses() {
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
         senses[senseMatch.name.toLowerCase()] = parseInt(rangeMatch[1]);
+        if (sense.notes.includes("blind beyond this radius")) {
+          special.push(`Blind beyond this radius`);
+        }
       } else {
-        senses.special += `${senseMatch.name}: ${sense.notes}; `;
+        special.push(`${senseMatch.name}: ${sense.notes}`);
       }
     } else {
-      senses.special += `${senseMatch.name}: ${sense.notes}; `;
+      special.push(`${senseMatch.name}: ${sense.notes}`);
     }
   });
 
+  senses.special = special.join("; ");
   this.npc.system.attributes.senses = senses;
 
 };
