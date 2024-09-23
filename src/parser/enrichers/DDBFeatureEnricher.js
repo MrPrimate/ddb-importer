@@ -104,6 +104,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Psychic Blades: Psychic Teleportation": "Soul Blades: Psychic Teleportation",
     "Psychic Teleportation": "Soul Blades: Psychic Teleportation",
     "Font Of Magic": "Font of Magic",
+    "Aura of Inspiration": "Aura of",
+    "Aura of Courage": "Aura of",
+    "Aura Of Inspiration": "Aura of",
+    "Aura Of Courage": "Aura of",
   };
 
   ACTIVITY_HINTS = {
@@ -2368,6 +2372,23 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
   };
 
   EFFECT_HINTS = {
+    "Aura of": () => {
+      return {
+        data: {
+          flags: {
+            "dae.stackable": "noneName",
+            ActiveAuras: {
+              aura: "Allies",
+              radius: `@scale.paladin.${this.data.name.toLowerCase().replaceAll(" ", "-")}`,
+              isAura: true,
+              inactive: false,
+              hidden: false,
+              displayTemp: true,
+            },
+          },
+        },
+      };
+    },
     "Bardic Inspiration": {
       type: "feat",
       options: {

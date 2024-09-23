@@ -37,7 +37,6 @@ import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
 import { mindLinkEffect } from "./feats/mindLink.js";
 import { momentaryStasis } from "./feats/momentaryStasis.js";
 import { pactMagicEffect } from "./feats/pactMagic.js";
-import { paladinDefaultAuraEffect } from "./feats/paladinDefaultAura.js";
 import { patientDefenseEffect } from "./feats/patientDefense.js";
 import { piercerCriticalEffect, piercerRerollEffect } from "./feats/piercer.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
@@ -380,12 +379,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
   switch (name) {
     case "Alert": {
       document = alertEffect(document);
-      break;
-    }
-    // if using active auras add the aura effect
-    case "Aura of Courage":
-    case "Aura of Protection": {
-      document = paladinDefaultAuraEffect(document);
       break;
     }
     case "Aura of Hate": {

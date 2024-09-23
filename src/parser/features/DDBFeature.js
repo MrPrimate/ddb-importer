@@ -22,6 +22,10 @@ export default class DDBFeature extends DDBBaseFeature {
     "Destroy Undead",
   ];
 
+  static LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH = [
+    "Aura of ",
+  ];
+
 
   _init() {
     this.documentType = DDBFeature.DOC_TYPE[this.type];
@@ -108,7 +112,8 @@ export default class DDBFeature extends DDBBaseFeature {
     this._generateFlagHints();
 
     this.excludedScaleUses = DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.ddbDefinition.name)
-      || DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.data.name);
+      || DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.data.name)
+      || DDBFeature.LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH.some((f) => this.originalName.startsWith(f));
 
     this.scaleValueUsesLink = DDBHelper.getScaleValueLink(this.ddbData, this.ddbFeature, true);
 
