@@ -1,7 +1,8 @@
 # Next Up
 
--If you had a Light Perception already set in your default detection modes when using vision 5e some monsters would fail to parse if they had restricted vision.
+- If you had a Light Perception already set in your default detection modes when using vision 5e some monsters would fail to parse if they had restricted vision.
 - Paladin Auras would get their range scale set as uses.
+- Light spell now has a macro to place lights via a template, or apply a light adjustment (or effect if using ATL) to a token.
 
 # 6.0.4
 
