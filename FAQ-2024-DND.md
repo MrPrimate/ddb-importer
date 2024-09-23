@@ -19,15 +19,15 @@ The big issues that might be stopping you upgrading straight away are:
 - Many 2024 character features have not been tested, and there are a number of missing icons for features.
 - If you run a high automation game, many of the automation modules are not yet compatible.
 
-# Can I still import adventures?
+## Can I still import adventures?
 
 Yes, any adventure listed in [the status page](https://docs.ddb.mrprimate.co.uk/status.html) can still be imported.
 
-# When will the PHB 2024 be ready for Adventure Muncher?
+## When will the PHB 2024 be ready for Adventure Muncher?
 
 Hopefully by the end of September.
 
-# I have found a problem/want to make a suggestion
+## I have found a problem/want to make a suggestion
 
 Please add to the [Known Issues list](https://github.com/MrPrimate/ddb-importer/issues/505) or the [#bugs](https://discord.gg/aUQBCa9bv8) channel.
 
