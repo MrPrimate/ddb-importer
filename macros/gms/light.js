@@ -1,6 +1,6 @@
 // This Macro is called by the Darkness spell so players can place walls and lights.
 
-const parameters = args[args.length - 1];
+const parameters = scope.parameters;
 
 const TEMPLATE_DARK_LIGHT = {
   "negative": true,
@@ -55,7 +55,7 @@ const TEMPLATE_LIGHT_LIGHT = {
 };
 
 
-function createLight(cx, cy, radius, darkness = false, flag = "light", overrides = {}) {
+function createTemplateLight({ cx, cy, radius, darkness = false, flag = "light", overrides = {} } = {}) {
 
   let config = darkness
     ? TEMPLATE_DARK_LIGHT
@@ -80,6 +80,7 @@ function createLight(cx, cy, radius, darkness = false, flag = "light", overrides
       },
     },
   };
+  console.warn("temaplate", lightTemplate)
   canvas.scene.createEmbeddedDocuments("AmbientLight", [lightTemplate]);
 }
 
@@ -88,19 +89,26 @@ const flag = parameters.flag ?? "light";
 console.warn("GM CALL", {
   scope,
   parameters,
-  args
 })
 
 if (parameters.isTemplate) {
-  if (args[0] == "on") {
-    createLight(parameters.x, parameters.y, parameters.distance, parameters.darkness, parameters.config ?? {});
+  if (scope.toggle === "on") {
+    createTemplateLight({
+      cx: parameters.x,
+      cy: parameters.y,
+      radius: parameters.distance,
+      darkness: parameters.darkness,
+      overrides: parameters.config ?? {},
+      flag,
+    });
   }
 
-  if (args[0] == "off") {
-    const darkLights = canvas.lighting.placeables.filter((w) =>
+  if (scope.toggle === "off") {
+    const targetLights = canvas.lighting.placeables.filter((w) =>
       foundry.utils.getProperty(w.document, `flags.ddbEffects.${flag}.ActorId`) === parameters.targetActorId,
     );
-    const lightArray = darkLights.map((w) => w.id);
+    console.warn(targetLights)
+    const lightArray = targetLights.map((w) => w.id);
 
     if (lightArray.length > 0) {
       await canvas.scene.deleteEmbeddedDocuments("AmbientLight", lightArray);
@@ -111,7 +119,7 @@ if (parameters.isTemplate) {
     const token = await fromUuid(tokenUuid);
     const isApplied = foundry.utils.getProperty(token, `flags.world.${flag}`);
 
-    if (isApplied && isApplied.enabled) {
+    if (scope.toggle === "off" && isApplied?.enabled) {
       await token.update({
         light: isApplied.backup,
         [`flags.world.${flag}`]: {
@@ -119,7 +127,7 @@ if (parameters.isTemplate) {
           backup: null,
         },
       });
-    } else {
+    } else if (scope.toggle === "on" && !isApplied?.enabled) {
       const currentLight = foundry.utils.getProperty(token, "light");
       console.warn(currentLight);
 

@@ -41,6 +41,7 @@ async function placeTemplate({ origin, targetActor, distance, flag } = {}) {
       targetActorId: targetActor.id,
       config: lightConfig,
       isTemplate: true,
+      flag,
     };
     await targetActor.update({
       [`flags.world.${flag}`]: {
@@ -49,7 +50,7 @@ async function placeTemplate({ origin, targetActor, distance, flag } = {}) {
       },
     });
     canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
-    await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { origin: origin, effect: origin }, { args: ["on", params] });
+    await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { origin: origin, effect: origin }, { toggle: "on", parameters: params });
   });
 
   const measureTemplateData = {
@@ -75,50 +76,49 @@ async function placeTemplate({ origin, targetActor, distance, flag } = {}) {
   measureTemplate.drawPreview();
 }
 
-if (isSimpleDDBMacro) {
-  if (!actor || !item) {
-    console.warn("no actor or item selected", actor, item);
-    return;
-  }
-}
-
 // const position = await DDBImporter.lib.Crosshairs.aimCrosshair({
 //   drawBoundries: false,
 //   trackDistance: false,
 // });
 
+if (isOff) {
 
-// handle template light
-if (isOn && !targetsToken) {
-  await placeTemplate({ origin, targetActor, distance, flag });
-} else if (isOff && !targetsToken) {
-  // const params = await DAE.getFlag(targetActor, "darknessSpell");
-  DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, { args: ["off", flagData.params] });
+  ui.notifications.info("Attempting to remove previous casting effects");
+
+  DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, { toggle: "off", parameters: flagData.params });
   await targetActor.update({
     [`flags.world.${flag}`]: {
       active: false,
       params: null,
     },
   });
-  // await DAE.unsetFlag(targetActor, "darknessSpell");
-}
 
-if (targetsToken) {
-  const params = {
-    targetActorId: targetActor.id,
-    config: lightConfig,
-    targetsToken: true,
-    tokenUuids: dnd5e.utils.getTargetDescriptors().map(t => t.uuid),
-  };
+} else if (isOn) {
 
-  if (params.tokenUuids.length === 0) {
-    ui.notifications.warn('Please target a token to apply the light effect to and try again.');
-    return;
+  if (targetsToken) {
+    const params = {
+      targetActorId: targetActor.id,
+      config: lightConfig,
+      targetsToken: true,
+      flag,
+      tokenUuids: dnd5e.utils.getTargetDescriptors().map(t => t.uuid),
+    };
+
+    if (params.tokenUuids.length === 0) {
+      ui.notifications.warn('Please target a token to apply the light effect to and try again.');
+      return;
+    }
+
+    await targetActor.update({
+      [`flags.world.${flag}`]: {
+        active: true,
+        params,
+      },
+    });
+    DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, { toggle: "on", parameters: params });
+  } else {
+    await placeTemplate({ origin, targetActor, distance, flag });
   }
 
-  if (isOn) {
-    DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, { args: ["on", params] });
-  } else if (isOff) {
-    DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, { args: ["off", params] });
-  }
 }
+

@@ -500,6 +500,18 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         name: "Cast",
       },
     },
+    "Light": {
+      type: "ddbmacro",
+      data: {
+        name: "Place a Light",
+        macro: {
+          name: "Place or Remove Light",
+          function: "ddb.spell.darkness",
+          visible: false,
+          parameters: '{"distance":20,"lightConfig":{"dim":40,"bright":20},"flag":"light"}',
+        },
+      },
+    },
     "Mage Hand": {
       type: "summon",
       noTemplate: true,
