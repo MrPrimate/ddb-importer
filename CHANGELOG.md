@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.5
 
 - If you had a Light Perception already set in your default detection modes when using vision 5e some monsters would fail to parse if they had restricted vision.
 - Paladin Auras would get their range scale set as uses.
