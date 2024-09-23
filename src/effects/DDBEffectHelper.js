@@ -10,10 +10,13 @@ import { addExtraEffects } from "../parser/features/extraEffects.js";
 import { generateOverTimeEffect, damageOverTimeEffect, getOvertimeDamage, getMonsterFeatureDamage } from "./monsterFeatures/overTimeEffect.js";
 import { baseEffect, generateDAEStatusEffectChange, addStatusEffectChange, generateTokenMagicFXChange, generateATLChange } from "./effects.js";
 import ExternalAutomations from "./external/ExternalAutomations.js";
+import Crosshairs from "../lib/Crosshairs.js";
 
 export default class DDBEffectHelper {
 
   static baseEffect = baseEffect;
+
+  static Crosshairs = Crosshairs;
 
   static generateOverTimeEffect = generateOverTimeEffect;
 
@@ -34,6 +37,8 @@ export default class DDBEffectHelper {
   static addToProperties = utils.addToProperties;
 
   static removeFromProperties = utils.removeFromProperties;
+
+  static wait = utils.wait;
 
   /**
    * Generates and applies DDBI effects to a document.
@@ -866,12 +871,6 @@ export default class DDBEffectHelper {
 
   static updateUserTargets(targets) {
     game.user.updateTokenTargets(targets);
-  }
-
-  static async wait(ms) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
   }
 
   static isConditionEffectAppliedAndActive(condition, actor) {

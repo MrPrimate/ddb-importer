@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import { generateATLChange, generateTokenMagicFXChange } from "../../effects/effects.js";
+import { effectModules, generateATLChange, generateTokenMagicFXChange } from "../../effects/effects.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
@@ -1056,6 +1056,83 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Light": () => {
+      const template = {
+        constructor: {
+          name: "Place or Remove Light",
+          type: "ddbmacro",
+        },
+        build: {
+          noeffect: true,
+          generateConsumption: false,
+          generateTarget: true,
+          generateRange: false,
+          generateActivation: true,
+          generateDDBMacro: true,
+          ddbMacroOverride: {
+            name: "Place or Remove Light",
+            function: "ddb.generic.light",
+            visible: false,
+            parameters: '{"distance":20,"isTemplate":true,"lightConfig":{"dim":40,"bright":20},"flag":"light"}',
+          },
+          targetOverride: {
+            override: true,
+            affects: { type: "" },
+            template: {},
+          },
+        },
+      };
+      if (effectModules().atlInstalled) {
+        return [
+          template,
+          {
+            constructor: {
+              name: "Apply Light Effect",
+              type: "utility",
+            },
+            build: {
+              generateConsumption: true,
+              generateTarget: true,
+              generateRange: false,
+              generateActivation: true,
+              targetOverride: {
+                override: true,
+                affects: { type: "" },
+                template: {},
+              },
+            },
+          },
+        ];
+      } else {
+        return [
+          template,
+          {
+            constructor: {
+              name: "Place on Targetted Token or Remove",
+              type: "ddbmacro",
+            },
+            build: {
+              generateConsumption: false,
+              generateTarget: true,
+              generateRange: false,
+              generateActivation: true,
+              generateDDBMacro: true,
+              ddbMacroOverride: {
+                name: "Place on Targetted Token",
+                function: "ddb.generic.light",
+                visible: false,
+                parameters: '{"distance":20,"targetsToken":true,"lightConfig":{"dim":40,"bright":20},"flag":"light"}',
+              },
+              targetOverride: {
+                override: true,
+                affects: { type: "" },
+                template: {},
+              },
+            },
+          },
+        ];
+      }
+    },
     "Prismatic Wall": [
       {
         constructor: {
@@ -1090,13 +1167,11 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           generateSave: true,
           generateTarget: true,
           noSpellslot: true,
+          activationOverride: { type: "spec", condition: "Within 20ft" },
+          durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,
-            affects: {
-              type: "enemy",
-            },
-            activationOverride: { type: "spec", condition: "Within 20ft" },
-            durationOverride: { units: "inst", concentration: false },
+            affects: { type: "creature" },
             template: {},
           },
         },
@@ -1112,13 +1187,11 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           generateSave: true,
           generateTarget: true,
           noSpellslot: true,
+          activationOverride: { type: "spec", condition: "Moving through" },
+          durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,
-            affects: {
-              type: "creature",
-            },
-            activationOverride: { type: "spec", condition: "Moving through" },
-            durationOverride: { units: "inst", concentration: false },
+            affects: { type: "creature" },
             template: {},
           },
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, types: ["fire", "acid", "lightning", "poison", "cold"] })],

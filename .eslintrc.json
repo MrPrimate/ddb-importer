@@ -66,7 +66,11 @@
     "Token": true,
     "TokenDocument": true,
     "ui": true,
-    "VideoHelper": true
+    "VideoHelper": true,
+    "PreciseText": true,
+    "MeasuredTemplate": true,
+    "loadTexture": true,
+    "ControlIcon": true
   },
   "parserOptions": {
     "ecmaVersion": 2022,
