@@ -419,16 +419,20 @@ export default class DDBBaseEnricher {
   addAdditionalActivities(ddbParent) {
     if (!this.additionalActivities || !this.additionalActivityClass) return;
 
-    for (const data of this.additionalActivities) {
-      const activationData = foundry.utils.mergeObject(data.constructor, {
+    const additionalActivities = utils.isFunction(this.additionalActivities)
+      ? this.additionalActivities()
+      : this.additionalActivities;
+
+    for (const activityHint of additionalActivities) {
+      const activationData = foundry.utils.mergeObject(activityHint.constructor, {
         nameIdPrefix: "add",
         nameIdPostfix: `${this.data.system.activities.length ?? 0 + 1}`,
       });
       activationData.ddbParent = ddbParent;
       const activity = new this.additionalActivityClass(activationData);
-      activity.build(data.build);
+      activity.build(activityHint.build);
 
-      if (data.overrides?.addActivityConsume) {
+      if (activityHint.overrides?.addActivityConsume) {
         foundry.utils.setProperty(activity.data, "consumption.targets", [
           {
             type: "activityUses",
@@ -442,7 +446,7 @@ export default class DDBBaseEnricher {
         ]);
       }
 
-      if (data.overrides?.addActivityConsume) {
+      if (activityHint.overrides?.addActivityConsume) {
         foundry.utils.setProperty(activity.data, "consumption.targets", [
           {
             type: "activityUses",

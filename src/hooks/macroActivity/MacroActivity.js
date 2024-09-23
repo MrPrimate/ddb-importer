@@ -1,4 +1,3 @@
-import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
 import MacroActivityData from "./MacroActivityData.js";
 import MacroSheet from "./MacroSheet.js";
@@ -49,8 +48,6 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
   }
 
   async _executeDDBMacro(targetUuids = []) {
-
-    console.warn(this)
 
     const ids = {
       effect: null,
@@ -113,10 +110,10 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
    */
   // eslint-disable-next-line no-unused-vars
   static #executeMacro(event, target, message) {
-    const targets = DDBEffectHelper.getSceneTargets();
+    const targets = Array.from(game.user.targets);
 
     if (this.macro.function.startsWith("ddb.")) {
-      this._executeDDBMacro(targets.map((t) => t.uuid));
+      this._executeDDBMacro(targets.map((t) => t.document.uuid));
     } else {
       this._executeFoundryMacro(targets);
     }

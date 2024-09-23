@@ -1,6 +1,6 @@
 console.warn(scope)
 
-const targetActor = (typeof actor !== 'undefined')
+const parentActor = (typeof actor !== 'undefined')
   ? actor
   : undefined;
 
@@ -30,7 +30,7 @@ console.warn("MACRO CALL", {
   lightConfig,
 })
 
-async function placeTemplate({ origin, targetActor, distance, flag } = {}) {
+async function placeTemplate({ origin, parentActor, distance, flag } = {}) {
   Hooks.once("createMeasuredTemplate", async (template) => {
     let radius = canvas.grid.size * (template.distance / canvas.grid.distance);
     const params = {
@@ -38,12 +38,12 @@ async function placeTemplate({ origin, targetActor, distance, flag } = {}) {
       x: template.x,
       y: template.y,
       distance: template.distance,
-      targetActorId: targetActor.id,
-      config: lightConfig,
+      parentActorId: parentActor.id,
+      lightConfig,
       isTemplate: true,
       flag,
     };
-    await targetActor.update({
+    await parentActor.update({
       [`flags.world.${flag}`]: {
         active: true,
         params,
@@ -64,7 +64,7 @@ async function placeTemplate({ origin, targetActor, distance, flag } = {}) {
     flags: {
       spellEffects: {
         Darkness: {
-          ActorId: targetActor.id,
+          ActorId: parentActor.id,
         },
       },
     },
@@ -72,7 +72,7 @@ async function placeTemplate({ origin, targetActor, distance, flag } = {}) {
 
   const doc = new CONFIG.MeasuredTemplate.documentClass(measureTemplateData, { parent: canvas.scene });
   const measureTemplate = new game.dnd5e.canvas.AbilityTemplate(doc);
-  measureTemplate.actorSheet = targetActor.sheet;
+  measureTemplate.actorSheet = parentActor.sheet;
   measureTemplate.drawPreview();
 }
 
@@ -85,8 +85,11 @@ if (isOff) {
 
   ui.notifications.info("Attempting to remove previous casting effects");
 
-  DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, { toggle: "off", parameters: flagData.params });
-  await targetActor.update({
+  DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, {
+    toggle: "off",
+    parameters: flagData.params,
+  });
+  await parentActor.update({
     [`flags.world.${flag}`]: {
       active: false,
       params: null,
@@ -97,27 +100,30 @@ if (isOff) {
 
   if (targetsToken) {
     const params = {
-      targetActorId: targetActor.id,
-      config: lightConfig,
+      parentActorId: parentActor.id,
+      lightConfig,
       targetsToken: true,
       flag,
-      tokenUuids: dnd5e.utils.getTargetDescriptors().map(t => t.uuid),
+      targetTokenUuids: scope.targets ?? Array.from(game.user.targets).map((t) => t.document.uuid),
     };
 
-    if (params.tokenUuids.length === 0) {
+    if (params.targetTokenUuids.length === 0) {
       ui.notifications.warn('Please target a token to apply the light effect to and try again.');
       return;
     }
 
-    await targetActor.update({
+    await parentActor.update({
       [`flags.world.${flag}`]: {
         active: true,
         params,
       },
     });
-    DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, { toggle: "on", parameters: params });
+    DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light",
+      { actor: actor._id },
+      { toggle: "on", parameters: params },
+    );
   } else {
-    await placeTemplate({ origin, targetActor, distance, flag });
+    await placeTemplate({ origin, parentActor, distance, flag });
   }
 
 }

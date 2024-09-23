@@ -80,7 +80,6 @@ function createTemplateLight({ cx, cy, radius, darkness = false, flag = "light",
       },
     },
   };
-  console.warn("temaplate", lightTemplate)
   canvas.scene.createEmbeddedDocuments("AmbientLight", [lightTemplate]);
 }
 
@@ -98,16 +97,16 @@ if (parameters.isTemplate) {
       cy: parameters.y,
       radius: parameters.distance,
       darkness: parameters.darkness,
-      overrides: parameters.config ?? {},
+      overrides: parameters.lightConfig ?? {},
       flag,
     });
   }
 
   if (scope.toggle === "off") {
     const targetLights = canvas.lighting.placeables.filter((w) =>
-      foundry.utils.getProperty(w.document, `flags.ddbEffects.${flag}.ActorId`) === parameters.targetActorId,
+      foundry.utils.getProperty(w.document, `flags.ddbEffects.${flag}.ActorId`) === parameters.parentActorId,
     );
-    console.warn(targetLights)
+    console.warn(targetLights);
     const lightArray = targetLights.map((w) => w.id);
 
     if (lightArray.length > 0) {
@@ -115,21 +114,19 @@ if (parameters.isTemplate) {
     }
   }
 } else if (parameters.targetsToken) {
-  for (const tokenUuid of parameters.tokenUuids) {
-    const token = await fromUuid(tokenUuid);
-    const isApplied = foundry.utils.getProperty(token, `flags.world.${flag}`);
-
-    if (scope.toggle === "off" && isApplied?.enabled) {
-      await token.update({
-        light: isApplied.backup,
-        [`flags.world.${flag}`]: {
-          enabled: false,
-          backup: null,
-        },
-      });
-    } else if (scope.toggle === "on" && !isApplied?.enabled) {
-      const currentLight = foundry.utils.getProperty(token, "light");
-      console.warn(currentLight);
+  if (scope.toggle === "on") {
+    for (const tokenUuid of parameters.targetTokenUuids) {
+      const token = await fromUuid(tokenUuid);
+      if (!token) {
+        console.warn(`Unable to find token for ${tokenUuid}`, { parameters });
+        continue;
+      }
+      const isApplied = foundry.utils.getProperty(token, `flags.world.${flag}`);
+      if (isApplied?.enabled) {
+        console.info(`Light effect already applied to ${token.name}`);
+        continue;
+      }
+      const currentLight = foundry.utils.getProperty(token, "light").toObject();
 
       const data = {
         light: parameters.lightConfig ?? {},
@@ -140,6 +137,18 @@ if (parameters.isTemplate) {
       };
 
       await token.update(data);
+    }
+  } else if (scope.toggle === "off") {
+    for (const token of canvas.scene.tokens) {
+      const isApplied = foundry.utils.getProperty(token, `flags.world.${flag}`);
+      if (!isApplied || !isApplied.enabled) continue;
+      await token.update({
+        light: isApplied.backup,
+        [`flags.world.${flag}`]: {
+          enabled: false,
+          backup: null,
+        },
+      });
     }
   }
 }
