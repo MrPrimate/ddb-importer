@@ -226,6 +226,9 @@ export default class DDBBaseEnricher {
     if (activityHint.overrideActivation)
       foundry.utils.setProperty(activity, "activation.override", true);
 
+    if (activityHint.midiManualReaction && effectModules().midiQolInstalled)
+      foundry.utils.setProperty(activity, "activation.type", "reactionmanual");
+
     if (foundry.utils.hasProperty(activityHint, "flatAttack")) {
       foundry.utils.setProperty(activity, "attack.bonus", activityHint.flatAttack);
       foundry.utils.setProperty(activity, "attack.flat", true);

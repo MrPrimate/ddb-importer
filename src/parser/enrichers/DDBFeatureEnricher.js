@@ -104,9 +104,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Psychic Blades: Psychic Teleportation": "Soul Blades: Psychic Teleportation",
     "Psychic Teleportation": "Soul Blades: Psychic Teleportation",
     "Font Of Magic": "Font of Magic",
-    "Aura of Inspiration": "Aura of",
+    "Aura of Protection": "Aura of",
     "Aura of Courage": "Aura of",
-    "Aura Of Inspiration": "Aura of",
+    "Aura Of Protection": "Aura of",
     "Aura Of Courage": "Aura of",
   };
 
@@ -1457,6 +1457,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "utility",
       activationType: "reaction",
     },
+    "War Caster": {
+      type: "utility",
+      midiManualReaction: true,
+    },
     "Wild Shape": {
       type: "utility",
       data: {
@@ -2374,6 +2378,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
   EFFECT_HINTS = {
     "Aura of": () => {
       return {
+        noCreate: true,
         data: {
           flags: {
             "dae.stackable": "noneName",
@@ -3039,6 +3044,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         }
         return [];
       },
+    },
+    "War Caster": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "system.attributes.concentration.roll.mode",
+          value: "1",
+          mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+          priority: 10,
+        },
+      ],
     },
   };
 
