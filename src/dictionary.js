@@ -877,8 +877,8 @@ const DICTIONARY = {
     "Lay On Hands: Healing Pool": ["Lay On Hands:"],
     "Channel Divinity": ["Channel Divinity:", "Harness Divine Power", "Sacred Weapon"],
     "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
-    "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen", "Sorcerous Restoration"],
-    "Font of Magic: Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen"],
+    "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen"],
+    "Font of Magic: Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen", "Sorcerous Restoration"],
     "Bardic Inspiration": [
       "Mote of Potential", "Unsettling Words", "Mantle of Inspiration",
       "Cutting Words", "Peerless Skill", "Tales from Beyond", "Blade Flourish",
