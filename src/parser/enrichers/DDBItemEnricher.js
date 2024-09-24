@@ -271,49 +271,57 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Potion of Healing": {
-      type: "heal",
-      addItemConsume: true,
-      activationType: this.is2014 ? "action" : "reaction",
-      targetType: "creature",
-      data: {
-        range: {
-          units: "touch",
+    "Potion of Healing": () => {
+      return {
+        type: "heal",
+        addItemConsume: true,
+        activationType: this.is2014 ? "action" : "bonus",
+        targetType: "creature",
+        data: {
+          range: {
+            units: "touch",
+          },
         },
-      },
+      };
     },
-    "Potion of Healing (Greater)": {
-      type: "heal",
-      addItemConsume: true,
-      activationType: this.is2014 ? "action" : "reaction",
-      targetType: "creature",
-      data: {
-        range: {
-          units: "touch",
+    "Potion of Healing (Greater)": () => {
+      return {
+        type: "heal",
+        addItemConsume: true,
+        activationType: this.is2014 ? "action" : "bonus",
+        targetType: "creature",
+        data: {
+          range: {
+            units: "touch",
+          },
         },
-      },
+      };
     },
-    "Potion of Healing (Superior)": {
-      type: "heal",
-      addItemConsume: true,
-      activationType: this.is2014 ? "action" : "reaction",
-      targetType: "creature",
-      data: {
-        range: {
-          units: "touch",
+    "Potion of Healing (Superior)": () => {
+      return {
+        type: "heal",
+        addItemConsume: true,
+        activationType: this.is2014 ? "action" : "bonus",
+        targetType: "creature",
+        data: {
+          range: {
+            units: "touch",
+          },
         },
-      },
+      };
     },
-    "Potion of Healing (Supreme)": {
-      type: "heal",
-      addItemConsume: true,
-      activationType: this.is2014 ? "action" : "reaction",
-      targetType: "creature",
-      data: {
-        range: {
-          units: "touch",
+    "Potion of Healing (Supreme)": () => {
+      return {
+        type: "heal",
+        addItemConsume: true,
+        activationType: this.is2014 ? "action" : "bonus",
+        targetType: "creature",
+        data: {
+          range: {
+            units: "touch",
+          },
         },
-      },
+      };
     },
     "Stink Bomb": {
       targetType: "creature",

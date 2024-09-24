@@ -1,3 +1,8 @@
+# Next Up
+
+- Eldritch blast would come in import with incorrect range.
+- Items with healing would generate 1 too many activities.
+
 # 6.0.6
 
 - Add blind beyond this radius to special field of appropriate monsters.
@@ -12,7 +17,7 @@
 # 6.0.4
 
 - Adds the custom Activity to call DDB Macro functions and World Macros.
-- Darkness spell, Arcane Reovery, Font of Magic, and Lay on Hands effect using said activity.
+- Darkness spell, Arcane Recovery, Font of Magic, and Lay on Hands effect using said activity.
 - Spell Enchantment and Summoning Effects. (Arcane Eye, Arcane Hand, Arcane Sword, Dancing Lights, Mage Hand, Shillelagh)
 - Flame Tounge Weapons Damage Fix.
 - Fixed a bug causing some item effects to not apply or parse correctly.

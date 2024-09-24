@@ -1625,7 +1625,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     "Eldritch Blast": () => {
       return {
         data: {
-          "system.range.value": this.eldritchBlastRangeAdjustments(this.data?.system?.range?.value ?? 0),
+          "system.range.value": this.eldritchBlastRangeAdjustments(this.ddbParser.spellDefinition?.range?.rangeValue ?? 0),
         },
       };
     },

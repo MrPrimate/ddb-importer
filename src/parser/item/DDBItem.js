@@ -2613,17 +2613,19 @@ export default class DDBItem {
   }
 
   #addHealAdditionalActivities() {
-    for (const part of this.healingParts) {
-      this.additionalActivities.push({
-        type: "heal",
-        options: {
-          generateDamage: false,
-          includeBaseDamage: false,
-          generateHealing: true,
-          healingPart: part,
-        },
-      });
-    }
+    this.healingParts.forEach((part, i) => {
+      if (i !== 0) {
+        this.additionalActivities.push({
+          type: "heal",
+          options: {
+            generateDamage: false,
+            includeBaseDamage: false,
+            generateHealing: true,
+            healingPart: part,
+          },
+        });
+      }
+    });
   }
 
   // eslint-disable-next-line complexity
