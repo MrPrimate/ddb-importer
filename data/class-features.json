@@ -9512,5 +9512,815 @@
   {
     "name": "Innate Sorcery",
     "path": "icons/magic/control/silhouette-hold-change-blue.webp"
-  }
+  },
+  {
+    "name": "Tamed Surge",
+    "path": "icons/magic/control/sihouette-hold-beam-green.webp"
+  },
+  [
+    {
+        "name": "Blessed Strikes: Potent Spellcasting",
+        "path": "icons/magic/life/cross-yellow-green.webp"
+    },
+    {
+        "name": "Divine Order: Protector",
+        "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
+    },
+    {
+        "name": "Divine Order: Thaumaturge",
+        "path": "icons/magic/life/ankh-shadow-green.webp"
+    },
+    {
+        "name": "Blessed Strikes: Divine Strike",
+        "path": "icons/magic/holy/prayer-hands-glowing-yellow.webp"
+    },
+    {
+        "name": "Elemental Fury: Potent Spellcasting",
+        "path": "icons/magic/nature/leaf-rune-glow-green.webp"
+    },
+    {
+        "name": "Elemental Fury: Primal Strike",
+        "path": "icons/magic/nature/hand-weapon-wood-bark-brown.webp"
+    },
+    {
+        "name": "Primal Order: Magician",
+        "path": "icons/magic/nature/leaf-hand-green.webp"
+    },
+    {
+        "name": "Primal Order: Warden",
+        "path": "icons/magic/nature/barrier-shield-wood-vines.webp"
+    },
+    {
+        "name": "Animal Speaker",
+        "path": "icons/creatures/mammals/dog-husky-white-blue.webp"
+    },
+    {
+        "name": "Aspect of the Wilds",
+        "path": "icons/creatures/abilities/cougar-pounce-stalk-black.webp"
+    },
+    {
+        "name": "Battering Roots",
+        "path": "icons/magic/nature/root-vine-beanstolk-green.webp"
+    },
+    {
+        "name": "Branches of the Tree",
+        "path": "icons/magic/nature/root-vine-wood-blue.webp"
+    },
+    {
+        "name": "Brutal Strike",
+        "path": "icons/skills/melee/strike-axe-blood-red.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Improved Brutal Strike (2)",
+        "path": "icons/skills/melee/strike-axe-blood-red.webp"
+    },
+    {
+        "name": "Improved Brutal Strike",
+        "path": "icons/skills/melee/strike-axe-blood-red.webp"
+    },
+    {
+        "name": "Nature Speaker",
+        "path": "icons/creatures/mammals/spirit-deer-herd-blue.webp"
+    },
+    {
+        "name": "Power of the Wilds",
+        "path": "icons/creatures/birds/corvid-flying-wings-purple.webp"
+    },
+    {
+        "name": "Rage of the Gods",
+        "path": "icons/magic/holy/angel-winged-humanoid-blue.webp"
+    },
+    {
+        "name": "Rage of the Wilds",
+        "path": "icons/creatures/abilities/bear-roar-bite-brown.webp"
+    },
+    {
+        "name": "Travel Along the Tree",
+        "path": "icons/magic/nature/tree-spirit-green.webp"
+    },
+    {
+        "name": "Vitality of the Tree",
+        "path": "icons/magic/nature/tree-twisted-glow-yellow.webp"
+    },
+    {
+        "name": "Weapon Mastery",
+        "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
+    },
+    {
+        "name": "Beguiling Magic",
+        "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
+    },
+    {
+        "name": "Dazzling Footwork",
+        "path": "icons/magic/control/debuff-energy-snare-blue.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Inspiring Movement",
+        "path": "icons/skills/movement/feet-winged-boots-brown.webp"
+    },
+    {
+        "name": "Leading Evasion",
+        "path": "icons/skills/movement/feet-winged-boots-glowing-yellow.webp"
+    },
+    {
+        "name": "Magical Discoveries",
+        "path": "icons/sundries/books/book-tooled-eye-gold-red.webp"
+    },
+    {
+        "name": "Tandem Footwork",
+        "path": "icons/skills/movement/arrows-up-trio-red.webp"
+    },
+    {
+        "name": "Words of Creation",
+        "path": "icons/magic/life/heart-area-circle-red-green.webp"
+    },
+    {
+        "name": "Divine Order",
+        "path": "icons/magic/light/explosion-star-glow-blue-purple.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Greater Divine Intervention",
+        "path": "icons/magic/light/beam-rays-yellow-blue.webp"
+    },
+    {
+        "name": "Guided Strike",
+        "path": "icons/magic/control/debuff-energy-hold-blue-yellow.webp"
+    },
+    {
+        "name": "Improved Blessed Strikes",
+        "path": "icons/magic/holy/prayer-hands-glowing-yellow-white.webp"
+    },
+    {
+        "name": "Improved Warding Flare",
+        "path": "icons/magic/light/beam-red-orange.webp"
+    },
+    {
+        "name": "Invoke Duplicity",
+        "path": "icons/magic/defensive/illusion-evasion-echo-purple.webp"
+    },
+    {
+        "name": "Life Domain Spells",
+        "path": "icons/magic/life/cross-flared-green.webp"
+    },
+    {
+        "name": "Light Domain Spells",
+        "path": "icons/magic/symbols/symbol-lightning-bolt.webp"
+    },
+    {
+        "name": "Preserve Life",
+        "path": "icons/magic/life/heart-hand-gold-green.webp"
+    },
+    {
+        "name": "Radiance of the Dawn",
+        "path": "icons/magic/light/beam-strike-village-yellow.webp"
+    },
+    {
+        "name": "Sear Undead",
+        "path": "icons/magic/fire/flame-burning-skeleton-explosion.webp"
+    },
+    {
+        "name": "Trickery Domain Spells",
+        "path": "icons/magic/symbols/circled-gem-pink.webp"
+    },
+    {
+        "name": "Trickster's Transposition",
+        "path": "icons/magic/movement/portal-vortex-orange.webp"
+    },
+    {
+        "name": "War God's Blessing",
+        "path": "icons/magic/control/control-influence-rally-purple.webp"
+    },
+    {
+        "name": "War Domain Spells",
+        "path": "icons/magic/control/buff-flight-wings-runes-red-yellow.webp"
+    },
+    {
+        "name": "Aquatic Affinity",
+        "path": "icons/magic/water/wave-water-blue.webp"
+    },
+    {
+        "name": "Elemental Fury",
+        "path": "icons/magic/symbols/elements-air-earth-fire-water.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Improved Circle Forms",
+        "path": "icons/creatures/abilities/wolf-howl-moon-purple.webp"
+    },
+    {
+        "name": "Improved Elemental Fury",
+        "path": "icons/magic/nature/leaf-arrowheads-glow-green.webp"
+    },
+    {
+        "name": "Circle of the Land Spells",
+        "path": "icons/magic/nature/leaf-glow-triple-green.webp"
+    },
+    {
+        "name": "Land's Aid",
+        "path": "icons/magic/nature/root-vines-grow-brown.webp"
+    },
+    {
+        "name": "Lunar Form",
+        "path": "icons/creatures/abilities/wolf-howl-moon-white.webp"
+    },
+    {
+        "name": "Circle of the Moon Spells",
+        "path": "icons/magic/nature/symbol-moon-stars-white.webp"
+    },
+    {
+        "name": "Moonlight Step",
+        "path": "icons/magic/movement/portal-vortex-orange.webp"
+    },
+    {
+        "name": "Oceanic Gift",
+        "path": "icons/magic/water/wave-water-explosion.webp"
+    },
+    {
+        "name": "Primal Order",
+        "path": "icons/magic/nature/leaf-juggle-humanoid-green.webp"
+    },
+    {
+        "name": "Circle of the Sea Spells",
+        "path": "icons/magic/water/projectiles-ice-explosion.webp"
+    },
+    {
+        "name": "Wild Resurgence",
+        "path": "icons/magic/life/cross-worn-green.webp"
+    },
+    {
+        "name": "Wrath of the Sea",
+        "path": "icons/magic/water/barrier-ice-wall-snow.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Heroic Warrior",
+        "path": "icons/skills/melee/unarmed-punch-fist.webp"
+    },
+    {
+        "name": "Ultimate Combat Superiority",
+        "path": "icons/environment/people/infantry-army.webp"
+    },
+    {
+        "name": "War Bond",
+        "path": "icons/weapons/bows/shortbow-recurve-yellow.webp"
+    },
+    {
+        "name": "Weapon Mastery",
+        "path": "icons/skills/ranged/arrow-flying-spiral-blue.webp"
+    },
+    {
+        "name": "Agonizing Blast",
+        "path": "icons/magic/acid/projectile-stream-bubbles.webp"
+    },
+    {
+        "name": "Armor of Shadows",
+        "path": "icons/magic/control/control-influence-rally-purple.webp"
+    },
+    {
+        "name": "Ascendant Step",
+        "path": "icons/magic/light/explosion-beam-impact-silhouette.webp"
+    },
+    {
+        "name": "Devil's Sight",
+        "path": "icons/magic/perception/silhouette-stealth-shadow.webp"
+    },
+    {
+        "name": "Devouring Blade",
+        "path": "icons/skills/melee/blood-slash-foam-red.webp"
+    },
+    {
+        "name": "Eldritch Mind",
+        "path": "icons/magic/unholy/silhouette-robe-evil-power.webp"
+    },
+    {
+        "name": "Eldritch Smite",
+        "path": "icons/skills/melee/strike-axe-energy-pink.webp"
+    },
+    {
+        "name": "Eldritch Spear",
+        "path": "icons/weapons/ammunition/arrowhead-glowing-blue.webp"
+    },
+    {
+        "name": "Fiendish Vigor",
+        "path": "icons/magic/death/undead-zombie-grave-green.webp"
+    },
+    {
+        "name": "Gaze of Two Minds",
+        "path": "icons/magic/perception/third-eye-blue-red.webp"
+    },
+    {
+        "name": "Gift of the Depths",
+        "path": "icons/magic/water/water-elemental-blue-teeth.webp"
+    },
+    {
+        "name": "Gift of the Protectors",
+        "path": "icons/sundries/books/book-open-red.webp"
+    },
+    {
+        "name": "Investment of the Chain Master",
+        "path": "icons/magic/control/debuff-chains-orb-movement-blue.webp"
+    },
+    {
+        "name": "Lessons of the First Ones",
+        "path": "icons/creatures/magical/humanoid-giant-forest-blue.webp"
+    },
+    {
+        "name": "Lifedrinker",
+        "path": "icons/skills/melee/strike-sword-blood-red.webp"
+    },
+    {
+        "name": "Mask of Many Faces",
+        "path": "icons/creatures/magical/spirit-undead-masked-blue.webp"
+    },
+    {
+        "name": "Master of Myriad Forms",
+        "path": "icons/creatures/abilities/cougar-pounce-stalk-black.webp"
+    },
+    {
+        "name": "Misty Visions",
+        "path": "icons/magic/air/air-burst-spiral-teal-green.webp"
+    },
+    {
+        "name": "One with Shadows",
+        "path": "icons/magic/unholy/silhouette-robe-evil-power.webp"
+    },
+    {
+        "name": "Otherworldly Leap",
+        "path": "icons/creatures/mammals/deer-movement-leap-green.webp"
+    },
+    {
+        "name": "Pact of the Blade",
+        "path": "icons/skills/melee/weapons-crossed-swords-teal.webp"
+    },
+    {
+        "name": "Pact of the Chain",
+        "path": "icons/magic/control/debuff-chains-shackle-movement-red.webp"
+    },
+    {
+        "name": "Pact of the Tome",
+        "path": "icons/sundries/books/book-embossed-jewel-gold-purple.webp"
+    },
+    {
+        "name": "Repelling Blast",
+        "path": "icons/magic/fire/explosion-embers-evade-silhouette.webp"
+    },
+    {
+        "name": "Thirsting Blade",
+        "path": "icons/skills/melee/blade-tip-chipped-blood-red.webp"
+    },
+    {
+        "name": "Visions of Distant Realms",
+        "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
+    },
+    {
+        "name": "Whispers of the Grave",
+        "path": "icons/magic/death/undead-ghost-scream-teal.webp"
+    },
+    {
+        "name": "Witch Sight",
+        "path": "icons/magic/perception/eye-tendrils-web-purple.webp"
+    },
+    {
+        "name": "Careful Spell",
+        "path": "icons/magic/nature/beam-hand-leaves-green.webp"
+    },
+    {
+        "name": "Distant Spell",
+        "path": "icons/skills/targeting/target-strike-triple-blue.webp"
+    },
+    {
+        "name": "Empowered Spell",
+        "path": "icons/magic/air/wind-tornado-wall-blue.webp"
+    },
+    {
+        "name": "Extended Spell",
+        "path": "icons/magic/time/hourglass-brown-orange.webp"
+    },
+    {
+        "name": "Heightened Spell",
+        "path": "icons/magic/fire/explosion-mushroom-nuke-orange.webp"
+    },
+    {
+        "name": "Quickened Spell",
+        "path": "icons/magic/time/clock-stopwatch-white-blue.webp"
+    },
+    {
+        "name": "Seeking Spell",
+        "path": "icons/tools/navigation/compass-brass-blue-red.webp"
+    },
+    {
+        "name": "Subtle Spell",
+        "path": "icons/creatures/slimes/slime-movement-swirling-blue.webp"
+    },
+    {
+        "name": "Transmuted Spell",
+        "path": "icons/magic/symbols/elements-air-earth-fire-water.webp"
+    },
+    {
+        "name": "Twinned Spell",
+        "path": "icons/magic/lightning/bolts-forked-large-orange.webp"
+    },
+    {
+        "name": "Acrobatic Movement",
+        "path": "icons/skills/movement/arrow-upward-yellow.webp"
+    },
+    {
+        "name": "Body and Mind",
+        "path": "icons/magic/perception/third-eye-blue-red.webp"
+    },
+    {
+        "name": "Deflect Attacks",
+        "path": "icons/skills/ranged/arrow-flying-white-blue.webp"
+    },
+    {
+        "name": "Deflect Energy",
+        "path": "icons/magic/defensive/shield-barrier-deflect-teal.webp"
+    },
+    {
+        "name": "Disciplined Survivor",
+        "path": "icons/skills/wounds/injury-pain-body-orange.webp"
+    },
+    {
+        "name": "Elemental Burst",
+        "path": "icons/magic/fire/barrier-wall-explosion-orange.webp"
+    },
+    {
+        "name": "Elemental Epitome",
+        "path": "icons/magic/defensive/shield-barrier-blue.webp"
+    },
+    {
+        "name": "Empowered Strikes",
+        "path": "icons/magic/control/buff-strength-muscle-damage-orange.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Fleet Step",
+        "path": "icons/skills/movement/feet-winged-boots-brown.webp"
+    },
+    {
+        "name": "Heightened Focus",
+        "path": "icons/skills/movement/arrows-up-trio-red.webp"
+    },
+    {
+        "name": "Improved Shadow Step",
+        "path": "icons/magic/unholy/barrier-fire-pink.webp"
+    },
+    {
+        "name": "Manipulate Elements",
+        "path": "icons/magic/air/wind-tornado-funnel-gray.webp"
+    },
+    {
+        "name": "Monk's Focus",
+        "path": "icons/creatures/eyes/human-single-brown.webp"
+    },
+    {
+        "name": "Perfect Focus",
+        "path": "icons/creatures/eyes/humanoid-single-blind.webp"
+    },
+    {
+        "name": "Self-Restoration",
+        "path": "icons/magic/life/cross-worn-green.webp"
+    },
+    {
+        "name": "Stride of the Elements",
+        "path": "icons/creatures/fish/fish-shark-swimming.webp"
+    },
+    {
+        "name": "Superior Defense",
+        "path": "icons/magic/defensive/shield-barrier-blue.webp"
+    },
+    {
+        "name": "Uncanny Metabolism",
+        "path": "icons/magic/life/cross-area-circle-green-white.webp"
+    },
+    {
+        "name": "Bait and Switch",
+        "path": "icons/tools/fishing/hook-simple-bone.webp"
+    },
+    {
+        "name": "Commander's Strike",
+        "path": "icons/skills/targeting/crosshair-bars-yellow.webp"
+    },
+    {
+        "name": "Commanding Presence",
+        "path": "icons/skills/social/diplomacy-handshake.webp"
+    },
+    {
+        "name": "Disarming Attack",
+        "path": "icons/skills/melee/sword-damaged-broken-glow-red.webp"
+    },
+    {
+        "name": "Distracting Strike",
+        "path": "icons/skills/melee/strike-hammer-destructive-orange.webp"
+    },
+    {
+        "name": "Evasive Footwork",
+        "path": "icons/skills/movement/feet-winged-boots-brown.webp"
+    },
+    {
+        "name": "Feinting Attack",
+        "path": "icons/skills/melee/spear-tips-three-purple.webp"
+    },
+    {
+        "name": "Goading Attack",
+        "path": "icons/skills/melee/hand-grip-staff-teal.webp"
+    },
+    {
+        "name": "Lunging Attack",
+        "path": "icons/skills/melee/strike-polearm-light-orange.webp"
+    },
+    {
+        "name": "Maneuvering Attack",
+        "path": "icons/skills/movement/arrow-down-pink.webp"
+    },
+    {
+        "name": "Menacing Attack",
+        "path": "icons/skills/melee/hand-grip-hammer-spiked-blue.webp"
+    },
+    {
+        "name": "Parry",
+        "path": "icons/skills/melee/shield-block-bash-blue.webp"
+    },
+    {
+        "name": "Precision Attack",
+        "path": "icons/skills/targeting/target-strike-triple-blue.webp"
+    },
+    {
+        "name": "Pushing Attack",
+        "path": "icons/skills/melee/strike-hammer-destructive-blue.webp"
+    },
+    {
+        "name": "Rally",
+        "path": "icons/magic/life/cross-worn-green.webp"
+    },
+    {
+        "name": "Riposte",
+        "path": "icons/skills/melee/swords-parry-block-yellow.webp"
+    },
+    {
+        "name": "Sweeping Attack",
+        "path": "icons/skills/melee/blood-slash-foam-red.webp"
+    },
+    {
+        "name": "Tactical Assessment",
+        "path": "icons/creatures/eyes/human-single-blue.webp"
+    },
+    {
+        "name": "Trip Attack",
+        "path": "icons/skills/movement/feet-spurred-boots-brown.webp"
+    },
+    {
+        "name": "Abjure Foes",
+        "path": "icons/magic/holy/projectiles-blades-salvo-yellow.webp"
+    },
+    {
+        "name": "Oath of the Ancients Spells",
+        "path": "icons/magic/symbols/arrowhead-green.webp"
+    },
+    {
+        "name": "Aura Expansion",
+        "path": "icons/magic/defensive/barrier-shield-dome-blue-purple.webp"
+    },
+    {
+        "name": "Oath of Devotion Spells",
+        "path": "icons/magic/symbols/circled-gem-pink.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Oath of Glory Spells",
+        "path": "icons/magic/symbols/rune-sigil-rough-white-teal.webp"
+    },
+    {
+        "name": "Inspiring Smite",
+        "path": "icons/magic/symbols/cog-shield-white-blue.webp"
+    },
+    {
+        "name": "Nature's Wrath",
+        "path": "icons/magic/nature/root-vine-beanstolk-green.webp"
+    },
+    {
+        "name": "Peerless Athlete",
+        "path": "icons/magic/control/buff-strength-muscle-damage-orange.webp"
+    },
+    {
+        "name": "Radiant Strikes",
+        "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+    },
+    {
+        "name": "Restoring Touch",
+        "path": "icons/magic/light/hand-sparks-glow-yellow.webp"
+    },
+    {
+        "name": "Smite of Protection",
+        "path": "icons/magic/symbols/cog-shield-white-blue.webp"
+    },
+    {
+        "name": "Oath of Vengeance Spells",
+        "path": "icons/magic/symbols/rune-sigil-hook-white-red.webp"
+    },
+    {
+        "name": "Vow of Enmity",
+        "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+    },
+    {
+        "name": "Weapon Mastery",
+        "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
+    },
+    {
+        "name": "Assasinate",
+        "path": "icons/skills/melee/blade-tip-chipped-blood-red.webp"
+    },
+    {
+        "name": "Assassin's Tools",
+        "path": "icons/tools/cooking/mortar-herbs-yellow.webp"
+    },
+    {
+        "name": "Psychic Blade",
+        "path": "icons/skills/melee/blade-tips-double-blue.webp"
+    },
+    {
+        "name": "Envenom Weapons",
+        "path": "icons/skills/ranged/arrow-barbed-flying-poisoned-green.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Weapon Mastery",
+        "path": "icons/skills/melee/strike-sword-steel-yellow.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Fey Wanderer Spells",
+        "path": "icons/magic/nature/leaf-rune-glow-green.webp"
+    },
+    {
+        "name": "Precise Hunter",
+        "path": "icons/skills/targeting/target-strike-triple-blue.webp"
+    },
+    {
+        "name": "Relentless Hunter",
+        "path": "icons/skills/wounds/injury-pain-body-orange.webp"
+    },
+    {
+        "name": "Roving",
+        "path": "icons/skills/movement/feet-winged-sandals-tan.webp"
+    },
+    {
+        "name": "Gloom Stalker Spells",
+        "path": "icons/magic/unholy/orb-contained-pink.webp"
+    },
+    {
+        "name": "Superior Hunter's Prey",
+        "path": "icons/skills/ranged/arrows-flying-triple-blue.webp"
+    },
+    {
+        "name": "Tireless",
+        "path": "icons/magic/life/cross-worn-green.webp"
+    },
+    {
+        "name": "Weapon Mastery",
+        "path": "icons/skills/melee/strike-sword-steel-yellow.webp"
+    },
+    {
+        "name": "Arcane Apotheosis",
+        "path": "icons/magic/symbols/circled-gem-pink.webp"
+    },
+    {
+        "name": "Draconic Spells",
+        "path": "icons/magic/symbols/mask-metal-silver-white.webp"
+    },
+    {
+        "name": "Dragon Companion",
+        "path": "icons/creatures/abilities/dragon-fire-breath-orange.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Sorcery Incarnate",
+        "path": "icons/magic/life/cross-area-circle-green-white.webp"
+    },
+    {
+        "name": "Clockwork Spells",
+        "path": "icons/magic/symbols/cog-orange-red.webp"
+    },
+    {
+        "name": "Tamed Surge",
+        "path": "icons/magic/control/sihouette-hold-beam-green.webp"
+    },
+    {
+        "name": "Archfey Spells",
+        "path": "icons/magic/nature/leaf-rune-glow-green.webp"
+    },
+    {
+        "name": "Bewitching Magic",
+        "path": "icons/magic/movement/trail-streak-zigzag-teal.webp"
+    },
+    {
+        "name": "Book of Shadows",
+        "path": "icons/sundries/books/book-black-grey.webp"
+    },
+    {
+        "name": "Clairvoyant Combatant",
+        "path": "icons/magic/perception/orb-crystal-ball-scrying-blue.webp"
+    },
+    {
+        "name": "Contact Patron",
+        "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
+    },
+    {
+        "name": "Eldritch Hex",
+        "path": "icons/magic/symbols/star-yellow.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Fiend Spells",
+        "path": "icons/magic/control/encase-creature-monster-hold.webp"
+    },
+    {
+        "name": "Magical Cunning",
+        "path": "icons/magic/unholy/hands-circle-light-green.webp"
+    },
+    {
+        "name": "Mystic Arcanum",
+        "path": "icons/magic/unholy/hand-marked-pink.webp"
+    },
+    {
+        "name": "Psychic Spells",
+        "path": "icons/magic/unholy/silhouette-robe-evil-power.webp"
+    },
+    {
+        "name": "Celestial Resilience",
+        "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
+    },
+    {
+        "name": "Celestial Spells",
+        "path": "icons/magic/life/ankh-shadow-green.webp"
+    },
+    {
+        "name": "Great Old One Spells",
+        "path": "icons/magic/unholy/silhouette-light-fire-blue.webp"
+    },
+    {
+        "name": "Steps of the Fey",
+        "path": "icons/magic/nature/root-vine-entangle-foot-green.webp"
+    },
+    {
+        "name": "Epic Boon",
+        "path": "icons/magic/control/debuff-energy-hold-green.webp"
+    },
+    {
+        "name": "Improved Illusions",
+        "path": "icons/magic/control/debuff-chains-ropes-net-purple-blue.webp"
+    },
+    {
+        "name": "Memorize Spell",
+        "path": "icons/sundries/documents/blueprint-magical.webp"
+    },
+    {
+        "name": "Phantasmal Creatures",
+        "path": "icons/creatures/mammals/elk-moose-marked-green.webp"
+    },
+    {
+        "name": "Ritual Adept",
+        "path": "icons/sundries/scrolls/scroll-yellow-teal.webp"
+    },
+    {
+        "name": "Scholar",
+        "path": "icons/sundries/books/book-purple-cross.webp"
+    }
+]
 ]
