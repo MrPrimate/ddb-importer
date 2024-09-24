@@ -108,6 +108,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Aura of Courage": "Aura of",
     "Aura Of Protection": "Aura of",
     "Aura Of Courage": "Aura of",
+    "Font of Magic: Convert Spell Slots": "Convert Sorcery Points",
   };
 
   ACTIVITY_HINTS = {
@@ -1299,6 +1300,30 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         img: "systems/dnd5e/icons/svg/trait-saves.svg",
       },
     },
+    "Sorcerous Restoration": {
+      type: "utility",
+      noConsumeTargets: true,
+      additionalConsumtionTargets: [
+        {
+          type: "itemUses",
+          target: "",
+          value: "-(floor(@classes.sorcerer.levels / 2))",
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        },
+        {
+          type: "itemUses",
+          target: "",
+          value: "1",
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        },
+      ],
+    },
     "Starry Form": {
       type: "utility",
       noTemplate: true,
@@ -2185,6 +2210,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "name": "Epic Boon",
       },
     },
+    "Font of Magic: Convert Spell Slots": {
+      data: {
+        name: "Convert Spell Slots",
+      },
+    },
+    "Font of Magic: Sorcery Points": {
+      data: {
+        "name": "Sorcery Points",
+      },
+    },
     "Form of the Beast: Bite": () => {
       return {
         data: {
@@ -2546,6 +2581,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         "duration.rounds": 600,
       },
+    },
+    "Innate Sorcery": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.bonuses.spell.dc",
+          value: "1",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 20,
+        },
+      ],
     },
     "Maneuver: Ambush": {
       type: "feat",

@@ -160,6 +160,10 @@ export default class DDBBaseEnricher {
       ]);
     }
 
+    if (activityHint.additionalConsumtionTargets) {
+      activity.consumption.targets.push(...activityHint.additionalConsumtionTargets);
+    }
+
     if (activityHint.targetType) {
       if (activity.target?.affects)
         foundry.utils.setProperty(activity, "target.affects.type", activityHint.targetType);

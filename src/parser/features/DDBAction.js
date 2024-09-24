@@ -35,6 +35,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Maneuver: Menacing Attack (Dex.",
     "Starry Form:",
     "Sneak Attack:",
+    "Font of Magic: Create",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [
