@@ -9,6 +9,7 @@ import DDBItemActivity from "./DDBItemActivity.js";
 import MagicItemMaker from "./MagicItemMaker.js";
 import SETTINGS from "../../settings.js";
 import { getStatusEffect } from "../../effects/effects.js";
+import Iconizer from "../../lib/Iconizer.js";
 
 export default class DDBItem {
 
@@ -143,7 +144,8 @@ export default class DDBItem {
     this.updateExisting = this.isCompendiumItem
       ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")
       : false;
-    this.spellsAsActivities = game.settings.get(SETTINGS.MODULE_ID, "spells-on-items-as-activities");
+    this.spellsAsActivities = isCompendium
+      || game.settings.get(SETTINGS.MODULE_ID, "spells-on-items-as-activities");
     this._init();
 
     this.data = {};
@@ -2124,7 +2126,8 @@ export default class DDBItem {
   }
 
   // if this.spellsAsActivities
-  #addSpellAsActivity(spell) {
+  // eslint-disable-next-line complexity
+  async #addSpellAsActivity(spell) {
     logger.debug(`Adding spell ${spell.name} to item as activity ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
@@ -2148,18 +2151,20 @@ export default class DDBItem {
     const activityConsumptionTarget = this.isPerSpell
       ? {
         type: "activityUses",
-        value: "1",
+        value: spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed,
         scaling: {},
       }
-      : {
-        type: "itemUses",
-        target: "",
-        value: this.actionInfo.consumptionValue ?? 1,
-        scaling: {
-          mode: "",
-          formula: "",
-        },
-      };
+      : spellData.limitedUse
+        ? {
+          type: "itemUses",
+          target: "",
+          value: spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1,
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        }
+        : null;
 
     const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
       ? { calculation: "", formula: spell.flags.ddbimporter.dndbeyond?.dc }
@@ -2167,7 +2172,8 @@ export default class DDBItem {
 
     const scalingAllowed = !this.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
     const scalingValue = this.data.system.uses.max ?? "";
-    Object.keys(spell.system.activities).forEach((id, i) => {
+    let i = 0;
+    for (const id of Object.keys(spell.system.activities)) {
       const activity = foundry.utils.deepClone(spell.system.activities[id]);
 
       const currentConsumptionValue = activity.consumption?.value;
@@ -2184,7 +2190,11 @@ export default class DDBItem {
       // });
 
       const spellLookupName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName");
-      activity.name = `${spellLookupName ?? spell.name} (${utils.capitalize(activity.type)})`;
+      const currentName = activity.name ? `${activity.name}`.trim() : "";
+      const adjustedName = currentName === ""
+        ? utils.capitalize(activity.type)
+        : currentName;
+      activity.name = `${spellLookupName ?? spell.name} (${adjustedName})`;
       const newId = utils.namedIDStub(spell.name, {
         postfix: i,
         prefix: activity.type,
@@ -2215,10 +2225,21 @@ export default class DDBItem {
       foundry.utils.setProperty(activity, "flags.ddbimporter.spellHintName", spellLookupName);
 
       activity.description.chatFlavor = spell.system.description.value;
-      this.data.system.activities[newId] = activity;
-    });
 
-    foundry.utils.setProperty(this.data, "flags.ddbimporter.activityImgEnrichment", true);
+      if (!activity.img || activity.img === "") {
+        const img = await Iconizer.iconPath({ name: (spellLookupName ?? spell.name), type: "spell" });
+        console.warn(`Spell lookup for ${this.name}`, {
+          spell,
+          spellLookupName,
+          img,
+        })
+        activity.img = img;
+      }
+
+      this.data.system.activities[newId] = activity;
+      i++;
+    }
+
     foundry.utils.setProperty(this.data, "flags.ddbimporter.isItemCharge", !this.isPerSpell);
   }
 
@@ -2241,7 +2262,6 @@ export default class DDBItem {
 
     if (this.isPerSpell) {
       // spells manage charges
-      this.data.system.uses = foundry.utils.deepClone(uses);
       uses.max = spellData.limitedUse.maxNumberConsumed ?? 1;
       uses.recovery.push({
         period: resetType,
@@ -2312,15 +2332,25 @@ export default class DDBItem {
 
   }
 
-  #basicMagicItem() {
+  async #basicMagicItem() {
     // if using magic items modules, these changes are not needed and a seperate
     // function processes the required data later.
     if (game.modules.get("magicitems")?.active
      || game.modules.get("items-with-spells-5e")?.active) return;
     if (!this.ddbDefinition.magic) return;
 
+
+    if (this.isPerSpell) {
+      this.data.system.uses = {
+        spent: 0,
+        recovery: [
+        ],
+        max: null,
+      };
+    }
+
     if (!this.raw.itemSpells) return;
-    this.raw.itemSpells.forEach((spell) => {
+    for (const spell of this.raw.itemSpells) {
       const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
         && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
       if (isItemSpell) {
@@ -2330,10 +2360,10 @@ export default class DDBItem {
         // });
 
         logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
-        if (this.spellsAsActivities) this.#addSpellAsActivity(spell);
+        if (this.spellsAsActivities) await this.#addSpellAsActivity(spell);
         else this.#spellsAsSpells(spell);
       }
-    });
+    }
 
     // const spent = foundry.utils.getProperty(this.data, "system.uses.spent");
     // const activation = this.actionInfo.activation?.type ?? "";
@@ -2385,7 +2415,7 @@ export default class DDBItem {
       // should be one of the last things to do
       await this.#generateDescription();
       DDBHelper.addCustomValues(this.ddbData, this.data);
-      this.#basicMagicItem();
+      await this.#basicMagicItem();
 
       this.enricher.addDocumentOverride();
 

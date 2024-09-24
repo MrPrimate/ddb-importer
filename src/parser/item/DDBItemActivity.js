@@ -51,7 +51,7 @@ export default class DDBItemActivity {
     }
   }
 
-  _generateConsumption({ targetOverrides = null, additionalTargets = null } = {}) {
+  _generateConsumption({ targetOverrides = null, additionalTargets = null, consumeActivity = false } = {}) {
     let targets = [];
     let scaling = false;
 
@@ -61,7 +61,17 @@ export default class DDBItemActivity {
     // "material"
     // "itemUses"
 
-    if (this.actionInfo.consumptionTargets?.length > 0) {
+    if (consumeActivity) {
+      targets.push({
+        type: "activityUses",
+        target: "", // this item
+        value: 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
+    } else if (this.actionInfo.consumptionTargets?.length > 0) {
       targets = this.actionInfo.consumptionTargets;
     } else if (this.actionInfo.consumptionValue) {
       targets.push({
@@ -229,6 +239,7 @@ export default class DDBItemActivity {
     checkOverride = null,
     damageScalingOverride = null,
     onSave = null,
+    consumeActivity = false,
   } = {}) {
 
     // override set to false on object if overriding
@@ -263,7 +274,7 @@ export default class DDBItemActivity {
 
     if (generateActivation) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack({ criticalThreshold });
-    if (generateConsumption) this._generateConsumption({ targetOverrides, additionalTargets });
+    if (generateConsumption) this._generateConsumption({ targetOverrides, additionalTargets, consumeActivity });
     if (generateDescription || chatFlavor) this._generateDescription({ overRide: chatFlavor });
     if (generateDuration) this._generateDuration({ durationOverride });
     if (generateEffects) this._generateEffects();

@@ -726,27 +726,6 @@ ${item.system.description.chat}
     return items;
   }
 
-  async enrichActivityImages(items, spellItems) {
-    const enrichedSpells = await this.enrichCharacterItems(spellItems);
-
-    for (const item of items) {
-      if (!foundry.utils.getProperty(item, "flags.ddbimporter.activityImgEnrichment")) continue;
-
-      for (const id of Object.keys(item.system.activities)) {
-        const activity = item.system.activities[id];
-        const enrichHint = foundry.utils.getProperty(activity, "flags.ddbimporter.spellHintName");
-        if (!enrichHint) continue;
-        const spellMatch = enrichedSpells.find((spell) =>
-          foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") ?? spell.name === enrichHint,
-        );
-        if (!spellMatch) continue;
-        activity.img = spellMatch.img;
-
-        item.system.activities[id] = activity;
-      }
-    }
-  }
-
   async createCharacterItems(items, keepIds) {
     const options = foundry.utils.duplicate(SETTINGS.DISABLE_FOUNDRY_UPGRADE);
     if (keepIds) options["keepId"] = true;
@@ -1091,7 +1070,6 @@ ${item.system.description.chat}
       this.showCurrentTask("Adding DDB generated items");
       logger.debug(`Adding DDB generated items...`, items);
       items = await this.enrichCharacterItems(items);
-      await this.enrichActivityImages(items, this.result.itemSpells);
       await this.importCharacterItems(items, true);
     }
 

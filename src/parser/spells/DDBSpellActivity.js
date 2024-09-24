@@ -58,7 +58,7 @@ export default class DDBSpellActivity {
     this.additionalActivityDamageParts = [];
   }
 
-  _generateConsumption({ consumptionOverride = null, additionalTargets = [] } = {}) {
+  _generateConsumption({ consumptionOverride = null, additionalTargets = [], consumeActivity = false } = {}) {
     if (consumptionOverride) {
       this.data.consumption = consumptionOverride;
       return;
@@ -74,7 +74,18 @@ export default class DDBSpellActivity {
     // "itemUses"
 
     // this is a spell with limited uses such as one granted by a feat
-    if (this.spellData.limitedUse) {
+    if (consumeActivity) {
+      spellSlot = false;
+      targets.push({
+        type: "activityUses",
+        target: "", // this item
+        value: 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
+    } else if (this.spellData.limitedUse) {
       spellSlot = false;
       targets.push({
         type: "itemUses",
@@ -513,6 +524,14 @@ export default class DDBSpellActivity {
     }
   }
 
+  _generateUses({ usesOverride = null } = {}) {
+    if (usesOverride) {
+      this.data.uses = usesOverride;
+      this.data.uses.override = true;
+    }
+  }
+
+  // eslint-disable-next-line complexity
   build({
     generateAttack = false,
     generateConsumption = true,
@@ -540,6 +559,8 @@ export default class DDBSpellActivity {
     img = null,
     partialDamageParts = null,
     ddbMacroOverride = null,
+    usesOverride = null,
+    additionalTargets = [],
   } = {}) {
 
     // logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
@@ -573,7 +594,7 @@ export default class DDBSpellActivity {
 
     if (activationOverride) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack();
-    if (generateConsumption) this._generateConsumption();
+    if (generateConsumption) this._generateConsumption({ additionalTargets });
     if (generateDescription) this._generateDescription(chatFlavor);
     if (generateEffects) this._generateEffects();
     if (generateSave) this._generateSave({ saveOverride });
@@ -585,6 +606,7 @@ export default class DDBSpellActivity {
     if (targetOverride) this._generateTarget({ targetOverride });
     if (durationOverride) this._generateDuration({ durationOverride });
     if (generateDDBMacro) this._generateDDBMacro({ ddbMacroOverride });
+    if (usesOverride) this._generateUses({ usesOverride });
 
     if (generateRoll) this._generateRoll({ roll });
 
