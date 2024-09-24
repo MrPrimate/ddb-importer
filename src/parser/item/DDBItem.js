@@ -2228,11 +2228,6 @@ export default class DDBItem {
 
       if (!activity.img || activity.img === "") {
         const img = await Iconizer.iconPath({ name: (spellLookupName ?? spell.name), type: "spell" });
-        console.warn(`Spell lookup for ${this.name}`, {
-          spell,
-          spellLookupName,
-          img,
-        })
         activity.img = img;
       }
 
