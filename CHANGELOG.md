@@ -1,7 +1,10 @@
-# Next Up
+# 6.0.7
 
 - Eldritch blast would come in import with incorrect range.
 - Items with healing would generate 1 too many activities.
+- A large number of icon enhancements for 2024 class features.
+- 2024 Wild Magic Sorcerer first pass feature refinement.
+- Some work towards allowing spells to be added as activities to items rather than as spells that consume the items uses.
 
 # 6.0.6
 
