@@ -4,6 +4,10 @@ const parentActor = (typeof actor !== 'undefined')
   ? actor
   : undefined;
 
+const caster = (typeof token !== 'undefined')
+  ? token
+  : undefined;
+
 const origin = item;
 
 const scopeParameters = JSON.parse(scope.parameters ?? "\{\}");
@@ -99,15 +103,19 @@ if (isOff) {
 } else if (isOn) {
 
   if (targetsToken) {
+
+    const targetTokenUuids = parameters.targetsSelf && token
+      ? [token.uuid]
+      : scope.targets ?? Array.from(game.user.targets).map((t) => t.document.uuid);
     const params = {
       parentActorId: parentActor.id,
       lightConfig,
       targetsToken: true,
       flag,
-      targetTokenUuids: scope.targets ?? Array.from(game.user.targets).map((t) => t.document.uuid),
+      targetTokenUuids: targetTokenUuids,
     };
 
-    if (params.targetTokenUuids.length === 0) {
+    if (targetTokenUuids.length === 0) {
       ui.notifications.warn('Please target a token to apply the light effect to and try again.');
       return;
     }

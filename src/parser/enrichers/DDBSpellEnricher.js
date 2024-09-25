@@ -454,6 +454,29 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     "Fire Shield": {
       type: "utility",
     },
+    "Fount of Moonlight": () => {
+      if (effectModules().atlInstalled) {
+        return {
+          type: "utility",
+          data: {
+            name: "Cast Spell",
+          },
+        };
+      } else {
+        return {
+          type: "ddbmacro",
+          data: {
+            name: "Cast Spell",
+            macro: {
+              name: "Place Light on Token",
+              function: "ddb.generic.light",
+              visible: false,
+              parameters: '{"distance":20,"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":40,"bright":20},"flag":"light"}',
+            },
+          },
+        };
+      }
+    },
     "Gust of Wind": {
       data: {
         target: {
@@ -1064,6 +1087,44 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           onsave: false,
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 8, type: "radiant", scalingMode: "whole", scalingNumber: 1 })],
           noeffect: true,
+        },
+      },
+    ],
+    "Fount of Moonlight": [
+      {
+        constructor: {
+          name: "Force Blinding Save",
+          type: "save",
+        },
+        build: {
+          generateDamage: false,
+          generateSave: true,
+          noSpellslot: true,
+          rangeOverride: {
+            value: "60",
+            units: "ft",
+            special: "",
+          },
+          targetOverride: {
+            affects: {
+              type: "creature",
+              count: "1",
+
+            },
+            template: {
+              count: "",
+              contiguous: false,
+              type: "",
+              size: "",
+              width: "",
+              height: "",
+              units: "",
+            },
+          },
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
         },
       },
     ],
@@ -2154,6 +2215,44 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           value: "60",
           mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
           priority: 20,
+        },
+      ],
+    },
+    "Fount of Moonlight": {
+      clearAutoEffects: true,
+      multiple: [
+        {
+          name: "Wreathed in Moonlight",
+          type: "spell",
+          data: {
+            "flags.ddbimporter.activityMatch": "Cast Spell",
+          },
+          options: {
+            durationSeconds: 600,
+            durationRounds: 60,
+          },
+          changes: [
+            { key: "system.traits.dr.value", value: "radiant", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 10 },
+            { key: "system.bonuses.mwak.damage", value: "2d6[radiant]", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 10 },
+            { key: "system.bonuses.msak.damage", value: "2d6[radiant]", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 10 },
+          ],
+          atlChanges: [
+            generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'),
+            generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
+            generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+            generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+          ],
+        },
+        {
+          name: "Blinded by Moonlight",
+          type: "spell",
+          data: {
+            "flags.ddbimporter.activityMatch": "Force Blinding Save",
+          },
+          options: {
+            durationSeconds: 6,
+          },
+          statuses: ["Blinded"],
         },
       ],
     },

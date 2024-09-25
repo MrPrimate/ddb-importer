@@ -315,11 +315,14 @@ export default class DDBBaseEnricher {
             effect = baseEffect(this.data, name, effectOptions);
         }
 
-        const duration = DDBEffectHelper.getDuration(this.data.system.description.value, false);
-        if (duration.type) {
-          foundry.utils.setProperty(effect, "duration.seconds", duration.second);
-          foundry.utils.setProperty(effect, "duration.rounds", duration.round);
+        if (!effectOptions.durationSeconds && !effectOptions.durationRounds) {
+          const duration = DDBEffectHelper.getDuration(this.data.system.description.value, false);
+          if (duration.type) {
+            foundry.utils.setProperty(effect, "duration.seconds", duration.second);
+            foundry.utils.setProperty(effect, "duration.rounds", duration.round);
+          }
         }
+
       }
 
       if (effectHint.statuses) {
