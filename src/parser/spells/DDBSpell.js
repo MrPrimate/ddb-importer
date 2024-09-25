@@ -366,13 +366,13 @@ export default class DDBSpell {
       },
     };
 
-    const thickReg = new RegExp(/ (\d*) foot (thick|wide)/);
+    const thickReg = new RegExp(/ (\d*)(?:[ -])foot(?:[ -])(thick|wide)/);
     const thickMatch = thickReg.exec(this.spellDefinition.description);
     if (thickMatch && thickMatch[1] > 5) {
       target.template.width = parseInt(thickMatch[1]);
     }
 
-    const heightReg = new RegExp(/ (\d*) foot (tall|high)/);
+    const heightReg = new RegExp(/ (\d*)(?:[ -])foot(?:[ -])(tall|high)/);
     const heightMatch = heightReg.exec(this.spellDefinition.description);
     if (heightMatch && heightMatch[1] > 5) {
       target.template.height = parseInt(heightMatch[1]);

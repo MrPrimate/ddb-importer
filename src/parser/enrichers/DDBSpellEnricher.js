@@ -1809,6 +1809,22 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         "flags.midiProperties.autoFailFriendly": true,
       },
     },
+    "Powerword Fortify": () => {
+      const data = {
+        data: {
+          "system.description.value": this.data.system.description.value += `
+<details>
+    <summary><strong>Temporary HP Shortcuts</strong></summary>
+    <p>[[/healing 20 type=temphp]]</p>
+    <p>[[/healing 30 type=temphp]]</p>
+    <p>[[/healing 40 type=temphp]]</p>
+    <p>[[/healing 60 type=temphp]]</p>
+    <p>[[/healing 120 type=temphp]]</p>
+</details>`,
+        },
+      };
+      return data;
+    },
     "Primal Savagery": {
       data: {
         "system.range": {
@@ -2298,6 +2314,15 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       noCreate: true,
       data: {
         "flags.dae.specialDuration": ["1Attack", "1Spell"],
+      },
+    },
+    "Jallarzi's Storm of Radiance": {
+      clearAutoEffects: true,
+      type: "space",
+      name: "Within Storm of Radiance",
+      statuses: ["Blinded", "Deafened"],
+      options: {
+        description: "You are unable to cast spells with the verbal component",
       },
     },
     "Light": {
