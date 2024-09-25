@@ -1154,6 +1154,23 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Regain Bardic Inspiration": {
+      type: "utility",
+      addItemConsume: true,
+      itemConsumeValue: "-1",
+      activationType: "special",
+      addConsumptionScalingMax: "9",
+      additionalConsumptionTargets: [
+        {
+          "type": "spellSlots",
+          "value": "1",
+          "target": "1",
+          "scaling": {
+            "mode": "level",
+          },
+        },
+      ],
+    },
     "Relentless": {
       type: "utility",
       activationType: "special",
@@ -1303,7 +1320,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Sorcerous Restoration": {
       type: "utility",
       noConsumeTargets: true,
-      additionalConsumtionTargets: [
+      additionalConsumptionTargets: [
         {
           type: "itemUses",
           target: "",
@@ -1465,6 +1482,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           },
         },
       },
+    },
+    "Superior Inspiration": {
+      type: "utility",
+      addItemConsume: true,
+      itemConsumeValue: "-@abilities.cha.mod",
+      activationType: "special",
     },
     "Surprise Attack": {
       type: "damage",

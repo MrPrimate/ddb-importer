@@ -160,8 +160,15 @@ export default class DDBBaseEnricher {
       ]);
     }
 
-    if (activityHint.additionalConsumtionTargets) {
-      activity.consumption.targets.push(...activityHint.additionalConsumtionTargets);
+    if (activityHint.additionalConsumptionTargets) {
+      activity.consumption.targets.push(...activityHint.additionalConsumptionTargets);
+    }
+
+    if (activityHint.addConsumptionScalingMax) {
+      foundry.utils.setProperty(activity, "consumption.scaling", {
+        allowed: true,
+        max: activityHint.addConsumptionScalingMax,
+      });
     }
 
     if (activityHint.targetType) {

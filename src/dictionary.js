@@ -886,7 +886,7 @@ const DICTIONARY = {
       "Mote of Potential", "Unsettling Words", "Mantle of Inspiration",
       "Cutting Words", "Peerless Skill", "Tales from Beyond", "Blade Flourish",
       "Defensive Flourish", "Slashing Flourish", "Mobile Flourish",
-      "Psychic Blades",
+      "Psychic Blades", "Superior Inspiration", "Regain Bardic Inspiration",
     ],
     "Wild Shape": ["Symbiotic Entity", "Starry Form", "Wild Companion", "Summon Wildfire Spirit"],
     "Grit Points": [

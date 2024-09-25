@@ -10320,5 +10320,9 @@
   {
     "name": "Scholar",
     "path": "icons/sundries/books/book-purple-cross.webp"
+  },
+  {
+    "name": "Regain Bardic Inspiration",
+    "path": "icons/magic/control/buff-flight-wings-runes-blue.webp"
   }
 ]
