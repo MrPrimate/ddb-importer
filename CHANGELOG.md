@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.8
 
 - Some spell icon adjustments
 - Arcane Vigor, Divine Smite, Fount of Moonlight, Sorcerous Burst and True Strike (2024) spell fixes. True Strike and Shillelagh require https://github.com/foundryvtt/dnd5e/pull/4388 to apply the ability change correctly.
