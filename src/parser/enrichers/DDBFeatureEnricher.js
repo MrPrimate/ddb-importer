@@ -1,4 +1,4 @@
-import { generateATLChange, generateUpgradeChange } from "../../effects/effects.js";
+import { effectModules, generateATLChange, generateUpgradeChange } from "../../effects/effects.js";
 import utils from "../../lib/utils.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
@@ -738,6 +738,29 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "creatureTypes": ["monstrosity"],
         "bonuses.hp": "floor(@classes.sorcerer.levels / 2)",
       },
+    },
+    "Imbue Aura of Protection": () => {
+      if (effectModules().atlInstalled) {
+        return {
+          type: "utility",
+          data: {
+            name: "Use/Apply Light",
+          },
+        };
+      } else {
+        return {
+          type: "ddbmacro",
+          data: {
+            name: "Use/Apply Light",
+            macro: {
+              name: "Apply Light",
+              function: "ddb.generic.light",
+              visible: false,
+              parameters: '{"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":0,"bright":20},"flag":"light"}',
+            },
+          },
+        };
+      }
     },
     "Intimidating Presence": {
       // type: "save",
@@ -1906,6 +1929,28 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Imbue Aura of Protection": [
+      {
+        constructor: {
+          name: "Aura Damage",
+          type: "damage",
+        },
+        build: {
+          noeffect: true,
+          generateConsumption: false,
+          generateTarget: false,
+          generateRange: false,
+          generateActivation: true,
+          generateDamage: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@abilities.mod.cha + @prof", types: ["radiant"] })],
+        },
+      },
+    ],
     "Lay On Hands: Healing Pool": [
       {
         constructor: {
@@ -2619,6 +2664,27 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Imbue Aura of Protection": {
+      multiple: () => {
+        let effects = [];
+        if (effectModules().atlInstalled) {
+          effects.push({
+            type: "feat",
+            options: {
+              transfer: false,
+            },
+            data: {
+              "flags.ddbimporter.activityMatch": "Use/Apply Light",
+            },
+            atlChanges: [
+              generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '@scale.paladin.aura-of-protection'),
+              generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+              generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+            ],
+          });
+        }
+      },
+    },
     "Maneuver: Ambush": {
       type: "feat",
       options: {
@@ -2842,6 +2908,21 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           value: "0",
           priority: "60",
+        },
+      ],
+    },
+    "Radiant Strikes": {
+      noActivity: true,
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "system.bonuses.mwak.damage",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: "1d8[radiant]",
+          priority: "20",
         },
       ],
     },

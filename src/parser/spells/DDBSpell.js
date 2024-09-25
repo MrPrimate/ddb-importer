@@ -803,7 +803,9 @@ export default class DDBSpell {
     }
     if (this.spellDefinition.requiresSavingThrow && !this.spellDefinition.requiresAttackRoll) {
       return "save";
-    } else if (this.spellDefinition.tags.includes("Damage") && this.spellDefinition.requiresAttackRoll) {
+    } else if ((this.spellDefinition.tags.includes("Damage") && this.spellDefinition.requiresAttackRoll)
+      || this.spellDefinition.attackType !== null
+    ) {
       return "attack";
     } else if (this.spellDefinition.tags.includes("Damage")) {
       return "damage";
@@ -811,7 +813,9 @@ export default class DDBSpell {
       return "utility"; // e.g. things like lesser restoration
     } else if (this.spellDefinition.tags.includes("Buff")) {
       return "utility";
-    } else if (this.enricher.effect) {
+    } else if (this.spellDefinition.modifiers.some((mod) => mod.type === "damage")) {
+      return "damage";
+    } else if (this.enricher.effect && !this.enricher.effect.noActivity) {
       return "utility";
     }
     // KNOWN_ISSUE_4_0: Enchants like for magic weapon etc

@@ -2580,6 +2580,16 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         generateTokenMagicFXChange("bloom"),
       ],
     },
+    "Shining Smite": {
+      type: "spell",
+      name: "Shedding Light",
+      atlChanges: [
+        generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '5'),
+        generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+        generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+        generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": "pulse", "speed": 3,"intensity": 1}'),
+      ],
+    },
     "Slow": {
       type: "spell",
       changes: [

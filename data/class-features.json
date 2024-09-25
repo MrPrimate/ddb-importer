@@ -10324,5 +10324,9 @@
   {
     "name": "Regain Bardic Inspiration",
     "path": "icons/magic/control/buff-flight-wings-runes-blue.webp"
+  },
+  {
+    "name": "Imbue Aura of Protection",
+    "path": "icons/magic/symbols/runes-star-pentagon-orange-purple.webp"
   }
 ]
