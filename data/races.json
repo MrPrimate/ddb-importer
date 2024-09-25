@@ -1826,7 +1826,7 @@
     "path": "icons/creatures/abilities/wing-batlike-white-blue.webp"
   },
   {
-    "name":"Giant Ancestry",
+    "name": "Giant Ancestry",
     "path": "icons/environment/wilderness/altar-hidden.webp"
   },
   {
@@ -1852,5 +1852,49 @@
   {
     "name": "Tiny Clockwork Device",
     "path": "icons/commodities/tech/cog-bronze.webp"
+  },
+  {
+    "name": "Adrenaline Rush",
+    "path": "icons/skills/movement/arrow-upward-yellow.webp"
+  },
+  {
+    "name": "Cloud's Jaunt",
+    "path": "icons/magic/air/weather-clouds.webp"
+  },
+  {
+    "name": "Fire's Burn",
+    "path": "icons/magic/fire/flame-burning-fist-strike.webp"
+  },
+  {
+    "name": "Frost's Chill",
+    "path": "icons/magic/water/heart-ice-freeze.webp"
+  },
+  {
+    "name": "Hill's Tumble",
+    "path": "icons/magic/control/silhouette-fall-slip-prone.webp"
+  },
+  {
+    "name": "Luck",
+    "path": "icons/commodities/flowers/clover.webp"
+  },
+  {
+    "name": "Otherworldly Presence",
+    "path": "icons/magic/control/silhouette-grow-shrink-tan.webp"
+  },
+  {
+    "name": "Resourceful",
+    "path": "icons/tools/hand/hammer-and-nail.webp"
+  },
+  {
+    "name": "Skillful",
+    "path": "icons/commodities/treasure/medal-ribbon-silver-blue.webp"
+  },
+  {
+    "name": "Storm's Thunder",
+    "path": "icons/magic/lightning/bolts-salvo-clouds-sky.webp"
+  },
+  {
+    "name": "Versatile",
+    "path": "icons/skills/trades/academics-investigation-puzzles.webp"
   }
 ]
