@@ -1809,21 +1809,16 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         "flags.midiProperties.autoFailFriendly": true,
       },
     },
-    "Powerword Fortify": () => {
-      const data = {
-        data: {
-          "system.description.value": this.data.system.description.value += `
+    "Power Word Fortify": {
+      descriptionSuffix: `
 <details>
-    <summary><strong>Temporary HP Shortcuts</strong></summary>
+    <summary><strong>Temp HP Helpers</strong></summary>
     <p>[[/healing 20 type=temphp]]</p>
     <p>[[/healing 30 type=temphp]]</p>
     <p>[[/healing 40 type=temphp]]</p>
     <p>[[/healing 60 type=temphp]]</p>
     <p>[[/healing 120 type=temphp]]</p>
 </details>`,
-        },
-      };
-      return data;
     },
     "Primal Savagery": {
       data: {
@@ -2318,7 +2313,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     "Jallarzi's Storm of Radiance": {
       clearAutoEffects: true,
-      type: "space",
+      type: "spell",
       name: "Within Storm of Radiance",
       statuses: ["Blinded", "Deafened"],
       options: {
