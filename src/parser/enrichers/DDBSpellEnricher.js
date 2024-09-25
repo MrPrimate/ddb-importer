@@ -411,6 +411,17 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       type: "utility",
       targetType: "self",
     },
+    "Divine Smite": {
+      type: "damage",
+      data: {
+        name: "Damage",
+        damage: {
+          parts: [
+            DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 8, type: "radiant", scalingMode: "whole", scalingNumber: 1 }),
+          ],
+        },
+      },
+    },
     "Dragon's Breath": {
       data: {
         damage: {
@@ -1036,6 +1047,23 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
             units: "inst",
             concentration: false,
           },
+        },
+      },
+    ],
+    "Divine Smite": [
+      {
+        constructor: {
+          name: "Damage vs Fiends or Undead",
+          type: "damage",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: false,
+          noSpellslot: true,
+          generateAttack: false,
+          onsave: false,
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 8, type: "radiant", scalingMode: "whole", scalingNumber: 1 })],
+          noeffect: true,
         },
       },
     ],

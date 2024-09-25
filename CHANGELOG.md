@@ -1,7 +1,7 @@
 # Next Up
 
 - Some spell icon adjustments
-- Arcane Vigor, Sorcerous Burst and True Strike (2024) spell fixes. True Strike and Shillelagh require https://github.com/foundryvtt/dnd5e/pull/4388 to apply the ability change correctly.
+- Arcane Vigor, Divine Smite, Sorcerous Burst and True Strike (2024) spell fixes. True Strike and Shillelagh require https://github.com/foundryvtt/dnd5e/pull/4388 to apply the ability change correctly.
 - Spell effect for Faerie fire (requires ATL).
 
 # 6.0.7
