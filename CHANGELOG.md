@@ -5,6 +5,7 @@
 - Spell effect for Faerie fire (requires ATL).
 - High level bards would bring in duplicate Bardic Inspiration Actions. (2024)
 - Wonderous item bags would not import as containers.
+- Some improvements to bard feature processing.
 
 # 6.0.7
 
