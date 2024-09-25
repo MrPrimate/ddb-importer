@@ -141,10 +141,26 @@ export default class CharacterFeatureFactory {
     // return attacksAsFeatures && exists;
   }
 
+  _highestLevelActionFeature(action, type) {
+    const feature = this.ddbData.character.actions[type]
+      .filter((a) => a.name === action.name)
+      .reduce((prev, cur) => {
+        const klass = DDBHelper.findClassByFeatureId(this.ddbData, cur.componentId);
+        const feature = klass.classFeatures.find((f) => f.definition.id === cur.componentId);
+        if (feature.definition.requiredLevel > klass.level) return prev;
+        return prev > feature.definition.requiredLevel ? prev : feature;
+      }, { componentId: null, definition: { requiredLevel: 0 } });
+
+    return feature;
+  }
+
   async _generateOtherActions() {
     // do class options here have a class id, needed for optional class features
     const classActions = this.ddbData.character.actions.class.filter((action) =>
-      DDBHelper.findClassByFeatureId(this.ddbData, action.componentId),
+      DDBHelper.findClassByFeatureId(this.ddbData, action.componentId)
+      && (!DDBAction.HIGHEST_LEVEL_ONLY_ACTION_MATCH.includes(action.name)
+        || (DDBAction.HIGHEST_LEVEL_ONLY_ACTION_MATCH.includes(action.name)
+        && this._highestLevelActionFeature(action, "class")?.definition?.id === action.componentId)),
     );
 
     const actionsToBuild = [

@@ -43,6 +43,10 @@ export default class DDBAction extends DDBBaseFeature {
   static SKIPPED_2014_ONLY_ACTIONS = [
   ];
 
+  static HIGHEST_LEVEL_ONLY_ACTION_MATCH = [
+    "Bardic Inspiration",
+  ];
+
   _init() {
     this.isAction = true;
     logger.debug(`Generating Action ${this.ddbDefinition.name}`);

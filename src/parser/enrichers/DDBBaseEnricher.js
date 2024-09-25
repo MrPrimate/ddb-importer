@@ -475,8 +475,6 @@ export default class DDBBaseEnricher {
         ]);
       }
 
-      console.warn(activity);
-
       this.data.system.activities[activity.data._id] = activity.data;
       i++;
     }
