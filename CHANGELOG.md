@@ -3,7 +3,8 @@
 - Some spell icon adjustments
 - Arcane Vigor, Divine Smite, Fount of Moonlight, Sorcerous Burst and True Strike (2024) spell fixes. True Strike and Shillelagh require https://github.com/foundryvtt/dnd5e/pull/4388 to apply the ability change correctly.
 - Spell effect for Faerie fire (requires ATL).
-- High level bards would bring in duplicate Bardic Inspiration Actions.
+- High level bards would bring in duplicate Bardic Inspiration Actions. (2024)
+- Wonderous item bags would not import as containers.
 
 # 6.0.7
 

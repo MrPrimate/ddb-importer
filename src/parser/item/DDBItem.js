@@ -887,7 +887,7 @@ export default class DDBItem {
             this.addMagical = true;
           }
         } else {
-          this.documentType = "equipment";
+          this.documentType = this.isContainer ? "container" : "equipment";
           this.systemType.value = "trinket";
           this.parsingType = "wonderous";
         }
