@@ -146,7 +146,8 @@
   {
     "name": "Infusion: Repulsion Shield",
     "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
-  },{
+  },
+  {
     "name": "Repulsion Shield",
     "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
   },
@@ -209,5 +210,17 @@
   {
     "name": "Psychic Blades",
     "path": "icons/skills/melee/strike-sword-blood-red.webp"
+  },
+  {
+    "name": "Blessed Warrior",
+    "path": "icons/skills/melee/sword-winged-holy-orange.webp"
+  },
+  {
+    "name": "Druidic Warrior",
+    "path": "icons/magic/nature/root-vines-face-glow-green.webp"
+  },
+  {
+    "name": "Martial Weapon Training",
+    "path": "icons/weapons/axes/axe-battle-heavy-jagged.webp"
   }
 ]

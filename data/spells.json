@@ -2158,5 +2158,61 @@
   {
     "name": "Freedom of the Waves",
     "path": "icons/magic/control/debuff-energy-hold-teal-blue.webp"
+  },
+  {
+    "name": "Arcane Vigor",
+    "path": "icons/magic/life/cross-embers-glow-yellow-purple.webp"
+  },
+  {
+    "name": "Befuddlement",
+    "path": "icons/skills/trades/academics-investigation-puzzles.webp"
+  },
+  {
+    "name": "Divine Smite",
+    "path": "icons/skills/melee/strike-flail-destructive-yellow.webp"
+  },
+  {
+    "name": "Elementalism",
+    "path": "icons/magic/nature/leaf-hand-green.webp"
+  },
+  {
+    "name": "Fount of Moonlight",
+    "path": "icons/magic/nature/symbol-moon-stars-white.webp"
+  },
+  {
+    "name": "Jallarzi's Storm of Radiance",
+    "path": "icons/magic/lightning/bolts-salvo-clouds-sky.webp"
+  },
+  {
+    "name": "Power Word Fortify",
+    "path": "icons/magic/defensive/shield-barrier-glowing-blue.webp"
+  },
+  {
+    "name": "Shining Smite",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-yellow.webp"
+  },
+  {
+    "name": "Sorcerous Burst",
+    "path": "icons/magic/lightning/bolt-strike-embers-teal.webp"
+  },
+  {
+    "name": "Starry Wisp",
+    "path": "icons/magic/light/orb-hand-green.webp"
+  },
+  {
+    "name": "Summon Dragon",
+    "path": "icons/creatures/abilities/dragon-breath-purple.webp"
+  },
+  {
+    "name": "Tasha's Bubbling Cauldron",
+    "path": "icons/skills/toxins/cauldron-pot-bubbles-green.webp"
+  },
+  {
+    "name": "Yolande's Regal Presence",
+    "path": "icons/magic/control/control-influence-crown-yellow.webp"
+  },
+  {
+    "name": "Magical Berries",
+    "path": "icons/consumables/fruit/lingonberry-cluster-red.webp"
   }
 ]
