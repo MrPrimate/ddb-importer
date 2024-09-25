@@ -349,6 +349,10 @@ export default class DDBBaseEnricher {
         effect.changes.push(...effectHint.tokenMagicChanges);
       }
 
+      if (effectHint.midiChanges && effectModules().midiQolInstalled) {
+        effect.changes.push(...effectHint.midiChanges);
+      }
+
       if (effectHint.data) {
         effect = foundry.utils.mergeObject(effect, effectHint.data);
       }

@@ -39,7 +39,6 @@ import { enlargeReduceEffect } from "./spells/enlargeReduce.js";
 import { ensnaringStrikeEffect } from "./spells/ensnaringStrike.js";
 import { entangleEffect } from "./spells/entangle.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
-import { faerieFireEffect } from "./spells/faerieFire.js";
 import { fireShieldEffect } from "./spells/fireShield.js";
 import { flameBladeEffect } from "./spells/flameBlade.js";
 import { fleshtoStoneEffect } from "./spells/fleshtoStone.js";
@@ -245,10 +244,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Eyebite": {
       document = await eyebiteEffect(document);
-      break;
-    }
-    case "Faerie Fire": {
-      document = await faerieFireEffect(document);
       break;
     }
     case "Feather Fall": {

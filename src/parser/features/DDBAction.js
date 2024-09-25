@@ -19,6 +19,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Psychic Blades: Attack (STR)",
     "Summon Wildfire Spirit: Command",
     "Wild Magic Surge table",
+    "Reactive Spell",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

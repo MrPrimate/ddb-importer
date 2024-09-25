@@ -114,6 +114,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           },
         },
       },
+      "True Strike": {},
     },
     ADDITIONAL_ACTIVITIES: {
       "Hunter's Mark": [
@@ -150,6 +151,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           },
         },
       ],
+      "True Strike": {},
     },
     DOCUMENT_OVERRIDES: {},
     EFFECT_HINTS: {
@@ -233,6 +235,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       "Suggestion": {
         type: "spell",
       },
+      "True Strike": {},
     },
     DOCUMENT_STUB: {},
   };
@@ -586,6 +589,16 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Sorcerous Burst": {
+      type: "attack",
+      data: {
+        damage: {
+          parts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "1d8x@mod=8", types: ["acid", "cold", "fire", "lightning", "poison", "psychic", "thunder"], scalingMode: "whole", scalingNumber: "1" }),
+          ],
+        },
+      },
+    },
     "Spirit Guardians": {
       type: "utility",
       data: {
@@ -642,6 +655,16 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
             size: "10",
             units: "ft",
           },
+        },
+      },
+    },
+    "True Strike": {
+      type: "enchant",
+      data: {
+        name: "Enchant Weapon",
+        restrictions: {
+          type: "weapon",
+          allowMagical: true,
         },
       },
     },
@@ -1964,6 +1987,57 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         });
       }).flat(),
     },
+    "Faerie Fire": {
+      multiple: () => {
+        return [
+          { colour: "Blue", hex: "#5ab9e2" },
+          { colour: "Green", hex: "#55d553" },
+          { colour: "Violet", hex: "#844ec6" },
+        ].map((data) => {
+          return {
+            name: `${data.colour} Light`,
+            type: "spell",
+            midiChanges: [
+              {
+                key: "flags.midi-qol.grants.advantage.attack.all",
+                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                value: "1",
+                priority: "20",
+              },
+            ],
+            atlChanges: [
+              {
+                key: "ATL.light.color",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                priority: 30,
+                value: data.hex,
+              },
+              {
+                key: "ATL.light.alpha",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                priority: 30,
+                value: "0.65",
+              },
+              {
+                key: "ATL.light.dim",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                priority: 30,
+                value: "10",
+              },
+              {
+                key: "ATL.light.animation",
+                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+                priority: 30,
+                value: '{"type": "pulse","speed": 1,"intensity": 3}',
+              },
+            ],
+            tokenMagicChanges: [
+              generateTokenMagicFXChange("glow"),
+            ],
+          };
+        });
+      },
+    },
     "Feeblemind": {
       type: "spell",
       changes: [
@@ -2367,6 +2441,29 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "True Strike": {
+      multiple: [
+        { type: "Melee", img: "icons/skills/melee/strike-sword-slashing-red.webp" },
+        { type: "Ranged", img: "icons/skills/ranged/arrow-strike-glowing-teal.webp" },
+      ].map((data) => {
+        return {
+          type: "enchant",
+          name: `${data.type} Weapon`,
+          options: {
+            description: `This weapon is infused with True Strike`,
+          },
+          changes: [
+            { key: "name", value: "{} (True Strike)", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 20 },
+            { key: "system.damage.base.types", value: "radiant", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 20 },
+            { key: "system.damage.base.bonus", value: "(floor((@details.level + 1) / 6))d6[radiant]", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 20 },
+            { key: "system.ability", value: "spellcasting", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 20 },
+          ],
+          data: {
+            img: data.img,
+          },
+        };
+      }),
+    },
     "Wall of Light": {
       type: "spell",
       name: "Blinded",
@@ -2383,7 +2480,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       changes: [
         { key: "system.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "+ 1", priority: "20" },
         { key: "system.traits.dr.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "1", priority: "20" },
-        { key: "system.traits.dr.all", value: "", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
+        { key: "system.traits.dr.all", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
         { key: "system.traits.dr.value", value: "acid", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
         { key: "system.traits.dr.value", value: "bludgeoning", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
         { key: "system.traits.dr.value", value: "cold", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
