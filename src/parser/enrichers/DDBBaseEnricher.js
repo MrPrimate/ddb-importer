@@ -434,11 +434,12 @@ export default class DDBBaseEnricher {
       ? this.additionalActivities()
       : this.additionalActivities;
 
+    let i = this.data.system.activities.length ?? 0 + 1;
     for (const activityHint of additionalActivities) {
-      const activationData = foundry.utils.mergeObject(activityHint.constructor, {
+      const activationData = foundry.utils.mergeObject({
         nameIdPrefix: "add",
-        nameIdPostfix: `${this.data.system.activities.length ?? 0 + 1}`,
-      });
+        nameIdPostfix: `${i}`,
+      }, activityHint.constructor);
       activationData.ddbParent = ddbParent;
       const activity = new this.additionalActivityClass(activationData);
       activity.build(activityHint.build);
@@ -471,7 +472,10 @@ export default class DDBBaseEnricher {
         ]);
       }
 
+      console.warn(activity);
+
       this.data.system.activities[activity.data._id] = activity.data;
+      i++;
     }
   }
 

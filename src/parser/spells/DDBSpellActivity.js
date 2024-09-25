@@ -39,11 +39,11 @@ export default class DDBSpellActivity {
     this.spellData = ddbParent.spellData;
     this.spellDefinition = this.spellData.definition;
 
-    this._init();
-    this._generateDataStub();
-
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
+
+    this._init();
+    this._generateDataStub();
 
     this.spellEffects = spellEffects ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.addSpellEffects");
     this.damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !this.spellEffects;
@@ -561,6 +561,8 @@ export default class DDBSpellActivity {
     ddbMacroOverride = null,
     usesOverride = null,
     additionalTargets = [],
+    consumptionOverride = null,
+    consumeActivity = false,
   } = {}) {
 
     // logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
@@ -594,7 +596,7 @@ export default class DDBSpellActivity {
 
     if (activationOverride) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack();
-    if (generateConsumption) this._generateConsumption({ additionalTargets });
+    if (generateConsumption) this._generateConsumption({ consumptionOverride, additionalTargets, consumeActivity });
     if (generateDescription) this._generateDescription(chatFlavor);
     if (generateEffects) this._generateEffects();
     if (generateSave) this._generateSave({ saveOverride });
