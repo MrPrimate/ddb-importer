@@ -674,6 +674,31 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Tasha's Bubbling Cauldron": {
+      type: "summon",
+      noTemplate: true,
+      profileKeys: [
+        "TashasBubblingCauldron",
+      ],
+      addItemConsume: true,
+      itemConsumeValue: "-@attributes.spelldc",
+      data: {
+        name: "Create Cauldron",
+        img: "systems/dnd5e/icons/svg/activity/summon.svg",
+        target: {
+          override: true,
+          template: {
+            count: "1",
+            contiguous: false,
+            type: "",
+            size: "",
+            height: "",
+            units: "",
+          },
+          affects: {},
+        },
+      },
+    },
     "Tidal Wave": {
       type: "save",
     },
@@ -1449,6 +1474,24 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Tasha's Bubbling Cauldron": [
+      {
+        constructor: {
+          name: "Withdraw Potion",
+          type: "utility",
+        },
+        build: {
+          img: "systems/dnd5e/icons/svg/ink-pot.svg",
+          generateDamage: true,
+          generateConsumption: true,
+          consumeItem: true,
+          noSpellslot: true,
+          generateAttack: false,
+          noeffect: true,
+          activationOverride: { type: "bonus", condition: "" },
+        },
+      },
+    ],
     "Toll the Dead": [
       {
         constructor: {
@@ -1519,13 +1562,13 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           generateTarget: true,
           partialDamageParts: [0],
           noSpellslot: true,
+          activationOverride: { type: "", condition: "" },
+          durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,
             affects: {
               type: "creature",
             },
-            activationOverride: { type: "", condition: "" },
-            durationOverride: { units: "inst", concentration: false },
             template: {},
           },
         },
@@ -1568,13 +1611,13 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           generateTarget: true,
           partialDamageParts: [0],
           noSpellslot: true,
+          activationOverride: { type: "spec", condition: "Ends turn in Light" },
+          durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,
             affects: {
               type: "creature",
             },
-            activationOverride: { type: "spec", condition: "Ends turn in Light" },
-            durationOverride: { units: "inst", concentration: false },
             template: {},
           },
         },
@@ -1592,13 +1635,14 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           partialDamageParts: [0],
           noSpellslot: true,
           rangeOverride: { value: 60, units: "ft" },
+          activationOverride: { type: "spec", condition: "" },
+          durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,
             affects: {
               type: "creature",
             },
-            activationOverride: { type: "spec", condition: "" },
-            durationOverride: { units: "inst", concentration: false },
+
             template: {},
           },
         },
@@ -1643,13 +1687,13 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           generateTarget: true,
           partialDamageParts: [1],
           noSpellslot: true,
+          activationOverride: { type: "spec", condition: "Moving through/starting in Frigid Air" },
+          durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,
             affects: {
               type: "creature",
             },
-            activationOverride: { type: "spec", condition: "Moving through/starting in Frigid Air" },
-            durationOverride: { units: "inst", concentration: false },
             template: {},
           },
         },
@@ -1723,13 +1767,13 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           generateTarget: true,
           partialDamageParts: [1],
           noSpellslot: true,
+          activationOverride: { type: "spec", condition: "Moving through/starting in Frigid Air" },
+          durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,
             affects: {
               type: "creature",
             },
-            activationOverride: { type: "spec", condition: "Moving through/starting in Frigid Air" },
-            durationOverride: { units: "inst", concentration: false },
             template: {},
           },
         },
@@ -1848,6 +1892,40 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           units: "ft",
         },
       },
+    },
+    "Tasha's Bubbling Cauldron": () => {
+      let descriptionSuffix = "";
+      if (this.ddbParser.itemCompendium) {
+        const possibleItems = this.ddbParser.itemCompendium.index
+          .filter((i) => ["common", "uncommon"].includes(i.system.rarity)
+            && i.type == "consumable"
+            && i.system.type.value === "potion"
+            && i.name.toLowerCase().includes("potion"),
+          );
+        if (possibleItems.length > 0) {
+          descriptionSuffix += `<details>
+<summary><strong>Suggested Potions</strong></summary>`;
+          for (const item of possibleItems) {
+            descriptionSuffix += `<p>@UUID[${item.uuid}]</p>`;
+          }
+          descriptionSuffix += "</details>";
+        }
+      }
+      descriptionSuffix += `
+<section class="secret" id="secret-ddbTasBubCauldro">
+<p><strong>Implementation Details</strong></p>
+<p>The Uses of this spell represent the number of potions remaining in the cauldron, which is reset by the <strong>Create Cauldron</strong> activity.</p>
+<p>The <strong>Withdraw Potion</strong> activity will consume a use of the cauldron.</p>
+</section>`;
+      return {
+        descriptionSuffix,
+        data: {
+          "system.uses": {
+            max: "@attributes.spellmod",
+            spent: "0",
+          },
+        },
+      };
     },
     "Thunderclap": {
       data: {
@@ -2641,6 +2719,13 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           priority: 0,
         },
       ],
+    },
+    "Tasha's Caustic Brew": {
+      type: "spell",
+      name: "Covered in Acid",
+      options: {
+        description: "You are covered in acid. Take 2d4 &Reference[acid] damage at start of each of your turns until you use an action to scrape it off.",
+      },
     },
     "True Strike": {
       multiple: [

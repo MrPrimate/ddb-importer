@@ -58,7 +58,7 @@ export default class DDBSpellActivity {
     this.additionalActivityDamageParts = [];
   }
 
-  _generateConsumption({ consumptionOverride = null, additionalTargets = [], consumeActivity = false } = {}) {
+  _generateConsumption({ consumptionOverride = null, additionalTargets = [], consumeActivity = false, consumeItem = null } = {}) {
     if (consumptionOverride) {
       this.data.consumption = consumptionOverride;
       return;
@@ -85,18 +85,19 @@ export default class DDBSpellActivity {
           formula: "",
         },
       });
-    } else if (this.spellData.limitedUse) {
+    } else if (this.spellData.limitedUse || consumeItem) {
       spellSlot = false;
       targets.push({
         type: "itemUses",
         target: "", // this item
-        value: this.spellData.limitedUse.minNumberConsumed ?? 1,
+        value: this.spellData.limitedUse?.minNumberConsumed ?? 1,
         scaling: {
           mode: "",
           formula: "",
         },
       });
     }
+
 
     this.data.consumption = {
       spellSlot: spellSlot,
@@ -563,6 +564,7 @@ export default class DDBSpellActivity {
     additionalTargets = [],
     consumptionOverride = null,
     consumeActivity = false,
+    consumeItem = null,
   } = {}) {
 
     // logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
@@ -596,7 +598,7 @@ export default class DDBSpellActivity {
 
     if (activationOverride) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack();
-    if (generateConsumption) this._generateConsumption({ consumptionOverride, additionalTargets, consumeActivity });
+    if (generateConsumption) this._generateConsumption({ consumptionOverride, additionalTargets, consumeActivity, consumeItem });
     if (generateDescription) this._generateDescription(chatFlavor);
     if (generateEffects) this._generateEffects();
     if (generateSave) this._generateSave({ saveOverride });

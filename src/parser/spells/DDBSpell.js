@@ -12,6 +12,7 @@ import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
 import DDBSpellActivity from "./DDBSpellActivity.js";
 import DDBSpellEnricher from "../enrichers/DDBSpellEnricher.js";
 import { addStatusEffectChange } from "../../effects/effects.js";
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
 
 export default class DDBSpell {
 
@@ -88,6 +89,15 @@ export default class DDBSpell {
 
   async init() {
     await this.enricher.init();
+    if (this.itemCompendium) {
+      await this.itemCompendium.getIndex({
+        fields: [
+          "name",
+          "system.rarity",
+          "system.type.value",
+        ],
+      });
+    }
   }
 
   constructor({
@@ -137,6 +147,7 @@ export default class DDBSpell {
 
     this._generateDataStub();
 
+    this.itemCompendium = CompendiumHelper.getCompendiumType("item", false);
     this.enricher = enricher ?? new DDBSpellEnricher();
     this.enricher.load({
       ddbParser: this,
@@ -671,6 +682,7 @@ export default class DDBSpell {
     activity.build(foundry.utils.mergeObject({
       generateDamage: false,
       generateHealing: true,
+      healingPart: this.healingParts[0],
     }, options));
 
     return activity;
@@ -817,6 +829,8 @@ export default class DDBSpell {
       return "damage";
     } else if (this.enricher.effect && !this.enricher.effect.noActivity) {
       return "utility";
+    } else if (this.healingParts.length > 0) {
+      return "heal";
     }
     // KNOWN_ISSUE_4_0: Enchants like for magic weapon etc
     // KNOWN_ISSUE_4_0: Summoning
@@ -947,7 +961,10 @@ export default class DDBSpell {
   }
 
   #addHealAdditionalActivities() {
-    for (const part of this.healingParts) {
+    const healingParts = this.activityType === "heal"
+      ? this.healingParts.slice(1)
+      : this.healingParts;
+    for (const part of healingParts) {
       this.additionalActivities.push({
         type: "heal",
         options: {
@@ -966,7 +983,7 @@ export default class DDBSpell {
     let i = 0;
     for (const activityData of this.additionalActivities) {
       i++;
-      const id = this._generateActivity({
+      const id = await this._generateActivity({
         hintsOnly: false,
         name: activityData.name,
         nameIdPostfix: i,
