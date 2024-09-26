@@ -281,6 +281,7 @@ export default class DDBCompanionFactory {
       updated: [],
     };
     this.originDocument = options.originDocument;
+    this.is2014 = options.is2014 ?? true;
     this.summons = null;
     this.badSummons = false;
     this.noCompendiums = options.noCompendiums ?? false;

@@ -12,7 +12,11 @@ DDBCharacter.prototype.getClassFeature = function(name) {
 
 
 DDBCharacter.prototype._parseCompanion = async function(html, type, originDocument) {
-  const ddbCompanionFactory = new DDBCompanionFactory(html, { type, originDocument });
+  const ddbCompanionFactory = new DDBCompanionFactory(html, {
+    type,
+    originDocument,
+    is2014: foundry.utils.getProperty(originDocument, "flags.ddbimporter.is2014") ?? true,
+  });
   await ddbCompanionFactory.parse();
   this.companionFactories.push(ddbCompanionFactory);
 };
