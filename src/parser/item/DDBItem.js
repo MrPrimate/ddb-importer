@@ -519,9 +519,25 @@ export default class DDBItem {
       this.damageParts.push(damage);
     }
 
+    const modsOnWeapon = this.ddbDefinition.grantedModifiers.filter((mod) => mod.type === "damage");
+    const unfilteredDamageMods = modsOnWeapon.length === 0
+      ? DDBHelper.getModifiers(this.ddbData, "item")
+        .filter((mod) => mod.type === "damage" && this.ddbDefinition.id === mod.componentId
+          && this.ddbDefinition.entityTypeId === mod.componentTypeId)
+      : modsOnWeapon;
+
+    // console.error(`Weapon mods for ${this.name}`, {
+    //   unfilteredDamageMods,
+    //   modsOnWeapon,
+    //   raw: DDBHelper.getModifiers(this.ddbData, "item"),
+    //   filtered: DDBHelper.getModifiers(this.ddbData, "item")
+    //     .filter((mod) => mod.type === "damage" && this.ddbDefinition.id === mod.componentId
+    //       && this.ddbDefinition.entityTypeId === mod.componentTypeId),
+    // })
+
     // additional damage parts with no restrictions
-    this.ddbDefinition.grantedModifiers
-      .filter((mod) => mod.type === "damage" && (!mod.restriction || mod.restriction === ""))
+    unfilteredDamageMods
+      .filter((mod) => !mod.restriction || mod.restriction === "")
       .forEach((mod) => {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         const damagePart = die ? die.diceString : mod.value;
@@ -537,8 +553,8 @@ export default class DDBItem {
 
     let restrictions = [];
     // loop over restricted damage types
-    this.ddbDefinition.grantedModifiers
-      .filter((mod) => mod.type === "damage" && mod.restriction && mod.restriction !== "")
+    unfilteredDamageMods
+      .filter((mod) => mod.restriction && mod.restriction !== "")
       .forEach((mod) => {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         const damagePart = die ? die.diceString : `${mod.value}`;
@@ -1963,7 +1979,7 @@ export default class DDBItem {
         versatile: this.versatileDamage,
         parts: this.actionInfo.save
           ? []
-          : this.damageParts.splice(1),
+          : this.damageParts.slice(1),
       };
     }
   }
@@ -2002,7 +2018,7 @@ export default class DDBItem {
         versatile: this.versatileDamage,
         parts: this.actionInfo.save
           ? []
-          : this.damageParts.splice(1),
+          : this.damageParts.slice(1),
       };
     }
 
@@ -2490,7 +2506,7 @@ export default class DDBItem {
       generateRange: !["weapon", "staff"].includes(this.parsingType),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
       damageParts: ["weapon", "staff"].includes(this.parsingType)
-        ? this.damageParts.splice(1)
+        ? this.damageParts.slice(1)
         : null,
       generateDamage: true,
     }, options));

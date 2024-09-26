@@ -1082,7 +1082,7 @@ ${this.feature.system.description.value}
     const parts = this.actionInfo.damageParts.length > 1
       ? this.isSave
         ? []
-        : this.actionInfo.damageParts.splice(1).map((s) => s.part) // otherwise we assume the weapon attack wants the base damage
+        : this.actionInfo.damageParts.slice(1).map((s) => s.part) // otherwise we assume the weapon attack wants the base damage
       : isFlatWeaponDamage
         ? this.actionInfo.damageParts.map((s) => s.part) // includes no dice, i.e. is flat, we want to ignore the base damage
         : [];

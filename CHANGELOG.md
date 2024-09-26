@@ -1,3 +1,7 @@
+# Next Up
+
+- Fix for weapons such as Frost Band weapons not  generating extra elemental damage.
+
 # 6.0.8
 
 - Some spell icon adjustments
