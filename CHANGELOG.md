@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.9
 
 - Fix for weapons such as Frost Band weapons not  generating extra elemental damage.
 - Healing Spells would sometimes have a utility activity when it was not needed.
