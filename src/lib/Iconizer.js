@@ -285,27 +285,58 @@ export default class Iconizer {
 
   static async getSRDIconMatch(type) {
     const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == type).name;
-    const srdPack = CompendiumHelper.getCompendium(compendiumName);
-    const srdIndices = ["name", "img", "prototypeToken.texture.src", "type", "system.activation", "prototypeToken.texture.scaleY", "prototypeToken.texture.scaleX"];
+    const srdPack = CompendiumHelper.getCompendium(compendiumName, false);
+    if (!srdPack) return [];
+    const srdIndices = ["name", "img", "prototypeToken.texture.src", "type", "prototypeToken.texture.scaleY", "prototypeToken.texture.scaleX"];
     const index = await srdPack.getIndex({ fields: srdIndices });
     return index;
   }
 
+  static async getOfficialIconMatch(type) {
+    const indexes = [];
+    for (const bookKey of Object.keys(SETTINGS.FOUNDRY_COMPENDIUMS)) {
+      const compendiumName = SETTINGS.FOUNDRY_COMPENDIUMS[bookKey].find((c) => c.type == type)?.name;
+      if (!compendiumName) continue;
+      const officialPack = CompendiumHelper.getCompendium(compendiumName, false);
+      if (!officialPack) continue;
+      const indices = ["name", "img", "prototypeToken.texture.src", "type", "prototypeToken.texture.scaleY", "prototypeToken.texture.scaleX"];
+      const index = await officialPack.getIndex({ fields: indices });
+      indexes.push(...index);
+    }
+
+    return Array.from(new Set(indexes));
+  }
+
   static async getSRDImageLibrary() {
     if (CONFIG.DDBI.SRD_LOAD.mapLoaded) return CONFIG.DDBI.SRD_LOAD.iconMap;
-    const compendiumFeatureItems = await Iconizer.getSRDIconMatch("features");
-    const compendiumInventoryItems = await Iconizer.getSRDIconMatch("inventory");
-    const compendiumSpellItems = await Iconizer.getSRDIconMatch("spells");
-    const compendiumMonsterFeatures = await Iconizer.getSRDIconMatch("monsterfeatures");
-    const compendiumMonsters = await Iconizer.getSRDIconMatch("monsters");
+    const officialFeatureItems = await Iconizer.getOfficialIconMatch("features");
+    const officialOriginItems = await Iconizer.getOfficialIconMatch("backgrounds");
+    const officialFeatItems = await Iconizer.getOfficialIconMatch("feats");
+    const officialInventoryItems = await Iconizer.getOfficialIconMatch("inventory");
+    const officialSpellItems = await Iconizer.getOfficialIconMatch("spells");
+    const officialMonsterFeatures = await Iconizer.getOfficialIconMatch("monsterfeatures");
+    const officialMonsters = await Iconizer.getOfficialIconMatch("monsters");
+
+    const srdFeatureItems = await Iconizer.getSRDIconMatch("features");
+    const srdInventoryItems = await Iconizer.getSRDIconMatch("inventory");
+    const srdSpellItems = await Iconizer.getSRDIconMatch("spells");
+    const srdMonsterFeatures = await Iconizer.getSRDIconMatch("monsterfeatures");
+    const srdMonsters = await Iconizer.getSRDIconMatch("monsters");
 
     // eslint-disable-next-line require-atomic-updates
     CONFIG.DDBI.SRD_LOAD.iconMap = [
-      ...compendiumInventoryItems,
-      ...compendiumSpellItems,
-      ...compendiumFeatureItems,
-      ...compendiumMonsterFeatures,
-      ...compendiumMonsters,
+      ...officialFeatureItems,
+      ...officialOriginItems,
+      ...officialFeatItems,
+      ...officialInventoryItems,
+      ...officialSpellItems,
+      ...officialMonsterFeatures,
+      ...officialMonsters,
+      ...srdInventoryItems,
+      ...srdSpellItems,
+      ...srdFeatureItems,
+      ...srdMonsterFeatures,
+      ...srdMonsters,
     ];
     return CONFIG.DDBI.SRD_LOAD.iconMap;
   }

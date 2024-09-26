@@ -21,7 +21,7 @@ import logger from "../../logger.js";
 export default class DDBFeatureActivity {
 
   _init() {
-    logger.debug(`Generating DDBFeatureActivity ${this.name ?? ""} for ${this.ddbParent.name}`);
+    logger.debug(`Generating DDBFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
 
   _generateDataStub() {

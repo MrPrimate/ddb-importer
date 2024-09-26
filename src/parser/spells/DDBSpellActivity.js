@@ -6,7 +6,7 @@ import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 export default class DDBSpellActivity {
 
   _init() {
-    logger.debug(`Generating DDBSpellActivity ${this.name ?? ""} for ${this.ddbParent.name}`);
+    logger.debug(`Generating DDBSpellActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
 
   _generateDataStub() {

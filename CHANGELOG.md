@@ -1,6 +1,8 @@
 # Next Up
 
 - Fix for weapons such as Frost Band weapons not  generating extra elemental damage.
+- Healing Spells would sometimes have a utility activity when it was not needed.
+- Spell Tasha's Bubbling Cauldron spell tweaks.
 
 # 6.0.8
 

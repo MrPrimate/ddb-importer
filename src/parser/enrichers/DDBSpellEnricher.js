@@ -151,7 +151,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           },
         },
       ],
-      "True Strike": {},
+      "True Strike": [],
     },
     DOCUMENT_OVERRIDES: {},
     EFFECT_HINTS: {

@@ -5,7 +5,7 @@ import logger from "../../../logger.js";
 export default class DDBMonsterFeatureActivity {
 
   _init() {
-    logger.debug(`Generating DDBMonsterFeatureActivity ${this.name ?? ""} for ${this.actor.name}`);
+    logger.debug(`Generating DDBMonsterFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.actor.name}`);
   }
 
   _generateDataStub() {

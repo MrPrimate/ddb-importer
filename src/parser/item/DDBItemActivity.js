@@ -5,7 +5,7 @@ import logger from "../../logger.js";
 export default class DDBItemActivity {
 
   _init() {
-    logger.debug(`Generating DDBItemActivity ${this.name ?? ""} for ${this.ddbParent.name}`);
+    logger.debug(`Generating DDBItemActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
 
   _generateDataStub() {
