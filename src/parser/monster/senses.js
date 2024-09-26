@@ -58,6 +58,9 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
         }
         // add these modes if supported by vision 5e
         if (vision5eInstalled && blindBeyondMatch) {
+          this.npc.prototypeToken.detectionModes = this.npc.prototypeToken.detectionModes.filter((m) =>
+            m.id !== "lightPerception",
+          );
           this.npc.prototypeToken.detectionModes.push(
             {
               "id": "lightPerception",
