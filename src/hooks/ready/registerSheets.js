@@ -178,6 +178,7 @@ function createActorHeaderButtons(config, buttons) {
   if (isCharacterSheet) {
     handlePCHeaderButton(config, buttons);
   } else if (isNpcSheet) {
+    if (!config.object.flags?.monsterMunch?.url) return;
     handleNPCHeaderButton(config, buttons);
   }
 
