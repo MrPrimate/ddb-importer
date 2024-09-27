@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.10
 
 - Better formatting of new style monster stat blocks.
 - Alter Self adjustments.
@@ -8,6 +8,7 @@
 - 2024 Warlock Spells granted by subclasses would not be added as pact spells.
 - If only a single class and spells granted by say your secies, add those spells as pact spells rather than leveled sells.
 - Barkskin 2024 AC Update.
+- Good Luckstone would add erroneous init bonus when no longer needed.
 
 # 6.0.9
 
