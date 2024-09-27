@@ -966,6 +966,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           type: "utility",
         },
         build: {
+          img: "icons/creatures/magical/spirit-undead-ghost-blue.webp",
           generateDamage: false,
           generateHealing: false,
           generateRange: false,
@@ -978,6 +979,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           type: "enchant",
         },
         build: {
+          img: "icons/creatures/abilities/fang-tooth-blood-red.webp",
           generateDamage: false,
           generateHealing: false,
           generateRange: false,
