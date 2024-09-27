@@ -10328,5 +10328,9 @@
   {
     "name": "Imbue Aura of Protection",
     "path": "icons/magic/symbols/runes-star-pentagon-orange-purple.webp"
+  },
+  {
+    "name": "Misty Step",
+    "path": "icons/magic/control/debuff-energy-snare-blue.webp"
   }
 ]
