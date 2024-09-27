@@ -32,6 +32,9 @@ The big issues that might be stopping you upgrading straight away are:
 
 Yes, any adventure listed in [the status page](https://docs.ddb.mrprimate.co.uk/status.html) can still be imported.
 
+## How long till I can import backgrounds, features, species, and classes into compendiums?
+
+This will likely take a couple of months or more. (Late 2024).
 
 ## I have found a problem/want to make a suggestion
 
