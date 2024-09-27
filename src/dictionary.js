@@ -246,7 +246,7 @@ const DICTIONARY = {
       { name: "Auran", value: "auran", advancement: "exotic:primordial" },
       { name: "Celestial", value: "celestial", advancement: "exotic" },
       { name: "Deep Speech", value: "deep", advancement: "exotic" },
-      { name: "Draconic", value: "draconic", advancement: "exotic" },
+      { name: "Draconic", value: "draconic", advancement: "standard" },
       { name: "Druidic", value: "druidic", advancement: null },
       { name: "Dwarvish", value: "dwarvish", advancement: "standard" },
       { name: "Elvish", value: "elvish", advancement: "standard" },
@@ -265,6 +265,7 @@ const DICTIONARY = {
       { name: "Thieves' Cant", value: "cant", advancement: null },
       { name: "Thieves’ Cant", value: "cant", advancement: null },
       { name: "Undercommon", value: "undercommon", advancement: "exotic" },
+      { name: "Common Sign Language", value: "sign", advancement: "standard" },
     ],
     armorTypes: [
       { name: "Clothing", value: "clothing" },
