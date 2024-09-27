@@ -223,7 +223,7 @@ function getArcaneHands(arcaneHand, name = "Arcane Hand", postfix = "") {
 
     results[`${idString}${data.color}${postfix}`] = {
       name: `${name} (${data.color})`,
-      version: "1",
+      version: "2",
       required: null,
       isJB2A: true,
       needsJB2A: data.needsJB2A ?? false,
