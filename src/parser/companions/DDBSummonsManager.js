@@ -172,6 +172,76 @@ const ELRITCH_CANNON_ABILITY_STUB = {
   "componentTypeId": 0,
 };
 
+const EXTRA_ARCANE_HAND_INSTANCES = (jb2aMod) => {
+  return [
+    { color: "Red", needsJB2A: false, token: "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_400x400.webm", actor: "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_Thumb.webp" },
+    { color: "Purple", needsJB2A: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_Thumb.webp` },
+    { color: "Green", needsJB2A: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_Thumb.webp` },
+    { color: "Blue", needsJB2A: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_Thumb.webp` },
+    { color: "Rock", needsJB2A: true, needsJB2APatreon: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_400x400.webm` },
+    { color: "Rainbow", needsJB2A: true, needsJB2APatreon: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_Thumb.webp` },
+  ];
+};
+
+function getArcaneHands(arcaneHand, name = "Arcane Hand", postfix = "") {
+  const jb2aMod = game.modules.get('jb2a_patreon')?.active
+    ? "jb2a_patreon"
+    : "JB2A_DnD5e";
+  const results = {};
+
+  const idString = utils.idString(name);
+
+  EXTRA_ARCANE_HAND_INSTANCES(jb2aMod).forEach((data) => {
+
+    const actorData = foundry.utils.mergeObject(arcaneHand.toObject(), {
+      "name": `${name} (${data.color})`,
+      "prototypeToken.texture.src": data.token,
+      "img": data.actor,
+    });
+
+    actorData.items.forEach((item) => {
+      switch (item.name) {
+        case "Clenched Fist": {
+          item.img = "icons/magic/earth/strike-fist-stone.webp";
+          break;
+        }
+        case "Forceful Hand": {
+          item.img = "icons/magic/earth/strike-fist-stone-gray.webp";
+          break;
+        }
+        case "Grasping Hand": {
+          item.img = "icons/magic/earth/strike-fist-stone-light.webp";
+          break;
+        }
+        case "Interposing Hand": {
+          item.img = "icons/magic/earth/barrier-stone-explosion-debris.webp";
+          break;
+        }
+        // no default
+      }
+    });
+
+    results[`${idString}${data.color}${postfix}`] = {
+      name: `${name} (${data.color})`,
+      version: "1",
+      required: null,
+      isJB2A: true,
+      needsJB2A: data.needsJB2A ?? false,
+      needsJB2APatreon: data.needsJB2APatreon ?? false,
+      folderName: name,
+      data: actorData,
+    };
+  });
+
+  return results;
+}
+
+// function get2024ArcaneHands(arcaneHand) {
+//   const arcaneHand2024 = foundry.utils.duplicate(arcaneHand);
+//  // add arcane hand 2024 descriptions and adjust damage
+// }
+
+
 function getEldritchCannonStub(size) {
   const cannon = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
     name: "Eldritch Cannon",
@@ -232,129 +302,57 @@ function getEldritchCannonStub(size) {
   return cannon;
 }
 
+function getArcaneSwords(arcaneSword) {
+  const jb2aMod = game.modules.get('jb2a_patreon')?.active
+    ? "jb2a_patreon"
+    : "JB2A_DnD5e";
+  const results = {};
+
+  results["ArcaneSwordSpectralGreen"] = {
+    name: "Arcane Sword (Spectral Green)",
+    version: "1",
+    required: null,
+    isJB2A: true,
+    needsJB2A: false,
+    folderName: "Arcane Sword",
+    data: foundry.utils.mergeObject(arcaneSword.toObject(), {
+      "name": "Arcane Sword (Spectral Green)",
+      "prototypeToken.texture.src": "modules/ddb-importer/img/jb2a/SpiritualWeapon_Shortsword01_02_Spectral_Green_400x400.webm",
+      "img": "modules/ddb-importer/img/jb2a/SpiritualWeapon_Shortsword01_02_Spectral_Green_Thumb.webp",
+    }),
+  };
+
+  results["ArcaneSwordAstralBlue"] = {
+    name: "Arcane Sword (Astral Blue)",
+    version: "1",
+    required: null,
+    isJB2A: true,
+    needsJB2A: true,
+    needsJB2APatreon: true,
+    folderName: "Arcane Sword",
+    data: foundry.utils.mergeObject(arcaneSword.toObject(), {
+      "name": "Arcane Sword (Astral Blue)",
+      "prototypeToken.texture.src": `modules/${jb2aMod}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_400x400.webm`,
+      "img": `modules/${jb2aMod}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_Thumb.webp`,
+    }),
+  };
+
+  return results;
+}
+
 async function getSRDActors() {
   const results = {};
   const pack = game.packs.get("dnd5e.monsters");
   if (!pack) return results;
 
-  const jb2aMod = game.modules.get('jb2a_patreon')?.active
-    ? "jb2a_patreon"
-    : "JB2A_DnD5e";
-
   const arcaneHand = await pack.getDocument("iHj5Tkm6HRgXuaWP");
   if (arcaneHand) {
-    results["ArcaneHandRed"] = {
-      name: "Arcane Hand (Red)",
-      version: "1",
-      required: null,
-      isJB2A: true,
-      needsJB2A: false,
-      folderName: "Arcane Hand",
-      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
-        "name": "Arcane Hand (Red)",
-        "prototypeToken.texture.src": "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_400x400.webm",
-        "img": "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_Thumb.webp",
-      }),
-    };
-    results["ArcaneHandPurple"] = {
-      name: "Arcane Hand (Purple)",
-      version: "1",
-      required: null,
-      isJB2A: true,
-      needsJB2A: true,
-      folderName: "Arcane Hand",
-      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
-        "name": "Arcane Hand (Purple)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_400x400.webm`,
-        "img": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_Thumb.webp`,
-      }),
-    };
-    results["ArcaneHandGreen"] = {
-      name: "Arcane Hand (Green)",
-      version: "1",
-      required: null,
-      isJB2A: true,
-      needsJB2A: true,
-      folderName: "Arcane Hand",
-      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
-        "name": "Arcane Hand (Green)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_400x400.webm`,
-        "img": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_Thumb.webp`,
-      }),
-    };
-    results["ArcaneHandBlue"] = {
-      name: "Arcane Hand (Blue)",
-      version: "1",
-      required: null,
-      isJB2A: true,
-      needsJB2A: true,
-      folderName: "Arcane Hand",
-      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
-        "name": "Arcane Hand (Blue)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_400x400.webm`,
-        "img": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_Thumb.webp`,
-      }),
-    };
-    results["ArcaneHandRock"] = {
-      name: "Arcane Hand (Rock)",
-      version: "1",
-      required: null,
-      isJB2A: true,
-      needsJB2A: true,
-      needsJB2APatreon: true,
-      folderName: "Arcane Hand",
-      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
-        "name": "Arcane Hand (Rock)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_400x400.webm`,
-        "img": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_Thumb.webp`,
-      }),
-    };
-    results["ArcaneHandRainbow"] = {
-      name: "Arcane Hand (Rainbow)",
-      version: "1",
-      required: null,
-      isJB2A: true,
-      needsJB2A: true,
-      needsJB2APatreon: true,
-      folderName: "Arcane Hand",
-      data: foundry.utils.mergeObject(arcaneHand.toObject(), {
-        "name": "Arcane Hand (Rainbow)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_400x400.webm`,
-        "img": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_Thumb.webp`,
-      }),
-    };
+    foundry.utils.mergeObject(results, getArcaneHands(arcaneHand));
   }
 
   const arcaneSword = await pack.getDocument("Tac7eq0AXJco0nml");
   if (arcaneHand) {
-    results["ArcaneSwordSpectralGreen"] = {
-      name: "Arcane Sword (Spectral Green)",
-      version: "1",
-      required: null,
-      isJB2A: true,
-      needsJB2A: false,
-      folderName: "Arcane Sword",
-      data: foundry.utils.mergeObject(arcaneSword.toObject(), {
-        "name": "Arcane Sword (Spectral Green)",
-        "prototypeToken.texture.src": "modules/ddb-importer/img/jb2a/SpiritualWeapon_Shortsword01_02_Spectral_Green_400x400.webm",
-        "img": "modules/ddb-importer/img/jb2a/SpiritualWeapon_Shortsword01_02_Spectral_Green_Thumb.webp",
-      }),
-    };
-
-    results["ArcaneSwordAstralBlue"] = {
-      name: "Arcane Sword (Astral Blue)",
-      version: "1",
-      required: null,
-      isJB2A: true,
-      needsJB2A: true,
-      needsJB2APatreon: true,
-      folderName: "Arcane Sword",
-      data: foundry.utils.mergeObject(arcaneSword.toObject(), {
-        "name": "Arcane Sword (Astral Blue)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_400x400.webm`,
-        "img": `modules/${jb2aMod}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_Thumb.webp`,
-      }),
-    };
+    foundry.utils.mergeObject(results, getArcaneSwords(arcaneSword));
   }
 
   const dddCompendium = CompendiumHelper.getCompendiumType("monster", false);

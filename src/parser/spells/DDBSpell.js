@@ -143,7 +143,7 @@ export default class DDBSpell {
     this.overrideDC = overrideDC ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.overrideDC");
     this.isHomebrew = isHomebrew ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.homebrew");
 
-    this.onlyPactMagic = this.ddbData.character?.classes?.length === 1
+    this.onlyPactMagic = this.ddbData?.character?.classes?.length === 1
       && this.ddbData.character.classes[0].definition.name === "Warlock";
 
     this.is2014 = this.spellDefinition.isLegacy

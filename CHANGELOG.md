@@ -7,6 +7,7 @@
 - Expert Divination, Steps of the Fey, Pact Weapon, Magical Cunnin, Lifedrinker, and Third Eye features.
 - 2024 Warlock Spells granted by subclasses would not be added as pact spells.
 - If only a single class and spells granted by say your secies, add those spells as pact spells rather than leveled sells.
+- Barkskin 2024 AC Update.
 
 # 6.0.9
 

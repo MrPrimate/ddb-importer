@@ -76,8 +76,12 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
   }
 
   DND_2014 = {
-    NAME_HINTS: {},
+    NAME_HINTS: {
+      "Bigby's Hand": "Arcane Hand",
+    },
     ACTIVITY_HINTS: {
+      "Animate Objects": {
+      },
       "Counterspell": {
         type: "check",
         check: {
@@ -117,6 +121,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       "True Strike": {},
     },
     ADDITIONAL_ACTIVITIES: {
+      "Animate Objects": [],
       "Hunter's Mark": [
         {
           constructor: {
@@ -155,6 +160,17 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     DOCUMENT_OVERRIDES: {},
     EFFECT_HINTS: {
+      "Barkskin": {
+        type: "spell",
+        changes: [
+          {
+            key: "system.attributes.ac.min",
+            mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+            value: "16",
+            priority: "100",
+          },
+        ],
+      },
       "Blade Ward": {
         tpye: "spell",
         changes: [
@@ -242,7 +258,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
 
   NAME_HINTS = {
     "Melf's Acid Arrow": "Acid Arrow",
-    "Bigby's Hand": "Arcane Hand",
     "Mordenkainen's Sword": "Arcane Sword",
     "Evard's Black Tentacles": "Black Tentacles",
   };
@@ -268,6 +283,8 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         name: "Aquatic Adaptation",
         img: "icons/creatures/fish/fish-bluefin-yellow-blue.webp",
       },
+    },
+    "Animate Objects": {
     },
     "Aura of Life": {
       type: "utility",
@@ -2248,7 +2265,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         {
           key: "system.attributes.ac.min",
           mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
-          value: "16",
+          value: "17",
           priority: "100",
         },
       ],
