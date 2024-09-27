@@ -21,6 +21,7 @@ export default class DDBFeature extends DDBBaseFeature {
 
   static LEVEL_SCALE_EXCLUSION_USES = [
     "Destroy Undead",
+    "Magical Cunning",
   ];
 
   static LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH = [

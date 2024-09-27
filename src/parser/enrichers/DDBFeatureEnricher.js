@@ -816,6 +816,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       addItemConsume: true,
       itemConsumeValue: "5",
     },
+    "Magical Cunning": {
+      targetType: "self",
+      type: "utility",
+      additionalConsumptionTargets: [
+        {
+          "type": "attribute",
+          "value": "-(ceil(@spells.pact.max / 2))",
+          "target": "spells.pact.value",
+        },
+      ],
+      data: {
+        name: "Regain Pact Slots",
+      },
+    },
     "Maneuver: Disarming Attack (Str.)": {
       type: "save",
       data: {
