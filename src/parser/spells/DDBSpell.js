@@ -133,6 +133,7 @@ export default class DDBSpell {
     this.pactSpellsPrepared = game.settings.get("ddb-importer", "pact-spells-prepared");
     this.limitedUse = limitedUse ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.limitedUse");
     this.forceMaterial = forceMaterial ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.forceMaterial");
+    this.forcePact = foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.forcePact");
     this.spellClass = klass ?? spellClass ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.class");
     this.lookup = lookup ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.lookup");
     this.lookupName = lookupName ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.lookupName");
@@ -141,6 +142,9 @@ export default class DDBSpell {
     this.dc = dc ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.dc");
     this.overrideDC = overrideDC ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.overrideDC");
     this.isHomebrew = isHomebrew ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.homebrew");
+
+    this.onlyPactMagic = this.ddbData.character?.classes?.length === 1
+      && this.ddbData.character.classes[0].definition.name === "Warlock";
 
     this.is2014 = this.spellDefinition.isLegacy
       && this.spellDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
@@ -203,7 +207,7 @@ export default class DDBSpell {
 
     if (this.spellData.restriction === "As Ritual Only"
       || this.spellData.castOnlyAsRitual
-      || this.spellData.ritualCastingType !== null
+      || (this.spellData.ritualCastingType !== null && this.spellClass !== "Warlock" && !this.is2014)
     ) {
       this.data.system.preparation.mode = "ritual";
       this.data.system.preparation.prepared = false;
@@ -212,7 +216,7 @@ export default class DDBSpell {
       // at the lowest level. for these we add as an innate.
       this.data.system.preparation.mode = "innate";
     } else if (this.spellData.alwaysPrepared) {
-      this.data.system.preparation.mode = "always";
+      this.data.system.preparation.mode = this.forcePact ? "pact" : "always";
     } else if (this.data.system.preparation.mode && classPrepMode) {
       this.data.system.preparation.mode = classPrepMode.value;
     }
@@ -245,7 +249,7 @@ export default class DDBSpell {
       this.data.system.preparation.mode = "innate";
       if (this.spellData.usesSpellSlot) {
         // some racial spells allow the spell to also be added to spell lists
-        this.data.system.preparation.mode = "always";
+        this.data.system.preparation.mode = this.onlyPactMagic ? "pact" : "always";
       }
     } else if (
       // Warlock Mystic Arcanum are passed in as Features
@@ -260,8 +264,8 @@ export default class DDBSpell {
     } else {
       // If spell doesn't use a spell slot and is not a cantrip, mark as always preped
       let always = !this.spellData.usesSpellSlot && this.spellDefinition.level !== 0;
-      let ritaulOnly = this.spellData.ritualCastingType !== null || this.spellData.castOnlyAsRitual; // e.g. Book of ancient secrets & totem barb
-      if (always && ritaulOnly) {
+      let ritualOnly = this.spellData.ritualCastingType !== null || this.spellData.castOnlyAsRitual; // e.g. Book of ancient secrets & totem barb
+      if (always && ritualOnly) {
         // in this case we want the spell to appear in the spell list unprepared
         this.data.system.preparation.mode = "ritual";
         this.data.system.preparation.prepared = false;

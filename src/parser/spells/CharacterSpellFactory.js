@@ -180,6 +180,7 @@ export default class CharacterSpellFactory {
             usesSpellSlot: spell.usesSpellSlot,
             forceMaterial: klass?.definition?.name === "Artificer",
             homebrew: spell.definition.isHomebrew,
+            forcePact: klass?.definition?.name === "Warlock",
           },
         },
         "tidy5e-sheet": {
