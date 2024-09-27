@@ -356,7 +356,7 @@ export function addMagicalBonusToEnchantmentEffect({ effect, nameAddition = null
       priority: 20,
     },
   );
-  if (bonus) {
+  if (bonus !== null) {
     effect.changes.push(
       {
         key: "system.magicalBonus",

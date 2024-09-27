@@ -262,6 +262,13 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         ],
       },
     },
+    "Alter Self": {
+      type: "utility",
+      data: {
+        name: "Aquatic Adaptation",
+        img: "icons/creatures/fish/fish-bluefin-yellow-blue.webp",
+      },
+    },
     "Aura of Life": {
       type: "utility",
     },
@@ -949,6 +956,38 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           onsave: false,
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 4, type: "acid" })],
           noeffect: true,
+        },
+      },
+    ],
+    "Alter Self": [
+      {
+        constructor: {
+          name: "Change Appearance",
+          type: "utility",
+        },
+        build: {
+          generateDamage: false,
+          generateHealing: false,
+          generateRange: false,
+          generateConsumption: true,
+        },
+      },
+      {
+        constructor: {
+          name: "Natural Weapons",
+          type: "enchant",
+        },
+        build: {
+          generateDamage: false,
+          generateHealing: false,
+          generateRange: false,
+          generateConsumption: true,
+          data: {
+            restrictions: {
+              type: "weapon",
+              allowMagical: true,
+            },
+          },
         },
       },
     ],
@@ -2078,6 +2117,103 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         };
       }),
     },
+    "Alter Self": {
+      multiple: () => {
+        const effects = [];
+        const naturalWeaponEffect = {
+          name: "Natural Weapons",
+          type: "enchant",
+          changes: [
+            {
+              key: "name",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: `{} [Natural Weapons]`,
+              priority: 20,
+            },
+            {
+              key: "system.properties",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              value: "mgc",
+              priority: 20,
+            },
+            {
+              key: "system.damage.base.number",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: "1",
+              priority: 20,
+            },
+            {
+              key: "system.damage.base.denomination",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: "6",
+              priority: 20,
+            },
+            {
+              key: "system.damage.base.types",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              value: "bludgeoning",
+              priority: 20,
+            },
+            {
+              key: "system.damage.base.types",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              value: "piercing",
+              priority: 20,
+            },
+            {
+              key: "system.damage.base.types",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              value: "slashing",
+              priority: 20,
+            },
+          ],
+          data: {
+            "flags.ddbimporter.activityMatch": "Natural Weapons",
+          },
+        };
+        if (this.is2014) {
+          naturalWeaponEffect.changes.push({
+            key: "system.ability",
+            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+            value: "spellcasting",
+            priority: 20,
+          });
+        } else {
+          naturalWeaponEffect.magicalBonus = {
+            makeMagical: false,
+            bonus: "1",
+          };
+        }
+
+        effects.push(naturalWeaponEffect);
+        effects.push(
+          {
+            name: "Change Appearance",
+            type: "spell",
+            data: {
+              "flags.ddbimporter.activityMatch": "Change Appearance",
+            },
+          },
+          {
+            name: "Aquatic Adaptation",
+            type: "spell",
+            data: {
+              "flags.ddbimporter.activityMatch": "Aquatic Adaptation",
+            },
+            changes: [
+              {
+                key: "system.attributes.movement.swim",
+                value: "@attributes.movement.walk",
+                mode: 4,
+                priority: 20,
+              },
+            ],
+          },
+        );
+
+        return effects;
+      },
+    },
     "Animal Friendship": {
       type: "spell",
       statuses: "Charmed",
@@ -2184,7 +2320,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
             name: `Elemental Weapon: ${utils.capitalize(element.type)} +${data.bonus}`,
             magicalBonus: {
               makeMagical: true,
-              bonus: data.bonus,
+              bonus: `+${data.bonus}`,
               nameAddition: `+${data.bonus}`,
             },
             options: {

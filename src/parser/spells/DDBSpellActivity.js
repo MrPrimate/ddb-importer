@@ -565,6 +565,7 @@ export default class DDBSpellActivity {
     consumptionOverride = null,
     consumeActivity = false,
     consumeItem = null,
+    data = null,
   } = {}) {
 
     // logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
@@ -624,9 +625,8 @@ export default class DDBSpellActivity {
       foundry.utils.setProperty(this.ddbParent.data, "flags.ddbimporter.noEffectIds", ids);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
     }
-    if (img) {
-      foundry.utils.setProperty(this.data, "img", img);
-    }
+    if (img) foundry.utils.setProperty(this.data, "img", img);
+    if (data) foundry.utils.mergeObject(this.data, data);
 
     // ATTACK has
     // activation
