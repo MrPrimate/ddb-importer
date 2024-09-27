@@ -725,7 +725,7 @@ export default class DDBSpell {
     this.ddbCompanionFactory = new DDBCompanionFactory(this.spellDefinition.description, {
       type: "spell",
       originDocument: this.data,
-      is204: this.is2014,
+      is2014: this.is2014,
     });
     await this.ddbCompanionFactory.parse();
     // always update compendium imports, but respect player import disable
