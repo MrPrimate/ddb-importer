@@ -50,6 +50,8 @@ export default class DDBAttackAction extends DDBAction {
       };
       if (this.is2014 && DDBAction.SKIPPED_2014_ONLY_ACTIONS.includes(this.originalName)) {
         foundry.utils.setProperty(this.data, "flags.ddbimporter.skip", true);
+      } else if (!this.is2014 && DDBAction.SKIPPED_2024_ONLY_ACTIONS.includes(this.originalName)) {
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.skip", true);
       }
       this.data.system.proficient = this.ddbDefinition.isProficient ? 1 : 0;
       this._generateDescription();

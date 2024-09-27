@@ -550,6 +550,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Eldritch Invocations: Lifedrinker": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, types: ["necrotic", "psychic", "radiant"] })],
+        },
+      },
+    },
     "Eldritch Invocations: Pact of the Blade": {
       type: "enchant",
       data: {
@@ -1048,6 +1058,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           special: "Withing sight",
         },
       },
+    },
+    "Mystic Arcanum (Level 8 Spell)": {
+      type: "none",
     },
     "Partially Amphibious": {
       type: "utility",
@@ -1922,6 +1935,48 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Eldritch Invocations: Lifedrinker": () => {
+      return ["Smallest", "Largest"].map((size) => {
+        return {
+          constructor: {
+            name: `Healing - ${size} Hit Die`,
+            type: "heal",
+          },
+          build: {
+            generateConsumption: true,
+            generateTarget: false,
+            targetSelf: true,
+            generateRange: false,
+            generateActivation: true,
+            generateDamage: false,
+            generateHealing: true,
+            activationOverride: {
+              type: "special",
+              value: 1,
+              condition: "Once per turn when you hit a creature with your pact weapon",
+            },
+            healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: `@attributes.hd.${size.toLowerCase()}Available + (max(1,@abilities.con.mod))`, type: "healing" }),
+            consumptionOverride: {
+              targets: [
+                {
+                  type: "hitDice",
+                  target: size.toLowerCase(),
+                  value: 1,
+                  scaling: {
+                    mode: "",
+                    formula: "",
+                  },
+                },
+              ],
+              scaling: {
+                allowed: false,
+                max: "",
+              },
+            },
+          },
+        };
+      });
+    },
     "Form of the Beast: Bite": [
       {
         constructor: {

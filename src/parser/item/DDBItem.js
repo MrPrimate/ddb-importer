@@ -1061,7 +1061,7 @@ export default class DDBItem {
       magicItemAttackInt: DDBHelper.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0,
     };
 
-    if (this.flags.classFeatures.includes("Lifedrinker")) {
+    if (this.flags.classFeatures.includes("Lifedrinker") && this.is2014) {
       this.flags.damage.parts.push(["@abilities.cha.mod", "necrotic"]);
     }
 
@@ -1813,7 +1813,7 @@ export default class DDBItem {
       : ability;
 
     // warlocks can use cha for their Hex weapon
-    if (this.flags.classFeatures.includes("hexWarrior")) {
+    if (this.flags.classFeatures.includes("hexWarrior") || (!this.is2014 && this.flags.classFeatures.includes("pactWeapon"))) {
       if (this.characterEffectAbilities.cha.value >= this.characterEffectAbilities[mockAbility].value) {
         result = "cha";
       }

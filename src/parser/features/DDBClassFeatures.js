@@ -22,10 +22,11 @@ export default class DDBClassFeatures {
     this.excludedFeatures = this.ddbData.character.optionalClassFeatures
       .filter((f) => f.affectedClassFeatureId)
       .map((f) => f.affectedClassFeatureId);
-    this.enricher = new DDBFeatureEnricher();
   }
 
   async _getFeatures(featureDefinition, type, source, filterByLevel = true, flags = {}) {
+    const enricher = new DDBFeatureEnricher();
+    await enricher.init();
     const feature = new DDBFeature({
       ddbData: this.ddbData,
       ddbDefinition: featureDefinition,
@@ -33,7 +34,7 @@ export default class DDBClassFeatures {
       type,
       source,
       extraFlags: flags,
-      enricher: this.enricher,
+      enricher: new DDBFeatureEnricher(),
     });
     feature.build();
     const allowedByLevel = !filterByLevel || (filterByLevel && feature.hasRequiredLevel);
@@ -189,7 +190,6 @@ export default class DDBClassFeatures {
   }
 
   async build() {
-    await this.enricher.init();
     // subclass features can often be duplicates of class features.
     for (const klass of this.ddbData.character.classes) {
       logger.debug(`Processing class features for ${klass.definition.name}`);

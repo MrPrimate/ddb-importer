@@ -26,6 +26,10 @@ export default class DDBChoiceFeature extends DDBFeature {
     "The Third Eye",
   ];
 
+  static NO_CHOICE_ACTIVITY = [
+    "Mystic Arcanum (",
+  ];
+
   _prepare() {
     this._levelScale = null;
     this._levelScales = null;
@@ -197,7 +201,9 @@ export default class DDBChoiceFeature extends DDBFeature {
         && !DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
       ) {
         ddbFeature.data.name = choiceFeature.data.name;
-        if (Object.keys(ddbFeature.data.system.activities).length === 0) {
+        if (Object.keys(ddbFeature.data.system.activities).length === 0
+          && !DDBChoiceFeature.NO_CHOICE_ACTIVITY.some((a) => ddbFeature.originalName.startsWith(a))
+        ) {
           ddbFeature.data.system.activities = choiceFeature.data.system.activities;
         }
         if (ddbFeature.data.effects.length === 0) {

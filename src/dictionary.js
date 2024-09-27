@@ -523,7 +523,7 @@ const DICTIONARY = {
       { name: "hexWarrior", typeId: 29 },
     ],
     // Supported Warlock Pact Weapon options
-    pactFeatures: ["Improved Pact Weapon", "Lifedrinker"],
+    pactFeatures: ["Improved Pact Weapon", "Lifedrinker", "Eldritch Invocations: Pact of the Blade", "Eldritch Invocations: Lifedrinker"],
   },
   item: {
     characterValues: [

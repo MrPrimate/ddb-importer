@@ -10,6 +10,7 @@ import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 import SETTINGS from "../../settings.js";
 import { generateTable } from "../../lib/DDBTable.js";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
+import DDBFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 
 export default class DDBBaseFeature {
 
@@ -263,7 +264,7 @@ export default class DDBBaseFeature {
     this.data.system.source = localSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
-    this.enricher = enricher;
+    this.enricher = enricher ?? new DDBFeatureEnricher();
     this._loadEnricher();
   }
 
@@ -1092,6 +1093,8 @@ export default class DDBBaseFeature {
         return this._getSummonActivity();
       case "ddbmacro":
         return this._getDDBMacroActivity();
+      case "none":
+        return undefined;
       default:
         if (typeFallback) return this.getActivity({ typeOverride: typeFallback });
         return undefined;
@@ -1099,6 +1102,7 @@ export default class DDBBaseFeature {
   }
 
   _generateActivity({ hintsOnly = false, statusEffects = true } = {}) {
+    if (this.enricher.activity?.type === "none") return undefined;
 
     if (statusEffects) {
       const statusEffect = getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });

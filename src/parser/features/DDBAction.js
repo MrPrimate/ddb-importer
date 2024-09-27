@@ -45,6 +45,10 @@ export default class DDBAction extends DDBBaseFeature {
   static SKIPPED_2014_ONLY_ACTIONS = [
   ];
 
+  static SKIPPED_2024_ONLY_ACTIONS = [
+    "Lifedrinker",
+  ];
+
   static HIGHEST_LEVEL_ONLY_ACTION_MATCH = [
     "Bardic Inspiration",
   ];
@@ -166,6 +170,8 @@ export default class DDBAction extends DDBBaseFeature {
   build() {
     try {
       if (this.is2014 && DDBAction.SKIPPED_2014_ONLY_ACTIONS.includes(this.originalName)) {
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.skip", true);
+      } else if (!this.is2014 && DDBAction.SKIPPED_2024_ONLY_ACTIONS.includes(this.originalName)) {
         foundry.utils.setProperty(this.data, "flags.ddbimporter.skip", true);
       }
       this._generateSystemType();
