@@ -164,7 +164,7 @@ export default class DDBBaseEnricher {
       activity.consumption.targets.push(...activityHint.additionalConsumptionTargets);
     }
 
-    if (activityHint.addConsumptionScalingMax) {
+    if (activityHint.addConsumptionScalingMax !== undefined) {
       foundry.utils.setProperty(activity, "consumption.scaling", {
         allowed: true,
         max: activityHint.addConsumptionScalingMax,
