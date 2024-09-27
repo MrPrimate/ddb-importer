@@ -1595,6 +1595,17 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
     ...attunementAdjustment,
   ];
 
+  const hasInitiative = effect.changes.find((c) => c.key === "system.attributes.init.bonus"
+    && c.mode === CONST.ACTIVE_EFFECT_MODES.ADD);
+  const hasCheck = effect.changes.find((c) => c.key === "system.bonuses.abilities.check"
+    && c.mode === CONST.ACTIVE_EFFECT_MODES.ADD);
+
+  if (hasInitiative && hasCheck) {
+    effect.changes = effect.changes.filter((c) => !(c.key === "system.attributes.init.bonus"
+      && c.mode === CONST.ACTIVE_EFFECT_MODES.ADD
+      && c.value === hasCheck.value));
+  }
+
   // if we don't have effects, lets return the item
   if (effect.changes?.length === 0) {
     return [foundryItem, effect];
