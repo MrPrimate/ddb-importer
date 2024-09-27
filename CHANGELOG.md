@@ -4,7 +4,7 @@
 - Alter Self adjustments.
 - If a class such as wizard has both legacy and new version of a spell in their spell book, bring in both versions.
 - Armour of Agathys fixes.
-- Expert Divination and Third Eye features.
+- Expert Divination, Steps of the Fey, Pact Weapon, Magical Cunning and Third Eye features.
 - 2024 Warlock Spells granted by subclasses would not be added as pact spells.
 - If only a single class and spells granted by say your secies, add those spells as pact spells rather than leveled sells.
 

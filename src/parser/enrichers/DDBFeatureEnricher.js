@@ -550,6 +550,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Eldritch Invocations: Pact of the Blade": {
+      type: "enchant",
+      data: {
+        name: "Bond With Weapon",
+        restrictions: {
+          type: "weapon",
+          allowMagical: true,
+        },
+      },
+    },
     "Empty Body": {
       targetType: "self",
     },
@@ -1410,6 +1420,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Steel Defender": {
       noConsumeTargets: true,
       noTemplate: true,
+    },
+    "Steps of the Fey": {
+      type: "heal",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        name: "Refreshing Step",
+        healing: DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 10, types: ["temphp"] }),
+      },
     },
     "Stone's Endurance": {
       type: "utility",
@@ -2294,6 +2313,36 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Steps of the Fey": [
+      {
+        constructor: {
+          name: "Taunting Step",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: false,
+          generateTarget: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+          },
+          targetOverride: {
+            affects: {
+              type: "creatures",
+            },
+            template: {
+              contiguous: false,
+              type: "radius",
+              size: "5",
+              width: "",
+              height: "",
+              units: "ft",
+            },
+          },
+        },
+      },
+    ],
   };
 
   DOCUMENT_OVERRIDES = {
@@ -2671,6 +2720,47 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           value: "draconic",
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           priority: 10,
+        },
+      ],
+    },
+    "Eldritch Invocations: Pact of the Blade": {
+      type: "enchant",
+      changes: [
+        {
+          key: "name",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          value: `{} [Pact Weapon]`,
+          priority: 20,
+        },
+        {
+          key: "system.damage.base.types",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: "necrotic",
+          priority: 20,
+        },
+        {
+          key: "system.damage.base.types",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: "psychic",
+          priority: 20,
+        },
+        {
+          key: "system.damage.base.types",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: "radiant",
+          priority: 20,
+        },
+        {
+          key: "system.proficient",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          value: "true",
+          priority: 20,
+        },
+        {
+          key: "system.ability",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          value: "cha",
+          priority: 20,
         },
       ],
     },
@@ -3223,6 +3313,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           ],
         },
       ],
+    },
+    "Steps of the Fey": {
+      type: "feat",
+      options: {
+        transfer: false,
+        description: "Disadvantage on attack rolls against creatures other than caster until the start of the casters next turn",
+      },
+      name: "Taunted",
     },
     "The Third Eye": {
       multiple: [

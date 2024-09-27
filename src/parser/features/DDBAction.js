@@ -38,6 +38,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Starry Form:",
     "Sneak Attack:",
     "Font of Magic: Create",
+    "Misty Step: ",
+    "Pact of the Blade:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [

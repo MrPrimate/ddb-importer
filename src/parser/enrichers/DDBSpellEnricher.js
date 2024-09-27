@@ -522,7 +522,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     "False Life": {
       data: {
-        "damage.parts": [DDBBaseEnricher.basicDamagePart({ customFormula: "1d4 + 4", types: ["temphp"], scalingMode: "whole", scalingNumber: 5 })],
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "1d4 + 4", types: ["temphp"], scalingMode: "whole", scalingNumber: 5 }),
       },
     },
     "Heroism": {
@@ -1009,9 +1009,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
               generateHealing: true,
               generateRange: true,
               generateConsumption: true,
-              healingPart: [
-                DDBBaseEnricher.basicDamagePart({ number: 2, denomination: die, bonus: "@mod", type: "healing", scalingMode: "whole", scalingNumber: 1 }),
-              ],
+              healingPart: DDBBaseEnricher.basicDamagePart({ number: 2, denomination: die, bonus: "@mod", type: "healing", scalingMode: "whole", scalingNumber: 1 }),
               consumptionOverride: {
                 spellSlot: false,
                 scaling: {
@@ -1235,7 +1233,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          healingPart: [DDBBaseEnricher.basicDamagePart({ customFormula: "@mod", type: "temphp" })],
+          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "@mod", type: "temphp" }),
           noeffect: true,
           activationOverride: { type: "spec", condition: "Start of each creatures turn" },
           durationOverride: {

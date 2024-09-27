@@ -428,7 +428,7 @@ export default class DDBSpellActivity {
 
   _generateHealing({ healingPart } = {}) {
     if (healingPart.chatFlavor) this.data.description.chatFlavor = healingPart.chatFlavor;
-    this.data.healing = healingPart.part;
+    this.data.healing = healingPart.part ?? healingPart;
   }
 
   _generateSave({ saveOverride = null } = {}) {
