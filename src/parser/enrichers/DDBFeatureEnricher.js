@@ -553,6 +553,26 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Empty Body": {
       targetType: "self",
     },
+    "Expert Divination": {
+      targetType: "self",
+      type: "utility",
+      noConsumeTargets: true,
+      addConsumptionScalingMax: "5",
+      additionalConsumptionTargets: [
+        {
+          "type": "spellSlots",
+          "value": "-1",
+          "target": "1",
+          "scaling": {
+            "mode": "level",
+            "formula": "",
+          },
+        },
+      ],
+      data: {
+        name: "Regain Spell Slot",
+      },
+    },
     "Fighting Style: Interception": {
       type: "utility",
       targetType: "creature",
@@ -1524,6 +1544,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "The Third Eye": {
+      type: "utility",
+      targetType: "self",
+      data: {
+        name: "Darkvision",
+      },
+    },
     "Uncanny Dodge": {
       type: "utility",
       activationType: "reaction",
@@ -2101,6 +2128,38 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "The Third Eye": [
+      {
+        constructor: {
+          name: "Greater Comprehension",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: true,
+          generateTarget: true,
+          targetOverride: {
+            affects: {
+              type: "self",
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "See Invisibility",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: true,
+          generateTarget: true,
+          targetOverride: {
+            affects: {
+              type: "self",
+            },
+          },
+        },
+      },
+    ],
     "Psychic Blades: Attack": [
       {
         constructor: {
@@ -2394,6 +2453,21 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "flags.midiProperties.toggleEffect": true,
       },
     },
+    "Psychic Blades: Attack": () => {
+      return {
+        data: {
+          name: "Psychic Blades",
+          system: {
+            mastery: "vex",
+            range: {
+              long: 120,
+            },
+            "type.value": "simpleM",
+            properties: ["fin", "thr"].concat(this.data.system.properties ?? []),
+          },
+        },
+      };
+    },
     "Shifting": {
       data: {
         "system.uses": {
@@ -2456,20 +2530,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Psychic Blades: Attack": () => {
-      return {
-        data: {
-          name: "Psychic Blades",
-          system: {
-            mastery: "vex",
-            range: {
-              long: 120,
-            },
-            "type.value": "simpleM",
-            properties: ["fin", "thr"].concat(this.data.system.properties ?? []),
-          },
-        },
-      };
+    "The Third Eye": {
+      "system.uses": {
+        spent: 0,
+        max: "1",
+        recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
+      },
     },
     "Wild Shape": {
       data: {
@@ -3138,6 +3204,75 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
               key: "system.attributes.movement.fly",
               value: "20",
               mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+              priority: 20,
+            },
+          ],
+        },
+      ],
+    },
+    "The Third Eye": {
+      multiple: [
+        {
+          name: "Darkvision",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Darkvision",
+          },
+          changes: [
+            {
+              key: "system.attributes.senses.darkvision",
+              value: "120",
+              mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+              priority: 20,
+            },
+          ],
+          atlChanges: [
+            generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5),
+            generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
+          ],
+        },
+        {
+          name: "Greater Comprehension",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Greater Comprehension",
+            description: "You can read any language",
+          },
+          changes: [
+            {
+              key: "system.traits.languages.special",
+              value: ";Read Any Language",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              priority: 20,
+            },
+          ],
+        },
+        {
+          name: "See Invisibility",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "See Invisibility",
+          },
+          changes: [
+            {
+              key: "system.attributes.senses.special",
+              value: ";Invisible creatures",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              priority: 20,
+            },
+            {
+              key: "system.attributes.senses.special",
+              value: ";Ethereal Plane",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
               priority: 20,
             },
           ],

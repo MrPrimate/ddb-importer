@@ -9,14 +9,21 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static KEEP_CHOICE_FEATURE = [
     "Genie's Vessel",
+    "The Third Eye",
   ];
 
   static KEEP_CHOICE_FEATURE_NAME = [
     "Pact Boon",
+    "The Third Eye",
   ];
 
   static KEEP_CHOICE_DESCRIPTION = [
     "Pact Boon",
+    "The Third Eye",
+  ];
+
+  static NO_CHOICE_BUILD = [
+    "The Third Eye",
   ];
 
   _prepare() {
@@ -158,6 +165,8 @@ export default class DDBChoiceFeature extends DDBFeature {
   }
 
   static async buildChoiceFeatures(ddbFeature, allFeatures = false) {
+    const features = [];
+    if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
     const choices = allFeatures ? ddbFeature._choices : ddbFeature._chosen;
     logger.debug(`Processing Choice Features ${ddbFeature._chosen.map((c) => c.label).join(",")}`, {
       choices: ddbFeature._choices,
@@ -165,7 +174,6 @@ export default class DDBChoiceFeature extends DDBFeature {
       feature: ddbFeature,
       allFeatures,
     });
-    const features = [];
     const enricher = new DDBFeatureEnricher();
     await enricher.init();
     for (const choice of choices) {

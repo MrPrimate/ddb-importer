@@ -324,6 +324,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         name: "Cast Spell",
       },
     },
+    "Armor of Agathys": {
+      type: "heal",
+    },
     "Booming Blade": {
       type: "damage",
       targetType: "creature",
