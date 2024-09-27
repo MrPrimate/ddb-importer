@@ -104,7 +104,9 @@ export default class CharacterSpellFactory {
             const parsedName = (parsedSpell.flags.ddbimporter.originalName ? parsedSpell.flags.ddbimporter.originalName : parsedSpell.name);
             // some spells come from different classes but end up having the same ddb id
             const classIdMatch = (classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class || spell.id === existingSpell.flags.ddbimporter.dndbeyond.id);
-            return existingName === parsedName && classIdMatch;
+            const legacyMatch = (parsedSpell.flags.ddbimporter.is2014 ?? true) === (existingSpell.flags.ddbimporter.is2014 ?? true)
+              || (parsedSpell.flags.ddbimporter.is2024 ?? false) === (existingSpell.flags.ddbimporter.is2024 ?? false);
+            return existingName === parsedName && classIdMatch && legacyMatch;
           });
         const duplicateItem = this.items[duplicateSpell];
         if (!duplicateItem) {

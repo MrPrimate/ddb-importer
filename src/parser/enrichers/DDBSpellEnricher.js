@@ -2172,17 +2172,17 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           },
         };
         if (this.is2014) {
+          naturalWeaponEffect.magicalBonus = {
+            makeMagical: false,
+            bonus: "1",
+          };
+        } else {
           naturalWeaponEffect.changes.push({
             key: "system.ability",
             mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
             value: "spellcasting",
             priority: 20,
           });
-        } else {
-          naturalWeaponEffect.magicalBonus = {
-            makeMagical: false,
-            bonus: "1",
-          };
         }
 
         effects.push(naturalWeaponEffect);

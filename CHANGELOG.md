@@ -1,3 +1,9 @@
+# Next Up
+
+- Better formatting of new style monster stat blocks.
+- Alter Self adjustments.
+- If a class such as wizard has both legacy and new version of a spell in their spell book, bring in both versions.
+
 # 6.0.9
 
 - Fix for weapons such as Frost Band weapons not  generating extra elemental damage.
