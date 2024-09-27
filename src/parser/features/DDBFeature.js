@@ -6,6 +6,7 @@ import logger from "../../logger.js";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBBaseFeature from "./DDBBaseFeature.js";
+import DDBChoiceFeature from "./DDBChoiceFeature.js";
 
 
 export default class DDBFeature extends DDBBaseFeature {
@@ -421,14 +422,14 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._generateLimitedUse();
     // this._generateRange();
 
+    const listItems = [];
     const choiceText = this._choices.reduce((p, c) => {
       if (c.description) {
-        return `${p}<br>
-        <h3>${c.label}</h3>
-        <p>${c.description}</p>`;
+        return `${p}
+<p><strong>${c.label}</strong> ${c.description}</p>`;
       } else {
-        return `${p}<br>
-        <p>${c.label}</p>`;
+        listItems.push(`<li><p>${c.label}</p></li>`);
+        return p;
       }
     }, "");
     // this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
@@ -438,7 +439,13 @@ export default class DDBFeature extends DDBBaseFeature {
     //   choiceText,
     // });
 
-    this._generateDescription({ extra: `<section class="secret">${choiceText}</section>` });
+    const joinedText = `${choiceText}
+<ul>${listItems.join("")}</ul>`;
+
+    const secretText = DDBChoiceFeature.NO_CHOICE_BUILD.includes(this.originalName)
+      ? joinedText
+      : `<section class="secret">${joinedText}</section>`;
+    this._generateDescription({ extra: secretText });
     this._addEffects(undefined, this.type);
 
     // this._generateFlagHints();
