@@ -1270,6 +1270,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           },
         },
       ],
+      data: {
+        name: "Regain via Spell Slot",
+      },
     },
     "Relentless": {
       type: "utility",
