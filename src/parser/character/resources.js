@@ -406,10 +406,11 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
             for (const id of Object.keys(child.system.activities)) {
               if (ignoredConsumptionActivities?.includes(child.system.activities[id].name)) continue;
               const targets = child.system.activities[id].consumption.targets;
+              const value = foundry.utils.getProperty(child, "flags.ddbimporter.consumptionValue") ?? 1;
               if (foundry.utils.getProperty(child, "flags.ddbimporter.retainOriginalConsumption")) {
                 targets.push({
                   type: "itemUses",
-                  value: 1,
+                  value,
                   target: `${parent._id}`,
                 });
                 foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
@@ -421,7 +422,7 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
                   spellSlot: false,
                   targets: [{
                     type: "itemUses",
-                    value: 1,
+                    value,
                     target: `${parent._id}`,
                   }],
                 });

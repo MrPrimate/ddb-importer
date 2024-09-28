@@ -10,24 +10,30 @@ export default class DDBChoiceFeature extends DDBFeature {
   static KEEP_CHOICE_FEATURE = [
     "Genie's Vessel",
     "The Third Eye",
+    "Unbreakable Majesty",
+    "Mantle of Majesty",
   ];
 
   static KEEP_CHOICE_FEATURE_NAME = [
     "Pact Boon",
     "The Third Eye",
-  ];
-
-  static KEEP_CHOICE_DESCRIPTION = [
-    "Pact Boon",
-    "The Third Eye",
+    "Unbreakable Majesty",
+    "Mantle of Majesty",
   ];
 
   static NO_CHOICE_BUILD = [
     "The Third Eye",
+    "Unbreakable Majesty",
+    "Mantle of Majesty",
   ];
 
   static NO_CHOICE_ACTIVITY = [
     "Mystic Arcanum (",
+  ];
+
+  static NO_CHOICE_DESCRIPTION_ADDITION = [
+    "Mantle of Majesty",
+    "Unbreakable Majesty",
   ];
 
   _prepare() {

@@ -22,6 +22,10 @@ export default class DDBAction extends DDBBaseFeature {
     "Reactive Spell",
     "Bardic Inspiration: Agile Strikes",
     "Bardic Damage",
+    "Beguiling Magic: Regain Use",
+    "Assume Unbreakable Majesty",
+    "Unbreakable Majesty",
+    "Mantle of Majesty",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

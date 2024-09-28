@@ -157,6 +157,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Beguiling Magic": {
+      data: {
+        name: "Save",
+      },
+    },
     "Blessed Healer": {
       type: "heal",
       activationType: "special",
@@ -1590,8 +1595,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Superior Inspiration": {
       type: "utility",
       addItemConsume: true,
-      itemConsumeValue: "-@abilities.cha.mod",
+      itemConsumeValue: "-1",
       activationType: "special",
+      data: {
+        name: "Regain 1 Use",
+      },
     },
     "Surprise Attack": {
       type: "damage",
@@ -1653,6 +1661,28 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
   };
 
   ADDITIONAL_ACTIVITIES = {
+    "Beguiling Magic": [
+      {
+        constructor: {
+          name: "Recharge",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: true,
+          consumptionOverride: {
+            targets: [
+              {
+                type: "itemUses",
+                target: "",
+                value: -1,
+                scaling: { mode: "", formula: "" },
+              },
+            ],
+            scaling: { allowed: false, max: "" },
+          },
+        },
+      },
+    ],
     "Breath Weapon (Acid)": [
       {
         constructor: {
@@ -2443,6 +2473,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         name: "Arms of the Astral Self",
       },
     },
+    "Beguiling Magic": {
+      data: {
+        "flags.ddbimporter": {
+          ignoredConsumptionActivities: ["Save"],
+          retainOriginalConsumption: true,
+        },
+      },
+    },
     "Celestial Revelation (Inner Radiance)": {
       descriptionSuffix: `<br><p>[[/ddbifunc functionName="innerRadiance" functionType="feat"]]{Toggle Inner Radiance Light}</div></p>`,
     },
@@ -2713,6 +2751,26 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       options: {
         durationSeconds: 600,
       },
+    },
+    "Beguiling Magic": {
+      multiple: [
+        {
+          name: "Frightened",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          statuses: ["Frightened"],
+        },
+        {
+          name: "Charmed",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          statuses: ["Charmed"],
+        },
+      ],
     },
     "Celestial Revelation": {
       type: "feat",
