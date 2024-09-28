@@ -1,6 +1,7 @@
 # Next Up
 
 - Bigsby's Hand 2024 Summoning.
+- Dazzling Footwork enchantment. (Requires D&D system 4.0.4 or 4.1.x).
 
 # 6.0.10
 

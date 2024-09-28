@@ -442,6 +442,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Dazzling Footwork": {
+      type: "enchant",
+      targetType: "self",
+      data: {
+        name: "Bardic Damage",
+        restrictions: {
+          type: "weapon",
+          allowMagical: true,
+        },
+      },
+    },
     "Deflect Missiles": {
       targetType: "self",
       data: {
@@ -2730,6 +2741,67 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           },
         },
       ],
+    },
+    "Dazzling Footwork": {
+      clearAutoEffects: true,
+      multiple: [
+        {
+          type: "feat",
+          options: {
+            transfer: true,
+          },
+          changes: [
+            {
+              key: "system.attributes.ac.calc",
+              value: "unarmoredBard",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              priority: 10,
+            },
+          ],
+          data: {
+            "flags.ddbimporter.activityMatch": "No Activity",
+          },
+        },
+        {
+          type: "enchant",
+          changes: [
+            {
+              key: "name",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: `{} [Dazzling Footwork]`,
+              priority: 20,
+            },
+            {
+              key: "system.damage.base.types",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              value: "bludgeoning",
+              priority: 20,
+            },
+            {
+              key: "system.ability",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: "dex",
+              priority: 20,
+            },
+            {
+              key: "system.damage.base.custom.enabled",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: "true",
+              priority: 20,
+            },
+            {
+              key: "system.damage.base.custom.formula",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: "@scale.college-of-dance.dazzling-footwork + @abilities.dex.mod",
+              priority: 20,
+            },
+          ],
+          data: {
+            "flags.ddbimporter.activityMatch": "Bardic Damage",
+          },
+        },
+      ],
+
     },
     "Devious Strikes": {
       clearAutoEffects: true,

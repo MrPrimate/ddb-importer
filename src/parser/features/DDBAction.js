@@ -20,6 +20,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Summon Wildfire Spirit: Command",
     "Wild Magic Surge table",
     "Reactive Spell",
+    "Bardic Inspiration: Agile Strikes",
+    "Bardic Damage",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
