@@ -3,6 +3,7 @@ import { effectModules, generateATLChange, generateTokenMagicFXChange } from "..
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 import DDBSpellActivity from "../spells/DDBSpellActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
@@ -77,7 +78,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
 
   DND_2014 = {
     NAME_HINTS: {
-      "Bigby's Hand": "Arcane Hand",
     },
     ACTIVITY_HINTS: {
       "Animate Objects": {
@@ -257,6 +257,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
   };
 
   NAME_HINTS = {
+    "Bigby's Hand": "Arcane Hand",
     "Melf's Acid Arrow": "Acid Arrow",
     "Mordenkainen's Sword": "Arcane Sword",
     "Evard's Black Tentacles": "Black Tentacles",
@@ -294,31 +295,44 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       noTemplate: true,
       profileKeys: ["ArcaneEye"],
     },
-    "Arcane Hand": {
-      type: "summon",
-      noTemplate: true,
-      profileKeys: [
-        "ArcaneHandRed",
-        "ArcaneHandPurple",
-        "ArcaneHandGreen",
-        "ArcaneHandBlue",
-        "ArcaneHandRock",
-        "ArcaneHandRainbow",
-      ],
-      summons: {
-        "match": {
-          "proficiency": false,
-          "attacks": true,
-          "saves": false,
+    "Arcane Hand": () => {
+      return {
+        type: "summon",
+        noTemplate: true,
+        generateSummons: !this.is2014,
+        summonsFunction: DDBSummonsManager.get2024ArcaneHands,
+        profileKeys: this.is2014
+          ? [
+            "ArcaneHandRed",
+            "ArcaneHandPurple",
+            "ArcaneHandGreen",
+            "ArcaneHandBlue",
+            "ArcaneHandRock",
+            "ArcaneHandRainbow",
+          ]
+          : [
+            "BigbysHandRed2024",
+            "BigbysHandPurple2024",
+            "BigbysHandGreen2024",
+            "BigbysHandBlue2024",
+            "BigbysHandRock2024",
+            "BigbysHandRainbow2024",
+          ],
+        summons: {
+          "match": {
+            "proficiency": false,
+            "attacks": true,
+            "saves": false,
+          },
+          "bonuses": {
+            "ac": "",
+            "hp": "@attributes.hp.max",
+            "attackDamage": "",
+            "saveDamage": "",
+            "healing": "",
+          },
         },
-        "bonuses": {
-          "ac": "",
-          "hp": "@attributes.hp.max",
-          "attackDamage": "",
-          "saveDamage": "",
-          "healing": "",
-        },
-      },
+      };
     },
     "Arcane Sword": {
       type: "summon",

@@ -1,3 +1,7 @@
+# Next Up
+
+- Bigsby's Hand 2024 Summoning.
+
 # 6.0.10
 
 - Better formatting of new style monster stat blocks.

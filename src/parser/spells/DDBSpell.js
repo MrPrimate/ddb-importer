@@ -13,6 +13,7 @@ import DDBSpellActivity from "./DDBSpellActivity.js";
 import DDBSpellEnricher from "../enrichers/DDBSpellEnricher.js";
 import { addStatusEffectChange } from "../../effects/effects.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 
 export default class DDBSpell {
 
@@ -725,6 +726,17 @@ export default class DDBSpell {
   }
 
   async #generateSummons() {
+    if (this.enricher.activity?.generateSummons) {
+      const summons = await this.enricher.activity.summonsFunction({
+        ddbParser: this,
+        document: this.data,
+        raw: this.spellDefinition.description,
+        text: this.data.system.description,
+      });
+
+      await DDBSummonsManager.addGeneratedSummons(summons);
+    }
+
     if (!this.isSummons) return;
     this.ddbCompanionFactory = new DDBCompanionFactory(this.spellDefinition.description, {
       type: "spell",

@@ -193,7 +193,7 @@ function getArcaneHands(arcaneHand, name = "Arcane Hand", postfix = "") {
 
   EXTRA_ARCANE_HAND_INSTANCES(jb2aMod).forEach((data) => {
 
-    const actorData = foundry.utils.mergeObject(arcaneHand.toObject(), {
+    const actorData = foundry.utils.mergeObject(foundry.utils.deepClone(arcaneHand), {
       "name": `${name} (${data.color})`,
       "prototypeToken.texture.src": data.token,
       "img": data.actor,
@@ -236,10 +236,65 @@ function getArcaneHands(arcaneHand, name = "Arcane Hand", postfix = "") {
   return results;
 }
 
-// function get2024ArcaneHands(arcaneHand) {
-//   const arcaneHand2024 = foundry.utils.duplicate(arcaneHand);
-//  // add arcane hand 2024 descriptions and adjust damage
-// }
+async function get2024ArcaneHands({ text }) {
+  // eslint-disable-next-line no-use-before-define
+  const arcaneHand = await DDBSummonsManager.getSRDCompendiumDocument({ name: "Arcane Hand" });
+  const arcaneHand2024 = arcaneHand.toObject();
+  // add arcane hand 2024 descriptions and adjust damage
+
+  arcaneHand2024.system.details.cr = null;
+  // console.warn("2024 Arcane Hands", { arcaneHand, arcaneHand2024});
+
+  const hands2024 = getArcaneHands(arcaneHand2024, "Bigby's Hand", "2024");
+
+  const dom = utils.htmlToDocumentFragment(text);
+
+  const descriptionUpdates = {};
+  dom.querySelectorAll("p").forEach((node) => {
+    const pDom = utils.htmlToDocumentFragment(node.outerHTML);
+    const query = pDom.querySelector("strong");
+    if (!query) return;
+    let name = query.textContent.trim().replace(/\./g, '');
+    descriptionUpdates[name] = {
+      description: node.innerHTML.replace(query.outerHTML, "").trim(),
+    };
+  });
+
+  Object.keys(hands2024).forEach((key) => {
+    hands2024[key].data.items.forEach((item) => {
+      const update = descriptionUpdates[item.name];
+      if (update) {
+        item.system.description.value = update.description;
+      }
+      switch (item.name) {
+        case "Clenched Fist": {
+          item.system.damage.base.custom.formula = "(2 * @flags.dnd5e.summon.level - 8)d8";
+          break;
+        }
+        case "Grasping Hand": {
+          item.system.description.value += `
+<h3>Grapple Escape Tests</h3>
+<p>[[/check ability=str skill=ath dc=8+@prof+@flags.dnd5e.summon.mod]]{Strength (Athletics)} [[/check ability=dex skill=acr dc=8+@prof+@flags.dnd5e.summon.mod]]{Dexterity (Acrobatics)}</p>`;
+          for (const key of Object.keys(item.system.activities)) {
+            const activity = item.system.activities[key];
+            if (activity.type !== "damage") continue;
+            activity.damage.parts[0].custom.formula = "(2 * @flags.dnd5e.summon.level - 6)d6 + @flags.dnd5e.summon.mod";
+            item.system.activities[key] = activity;
+          }
+          break;
+        }
+        case "Forceful Hand":
+        case "Interposing Hand":
+        default: {
+          // no adjustments
+          break;
+        }
+      }
+    });
+  });
+
+  return hands2024;
+}
 
 
 function getEldritchCannonStub(size) {
@@ -340,40 +395,13 @@ function getArcaneSwords(arcaneSword) {
   return results;
 }
 
-async function getSRDActors() {
+function getHoundOfIllOmen(direWolf, version) {
   const results = {};
-  const pack = game.packs.get("dnd5e.monsters");
-  if (!pack) return results;
-
-  const arcaneHand = await pack.getDocument("iHj5Tkm6HRgXuaWP");
-  if (arcaneHand) {
-    foundry.utils.mergeObject(results, getArcaneHands(arcaneHand));
-  }
-
-  const arcaneSword = await pack.getDocument("Tac7eq0AXJco0nml");
-  if (arcaneHand) {
-    foundry.utils.mergeObject(results, getArcaneSwords(arcaneSword));
-  }
-
-  const dddCompendium = CompendiumHelper.getCompendiumType("monster", false);
-  let direWolf;
-  let direWolfVersion = 2;
-  if (dddCompendium) {
-    await dddCompendium.getIndex();
-    const potentialDireWolves = dddCompendium.index.find((a) => a.name === "Dire Wolf");
-    if (potentialDireWolves) {
-      direWolf = await fromUuid(potentialDireWolves.uuid);
-    }
-  }
-  if (!direWolf) {
-    direWolf = await pack.getDocument("EYiQZ3rFL25fEJY5");
-    direWolfVersion = 1;
-  }
 
   if (direWolf) {
     results["HoundOfIllOmen"] = {
       name: "Hound of Ill Omen",
-      version: `${direWolfVersion}`,
+      version: `${version}`,
       required: null,
       isJB2A: false,
       needsJB2A: false,
@@ -393,15 +421,45 @@ async function getSRDActors() {
   }
 
   return results;
+
 }
 
-async function getSummonActors() {
-  const jb2aMod = game.modules.get('jb2a_patreon')?.active
-    ? "jb2a_patreon"
-    : "JB2A_DnD5e";
+async function getSRDActors() {
+  const results = {};
+  const pack = game.packs.get("dnd5e.monsters");
+  if (!pack) return results;
+  const dddCompendium = CompendiumHelper.getCompendiumType("monster", false);
 
-  const dancingLightsBase = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), foundry.utils.deepClone(DANCING_LIGHTS_BASE));
-  const localActors = {
+  // eslint-disable-next-line no-use-before-define
+  const arcaneHand = await DDBSummonsManager.getSRDCompendiumDocument({ pack, name: "Arcane Hand" });
+  if (arcaneHand) {
+    foundry.utils.mergeObject(results, getArcaneHands(arcaneHand.toObject()));
+  }
+
+  // eslint-disable-next-line no-use-before-define
+  const arcaneSword = await DDBSummonsManager.getSRDCompendiumDocument({ pack, name: "Arcane Sword" });
+  if (arcaneHand) {
+    foundry.utils.mergeObject(results, getArcaneSwords(arcaneSword));
+  }
+
+  // eslint-disable-next-line no-use-before-define
+  let direWolf = await DDBSummonsManager.getDDBCompendiumDocument({ pack: dddCompendium, name: "Dire Wolf" });
+  let direWolfVersion = 2;
+
+  if (!direWolf) {
+    // eslint-disable-next-line no-use-before-define
+    direWolf = await DDBSummonsManager.getSRDCompendiumDocument({ pack, name: "Dire Wolf" });
+    direWolfVersion = 1;
+  }
+  if (direWolf) {
+    foundry.utils.mergeObject(results, getHoundOfIllOmen(direWolf, direWolfVersion));
+  }
+
+  return results;
+}
+
+async function getArcaneEyes() {
+  const results = {
     ArcaneEye: {
       name: "Arcane Eye",
       version: "1",
@@ -426,6 +484,13 @@ async function getSummonActors() {
         ],
       }),
     },
+  };
+  return results;
+};
+
+function getDancingLights(jb2aMod) {
+  const dancingLightsBase = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), foundry.utils.deepClone(DANCING_LIGHTS_BASE));
+  const results = {
     DancingLightsYellow: {
       name: "Dancing Lights (Yellow)",
       version: "1",
@@ -545,6 +610,13 @@ async function getSummonActors() {
         "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_Red_Thumb.webp`,
       }),
     },
+  };
+
+  return results;
+}
+
+function getMageHands(jb2aMod) {
+  return {
     MageHandRed: {
       name: "Mage Hand (Red)",
       version: "1",
@@ -673,6 +745,11 @@ async function getSummonActors() {
         },
       }),
     },
+  };
+}
+
+function getBubblingCauldrons() {
+  return {
     TashasBubblingCauldron: {
       name: "Tasha's Bubbling Cauldron",
       version: "1",
@@ -698,6 +775,24 @@ async function getSummonActors() {
         img: "icons/skills/toxins/cauldron-pot-bubbles-green.webp",
       }),
     },
+  };
+}
+
+async function getSummonActors() {
+  const jb2aMod = game.modules.get('jb2a_patreon')?.active
+    ? "jb2a_patreon"
+    : "JB2A_DnD5e";
+
+  const arcaneEyes = await getArcaneEyes();
+  const dancingLights = getDancingLights(jb2aMod);
+  const mageHands = getMageHands(jb2aMod);
+  const getBubblingCauldron = getBubblingCauldrons();
+
+  const localActors = {
+    ...arcaneEyes,
+    ...dancingLights,
+    ...mageHands,
+    ...getBubblingCauldron,
   };
 
   const srdActors = await getSRDActors();
@@ -759,13 +854,50 @@ export default class DDBSummonsManager {
     return results;
   }
 
-  static async generateFixedSummons() {
+  static async getSRDCompendiumDocument({ pack = null, id = null, name = null }) {
+    const compendium = pack ?? game.packs.get("dnd5e.monsters");
+    if (!compendium) return undefined;
+    if (!id) id = DDBSummonsManager.MONSTER_MAP[name];
+    if (!id) return undefined;
+    const doc = await compendium.getDocument(id);
+    return doc;
+  }
+
+  static async getDDBCompendiumDocument({ pack = null, id = null, name = null, srdFallback = false }) {
+    const compendium = pack ?? CompendiumHelper.getCompendiumType("monster", false);
+    if (!compendium) return undefined;
+    await compendium.getIndex();
+    if (id) {
+      const doc = await compendium.getDocument(id);
+      if (doc) return doc;
+    }
+    if (name) {
+      const indexMatch = compendium.index.find((a) => a.name === name);
+      if (indexMatch) {
+        const doc = await fromUuid(indexMatch.uuid);
+        return doc;
+      }
+    }
+    if (srdFallback) {
+      return DDBSummonsManager.getSRDCompendiumDocument({ pack, id, name });
+    }
+    return undefined;
+
+  }
+
+  static MONSTER_MAP = {
+    "Arcane Hand": "iHj5Tkm6HRgXuaWP",
+    "Arcane Sword": "Tac7eq0AXJco0nml",
+    "Dire Wolf": "EYiQZ3rFL25fEJY5",
+  };
+
+  static get2024ArcaneHands = get2024ArcaneHands;
+
+  static async addGeneratedSummons(generatedSummonedActors) {
     if (!game.user.isGM) return;
     const manager = new DDBSummonsManager();
     await manager.init();
-    logger.debug("Generating Fixed summons");
 
-    const generatedSummonedActors = await getSummonActors();
     for (const [key, value] of Object.entries(generatedSummonedActors)) {
       // check for JB2A modules
       if (value.needsJB2A
@@ -799,6 +931,14 @@ export default class DDBSummonsManager {
 
       await manager.addToCompendium(companion);
     }
+  }
+
+  static async generateFixedSummons() {
+    if (!game.user.isGM) return;
+    logger.debug("Generating Fixed summons");
+
+    const generatedSummonedActors = await getSummonActors();
+    await DDBSummonsManager.addGeneratedSummons(generatedSummonedActors);
   }
 
   static DEFAULT_SUMMON = {
