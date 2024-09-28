@@ -91,6 +91,7 @@ export default class DDBFeatures {
     const nameAllowed = !featName.startsWith("Proficiencies")
       && !featName.includes("Ability Score")
       && !featName.startsWith("Size")
+      && !featName.startsWith("Expertise")
       && !featName.endsWith("Subclass")
       && !featName.match(/(\w+) Weapon Masteries($|:)/igm)
       && !featName.startsWith("Weapon Mastery -")

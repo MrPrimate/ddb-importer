@@ -7,6 +7,10 @@ import DDBFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 
 export default class DDBClassFeatures {
 
+  static EXCLUDED_FEATURES = [
+    "Expertise",
+  ];
+
   constructor({ ddbData, rawCharacter = null } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
@@ -45,6 +49,7 @@ export default class DDBClassFeatures {
       this: this,
     });
 
+    if (DDBClassFeatures.EXCLUDED_FEATURES.some((e) => feature.name.startsWith(e))) return [];
     if (!allowedByLevel) return [];
     const choiceFeatures = feature.isChoiceFeature
       ? await DDBChoiceFeature.buildChoiceFeatures(feature)

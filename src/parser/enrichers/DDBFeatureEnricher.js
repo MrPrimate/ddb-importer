@@ -1060,12 +1060,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             choice: true,
             special: "",
           },
-          prompt: true,
+          prompt: false,
         },
         healing: {
           custom: {
             enabled: true,
-            formula: "@scale.college-of-glamour.mantle-of-inspiration",
+            formula: "2 * @scale.college-of-glamour.mantle-of-inspiration",
           },
           types: ["temphp"],
         },
