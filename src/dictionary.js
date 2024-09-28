@@ -888,6 +888,7 @@ const DICTIONARY = {
       "Cutting Words", "Peerless Skill", "Tales from Beyond", "Blade Flourish",
       "Defensive Flourish", "Slashing Flourish", "Mobile Flourish",
       "Psychic Blades", "Superior Inspiration", "Regain Bardic Inspiration",
+      "Inspiring Movement", "Tandem Footwork",
     ],
     "Wild Shape": ["Symbiotic Entity", "Starry Form", "Wild Companion", "Summon Wildfire Spirit"],
     "Grit Points": [

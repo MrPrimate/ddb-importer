@@ -813,6 +813,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         };
       }
     },
+    "Inspiring Movement": {
+      type: "utility",
+      activationType: "reaction",
+    },
     "Intimidating Presence": {
       // type: "save",
       targetType: "creature",
@@ -1598,6 +1602,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "range.units": "spec",
         damage: {
           parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6 })],
+        },
+      },
+    },
+    "Tandem Footwork": {
+      type: "utility",
+      activationType: "special",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "@classes.bard.bardic-inspiration",
+          name: "Initiative bonus",
         },
       },
     },
