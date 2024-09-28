@@ -1,3 +1,7 @@
+# 5.2.37
+
+- Backport changes for monster import breaking for some Vision 5e setups.
+
 # 5.2.36
 
 - Item munch would not parse if source restrictions were selected.
