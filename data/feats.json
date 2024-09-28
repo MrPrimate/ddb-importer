@@ -598,5 +598,13 @@
   {
     "name": "Boon of Truesight",
     "path": "icons/magic/perception/third-eye-blue-red.webp"
+  },
+  {
+    "name": "Quick Search",
+    "path": "icons/skills/trades/academics-investigation-study-blue.webp"
+  },
+  {
+    "name": "Escape Artist",
+    "path": "icons/tools/fasteners/chain-brass-yellow.webp"
   }
 ]

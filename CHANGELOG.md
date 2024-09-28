@@ -3,6 +3,7 @@
 - Bigsby's Hand 2024 Summoning.
 - Dazzling Footwork enchantment. (Requires D&D system 4.0.4 or 4.1.x).
 - Some College of Dance bard features.
+- Improved placing of class features within Class section of the character sheet.
 
 # 6.0.10
 

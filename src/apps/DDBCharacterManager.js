@@ -821,7 +821,7 @@ ${item.system.description.chat}
 
   static restoreDDBMatchedFlags(existingItem, item) {
     const ddbItemFlags = foundry.utils.getProperty(existingItem, "flags.ddbimporter");
-    logger.debug(`Item flags for ${ddbItemFlags}`, ddbItemFlags);
+    logger.debug(`Item flags for ${existingItem.name}`, ddbItemFlags);
     // we retain some flags that might change the nature of the import for this item
     // these flags are used elsewhere
     [

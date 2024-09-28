@@ -318,7 +318,11 @@ export default class CharacterFeatureFactory {
       for (const feature of this.ddbCharacter.data[type]) {
         // eslint-disable-next-line no-continue
         if (foundry.utils.hasProperty(feature, "flags.dnd5e.advancementOrigin")) continue;
-        const typeFlag = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
+        const typeFlag = foundry.utils.getProperty(feature, "flags.ddbimporter.type")
+          ?? foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.type");
+        const classFlag = foundry.utils.getProperty(feature, "flags.ddbimporter.class")
+          ?? foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.class");
+
         if (typeFlag == "race" && foundry.utils.hasProperty(this.ddbCharacter, "data.race._id")) {
           foundry.utils.setProperty(feature, "flags.dnd5e.advancementOrigin", `${this.ddbCharacter.data.race._id}`);
         } else if (typeFlag === "background") {
@@ -326,9 +330,9 @@ export default class CharacterFeatureFactory {
           if (background) {
             foundry.utils.setProperty(feature, "flags.dnd5e.advancementOrigin", `${background._id}`);
           }
-        } else if (typeFlag === "class" && foundry.utils.hasProperty(feature, "flags.ddbimporter.class")) {
+        } else if (typeFlag === "class" && classFlag) {
           const klass = this.ddbCharacter.data.classes.find(
-            (k) => k.name === foundry.utils.getProperty(feature, "flags.ddbimporter.class"),
+            (k) => k.name === classFlag,
           );
           if (klass) {
             foundry.utils.setProperty(feature, "flags.dnd5e.advancementOrigin", `${klass._id}`);
