@@ -1923,8 +1923,15 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       },
     },
     "Command": {
-      data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": ["Free Cast"],
+      lookupName: {
+        "Activate Mantle of Majesty": {
+          data: {
+            "flags.ddbimporter": {
+              ignoredConsumptionActivities: ["Free Cast"],
+              // spellSlot: true,
+            },
+          },
+        },
       },
     },
     "Eldritch Blast": () => {

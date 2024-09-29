@@ -1635,6 +1635,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         name: "Darkvision",
       },
     },
+    "Unbreakable Majesty": {
+      type: "utility",
+      data: {
+        name: "Assume Unbreakable Majesty",
+      },
+    },
     "Uncanny Dodge": {
       type: "utility",
       activationType: "reaction",
@@ -2165,6 +2171,33 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Psychic Blades: Attack": [
+      {
+        constructor: {
+          name: "Bonus Action Attack",
+          type: "attack",
+        },
+        build: {
+          generateAttack: true,
+          generateConsumption: false,
+          includeBase: false,
+          generateTarget: true,
+          generateDamage: true,
+          attackOverride: {
+            ability: "cha",
+            type: {
+              value: "melee",
+              classification: "weapon",
+            },
+          },
+          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 4, type: "psychic" })],
+          activationOverride: {
+            type: "bonus",
+            value: 1,
+          },
+        },
+      },
+    ],
     "Shielding Storm": [
       {
         constructor: {
@@ -2308,33 +2341,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
-    "Psychic Blades: Attack": [
-      {
-        constructor: {
-          name: "Bonus Action Attack",
-          type: "attack",
-        },
-        build: {
-          generateAttack: true,
-          generateConsumption: false,
-          includeBase: false,
-          generateTarget: true,
-          generateDamage: true,
-          attackOverride: {
-            ability: "cha",
-            type: {
-              value: "melee",
-              classification: "weapon",
-            },
-          },
-          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 4, type: "psychic" })],
-          activationOverride: {
-            type: "bonus",
-            value: 1,
-          },
-        },
-      },
-    ],
     "Starry Form": [
       {
         constructor: {
@@ -2453,6 +2459,41 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
               width: "",
               height: "",
               units: "ft",
+            },
+          },
+        },
+      },
+    ],
+    "Unbreakable Majesty": [
+      {
+        constructor: {
+          name: "Save",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: false,
+          generateTarget: true,
+          generateActivation: true,
+          durationOverride: {
+            value: "",
+            units: "spec",
+          },
+          activationOverride: {
+            type: "special",
+          },
+          targetOverride: {
+            affects: {
+              value: "1",
+              type: "creatures",
+            },
+            template: {
+              contiguous: false,
+              type: "",
+              size: "",
+              width: "",
+              height: "",
+              units: "",
             },
           },
         },
@@ -2722,6 +2763,25 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         max: "1",
         recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
       },
+    },
+    "Unbreakable Majesty": () => {
+      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) =>
+        a.name === "Assume Unbreakable Majesty",
+      )?.limitedUse?.numberUsed ?? 0;
+      return {
+        data: {
+          "system.uses": {
+            spent,
+            max: "1",
+            recovery: [
+              {
+                period: "sr",
+                type: "recoverAll",
+              },
+            ],
+          },
+        },
+      };
     },
     "Wild Shape": {
       data: {
@@ -3620,6 +3680,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           priority: 20,
         },
       ],
+    },
+    "Unbreakable Majesty": {
+      type: "feat",
+      options: {
+        transfer: false,
+        durationSeconds: 60,
+      },
+      data: {
+        "flags.ddbimporter.activityMatch": "Assume Unbreakable Majesty",
+      },
     },
     "Unarmored Defense": {
       type: "feat",

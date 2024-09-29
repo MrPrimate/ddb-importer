@@ -442,8 +442,8 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
               type: "itemUses",
             }]);
           }
-
-          foundry.utils.setProperty(update, `system.activities.${id}.consumption.spellSlot`, false);
+          const spellSlot = foundry.utils.getProperty(child, "flags.ddbimporter.spellSlot") ?? false;
+          foundry.utils.setProperty(update, `system.activities.${id}.consumption.spellSlot`, spellSlot);
         }
       }
       toUpdate.push(update);

@@ -539,6 +539,7 @@ export default class DDBFeatureActivity {
     saveOverride = null,
     rangeOverride = null,
     ddbMacroOverride = null,
+    durationOverride = null,
   } = {}) {
 
 
@@ -571,7 +572,7 @@ export default class DDBFeatureActivity {
     if (generateAttack) this._generateAttack({ attackOverride, unarmed: null, spell: null });
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDescription) this._generateDescription();
-    if (generateDuration) this._generateDuration();
+    if (generateDuration) this._generateDuration({ durationOverride });
     if (generateEffects) this._generateEffects();
     if (generateSave) this._generateSave({ saveOverride });
     if (generateDamage) this._generateDamage({ includeBase, parts: damageParts });

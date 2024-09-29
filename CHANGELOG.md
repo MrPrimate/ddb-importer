@@ -1,3 +1,8 @@
+# Next Up
+
+- Unbreakable Majesty and Mantle of Majesty features for Glamour bard.
+
+
 # 6.0.11
 
 - Bigsby's Hand 2024 Summoning.
