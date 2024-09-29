@@ -406,6 +406,15 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Command": {
+      lookupName: {
+        "Activate Mantle of Majesty": {
+          data: {
+            name: "Activate Mantle of Majesty",
+          },
+        },
+      },
+    },
     "Control Weather": {
       type: "utility",
       targetType: "self",
@@ -1171,6 +1180,24 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Command": () => {
+      if (this.useLookupName && this.ddbParser.lookupName === "Activate Mantle of Majesty") {
+        return [
+          {
+            constructor: {
+              name: "Free Cast",
+              type: "save",
+            },
+            build: {
+              noSpellslot: true,
+              generateConsumption: true,
+              generateSave: true,
+            },
+          },
+        ];
+      }
+      return [];
+    },
     "Divine Smite": [
       {
         constructor: {
@@ -1893,6 +1920,11 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     "Catapult": {
       data: {
         "flags.midiProperties.nodam": true,
+      },
+    },
+    "Command": {
+      data: {
+        "flags.ddbimporter.ignoredConsumptionActivities": ["Free Cast"],
       },
     },
     "Eldritch Blast": () => {

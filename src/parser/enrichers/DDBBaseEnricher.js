@@ -66,14 +66,41 @@ export default class DDBBaseEnricher {
     return utils.isFunction(stub) ? stub() : stub;
   }
 
+  _findEnricherMatch(type) {
+    const match2014 = this.is2014
+      ? this.DND_2014[type]?.[this.hintName]
+      : null;
+    const match = match2014 ?? this[type]?.[this.hintName];
+
+    const loadedMatch = DDBBaseEnricher._loadDataStub(match);
+    if (!loadedMatch) return null;
+
+    if (loadedMatch.lookupName && this.ddbParser) {
+      const lookupName = foundry.utils.getProperty(this.ddbParser, "lookupName");
+      if (loadedMatch?.lookupName[lookupName]) {
+        this.useLookupName = true;
+        return DDBBaseEnricher._loadDataStub(loadedMatch.lookupName[lookupName]);
+      }
+    }
+    return loadedMatch;
+
+
+    // lookupName
+  }
+
   _prepare() {
     if (this.isCustomAction) return;
     this.hintName = (this.is2014 ? this.DND_2014.NAME_HINTS[this.name] : null) ?? this.NAME_HINTS[this.name] ?? this.name;
-    this.activity = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.ACTIVITY_HINTS[this.hintName] : null) ?? this.ACTIVITY_HINTS[this.hintName]);
-    this.effect = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.EFFECT_HINTS[this.hintName] : null) ?? this.EFFECT_HINTS[this.hintName]);
-    this.override = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.DOCUMENT_OVERRIDES[this.hintName] : null) ?? this.DOCUMENT_OVERRIDES[this.hintName]);
-    this.additionalActivities = (this.is2014 ? this.DND_2014.ADDITIONAL_ACTIVITIES[this.hintName] : null) ?? this.ADDITIONAL_ACTIVITIES[this.hintName];
-    this.documentStub = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.DOCUMENT_STUB[this.hintName] : null) ?? this.DOCUMENT_STUB[this.hintName]);
+    this.activity = this._findEnricherMatch("ACTIVITY_HINTS");
+    this.effect = this._findEnricherMatch("EFFECT_HINTS");
+    this.override = this._findEnricherMatch("DOCUMENT_OVERRIDES");
+    this.additionalActivities = this._findEnricherMatch("ADDITIONAL_ACTIVITIES");
+    this.documentStub = this._findEnricherMatch("DOCUMENT_STUB");
+    // this.activity = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.ACTIVITY_HINTS[this.hintName] : null) ?? this.ACTIVITY_HINTS[this.hintName]);
+    // this.effect = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.EFFECT_HINTS[this.hintName] : null) ?? this.EFFECT_HINTS[this.hintName]);
+    // this.override = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.DOCUMENT_OVERRIDES[this.hintName] : null) ?? this.DOCUMENT_OVERRIDES[this.hintName]);
+    // this.additionalActivities = (this.is2014 ? this.DND_2014.ADDITIONAL_ACTIVITIES[this.hintName] : null) ?? this.ADDITIONAL_ACTIVITIES[this.hintName];
+    // this.documentStub = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.DOCUMENT_STUB[this.hintName] : null) ?? this.DOCUMENT_STUB[this.hintName]);
   }
 
   constructor() {
@@ -83,6 +110,7 @@ export default class DDBBaseEnricher {
     this.isCustomAction = null;
     this.additionalActivityClass = null;
     this.is2014 = null;
+    this.useLookupName = false;
   }
 
   load({ ddbParser, document, name = null, is2014 = null } = {}) {
@@ -91,6 +119,7 @@ export default class DDBBaseEnricher {
     this.name = ddbParser?.originalName ?? name ?? document.flags?.ddbimporter?.originalName ?? document.name;
     this.isCustomAction = this.document.flags?.ddbimporter?.isCustomAction;
     this.is2014 = is2014 ?? this.ddbParser?.is2014 ?? this.document.flags?.ddbimporter?.is2014 ?? false;
+    this.useLookupName = false;
     this._prepare();
   }
 
