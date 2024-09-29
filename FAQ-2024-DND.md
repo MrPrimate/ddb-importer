@@ -17,6 +17,20 @@ If you stay on the 3.x D&D System and 5.x DDB Importer you will not get 2024 con
 
 As off now there is no filter to remove 2024 content during import in the 6.x version of the DDB Importer systme. This may come at a later date.
 
+## How do I install an older version of DDB Importer
+
+Visit the [modules page](https://foundryvtt.com/packages/ddb-importer/) on the Foundry website.
+
+In the list of releases find the release you want.
+The 6.x.x+ series of DDB Importer _only_ supports Foundry v12 and D&D 4.x+.
+
+Right click on the Manifest URL link, and select `Copy Link`.
+
+Go to your Foundry Setup screen, and to the `Add-on Modules` section.
+Uninstall DDB Importer if it's already installed.
+Click `Install Module`.
+Paste the link into the `Manifest URL` box at the bottom and click `Install`.
+
 ## So 2024 is fully implemented for import?
 
 No. Please see this [Known Issues list](https://github.com/MrPrimate/ddb-importer/issues/505)
