@@ -46,6 +46,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Font of Magic: Create",
     "Misty Step: ",
     "Pact of the Blade:",
+    "Combat Inspiration: ",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [

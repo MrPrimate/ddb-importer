@@ -372,6 +372,19 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Combat Inspiration": {
+      type: "utility",
+      targetType: "creature",
+      data: {
+        name: "Defense",
+        roll: {
+          prompt: false,
+          visible: true,
+          formula: "@scale.bard.bardic-inspiration",
+          name: "Inspiration Roll",
+        },
+      },
+    },
     "Convert Sorcery Points": {
       type: "ddbmacro",
       data: {
@@ -1623,7 +1636,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@classes.bard.bardic-inspiration",
+          formula: "@scale.bard.bardic-inspiration",
           name: "Initiative bonus",
         },
       },
@@ -1809,6 +1822,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
               units: "ft",
             },
           },
+        },
+      },
+    ],
+    "Combat Inspiration": [
+      {
+        constructor: {
+          name: "Damage",
+          type: "damage",
+        },
+        build: {
+          generateDamage: true,
+          damageParts:[
+            DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.bard.bardic-inspiration" }),
+          ],
         },
       },
     ],
