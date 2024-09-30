@@ -2,6 +2,10 @@
 
 - Unbreakable Majesty and Mantle of Majesty features for Glamour bard.
 - Witch Bolt fixes, and improvements to scaling for spells similar to Witch Bolt.
+- Some subclasses such as Rune Carver would fail to import.
+- Rune Carver feature improvements.
+- Tactical Mind feature
+- Gift of the Chromatic Dragons and Charger feats.
 
 # 6.0.11
 

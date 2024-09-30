@@ -372,6 +372,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Charger": {
+      type: "damage",
+      targetType: "enemy",
+      data: {
+        name: "Charge Damage",
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 8 })],
+        },
+      },
+    },
     "Combat Inspiration": {
       type: "utility",
       targetType: "creature",
@@ -711,6 +721,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         duration: {
           value: "1",
           units: "minute",
+        },
+      },
+    },
+    "Gift of the Chromatic Dragon: Chromatic Infusion": {
+      type: "enchant",
+      data: {
+        name: "Chromatic Infusion",
+        restrictions: {
+          type: "weapon",
+          allowMagical: true,
         },
       },
     },
@@ -1629,6 +1649,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Tactical Mind": {
+      type: "utility",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "1d10",
+          name: "Roll Ability Check Bonus",
+        },
+      },
+    },
     "Tandem Footwork": {
       type: "utility",
       activationType: "special",
@@ -1833,7 +1864,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
         build: {
           generateDamage: true,
-          damageParts:[
+          damageParts: [
             DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.bard.bardic-inspiration" }),
           ],
         },
@@ -3104,6 +3135,37 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           priority: 25,
         },
       ],
+    },
+    "Gift of the Chromatic Dragon: Chromatic Infusion": {
+      multiple: [
+        { type: "acid", img: "icons/magic/acid/dissolve-bone-white.webp" },
+        { type: "cold", img: "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp" },
+        { type: "fire", img: "icons/magic/fire/barrier-wall-flame-ring-yellow.webp" },
+        { type: "lightning", img: "icons/magic/lightning/bolt-strike-blue.webp" },
+        { type: "poison", img: "icons/skills/toxins/poison-bottle-corked-fire-green.webp" },
+      ].map((element) => {
+        return {
+          type: "enchant",
+          name: `Chromatic Infusion: ${utils.capitalize(element.type)}`,
+          data: {
+            img: element.img,
+          },
+          changes: [
+            {
+              key: "name",
+              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              value: `{} [Chromatic Infusion ${utils.capitalize(element.type)}]`,
+              priority: 20,
+            },
+            {
+              key: "system.damage.parts",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              value: `[["1d4", "${element.type}"]]`,
+              priority: 20,
+            },
+          ],
+        };
+      }),
     },
     "Hold Breath": {
       type: "feat",

@@ -26,6 +26,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Assume Unbreakable Majesty",
     // "Unbreakable Majesty",
     // "Mantle of Majesty",
+    "Charge Attack",
+    "Improved Dash",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

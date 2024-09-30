@@ -29,7 +29,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "The Third Eye",
     "Unbreakable Majesty",
     "Mantle of Majesty",
-    // "Rune Carver",
+    "Charger",
   ];
 
   static NO_CHOICE_ACTIVITY = [
@@ -40,6 +40,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Mantle of Majesty",
     "Unbreakable Majesty",
     "Rune Carver",
+    "Charger",
   ];
 
   _prepare() {

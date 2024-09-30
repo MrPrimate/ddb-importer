@@ -420,6 +420,9 @@ export default class DDBFeature extends DDBBaseFeature {
     this._generateSystemType();
     this._generateSystemSubType();
 
+    this._generateActivity({ hintsOnly: true });
+    this.enricher.addAdditionalActivities(this);
+
     // this._generateLimitedUse();
     // this._generateRange();
 
