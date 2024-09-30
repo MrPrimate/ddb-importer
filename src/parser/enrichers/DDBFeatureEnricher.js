@@ -90,25 +90,26 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
   };
 
   NAME_HINTS = {
+    "Aura of Courage": "Aura of",
+    "Aura Of Courage": "Aura of",
+    "Aura of Protection": "Aura of",
+    "Aura Of Protection": "Aura of",
+    "Font of Magic: Convert Spell Slots": "Convert Sorcery Points",
+    "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",
     "Invoke Duplicity": "Channel Divinity: Invoke Duplicity",
     "Preserve Life": "Channel Divinity: Preserve Life",
-    "Radiance of the Dawn": "Channel Divinity: Radiance of the Dawn",
-    "War God's Blessing": "Channel Divinity: War God's Blessing",
     "Psychic Blades: Attack (DEX)": "Psychic Blades: Attack",
     "Psychic Blades: Attack (STR)": "Psychic Blades: Attack",
     "Psychic Blades: Bonus Attack (DEX)": "Psychic Blades: Bonus Attack",
     "Psychic Blades: Bonus Attack (STR)": "Psychic Blades: Bonus Attack",
-    "Psychic Blades": "Psychic Blades: Attack",
     "Psychic Blades: Homing Strikes": "Soul Blades: Homing Strikes",
     "Psychic Blades: Psychic Teleportation": "Soul Blades: Psychic Teleportation",
+    "Psychic Blades": "Psychic Blades: Attack",
     "Psychic Teleportation": "Soul Blades: Psychic Teleportation",
-    "Font Of Magic": "Font of Magic",
-    "Aura of Protection": "Aura of",
-    "Aura of Courage": "Aura of",
-    "Aura Of Protection": "Aura of",
-    "Aura Of Courage": "Aura of",
-    "Font of Magic: Convert Spell Slots": "Convert Sorcery Points",
+    "Radiance of the Dawn": "Channel Divinity: Radiance of the Dawn",
+    "Rage (Enter)": "Rage",
+    "War God's Blessing": "Channel Divinity: War God's Blessing",
   };
 
   ACTIVITY_HINTS = {
@@ -858,6 +859,31 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Intimidating Presence": {
       // type: "save",
       targetType: "creature",
+      data: {
+        name: "Save",
+        save: {
+          ability: "wis",
+          dc: {
+            calculation: "str",
+            formula: "",
+          },
+        },
+        target: {
+          affects: {
+            type: "enemy",
+            choice: true,
+          },
+          template: {
+            count: "",
+            contiguous: false,
+            type: "radius",
+            size: "30",
+            width: "",
+            height: "",
+            units: "ft",
+          },
+        },
+      },
     },
     "Lay On Hands: Healing Pool": {
       type: "heal",
@@ -1318,6 +1344,25 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Maneuver Roll",
         },
       },
+    },
+    "Relentless Rage": {
+      type: "save",
+      activationType: "special",
+      targetType: "self",
+      addItemConsume: true,
+      data: {
+        save: {
+          ability: "con",
+          dc: {
+            calculation: "",
+            formula: "10 + (@item.uses.spent * 5)",
+          },
+        },
+      },
+    },
+    "Retaliation": {
+      type: "utility",
+      activationType: "reaction",
     },
     "Sacred Weapon": {
       type: "enchant",
@@ -2168,6 +2213,38 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Intimidating Presence": [
+      {
+        constructor: {
+          name: "Restore With Rage Use",
+          type: "utility",
+        },
+        build: {
+          noeffect: true,
+          generateConsumption: true,
+          generateTarget: false,
+          generateRange: false,
+          generateActivation: true,
+          generateUtility: true,
+          activationOverride: {
+            type: "special",
+            value: null,
+            condition: "",
+          },
+          consumptionOverride: {
+            targets: [
+              {
+                type: "itemUses",
+                target: "",
+                value: -1,
+                scaling: { mode: "", formula: "" },
+              },
+            ],
+            scaling: { allowed: false, max: "" },
+          },
+        },
+      },
+    ],
     "Imbue Aura of Protection": [
       {
         constructor: {
@@ -2253,6 +2330,29 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             type: "bonus",
             value: 1,
           },
+        },
+      },
+    ],
+    "Relentless Rage": [
+      {
+        constructor: {
+          name: "Apply Healing",
+          type: "heal",
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: true,
+          targetSelf: true,
+          generateRange: false,
+          generateActivation: true,
+          generateDamage: false,
+          generateHealing: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.barbarian.levels * 2", type: "healing" }),
         },
       },
     ],
@@ -2678,6 +2778,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Intimidating Presence": {
+      data: {
+        "flags.ddbimporter": {
+          ignoredConsumptionActivities: ["Save"],
+          retainOriginalConsumption: true,
+          retainChildUses: true,
+        },
+      },
+    },
     "Ki Points": {
       data: {
         "system.uses.max": "@scale.monk.ki-points",
@@ -2752,6 +2861,41 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           },
         },
       };
+    },
+    "Rage": {
+      data: {
+        name: "Rage",
+        uses: {
+          max: "@scale.barbarian.rage",
+        },
+      },
+    },
+    "Rage: Regain Expended Uses": {
+      data: {
+        "flags.ddbimporter": {
+          retainOriginalConsumption: true,
+          consumptionValue: "-@scale.barbarian.rage",
+          retainChildUses: true,
+        },
+      },
+    },
+    "Relentless Rage": {
+      data: {
+        "system.uses": {
+          spent: 0,
+          max: "30",
+          recovery: [
+            {
+              period: "lr",
+              type: "recoverAll",
+            },
+          ],
+        },
+        "flags.ddbimporter": {
+          retainResourceConsumption: true,
+          retainUseSpent: true,
+        },
+      },
     },
     "Shifting": {
       data: {
@@ -3026,6 +3170,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Diamond Soul": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "flags.dnd5e.diamondSoul",
+          value: "true",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+      ],
+    },
     "Draconic Resilience": {
       type: "feat",
       noCreate: true,
@@ -3042,6 +3200,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           value: "draconic",
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           priority: 10,
+        },
+      ],
+    },
+    "Dual Wielder": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "flags.dnd5e.enhancedDualWielding",
+          value: "true",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
         },
       ],
     },
@@ -3082,6 +3254,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           key: "system.ability",
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           value: "cha",
+          priority: 20,
+        },
+      ],
+    },
+    "Elven Accuracy": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "flags.dnd5e.elvenAccuracy",
+          value: "true",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           priority: 20,
         },
       ],
@@ -3167,6 +3353,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         };
       }),
     },
+    "Halfling Lucky": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "flags.dnd5e.halflingLucky",
+          value: "true",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+      ],
+    },
     "Hold Breath": {
       type: "feat",
       data: {
@@ -3207,6 +3407,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           });
         }
       },
+    },
+    "Jack of All Trades": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "flags.dnd5e.jackOfAllTrades",
+          value: "true",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+      ],
     },
     "Maneuver: Ambush": {
       type: "feat",
@@ -3304,6 +3518,26 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Mindless Rage": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.traits.ci.value",
+          value: "charmed",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+        {
+          key: "system.traits.ci.value",
+          value: "frightened",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+      ],
+    },
     "Momentary Stasis": {
       type: "feat",
       options: {
@@ -3343,6 +3577,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       ],
       statuses: ["incapacitated"],
     },
+    "Observant": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "flags.dnd5e.observantFeat",
+          value: "true",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+      ],
+    },
     "Partially Amphibious": {
       type: "feat",
       data: {
@@ -3358,7 +3606,22 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
       statuses: ["dodging"],
     },
+    "Powerful Build": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "flags.dnd5e.powerfulBuild",
+          value: "true",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+      ],
+    },
     "Rage": {
+      name: "Rage",
       type: "feat",
       options: {
         transfer: false,
@@ -3446,6 +3709,41 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           value: "1d8[radiant]",
           priority: "20",
+        },
+      ],
+    },
+    "Reckless Attack": {
+      name: "Attacking Recklessly",
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+    },
+    "Reliable Talent": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "flags.dnd5e.reliableTalent",
+          value: "true",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+      ],
+    },
+    "Remarkable Athlete": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "flags.dnd5e.remarkableAthlete",
+          value: "true",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
         },
       ],
     },
@@ -3674,6 +3972,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         description: "Disadvantage on attack rolls against creatures other than caster until the start of the casters next turn",
       },
       name: "Taunted",
+    },
+    "Tavern Brawler": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "flags.dnd5e.tavernBrawlerFeat",
+          value: "true",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+      ],
     },
     "The Third Eye": {
       multiple: [

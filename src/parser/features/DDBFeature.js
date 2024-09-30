@@ -22,6 +22,7 @@ export default class DDBFeature extends DDBBaseFeature {
   static LEVEL_SCALE_EXCLUSION_USES = [
     "Destroy Undead",
     "Magical Cunning",
+    "Brutal Strike",
   ];
 
   static LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH = [
@@ -447,6 +448,7 @@ export default class DDBFeature extends DDBBaseFeature {
 <ul>${listItems.join("")}</ul>`;
 
     const secretText = DDBChoiceFeature.NO_CHOICE_DESCRIPTION_ADDITION.includes(this.originalName)
+      // || ["feat"].this.includes(this.type) // don't add choice options for feats
       ? ""
       : DDBChoiceFeature.NO_CHOICE_BUILD.includes(this.originalName)
         ? joinedText

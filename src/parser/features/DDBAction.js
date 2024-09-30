@@ -28,6 +28,8 @@ export default class DDBAction extends DDBBaseFeature {
     // "Mantle of Majesty",
     "Charge Attack",
     "Improved Dash",
+    "Enhanced Dual Wielding",
+    "Rage: Relentless Rage",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

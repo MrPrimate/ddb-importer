@@ -9,16 +9,16 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static KEEP_CHOICE_FEATURE = [
     "Genie's Vessel",
+    "Mantle of Majesty",
     "The Third Eye",
     "Unbreakable Majesty",
-    "Mantle of Majesty",
   ];
 
   static KEEP_CHOICE_FEATURE_NAME = [
+    "Mantle of Majesty",
     "Pact Boon",
     "The Third Eye",
     "Unbreakable Majesty",
-    "Mantle of Majesty",
   ];
 
   static NO_FEATURE_PREFIX_NAME = [
@@ -26,11 +26,13 @@ export default class DDBChoiceFeature extends DDBFeature {
   ];
 
   static NO_CHOICE_BUILD = [
+    "Charger",
+    "Dual Wielder",
+    "Mantle of Majesty",
+    "Rune Shaper",
+    "Slasher",
     "The Third Eye",
     "Unbreakable Majesty",
-    "Mantle of Majesty",
-    "Charger",
-    "Rune Shaper",
   ];
 
   static NO_CHOICE_ACTIVITY = [
@@ -38,11 +40,13 @@ export default class DDBChoiceFeature extends DDBFeature {
   ];
 
   static NO_CHOICE_DESCRIPTION_ADDITION = [
-    "Mantle of Majesty",
-    "Unbreakable Majesty",
-    "Rune Carver",
     "Charger",
+    "Dual Wielder",
+    "Mantle of Majesty",
+    "Rune Carver",
     "Rune Shaper",
+    "Slasher",
+    "Unbreakable Majesty",
   ];
 
   _prepare() {

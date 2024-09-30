@@ -11,6 +11,13 @@ export default class DDBClassFeatures {
     "Expertise",
   ];
 
+  static EXCLUDED_FEATURES_2014 = [
+  ];
+
+  static EXCLUDED_FEATURES_2024 = [
+    "Rage",
+  ];
+
   constructor({ ddbData, rawCharacter = null } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
@@ -49,7 +56,10 @@ export default class DDBClassFeatures {
       this: this,
     });
 
-    if (DDBClassFeatures.EXCLUDED_FEATURES.some((e) => feature.name.startsWith(e))) return [];
+    if (DDBClassFeatures.EXCLUDED_FEATURES.some((e) => feature.name.startsWith(e))
+      || (feature.is2014 && DDBClassFeatures.EXCLUDED_FEATURES_2014.some((e) => feature.originalName.startsWith(e)))
+      || (!feature.is2014 && DDBClassFeatures.EXCLUDED_FEATURES_2024.some((e) => feature.originalName.startsWith(e)))
+    ) return [];
     if (!allowedByLevel) return [];
     const choiceFeatures = feature.isChoiceFeature
       ? await DDBChoiceFeature.buildChoiceFeatures(feature)

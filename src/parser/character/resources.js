@@ -349,13 +349,14 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
             logger.debug("child", child);
             const update = {
               _id: child._id,
-              system: {
-                uses: {
-                  spent: null,
-                  max: "",
-                },
-              },
+              system: {},
             };
+            if (!foundry.utils.getProperty(child, "flags.ddbimporter.retainChildUses")) {
+              update.system["uses"] = {
+                spent: null,
+                max: "",
+              };
+            }
             const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities");
             for (const id of Object.keys(child.system.activities)) {
               if (ignoredConsumptionActivities?.includes(child.system.activities[id].name)) continue;

@@ -950,6 +950,8 @@ const DICTIONARY = {
     "Jinx Points": ["Misfortunes:", "Curse Caster"],
     // "Celestial Revelation": ["Celestial Revelation (", "Celestial Revelation:"],
     "Second Wind": ["Tactical Mind"],
+    "Rage": ["Rage: Regain Expended Uses", "Intimidating Presence"],
+    "Rage (Enter)": ["Rage: Regain Expended Uses", "Intimidating Presence"],
   },
   RESOURCE_SPELL_LINKS: {
     "Ki Points": [
