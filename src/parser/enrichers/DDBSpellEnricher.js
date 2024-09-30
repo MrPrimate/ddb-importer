@@ -1604,6 +1604,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         build: {
           generateDamage: true,
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 12, type: "necrotic" })],
+          generateSave: true,
         },
       },
     ],

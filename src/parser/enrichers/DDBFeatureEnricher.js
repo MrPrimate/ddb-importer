@@ -649,6 +649,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Fire's Burn (Fire Giant)": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 10, type: "fire" })],
+        },
+      },
+    },
     "Font of Magic": {
       type: "ddbmacro",
       data: {
