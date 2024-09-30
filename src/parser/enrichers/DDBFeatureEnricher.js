@@ -694,6 +694,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Frenzy": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "(@scale.barbarian.rage-damage)d6" })],
+        },
+      },
+    },
     "Frost's Chill (Frost Giant)": {
       type: "damage",
       targetType: "creature",
