@@ -1218,7 +1218,7 @@ export default class DDBClass {
         title: this.is2014 ? "Ki Points" : "Focus Points",
         icon: null,
       };
-      Array.from(utils.arrayRange(18, 1, 2)).forEach((i) => {
+      utils.arrayRange(18, 1, 2).forEach((i) => {
         ki.configuration.scale[i] = {
           value: i,
         };

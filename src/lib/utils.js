@@ -27,7 +27,12 @@ const utils = {
     }
   },
 
-  arrayRange: Range,
+  _range: Range,
+
+  arrayRange: (total = 0, step = 1, from = 0) => {
+    return Array.from(utils._range(total, step, from));
+  },
+
 
   removeCompendiumLinks: (text) => {
     const linkRegExTag = /@\w+\[(.*)\](\{.*?\})/g;

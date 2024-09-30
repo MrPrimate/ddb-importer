@@ -30,6 +30,13 @@ export default class CharacterSpellFactory {
 
     };
 
+    this.slots = foundry.utils.getProperty(this.character, "system.spells");
+    this.levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
+      return this.slots[`spell${i}`] && this.slots[`spell${i}`].max !== 0;
+    });
+    this.pactSlots = this.slots.pact?.max && this.slots.pact.max > 0;
+    this.hasSlots = this.levelSlots || this.pactSlots;
+
     this.enricher = new DDDSpellEnricher();
   }
 
@@ -215,35 +222,53 @@ export default class CharacterSpellFactory {
     }
   }
 
+  canCast(spell) {
+    if (spell.limitedUse || spell.definition.level === 0) return true;
+    if (!this.slots) return false;
+    if (this.pactSlots) return true;
+    const levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
+      if (spell.definition.level > i) return false;
+      return this.slots[`spell${i}`] && this.slots[`spell${i}`].max !== 0;
+    });
+    return levelSlots;
+  }
+
   async handleGrantedSpells(spell, type) {
-    if (spell.limitedUse && spell.definition.level !== 0) {
-      const dups = this.ddb.character.spells[type].filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
-      const duplicateSpell = this.items.findIndex(
-        (existingSpell) =>
-          (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
-          && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
-      );
-      if (!dups && !this.items[duplicateSpell]) {
-        // also parse spell as non-limited use
-        let unlimitedSpell = foundry.utils.duplicate(spell);
-        unlimitedSpell.limitedUse = null;
-        unlimitedSpell.usesSpellSlot = true;
-        unlimitedSpell.alwaysPrepared = true;
-        unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
-        unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
-        unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = type;
-        delete unlimitedSpell.id;
-        delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-        const parsedSpell = await DDBSpell.parseSpell(unlimitedSpell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(unlimitedSpell.definition.name)}` });
-        this.items.push(parsedSpell);
-      }
-    }
+    if (!spell.limitedUse || spell.definition.level === 0) return;
+    if (!this.slots) return;
+    const levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
+      if (spell.definition.level > i) return false;
+      return this.slots[`spell${i}`] && this.slots[`spell${i}`].max !== 0;
+    });
+
+    if (!levelSlots && !this.pactSlots) return;
+
+    const dups = this.ddb.character.spells[type].filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
+    const duplicateSpell = this.items.findIndex(
+      (existingSpell) =>
+        (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
+        && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
+    );
+
+    if (dups && this.items[duplicateSpell]) return;
+
+    // also parse spell as non-limited use
+    let unlimitedSpell = foundry.utils.duplicate(spell);
+    unlimitedSpell.limitedUse = null;
+    unlimitedSpell.usesSpellSlot = true;
+    unlimitedSpell.alwaysPrepared = true;
+    unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
+    unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
+    unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = type;
+    delete unlimitedSpell.id;
+    delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
+    const parsedSpell = await DDBSpell.parseSpell(unlimitedSpell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(unlimitedSpell.definition.name)}` });
+    this.items.push(parsedSpell);
   }
 
   async getRaceSpells() {
     for (const spell of this.ddb.character.spells.race) {
-      if (!spell.definition)
-        continue;
+      if (!spell.definition) continue;
       // for race spells the spell spellCastingAbilityId is on the spell
       // if there is no ability on spell, we default to wis
       let spellCastingAbility = "wis";
@@ -287,6 +312,7 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "race");
+      if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
       this.items.push(parsedSpell);
     }
@@ -294,8 +320,7 @@ export default class CharacterSpellFactory {
 
   async getFeatSpells() {
     for (const spell of this.ddb.character.spells.feat) {
-      if (!spell.definition)
-        continue;
+      if (!spell.definition) continue;
       // If the spell has an ability attached, use that
       // if there is no ability on spell, we default to wis
       let spellCastingAbility = "wis";
@@ -338,6 +363,7 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "feat");
+      if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
       this.items.push(parsedSpell);
     }
@@ -346,8 +372,7 @@ export default class CharacterSpellFactory {
   async getBackgroundSpells() {
     if (!this.ddb.character.spells.background) this.ddb.character.spells.background = [];
     for (const spell of this.ddb.character.spells.background) {
-      if (!spell.definition)
-        continue;
+      if (!spell.definition) continue;
       // If the spell has an ability attached, use that
       // if there is no ability on spell, we default to wis
       let spellCastingAbility = "wis";
@@ -378,6 +403,7 @@ export default class CharacterSpellFactory {
       };
 
       this.handleGrantedSpells(spell, "background");
+      if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
       this.items.push(parsedSpell);
     }
