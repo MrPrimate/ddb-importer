@@ -30,6 +30,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Improved Dash",
     "Enhanced Dual Wielding",
     "Rage: Relentless Rage",
+    "Rage: Regain Expended Uses",
+    "Activate Large Form",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

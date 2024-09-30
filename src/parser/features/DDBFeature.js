@@ -448,11 +448,12 @@ export default class DDBFeature extends DDBBaseFeature {
 <ul>${listItems.join("")}</ul>`;
 
     const secretText = DDBChoiceFeature.NO_CHOICE_DESCRIPTION_ADDITION.includes(this.originalName)
-      // || ["feat"].this.includes(this.type) // don't add choice options for feats
+      || ["feat"].includes(this.type) // don't add choice options for feats
       ? ""
       : DDBChoiceFeature.NO_CHOICE_BUILD.includes(this.originalName)
         ? joinedText
         : `<section class="secret">${joinedText}</section>`;
+
     this._generateDescription({ extra: secretText });
     this._addEffects(undefined, this.type);
 

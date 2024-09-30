@@ -885,6 +885,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Large Form": {
+      type: "utility",
+      activationType: "bonus",
+      data: {
+        duration: {
+          value: "10",
+          units: "minute",
+        },
+      },
+    },
     "Lay On Hands: Healing Pool": {
       type: "heal",
       name: "Healing",
@@ -1158,6 +1168,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           formula: "1d4",
           name: "Roll Ability Check Bonus",
         },
+      },
+    },
+    "Persistent Rage": {
+      type: "utility",
+      targetType: "self",
+      data: {
+        "range.units": "self",
       },
     },
     "Polearm Master - Bonus Attack": {
@@ -2792,6 +2809,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "system.uses.max": "@scale.monk.ki-points",
       },
     },
+    "Large Form": () => {
+      return {
+        data: {
+          "system.uses": {
+            value: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Activate Large Form")?.limitedUse?.numberUsed ?? null,
+            max: 1,
+            recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+          },
+        },
+      };
+    },
     "Lay on Hands Pool": {
       data: {
         name: "Lay On Hands",
@@ -2870,8 +2898,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Rage: Regain Expended Uses": {
+    "Persistent Rage": {
       data: {
+        "system.uses": {
+          value: this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Rage: Regain Expended Uses")?.limitedUse?.numberUsed ?? null,
+          max: 1,
+          recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+        },
         "flags.ddbimporter": {
           retainOriginalConsumption: true,
           consumptionValue: "-@scale.barbarian.rage",
@@ -3422,6 +3455,34 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Large Form": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.traits.size",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          value: "lg",
+          priority: 25,
+        },
+      ],
+      atlChanges: [
+        {
+          key: "ATL.width",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 30,
+          value: 2,
+        },
+        {
+          key: "ATL.height",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 30,
+          value: 2,
+        },
+      ],
+    },
     "Maneuver: Ambush": {
       type: "feat",
       options: {
@@ -3904,6 +3965,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       options: {
         transfer: false,
       },
+    },
+    "Slasher": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      name: "Slashed",
     },
     "Starry Form": {
       multiple: [

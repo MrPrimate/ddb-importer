@@ -21,6 +21,10 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Unbreakable Majesty",
   ];
 
+  static KEEP_CHOICE_FEATURE_NAME_STARTSWITH = [
+    "Boon of ",
+  ];
+
   static NO_FEATURE_PREFIX_NAME = [
     "Rune Carver",
   ];
@@ -94,7 +98,9 @@ export default class DDBChoiceFeature extends DDBFeature {
       }
 
       const replaceRegex = new RegExp(`${this.data.name}(?:\\s*)- `);
-      this.data.name = !DDBChoiceFeature.KEEP_CHOICE_FEATURE_NAME.includes(this.ddbDefinition.name) && choice.label
+      this.data.name = !DDBChoiceFeature.KEEP_CHOICE_FEATURE_NAME.includes(this.ddbDefinition.name)
+        && !DDBChoiceFeature.KEEP_CHOICE_FEATURE_NAME_STARTSWITH.some((prefix) => this.ddbDefinition.name.startsWith(prefix))
+        && choice.label
         ? choice.label.startsWith(this.data.name.trim())
           ? choice.label.replace(replaceRegex, `${this.data.name}: `)
           : `${this.data.name}: ${choice.label}`
