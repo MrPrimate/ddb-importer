@@ -53,6 +53,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Misty Step: ",
     "Pact of the Blade:",
     "Combat Inspiration: ",
+    "Brutal Strike:",
+    "Improved Brutal Strike:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [

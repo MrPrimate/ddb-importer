@@ -297,6 +297,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Brutal Strike": {
+      type: "damage",
+      name: "Forceful Blow",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
+        },
+      },
+    },
     "Celestial Revelation": {
       type: this.is2014 ? "utility" : "damage",
       noTemplate: true,
@@ -881,6 +890,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           },
         };
       }
+    },
+    "Improved Brutal Strike": {
+      type: "damage",
+      targetType: "creature",
+      name: "Staggering Blow",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
+        },
+      },
     },
     "Inspiring Movement": {
       type: "utility",
@@ -1970,6 +1989,21 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Brutal Strike": [
+      {
+        constructor: {
+          name: "Hamstrung Blow",
+          type: "damage",
+        },
+        build: {
+          generateActivation: true,
+          generateDamage: true,
+          damageParts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" }),
+          ],
+        },
+      },
+    ],
     "Combat Inspiration": [
       {
         constructor: {
@@ -2333,6 +2367,21 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             condition: "",
           },
           damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@abilities.mod.cha + @prof", types: ["radiant"] })],
+        },
+      },
+    ],
+    "Improved Brutal Strike": [
+      {
+        constructor: {
+          name: "Staggering Blow",
+          type: "damage",
+        },
+        build: {
+          generateActivation: true,
+          generateDamage: true,
+          damageParts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" }),
+          ],
         },
       },
     ],
@@ -3461,6 +3510,24 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Brutal Strike": {
+      name: "Hamstrung",
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        {
+          key: "system.attributes.movement.walk",
+          value: "-15",
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 90,
+        },
+      ],
+      data: {
+        "flags.ddbimporter.activityMatch": "Hamstrung Blow",
+      },
+    },
     "Hold Breath": {
       type: "feat",
       data: {
@@ -3508,6 +3575,34 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           });
         }
       },
+    },
+    "Improved Brutal Strike": {
+      multiple: [
+        {
+          name: "Staggered",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          changes: [
+          ],
+          data: {
+            "flags.ddbimporter.activityMatch": "Staggering Blow",
+          },
+        },
+        {
+          name: "Sundered",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          changes: [
+          ],
+          data: {
+            "flags.ddbimporter.activityMatch": "Sundering Blow",
+          },
+        },
+      ],
     },
     "Jack of All Trades": {
       type: "feat",

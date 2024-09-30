@@ -143,6 +143,8 @@ export default class DDBBaseEnricher {
 
     let activityHint = utils.isFunction(this.activity) ? this.activity() : this.activity;
 
+    if (activityHint.name) activity.name = activityHint.name;
+
     if (activityHint.type === "summon") {
       if (!this.manager) return activity;
       this.manager.addProfilesToActivity(activity, activityHint.profileKeys, activityHint.summons);
