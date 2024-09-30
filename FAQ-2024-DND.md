@@ -54,3 +54,9 @@ This will likely take a couple of months or more. (Late 2024).
 
 Please add to the [Known Issues list](https://github.com/MrPrimate/ddb-importer/issues/505) or the [#bugs](https://discord.gg/aUQBCa9bv8) channel.
 
+## Characters I import have additional stats boosts
+
+This is likely because a legacy background was selected and the stats adjusted on the Abilities page of the DDB Character Builder, and then later switched to a 2024 background.
+
+Go into the Character Builder and select a legacy background, switch to the Abilities page and select "Choose an Option" in the stats drop down.
+Switch back to your chosen 2024 background, reselect the ability boosts, and reimport your character.
