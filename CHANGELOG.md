@@ -9,6 +9,7 @@
 - Granted Spells will no longer be added to leveled spells section if you don't have spell slots @livid.paragon
 - A number of Core 2024 Barbarian Features and Berserker class improvements.
 - Toll the Dead secondary damage had incorrect save.
+- Some tweaks to 2024 Goliath features.
 
 # 6.0.11
 

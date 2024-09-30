@@ -383,6 +383,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Cloud's Jaunt (Cloud Giant)": {
+      type: "utility",
+      targetType: "self",
+      activationType: "bonus",
+    },
     "Combat Inspiration": {
       type: "utility",
       targetType: "creature",
@@ -680,6 +685,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Frost's Chill (Frost Giant)": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, type: "cold" })],
+        },
+      },
+    },
     "Full of Stars": {
       type: "utility",
       targetType: "self",
@@ -816,6 +831,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           },
         },
       },
+    },
+    "Hill's Tumble (Hill Giant)": {
+      type: "utility",
+      targetType: "creature",
+      activationType: "special",
     },
     "Hold Breath": {
       type: "utility",
@@ -1583,6 +1603,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Stone's Endurance (Stone Giant)": {
+      type: "utility",
+      activationType: "reaction",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "1d12 + @abilities.con.mod",
+          name: "Reduce Damage Roll",
+        },
+      },
+    },
     "Storm Soul: Dessert": {
       type: "utility",
       activationType: "special",
@@ -1683,6 +1715,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             formula: "@scale.path-of-the-storm-herald.storm-aura-tundra",
           },
           types: ["temphp"],
+        },
+      },
+    },
+    "Storm's Thunder (Storm Giant)": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "reaction",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 8, type: "thunder" })],
         },
       },
     },
@@ -3345,6 +3387,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         { key: "system.traits.dr.value", value: "slashing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
       ],
     },
+    "Frost's Chill (Frost Giant)": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      changes: [
+        { key: "system.attributes.movement.walk", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "-10", priority: "20" },
+      ],
+    },
     "Giant's Might": {
       type: "feat",
       options: {
@@ -3415,6 +3466,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         "duration.rounds": 600,
       },
+    },
+    "Hill's Tumble (Hill Giant)": {
+      type: "feat",
+      options: {
+        transfer: false,
+      },
+      statuses: ["Prone"],
     },
     "Innate Sorcery": {
       type: "feat",

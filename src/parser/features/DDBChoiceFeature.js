@@ -51,6 +51,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Rune Shaper",
     "Slasher",
     "Unbreakable Majesty",
+    "Giant Ancestry",
   ];
 
   _prepare() {
