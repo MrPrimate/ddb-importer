@@ -606,5 +606,9 @@
   {
     "name": "Escape Artist",
     "path": "icons/tools/fasteners/chain-brass-yellow.webp"
+  },
+  {
+    "name": "Rune Shaper",
+    "path": "icons/magic/symbols/runes-carved-stone-red.webp"
   }
 ]

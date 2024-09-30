@@ -21,10 +21,15 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Mantle of Majesty",
   ];
 
+  static NO_FEATURE_PREFIX_NAME = [
+    "Rune Carver",
+  ];
+
   static NO_CHOICE_BUILD = [
     "The Third Eye",
     "Unbreakable Majesty",
     "Mantle of Majesty",
+    // "Rune Carver",
   ];
 
   static NO_CHOICE_ACTIVITY = [
@@ -34,6 +39,7 @@ export default class DDBChoiceFeature extends DDBFeature {
   static NO_CHOICE_DESCRIPTION_ADDITION = [
     "Mantle of Majesty",
     "Unbreakable Majesty",
+    "Rune Carver",
   ];
 
   _prepare() {
@@ -86,6 +92,11 @@ export default class DDBChoiceFeature extends DDBFeature {
           ? choice.label.replace(replaceRegex, `${this.data.name}: `)
           : `${this.data.name}: ${choice.label}`
         : this.data.name;
+      if (DDBChoiceFeature.NO_FEATURE_PREFIX_NAME.includes(this.ddbDefinition.name)) {
+        const replace2Regex = new RegExp(`(${this.ddbDefinition.name}(?:[\\s:-]*))`);
+        this.data.name = `${this.data.name}`.replace(replace2Regex, "");
+      }
+
       this.data.name = utils.nameString(this.data.name);
       const intMatch = /^(\d+: )(.*)$/;
       const intNameMatch = intMatch.exec(this.data.name);

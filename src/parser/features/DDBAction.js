@@ -60,6 +60,21 @@ export default class DDBAction extends DDBBaseFeature {
     "Bardic Inspiration",
   ];
 
+  // static ACTION_MATCH = [
+  //   /Rune Carver: (\w+ Rune)/i,
+  // ];
+
+  // _actionMatch() {
+  //   for (const match of DDBAction.ACTION_MATCH) {
+  //     const result = match.exec(this.ddbDefinition.name);
+  //     if (result) {
+  //       foundry.utils.setProperty(this.data, "flags.ddbimporter.featureMatchName", result[1]);
+  //       break;
+  //     }
+  //   }
+  // }
+
+
   _init() {
     this.isAction = true;
     logger.debug(`Generating Action ${this.ddbDefinition.name}`);

@@ -243,7 +243,7 @@ export default class DDBFeatures {
         });
         if (foundry.utils.hasProperty(feature, "system.damage.base")) {
           feature.system.damage.base.custom = damage.custom;
-        } else {
+        } else if (foundry.utils.hasProperty(feature, "system.activities")) {
           for (const [key, activity] of Object.entries(feature.system.activities)) {
             if (activity.damage && activity.damage.parts.length === 0) {
               // console.warn(`adding scale for ${feature.name} ${key}`, {

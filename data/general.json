@@ -222,5 +222,9 @@
   {
     "name": "Martial Weapon Training",
     "path": "icons/weapons/axes/axe-battle-heavy-jagged.webp"
+  },
+  {
+    "name": "Improved Dash",
+    "path": "icons/skills/movement/ball-spinning-blue.webp"
   }
 ]
