@@ -30,6 +30,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Unbreakable Majesty",
     "Mantle of Majesty",
     "Charger",
+    "Rune Shaper",
   ];
 
   static NO_CHOICE_ACTIVITY = [
@@ -41,6 +42,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Unbreakable Majesty",
     "Rune Carver",
     "Charger",
+    "Rune Shaper",
   ];
 
   _prepare() {
