@@ -1,7 +1,7 @@
 # Next Up
 
 - Unbreakable Majesty and Mantle of Majesty features for Glamour bard.
-
+- Witch Bolt fixes, and improvements to scaling for spells similar to Witch Bolt.
 
 # 6.0.11
 

@@ -190,90 +190,93 @@ export default class DDBSpellActivity {
     return scaleType;
   }
 
-  getScaling() {
+  // eslint-disable-next-line complexity
+  getScaling({ damageMod = null } = {}) {
     let baseDamage = "";
     let scaleDamage = "";
     let scaleType = null; // defaults to null, so will be picked up as a None scaling spell.
 
     // spell scaling
     if (this.spellDefinition.canCastAtHigherLevel) {
+      const damageMods = damageMod
+        ? [damageMod]
+        : this.spellDefinition.modifiers
+          .filter((mod) => mod.type === "damage" || (mod.type === "bonus" && mod.subType === "hit-points"));
+
       // iterate over each spell modifier
-      this.spellDefinition.modifiers
-        .filter((mod) => mod.type === "damage" || (mod.type === "bonus" && mod.subType === "hit-points"))
-        // eslint-disable-next-line complexity
-        .forEach((mod) => {
-          // if the modifier has a die for damage, lets use the string or fixed value
-          // for the base damage
-          if (mod && mod.die) {
-            if (mod.die.diceString !== null) {
-              baseDamage = mod.die.diceString;
-            }
-
-            if (mod.die.fixedValue !== null && baseDamage === "") {
-              baseDamage = mod.die.fixedValue;
-            }
+      for (const mod of damageMods) {
+        // if the modifier has a die for damage, lets use the string or fixed value
+        // for the base damage
+        if (mod && mod.die) {
+          if (mod.die.diceString !== null) {
+            baseDamage = mod.die.diceString;
           }
 
-          // defines some details about higher level casting
-          if (mod.atHigherLevels) {
-            // scaleTypes:
-            // SPELLSCALE - typical spells that scale
-            // SPELLLEVEL - these spells have benefits that come in at particular levels e.g. bestow curse, hex. typically  duration changes
-            // CHARACTERLEVEL - typical cantrip based levelling, some expections (eldritch blast)
-
-            // mod.atHigherLevels.higherLevelDefinitions contains info about the
-            // spells damage die at higher levels, but we can't use this for cantrips as
-            // FVTT use a formula to work out the scaling (ddb has a fixed value structure)
-            const isHigherLevelDefinitions
-              = mod.atHigherLevels.higherLevelDefinitions
-              && Array.isArray(mod.atHigherLevels.higherLevelDefinitions)
-              && mod.atHigherLevels.higherLevelDefinitions.length >= 1;
-
-            // lets handle normal spell leveling first
-            const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : this.spellDefinition.scaleType;
-            if (isHigherLevelDefinitions && modScaleType === "spellscale") {
-              const definition = mod.atHigherLevels.higherLevelDefinitions[0];
-              if (definition) {
-                const die = definition.dice ? definition.dice : definition.die ? definition.die : undefined;
-                const modScaleDamage
-                  = die?.diceString // if dice string
-                    ? die.diceString // use dice string
-                    : die?.fixedValue // else if fixed value
-                      ? die.fixedValue // use fixed value
-                      : definition.value; // else use value
-
-                // some spells have multiple scaling damage (e.g. Wall of Ice,
-                // Glyph of warding, Acid Arrow, Arcane Hand, Dragon's Breath,
-                // Chromatic Orb, Absorb Elements, Storm Sphere, Spirit Guardians)
-                // it's hard to model most of these in FVTT, and for some it makes
-                // no difference. so...
-                // lets optimistically use the highest
-                // assumptions: these are going to be dice strings, and we don't care
-                // about dice value, just number of dice
-                const diceFormula = /(\d*)d\d*/;
-                const existingMatch = diceFormula.exec(scaleDamage);
-                const modMatch = diceFormula.exec(modScaleDamage);
-
-                const modMatchValue = modMatch
-                  ? modMatch.length > 1 ? modMatch[1] : modMatch[0]
-                  : undefined;
-
-                if (!existingMatch && !modMatch) {
-                  scaleDamage = modScaleDamage;
-                } else if (!existingMatch || modMatchValue > existingMatch[1]) {
-                  scaleDamage = modScaleDamage;
-                }
-              } else {
-                logger.warn("No definition found for " + this.spellDefinition.name);
-              }
-            } else if (isHigherLevelDefinitions && modScaleType === "characterlevel") {
-              // cantrip support, important to set to a fixed value if using abilities like potent spellcasting
-              scaleDamage = baseDamage;
-            }
-
-            scaleType = this.getScaleType(mod);
+          if (mod.die.fixedValue !== null && baseDamage === "") {
+            baseDamage = mod.die.fixedValue;
           }
-        });
+        }
+
+        // defines some details about higher level casting
+        if (!mod.atHigherLevels) continue;
+        // scaleTypes:
+        // SPELLSCALE - typical spells that scale
+        // SPELLLEVEL - these spells have benefits that come in at particular levels e.g. bestow curse, hex. typically  duration changes
+        // CHARACTERLEVEL - typical cantrip based levelling, some expections (eldritch blast)
+
+        // mod.atHigherLevels.higherLevelDefinitions contains info about the
+        // spells damage die at higher levels, but we can't use this for cantrips as
+        // FVTT use a formula to work out the scaling (ddb has a fixed value structure)
+        const isHigherLevelDefinitions
+          = mod.atHigherLevels.higherLevelDefinitions
+          && Array.isArray(mod.atHigherLevels.higherLevelDefinitions)
+          && mod.atHigherLevels.higherLevelDefinitions.length >= 1;
+
+        // lets handle normal spell leveling first
+        const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : this.spellDefinition.scaleType;
+        if (isHigherLevelDefinitions && modScaleType === "spellscale") {
+          const definition = mod.atHigherLevels.higherLevelDefinitions[0];
+          if (definition) {
+            const die = definition.dice ? definition.dice : definition.die ? definition.die : undefined;
+            const modScaleDamage
+              = die?.diceString // if dice string
+                ? die.diceString // use dice string
+                : die?.fixedValue // else if fixed value
+                  ? die.fixedValue // use fixed value
+                  : definition.value; // else use value
+
+            // some spells have multiple scaling damage (e.g. Wall of Ice,
+            // Glyph of warding, Acid Arrow, Arcane Hand, Dragon's Breath,
+            // Chromatic Orb, Absorb Elements, Storm Sphere, Spirit Guardians)
+            // it's hard to model most of these in FVTT, and for some it makes
+            // no difference. so...
+            // lets optimistically use the highest
+            // assumptions: these are going to be dice strings, and we don't care
+            // about dice value, just number of dice
+            const diceFormula = /(\d*)d\d*/;
+            const existingMatch = diceFormula.exec(scaleDamage);
+            const modMatch = diceFormula.exec(modScaleDamage);
+
+            const modMatchValue = modMatch
+              ? modMatch.length > 1 ? modMatch[1] : modMatch[0]
+              : undefined;
+
+            // eslint-disable-next-line max-depth
+            if (!existingMatch && !modMatch) {
+              scaleDamage = modScaleDamage;
+            } else if (!existingMatch || modMatchValue > existingMatch[1]) {
+              scaleDamage = modScaleDamage;
+            }
+          } else {
+            logger.warn("No definition found for " + this.spellDefinition.name);
+          }
+        } else if (isHigherLevelDefinitions && modScaleType === "characterlevel") {
+          // cantrip support, important to set to a fixed value if using abilities like potent spellcasting
+          scaleDamage = baseDamage;
+        }
+
+        scaleType = this.getScaleType(mod);
+      }
     }
 
     // KNOWN_ISSUE_4_0: we can probs determine if something is doing a half scale here
@@ -307,7 +310,7 @@ export default class DDBSpellActivity {
     }
   }
 
-  buildDamagePart({ damageString, type } = {}) {
+  buildDamagePart({ damageString, type, damageMod = null } = {}) {
     // const damage = {
     //   number: null,
     //   denomination: null,
@@ -326,7 +329,7 @@ export default class DDBSpellActivity {
 
     const damage = DDBBasicActivity.buildDamagePart({ damageString, type });
 
-    const scaling = this.getScaling();
+    const scaling = this.getScaling({ damageMod });
     damage.scaling.mode = scaling.mode;
 
     if (scaling.old === "none") {
@@ -361,19 +364,20 @@ export default class DDBSpellActivity {
     let chatFlavor = [];
 
     // damage
-    const attacks = this.spellDefinition.modifiers.filter((mod) => mod.type === "damage");
-    if (attacks.length !== 0) {
-      attacks.forEach((attack) => {
-        const restrictionText = attack.restriction && attack.restriction !== "" ? attack.restriction : "";
+    const damages = this.spellDefinition.modifiers.filter((mod) => mod.type === "damage");
+    if (damages.length !== 0) {
+      damages.forEach((damageMod) => {
+        const restrictionText = damageMod.restriction && damageMod.restriction !== "" ? damageMod.restriction : "";
         if (!this.damageRestrictionHints && restrictionText !== "") {
           chatFlavor.push(`Restriction: ${restrictionText}`);
         }
-        const addMod = attack.usePrimaryStat || this.cantripBoost ? " + @mod" : "";
-        let diceString = utils.parseDiceString(attack.die.diceString, addMod).diceString;
+        const addMod = damageMod.usePrimaryStat || this.cantripBoost ? " + @mod" : "";
+        let diceString = utils.parseDiceString(damageMod.die.diceString, addMod).diceString;
         if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
           const damage = this.buildDamagePart({
             damageString: diceString,
-            type: attack.subType,
+            type: damageMod.subType,
+            damageMod,
           });
           parts.push(damage);
         }
@@ -387,13 +391,10 @@ export default class DDBSpellActivity {
     }
 
     this.data.description.chatFlavor = chatFlavor.join(", ");
-    if (versatile !== "" && this.ddbParent.data.damage) {
-      this.ddbParent.data.damage.versatile = versatile;
-    } else if (versatile) {
+    if (versatile) {
       const damage = this.buildDamagePart({ damageString: versatile });
       this.additionalActivityDamageParts.push(damage);
     }
-
 
     if (partialDamageParts) {
       const partialParts = [];
@@ -401,6 +402,10 @@ export default class DDBSpellActivity {
         partialParts.push(parts[part]);
       }
       parts = partialParts;
+    }
+
+    if (this.ddbParent.enricher?.activity?.splitDamage) {
+      parts = parts.slice(0, 1);
     }
 
     this.data.damage = {

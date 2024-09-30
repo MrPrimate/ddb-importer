@@ -965,6 +965,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Witch Bolt": {
+      splitDamage: true,
+    },
   };
 
   ADDITIONAL_ACTIVITIES = {
@@ -1903,6 +1906,40 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Witch Bolt": () => {
+      return [
+        {
+          constructor: {
+            name: "Ongoing Damage",
+            type: "damage",
+          },
+          build: {
+            generateDamage: true,
+            generateConsumption: false,
+            generateTarget: true,
+            generateActivation: true,
+            activationOverride: {
+              value: "1",
+              type: this.is2014 ? "action" : "bonus",
+            },
+            targetOverride: {
+              override: true,
+              template: {
+                count: "1",
+                contiguous: false,
+                type: "",
+                size: this.is2014 ? "30" : "60",
+                units: "ft",
+              },
+              affects: {},
+            },
+            damageParts: [
+              DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 12, type: "lightning", scalingMode: "none", scalingNumber: null }),
+            ],
+          },
+        },
+      ];
+    },
   };
 
   DOCUMENT_OVERRIDES = {
@@ -2991,6 +3028,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         { key: "system.traits.dr.value", value: "thunder", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
         { key: "system.bonuses.abilities.save", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "+ 1", priority: "20" },
       ],
+    },
+    "Witch Bolt": {
+      type: "spell",
     },
   };
 
