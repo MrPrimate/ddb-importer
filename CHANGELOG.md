@@ -7,6 +7,7 @@
 - Tactical Mind feature
 - Gift of the Chromatic Dragons and Charger feats.
 - Granted Spells will no longer be added to leveled spells section if you don't have spell slots @livid.paragon
+- A number of Core 2024 Barbarian Features and Berserker class improvements.
 
 # 6.0.11
 
