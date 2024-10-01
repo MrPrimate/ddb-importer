@@ -32,6 +32,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Rage: Relentless Rage",
     "Rage: Regain Expended Uses",
     "Activate Large Form",
+    "Brew Poison",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

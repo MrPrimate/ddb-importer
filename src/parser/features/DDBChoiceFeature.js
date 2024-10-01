@@ -31,8 +31,11 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static NO_CHOICE_BUILD = [
     "Charger",
+    "Crusher",
     "Dual Wielder",
     "Mantle of Majesty",
+    "Piercer",
+    "Poisoner",
     "Rune Shaper",
     "Slasher",
     "The Third Eye",
@@ -45,8 +48,11 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static NO_CHOICE_DESCRIPTION_ADDITION = [
     "Charger",
+    "Crusher",
     "Dual Wielder",
     "Mantle of Majesty",
+    "Piercer",
+    "Poisoner",
     "Rune Carver",
     "Rune Shaper",
     "Slasher",
