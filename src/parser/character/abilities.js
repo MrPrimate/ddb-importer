@@ -45,6 +45,41 @@ DDBCharacter.prototype._getCustomSaveBonus = function _getCustomSaveBonus(abilit
   return 0;
 };
 
+DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(abilityLongName, type,
+  { restriction = ["", null], includeExcludedEffects = false, effectOnly = false,
+    classId = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {},
+) {
+
+  const subType = `${abilityLongName}-score`;
+
+  const classMods = DDBHelper.getChosenClassModifiers(this.source.ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass, useUnfilteredModifiers });
+  const raceMods = DDBHelper.getModifiers(this.source.ddb, "race", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
+  const backgroundMods = DDBHelper.getModifiers(this.source.ddb, "background", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
+  const featMods = DDBHelper.getModifiers(this.source.ddb, "feat", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
+  const activeItemMods = DDBHelper.getActiveItemModifiers(this.source.ddb, includeExcludedEffects);
+
+  const modifiers = [
+    classMods,
+    // raceMods,
+    backgroundMods,
+    // featMods,
+    activeItemMods,
+  ];
+
+  const backgroundFeatIds = this.source.ddb.character.background.definition?.grantedFeats.filter((f) => {
+    return f.name === "Ability Scores";
+  }).map((f) => f.featIds).flat() ?? [];
+
+  if (backgroundFeatIds.length > 0) {
+    modifiers.push(featMods);
+  } else {
+    modifiers.push(raceMods);
+    modifiers.push(featMods.filter((mod) => !backgroundFeatIds.includes(mod.componentId)));
+  }
+
+  return DDBHelper.filterModifiers(modifiers, type, { subType, restriction });
+};
+
 /**
  * Retrieves character abilities, including proficiency on saving throws
  * @param {obj} includeExcludedEffects Include effects from dae added items?
@@ -73,17 +108,17 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
       "+4 to maximum score",
       "Can't be an Ability Score you already increased with this trait.",
     ];
-    const bonus = DDBHelper
-      .filterBaseModifiers(this.source.ddb, "bonus", { subType: `${ability.long}-score`, restriction: bonusStatRestrictions, includeExcludedEffects })
+
+    const bonus = this._filterAbilityMods(ability.long, "bonus", { restriction: bonusStatRestrictions, includeExcludedEffects })
       .filter((mod) => mod.entityId === ability.id)
       .reduce((prev, cur) => prev + cur.value, 0);
-    const setAbilities = DDBHelper
-      .filterBaseModifiers(this.source.ddb, "set", { subType: `${ability.long}-score`, restriction: [null, "", "if not already higher"], includeExcludedEffects })
+
+    const setAbilities = this._filterAbilityMods(ability.long, "set", { restriction: [null, "", "if not already higher"], includeExcludedEffects })
       .map((mod) => mod.value);
+
     const modRestrictions = ["Your maximum is now ", "Maximum of "];
     const cappedBonusExp = new RegExp(`(?:${modRestrictions.join("|")})(\\d*)`);
-    const cappedBonus = DDBHelper
-      .filterBaseModifiers(this.source.ddb, "bonus", { subType: `${ability.long}-score`, restriction: false, includeExcludedEffects })
+    const cappedBonus = this._filterAbilityMods(ability.long, "bonus", { restriction: false, includeExcludedEffects })
       .filter(
         (mod) =>
           mod.entityId === ability.id

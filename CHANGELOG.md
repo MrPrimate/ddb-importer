@@ -1,3 +1,7 @@
+# Next Up
+
+- Some Legacy Race/Background combos could result in incorrect ability scores on imported characters. @kaallis
+
 # 6.0.12
 
 - Unbreakable Majesty and Mantle of Majesty features for Glamour bard.
