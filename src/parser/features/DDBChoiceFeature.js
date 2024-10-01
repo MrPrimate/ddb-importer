@@ -12,6 +12,8 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Mantle of Majesty",
     "The Third Eye",
     "Unbreakable Majesty",
+    "Aspect of the Wilds",
+    "Power of the Wilds",
   ];
 
   static KEEP_CHOICE_FEATURE_NAME = [
@@ -45,6 +47,8 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Telepathic",
     "The Third Eye",
     "Unbreakable Majesty",
+    "Aspect of the Wilds",
+    "Power of the Wilds",
   ];
 
   static NO_CHOICE_ACTIVITY = [
@@ -63,6 +67,8 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Slasher",
     "Unbreakable Majesty",
     "Giant Ancestry",
+    "Aspect of the Wilds",
+    "Power of the Wilds",
   ];
 
   _prepare() {

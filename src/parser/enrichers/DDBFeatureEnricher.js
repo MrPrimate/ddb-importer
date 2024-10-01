@@ -137,6 +137,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Aspect of the Wilds": {
+      type: "utility",
+      targetType: "self",
+      name: "Owl",
+      activationType: "special",
+    },
     "Bardic Inspiration": {
       targetType: "creature",
       addItemConsumed: true,
@@ -1263,6 +1269,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Power of the Wilds": {
+      type: "utility",
+      targetType: "self",
+      name: "Falcon",
+      activationType: "special",
+    },
     "Psionic Power: Recovery": {
       data: {
         "consumption.targets": [{
@@ -1873,6 +1885,44 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
   };
 
   ADDITIONAL_ACTIVITIES = {
+    "Aspect of the Wilds": [
+      {
+        constructor: {
+          name: "Panther",
+          type: "utility",
+        },
+        build: {
+          generateTarget: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+          },
+          targetOverride: {
+            affects: {
+              type: "self",
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Salmon",
+          type: "utility",
+        },
+        build: {
+          generateTarget: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+          },
+          targetOverride: {
+            affects: {
+              type: "self",
+            },
+          },
+        },
+      },
+    ],
     "Beguiling Magic": [
       {
         constructor: {
@@ -2581,6 +2631,44 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
 
       return results;
     },
+    "Power of the Wilds": [
+      {
+        constructor: {
+          name: "Lion",
+          type: "utility",
+        },
+        build: {
+          generateTarget: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+          },
+          targetOverride: {
+            affects: {
+              type: "creature",
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Ram",
+          type: "utility",
+        },
+        build: {
+          generateTarget: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+          },
+          targetOverride: {
+            affects: {
+              type: "creature",
+            },
+          },
+        },
+      },
+    ],
     "Psychic Blades: Attack": [
       {
         constructor: {
@@ -3313,6 +3401,58 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       };
     },
+    "Aspect of the Wilds": {
+      multiple: [
+        {
+          name: "Owl",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Owl",
+          },
+          changes: [
+            {
+              key: "system.attributes.senses.darkvision",
+              value: "60",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              priority: 20,
+            },
+          ],
+          atlChanges: [
+            generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.ADD, 60, 5),
+            generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
+          ],
+        },
+        {
+          name: "Panther",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Panther",
+          },
+          changes: [
+            generateUpgradeChange("@attributes.movement.climb", 20, "system.attributes.movement.walk"),
+          ],
+        },
+        {
+          name: "Salmon",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Salmon",
+          },
+          changes: [
+            generateUpgradeChange("@attributes.movement.swim", 20, "system.attributes.movement.walk"),
+          ],
+        },
+      ],
+    },
     "Bardic Inspiration": {
       type: "feat",
       options: {
@@ -4020,6 +4160,54 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           value: "true",
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           priority: 20,
+        },
+      ],
+    },
+    "Power of the Wilds": {
+      multiple: [
+        {
+          name: "Falcoln",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Falcoln",
+          },
+          changes: [
+            generateUpgradeChange("@attributes.movement.fly", 20, "system.attributes.movement.walk"),
+          ],
+        },
+        {
+          name: "Lion",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Lion",
+          },
+        },
+        {
+          name: "Ram",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Ram",
+          },
+        },
+        {
+          name: "Prone",
+          type: "feat",
+          options: {
+            transfer: false,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Ram",
+          },
+          statuses: ["Prone"],
         },
       ],
     },
