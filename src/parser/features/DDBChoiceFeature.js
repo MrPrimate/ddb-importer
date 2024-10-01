@@ -33,11 +33,16 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Charger",
     "Crusher",
     "Dual Wielder",
+    "Elemental Adept",
     "Mantle of Majesty",
     "Piercer",
     "Poisoner",
     "Rune Shaper",
+    "Shadow Touched",
+    "Shadow-Touched",
     "Slasher",
+    "Telekinetic",
+    "Telepathic",
     "The Third Eye",
     "Unbreakable Majesty",
   ];
@@ -205,10 +210,26 @@ export default class DDBChoiceFeature extends DDBFeature {
     }
   }
 
+  static NEVER_CHOICES = [
+    "Strength",
+    "Dexterity",
+    "Constitution",
+    "Intelligence",
+    "Wisdom",
+    "Charisma",
+    "Strength Score",
+    "Dexterity Score",
+    "Constitution Score",
+    "Intelligence Score",
+    "Wisdom Score",
+    "Charisma Score",
+  ];
+
   static async buildChoiceFeatures(ddbFeature, allFeatures = false) {
     const features = [];
     if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
-    const choices = allFeatures ? ddbFeature._choices : ddbFeature._chosen;
+    const choices = (allFeatures ? ddbFeature._choices : ddbFeature._chosen)
+      .filter((c) => !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)); ;
     logger.debug(`Processing Choice Features ${ddbFeature._chosen.map((c) => c.label).join(",")}`, {
       choices: ddbFeature._choices,
       chosen: ddbFeature._chosen,
