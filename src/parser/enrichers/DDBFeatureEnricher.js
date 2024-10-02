@@ -1324,11 +1324,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Rage": {
-      targetType: "self",
-      data: {
-        "range.units": "self",
-      },
+    "Rage": () => {
+      return {
+        targetType: "self",
+        data: {
+          "range.units": "self",
+          duration: this.is2014
+            ? { units: "second", value: "60" }
+            : { units: "minute", value: "10" },
+        },
+      };
     },
     "Raging Storm: Desert": {
       type: "save",
@@ -3247,13 +3252,21 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       };
     },
-    "Rage": {
-      data: {
-        name: "Rage",
-        uses: {
-          max: "@scale.barbarian.rage",
+    "Rage": () => {
+      return {
+        data: {
+          name: "Rage",
+          "system.uses": {
+            max: "@scale.barbarian.rage",
+            recovery: this.is2014
+              ? [{ period: "lr", type: 'recoverAll', formula: "" }]
+              : [
+                { period: "lr", type: 'recoverAll', formula: "" },
+                { period: "sr", type: 'formula', formula: "1" },
+              ],
+          },
         },
-      },
+      };
     },
     "Persistent Rage": {
       data: {
@@ -4216,6 +4229,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "feat",
       options: {
         transfer: false,
+        durationSeconds: this.is2014 ? 60 : 600,
       },
       changes: [
         {
