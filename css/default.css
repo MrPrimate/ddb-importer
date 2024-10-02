@@ -81,17 +81,17 @@
 }
 
 /* Journal adjustmends for Module import */
-div.journal-sheet section.window-content div.rolltable {
+.ddb  div.rolltable {
   display: flex;
   flex-direction: row;
   padding: 5px;
 }
 
-div.journal-sheet section.window-content div.rolltable span.rolltable-head {
+.ddb  div.rolltable span.rolltable-head {
   flex: 1 1 25%;
   font-weight: bold;
 }
-div.journal-sheet section.window-content div.rolltable span.rolltable-link {
+.ddb  div.rolltable span.rolltable-link {
   flex: 1 0 75%;
 }
 

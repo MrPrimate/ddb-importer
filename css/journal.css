@@ -1109,3 +1109,31 @@ div.ddbimporter-image-popout img {
     margin-left: 30px;
   }
 }
+
+.ddb figure .artist-credit,
+.ddb figure .artist-credit-left,
+.ddb figure .artist-credit-right {
+  display:block;
+  text-transform:uppercase;
+  font-size:10px;
+  font-weight:600;
+  color:#565a62
+}
+.ddb figure .artist-credit-left:before,
+.ddb figure .artist-credit-right:before,
+.ddb figure .artist-credit:before {
+  content:"Artist: "
+}
+.ddb figure .artist-credit-left,
+.ddb figure.compendium-art-left .artist-credit {
+  text-align:start;
+  left:0;
+  top:-36px
+}
+.ddb figure .artist-credit-right,
+.ddb figure.compendium-art-center .artist-credit,
+.ddb .figure.compendium-art-right .artist-credit {
+  text-align:end;
+  right:0;
+  top:-36px
+}
