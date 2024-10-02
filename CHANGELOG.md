@@ -3,7 +3,7 @@
 - Some Legacy Race/Background combos could result in incorrect ability scores on imported characters. @kaallis
 - Poisoner Feat.
 - Barbarian 2024 Path of the Wild Heart improvements.
-
+- Module load would fail to create summons on load if JB2a Patreon module was enabled.
 
 # 6.0.12
 

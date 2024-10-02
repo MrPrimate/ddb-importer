@@ -178,7 +178,7 @@ const EXTRA_ARCANE_HAND_INSTANCES = (jb2aMod) => {
     { color: "Purple", needsJB2A: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_Thumb.webp` },
     { color: "Green", needsJB2A: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_Thumb.webp` },
     { color: "Blue", needsJB2A: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_Thumb.webp` },
-    { color: "Rock", needsJB2A: true, needsJB2APatreon: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_400x400.webm` },
+    { color: "Rock", needsJB2A: true, needsJB2APatreon: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_Thumb.webp` },
     { color: "Rainbow", needsJB2A: true, needsJB2APatreon: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_Thumb.webp` },
   ];
 };
@@ -223,7 +223,7 @@ function getArcaneHands(arcaneHand, name = "Arcane Hand", postfix = "") {
 
     results[`${idString}${data.color}${postfix}`] = {
       name: `${name} (${data.color})`,
-      version: "2",
+      version: "3",
       required: null,
       isJB2A: true,
       needsJB2A: data.needsJB2A ?? false,
