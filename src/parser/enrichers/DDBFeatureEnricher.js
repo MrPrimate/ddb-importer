@@ -1825,6 +1825,32 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Tactial Master": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "system.traits.weaponProf.mastery.bonus",
+          value: "push",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 10,
+        },
+        {
+          key: "system.traits.weaponProf.mastery.bonus",
+          value: "sap",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 10,
+        },
+        {
+          key: "system.traits.weaponProf.mastery.bonus",
+          value: "slow",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 10,
+        },
+      ],
+    },
     "Tactical Mind": {
       type: "utility",
       data: {
@@ -3471,6 +3497,26 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       options: {
         durationSeconds: 600,
       },
+    },
+    "Battering Roots": {
+      type: "feat",
+      options: {
+        transfer: true,
+      },
+      changes: [
+        {
+          key: "system.traits.weaponProf.mastery.bonus",
+          value: "push",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 10,
+        },
+        {
+          key: "system.traits.weaponProf.mastery.bonus",
+          value: "topple",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          priority: 10,
+        },
+      ],
     },
     "Beguiling Magic": {
       multiple: [
