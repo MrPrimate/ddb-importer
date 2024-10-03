@@ -1261,6 +1261,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Persistent Rage": {
       type: "utility",
       targetType: "self",
+      activationType: "special",
       data: {
         "range.units": "self",
       },
