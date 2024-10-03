@@ -1891,6 +1891,25 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "utility",
       activationType: "reaction",
     },
+    "Vitality of the Tree": {
+      type: "heal",
+      name: "Vitality Surge",
+      targetType: "self",
+      activationType: "special",
+      condition: "You enter a rage.",
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@classes.barbarian.level",
+          },
+          types: ["temphp"],
+        },
+        range: {
+          units: "self",
+        },
+      },
+    },
     "War Caster": {
       type: "utility",
       midiManualReaction: true,
@@ -3048,6 +3067,37 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
               units: "",
             },
           },
+        },
+      },
+    ],
+    "Vitality of the Tree": [
+      {
+        constructor: {
+          name: "Life-Giving Force",
+          type: "heal",
+        },
+        build: {
+          generateConsumption: true,
+          generateTarget: true,
+          generateHealing: true,
+          generateActivation: true,
+          generateRange: true,
+          rangeOverride: {
+            value: "10",
+            units: "ft",
+          },
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "At the start of each of your turns (whilst raging)",
+          },
+          targetOverride: {
+            affects: {
+              value: "1",
+              type: "ally",
+            },
+          },
+          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "(@scale.barbarian.rage-damage)d4", type: "temphp" }),
         },
       },
     ],
