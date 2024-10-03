@@ -198,6 +198,29 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Branches of the Tree": {
+      type: "save",
+      activationType: "reaction",
+      data: {
+        save: {
+          ability: "str",
+          dc: {
+            calculation: "str",
+            formula: "",
+          },
+        },
+        target: {
+          affects: {
+            type: "creature",
+            value: "1",
+          },
+        },
+        range: {
+          value: "30",
+          units: "ft",
+        },
+      },
+    },
     "Breath Weapon (Acid)": {
       name: "Cone",
       type: "save",

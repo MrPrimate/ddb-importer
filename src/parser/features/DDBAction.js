@@ -34,6 +34,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Activate Large Form",
     "Brew Poison",
     "Rage (Instinctive Pounce)",
+    "Rage: Teleport",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
