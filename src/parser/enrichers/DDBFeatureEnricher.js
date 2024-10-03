@@ -3283,7 +3283,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         data: {
           name: "Rage",
           "system.uses": {
-            max: "@scale.barbarian.rage",
+            max: "@scale.barbarian.rage-damage",
             recovery: this.is2014
               ? [{ period: "lr", type: 'recoverAll', formula: "" }]
               : [

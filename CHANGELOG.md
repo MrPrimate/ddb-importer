@@ -1,3 +1,7 @@
+# Next Up
+
+- Rage damage bonus fix.
+
 # 6.0.13
 
 - Some Legacy Race/Background combos could result in incorrect ability scores on imported characters. @kaallis
