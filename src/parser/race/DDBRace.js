@@ -188,7 +188,7 @@ export default class DDBRace {
   #addFeatureDescription(trait) {
     // for whatever reason 2024 races still have a hidden ability score entry
     if (!this.is2014 && trait.name.startsWith("Ability Score ")) return;
-    const featureMatch = this.compendiumRacialTraits.find((match) =>
+    const featureMatch = this.compendiumRacialTraits?.find((match) =>
       foundry.utils.hasProperty(match, "flags.ddbimporter.baseName") && foundry.utils.hasProperty(match, "flags.ddbimporter.entityRaceId")
       && utils.nameString(trait.name) === utils.nameString(match.flags.ddbimporter.baseName)
       && match.flags.ddbimporter.entityRaceId === trait.entityRaceId,
@@ -337,7 +337,7 @@ export default class DDBRace {
 
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
 
-    const compendium = CompendiumHelper.getCompendiumType("feats");
+    const compendium = CompendiumHelper.getCompendiumType("feats", false);
     const index = await compendium.getIndex();
 
     advancement.updateSource({

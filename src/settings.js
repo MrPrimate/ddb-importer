@@ -8,7 +8,7 @@ const COMPENDIUMS = [
     setting: "entity-background-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/86797d176a398d9f2f05b75b2f54b6dd.jpg",
-    auto: true,
+    auto: false,
     types: ["feat"],
   },
   {
@@ -16,7 +16,7 @@ const COMPENDIUMS = [
     setting: "entity-class-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/b778ff3ca3f18e5f75ad4b348615cab5.jpg",
-    auto: true,
+    auto: false,
     types: ["class"],
   },
   {
@@ -24,7 +24,7 @@ const COMPENDIUMS = [
     setting: "entity-subclass-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/b778ff3ca3f18e5f75ad4b348615cab5.jpg",
-    auto: true,
+    auto: false,
     types: ["subclass"],
   },
   {
@@ -32,7 +32,7 @@ const COMPENDIUMS = [
     setting: "entity-feature-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/b778ff3ca3f18e5f75ad4b348615cab5.jpg",
-    auto: true,
+    auto: false,
     types: ["feat", "weapon"],
   },
   {
@@ -40,7 +40,7 @@ const COMPENDIUMS = [
     setting: "entity-feat-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/a69ab5bf67b03308893b582dbef700e9.jpg",
-    auto: true,
+    auto: false,
     types: ["feat"],
   },
   {
@@ -80,7 +80,7 @@ const COMPENDIUMS = [
     setting: "entity-race-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/bfe65858aaa13919ce3d86d938bcb05b.jpg",
-    auto: true,
+    auto: false,
     types: ["race"],
   },
   {
@@ -88,7 +88,7 @@ const COMPENDIUMS = [
     setting: "entity-trait-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/bfe65858aaa13919ce3d86d938bcb05b.jpg",
-    auto: true,
+    auto: false,
     types: ["race", "feat"],
   },
   {
@@ -1083,7 +1083,7 @@ const SETTINGS = {
               SCHOOL: "School of Magic",
               LEVEL: "Level",
             },
-            default: "SCHOOL",
+            default: "LEVEL",
           },
           "munching-selection-compendium-folders-item": {
             name: "ddb-importer.settings.munching-selection-compendium-folders-item.name",

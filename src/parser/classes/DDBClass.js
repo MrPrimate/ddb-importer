@@ -321,6 +321,7 @@ export default class DDBClass {
 
   async _buildCompendiumIndex(type, indexFilter = {}) {
     if (Object.keys(indexFilter).length > 0) this._indexFilter[type] = indexFilter;
+    if (!this._compendiums[type]) return;
     await this._compendiums[type].getIndex(this._indexFilter[type]);
   }
 
@@ -392,10 +393,10 @@ export default class DDBClass {
 
     // compendium
     this._compendiums = {
-      features: CompendiumHelper.getCompendiumType("classfeatures"),
-      feats: CompendiumHelper.getCompendiumType("feats"),
-      // class: CompendiumHelper.getCompendiumType("class"),
-      // subclasses: CompendiumHelper.getCompendiumType("subclasses"),
+      features: CompendiumHelper.getCompendiumType("classfeatures", false),
+      feats: CompendiumHelper.getCompendiumType("feats", false),
+      class: CompendiumHelper.getCompendiumType("class", false),
+      subclasses: CompendiumHelper.getCompendiumType("subclasses", false),
     };
     // this._compendiumFeaturesLabel = CompendiumHelper.getCompendiumLabel("features");
 
@@ -473,6 +474,9 @@ export default class DDBClass {
    * @return {Object|undefined} - The matched feature, or undefined if no match is found.
    */
   getFeatureCompendiumMatch(feature) {
+    if (!this._compendiums.features) {
+      return [];
+    }
     return this._compendiums.features.index.find((match) =>
       ((feature.name.trim().toLowerCase() == foundry.utils.getProperty(match, "flags.ddbimporter.featureName")?.trim().toLowerCase())
         || (!foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
@@ -487,6 +491,9 @@ export default class DDBClass {
   }
 
   getFeatCompendiumMatch(featName) {
+    if (!this._compendiums.feats) {
+      return [];
+    }
     const smallName = featName.trim().toLowerCase();
     return this._compendiums.feats.index.find((match) =>
       ((foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")

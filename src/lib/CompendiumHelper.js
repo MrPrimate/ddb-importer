@@ -70,6 +70,8 @@ const CompendiumHelper = {
         logger.error(`Unable to find compendium ${label}`);
         ui.notifications.error(`Unable to open the Compendium ${label}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums"`);
         throw new Error(`Unable to open the Compendium ${label}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums".`);
+      } else {
+        logger.info(`Unable to find compendium ${label}`);
       }
       return undefined;
     }
@@ -82,10 +84,12 @@ const CompendiumHelper = {
     if (compendium) {
       return compendium;
     } else {
-      logger.error(`Unable to find compendium ${compendiumLabel} for ${type} documents`);
-      ui.notifications.error(`Unable to open the Compendium ${compendiumLabel}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums"`);
       if (fail) {
+        logger.error(`Unable to find compendium ${compendiumLabel} for ${type} documents`);
+        ui.notifications.error(`Unable to open the Compendium ${compendiumLabel}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums"`);
         throw new Error(`Unable to open the Compendium ${compendiumLabel}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums"`);
+      } else {
+        logger.info(`Unable to open compendium, skipping compendium ${compendiumLabel} for ${type} integration`);
       }
       return undefined;
     }

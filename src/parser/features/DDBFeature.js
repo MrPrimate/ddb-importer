@@ -357,10 +357,12 @@ export default class DDBFeature extends DDBBaseFeature {
         "flags.ddbimporter.featId",
       ],
     };
-    const compendium = CompendiumHelper.getCompendiumType("feats");
-    await compendium.getIndex(indexFilter);
+    const compendium = CompendiumHelper.getCompendiumType("feats", false);
+    if (compendium) await compendium.getIndex(indexFilter);
 
-    const feats = compendium.index.filter((f) => featIds.includes(foundry.utils.getProperty(f, "flags.ddbimporter.featId")));
+    const feats = compendium
+      ? compendium.index.filter((f) => featIds.includes(foundry.utils.getProperty(f, "flags.ddbimporter.featId")))
+      : [];
 
     advancement.updateSource({
       configuration: {
