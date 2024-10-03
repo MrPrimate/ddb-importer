@@ -1881,6 +1881,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         name: "Darkvision",
       },
     },
+    "Travel along the Tree": {
+      type: "utility",
+      targetType: "self",
+      activationType: "bonus",
+      data: {
+        name: "Teleport 60 ft",
+      },
+    },
     "Unbreakable Majesty": {
       type: "utility",
       data: {
@@ -3031,6 +3039,34 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
               height: "",
               units: "ft",
             },
+          },
+        },
+      },
+    ],
+    "Travel along the Tree": [
+      {
+        constructor: {
+          name: "Group Teleport",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: true,
+          generateTarget: true,
+          generateRange: true,
+          generateDuration: true,
+          targetOverride: {
+            affects: {
+              count: "7",
+              type: "willing",
+              special: "Within 10 feet of you.",
+            },
+          },
+          rangeOverride: {
+            value: "150",
+            units: "ft",
+          },
+          durationOverride: {
+            units: "inst",
           },
         },
       },
