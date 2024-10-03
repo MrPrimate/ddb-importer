@@ -90,7 +90,7 @@ async function generateImportItems(items) {
   return results;
 }
 
-function getItemData(sourceFilter) {
+function getItemData({ useSourceFilter = false, ids = [] } = {}) {
   const cobaltCookie = getCobalt();
   const campaignId = DDBCampaigns.getCampaignId();
   const parsingApi = DDBProxy.getProxy();
@@ -127,7 +127,7 @@ function getItemData(sourceFilter) {
       })
       .then((data) => {
         const genericsFilteredData = data.data.filter((item) => item.canBeAddedToInventory || useGenerics);
-        if (sources.length == 0 || !sourceFilter) return genericsFilteredData;
+        if (sources.length == 0 || !useSourceFilter) return genericsFilteredData;
         return genericsFilteredData.filter((item) =>
           item.sources.some((source) => sources.includes(source.sourceId)),
         );
@@ -141,6 +141,10 @@ function getItemData(sourceFilter) {
         } else {
           return data;
         }
+      })
+      .then((data) => {
+        if (ids.length > 0) return data.filter((item) => ids.includes(item.id));
+        return data;
       })
       .then((data) => {
         if (!excludeLegacy) return data;
@@ -173,7 +177,7 @@ async function addMagicItemSpells(items, spells, updateBool) {
   });
 }
 
-export async function parseItems(ids = null, deleteBeforeUpdate = null) {
+export async function parseItems({ useSourceFilter = false, ids = [], deleteBeforeUpdate = null } = {}) {
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   const magicItemsInstalled = !!game.modules.get("magicitems");
   const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -193,8 +197,8 @@ export async function parseItems(ids = null, deleteBeforeUpdate = null) {
   DDBMuncher.munchNote("Downloading item data..");
 
   // disable source filter if ids provided
-  const sourceFilter = !(ids !== null && ids.length > 0);
-  const results = await getItemData(sourceFilter);
+  const sourceFilter = (ids === null && ids.length === 0) && useSourceFilter;
+  const results = await getItemData({ useSourceFilter: sourceFilter, ids });
   let items = results.items;
 
   DDBMuncher.munchNote("Parsing item data..");

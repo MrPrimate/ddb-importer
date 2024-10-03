@@ -1,6 +1,7 @@
 # Next Up
 
 - Rage damage bonus fix.
+- Fix issue with importing items when updating them.
 
 # 6.0.13
 

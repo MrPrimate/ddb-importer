@@ -84,7 +84,7 @@ export default class AdventureMunchHelpers {
           case "item":
             logger.debug(`Importing missing ${type}s from DDB`, docIds);
             AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
-            resolve(parseItems(docIds, false));
+            resolve(parseItems({ useSourceFilter: false, ids: docIds, deleteBeforeUpdate: false }));
             break;
           case "monster": {
             try {

@@ -268,7 +268,11 @@ export default class DDBItemImporter {
     if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
     DDBMuncher.munchNote(`Updating ${updateItem.name} compendium entry`);
-    logger.debug(`Updating ${updateItem.name} compendium entry`);
+    logger.debug(`Updating ${updateItem.name} compendium entry`, {
+      updateItem,
+      existingItem,
+      packId: this.compendium.metadata.id,
+    });
 
     const update = existingItem.update(updateItem, { pack: this.compendium.metadata.id, render: false });
     // const update = existingItem.update(updateItem, { pack: compendium.metadata.id, recursive: false, render: false });
@@ -302,7 +306,7 @@ export default class DDBItemImporter {
           let newItem = this.deleteCreateCompendiumItem(item, existingItem);
           results.push(newItem);
         } else {
-          let update = this.updateCompendiumItem(item, existingItem);
+          let update = await this.updateCompendiumItem(item, existingItem);
           results.push(update);
         }
       }

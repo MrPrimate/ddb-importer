@@ -74,6 +74,21 @@ export default class DDBItem {
     "Junk": "junk",
   };
 
+  static NON_CONTAINERS = [
+    "Apparatus of the Crab",
+    "Folding Boat",
+    "Instant Fortress",
+    "Carpet of Flying (3 ft. x 5 ft.)",
+    "Carpet of Flying (4 ft. x 6 ft.)",
+    "Carpet of Flying (5 ft. x 7 ft.)",
+    "Carpet of Flying (6 ft. x 9 ft.)",
+    "Apparatus of Kwalish",
+    "Daern's Instant Fortress",
+    // "Flying Chariot",
+    "Cauldron of Plenty",
+
+  ];
+
   constructor({ characterManager, ddbItem, isCompendium = false, enricher = null } = {}) {
 
     this.characterManager = characterManager;
@@ -105,7 +120,7 @@ export default class DDBItem {
       ?? [];
     this.characterEffectAbilities = foundry.utils.getProperty(this.raw?.character, "flags.ddbimporter.dndbeyond.effectAbilities");
 
-    this.isContainer = this.ddbDefinition.isContainer;
+    this.isContainer = this.ddbDefinition.isContainer && !DDBItem.NON_CONTAINERS.includes(this.ddbDefinition.name);
     this.isContainerTag = this.ddbDefinition.tags.includes('Container');
     this.isOuterwearTag = this.ddbDefinition.tags.includes('Outerwear')
       || this.ddbDefinition.tags.includes('Footwear');
@@ -717,8 +732,8 @@ export default class DDBItem {
     this.documentType = "loot";
 
     if (this.isContainer
-      || ["Mount", "Vehicle"].includes(this.ddbDefinition.subType)
-      || ["Vehicle", "Mount"].includes(typeHint)
+      || (!DDBItem.NON_CONTAINERS.includes(this.ddbDefinition.name) && (["Mount", "Vehicle"].includes(this.ddbDefinition.subType)
+      || ["Vehicle", "Mount"].includes(typeHint)))
     ) {
       this.overrides.ddbType = typeHint;
       this.documentType = "container";
@@ -780,7 +795,7 @@ export default class DDBItem {
         ?? DDBItem.LOOT_TYPES[this.ddbDefinition.subType];
       if (lookup) this.systemType.value = lookup;
       else {
-        logger.error(`Failed to find loot type for ${this.ddbDefinition.name}`, {
+        logger.warn(`Failed to find loot type for ${this.ddbDefinition.name}, this is unlikely to be a problem`, {
           this: this,
           itemType,
           lookup,
@@ -902,8 +917,11 @@ export default class DDBItem {
               : "permanent";
             this.addMagical = true;
           }
+        } else if (this.isContainer) {
+          this.documentType = "container";
+          this.parsingType = "wonderous";
         } else {
-          this.documentType = this.isContainer ? "container" : "equipment";
+          this.documentType = "equipment";
           this.systemType.value = "trinket";
           this.parsingType = "wonderous";
         }
@@ -2414,11 +2432,14 @@ export default class DDBItem {
       const statusEffect = getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
       if (statusEffect) this.data.effects.push(statusEffect);
 
-      if (!this.enricher.documentStub?.stopDefaultActivity)
-        this.#generateActivity({}, this.activityOptions);
-      this.#addHealAdditionalActivities();
-      this.#generateAdditionalActivities();
-      this.enricher.addAdditionalActivities(this);
+      if (this.documentType !== "container") {
+        // containers can't have activities.
+        if (!this.enricher.documentStub?.stopDefaultActivity)
+          this.#generateActivity({}, this.activityOptions);
+        this.#addHealAdditionalActivities();
+        this.#generateAdditionalActivities();
+        this.enricher.addAdditionalActivities(this);
+      }
 
       this.data.system.attuned = this.ddbItem.isAttuned;
       this.#generateAttunement();
@@ -2671,9 +2692,8 @@ export default class DDBItem {
 
   // eslint-disable-next-line complexity
   _getActivitiesType() {
-    if (this.parsingType === "tool") {
-      return "check";
-    }
+    if (this.documentType === "container") return null;
+    if (this.parsingType === "tool") return "check";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (this.healingParts.length > 0) {
       if (!this.actionInfo.save && !["weapon", "staff"].includes(this.parsingType) && this.damageParts.length === 0) {
