@@ -635,6 +635,12 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         enabled: true,
       },
       {
+        name: "delete-during-update",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-delete-during-update"),
+        description: "Faster updates? Will delete items during updates, so they can be re-imported.",
+        enabled: true,
+      },
+      {
         name: "use-inbuilt-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-inbuilt-icons"),
         description: "Use icons from the inbuilt dictionary. (High coverage, recommended, fast).",
