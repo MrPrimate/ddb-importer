@@ -1887,6 +1887,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       activationType: "bonus",
       data: {
         name: "Teleport 60 ft",
+        range: {
+          value: "60",
+          units: "ft",
+          special: "",
+        },
       },
     },
     "Unbreakable Majesty": {
@@ -3054,6 +3059,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           generateTarget: true,
           generateRange: true,
           generateDuration: true,
+          generateActivation: true,
           targetOverride: {
             affects: {
               count: "7",
@@ -3067,6 +3073,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           },
           durationOverride: {
             units: "inst",
+          },
+          activationOverride: {
+            type: "bonus",
           },
         },
       },
