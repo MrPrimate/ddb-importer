@@ -57,6 +57,12 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Divine Order",
     "Divine Order: Protector",
     "Divine Order: Thaumaturge",
+    "Improved Blessed Strikes: Divine Strike",
+    "Improved Blessed Strikes: Potent Spellcasting",
+    "Improved Blessed Strikes",
+  ];
+
+  static USE_ALL_CHOICES = [
   ];
 
   static NO_CHOICE_ACTIVITY = [

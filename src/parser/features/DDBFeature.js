@@ -457,7 +457,10 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._generateRange();
 
     const listItems = [];
-    const choiceText = this._parentOnlyChoices.reduce((p, c) => {
+    const choices = DDBChoiceFeature.USE_ALL_CHOICES.includes(this.originalName)
+      ? this._choices
+      : this._parentOnlyChoices;
+    const choiceText = choices.reduce((p, c) => {
       if (c.description) {
         return `${p}
 <p><strong>${c.label}</strong> ${c.description}</p>`;
