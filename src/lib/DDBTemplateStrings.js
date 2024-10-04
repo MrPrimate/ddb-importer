@@ -546,6 +546,9 @@ export default function parseTemplateString(ddb, character, text, feature) {
   result.text = result.text.replace(/\+\s*\+/g, "+").replace(/\+\s*\+/g, "+");
   result.text = result.text.replace(/\+<\/strong>\+/g, "+</strong>");
 
+
+  result.text = result.text.replace(/\[\[([^\]]*?)\]\]\[\[\/roll d([^\]]*?)\]\]/g, "[[/roll ($1)d$2]] ");
+
   result.text = parseTags(result.text);
   if (foundry.utils.hasProperty(character, "flags.ddbimporter.dndbeyond.templateStrings")) {
     character.flags.ddbimporter.dndbeyond.templateStrings.push(result);

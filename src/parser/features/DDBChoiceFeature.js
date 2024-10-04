@@ -14,6 +14,8 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Unbreakable Majesty",
     "Aspect of the Wilds",
     "Power of the Wilds",
+    "Divine Order",
+    "Blessed Strikes",
   ];
 
   static KEEP_CHOICE_FEATURE_NAME = [
@@ -49,6 +51,12 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Unbreakable Majesty",
     "Aspect of the Wilds",
     "Power of the Wilds",
+  ];
+
+  static NO_CHOICE_SECRET = [
+    "Divine Order",
+    "Divine Order: Protector",
+    "Divine Order: Thaumaturge",
   ];
 
   static NO_CHOICE_ACTIVITY = [
@@ -150,45 +158,14 @@ export default class DDBChoiceFeature extends DDBFeature {
       this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";
       this._generateDescription({ forceFull: true });
       foundry.utils.setProperty(this.data, "flags.ddbimporter.initialFeature", foundry.utils.deepClone(this.data.system.description));
-
-      // if (choice.wasOption && choice.description) {
-      //   this.ddbDefinition.description = choice.description;
-      //   this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";
-      // } else {
-      //   if (this.ddbDefinition.description) {
-      //     this.ddbDefinition.description = choice.description
-      //       ? this.ddbDefinition.description + "<h3>" + choice.label + "</h3>" + choice.description
-      //       : this.ddbDefinition.description;
-      //   }
-      //   if (this.ddbDefinition.snippet) {
-      //     this.ddbDefinition.snippet = choice.description
-      //       ? this.ddbDefinition.snippet + "<h3>" + choice.label + "</h3>" + choice.description
-      //       : this.ddbDefinition.snippet;
-      //   }
-      // }
-      // add these flags in so they can be used by the description parser
-      // foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.choice", choice);
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
       if (!this.enricher.documentStub?.stopDefaultActivity)
         this._generateActivity();
       this.enricher.addAdditionalActivities(this);
 
-      // console.warn(`Choice generation ${this.data.name}`, {
-      //   choice,
-      //   ddbDefinition: deepClone(this.ddbDefinition),
-      //   this: this,
-      //   description: deepClone(this.data.system.description),
-      // });
       this._generateDescription({ forceFull: false });
 
-
-      // console.warn(`Choice generation ${this.data.name} 2`, {
-      //   choice,
-      //   ddbDefinition: deepClone(this.ddbDefinition),
-      //   this: this,
-      //   description: deepClone(this.data.system.description),
-      // });
       this.data.flags.ddbimporter.dndbeyond.choice = {
         label: choice.label,
         choiceId: choice.choiceId,
@@ -234,11 +211,14 @@ export default class DDBChoiceFeature extends DDBFeature {
   static async buildChoiceFeatures(ddbFeature, allFeatures = false) {
     const features = [];
     if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
-    const choices = (allFeatures ? ddbFeature._choices : ddbFeature._chosen)
+    const choices = (allFeatures ? ddbFeature._parentOnlyChoices : ddbFeature._parentOnlyChosen)
       .filter((c) => !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)); ;
-    logger.debug(`Processing Choice Features ${ddbFeature._chosen.map((c) => c.label).join(",")}`, {
-      choices: ddbFeature._choices,
-      chosen: ddbFeature._chosen,
+    logger.debug(`Processing Choice Features ${choices.map((c) => c.label).join(",")}`, {
+      _choices: ddbFeature._choices,
+      _parentOnlyChoices: ddbFeature._parentOnlyChoices,
+      _parentOnlyChosen: ddbFeature._parentOnlyChosen,
+      choices,
+      _chosen: ddbFeature._chosen,
       feature: ddbFeature,
       allFeatures,
     });

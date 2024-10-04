@@ -77,6 +77,10 @@ export default class DDBFeatures {
     "Maneuver: Menacing Attack (Dex.)",
   ];
 
+  static NO_DUPLICATE_DESCRIPTION = [
+    "Blessed Strikes",
+  ];
+
   static isDuplicateFeature(items, item) {
     return items.some((dup) => dup.name === item.name && dup.system.description.value === item.system.description.value);
   }
@@ -147,7 +151,8 @@ export default class DDBFeatures {
       const features = await this.getFeaturesFromDefinition(feat, "race");
       features.forEach((item) => {
         const existingFeature = DDBFeatures.getNameMatchedFeature(this.parsed, item);
-        const duplicateFeature = DDBFeatures.isDuplicateFeature(this.parsed, item);
+        const duplicateFeature = DDBFeatures.isDuplicateFeature(this.parsed, item)
+          && !DDBFeatures.NO_DUPLICATE_DESCRIPTION.includes(item.flags.ddbimporter.originalName ?? item.name);
         if (existingFeature && !duplicateFeature) {
           existingFeature.system.description.value += `<h3>Racial Trait Addition</h3>${item.system.description.value}`;
         } else if (!existingFeature) {

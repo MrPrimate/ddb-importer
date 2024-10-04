@@ -46,11 +46,38 @@ export default class DDBFeature extends DDBBaseFeature {
       );
     this._choices = this.noMods
       ? []
-      : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition, false).reduce((p, c) => {
+      : DDBHelper.getChoices({
+        ddb: this.ddbData,
+        type: this.type,
+        feat: this.ddbDefinition,
+        selectionOnly: false,
+      }).reduce((p, c) => {
+        if (c.parentChoiceId !== null) return p;
         if (!p.some((e) => e.id === c.id)) p.push(c);
         return p;
       }, []);
-    this._chosen = this.noMods ? [] : DDBHelper.getChoices(this.ddbData, this.type, this.ddbDefinition, true);
+    this._chosen = this.noMods
+      ? []
+      : DDBHelper.getChoices({
+        ddb: this.ddbData,
+        type: this.type,
+        feat: this.ddbDefinition,
+        selectionOnly: true,
+      });
+    this._parentOnlyChoices = DDBHelper.getChoices({
+      ddb: this.ddbData,
+      type: this.type,
+      feat: this.ddbDefinition,
+      selectionOnly: false,
+      filterByParentChoice: true,
+    });
+    this._parentOnlyChosen = DDBHelper.getChoices({
+      ddb: this.ddbData,
+      type: this.type,
+      feat: this.ddbDefinition,
+      selectionOnly: true,
+      filterByParentChoice: true,
+    });
     this.isChoiceFeature = this._choices.length > 0;
     this.include = !this.isChoiceFeature;
     this.hasRequiredLevel = !this._class || (this._class && this._class.level >= this.ddbDefinition.requiredLevel);
@@ -399,7 +426,7 @@ export default class DDBFeature extends DDBBaseFeature {
 
       this._generateDescription({ forceFull: true });
       this.data.system.description.value += `<h3>Proficiencies</h3><ul>`;
-      this._choices.forEach((choice) => {
+      this._parentOnlyChoices.forEach((choice) => {
         this._addEffects(choice, this.type);
         this.data.system.description.value += `<li>${choice.label}</li>`;
       });
@@ -430,7 +457,7 @@ export default class DDBFeature extends DDBBaseFeature {
     // this._generateRange();
 
     const listItems = [];
-    const choiceText = this._choices.reduce((p, c) => {
+    const choiceText = this._parentOnlyChoices.reduce((p, c) => {
       if (c.description) {
         return `${p}
 <p><strong>${c.label}</strong> ${c.description}</p>`;
@@ -439,12 +466,6 @@ export default class DDBFeature extends DDBBaseFeature {
         return p;
       }
     }, "");
-    // this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
-
-    // console.warn("CHOICE TEXT", {
-    //   choices: this._choices,
-    //   choiceText,
-    // });
 
     const joinedText = `${choiceText}
 <ul>${listItems.join("")}</ul>`;
@@ -453,9 +474,11 @@ export default class DDBFeature extends DDBBaseFeature {
       || ["feat"].includes(this.type) // don't add choice options for feats
       ? ""
       : DDBChoiceFeature.NO_CHOICE_BUILD.includes(this.originalName)
+        || DDBChoiceFeature.NO_CHOICE_SECRET.includes(this.originalName)
         ? joinedText
         : `<section class="secret">${joinedText}</section>`;
 
+    console.warn(secretText);
     this._generateDescription({ extra: secretText });
     this._addEffects(undefined, this.type);
 

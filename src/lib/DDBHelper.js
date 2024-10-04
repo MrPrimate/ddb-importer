@@ -673,14 +673,27 @@ const DDBHelper = {
    * @param {string} type character property: "class", "race" etc.
    * @param {object} feat options to search for
    */
-  getChoices: (ddb, type, feat, selectionOnly = true) => {
+  getChoices: ({ ddb, type, feat, selectionOnly = true, filterByParentChoice = false,
+    parentChoiceId = null } = {},
+  ) => {
     const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
     const featDefinition = feat.definition ? feat.definition : feat;
 
+    // console.warn("getChoices", {
+    //   id,
+    //   type,
+    //   feat,
+    //   selectionOnly,
+    //   featDefinition,
+    // });
+
     if (ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
       // find a choice in the related choices-array
-      const choices = ddb.character.choices[type].filter(
-        (characterChoice) => characterChoice.componentId && characterChoice.componentId === id,
+      const choices = ddb.character.choices[type].filter((characterChoice) =>
+        characterChoice.componentId
+        && characterChoice.componentId === id
+        && (!filterByParentChoice
+          || (filterByParentChoice && characterChoice.parentChoiceId === parentChoiceId)),
       );
 
       if (choices) {
@@ -694,24 +707,35 @@ const DDBHelper = {
               return validOption;
             });
 
-        // console.warn("valid options", {
-        //   validOptions: validChoices,
+        // console.warn("choices", {
+        //   validChoices,
+        //   choiceDefinitions,
+        //   choices,
         // });
 
         if (!selectionOnly && validChoices.length > 0) {
           const results = [];
           for (const choice of validChoices) {
-            const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-            const options = optionChoice.options.map((option) => {
-              option.componentId = choice.componentId;
-              option.componentTypeId = choice.componentTypeId;
-              option.choiceId = choice.id;
-              option.parentChoiceId = choice.parentChoiceId;
-              option.subType = choice.subType;
-              option.type = type;
-              option.wasOption = false;
-              return option;
-            });
+            const optionChoice = choiceDefinitions.find((selection) =>
+              selection.id === `${choice.componentTypeId}-${choice.type}`,
+            );
+            const options = optionChoice.options
+              .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
+              .map((option) => {
+                option.componentId = choice.componentId;
+                option.componentTypeId = choice.componentTypeId;
+                option.choiceId = choice.id;
+                option.parentChoiceId = choice.parentChoiceId;
+                option.subType = choice.subType;
+                option.type = type;
+                option.wasOption = false;
+                return option;
+              });
+            // console.warn("validChoice Options", {
+            //   choice,
+            //   optionChoice,
+            //   options,
+            // });
             results.push(...options);
           }
           if (results.length > 0) return results;
@@ -725,7 +749,9 @@ const DDBHelper = {
           //   optionChoice,
           //   choiceDefinitions,
           // });
-          let result = optionChoice.options.find((option) => option.id === choice.optionValue);
+          let result = optionChoice.options
+            .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
+            .find((option) => option.id === choice.optionValue);
           result.componentId = choice.componentId;
           result.componentTypeId = choice.componentTypeId;
           result.choiceId = choice.id;
@@ -736,7 +762,12 @@ const DDBHelper = {
           return result;
         });
 
-        if (options.length > 0) return options;
+        if (options.length > 0) {
+          // console.warn("returning options", {
+          //   options,
+          // });
+          return options;
+        }
 
         if (ddb.character.options[type]?.length > 0) {
           // if it is a choice option, try and see if the mod matches
@@ -771,6 +802,10 @@ const DDBHelper = {
                 wasOption: true,
               };
             });
+
+          // console.warn("optionMatch", {
+          //   optionMatch,
+          // });
           if (optionMatch.length > 0) return optionMatch;
         }
       }

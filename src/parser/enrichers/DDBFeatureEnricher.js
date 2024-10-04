@@ -30,6 +30,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         type: "utility",
       },
       "Relentless": {},
+      "Channel Divinity": {},
     },
     ADDITIONAL_ACTIVITIES: {
       "Breath Weapon (Acid)": {},
@@ -37,6 +38,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       "Breath Weapon (Fire)": {},
       "Breath Weapon (Lightning)": {},
       "Breath Weapon (Poison)": {},
+      "Channel Divinity": {},
     },
     DOCUMENT_OVERRIDES: {
       "Breath Weapon (Acid)": {},
@@ -387,6 +389,24 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "save",
       activationType: "special",
       targetType: "enemy",
+    },
+    "Channel Divinity": {
+      type: "heal",
+      name: "Divine Spark (Healing)",
+      targetType: "creature",
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "ceil(@classes.cleric.levels/6)d8",
+          },
+          types: ["healing"],
+        },
+        range: {
+          value: "30",
+          units: "ft",
+        },
+      },
     },
     "Channel Divinity: Preserve Life": {
       type: "heal",
@@ -2167,6 +2187,69 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Channel Divinity": [
+      {
+        constructor: {
+          name: "Divine Spark (Save vs Damage)",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateDamage: true,
+          generateTarget: true,
+          generateRange: true,
+          generateConsumption: true,
+          saveOverride: {
+            ability: "con",
+            dc: { calculation: "wis", formula: "" },
+          },
+          damageParts: [
+            DDBBaseEnricher.basicDamagePart({ customFormula: "ceil(@classes.cleric.levels/6)d8", types: ["radiant", "necrotic"] }),
+          ],
+          onSave: "half",
+          rangeOverride: {
+            units: "ft",
+            value: "30",
+          },
+          targetOverride: {
+            affects: {
+              count: "1",
+              type: "creature",
+              choice: false,
+              special: "",
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Turn Undead",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateTarget: true,
+          generateRange: true,
+          generateConsumption: true,
+          saveOverride: {
+            ability: "wis",
+            dc: { calculation: "wis", formula: "" },
+          },
+          rangeOverride: {
+            units: "ft",
+            value: "30",
+          },
+          targetOverride: {
+            affects: {
+              count: "",
+              type: "creature",
+              choice: true,
+              special: "Undead Creatures of your choice",
+            },
+          },
+        },
+      },
+    ],
     "Combat Inspiration": [
       {
         constructor: {
@@ -3672,6 +3755,19 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       changes: [
         generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
       ],
+    },
+    "Channel Divinity": {
+      name: "Turned",
+      type: "feat",
+      options: {
+        transfer: false,
+        durationSeconds: 60,
+        description: "The effect ends if the creature takes damage.",
+      },
+      data: {
+        "flags.ddbimporter.activityMatch": "Turn Undead",
+      },
+      statuses: ["Frightened", "Incapacitated"],
     },
     "Cunning Strike": {
       clearAutoEffects: true,
