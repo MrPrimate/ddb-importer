@@ -812,7 +812,7 @@ export default class DDBBaseFeature {
     if (this.type === "class") {
       if (this.data.name.startsWith("Ki:")) subType = "Ki";
       // many ki abilities do not start with ki
-      else if (this.data.name.startsWith("Channel Divinity:")) subType = "channelDivinity";
+      else if (this.data.name.startsWith("Channel Divinity")) subType = "channelDivinity";
       else if (this.data.name.startsWith("Artificer Infusion:")) subType = "artificerInfusion";
       else if (this.data.name.startsWith("Invocation:")) subType = "eldritchInvocation";
       else if (this.data.name.startsWith("Fighting Style:")) subType = "fightingStyle";

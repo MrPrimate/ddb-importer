@@ -77,7 +77,7 @@ export default class DDBFeatures {
     "Maneuver: Menacing Attack (Dex.)",
   ];
 
-  static NO_DUPLICATE_DESCRIPTION = [
+  static FORCE_DUPLICATE_FEATURE = [
     "Blessed Strikes",
   ];
 
@@ -152,7 +152,7 @@ export default class DDBFeatures {
       features.forEach((item) => {
         const existingFeature = DDBFeatures.getNameMatchedFeature(this.parsed, item);
         const duplicateFeature = DDBFeatures.isDuplicateFeature(this.parsed, item)
-          && !DDBFeatures.NO_DUPLICATE_DESCRIPTION.includes(item.flags.ddbimporter.originalName ?? item.name);
+          || DDBFeatures.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
         if (existingFeature && !duplicateFeature) {
           existingFeature.system.description.value += `<h3>Racial Trait Addition</h3>${item.system.description.value}`;
         } else if (!existingFeature) {
@@ -203,17 +203,17 @@ export default class DDBFeatures {
 
     // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
     logger.debug("Removing matching traits");
-    this._ddbClassFeatures.data
-      .forEach((item) => {
-        const existingFeature = DDBFeatures.getNameMatchedFeature(this.parsed, item);
-        const duplicateFeature = DDBFeatures.isDuplicateFeature(this.parsed, item);
-        if (existingFeature && !duplicateFeature) {
-          const klassAdjustment = `<h3>${item.flags.ddbimporter.dndbeyond.class}</h3>${item.system.description.value}`;
-          existingFeature.system.description.value += klassAdjustment;
-        } else if (!existingFeature) {
-          this.parsed.push(item);
-        }
-      });
+    this._ddbClassFeatures.data.forEach((item) => {
+      const existingFeature = DDBFeatures.getNameMatchedFeature(this.parsed, item);
+      const duplicateFeature = DDBFeatures.isDuplicateFeature(this.parsed, item)
+        || DDBFeatures.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
+      if (existingFeature && !duplicateFeature) {
+        const klassAdjustment = `<h3>${item.flags.ddbimporter.dndbeyond.class}</h3>${item.system.description.value}`;
+        existingFeature.system.description.value += klassAdjustment;
+      } else if (!existingFeature) {
+        this.parsed.push(item);
+      }
+    });
   }
 
   async _addFeats() {

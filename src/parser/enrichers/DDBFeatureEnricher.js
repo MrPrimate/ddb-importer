@@ -1523,6 +1523,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       noTemplate: true,
       targetType: "self",
     },
+    "Sear Undead": {
+      type: "damage",
+      targetType: "creature",
+      activationType: "special",
+      condition: "When you Turn Undead",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "(@abilities.wis.mod)d8", types: ["radiant"] })],
+        },
+      },
+    },
     "Second Wind": {
       type: "heal",
       func: undefined,
@@ -3526,6 +3537,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           retainResourceConsumption: true,
           retainUseSpent: true,
         },
+      },
+    },
+    "Sear Undead": {
+      data: {
+        "system.type.subtype": "channelDivinity",
       },
     },
     "Shifting": {

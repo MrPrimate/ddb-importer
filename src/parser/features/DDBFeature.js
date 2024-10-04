@@ -478,7 +478,6 @@ export default class DDBFeature extends DDBBaseFeature {
         ? joinedText
         : `<section class="secret">${joinedText}</section>`;
 
-    console.warn(secretText);
     this._generateDescription({ extra: secretText });
     this._addEffects(undefined, this.type);
 

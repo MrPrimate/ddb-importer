@@ -37,6 +37,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Rage: Teleport",
     "Channel Divinity: Divine Spark",
     "Channel Divinity: Turn Undead",
+    "Channel Divinity: Sear Undead",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

@@ -111,7 +111,8 @@ export default class DDBClassFeatures {
       // have we already processed an identical item?
       if (!DDBFeatures.isDuplicateFeature(this._processed, item)) {
         const existingFeature = DDBFeatures.getNameMatchedFeature(this.data, item);
-        const duplicateFeature = DDBFeatures.isDuplicateFeature(this.data, item);
+        const duplicateFeature = DDBFeatures.isDuplicateFeature(this.data, item)
+          || DDBFeatures.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
         if (existingFeature && !duplicateFeature) {
           const levelAdjustment = `<h3>${className}: Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
           existingFeature.system.description.value += levelAdjustment;
@@ -178,7 +179,8 @@ export default class DDBClassFeatures {
     subClassFeatureList.forEach((item) => {
       if (!DDBFeatures.isDuplicateFeature(this.featureList.class, item)) {
         const existingFeature = DDBFeatures.getNameMatchedFeature(subClassItems, item);
-        const duplicateFeature = DDBFeatures.isDuplicateFeature(subClassItems, item);
+        const duplicateFeature = DDBFeatures.isDuplicateFeature(subClassItems, item)
+          || DDBFeatures.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
         if (existingFeature && !duplicateFeature) {
           const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
           existingFeature.system.description.value += levelAdjustment;
@@ -193,7 +195,8 @@ export default class DDBClassFeatures {
     // now we take the unique subclass features and add to class
     subClassItems.forEach((item) => {
       const existingFeature = DDBFeatures.getNameMatchedFeature(this.data, item);
-      const duplicateFeature = DDBFeatures.isDuplicateFeature(this.data, item);
+      const duplicateFeature = DDBFeatures.isDuplicateFeature(this.data, item)
+        || DDBFeatures.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
       if (existingFeature && !duplicateFeature) {
         const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
         existingFeature.system.description.value += levelAdjustment;
