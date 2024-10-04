@@ -406,7 +406,7 @@ export default class DDBSpell {
     const targetsCreatures = this.targetsCreature();
 
     if (targetsCreatures) {
-      target.affects.count = this._getTargetValue();
+      target.affects.count = `${this._getTargetValue()}`;
     }
 
     const rangeValue = foundry.utils.getProperty(this.spellDefinition, "range.rangeValue");

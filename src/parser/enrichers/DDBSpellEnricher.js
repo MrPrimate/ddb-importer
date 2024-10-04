@@ -1528,6 +1528,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
         build: {
           generateDamage: true,
+          generateSave: true,
           onSave: "half",
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 8, types: ["necrotic", "radiant"], scalingMode: "whole", scalingNumber: 1 })],
           noeffect: true,
@@ -1537,6 +1538,13 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
             template: {},
             affects: {
               type: "creature",
+            },
+          },
+          saveOverride: {
+            ability: "wis",
+            dc: {
+              formula: "",
+              calculation: "spellcasting",
             },
           },
         },
