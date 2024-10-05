@@ -1,5 +1,9 @@
 # FAQ
 
+## I have some questions about 2024 D&D or version 4.x D&D 5e System
+
+See the [2024 FAQ](./FAQ-2024-DND.md).
+
 ## The import buttons are greyed out!
 
 They require the cobalt token setting to be set.

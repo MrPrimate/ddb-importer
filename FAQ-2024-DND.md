@@ -46,6 +46,10 @@ The big issues that might be stopping you upgrading straight away are:
 
 Yes, any adventure listed in [the status page](https://docs.ddb.mrprimate.co.uk/status.html) can still be imported.
 
+## Can I update characters back to D&D Beyond?
+
+- Some bits. Features/ACtions are likely to not work.
+
 ## How long till I can import backgrounds, features, species, and classes into compendiums?
 
 This will likely take a couple of months or more. (Late 2024).
