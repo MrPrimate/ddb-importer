@@ -213,6 +213,11 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Hammer of Thunderbolts": {
+      noConsumeTargets: true,
+      name: "Attack",
+      noeffect: true,
+    },
     "Healer's Kit": {
       type: "utility",
       addItemConsume: true,
@@ -422,6 +427,11 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           recharge: "1",
           rechargeType: "t1",
         },
+      },
+    },
+    "Hammer of Thunderbolts": {
+      data: {
+        "system.range.long": "60",
       },
     },
     "Healer's Kit": {
@@ -664,6 +674,30 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       },
       statuses: ["Stunned"],
     },
+    "Hammer of Thunderbolts": {
+      multiple: [
+        {
+          noCreate: true,
+          type: "item",
+          options: {
+            transfer: false,
+          },
+          data: {
+            "flags.ddbimporter.activityMatch": "Giant: Save vs Death",
+          },
+        },
+        {
+          type: "item",
+          options: {
+            transfer: false,
+          },
+          statuses: ["Stunned"],
+          data: {
+            "flags.ddbimporter.activityMatch": "Save vs Stunned",
+          },
+        },
+      ],
+    },
     "Moon Sickle": {
       noCreate: true,
       changes: [
@@ -753,30 +787,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     ],
-    "Iron Bands of Binding": [
-      {
-        constructor: {
-          name: "Escape Check",
-          type: "check",
-        },
-        build: {
-          generateTarget: false,
-          generateRange: false,
-          generateCheck: true,
-          checkOverride: {
-            associated: [],
-            ability: "str",
-            dc: {
-              calculation: "",
-              formula: "20",
-            },
-          },
-        },
-        overrides: {
-          addItemConsume: true,
-        },
-      },
-    ],
     "Donjon's Sundering Sphere": [
       {
         constructor: {
@@ -811,6 +821,113 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           generateDamage: true,
           onSave: "half",
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 6, type: "thunder" })],
+        },
+      },
+    ],
+    "Hammer of Thunderbolts": [
+      {
+        constructor: {
+          name: "Giant: Save vs Death",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateTarget: true,
+          targetOverride: {
+            affects: {
+              type: "creature",
+            },
+          },
+          saveOverride: {
+            ability: "con",
+            dc: {
+              calculation: "",
+              formula: "17",
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Ranged Attack (Uses Charge)",
+          type: "attack",
+        },
+        build: {
+          generateTarget: true,
+          generateRange: true,
+          generateDamage: true,
+          generateAttack: true,
+          generateConsumption: true,
+          attackOverride: {
+            ability: "str",
+            type: {
+              value: "ranged",
+              classification: "weapon",
+            },
+          },
+          rangeOverride: {
+            override: true,
+            value: "20",
+            long: "60",
+            units: "ft",
+          },
+          targetOverride: {
+            affects: {
+              count: "1",
+              type: "creature",
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Save vs Stunned",
+          type: "save",
+        },
+        build: {
+          generateSave: true,
+          generateTarget: true,
+          targetOverride: {
+            affects: {
+              type: "creature",
+            },
+            template: {
+              type: "radius",
+              size: "30",
+              units: "ft",
+            },
+          },
+          saveOverride: {
+            ability: "con",
+            dc: {
+              calculation: "",
+              formula: "17",
+            },
+          },
+        },
+      },
+    ],
+    "Iron Bands of Binding": [
+      {
+        constructor: {
+          name: "Escape Check",
+          type: "check",
+        },
+        build: {
+          generateTarget: false,
+          generateRange: false,
+          generateCheck: true,
+          checkOverride: {
+            associated: [],
+            ability: "str",
+            dc: {
+              calculation: "",
+              formula: "20",
+            },
+          },
+        },
+        overrides: {
+          addItemConsume: true,
         },
       },
     ],

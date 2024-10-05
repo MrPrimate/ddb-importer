@@ -122,8 +122,8 @@ export default class DDBItemActivity {
     // Enchantments need effects here
   }
 
-  _generateRange() {
-    this.data.range = this.actionInfo.range;
+  _generateRange({ rangeOverride = null } = {}) {
+    this.data.range = rangeOverride ?? this.actionInfo.range;
   }
 
   _generateTarget({ targetOverride = null } = {}) {
@@ -229,7 +229,9 @@ export default class DDBItemActivity {
 
     saveOverride = null,
     chatFlavor = null,
+    targetOverride = null,
     targetOverrides = null,
+    rangeOverride = null,
     additionalTargets = null,
     usesOverride = null,
     criticalDamage = null,
@@ -261,6 +263,7 @@ export default class DDBItemActivity {
       generateTarget,
       includeBaseDamage,
       saveOverride,
+      targetOverride,
       targetOverrides,
       additionalTargets,
       activationOverride,
@@ -278,8 +281,8 @@ export default class DDBItemActivity {
     if (generateDescription || chatFlavor) this._generateDescription({ overRide: chatFlavor });
     if (generateDuration) this._generateDuration({ durationOverride });
     if (generateEffects) this._generateEffects();
-    if (generateRange) this._generateRange();
-    if (generateTarget) this._generateTarget();
+    if (generateRange) this._generateRange({ rangeOverride });
+    if (generateTarget) this._generateTarget({ targetOverride });
     if (generateUses) this._generateUses({ usesOverride });
 
     if (generateSave) {

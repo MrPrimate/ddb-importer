@@ -162,6 +162,12 @@ const EFFECT_EXCLUDED_ABILITY_BONUSES = [
   { type: "bonus", subType: "wisdom-score" },
   { type: "bonus", subType: "intelligence-score" },
   { type: "bonus", subType: "charisma-score" },
+  { type: "stacking-bonus", subType: "strength-score" },
+  { type: "stacking-bonus", subType: "dexterity-score" },
+  { type: "stacking-bonus", subType: "constitution-score" },
+  { type: "stacking-bonus", subType: "wisdom-score" },
+  { type: "stacking-bonus", subType: "intelligence-score" },
+  { type: "stacking-bonus", subType: "charisma-score" },
 ];
 
 const EFFECT_EXCLUDED_PROFICIENCY_BONUSES = [
@@ -953,7 +959,9 @@ function addDamageConditions(modifiers) {
 // Generate stat bonuses
 //
 function addStatBonusEffect(modifiers, name, subType) {
-  const bonuses = modifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
+  const bonuses = modifiers.filter((modifier) =>
+    (modifier.type === "bonus" || modifier.type === "stacking-bonus")
+    && modifier.subType === subType);
 
   let effects = [];
   if (bonuses.length > 0) {
@@ -1496,7 +1504,6 @@ export function getStatusEffect({ ddbDefinition, foundryItem, labelOverride } = 
   const conditionResult = DDBEffectHelper.parseStatusCondition({ text, nameHint: labelOverride });
 
   if (!conditionResult.success) return null;
-
   const effectLabel = (labelOverride ?? conditionResult.effect.name ?? foundryItem.name ?? conditionResult.condition);
   let effect = baseItemEffect(foundryItem, effectLabel, {
     transfer: false,
@@ -1509,8 +1516,10 @@ export function getStatusEffect({ ddbDefinition, foundryItem, labelOverride } = 
   if (conditionResult.effect.duration.seconds) effect.duration.seconds = conditionResult.effect.duration.seconds;
   if (conditionResult.effect.duration.rounds) effect.duration.rounds = conditionResult.effect.duration.rounds;
 
-  if (!effect.name) effect.name = "Status Effect";
-
+  if (!effect.name) {
+    const condition = utils.capitalize(conditionResult.condition);
+    effect.name = `Status: ${condition}`;
+  }
   return effect;
 }
 
