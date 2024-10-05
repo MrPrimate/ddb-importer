@@ -38,6 +38,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Channel Divinity: Divine Spark",
     "Channel Divinity: Turn Undead",
     "Channel Divinity: Sear Undead",
+    "Divine Strike",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
@@ -72,6 +73,7 @@ export default class DDBAction extends DDBBaseFeature {
 
   static HIGHEST_LEVEL_ONLY_ACTION_MATCH = [
     "Bardic Inspiration",
+    "Warding Flare",
   ];
 
   // static ACTION_MATCH = [

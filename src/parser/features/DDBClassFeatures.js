@@ -68,6 +68,18 @@ export default class DDBClassFeatures {
   }
 
 
+  static highestLevelFeature(klass, feature) {
+    const match = klass.classFeatures
+      .filter((f) => f.definition.name === feature.definition.name
+        && f.definition.requiredLevel <= klass.level)
+      .reduce((prev, cur) => {
+        return prev.definition.requiredLevel > cur.definition.requiredLevel ? prev : cur;
+      }, { definition: { requiredLevel: 0 } });
+
+    return match;
+  }
+
+
   async _generateClassFeatures(klass) {
 
     const className = klass.definition.name;
@@ -78,6 +90,7 @@ export default class DDBClassFeatures {
         classFeatureIds.includes(feat.definition.id)
         && DDBFeatures.includedFeatureNameCheck(feat.definition.name)
         && feat.definition.requiredLevel <= klass.level,
+      // && DDBClassFeatures.highestLevelFeature(klass, feat)?.definition?.id === feat.definition.id,
     );
 
     const classFeatureList = (await Promise.all(classFeatures
@@ -141,6 +154,7 @@ export default class DDBClassFeatures {
         && DDBFeatures.includedFeatureNameCheck(feat.definition.name)
         && feat.definition.requiredLevel <= klass.level
         && !this.excludedFeatures.includes(feat.definition.id),
+      // && DDBClassFeatures.highestLevelFeature(klass, feat)?.definition?.id === feat.definition.id,
     );
 
     const subClass = foundry.utils.getProperty(klass, "subclassDefinition");

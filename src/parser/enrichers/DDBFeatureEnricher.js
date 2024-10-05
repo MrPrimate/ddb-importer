@@ -212,6 +212,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Blessed Strikes: Divine Strike": {
+      type: "damage",
+      targetType: "creature",
+      activationOverride: "special",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.cleric.divine-strike", types: ["radiant", "necrotic"] })],
+        },
+      },
+    },
     "Branches of the Tree": {
       type: "save",
       activationType: "reaction",
@@ -443,6 +453,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           onSave: "half",
           parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "2d10 + @classes.cleric.levels", type: "radiant" })],
         },
+        target: {
+          template: {
+            value: "30",
+            units: "ft",
+            type: "radius",
+          },
+        },
       },
     },
     "Charger": {
@@ -484,6 +501,29 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           parameters: "",
         },
       },
+    },
+    "Corona of Light": () => {
+      if (effectModules().atlInstalled) {
+        return {
+          type: "utility",
+          data: {
+            name: "Use/Apply Light",
+          },
+        };
+      } else {
+        return {
+          type: "ddbmacro",
+          data: {
+            name: "Use/Apply Light",
+            macro: {
+              name: "Apply Light",
+              function: "ddb.generic.light",
+              visible: false,
+              parameters: '{"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":60,"bright":30},"flag":"light"}',
+            },
+          },
+        };
+      }
     },
     "Cunning Action": {
       type: "utility",
@@ -1013,6 +1053,23 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             enabled: true,
             formula: "@abilities.wis.mod * 2",
           },
+          types: ["temphp"],
+        },
+        range: {
+          value: "60",
+          units: "ft",
+        },
+      },
+    },
+    "Improved Warding Flare": {
+      type: "heal",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        healing: {
+          number: 2,
+          denomination: 6,
+          bonus: "@abilities.wis.mod",
           types: ["temphp"],
         },
         range: {
@@ -3829,6 +3886,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Blessing of the Trickster": {
+      type: "feat",
+      options: {
+        transfer: false,
+        description: "Advantage on Dexterity (Stealth) checks.",
+      },
+    },
     "Celestial Revelation": {
       type: "feat",
       options: {
@@ -3885,6 +3949,28 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           },
         },
       ],
+    },
+    "Corona of Light": {
+      multiple: () => {
+        let effects = [];
+        if (effectModules().atlInstalled) {
+          effects.push({
+            type: "feat",
+            options: {
+              transfer: false,
+            },
+            data: {
+              "flags.ddbimporter.activityMatch": "Use/Apply Light",
+            },
+            atlChanges: [
+              generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '30'),
+              generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '60'),
+              generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+              generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+            ],
+          });
+        }
+      },
     },
     "Dazzling Footwork": {
       clearAutoEffects: true,
