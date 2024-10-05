@@ -877,7 +877,7 @@ const DICTIONARY = {
   RESOURCE_LINKS: {
     "Lay On Hands: Healing Pool": ["Lay On Hands:"],
     "Channel Divinity": [
-      "Channel Divinity:", "Harness Divine Power", "Sacred Weapon",
+      "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",
       // "Sear Undead",
     ],
     "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],

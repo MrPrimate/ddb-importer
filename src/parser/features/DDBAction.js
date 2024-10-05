@@ -39,6 +39,11 @@ export default class DDBAction extends DDBBaseFeature {
     "Channel Divinity: Turn Undead",
     "Channel Divinity: Sear Undead",
     "Divine Strike",
+    "Invoke Duplicity: Move Illusion",
+    "Invoke Duplicity: Cast Spells",
+    "Invoke Duplicity: Distract",
+    "Invoke Duplicity: Shared Distraction",
+    "Channel Divinity: Invoke Duplicity",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
@@ -74,6 +79,7 @@ export default class DDBAction extends DDBBaseFeature {
   static HIGHEST_LEVEL_ONLY_ACTION_MATCH = [
     "Bardic Inspiration",
     "Warding Flare",
+    "Channel Divinity: Invoke Duplicity",
   ];
 
   // static ACTION_MATCH = [

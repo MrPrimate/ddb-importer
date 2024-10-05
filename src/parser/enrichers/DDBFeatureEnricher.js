@@ -1061,6 +1061,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Improved Duplicity": {
+      type: "heal",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@classes.cleric.level",
+          },
+          types: ["healing"],
+        },
+      },
+    },
     "Improved Warding Flare": {
       type: "heal",
       targetType: "creature",
@@ -1108,6 +1122,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             height: "",
             units: "ft",
           },
+        },
+      },
+    },
+    "Invoke Duplicity": {
+      type: "utility",
+      targetType: "self",
+      activationType: "bonus",
+      data: {
+        duration: {
+          value: "1",
+          units: "minute",
         },
       },
     },
@@ -2719,6 +2744,28 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
               },
             ],
             scaling: { allowed: false, max: "" },
+          },
+        },
+      },
+    ],
+    "Invoke Duplicity": [
+      {
+        constructor: {
+          name: "Move Duplicate",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: false,
+          generateRange: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "bonus",
+            value: 1,
+            condition: "",
+          },
+          rangeOverride: {
+            units: "ft",
+            value: "120",
           },
         },
       },
