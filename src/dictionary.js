@@ -876,7 +876,10 @@ const DICTIONARY = {
   },
   RESOURCE_LINKS: {
     "Lay On Hands: Healing Pool": ["Lay On Hands:"],
-    "Channel Divinity": ["Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Sear Undead"],
+    "Channel Divinity": [
+      "Channel Divinity:", "Harness Divine Power", "Sacred Weapon",
+      // "Sear Undead",
+    ],
     "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
     "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen"],
     "Font of Magic: Sorcery Points": [
@@ -952,6 +955,7 @@ const DICTIONARY = {
     "Second Wind": ["Tactical Mind"],
     "Rage": ["Rage: Regain Expended Uses", "Intimidating Presence", "Persistent Rage"],
     "Rage (Enter)": ["Rage: Regain Expended Uses", "Intimidating Presence", "Persistent Rage"],
+    "Divine Intervention": ["Greater Divine Intervention"],
   },
   RESOURCE_SPELL_LINKS: {
     "Ki Points": [
@@ -999,6 +1003,9 @@ const DICTIONARY = {
     ],
     "Mantle of Majesty": [
       { name: "Command", cost: 1, lookupName: "Activate Mantle of Majesty", nameUpdate: "Command (Mantle of Majesty)" },
+    ],
+    "Divine Intervention": [
+      { name: "Wish", cost: 1, lookupName: "Greater Divine Intervention", nameUpdate: "Wish (Divine Intervention)" },
     ],
   },
 };

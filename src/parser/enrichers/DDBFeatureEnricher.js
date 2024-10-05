@@ -25,6 +25,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       "Breath Weapon (Fire)": {},
       "Breath Weapon (Lightning)": {},
       "Breath Weapon (Poison)": {},
+      "Divine Intervention": {
+        type: "utility",
+        addItemConsume: true,
+        data: {
+          roll: {
+            prompt: false,
+            visible: false,
+            formula: "1d100",
+            name: "Implore Aid",
+          },
+        },
+      },
       // "Celestial Revelation": {},
       "Eldritch Invocations: Ghostly Gaze": {
         type: "utility",
@@ -374,16 +386,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Celestial Revelation (Radiant Soul)": {
-      type: "damage",
-      activationType: "special",
-      data: {
-        damage: {
-          parts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: foundry.utils.getProperty(this.data, "flags.ddbimporter.type") === "class" ? "@abilities.cha.mod" : "@prof", type: "radiant" }),
-          ],
+    "Celestial Revelation (Radiant Soul)": () => {
+      return {
+        type: "damage",
+        activationType: "special",
+        data: {
+          damage: {
+            parts: [
+              DDBBaseEnricher.basicDamagePart({ customFormula: foundry.utils.getProperty(this.data, "flags.ddbimporter.type") === "class" ? "@abilities.cha.mod" : "@prof", type: "radiant" }),
+            ],
+          },
         },
-      },
+      };
     },
     "Celestial Revelation (Necrotic Shroud)": {
       type: "save",
@@ -398,7 +412,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         healing: {
           custom: {
             enabled: true,
-            formula: "ceil(@classes.cleric.levels/6)d8",
+            formula: "(ceil(@classes.cleric.levels/6))d8",
           },
           types: ["healing"],
         },
@@ -581,16 +595,34 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         duration: { units: "inst" },
       },
     },
-    "Divine Intervention": {
-      type: "utility",
+    "Disciple of Life": {
+      type: "heal",
+      targetType: "creature",
       data: {
-        roll: {
-          prompt: false,
-          visible: false,
-          formula: "1d100",
-          name: "Implore Aid",
+        description: {
+          chatFlavor: "Choose level of spell for scaling",
+        },
+        "consumption.scaling": {
+          allowed: true,
+          max: "9",
+        },
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "3",
+          },
+          types: ["healing"],
+          scaling: {
+            number: null,
+            mode: "whole",
+            formula: "1",
+          },
         },
       },
+    },
+    "Divine Intervention": {
+      type: "utility",
+      addItemConsume: true,
     },
     "Eldritch Cannon: Flamethrower": {
       type: "save",
@@ -841,6 +873,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Greater Divine Intervention": {
+      type: "utility",
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "2d4",
+          name: "Long rests till next intervention",
+        },
+      },
+    },
     "Hand of Healing": {
       type: "heal",
       targetType: "creature",
@@ -957,6 +1000,24 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         damage: {
           parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
+        },
+      },
+    },
+    "Improved Blessed Strikes: Potent Spellcasting": {
+      type: "heal",
+      targetType: "creature",
+      activationType: "special",
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "@abilities.wis.mod * 2",
+          },
+          types: ["temphp"],
+        },
+        range: {
+          value: "60",
+          units: "ft",
         },
       },
     },
@@ -2215,7 +2276,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             dc: { calculation: "wis", formula: "" },
           },
           damageParts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: "ceil(@classes.cleric.levels/6)d8", types: ["radiant", "necrotic"] }),
+            DDBBaseEnricher.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8", types: ["radiant", "necrotic"] }),
           ],
           onSave: "half",
           rangeOverride: {
@@ -3303,6 +3364,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "system.uses.max": "@abilities.cha.mod",
       },
     },
+    "Divine Intervention": {
+      data: {
+        "flags.ddbimporter.retainOriginalConsumption": true,
+        "system.uses": {
+          value: "0",
+          max: "1",
+          recovery: [
+            { period: "lr", type: 'recoverAll', formula: undefined },
+          ],
+        },
+      },
+    },
     "Drake Companion": {
       data: {
         "system.uses.max": "",
@@ -3945,6 +4018,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           key: "flags.dnd5e.enhancedDualWielding",
           value: "true",
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          priority: 20,
+        },
+      ],
+    },
+    "Divine Order: Thaumaturge": {
+      type: "feat",
+      noCreate: true,
+      changes: [
+        {
+          key: "system.scale.cleric.cantrips-known.value",
+          value: "1",
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           priority: 20,
         },
       ],

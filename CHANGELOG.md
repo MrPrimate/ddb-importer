@@ -1,4 +1,12 @@
-# 6.0.14
+# Next Up
+
+- 2024 Cleric and Cleric Life subclass features.
+- Fix Bloodied added as a count rather than a special condition for some feature parsing.
+- Improve some paring of description rolls for template parsing.
+- Improve the selection and addition of choices added to text of features with choices.
+- For fixed damage spells such as Heal move to using bonus rather than custom formula.
+
+# 6.0.14/15
 
 - Rage damage bonus fix.
 - Fix issue with importing items when updating them.

@@ -431,6 +431,8 @@ export default class DDBBasicActivity {
       data.denomination = Number(damageMatch[2]);
       if (damageMatch[4]) data.bonus = damageMatch[3] === "-" ? `-${damageMatch[4]}` : damageMatch[4];
       if (stripMod) data.bonus = data.bonus.replace(/@mod/, "").trim().replace(/^\+/, "").trim();
+    } else if (Number.isInteger(Number.parseInt(formula))) {
+      data.bonus = formula;
     } else {
       data.custom.enabled = true;
       data.custom.formula = formula;
@@ -440,7 +442,7 @@ export default class DDBBasicActivity {
   static buildDamagePart({ dice = null, damageString = "", type, stripMod = false } = {}) {
     const damage = {
       number: null,
-      denomination: null,
+      denomination: 0,
       bonus: "",
       types: type ? [type.toLowerCase()] : [],
       custom: {

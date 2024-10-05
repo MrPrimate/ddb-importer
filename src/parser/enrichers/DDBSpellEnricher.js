@@ -706,7 +706,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       data: {
         damage: {
           parts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: "1d8", types: ["radiant", "necrotic", "cold"], scalingMode: "half", scalingNumber: "1" }),
+            DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 8, types: ["radiant", "necrotic", "cold"], scalingMode: "half", scalingNumber: "1" }),
           ],
         },
       },
@@ -1087,7 +1087,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "5", type: "cold", scalingFormula: "5", scalingMode: "whole" })],
+          damageParts: [DDBBaseEnricher.basicDamagePart({ bonus: "5", type: "cold", scalingFormula: "5", scalingMode: "whole" })],
           noeffect: true,
         },
       },
