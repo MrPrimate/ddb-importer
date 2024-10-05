@@ -1,6 +1,6 @@
-# Next Up
+# 6.0.16
 
-- 2024 Cleric and Cleric Life and Light domain features.
+- 2024 Cleric and Cleric Domain first pass of features.
 - Fix Bloodied added as a count rather than a special condition for some feature parsing.
 - Improve some paring of description rolls for template parsing.
 - Improve the selection and addition of choices added to text of features with choices.
