@@ -345,16 +345,15 @@ export default class DDBSpell {
    * Uses regex magic to try and determine the number of creatures affected
    */
   _getTargetValue() {
-    const numCreatures = /(?!At Higher Levels.*)(\w*) (falling )?(willing )?(creature|target|monster|celestial|fiend|fey|corpse(s)? of|humanoid)(?!.*you have animated)/gim;
+    const numCreatures = /(?!At Higher Levels.*)(\w*) (?:falling )?(?:willing )?(?:Bloodied )?(creature(?:s)?|target|monster|celestial|fiend|fey|corpse(?:s)? of|humanoid)(?!.*you have animated)/gim;
     const targets = [...this.spellDefinition.description.matchAll(numCreatures)];
     const targetValues = targets
       .filter((target) => {
-        const matches = DICTIONARY.numbers.filter((n) => n.natural === target[1].toLowerCase());
-        return Array.isArray(matches) && !!matches.length;
+        return DICTIONARY.numbers.some((n) => n.natural === target[1].toLowerCase());
       })
       .map((target) => DICTIONARY.numbers.find((n) => n.natural === target[1].toLowerCase()).num);
 
-    if (Array.isArray(targetValues) && !!targetValues.length) {
+    if (targetValues.length > 0) {
       return Math.max(...targetValues);
     } else {
       return null;
@@ -406,7 +405,8 @@ export default class DDBSpell {
     const targetsCreatures = this.targetsCreature();
 
     if (targetsCreatures) {
-      target.affects.count = `${this._getTargetValue()}`;
+      const count = this._getTargetValue();
+      target.affects.count = count ? `${count}` : "";
     }
 
     const rangeValue = foundry.utils.getProperty(this.spellDefinition, "range.rangeValue");

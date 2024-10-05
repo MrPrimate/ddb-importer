@@ -307,8 +307,11 @@ export default class DDBFeatureActivity {
       if (chooseMatch.groups.num) {
         const number = Number.isInteger(parseInt(chooseMatch.groups.num))
           ? chooseMatch.groups.num
-          : DICTIONARY.numbers.find((num) => chooseMatch.groups.num.toLowerCase() === num.natural)?.num ?? chooseMatch.groups.num;
-        target.affects.count = number;
+          : DICTIONARY.numbers.find((num) => chooseMatch.groups.num.toLowerCase() === num.natural)?.num ?? null;
+        target.affects.count = number ?? "";
+        if (!number) {
+          target.affects.special = chooseMatch.groups.num;
+        }
       }
     }
 
