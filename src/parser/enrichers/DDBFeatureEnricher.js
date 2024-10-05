@@ -123,7 +123,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Psychic Teleportation": "Soul Blades: Psychic Teleportation",
     "Radiance of the Dawn": "Channel Divinity: Radiance of the Dawn",
     "Rage (Enter)": "Rage",
-    "War God's Blessing": "Channel Divinity: War God's Blessing",
+    // "War God's Blessing": "Channel Divinity: War God's Blessing",
   };
 
   ACTIVITY_HINTS = {
@@ -912,6 +912,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           types: ["temphp"],
         },
       },
+    },
+    "Guided Strike": {
+      name: "Self",
+      type: "utility",
+      targetType: "self",
+      activationType: "special",
+      condition: "When you miss with an attack",
     },
     "Greater Divine Intervention": {
       type: "utility",
@@ -2125,6 +2132,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "utility",
       midiManualReaction: true,
     },
+    "War God's Blessing": {
+      type: "utility",
+    },
+    "War Priest": {
+      type: "utility",
+    },
     "Wild Shape": {
       type: "utility",
       data: {
@@ -2713,6 +2726,35 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             condition: "",
           },
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6 })],
+        },
+      },
+    ],
+    "Guided Strike": [
+      {
+        constructor: {
+          name: "Other",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: true,
+          generateTarget: true,
+          generateRange: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "reaction",
+            value: 1,
+            condition: "",
+          },
+          targetOverride: {
+            affects: {
+              type: "ally",
+              value: 1,
+            },
+          },
+          rangeOverride: {
+            units: "ft",
+            value: "30",
+          },
         },
       },
     ],
@@ -3799,6 +3841,25 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           "system.uses": {
             spent,
             max: "1",
+            recovery: [
+              {
+                period: "sr",
+                type: "recoverAll",
+              },
+            ],
+          },
+        },
+      };
+    },
+    "War Priest": () => {
+      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) =>
+        a.name === "War Priest: Bonus Attack",
+      )?.limitedUse?.numberUsed ?? 0;
+      return {
+        data: {
+          "system.uses": {
+            spent,
+            max: "max(1, @abilities.wis.mod)",
             recovery: [
               {
                 period: "sr",

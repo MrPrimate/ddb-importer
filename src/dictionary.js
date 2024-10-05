@@ -878,6 +878,7 @@ const DICTIONARY = {
     "Lay On Hands: Healing Pool": ["Lay On Hands:"],
     "Channel Divinity": [
       "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",
+      "War God's Blessing", "Guided Strike", "War Priest",
       // "Sear Undead",
     ],
     "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
@@ -1006,6 +1007,10 @@ const DICTIONARY = {
     ],
     "Divine Intervention": [
       { name: "Wish", cost: 1, lookupName: "Greater Divine Intervention", nameUpdate: "Wish (Divine Intervention)" },
+    ],
+    "War God's Blessing": [
+      { name: "Shield of Faith", cost: 1, lookupName: "War God's Blessing", nameUpdate: "Shield of Faith (War God's Blessing)" },
+      { name: "Spiritual Weapon", cost: 1, lookupName: "War God's Blessing", nameUpdate: "Spiritual Weapon (War God's Blessing)" },
     ],
   },
 };

@@ -44,6 +44,10 @@ export default class DDBAction extends DDBBaseFeature {
     "Invoke Duplicity: Distract",
     "Invoke Duplicity: Shared Distraction",
     "Channel Divinity: Invoke Duplicity",
+    "Channel Divinity: War God's Blessing",
+    "Channel Divinity: Guided Strike (Benefit Ally)",
+    "Channel Divinity: Guided Strike (Self)",
+    "War Priest: Bonus Attack",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
@@ -67,6 +71,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Combat Inspiration: ",
     "Brutal Strike:",
     "Improved Brutal Strike:",
+    "Channel Divinity: War God",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [
