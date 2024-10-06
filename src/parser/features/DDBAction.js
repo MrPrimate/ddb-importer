@@ -48,6 +48,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Channel Divinity: Guided Strike (Benefit Ally)",
     "Channel Divinity: Guided Strike (Self)",
     "War Priest: Bonus Attack",
+    "Leave Druidic Message",
+
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
