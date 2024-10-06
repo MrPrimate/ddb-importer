@@ -1,7 +1,8 @@
-# Next Up
+# 6.0.17
 
 - Some changes to advancement generation for Barbarians to cope with different combinations of PHB, SRD and 2014/2024 rules activation.
 - Refactor class identifier generation to match 2024 PHB style.
+- Natural Recovery Macro feature. Some Druid parsing tweaks.
 
 # 6.0.16
 
