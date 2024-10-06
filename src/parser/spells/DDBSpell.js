@@ -235,8 +235,8 @@ export default class DDBSpell {
     // default values
     this.data.system.preparation = {
       mode: "prepared",
-      // If always prepared mark as such, if not then check to see if prepared
-      prepared: this.spellData.alwaysPrepared || this.spellData.prepared,
+      // If always prepared mark as such, if not then check to see if prepared, mark cantrips as prepared
+      prepared: this.spellData.alwaysPrepared || this.spellData.prepared || this.spellDefinition.level === 0,
     };
 
     // handle classSpells
@@ -275,6 +275,7 @@ export default class DDBSpell {
         // picked up by getUses() later
         // this was changed to "atwill"
         this.data.system.preparation.mode = "atwill";
+        this.data.system.preparation.prepared = true;
       }
       if (this.lookup === "classFeature") {
         if (this.spellData.alwaysPrepared) {

@@ -527,6 +527,7 @@ export default class DDBFeatureActivity {
     generateSave = false,
     generateTarget = true,
     generateRoll = false,
+    generateUses = false,
     roll = null,
 
     targetOverride = null,
@@ -543,6 +544,7 @@ export default class DDBFeatureActivity {
     rangeOverride = null,
     ddbMacroOverride = null,
     durationOverride = null,
+    usesOverride = null,
   } = {}) {
 
 
@@ -584,6 +586,10 @@ export default class DDBFeatureActivity {
     if (generateTarget) this._generateTarget({ targetOverride, targetSelf, noTemplate });
     if (generateDDBMacro) this._generateDDBMacro({ ddbMacroOverride });
 
+    if (generateUses) {
+      this.data.uses = usesOverride;
+      this.data.uses.override = true;
+    }
 
     if (generateRoll) this._generateRoll({ roll });
 

@@ -894,7 +894,10 @@ const DICTIONARY = {
       "Psychic Blades", "Superior Inspiration", "Regain Bardic Inspiration",
       "Inspiring Movement", "Tandem Footwork", "Beguiling Magic",
     ],
-    "Wild Shape": ["Symbiotic Entity", "Starry Form", "Wild Companion", "Summon Wildfire Spirit"],
+    "Wild Shape": [
+      "Symbiotic Entity", "Starry Form", "Wild Companion", "Summon Wildfire Spirit",
+      "Archdruid",
+    ],
     "Grit Points": [
       "Trick Shots:", "Bullying Shot", "Dazing Shot", "Deadeye Shot", "Disarming Shot",
       "Forceful Shot", "Piercing Shot", "Violent Shot", "Winging Shot",

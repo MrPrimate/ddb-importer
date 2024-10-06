@@ -16,6 +16,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Power of the Wilds",
     "Divine Order",
     "Blessed Strikes",
+    "Circle of the Land Spells",
   ];
 
   static KEEP_CHOICE_FEATURE_NAME = [
@@ -51,6 +52,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Unbreakable Majesty",
     "Aspect of the Wilds",
     "Power of the Wilds",
+    "Circle of the Land Spells",
   ];
 
   static NO_CHOICE_SECRET = [
@@ -60,6 +62,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Improved Blessed Strikes: Divine Strike",
     "Improved Blessed Strikes: Potent Spellcasting",
     "Improved Blessed Strikes",
+    "Circle of the Land Spells",
   ];
 
   static USE_ALL_CHOICES = [

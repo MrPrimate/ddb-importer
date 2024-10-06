@@ -49,7 +49,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Channel Divinity: Guided Strike (Self)",
     "War Priest: Bonus Attack",
     "Leave Druidic Message",
-
+    "Free Casting",
+    "Nature Magician",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
@@ -74,6 +75,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Brutal Strike:",
     "Improved Brutal Strike:",
     "Channel Divinity: War God",
+    "Natural Recovery:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [

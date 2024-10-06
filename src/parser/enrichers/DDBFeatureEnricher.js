@@ -138,6 +138,23 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Archdruid": {
+      type: "utility",
+      name: "Regain A Wild Shape Use",
+      activationType: "special",
+      condition: "When you roll initiative and have no Wild Shape uses remaining",
+      additionalConsumptionTargets: [
+        {
+          type: "itemUses",
+          target: "",
+          value: "-1",
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        },
+      ],
+    },
     "Arms of the Astral Self (DEX/STR)": {
       data: {
         "attack.ability": "",
@@ -1409,6 +1426,21 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Mystic Arcanum (Level 8 Spell)": {
       type: "none",
     },
+    "Natural Recovery": () => {
+      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Natural Recovery: Cast Circle Spell")?.limitedUse?.numberUsed ?? null;
+      return {
+        type: "utility",
+        name: "Cast Circle Spell",
+        addActivityConsume: true,
+        data: {
+          uses: {
+            spent,
+            max: 1,
+            recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+          },
+        },
+      };
+    },
     "Partially Amphibious": {
       type: "utility",
       func: undefined,
@@ -2159,6 +2191,66 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
   };
 
   ADDITIONAL_ACTIVITIES = {
+    "Archdruid": () => {
+      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Nature Magician")?.limitedUse?.numberUsed ?? null;
+      return [
+        {
+          constructor: {
+            name: "Nature Magician",
+            type: "utility",
+          },
+          build: {
+            generateConsumption: true,
+            generateRange: true,
+            generateTarget: true,
+            generateUses: true,
+            usesOverride: {
+              spent,
+              max: "1",
+              recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+            },
+            consumptionOverride: {
+              targets: [
+                {
+                  type: "itemUses",
+                  target: "",
+                  value: "1",
+                  scaling: { mode: "amount", formula: "" },
+                },
+                {
+                  type: "activityUses",
+                  target: "",
+                  value: "1",
+                  scaling: { mode: "", formula: "" },
+                },
+                {
+                  type: "spellSlots",
+                  value: "-1",
+                  target: "2",
+                  scaling: {
+                    mode: "level",
+                    formula: "2",
+                  },
+                },
+              ],
+              scaling: {
+                allowed: true,
+                max: "@scale.druid.wild-shape-uses",
+              },
+              spellSlot: true,
+            },
+            targetOverride: {
+              affects: {
+                type: "self",
+              },
+            },
+            rangeOverride: {
+              units: "self",
+            },
+          },
+        },
+      ];
+    },
     "Aspect of the Wilds": [
       {
         constructor: {
@@ -2888,6 +2980,54 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Natural Recovery": () => {
+      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Natural Recovery: Recover Spell Slots")?.limitedUse?.numberUsed ?? null;
+      return [
+        {
+          constructor: {
+            name: "Recover Spell Slots",
+            type: "ddbmacro",
+          },
+          build: {
+            generateConsumption: true,
+            generateRange: true,
+            generateTarget: true,
+            generateUses: true,
+            generateDDBMacro: true,
+            usesOverride: {
+              spent,
+              max: "1",
+              recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+            },
+            targetOverride: {
+              affects: {
+                type: "self",
+              },
+            },
+            rangeOverride: {
+              units: "self",
+            },
+            consumptionOverride: {
+              targets: [
+                {
+                  type: "activityUses",
+                  target: "",
+                  value: "1",
+                  scaling: { mode: "", formula: "" },
+                },
+              ],
+              scaling: { allowed: false, max: "" },
+            },
+            ddbMacroOverride: {
+              name: "Natural Recovery",
+              function: "ddb.feat.naturalRecovery",
+              visible: false,
+              parameters: "",
+            },
+          },
+        },
+      ];
+    },
     "Poisoner": () => {
       const results = [{
         constructor: {
@@ -2923,10 +3063,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
                 formula: "",
               },
             }],
-            scaling: {
-              allowed: false,
-              max: "",
-            },
+            scaling: { allowed: false, max: "" },
           },
         },
       }];
