@@ -34,6 +34,7 @@ const RULE_ADJUSTMENT = {
   "spellTag": "spellTags",
   "spellSchool": "spellSchools",
   "areaTargetType": "areaTargetTypes",
+  "weaponMastery": "weaponMasteries",
 };
 
 const SUPER_LOOSE = [
@@ -128,6 +129,7 @@ function getRuleLookups() {
     "spellTags": CONFIG.DND5E.spellTags ?? {},
     "spellSchools": CONFIG.DND5E.spellSchools ?? {},
     "areaTargetTypes": CONFIG.DND5E.areaTargetTypes ?? {},
+    "weaponMasteries": CONFIG.DND5E.weaponMasteries ?? {},
   };
 
   const rules = {};

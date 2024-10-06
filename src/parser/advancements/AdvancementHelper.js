@@ -960,8 +960,9 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  static rename(advancement, { newName } = {}) {
-    advancement.title = newName;
+  static rename(advancement, { newName = null, identifier = null } = {}) {
+    if (newName) advancement.title = newName;
+    if (identifier) advancement.configuration.identifier = identifier;
     return advancement;
   }
 
@@ -1016,14 +1017,16 @@ export default class AdvancementHelper {
 
     const advancement = new game.dnd5e.documents.advancement.ScaleValueAdvancement();
 
+    const name = utils.nameString(feature.name);
+
     const update = {
       configuration: {
-        identifier: utils.referenceNameString(feature.name).toLowerCase(),
+        identifier: utils.referenceNameString(name).toLowerCase(),
         type,
         scale: {},
       },
       value: {},
-      title: feature.name,
+      title: name,
     };
 
     feature.levelScales.forEach((scale) => {

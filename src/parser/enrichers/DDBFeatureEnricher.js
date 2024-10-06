@@ -3715,7 +3715,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         data: {
           name: "Rage",
           "system.uses": {
-            max: "@scale.barbarian.rage-damage",
+            max: "@scale.barbarian.rages",
             recovery: this.is2014
               ? [{ period: "lr", type: 'recoverAll', formula: "" }]
               : [
@@ -3735,7 +3735,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
         "flags.ddbimporter": {
           retainOriginalConsumption: true,
-          consumptionValue: "-@scale.barbarian.rage",
+          consumptionValue: "-@scale.barbarian.rages",
           retainChildUses: true,
         },
       },
@@ -4790,7 +4790,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       changes: [
         {
           key: "system.bonuses.mwak.damage",
-          value: "+ @scale.barbarian.rage",
+          value: "+ @scale.barbarian.rage-damage",
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           priority: 0,
         },

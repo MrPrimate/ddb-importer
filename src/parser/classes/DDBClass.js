@@ -19,6 +19,13 @@ export default class DDBClass {
       additionalAdvancements: false,
       additionalFunctions: [],
     },
+    "Rage": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Rages", identifier: "rages" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
   };
 
   static PROFICIENCY_FEATURES = [
@@ -1253,6 +1260,31 @@ export default class DDBClass {
         icon: null,
       };
       this.data.system.advancement.push(cunningStrike);
+    } else if (this.data.name === "Barbarian" && !this.is2014) {
+      const damage = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "rage-damage",
+          type: "number",
+          scale: {
+            1: {
+              value: 2,
+            },
+            9: {
+              value: 3,
+            },
+            16: {
+              value: 4,
+            },
+          },
+        },
+        value: {},
+        title: "Rage Damage",
+        icon: null,
+      };
+      this.data.system.advancement.push(damage);
     }
   }
 

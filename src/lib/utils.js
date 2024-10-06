@@ -52,7 +52,7 @@ const utils = {
   },
 
   referenceNameString: (str) => {
-    const identifier = str.replaceAll(/(\w+)([\\|/])(\w+)/g, "$1-$3");
+    const identifier = utils.nameString(str).replaceAll("'", "").replaceAll(/(\w+)([\\|/])(\w+)/g, "$1-$3");
     return identifier.slugify({ strict: true });
   },
 

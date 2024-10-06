@@ -119,10 +119,10 @@ const DDBHelper = {
     );
 
     if (klass) {
-      const featureName = featDefinition.name.toLowerCase().replace(/\s|'|’/g, '-');
+      const featureName = utils.referenceNameString(featDefinition.name);
       const klassName = klass.subclassDefinition?.id === featDefinition.classId
-        ? klass.subclassDefinition.name.toLowerCase().replace(/\s|'|’/g, '-')
-        : klass.definition.name.toLowerCase().replace(/\s|'|’/g, '-');
+        ? utils.referenceNameString(klass.subclassDefinition.name)
+        : utils.referenceNameString(klass.definition.name);
       return `@scale.${klassName}.${featureName}`;
     }
 

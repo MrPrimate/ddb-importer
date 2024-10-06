@@ -1,3 +1,7 @@
+# Next Up
+
+- Some changes to advancement generation for Barbarians to cope with different combinations of PHB, SRD and 2014/2024 rules activation.
+
 # 6.0.16
 
 - 2024 Cleric and Cleric Domain first pass of features.
