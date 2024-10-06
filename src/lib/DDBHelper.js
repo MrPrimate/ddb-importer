@@ -1152,6 +1152,27 @@ const DDBHelper = {
     });
   },
 
+  classIdentifierName(className) {
+    let result = utils.referenceNameString(className);
+    const removals = [
+      "circle-of-the-", "circle-of-",
+      "path-of-the-", "path-of-",
+      "warrior-of-the-", "warrior-of-",
+      "oath-of-the-", "oath-of-",
+      "-domain",
+      "-sorcery",
+      "-patron",
+    ];
+    for (const remove of removals) {
+      if (result.includes(remove)) {
+        result = result.replace(remove, "");
+        break;
+      }
+    }
+
+    return utils.referenceNameString(result);
+  },
+
 };
 
 export default DDBHelper;

@@ -1915,7 +1915,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         "range.units": "self",
         damage: {
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.path-of-the-storm-herald.storm-aura-desert", types: ["fire"] })],
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.storm-herald.storm-aura-desert", types: ["fire"] })],
         },
         target: {
           affects: {
@@ -1936,7 +1936,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         "range.units": "self",
         damage: {
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.path-of-the-storm-herald.storm-aura-sea", types: ["lightning"] })],
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.storm-herald.storm-aura-sea", types: ["lightning"] })],
         },
         target: {
           save: {
@@ -3268,7 +3268,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
               value: "range",
             },
           },
-          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.circle-of-stars.starry-form + @mod", type: "radiant" })],
+          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.stars.starry-form + @mod", type: "radiant" })],
           targetOverride: {
             affects: {
               count: "1",
@@ -3297,7 +3297,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           generateTarget: true,
           generateDamage: false,
           generateHealing: true,
-          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.circle-of-stars.starry-form + @mod", type: "healing" }),
+          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.stars.starry-form + @mod", type: "healing" }),
           targetOverride: {
             affects: {
               count: "1",
@@ -4116,7 +4116,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             {
               key: "system.damage.base.custom.formula",
               mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: "@scale.college-of-dance.dazzling-footwork + @abilities.dex.mod",
+              value: "@scale.dance.dazzling-footwork + @abilities.dex.mod",
               priority: 20,
             },
           ],

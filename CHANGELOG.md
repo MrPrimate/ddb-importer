@@ -1,6 +1,7 @@
 # Next Up
 
 - Some changes to advancement generation for Barbarians to cope with different combinations of PHB, SRD and 2014/2024 rules activation.
+- Refactor class identifier generation to match 2024 PHB style.
 
 # 6.0.16
 

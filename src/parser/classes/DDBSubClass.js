@@ -1,3 +1,4 @@
+import DDBHelper from '../../lib/DDBHelper.js';
 import utils from '../../lib/utils.js';
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
 import DDBClass from './DDBClass.js';
@@ -23,7 +24,7 @@ export default class DDBSubClass extends DDBClass {
   _fleshOutCommonDataStub() {
     super._fleshOutCommonDataStub();
     // add parent class identifier
-    this.data.system.classIdentifier = utils.referenceNameString(this.ddbClass.definition.name.toLowerCase());
+    this.data.system.classIdentifier = DDBHelper.classIdentifierName(this.ddbClass.definition.name);
 
   }
 

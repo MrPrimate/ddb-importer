@@ -7,7 +7,7 @@ export function pactMagicEffect(document) {
     effect.changes.push(
       {
         key: "system.spells.pact.level",
-        value: "@scale.order-of-the-profane-soul.pact-level",
+        value: "@scale.profane-soul.pact-level",
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         priority: "20",
       },

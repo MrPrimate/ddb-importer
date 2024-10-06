@@ -220,7 +220,7 @@ export default class DDBClass {
 
   _fleshOutCommonDataStub() {
     // this.data.system.identifier = utils.referenceNameString(`${this.ddbClassDefinition.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
-    this.data.system.identifier = utils.referenceNameString(`${this.ddbClassDefinition.name.toLowerCase()}`);
+    this.data.system.identifier = DDBHelper.classIdentifierName(this.ddbClassDefinition.name);
     this._determineClassFeatures();
 
     this._proficiencyFeatureIds = this.classFeatures
