@@ -3902,7 +3902,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Owl",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             "flags.ddbimporter.activityMatch": "Owl",
@@ -3924,7 +3923,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Panther",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             "flags.ddbimporter.activityMatch": "Panther",
@@ -3937,7 +3935,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Salmon",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             "flags.ddbimporter.activityMatch": "Salmon",
@@ -3980,7 +3977,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Frightened",
           type: "feat",
           options: {
-            transfer: false,
           },
           statuses: ["Frightened"],
         },
@@ -3988,7 +3984,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Charmed",
           type: "feat",
           options: {
-            transfer: false,
           },
           statuses: ["Charmed"],
         },
@@ -3997,20 +3992,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Blessing of the Trickster": {
       type: "feat",
       options: {
-        transfer: false,
         description: "Advantage on Dexterity (Stealth) checks.",
       },
     },
     "Celestial Revelation": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
     },
     "Celestial Revelation (Heavenly Wings)": {
       type: "feat",
       options: {
-        transfer: false,
         durationSeconds: 60,
       },
       changes: [
@@ -4021,7 +4011,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       name: "Turned",
       type: "feat",
       options: {
-        transfer: false,
         durationSeconds: 60,
         description: "The effect ends if the creature takes damage.",
       },
@@ -4037,7 +4026,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Poisoned",
           type: "feat",
           options: {
-            transfer: false,
             durationSeconds: 60,
           },
           statuses: ["Poisoned"],
@@ -4049,7 +4037,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Prone",
           type: "feat",
           options: {
-            transfer: false,
           },
           statuses: ["Prone"],
           data: {
@@ -4065,7 +4052,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           effects.push({
             type: "feat",
             options: {
-              transfer: false,
             },
             data: {
               "flags.ddbimporter.activityMatch": "Use/Apply Light",
@@ -4148,7 +4134,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Knocked Out",
           type: "feat",
           options: {
-            transfer: false,
             durationSeconds: 60,
           },
           statuses: ["Unconscious"],
@@ -4160,7 +4145,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Blinded",
           type: "feat",
           options: {
-            transfer: false,
           },
           statuses: ["Blinded"],
           data: {
@@ -4315,9 +4299,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Frost's Chill (Frost Giant)": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
       changes: [
         { key: "system.attributes.movement.walk", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "-10", priority: "20" },
       ],
@@ -4327,7 +4308,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       options: {
         durationSeconds: 60,
         description: "You also gain advantage on Strength checks and saving throws.",
-        transfer: false,
       },
       atlChanges: [
         generateATLChange("ATL.width", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
@@ -4390,9 +4370,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Brutal Strike": {
       name: "Hamstrung",
       type: "feat",
-      options: {
-        transfer: false,
-      },
       changes: [
         {
           key: "system.attributes.movement.walk",
@@ -4413,16 +4390,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Hill's Tumble (Hill Giant)": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
       statuses: ["Prone"],
     },
     "Innate Sorcery": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
       changes: [
         {
           key: "system.bonuses.spell.dc",
@@ -4439,7 +4410,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           effects.push({
             type: "feat",
             options: {
-              transfer: false,
             },
             data: {
               "flags.ddbimporter.activityMatch": "Use/Apply Light",
@@ -4459,7 +4429,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Staggered",
           type: "feat",
           options: {
-            transfer: false,
           },
           changes: [
           ],
@@ -4471,7 +4440,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Sundered",
           type: "feat",
           options: {
-            transfer: false,
           },
           changes: [
           ],
@@ -4497,9 +4465,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Large Form": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
       changes: [
         {
           key: "system.traits.size",
@@ -4525,9 +4490,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Maneuver: Ambush": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
       changes: [
         {
           key: "system.attributes.init.bonus",
@@ -4539,9 +4501,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Maneuver: Bait and Switch": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
       changes: [
         {
           key: "system.attributes.ac.bonus",
@@ -4553,9 +4512,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Maneuver: Evasive Footwork": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
       changes: [
         {
           key: "system.attributes.ac.bonus",
@@ -4569,8 +4525,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     // "Maneuver: Parry": {
     //   type: "feat",
     //   options: {
-    //     transfer: false,
-    //   },
+    //         //   },
     //   changes: [
     //     {
     //       key: "system.traits.dm.amount.bludgeoning",
@@ -4595,9 +4550,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Maneuver: Tactical Assessment": {
       name: "Tactical Assessment Bonus",
       type: "feat",
-      options: {
-        transfer: false,
-      },
       changes: [
         {
           key: "system.skills.his.bonuses.check",
@@ -4621,9 +4573,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Mindless Rage": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
+      // options: {
+      //   transfer: true,
+      //   disabled: true,
+      // },
       changes: [
         {
           key: "system.traits.ci.value",
@@ -4710,9 +4663,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Poisoner": {
       name: "Poisoned",
       type: "feat",
-      options: {
-        transfer: false,
-      },
       statuses: ["Poisoned"],
       data: {
         "flags.ddbimporter.activitiesMatch": ["Poison Save", "Poison Save (Dexterity)", "Poison Save (Intelligence)"],
@@ -4738,7 +4688,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Falcoln",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             "flags.ddbimporter.activityMatch": "Falcoln",
@@ -4751,7 +4700,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Lion",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             "flags.ddbimporter.activityMatch": "Lion",
@@ -4761,7 +4709,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Ram",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             "flags.ddbimporter.activityMatch": "Ram",
@@ -4771,7 +4718,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Prone",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             "flags.ddbimporter.activityMatch": "Ram",
@@ -4780,63 +4726,63 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
-    "Rage": {
-      name: "Rage",
-      type: "feat",
-      options: {
-        transfer: false,
-        durationSeconds: this.is2014 ? 60 : 600,
-      },
-      changes: [
-        {
-          key: "system.bonuses.mwak.damage",
-          value: "+ @scale.barbarian.rage-damage",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 0,
+    "Rage": () => {
+      return {
+        name: "Rage",
+        type: "feat",
+        options: {
+          // transfer: true,
+          // disabled: true,
+          durationSeconds: this.is2014 ? 60 : 600,
         },
-        {
-          key: "system.traits.dr.value",
-          value: "piercing",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 0,
-        },
-        {
-          key: "system.traits.dr.value",
-          value: "slashing",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
-        {
-          key: "system.traits.dr.value",
-          value: "bludgeoning",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
-        {
-          key: "flags.midi-qol.advantage.ability.save.str",
-          value: "1",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          priority: 20,
-        },
-        {
-          key: "flags.midi-qol.advantage.ability.check.str",
-          value: "1",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          priority: 20,
-        },
-        {
-          key: "macro.tokenMagic",
-          value: "outline",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          priority: 10,
-        },
-      ],
+        changes: [
+          {
+            key: "system.bonuses.mwak.damage",
+            value: "+ @scale.barbarian.rage-damage",
+            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+            priority: 0,
+          },
+          {
+            key: "system.traits.dr.value",
+            value: "piercing",
+            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+            priority: 0,
+          },
+          {
+            key: "system.traits.dr.value",
+            value: "slashing",
+            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+            priority: 20,
+          },
+          {
+            key: "system.traits.dr.value",
+            value: "bludgeoning",
+            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+            priority: 20,
+          },
+          {
+            key: "flags.midi-qol.advantage.ability.save.str",
+            value: "1",
+            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+            priority: 20,
+          },
+          {
+            key: "flags.midi-qol.advantage.ability.check.str",
+            value: "1",
+            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+            priority: 20,
+          },
+          {
+            key: "macro.tokenMagic",
+            value: "outline",
+            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+            priority: 10,
+          },
+        ],
+      };
     },
     "Raging Storm: Tundra": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
       changes: [
         {
           key: "system.attributes.movement.all",
@@ -4876,9 +4822,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Reckless Attack": {
       name: "Attacking Recklessly",
       type: "feat",
-      options: {
-        transfer: false,
-      },
     },
     "Reliable Talent": {
       type: "feat",
@@ -4941,7 +4884,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Shielding Storm: Desert",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             flags: {
@@ -4972,7 +4914,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Shielding Storm: Sea",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             flags: {
@@ -5003,7 +4944,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Shielding Storm: Tundra",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             flags: {
@@ -5034,9 +4974,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Shifting: Beasthide": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
       changes: [
         {
           key: "system.attributes.ac.bonus",
@@ -5048,9 +4985,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Shifting: Swiftstride": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
       changes: [
         {
           key: "system.attributes.movement.walk",
@@ -5062,15 +4996,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Shifting: Wildhunt": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
     },
     "Slasher": {
       type: "feat",
-      options: {
-        transfer: false,
-      },
       name: "Slashed",
     },
     "Starry Form": {
@@ -5078,7 +5006,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         {
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             flags: {
@@ -5098,7 +5025,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         {
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             flags: {
@@ -5112,7 +5038,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         {
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             name: "Dragon Form: Twinkling Constellations",
@@ -5136,7 +5061,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Steps of the Fey": {
       type: "feat",
       options: {
-        transfer: false,
         description: "Disadvantage on attack rolls against creatures other than caster until the start of the casters next turn",
       },
       name: "Taunted",
@@ -5161,7 +5085,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Darkvision",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             "flags.ddbimporter.activityMatch": "Darkvision",
@@ -5183,7 +5106,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Greater Comprehension",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             "flags.ddbimporter.activityMatch": "Greater Comprehension",
@@ -5202,7 +5124,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "See Invisibility",
           type: "feat",
           options: {
-            transfer: false,
           },
           data: {
             "flags.ddbimporter.activityMatch": "See Invisibility",
@@ -5253,7 +5174,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Unbreakable Majesty": {
       type: "feat",
       options: {
-        transfer: false,
         durationSeconds: 60,
       },
       data: {

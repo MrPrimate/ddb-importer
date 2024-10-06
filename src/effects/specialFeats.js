@@ -83,6 +83,7 @@ import { ghostWalkEffect } from "./feats/ghostWalk.js";
 import { darkOnesOwnLuckffect } from "./feats/darkOnesOwnLuck.js";
 import { foeSlayerEffect } from "./feats/foeSlayer.js";
 
+
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false, description = null, durationSeconds = null,
     durationRounds = null, durationTurns = null } = {},
