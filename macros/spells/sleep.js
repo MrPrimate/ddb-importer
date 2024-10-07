@@ -4,7 +4,7 @@
 const isVersion12 = game.version > 12;
 const getEffects = isVersion12 ? "appliedEffects" : "effects";
 const labelName = isVersion12 ? "name" : "label";
-const localizedEffectName = game.i18n.translations["ddb-importer"]["item-type"].specificSpells.Sleep;
+const localizedEffectName = game.i18n.translations["ddb-importer"]["item-type"].specificSpells.sleep;
 const sleepHp = workflow.damageTotal;
 const condition = "Unconscious";
 console.log(`Sleep Spell => Available HP Pool [${sleepHp}] points`);
