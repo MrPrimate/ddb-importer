@@ -1,6 +1,6 @@
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
-import DDBEffectHelper from "./DDBEffectHelper.js";
+// import DDBEffectHelper from "./DDBEffectHelper.js";
 
 export default class DDBMacros {
 
@@ -91,9 +91,9 @@ export default class DDBMacros {
       }
     }
 
-    if (game.modules.get("warpgate")?.active && DDBEffectHelper.checkJB2a(true, true, false)) {
-      await DDBEffectHelper._createJB2aActors("Dancing Lights", "Dancing light");
-    }
+    // if (game.modules.get("warpgate")?.active && DDBEffectHelper.checkJB2a(true, true, false)) {
+    //   await DDBEffectHelper._createJB2aActors("Dancing Lights", "Dancing light");
+    // }
 
     return true;
   }

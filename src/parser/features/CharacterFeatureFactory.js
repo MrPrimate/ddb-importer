@@ -7,6 +7,7 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 import DDBFeatures from "./DDBFeatures.js";
 import { addExtraEffects } from "./extraEffects.js";
 import DDBFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
+import utils from "../../lib/utils.js";
 
 export default class CharacterFeatureFactory {
   constructor(ddbCharacter) {
@@ -105,8 +106,8 @@ export default class CharacterFeatureFactory {
     ]
       .flat()
       .filter((action) => action.name && action.name !== ""
-        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => action.name.startsWith(a))
-        && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name === a),
+        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))
+        && !DDBAction.SKIPPED_ACTIONS.some((a) => utils.nameString(action.name) === a),
       )
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter));
 
@@ -158,8 +159,8 @@ export default class CharacterFeatureFactory {
     // do class options here have a class id, needed for optional class features
     const classActions = this.ddbData.character.actions.class.filter((action) =>
       DDBHelper.findClassByFeatureId(this.ddbData, action.componentId)
-      && (!DDBAction.HIGHEST_LEVEL_ONLY_ACTION_MATCH.includes(action.name)
-        || (DDBAction.HIGHEST_LEVEL_ONLY_ACTION_MATCH.includes(action.name)
+      && (!DDBAction.HIGHEST_LEVEL_ONLY_ACTION_MATCH.includes(utils.nameString(action.name))
+        || (DDBAction.HIGHEST_LEVEL_ONLY_ACTION_MATCH.includes(utils.nameString(action.name))
         && this._highestLevelActionFeature(action, "class")?.definition?.id === action.componentId)),
     );
 
@@ -171,8 +172,8 @@ export default class CharacterFeatureFactory {
     ]
       .flat()
       .filter((action) => action.name && action.name !== ""
-        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => action.name.startsWith(a))
-        && !DDBAction.SKIPPED_ACTIONS.some((a) => action.name === a),
+        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))
+        && !DDBAction.SKIPPED_ACTIONS.some((a) => utils.nameString(action.name) === a),
       )
       .filter((action) => {
         const name = DDBHelper.getName(this.ddbData, action, this.rawCharacter);

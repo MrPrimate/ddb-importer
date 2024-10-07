@@ -51,6 +51,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Leave Druidic Message",
     "Free Casting",
     "Nature Magician",
+    "Evergreen Wildshape",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
@@ -76,6 +77,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Improved Brutal Strike:",
     "Channel Divinity: War God",
     "Natural Recovery:",
+    "Land's Aid:",
+    "Wild Resurgence:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [

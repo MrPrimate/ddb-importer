@@ -289,6 +289,21 @@ export default class DDBFeatureActivity {
       if (aoeSizeMatch[2] && ["of you"].includes(aoeSizeMatch[2].trim())) {
         this.data.range.value = aoeSizeMatch.groups.within ?? "";
         this.data.range.units = "ft";
+        const aoeSizeSecondaryRegex = /(?:in a) (?<within>\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the)(\w+[. ])?/ig;
+        const aoeSizeSecondaryMatch = aoeSizeSecondaryRegex.exec(description);
+
+        // console.warn(`aoeSizeSecondaryMatch for ${this.name}`, {
+        //   targetsCreature,
+        //   creatureTargetCount,
+        //   aoeSizeMatch,
+        //   aoeSizeSecondaryMatch,
+        // });
+        if (aoeSizeSecondaryMatch) {
+          // some features such as Land's Aid will match both.
+          const type = aoeSizeSecondaryMatch[3]?.trim() ?? aoeSizeSecondaryMatch[2]?.trim() ?? "radius";
+          target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
+          target.template.size = aoeSizeSecondaryMatch.groups.within ?? "";
+        }
       } else {
         const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
         target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";

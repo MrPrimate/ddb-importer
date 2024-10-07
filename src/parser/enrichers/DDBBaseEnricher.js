@@ -320,7 +320,7 @@ export default class DDBBaseEnricher {
       let name = effectHint.name ?? this.name;
       let effectOptions = effectHint.options ?? {};
 
-      if (effectHint.noCreate) {
+      if (effectHint.noCreate && this.data.effects.length > 0) {
         effect = this.data.effects[0];
       } else {
         switch (effectHint.type) {

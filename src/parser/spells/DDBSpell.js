@@ -231,6 +231,7 @@ export default class DDBSpell {
     }
   }
 
+  // eslint-disable-next-line complexity
   _generateSpellPreparationMode() {
     // default values
     this.data.system.preparation = {
@@ -277,7 +278,7 @@ export default class DDBSpell {
         this.data.system.preparation.mode = "atwill";
         this.data.system.preparation.prepared = true;
       }
-      if (this.lookup === "classFeature") {
+      if (["classFeature", "subclassFeature", "feat"].includes(this.lookup)) {
         if (this.spellData.alwaysPrepared) {
           this.data.system.preparation.mode = "always";
         }

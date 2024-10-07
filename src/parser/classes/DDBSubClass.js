@@ -205,7 +205,7 @@ export default class DDBSubClass extends DDBClass {
       };
 
       this.data.system.advancement.push(desert, sea, tundra);
-    } else if (this.data.name.startsWith("Circle of the Moon") && this.is2014) {
+    } else if (this.data.name.startsWith("Circle of the Moon")) {
       const cr = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
@@ -214,13 +214,10 @@ export default class DDBSubClass extends DDBClass {
           identifier: `wild-shape-cr`,
           type: "cr",
           scale: {
-            2: {
-              value: 1,
-            },
             6: {
               value: 2,
             },
-            19: {
+            9: {
               value: 3,
             },
             12: {
@@ -229,13 +226,53 @@ export default class DDBSubClass extends DDBClass {
             15: {
               value: 5,
             },
+            18: {
+              value: 6,
+            },
           },
         },
         value: {},
         title: `Wild Shape CR`,
         icon: null,
       };
+      if (this.is2014) {
+        cr.configuration.scale[2] = {
+          value: 1,
+        };
+      } else {
+        cr.configuration.scale[3] = {
+          value: 1,
+        };
+      }
       this.data.system.advancement.push(cr);
+    } else if (this.data.name.startsWith("Circle of the Land") && !this.is2014) {
+      const aid = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `lands-aid`,
+          type: "dice",
+          scale: {
+            3: {
+              number: 2,
+              faces: 6,
+            },
+            10: {
+              number: 3,
+              faces: 6,
+            },
+            14: {
+              number: 4,
+              faces: 6,
+            },
+          },
+        },
+        value: {},
+        title: `Lands Aid Dice`,
+        icon: null,
+      };
+      this.data.system.advancement.push(aid);
     }
   }
 

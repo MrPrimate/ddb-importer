@@ -762,6 +762,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Elemental Fury: Primal Strike": {
+      type: "damage",
+      targetType: "creature",
+      activationOverride: "special",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.druid.elemental-fury", types: ["cold", "fire", "lighting", "thunder"] })],
+        },
+      },
+    },
     "Empty Body": {
       targetType: "self",
     },
@@ -1157,6 +1167,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         duration: {
           value: "1",
           units: "minute",
+        },
+      },
+    },
+    "Land's Aid": {
+      type: "save",
+      name: "Save vs Thorn Damage",
+      targetType: "creature",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.land.lands-aid", types: ["necrotic"] })],
         },
       },
     },
@@ -2170,6 +2190,25 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "War Priest": {
       type: "utility",
     },
+    "Wild Resurgence": {
+      type: "utility",
+      name: "Spend Spell Slot for Wild Shape Use",
+      addItemConsume: true,
+      itemConsumeValue: "-1",
+      activationType: "special",
+      condition: "Once on each of your turns",
+      data: {
+        img: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
+      },
+      additionalConsumptionTargets: [
+        {
+          type: "spellSlots",
+          value: "1",
+          target: "1",
+          scaling: { mode: "", formula: "" },
+        },
+      ],
+    },
     "Wild Shape": {
       type: "utility",
       data: {
@@ -2204,6 +2243,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             generateRange: true,
             generateTarget: true,
             generateUses: true,
+            activationOverride: {
+              units: "",
+            },
             usesOverride: {
               spent,
               max: "1",
@@ -2941,6 +2983,41 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Land's Aid": [
+      {
+        constructor: {
+          name: "Healing",
+          type: "heal",
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: true,
+          generateActivation: true,
+          generateHealing: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.land.lands-aid", types: ["healing"] }),
+          targetOverride: {
+            affects: {
+              type: "ally",
+              value: 1,
+            },
+            template: {
+              count: "",
+              contiguous: false,
+              type: "",
+              size: "",
+              width: "",
+              height: "",
+              units: "",
+            },
+          },
+        },
+      },
+    ],
     "Lay On Hands: Healing Pool": [
       {
         constructor: {
@@ -3608,6 +3685,55 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Wild Resurgence": () => {
+      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) =>
+        a.name === "Wild Resurgence: Regain Spell Slot",
+      )?.limitedUse?.numberUsed ?? 0;
+      return [
+        {
+          constructor: {
+            name: "Spend Wild Shape to Regain Spell Slot",
+            type: "utility",
+          },
+          build: {
+            img: "systems/dnd5e/icons/svg/trait.svg",
+            generateConsumption: true,
+            generateTarget: true,
+            generateUses: true,
+            consumptionOverride: {
+              targets: [
+                {
+                  type: "itemUses",
+                  target: "",
+                  value: 1,
+                  scaling: { mode: "", formula: "" },
+                },
+                {
+                  type: "activityUses",
+                  target: "",
+                  value: 1,
+                  scaling: { mode: "", formula: "" },
+                },
+                {
+                  type: "spellSlots",
+                  value: "-1",
+                  target: "1",
+                  scaling: {},
+                },
+              ],
+              scaling: { allowed: true, max: "9" },
+            },
+            targetOverride: {
+              affects: {
+                value: "1",
+                type: "self",
+              },
+            },
+            usesOverride: { max: 1, spent, recovery: [{ period: "lr", type: "recoverAll" }] },
+          },
+        },
+      ];
+    },
   };
 
   DOCUMENT_OVERRIDES = {
@@ -3753,6 +3879,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Ki Points": {
       data: {
         "system.uses.max": "@scale.monk.ki-points",
+      },
+    },
+    "Land's Aid": {
+      data: {
+        "flags.ddbimporter.ignoredConsumptionActivities": ["Healing"],
       },
     },
     "Large Form": () => {
@@ -3997,12 +4128,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           "system.uses": {
             spent,
             max: "max(1, @abilities.wis.mod)",
-            recovery: [
-              {
-                period: "sr",
-                type: "recoverAll",
-              },
-            ],
+            recovery: [{ period: "sr", type: "recoverAll" }],
           },
         },
       };
@@ -4767,6 +4893,55 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ],
       statuses: ["incapacitated"],
+    },
+    "Nature's Ward": () => {
+      const multiple = [
+        {
+          name: "Poison Immunity",
+          type: "feat",
+          options: {
+            transfer: true,
+          },
+          changes: [
+            {
+              key: "system.traits.ci.value",
+              value: "poisoned",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              priority: 20,
+            },
+          ],
+        },
+      ];
+      const activeType = this.ddbParser?._chosen.find((a) =>
+        utils.nameString(a.label).startsWith("Nature's Ward"),
+      )?.label ?? "";
+      [
+        { type: "fire", origin: "Arid" },
+        { type: "cold", origin: "Polar" },
+        { type: "lightning", origin: "Temperate" },
+        { type: "poison", origin: "Tropical" },
+      ].forEach((effect) => {
+        multiple.push({
+          name: `${effect.origin}: Resistance to ${effect.type}`,
+          type: "feat",
+          options: {
+            transfer: true,
+            disabled: !activeType.includes(effect.origin),
+          },
+          changes: [
+            {
+              key: "system.traits.dr.value",
+              value: effect.type,
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              priority: 20,
+            },
+          ],
+        });
+      });
+      return {
+        clearAutoEffects: true,
+        multiple,
+      };
     },
     "Observant": {
       type: "feat",
