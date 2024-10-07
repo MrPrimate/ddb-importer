@@ -15,7 +15,7 @@ let remainingSleepHp = sleepHp;
 let sleepTarget = [];
 
 for (let target of targets) {
-  const findTarget = await canvas.tokens.get(target.id);
+  const findTarget = canvas.tokens.get(target.id);
   const targetRaceOrType = DDBImporter?.EffectHelper.getRaceOrType(findTarget.actor);
   const immuneType = ["undead", "construct", "elf", "half-elf"].some((race) => targetRaceOrType.includes(race));
   const immuneCI = findTarget.actor.system.traits.ci.custom.toLowerCase().includes(localizedEffectName);
