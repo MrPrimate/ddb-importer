@@ -896,7 +896,7 @@ const DICTIONARY = {
     ],
     "Wild Shape": [
       "Symbiotic Entity", "Starry Form", "Wild Companion", "Summon Wildfire Spirit",
-      "Archdruid", "Land's Aid",
+      "Archdruid", "Land's Aid", "Wild Resurgence",
     ],
     "Grit Points": [
       "Trick Shots:", "Bullying Shot", "Dazing Shot", "Deadeye Shot", "Disarming Shot",

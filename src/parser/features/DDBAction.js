@@ -77,6 +77,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Channel Divinity: War God",
     "Natural Recovery:",
     "Land's Aid:",
+    "Wild Resurgence:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [
