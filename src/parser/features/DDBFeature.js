@@ -483,12 +483,6 @@ ${description}`;
 <ul>${listItems.join("")}</ul>`
       : choiceText;
 
-    console.warn(`text`, {
-      originalName: this.originalName,
-      joinedText: deepClone(joinedText),
-      listItems: deepClone(listItems),
-    })
-
     const secretText = DDBChoiceFeature.NO_CHOICE_DESCRIPTION_ADDITION.includes(this.originalName)
       || ["feat"].includes(this.type) // don't add choice options for feats
       ? ""
