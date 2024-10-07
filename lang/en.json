@@ -1,211 +1,214 @@
 {
-  "ddb-importer": {
-    "module-name": "D&D Beyond Importer",
-    "activities": {
-      "macro": {
-        "Title": "Macro",
-        "Button": "Execute Macro",
-        "Config": "Macro Configuration",
-        "FIELDS": {
-          "macro": {
-            "label": "Macro",
-            "function": {
-              "label": "Macro Name"
-            },
-            "parameters": {
-              "label": "Function Parameters"
-            },
-            "visible": {
-              "label": "Visible to all players?"
-            },
-            "name": {
-              "label": "Name"
-            }
-          }
-        }
-      }
-    },
-    "settings": {
-      "user-hint-setting": "If you are unaware of the purpose of a specific setting, it's recommended to leave it at the default value. Several of the settings rely on additional modules and are only recommended if you want to add that level of automation to your game.",
-      "user-hint-effects": "Several settings make mention of ActiveEffects. Please be aware that these are not <em>animation</em> effects.",
-      "user-hint-animations": "Please be aware that these are not <em>animation</em> effects.",
-      "update-check.name": "Check for available updates?",
-      "log-level.name": "Log Level",
-      "log-level.hint": "The level of console log statements that should be displayed in the console.",
-      "show-munch-top": {
-        "name": "Munch button be at the top?",
-        "hint": "Else button at bottom."
-      },
-      "custom-proxy.name": "Use a custom proxy?",
-      "custom-proxy.hint": "Tick if using a custom proxy and enter the proxy URL's below",
-      "image-upload-directory.name": "Character image upload directory",
-      "image-upload-directory.hint": "Specifies the image upload location on the server.",
-      "add-ddb-languages.name": "Add D&D Beyond languages?",
-      "add-ddb-languages.hint": "If unticked DDB languages will be added to the custom field",
-      "other-image-upload-directory.name": "Other image upload directory",
-      "other-image-upload-directory.hint": "Specifies the image upload location on the server.",
-      "frame-image-upload-directory.name": "Image upload directory for frames",
-      "frame-image-upload-directory.hint": "Specifies the frame image upload location on the server.",
-      "scene-upload-directory.name": "Scene upload directory",
-      "scene-upload-directory.hint": "Specifies the scene upload location on the server.",
-      "adventure-import-path.name": "Adventure Import Path",
-      "adventure-import-path.hint": "Location where the module will look for adventure data files to import",
-      "adventure-upload-path.name": "Adventure Upload Path",
-      "adventure-upload-path.hint": "Location where the module will upload adventure images and data",
-      "adventure-misc-path.name": "Adventure Misc Upload Path",
-      "adventure-misc-path.hint": "Location where the module will upload misc adventure e.g. icons, this should not be an S3 location",
-      "monster-link-title.name": "Monster D&D Beyond link in title bar?",
-      "monster-link-title.hint": "Otherwise it's a button next to the name. (Reload to take effect).",
-      "cobalt-cookie.name": "DDB Cobalt Cookie",
-      "cobalt-cookie.hint": "You can get this using my Chrome extension https://github.com/MrPrimate/ddb-importer-chrome",
-      "campaign-id.name": "DDB Campaign URL or ID",
-      "campaign-id.hint": "Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/12345 or 12345",
-      "append-chris-premade-effect-description.name": "Append Chris Premades description?",
-      "append-chris-premade-effect-description.hint": "If using Chris's Premades, append the description from Chris's premades to the replaced document?",
-      "spells-on-items-as-activities.name": "Spells on Items As Activities",
-      "spells-on-items-as-activities.hint": "If checked spells on items will be created as activities, rather than usage linked from spells",
-      "beta-key.name": "Patreon supporter Beta Key",
-      "beta-key.hint": "Some Patreon supporter tiers have access to Beta features, enter your key here",
-      "auto-create-compendium.name": "Auto create compendiums if not present?",
-      "auto-create-compendium.hint": "Auto create compendiums if not present?",
-      "use-full-source.name": "Use full source book name?",
-      "use-full-source.hint": "Otherwise use acronym",
-      "show-resource-chooser-default.name": "Show resource chooser default?",
-      "show-resource-chooser-default.hint": "On new characters should resource chooser be enabled by default?",
-      "monster-has-vision.name": "Should imported monster have vision set?",
-      "monster-has-vision.hint": "If unticked monsters will not have vision set",
-      "restrict-to-trusted.name": "Restrict to Trusted Users",
-      "restrict-to-trusted.hint": "Restrict character import to Trusted Users",
-      "allow-all-sync.name": "Allow all users to sync to DDB",
-      "allow-all-sync.hint": "If character import is restricted, this option will still allow players to sync back to DDB.",
-      "apply-conditions-with-ce.name": "Convenient Effect Conditions?",
-      "apply-conditions-with-ce.hint": "If Convenient Effects is installed, use it to manage conditions",
-      "use-loose-srd-reference-matching.name": "Loose Rules referencing?",
-      "use-loose-srd-reference-matching.hint": "Attempt to match any references to SRD rules, may result in some false positives",
-      "setup.name": "Core setup",
-      "setup.hint": "Core setup options",
-      "compendium-setup.name": "Compendiums",
-      "compendium-setup.hint": "Configure compendiums to use",
-      "folder-setup.name": "Directory Locations",
-      "folder-setup.hint": "Chose the folders/directories to store images",
-      "dynamic-update-setup.name": "Dynamic DDB Update Setup",
-      "dynamic-update-setup.hint": "Push character updates straight back to D&D Beyond!",
-      "character-link-title.name": "Character DDB-Importer button in title bar?",
-      "character-link-title.hint": "Otherwise it's a button next to the name. (Reload to take effect).",
-      "link-title-colour-white.name": "Make title bar icon white?",
-      "link-title-colour-white.hint": "Default is Red. Reload to take effect.",
-      "use-damage-hints.name": "Use damage type hints?",
-      "use-damage-hints.hint": "When building damage strings e.g. 1d6[healing]. Useful for MidiQOL etc.",
-      "add-damage-restrictions-to-hints.name": "Add restrictions to damage hint?",
-      "add-damage-restrictions-to-hints.hint": "If a damage restriction is in place, add this to the damage hint",
-      "allow-scene-download.name": "Allow Download of Scene Data",
-      "allow-scene-download.hint": "If you wish to submit data for walls and lighting of a scene use this option to download a config file for submission.",
-      "top-level-compendium-folder.name": "Top level compendium folder?",
-      "top-level-compendium-folder.hint": "If selected will place compendiums into a folder called D&D Beyond (v11 only)",
-      "munching-selection-compendium-folders-monster.name": "Compendium Folders Style (Monsters)",
-      "munching-selection-compendium-folders-monster.hint": "If using compendium folders, what kind of folders do you want the muncher to create?",
-      "munching-selection-compendium-folders-spell.name": "Compendium Folders Style (Spells)",
-      "munching-selection-compendium-folders-spell.hint": "If using compendium folders, what kind of folders do you want the muncher to create?",
-      "munching-selection-compendium-folders-item.name": "Compendium Folders Style (Items)",
-      "munching-selection-compendium-folders-item.hint": "If using compendium folders, what kind of folders do you want the muncher to create?",
-      "embed-macros": {
-        "name": "Embed macros in items?",
-        "hint": "Embed macros into items? If not selected, item macro will call DDB Importer to generate and run the appropriate macro on the fly. Advantages: don't need to remunch spells to get macro, less data stored in world. Disadvantages: harder to debug, need to be running DDB Importer."
-      },
-      "no-item-macros": {
-        "name": "[Experimental] Remove macros from items?",
-        "hint": "If selected will call DDB Functions for Midi-QOL and DAE to run macros, supersedes embed macros option."
-      },
-      "show-image-to-players.name": "Show the show image to players button?",
-      "show-image-to-players.hint": "In journals provide hover-over button to show image to players? (Reload required)",
-      "show-read-alouds-button.name": "Show the show read aloud to players button?",
-      "show-read-alouds-button.hint": "In journals provide hover-over button to show the read aloud to players? (Reload required)",
-      "dynamic-sync": {
-        "dynamic-sync": "Enable Dynamic Sync?",
-        "dynamic-sync-policy-currency": "Currency?",
-        "dynamic-sync-policy-hitpoints": "Hit Points?",
-        "dynamic-sync-policy-hitdice": "Hit Dice?",
-        "dynamic-sync-policy-action-use": "Action usage?",
-        "dynamic-sync-policy-inspiration": "Inspiration?",
-        "dynamic-sync-policy-condition": "Conditions?",
-        "dynamic-sync-policy-deathsaves": "Death Saves?",
-        "dynamic-sync-policy-spells-prepared": "Spells Prepared?",
-        "dynamic-sync-policy-spells-slots": "Spell Slots?",
-        "dynamic-sync-policy-spells-sync": "Spells Known?",
-        "dynamic-sync-policy-equipment": "Equipment?",
-        "dynamic-sync-policy-xp": "XP?"
-      }
-    },
-    "item-type": {
-      "background": "Background",
-      "character": "Player",
-      "npc": "Monsters",
-      "spell": "Spells",
-      "weapon": "Weapons",
-      "equipment": "Equipment",
-      "consumable": "Consumable",
-      "tool": "Tool",
-      "loot": "Loot",
-      "class": "Class",
-      "backpack": "Backpack",
-      "magic-items": "Magic Items",
-      "magic-item-spells": "Magic Item Spells",
-      "extras": "D&D Beyond Extras",
-      "scene": "Scene"
-    },
-    "label": {
-      "Scene": "Scene",
-      "Scenes": "Scenes",
-      "Actor": "Actor",
-      "Actors": "Actors",
-      "Item": "Item",
-      "Items": "Items",
-      "JournalEntry": "JournalEntry",
-      "Journals": "Journals",
-      "Rolltable": "Roll Table",
-      "Rolltables": "Roll Tables",
-      "Playlist": "Playlist",
-      "Playlists": "Playlists",
-      "Compendium": "Compendium",
-      "Compendiums": "Compendiums",
-      "AdventureName": "Adventure Name",
-      "Export": "Export Assets",
-      "Import": "Import Adventure",
-      "Working": "Working",
-      "ActiveModules": "The following modules were active:",
-      "ExportOptions": "Export Options",
-      "References": "Updating References",
-      "RollTable": "Roll Table",
-      "Macros": "Macros"
-    },
-    "adventure-import": {
-      "button": "Import Adventure to World",
-      "compendium-button": "Import Adventure to Adventure Compendium",
-      "confirm": "Update selected",
-      "all": "All",
-      "selection": "Selected"
-    },
-    "scenes": {
-      "download": "DDB Scene Config",
-      "third-party-download": "Third Party Scene Config"
-    },
-    "Dialogs": {
-      "ResetSettings": {
-        "Label": "Reset DDB Importer Settings",
-        "Hint": "WARNING this will reset all DDB Importer settings to their default values.",
-        "Title": "Reset Settings",
-        "Content": "Are you sure you want to reset all of the DDB Importer module settings' to their defaults?",
-        "Confirm": "Reset Module Settings",
-        "Cancel": "Cancel"
-      },
-      "DDBProxy": {
-        "AppTitle": "DDB Importer Proxy Settings",
-        "Label": "DDB Proxy Settings",
-        "Hint": "Configure a custom DDB Proxy endpoint here.",
-        "Title": "DDB Proxy Settings",
-        "Use": "Use a custom proxy?",
-        "AddressExample": "Custom proxy address, e.g. http://localhost:3000"
-      }
-    }
-  }
+	"ddb-importer": {
+		"module-name": "D&D Beyond Importer",
+		"activities": {
+			"macro": {
+				"Title": "Macro",
+				"Button": "Execute Macro",
+				"Config": "Macro Configuration",
+				"FIELDS": {
+					"macro": {
+						"label": "Macro",
+						"function": {
+							"label": "Macro Name"
+						},
+						"parameters": {
+							"label": "Function Parameters"
+						},
+						"visible": {
+							"label": "Visible to all players?"
+						},
+						"name": {
+							"label": "Name"
+						}
+					}
+				}
+			}
+		},
+		"settings": {
+			"user-hint-setting": "If you are unaware of the purpose of a specific setting, it's recommended to leave it at the default value. Several of the settings rely on additional modules and are only recommended if you want to add that level of automation to your game.",
+			"user-hint-effects": "Several settings make mention of ActiveEffects. Please be aware that these are not <em>animation</em> effects.",
+			"user-hint-animations": "Please be aware that these are not <em>animation</em> effects.",
+			"update-check.name": "Check for available updates?",
+			"log-level.name": "Log Level",
+			"log-level.hint": "The level of console log statements that should be displayed in the console.",
+			"show-munch-top": {
+				"name": "Munch button be at the top?",
+				"hint": "Else button at bottom."
+			},
+			"custom-proxy.name": "Use a custom proxy?",
+			"custom-proxy.hint": "Tick if using a custom proxy and enter the proxy URL's below",
+			"image-upload-directory.name": "Character image upload directory",
+			"image-upload-directory.hint": "Specifies the image upload location on the server.",
+			"add-ddb-languages.name": "Add D&D Beyond languages?",
+			"add-ddb-languages.hint": "If unticked DDB languages will be added to the custom field",
+			"other-image-upload-directory.name": "Other image upload directory",
+			"other-image-upload-directory.hint": "Specifies the image upload location on the server.",
+			"frame-image-upload-directory.name": "Image upload directory for frames",
+			"frame-image-upload-directory.hint": "Specifies the frame image upload location on the server.",
+			"scene-upload-directory.name": "Scene upload directory",
+			"scene-upload-directory.hint": "Specifies the scene upload location on the server.",
+			"adventure-import-path.name": "Adventure Import Path",
+			"adventure-import-path.hint": "Location where the module will look for adventure data files to import",
+			"adventure-upload-path.name": "Adventure Upload Path",
+			"adventure-upload-path.hint": "Location where the module will upload adventure images and data",
+			"adventure-misc-path.name": "Adventure Misc Upload Path",
+			"adventure-misc-path.hint": "Location where the module will upload misc adventure e.g. icons, this should not be an S3 location",
+			"monster-link-title.name": "Monster D&D Beyond link in title bar?",
+			"monster-link-title.hint": "Otherwise it's a button next to the name. (Reload to take effect).",
+			"cobalt-cookie.name": "DDB Cobalt Cookie",
+			"cobalt-cookie.hint": "You can get this using my Chrome extension https://github.com/MrPrimate/ddb-importer-chrome",
+			"campaign-id.name": "DDB Campaign URL or ID",
+			"campaign-id.hint": "Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/12345 or 12345",
+			"append-chris-premade-effect-description.name": "Append Chris Premades description?",
+			"append-chris-premade-effect-description.hint": "If using Chris's Premades, append the description from Chris's premades to the replaced document?",
+			"spells-on-items-as-activities.name": "Spells on Items As Activities",
+			"spells-on-items-as-activities.hint": "If checked spells on items will be created as activities, rather than usage linked from spells",
+			"beta-key.name": "Patreon supporter Beta Key",
+			"beta-key.hint": "Some Patreon supporter tiers have access to Beta features, enter your key here",
+			"auto-create-compendium.name": "Auto create compendiums if not present?",
+			"auto-create-compendium.hint": "Auto create compendiums if not present?",
+			"use-full-source.name": "Use full source book name?",
+			"use-full-source.hint": "Otherwise use acronym",
+			"show-resource-chooser-default.name": "Show resource chooser default?",
+			"show-resource-chooser-default.hint": "On new characters should resource chooser be enabled by default?",
+			"monster-has-vision.name": "Should imported monster have vision set?",
+			"monster-has-vision.hint": "If unticked monsters will not have vision set",
+			"restrict-to-trusted.name": "Restrict to Trusted Users",
+			"restrict-to-trusted.hint": "Restrict character import to Trusted Users",
+			"allow-all-sync.name": "Allow all users to sync to DDB",
+			"allow-all-sync.hint": "If character import is restricted, this option will still allow players to sync back to DDB.",
+			"apply-conditions-with-ce.name": "Convenient Effect Conditions?",
+			"apply-conditions-with-ce.hint": "If Convenient Effects is installed, use it to manage conditions",
+			"use-loose-srd-reference-matching.name": "Loose Rules referencing?",
+			"use-loose-srd-reference-matching.hint": "Attempt to match any references to SRD rules, may result in some false positives",
+			"setup.name": "Core setup",
+			"setup.hint": "Core setup options",
+			"compendium-setup.name": "Compendiums",
+			"compendium-setup.hint": "Configure compendiums to use",
+			"folder-setup.name": "Directory Locations",
+			"folder-setup.hint": "Chose the folders/directories to store images",
+			"dynamic-update-setup.name": "Dynamic DDB Update Setup",
+			"dynamic-update-setup.hint": "Push character updates straight back to D&D Beyond!",
+			"character-link-title.name": "Character DDB-Importer button in title bar?",
+			"character-link-title.hint": "Otherwise it's a button next to the name. (Reload to take effect).",
+			"link-title-colour-white.name": "Make title bar icon white?",
+			"link-title-colour-white.hint": "Default is Red. Reload to take effect.",
+			"use-damage-hints.name": "Use damage type hints?",
+			"use-damage-hints.hint": "When building damage strings e.g. 1d6[healing]. Useful for MidiQOL etc.",
+			"add-damage-restrictions-to-hints.name": "Add restrictions to damage hint?",
+			"add-damage-restrictions-to-hints.hint": "If a damage restriction is in place, add this to the damage hint",
+			"allow-scene-download.name": "Allow Download of Scene Data",
+			"allow-scene-download.hint": "If you wish to submit data for walls and lighting of a scene use this option to download a config file for submission.",
+			"top-level-compendium-folder.name": "Top level compendium folder?",
+			"top-level-compendium-folder.hint": "If selected will place compendiums into a folder called D&D Beyond (v11 only)",
+			"munching-selection-compendium-folders-monster.name": "Compendium Folders Style (Monsters)",
+			"munching-selection-compendium-folders-monster.hint": "If using compendium folders, what kind of folders do you want the muncher to create?",
+			"munching-selection-compendium-folders-spell.name": "Compendium Folders Style (Spells)",
+			"munching-selection-compendium-folders-spell.hint": "If using compendium folders, what kind of folders do you want the muncher to create?",
+			"munching-selection-compendium-folders-item.name": "Compendium Folders Style (Items)",
+			"munching-selection-compendium-folders-item.hint": "If using compendium folders, what kind of folders do you want the muncher to create?",
+			"embed-macros": {
+				"name": "Embed macros in items?",
+				"hint": "Embed macros into items? If not selected, item macro will call DDB Importer to generate and run the appropriate macro on the fly. Advantages: don't need to remunch spells to get macro, less data stored in world. Disadvantages: harder to debug, need to be running DDB Importer."
+			},
+			"no-item-macros": {
+				"name": "[Experimental] Remove macros from items?",
+				"hint": "If selected will call DDB Functions for Midi-QOL and DAE to run macros, supersedes embed macros option."
+			},
+			"show-image-to-players.name": "Show the show image to players button?",
+			"show-image-to-players.hint": "In journals provide hover-over button to show image to players? (Reload required)",
+			"show-read-alouds-button.name": "Show the show read aloud to players button?",
+			"show-read-alouds-button.hint": "In journals provide hover-over button to show the read aloud to players? (Reload required)",
+			"dynamic-sync": {
+				"dynamic-sync": "Enable Dynamic Sync?",
+				"dynamic-sync-policy-currency": "Currency?",
+				"dynamic-sync-policy-hitpoints": "Hit Points?",
+				"dynamic-sync-policy-hitdice": "Hit Dice?",
+				"dynamic-sync-policy-action-use": "Action usage?",
+				"dynamic-sync-policy-inspiration": "Inspiration?",
+				"dynamic-sync-policy-condition": "Conditions?",
+				"dynamic-sync-policy-deathsaves": "Death Saves?",
+				"dynamic-sync-policy-spells-prepared": "Spells Prepared?",
+				"dynamic-sync-policy-spells-slots": "Spell Slots?",
+				"dynamic-sync-policy-spells-sync": "Spells Known?",
+				"dynamic-sync-policy-equipment": "Equipment?",
+				"dynamic-sync-policy-xp": "XP?"
+			}
+		},
+		"item-type": {
+			"background": "Background",
+			"character": "Player",
+			"npc": "Monsters",
+			"spell": "Spells",
+			"specificSpells": {
+				"sleepSpell": "Sleep"
+			},
+			"weapon": "Weapons",
+			"equipment": "Equipment",
+			"consumable": "Consumable",
+			"tool": "Tool",
+			"loot": "Loot",
+			"class": "Class",
+			"backpack": "Backpack",
+			"magic-items": "Magic Items",
+			"magic-item-spells": "Magic Item Spells",
+			"extras": "D&D Beyond Extras",
+			"scene": "Scene"
+		},
+		"label": {
+			"Scene": "Scene",
+			"Scenes": "Scenes",
+			"Actor": "Actor",
+			"Actors": "Actors",
+			"Item": "Item",
+			"Items": "Items",
+			"JournalEntry": "JournalEntry",
+			"Journals": "Journals",
+			"Rolltable": "Roll Table",
+			"Rolltables": "Roll Tables",
+			"Playlist": "Playlist",
+			"Playlists": "Playlists",
+			"Compendium": "Compendium",
+			"Compendiums": "Compendiums",
+			"AdventureName": "Adventure Name",
+			"Export": "Export Assets",
+			"Import": "Import Adventure",
+			"Working": "Working",
+			"ActiveModules": "The following modules were active:",
+			"ExportOptions": "Export Options",
+			"References": "Updating References",
+			"RollTable": "Roll Table",
+			"Macros": "Macros"
+		},
+		"adventure-import": {
+			"button": "Import Adventure to World",
+			"compendium-button": "Import Adventure to Adventure Compendium",
+			"confirm": "Update selected",
+			"all": "All",
+			"selection": "Selected"
+		},
+		"scenes": {
+			"download": "DDB Scene Config",
+			"third-party-download": "Third Party Scene Config"
+		},
+		"Dialogs": {
+			"ResetSettings": {
+				"Label": "Reset DDB Importer Settings",
+				"Hint": "WARNING this will reset all DDB Importer settings to their default values.",
+				"Title": "Reset Settings",
+				"Content": "Are you sure you want to reset all of the DDB Importer module settings' to their defaults?",
+				"Confirm": "Reset Module Settings",
+				"Cancel": "Cancel"
+			},
+			"DDBProxy": {
+				"AppTitle": "DDB Importer Proxy Settings",
+				"Label": "DDB Proxy Settings",
+				"Hint": "Configure a custom DDB Proxy endpoint here.",
+				"Title": "DDB Proxy Settings",
+				"Use": "Use a custom proxy?",
+				"AddressExample": "Custom proxy address, e.g. http://localhost:3000"
+			}
+		}
+	}
 }
