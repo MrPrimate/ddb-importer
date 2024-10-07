@@ -460,18 +460,34 @@ export default class DDBFeature extends DDBBaseFeature {
     const choices = DDBChoiceFeature.USE_ALL_CHOICES.includes(this.originalName)
       ? this._choices
       : this._parentOnlyChoices;
-    const choiceText = choices.reduce((p, c) => {
-      if (c.description) {
-        return `${p}
-<p><strong>${c.label}</strong> ${c.description}</p>`;
-      } else {
-        listItems.push(`<li><p>${c.label}</p></li>`);
-        return p;
-      }
-    }, "");
+    const choiceText = choices
+      .sort((a, b) => ((a.label < b.label) ? -1 : (a.label > b.label) ? 1 : 0))
+      .reduce((p, c) => {
+        if (c.description) {
+          const nameReg = new RegExp(`^(<p>)?(?:<em><strong>|<strong>|<strong><em>)${c.label}\\.(?:<\\/strong><\\/em>|<\\/strong>|<\\/em><\\/strong>)`);
+          const description = c.description.startsWith("<p>")
+            ? c.description.replace(nameReg, "$1").trim()
+            : `<p>${c.description.replace(nameReg, "$1").trim()}</p>`;
+          return `${p}
+<p><strong>${c.label}</strong></p>
+${description}`;
+        } else {
+          listItems.push(`<li><p>${c.label}</p></li>`);
+          return p;
+        }
+      }, "")
+      .replaceAll("<p></p>", "");
 
-    const joinedText = `${choiceText}
-<ul>${listItems.join("")}</ul>`;
+    const joinedText = (listItems.length > 0)
+      ? `${choiceText}
+<ul>${listItems.join("")}</ul>`
+      : choiceText;
+
+    console.warn(`text`, {
+      originalName: this.originalName,
+      joinedText: deepClone(joinedText),
+      listItems: deepClone(listItems),
+    })
 
     const secretText = DDBChoiceFeature.NO_CHOICE_DESCRIPTION_ADDITION.includes(this.originalName)
       || ["feat"].includes(this.type) // don't add choice options for feats
