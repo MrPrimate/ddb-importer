@@ -55,7 +55,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Aspect of the Wilds",
     "Power of the Wilds",
     "Circle of the Land Spells",
-    // "Improved Elemental Fury",
+    "Nature's Ward",
   ];
 
   static NO_CHOICE_SECRET = [
@@ -97,6 +97,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Improved Elemental Fury",
     "Improved Elemental Fury: Potent Spellcasting",
     "Improved Elemental Fury: Primal Strike",
+    "Nature's Ward",
   ];
 
   _prepare() {

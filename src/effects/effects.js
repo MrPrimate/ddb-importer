@@ -235,7 +235,6 @@ export function effectModules() {
   const midiQolInstalled = game.modules.get("midi-qol")?.active ?? false;
   const timesUp = game.modules.get("times-up")?.active ?? false;
   const daeInstalled = game.modules.get("dae")?.active ?? false;
-  const convenientEffectsInstalled = game.modules.get("dfreds-convenient-effects")?.active ?? false;
 
   const activeAurasInstalled = game.modules.get("ActiveAuras")?.active ?? false;
   const atlInstalled = game.modules.get("ATL")?.active ?? false;
@@ -243,7 +242,6 @@ export function effectModules() {
   const autoAnimationsInstalled = game.modules.get("autoanimations")?.active ?? false;
   const chrisInstalled = game.modules.get("chris-premades")?.active ?? false;
   const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
-  const warpgateInstalled = game.modules.get("warpgate")?.active ?? false;
 
   CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
     hasCore: midiQolInstalled && timesUp && daeInstalled,
@@ -251,14 +249,12 @@ export function effectModules() {
     midiQolInstalled,
     timesUp,
     daeInstalled,
-    convenientEffectsInstalled,
     atlInstalled,
     tokenMagicInstalled,
     activeAurasInstalled,
     autoAnimationsInstalled,
     chrisInstalled,
     vision5eInstalled,
-    warpgateInstalled,
   };
   return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
 }

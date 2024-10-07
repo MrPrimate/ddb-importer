@@ -51,6 +51,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Leave Druidic Message",
     "Free Casting",
     "Nature Magician",
+    "Evergreen Wildshape",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
