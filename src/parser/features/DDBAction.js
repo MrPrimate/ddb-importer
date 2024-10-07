@@ -52,6 +52,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Free Casting",
     "Nature Magician",
     "Evergreen Wildshape",
+    "Wild Shape: Circle Forms",
+
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
@@ -92,6 +94,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Bardic Inspiration",
     "Warding Flare",
     "Channel Divinity: Invoke Duplicity",
+    "Moonlight Step",
   ];
 
   // static ACTION_MATCH = [
