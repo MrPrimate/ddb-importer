@@ -762,6 +762,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Elemental Fury: Primal Strike": {
+      type: "damage",
+      targetType: "creature",
+      activationOverride: "special",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.druid.elemental-fury", types: ["cold", "fire", "lighting", "thunder"] })],
+        },
+      },
+    },
     "Empty Body": {
       targetType: "self",
     },
@@ -2233,6 +2243,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             generateRange: true,
             generateTarget: true,
             generateUses: true,
+            activationOverride: {
+              units: "",
+            },
             usesOverride: {
               spent,
               max: "1",

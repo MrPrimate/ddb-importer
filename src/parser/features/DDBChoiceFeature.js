@@ -16,7 +16,9 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Power of the Wilds",
     "Divine Order",
     "Blessed Strikes",
+    "Elemental Fury",
     "Circle of the Land Spells",
+    "Primal Order",
   ];
 
   static KEEP_CHOICE_FEATURE_NAME = [
@@ -53,6 +55,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Aspect of the Wilds",
     "Power of the Wilds",
     "Circle of the Land Spells",
+    // "Improved Elemental Fury",
   ];
 
   static NO_CHOICE_SECRET = [
@@ -63,6 +66,11 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Improved Blessed Strikes: Potent Spellcasting",
     "Improved Blessed Strikes",
     "Circle of the Land Spells",
+    "Primal Order",
+    "Elemental Fury",
+    "Improved Elemental Fury",
+    "Improved Elemental Fury: Potent Spellcasting",
+    "Improved Elemental Fury: Primal Strike",
   ];
 
   static USE_ALL_CHOICES = [
@@ -86,6 +94,9 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Giant Ancestry",
     "Aspect of the Wilds",
     "Power of the Wilds",
+    "Improved Elemental Fury",
+    "Improved Elemental Fury: Potent Spellcasting",
+    "Improved Elemental Fury: Primal Strike",
   ];
 
   _prepare() {

@@ -1,3 +1,9 @@
+# Next Up
+
+- Druid (Land) improvements.
+- Improvements to choice formatting in feature descriptions.
+- Generate some missing scale values around spell prepared maximums.
+
 # 6.0.17
 
 - Some changes to advancement generation for Barbarians to cope with different combinations of PHB, SRD and 2014/2024 rules activation.
