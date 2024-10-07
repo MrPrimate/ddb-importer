@@ -1160,6 +1160,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Land's Aid": {
+      type: "save",
+      name: "Save vs Thorn Damage",
+      targetType: "creature",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.land.lands-aid", types: ["necrotic"] })],
+        },
+      },
+    },
     "Large Form": {
       type: "utility",
       activationType: "bonus",
@@ -2938,6 +2948,41 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           damageParts: [
             DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" }),
           ],
+        },
+      },
+    ],
+    "Land's Aid": [
+      {
+        constructor: {
+          name: "Healing",
+          type: "heal",
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: true,
+          generateActivation: true,
+          generateHealing: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.land.lands-aid", types: ["healing"] }),
+          targetOverride: {
+            affects: {
+              type: "ally",
+              value: 1,
+            },
+            template: {
+              count: "",
+              contiguous: false,
+              type: "",
+              size: "",
+              width: "",
+              height: "",
+              units: "",
+            },
+          },
         },
       },
     ],

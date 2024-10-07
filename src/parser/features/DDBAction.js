@@ -76,6 +76,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Improved Brutal Strike:",
     "Channel Divinity: War God",
     "Natural Recovery:",
+    "Land's Aid:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [
