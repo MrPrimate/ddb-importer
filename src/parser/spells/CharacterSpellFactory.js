@@ -243,7 +243,7 @@ export default class CharacterSpellFactory {
 
     if (!levelSlots && !this.pactSlots) return;
 
-    const dups = this.ddb.character.spells[type].filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
+    const dups = this.ddb.character.spells[type].filter((otherSpell) => otherSpell.definition && otherSpell.definition.name === spell.definition.name).length > 1;
     const duplicateSpell = this.items.findIndex(
       (existingSpell) =>
         (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
@@ -262,7 +262,11 @@ export default class CharacterSpellFactory {
     unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = type;
     delete unlimitedSpell.id;
     delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-    const parsedSpell = await DDBSpell.parseSpell(unlimitedSpell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(unlimitedSpell.definition.name)}` });
+    const parsedSpell = await DDBSpell.parseSpell(unlimitedSpell, this.character, {
+      enricher: this.enricher,
+      ddbData: this.ddb,
+      namePostfix: `${this._getSpellCount(unlimitedSpell.definition.name)}`,
+    });
     this.items.push(parsedSpell);
   }
 

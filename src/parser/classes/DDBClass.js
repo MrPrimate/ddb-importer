@@ -317,6 +317,11 @@ export default class DDBClass {
           progression: spellProgression.value,
           ability: spellCastingAbility,
         };
+        if (this.ddbClassDefinition.spellRules?.levelPreparedSpellMaxes?.length > 0) {
+          this.data.system.spellcasting.preparation = {
+            formula: `@scale.${this.data.system.identifier}.max-prepared`,
+          };
+        }
       }
       const spellSlotDivisor = this.ddbClassDefinition.spellRules?.multiClassSpellSlotDivisor
         ? this.ddbClassDefinition.spellRules.multiClassSpellSlotDivisor
@@ -669,6 +674,85 @@ export default class DDBClass {
       });
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements, specialFeatures);
+  }
+
+  _generateScaleValueSpellAdvancements() {
+    if (!this.ddbClassDefinition.spellRules) return;
+
+    // max prepared
+    if (this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes) {
+      const advancement = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "max-prepared",
+          type: "number",
+          scale: {},
+        },
+        value: {},
+        title: "Maximum Prepared Spells",
+        icon: null,
+      };
+      this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes.forEach((value, i) => {
+        if (i !== 0) {
+          advancement.configuration.scale[i] = {
+            value,
+          };
+        }
+      });
+      this.data.system.advancement.push(advancement);
+    }
+
+    // cantrips-known
+    if (this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes) {
+      const advancement = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "cantrips-known",
+          type: "number",
+          scale: {},
+        },
+        value: {},
+        title: "Cantrips Known",
+        icon: null,
+      };
+      this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes.forEach((value, i) => {
+        if (i !== 0) {
+          advancement.configuration.scale[i] = {
+            value,
+          };
+        }
+      });
+      this.data.system.advancement.push(advancement);
+    }
+
+    // spells-known
+    if (this.ddbClassDefinition.spellRules.levelSpellKnownMaxes) {
+      const advancement = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "spells-known",
+          type: "number",
+          scale: {},
+        },
+        value: {},
+        title: "Spells Known",
+        icon: null,
+      };
+      this.ddbClassDefinition.spellRules.levelSpellKnownMaxes.forEach((value, i) => {
+        if (i !== 0) {
+          advancement.configuration.scale[i] = {
+            value,
+          };
+        }
+      });
+      this.data.system.advancement.push(advancement);
+    }
   }
 
   _generateHTMLSaveAdvancement() {
@@ -1149,6 +1233,7 @@ export default class DDBClass {
     this._generateSkillOrLanguageAdvancements();
     this._generateConditionAdvancements();
     this._generateSpellCastingProgression();
+    this._generateScaleValueSpellAdvancements();
   }
 
   // fixes
@@ -1217,6 +1302,53 @@ export default class DDBClass {
           icon: null,
         };
         this.data.system.advancement.push(wildshape);
+        const elementalFury = {
+          _id: foundry.utils.randomID(),
+          type: "ScaleValue",
+          configuration: {
+            distance: { units: "" },
+            identifier: "elemental-fury",
+            type: "dice",
+            scale: {
+              7: {
+                number: 1,
+                faces: 8,
+              },
+              18: {
+                number: 2,
+                faces: 8,
+              },
+            },
+          },
+          value: {},
+          title: "Elemental Fury Damage",
+          icon: null,
+        };
+        this.data.system.advancement.push(elementalFury);
+        const knownForms = {
+          _id: foundry.utils.randomID(),
+          type: "ScaleValue",
+          configuration: {
+            distance: { units: "" },
+            identifier: "known-forms",
+            type: "number",
+            scale: {
+              2: {
+                value: 4,
+              },
+              4: {
+                value: 6,
+              },
+              8: {
+                value: 8,
+              },
+            },
+          },
+          value: {},
+          title: "Known Forms",
+          icon: null,
+        };
+        this.data.system.advancement.push(knownForms);
       }
     } else if (this.data.name === "Monk") {
       const ki = {
