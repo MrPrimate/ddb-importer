@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.18
 
 - Druid (Land) improvements.
 - Improvements to choice formatting in feature descriptions.
