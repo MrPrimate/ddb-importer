@@ -725,6 +725,14 @@ const SETTINGS = {
       },
       // character settings
       CHARACTER: {
+        ENHANCERS: {
+          "allow-moon-druid-ac-enhancer": {
+            type: Boolean,
+            scope: "world",
+            default: true,
+            config: false,
+          },
+        },
         IMPORT: {
           "character-update-policy-use-hp-max-for-rolled-hp": {
             type: Boolean,
@@ -1496,6 +1504,7 @@ const SETTINGS = {
         ...clone.READY.PARSING,
         ...clone.READY.MISC,
         ...clone.READY.CHARACTER.IMPORT,
+        ...clone.READY.CHARACTER.ENHANCERS,
         ...clone.READY.CHARACTER.SYNC,
         ...clone.READY.DYNAMIC_SYNC,
         ...clone.READY.CHARACTER.DYNAMIC_SYNC,

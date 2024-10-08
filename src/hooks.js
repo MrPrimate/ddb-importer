@@ -37,6 +37,7 @@ import { activateUpdateHooks } from "./updater/character.js";
 import { registerCustomEnrichers } from "./hooks/ready/enrichers.js";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.js";
 import addActivitiesHooks from "./hooks/macroActivity/loadActivity.js";
+import DDBEnhancers from "./hooks/enhancers/DDBEnhancers.js";
 
 // foundry is initializing
 export function init() {
@@ -60,6 +61,8 @@ export async function onceReady() {
   checkCompendiums().then(() => {
     DDBSummonsManager.generateFixedSummons();
   });
+
+  DDBEnhancers.loadEnhancers();
 
   // notificaitons
   registerNotifications();
