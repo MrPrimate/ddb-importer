@@ -6,6 +6,7 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   constructor() {
     super();
     this.additionalActivityClass = DDBItemActivity;
+    this.effectType = "item";
   }
 
   load({ ddbParser, document, name = null } = {}) {
@@ -55,7 +56,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     DOCUMENT_OVERRIDES: {},
     EFFECT_HINTS: {
       "Alchemist's Fire": {
-        type: "item",
         options: {
           transfer: false,
           description: "You are on fire, take [[/damage 1d4 fire]] at the start of your turn. You can use an action to distinguish with a [[/check dex 10]].",
@@ -528,7 +528,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
 
   EFFECT_HINTS = {
     "Alchemist's Fire": {
-      type: "item",
       statuses: ["Burning"],
       options: {
         transfer: false,
@@ -543,7 +542,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       },
     },
     "Armor of Invulnerability": {
-      type: "item",
       name: "Invulnerable!",
       options: {
         transfer: false,
@@ -559,7 +557,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       ],
     },
     "Bead of Force": {
-      type: "item",
       options: {
         transfer: false,
         description: "Trapped in a sphere of force!",
@@ -568,13 +565,11 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       },
     },
     "Belashyrra's Beholder Crown": {
-      type: "item",
       changes: [
         generateUpgradeChange(120, 10, "system.attributes.senses.darkvision"),
       ],
     },
     "Boots of Speed": {
-      type: "item",
       options: {
         transfer: false,
         durationSeconds: 600,
@@ -659,7 +654,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       },
     },
     "Dust of Sneezing and Choking": {
-      type: "item",
       name: "Sneezing and Choking",
       options: {
         transfer: false,
@@ -668,7 +662,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       statuses: ["Incapacitated", "Suffocating"], // ?
     },
     "Gnomengarde Grenade": {
-      type: "item",
       options: {
         transfer: false,
       },
@@ -678,7 +671,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       multiple: [
         {
           noCreate: true,
-          type: "item",
           options: {
             transfer: false,
           },
@@ -687,7 +679,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           },
         },
         {
-          type: "item",
           options: {
             transfer: false,
           },

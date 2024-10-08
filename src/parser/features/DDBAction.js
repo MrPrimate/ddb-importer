@@ -53,6 +53,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Nature Magician",
     "Evergreen Wildshape",
     "Wild Shape: Circle Forms",
+    "Moonlight Step: Regain Uses",
 
   ];
 

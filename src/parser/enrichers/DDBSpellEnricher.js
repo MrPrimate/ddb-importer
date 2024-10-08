@@ -11,6 +11,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
   constructor() {
     super();
     this.additionalActivityClass = DDBSpellActivity;
+    this.effectType = "spell";
   }
 
   load({ ddbParser, document, name = null } = {}) {
@@ -161,7 +162,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     DOCUMENT_OVERRIDES: {},
     EFFECT_HINTS: {
       "Barkskin": {
-        type: "spell",
         changes: [
           {
             key: "system.attributes.ac.min",
@@ -172,7 +172,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         ],
       },
       "Blade Ward": {
-        tpye: "spell",
         changes: [
           {
             key: "system.traits.dr.value",
@@ -197,9 +196,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           "flags.dae.specialDuration": ["turnEnd"],
         },
       },
-      "Mass Suggestion": {
-        type: "spell",
-      },
+      "Mass Suggestion": {},
       "Shillelagh": {
         multiple: () => {
           return ["Physical", "Spellcasting"].map((type) => {
@@ -249,7 +246,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
       "Suggestion": {
-        type: "spell",
       },
       "True Strike": {},
     },
@@ -2203,7 +2199,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       multiple: ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
         return {
           name: `Absorb ${element}`,
-          type: "spell",
           changes: [
             { key: "system.traits.dr.value", value: element.toLowerCase(), mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
           ],
@@ -2215,7 +2210,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     "Acid Arrow": {
       name: "Covered in Acid",
-      type: "spell",
       options: {
         durationSeconds: 6,
       },
@@ -2224,7 +2218,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       multiple: [2, 3, 4, 5, 6, 7, 8, 9].map((level) => {
         return {
           name: `Aid: Level ${level} Temp Max HP Bonus`,
-          type: "spell",
           changes: [
             {
               key: "system.attributes.hp.bonuses.overall",
@@ -2308,14 +2301,12 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         effects.push(
           {
             name: "Change Appearance",
-            type: "spell",
             data: {
               "flags.ddbimporter.activityMatch": "Change Appearance",
             },
           },
           {
             name: "Aquatic Adaptation",
-            type: "spell",
             data: {
               "flags.ddbimporter.activityMatch": "Aquatic Adaptation",
             },
@@ -2334,11 +2325,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       },
     },
     "Animal Friendship": {
-      type: "spell",
       statuses: "Charmed",
     },
     "Aura of Life": {
-      type: "spell",
       changes: [
         {
           key: "system.traits.dr.value",
@@ -2349,7 +2338,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Bane": {
-      type: "spell",
       changes: [
         { key: "system.bonuses.mwak.attack", value: "-1d4", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
         { key: "system.bonuses.rwak.attack", value: "-1d4", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
@@ -2359,7 +2347,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Barkskin": {
-      type: "spell",
       changes: [
         {
           key: "system.attributes.ac.min",
@@ -2370,7 +2357,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Bless": {
-      type: "spell",
       options: {
         durationSeconds: 60,
       },
@@ -2386,10 +2372,8 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Booming Blade": {
-      type: "spell",
     },
     "Chill Touch": {
-      type: "spell",
       changes: [
         {
           key: "system.traits.di.value",
@@ -2400,7 +2384,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Darkvision": {
-      type: "spell",
       changes: [
         {
           key: "system.attributes.senses.darkvision",
@@ -2415,7 +2398,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Divine Favor": {
-      type: "spell",
       changes: [
         { key: "system.bonuses.mwak.damage", value: "1d4[Radiant]", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
         { key: "system.bonuses.rwak.damage", value: "1d4[Radiant]", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
@@ -2473,7 +2455,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         ].map((data) => {
           return {
             name: `${data.colour} Light`,
-            type: "spell",
             midiChanges: [
               {
                 key: "flags.midi-qol.grants.advantage.attack.all",
@@ -2516,7 +2497,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       },
     },
     "Feeblemind": {
-      type: "spell",
       changes: [
         { key: "system.abilities.cha.value", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 50 },
         { key: "system.abilities.int.value", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 50 },
@@ -2527,7 +2507,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       multiple: [
         {
           name: "Cold Shield",
-          type: "spell",
           changes: [
             {
               key: "system.traits.dr.value",
@@ -2539,7 +2518,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
         {
           name: "Warm Shield",
-          type: "spell",
           changes: [
             {
               key: "system.traits.dr.value",
@@ -2552,7 +2530,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Fly": {
-      type: "spell",
       changes: [
         {
           key: "system.attributes.movement.fly",
@@ -2567,7 +2544,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       multiple: [
         {
           name: "Wreathed in Moonlight",
-          type: "spell",
           data: {
             "flags.ddbimporter.activityMatch": "Cast Spell",
           },
@@ -2589,7 +2565,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
         {
           name: "Blinded by Moonlight",
-          type: "spell",
           data: {
             "flags.ddbimporter.activityMatch": "Force Blinding Save",
           },
@@ -2601,7 +2576,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Haste": {
-      type: "spell",
       changes: [
         { key: "system.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "+2", priority: "20" },
         {
@@ -2614,7 +2588,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Heroism": {
-      type: "spell",
       options: {
         description: "Gain temp hp at the start of your turn",
       },
@@ -2623,7 +2596,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Heroes' Feast": {
-      type: "spell",
       changes: [
         { key: "system.traits.ci.value", value: "frightened", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 20 },
         { key: "system.traits.ci.value", value: "poisoned", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 20 },
@@ -2631,12 +2603,10 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Hex": {
-      type: "spell",
       name: "Hexed",
     },
     "Hunter's Mark": {
       name: "Hunter's Mark",
-      type: "spell",
     },
     "Invisibility": {
       noCreate: true,
@@ -2646,7 +2616,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     "Jallarzi's Storm of Radiance": {
       clearAutoEffects: true,
-      type: "spell",
       name: "Within Storm of Radiance",
       statuses: ["Blinded", "Deafened"],
       options: {
@@ -2654,7 +2623,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       },
     },
     "Light": {
-      type: "spell",
       atlChanges: [
         generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'),
         generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
@@ -2664,7 +2632,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Mage Armor": {
-      type: "spell",
       changes: [
         {
           key: "system.attributes.ac.calc",
@@ -2701,17 +2668,14 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       }),
     },
     "Mass Suggestion": {
-      type: "spell",
       statuses: ["Charmed"],
     },
     "Mirror Image": {
-      type: "spell",
       tokenMagicChanges: [
         generateTokenMagicFXChange("images"),
       ],
     },
     "Mind Blank": {
-      type: "spell",
       changes: [
         {
           key: "system.traits.di.value",
@@ -2722,7 +2686,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Pass Without Trace": {
-      type: "spell",
       changes: [
         {
           key: 'system.skills.ste.bonuses.check',
@@ -2733,7 +2696,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Protection from Poison": {
-      type: "spell",
       changes: [
         {
           key: "system.traits.dr.value",
@@ -2748,7 +2710,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       multiple: [
         {
           name: "Blinded",
-          type: "spell",
           statuses: ["Blinded"],
           options: {
             durationSeconds: 60,
@@ -2759,7 +2720,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
         {
           name: "Restrained",
-          type: "spell",
           statuses: ["Restrained"],
           options: {
             durationSeconds: 6,
@@ -2771,7 +2731,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
         {
           name: "Petrified",
-          type: "spell",
           statuses: ["Petrified"],
           data: {
             "flags.ddbimporter.activityMatch": "Damage Save",
@@ -2779,7 +2738,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
         {
           name: "Blinded",
-          type: "spell",
           statuses: ["Blinded"],
           options: {
             durationSeconds: 60,
@@ -2791,7 +2749,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Pyrotechnics": {
-      type: "spell",
       statuses: ["Blinded"],
       data: {
         "flags.ddbimporter.activityMatch": "Fireworks",
@@ -2801,7 +2758,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       multiple: ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
         return {
           name: `Protection from ${element}`,
-          type: "spell",
           changes: [
             { key: "system.traits.dr.value", value: element.toLowerCase(), mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
           ],
@@ -2810,7 +2766,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     "Ray of Enfeeblement": () => {
       return {
-        type: "spell",
         name: "Enfeebled",
         options: {
           description: this.ddbParser?.spellDefinition?.description ?? "",
@@ -2818,11 +2773,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       };
     },
     "Searing Smite": {
-      type: "spell",
       name: "On fire from Searing Smite",
     },
     "Shield": {
-      type: "spell",
       changes: [
         {
           key: "system.attributes.ac.bonus",
@@ -2900,7 +2853,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       },
     },
     "Shield of Faith": {
-      type: "spell",
       changes: [
         {
           key: "system.attributes.ac.bonus",
@@ -2914,7 +2866,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Shining Smite": {
-      type: "spell",
       name: "Shedding Light",
       atlChanges: [
         generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '5'),
@@ -2924,7 +2875,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Slow": {
-      type: "spell",
       changes: [
         { key: "system.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "-2", priority: "20" },
         { key: "system.attributes.movement.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "/2", priority: "20" },
@@ -2932,7 +2882,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Spider Climb": {
-      type: "spell",
       changes: [
         {
           key: "system.attributes.movement.climb",
@@ -2943,11 +2892,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Suggestion": {
-      type: "spell",
       statuses: ["Charmed"],
     },
     "Stoneskin": {
-      type: "spell",
       changes: [
         {
           key: "system.traits.dr.value",
@@ -2967,16 +2914,15 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           priority: 0,
         },
-        {
-          key: "system.traits.dr.bypass",
-          value: "mgc",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 0,
-        },
+        // {
+        //   key: "system.traits.dr.bypass",
+        //   value: "mgc",
+        //   mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        //   priority: 0,
+        // },
       ],
     },
     "Tasha's Caustic Brew": {
-      type: "spell",
       name: "Covered in Acid",
       options: {
         description: "You are covered in acid. Take 2d4 &Reference[acid] damage at start of each of your turns until you use an action to scrape it off.",
@@ -3006,7 +2952,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       }),
     },
     "Wall of Light": {
-      type: "spell",
       name: "Blinded",
       statuses: ["Blinded"],
       options: {
@@ -3017,7 +2962,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       },
     },
     "Warding Bond": {
-      type: "spell",
       changes: [
         { key: "system.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "+ 1", priority: "20" },
         { key: "system.traits.dr.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "1", priority: "20" },
@@ -3039,7 +2983,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
     },
     "Witch Bolt": {
-      type: "spell",
     },
   };
 

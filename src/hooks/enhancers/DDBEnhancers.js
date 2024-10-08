@@ -9,8 +9,13 @@ export default class DDBEnhancers {
       if ((options.preset !== "wildshape") || !subject.classes?.druid || isLegacy) return;
       if (subject.classes.druid.subclass?.identifier === "moon") {
         const acFeature = subject.items.find((i) => i.name === "Circle Forms");
-        if (!acFeature) return;
-        d.effects.push(...acFeature.toObject().effects);
+        if (acFeature) {
+          d.effects.push(...acFeature.toObject().effects);
+        }
+        const conFeature = subject.items.find((i) => i.name === "Improved Circle Forms");
+        if (conFeature) {
+          d.effects.push(...conFeature.toObject().effects);
+        }
       }
     });
   }

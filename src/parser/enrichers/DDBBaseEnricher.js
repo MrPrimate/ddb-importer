@@ -111,6 +111,7 @@ export default class DDBBaseEnricher {
     this.additionalActivityClass = null;
     this.is2014 = null;
     this.useLookupName = false;
+    this.effectType = "basic";
   }
 
   load({ ddbParser, document, name = null, is2014 = null } = {}) {
@@ -323,7 +324,7 @@ export default class DDBBaseEnricher {
       if (effectHint.noCreate && this.data.effects.length > 0) {
         effect = this.data.effects[0];
       } else {
-        switch (effectHint.type) {
+        switch (effectHint.type ?? this.effectType) {
           case "enchant":
             effect = baseEnchantmentEffect(this.data, name, effectOptions);
             if (effectHint.magicalBonus) {
