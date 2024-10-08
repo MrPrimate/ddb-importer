@@ -1,4 +1,4 @@
-import { generateMultiplyChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
+import { generateMultiplyChange, generateOverrideChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import DDBItemActivity from "../item/DDBItemActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
@@ -624,24 +624,9 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         bonus: "1",
       },
       changes: [
-        {
-          key: "system.damage.base.number",
-          value: "1",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
-        {
-          key: "system.damage.base.denomination",
-          value: "8",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
-        {
-          key: "system.damage.base.custom.enabled",
-          value: "false",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
+        generateOverrideChange("1", 20, "system.bonuses.base.number"),
+        generateOverrideChange("8", 20, "system.damage.base.denomination"),
+        generateOverrideChange("false", 20, "system.damage.base.custom.enabled"),
       ],
       data: {
         "restrictions.type": "weapon",
@@ -692,12 +677,7 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     "Moon Sickle": {
       noCreate: true,
       changes: [
-        {
-          key: "system.bonuses.heal.damage",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: "+ d4",
-          priority: "20",
-        },
+        generateUnsignedAddChange("+ 4", 20, "system.bonuses.heal.damage"),
       ],
     },
     "Oil of Sharpness": {

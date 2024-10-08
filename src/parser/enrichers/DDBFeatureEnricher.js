@@ -1,4 +1,4 @@
-import { effectModules, generateATLChange, generateUpgradeChange } from "../../effects/effects.js";
+import { effectModules, generateATLChange, generateCustomChange, generateOverrideChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import utils from "../../lib/utils.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
@@ -4213,18 +4213,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "system.traits.weaponProf.mastery.bonus",
-          value: "push",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 10,
-        },
-        {
-          key: "system.traits.weaponProf.mastery.bonus",
-          value: "topple",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 10,
-        },
+        generateUnsignedAddChange("push", 20, "system.traits.weaponProf.mastery.bonus"),
+        generateUnsignedAddChange("topple", 20, "system.traits.weaponProf.mastery.bonus"),
       ],
     },
     "Beguiling Magic": {
@@ -4275,12 +4265,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         description: "You gain a minimum AC of 13 + your Wisdom modifier.",
       },
       changes: [
-        {
-          key: "system.attributes.ac.min",
-          value: "13 + @abilities.wis.mod",
-          mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
-          priority: 20,
-        },
+        generateUpgradeChange("13 + @abilities.wis.mod", 20, "system.attributes.ac.min"),
       ],
     },
     "Cunning Strike": {
@@ -4335,12 +4320,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             transfer: true,
           },
           changes: [
-            {
-              key: "system.attributes.ac.calc",
-              value: "unarmoredBard",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              priority: 10,
-            },
+            generateOverrideChange("unarmoredBard", 10, "system.attributes.ac.calc"),
           ],
           data: {
             "flags.ddbimporter.activityMatch": "No Activity",
@@ -4349,36 +4329,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         {
           type: "enchant",
           changes: [
-            {
-              key: "name",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: `{} [Dazzling Footwork]`,
-              priority: 20,
-            },
-            {
-              key: "system.damage.base.types",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              value: "bludgeoning",
-              priority: 20,
-            },
-            {
-              key: "system.ability",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: "dex",
-              priority: 20,
-            },
-            {
-              key: "system.damage.base.custom.enabled",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: "true",
-              priority: 20,
-            },
-            {
-              key: "system.damage.base.custom.formula",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: "@scale.dance.dazzling-footwork + @abilities.dex.mod",
-              priority: 20,
-            },
+            generateOverrideChange(`{} [Dazzling Footwork]`, 20, "name"),
+            generateUnsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
+            generateOverrideChange("dex", 20, "system.ability"),
+            generateOverrideChange("true", 20, "system.damage.base.custom.enabled"),
+            generateOverrideChange("@scale.dance.dazzling-footwork + @abilities.dex.mod", 20, "system.damage.base.custom.formula"),
           ],
           data: {
             "flags.ddbimporter.activityMatch": "Bardic Damage",
@@ -4416,30 +4371,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "flags.dnd5e.diamondSoul",
-          value: "true",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
+        generateOverrideChange("true", 20, "flags.dnd5e.diamondSoul"),
       ],
     },
     "Draconic Resilience": {
       noCreate: true,
       changesOverwrite: true,
       changes: [
-        {
-          key: "system.attributes.hp.bonuses.overall",
-          value: "1 * @classes.sorcerer.levels",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 10,
-        },
-        {
-          key: "system.attributes.ac.calc",
-          value: "draconic",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 10,
-        },
+        generateUnsignedAddChange("1 * @classes.sorcerer.levels", 20, "system.attributes.hp.bonuses.overall"),
+        generateOverrideChange("draconic", 20, "system.attributes.ac.calc"),
       ],
     },
     "Dual Wielder": {
@@ -4447,64 +4387,24 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "flags.dnd5e.enhancedDualWielding",
-          value: "true",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
+        generateOverrideChange("true", 20, "flags.dnd5e.enhancedDualWielding"),
       ],
     },
     "Divine Order: Thaumaturge": {
       noCreate: true,
       changes: [
-        {
-          key: "system.scale.cleric.cantrips-known.value",
-          value: "1",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
+        generateUnsignedAddChange("1", 20, "system.scale.cleric.cantrips-known.value"),
       ],
     },
     "Eldritch Invocations: Pact of the Blade": {
       type: "enchant",
       changes: [
-        {
-          key: "name",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: `{} [Pact Weapon]`,
-          priority: 20,
-        },
-        {
-          key: "system.damage.base.types",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: "necrotic",
-          priority: 20,
-        },
-        {
-          key: "system.damage.base.types",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: "psychic",
-          priority: 20,
-        },
-        {
-          key: "system.damage.base.types",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: "radiant",
-          priority: 20,
-        },
-        {
-          key: "system.proficient",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: "true",
-          priority: 20,
-        },
-        {
-          key: "system.ability",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: "cha",
-          priority: 20,
-        },
+        generateOverrideChange(`{} [Pact Weapon]`, 20, "name"),
+        generateUnsignedAddChange("necrotic", 20, "system.damage.base.types"),
+        generateUnsignedAddChange("psychic", 20, "system.damage.base.types"),
+        generateUnsignedAddChange("radiant", 20, "system.damage.base.types"),
+        generateUnsignedAddChange("true", 20, "system.proficient"),
+        generateOverrideChange("cha", 20, "system.ability"),
       ],
     },
     "Elven Accuracy": {
@@ -4512,40 +4412,28 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "flags.dnd5e.elvenAccuracy",
-          value: "true",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
+        generateOverrideChange("true", 20, "flags.dnd5e.elvenAccuracy"),
       ],
     },
-    "Empty Body": {
-      options: {
-        durationSeconds: 60,
-      },
-      statuses: ["invisible"],
-      changes: [
-        { key: "system.traits.dr.value", value: "acid", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "bludgeoning", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "cold", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "fire", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "force", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "lightning", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "necrotic", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "piercing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "poison", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "psychic", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "radiant", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "slashing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "thunder", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-      ],
+    "Empty Body": () => {
+      return {
+        options: {
+          durationSeconds: 60,
+        },
+        statuses: ["invisible"],
+        changes: [
+          "acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "poison", "psychic", "radiant",
+          "thunder", "piercing", "slashing",
+        ].map((element) =>
+          generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
+        ),
+      };
     },
     "Full of Stars": {
       changes: [
-        { key: "system.traits.dr.value", value: "bludgeoning", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "piercing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
-        { key: "system.traits.dr.value", value: "slashing", mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+        generateUnsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
+        generateUnsignedAddChange("piercing", 20, "system.traits.dr.value"),
+        generateUnsignedAddChange("slashing", 20, "system.traits.dr.value"),
       ],
     },
     "Frost's Chill (Frost Giant)": {
@@ -4563,12 +4451,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateATLChange("ATL.height", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
       ],
       changes: [
-        {
-          key: "system.traits.size",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: "lg",
-          priority: 25,
-        },
+        generateOverrideChange("lg", 25, "system.traits.size"),
       ],
     },
     "Gift of the Chromatic Dragon: Chromatic Infusion": {
@@ -4586,18 +4469,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             img: element.img,
           },
           changes: [
-            {
-              key: "name",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: `{} [Chromatic Infusion ${utils.capitalize(element.type)}]`,
-              priority: 20,
-            },
-            {
-              key: "system.damage.parts",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              value: `[["1d4", "${element.type}"]]`,
-              priority: 20,
-            },
+            generateOverrideChange(`{} [Chromatic Infusion ${utils.capitalize(element.type)}]`, 20, "name"),
+            generateUnsignedAddChange(`[["1d4", "${element.type}"]]`, 20, "system.damage.parts"),
           ],
         };
       }),
@@ -4607,23 +4480,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "flags.dnd5e.halflingLucky",
-          value: "true",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
+        generateOverrideChange("true", 20, "flags.dnd5e.halflingLucky"),
       ],
     },
     "Brutal Strike": {
       name: "Hamstrung",
       changes: [
-        {
-          key: "system.attributes.movement.walk",
-          value: "-15",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 90,
-        },
+        generateOverrideChange("-15", 90, "system.attributes.movement.walk"),
       ],
       data: {
         "flags.ddbimporter.activityMatch": "Hamstrung Blow",
@@ -4639,12 +4502,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Innate Sorcery": {
       changes: [
-        {
-          key: "system.bonuses.spell.dc",
-          value: "1",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
+        generateUnsignedAddChange("1", 20, "system.bonuses.spell.dc"),
       ],
     },
     "Imbue Aura of Protection": {
@@ -4670,20 +4528,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       multiple: [
         {
           name: "Staggered",
-          options: {
-          },
-          changes: [
-          ],
+          changes: [],
           data: {
             "flags.ddbimporter.activityMatch": "Staggering Blow",
           },
         },
         {
           name: "Sundered",
-          options: {
-          },
-          changes: [
-          ],
+          changes: [],
           data: {
             "flags.ddbimporter.activityMatch": "Sundering Blow",
           },
@@ -4701,66 +4553,31 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "flags.dnd5e.jackOfAllTrades",
-          value: "true",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
+        generateOverrideChange("true", 20, "flags.dnd5e.jackOfAllTrades"),
       ],
     },
     "Large Form": {
       changes: [
-        {
-          key: "system.traits.size",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: "lg",
-          priority: 25,
-        },
+        generateOverrideChange("lg", 25, "system.traits.size"),
       ],
       atlChanges: [
-        {
-          key: "ATL.width",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 30,
-          value: 2,
-        },
-        {
-          key: "ATL.height",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 30,
-          value: 2,
-        },
+        generateOverrideChange("2", 30, "ATL.width"),
+        generateOverrideChange("2", 30, "ATL.height"),
       ],
     },
     "Maneuver: Ambush": {
       changes: [
-        {
-          key: "system.attributes.init.bonus",
-          value: "@scale.battle-master.combat-superiority-die",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
+        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.attributes.init.bonus"),
       ],
     },
     "Maneuver: Bait and Switch": {
       changes: [
-        {
-          key: "system.attributes.ac.bonus",
-          value: "@scale.battle-master.combat-superiority-die",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
+        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.attributes.ac.bonus"),
       ],
     },
     "Maneuver: Evasive Footwork": {
       changes: [
-        {
-          key: "system.attributes.ac.bonus",
-          value: "@scale.battle-master.combat-superiority-die",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
+        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.attributes.ac.bonus"),
       ],
     },
     // Future Enhancement: Add a macro that rolls dice and applies dr effect
@@ -4792,24 +4609,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Maneuver: Tactical Assessment": {
       name: "Tactical Assessment Bonus",
       changes: [
-        {
-          key: "system.skills.his.bonuses.check",
-          value: "@scale.battle-master.combat-superiority-die",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
-        {
-          key: "system.skills.inv.bonuses.check",
-          value: "@scale.battle-master.combat-superiority-die",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
-        {
-          key: "system.skills.ins.bonuses.check",
-          value: "@scale.battle-master.combat-superiority-die",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
+        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.his.bonuses.check"),
+        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.inv.bonuses.check"),
+        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.ins.bonuses.check"),
       ],
     },
     "Mindless Rage": {
@@ -4818,18 +4620,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       //   disabled: true,
       // },
       changes: [
-        {
-          key: "system.traits.ci.value",
-          value: "charmed",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
-        {
-          key: "system.traits.ci.value",
-          value: "frightened",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
+        generateUnsignedAddChange("frighened", 20, "system.traits.ci.value"),
+        generateUnsignedAddChange("charmed", 20, "system.traits.ci.value"),
       ],
     },
     "Momentary Stasis": {
@@ -4837,36 +4629,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         durationRounds: 1,
       },
       changes: [
-        {
-          key: "system.attributes.movement.walk",
-          value: "0",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 90,
-        },
-        {
-          key: "system.attributes.movement.all",
-          value: "0",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 90,
-        },
-        {
-          key: "system.attributes.movement.fly",
-          value: "0",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 90,
-        },
-        {
-          key: "system.attributes.movement.swim",
-          value: "0",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 90,
-        },
-        {
-          key: "system.attributes.movement.climb",
-          value: "0",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 90,
-        },
+        generateOverrideChange("*0", 90, "system.attributes.movement.all"),
+        generateOverrideChange("0", 90, "system.attributes.movement.walk"),
+        generateOverrideChange("0", 90, "system.attributes.movement.fly"),
+        generateOverrideChange("0", 90, "system.attributes.movement.swim"),
+        generateOverrideChange("0", 90, "system.attributes.movement.climb"),
       ],
       statuses: ["incapacitated"],
     },
@@ -4884,12 +4651,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             transfer: true,
           },
           changes: [
-            {
-              key: "system.traits.ci.value",
-              value: "poisoned",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 20,
-            },
+            generateUnsignedAddChange("poisoned", 20, "system.traits.ci.value"),
           ],
         },
       ];
@@ -4909,12 +4671,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             disabled: !activeType.includes(effect.origin),
           },
           changes: [
-            {
-              key: "system.traits.dr.value",
-              value: effect.type,
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 20,
-            },
+            generateUnsignedAddChange(effect.type, 20, "system.traits.dr.value"),
           ],
         });
       });
@@ -4928,12 +4685,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "flags.dnd5e.observantFeat",
-          value: "true",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
+        generateOverrideChange("true", 20, "flags.dnd5e.observantFeat"),
       ],
     },
     "Partially Amphibious": {
@@ -4961,12 +4713,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "flags.dnd5e.powerfulBuild",
-          value: "true",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
+        generateOverrideChange("true", 20, "flags.dnd5e.powerfulBuild"),
       ],
     },
     "Power of the Wilds": {
@@ -5018,71 +4765,21 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           durationSeconds: this.is2014 ? 60 : 600,
         },
         changes: [
-          {
-            key: "system.bonuses.mwak.damage",
-            value: "+ @scale.barbarian.rage-damage",
-            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-            priority: 0,
-          },
-          {
-            key: "system.traits.dr.value",
-            value: "piercing",
-            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-            priority: 0,
-          },
-          {
-            key: "system.traits.dr.value",
-            value: "slashing",
-            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-            priority: 20,
-          },
-          {
-            key: "system.traits.dr.value",
-            value: "bludgeoning",
-            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-            priority: 20,
-          },
-          {
-            key: "flags.midi-qol.advantage.ability.save.str",
-            value: "1",
-            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-            priority: 20,
-          },
-          {
-            key: "flags.midi-qol.advantage.ability.check.str",
-            value: "1",
-            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-            priority: 20,
-          },
-          {
-            key: "macro.tokenMagic",
-            value: "outline",
-            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-            priority: 10,
-          },
+          generateUnsignedAddChange("@scale.barbarian.rage-damage", 20, "system.bonuses.mwak.damage"),
+          generateUnsignedAddChange("piercing", 20, "system.traits.dr.value"),
+          generateUnsignedAddChange("slashing", 20, "system.traits.dr.value"),
+          generateUnsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
+          generateCustomChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
+          generateCustomChange("1", 20, "flags.midi-qol.advantage.ability.check.str"),
+          generateCustomChange("outline", 20, "macro.tokenMagic"),
         ],
       };
     },
     "Raging Storm: Tundra": {
       changes: [
-        {
-          key: "system.attributes.movement.all",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          value: "*0",
-          priority: "20",
-        },
-        {
-          key: "system.attributes.movement.walk",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: "0",
-          priority: "60",
-        },
-        {
-          key: "system.attributes.movement.fly",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: "0",
-          priority: "60",
-        },
+        generateCustomChange("*0", 20, "system.attributes.movement.all"),
+        generateOverrideChange("0", 60, "system.attributes.movement.walk"),
+        generateOverrideChange("0", 60, "system.attributes.movement.fly"),
       ],
     },
     "Radiant Strikes": {
@@ -5091,12 +4788,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "system.bonuses.mwak.damage",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: "1d8[radiant]",
-          priority: "20",
-        },
+        generateUnsignedAddChange("1d8[radiant]", 20, "system.bonuses.mwak.damage"),
       ],
     },
     "Reckless Attack": {
@@ -5113,6 +4805,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           priority: 20,
         },
+        generateOverrideChange("true", 20, "flags.dnd5e.reliableTalent"),
       ],
     },
     "Remarkable Athlete": {
@@ -5120,12 +4813,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "flags.dnd5e.remarkableAthlete",
-          value: "true",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
+        generateOverrideChange("true", 20, "flags.dnd5e.remarkableAthlete"),
       ],
     },
     "Sacred Weapon": {
@@ -5136,18 +4824,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
       descriptionSuffix: `<br><p>[[/ddbifunc functionName="sacredWeaponLight2024" functionType="feat"]]{Toggle Sacred Weapon Light}</div></p>`,
       changes: [
-        {
-          key: "attack.bonus",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: "@abilities.cha.mod",
-          priority: 20,
-        },
-        {
-          key: "damage.base.types",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: "radiant",
-          priority: 20,
-        },
+        generateOverrideChange("@abilities.cha.mod", 20, "attack.bonus"),
+        generateUnsignedAddChange("radiant", 20, "damage.base.types"),
       ],
       options: {
         name: "Sacred Weapon",
@@ -5178,12 +4856,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             },
           },
           changes: [
-            {
-              key: "system.traits.dr.value",
-              value: "fire",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 20,
-            },
+            generateUnsignedAddChange("fire", 20, "system.traits.dr.value"),
           ],
         },
         {
@@ -5207,12 +4880,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             },
           },
           changes: [
-            {
-              key: "system.traits.dr.value",
-              value: "lightning",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 20,
-            },
+            generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
           ],
         },
         {
@@ -5236,34 +4904,19 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             },
           },
           changes: [
-            {
-              key: "system.traits.dr.value",
-              value: "cold",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 20,
-            },
+            generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
           ],
         },
       ],
     },
     "Shifting: Beasthide": {
       changes: [
-        {
-          key: "system.attributes.ac.bonus",
-          value: "1",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
+        generateUnsignedAddChange("1", 20, "system.attributes.ac.bonus"),
       ],
     },
     "Shifting: Swiftstride": {
       changes: [
-        {
-          key: "system.attributes.movement.walk",
-          value: "10",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
+        generateUnsignedAddChange("10", 20, "system.attributes.movement.walk"),
       ],
     },
     "Shifting: Wildhunt": {
@@ -5315,12 +4968,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             },
           },
           changes: [
-            {
-              key: "system.attributes.movement.fly",
-              value: "20",
-              mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
-              priority: 20,
-            },
+            generateUpgradeChange("20", 20, "system.attributes.movement.fly"),
           ],
         },
       ],
@@ -5331,29 +4979,22 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
       name: "Taunted",
     },
+    "Stormborn": {
+      changes: [
+        generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+        generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
+        generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
+        generateUnsignedAddChange("thunder", 20, "system.traits.dr.value"),
+      ],
+    },
     "Tactial Master": {
       options: {
         transfer: true,
       },
       changes: [
-        {
-          key: "system.traits.weaponProf.mastery.bonus",
-          value: "push",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 10,
-        },
-        {
-          key: "system.traits.weaponProf.mastery.bonus",
-          value: "sap",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 10,
-        },
-        {
-          key: "system.traits.weaponProf.mastery.bonus",
-          value: "slow",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 10,
-        },
+        generateUnsignedAddChange("push", 10, "system.traits.weaponProf.mastery.bonus"),
+        generateUnsignedAddChange("sap", 10, "system.traits.weaponProf.mastery.bonus"),
+        generateUnsignedAddChange("slow", 10, "system.traits.weaponProf.mastery.bonus"),
       ],
     },
     "Tavern Brawler": {
@@ -5361,12 +5002,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "flags.dnd5e.tavernBrawlerFeat",
-          value: "true",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
+        generateOverrideChange("true", 20, "flags.dnd5e.tavernBrawlerFeat"),
       ],
     },
     "The Third Eye": {
@@ -5400,12 +5036,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             description: "You can read any language",
           },
           changes: [
-            {
-              key: "system.traits.languages.special",
-              value: ";Read Any Language",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 20,
-            },
+            generateUnsignedAddChange(";Read Any Language", 20, "system.traits.languages.special"),
           ],
         },
         {
@@ -5416,18 +5047,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             "flags.ddbimporter.activityMatch": "See Invisibility",
           },
           changes: [
-            {
-              key: "system.attributes.senses.special",
-              value: ";Invisible creatures",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 20,
-            },
-            {
-              key: "system.attributes.senses.special",
-              value: ";Ethereal Plane",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 20,
-            },
+            generateUnsignedAddChange(";Invisible Creatures", 20, "system.attributes.senses.special"),
+            generateUnsignedAddChange(";Ethereal Plane", 20, "system.attributes.senses.special"),
           ],
         },
       ],
@@ -5437,24 +5058,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "system.traits.languages.value",
-          value: "standard:*",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
-        {
-          key: "system.traits.languages.value",
-          value: "exotic:*",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
-        {
-          key: "system.traits.languages.value",
-          value: "ddb:*",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
+        generateUnsignedAddChange("standard:*", 20, "system.traits.languages.value"),
+        generateUnsignedAddChange("exotic:*", 20, "system.traits.languages.value"),
+        generateUnsignedAddChange("ddb:*", 10, "system.traits.languages.value"),
       ],
     },
     "Unbreakable Majesty": {
@@ -5472,21 +5078,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         const klass = foundry.utils.getProperty(data, "flags.ddbimporter.dndbeyond.class");
         if (klass === "Barbarian") {
           return [
-            {
-              key: "system.attributes.ac.calc",
-              value: "unarmoredBarb",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              priority: 15,
-            },
+            generateOverrideChange("unarmoredBarb", 15, "system.attributes.ac.calc"),
           ];
         } else if (klass === "Monk") {
           return [
-            {
-              key: "system.attributes.ac.calc",
-              value: "unarmoredMonk",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              priority: 15,
-            },
+            generateOverrideChange("unarmoredMonk", 15, "system.attributes.ac.calc"),
           ];
         }
         return [];
@@ -5497,12 +5093,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: true,
       },
       changes: [
-        {
-          key: "system.attributes.concentration.roll.mode",
-          value: "1",
-          mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
-          priority: 10,
-        },
+        generateUpgradeChange("1", 10, "system.attributes.concentration.roll.mode"),
       ],
     },
   };

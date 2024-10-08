@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import { effectModules, generateATLChange, generateTokenMagicFXChange } from "../../effects/effects.js";
+import { effectModules, generateATLChange, generateTokenMagicFXChange, generateUnsignedAddChange } from "../../effects/effects.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
@@ -2200,7 +2200,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         return {
           name: `Absorb ${element}`,
           changes: [
-            { key: "system.traits.dr.value", value: element.toLowerCase(), mode: CONST.ACTIVE_EFFECT_MODES.ADD, priority: 0 },
+            generateUnsignedAddChange(element.toLowerCase(), 1, "system.traits.dr.value"),
           ],
           data: {
             "flags.ddbimporter.activityMatch": "Absorb Elements Effect",
@@ -2219,12 +2219,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         return {
           name: `Aid: Level ${level} Temp Max HP Bonus`,
           changes: [
-            {
-              key: "system.attributes.hp.bonuses.overall",
-              value: `${5 * (level - 1)}`,
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 20,
-            },
+            generateUnsignedAddChange(`${5 * (level - 1)}`, 20, "system.attributes.hp.bonuses.overall"),
           ],
         };
       }),

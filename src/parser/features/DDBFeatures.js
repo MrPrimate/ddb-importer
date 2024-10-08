@@ -79,6 +79,7 @@ export default class DDBFeatures {
 
   static FORCE_DUPLICATE_FEATURE = [
     "Blessed Strikes",
+    "Wrath of the Sea",
   ];
 
   static isDuplicateFeature(items, item) {
