@@ -726,7 +726,7 @@ const SETTINGS = {
       // character settings
       CHARACTER: {
         ENHANCERS: {
-          "allow-moon-druid-ac-enhancer": {
+          "allow-moon-druid-wildshape-enhancer": {
             type: Boolean,
             scope: "world",
             default: true,
