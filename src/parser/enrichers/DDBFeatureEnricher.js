@@ -1221,6 +1221,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       addItemConsume: true,
       itemConsumeValue: "5",
     },
+    "Lunar Form": {
+      type: "damage",
+      name: "Lunar Radiance Damage",
+      activationType: "special",
+      condition: "Once per turn, on hit, whilst in Wild Shape",
+      targetType: "creature",
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 10, type: "radiant" })],
+        },
+      },
+    },
     "Magical Cunning": {
       targetType: "self",
       type: "utility",
