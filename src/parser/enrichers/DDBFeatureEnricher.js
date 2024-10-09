@@ -2217,6 +2217,21 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         img: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
       },
     },
+    "Wrath of the Sea": {
+      name: "Activate Emination/Aura",
+      type: "utility",
+      targetType: "self",
+      activationType: "bonus",
+      data: {
+        target: {
+          template: {
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+        },
+      },
+    },
     "Wrath of the Storm": {
       data: {
         damage: {
@@ -3732,6 +3747,34 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ];
     },
+    "Wrath of the Sea": [
+      {
+        constructor: {
+          name: "Save for Damage",
+          type: "save",
+        },
+        build: {
+          generateActivation: true,
+          activationOverride: {
+            type: "bonus",
+          },
+          generateTarget: true,
+          targetOverride: {
+            affects: {
+              value: "1",
+              type: "self",
+            },
+          },
+          generateDamage: true,
+          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "(@abilities.wis.mod)d6", types: ["cold"] })],
+          generateSave: true,
+          saveOverride: {
+            ability: "con",
+            dc: { calculation: "spellcasting", formula: "" },
+          },
+        },
+      },
+    ],
   };
 
   DOCUMENT_OVERRIDES = {

@@ -55,6 +55,8 @@ export default class DDBAction extends DDBBaseFeature {
     // "Lay On Hands: Purify Poison",
     // "Mantle of Majesty",
     // "Unbreakable Majesty",
+    "Manifest Wrath of the Sea",
+    "Grant Wrath of the Sea",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
