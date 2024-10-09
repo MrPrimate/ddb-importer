@@ -1378,7 +1378,7 @@ async function generateDynamicItemChange(actor, document, update) {
     if (update.name || update.system?.description || update.system?.weight || update.system?.price || update.system?.quantity) {
       updateItemDetails.customItems.push(foundry.utils.duplicate(document));
     }
-  } else {
+  } else if (foundry.utils.hasProperty(document, "flags.ddbimporter.id")) {
     if (update.system?.uses) {
       updateItemDetails.itemsToCharge.push(foundry.utils.duplicate(document));
     }
