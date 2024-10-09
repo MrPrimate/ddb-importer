@@ -1,3 +1,4 @@
+import DICTIONARY from "../../dictionary.js";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, baseEnchantmentEffect, baseItemEffect, effectModules, forceItemEffect } from "../../effects/effects.js";
 import { baseFeatEffect } from "../../effects/specialFeats.js";
@@ -7,6 +8,10 @@ import utils from "../../lib/utils.js";
 import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 
 export default class DDBBaseEnricher {
+
+  static allDamageTypes() {
+    return DICTIONARY.actions.damageType.filter((d) => d.name !== null).map((d) => d.name);
+  }
 
   static basicDamagePart({
     number = null, denomination = null, type = null, types = [], bonus = "", scalingMode = "whole",

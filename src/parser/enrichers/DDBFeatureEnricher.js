@@ -1851,7 +1851,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "range.units": "spec",
         damage: {
           parts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.rogue.sneak-attack", types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
+            DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.rogue.sneak-attack", types: DDBBaseEnricher.allDamageTypes() }),
           ],
         },
       },
