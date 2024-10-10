@@ -4,6 +4,7 @@
 - Moon Druid hooks to allow application of effects when wildshaping for AC.
 - Resolve #513 where customised DC not applying to spells during character import.
 - Change in DDB data would result in Spells marked as Emanation not importing the template correctly.
+- Combat Superiority Fixes.
 
 # 6.0.18
 
