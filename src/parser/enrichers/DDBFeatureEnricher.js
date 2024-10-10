@@ -2106,6 +2106,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Survivor": {
+      name: "Heroic Rally",
+      type: "heal",
+      targetType: "self",
+      data: {
+        healing: {
+          custom: {
+            enabled: true,
+            formula: "5 + @abilities.con.mod",
+          },
+          types: ["healing"],
+        },
+      },
+    },
     "Tactical Mind": {
       type: "utility",
       data: {
