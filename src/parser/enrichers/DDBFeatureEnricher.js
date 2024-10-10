@@ -1,4 +1,4 @@
-import { effectModules, generateATLChange, generateCustomChange, generateOverrideChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
+import { effectModules, generateATLChange, generateCustomChange, generateDowngradeChange, generateOverrideChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import utils from "../../lib/utils.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
@@ -4599,6 +4599,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         transfer: false,
       },
     },
+    "Improved Critical": {
+      options: {
+        transfer: true,
+      },
+      changes: [
+        generateDowngradeChange("19", 20, "flags.dnd5e.weaponCriticalThreshold"),
+      ],
+    },
     "Jack of All Trades": {
       options: {
         transfer: true,
@@ -5036,6 +5044,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
         generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
         generateUnsignedAddChange("thunder", 20, "system.traits.dr.value"),
+      ],
+    },
+    "Superior Critical": {
+      options: {
+        transfer: true,
+      },
+      changes: [
+        generateDowngradeChange("18", 30, "flags.dnd5e.weaponCriticalThreshold"),
       ],
     },
     "Tactial Master": {

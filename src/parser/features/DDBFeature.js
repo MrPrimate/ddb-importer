@@ -24,6 +24,7 @@ export default class DDBFeature extends DDBBaseFeature {
     "Magical Cunning",
     "Brutal Strike",
     "Extra Attack",
+    "Improved Critical",
   ];
 
   static LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH = [
