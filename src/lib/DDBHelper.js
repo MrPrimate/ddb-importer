@@ -991,13 +991,13 @@ const DDBHelper = {
         if (activity.type === "save") {
           if (dcBonus) {
             if (foundryItem.flags.ddbimporter.dndbeyond.dc) {
-              foundryItem.system.save.dc.formula = parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus;
-              foundryItem.system.save.dc.calculation = "custom";
+              activity.save.dc.formula = `${parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus}`;
+              activity.save.dc.calculation = "";
             }
           }
           if (dcOverride) {
-            foundryItem.system.save.dc.formula = dcOverride;
-            foundryItem.system.save.dc.calculation = "custom";
+            activity.save.dc.formula = dcOverride;
+            activity.save.dc.calculation = "";
           }
         }
 
