@@ -882,6 +882,7 @@ const DICTIONARY = {
       // "Sear Undead",
     ],
     "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
+    "Combat Superiority": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
     "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen"],
     "Font of Magic: Sorcery Points": [
       "Metamagic - ", "Metamagic:", "Hound of Ill Omen", "Sorcerous Restoration",

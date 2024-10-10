@@ -3804,10 +3804,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Celestial Revelation (Inner Radiance)": {
       descriptionSuffix: `<br><p>[[/ddbifunc functionName="innerRadiance" functionType="feat"]]{Toggle Inner Radiance Light}</div></p>`,
     },
-    "Combat Superiority": {
-      data: {
-        "system.uses.max": "@scale.battle-master.combat-superiority-uses",
-      },
+    "Combat Superiority": () => {
+      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) =>
+        a.name === "Superiority Dice",
+      )?.limitedUse?.numberUsed ?? 0;
+      return {
+        data: {
+          "system.uses": {
+            spent,
+            max: "@scale.battle-master.combat-superiority-uses",
+          },
+        },
+      };
     },
     "Dark One's Own Luck": {
       data: {

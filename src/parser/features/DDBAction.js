@@ -7,6 +7,16 @@ import DDBBaseFeature from "./DDBBaseFeature.js";
 export default class DDBAction extends DDBBaseFeature {
 
   static SKIPPED_ACTIONS = [
+    // weapon properties
+    "Cleave",
+    "Graze",
+    "Nick",
+    "Push",
+    "Sap",
+    "Slow",
+    "Topple",
+    "Vex",
+    // others
     "Activate Large Form",
     "Assume Unbreakable Majesty",
     "Bardic Damage",
@@ -57,19 +67,11 @@ export default class DDBAction extends DDBBaseFeature {
     // "Unbreakable Majesty",
     "Manifest Wrath of the Sea",
     "Grant Wrath of the Sea",
+    "Superiority Dice",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
-    // weapon properties
-    "Cleave",
-    "Graze",
-    "Nick",
-    "Push",
-    "Sap",
-    "Slow",
-    "Topple",
-    "Vex",
-    // other actions
+    "Tactical Master:",
     "Brutal Strike:",
     "Channel Divinity: War God",
     "Combat Inspiration: ",
