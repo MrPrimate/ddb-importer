@@ -2720,7 +2720,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       },
     },
     "Warding Bond": () => {
-      const damageChanges = DDBBaseEnricher.allDamageTypes.map((type) => {
+      const damageChanges = DDBBaseEnricher.allDamageTypes().map((type) => {
         return generateUnsignedAddChange(type, 0, "system.traits.dr.value");
       });
       return {
