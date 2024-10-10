@@ -2192,6 +2192,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "War Bond": {
+      name: "Summon Weapon",
+      type: "utility",
+      activationType: "bonus",
+      targetType: "self",
+      data: {
+        restrictions: {
+          type: "weapon",
+          allowMagical: true,
+        },
+      },
+    },
     "War Caster": {
       type: "utility",
       midiManualReaction: true,
@@ -3712,6 +3724,25 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "War Bond": [
+      {
+        constructor: {
+          name: "Bond",
+          type: "enchant",
+        },
+        build: {
+          generateActivation: true,
+          generateRange: true,
+          activationOverride: {
+            value: "1",
+            units: "hour",
+          },
+          rangeOverride: {
+            units: "self",
+          },
+        },
+      },
+    ],
     "Wild Resurgence": () => {
       const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) =>
         a.name === "Wild Resurgence: Regain Spell Slot",
@@ -4182,6 +4213,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       };
     },
+    "War Bond": {
+      data: {
+        "flags.ddbimporter": {
+          retainUseSpent: true,
+        },
+        "system.uses": {
+          spent: 0,
+          max: 2,
+        },
+      },
+    },
     "War Priest": () => {
       const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) =>
         a.name === "War Priest: Bonus Attack",
@@ -4471,6 +4513,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateUnsignedAddChange("true", 20, "system.proficient"),
         generateOverrideChange("cha", 20, "system.ability"),
       ],
+    },
+    "Eldritch Strike": {
+      name: "Struck",
+      type: "feat",
+      options: {
+        description: "",
+      },
     },
     "Elven Accuracy": {
       options: {
@@ -5168,6 +5217,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         }
         return [];
       },
+    },
+    "War Bond": {
+      name: "Bond With Weapon",
+      type: "enchant",
+      changes: [
+        generateOverrideChange(`{} [Bonded]`, 20, "name"),
+      ],
     },
     "War Caster": {
       options: {

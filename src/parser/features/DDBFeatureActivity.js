@@ -560,6 +560,7 @@ export default class DDBFeatureActivity {
     ddbMacroOverride = null,
     durationOverride = null,
     usesOverride = null,
+    data = null,
   } = {}) {
 
 
@@ -613,6 +614,10 @@ export default class DDBFeatureActivity {
       ids.push(this.data._id);
       foundry.utils.setProperty(this.ddbParent.data, "flags.ddbimporter.noEffectIds", ids);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
+    }
+
+    if (data) {
+      this.data = foundry.utils.mergeObject(this.data, data);
     }
 
     // ATTACK has

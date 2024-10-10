@@ -68,9 +68,21 @@ export default class DDBAction extends DDBBaseFeature {
     "Manifest Wrath of the Sea",
     "Grant Wrath of the Sea",
     "Superiority Dice",
+    "Blink Steps",
+    "Second Wind: Tactical Shift",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
+    // weapon properties
+    "Cleave (",
+    "Graze (",
+    "Nick (",
+    "Push (",
+    "Sap (",
+    "Slow (",
+    "Topple (",
+    "Vex (",
+    // others
     "Tactical Master:",
     "Brutal Strike:",
     "Channel Divinity: War God",
@@ -88,6 +100,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Sneak Attack:",
     "Starry Form:",
     "Wild Resurgence:",
+    "War Bond:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [
