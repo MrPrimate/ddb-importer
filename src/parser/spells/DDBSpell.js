@@ -397,8 +397,9 @@ export default class DDBSpell {
 
     // if spell is an AOE effect get some details
     if (this.spellDefinition.range.aoeType && this.spellDefinition.range.aoeValue) {
+      const type = this.spellDefinition.range.aoeType.toLowerCase();
       target.template.size = parseInt(this.spellDefinition.range.aoeValue);
-      target.template.type = this.spellDefinition.range.aoeType.toLowerCase();
+      target.template.type = type === "emanation" ? "radius" : type;
       this.data.system.target = target;
       return;
     }
