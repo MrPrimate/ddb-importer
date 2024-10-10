@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.19
 
 - Sea Druid and Moon Druid fixes.
 - Moon Druid hooks to allow application of effects when wildshaping for AC.
