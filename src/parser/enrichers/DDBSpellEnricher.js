@@ -106,7 +106,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
       "Ray of Sickness": {
-        noeffect: true,
+        data: {
+          "flags.ddbimporter.noeffect": true,
+        },
       },
       "Sleep": {
         type: "utility",

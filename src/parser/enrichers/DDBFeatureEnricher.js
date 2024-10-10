@@ -1517,10 +1517,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       name: "Brew Poisons",
       addItemConsume: true,
       itemConsumeValue: "-@prof",
-      options: {
-        noeffect: true,
-      },
       data: {
+        "flags.ddbimporter.noeffect": true,
         img: "systems/dnd5e/icons/svg/items/consumable.svg",
         duration: {
           value: "1",
@@ -2198,10 +2196,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       activationType: "bonus",
       targetType: "self",
       data: {
-        restrictions: {
-          type: "weapon",
-          allowMagical: true,
-        },
+        "flags.ddbimporter.noeffect": true,
       },
     },
     "War Caster": {
@@ -3727,18 +3722,69 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "War Bond": [
       {
         constructor: {
-          name: "Bond",
+          name: "Bond, 1st Weapon",
           type: "enchant",
         },
         build: {
           generateActivation: true,
           generateRange: true,
+          generateConsumption: true,
           activationOverride: {
             value: "1",
             units: "hour",
           },
           rangeOverride: {
             units: "self",
+          },
+          consumptionOverride: {
+            targets: [
+              {
+                type: "itemUses",
+                target: "",
+                value: 1,
+                scaling: { mode: "", formula: "" },
+              },
+            ],
+          },
+          data: {
+            restrictions: {
+              type: "weapon",
+              allowMagical: true,
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Bond, 2nd Weapon",
+          type: "enchant",
+        },
+        build: {
+          generateActivation: true,
+          generateRange: true,
+          generateConsumption: true,
+          activationOverride: {
+            value: "1",
+            units: "hour",
+          },
+          rangeOverride: {
+            units: "self",
+          },
+          consumptionOverride: {
+            targets: [
+              {
+                type: "itemUses",
+                target: "",
+                value: 1,
+                scaling: { mode: "", formula: "" },
+              },
+            ],
+          },
+          data: {
+            restrictions: {
+              type: "weapon",
+              allowMagical: true,
+            },
           },
         },
       },
@@ -5219,7 +5265,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "War Bond": {
-      name: "Bond With Weapon",
+      name: "Weapon Bond",
       type: "enchant",
       changes: [
         generateOverrideChange(`{} [Bonded]`, 20, "name"),
