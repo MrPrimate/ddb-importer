@@ -19,6 +19,19 @@ export default class DDBSubClass extends DDBClass {
       additionalAdvancements: false,
       additionalFunctions: [],
     },
+    "Psionic Power": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Energy Die", identifier: "energy-die" },
+      // fixFunctions: [
+      // {
+      //   fn: AdvancementHelper.addDiceRange,
+      //   args: { number: [4, 6, 8, 8, 10, 12] },
+      // },
+      // ],
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
   };
 
   _fleshOutCommonDataStub() {
@@ -273,7 +286,20 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
       this.data.system.advancement.push(aid);
+    } else if (this.data.name.startsWith("Psi Warrior") && !this.is2014) {
+      for (let advancement of this.data.system.advancement) {
+        if (advancement.title !== "Energy Die") continue;
+        advancement.configuration.scale = foundry.utils.mergeObject(advancement.configuration.scale, {
+          3: { number: 4 },
+          5: { number: 6 },
+          9: { number: 8 },
+          11: { number: 8 },
+          13: { number: 10, faces: 10 },
+          17: { number: 12 },
+        });
+      };
     }
+
   }
 
   async generateFromCharacter(character) {

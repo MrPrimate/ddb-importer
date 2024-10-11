@@ -821,7 +821,7 @@ export default class DDBBaseFeature {
       else if (this.data.name.startsWith("Metamagic:")) subType = "metamagic";
       else if (this.data.name.startsWith("Pact of the")) subType = "pact";
       else if (this.data.name.startsWith("Rune Carver:")) subType = "rune";
-      else if (this.data.name.startsWith("Psionic Power:")) subType = "psionicPower";
+      else if (this.data.name.startsWith("Psionic Power")) subType = "psionicPower";
       else if (this.data.name.startsWith("Hunter's Prey:")) subType = "huntersPrey";
       else if (this.data.name.startsWith("Defensive Tactics:")) subType = "defensiveTactic";
       else if (this.data.name.startsWith("Superior Hunter's Defense:")) subType = "superiorHuntersDefense";

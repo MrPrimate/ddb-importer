@@ -669,6 +669,11 @@ export default class DDBClass {
             });
           }
           if (specialLookup.fixFunction) advancement = specialLookup.fixFunction(advancement, specialLookup.functionArgs);
+          if (specialLookup.fixFunctions) {
+            specialLookup.fixFunctions.forEach((fn) => {
+              advancement = fn.fn(advancement, fn.args);
+            });
+          }
         }
         return advancement;
       });
