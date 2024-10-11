@@ -4175,6 +4175,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       };
     },
     "Psionic Power": () => {
+      // TODO: this doesn't work
       const spent = this.ddbParser.subKlass === "Soulknife"
         ? this.ddbParser?.ddbData?.character.actions.class.find((a) =>
           a.name === "Psionic Power: Psionic Energy Dice"
