@@ -71,6 +71,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Blink Steps",
     "Second Wind: Tactical Shift",
     "Stonecunning (Tremorsense)",
+    "Luck Points",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

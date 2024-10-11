@@ -1221,6 +1221,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       addItemConsume: true,
       itemConsumeValue: "5",
     },
+    "Lucky": {
+      type: "utility",
+      name: "Spend Luck Point",
+      activationType: "special",
+      addItemConsume: true,
+    },
     "Lunar Form": {
       type: "damage",
       name: "Lunar Radiance Damage",
@@ -1936,6 +1942,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       name: "Activate Tremorsense",
       type: "utility",
       targetType: "self",
+      addItemConsume: true,
       data: {
         duration: {
           value: "10",
@@ -4058,6 +4065,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         name: "Lay On Hands",
       },
     },
+    "Lucky": () => {
+      const spent = this.ddbParser?.ddbData?.character.actions.feat.find((a) =>
+        a.name === "Luck Points",
+      )?.limitedUse?.numberUsed ?? null;
+      return {
+        data: {
+          "system.uses": {
+            spent,
+            max: this.is2014 ? 3 : "@prof",
+            recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+          },
+        },
+      };
+    },
     "Maneuver: Disarming Attack (Str.)": {
       data: {
         name: "Maneuver: Disarming Attack",
@@ -4245,6 +4266,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           "system.uses": {
             spent,
             max: "@prof",
+            recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
           },
         },
       };
@@ -4273,12 +4295,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           "system.uses": {
             spent,
             max: "1",
-            recovery: [
-              {
-                period: "sr",
-                type: "recoverAll",
-              },
-            ],
+            recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
           },
         },
       };
