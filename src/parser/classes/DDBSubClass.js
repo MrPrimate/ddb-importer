@@ -286,7 +286,9 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
       this.data.system.advancement.push(aid);
-    } else if (this.data.name.startsWith("Psi Warrior") && !this.is2014) {
+    } else if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soul Knife"))
+      && !this.is2014
+    ) {
       for (let advancement of this.data.system.advancement) {
         if (advancement.title !== "Energy Die") continue;
         advancement.configuration.scale = foundry.utils.mergeObject(advancement.configuration.scale, {

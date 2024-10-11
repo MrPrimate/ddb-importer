@@ -115,12 +115,14 @@ export default class DDBBaseFeature {
     // obsidian and klass names (used in effect enrichment)
     if (this._actionType.class) {
       const klass = DDBHelper.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
+      this.klass = klass.definition.name;
       foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "class");
       foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "class");
       foundry.utils.setProperty(this.data.flags, "obsidian.source.text", klass.definition.name);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
       const subKlass = DDBHelper.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
+      this.subKlass = subKlass?.definition.name;
       const subClass = foundry.utils.getProperty(subKlass, "subclassDefinition");
       foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass?.name);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass?.id);

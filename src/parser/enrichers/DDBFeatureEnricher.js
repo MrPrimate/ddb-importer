@@ -1,4 +1,5 @@
 import { effectModules, generateATLChange, generateCustomChange, generateDowngradeChange, generateOverrideChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
@@ -1548,6 +1549,29 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       targetType: "self",
       name: "Falcon",
       activationType: "special",
+    },
+    "Psionic Power": () => {
+      console.warn("Psionic Power: Recovery", { this: this });
+      if (this.ddbParser.subKlass === "Soulknife") {
+        return {
+          name: "Psi-Bolstered Knack",
+          type: "utility",
+          addItemConsume: true,
+          data: {
+            roll: {
+              prompt: false,
+              visible: false,
+              formula: "@scale.soulknife.energy-die.die",
+              name: "Roll Additional Bonus",
+            },
+          },
+        };
+      } else {
+        return {
+          // TODO: Psi Warrior
+        };
+      }
+
     },
     "Psionic Power: Recovery": {
       data: {
@@ -4149,6 +4173,35 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           },
         },
       };
+    },
+    "Psionic Power": () => {
+      const spent = this.ddbParser.subKlass === "Soulknife"
+        ? this.ddbParser?.ddbData?.character.actions.class.find((a) =>
+          a.name === "Psionic Power: Psionic Energy Dice"
+          && DDBHelper.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === "Soulknife",
+        )?.limitedUse?.numberUsed ?? 0
+        : this.ddbParser?.ddbData?.character.actions.class.find((a) =>
+          a.name === "Psionic Power: Psionic Energy Dice"
+          && DDBHelper.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === "Psi Warrior",
+        )?.limitedUse?.numberUsed ?? 0;
+
+      const recovery = [
+        { period: "lr", type: 'recoverAll', formula: undefined },
+      ];
+      if (!this.is2014) {
+        recovery.push({ period: "sr", type: 'formula', formula: "1" });
+      }
+
+      return {
+        data: {
+          "system.uses": {
+            spent,
+            max: this.is2014 ? "@prof * 2" : "@scale.soulknife.energy-die.number",
+            recovery,
+          },
+        },
+      };
+
     },
     "Rage": () => {
       return {
