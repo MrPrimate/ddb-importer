@@ -6396,14 +6396,14 @@
     "class_feature": "Psychic Blades",
     "class": "Bard",
     "subclass": "College of Whispers",
-    "path": "icons/skills/melee/strike-sword-blood-red.webp"
+    "path": "icons/skills/melee/blade-tips-double-blue.webp"
   },
   {
     "name": "Psychic Blades",
     "class_feature": "Psychic Blades",
     "class": "Rogue",
     "subclass": "Soulknife",
-    "path": "icons/skills/melee/weapons-crossed-swords-white-blue.webp"
+    "path": "icons/skills/melee/blade-tips-double-blue.webp"
   },
   {
     "name": "Psychic Defenses",
@@ -7152,7 +7152,7 @@
     "class_feature": "Soul Blades",
     "class": "Rogue",
     "subclass": "Soulknife",
-    "path": "icons/skills/melee/weapons-crossed-swords-purple.webp"
+    "path": "icons/skills/melee/weapons-crossed-swords-teal.webp"
   },
   {
     "name": "Soul of Artifice",
