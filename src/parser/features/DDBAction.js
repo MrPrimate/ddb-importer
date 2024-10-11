@@ -70,6 +70,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Superiority Dice",
     "Blink Steps",
     "Second Wind: Tactical Shift",
+    "Stonecunning (Tremorsense)",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

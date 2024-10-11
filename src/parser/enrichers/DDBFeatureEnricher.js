@@ -1932,6 +1932,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         healing: DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 10, types: ["temphp"] }),
       },
     },
+    "Stonecunning": {
+      name: "Activate Tremorsense",
+      type: "utility",
+      targetType: "self",
+      data: {
+        duration: {
+          value: "10",
+          units: "minute",
+        },
+      },
+    },
     "Stone's Endurance": {
       type: "utility",
       activationType: "reaction",
@@ -4225,6 +4236,19 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Stonecunning": () => {
+      const spent = this.ddbParser?.ddbData?.character.actions.race.find((a) =>
+        a.name === "Stonecunning (Tremorsense)",
+      )?.limitedUse?.numberUsed ?? 0;
+      return {
+        data: {
+          "system.uses": {
+            spent,
+            max: "@prof",
+          },
+        },
+      };
+    },
     "Summon Wildfire Spirit: Command": {
       data: {
         "system.uses": {
@@ -5146,6 +5170,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         description: "Disadvantage on attack rolls against creatures other than caster until the start of the casters next turn",
       },
       name: "Taunted",
+    },
+    "Stonecunning": {
+      name: "Stonecunning: Tremorsense",
+      options: {
+        durationSeconds: 600,
+      },
+      changes: [
+        generateUnsignedAddChange("60", 20, "system.attributes.senses.tremorsense"),
+      ],
     },
     "Stormborn": {
       changes: [
