@@ -1,3 +1,7 @@
+# Next Up
+
+- Luck and Stonecunning features.
+
 # 6.0.19
 
 - Sea Druid and Moon Druid fixes.
