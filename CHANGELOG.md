@@ -1,3 +1,8 @@
+# 5.2.38
+
+- Fix for some helpers breaking formatting on non DDB Journals.
+- Improvements to Sync back to DDB in certain use cases.
+
 # 5.2.37
 
 - Backport changes for monster import breaking for some Vision 5e setups.
