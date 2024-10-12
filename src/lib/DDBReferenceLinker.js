@@ -40,7 +40,8 @@ const RULE_ADJUSTMENT = {
 const SUPER_LOOSE = [
   "rules",
   "actions",
-  "areaTargetType",
+  "areaTargetTypes",
+  "creatureTypes",
 ];
 
 

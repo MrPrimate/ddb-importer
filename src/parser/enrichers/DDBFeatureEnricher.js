@@ -1,8 +1,7 @@
 import { effectModules, generateATLChange, generateCustomChange, generateDowngradeChange, generateOverrideChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
-import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
-import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
+import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -1478,17 +1477,19 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "none",
     },
     "Natural Recovery": () => {
-      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Natural Recovery: Cast Circle Spell")?.limitedUse?.numberUsed ?? null;
+      const uses = this._getUsesWithSpent({
+        type: "class",
+        name: "Natural Recovery: Cast Circle Spell",
+        max: "1",
+        period: "1r",
+      });
+
       return {
         type: "utility",
         name: "Cast Circle Spell",
         addActivityConsume: true,
         data: {
-          uses: {
-            spent,
-            max: 1,
-            recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
-          },
+          uses,
         },
       };
     },
@@ -1551,7 +1552,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       activationType: "special",
     },
     "Psionic Power": () => {
-      console.warn("Psionic Power: Recovery", { this: this });
       if (this.ddbParser.subKlass === "Soulknife") {
         return {
           name: "Psi-Bolstered Knack",
@@ -1561,7 +1561,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             roll: {
               prompt: false,
               visible: false,
-              formula: "@scale.soulknife.energy-die.die",
+              formula: "1(@scale.soulknife.energy-die.die)",
               name: "Roll Additional Bonus",
             },
           },
@@ -1573,26 +1573,31 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       }
 
     },
-    "Psionic Power: Recovery": {
-      data: {
-        "consumption.targets": [{
-          type: "itemUses",
-          target: "", // adjusted later
-          value: "-1",
-        }],
-      },
+    "Psionic Power: Recovery": () => {
+      return {
+        name: "Recovery",
+        addActivityConsume: true,
+        addItemConsume: true,
+        itemConsumeValue: "-1",
+        data: {
+          uses: this._getUsesWithSpent({ type: "class", name: "Psionic Power: Recovery", max: 1, period: "lr" }),
+        },
+      };
     },
     "Psionic Power: Psi-Bolstered Knack": {
       data: {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.soulknife.psionic-power",
+          formula: "@scale.soulknife.energy-die.die",
           name: "Roll Additional Bonus",
         },
       },
     },
     "Psionic Power: Psychic Whispers": {
+      name: "Psychic Whispers",
+      addItemConsume: true,
+      addSingleFreeUse: true,
       data: {
         target: {
           affects: {
@@ -1605,7 +1610,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.soulknife.psionic-power",
+          formula: "@scale.soulknife.energy-die.die",
           name: "Hours active roll",
         },
       },
@@ -1767,6 +1772,23 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Rend Mind": () => {
+      if (this.is2014) {
+        return {
+          addItemConsume: true,
+        };
+      } else {
+        return {
+          addItemConsume: true,
+          data: {
+            save: {
+              dc: { formula: "", calculation: "dex" },
+              ability: "wis",
+            },
+          },
+        };
+      }
+    },
     "Retaliation": {
       type: "utility",
       activationType: "reaction",
@@ -1901,17 +1923,19 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "Soul Blades: Homing Strikes": {
+      name: "Homing Strikes",
       data: {
         img: "systems/dnd5e/icons/svg/damage/force.svg",
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.soulknife.psionic-power",
+          formula: "@scale.soulknife.energy-die.die",
           name: "Roll Attack Bonus",
         },
       },
     },
     "Soul Blades: Psychic Teleportation": {
+      name: "Psychic Teleportation",
       data: {
         img: "systems/dnd5e/icons/svg/trait-saves.svg",
       },
@@ -2307,7 +2331,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
 
   ADDITIONAL_ACTIVITIES = {
     "Archdruid": () => {
-      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Nature Magician")?.limitedUse?.numberUsed ?? null;
       return [
         {
           constructor: {
@@ -2322,11 +2345,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             activationOverride: {
               units: "",
             },
-            usesOverride: {
-              spent,
-              max: "1",
-              recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
-            },
+            usesOverride: this._getUsesWithSpent({ type: "class", name: "Nature Magician", max: 1, period: "lr" }),
             consumptionOverride: {
               targets: [
                 {
@@ -3134,7 +3153,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     ],
     "Natural Recovery": () => {
-      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Natural Recovery: Recover Spell Slots")?.limitedUse?.numberUsed ?? null;
       return [
         {
           constructor: {
@@ -3147,11 +3165,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             generateTarget: true,
             generateUses: true,
             generateDDBMacro: true,
-            usesOverride: {
-              spent,
-              max: "1",
-              recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
-            },
+            usesOverride: this._getUsesWithSpent({ type: "class", name: "Natural Recovery: Recover Spell Slots", max: 1, period: "lr" }),
             targetOverride: {
               affects: {
                 type: "self",
@@ -3347,6 +3361,24 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Psionic Power": () => {
+      if (this.ddbParser.subKlass === "Soulknife") {
+        const results = [
+          { action: { name: "Psionic Power: Psychic Whispers", type: "class" } },
+        ];
+        if (this.is2014) {
+          results.push({
+            action: { name: "Psionic Power: Recovery", type: "class" },
+          });
+        }
+        return results;
+      } else {
+        // handle Psi Warrior
+        return [];
+      }
+
+      // { name, type, isAttack = null }
+    },
     "Psychic Blades: Attack": [
       {
         constructor: {
@@ -3397,6 +3429,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    // "Rend Mind": () => {
+    //   return this.is2014
+    //     ? [
+
+    //     ]
+    //     : [
+    //       { action: { name: "Psychic Blades: Rend Mind", type: "class" } },
+    //     ];
+    // },
     "Shielding Storm": [
       {
         constructor: {
@@ -3508,6 +3549,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Soul Blades": () => {
+      return this.is2014
+        ? [
+          { action: { name: "Soul Blades: Homing Strikes", type: "class" } },
+          { action: { name: "Soul Blades: Psychic Teleportation", type: "class" } },
+        ]
+        : [
+          { action: { name: "Psychic Blades: Homing Strikes", type: "class" } },
+          { action: { name: "Psychic Teleportation", type: "class" } },
+        ];
+    },
     "The Third Eye": [
       {
         constructor: {
@@ -3832,9 +3884,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     ],
     "Wild Resurgence": () => {
-      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) =>
-        a.name === "Wild Resurgence: Regain Spell Slot",
-      )?.limitedUse?.numberUsed ?? 0;
+      const uses = this._getUsesWithSpent({
+        type: "class",
+        name: "Wild Resurgence: Regain Spell Slot",
+        max: 1,
+        period: "lr",
+        override: true,
+      });
       return [
         {
           constructor: {
@@ -3875,7 +3931,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
                 type: "self",
               },
             },
-            usesOverride: { max: 1, spent, recovery: [{ period: "lr", type: "recoverAll" }] },
+            usesOverride: uses,
           },
         },
       ];
@@ -3938,15 +3994,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       descriptionSuffix: `<br><p>[[/ddbifunc functionName="innerRadiance" functionType="feat"]]{Toggle Inner Radiance Light}</div></p>`,
     },
     "Combat Superiority": () => {
-      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) =>
-        a.name === "Superiority Dice",
-      )?.limitedUse?.numberUsed ?? 0;
+      const uses = this._getUsesWithSpent({
+        type: "class",
+        name: "Superiority Dice",
+        max: "@scale.battle-master.combat-superiority-uses",
+        period: "lr",
+      });
       return {
         data: {
-          "system.uses": {
-            spent,
-            max: "@scale.battle-master.combat-superiority-uses",
-          },
+          "system.uses": uses,
         },
       };
     },
@@ -4090,16 +4146,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "Lucky": () => {
-      const spent = this.ddbParser?.ddbData?.character.actions.feat.find((a) =>
-        a.name === "Luck Points",
-      )?.limitedUse?.numberUsed ?? null;
+      const uses = this._getUsesWithSpent({
+        type: "feat",
+        name: "Luck Points",
+        max: this.is2014 ? 3 : "@prof",
+        period: "lr",
+      });
       return {
         data: {
-          "system.uses": {
-            spent,
-            max: this.is2014 ? 3 : "@prof",
-            recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
-          },
+          "system.uses": uses,
         },
       };
     },
@@ -4175,16 +4230,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       };
     },
     "Psionic Power": () => {
-      // TODO: this doesn't work
       const spent = this.ddbParser.subKlass === "Soulknife"
-        ? this.ddbParser?.ddbData?.character.actions.class.find((a) =>
-          a.name === "Psionic Power: Psionic Energy Dice"
-          && DDBHelper.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === "Soulknife",
-        )?.limitedUse?.numberUsed ?? 0
-        : this.ddbParser?.ddbData?.character.actions.class.find((a) =>
-          a.name === "Psionic Power: Psionic Energy Dice"
-          && DDBHelper.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === "Psi Warrior",
-        )?.limitedUse?.numberUsed ?? 0;
+        ? this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Soulknife")
+        : this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Psi Warrior");
 
       const recovery = [
         { period: "lr", type: 'recoverAll', formula: undefined },
@@ -4192,12 +4240,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       if (!this.is2014) {
         recovery.push({ period: "sr", type: 'formula', formula: "1" });
       }
+      const subclass = this.ddbParser.subKlass === "Soulknife"
+        ? "soulknife"
+        : "psi-warrior";
 
       return {
         data: {
           "system.uses": {
             spent,
-            max: this.is2014 ? "@prof * 2" : "@scale.soulknife.energy-die.number",
+            max: this.is2014 ? "@prof * 2" : `@scale.${subclass}.energy-die.number`,
             recovery,
           },
         },
@@ -4252,6 +4303,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Rend Mind": () => {
+      const uses = this._getUsesWithSpent({
+        type: "class",
+        name: "Psychic Blades: Rend Mind",
+        max: "1",
+        period: "lr",
+      });
+
+      return {
+        data: {
+          "system.uses": uses,
+        },
+      };
+    },
     "Sear Undead": {
       data: {
         "system.type.subtype": "channelDivinity",
@@ -4259,42 +4324,47 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Shifting": {
       data: {
-        "system.uses": {
-          spent: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Shift")?.limitedUse?.numberUsed ?? null,
+        "system.uses": this._getUsesWithSpent({
+          type: "race",
+          name: "Shift",
           max: "@prof",
-        },
+        }),
       },
     },
     "Shifting: Beasthide": {
       data: {
-        "system.uses": {
-          spent: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Shift")?.limitedUse?.numberUsed ?? null,
+        "system.uses": this._getUsesWithSpent({
+          type: "race",
+          name: "Shift",
           max: "@prof",
-        },
+        }),
       },
     },
     "Shifting: Longtooth": {
       data: {
-        "system.uses": {
-          spent: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Shift")?.limitedUse?.numberUsed ?? null,
+        "system.uses": this._getUsesWithSpent({
+          type: "race",
+          name: "Shift",
           max: "@prof",
-        },
+        }),
       },
     },
     "Shifting: Swiftstride": {
       data: {
-        "system.uses": {
-          spent: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Shift")?.limitedUse?.numberUsed ?? null,
+        "system.uses": this._getUsesWithSpent({
+          type: "race",
+          name: "Shift",
           max: "@prof",
-        },
+        }),
       },
     },
     "Shifting: Wildhunt": {
       data: {
-        "system.uses": {
-          spent: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Shift")?.limitedUse?.numberUsed ?? null,
+        "system.uses": this._getUsesWithSpent({
+          type: "race",
+          name: "Shift",
           max: "@prof",
-        },
+        }),
       },
     },
     "Starry Form": {
@@ -4312,16 +4382,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "Stonecunning": () => {
-      const spent = this.ddbParser?.ddbData?.character.actions.race.find((a) =>
-        a.name === "Stonecunning (Tremorsense)",
-      )?.limitedUse?.numberUsed ?? 0;
+      const uses = this._getUsesWithSpent({
+        type: "race",
+        name: "Stonecunning (Tremorsense)",
+        max: "@prof",
+        period: "lr",
+      });
       return {
         data: {
-          "system.uses": {
-            spent,
-            max: "@prof",
-            recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
-          },
+          "system.uses": uses,
         },
       };
     },
@@ -4341,16 +4410,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "Unbreakable Majesty": () => {
-      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) =>
-        a.name === "Assume Unbreakable Majesty",
-      )?.limitedUse?.numberUsed ?? 0;
+      const uses = this._getUsesWithSpent({
+        type: "class",
+        name: "Assume Unbreakable Majesty",
+        max: "1",
+        period: "sr",
+      });
       return {
         data: {
-          "system.uses": {
-            spent,
-            max: "1",
-            recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
-          },
+          "system.uses": uses,
         },
       };
     },
@@ -4366,16 +4434,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "War Priest": () => {
-      const spent = this.ddbParser?.ddbData?.character.actions.class.find((a) =>
-        a.name === "War Priest: Bonus Attack",
-      )?.limitedUse?.numberUsed ?? 0;
+      const uses = this._getUsesWithSpent({
+        type: "class",
+        name: "War Priest: Bonus Attack",
+        max: "max(1, @abilities.wis.mod)",
+        period: "sr",
+      });
+
       return {
         data: {
-          "system.uses": {
-            spent,
-            max: "max(1, @abilities.wis.mod)",
-            recovery: [{ period: "sr", type: "recoverAll" }],
-          },
+          "system.uses": uses,
         },
       };
     },

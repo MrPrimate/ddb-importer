@@ -18,7 +18,8 @@ export default class DDBClassFeatures {
     "Rage",
   ];
 
-  constructor({ ddbData, rawCharacter = null } = {}) {
+  constructor({ ddbData, rawCharacter = null, ddbCharacter = null } = {}) {
+    this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.data = [];
@@ -35,17 +36,18 @@ export default class DDBClassFeatures {
       .map((f) => f.affectedClassFeatureId);
   }
 
-  async _getFeatures(featureDefinition, type, source, filterByLevel = true, flags = {}) {
+  async _getFeatures({ featureDefinition, type, source, filterByLevel = true, flags = {} } = {}) {
     const enricher = new DDBFeatureEnricher();
     await enricher.init();
     const feature = new DDBFeature({
+      ddbCharacter: this.ddbCharacter,
       ddbData: this.ddbData,
       ddbDefinition: featureDefinition,
       rawCharacter: this.rawCharacter,
       type,
       source,
       extraFlags: flags,
-      enricher: new DDBFeatureEnricher(),
+      enricher,
     });
     feature.build();
     const allowedByLevel = !filterByLevel || (filterByLevel && feature.hasRequiredLevel);
@@ -96,12 +98,17 @@ export default class DDBClassFeatures {
     const classFeatureList = (await Promise.all(classFeatures
       .filter((feat) => !this.excludedFeatures.includes(feat.definition.id))
       .map(async (feat) => {
-        let items = await this._getFeatures(feat, "class", className, {
-          "ddbimporter": {
-            class: klass.definition.name,
-            classId: klass.definition.id,
+        let items = await this._getFeatures({
+          featureDefinition: feat,
+          type: "class",
+          source: className,
+          flags: {
+            "ddbimporter": {
+              class: klass.definition.name,
+              classId: klass.definition.id,
+            },
+            "flags.obsidian.source.text": className,
           },
-          "flags.obsidian.source.text": className,
         });
         this.featureList.class.push(...foundry.utils.duplicate(items));
         return items;
@@ -160,14 +167,19 @@ export default class DDBClassFeatures {
     const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
     const subClassFeatureList = (await Promise.all(subClassFeatures
       .map(async (feat) => {
-        let items = await this._getFeatures(feat, "class", subClassName, {
-          "ddbimporter": {
-            class: klass.definition.name,
-            classId: klass.definition.id,
-            subClass: subClass?.name,
-            subClassId: subClass?.id,
+        let items = await this._getFeatures({
+          featureDefinition: feat,
+          type: "class",
+          source: subClassName,
+          flags: {
+            "ddbimporter": {
+              class: klass.definition.name,
+              classId: klass.definition.id,
+              subClass: subClass?.name,
+              subClassId: subClass?.id,
+            },
+            "flags.obsidian.source.text": className,
           },
-          "flags.obsidian.source.text": className,
         });
         this.featureList.subClass.push(...foundry.utils.duplicate(items));
         return items;

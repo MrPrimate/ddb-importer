@@ -4,6 +4,7 @@ import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, 
 import { baseFeatEffect } from "../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../effects/specialSpells.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 
@@ -171,30 +172,29 @@ export default class DDBBaseEnricher {
       foundry.utils.setProperty(activity, "consumption.targets", []);
     }
     if (activityHint.addItemConsume) {
-      foundry.utils.setProperty(activity, "consumption.targets", [
-        {
-          type: "itemUses",
-          target: "",
-          value: activityHint.itemConsumeValue ?? "1",
-          scaling: {
-            mode: activityHint.addScalingMode ?? "",
-            formula: activityHint.addScalingFormula ?? "",
-          },
+      foundry.utils.setProperty(activity, "consumption.targets", []);
+      activity.consumption.targets.push({
+        type: "itemUses",
+        target: "",
+        value: activityHint.itemConsumeValue ?? "1",
+        scaling: {
+          mode: activityHint.addScalingMode ?? "",
+          formula: activityHint.addScalingFormula ?? "",
         },
-      ]);
+      });
     }
     if (activityHint.addActivityConsume) {
-      foundry.utils.setProperty(activity, "consumption.targets", [
-        {
-          type: "activityUses",
-          target: "",
-          value: activityHint.itemConsumeValue ?? "1",
-          scaling: {
-            mode: activityHint.addScalingMode ?? "",
-            formula: activityHint.addScalingFormula ?? "",
-          },
+      if (!foundry.utils.getProperty(activity, "consumption.targets"))
+        foundry.utils.setProperty(activity, "consumption.targets", []);
+      activity.consumption.targets.push({
+        type: "activityUses",
+        target: "",
+        value: activityHint.activityConsumeValue ?? "1",
+        scaling: {
+          mode: activityHint.addActivityScalingMode ?? "",
+          formula: activityHint.addActivityScalingFormula ?? "",
         },
-      ]);
+      });
     }
 
     if (activityHint.additionalConsumptionTargets) {
@@ -474,6 +474,47 @@ export default class DDBBaseEnricher {
     return this.data;
   }
 
+  _buildAdditionalActivityFromDDBParent(activityHint, i, ddbParent) {
+    const activationData = foundry.utils.mergeObject({
+      nameIdPrefix: "add",
+      nameIdPostfix: `${i}`,
+    }, activityHint.constructor);
+    activationData.ddbParent = ddbParent;
+    const activity = new this.additionalActivityClass(activationData);
+    activity.build(activityHint.build);
+
+    return {
+      activities: {
+        [activity.data._id]: activity.data,
+      },
+      effects: [],
+    };
+  }
+
+  _buildActivitiesFromAction({ name, type, isAttack = null }) {
+    if (!this.ddbParser?.ddbData) return null;
+    const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type });
+    if (actions.length === 0) return null;
+    const actionFeatures = actions.map((action) => {
+      return this.ddbParser.ddbCharacter._characterFeatureFactory.getFeatureFromAction({
+        action,
+        isAttack,
+      });
+    });
+    const activities = {};
+    const effects = [];
+    actionFeatures.forEach((feature) => {
+      for (const activityKey of (Object.keys(feature.system.activities))) {
+        activities[activityKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
+      }
+      effects.push(...(foundry.utils.deepClone(feature.effects)));
+    });
+    return {
+      activities,
+      effects,
+    };
+  }
+
   addAdditionalActivities(ddbParent) {
     if (!this.additionalActivities || !this.additionalActivityClass) return;
 
@@ -483,46 +524,78 @@ export default class DDBBaseEnricher {
 
     let i = this.data.system.activities.length ?? 0 + 1;
     for (const activityHint of additionalActivities) {
-      const activationData = foundry.utils.mergeObject({
-        nameIdPrefix: "add",
-        nameIdPostfix: `${i}`,
-      }, activityHint.constructor);
-      activationData.ddbParent = ddbParent;
-      const activity = new this.additionalActivityClass(activationData);
-      activity.build(activityHint.build);
+      const actionActivity = foundry.utils.getProperty(activityHint, "action");
+      const activityData = actionActivity
+        ? this._buildActivitiesFromAction(actionActivity)
+        : this._buildAdditionalActivityFromDDBParent(activityHint, i, ddbParent);
 
-      if (activityHint.overrides?.addActivityConsume) {
-        foundry.utils.setProperty(activity.data, "consumption.targets", [
-          {
-            type: "activityUses",
-            target: "",
-            value: "1",
-            scaling: {
-              mode: "",
-              formula: "",
+      console.warn("Activities", activityData);
+      for (const activity of Object.values(activityData.activities)) {
+        console.warn("Activity", activity);
+
+        if (activityHint.overrides?.addItemConsume) {
+          foundry.utils.setProperty(activity, "consumption.targets", [
+            {
+              type: "itemUses",
+              target: "",
+              value: "1",
+              scaling: {
+                mode: "",
+                formula: "",
+              },
             },
-          },
-        ]);
-      }
+          ]);
+        }
 
-      if (activityHint.overrides?.addActivityConsume) {
-        foundry.utils.setProperty(activity.data, "consumption.targets", [
-          {
-            type: "activityUses",
-            target: "",
-            value: "1",
-            scaling: {
-              mode: "",
-              formula: "",
+        if (activityHint.overrides?.addActivityConsume) {
+          foundry.utils.setProperty(activity, "consumption.targets", [
+            {
+              type: "activityUses",
+              target: "",
+              value: "1",
+              scaling: {
+                mode: "",
+                formula: "",
+              },
             },
-          },
-        ]);
-      }
+          ]);
+        }
 
-      this.data.system.activities[activity.data._id] = activity.data;
-      i++;
+        this.data.system.activities[activity._id] = activity;
+        i++;
+      }
+      if (activityData.effects) {
+        this.data.effects.push(...activityData.effects);
+      }
     }
   }
 
+  _getSpentValue(type, name, matchSubClass = null) {
+    const spent = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
+      a.name === name
+    && (matchSubClass === null
+      || DDBHelper.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
+    )?.limitedUse?.numberUsed ?? null;
+    return spent;
+  }
+
+  _getUsesWithSpent({ type, name, max, period = "", formula = null, override = null, matchSubClass = null } = {}) {
+    const uses = {
+      spent: this._getSpentValue(type, name, matchSubClass),
+      max,
+    };
+
+    if (formula) {
+      uses.recovery = [{ period, type: "formula", formula }];
+    } else if (period != "") {
+      uses.recovery = [{ period, type: 'recoverAll', formula: undefined }];
+    }
+
+    if (override) {
+      uses.override = true;
+    }
+
+    return uses;
+  }
 
 }

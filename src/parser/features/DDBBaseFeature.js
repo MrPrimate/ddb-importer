@@ -197,8 +197,9 @@ export default class DDBBaseFeature {
 
   constructor({
     ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false, activityType = null,
-    extraFlags = {}, enricher = null,
+    extraFlags = {}, enricher = null, ddbCharacter = null,
   } = {}) {
+    this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbFeature = ddbDefinition;
@@ -228,6 +229,9 @@ export default class DDBBaseFeature {
     this.description = "";
     this.resourceCharges = null;
     this.activityType = activityType;
+
+    this.klass = this.extraFlags.ddbimporter?.class;
+    this.subKlass = this.extraFlags.ddbimporter?.subClass;
 
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
 
@@ -1150,6 +1154,29 @@ export default class DDBBaseFeature {
 
     this.enricher.applyActivityOverride(activity.data);
     this.activities.push(activity);
+    if (this.enricher.activity?.addSingleFreeUse) {
+      const singleActivity = foundry.utils.deepClone(activity.data);
+      singleActivity.name = `${singleActivity.name} (Free use)`;
+      singleActivity._id = `${singleActivity._id.slice(0, -3)}fre`;
+      foundry.utils.setProperty(singleActivity, "consumption.targets", [
+        {
+          type: "activityUses",
+          target: "",
+          value: "1",
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        },
+      ]);
+      foundry.utils.setProperty(singleActivity, "uses", {
+        override: true,
+        max: "1",
+        spent: 0,
+        recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+      });
+      foundry.utils.setProperty(this.data, `system.activities.${singleActivity._id}`, singleActivity);
+    }
     foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
 
     return activity.data._id;

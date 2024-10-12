@@ -28,6 +28,9 @@ export default class DDBClass {
     },
   };
 
+  static NOT_ADVANCEMENT = [
+  ];
+
   static PROFICIENCY_FEATURES = [
     "Core Barbarian Traits",
     "Core Bard Traits",
@@ -432,6 +435,7 @@ export default class DDBClass {
     });
 
     this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
+    this.NOT_ADVANCEMENT = DDBClass.NOT_ADVANCEMENT;
 
     this.isStartingClass = this.ddbClass.isStartingClass;
 
@@ -659,6 +663,7 @@ export default class DDBClass {
     let specialFeatures = [];
     const advancements = this.classFeatures
       .filter((feature) => feature.levelScales?.length > 0)
+      .filter((feature) => !this.NOT_ADVANCEMENT.includes(feature.name))
       .map((feature) => {
         let advancement = AdvancementHelper.generateScaleValueAdvancement(feature);
         const specialLookup = this.SPECIAL_ADVANCEMENTS[advancement.title];
@@ -1249,15 +1254,9 @@ export default class DDBClass {
         if (advancement.title !== "Wild Shape CR") continue;
         advancement.configuration.type = "cr";
         advancement.configuration.scale = {
-          2: {
-            value: 0.25,
-          },
-          4: {
-            value: 0.5,
-          },
-          8: {
-            value: 1,
-          },
+          2: { value: 0.25 },
+          4: { value: 0.5 },
+          8: { value: 1 },
         };
       };
       if (this.is2014) {
@@ -1269,12 +1268,8 @@ export default class DDBClass {
             identifier: "wild-shape-uses",
             type: "number",
             scale: {
-              2: {
-                value: 2,
-              },
-              20: {
-                value: 99,
-              },
+              2: { value: 2 },
+              20: { value: 99 },
             },
           },
           value: {},
@@ -1291,15 +1286,9 @@ export default class DDBClass {
             identifier: "wild-shape-uses",
             type: "number",
             scale: {
-              2: {
-                value: 2,
-              },
-              6: {
-                value: 3,
-              },
-              17: {
-                value: 4,
-              },
+              2: { value: 2 },
+              6: { value: 3 },
+              17: { value: 4 },
             },
           },
           value: {},
@@ -1315,14 +1304,8 @@ export default class DDBClass {
             identifier: "elemental-fury",
             type: "dice",
             scale: {
-              7: {
-                number: 1,
-                faces: 8,
-              },
-              18: {
-                number: 2,
-                faces: 8,
-              },
+              7: { number: 1, faces: 8 },
+              18: { number: 2, faces: 8 },
             },
           },
           value: {},
@@ -1338,15 +1321,9 @@ export default class DDBClass {
             identifier: "known-forms",
             type: "number",
             scale: {
-              2: {
-                value: 4,
-              },
-              4: {
-                value: 6,
-              },
-              8: {
-                value: 8,
-              },
+              2: { value: 4 },
+              4: { value: 6 },
+              8: { value: 8 },
             },
           },
           value: {},
@@ -1384,12 +1361,8 @@ export default class DDBClass {
           identifier: "cunning-strike-uses",
           type: "number",
           scale: {
-            5: {
-              value: 1,
-            },
-            11: {
-              value: 2,
-            },
+            5: { value: 1 },
+            11: { value: 2 },
           },
         },
         value: {},
@@ -1397,6 +1370,30 @@ export default class DDBClass {
         icon: null,
       };
       this.data.system.advancement.push(cunningStrike);
+      const sneakAttack = {
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "sneak-attack",
+          type: "dice",
+          scale: {
+            1: { number: 1, faces: 6 },
+            3: { number: 2, faces: 6 },
+            5: { number: 3, faces: 6 },
+            7: { number: 4, faces: 6 },
+            9: { number: 5, faces: 6 },
+            11: { number: 6, faces: 6 },
+            13: { number: 7, faces: 6 },
+            15: { number: 8, faces: 6 },
+            17: { number: 9, faces: 6 },
+            19: { number: 10, faces: 6 },
+          },
+        },
+        value: {},
+        title: "Sneak Attack",
+        icon: null,
+      };
+      this.data.system.advancement.push(sneakAttack);
     } else if (this.data.name === "Barbarian" && !this.is2014) {
       const damage = {
         _id: foundry.utils.randomID(),
@@ -1406,15 +1403,9 @@ export default class DDBClass {
           identifier: "rage-damage",
           type: "number",
           scale: {
-            1: {
-              value: 2,
-            },
-            9: {
-              value: 3,
-            },
-            16: {
-              value: 4,
-            },
+            1: { value: 2 },
+            9: { value: 3 },
+            16: { value: 4 },
           },
         },
         value: {},

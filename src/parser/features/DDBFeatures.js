@@ -113,6 +113,7 @@ export default class DDBFeatures {
   async getFeaturesFromDefinition(featDefinition, type) {
     const source = DDBHelper.parseSource(featDefinition);
     const ddbFeature = new DDBFeature({
+      ddbCharacter: this.ddbCharacter,
       ddbData: this.ddbData,
       ddbDefinition: featDefinition,
       rawCharacter: this.rawCharacter,
@@ -191,6 +192,7 @@ export default class DDBFeatures {
   async _buildClassFeatures() {
     logger.debug("Parsing class and subclass features");
     this._ddbClassFeatures = new DDBClassFeatures({
+      ddbCharacter: this.ddbCharacter,
       ddbData: this.ddbData,
       rawCharacter: this.rawCharacter,
     });

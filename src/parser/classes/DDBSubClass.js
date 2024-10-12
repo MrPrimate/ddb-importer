@@ -34,6 +34,10 @@ export default class DDBSubClass extends DDBClass {
     },
   };
 
+  static NOT_ADVANCEMENT = [
+    "Soul Blades",
+  ];
+
   _fleshOutCommonDataStub() {
     super._fleshOutCommonDataStub();
     // add parent class identifier
@@ -73,6 +77,7 @@ export default class DDBSubClass extends DDBClass {
     this.ddbClassDefinition = this.ddbClass.subclassDefinition;
     this._isSubClass = true;
     this.SPECIAL_ADVANCEMENTS = DDBSubClass.SPECIAL_ADVANCEMENTS;
+    this.NOT_ADVANCEMENT = DDBSubClass.NOT_ADVANCEMENT;
   }
 
 
@@ -87,12 +92,8 @@ export default class DDBSubClass extends DDBClass {
           identifier: `pact-slots`,
           type: "number",
           scale: {
-            3: {
-              value: 1,
-            },
-            6: {
-              value: 2,
-            },
+            3: { value: 1 },
+            6: { value: 2 },
           },
         },
         value: {},
@@ -108,15 +109,9 @@ export default class DDBSubClass extends DDBClass {
           identifier: `pact-level`,
           type: "number",
           scale: {
-            3: {
-              value: 1,
-            },
-            7: {
-              value: 2,
-            },
-            13: {
-              value: 3,
-            },
+            3: { value: 1 },
+            7: { value: 2 },
+            13: { value: 3 },
           },
         },
         value: {},
@@ -134,21 +129,11 @@ export default class DDBSubClass extends DDBClass {
           identifier: `storm-aura-desert`,
           type: "number",
           scale: {
-            3: {
-              value: 2,
-            },
-            5: {
-              value: 3,
-            },
-            10: {
-              value: 4,
-            },
-            15: {
-              value: 5,
-            },
-            20: {
-              value: 6,
-            },
+            3: { value: 2 },
+            5: { value: 3 },
+            10: { value: 4 },
+            15: { value: 5 },
+            20: { value: 6 },
           },
         },
         value: {},
@@ -164,22 +149,10 @@ export default class DDBSubClass extends DDBClass {
           identifier: `storm-aura-sea`,
           type: "dice",
           scale: {
-            3: {
-              number: 1,
-              faces: 6,
-            },
-            10: {
-              number: 2,
-              faces: 6,
-            },
-            15: {
-              number: 3,
-              faces: 6,
-            },
-            20: {
-              number: 4,
-              faces: 6,
-            },
+            3: { number: 1, faces: 6 },
+            10: { number: 2, faces: 6 },
+            15: { number: 3, faces: 6 },
+            20: { number: 4, faces: 6 },
           },
         },
         value: {},
@@ -195,21 +168,11 @@ export default class DDBSubClass extends DDBClass {
           identifier: `storm-aura-tundra`,
           type: "number",
           scale: {
-            3: {
-              value: 2,
-            },
-            5: {
-              value: 3,
-            },
-            10: {
-              value: 4,
-            },
-            15: {
-              value: 5,
-            },
-            20: {
-              value: 6,
-            },
+            3: { value: 2 },
+            5: { value: 3 },
+            10: { value: 4 },
+            15: { value: 5 },
+            20: { value: 6 },
           },
         },
         value: {},
@@ -227,21 +190,11 @@ export default class DDBSubClass extends DDBClass {
           identifier: `wild-shape-cr`,
           type: "cr",
           scale: {
-            6: {
-              value: 2,
-            },
-            9: {
-              value: 3,
-            },
-            12: {
-              value: 4,
-            },
-            15: {
-              value: 5,
-            },
-            18: {
-              value: 6,
-            },
+            6: { value: 2 },
+            9: { value: 3 },
+            12: { value: 4 },
+            15: { value: 5 },
+            18: { value: 6 },
           },
         },
         value: {},
@@ -267,18 +220,9 @@ export default class DDBSubClass extends DDBClass {
           identifier: `lands-aid`,
           type: "dice",
           scale: {
-            3: {
-              number: 2,
-              faces: 6,
-            },
-            10: {
-              number: 3,
-              faces: 6,
-            },
-            14: {
-              number: 4,
-              faces: 6,
-            },
+            3: { number: 2, faces: 6 },
+            10: { number: 3, faces: 6 },
+            14: { number: 4, faces: 6 },
           },
         },
         value: {},
@@ -286,18 +230,18 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
       this.data.system.advancement.push(aid);
-    } else if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soul Knife"))
+    } else if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soulknife"))
       && !this.is2014
     ) {
       for (let advancement of this.data.system.advancement) {
         if (advancement.title !== "Energy Die") continue;
         advancement.configuration.scale = foundry.utils.mergeObject(advancement.configuration.scale, {
-          3: { number: 4 },
-          5: { number: 6 },
-          9: { number: 8 },
-          11: { number: 8 },
+          3: { number: 4, faces: 6 },
+          5: { number: 6, faces: 8 },
+          9: { number: 8, faces: 8 },
+          11: { number: 8, faces: 10 },
           13: { number: 10, faces: 10 },
-          17: { number: 12 },
+          17: { number: 12, faces: 12 },
         });
       };
     }

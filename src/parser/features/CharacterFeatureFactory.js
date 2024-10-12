@@ -10,6 +10,38 @@ import DDBFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
 import utils from "../../lib/utils.js";
 
 export default class CharacterFeatureFactory {
+
+  getFeatureFromAction({ action, isAttack = null }) {
+    const isAttackAction = isAttack ?? DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
+    const ddbAction = isAttackAction
+      ? new DDBAttackAction({
+        ddbData: this.ddbData,
+        ddbDefinition: action,
+        rawCharacter: this.rawCharacter,
+        type: action.actionSource,
+      })
+      : new DDBAction({
+        ddbData: this.ddbData,
+        ddbDefinition: action,
+        rawCharacter: this.rawCharacter,
+      });
+    ddbAction.build();
+    return ddbAction.data;
+  }
+
+  getActions({ name, type }) {
+    const actions = this.ddbData.character.actions[type].filter((a) =>
+      utils.nameString(a.name) === name
+      && (!type === "class"
+        || this._highestLevelActionFeature(a, type)?.definition?.id === a.componentId
+      ),
+    ).map((a) => {
+      a.actionSource = type;
+      return a;
+    });
+    return actions;
+  }
+
   constructor(ddbCharacter) {
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbCharacter.source.ddb;
@@ -70,6 +102,7 @@ export default class CharacterFeatureFactory {
     const strikeMock = Object.assign(unarmedStrikeMock, overrides);
 
     const unarmedStrikeAction = new DDBAttackAction({
+      ddbCharacter: this.ddbCharacter,
       ddbData: this.ddbData,
       ddbDefinition: strikeMock,
       rawCharacter: this.rawCharacter,
@@ -106,8 +139,8 @@ export default class CharacterFeatureFactory {
     ]
       .flat()
       .filter((action) => action.name && action.name !== ""
-        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))
-        && !DDBAction.SKIPPED_ACTIONS.some((a) => utils.nameString(action.name) === a),
+        && !DDBAction.SKIPPED_ACTIONS.some((a) => utils.nameString(action.name) === a)
+        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a)),
       )
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter));
 
@@ -195,6 +228,7 @@ export default class CharacterFeatureFactory {
         logger.debug(`Getting Other Action ${action.name}`);
 
         const ddbAction = new DDBAction({
+          ddbCharacter: this.ddbCharacter,
           ddbData: this.ddbData,
           ddbDefinition: action,
           rawCharacter: this.rawCharacter,

@@ -907,6 +907,10 @@ const DICTIONARY = {
       "Trick Shots:", "Bullying Shot", "Deadeye Shot", "Disarming Shot", "Piercing Shot", "Rapid Repair",
       "Dazing Shot", "Forceful Shot", "Winging Shot", "Violent Shot",
     ],
+    "Psionic Power": [
+      "Soul Blades", "Psychic Blades: Psychic Teleportation", "Soul Blades: Psychic Teleportation",
+      "Psychic Teleportation",
+    ],
     "Psionic Power: Psionic Energy": [
       "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",
       "Psionic Power: Psi-Bolstered Knack", "Soul Blades: Homing Strikes", "Soul Blades: Psychic Teleportation",

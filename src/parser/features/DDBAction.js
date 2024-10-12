@@ -72,6 +72,16 @@ export default class DDBAction extends DDBBaseFeature {
     "Second Wind: Tactical Shift",
     "Stonecunning (Tremorsense)",
     "Luck Points",
+    "Psionic Power: Psi-Bolstered Knack",
+    "Psionic Power: Psychic Whispers",
+    "Psionic Power: Psionic Energy Dice",
+    "Psionic Power: Psionic Energy",
+    "Soul Blades: Homing Strikes",
+    "Soul Blades: Psychic Teleportation",
+    "Psychic Blades: Homing Strikes",
+    "Psychic Teleportation",
+    "Psionic Power: Recovery",
+    "Psychic Blades: Rend Mind",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
