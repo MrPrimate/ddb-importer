@@ -89,12 +89,14 @@ export default class DDBItem {
 
   ];
 
+  // eslint-disable-next-line complexity
   constructor({ characterManager, ddbItem, isCompendium = false, enricher = null } = {}) {
 
     this.characterManager = characterManager;
     this.ddbData = characterManager.source.ddb;
     this.ddbItem = ddbItem;
     this.ddbDefinition = ddbItem.definition;
+    if (!this.ddbDefinition.description && !this.ddbDefinition.snippet) this.ddbDefinition.description = "";
     this.raw = characterManager.raw;
     this.isCompendiumItem = isCompendium;
     foundry.utils.setProperty(this.ddbItem, "isCompendiumItem", isCompendium);
