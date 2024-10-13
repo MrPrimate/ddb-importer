@@ -1568,7 +1568,23 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         };
       } else {
         return {
-          // TODO: Psi Warrior
+          type: "utility",
+          name: "Protective Field",
+          activationType: "reaction",
+          targetType: "creature",
+          addItemConsume: true,
+          data: {
+            roll: {
+              prompt: false,
+              visible: false,
+              formula: "1(@scale.pse-warrior.energy-die.die)",
+              name: "Roll Protective Bonus",
+            },
+            range: {
+              units: "ft",
+              value: "30",
+            },
+          },
         };
       }
 
@@ -3362,22 +3378,28 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     ],
     "Psionic Power": () => {
+      const results = [];
       if (this.ddbParser.subKlass === "Soulknife") {
-        const results = [
+        results.push(
           { action: { name: "Psionic Power: Psychic Whispers", type: "class" } },
-        ];
-        if (this.is2014) {
-          results.push({
-            action: { name: "Psionic Power: Recovery", type: "class" },
-          });
-        }
-        return results;
+        );
       } else {
-        // handle Psi Warrior
-        return [];
+        results.push(
+          { action: { name: "Psionic Power: Psionic Strike", type: "class" } },
+          { action: {
+            name: "Psionic Power: Telekinetic Movement", type: "class",
+            addSingleFreeUse: true,
+            addSingleFreeRecoveryPeriod: "sr",
+          } },
+        );
       }
 
-      // { name, type, isAttack = null }
+      if (this.is2014) {
+        results.push({
+          action: { name: "Psionic Power: Recovery", type: "class" },
+        });
+      }
+      return results;
     },
     "Psychic Blades: Attack": [
       {

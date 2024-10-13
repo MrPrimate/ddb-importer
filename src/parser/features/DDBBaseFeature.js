@@ -1169,11 +1169,12 @@ export default class DDBBaseFeature {
           },
         },
       ]);
+      const period = this.enricher.activity.addSingleFreeRecoveryPeriod ?? "lr";
       foundry.utils.setProperty(singleActivity, "uses", {
         override: true,
         max: "1",
         spent: 0,
-        recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+        recovery: [{ period, type: 'recoverAll', formula: undefined }],
       });
       foundry.utils.setProperty(this.data, `system.activities.${singleActivity._id}`, singleActivity);
     }

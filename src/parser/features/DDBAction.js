@@ -82,6 +82,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Psychic Teleportation",
     "Psionic Power: Recovery",
     "Psychic Blades: Rend Mind",
+    "Psionic Power: Protective Field",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
