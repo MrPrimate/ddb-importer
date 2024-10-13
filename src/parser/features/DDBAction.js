@@ -88,6 +88,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Psionic Power: Psionic Strike",
     "Psionic Power: Telekinetic Movement",
     "Telekinetic Master: Weapon Attack",
+    "Hand of Healing: Physician's Touch",
+    "Hand of Harm: Physician's Touch",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

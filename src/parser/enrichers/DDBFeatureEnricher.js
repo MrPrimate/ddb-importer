@@ -960,7 +960,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "Hand of Healing": {
+      name: "Hand of Healing",
       type: "heal",
+      activationType: "special",
       targetType: "creature",
       data: {
         "range.units": "touch",
@@ -968,8 +970,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "Hand of Harm": {
+      name: "Hand of Harm",
       type: "damage",
       targetType: "creature",
+      activationType: "special",
       data: {
         damage: {
           parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts", type: "necrotic" })],
@@ -3269,6 +3273,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ];
     },
+    "Physician's Touch": () => {
+      return [
+        // { action: { name: "Hand of Healing", type: "class" } },
+        // { action: { name: "Hand of Harm", type: "class" } },
+      ];
+    },
     "Poisoner": () => {
       const results = [{
         constructor: {
@@ -5120,6 +5130,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         durationRounds: 1,
       },
       statuses: ["dodging"],
+    },
+    "Physician's Touch": {
+      statuses: ["Poisoned"],
     },
     "Poisoner": {
       name: "Poisoned",
