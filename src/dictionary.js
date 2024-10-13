@@ -909,7 +909,7 @@ const DICTIONARY = {
     ],
     "Psionic Power": [
       "Soul Blades", "Psychic Blades: Psychic Teleportation", "Soul Blades: Psychic Teleportation",
-      "Psychic Teleportation",
+      "Psychic Teleportation", "Telekinetic Adept", "Telekinetic Master",
     ],
     "Psionic Power: Psionic Energy": [
       "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",
@@ -1019,6 +1019,9 @@ const DICTIONARY = {
     "War God's Blessing": [
       { name: "Shield of Faith", cost: 1, lookupName: "War God's Blessing", nameUpdate: "Shield of Faith (War God's Blessing)" },
       { name: "Spiritual Weapon", cost: 1, lookupName: "War God's Blessing", nameUpdate: "Spiritual Weapon (War God's Blessing)" },
+    ],
+    "Telekinetic Master": [
+      { name: "Telekinesis", cost: 1, lookupName: "Telekinetic Master", nameUpdate: "Telekinesis (Telekinetic Master)" },
     ],
   },
 };

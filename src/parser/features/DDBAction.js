@@ -83,6 +83,11 @@ export default class DDBAction extends DDBBaseFeature {
     "Psionic Power: Recovery",
     "Psychic Blades: Rend Mind",
     "Psionic Power: Protective Field",
+    "Psionic Power: Telekinetic Thrust",
+    "Psionic Power: Psi-Powered Leap",
+    "Psionic Power: Psionic Strike",
+    "Psionic Power: Telekinetic Movement",
+    "Telekinetic Master: Weapon Attack",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

@@ -416,6 +416,13 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
       const update = {
         _id: child._id,
       };
+
+      if (!foundry.utils.getProperty(child, "flags.ddbimporter.retainChildUses")) {
+        update.system["uses"] = {
+          spent: null,
+          max: "",
+        };
+      }
       if (spellData.nameUpdate) {
         update.name = spellData.nameUpdate;
       }

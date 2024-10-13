@@ -1631,6 +1631,47 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Psionic Power: Psi-Powered Leap": {
+      name: "Psi-Powered Leap",
+      addItemConsume: true,
+      addSingleFreeUse: true,
+      addSingleFreeRecoveryPeriod: "sr",
+    },
+    "Psionic Power: Telekinetic Thrust": {
+      name: "Telekinetic Thrust",
+      activationType: "special",
+      addItemConsume: true,
+    },
+    "Psionic Power: Telekinetic Movement": {
+      name: "Telekinetic Movement",
+      type: "utility",
+      targetType: "creature",
+      addItemConsume: true,
+      addSingleFreeUse: true,
+      addSingleFreeRecoveryPeriod: "sr",
+      data: {
+        range: {
+          units: "ft",
+          value: "30",
+        },
+      },
+    },
+    "Psionic Power: Psionic Strike": {
+      name: "Psionic Strike",
+      activationType: "special",
+      type: "damage",
+      targetType: "creature",
+      addItemConsume: true,
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.psi-warrior.energy-die.die + @abilities.mod.int", types: ["psychic"] })],
+        },
+        range: {
+          units: "ft",
+          value: "30",
+        },
+      },
+    },
     "Quickened Healing": {
       type: "heal",
       data: {
@@ -2222,6 +2263,23 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Initiative bonus",
         },
       },
+    },
+    "Telekinetic Master": {
+      type: "utility",
+      name: "Spend Energy Die to Regain Use",
+      addItemConsume: true,
+      activationType: "",
+      additionalConsumptionTargets: [
+        {
+          type: "itemUses",
+          target: "",
+          value: "-1",
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        },
+      ],
     },
     "The Third Eye": {
       type: "utility",
@@ -3386,11 +3444,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       } else {
         results.push(
           { action: { name: "Psionic Power: Psionic Strike", type: "class" } },
-          { action: {
-            name: "Psionic Power: Telekinetic Movement", type: "class",
-            addSingleFreeUse: true,
-            addSingleFreeRecoveryPeriod: "sr",
-          } },
+          { action: { name: "Psionic Power: Telekinetic Movement", type: "class" } },
         );
       }
 
@@ -3769,6 +3823,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Telekinetic Adept": () => {
+      return [
+        { action: { name: "Psionic Power: Psi-Powered Leap", type: "class" } },
+        { action: { name: "Psionic Power: Telekinetic Thrust", type: "class" } },
+      ];
+    },
     "Unbreakable Majesty": [
       {
         constructor: {
@@ -4404,15 +4464,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "Stonecunning": () => {
-      const uses = this._getUsesWithSpent({
-        type: "race",
-        name: "Stonecunning (Tremorsense)",
-        max: "@prof",
-        period: "lr",
-      });
       return {
         data: {
-          "system.uses": uses,
+          "system.uses": this._getUsesWithSpent({
+            type: "race",
+            name: "Stonecunning (Tremorsense)",
+            max: "@prof",
+            period: "lr",
+          }),
         },
       };
     },
@@ -4424,6 +4483,19 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Telekinetic Master": () => {
+      return {
+        data: {
+          "flags.ddbimporter.retainChildUses": true,
+          "system.uses": this._getUsesWithSpent({
+            type: "class",
+            name: "Telekinetic Master: Weapon Attack",
+            max: "1",
+            period: "lr",
+          }),
+        },
+      };
+    },
     "The Third Eye": {
       "system.uses": {
         spent: 0,
@@ -4432,15 +4504,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "Unbreakable Majesty": () => {
-      const uses = this._getUsesWithSpent({
-        type: "class",
-        name: "Assume Unbreakable Majesty",
-        max: "1",
-        period: "sr",
-      });
       return {
         data: {
-          "system.uses": uses,
+          "system.uses": this._getUsesWithSpent({
+            type: "class",
+            name: "Assume Unbreakable Majesty",
+            max: "1",
+            period: "sr",
+          }),
         },
       };
     },
@@ -4747,7 +4818,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Eldritch Strike": {
       name: "Struck",
-      type: "feat",
       options: {
         description: "",
       },
@@ -4935,9 +5005,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     // Future Enhancement: Add a macro that rolls dice and applies dr effect
     // "Maneuver: Parry": {
-    //   type: "feat",
-    //   options: {
-    //         //   },
     //   changes: [
     //     {
     //       key: "system.traits.dm.amount.bludgeoning",
@@ -5108,6 +5175,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           statuses: ["Prone"],
         },
       ],
+    },
+    "Psionic Power: Telekinetic Thrust": {
+      statuses: ["Prone"],
     },
     "Rage": () => {
       return {
