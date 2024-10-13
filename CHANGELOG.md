@@ -1,9 +1,10 @@
-# Next Up
+# 6.0.20
 
 - Luck and Stonecunning features.
 - Some activity generation rework for class features.
 - Refactor of Soulknife (2024 and 2014).
 - Fix an issue with some helpers for imported adventures interfering with non-ddb journals.
+- Psi Warrior feature improvements.
 
 # 6.0.19
 
