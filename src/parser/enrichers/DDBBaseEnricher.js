@@ -529,9 +529,9 @@ export default class DDBBaseEnricher {
         ? this._buildActivitiesFromAction(actionActivity)
         : this._buildAdditionalActivityFromDDBParent(activityHint, i, ddbParent);
 
-      console.warn("Activities", activityData);
+      // console.warn("Activities", activityData);
       for (const activity of Object.values(activityData.activities)) {
-        console.warn("Activity", activity);
+        // console.warn("Activity", activity);
 
         if (activityHint.overrides?.addItemConsume) {
           foundry.utils.setProperty(activity, "consumption.targets", [

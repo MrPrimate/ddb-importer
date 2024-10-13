@@ -121,8 +121,8 @@ const DDBHelper = {
     if (klass) {
       const featureName = utils.referenceNameString(featDefinition.name);
       const klassName = klass.subclassDefinition?.id === featDefinition.classId
-        ? utils.referenceNameString(klass.subclassDefinition.name)
-        : utils.referenceNameString(klass.definition.name);
+        ? DDBHelper.classIdentifierName(klass.subclassDefinition.name)
+        : DDBHelper.classIdentifierName(klass.definition.name);
       return `@scale.${klassName}.${featureName}`;
     }
 
@@ -1153,7 +1153,7 @@ const DDBHelper = {
   },
 
   classIdentifierName(className) {
-    let result = utils.referenceNameString(className);
+    let result = utils.referenceNameString(className.split("(")[0].trim());
     const removals = [
       "circle-of-the-", "circle-of-",
       "path-of-the-", "path-of-",
@@ -1170,7 +1170,9 @@ const DDBHelper = {
       }
     }
 
-    return utils.referenceNameString(result);
+    // console.warn(`classIdentifierName: ${className} -> ${result}`);
+
+    return result;
   },
 
 };
