@@ -2142,6 +2142,23 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "utility",
       activationType: "reaction",
     },
+    "Uncanny Metabolism": {
+      type: "heal",
+      targetType: "self",
+      addItemConsume: true,
+      itemConsumeValue: "-@scale.monk.focus-points",
+      additionalConsumptionTargets: [
+        {
+          type: "itemUses",
+          target: "",
+          value: "1",
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        },
+      ],
+    },
     "Vitality of the Tree": {
       type: "heal",
       name: "Vitality Surge",
@@ -4374,6 +4391,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           }),
         },
       };
+    },
+    "Uncanny Metabolism": {
+      data: {
+        "flags.ddbimporter": {
+          retainChildUses: true,
+        },
+      },
     },
     "War Bond": {
       data: {
