@@ -2,6 +2,7 @@
 
 - Second Wind healing did not parse correctly.
 - Psi Warrior typo.
+- Uncanny Metabolism fixes.
 
 # 6.0.20
 
