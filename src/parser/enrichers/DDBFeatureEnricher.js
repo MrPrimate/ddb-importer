@@ -4123,6 +4123,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         name: "Maneuver: Trip Attack",
       },
     },
+    "Monk's Focus": () => {
+      return {
+        data: {
+          "system.uses": this._getUsesWithSpent({
+            type: "class",
+            name: "Focus Points",
+            max: "@scale.monk.focus-points",
+            period: "sr",
+          }),
+        },
+      };
+    },
     "Partially Amphibious": {
       data: {
         "system.uses": {
@@ -4206,19 +4218,22 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       };
     },
-    "Persistent Rage": {
-      data: {
-        "system.uses": {
-          value: this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Rage: Regain Expended Uses")?.limitedUse?.numberUsed ?? null,
-          max: 1,
-          recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+    "Persistent Rage": () =>{
+      return {
+        data: {
+          "system.uses": this._getUsesWithSpent({
+            type: "class",
+            name: "Rage: Regain Expended Uses",
+            max: "1",
+            period: "lr",
+          }),
+          "flags.ddbimporter": {
+            retainOriginalConsumption: true,
+            consumptionValue: "-@scale.barbarian.rages",
+            retainChildUses: true,
+          },
         },
-        "flags.ddbimporter": {
-          retainOriginalConsumption: true,
-          consumptionValue: "-@scale.barbarian.rages",
-          retainChildUses: true,
-        },
-      },
+      };
     },
     "Relentless Rage": {
       data: {

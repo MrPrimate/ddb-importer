@@ -90,6 +90,10 @@ export default class DDBAction extends DDBBaseFeature {
     "Telekinetic Master: Weapon Attack",
     "Hand of Healing: Physician's Touch",
     "Hand of Harm: Physician's Touch",
+    "Patient Defense (Heightened)",
+    "Step of the Wind (Heightened)",
+    "Flurry of Blows (Heightened)",
+    "Focus Points",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

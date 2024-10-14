@@ -3,6 +3,7 @@
 - Second Wind healing did not parse correctly.
 - Psi Warrior typo.
 - Uncanny Metabolism fixes.
+- Monk 2024 Base Class clean up.
 
 # 6.0.20
 

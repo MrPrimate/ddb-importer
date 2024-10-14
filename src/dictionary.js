@@ -938,7 +938,7 @@ const DICTIONARY = {
       "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm", "Hand of Ultimate Mercy",
       "Awakened Astral Self",
     ],
-    "Focus Points": [
+    "Monk's Focus": [
       "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind",
       "Deflect Missiles Attack", "Arms of the Astral Self: Summon", "Stunning Strike",
       "Empty Body", "Diamond Soul", "Visage of the Astral Self", "Quickened Healing",

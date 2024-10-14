@@ -25,6 +25,7 @@ export default class DDBFeature extends DDBBaseFeature {
     "Brutal Strike",
     "Extra Attack",
     "Improved Critical",
+    "Unarmored Movement",
   ];
 
   static LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH = [
