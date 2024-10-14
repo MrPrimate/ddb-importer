@@ -1094,7 +1094,6 @@ export default class DDBBaseFeature {
     if (DDBBaseFeature.UTILITY_FEATURES.some((f) => this.originalName.startsWith(f))) return "utility";
     if (this.isForceResourceLinked()) return "utility";
     if (this.getParsedActionType()) return "utility";
-    // if (this.scaleValueUsesLink && this.scaleValueUsesLink !== "{{scalevalue-unknown}}") return "utility";
     return null;
   }
 

@@ -338,7 +338,7 @@ export default class DDBRace {
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
 
     const compendium = CompendiumHelper.getCompendiumType("feats", false);
-    const index = await compendium.getIndex();
+    const index = compendium ? await compendium.getIndex() : [];
 
     advancement.updateSource({
       title: "Feat",

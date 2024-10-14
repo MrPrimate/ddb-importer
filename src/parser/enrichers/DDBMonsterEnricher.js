@@ -30,6 +30,7 @@ export default class DDDMonsterEnricher extends DDBBaseEnricher {
     this.document = document;
     this.name = name ?? document.flags?.ddbimporter?.originalName ?? document.name;
     this.is2014 = is2014 ?? this.document.flags?.ddbimporter?.is2014 ?? false;
+    this.is2024 = !this.is2014;
     this._prepare();
     this.additionalActivityClass = DDBMonsterFeatureActivity;
     this.effectType = "feat";

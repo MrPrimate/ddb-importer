@@ -116,6 +116,7 @@ export default class DDBBaseEnricher {
     this.isCustomAction = null;
     this.additionalActivityClass = null;
     this.is2014 = null;
+    this.is2024 = null;
     this.useLookupName = false;
     this.effectType = "basic";
   }
@@ -126,6 +127,7 @@ export default class DDBBaseEnricher {
     this.name = ddbParser?.originalName ?? name ?? document.flags?.ddbimporter?.originalName ?? document.name;
     this.isCustomAction = this.document.flags?.ddbimporter?.isCustomAction;
     this.is2014 = is2014 ?? this.ddbParser?.is2014 ?? this.document.flags?.ddbimporter?.is2014 ?? false;
+    this.is2024 = !this.is2014;
     this.useLookupName = false;
     this._prepare();
   }

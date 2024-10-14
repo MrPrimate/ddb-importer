@@ -2,6 +2,7 @@ import { effectModules, generateATLChange, generateCustomChange, generateDowngra
 import utils from "../../lib/utils.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -125,6 +126,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Radiance of the Dawn": "Channel Divinity: Radiance of the Dawn",
     "Rage (Enter)": "Rage",
     // "War God's Blessing": "Channel Divinity: War God's Blessing",
+    "Telekinetic Adept: Psi-Powered Leap": "Psionic Power: Psi-Powered Leap",
+    "Telekinetic Adept: Telekinetic Thrust": "Psionic Power: Telekinetic Thrust",
   };
 
   ACTIVITY_HINTS = {
@@ -216,18 +219,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           allowed: true,
           max: "9",
         },
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "3",
-          },
-          types: ["healing"],
-          scaling: {
-            number: null,
-            mode: "whole",
-            formula: "1",
-          },
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ bonus: "3", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
       },
     },
     "Blessed Strikes: Divine Strike": {
@@ -437,13 +429,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       name: "Divine Spark (Healing)",
       targetType: "creature",
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "(ceil(@classes.cleric.levels/6))d8",
-          },
-          types: ["healing"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8", types: ["healing"] }),
         range: {
           value: "30",
           units: "ft",
@@ -454,13 +440,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "heal",
       targetType: "ally",
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@classes.cleric.levels * 5",
-          },
-          types: ["healing"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.cleric.levels * 5", types: ["healing"] }),
       },
     },
     "Channel Divinity: Radiance of the Dawn": {
@@ -586,13 +566,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       targetType: "self",
       data: {
         "activation.condition": "Reduce a hostile creature to 0 HP",
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@abilities.cha.mod + @classes.warlock.levels",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@abilities.cha.mod + @classes.warlock.levels", types: ["temphp"] }),
       },
     },
     "Dark One's Own Luck": {
@@ -664,18 +638,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           allowed: true,
           max: "9",
         },
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "3",
-          },
-          types: ["healing"],
-          scaling: {
-            number: null,
-            mode: "whole",
-            formula: "1",
-          },
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ bonus: "3", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
       },
     },
     "Divine Intervention": {
@@ -723,13 +686,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "heal",
       targetType: "creature",
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "1d8 + @abilities.int.mod",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 8, bonus: "@abilities.int.mod", types: ["temphp"] }),
         target: {
           affects: {
             type: "creature",
@@ -932,13 +889,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "heal",
       targetType: "self",
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@classes.artificer.levels",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ bonus: "@classes.artificer.levels", types: ["temphp"] }),
       },
     },
     "Guided Strike": {
@@ -990,13 +941,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       targetType: "creature",
       data: {
         // "range.units": "touch",
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "(@prof)d4",
-          },
-          types: ["healing"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "(@prof)d4", types: ["healing"] }),
       },
     },
     "Healing Light": {
@@ -1008,18 +953,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           allowed: true,
           max: "@item.uses.max - @item.uses.spent",
         },
-        healing: {
-          number: 1,
-          denomination: 6,
-          custom: {
-            enabled: false,
-          },
-          types: ["healing"],
-          scaling: {
-            number: 1,
-            mode: "whole",
-          },
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, bonus: "3", types: ["healing"], scalingMode: "whole", scalingNumber: "1" }),
       },
     },
     "Hill's Tumble (Hill Giant)": {
@@ -1087,13 +1021,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       targetType: "creature",
       activationType: "special",
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@abilities.wis.mod * 2",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@abilities.wis.mod * 2", types: ["temphp"] }),
         range: {
           value: "60",
           units: "ft",
@@ -1105,13 +1033,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       targetType: "creature",
       activationType: "special",
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@classes.cleric.level",
-          },
-          types: ["healing"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.cleric.level", types: ["healing"] }),
       },
     },
     "Improved Warding Flare": {
@@ -1119,12 +1041,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       targetType: "creature",
       activationType: "special",
       data: {
-        healing: {
-          number: 2,
-          denomination: 6,
-          bonus: "@abilities.wis.mod",
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 6, bonus: "@abilities.wis.mod", types: ["temphp"] }),
         range: {
           value: "60",
           units: "ft",
@@ -1206,18 +1123,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           allowed: true,
           max: "@item.uses.max - @item.uses.spent",
         },
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "1",
-          },
-          types: ["healing"],
-          scaling: {
-            number: null,
-            mode: "whole",
-            formula: "1",
-          },
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ bonus: "1", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
       },
     },
     "Lay On Hands: Purify Poison": {
@@ -1369,13 +1275,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Maneuver: Rally": {
       type: "heal",
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@scale.battle-master.combat-superiority-die",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die", types: ["temphp"] }),
       },
     },
     "Maneuver: Riposte": {
@@ -1449,13 +1349,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           },
           prompt: false,
         },
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "2 * @scale.college-of-glamour.mantle-of-inspiration",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "2 * @scale.college-of-glamour.mantle-of-inspiration", types: ["temphp"] }),
       },
     },
     "Mind Link Response": {
@@ -1556,41 +1450,33 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       activationType: "special",
     },
     "Psionic Power": () => {
+      const formula = `1(@scale.${DDBHelper.classIdentifierName(this.ddbParser.subKlass)}.energy-die.die)`;
+      const result = {
+        name: "",
+        type: "utility",
+        addItemConsume: true,
+        data: {
+          roll: {
+            prompt: false,
+            visible: false,
+            formula,
+            name: "Roll Bonus",
+          },
+        },
+      };
+
       if (this.ddbParser.subKlass === "Soulknife") {
-        return {
-          name: "Psi-Bolstered Knack",
-          type: "utility",
-          addItemConsume: true,
-          data: {
-            roll: {
-              prompt: false,
-              visible: false,
-              formula: "1(@scale.soulknife.energy-die.die)",
-              name: "Roll Additional Bonus",
-            },
-          },
-        };
+        result.name = "Psi-Bolstered Knack";
       } else {
-        return {
-          type: "utility",
-          name: "Protective Field",
-          activationType: "reaction",
-          targetType: "creature",
-          addItemConsume: true,
-          data: {
-            roll: {
-              prompt: false,
-              visible: false,
-              formula: "1(@scale.pse-warrior.energy-die.die)",
-              name: "Roll Protective Bonus",
-            },
-            range: {
-              units: "ft",
-              value: "30",
-            },
-          },
+        result.name = "Protective Field";
+        result.activationType = "reaction";
+        result.targetType = "creature";
+        result.data.range = {
+          units: "ft",
+          value: "30",
         };
       }
+      return result;
 
     },
     "Psionic Power: Recovery": () => {
@@ -1679,13 +1565,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Quickened Healing": {
       type: "heal",
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@item.monk.@scale.monk.martial-arts + @prof",
-          },
-          types: ["healing"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@item.monk.@scale.monk.martial-arts + @prof", types: ["healing"] }),
       },
     },
     "Rage": () => {
@@ -1873,21 +1753,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Second Wind": {
       type: "heal",
-      func: undefined,
       addItemConsume: true,
       targetType: "self",
       data: {
-        healing: {
-          number: 1,
-          denomination: 10,
-          bonus: "@classes.fighter.levels",
-          types: ["healing"],
-          scaling: {
-            mode: "whole",
-            number: null,
-            formula: "",
-          },
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ number: "1", denomination: "10", bonus: "@classes.fighter.levels", types: ["healing"] }),
       },
     },
     "Shielding Storm": {
@@ -1902,13 +1771,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       activationType: "bonus",
       targetSelf: true,
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "(@prof * 2) + 1d6",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "(@prof * 2) + 1d6", types: ["temphp"] }),
       },
     },
     "Shifting: Longtooth": {
@@ -1916,13 +1779,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       activationType: "bonus",
       targetSelf: true,
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@prof * 2",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
       },
     },
     "Shifting: Swiftstride": {
@@ -1930,13 +1787,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       activationType: "bonus",
       targetSelf: true,
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@prof * 2",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
       },
     },
     "Shifting: Wildhunt": {
@@ -1944,13 +1795,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       activationType: "bonus",
       targetSelf: true,
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@prof * 2",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
       },
     },
     "Sneak Attack": {
@@ -1974,13 +1819,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           value: "1",
           units: "hour",
         },
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@scale.bard.song-of-rest",
-          },
-          types: ["healing"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.bard.song-of-rest", types: ["healing"] }),
       },
     },
     "Soul Blades: Homing Strikes": {
@@ -2177,13 +2016,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             units: "ft",
           },
         },
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@scale.path-of-the-storm-herald.storm-aura-tundra",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.path-of-the-storm-herald.storm-aura-tundra", types: ["temphp"] }),
       },
     },
     "Storm's Thunder (Storm Giant)": {
@@ -2236,13 +2069,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "heal",
       targetType: "self",
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "5 + @abilities.con.mod",
-          },
-          types: ["healing"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "5 + @abilities.con.mod", types: ["healing"] }),
       },
     },
     "Tactical Mind": {
@@ -2322,13 +2149,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       activationType: "special",
       condition: "You enter a rage.",
       data: {
-        healing: {
-          custom: {
-            enabled: true,
-            formula: "@classes.barbarian.level",
-          },
-          types: ["temphp"],
-        },
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.barbarian.level", types: ["temphp"] }),
         range: {
           units: "self",
         },
@@ -3834,10 +3655,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     ],
     "Telekinetic Adept": () => {
-      return [
-        { action: { name: "Psionic Power: Psi-Powered Leap", type: "class" } },
-        { action: { name: "Psionic Power: Telekinetic Thrust", type: "class" } },
-      ];
+      return this.is2024
+        ? [
+          { action: { name: "Psionic Power: Psi-Powered Leap", type: "class" } },
+          { action: { name: "Psionic Power: Telekinetic Thrust", type: "class" } },
+        ]
+        : [
+          { action: { name: "Telekinetic Adept: Psi-Powered Leap", type: "class" } },
+          { action: { name: "Telekinetic Adept: Telekinetic Thrust", type: "class" } },
+        ];
     },
     "Unbreakable Majesty": [
       {
@@ -4414,50 +4240,74 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "system.type.subtype": "channelDivinity",
       },
     },
-    "Shifting": {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "race",
-          name: "Shift",
-          max: "@prof",
-        }),
-      },
+    "Second Wind": () => {
+      const result = {
+        data: {},
+      };
+      if (this.is2024) {
+        const recovery = foundry.utils.deepClone(this.data.system.uses.recovery ?? []);
+        if (recovery.length === 0) recovery.push({ period: "lr", type: 'recoverAll' });
+        recovery.push({ period: "sr", type: 'formula', formula: "1" });
+        result.data = {
+          "system.uses.recovery": recovery,
+        };
+      }
+      return result;
     },
-    "Shifting: Beasthide": {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "race",
-          name: "Shift",
-          max: "@prof",
-        }),
-      },
+    "Shifting": () => {
+      return {
+        data: {
+          "system.uses": this._getUsesWithSpent({
+            type: "race",
+            name: "Shift",
+            max: "@prof",
+          }),
+        },
+      };
     },
-    "Shifting: Longtooth": {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "race",
-          name: "Shift",
-          max: "@prof",
-        }),
-      },
+    "Shifting: Beasthide": () => {
+      return {
+        data: {
+          "system.uses": this._getUsesWithSpent({
+            type: "race",
+            name: "Shift",
+            max: "@prof",
+          }),
+        },
+      };
     },
-    "Shifting: Swiftstride": {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "race",
-          name: "Shift",
-          max: "@prof",
-        }),
-      },
+    "Shifting: Longtooth": () => {
+      return {
+        data: {
+          "system.uses": this._getUsesWithSpent({
+            type: "race",
+            name: "Shift",
+            max: "@prof",
+          }),
+        },
+      };
     },
-    "Shifting: Wildhunt": {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "race",
-          name: "Shift",
-          max: "@prof",
-        }),
-      },
+    "Shifting: Swiftstride": () => {
+      return {
+        data: {
+          "system.uses": this._getUsesWithSpent({
+            type: "race",
+            name: "Shift",
+            max: "@prof",
+          }),
+        },
+      };
+    },
+    "Shifting: Wildhunt": () => {
+      return {
+        data: {
+          "system.uses": this._getUsesWithSpent({
+            type: "race",
+            name: "Shift",
+            max: "@prof",
+          }),
+        },
+      };
     },
     "Starry Form": {
       data: {
@@ -5190,6 +5040,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       ],
     },
     "Psionic Power: Telekinetic Thrust": {
+      name: "Telekinetic Thrust: Prone",
       statuses: ["Prone"],
     },
     "Rage": () => {

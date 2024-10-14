@@ -1,3 +1,8 @@
+# Next Up
+
+- Second Wind healing did not parse correctly.
+- Psi Warrior typo.
+
 # 6.0.20
 
 - Luck and Stonecunning features.

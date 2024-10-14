@@ -415,6 +415,7 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
       logger.debug(`Resource Spells: ${featureName} child:`, child);
       const update = {
         _id: child._id,
+        system: {},
       };
 
       if (!foundry.utils.getProperty(child, "flags.ddbimporter.retainChildUses")) {
