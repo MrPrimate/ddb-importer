@@ -233,7 +233,9 @@ export default class DDBBaseEnricher {
           prompt: true,
         });
       }
-      if ([undefined, null, ""].includes(foundry.utils.getProperty(activity, "range.units"))) {
+      if ([undefined, null, ""].includes(foundry.utils.getProperty(activity, "range.units"))
+        || activityHint.rangeSelf
+      ) {
         foundry.utils.setProperty(activity, "range", {
           value: null,
           units: "self",
@@ -493,7 +495,7 @@ export default class DDBBaseEnricher {
     };
   }
 
-  _buildActivitiesFromAction({ name, type, isAttack = null }) {
+  _buildActivitiesFromAction({ name, type, isAttack = null, rename = null }) {
     if (!this.ddbParser?.ddbData) return null;
     const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type });
     if (actions.length === 0) return null;
@@ -505,9 +507,10 @@ export default class DDBBaseEnricher {
     });
     const activities = {};
     const effects = [];
-    actionFeatures.forEach((feature) => {
+    actionFeatures.forEach((feature, i) => {
       for (const activityKey of (Object.keys(feature.system.activities))) {
         activities[activityKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
+        if (rename) foundry.utils.setProperty(activities[activityKey], "name", (rename[i] ?? ""));
       }
       effects.push(...(foundry.utils.deepClone(feature.effects)));
     });
@@ -527,12 +530,29 @@ export default class DDBBaseEnricher {
     let i = this.data.system.activities.length ?? 0 + 1;
     for (const activityHint of additionalActivities) {
       const actionActivity = foundry.utils.getProperty(activityHint, "action");
-      const activityData = actionActivity
-        ? this._buildActivitiesFromAction(actionActivity)
-        : this._buildAdditionalActivityFromDDBParent(activityHint, i, ddbParent);
+      const duplicate = foundry.utils.getProperty(activityHint, "duplicate");
+      const activityData = {
+        activities: {},
+        effects: [],
+      };
+
+      if (duplicate) {
+        const key = Object.keys(this.data.system.activities)[0];
+        const activityClone = foundry.utils.deepClone(this.data.system.activities[key]);
+        activityClone._id = `${activityClone._id.slice(0, -3)}clo`;
+        activityData.activities = [activityClone];
+      } else if (actionActivity) {
+        const result = this._buildActivitiesFromAction(actionActivity);
+        activityData.activities = result.activities;
+        activityData.effects = result.effects;
+      } else {
+        const result = this._buildAdditionalActivityFromDDBParent(activityHint, i, ddbParent);
+        activityData.activities = result.activities;
+        activityData.effects = result.effects;
+      }
 
       // console.warn("Activities", activityData);
-      for (const activity of Object.values(activityData.activities)) {
+      for (let activity of Object.values(activityData.activities)) {
         // console.warn("Activity", activity);
 
         if (activityHint.overrides?.addItemConsume) {
@@ -561,6 +581,9 @@ export default class DDBBaseEnricher {
               },
             },
           ]);
+        }
+        if (activityHint.overrides?.data) {
+          activity = foundry.utils.mergeObject(activity, activityHint.overrides.data);
         }
 
         this.data.system.activities[activity._id] = activity;

@@ -94,6 +94,12 @@ export default class DDBAction extends DDBBaseFeature {
     "Step of the Wind (Heightened)",
     "Flurry of Blows (Heightened)",
     "Focus Points",
+    "Ki Points",
+    "Deflect Attack",
+    "Deflect Attack: Redirect Attack",
+    "Flurry of Blows",
+    "Patient Defense",
+    "Step of the Wind",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

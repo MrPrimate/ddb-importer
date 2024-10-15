@@ -76,6 +76,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     EFFECT_HINTS: {
+      "Patient Defense": {
+        name: "Patient Defense: Dodging",
+        options: {
+          durationRounds: 1,
+          durationSeconds: 6,
+        },
+        statuses: ["dodging"],
+        data: {
+          "flags.ddbimporter.activitiesMatch": ["Patient Defense: Dodge"],
+        },
+      },
       "Sacred Weapon": {
         type: "enchant",
         name: "Sacred Weapon",
@@ -917,7 +928,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       targetType: "creature",
       data: {
         "range.units": "touch",
-        "healing.custom.formula": "@scale.way-of-mercy.hand-of-healing + @abilities.wis.mod",
+        "healing.custom.formula": "@scale.mercy.hand-of-healing + @abilities.wis.mod",
       },
     },
     "Hand of Harm": {
@@ -1409,6 +1420,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Roll Ability Check Bonus",
         },
       },
+    },
+    "Patient Defense": () => {
+      const result = {
+        name: this.is2014 ? "Patient Defense: Dodge" : "Patient Defense: Disengage",
+        targetType: "self",
+        type: "utility",
+      };
+      return result;
     },
     "Persistent Rage": {
       type: "utility",
@@ -2145,6 +2164,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Uncanny Metabolism": {
       type: "heal",
       targetType: "self",
+      rangeSelf: true,
       addItemConsume: true,
       itemConsumeValue: "-@scale.monk.focus-points",
       additionalConsumptionTargets: [
@@ -2163,13 +2183,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "heal",
       name: "Vitality Surge",
       targetType: "self",
+      rangeSelf: true,
       activationType: "special",
       condition: "You enter a rage.",
       data: {
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.barbarian.level", types: ["temphp"] }),
-        range: {
-          units: "self",
-        },
       },
     },
     "War Bond": {
@@ -2994,6 +3012,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Ki": () => {
+      const results = [
+        { action: { name: "Flurry of Blows", type: "class", rename: ["Flurry of Blows"] }, overrides: { addItemConsume: true } },
+        { action: { name: "Patient Defense", type: "class" } },
+        { action: { name: "Step of the Wind", type: "class", rename: ["Step of the Wind"] }, overrides: { addItemConsume: true } },
+      ];
+      return results;
+    },
     "Land's Aid": [
       {
         constructor: {
@@ -3068,6 +3094,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Monk's Focus": () => {
+      const results = [
+        { action: { name: "Flurry of Blows", type: "class", rename: ["Flurry of Blows"] }, overrides: { addItemConsume: true } },
+        { action: { name: "Patient Defense", type: "class" } },
+        { action: { name: "Step of the Wind", type: "class", rename: ["Step of the Wind"] }, overrides: { addItemConsume: true } },
+      ];
+      return results;
+    },
     "Natural Recovery": () => {
       return [
         {
@@ -3111,10 +3145,22 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ];
     },
+    "Patient Defense": () => {
+      if (this.is2014) return [];
+      return [
+        {
+          duplicate: true,
+          overrides: {
+            addItemConsume: true,
+            data: { name: "Patient Defense: Disengage & Dodge" },
+          },
+        },
+      ];
+    },
     "Physician's Touch": () => {
       return [
-        // { action: { name: "Hand of Healing", type: "class" } },
-        // { action: { name: "Hand of Harm", type: "class" } },
+        { action: { name: "Hand of Healing", type: "class", rename: ["Hand of Healing"] } },
+        { action: { name: "Hand of Harm", type: "class", rename: ["Hand of Harm"] } },
       ];
     },
     "Poisoner": () => {
@@ -4049,10 +4095,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Ki Points": {
-      data: {
-        "system.uses.max": "@scale.monk.ki-points",
-      },
+    "Ki": () => {
+      return {
+        data: {
+          "system.uses": this._getUsesWithSpent({
+            type: "class",
+            name: "Ki Points",
+            max: "@scale.monk.ki-points",
+            period: "sr",
+          }),
+        },
+      };
     },
     "Land's Aid": {
       data: {
@@ -4126,6 +4179,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Monk's Focus": () => {
       return {
         data: {
+          "flags.ddbimporter.ignoredConsumptionActivities": ["Patient Defense: Disengage"],
           "system.uses": this._getUsesWithSpent({
             type: "class",
             name: "Focus Points",
@@ -4218,7 +4272,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       };
     },
-    "Persistent Rage": () =>{
+    "Persistent Rage": () => {
       return {
         data: {
           "system.uses": this._getUsesWithSpent({
@@ -4962,6 +5016,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         description: "You have Advantage on the next attack roll you make before the end of this turn.",
       },
     },
+    "Monk's Focus": {
+      multiple: [
+        {
+          name: "Disengage",
+          data: {
+            "flags.ddbimporter.activityMatch": "Step of the Wind",
+          },
+        },
+      ],
+    },
     "Nature's Ward": () => {
       const multiple = [
         {
@@ -5013,15 +5077,36 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     "Patient Defense": {
-      options: {
-        name: "Dodge",
-        label: "Dodge",
-        durationRounds: 1,
-      },
-      statuses: ["dodging"],
+      multiple: [
+        {
+          name: "Patient Defense: Disengaged",
+          options: {
+            durationRounds: 1,
+            durationSeconds: 6,
+          },
+          data: {
+            "flags.ddbimporter.activitiesMatch": ["Patient Defense: Disengage"],
+          },
+        },
+        {
+          name: "Patient Defense: Disengaged & Dodging",
+          options: {
+            durationRounds: 1,
+            durationSeconds: 6,
+          },
+          statuses: ["dodging"],
+          data: {
+            "flags.ddbimporter.activitiesMatch": ["Patient Defense: Disengage & Dodge"],
+          },
+        },
+      ],
     },
     "Physician's Touch": {
+      name: "Poisoned",
       statuses: ["Poisoned"],
+      data: {
+        "flags.ddbimporter.activitiesMatch": ["Hand of Harm"],
+      },
     },
     "Poisoner": {
       name: "Poisoned",
@@ -5329,6 +5414,19 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       changes: [
         generateDowngradeChange("18", 30, "flags.dnd5e.weaponCriticalThreshold"),
       ],
+    },
+    "Superior Defense": {
+      clearAutoEffects: true,
+      options: {
+        transfer: false,
+        durationSeconds: 60,
+      },
+      changes: [
+        "acid", "bludgeoning", "cold", "fire", "lightning", "necrotic", "poison", "psychic", "radiant",
+        "thunder", "piercing", "slashing",
+      ].map((element) =>
+        generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
+      ),
     },
     "Tactial Master": {
       options: {

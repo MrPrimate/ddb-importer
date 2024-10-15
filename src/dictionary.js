@@ -922,7 +922,7 @@ const DICTIONARY = {
       "Psionic Power: Recovery", "Psychic Blades: Homing Strikes", "Psychic Teleportation",
       "Psionic Power: Psychic Whispers", "Psychic Whispers",
     ],
-    "Ki Points": [
+    "Ki": [
       "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind",
       "Deflect Missiles Attack", "Arms of the Astral Self: Summon", "Stunning Strike",
       "Empty Body", "Diamond Soul", "Visage of the Astral Self", "Quickened Healing",
@@ -952,7 +952,7 @@ const DICTIONARY = {
       "Ride the Wind", "River of Hungry Flame", "Rush of the Gale Spirits",
       "Shape the Flowing River", "Sweeping Cinder Strike", "Water Whip",
       "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm", "Hand of Ultimate Mercy",
-      "Awakened Astral Self", "Uncanny Metabolism",
+      "Awakened Astral Self", "Uncanny Metabolism", "Superior Defense",
     ],
     "Infuse Item": ["Infusion:"],
     // "Lay on Hands Pool": ["Lay on Hands"],
@@ -967,27 +967,7 @@ const DICTIONARY = {
     "Divine Intervention": ["Greater Divine Intervention"],
   },
   RESOURCE_SPELL_LINKS: {
-    "Ki Points": [
-      { name: "Astral Projection", cost: 8, lookupName: "Empty Body" },
-      { name: "Darkness", cost: 2, lookupName: "Shadow Arts" },
-      { name: "Darkvision", cost: 2, lookupName: "Shadow Arts" },
-      { name: "Pass Without Trace", cost: 2, lookupName: "Shadow Arts" },
-      { name: "Silence", cost: 2, lookupName: "Shadow Arts" },
-      { name: "Burning Hands", cost: 2, lookupName: "Searing Arc Strike" },
-      { name: "Cone of Cold", cost: 6, lookupName: "Breath of Winter" },
-      { name: "Hold Person", cost: 3, lookupName: "Clench of the North Wind" },
-      { name: "Stoneskin", cost: 5, lookupName: "Eternal Mountain Defense" },
-      { name: "Thunderwave", cost: 2, lookupName: "Fist of Four Thunders" },
-      { name: "Fireball", cost: 4, lookupName: "Flames of the Phoenix" },
-      { name: "Shatter", cost: 3, lookupName: "Gong of the Summit" },
-      { name: "Gaseous Form", cost: 4, lookupName: "Mist Stance" },
-      { name: "Fly", cost: 4, lookupName: "Ride the Wind" },
-      { name: "Wall of Fire", cost: 5, lookupName: "River of Hungry Flame" },
-      { name: "Gust of Wind", cost: 2, lookupName: "Rush of the Gale Spirits" },
-      { name: "Burning Hands", cost: 2, lookupName: "Sweeping Cinder Strike" },
-      { name: "Wall of Stone", cost: 6, lookupName: "Wave of Rolling Earth" },
-    ],
-    "Focus Points": [
+    "Ki": [
       { name: "Astral Projection", cost: 8, lookupName: "Empty Body" },
       { name: "Darkness", cost: 2, lookupName: "Shadow Arts" },
       { name: "Darkvision", cost: 2, lookupName: "Shadow Arts" },
