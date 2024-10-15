@@ -1429,6 +1429,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       };
       return result;
     },
+    "Perfect Focus": {
+      type: "ddbmacro",
+      data: {
+        name: "Recover Focus",
+        macro: {
+          name: "Reecover Focus",
+          function: "ddb.feat.perfectFocus",
+          visible: false,
+          parameters: "",
+        },
+      },
+    },
     "Persistent Rage": {
       type: "utility",
       targetType: "self",
@@ -2051,6 +2063,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Stunning Strike": {
       type: "save",
       targetType: "creature",
+      activationType: "special",
       data: {
         "range.units": "touch",
         save: {

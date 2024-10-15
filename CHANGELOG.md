@@ -4,6 +4,7 @@
 - Psi Warrior typo.
 - Uncanny Metabolism fixes.
 - Monk 2024 Base Class clean up.
+- Perfect Focus Macro activity.
 
 # 6.0.20
 
