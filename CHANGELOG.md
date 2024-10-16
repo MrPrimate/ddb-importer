@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.21
 
 - Second Wind healing did not parse correctly.
 - Psi Warrior typo.
@@ -7,6 +7,7 @@
 - Perfect Focus Macro activity.
 - Legacy Cleric would log a harmless error for Channel Divinity.
 - Max prepared spells formula incorrect for some legacy classes.
+- Warrior or Mercy and Warrior of Shadow (2024) Monl feature parsing corrections.
 
 # 6.0.20
 
