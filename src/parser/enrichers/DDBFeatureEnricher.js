@@ -178,7 +178,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Arms of the Astral Self: Summon": {
       data: {
         damage: {
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts", type: "force" })],
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die", type: "force" })],
           onSave: "none",
         },
       },
@@ -602,23 +602,69 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Deflect Missiles": {
+    "Deflect Attack": {
+      name: "Reduce Damage",
       targetType: "self",
+      type: "heal",
       data: {
         "consumption.targets": [],
-        roll: {
-          prompt: false,
-          visible: false,
-          formula: "1d10 + @mod + @classes.monk.levels",
-          name: "Reduce Damage Amount",
+        // roll: {
+        //   prompt: false,
+        //   visible: false,
+        //   formula: "1d10 + @abilities.dex.mod + @classes.monk.levels",
+        //   name: "Reduce Damage Amount",
+        // },
+        healing: DDBBaseEnricher.basicDamagePart({
+          number: 1,
+          denomination: 10,
+          bonus: "@abilities.dex.mod + @classes.monk.levels",
+          types: ["healing"],
+        }),
+      },
+    },
+    "Deflect Attack: Redirect Attack": {
+      name: "Redirect Attack",
+      targetType: "creature",
+      addItemConsume: true,
+      activationType: "special",
+      type: "save",
+      data: {
+        save: {
+          ability: "dex",
+          dc: { calculation: "dex", formula: "" },
         },
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "2@scale.monk.martial-arts.die + @abilities.dex.mod", types: ["bludgeoning", "piercing", "slashing"] })],
+        },
+      },
+    },
+    "Deflect Energy": {
+      type: "none",
+    },
+    "Deflect Missiles": {
+      targetType: "self",
+      type: "heal",
+      data: {
+        "consumption.targets": [],
+        // roll: {
+        //   prompt: false,
+        //   visible: false,
+        //   formula: "1d10 + @abilities.dex.mod + @classes.monk.levels",
+        //   name: "Reduce Damage Amount",
+        // },
+        healing: DDBBaseEnricher.basicDamagePart({
+          number: 1,
+          denomination: 10,
+          bonus: "@abilities.dex.mod + @classes.monk.levels",
+          types: ["healing"],
+        }),
       },
     },
     "Deflect Missiles Attack": {
       activationType: "special",
       targetType: "creature",
       data: {
-        "damage.parts": [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts + @mod", types: ["piercing", "slashing", "bludgeoning"] })],
+        "damage.parts": [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @abilities.dex.mod", types: DDBBaseEnricher.allDamageTypes() })],
       },
     },
     "Devious Strikes": {
@@ -938,7 +984,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       activationType: "special",
       data: {
         damage: {
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts", type: "necrotic" })],
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die", type: "necrotic" })],
         },
       },
     },
@@ -1596,7 +1642,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Quickened Healing": {
       type: "heal",
       data: {
-        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@item.monk.@scale.monk.martial-arts + @prof", types: ["healing"] }),
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @prof", types: ["healing"] }),
       },
     },
     "Rage": () => {
@@ -2694,6 +2740,23 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Deflect Attacks": () => {
+      return [
+        { action: { name: "Deflect Attack", type: "class" } },
+        { action: { name: "Deflect Attack: Redirect Attack", type: "class" } },
+      ];
+    },
+    "Deflect Energy": () => {
+      return [
+        { action: { name: "Deflect Attack", type: "class" } },
+        {
+          action: { name: "Deflect Attack: Redirect Attack", type: "class" },
+          override: { data: {
+            "damage.types": DDBBaseEnricher.allDamageTypes(),
+          } },
+        },
+      ];
+    },
     "Devious Strikes": [
       {
         constructor: {
@@ -4003,6 +4066,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Dark One's Own Luck": {
       data: {
         "system.uses.max": "@abilities.cha.mod",
+      },
+    },
+    "Deflect Attacks": {
+      data: {
+        "flags.ddbimporter": {
+          ignoredConsumptionActivities: ["Reduce Damage"],
+        },
+      },
+    },
+    "Deflect Energy": {
+      data: {
+        "flags.ddbimporter": {
+          ignoredConsumptionActivities: ["Reduce Damage"],
+        },
       },
     },
     "Divine Intervention": {
