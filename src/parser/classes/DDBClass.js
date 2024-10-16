@@ -320,11 +320,15 @@ export default class DDBClass {
           progression: spellProgression.value,
           ability: spellCastingAbility,
         };
-        if (this.ddbClassDefinition.spellRules?.levelPreparedSpellMaxes?.length > 0) {
-          this.data.system.spellcasting.preparation = {
-            formula: `@scale.${this.data.system.identifier}.max-prepared`,
-          };
+        let formula = "";
+        if ((this.ddbClassDefinition.spellRules?.levelPreparedSpellMaxes ?? []).filter((a) => a).length > 1) {
+          formula = `@scale.${this.data.system.identifier}.max-prepared`;
+        } else if (this.ddbClassDefinition.spellPrepareType === 1) {
+          formula = `max(@abilities.${spellCastingAbility}.mod + @classes.${this.data.system.identifier}.levels, 1)`;
         }
+        this.data.system.spellcasting.preparation = {
+          formula,
+        };
       }
       const spellSlotDivisor = this.ddbClassDefinition.spellRules?.multiClassSpellSlotDivisor
         ? this.ddbClassDefinition.spellRules.multiClassSpellSlotDivisor
@@ -690,7 +694,9 @@ export default class DDBClass {
     if (!this.ddbClassDefinition.spellRules) return;
 
     // max prepared
-    if (this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes) {
+    if (this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes
+      && this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes.filter((a) => a).length > 1
+    ) {
       const advancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",

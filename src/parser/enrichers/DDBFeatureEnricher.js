@@ -1122,7 +1122,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       targetType: "creature",
       activationType: "special",
       data: {
-        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.cleric.level", types: ["healing"] }),
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.cleric.levels", types: ["healing"] }),
       },
     },
     "Improved Warding Flare": {
@@ -2286,7 +2286,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       activationType: "special",
       condition: "You enter a rage.",
       data: {
-        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.barbarian.level", types: ["temphp"] }),
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.barbarian.levels", types: ["temphp"] }),
       },
     },
     "War Bond": {
