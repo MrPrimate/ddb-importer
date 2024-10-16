@@ -1038,6 +1038,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         healing: DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, bonus: "3", types: ["healing"], scalingMode: "whole", scalingNumber: "1" }),
       },
     },
+    "Heightened Focus": {
+      name: "Patient Defense Healing",
+      type: "heal",
+      data: {
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "2@scale.monk.martial-arts.die", types: ["temphp"] }),
+      },
+    },
     "Hill's Tumble (Hill Giant)": {
       type: "utility",
       targetType: "creature",
