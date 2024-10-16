@@ -5459,6 +5459,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Shadow Arts": {
+      clearAutoEffects: true,
+      options: {
+        transfer: true,
+      },
+      changes: [
+        generateUnsignedAddChange("60", 20, "system.attributes.senses.darkvision"),
+      ],
+    },
     "Shifting: Beasthide": {
       changes: [
         generateUnsignedAddChange("1", 20, "system.attributes.ac.bonus"),

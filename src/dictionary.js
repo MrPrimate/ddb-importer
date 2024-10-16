@@ -1004,6 +1004,9 @@ const DICTIONARY = {
     "Telekinetic Master": [
       { name: "Telekinesis", cost: 1, lookupName: "Telekinetic Master", nameUpdate: "Telekinesis (Telekinetic Master)" },
     ],
+    "Monk's Focus": [
+      { name: "Darkness", cost: 1, lookupName: "Shadow Arts" },
+    ],
   },
 };
 
