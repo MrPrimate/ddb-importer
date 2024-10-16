@@ -6,7 +6,7 @@
 - Monk 2024 Base Class clean up.
 - Perfect Focus Macro activity.
 - Legacy Cleric would log a harmless error for Channel Divinity.
-- Max prepared spells formula incorrect for some legacy classes/
+- Max prepared spells formula incorrect for some legacy classes.
 
 # 6.0.20
 
