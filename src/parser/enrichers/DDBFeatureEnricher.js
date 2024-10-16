@@ -45,6 +45,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
       "Relentless": {},
       "Channel Divinity": {},
+      "Slow Fall": {},
     },
     ADDITIONAL_ACTIVITIES: {
       "Breath Weapon (Acid)": {},
@@ -698,6 +699,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         healing: DDBBaseEnricher.basicDamagePart({ bonus: "3", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
       },
     },
+    "Disciplined Survivor": {
+      type: "utility",
+      targetType: "self",
+    },
     "Divine Intervention": {
       type: "utility",
       addItemConsume: true,
@@ -784,6 +789,26 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         damage: {
           parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.druid.elemental-fury", types: ["cold", "fire", "lighting", "thunder"] })],
+        },
+      },
+    },
+    "Empowered Strikes": {
+      type: "attack",
+      targetType: "creature",
+      data: {
+        range: {
+          value: 5,
+          units: "ft",
+        },
+        attack: {
+          ability: "dex",
+          type: {
+            value: "melee",
+            classification: "weapon",
+          },
+        },
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @mod", types: ["bludgeoning", "force"] })],
         },
       },
     },
@@ -1846,7 +1871,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Shifting: Beasthide": {
       type: "heal",
       activationType: "bonus",
-      targetSelf: true,
+      targetType: "self",
       data: {
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "(@prof * 2) + 1d6", types: ["temphp"] }),
       },
@@ -1854,7 +1879,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Shifting: Longtooth": {
       type: "heal",
       activationType: "bonus",
-      targetSelf: true,
+      targetType: "self",
       data: {
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
       },
@@ -1862,7 +1887,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Shifting: Swiftstride": {
       type: "heal",
       activationType: "bonus",
-      targetSelf: true,
+      targetType: "self",
       data: {
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
       },
@@ -1870,9 +1895,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Shifting: Wildhunt": {
       type: "heal",
       activationType: "bonus",
-      targetSelf: true,
+      targetType: "self",
       data: {
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
+      },
+    },
+    "Slow Fall": {
+      type: "heal",
+      activationType: "reaction",
+      targetType: "self",
+      data: {
+        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.sorcerer.levels", types: ["healing"] }),
       },
     },
     "Sneak Attack": {
@@ -4826,6 +4859,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateOverrideChange("true", 20, "flags.dnd5e.diamondSoul"),
       ],
     },
+    "Disciplined Survivor": {
+      clearAutoEffects: true,
+    },
     "Draconic Resilience": {
       noCreate: true,
       changesOverwrite: true,
@@ -4872,6 +4908,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       changes: [
         generateOverrideChange("true", 20, "flags.dnd5e.elvenAccuracy"),
       ],
+    },
+    "Empowered Strikes": {
+      clearAutoEffects: true,
     },
     "Empty Body": () => {
       return {
@@ -4940,6 +4979,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       changes: [
         generateOverrideChange("true", 20, "flags.dnd5e.halflingLucky"),
       ],
+    },
+    "Heightened Focus": {
+      clearAutoEffects: true,
     },
     "Brutal Strike": {
       name: "Hamstrung",
@@ -5593,6 +5635,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateUnsignedAddChange("exotic:*", 20, "system.traits.languages.value"),
         generateUnsignedAddChange("ddb:*", 10, "system.traits.languages.value"),
       ],
+    },
+    "Unarmored Movement": () => {
+      const value = this.ddbParser.ddbData?.character?.modifiers && this.is2024
+        ? this.ddbParser.ddbData.character.modifiers.class.filter((mod) => mod.isGranted
+          && mod.friendlySubtypeName === "Unarmored Movement").reduce((acc, mod) => acc + mod.value, 0)
+        : 10;
+      return {
+        noCreate: true,
+        changesOverwrite: true,
+        changes: [
+          // can't use scale values here yet
+          generateUnsignedAddChange(`${value}`, 20, "system.attributes.movement.walk"),
+        ],
+      };
     },
     "Unbreakable Majesty": {
       options: {

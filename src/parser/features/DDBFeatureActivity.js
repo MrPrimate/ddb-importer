@@ -491,7 +491,7 @@ export default class DDBFeatureActivity {
       type = "ranged";
     }
 
-    const bonus = this.ddbParent.getBonusDamage();
+    const bonus = (this.ddbParent.getBonusDamage) ? this.ddbParent.getBonusDamage() : "";
 
     const attack = {
       ability: this.ddbParent.getActionAttackAbility(),

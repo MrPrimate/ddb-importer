@@ -294,7 +294,7 @@ export default class DDBAction extends DDBBaseFeature {
       this._generateResourceFlags();
 
       this.enricher.addDocumentOverride();
-      this._addEffects();
+      this._addEffects(undefined, this.type);
       this._addCustomValues();
 
       this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);

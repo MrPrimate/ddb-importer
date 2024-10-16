@@ -755,6 +755,12 @@ export default class DDBBaseFeature {
       }
       return false;
     });
+
+    console.warn(`Effects ${this.name}`, {
+      modifierItem,
+      modifiers,
+      type,
+    });
     // console.warn("Modifier Item", modifierItem);
     return modifierItem;
   }

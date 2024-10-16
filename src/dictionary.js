@@ -953,7 +953,7 @@ const DICTIONARY = {
       "Shape the Flowing River", "Sweeping Cinder Strike", "Water Whip",
       "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm", "Hand of Ultimate Mercy",
       "Awakened Astral Self", "Uncanny Metabolism", "Superior Defense",
-      "Deflect Attacks", "Deflect Energy",
+      "Deflect Attacks", "Deflect Energy", "Disciplined Survivor",
     ],
     "Infuse Item": ["Infusion:"],
     // "Lay on Hands Pool": ["Lay on Hands"],
