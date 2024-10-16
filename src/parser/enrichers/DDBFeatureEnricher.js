@@ -482,6 +482,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Cloak of Shadows": {
+      type: "utility",
+      targetType: "self",
+      data: {
+        duration: {
+          value: "1",
+          units: "minute",
+        },
+      },
+    },
     "Cloud's Jaunt (Cloud Giant)": {
       type: "utility",
       targetType: "self",
@@ -1124,6 +1134,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.cleric.levels", types: ["healing"] }),
       },
+    },
+    "Improved Shadow Step": {
+      type: "utility",
+      targetType: "self",
+      activationType: "bonus",
     },
     "Improved Warding Flare": {
       type: "heal",
@@ -4775,14 +4790,19 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
         {
           name: "Prone",
-          options: {
-          },
           statuses: ["Prone"],
           data: {
             "flags.ddbimporter.activityMatch": "Trip",
           },
         },
       ],
+    },
+    "Cloak of Shadows": {
+      name: "Invisible",
+      options: {
+        durationSeconds: 60,
+      },
+      statuses: ["Invisible"],
     },
     "Corona of Light": {
       multiple: () => {
