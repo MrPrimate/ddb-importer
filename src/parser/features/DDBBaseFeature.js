@@ -695,6 +695,11 @@ export default class DDBBaseFeature {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  getActionAttackAbility() {
+    return "";
+  }
+
   _getFeatModifierItem(choice, type) {
     if (this.ddbDefinition.grantedModifiers) return this.ddbDefinition;
     let modifierItem = foundry.utils.duplicate(this.ddbDefinition);
@@ -756,12 +761,6 @@ export default class DDBBaseFeature {
       return false;
     });
 
-    console.warn(`Effects ${this.name}`, {
-      modifierItem,
-      modifiers,
-      type,
-    });
-    // console.warn("Modifier Item", modifierItem);
     return modifierItem;
   }
 

@@ -48,12 +48,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       "Slow Fall": {},
     },
     ADDITIONAL_ACTIVITIES: {
-      "Breath Weapon (Acid)": {},
-      "Breath Weapon (Cold)": {},
-      "Breath Weapon (Fire)": {},
-      "Breath Weapon (Lightning)": {},
-      "Breath Weapon (Poison)": {},
-      "Channel Divinity": {},
+      "Breath Weapon (Acid)": [],
+      "Breath Weapon (Cold)": [],
+      "Breath Weapon (Fire)": [],
+      "Breath Weapon (Lightning)": [],
+      "Breath Weapon (Poison)": [],
+      "Channel Divinity": [],
     },
     DOCUMENT_OVERRIDES: {
       "Breath Weapon (Acid)": {},
