@@ -100,6 +100,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Flurry of Blows",
     "Patient Defense",
     "Step of the Wind",
+    "Enhanced Unarmed Strike",
+    "Merge with Shadows",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

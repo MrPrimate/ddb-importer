@@ -610,5 +610,9 @@
   {
     "name": "Rune Shaper",
     "path": "icons/magic/symbols/runes-carved-stone-red.webp"
+  },
+  {
+    "name": "Enhanced Unarmed Strike",
+    "path": "icons/skills/melee/unarmed-punch-fist-yellow-red.webp"
   }
 ]

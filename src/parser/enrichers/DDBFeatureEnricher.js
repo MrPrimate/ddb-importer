@@ -244,6 +244,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Boon of the Night Spirit": {
+      name: "Shadowy Form",
+      type: "utility",
+      activationType: "special",
+      condition: "Within dim light or darkness",
+      targetType: "self",
+    },
     "Branches of the Tree": {
       type: "save",
       activationType: "reaction",
@@ -2518,6 +2525,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Boon of the Night Spirit": [
+      { action: { name: "Merge with Shadows", type: "feat", rename: ["Merge with Shadows"] } },
+    ],
     "Breath Weapon (Acid)": [
       {
         constructor: {
@@ -3980,6 +3990,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Tavern Brawler": [
+      { action: { name: "Enhanced Unarmed Strike", type: "feat", rename: ["Enhanced Unarmed Strike"] } },
+    ],
     "Telekinetic Adept": () => {
       return this.is2024
         ? [
@@ -4884,6 +4897,34 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       options: {
         description: "Advantage on Dexterity (Stealth) checks.",
       },
+    },
+    "Boon of the Night Spirit": () => {
+      const shadow = {
+        name: "Shadowy Form",
+        changes: [
+          "bludgeoning", "piercing", "slashing",
+          "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "thunder",
+        ].map((element) =>
+          generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
+        ),
+        data: {
+          "flags.ddbimporter.activityMatch": "Shadowy Form",
+        },
+      };
+      const merge = {
+        name: "Merge with Shadows: Invisible",
+        statuses: ["Invisible"],
+        options: {
+          description: " The condition ends on you immediately after you take an action, a Bonus Action, or a Reaction.",
+          durationSeconds: 6,
+        },
+        data: {
+          "flags.ddbimporter.activityMatch": "Merge with Shadows",
+        },
+      };
+      return {
+        multiple: [shadow, merge],
+      };
     },
     "Celestial Revelation": {
     },

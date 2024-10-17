@@ -32,7 +32,7 @@ export default class CharacterFeatureFactory {
   getActions({ name, type }) {
     const actions = this.ddbData.character.actions[type].filter((a) =>
       utils.nameString(a.name) === name
-      && (!type === "class"
+      && (type !== "class"
         || this._highestLevelActionFeature(a, type)?.definition?.id === a.componentId
       ),
     ).map((a) => {
