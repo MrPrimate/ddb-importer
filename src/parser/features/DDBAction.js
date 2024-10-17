@@ -104,6 +104,9 @@ export default class DDBAction extends DDBBaseFeature {
     "Merge with Shadows",
     "Quick Search",
     "Speedy Recovery",
+    "Flurry of Blows: Addle",
+    "Flurry of Blows: Push",
+    "Flurry of Blows: Topple",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

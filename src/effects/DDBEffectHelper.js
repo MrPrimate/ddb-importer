@@ -1286,7 +1286,7 @@ export default class DDBEffectHelper {
     }
 
     if (!match) {
-      const rawNoDC = /(?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
+      const rawNoDC = /(?<ability>\w+)? (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+)\s?(minute|round|hour)| until)?(.*)?(?:.|$)/ig;
       match = rawNoDC.exec(parserText);
     }
 

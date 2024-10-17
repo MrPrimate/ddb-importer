@@ -910,6 +910,21 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Flurry of Blows: Addle": {
+      type: "utility",
+      activationType: "special",
+      condition: "You hit a creature with a Flurry of Blows strike",
+    },
+    "Flurry of Blows: Push": {
+      type: "save",
+      activationType: "special",
+      condition: "You hit a creature with a Flurry of Blows strike",
+    },
+    "Flurry of Blows: Topple": {
+      type: "save",
+      activationType: "special",
+      condition: "You hit a creature with a Flurry of Blows strike",
+    },
     "Font of Magic": {
       type: "ddbmacro",
       data: {
@@ -2365,6 +2380,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "War Priest": {
       type: "utility",
     },
+    "Wholeness of Body": () => {
+      const formula = this.is2014
+        ? "3@classes.monk.levels"
+        : "@scale.monk.martial-arts.die + @abilities.wis.mod";
+      return {
+        type: "heal",
+        targetType: "self",
+        data: {
+          healing: DDBBaseEnricher.basicDamagePart({ customFormula: formula, type: "healing" }),
+        },
+      };
+    },
     "Wild Resurgence": {
       type: "utility",
       name: "Spend Spell Slot for Wild Shape Use",
@@ -3492,6 +3519,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Observant": [
       { action: { name: "Quick Search", type: "feat", rename: ["Quick Search"] } },
     ],
+    "Open Hand Technique": () => {
+      if (this.is2024) {
+        return [
+          { action: { name: "Flurry of Blows: Addle", type: "class", rename: ["Addle"] } },
+          { action: { name: "Flurry of Blows: Push", type: "class", rename: ["Push"] } },
+          { action: { name: "Flurry of Blows: Topple", type: "class", rename: ["Topple"] } },
+        ];
+      }
+      return [];
+    },
     "Patient Defense": () => {
       if (this.is2014) return [];
       return [
@@ -4458,6 +4495,21 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "name": "Epic Boon",
       },
     },
+    "Flurry of Blows: Addle": {
+      data: {
+        "flags.ddbimporter.retainResourceConsumption": true,
+      },
+    },
+    "Flurry of Blows: Push": {
+      data: {
+        "flags.ddbimporter.retainResourceConsumption": true,
+      },
+    },
+    "Flurry of Blows: Topple": {
+      data: {
+        "flags.ddbimporter.retainResourceConsumption": true,
+      },
+    },
     "Font of Magic: Convert Spell Slots": {
       data: {
         name: "Convert Spell Slots",
@@ -5297,6 +5349,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
         ),
       };
+    },
+    "Flurry of Blows: Topple": {
+      name: "Prone",
+      statuses: ["Prone"],
     },
     "Full of Stars": {
       changes: [
