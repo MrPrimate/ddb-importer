@@ -485,8 +485,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         name: "Charge Damage",
         damage: {
-          parts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 8 })],
+          parts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 8, types: DDBBaseEnricher.allDamageTypes() })],
         },
+      },
+    },
+    "Chef": {
+      name: "Replenishing Meal",
+      type: "heal",
+      targetType: "creature",
+      activationType: "special",
+      condition: "As part of a short rest",
+      data: {
+        healing: DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 8, type: "healing" }),
       },
     },
     "Cloak of Shadows": {
@@ -2025,6 +2035,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
+    "Speedy Recovery": {
+      type: "none",
+    },
     "Starry Form": {
       type: "utility",
       noTemplate: true,
@@ -2827,6 +2840,61 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Chef": [
+      {
+        constructor: {
+          name: "Create Bolstering Treats",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: true,
+          consumptionOverride: {
+            targets: [
+              {
+                type: "itemUses",
+                target: "",
+                value: "-@prof",
+                scaling: {
+                  mode: "",
+                  formula: "",
+                },
+              },
+            ],
+            scaling: {
+              allowed: false,
+              max: "",
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Eat Treat",
+          type: "heal",
+        },
+        build: {
+          generateHealing: true,
+          generateTarget: true,
+          generateRange: true,
+          generateConsumption: true,
+          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "temphp" }),
+        },
+        overrides: {
+          addItemConsume: true,
+          data: {
+            target: {
+              affects: {
+                count: "1",
+                type: "creature",
+              },
+            },
+            range: {
+              units: "touch",
+            },
+          },
+        },
+      },
+    ],
     "Deflect Attacks": () => {
       return [
         { action: { name: "Deflect Attack", type: "class" } },
@@ -2945,6 +3013,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           ],
         },
       },
+    ],
+    "Durable": [
+      { action: { name: "Speedy Recovery", type: "feat" } },
     ],
     "Eldritch Invocations: Lifedrinker": () => {
       return ["Smallest", "Largest"].map((size) => {
@@ -3418,6 +3489,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ];
     },
+    "Observant": [
+      { action: { name: "Quick Search", type: "feat", rename: ["Quick Search"] } },
+    ],
     "Patient Defense": () => {
       if (this.is2014) return [];
       return [
@@ -3802,6 +3876,46 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           { action: { name: "Psychic Blades: Homing Strikes", type: "class" } },
           { action: { name: "Psychic Teleportation", type: "class" } },
         ];
+    },
+    "Speedy Recovery": () => {
+      return ["Smallest", "Largest"].map((size) => {
+        return {
+          constructor: {
+            name: `Healing - ${size} Hit Die`,
+            type: "heal",
+          },
+          build: {
+            generateConsumption: true,
+            generateTarget: false,
+            targetSelf: true,
+            generateRange: false,
+            generateActivation: true,
+            generateDamage: false,
+            generateHealing: true,
+            activationOverride: {
+              type: "bonus",
+            },
+            healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: `@attributes.hd.${size.toLowerCase()}Available`, type: "healing" }),
+            consumptionOverride: {
+              targets: [
+                {
+                  type: "hitDice",
+                  target: size.toLowerCase(),
+                  value: 1,
+                  scaling: {
+                    mode: "",
+                    formula: "",
+                  },
+                },
+              ],
+              scaling: {
+                allowed: false,
+                max: "",
+              },
+            },
+          },
+        };
+      });
     },
     "The Third Eye": [
       {
@@ -4249,6 +4363,22 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Celestial Revelation (Inner Radiance)": {
       descriptionSuffix: `<br><p>[[/ddbifunc functionName="innerRadiance" functionType="feat"]]{Toggle Inner Radiance Light}</div></p>`,
+    },
+    "Chef": {
+      data: {
+        "flags.ddbimporter": {
+          retainOriginalConsumption: true,
+        },
+        system: {
+          uses: {
+            spent: "0",
+            max: "@prof",
+            recovery: [
+              { period: "lr", type: "recoverAll", formula: undefined },
+            ],
+          },
+        },
+      },
     },
     "Combat Superiority": () => {
       const uses = this._getUsesWithSpent({

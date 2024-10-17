@@ -102,6 +102,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Step of the Wind",
     "Enhanced Unarmed Strike",
     "Merge with Shadows",
+    "Quick Search",
+    "Speedy Recovery",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
