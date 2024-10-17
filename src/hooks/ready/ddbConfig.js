@@ -4,6 +4,7 @@ import FileHelper from "../../lib/FileHelper.js";
 import SETTINGS from "../../settings.js";
 import DDBProxy from "../../lib/DDBProxy.js";
 import addDDBConfig from "./addDDBConfig.js";
+// import { RULE_DATA } from "./fallbackRules.js";
 
 function directConfig() {
   $.getJSON("https://www.dndbeyond.com/api/config/json")
@@ -69,6 +70,7 @@ function proxyConfig() {
 export function loadDDBConfig() {
   if (!foundry.utils.hasProperty(CONFIG, "DDB")) {
     foundry.utils.setProperty(CONFIG, "DDB", fallbackDDBConfig);
+    // foundry.utils.setProperty(CONFIG, "DDB.RULE_DATA", RULE_DATA);
     if (foundry.utils.getProperty(CONFIG, "DEBUG.DDBI.DIRECT_CONFIG")) {
       if ((/electron/i).test(navigator.userAgent)) {
         logger.info("Electron detected using DDB Config stub");
