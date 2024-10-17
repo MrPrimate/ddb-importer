@@ -3241,6 +3241,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
+    "Fleet Step": [
+      { action: { name: "Step of the Wind: Fleet Step", type: "class" } },
+    ],
     "Giant's Might": [
       {
         constructor: {

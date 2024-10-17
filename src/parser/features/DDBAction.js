@@ -107,6 +107,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Flurry of Blows: Addle",
     "Flurry of Blows: Push",
     "Flurry of Blows: Topple",
+    "Step of the Wind: Fleet Step",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

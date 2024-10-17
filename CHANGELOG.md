@@ -1,6 +1,6 @@
 # Next Up
 
-- Warrior of Elements Subclass parsing improvements.
+- Warrior of Elements and Warrior of Open Palm Subclass parsing improvements.
 - Chef, Boon of Night Spirit and Tavern Brawler parsing improvements.
 
 # 6.0.21
