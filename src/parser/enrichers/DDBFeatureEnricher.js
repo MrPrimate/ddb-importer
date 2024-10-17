@@ -792,6 +792,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Elemental Burst": {
+      // options: {
+      //   generateRange: true,
+      //   generateTarget: true,
+      // },
+      data: {
+        damage: {
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.elements.elemental-burst", types: ["acid", "cold", "fire", "lightning", "thunder"] })],
+        },
+      },
+    },
     "Elemental Fury: Primal Strike": {
       type: "damage",
       targetType: "creature",

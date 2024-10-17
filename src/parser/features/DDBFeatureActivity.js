@@ -220,11 +220,19 @@ export default class DDBFeatureActivity {
       return;
     }
     if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
-      this.data.range = {
-        value: null,
-        units: "self",
-        special: "",
-      };
+      if (this.ddbDefinition.range.range) {
+        this.data.range = {
+          value: this.ddbDefinition.range.range,
+          units: "ft",
+          special: "",
+        };
+      } else {
+        this.data.range = {
+          value: null,
+          units: "self",
+          special: "",
+        };
+      }
     } else if (this.ddbDefinition.range && this.ddbDefinition.range.range) {
       this.data.range = {
         value: this.ddbDefinition.range.range,
