@@ -1,4 +1,4 @@
-import { effectModules, generateATLChange, generateCustomChange, generateDowngradeChange, generateOverrideChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
+import { effectModules, generateATLChange, generateCustomChange, generateDowngradeChange, generateOverrideChange, generateSignedAddChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import utils from "../../lib/utils.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
@@ -792,11 +792,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Elemental Attunement": {
+      name: "Elemental Attunement",
+      type: "utility",
+      targetType: "self",
+      activationType: "special",
+      condition: "Start of turn",
+    },
     "Elemental Burst": {
-      // options: {
-      //   generateRange: true,
-      //   generateTarget: true,
-      // },
       data: {
         damage: {
           parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.elements.elemental-burst", types: ["acid", "cold", "fire", "lightning", "thunder"] })],
@@ -825,7 +828,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           ability: "dex",
           type: {
             value: "melee",
-            classification: "weapon",
+            classification: "unarmed",
           },
         },
         damage: {
@@ -2967,6 +2970,83 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         };
       });
     },
+    "Elemental Attunement": () => {
+      return [
+        {
+          constructor: {
+            name: "Elemental Strike",
+            type: "attack",
+          },
+          build: {
+            generateAttack: true,
+            generateDamage: true,
+            generateRange: true,
+            generateTarget: true,
+            generateActivation: true,
+            generateConsumption: false,
+            damageParts: [
+              DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @mod", types: ["bludgeoning", "acid", "cold", "fire", "lightning", "thunder"] }),
+            ],
+          },
+          overrides: {
+            data: {
+              target: {
+                affects: {
+                  count: "1",
+                  type: "creature",
+                },
+              },
+              range: {
+                value: 15,
+                units: "ft",
+              },
+              attack: {
+                ability: "dex",
+                type: {
+                  value: "melee",
+                  classification: "unarmed",
+                },
+              },
+            },
+          },
+        },
+        {
+          constructor: {
+            name: "Elemental Save",
+            type: "save",
+          },
+          build: {
+            generateSave: true,
+            generateRange: false,
+            generateTarget: true,
+            generateActivation: true,
+            generateConsumption: false,
+            saveOverride: {
+              ability: "str",
+              dc: { calculation: "wis", formula: "" },
+            },
+            activationOverride: {
+              type: "special",
+              condition: "You deal Elemental Strike damage",
+            },
+          },
+          overrides: {
+            data: {
+              target: {
+                affects: {
+                  count: "1",
+                  type: "creature",
+                },
+              },
+              range: {
+                value: 15,
+                units: "ft",
+              },
+            },
+          },
+        },
+      ];
+    },
     "Form of the Beast: Bite": [
       {
         constructor: {
@@ -4181,6 +4261,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "system.uses": { value: null, max: null },
       },
     },
+    "Elemental Attunement": {
+      data: {
+        "flags.ddbimporter.ignoredConsumptionActivities": [
+          "Elemental Strike",
+          "Elemental Save",
+        ],
+      },
+    },
     "Epic Boon: Choose an Epic Boon feat": {
       data: {
         "name": "Epic Boon",
@@ -4705,7 +4793,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             "flags.ddbimporter.activityMatch": "Panther",
           },
           changes: [
-            generateUpgradeChange("@attributes.movement.climb", 20, "system.attributes.movement.walk"),
+            generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.climb"),
           ],
         },
         {
@@ -4716,7 +4804,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             "flags.ddbimporter.activityMatch": "Salmon",
           },
           changes: [
-            generateUpgradeChange("@attributes.movement.swim", 20, "system.attributes.movement.walk"),
+            generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.swim"),
           ],
         },
       ],
@@ -4939,6 +5027,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         description: "",
       },
     },
+    "Elemental Attunement": {
+      name: "Elemental Attunement",
+      data: {
+        "flags.ddbimporter.activityMatch": "Elemental Attunement",
+      },
+    },
     "Elven Accuracy": {
       options: {
         transfer: true,
@@ -4973,7 +5067,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Frost's Chill (Frost Giant)": {
       changes: [
-        { key: "system.attributes.movement.walk", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "-10", priority: "20" },
+        generateSignedAddChange("-10", 20, "system.attributes.movement.walk"),
       ],
     },
     "Giant's Might": {
@@ -5303,7 +5397,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             "flags.ddbimporter.activityMatch": "Falcoln",
           },
           changes: [
-            generateUpgradeChange("@attributes.movement.fly", 20, "system.attributes.movement.walk"),
+            generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
           ],
         },
         {
@@ -5584,6 +5678,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
         generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
         generateUnsignedAddChange("thunder", 20, "system.traits.dr.value"),
+      ],
+    },
+    "Stride of the Elements": {
+      changes: [
+        generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+        generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.swim"),
       ],
     },
     "Superior Critical": {

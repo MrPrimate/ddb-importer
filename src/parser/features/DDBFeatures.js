@@ -77,9 +77,12 @@ export default class DDBFeatures {
     "Maneuver: Menacing Attack (Dex.)",
   ];
 
+  // if there are duplicate name entries in your feature use this, due to multiple features in builder
+  // and sheet with different descriptions.
   static FORCE_DUPLICATE_FEATURE = [
     "Blessed Strikes",
     "Wrath of the Sea",
+    "Elemental Attunement",
   ];
 
   static isDuplicateFeature(items, item) {

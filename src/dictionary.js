@@ -958,7 +958,7 @@ const DICTIONARY = {
       "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm", "Hand of Ultimate Mercy",
       "Awakened Astral Self", "Uncanny Metabolism", "Superior Defense",
       "Deflect Attacks", "Deflect Energy", "Disciplined Survivor",
-      "Cloak of Shadows", "Improved Shadow Step", "Elemental Burst",
+      "Cloak of Shadows", "Improved Shadow Step", "Elemental Burst", "Elemental Attunement",
     ],
     "Infuse Item": ["Infusion:"],
     // "Lay on Hands Pool": ["Lay on Hands"],
