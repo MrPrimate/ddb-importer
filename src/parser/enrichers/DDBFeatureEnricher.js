@@ -806,6 +806,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Elemental Epitome": {
+      type: "utility",
+      name: "Elemental Attunement Effects",
+      activationType: "special",
+      condition: "Become Elementally Attuned",
+      targetType: "self",
+      noTemplate: true,
+    },
     "Elemental Fury: Primal Strike": {
       type: "damage",
       targetType: "creature",
@@ -3047,6 +3055,39 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ];
     },
+    "Elemental Epitome": () => {
+      return [
+        {
+          constructor: {
+            name: "Elemental Epitome Damage",
+            type: "damage",
+          },
+          build: {
+            generateDamage: true,
+            generateActivation: true,
+            generateConsumption: false,
+            generateTarget: false,
+            generateRange: false,
+            damageParts: [
+              DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die", types: ["acid", "cold", "fire", "lightning", "thunder"] }),
+            ],
+          },
+          overrides: {
+            data: {
+              target: {
+                affects: {
+                  count: "1",
+                  type: "creature",
+                },
+              },
+              range: {
+                units: "self",
+              },
+            },
+          },
+        },
+      ];
+    },
     "Form of the Beast: Bite": [
       {
         constructor: {
@@ -5032,6 +5073,34 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         "flags.ddbimporter.activityMatch": "Elemental Attunement",
       },
+    },
+    "Elemental Epitome": () => {
+      const resistance = ["acid", "cold", "fire", "lightning", "thunder"].map((element) => {
+        return {
+          name: `${utils.capitalize(element)} Resistance`,
+          changes: [
+            generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
+          ],
+          data: {
+            "flags.ddbimporter.activityMatch": "Elemental Attunement Effects",
+          },
+        };
+      });
+      const speed = {
+        name: "Step of the Wind Bonus",
+        changes: [
+          generateUnsignedAddChange("20", 20, "system.attributes.speed.walk"),
+        ],
+        data: {
+          "flags.ddbimporter.activityMatch": "Elemental Attunement Effects",
+        },
+      };
+      return {
+        multiple: [
+          ...resistance,
+          speed,
+        ],
+      };
     },
     "Elven Accuracy": {
       options: {
