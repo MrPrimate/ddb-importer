@@ -7,6 +7,7 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     super();
     this.additionalActivityClass = DDBItemActivity;
     this.effectType = "item";
+    this.enricherType = "item";
   }
 
   load({ ddbParser, document, name = null } = {}) {

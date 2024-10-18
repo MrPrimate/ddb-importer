@@ -68,8 +68,34 @@ export default class DDBBaseEnricher {
 
   DOCUMENT_STUB = {};
 
+  EXTERNAL_ENRICHERS = {};
+
   static _loadDataStub(stub) {
     return utils.isFunction(stub) ? stub() : stub;
+  }
+
+  _loadEnricherData(name) {
+    if (this.EXTERNAL_ENRICHERS?.[name]) {
+      const ExternalEnricher = DDBBaseEnricher._loadDataStub(this.EXTERNAL_ENRICHERS?.[name]);
+      return new ExternalEnricher({
+        ddbEnricher: this,
+      });
+    }
+    return null;
+  }
+
+  _getEnricherMatchesV2() {
+
+    const loadedMatch = this._loadEnricherData(this.hintName);
+
+    if (!loadedMatch) return null;
+
+    this.activity = loadedMatch.activity();
+    this.effect = loadedMatch.effect();
+    this.override = loadedMatch.override();
+    this.additionalActivities = loadedMatch.additionalActivities();
+    this.documentStub = loadedMatch.documentStub();
+    return true;
   }
 
   _findEnricherMatch(type) {
@@ -94,19 +120,22 @@ export default class DDBBaseEnricher {
     // lookupName
   }
 
-  _prepare() {
-    if (this.isCustomAction) return;
-    this.hintName = (this.is2014 ? this.DND_2014.NAME_HINTS[this.name] : null) ?? this.NAME_HINTS[this.name] ?? this.name;
+  _getEnricherMatchesV1() {
     this.activity = this._findEnricherMatch("ACTIVITY_HINTS");
     this.effect = this._findEnricherMatch("EFFECT_HINTS");
     this.override = this._findEnricherMatch("DOCUMENT_OVERRIDES");
     this.additionalActivities = this._findEnricherMatch("ADDITIONAL_ACTIVITIES");
     this.documentStub = this._findEnricherMatch("DOCUMENT_STUB");
-    // this.activity = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.ACTIVITY_HINTS[this.hintName] : null) ?? this.ACTIVITY_HINTS[this.hintName]);
-    // this.effect = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.EFFECT_HINTS[this.hintName] : null) ?? this.EFFECT_HINTS[this.hintName]);
-    // this.override = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.DOCUMENT_OVERRIDES[this.hintName] : null) ?? this.DOCUMENT_OVERRIDES[this.hintName]);
-    // this.additionalActivities = (this.is2014 ? this.DND_2014.ADDITIONAL_ACTIVITIES[this.hintName] : null) ?? this.ADDITIONAL_ACTIVITIES[this.hintName];
-    // this.documentStub = DDBBaseEnricher._loadDataStub((this.is2014 ? this.DND_2014.DOCUMENT_STUB[this.hintName] : null) ?? this.DOCUMENT_STUB[this.hintName]);
+  }
+
+  _prepare() {
+    if (this.isCustomAction) return;
+    this.hintName = (this.is2014 ? this.DND_2014.NAME_HINTS[this.name] : null)
+      ?? this.NAME_HINTS[this.name]
+      ?? this.name;
+
+    const loadV2 = this._getEnricherMatchesV2();
+    if (!loadV2) this._getEnricherMatchesV1();
   }
 
   constructor() {
@@ -119,6 +148,7 @@ export default class DDBBaseEnricher {
     this.is2024 = null;
     this.useLookupName = false;
     this.effectType = "basic";
+    this.enricherType = "general";
   }
 
   load({ ddbParser, document, name = null, is2014 = null } = {}) {

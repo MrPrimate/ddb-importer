@@ -1277,7 +1277,13 @@ export default class DDBEffectHelper {
       match: null,
     };
 
-    let parserText = utils.nameString(text);
+    let parserText = utils.nameString(text)
+      .replaceAll("[condition]", "")
+      .replaceAll("[/condition]", "")
+      .replaceAll("[save]", "")
+      .replaceAll("[/save]", "")
+      .replaceAll("[/action]", "")
+      .replaceAll("[action]", "");
     const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
     let match = conditionSearch.exec(parserText);
     if (!match) {

@@ -12,6 +12,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     super();
     this.additionalActivityClass = DDBSpellActivity;
     this.effectType = "spell";
+    this.enricherType = "spell";
   }
 
   load({ ddbParser, document, name = null } = {}) {

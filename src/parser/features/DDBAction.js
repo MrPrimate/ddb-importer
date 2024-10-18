@@ -108,6 +108,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Flurry of Blows: Push",
     "Flurry of Blows: Topple",
     "Step of the Wind: Fleet Step",
+    "Lay On Hands: Purify Poison",
+    "Channel Divinity: Abjure Foes",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

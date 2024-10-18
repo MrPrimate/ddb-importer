@@ -3,18 +3,24 @@ import utils from "../../lib/utils.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBHelper from "../../lib/DDBHelper.js";
+import AbjureFoes from "./feature/abjureFoes.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
     super();
     this.additionalActivityClass = DDBFeatureActivity;
     this.effectType = "feat";
+    this.enricherType = "feat";
   }
 
   load({ ddbParser, document, name = null } = {}) {
     super.load({ ddbParser, document, name });
     this._prepare();
   }
+
+  EXTERNAL_ENRICHERS = {
+    "Abjure Foes": () => AbjureFoes,
+  };
 
   DND_2014 = {
     NAME_HINTS: {
@@ -3449,6 +3455,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           },
         },
       },
+      { action: { name: "Lay On Hands: Purify Poison", type: "class", rename: ["Purify Poison"] } },
     ],
     "Maneuver: Tactical Assessment": [
       {

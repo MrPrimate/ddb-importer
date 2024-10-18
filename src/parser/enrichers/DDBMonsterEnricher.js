@@ -34,6 +34,7 @@ export default class DDDMonsterEnricher extends DDBBaseEnricher {
     this._prepare();
     this.additionalActivityClass = DDBMonsterFeatureActivity;
     this.effectType = "feat";
+    this.enricherType = "monster";
   }
 
   DND_2014 = {
