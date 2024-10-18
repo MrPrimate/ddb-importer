@@ -110,6 +110,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Step of the Wind: Fleet Step",
     "Lay On Hands: Purify Poison",
     "Channel Divinity: Abjure Foes",
+    "Lay on Hands: Restoring Touch",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

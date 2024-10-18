@@ -2,6 +2,7 @@
 
 - Warrior of Elements and Warrior of Open Palm Subclass parsing improvements.
 - Chef, Boon of Night Spirit and Tavern Brawler parsing improvements.
+- Paladin of Devotion 2024 tweaks.
 
 # 6.0.21
 
