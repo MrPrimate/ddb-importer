@@ -4,6 +4,8 @@ import DDBBaseEnricher from "./DDBBaseEnricher.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import AbjureFoes from "./feature/abjureFoes.js";
+import PatientDefense from "./feature/patientDefense.js";
+import DivineIntervention from "./feature/divineIntervention.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -20,6 +22,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
 
   EXTERNAL_ENRICHERS = {
     "Abjure Foes": () => AbjureFoes,
+    "Divine Intervention": () => DivineIntervention,
+    "Patient Defense": () => PatientDefense,
   };
 
   DND_2014 = {
@@ -33,18 +37,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       "Breath Weapon (Fire)": {},
       "Breath Weapon (Lightning)": {},
       "Breath Weapon (Poison)": {},
-      "Divine Intervention": {
-        type: "utility",
-        addItemConsume: true,
-        data: {
-          roll: {
-            prompt: false,
-            visible: false,
-            formula: "1d100",
-            name: "Implore Aid",
-          },
-        },
-      },
       // "Celestial Revelation": {},
       "Eldritch Invocations: Ghostly Gaze": {
         type: "utility",
@@ -83,17 +75,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
     },
     EFFECT_HINTS: {
-      "Patient Defense": {
-        name: "Patient Defense: Dodging",
-        options: {
-          durationRounds: 1,
-          durationSeconds: 6,
-        },
-        statuses: ["dodging"],
-        data: {
-          "flags.ddbimporter.activitiesMatch": ["Patient Defense: Dodge"],
-        },
-      },
       "Sacred Weapon": {
         type: "enchant",
         name: "Sacred Weapon",
@@ -735,10 +716,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Disciplined Survivor": {
       type: "utility",
       targetType: "self",
-    },
-    "Divine Intervention": {
-      type: "utility",
-      addItemConsume: true,
     },
     "Eldritch Cannon: Flamethrower": {
       type: "save",
@@ -1573,14 +1550,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           name: "Roll Ability Check Bonus",
         },
       },
-    },
-    "Patient Defense": () => {
-      const result = {
-        name: this.is2014 ? "Patient Defense: Dodge" : "Patient Defense: Disengage",
-        targetType: "self",
-        type: "utility",
-      };
-      return result;
     },
     "Perfect Focus": {
       type: "ddbmacro",
@@ -3539,18 +3508,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       }
       return [];
     },
-    "Patient Defense": () => {
-      if (this.is2014) return [];
-      return [
-        {
-          duplicate: true,
-          overrides: {
-            addItemConsume: true,
-            data: { name: "Patient Defense: Disengage & Dodge" },
-          },
-        },
-      ];
-    },
     "Physician's Touch": () => {
       return [
         { action: { name: "Hand of Healing", type: "class", rename: ["Hand of Healing"] } },
@@ -4456,18 +4413,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         "flags.ddbimporter": {
           ignoredConsumptionActivities: ["Reduce Damage"],
-        },
-      },
-    },
-    "Divine Intervention": {
-      data: {
-        "flags.ddbimporter.retainOriginalConsumption": true,
-        "system.uses": {
-          value: "0",
-          max: "1",
-          recovery: [
-            { period: "lr", type: 'recoverAll', formula: undefined },
-          ],
         },
       },
     },
@@ -5645,31 +5590,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         "duration.rounds": 600,
       },
-    },
-    "Patient Defense": {
-      multiple: [
-        {
-          name: "Patient Defense: Disengaged",
-          options: {
-            durationRounds: 1,
-            durationSeconds: 6,
-          },
-          data: {
-            "flags.ddbimporter.activitiesMatch": ["Patient Defense: Disengage"],
-          },
-        },
-        {
-          name: "Patient Defense: Disengaged & Dodging",
-          options: {
-            durationRounds: 1,
-            durationSeconds: 6,
-          },
-          statuses: ["dodging"],
-          data: {
-            "flags.ddbimporter.activitiesMatch": ["Patient Defense: Disengage & Dodge"],
-          },
-        },
-      ],
     },
     "Physician's Touch": {
       name: "Poisoned",
