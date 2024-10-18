@@ -25,10 +25,6 @@ export default class DivineIntervention extends DDBEnricherMixin {
     }
   }
 
-  additionalActivities() {
-    return [];
-  }
-
   override() {
     return {
       data: {

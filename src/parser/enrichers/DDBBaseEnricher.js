@@ -90,11 +90,11 @@ export default class DDBBaseEnricher {
 
     if (!loadedMatch) return null;
 
-    this.activity = loadedMatch.activity();
-    this.effect = loadedMatch.effect();
-    this.override = loadedMatch.override();
-    this.additionalActivities = loadedMatch.additionalActivities();
-    this.documentStub = loadedMatch.documentStub();
+    this.activity = loadedMatch.activity;
+    this.effect = loadedMatch.effect;
+    this.override = loadedMatch.override;
+    this.additionalActivities = loadedMatch.additionalActivities;
+    this.documentStub = loadedMatch.documentStub;
     return true;
   }
 
@@ -182,6 +182,8 @@ export default class DDBBaseEnricher {
 
     let activityHint = utils.isFunction(this.activity) ? this.activity() : this.activity;
 
+    if (!activityHint) return activity;
+
     if (activityHint.name) activity.name = activityHint.name;
 
     if (activityHint.type === "summon") {
@@ -263,15 +265,21 @@ export default class DDBBaseEnricher {
           prompt: true,
         });
       }
-      if ([undefined, null, ""].includes(foundry.utils.getProperty(activity, "range.units"))
-        || activityHint.rangeSelf
-      ) {
+      if ([undefined, null, ""].includes(foundry.utils.getProperty(activity, "range.units"))) {
         foundry.utils.setProperty(activity, "range", {
           value: null,
           units: "self",
           special: "",
         });
       }
+    }
+
+    if (activityHint.rangeSelf) {
+      foundry.utils.setProperty(activity, "range", {
+        value: null,
+        units: "self",
+        special: "",
+      });
     }
 
     if (activityHint.noTemplate) {
@@ -347,16 +355,21 @@ export default class DDBBaseEnricher {
 
     let effect;
 
-    const effectHints = this.effect.multiple
-      ? utils.isFunction(this.effect.multiple)
-        ? this.effect.multiple()
-        : this.effect.multiple
-      : [this.effect];
+    const effectHintsRaw = utils.isFunction(this.effect)
+      ? this.effect()
+      : this.effect;
+
+    const effectHints = effectHintsRaw.multiple
+      ? utils.isFunction(effectHintsRaw.multiple)
+        ? effectHintsRaw.multiple()
+        : effectHintsRaw.multiple
+      : [effectHintsRaw];
 
     for (const effectHintFunction of effectHints) {
       const effectHint = utils.isFunction(effectHintFunction)
         ? effectHintFunction()
         : effectHintFunction;
+      if (!effectHint) continue;
       let name = effectHint.name ?? this.name;
       let effectOptions = effectHint.options ?? {};
 
@@ -556,6 +569,8 @@ export default class DDBBaseEnricher {
     const additionalActivities = utils.isFunction(this.additionalActivities)
       ? this.additionalActivities()
       : this.additionalActivities;
+
+    if (!additionalActivities) return;
 
     let i = this.data.system.activities.length ?? 0 + 1;
     for (const activityHint of additionalActivities) {

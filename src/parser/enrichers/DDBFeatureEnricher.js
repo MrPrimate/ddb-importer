@@ -3,9 +3,15 @@ import utils from "../../lib/utils.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import AbjureFoes from "./feature/abjureFoes.js";
-import PatientDefense from "./feature/patientDefense.js";
-import DivineIntervention from "./feature/divineIntervention.js";
+
+import AbjureFoes from "./feature/AbjureFoes.js";
+import ArcaneRecovery from "./feature/ArcaneRecovery.js";
+import Archdruid from "./feature/Archdruid.js";
+import DivineIntervention from "./feature/DivineIntervention.js";
+import GhostlyGaze from "./feature/GhostlyGaze.js";
+import NatureMagician from "./feature/NatureMagician.js";
+import PatientDefense from "./feature/PatientDefense.js";
+import SacredWeapon from "./feature/SacredWeapon.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -22,8 +28,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
 
   EXTERNAL_ENRICHERS = {
     "Abjure Foes": () => AbjureFoes,
+    "Arcane Recovery": () => ArcaneRecovery,
+    "Archdruid": () => Archdruid,
     "Divine Intervention": () => DivineIntervention,
+    "Eldritch Invocations: Ghostly Gaze": () => GhostlyGaze,
+    "Nature Magician": () => NatureMagician,
     "Patient Defense": () => PatientDefense,
+    "Sacred Weapon": () => SacredWeapon,
   };
 
   DND_2014 = {
@@ -38,9 +49,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       "Breath Weapon (Lightning)": {},
       "Breath Weapon (Poison)": {},
       // "Celestial Revelation": {},
-      "Eldritch Invocations: Ghostly Gaze": {
-        type: "utility",
-      },
       "Relentless": {},
       "Channel Divinity": {},
       "Slow Fall": {},
@@ -60,43 +68,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       "Breath Weapon (Lightning)": {},
       "Breath Weapon (Poison)": {},
       "Dark One's Own Luck": {},
-      "Eldritch Invocations: Ghostly Gaze": {
-        data: {
-          "duration": {
-            value: 1,
-            units: "minute",
-          },
-          "system.uses": {
-            value: this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Ghostly Gaze")?.limitedUse?.numberUsed ?? null,
-            max: 1,
-            recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
-          },
-        },
-      },
     },
-    EFFECT_HINTS: {
-      "Sacred Weapon": {
-        type: "enchant",
-        name: "Sacred Weapon",
-        magicalBonus: {
-          makeMagical: true,
-        },
-        descriptionSuffix: `<br><p>[[/ddbifunc functionName="sacredWeaponLight" functionType="feat"]]{Toggle Sacred Weapon Light}</div></p>`,
-        changes: [
-          {
-            key: "attack.bonus",
-            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            value: "@abilities.cha.mod",
-            priority: 20,
-          },
-        ],
-        options: {
-          name: "Sacred Weapon",
-          description: `The weapon shines with Sacred Energy.`,
-          durationSeconds: 60,
-        },
-      },
-    },
+    EFFECT_HINTS: {},
     DOCUMENT_STUB: {
       // "Celestial Revelation": {
       //   stopDefaultActivity: true,
@@ -130,34 +103,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
   };
 
   ACTIVITY_HINTS = {
-    "Arcane Recovery": {
-      type: "ddbmacro",
-      data: {
-        macro: {
-          name: "Arcane Recovery",
-          function: "ddb.feat.arcaneRecovery",
-          visible: false,
-          parameters: "",
-        },
-      },
-    },
-    "Archdruid": {
-      type: "utility",
-      name: "Regain A Wild Shape Use",
-      activationType: "special",
-      condition: "When you roll initiative and have no Wild Shape uses remaining",
-      additionalConsumptionTargets: [
-        {
-          type: "itemUses",
-          target: "",
-          value: "-1",
-          scaling: {
-            mode: "",
-            formula: "",
-          },
-        },
-      ],
-    },
     "Arms of the Astral Self (DEX/STR)": {
       data: {
         "attack.ability": "",
@@ -1887,12 +1832,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "utility",
       activationType: "reaction",
     },
-    "Sacred Weapon": {
-      type: "enchant",
-      activationType: "special",
-      noTemplate: true,
-      targetType: "self",
-    },
     "Sear Undead": {
       type: "damage",
       targetType: "creature",
@@ -2422,64 +2361,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
   };
 
   ADDITIONAL_ACTIVITIES = {
-    "Archdruid": () => {
-      return [
-        {
-          constructor: {
-            name: "Nature Magician",
-            type: "utility",
-          },
-          build: {
-            generateConsumption: true,
-            generateRange: true,
-            generateTarget: true,
-            generateUses: true,
-            activationOverride: {
-              units: "",
-            },
-            usesOverride: this._getUsesWithSpent({ type: "class", name: "Nature Magician", max: 1, period: "lr" }),
-            consumptionOverride: {
-              targets: [
-                {
-                  type: "itemUses",
-                  target: "",
-                  value: "1",
-                  scaling: { mode: "amount", formula: "" },
-                },
-                {
-                  type: "activityUses",
-                  target: "",
-                  value: "1",
-                  scaling: { mode: "", formula: "" },
-                },
-                {
-                  type: "spellSlots",
-                  value: "-1",
-                  target: "2",
-                  scaling: {
-                    mode: "level",
-                    formula: "2",
-                  },
-                },
-              ],
-              scaling: {
-                allowed: true,
-                max: "@scale.druid.wild-shape-uses",
-              },
-              spellSlot: true,
-            },
-            targetOverride: {
-              affects: {
-                type: "self",
-              },
-            },
-            rangeOverride: {
-              units: "self",
-            },
-          },
-        },
-      ];
-    },
     "Aspect of the Wilds": [
       {
         constructor: {
@@ -5716,23 +5597,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       changes: [
         generateOverrideChange("true", 20, "flags.dnd5e.remarkableAthlete"),
       ],
-    },
-    "Sacred Weapon": {
-      type: "enchant",
-      name: "Sacred Weapon",
-      magicalBonus: {
-        makeMagical: true,
-      },
-      descriptionSuffix: `<br><p>[[/ddbifunc functionName="sacredWeaponLight2024" functionType="feat"]]{Toggle Sacred Weapon Light}</div></p>`,
-      changes: [
-        generateOverrideChange("@abilities.cha.mod", 20, "attack.bonus"),
-        generateUnsignedAddChange("radiant", 20, "damage.base.types"),
-      ],
-      options: {
-        name: "Sacred Weapon",
-        description: `The weapon shines with Sacred Energy.`,
-        durationSeconds: 600,
-      },
     },
     "Shielding Storm": {
       multiple: [

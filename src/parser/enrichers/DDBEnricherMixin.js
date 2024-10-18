@@ -1,3 +1,6 @@
+import { effectModules, generateATLChange, generateCustomChange, generateDowngradeChange, generateOverrideChange, generateSignedAddChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
+import DDBHelper from "../../lib/DDBHelper.js";
+
 /* eslint-disable class-methods-use-this */
 export default class DDBEnricherMixin {
 
@@ -12,6 +15,50 @@ export default class DDBEnricherMixin {
 
     return result;
   }
+
+  _getSpentValue(type, name, matchSubClass = null) {
+    const spent = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
+      a.name === name
+    && (matchSubClass === null
+      || DDBHelper.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
+    )?.limitedUse?.numberUsed ?? null;
+    return spent;
+  }
+
+  _getUsesWithSpent({ type, name, max, period = "", formula = null, override = null, matchSubClass = null } = {}) {
+    const uses = {
+      spent: this._getSpentValue(type, name, matchSubClass),
+      max,
+    };
+
+    if (formula) {
+      uses.recovery = [{ period, type: "formula", formula }];
+    } else if (period != "") {
+      uses.recovery = [{ period, type: 'recoverAll', formula: undefined }];
+    }
+
+    if (override) {
+      uses.override = true;
+    }
+
+    return uses;
+  }
+
+  effectModules = effectModules;
+
+  generateATLChange = generateATLChange;
+
+  generateCustomChange = generateCustomChange;
+
+  generateDowngradeChange = generateDowngradeChange;
+
+  generateOverrideChange = generateOverrideChange;
+
+  generateSignedAddChange = generateSignedAddChange;
+
+  generateUnsignedAddChange = generateUnsignedAddChange;
+
+  generateUpgradeChange = generateUpgradeChange;
 
   constructor({ ddbEnricher }) {
     this.ddbEnricher = ddbEnricher;
@@ -28,9 +75,8 @@ export default class DDBEnricherMixin {
   }
 
   get data() {
-    return this.ddbParser?.data ?? this.document;
+    return this.ddbEnricher.ddbParser.data;
   }
-
 
   activity() {
     return null;
