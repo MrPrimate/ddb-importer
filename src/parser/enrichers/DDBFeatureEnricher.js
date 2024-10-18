@@ -12,6 +12,7 @@ import GhostlyGaze from "./feature/GhostlyGaze.js";
 import NatureMagician from "./feature/NatureMagician.js";
 import PatientDefense from "./feature/PatientDefense.js";
 import SacredWeapon from "./feature/SacredWeapon.js";
+import LivingLegend from "./feature/LivingLegend.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -35,6 +36,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Nature Magician": () => NatureMagician,
     "Patient Defense": () => PatientDefense,
     "Sacred Weapon": () => SacredWeapon,
+    "Living Legend": () => LivingLegend,
   };
 
   DND_2014 = {

@@ -83,6 +83,7 @@ export default class DDBFeatures {
     "Blessed Strikes",
     "Wrath of the Sea",
     "Elemental Attunement",
+    "Living Legend",
   ];
 
   static isDuplicateFeature(items, item) {

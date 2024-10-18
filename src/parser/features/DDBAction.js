@@ -111,6 +111,9 @@ export default class DDBAction extends DDBBaseFeature {
     "Lay On Hands: Purify Poison",
     "Channel Divinity: Abjure Foes",
     "Lay on Hands: Restoring Touch",
+    "Embody Legends",
+    "Saving Throw Reroll",
+    "Unerring Strike",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
