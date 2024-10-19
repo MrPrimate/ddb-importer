@@ -23,6 +23,7 @@ import UndyingSentinel from "./feature/UndyingSentinel.js";
 import HolyNimbus from "./feature/HolyNimbus.js";
 import ElderChampion from "./feature/ElderChampion.js";
 import ChannelDivinity from "./feature/ChannelDivinity.js";
+import GloriousDefense from "./feature/GloriousDefense.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -57,6 +58,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Holy Nimbus": () => HolyNimbus,
     "Elder Champion": () => ElderChampion,
     "Channel Divinity": () => ChannelDivinity,
+    "Glorious Defense": () => GloriousDefense,
   };
 
   DND_2014 = {
