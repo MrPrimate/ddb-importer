@@ -264,7 +264,7 @@ function parseLooseRuleReferences(text, superLoose = false) {
   return text;
 }
 
-function parseHardReferenceTag(type, text) {
+function parseHardCompendiumReferenceTag(type, text) {
   const index = foundry.utils.hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
     ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${type}`)
     : undefined;
@@ -452,7 +452,7 @@ export function parseToHitRoll({ text, document } = {}) {
 
 export function parseTags(text) {
   for (const tag of ["spell", "item", "spells", "items"]) {
-    text = parseHardReferenceTag(tag, text);
+    text = parseHardCompendiumReferenceTag(tag, text);
   }
   const tagRegEx = /\[([^\]]+)]{?([^[}]+)}?\[\/([^\]]+)]/g;
   const matches = text.match(tagRegEx);
