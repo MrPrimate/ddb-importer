@@ -18,6 +18,7 @@ import EmbodyLegends from "./feature/EmbodyLegends.js";
 import RadiantStrikes from "./feature/RadiantStrikes.js";
 import LayOnHandsPurifyPoison from "./feature/LayOnHandsPurifyPoison.js";
 import LayOnHands from "./feature/LayOnHands.js";
+import PeerlessAthlete from "./feature/PeerlessAthlete.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -38,15 +39,16 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Archdruid": () => Archdruid,
     "Divine Intervention": () => DivineIntervention,
     "Eldritch Invocations: Ghostly Gaze": () => GhostlyGaze,
+    "Embody Legends": () => EmbodyLegends,
+    "Inspiring Smite": () => InspiringSmite,
+    "Lay On Hands: Healing Pool": () => LayOnHands,
+    "Lay On Hands: Purify Poison": () => LayOnHandsPurifyPoison,
+    "Living Legend": () => LivingLegend,
     "Nature Magician": () => NatureMagician,
     "Patient Defense": () => PatientDefense,
-    "Sacred Weapon": () => SacredWeapon,
-    "Living Legend": () => LivingLegend,
-    "Inspiring Smite": () => InspiringSmite,
-    "Embody Legends": () => EmbodyLegends,
+    "Peerless Athlete": () => PeerlessAthlete,
     "Radiant Strikes": () => RadiantStrikes,
-    "Lay On Hands: Purify Poison": () => LayOnHandsPurifyPoison,
-    "Lay On Hands: Healing Pool": () => LayOnHands,
+    "Sacred Weapon": () => SacredWeapon,
   };
 
   DND_2014 = {

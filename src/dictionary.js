@@ -881,7 +881,7 @@ const DICTIONARY = {
   RESOURCE_LINKS: {
     "Channel Divinity": [
       "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",
-      "War God's Blessing", "Guided Strike", "War Priest", "Inspiring Smite",
+      "War God's Blessing", "Guided Strike", "War Priest", "Inspiring Smite", "Peerless Athlete",
       // "Sear Undead",
     ],
     "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
