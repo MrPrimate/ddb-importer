@@ -5,43 +5,37 @@ export default class LivingLegend extends DDBEnricherMixin {
 
   get activity() {
     return {
-      type: "none",
+      name: "Activate Living Legend",
+      type: "utility",
+      addItemConsume: true,
+      activationType: "bonus",
     };
   }
 
   get additionalActivities() {
-
     return [
-      // these don't always show up
-      // { action: { name: "Saving Throw Reroll", type: "class" } },
-      // { action: { name: "Unerring Strike", type: "class" } },
-
-      {
-        constructor: {
-          name: "Saving Throw Reroll",
-          type: "utility",
-        },
-        build: {
-          generateConsumption: true,
-          generateTarget: true,
-          generateActivation: true,
-          generateUtility: true,
-          overrideActivation: {
-            type: "reaction",
-          },
-        },
-        overrides: {
-          addItemConsumption: true,
-        },
-      },
-
+      { action: { name: "Embody Legends", type: "class" } },
     ];
   }
 
   get override() {
+    const uses = this._getUsesWithSpent({ type: "class", name: "Embody Legends", max: "1", period: "lr" });
     return {
       data: {
         name: "Living Legend",
+        "system.uses": uses,
+      },
+    };
+  }
+
+  get effect() {
+    return {
+      name: "Living Legend",
+      options: {
+        transfer: false,
+      },
+      data: {
+        "flags.ddbimporter.activitiesMatch": ["Activate Living Legend"],
       },
     };
   }

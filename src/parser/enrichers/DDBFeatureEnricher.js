@@ -14,7 +14,7 @@ import PatientDefense from "./feature/PatientDefense.js";
 import SacredWeapon from "./feature/SacredWeapon.js";
 import LivingLegend from "./feature/LivingLegend.js";
 import InspiringSmite from "./feature/InspiringSmite.js";
-import EmbodyLegend from "./feature/EmbodyLegend.js";
+import EmbodyLegends from "./feature/EmbodyLegends.js";
 import RadiantStrikes from "./feature/RadiantStrikes.js";
 import LayOnHandsPurifyPoison from "./feature/LayOnHandsPurifyPoison.js";
 import LayOnHands from "./feature/LayOnHands.js";
@@ -43,7 +43,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Sacred Weapon": () => SacredWeapon,
     "Living Legend": () => LivingLegend,
     "Inspiring Smite": () => InspiringSmite,
-    "Embody Legend": () => EmbodyLegend,
+    "Embody Legends": () => EmbodyLegends,
     "Radiant Strikes": () => RadiantStrikes,
     "Lay On Hands: Purify Poison": () => LayOnHandsPurifyPoison,
     "Lay On Hands: Healing Pool": () => LayOnHands,

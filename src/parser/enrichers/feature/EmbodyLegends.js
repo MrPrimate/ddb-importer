@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
-export default class EmbodyLegend extends DDBEnricherMixin {
+export default class EmbodyLegends extends DDBEnricherMixin {
 
   get activity() {
     return {
@@ -9,6 +9,7 @@ export default class EmbodyLegend extends DDBEnricherMixin {
       type: "utility",
       targetType: "self",
       activationType: "reaction",
+      noConsumeTargets: true,
     };
   }
 

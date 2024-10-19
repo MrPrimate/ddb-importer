@@ -30,12 +30,15 @@ export default class CharacterFeatureFactory {
   }
 
   getActions({ name, type }) {
-    const actions = this.ddbData.character.actions[type].filter((a) =>
-      utils.nameString(a.name) === name
-      && (type !== "class"
-        || this._highestLevelActionFeature(a, type)?.definition?.id === a.componentId
-      ),
-    ).map((a) => {
+    const nameMatchedActions = this.ddbData.character.actions[type].filter((a) => utils.nameString(a.name) === name);
+    const levelAdjustedActions = nameMatchedActions.length > 1
+      ? nameMatchedActions.filter((a) =>
+        type !== "class"
+          || this._highestLevelActionFeature(a, type)?.definition?.id === a.componentId,
+      )
+      : nameMatchedActions;
+
+    const actions = levelAdjustedActions.map((a) => {
       a.actionSource = type;
       return a;
     });
