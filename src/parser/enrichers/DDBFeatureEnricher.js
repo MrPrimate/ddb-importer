@@ -24,6 +24,7 @@ import HolyNimbus from "./feature/HolyNimbus.js";
 import ElderChampion from "./feature/ElderChampion.js";
 import ChannelDivinity from "./feature/ChannelDivinity.js";
 import GloriousDefense from "./feature/GloriousDefense.js";
+import BoonOfEnergeResistance from "./feature/BoonOfEnergyResistance.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -59,6 +60,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Elder Champion": () => ElderChampion,
     "Channel Divinity": () => ChannelDivinity,
     "Glorious Defense": () => GloriousDefense,
+    "Boon of Energy Resistance": () => BoonOfEnergeResistance,
   };
 
   DND_2014 = {
