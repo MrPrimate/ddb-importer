@@ -13,6 +13,8 @@ import NatureMagician from "./feature/NatureMagician.js";
 import PatientDefense from "./feature/PatientDefense.js";
 import SacredWeapon from "./feature/SacredWeapon.js";
 import LivingLegend from "./feature/LivingLegend.js";
+import InspiringSmite from "./feature/InspiringSmite.js";
+import EmbodyLegend from "./feature/EmbodyLegend.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -37,6 +39,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Patient Defense": () => PatientDefense,
     "Sacred Weapon": () => SacredWeapon,
     "Living Legend": () => LivingLegend,
+    "Inspiring Smite": () => InspiringSmite,
+    "Embody Legend": () => EmbodyLegend,
   };
 
   DND_2014 = {

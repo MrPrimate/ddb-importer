@@ -18,6 +18,7 @@ export default class LivingLegend extends DDBEnricherMixin {
 
       // todo: embody legend restore use/spell slot use
       // aditional actions
+
     ];
   }
 

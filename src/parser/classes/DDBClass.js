@@ -538,7 +538,7 @@ export default class DDBClass {
         const levelName = (/^\d+/).test(feature.name)
           ? feature.name
           : `${feature.requiredLevel}: ${feature.name}`;
-        const title = (featureMatch)
+        const title = featureMatch?.uuid
           ? `<p><b>@UUID[${featureMatch.uuid}]{Level ${levelName}}</b></p>`
           : `<p><b>Level ${levelName}</b></p>`;
         description += `${title}\n${feature.description}\n\n`;

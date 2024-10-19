@@ -882,7 +882,7 @@ const DICTIONARY = {
     "Lay On Hands: Healing Pool": ["Lay On Hands:"],
     "Channel Divinity": [
       "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",
-      "War God's Blessing", "Guided Strike", "War Priest",
+      "War God's Blessing", "Guided Strike", "War Priest", "Inspiring Smite",
       // "Sear Undead",
     ],
     "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
