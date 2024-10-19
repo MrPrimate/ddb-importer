@@ -19,6 +19,10 @@ import RadiantStrikes from "./feature/RadiantStrikes.js";
 import LayOnHandsPurifyPoison from "./feature/LayOnHandsPurifyPoison.js";
 import LayOnHands from "./feature/LayOnHands.js";
 import PeerlessAthlete from "./feature/PeerlessAthlete.js";
+import UndyingSentinel from "./feature/UndyingSentinel.js";
+import HolyNimbus from "./feature/HolyNimbus.js";
+import ElderChampion from "./feature/ElderChampion.js";
+import ChannelDivinity from "./feature/ChannelDivinity.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -49,6 +53,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Peerless Athlete": () => PeerlessAthlete,
     "Radiant Strikes": () => RadiantStrikes,
     "Sacred Weapon": () => SacredWeapon,
+    "Undying Sentinel": () => UndyingSentinel,
+    "Holy Nimbus": () => HolyNimbus,
+    "Elder Champion": () => ElderChampion,
+    "Channel Divinity": () => ChannelDivinity,
   };
 
   DND_2014 = {
@@ -64,7 +72,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       "Breath Weapon (Poison)": {},
       // "Celestial Revelation": {},
       "Relentless": {},
-      "Channel Divinity": {},
       "Slow Fall": {},
     },
     ADDITIONAL_ACTIVITIES: {
@@ -73,7 +80,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       "Breath Weapon (Fire)": [],
       "Breath Weapon (Lightning)": [],
       "Breath Weapon (Poison)": [],
-      "Channel Divinity": [],
     },
     DOCUMENT_OVERRIDES: {
       "Breath Weapon (Acid)": {},
@@ -97,6 +103,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Aura of Protection": "Aura of",
     "Aura Of Protection": "Aura of",
     "Aura of Alacrity": "Aura of",
+    "Aura of Warding": "Aura of",
     "Font of Magic: Convert Spell Slots": "Convert Sorcery Points",
     "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",
@@ -389,18 +396,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "save",
       activationType: "special",
       targetType: "enemy",
-    },
-    "Channel Divinity": {
-      type: "heal",
-      name: "Divine Spark (Healing)",
-      targetType: "creature",
-      data: {
-        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8", types: ["healing"] }),
-        range: {
-          value: "30",
-          units: "ft",
-        },
-      },
     },
     "Channel Divinity: Preserve Life": {
       type: "heal",
@@ -1078,29 +1073,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "creatureTypes": ["monstrosity"],
         "bonuses.hp": "floor(@classes.sorcerer.levels / 2)",
       },
-    },
-    "Imbue Aura of Protection": () => {
-      if (effectModules().atlInstalled) {
-        return {
-          type: "utility",
-          data: {
-            name: "Use/Apply Light",
-          },
-        };
-      } else {
-        return {
-          type: "ddbmacro",
-          data: {
-            name: "Use/Apply Light",
-            macro: {
-              name: "Apply Light",
-              function: "ddb.generic.light",
-              visible: false,
-              parameters: '{"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":0,"bright":20},"flag":"light"}',
-            },
-          },
-        };
-      }
     },
     "Improved Brutal Strike": {
       type: "damage",
@@ -2555,69 +2527,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
-    "Channel Divinity": [
-      {
-        constructor: {
-          name: "Divine Spark (Save vs Damage)",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateDamage: true,
-          generateTarget: true,
-          generateRange: true,
-          generateConsumption: true,
-          saveOverride: {
-            ability: "con",
-            dc: { calculation: "wis", formula: "" },
-          },
-          damageParts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8", types: ["radiant", "necrotic"] }),
-          ],
-          onSave: "half",
-          rangeOverride: {
-            units: "ft",
-            value: "30",
-          },
-          targetOverride: {
-            affects: {
-              count: "1",
-              type: "creature",
-              choice: false,
-              special: "",
-            },
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Turn Undead",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateTarget: true,
-          generateRange: true,
-          generateConsumption: true,
-          saveOverride: {
-            ability: "wis",
-            dc: { calculation: "wis", formula: "" },
-          },
-          rangeOverride: {
-            units: "ft",
-            value: "30",
-          },
-          targetOverride: {
-            affects: {
-              count: "",
-              type: "creature",
-              choice: true,
-              special: "Undead Creatures of your choice",
-            },
-          },
-        },
-      },
-    ],
     "Combat Inspiration": [
       {
         constructor: {
@@ -3198,28 +3107,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
             units: "ft",
             value: "120",
           },
-        },
-      },
-    ],
-    "Imbue Aura of Protection": [
-      {
-        constructor: {
-          name: "Aura Damage",
-          type: "damage",
-        },
-        build: {
-          noeffect: true,
-          generateConsumption: false,
-          generateTarget: false,
-          generateRange: false,
-          generateActivation: true,
-          generateDamage: true,
-          activationOverride: {
-            type: "special",
-            value: 1,
-            condition: "",
-          },
-          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@abilities.mod.cha + @prof", types: ["radiant"] })],
         },
       },
     ],
@@ -4923,17 +4810,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
       ],
     },
-    "Channel Divinity": {
-      name: "Turned",
-      options: {
-        durationSeconds: 60,
-        description: "The effect ends if the creature takes damage.",
-      },
-      data: {
-        "flags.ddbimporter.activityMatch": "Turn Undead",
-      },
-      statuses: ["Frightened", "Incapacitated"],
-    },
     "Circle Forms": {
       name: "Circle Form AC",
       options: {
@@ -5237,25 +5113,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       changes: [
         generateUnsignedAddChange("1", 20, "system.bonuses.spell.dc"),
       ],
-    },
-    "Imbue Aura of Protection": {
-      multiple: () => {
-        let effects = [];
-        if (effectModules().atlInstalled) {
-          effects.push({
-            options: {
-            },
-            data: {
-              "flags.ddbimporter.activityMatch": "Use/Apply Light",
-            },
-            atlChanges: [
-              generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '@scale.paladin.aura-of-protection'),
-              generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-              generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
-            ],
-          });
-        }
-      },
     },
     "Improved Brutal Strike": {
       multiple: [

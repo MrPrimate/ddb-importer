@@ -111,6 +111,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Wild Magic Surge table",
     "Wild Shape: Circle Forms",
     "Wild Shape: Improved Lunar Radiance",
+    "Imbue Aura of Protection",
+    "Channel Divinity: Divine Sense",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

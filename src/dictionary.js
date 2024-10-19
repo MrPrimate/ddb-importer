@@ -882,6 +882,7 @@ const DICTIONARY = {
     "Channel Divinity": [
       "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",
       "War God's Blessing", "Guided Strike", "War Priest", "Inspiring Smite", "Peerless Athlete",
+      "Nature's Wrath",
       // "Sear Undead",
     ],
     "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
