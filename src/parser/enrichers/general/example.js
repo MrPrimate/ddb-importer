@@ -3,7 +3,7 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class Example extends DDBEnricherMixin {
 
-  additionalActivities() {
+  get additionalActivities() {
     return [];
   }
 

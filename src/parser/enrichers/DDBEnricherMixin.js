@@ -1,8 +1,13 @@
 import { effectModules, generateATLChange, generateCustomChange, generateDowngradeChange, generateOverrideChange, generateSignedAddChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import DDBHelper from "../../lib/DDBHelper.js";
+import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
 /* eslint-disable class-methods-use-this */
 export default class DDBEnricherMixin {
+
+  static META_DATA = {
+
+  };
 
   hasClassFeature({ featureName, className = null, subClassName = null } = {}) {
     if (!this.ddbParser?.ddbData) return false;
@@ -14,6 +19,12 @@ export default class DDBEnricherMixin {
     );
 
     return result;
+  }
+
+  hasAction({ name, type } = {}) {
+    return this.ddbParser?.ddbData?.character.actions[type].find((a) =>
+      a.name === name,
+    );
   }
 
   _getSpentValue(type, name, matchSubClass = null) {
@@ -44,21 +55,23 @@ export default class DDBEnricherMixin {
     return uses;
   }
 
-  effectModules = effectModules;
+  static effectModules = effectModules;
 
-  generateATLChange = generateATLChange;
+  static generateATLChange = generateATLChange;
 
-  generateCustomChange = generateCustomChange;
+  static generateCustomChange = generateCustomChange;
 
-  generateDowngradeChange = generateDowngradeChange;
+  static generateDowngradeChange = generateDowngradeChange;
 
-  generateOverrideChange = generateOverrideChange;
+  static generateOverrideChange = generateOverrideChange;
 
-  generateSignedAddChange = generateSignedAddChange;
+  static generateSignedAddChange = generateSignedAddChange;
 
-  generateUnsignedAddChange = generateUnsignedAddChange;
+  static generateUnsignedAddChange = generateUnsignedAddChange;
 
-  generateUpgradeChange = generateUpgradeChange;
+  static generateUpgradeChange = generateUpgradeChange;
+
+  static basicDamagePart = DDBBaseEnricher.basicDamagePart;
 
   constructor({ ddbEnricher }) {
     this.ddbEnricher = ddbEnricher;
@@ -78,24 +91,33 @@ export default class DDBEnricherMixin {
     return this.ddbEnricher.ddbParser.data;
   }
 
-  activity() {
+  get activity() {
     return null;
   }
 
-  effect() {
+  get effect() {
     return null;
   }
 
-  override() {
+  get override() {
     return null;
   }
 
-  additionalActivities() {
+  get additionalActivities() {
     return null;
   }
 
-  documentStub() {
+  get documentStub() {
     return null;
   }
 
 }
+
+// DDBEnricherMixin.prototype.effectModules = effectModules;
+// DDBEnricherMixin.prototype.generateATLChange = generateATLChange;
+// DDBEnricherMixin.prototype.generateCustomChange = generateCustomChange;
+// DDBEnricherMixin.prototype.generateDowngradeChange = generateDowngradeChange;
+// DDBEnricherMixin.prototype.generateOverrideChange = generateOverrideChange;
+// DDBEnricherMixin.prototype.generateSignedAddChange = generateSignedAddChange;
+// DDBEnricherMixin.prototype.generateUnsignedAddChange = generateUnsignedAddChange;
+// DDBEnricherMixin.prototype.generateUpgradeChange = generateUpgradeChange;

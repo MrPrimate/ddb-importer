@@ -177,74 +177,68 @@ export default class DDBBaseEnricher {
   }
 
   // eslint-disable-next-line complexity
-  applyActivityOverride(activity) {
-    if (!this.activity) return activity;
+  _applyActivityDataOverride(activity, overrideData) {
+    if (overrideData.name) activity.name = overrideData.name;
 
-    let activityHint = utils.isFunction(this.activity) ? this.activity() : this.activity;
-
-    if (!activityHint) return activity;
-
-    if (activityHint.name) activity.name = activityHint.name;
-
-    if (activityHint.type === "summon") {
+    if (overrideData.type === "summon") {
       if (!this.manager) return activity;
-      this.manager.addProfilesToActivity(activity, activityHint.profileKeys, activityHint.summons);
+      this.manager.addProfilesToActivity(activity, overrideData.profileKeys, overrideData.summons);
     }
 
-    if (activityHint.parent) {
-      for (const parent of activityHint.parent) {
+    if (overrideData.parent) {
+      for (const parent of overrideData.parent) {
         const lookupName = foundry.utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.lookupName");
         if (lookupName !== parent.lookupName) continue;
 
-        const base = foundry.utils.deepClone(activityHint);
+        const base = foundry.utils.deepClone(overrideData);
         delete base.parent;
-        activityHint = foundry.utils.mergeObject(base, parent);
+        overrideData = foundry.utils.mergeObject(base, parent);
       }
     }
 
-    if (activityHint.noConsumeTargets) {
+    if (overrideData.noConsumeTargets) {
       foundry.utils.setProperty(activity, "consumption.targets", []);
     }
-    if (activityHint.addItemConsume) {
+    if (overrideData.addItemConsume) {
       foundry.utils.setProperty(activity, "consumption.targets", []);
       activity.consumption.targets.push({
         type: "itemUses",
         target: "",
-        value: activityHint.itemConsumeValue ?? "1",
+        value: overrideData.itemConsumeValue ?? "1",
         scaling: {
-          mode: activityHint.addScalingMode ?? "",
-          formula: activityHint.addScalingFormula ?? "",
+          mode: overrideData.addScalingMode ?? "",
+          formula: overrideData.addScalingFormula ?? "",
         },
       });
     }
-    if (activityHint.addActivityConsume) {
+    if (overrideData.addActivityConsume) {
       if (!foundry.utils.getProperty(activity, "consumption.targets"))
         foundry.utils.setProperty(activity, "consumption.targets", []);
       activity.consumption.targets.push({
         type: "activityUses",
         target: "",
-        value: activityHint.activityConsumeValue ?? "1",
+        value: overrideData.activityConsumeValue ?? "1",
         scaling: {
-          mode: activityHint.addActivityScalingMode ?? "",
-          formula: activityHint.addActivityScalingFormula ?? "",
+          mode: overrideData.addActivityScalingMode ?? "",
+          formula: overrideData.addActivityScalingFormula ?? "",
         },
       });
     }
 
-    if (activityHint.additionalConsumptionTargets) {
-      activity.consumption.targets.push(...activityHint.additionalConsumptionTargets);
+    if (overrideData.additionalConsumptionTargets) {
+      activity.consumption.targets.push(...overrideData.additionalConsumptionTargets);
     }
 
-    if (activityHint.addConsumptionScalingMax !== undefined) {
+    if (overrideData.addConsumptionScalingMax !== undefined) {
       foundry.utils.setProperty(activity, "consumption.scaling", {
         allowed: true,
-        max: activityHint.addConsumptionScalingMax,
+        max: overrideData.addConsumptionScalingMax,
       });
     }
 
-    if (activityHint.targetType) {
+    if (overrideData.targetType) {
       if (activity.target?.affects)
-        foundry.utils.setProperty(activity, "target.affects.type", activityHint.targetType);
+        foundry.utils.setProperty(activity, "target.affects.type", overrideData.targetType);
       else {
         foundry.utils.setProperty(activity, "target", {
           template: {
@@ -258,7 +252,7 @@ export default class DDBBaseEnricher {
           },
           affects: {
             count: "",
-            type: activityHint.targetType,
+            type: overrideData.targetType,
             choice: false,
             special: "",
           },
@@ -274,7 +268,7 @@ export default class DDBBaseEnricher {
       }
     }
 
-    if (activityHint.rangeSelf) {
+    if (overrideData.rangeSelf) {
       foundry.utils.setProperty(activity, "range", {
         value: null,
         units: "self",
@@ -282,7 +276,7 @@ export default class DDBBaseEnricher {
       });
     }
 
-    if (activityHint.noTemplate) {
+    if (overrideData.noTemplate) {
       foundry.utils.setProperty(activity, "target.template", {
         count: "",
         contiguous: false,
@@ -294,58 +288,68 @@ export default class DDBBaseEnricher {
       });
     }
 
-    if (activityHint.overrideTemplate)
+    if (overrideData.overrideTemplate)
       foundry.utils.setProperty(activity, "target.override", true);
 
-    if (activityHint.overrideRange)
+    if (overrideData.overrideRange)
       foundry.utils.setProperty(activity, "range.override", true);
 
-    if (activityHint.activationType) {
+    if (overrideData.activationType) {
       activity.activation = {
-        type: activityHint.activationType,
-        value: activity.activation?.value ?? activityHint.activationValue ?? 1,
+        type: overrideData.activationType,
+        value: activity.activation?.value ?? overrideData.activationValue ?? 1,
         condition: activity.activation?.condition ?? "",
       };
-    } else if (activityHint.activationValue) {
-      foundry.utils.setProperty(activity, "activation.value", activityHint.activationValue);
+    } else if (overrideData.activationValue) {
+      foundry.utils.setProperty(activity, "activation.value", overrideData.activationValue);
     }
-    if (activityHint.activationCondition) {
-      foundry.utils.setProperty(activity, "activation.condition", activityHint.activationCondition);
+    if (overrideData.activationCondition) {
+      foundry.utils.setProperty(activity, "activation.condition", overrideData.activationCondition);
     }
 
-    if (activityHint.overrideActivation)
+    if (overrideData.overrideActivation)
       foundry.utils.setProperty(activity, "activation.override", true);
 
-    if (activityHint.midiManualReaction && effectModules().midiQolInstalled)
+    if (overrideData.midiManualReaction && effectModules().midiQolInstalled)
       foundry.utils.setProperty(activity, "activation.type", "reactionmanual");
 
-    if (foundry.utils.hasProperty(activityHint, "flatAttack")) {
-      foundry.utils.setProperty(activity, "attack.bonus", activityHint.flatAttack);
+    if (foundry.utils.hasProperty(overrideData, "flatAttack")) {
+      foundry.utils.setProperty(activity, "attack.bonus", overrideData.flatAttack);
       foundry.utils.setProperty(activity, "attack.flat", true);
     }
 
-    if (activityHint.damageParts) {
+    if (overrideData.damageParts) {
       const parts = [];
-      for (const part of activityHint.damageParts) {
+      for (const part of overrideData.damageParts) {
         parts.push(activity.damage.parts[part]);
       }
       activity.damage.parts = parts;
     }
 
-    if (activityHint.data) {
-      const data = utils.isFunction(activityHint.data)
-        ? activityHint.data()
-        : activityHint.data;
+    if (overrideData.data) {
+      const data = utils.isFunction(overrideData.data)
+        ? overrideData.data()
+        : overrideData.data;
       activity = foundry.utils.mergeObject(activity, data);
     }
 
-    if (activityHint.func) activityHint.func(activity);
+    if (overrideData.func) overrideData.func(activity);
 
-    if (activityHint.allowMagical) {
+    if (overrideData.allowMagical) {
       activity.restrictions.allowMagical = true;
     }
 
     return activity;
+  }
+
+  applyActivityOverride(activity) {
+    if (!this.activity) return activity;
+
+    let activityHint = utils.isFunction(this.activity) ? this.activity() : this.activity;
+
+    if (!activityHint) return activity;
+
+    return this._applyActivityDataOverride(activity, activityHint);
   }
 
   // eslint-disable-next-line complexity
@@ -358,6 +362,8 @@ export default class DDBBaseEnricher {
     const effectHintsRaw = utils.isFunction(this.effect)
       ? this.effect()
       : this.effect;
+
+    if (!effectHintsRaw) return effects;
 
     const effectHints = effectHintsRaw.multiple
       ? utils.isFunction(effectHintsRaw.multiple)
@@ -539,28 +545,30 @@ export default class DDBBaseEnricher {
   }
 
   _buildActivitiesFromAction({ name, type, isAttack = null, rename = null }) {
-    if (!this.ddbParser?.ddbData) return null;
+    const result = {
+      activities: {},
+      effects: [],
+    };
+    if (!this.ddbParser?.ddbData) return result;
     const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type });
-    if (actions.length === 0) return null;
+    // console.warn("actions", { name, type, actions, this: this });
+    if (actions.length === 0) return result;
     const actionFeatures = actions.map((action) => {
       return this.ddbParser.ddbCharacter._characterFeatureFactory.getFeatureFromAction({
         action,
         isAttack,
       });
     });
-    const activities = {};
-    const effects = [];
     actionFeatures.forEach((feature, i) => {
       for (const activityKey of (Object.keys(feature.system.activities))) {
-        activities[activityKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
-        if (rename) foundry.utils.setProperty(activities[activityKey], "name", (rename[i] ?? ""));
+        result.activities[activityKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
+        if (rename) {
+          foundry.utils.setProperty(result.activities[activityKey], "name", (rename[i] ?? ""));
+        }
       }
-      effects.push(...(foundry.utils.deepClone(feature.effects)));
+      result.effects.push(...(foundry.utils.deepClone(feature.effects)));
     });
-    return {
-      activities,
-      effects,
-    };
+    return result;
   }
 
   addAdditionalActivities(ddbParent) {
@@ -600,35 +608,8 @@ export default class DDBBaseEnricher {
       for (let activity of Object.values(activityData.activities)) {
         // console.warn("Activity", activity);
 
-        if (activityHint.overrides?.addItemConsume) {
-          foundry.utils.setProperty(activity, "consumption.targets", [
-            {
-              type: "itemUses",
-              target: "",
-              value: "1",
-              scaling: {
-                mode: "",
-                formula: "",
-              },
-            },
-          ]);
-        }
-
-        if (activityHint.overrides?.addActivityConsume) {
-          foundry.utils.setProperty(activity, "consumption.targets", [
-            {
-              type: "activityUses",
-              target: "",
-              value: "1",
-              scaling: {
-                mode: "",
-                formula: "",
-              },
-            },
-          ]);
-        }
-        if (activityHint.overrides?.data) {
-          activity = foundry.utils.mergeObject(activity, activityHint.overrides.data);
+        if (activityHint.overrides) {
+          activity = this._applyActivityDataOverride(activity, activityHint.overrides);
         }
 
         this.data.system.activities[activity._id] = activity;

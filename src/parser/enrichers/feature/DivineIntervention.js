@@ -3,7 +3,7 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class DivineIntervention extends DDBEnricherMixin {
 
-  activity() {
+  get activity() {
     if (this.is2014) {
       return {
         type: "utility",
@@ -25,7 +25,7 @@ export default class DivineIntervention extends DDBEnricherMixin {
     }
   }
 
-  override() {
+  get override() {
     return {
       data: {
         "flags.ddbimporter.retainOriginalConsumption": true,

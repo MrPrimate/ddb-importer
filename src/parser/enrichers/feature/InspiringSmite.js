@@ -4,7 +4,7 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class InspiringSmite extends DDBEnricherMixin {
 
-  activities() {
+  get activities() {
     return {
       type: "heal",
       targetType: "creature",

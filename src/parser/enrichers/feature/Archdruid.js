@@ -3,7 +3,7 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class Archdruid extends DDBEnricherMixin {
 
-  activity() {
+  get activity() {
     return {
       type: "utility",
       name: "Regain A Wild Shape Use",
@@ -23,7 +23,7 @@ export default class Archdruid extends DDBEnricherMixin {
     };
   }
 
-  additionalActivities() {
+  get additionalActivities() {
     return [
       { action: { name: "Nature Magician", type: "class" } },
     ];

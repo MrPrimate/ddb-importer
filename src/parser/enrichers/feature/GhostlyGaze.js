@@ -3,7 +3,7 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class GhostlyGaze extends DDBEnricherMixin {
 
-  activity() {
+  get activity() {
     if (this.is2014) {
       return {
         type: "utility",
@@ -13,7 +13,7 @@ export default class GhostlyGaze extends DDBEnricherMixin {
     }
   }
 
-  override() {
+  get override() {
     if (this.is2014) {
       return {
         data: {

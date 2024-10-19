@@ -15,6 +15,9 @@ import SacredWeapon from "./feature/SacredWeapon.js";
 import LivingLegend from "./feature/LivingLegend.js";
 import InspiringSmite from "./feature/InspiringSmite.js";
 import EmbodyLegend from "./feature/EmbodyLegend.js";
+import RadiantStrikes from "./feature/RadiantStrikes.js";
+import LayOnHandsPurifyPoison from "./feature/LayOnHandsPurifyPoison.js";
+import LayOnHands from "./feature/LayOnHands.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -41,6 +44,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Living Legend": () => LivingLegend,
     "Inspiring Smite": () => InspiringSmite,
     "Embody Legend": () => EmbodyLegend,
+    "Radiant Strikes": () => RadiantStrikes,
+    "Lay On Hands: Purify Poison": () => LayOnHandsPurifyPoison,
+    "Lay On Hands: Healing Pool": () => LayOnHands,
   };
 
   DND_2014 = {
@@ -88,6 +94,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Aura Of Courage": "Aura of",
     "Aura of Protection": "Aura of",
     "Aura Of Protection": "Aura of",
+    "Aura of Alacrity": "Aura of",
     "Font of Magic: Convert Spell Slots": "Convert Sorcery Points",
     "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",
@@ -1203,25 +1210,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           units: "minute",
         },
       },
-    },
-    "Lay On Hands: Healing Pool": {
-      type: "heal",
-      name: "Healing",
-      addItemConsume: true,
-      addScalingMode: "amount",
-      addScalingFormula: "1",
-      data: {
-        "consumption.scaling": {
-          allowed: true,
-          max: "@item.uses.max - @item.uses.spent",
-        },
-        healing: DDBBaseEnricher.basicDamagePart({ bonus: "1", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
-      },
-    },
-    "Lay On Hands: Purify Poison": {
-      type: "utility",
-      addItemConsume: true,
-      itemConsumeValue: "5",
     },
     "Lucky": {
       type: "utility",
@@ -3291,28 +3279,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
-    "Lay On Hands: Healing Pool": [
-      {
-        constructor: {
-          name: "Lay On Hands Macro",
-          type: "ddbmacro",
-        },
-        build: {
-          generateConsumption: false,
-          generateTarget: false,
-          generateRange: false,
-          generateActivation: true,
-          generateDDBMacro: true,
-          ddbMacroOverride: {
-            name: "Lay On Hands Macro",
-            function: "ddb.feat.layOnHands",
-            visible: false,
-            parameters: "",
-          },
-        },
-      },
-      { action: { name: "Lay On Hands: Purify Poison", type: "class", rename: ["Purify Poison"] } },
-    ],
     "Maneuver: Tactical Assessment": [
       {
         constructor: {
@@ -4450,11 +4416,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         name: "Lay On Hands",
       },
     },
-    "Lay On Hands: Healing Pool": {
-      data: {
-        name: "Lay On Hands",
-      },
-    },
     "Lucky": () => {
       const uses = this._getUsesWithSpent({
         type: "feat",
@@ -5568,15 +5529,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateCustomChange("*0", 20, "system.attributes.movement.all"),
         generateOverrideChange("0", 60, "system.attributes.movement.walk"),
         generateOverrideChange("0", 60, "system.attributes.movement.fly"),
-      ],
-    },
-    "Radiant Strikes": {
-      noActivity: true,
-      options: {
-        transfer: true,
-      },
-      changes: [
-        generateUnsignedAddChange("1d8[radiant]", 20, "system.bonuses.mwak.damage"),
       ],
     },
     "Reckless Attack": {

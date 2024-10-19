@@ -879,7 +879,6 @@ const DICTIONARY = {
     ],
   },
   RESOURCE_LINKS: {
-    "Lay On Hands: Healing Pool": ["Lay On Hands:"],
     "Channel Divinity": [
       "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",
       "War God's Blessing", "Guided Strike", "War Priest", "Inspiring Smite",
@@ -961,7 +960,6 @@ const DICTIONARY = {
       "Cloak of Shadows", "Improved Shadow Step", "Elemental Burst", "Elemental Attunement",
     ],
     "Infuse Item": ["Infusion:"],
-    // "Lay on Hands Pool": ["Lay on Hands"],
     "Maneuver Points": [
       "Carrion Raven Martial Maneuvers:", "Slippery Otter: Activate", "Blade Breaker Maneuvers:",
     ],

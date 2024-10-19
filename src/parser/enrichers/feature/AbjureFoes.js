@@ -3,9 +3,15 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class AbjureFoes extends DDBEnricherMixin {
 
-  additionalActivities() {
+  get activity() {
+    return {
+      type: "none",
+    };
+  }
+
+  get additionalActivities() {
     return [
-      { action: { name: "Channel Divinity: Abjure Foes", type: "class", rename: ["Abjure Foes"] } },
+      { action: { name: "Channel Divinity: Abjure Foes", type: "class", rename: ["Save vs Frightened"] } },
     ];
   }
 

@@ -43,6 +43,11 @@ import ExternalAutomations from "./effects/external/ExternalAutomations.js";
 import DDBSimpleMacro from "./effects/DDBSimpleMacro.js";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.js";
 import Crosshairs from "./lib/Crosshairs.js";
+import DDBBaseEnricher from "./parser/enrichers/DDBBaseEnricher.js";
+import DDBFeatureEnricher from "./parser/enrichers/DDBFeatureEnricher.js";
+import DDBSpellEnricher from "./parser/enrichers/DDBSpellEnricher.js";
+import DDBItemEnricher from "./parser/enrichers/DDBItemEnricher.js";
+import DDBEnricherMixin from "./parser/enrichers/DDBEnricherMixin.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -146,6 +151,13 @@ export function registerApi() {
       NameMatcher,
       OriginFixer,
       Crosshairs,
+      Enrichers: {
+        DDBBaseEnricher,
+        DDBFeatureEnricher,
+        DDBSpellEnricher,
+        DDBEnricherMixin,
+        DDBItemEnricher,
+      },
     },
     settings: {
       muncherSettings: MuncherSettings.getMuncherSettings,

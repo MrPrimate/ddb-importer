@@ -3,7 +3,16 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class EmbodyLegend extends DDBEnricherMixin {
 
-  additionalActivities() {
+  get activity() {
+    return {
+      name: "Reroll Saving Throw",
+      type: "utility",
+      targetType: "self",
+      activationType: "reaction",
+    };
+  }
+
+  get additionalActivities() {
     return [
       {
         constructor: {

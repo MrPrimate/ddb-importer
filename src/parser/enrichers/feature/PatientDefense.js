@@ -3,7 +3,7 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class PatientDefense extends DDBEnricherMixin {
 
-  activity() {
+  get activity() {
     const result = {
       name: this.is2014 ? "Patient Defense: Dodge" : "Patient Defense: Disengage",
       targetType: "self",
@@ -12,7 +12,7 @@ export default class PatientDefense extends DDBEnricherMixin {
     return result;
   }
 
-  additionalActivities() {
+  get additionalActivities() {
     if (this.is2014) return [];
     return [
       {
@@ -25,7 +25,7 @@ export default class PatientDefense extends DDBEnricherMixin {
     ];
   }
 
-  effect() {
+  get effect() {
     if (this.is2014) {
       return {
         name: "Patient Defense: Dodging",

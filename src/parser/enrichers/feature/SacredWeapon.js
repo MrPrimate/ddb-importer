@@ -3,7 +3,7 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class SacredWeapon extends DDBEnricherMixin {
 
-  activity() {
+  get activity() {
     return {
       type: "enchant",
       activationType: "special",
@@ -12,7 +12,7 @@ export default class SacredWeapon extends DDBEnricherMixin {
     };
   }
 
-  additionalActivities() {
+  get additionalActivities() {
     return [{
       constructor: {
         name: "Sacred Weapon Light Toggle",
@@ -35,7 +35,7 @@ export default class SacredWeapon extends DDBEnricherMixin {
     }];
   }
 
-  override() {
+  get override() {
     return {
       data: {
         "flags.ddbimporter.ignoredConsumptionActivities": ["Sacred Weapon Light Toggle"],
@@ -43,7 +43,7 @@ export default class SacredWeapon extends DDBEnricherMixin {
     };
   }
 
-  effect() {
+  get effect() {
     if (this.is2014) {
       return {
         type: "enchant",
@@ -75,8 +75,8 @@ export default class SacredWeapon extends DDBEnricherMixin {
         },
         descriptionSuffix: `<br><p>[[/ddbifunc functionName="sacredWeaponLight2024" functionType="feat"]]{Toggle Sacred Weapon Light}</div></p>`,
         changes: [
-          this.generateOverrideChange("@abilities.cha.mod", 20, "attack.bonus"),
-          this.generateUnsignedAddChange("radiant", 20, "damage.base.types"),
+          DDBEnricherMixin.generateOverrideChange("@abilities.cha.mod", 20, "attack.bonus"),
+          DDBEnricherMixin.generateUnsignedAddChange("radiant", 20, "damage.base.types"),
         ],
         options: {
           name: "Sacred Weapon",

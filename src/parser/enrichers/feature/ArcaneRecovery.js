@@ -3,7 +3,7 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class ArcaneRecovery extends DDBEnricherMixin {
 
-  activity() {
+  get activity() {
     return {
       type: "ddbmacro",
       data: {

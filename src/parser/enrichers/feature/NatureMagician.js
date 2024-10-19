@@ -3,7 +3,7 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class NatureMagician extends DDBEnricherMixin {
 
-  activity() {
+  get activity() {
     return {
       name: "Nature Magician",
       type: "utility",
