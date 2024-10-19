@@ -4,9 +4,17 @@
 
 See the [2024 FAQ](./FAQ-2024-DND.md).
 
+# Is there a guide covering the features?
+
+For a overview video see: https://youtu.be/OMaJHLQORWo
+
 ## The import buttons are greyed out!
 
 They require the cobalt token setting to be set.
+
+## There are no map backgrounds after importing an adventure
+
+Make sure you are using the most up to date version of Adventure Muncher.
 
 ## How do I get the Cobalt key manually?
 
