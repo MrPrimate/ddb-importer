@@ -87,6 +87,8 @@ export default class Example extends DDBEnricherMixin {
       func: function() {}, // run this funciton passing in the activity as the only variable
       descriptionHint: "hint text", // adds enchantment description hint
       descriptionSuffix: "", // append to item description
+      // outside enricher flags
+      clearAutoEffects: true, // clear auto effects
     };
   }
 

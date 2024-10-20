@@ -115,6 +115,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Channel Divinity: Divine Sense",
     "Energy Redirection",
     "Battle Medic",
+    "Avenging Angel",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

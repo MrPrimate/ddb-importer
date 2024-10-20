@@ -561,9 +561,11 @@ export default class DDBBaseEnricher {
     });
     actionFeatures.forEach((feature, i) => {
       for (const activityKey of (Object.keys(feature.system.activities))) {
-        result.activities[activityKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
+        const newKey = `${activityKey.slice(0, -3)}Ne${i}`;
+        result.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
+        result.activities[newKey]._id = `${newKey}`;
         if (rename) {
-          foundry.utils.setProperty(result.activities[activityKey], "name", (rename[i] ?? ""));
+          foundry.utils.setProperty(result.activities[newKey], "name", (rename[i] ?? ""));
         }
       }
       result.effects.push(...(foundry.utils.deepClone(feature.effects)));
