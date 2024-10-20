@@ -4,6 +4,7 @@
 - Chef, Boon of Night Spirit and Tavern Brawler parsing improvements.
 - Paladin 2024, and Oath of Devotion 2024 tweaks.
 - Channel Divinity Fixes for Paladin.
+- Boon of Energy Resistance parsing
 
 # 6.0.21
 
