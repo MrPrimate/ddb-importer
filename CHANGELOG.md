@@ -1,10 +1,9 @@
 # Next Up
 
 - Warrior of Elements and Warrior of Open Palm Subclass parsing improvements.
-- Chef, Boon of Night Spirit and Tavern Brawler parsing improvements.
+- Chef, Boon of Night Spirit, Tavern Brawler, Boon of Energy Resistance, and Healer parsing improvements.
 - Paladin 2024, and Oath of Devotion 2024 tweaks.
 - Channel Divinity Fixes for Paladin.
-- Boon of Energy Resistance parsing
 
 # 6.0.21
 
