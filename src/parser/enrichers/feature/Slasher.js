@@ -1,0 +1,74 @@
+/* eslint-disable class-methods-use-this */
+import DDBEnricherMixin from "../DDBEnricherMixin.js";
+
+export default class Slasher extends DDBEnricherMixin {
+
+  get activity() {
+    return {
+      type: "none",
+    };
+  }
+
+  get additionalActivities() {
+    return [
+      {
+        constructor: {
+          name: "Hamstring",
+          type: "utility",
+        },
+        build: {
+          generateActivation: true,
+          generateTarget: true,
+        },
+        overrides: {
+          activationType: "special",
+          condition: "Hit a creature with an attack that deals slashing damage",
+        },
+      },
+      {
+        constructor: {
+          name: "Enhanced Critical",
+          type: "utility",
+        },
+        build: {
+          generateActivation: true,
+          generateTarget: true,
+        },
+        overrides: {
+          activationType: "special",
+          condition: "Crit a creature with an attack that deals slashing damage",
+        },
+      },
+    ];
+  }
+
+  get effect() {
+
+    return {
+      multiple: [
+        {
+          name: "Slashed: Hamstrung",
+          options: {
+            description: "Speed penalty until the start of the origins next turn",
+          },
+          changes: [
+            DDBEnricherMixin.generateSignedAddChange("-10", 20, "system.attributes.speed.walk"),
+          ],
+          data: {
+            "flags.ddbimporter.activitiesMatch": ["Hamstring"],
+          },
+        },
+        {
+          name: "Slashed: Enhanced Critical",
+          options: {
+            description: "Disadvantage on attack rolls until the start of the origins next turn",
+          },
+          data: {
+            "flags.ddbimporter.activitiesMatch": ["Enhanced Critical"],
+          },
+        },
+      ],
+    };
+  }
+
+}

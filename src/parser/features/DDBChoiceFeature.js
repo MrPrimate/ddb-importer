@@ -56,6 +56,12 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Power of the Wilds",
     "Circle of the Land Spells",
     "Nature's Ward",
+    "Deft Explorer",
+    "Magic Initiate (Cleric)",
+    "Magic Initiate (Druid)",
+    "Magic Initiate (Wizard)",
+    "Magic Initiate (Warlock)",
+    "Magic Initiate (Sorcerer)",
   ];
 
   static NO_CHOICE_SECRET = [
@@ -98,6 +104,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Improved Elemental Fury: Potent Spellcasting",
     "Improved Elemental Fury: Primal Strike",
     "Nature's Ward",
+    "Deft Explorer",
   ];
 
   _prepare() {

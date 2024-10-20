@@ -144,6 +144,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Starry Form:",
     "Wild Resurgence:",
     "War Bond:",
+    "Slasher:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [

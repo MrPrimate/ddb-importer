@@ -2,7 +2,7 @@
 import utils from "../../../lib/utils.js";
 import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
-export default class BoonOfEnergeResistance extends DDBEnricherMixin {
+export default class BoonOfEnergyResistance extends DDBEnricherMixin {
 
   get effect() {
     const activeType = this.ddbParser?._chosen.find((a) =>

@@ -24,7 +24,8 @@ import HolyNimbus from "./feature/HolyNimbus.js";
 import ElderChampion from "./feature/ElderChampion.js";
 import ChannelDivinity from "./feature/ChannelDivinity.js";
 import GloriousDefense from "./feature/GloriousDefense.js";
-import BoonOfEnergeResistance from "./feature/BoonOfEnergyResistance.js";
+import BoonOfEnergyResistance from "./feature/BoonOfEnergyResistance.js";
+import Slasher from "./feature/Slasher.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -60,7 +61,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Elder Champion": () => ElderChampion,
     "Channel Divinity": () => ChannelDivinity,
     "Glorious Defense": () => GloriousDefense,
-    "Boon of Energy Resistance": () => BoonOfEnergeResistance,
+    "Boon of Energy Resistance": () => BoonOfEnergyResistance,
+    "Slasher": () => Slasher,
   };
 
   DND_2014 = {
@@ -5515,9 +5517,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       ],
     },
     "Shifting: Wildhunt": {
-    },
-    "Slasher": {
-      name: "Slashed",
     },
     "Starry Form": {
       multiple: [

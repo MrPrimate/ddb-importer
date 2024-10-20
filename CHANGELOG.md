@@ -3,6 +3,7 @@
 - Warrior of Elements and Warrior of Open Palm Subclass parsing improvements.
 - Chef, Boon of Night Spirit and Tavern Brawler parsing improvements.
 - Paladin 2024, and Oath of Devotion 2024 tweaks.
+- Channel Divinity Fixes for Paladin.
 
 # 6.0.21
 
