@@ -27,6 +27,7 @@ import GloriousDefense from "./feature/GloriousDefense.js";
 import BoonOfEnergyResistance from "./feature/BoonOfEnergyResistance.js";
 import Slasher from "./feature/Slasher.js";
 import EnergyRedirection from "./feature/EnergyRedirection.js";
+import Healer from "./feature/Healer.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -65,6 +66,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Boon of Energy Resistance": () => BoonOfEnergyResistance,
     "Slasher": () => Slasher,
     "Energy Redirection": () => EnergyRedirection,
+    "Healer": () => Healer,
   };
 
   DND_2014 = {

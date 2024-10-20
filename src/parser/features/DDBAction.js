@@ -114,6 +114,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Imbue Aura of Protection",
     "Channel Divinity: Divine Sense",
     "Energy Redirection",
+    "Battle Medic",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
