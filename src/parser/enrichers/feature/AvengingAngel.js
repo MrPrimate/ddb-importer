@@ -5,9 +5,7 @@ export default class AvengingAngel extends DDBEnricherMixin {
 
   get activity() {
     if (this.ddbParser.isAction) {
-      return {
-        noeffect: true,
-      };
+      return null;
     }
     return {
       name: "Activate",
