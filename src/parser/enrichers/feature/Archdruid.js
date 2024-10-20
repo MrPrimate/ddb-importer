@@ -8,7 +8,7 @@ export default class Archdruid extends DDBEnricherMixin {
       type: "utility",
       name: "Regain A Wild Shape Use",
       activationType: "special",
-      condition: "When you roll initiative and have no Wild Shape uses remaining",
+      activationCondition: "When you roll initiative and have no Wild Shape uses remaining",
       additionalConsumptionTargets: [
         {
           type: "itemUses",

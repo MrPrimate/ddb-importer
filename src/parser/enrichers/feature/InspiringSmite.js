@@ -9,7 +9,7 @@ export default class InspiringSmite extends DDBEnricherMixin {
       type: "heal",
       targetType: "creature",
       activationType: "special",
-      condition: "Immediately after you cast Divine Smite",
+      activationCondition: "Immediately after you cast Divine Smite",
       addItemUse: true,
       data: {
         healing: DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 8, bonus: "@classes.paladin.levels", type: "temphp" }),

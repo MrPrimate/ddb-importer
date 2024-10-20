@@ -26,6 +26,7 @@ import ChannelDivinity from "./feature/ChannelDivinity.js";
 import GloriousDefense from "./feature/GloriousDefense.js";
 import BoonOfEnergyResistance from "./feature/BoonOfEnergyResistance.js";
 import Slasher from "./feature/Slasher.js";
+import EnergyRedirection from "./feature/EnergyRedirection.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -63,6 +64,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Glorious Defense": () => GloriousDefense,
     "Boon of Energy Resistance": () => BoonOfEnergyResistance,
     "Slasher": () => Slasher,
+    "Energy Redirection": () => EnergyRedirection,
   };
 
   DND_2014 = {
@@ -208,7 +210,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       name: "Shadowy Form",
       type: "utility",
       activationType: "special",
-      condition: "Within dim light or darkness",
+      activationCondition: "Within dim light or darkness",
       targetType: "self",
     },
     "Branches of the Tree": {
@@ -442,7 +444,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "heal",
       targetType: "creature",
       activationType: "special",
-      condition: "As part of a short rest",
+      activationCondition: "As part of a short rest",
       data: {
         healing: DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 8, type: "healing" }),
       },
@@ -519,15 +521,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "save",
       targetType: "creature",
       activationType: "spec",
+      activationCondition: "Dealing Sneak Attack damage",
       data: {
         name: "Poison",
         save: {
           ability: "con",
           dc: { calculation: "dex", formula: "" },
-        },
-        activation: {
-          type: "",
-          condition: "Dealing Sneak Attack damage",
         },
         duration: { units: "inst" },
       },
@@ -647,15 +646,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "save",
       targetType: "creature",
       activationType: "spec",
+      activationCondition: "Dealing Sneak Attack damage",
       data: {
         name: "Daze",
         save: {
           ability: "con",
           dc: { calculation: "dex", formula: "" },
-        },
-        activation: {
-          type: "",
-          condition: "Dealing Sneak Attack damage",
         },
         duration: { units: "inst" },
       },
@@ -758,7 +754,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "utility",
       targetType: "self",
       activationType: "special",
-      condition: "Start of turn",
+      activationCondition: "Start of turn",
     },
     "Elemental Burst": {
       data: {
@@ -771,7 +767,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "utility",
       name: "Elemental Attunement Effects",
       activationType: "special",
-      condition: "Become Elementally Attuned",
+      activationCondition: "Become Elementally Attuned",
       targetType: "self",
       noTemplate: true,
     },
@@ -857,17 +853,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Flurry of Blows: Addle": {
       type: "utility",
       activationType: "special",
-      condition: "You hit a creature with a Flurry of Blows strike",
+      activationCondition: "You hit a creature with a Flurry of Blows strike",
     },
     "Flurry of Blows: Push": {
       type: "save",
       activationType: "special",
-      condition: "You hit a creature with a Flurry of Blows strike",
+      activationCondition: "You hit a creature with a Flurry of Blows strike",
     },
     "Flurry of Blows: Topple": {
       type: "save",
       activationType: "special",
-      condition: "You hit a creature with a Flurry of Blows strike",
+      activationCondition: "You hit a creature with a Flurry of Blows strike",
     },
     "Font of Magic": {
       type: "ddbmacro",
@@ -987,7 +983,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "utility",
       targetType: "self",
       activationType: "special",
-      condition: "When you miss with an attack",
+      activationCondition: "When you miss with an attack",
     },
     "Greater Divine Intervention": {
       type: "utility",
@@ -1201,7 +1197,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "damage",
       name: "Lunar Radiance Damage",
       activationType: "special",
-      condition: "Once per turn, on hit, whilst in Wild Shape",
+      activationCondition: "Once per turn, on hit, whilst in Wild Shape",
       targetType: "creature",
       data: {
         damage: {
@@ -1810,7 +1806,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "damage",
       targetType: "creature",
       activationType: "special",
-      condition: "When you Turn Undead",
+      activationCondition: "When you Turn Undead",
       data: {
         damage: {
           parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "(@abilities.wis.mod)d8", types: ["radiant"] })],
@@ -2244,7 +2240,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       targetType: "self",
       rangeSelf: true,
       activationType: "special",
-      condition: "You enter a rage.",
+      activationCondition: "You enter a rage.",
       data: {
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.barbarian.levels", types: ["temphp"] }),
       },
@@ -2286,7 +2282,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       addItemConsume: true,
       itemConsumeValue: "-1",
       activationType: "special",
-      condition: "Once on each of your turns",
+      activationCondition: "Once on each of your turns",
       data: {
         img: "systems/dnd5e/icons/svg/abilities/intelligence.svg",
       },

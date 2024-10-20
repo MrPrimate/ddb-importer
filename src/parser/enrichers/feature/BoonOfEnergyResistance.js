@@ -4,6 +4,18 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class BoonOfEnergyResistance extends DDBEnricherMixin {
 
+  get activity() {
+    return {
+      type: "none",
+    };
+  }
+
+  get additionalActivities() {
+    return [
+      { action: { name: "Energy Redirection", type: "class" } },
+    ];
+  }
+
   get effect() {
     const activeType = this.ddbParser?._chosen.find((a) =>
       utils.nameString(a.label).startsWith("Boon of Energe Resistance"),

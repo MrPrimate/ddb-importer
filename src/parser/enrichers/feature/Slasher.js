@@ -22,7 +22,7 @@ export default class Slasher extends DDBEnricherMixin {
         },
         overrides: {
           activationType: "special",
-          condition: "Hit a creature with an attack that deals slashing damage",
+          activationCondition: "Hit a creature with an attack that deals slashing damage",
         },
       },
       {
@@ -36,7 +36,7 @@ export default class Slasher extends DDBEnricherMixin {
         },
         overrides: {
           activationType: "special",
-          condition: "Crit a creature with an attack that deals slashing damage",
+          activationCondition: "Crit a creature with an attack that deals slashing damage",
         },
       },
     ];

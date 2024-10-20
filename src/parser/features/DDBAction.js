@@ -113,6 +113,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Wild Shape: Improved Lunar Radiance",
     "Imbue Aura of Protection",
     "Channel Divinity: Divine Sense",
+    "Energy Redirection",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

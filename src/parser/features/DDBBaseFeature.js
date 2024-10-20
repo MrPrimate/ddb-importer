@@ -1133,6 +1133,17 @@ export default class DDBBaseFeature {
   _generateActivity({ hintsOnly = false, statusEffects = true, name = null, nameIdPostfix = null,
     typeOverride = null } = {}, optionsOverride = {},
   ) {
+
+    // console.warn(`_generateActivity: ${this.originalName}`, {
+    //   typeOverride,
+    //   name,
+    //   nameIdPostfix,
+    //   hintsOnly,
+    //   statusEffects,
+    //   activity: this.enricher.activity,
+    //   typeHint: this.enricher.activity?.type,
+    //   test: this.enricher.activity(),
+    // });
     if (this.enricher.activity?.type === "none") return undefined;
 
     if (statusEffects) {

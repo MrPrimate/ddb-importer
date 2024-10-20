@@ -61,7 +61,6 @@ export default class CharacterFeatureFactory {
     };
 
     this.data = [];
-    this.enricher = new DDBFeatureEnricher();
   }
 
   _getCustomActions(displayedAsAttack) {
@@ -99,17 +98,19 @@ export default class CharacterFeatureFactory {
   /**
    * Everyone has an Unarmed Strike
    */
-  getUnarmedStrike(overrides = {}) {
+  async getUnarmedStrike(overrides = {}) {
     const unarmedStrikeMock = CONFIG.DDB.naturalActions[0];
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, overrides);
 
+    const enricher = new DDBFeatureEnricher();
+    await enricher.init();
     const unarmedStrikeAction = new DDBAttackAction({
       ddbCharacter: this.ddbCharacter,
       ddbData: this.ddbData,
       ddbDefinition: strikeMock,
       rawCharacter: this.rawCharacter,
-      enricher: this.enricher,
+      enricher,
     });
     unarmedStrikeAction.build();
 
@@ -117,8 +118,9 @@ export default class CharacterFeatureFactory {
     return unarmedStrikeAction.data;
   }
 
-  _generateUnarmedStrikeAction(overrides = {}) {
-    this.parsed.actions.push(this.getUnarmedStrike(overrides));
+  async _generateUnarmedStrikeAction(overrides = {}) {
+    const action = await this.getUnarmedStrike(overrides);
+    this.parsed.actions.push(action);
   }
 
   async _generateAttackActions() {
@@ -149,12 +151,14 @@ export default class CharacterFeatureFactory {
 
     const attackActions = (await Promise.all(attackActionsBase
       .map(async (action) => {
+        const enricher = new DDBFeatureEnricher();
+        await enricher.init();
         const ddbAttackAction = new DDBAttackAction({
           ddbData: this.ddbData,
           ddbDefinition: action,
           rawCharacter: this.rawCharacter,
           type: action.actionSource,
-          enricher: this.enricher,
+          enricher,
         });
         ddbAttackAction.build();
 
@@ -230,12 +234,15 @@ export default class CharacterFeatureFactory {
       .map(async(action) => {
         logger.debug(`Getting Other Action ${action.name}`);
 
+        const enricher = new DDBFeatureEnricher();
+        await enricher.init();
+
         const ddbAction = new DDBAction({
           ddbCharacter: this.ddbCharacter,
           ddbData: this.ddbData,
           ddbDefinition: action,
           rawCharacter: this.rawCharacter,
-          enricher: this.enricher,
+          enricher,
         });
         ddbAction.build();
         logger.debug(`Building Other Action ${action.name}`, { ddbAction });
@@ -249,9 +256,8 @@ export default class CharacterFeatureFactory {
   }
 
   async processActions() {
-    await this.enricher.init();
     await this._generateAttackActions();
-    this._generateUnarmedStrikeAction();
+    await this._generateUnarmedStrikeAction();
     await this._generateOtherActions();
 
     this.processed.actions = foundry.utils.duplicate(this.parsed.actions);

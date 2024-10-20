@@ -73,6 +73,8 @@ export default class DDBEnricherMixin {
 
   static basicDamagePart = DDBBaseEnricher.basicDamagePart;
 
+  static allDamageTypes = DDBBaseEnricher.allDamageTypes;
+
   constructor({ ddbEnricher }) {
     this.ddbEnricher = ddbEnricher;
     this.ddbParser = ddbEnricher.ddbParser;
