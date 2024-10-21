@@ -266,8 +266,8 @@ const MuncherSettings = {
       {
         name: "use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades"),
-        title: "Use Automation Effects from Chris's Premades module?",
-        description: `Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} offer even more automation for all aspects of D&D, but have even more pre-requisites. You should investigate and set up this module before importing with this option selected. Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module.<br>These will replace any effects created by DDB Importer.`,
+        title: "Use Automation Effects from the Cauldron of Plentiful Resources module?",
+        description: `Cauldron of Plentiful Resources ${MuncherSettings.getInstalledIcon("chrisInstalled")} offer even more automation for all aspects of D&D, but have even more pre-requisites. You should investigate and set up this module before importing with this option selected. Requires Cauldron of Plentiful Resources ${MuncherSettings.getInstalledIcon("chrisInstalled")} module.<br>These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
       {
@@ -655,7 +655,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       {
         name: "use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades"),
-        description: `Use Automation Effects from Chris's Premades module? These provide high quality automations for spells, features, monsters, etc. (Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module).<br>These will replace any effects created by DDB Importer.`,
+        description: `Use Automation Effects from the Cauldron of Plentiful Resources module? These provide high quality automations for spells, features, monsters, etc. (Requires Cauldron of Plentiful Resources ${MuncherSettings.getInstalledIcon("chrisInstalled")} module).<br>These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
       // {
