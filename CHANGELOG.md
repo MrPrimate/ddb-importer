@@ -2,6 +2,7 @@
 
 - Players could not import actors if they had summon spells.
 - Find Familiar would not add summons if Legacy naming suffix in use.
+- Fix Maneuvering Attack parsing.
 
 # 6.0.22
 

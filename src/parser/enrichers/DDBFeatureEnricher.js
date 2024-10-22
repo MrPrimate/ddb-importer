@@ -1280,6 +1280,15 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
+    "Maneuver: Maneuvering Attack": {
+      type: "damage",
+      data: {
+        damage: {
+          onSave: "none",
+          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
+        },
+      },
+    },
     "Maneuver: Menacing Attack (Str.)": {
       type: "save",
       data: {
