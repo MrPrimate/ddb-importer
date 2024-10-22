@@ -281,6 +281,7 @@ export default class DDBCompanionFactory {
       updated: [],
     };
     this.originDocument = options.originDocument;
+    this.originName = foundry.utils.getProperty(this.originDocument, "flags.ddbimporter.originalName") ?? this.originDocument.name;
     this.is2014 = options.is2014 ?? true;
     this.summons = null;
     this.badSummons = false;
@@ -445,7 +446,7 @@ export default class DDBCompanionFactory {
       companion._id = existingCompanion._id;
       logger.info(`Updating companion ${companion.name}`);
       DDBItemImporter.copySupportedItemFlags(existingCompanion, companion);
-      const npc = game.user.isGM && !this.noCompendiums
+      const npc = !this.noCompendiums
         ? await this.summonsManager.addToCompendium(companion)
         : await DDBCompanionFactory.addToWorld(companion, true);
       results.push(npc);
@@ -484,11 +485,15 @@ export default class DDBCompanionFactory {
   }
 
   async updateOrCreateCompanions({ folderOverride = null, rootFolderNameOverride = undefined } = {}) {
-    const existingCompanions = game.user.isGM
-      ? await this.getExistingCompendiumCompanions()
-      : await this.getExistingWorldCompanions({ folderOverride, rootFolderNameOverride });
+    const existingCompanions = this.noCompendiums
+      ? await this.getExistingWorldCompanions({ folderOverride, rootFolderNameOverride })
+      : await this.getExistingCompendiumCompanions();
 
     let companionData = this.data;
+
+    if (!game.user.isGM) {
+      return;
+    }
 
     if (!this.updateCompanions || !this.updateImages) {
       if (!this.updateImages) {
@@ -541,7 +546,7 @@ export default class DDBCompanionFactory {
           count: null,
         };
       });
-    const alternativeDocument = DDBCompanionFactory.COMPANION_REMAP[this.originDocument.name];
+    const alternativeDocument = DDBCompanionFactory.COMPANION_REMAP[this.originName];
     const updateDocument = alternativeDocument
       ? (otherDocuments.find((s) =>
         s.name === alternativeDocument || s.flags.ddbimporter?.originalName === alternativeDocument,
@@ -567,16 +572,16 @@ export default class DDBCompanionFactory {
   }
 
   async addCRSummoning(activity) {
-    const summonsData = CR_DATA[this.originDocument.name]
+    const summonsData = CR_DATA[this.originName]
       ? {
         summon: {
           prompt: true,
           mode: "cr",
         },
-        profiles: CR_DATA[this.originDocument.name].profiles,
-        creatureTypes: CR_DATA[this.originDocument.name].creatureTypes,
+        profiles: CR_DATA[this.originName].profiles,
+        creatureTypes: CR_DATA[this.originName].creatureTypes,
       }
-      : this.originDocument.name === "Find Familiar"
+      : this.originName === "Find Familiar"
         ? await getFindFamiliarActivityData()
         : null;
 

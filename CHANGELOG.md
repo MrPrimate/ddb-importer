@@ -1,3 +1,8 @@
+# Next Up
+
+- Players could not import actors if they had summon spells.
+- Find Familiar would not add summons if Legacy naming suffix in use.
+
 # 6.0.22
 
 - Warrior of Elements and Warrior of Open Palm Subclass parsing improvements.
