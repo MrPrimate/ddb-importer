@@ -15,7 +15,7 @@ You will need to upgrade the Foundry D&D system to 4.x+, and DDB Importer to 6.x
 
 If you stay on the 3.x D&D System and 5.x DDB Importer you will not get 2024 content (mostly).
 
-As off now there is no filter to remove 2024 content during import in the 6.x version of DDB Importer. This may come at a later date.
+As off now there is no filter to remove 2024 content during import in the 6.x version of DDB Importer. This will come at a later date, along with additional content filtering options.
 
 ## How do I install an older version of DDB Importer
 
