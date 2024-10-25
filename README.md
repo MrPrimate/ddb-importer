@@ -14,7 +14,7 @@ This module:
 * Import Monsters and NPCs.
 * [Patreon](https://patreon.com/mrprimate) supporters can sync limited character changes back to DDB.
 
-In addition you can:
+You can also:
 
 - Use the built in dictionary to get a large icon coverage during import.
 - Use supplied SRD items where available.
@@ -25,32 +25,9 @@ In addition you can:
 
 [Watch a video to get started here!](https://youtu.be/OMaJHLQORWo).
 
-## Examples
+## Documentation
 
-### Import Things!
-
-![](./docs/muncher.png)
-
-### Update back to D&DBeyond
-
-![](./docs/sync.png)
-
-### Exclude Items from Update
-
-![](./docs/exclude.png)
-
-### Generate Roll Tables
-
-![](./docs/confusion.png)
-
-### Encounter Muncher
-
-![](./docs/encounter-muncher.png)
-
-### Compendium Folders Module Support
-
-![](./docs/compendium-folders.png)
-
+See the [documentation site](https://docs.ddb.mrprimate.co.uk/docs/intro)
 
 ## What's the catch?
 
@@ -83,60 +60,15 @@ Below are some recommended modules.
 I'd strongly recommend installing:
 
 - [Magic Items](https://foundryvtt.com/packages/magicitems/) for attaching spells to magic items
-- [Link Item and Resource DnD5e module](https://foundryvtt.com/packages/link-item-resource-5e ) for good resource linking (not needed if using the new 5e sheets in v3.0.0+)
 - [Vision/Detection Modes 5e](https://foundryvtt.com/packages/vision-5e) adds those lovely missing vision modes for 5e.
-
-If you want to add spell effects, and high levels of automation you will need, (this is not recommended if you're using Foundry for the first time):
-- [DAE](https://foundryvtt.com/packages/dae/) for skill bonuses and basic effects
-- [Midi-QOL](https://foundryvtt.com/packages/midi-qol/)
-- [About Time](https://foundryvtt.com/packages/about-time)
-- [Times Up](https://foundryvtt.com/packages/times-up/).
-
-Several macros that impact tokens rely on:
-- [Active Auras](https://foundryvtt.com/packages/ActiveAuras)
-- [Active Token Effects](https://foundryvtt.com/packages/ATL)
-
-For super high automation (this is not recommended if you're using Foundry for the first time):
-- [Chris's Premades](https://foundryvtt.com/packages/chris-premades) includes a lot of more advanced effects, but has a lot of module dependencies.
-
-For prettiness add:
-- [Token Magic FX](https://foundryvtt.com/packages/tokenmagic).
-- [Automated Animations](https://foundryvtt.com/packages/autoanimations)
+- [DAE](https://foundryvtt.com/packages/dae/) for some more dynamic bonus effects and basic effects
 
 
-## SRD Import Notes
-
-Some detail will be lost:
-
-* Any auto configuration of Magic Item spells
-* Any custom damage modifications from things like Fighting Styles and Improved Divine Smite
-
-Some details are updated, if applicable:
-
-* number of uses
-* quantity of items
-* attuned status
-* equipped status
-* resource tracking
-* spell preparation status
-* proficiency
-
-
-## Configuration
-
-### Avatar upload directory
-
-Sets the icon directory where you are storing your avatar image uploads. It's relative to the Foundry `/Data` directory, please do not add a leading or trailing slash to this path.
-
-Examples:
-
-- `img/uploads` references to `[Foundry]/Data/img/uploads`
-- `uploads` references to `[Foundry]/Data/uploads`
-- `` references to `[Foundry]/Data` - not recommended
+To learn more about automation visit the [docs](http://localhost:3000/docs/ddb-importer/character#automation).
 
 # FAQ
 
-See [FAQ!](./FAQ.md)
+See the [FAQ!](https://docs.ddb.mrprimate.co.uk/docs/category/faqs)
 
 
 # Attributions
