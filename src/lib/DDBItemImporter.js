@@ -75,7 +75,7 @@ export default class DDBItemImporter {
       replaceData.system = itemData.system;
       replaceData.type = itemData.type;
     }
-    if (itemData.system.activities) replaceData.system.activities = itemData.system.activities;
+    // if (itemData.system.activities) replaceData.system.activities = itemData.system.activities;
     if (itemData.system.quantity) replaceData.system.quantity = itemData.system.quantity;
     if (itemData.system.attuned) replaceData.system.attuned = itemData.system.attuned;
     if (itemData.system.attunement) replaceData.system.attunement = itemData.system.attunement;

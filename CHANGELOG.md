@@ -3,6 +3,7 @@
 - Players could not import actors if they had summon spells.
 - Find Familiar would not add summons if Legacy naming suffix in use.
 - Fix Maneuvering Attack parsing.
+- Override items would retain activities from the DDB Importer item.
 
 # 6.0.22
 
