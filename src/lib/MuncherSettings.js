@@ -146,43 +146,43 @@ const MuncherSettings = {
       {
         name: "use-inbuilt-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-inbuilt-icons"),
-        description: "Use icons from the inbuilt dictionary. (High coverage of items, feats, and spells).",
+        description: "Use icons from the inbuilt dictionary? (High coverage of items, feats, and spells).",
         enabled: true,
       },
       {
         name: "use-srd-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-srd-icons"),
-        description: "Use icons from the SRD compendium. (This can take a while).",
+        description: "Use icons from the SRD compendium? (This can take a while).",
         enabled: true,
       },
       {
         name: "use-ddb-spell-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-spell-icons"),
-        description: "Use spell school icons from D&DBeyond.",
+        description: "Use spell school icons from D&DBeyond?",
         enabled: true,
       },
       {
         name: "use-ddb-item-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-item-icons"),
-        description: "Use equipment icons from D&DBeyond (where they exist).",
+        description: "Use equipment icons from D&DBeyond (where they exist)?",
         enabled: true,
       },
       {
         name: "use-ddb-generic-item-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-generic-item-icons"),
-        description: "Use D&D Beyond generic item type images, if available (final fallback)",
+        description: "Use D&D Beyond generic item type images, if available? (final fallback)",
         enabled: true,
       },
       {
         name: "use-combined-description",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-combined-description"),
-        description: "If selected will use the short snippet snippet, with the full description in a collapsed box.",
+        description: "Use short snippets? If selected will use the short snippet snippet, with the full description in a collapsed box.",
         enabled: true,
       },
       {
         name: "add-description-to-chat",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "add-description-to-chat"),
-        description: "Use the short description for the chat card (otherwise will use normal description).",
+        description: "Use the short description for the chat card? (otherwise will use normal description).",
         enabled: true,
       },
       // {
@@ -203,7 +203,7 @@ const MuncherSettings = {
         name: "ignore-non-ddb-items",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-ignore-non-ddb-items"),
         description:
-          "Ignore items on character sheet that have not been imported from D&D Beyond. This will remove items that have been removed from the DDB character since the last import, but will keep items added to the character within Foundry.",
+          "Ignore items on character sheet that have not been imported from D&D Beyond? This will remove items that have been removed from the DDB character since the last import, but will keep items added to the character within Foundry.",
         enabled: true,
       },
       {
