@@ -29,6 +29,9 @@ import Slasher from "./feature/Slasher.js";
 import EnergyRedirection from "./feature/EnergyRedirection.js";
 import Healer from "./feature/Healer.js";
 import AvengingAngel from "./feature/AvengingAngel.js";
+import VowOfEnmity from "./feature/VowOfEnmity.js";
+import RelentlessAvenger from "./feature/RelentlessAvenger.js";
+import SoulOfVengeance from "./feature/SoulOfVengeance.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -69,6 +72,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Energy Redirection": () => EnergyRedirection,
     "Healer": () => Healer,
     "Avenging Angel": () => AvengingAngel,
+    "Vow of Enmity": () => VowOfEnmity,
+    "Relentless Avenger": () => RelentlessAvenger,
+    "Soul of Vengeance": () => SoulOfVengeance,
   };
 
   DND_2014 = {
