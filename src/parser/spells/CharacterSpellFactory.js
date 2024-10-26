@@ -216,7 +216,12 @@ export default class CharacterSpellFactory {
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
         this.items[duplicateSpell] = parsedSpell;
 
-        //check for class granted spells here
+        // check for class granted spells here
+        if (parsedSpell.flags.ddbimporter.is2024
+          && CharacterSpellFactory.CLASS_GRANTED_SPELLS_2024.includes(parsedSpell.flags.ddbimporter.originalName)
+        ) {
+          this.handleGrantedSpells(spell, "classFeature");
+        }
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
         logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.name}.`);
