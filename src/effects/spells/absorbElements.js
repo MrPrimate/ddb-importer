@@ -60,7 +60,8 @@ export async function absorbElementsEffect(document) {
   if (effectModules().midiQolInstalled) {
     await DDBMacros.setItemMacroFlag(document, "spell", "absorbElements.js");
     DDBMacros.setMidiOnUseMacroFlag(document, "spell", "absorbElements.js", ["postActiveEffects"]);
-    foundry.utils.setProperty(document, "system.activation.type", "reactiondamage");
+    foundry.utils.setProperty(document, "system.activation.type", "reaction");
+    foundry.utils.setProperty(document, "flags.midi-qol.reactionCondition", "reaction === 'isDamaged' && (workflow.damageDetail.some(d => ['acid', 'cold', 'fire', 'lightning', 'thunder'].includes(d.type.toLowerCase())) || ['acid', 'cold', 'fire', 'lightning', 'thunder'].some(dt => workflow.item.formula.toLowerCase().includes(dt)) || ['acid', 'cold', 'fire', 'lightning', 'thunder'].some(dt => workflow.item.damage.versatile.toLowerCase().includes(dt)))");
   }
 
   return document;
