@@ -215,12 +215,18 @@ export default class CharacterSpellFactory {
         const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
         this.items[duplicateSpell] = parsedSpell;
+
+        //check for class granted spells here
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
         logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.name}.`);
       }
     }
   }
+
+  static CLASS_GRANTED_SPELLS_2024 = [
+    "Hunter's Mark",
+  ];
 
   canCast(spell) {
     if (spell.limitedUse || spell.definition.level === 0) return true;

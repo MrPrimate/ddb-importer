@@ -116,6 +116,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Energy Redirection",
     "Battle Medic",
     "Avenging Angel",
+    "Hunter's Mark",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

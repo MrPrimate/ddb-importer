@@ -1011,6 +1011,9 @@ const DICTIONARY = {
     "Monk's Focus": [
       { name: "Darkness", cost: 1, lookupName: "Shadow Arts" },
     ],
+    "Favored Enemy": [
+      { name: "Hunter's Mark", cost: 1, lookupName: "Favored Enemy" },
+    ],
   },
 };
 
