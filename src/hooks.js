@@ -101,7 +101,7 @@ export function renderJournalSheet(sheet, html, data) {
   if (data.cssClass !== "editable" && sheet.document.flags?.ddb) {
     linkTables("journal", html);
     linkImages(html, data);
-    showReadAlouds(html, data);
   }
+  showReadAlouds(html, data);
   adventureFlags(sheet, html, data);
 }
