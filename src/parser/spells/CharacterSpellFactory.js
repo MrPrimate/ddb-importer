@@ -209,19 +209,30 @@ export default class CharacterSpellFactory {
         const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
         this.items.push(parsedSpell);
+
+        console.warn({
+          spell,
+          parsedSpell,
+          bool: parsedSpell.flags.ddbimporter.is2024
+          && CharacterSpellFactory.CLASS_GRANTED_SPELLS_2024.includes(parsedSpell.flags.ddbimporter.originalName),
+        })
+        // check for class granted spells here
+        if (parsedSpell.flags.ddbimporter.is2024
+          && CharacterSpellFactory.CLASS_GRANTED_SPELLS_2024.includes(parsedSpell.flags.ddbimporter.originalName)
+        ) {
+          console.warn(`Adding spell, ${parsedSpell.flags.ddbimporter.originalName} to class granted spells`, {
+            spell,
+            parsedSpell,
+          });
+          this.handleGrantedSpells(spell, "class", true);
+        }
+
       } else if (spell.alwaysPrepared) {
         // if our new spell is always known we overwrite!
         // it's probably domain
         const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
         this.items[duplicateSpell] = parsedSpell;
-
-        // check for class granted spells here
-        if (parsedSpell.flags.ddbimporter.is2024
-          && CharacterSpellFactory.CLASS_GRANTED_SPELLS_2024.includes(parsedSpell.flags.ddbimporter.originalName)
-        ) {
-          this.handleGrantedSpells(spell, "classFeature");
-        }
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
         logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.name}.`);
@@ -244,9 +255,9 @@ export default class CharacterSpellFactory {
     return levelSlots;
   }
 
-  async handleGrantedSpells(spell, type) {
-    if (!spell.limitedUse || spell.definition.level === 0) return;
-    if (!this.slots) return;
+  async handleGrantedSpells(spell, type, forceCopy = false) {
+    if (!forceCopy && (!spell.limitedUse || spell.definition.level === 0)) return;
+    if (!forceCopy && !this.slots) return;
     const levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
       if (spell.definition.level > i) return false;
       return this.slots[`spell${i}`] && this.slots[`spell${i}`].max !== 0;

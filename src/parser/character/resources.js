@@ -455,6 +455,10 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
           foundry.utils.setProperty(update, `system.activities.${id}.consumption.spellSlot`, spellSlot);
         }
       }
+      if (spellData.forceInnate) {
+        foundry.utils.setProperty(update, "system.preparation.mode", "innate");
+        foundry.utils.setProperty(update, "system.preparation.prepared", true);
+      }
       toUpdate.push(update);
     }
   }
