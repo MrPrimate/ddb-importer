@@ -32,6 +32,9 @@ import AvengingAngel from "./feature/AvengingAngel.js";
 import VowOfEnmity from "./feature/VowOfEnmity.js";
 import RelentlessAvenger from "./feature/RelentlessAvenger.js";
 import SoulOfVengeance from "./feature/SoulOfVengeance.js";
+import PrimalCompanion from "./feature/PrimalCompanion.js";
+import PrimalCompanionSummon from "./feature/PrimalCompanionSummon.js";
+import PrimalCompanionRestoreBeast from "./feature/PrimalCompanionRestoreBeast.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -75,6 +78,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Vow of Enmity": () => VowOfEnmity,
     "Relentless Avenger": () => RelentlessAvenger,
     "Soul of Vengeance": () => SoulOfVengeance,
+    "Primal Companion": () => PrimalCompanion,
+    "Primal Companion: Summon": () => PrimalCompanionSummon,
+    "Primal Companion: Restore Beast": () => PrimalCompanionRestoreBeast,
   };
 
   DND_2014 = {

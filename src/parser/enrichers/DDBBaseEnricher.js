@@ -149,6 +149,7 @@ export default class DDBBaseEnricher {
     this.useLookupName = false;
     this.effectType = "basic";
     this.enricherType = "general";
+    this.manager = null;
   }
 
   load({ ddbParser, document, name = null, is2014 = null } = {}) {
@@ -179,11 +180,6 @@ export default class DDBBaseEnricher {
   // eslint-disable-next-line complexity
   _applyActivityDataOverride(activity, overrideData) {
     if (overrideData.name) activity.name = overrideData.name;
-
-    if (overrideData.type === "summon") {
-      if (!this.manager) return activity;
-      this.manager.addProfilesToActivity(activity, overrideData.profileKeys, overrideData.summons);
-    }
 
     if (overrideData.parent) {
       for (const parent of overrideData.parent) {
@@ -221,6 +217,19 @@ export default class DDBBaseEnricher {
         scaling: {
           mode: overrideData.addActivityScalingMode ?? "",
           formula: overrideData.addActivityScalingFormula ?? "",
+        },
+      });
+    }
+    if (overrideData.addSpellSlotConsume) {
+      if (!foundry.utils.getProperty(activity, "consumption.targets"))
+        foundry.utils.setProperty(activity, "consumption.targets", []);
+      activity.consumption.targets.push({
+        type: "spellSlots",
+        target: "",
+        value: overrideData.spellSlotConsumeValue ?? "1",
+        scaling: {
+          mode: overrideData.addSpellSlotScalingMode ?? "",
+          formula: overrideData.addSpellSlotScalingFormula ?? "",
         },
       });
     }
@@ -337,6 +346,10 @@ export default class DDBBaseEnricher {
 
     if (overrideData.allowMagical) {
       activity.restrictions.allowMagical = true;
+    }
+
+    if (overrideData.type === "summon" && this.manager) {
+      this.manager.addProfilesToActivity(activity, overrideData.profileKeys, overrideData.summons);
     }
 
     return activity;
@@ -557,6 +570,7 @@ export default class DDBBaseEnricher {
       return this.ddbParser.ddbCharacter._characterFeatureFactory.getFeatureFromAction({
         action,
         isAttack,
+        manager: this.manager,
       });
     });
     actionFeatures.forEach((feature, i) => {

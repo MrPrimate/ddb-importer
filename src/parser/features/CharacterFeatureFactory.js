@@ -11,7 +11,7 @@ import utils from "../../lib/utils.js";
 
 export default class CharacterFeatureFactory {
 
-  getFeatureFromAction({ action, isAttack = null }) {
+  getFeatureFromAction({ action, isAttack = null, manager = null }) {
     const isAttackAction = isAttack ?? DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
     const ddbAction = isAttackAction
       ? new DDBAttackAction({
@@ -25,6 +25,7 @@ export default class CharacterFeatureFactory {
         ddbDefinition: action,
         rawCharacter: this.rawCharacter,
       });
+    if (manager) ddbAction.enricher.manager = manager;
     ddbAction.build();
     return ddbAction.data;
   }

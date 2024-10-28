@@ -19,6 +19,10 @@ export default class Example extends DDBEnricherMixin {
       activityConsumeValue: 2, // activity consume value if not 1
       addActivityScalingMode: "amount", // add scaling mode to activity consume
       addActivityScalingFormula: "1", // add scaling formula to activity consume
+      addSpellSlotConsume: true, // add spell slot consume
+      spellSlotConsumeValue: 2, // spell slot consume value if not 1
+      addSpellSlotScalingMode: "level", // add scaling mode to spell slot consume
+      addSpellSlotScalingFormula: "2", // add scaling formula to spell slot consume
       additionalConsumptionTargets: [], // add additional consumption targets
       addConsumptionScalingMax: "", // enable consumption scaling and add max
       targetType: "self", // target type override

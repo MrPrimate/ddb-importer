@@ -19,6 +19,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Elemental Fury",
     "Circle of the Land Spells",
     "Primal Order",
+    "Fighting Style",
   ];
 
   static KEEP_CHOICE_FEATURE_NAME = [
@@ -26,6 +27,8 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Pact Boon",
     "The Third Eye",
     "Unbreakable Majesty",
+    "Druidic Warrior",
+    "Primal Companion",
   ];
 
   static KEEP_CHOICE_FEATURE_NAME_STARTSWITH = [

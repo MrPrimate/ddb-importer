@@ -215,22 +215,35 @@ export default class CharacterSpellFactory {
           parsedSpell,
           bool: parsedSpell.flags.ddbimporter.is2024
           && CharacterSpellFactory.CLASS_GRANTED_SPELLS_2024.includes(parsedSpell.flags.ddbimporter.originalName),
-        })
+        });
         // check for class granted spells here
         if (parsedSpell.flags.ddbimporter.is2024
           && CharacterSpellFactory.CLASS_GRANTED_SPELLS_2024.includes(parsedSpell.flags.ddbimporter.originalName)
         ) {
-          console.warn(`Adding spell, ${parsedSpell.flags.ddbimporter.originalName} to class granted spells`, {
+          console.warn(`Adding non duplicate spell, ${parsedSpell.flags.ddbimporter.originalName} to class granted spells`, {
             spell,
             parsedSpell,
           });
-          this.handleGrantedSpells(spell, "class", true);
+          this.handleGrantedSpells(spell, "class", {
+            forceCopy: true,
+            flags: {
+              lookup: "classFeature",
+            },
+          });
         }
 
       } else if (spell.alwaysPrepared) {
         // if our new spell is always known we overwrite!
         // it's probably domain
-        const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+        const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
+          enricher: this.enricher,
+          ddbData: this.ddb,
+          namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+        });
+        console.warn(`Overwriting duplicate spell, ${parsedSpell.flags.ddbimporter.originalName} to class granted spells`, {
+          spell,
+          parsedSpell,
+        });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
         this.items[duplicateSpell] = parsedSpell;
       } else {
@@ -255,7 +268,7 @@ export default class CharacterSpellFactory {
     return levelSlots;
   }
 
-  async handleGrantedSpells(spell, type, forceCopy = false) {
+  async handleGrantedSpells(spell, type, { forceCopy = false, flags = {} }) {
     if (!forceCopy && (!spell.limitedUse || spell.definition.level === 0)) return;
     if (!forceCopy && !this.slots) return;
     const levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
@@ -281,7 +294,7 @@ export default class CharacterSpellFactory {
     unlimitedSpell.alwaysPrepared = true;
     unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
     unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
-    unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = type;
+    unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = flags.lookup ?? type;
     delete unlimitedSpell.id;
     delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
     const parsedSpell = await DDBSpell.parseSpell(unlimitedSpell, this.character, {
@@ -339,7 +352,11 @@ export default class CharacterSpellFactory {
 
       this.handleGrantedSpells(spell, "race");
       if (!this.canCast(spell)) continue;
-      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
+        enricher: this.enricher,
+        ddbData: this.ddb,
+        namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+      });
       this.items.push(parsedSpell);
     }
   }
@@ -390,7 +407,11 @@ export default class CharacterSpellFactory {
 
       this.handleGrantedSpells(spell, "feat");
       if (!this.canCast(spell)) continue;
-      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
+        enricher: this.enricher,
+        ddbData: this.ddb,
+        namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+      });
       this.items.push(parsedSpell);
     }
   }
@@ -430,7 +451,11 @@ export default class CharacterSpellFactory {
 
       this.handleGrantedSpells(spell, "background");
       if (!this.canCast(spell)) continue;
-      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, { enricher: this.enricher, ddbData: this.ddb, namePostfix: `${this._getSpellCount(spell.definition.name)}` });
+      const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
+        enricher: this.enricher,
+        ddbData: this.ddb,
+        namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+      });
       this.items.push(parsedSpell);
     }
   }
