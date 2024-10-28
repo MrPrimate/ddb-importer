@@ -102,8 +102,10 @@ export function renderJournalSheet(sheet, html, data) {
     if (sheet.document.flags?.ddb) {
       linkTables("journal", html);
       linkImages(html, data);
-      showReadAlouds(html, data);
-    } else if (game.settings.get("ddb-importer", "show-read-alouds-all-content")) {
+    }
+    
+    const enableReadAloudsForAllContent = game.settings.get("ddb-importer", "show-read-alouds-all-content");
+    if (sheet.document.flags?.ddb || enableReadAloudsForAllContent) {
       showReadAlouds(html, data);
     }
   }
