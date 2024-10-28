@@ -120,6 +120,8 @@
       "show-image-to-players.hint": "In journals provide hover-over button to show image to players? (Reload required)",
       "show-read-alouds-button.name": "Show the show read aloud to players button?",
       "show-read-alouds-button.hint": "In journals provide hover-over button to show the read aloud to players? (Reload required)",
+      "show-read-alouds-all-content.name": "Enable read aloud for all content?",
+      "show-read-alouds-all-content.hint": "Show the read aloud to player button in content not imported by DDB Importer as well. (Reload required)",
       "dynamic-sync": {
         "dynamic-sync": "Enable Dynamic Sync?",
         "dynamic-sync-policy-currency": "Currency?",
