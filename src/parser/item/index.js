@@ -53,7 +53,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
     await itemParser.build();
 
     if (itemParser.data) {
-      const itemSpells = this.raw.spells;
+      const itemSpells = this.raw.spells ?? ddbItem.spells ?? [];
 
       if (game.modules.get("magicitems")?.active) {
         ddbItem.data.flags.magicitems = MagicItemMaker.parseMagicItemsModule(itemParser, itemSpells, !isCompendiumItem, true);

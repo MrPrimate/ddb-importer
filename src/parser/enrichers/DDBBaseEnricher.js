@@ -562,7 +562,7 @@ export default class DDBBaseEnricher {
       activities: {},
       effects: [],
     };
-    if (!this.ddbParser?.ddbData) return result;
+    if (!this.ddbParser?.ddbData?.ddbCharacter) return result;
     const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type });
     // console.warn("actions", { name, type, actions, this: this });
     if (actions.length === 0) return result;

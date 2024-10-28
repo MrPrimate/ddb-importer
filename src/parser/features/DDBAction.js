@@ -117,6 +117,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Battle Medic",
     "Avenging Angel",
     "Hunter's Mark",
+    "Primal Companion: Restore Beast",
+    "Primal Companion: Summon",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
