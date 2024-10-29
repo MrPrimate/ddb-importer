@@ -2,13 +2,11 @@ import utils from "../../lib/utils.js";
 import { getLookups } from "./metadata.js";
 import { hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import DDBSpell from "./DDBSpell.js";
-import DDDSpellEnricher from "../enrichers/DDBSpellEnricher.js";
 
 export default class GenericSpellFactory {
 
   static async getGenericItemSpells(itemList, itemSpells) {
     let items = [];
-    const enricher = new DDDSpellEnricher();
 
     // feat spells are handled slightly differently
     for (const spell of itemSpells.filter((s) => s.definition)) {
@@ -46,7 +44,7 @@ export default class GenericSpellFactory {
         },
       };
       const namePostfix = utils.namedIDStub(itemInfo.definition.name, { prefix: "", length: 5 });
-      const parsedSpell = await DDBSpell.parseSpell(spell, null, { namePostfix: namePostfix, enricher });
+      const parsedSpell = await DDBSpell.parseSpell(spell, null, { namePostfix: namePostfix });
 
       items.push(parsedSpell);
     }
@@ -54,36 +52,41 @@ export default class GenericSpellFactory {
     return items;
   }
 
-  static async getSpells(spells) {
-    let items = await Promise.all(
-      spells
-        .filter((spell) => spell.definition)
-        .filter((spell) => {
-          // remove archived material
-          if (spell.definition.sources && spell.definition.sources.some((source) => source.sourceId === 39)) {
-            return false;
-          } else {
-            return true;
-          }
-        })
-        .map(async (spell) => {
-          spell.flags = {
-            ddbimporter: {
-              generic: true,
-              dndbeyond: {
-                lookup: "generic",
-                lookupName: "generic",
-                level: spell.castAtLevel,
-                castAtLevel: spell.castAtLevel,
-                homebrew: spell.definition.isHomebrew,
-              },
-            },
-          };
+  static async getSpells(spells, notifier = null) {
+    const results = [];
 
-          return DDBSpell.parseSpell(spell, null);
-        }));
+    const filteredSpells = spells
+      .filter((spell) => spell.definition)
+      .filter((spell) => {
+        // remove archived material
+        if (spell.definition.sources && spell.definition.sources.some((source) => source.sourceId === 39)) {
+          return false;
+        } else {
+          return true;
+        }
+      });
 
-    return items;
+    let i = 0;
+    const length = filteredSpells.length;
+    for (const spellData of filteredSpells) {
+      if (notifier) notifier(`Parsing spell ${++i} of ${length}: ${spellData.definition.name}`, true);
+      spellData.flags = {
+        ddbimporter: {
+          generic: true,
+          dndbeyond: {
+            lookup: "generic",
+            lookupName: "generic",
+            level: spellData.castAtLevel,
+            castAtLevel: spellData.castAtLevel,
+            homebrew: spellData.definition.isHomebrew,
+          },
+        },
+      };
+      const spell = await DDBSpell.parseSpell(spellData, null);
+      results.push(spell);
+    }
+
+    return results;
   }
 
   static getSpellCount(dict, name) {
@@ -97,7 +100,6 @@ export default class GenericSpellFactory {
     let items = [];
     const proficiencyModifier = character.system.attributes.prof;
     const lookups = getLookups(ddb.character);
-    const enricher = new DDDSpellEnricher();
 
     const spellCountDict = {};
 
@@ -150,7 +152,7 @@ export default class GenericSpellFactory {
         },
       };
       const namePostfix = `It${GenericSpellFactory.getSpellCount(spellCountDict, spell.definition.name)}`;
-      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix: namePostfix, enricher }));
+      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix: namePostfix }));
     }
 
     return items;

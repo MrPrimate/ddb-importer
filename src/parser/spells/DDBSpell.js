@@ -904,7 +904,7 @@ export default class DDBSpell {
     if (hintsOnly && !this.enricher.activity) return undefined;
 
     const activity = await this.getActivity({
-      typeOverride: typeOverride ?? this.enricher.activity?.type,
+      typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type,
       name,
       nameIdPostfix,
     }, optionsOverride);
