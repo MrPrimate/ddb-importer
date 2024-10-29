@@ -6,7 +6,6 @@ import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import SETTINGS from "../settings.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
-import DDBMonsterEnricher from "./enrichers/DDBMonsterEnricher.js";
 
 // targets for migration
 import {
@@ -73,7 +72,6 @@ export default class DDBMonsterFactory {
     this.currentDocument = 1;
     this.totalDocuments = 0;
     this.monstersParsed = [];
-    this.enricher = new DDBMonsterEnricher();
   }
 
   /**
@@ -154,7 +152,6 @@ export default class DDBMonsterFactory {
   async parse(monsters = []) {
     let foundryActors = [];
     let failedMonsterNames = [];
-    await this.enricher.init();
 
     const monsterSource = monsters.length > 0 ? monsters : this.source;
 
@@ -174,7 +171,6 @@ export default class DDBMonsterFactory {
           legacyName: this.legacyName,
           addMonsterEffects: this.addMonsterEffects,
           addChrisPremades: this.addChrisPremades,
-          enricher: this.enricher,
         });
         await ddbMonster.parse();
         foundryActors.push(foundry.utils.duplicate(ddbMonster.npc));

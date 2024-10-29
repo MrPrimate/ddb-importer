@@ -81,7 +81,7 @@ export default class DDBMonsterFeatureFactory {
   }
 
   getFeatures(type) {
-    return this.features[type].map((feature) => foundry.utils.deepClone(feature.feature));
+    return this.features[type].map((feature) => foundry.utils.deepClone(feature.data));
   }
 
   get actions() {
@@ -340,13 +340,13 @@ export default class DDBMonsterFeatureFactory {
 
       if (actionMatch) {
         const dupFeature = new DDBMonsterFeature(name, { ddbMonster: this.ddbMonster, html: actionMatch.html, type, actionCopy: true });
-        dupFeature.feature = foundry.utils.duplicate(actionMatch.feature);
-        dupFeature.feature._id = foundry.utils.randomID();
-        dupFeature.feature.name = action.name; // fix up name to make sure things like Attack are included
-        Object.keys(dupFeature.feature.system.activities).forEach((id) => {
-          dupFeature.feature.system.activities[id].activation.type = "legendary";
+        dupFeature.data = foundry.utils.duplicate(actionMatch.data);
+        dupFeature.data._id = foundry.utils.randomID();
+        dupFeature.data.name = action.name; // fix up name to make sure things like Attack are included
+        Object.keys(dupFeature.data.system.activities).forEach((id) => {
+          dupFeature.data.system.activities[id].activation.type = "legendary";
         });
-        dupFeature.feature.sort = i + 1;
+        dupFeature.data.sort = i + 1;
         this.features[type].push(dupFeature);
         action.options.actionCopy = true;
         action.options.sort = i + 1;

@@ -32,7 +32,7 @@ export default class DDBMonsterFeatureActivity {
     }
     this.name = name;
     this.ddbParent = ddbParent;
-    this.feature = ddbParent.feature;
+    this.feature = ddbParent.data;
     this.actor = ddbParent.ddbMonster.npc;
     this.actionInfo = ddbParent.actionInfo;
 

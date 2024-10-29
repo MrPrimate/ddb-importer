@@ -6,7 +6,7 @@ import DDBMonster from "../DDBMonster.js";
 import DDBMonsterFactory from "../DDBMonsterFactory.js";
 import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFactory.js";
 import { newNPC } from "../monster/templates/monster.js";
-import DDBMonsterEnricher from "../enrichers/DDBMonsterEnricher.js";
+import DDBMonsterEnricher from "../enrichers/DDBMonsterFeatureEnricher.js";
 
 export default class DDBCompanion {
 

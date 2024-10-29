@@ -28,7 +28,7 @@ export default class DDBMonster {
   }
 
   constructor(ddbObject = null, { existingNpc = null, extra = false, useItemAC = true,
-    legacyName = true, addMonsterEffects = false, addChrisPremades = false, enricher = null } = {}, overrides = {},
+    legacyName = true, addMonsterEffects = false, addChrisPremades = false } = {}, overrides = {},
   ) {
     this.source = ddbObject;
 
@@ -67,8 +67,8 @@ export default class DDBMonster {
     }
     this.stockImage = false;
 
-    this.enricher = enricher;
     this.featureFactory = new DDBMonsterFeatureFactory({ ddbMonster: this });
+
   }
 
   static STOCK_TYPE_IMAGES = [
@@ -198,6 +198,7 @@ export default class DDBMonster {
   async parse() {
     if (!this.name) this.name = this.source.name;
     this.npc = foundry.utils.duplicate(newNPC(this.name, this.source.id));
+    this.npc.system.identifier = utils.referenceNameString(this.name.toLowerCase());
     this._calculateImage();
 
     this.npc.prototypeToken.name = this.name;
