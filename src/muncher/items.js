@@ -15,7 +15,7 @@ import Iconizer from "../lib/Iconizer.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 
-async function getCharacterInventory(items) {
+function getCharacterInventory(items) {
   return items.map((item) => {
     return {
       chargesUsed: 0,
@@ -32,7 +32,7 @@ async function getCharacterInventory(items) {
   });
 }
 
-async function generateImportItems(items) {
+async function generateImportItems(items, notifier) {
   const mockCharacter = {
     system: utils.getTemplate("character"),
     type: "character",
@@ -82,7 +82,7 @@ async function generateImportItems(items) {
     ddb: mockDDB,
   };
   ddbCharacter.raw.itemSpells = [];
-  const inventory = await ddbCharacter.getInventory();
+  const inventory = await ddbCharacter.getInventory(notifier);
   const results = {
     items: inventory,
     itemSpellNames: itemSpells, // this needs to be a list of spells to find
@@ -150,8 +150,6 @@ function getItemData({ useSourceFilter = false, ids = [] } = {}) {
         if (!excludeLegacy) return data;
         return data.filter((r) => !r.isLegacy);
       })
-      .then((data) => getCharacterInventory(data))
-      .then((items) => generateImportItems(items))
       .then((data) => resolve(data))
       .catch((error) => reject(error));
   });
@@ -198,7 +196,11 @@ export async function parseItems({ useSourceFilter = false, ids = [], deleteBefo
 
   // disable source filter if ids provided
   const sourceFilter = (ids === null && ids.length === 0) && useSourceFilter;
-  const results = await getItemData({ useSourceFilter: sourceFilter, ids });
+  const raw = await getItemData({ useSourceFilter: sourceFilter, ids });
+
+  const characterInventory = getCharacterInventory(raw);
+  const results = await generateImportItems(characterInventory, DDBMuncher.munchNote);
+
   let items = results.items;
 
   DDBMuncher.munchNote("Parsing item data..");
@@ -217,6 +219,7 @@ export async function parseItems({ useSourceFilter = false, ids = [], deleteBefo
   const itemHandler = new DDBItemImporter("items", items, { deleteBeforeUpdate, matchFlags: ["is2014", "is2024"] });
   await itemHandler.init();
   await itemHandler.srdFiddling();
+  DDBMuncher.munchNote(`Painting Item Icons (this can take a while)`, true);
   await itemHandler.iconAdditions();
   const filteredItems = (ids !== null && ids.length > 0)
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
@@ -225,7 +228,7 @@ export async function parseItems({ useSourceFilter = false, ids = [], deleteBefo
   itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: vision5eItems, compendiumItem: true });
 
   const finalCount = itemHandler.documents.length;
-  DDBMuncher.munchNote(`Importing ${finalCount} items!`, true);
+  DDBMuncher.munchNote(`Preparing to import ${finalCount} items!`, true);
   logger.time("Item Import Time");
 
   const updateResults = await itemHandler.updateCompendium(updateBool);

@@ -17,7 +17,7 @@ import logger from "../../logger.js";
 
 // TO DO: revisit to break up item parsing
 // eslint-disable-next-line complexity
-DDBCharacter.prototype.getInventory = async function getInventory() {
+DDBCharacter.prototype.getInventory = async function getInventory(notifier = null) {
 
   let items = [];
 
@@ -42,8 +42,11 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
   const enricher = new DDBItemEnricher();
   await enricher.init();
 
+  let i = 0;
+  const length = this.source.ddb.character.inventory.length;
   for (let ddbItem of this.source.ddb.character.inventory) {
 
+    if (notifier) notifier(`Parsing item ${++i} of ${length}: ${ddbItem.definition.name}`, true);
     const itemParser = new DDBItem({
       characterManager: this,
       ddbItem,

@@ -2764,7 +2764,7 @@ export default class DDBItem {
     if (hintsOnly && !this.enricher.activity) return undefined;
 
     const activity = this.getActivity({
-      typeOverride: typeOverride ?? this.enricher.activity?.type,
+      typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type,
       name,
       nameIdPostfix,
     }, optionsOverride);

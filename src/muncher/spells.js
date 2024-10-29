@@ -136,7 +136,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   //   })
   // });
 
-  const rawSpells = await GenericSpellFactory.getSpells(filteredResults);
+  const rawSpells = await GenericSpellFactory.getSpells(filteredResults, DDBMuncher.munchNote);
 
 
   const spells = rawSpells
