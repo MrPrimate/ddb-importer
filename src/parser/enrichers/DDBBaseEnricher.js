@@ -617,7 +617,7 @@ export default class DDBBaseEnricher {
     };
   }
 
-  _buildActivitiesFromAction({ name, type, isAttack = null, rename = null }) {
+  _buildActivitiesFromAction({ name, type, isAttack = null, rename = null }, y) {
     const result = {
       activities: {},
       effects: [],
@@ -634,7 +634,7 @@ export default class DDBBaseEnricher {
     });
     actionFeatures.forEach((feature, i) => {
       for (const activityKey of (Object.keys(feature.system.activities))) {
-        const newKey = `${activityKey.slice(0, -3)}Ne${i}`;
+        const newKey = `${activityKey.slice(0, -3)}Ne${y + i}`;
         result.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
         result.activities[newKey]._id = `${newKey}`;
         if (rename) {
@@ -670,7 +670,7 @@ export default class DDBBaseEnricher {
         activityClone._id = `${activityClone._id.slice(0, -3)}clo`;
         activityData.activities = [activityClone];
       } else if (actionActivity) {
-        const result = this._buildActivitiesFromAction(actionActivity);
+        const result = this._buildActivitiesFromAction(actionActivity, i);
         activityData.activities = result.activities;
         activityData.effects = result.effects;
       } else {

@@ -66,6 +66,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Magic Initiate (Warlock)",
     "Magic Initiate (Sorcerer)",
     "Boon of Energy Resistance",
+    "Musician",
   ];
 
   static NO_CHOICE_SECRET = [

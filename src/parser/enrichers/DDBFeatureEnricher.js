@@ -37,6 +37,9 @@ import PrimalCompanionSummon from "./feature/PrimalCompanionSummon.js";
 import PrimalCompanionRestoreBeast from "./feature/PrimalCompanionRestoreBeast.js";
 import Tireless from "./feature/Tireless.js";
 import TemporaryHitPoints from "./feature/TemporaryHitPoints.js";
+import BoonOfFortitude from "./feature/BoonOfFortitude.js";
+import BolsteringPerformance from "./feature/BolsteringPerformance.js";
+import InspiringLeader from "./feature/InspiringLeader.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -85,6 +88,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Primal Companion: Restore Beast": () => PrimalCompanionRestoreBeast,
     "Tireless": () => Tireless,
     "Temporary Hit Points": () => TemporaryHitPoints,
+    "Boon of Fortitude": () => BoonOfFortitude,
+    "Bolstering Performance": () => BolsteringPerformance,
+    "Inspiring Leader": () => InspiringLeader,
   };
 
   DND_2014 = {
