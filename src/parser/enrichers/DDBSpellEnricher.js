@@ -6,6 +6,7 @@ import logger from "../../logger.js";
 import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 import DDBSpellActivity from "../spells/DDBSpellActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
+import HuntersMark from "./spell/HuntersMark.js";
 
 export default class DDDSpellEnricher extends DDBBaseEnricher {
   constructor() {
@@ -20,6 +21,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     this._prepare();
   }
 
+  ENRICHERS = {
+    "Hunter's Mark": () => HuntersMark,
+  };
 
   _getEldritchInvocations() {
     let damage = "";
@@ -126,24 +130,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     ADDITIONAL_ACTIVITIES: {
       "Animate Objects": [],
-      "Hunter's Mark": [
-        {
-          constructor: {
-            name: "Bonus Damage",
-            type: "damage",
-          },
-          build: {
-            generateDamage: true,
-            generateSave: false,
-            generateConsumption: false,
-            noSpellslot: true,
-            onsave: false,
-            noeffect: true,
-            activationOverride: { type: "", condition: "When you hit creature with attack" },
-            damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6 })],
-          },
-        },
-      ],
       "Ray of Sickness": [
         {
           constructor: {
@@ -537,12 +523,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       type: "utility",
       data: {
         name: "Mark Target",
-      },
-    },
-    "Hunter's Mark": {
-      type: "utility",
-      data: {
-        name: "Cast",
       },
     },
     "Mage Hand": {
@@ -1271,24 +1251,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, type: "necrotic" })],
           noeffect: true,
           activationOverride: { type: "", condition: "When you hit creature with attack" },
-        },
-      },
-    ],
-    "Hunter's Mark": [
-      {
-        constructor: {
-          name: "Bonus Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateSave: false,
-          generateConsumption: false,
-          noSpellslot: true,
-          onsave: false,
-          noeffect: true,
-          activationOverride: { type: "", condition: "When you hit creature with attack" },
-          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, type: "force" })],
         },
       },
     ],
@@ -2445,9 +2407,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     },
     "Hex": {
       name: "Hexed",
-    },
-    "Hunter's Mark": {
-      name: "Hunter's Mark",
     },
     "Invisibility": {
       noCreate: true,
