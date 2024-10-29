@@ -126,6 +126,7 @@ export default class DDBCharacter {
       betaKey, characterId: this.characterId,
       campaignId: proxyCampaignId,
       filterModifiers: false,
+      splitSpells: true,
     };
     if (syncId) {
       body["updateId"] = syncId;

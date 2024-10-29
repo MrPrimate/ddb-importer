@@ -45,12 +45,94 @@ export default class CharacterSpellFactory {
     return ++this.spellCounts[name];
   }
 
+  async _processClassSpell({
+    classInfo,
+    playerClass,
+    spell,
+    spellCastingAbility,
+    abilityModifier,
+    cantripBoost,
+  }) {
+    // add some data for the parsing of the spells into the data structure
+    spell.flags = {
+      ddbimporter: {
+        dndbeyond: {
+          lookup: "classSpell",
+          class: classInfo.definition.name,
+          level: classInfo.level,
+          characterClassId: playerClass.characterClassId,
+          spellLevel: spell.definition.level,
+          // spellSlots: character.system.spells,
+          ability: spellCastingAbility,
+          mod: abilityModifier,
+          dc: 8 + this.proficiencyModifier + abilityModifier,
+          cantripBoost: cantripBoost,
+          overrideDC: false,
+          id: spell.id,
+          entityTypeId: spell.entityTypeId,
+          healingBoost: this.healingBoost,
+          usesSpellSlot: spell.usesSpellSlot,
+          forceMaterial: classInfo.definition.name === "Artificer",
+          homebrew: spell.definition.isHomebrew,
+        },
+      },
+      "spell-class-filter-for-5e": {
+        parentClass: classInfo.definition.name.toLowerCase(),
+      },
+      "tidy5e-sheet": {
+        parentClass: classInfo.definition.name.toLowerCase(),
+      },
+      // "spellbook-assistant-manager": {
+      //   class: classInfo.definition.name.toLowerCase(),
+      // }
+    };
+
+    // Check for duplicate spells, normally domain ones
+    // We will import spells from a different class that are the same though
+    // as they may come from with different spell casting mods
+    const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
+      ddbData: this.ddb,
+      namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+    });
+    foundry.utils.setProperty(parsedSpell, "system.sourceClass", classInfo.definition.name.toLowerCase());
+    const duplicateSpell = this.items.findIndex(
+      (existingSpell) => {
+        const existingName = (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name);
+        const parsedName = (parsedSpell.flags.ddbimporter.originalName ? parsedSpell.flags.ddbimporter.originalName : parsedSpell.name);
+        // some spells come from different classes but end up having the same ddb id
+        const classIdMatch = (classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class || spell.id === existingSpell.flags.ddbimporter.dndbeyond.id);
+        const legacyMatch = (parsedSpell.flags.ddbimporter.is2014 ?? true) === (existingSpell.flags.ddbimporter.is2014 ?? true)
+          || (parsedSpell.flags.ddbimporter.is2024 ?? false) === (existingSpell.flags.ddbimporter.is2024 ?? false);
+        return existingName === parsedName && classIdMatch && legacyMatch;
+      });
+    const duplicateItem = this.items[duplicateSpell];
+    if (!duplicateItem) {
+      this.items.push(parsedSpell);
+    } else if (spell.alwaysPrepared || parsedSpell.system.preparation.mode === "always"
+      || (spell.alwaysPrepared === duplicateItem.alwaysPrepared && parsedSpell.system.preparation.mode === duplicateItem.system.preparation.mode && parsedSpell.prepared && !duplicateItem.prepared)) {
+      // if our new spell is always known we overwrite!
+      // it's probably domain
+      this.items[duplicateSpell] = parsedSpell;
+    } else {
+      // we'll emit a console message if it doesn't match this case for future debugging
+      logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.definition.name}.`);
+    }
+  }
+
   async getClassSpells() {
     for (const playerClass of this.ddb.character.classSpells) {
       const classInfo = this.ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
       const spellCastingAbility = getSpellCastingAbility(classInfo);
       const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
 
+      const is2014Class = classInfo.definition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+      const is2024NewKnownCaster = ["Ranger", "Paladin"].includes(classInfo.definition.name);
+      if (!is2014Class && is2024NewKnownCaster) {
+        playerClass.spells = playerClass.spells.map((spell) => {
+          if (!spell.alwaysPrepared && spell.countsAsKnownSpell) spell.prepared = true;
+          return spell;
+        });
+      }
       logger.debug("Spell parsing, class info", classInfo);
 
       const cantripBoost
@@ -62,72 +144,21 @@ export default class CharacterSpellFactory {
         ).length > 0;
 
       // parse spells chosen as spellcasting (playerClass.spells)
-      for (const spell of playerClass.spells) {
+      const targetSpells = [
+        ...playerClass.spells,
+        ...playerClass.alwaysPreparedSpells,
+        ...playerClass.alwaysKnownSpells,
+      ];
+      for (const spell of targetSpells) {
         if (!spell.definition) continue;
-        // add some data for the parsing of the spells into the data structure
-        spell.flags = {
-          ddbimporter: {
-            dndbeyond: {
-              lookup: "classSpell",
-              class: classInfo.definition.name,
-              level: classInfo.level,
-              characterClassId: playerClass.characterClassId,
-              spellLevel: spell.definition.level,
-              // spellSlots: character.system.spells,
-              ability: spellCastingAbility,
-              mod: abilityModifier,
-              dc: 8 + this.proficiencyModifier + abilityModifier,
-              cantripBoost: cantripBoost,
-              overrideDC: false,
-              id: spell.id,
-              entityTypeId: spell.entityTypeId,
-              healingBoost: this.healingBoost,
-              usesSpellSlot: spell.usesSpellSlot,
-              forceMaterial: classInfo.definition.name === "Artificer",
-              homebrew: spell.definition.isHomebrew,
-            },
-          },
-          "spell-class-filter-for-5e": {
-            parentClass: classInfo.definition.name.toLowerCase(),
-          },
-          "tidy5e-sheet": {
-            parentClass: classInfo.definition.name.toLowerCase(),
-          },
-          // "spellbook-assistant-manager": {
-          //   class: classInfo.definition.name.toLowerCase(),
-          // }
-        };
-
-        // Check for duplicate spells, normally domain ones
-        // We will import spells from a different class that are the same though
-        // as they may come from with different spell casting mods
-        const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
-          ddbData: this.ddb,
-          namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+        await this._processClassSpell({
+          classInfo,
+          playerClass,
+          spell,
+          spellCastingAbility,
+          abilityModifier,
+          cantripBoost,
         });
-        foundry.utils.setProperty(parsedSpell, "system.sourceClass", classInfo.definition.name.toLowerCase());
-        const duplicateSpell = this.items.findIndex(
-          (existingSpell) => {
-            const existingName = (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name);
-            const parsedName = (parsedSpell.flags.ddbimporter.originalName ? parsedSpell.flags.ddbimporter.originalName : parsedSpell.name);
-            // some spells come from different classes but end up having the same ddb id
-            const classIdMatch = (classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class || spell.id === existingSpell.flags.ddbimporter.dndbeyond.id);
-            const legacyMatch = (parsedSpell.flags.ddbimporter.is2014 ?? true) === (existingSpell.flags.ddbimporter.is2014 ?? true)
-              || (parsedSpell.flags.ddbimporter.is2024 ?? false) === (existingSpell.flags.ddbimporter.is2024 ?? false);
-            return existingName === parsedName && classIdMatch && legacyMatch;
-          });
-        const duplicateItem = this.items[duplicateSpell];
-        if (!duplicateItem) {
-          this.items.push(parsedSpell);
-        } else if (spell.alwaysPrepared || parsedSpell.system.preparation.mode === "always"
-          || (spell.alwaysPrepared === duplicateItem.alwaysPrepared && parsedSpell.system.preparation.mode === duplicateItem.system.preparation.mode && parsedSpell.prepared && !duplicateItem.prepared)) {
-          // if our new spell is always known we overwrite!
-          // it's probably domain
-          this.items[duplicateSpell] = parsedSpell;
-        } else {
-          // we'll emit a console message if it doesn't match this case for future debugging
-          logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.definition.name}.`);
-        }
       }
     }
 

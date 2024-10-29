@@ -7,6 +7,7 @@
 - Monster Parser improvements for upcoming changes.
 - Ranger Parsing improvements.
 - Improvement to spell and item parsing notifications.
+- Mark Paladin Known Spells as Prepared for 2024 Paladins.
 
 # 6.0.22
 
