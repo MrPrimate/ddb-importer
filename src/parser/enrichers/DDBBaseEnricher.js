@@ -68,15 +68,15 @@ export default class DDBBaseEnricher {
 
   DOCUMENT_STUB = {};
 
-  EXTERNAL_ENRICHERS = {};
+  ENRICHERS = {};
 
   static _loadDataStub(stub) {
     return utils.isFunction(stub) ? stub() : stub;
   }
 
   _loadEnricherData(name) {
-    if (this.EXTERNAL_ENRICHERS?.[name]) {
-      const ExternalEnricher = DDBBaseEnricher._loadDataStub(this.EXTERNAL_ENRICHERS?.[name]);
+    if (this.ENRICHERS?.[name]) {
+      const ExternalEnricher = DDBBaseEnricher._loadDataStub(this.ENRICHERS?.[name]);
       return new ExternalEnricher({
         ddbEnricher: this,
       });
@@ -86,16 +86,18 @@ export default class DDBBaseEnricher {
 
   _getEnricherMatchesV2() {
 
-    const loadedMatch = this._loadEnricherData(this.hintName);
+    const loadedEnricher = this._loadEnricherData(this.hintName);
 
-    if (!loadedMatch) return null;
+    if (!loadedEnricher) return;
 
-    this.activity = loadedMatch.activity;
-    this.effect = loadedMatch.effect;
-    this.override = loadedMatch.override;
-    this.additionalActivities = loadedMatch.additionalActivities;
-    this.documentStub = loadedMatch.documentStub;
-    return true;
+    this.loadedEnricher = loadedEnricher;
+
+    // this.activity = loadedMatch.activity;
+    // this.effect = loadedMatch.effect;
+    // this.override = loadedMatch.override;
+    // this.additionalActivities = loadedMatch.additionalActivities;
+    // this.documentStub = loadedMatch.documentStub;
+    // return true;
   }
 
   _findEnricherMatch(type) {
@@ -120,13 +122,13 @@ export default class DDBBaseEnricher {
     // lookupName
   }
 
-  _getEnricherMatchesV1() {
-    this.activity = this._findEnricherMatch("ACTIVITY_HINTS");
-    this.effect = this._findEnricherMatch("EFFECT_HINTS");
-    this.override = this._findEnricherMatch("DOCUMENT_OVERRIDES");
-    this.additionalActivities = this._findEnricherMatch("ADDITIONAL_ACTIVITIES");
-    this.documentStub = this._findEnricherMatch("DOCUMENT_STUB");
-  }
+  // _getEnricherMatchesV1() {
+  //   this.activity = this._findEnricherMatch("ACTIVITY_HINTS");
+  //   this.effect = this._findEnricherMatch("EFFECT_HINTS");
+  //   this.override = this._findEnricherMatch("DOCUMENT_OVERRIDES");
+  //   this.additionalActivities = this._findEnricherMatch("ADDITIONAL_ACTIVITIES");
+  //   this.documentStub = this._findEnricherMatch("DOCUMENT_STUB");
+  // }
 
   _prepare() {
     if (this.isCustomAction) return;
@@ -134,8 +136,55 @@ export default class DDBBaseEnricher {
       ?? this.NAME_HINTS[this.name]
       ?? this.name;
 
-    const loadV2 = this._getEnricherMatchesV2();
-    if (!loadV2) this._getEnricherMatchesV1();
+    this._getEnricherMatchesV2();
+  }
+
+  get type() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.type;
+    } else {
+      return null;
+    }
+  }
+
+  get activity() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.activity;
+    } else {
+      return this._findEnricherMatch("ACTIVITY_HINTS");
+    }
+  }
+
+  get effect() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.effect;
+    } else {
+      return this._findEnricherMatch("EFFECT_HINTS");
+    }
+  }
+
+  get override() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.override;
+    } else {
+      return this._findEnricherMatch("DOCUMENT_OVERRIDES");
+    }
+  }
+
+  get additionalActivities() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.additionalActivities;
+    } else {
+      return this._findEnricherMatch("ADDITIONAL_ACTIVITIES");
+    }
+  }
+
+  get documentStub() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.documentStub;
+    } else {
+      return this._findEnricherMatch("DOCUMENT_STUB");
+    }
   }
 
   constructor() {
@@ -150,6 +199,8 @@ export default class DDBBaseEnricher {
     this.effectType = "basic";
     this.enricherType = "general";
     this.manager = null;
+    this.loadedEnricher = null;
+    this._originalActivity = null;
   }
 
   load({ ddbParser, document, name = null, is2014 = null } = {}) {
@@ -175,6 +226,14 @@ export default class DDBBaseEnricher {
   set data(data) {
     if (this.ddbParser?.data) this.ddbParser.data = data;
     else if (this.document) this.document = data;
+  }
+
+  get originalActivity() {
+    return this._originalActivity;
+  }
+
+  set originalActivity(activity) {
+    this._originalActivity = activity;
   }
 
   // eslint-disable-next-line complexity
@@ -355,14 +414,15 @@ export default class DDBBaseEnricher {
     return activity;
   }
 
-  applyActivityOverride(activity) {
-    if (!this.activity) return activity;
+  applyActivityOverride(activityData) {
+    this.originalActivity = activityData;
+    if (!this.activity) return activityData;
 
     let activityHint = utils.isFunction(this.activity) ? this.activity() : this.activity;
 
-    if (!activityHint) return activity;
+    if (!activityHint) return activityData;
 
-    return this._applyActivityDataOverride(activity, activityHint);
+    return this._applyActivityDataOverride(activityData, activityHint);
   }
 
   // eslint-disable-next-line complexity
@@ -562,9 +622,8 @@ export default class DDBBaseEnricher {
       activities: {},
       effects: [],
     };
-    if (!this.ddbParser?.ddbData?.ddbCharacter) return result;
+    if (!this.ddbParser?.ddbCharacter) return result;
     const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type });
-    // console.warn("actions", { name, type, actions, this: this });
     if (actions.length === 0) return result;
     const actionFeatures = actions.map((action) => {
       return this.ddbParser.ddbCharacter._characterFeatureFactory.getFeatureFromAction({
@@ -625,6 +684,7 @@ export default class DDBBaseEnricher {
         // console.warn("Activity", activity);
 
         if (activityHint.overrides) {
+          this.originalActivity = activity;
           activity = this._applyActivityDataOverride(activity, activityHint.overrides);
         }
 

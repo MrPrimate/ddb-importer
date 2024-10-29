@@ -1160,7 +1160,7 @@ export default class DDBBaseFeature {
     );
 
     const activity = this.getActivity({
-      typeOverride: typeOverride ?? this.enricher.activity?.type ?? this.activityType,
+      typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type ?? this.activityType,
       name,
       nameIdPostfix,
     }, options);

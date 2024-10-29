@@ -119,6 +119,8 @@ export default class DDBAction extends DDBBaseFeature {
     "Hunter's Mark",
     "Primal Companion: Restore Beast",
     "Primal Companion: Summon",
+    "Hunter's Mark: Precise Hunter",
+    "Temporary Hit Points",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

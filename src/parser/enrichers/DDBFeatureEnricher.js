@@ -35,6 +35,8 @@ import SoulOfVengeance from "./feature/SoulOfVengeance.js";
 import PrimalCompanion from "./feature/PrimalCompanion.js";
 import PrimalCompanionSummon from "./feature/PrimalCompanionSummon.js";
 import PrimalCompanionRestoreBeast from "./feature/PrimalCompanionRestoreBeast.js";
+import Tireless from "./feature/Tireless.js";
+import TemporaryHitPoints from "./feature/TemporaryHitPoints.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -49,7 +51,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     this._prepare();
   }
 
-  EXTERNAL_ENRICHERS = {
+  ENRICHERS = {
     "Abjure Foes": () => AbjureFoes,
     "Arcane Recovery": () => ArcaneRecovery,
     "Archdruid": () => Archdruid,
@@ -81,6 +83,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Primal Companion": () => PrimalCompanion,
     "Primal Companion: Summon": () => PrimalCompanionSummon,
     "Primal Companion: Restore Beast": () => PrimalCompanionRestoreBeast,
+    "Tireless": () => Tireless,
+    "Temporary Hit Points": () => TemporaryHitPoints,
   };
 
   DND_2014 = {

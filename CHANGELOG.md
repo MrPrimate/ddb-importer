@@ -4,6 +4,9 @@
 - Find Familiar would not add summons if Legacy naming suffix in use.
 - Fix Maneuvering Attack parsing.
 - Override items would retain activities from the DDB Importer item.
+- Monster Parser improvements for upcoming changes.
+- Ranger Parsing improvements.
+- Improvement to spell and item parsing notifications.
 
 # 6.0.22
 

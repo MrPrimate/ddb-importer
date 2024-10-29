@@ -55,6 +55,14 @@ export default class DDBEnricherMixin {
     return uses;
   }
 
+  _buildDamagePartsWithBase() {
+    const original = this.ddbEnricher.originalActivity;
+
+    const base = foundry.utils.deepClone(this.data.system.damage.base);
+    const parts = foundry.utils.deepClone(original?.damage.parts ?? []);
+    return [base, ...parts];
+  }
+
   static effectModules = effectModules;
 
   static generateATLChange = generateATLChange;
@@ -89,6 +97,10 @@ export default class DDBEnricherMixin {
     this.manager = ddbEnricher.manager;
   }
 
+  get type() {
+    return null;
+  }
+
   get data() {
     return this.ddbEnricher.ddbParser.data;
   }
@@ -114,12 +126,3 @@ export default class DDBEnricherMixin {
   }
 
 }
-
-// DDBEnricherMixin.prototype.effectModules = effectModules;
-// DDBEnricherMixin.prototype.generateATLChange = generateATLChange;
-// DDBEnricherMixin.prototype.generateCustomChange = generateCustomChange;
-// DDBEnricherMixin.prototype.generateDowngradeChange = generateDowngradeChange;
-// DDBEnricherMixin.prototype.generateOverrideChange = generateOverrideChange;
-// DDBEnricherMixin.prototype.generateSignedAddChange = generateSignedAddChange;
-// DDBEnricherMixin.prototype.generateUnsignedAddChange = generateUnsignedAddChange;
-// DDBEnricherMixin.prototype.generateUpgradeChange = generateUpgradeChange;

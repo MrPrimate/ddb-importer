@@ -4,11 +4,15 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class Example extends DDBEnricherMixin {
 
+  get type() {
+    return "utility"; // activity type - if type is none, activity hit will be generally undefined
+  }
+
   get activity() {
     return {
       // THESE ARE ACTIvITY ADJUSTMENTS RAN EVERYWHERE
       name: "Activity Name", // if not type default"
-      type: "utility", // activity type - if type is none, activity hit will be generally undefined
+      type: "utility", // deprecated, use type() activity type - if type is none, activity hit will be generally undefined
       parent: "name", // name of lookup parent if only applies to certain types, e.g. spells attached to items, this would be the item name
       noConsumeTargets: true, // remove any auto generated consumption targets
       addItemConsume: true, // add item consume
