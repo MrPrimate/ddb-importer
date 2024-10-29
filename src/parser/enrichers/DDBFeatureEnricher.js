@@ -40,6 +40,7 @@ import TemporaryHitPoints from "./feature/TemporaryHitPoints.js";
 import BoonOfFortitude from "./feature/BoonOfFortitude.js";
 import BolsteringPerformance from "./feature/BolsteringPerformance.js";
 import InspiringLeader from "./feature/InspiringLeader.js";
+import MageSlayer from "./feature/MageSlayer.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -91,6 +92,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Boon of Fortitude": () => BoonOfFortitude,
     "Bolstering Performance": () => BolsteringPerformance,
     "Inspiring Leader": () => InspiringLeader,
+    "Mage Slayer": () => MageSlayer,
   };
 
   DND_2014 = {
