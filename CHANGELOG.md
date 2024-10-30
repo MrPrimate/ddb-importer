@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.23
 
 - Players could not import actors if they had summon spells.
 - Find Familiar would not add summons if Legacy naming suffix in use.
