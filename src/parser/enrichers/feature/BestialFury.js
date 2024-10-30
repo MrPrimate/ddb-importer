@@ -8,11 +8,17 @@ export default class BestialFury extends DDBEnricherMixin {
   }
 
   get activity() {
+
+    const hasFoeSlayer = this.is2024 && this.hasClassFeature({ featureName: "Foe Slayer", className: "Ranger" });
+    const denomination = hasFoeSlayer
+      ? 10
+      : 6;
+
     return {
       targetType: "creature",
       data: {
         damage: {
-          parts: DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 6, types: ["force"] }),
+          parts: DDBEnricherMixin.basicDamagePart({ number: 1, denomination, types: ["force"] }),
         },
       },
     };
