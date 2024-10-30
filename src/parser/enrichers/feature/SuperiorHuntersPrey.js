@@ -8,7 +8,6 @@ export default class SuperiorHuntersPrey extends DDBEnricherMixin {
   }
 
   get activity() {
-
     const hasFoeSlayer = this.is2024 && this.hasClassFeature({ featureName: "Foe Slayer", className: "Ranger" });
     const denomination = hasFoeSlayer
       ? 10
@@ -16,6 +15,7 @@ export default class SuperiorHuntersPrey extends DDBEnricherMixin {
 
     return {
       targetType: "creature",
+      noTemplate: true,
       data: {
         damage: {
           parts: DDBEnricherMixin.basicDamagePart({ number: 1, denomination, types: ["force"] }),

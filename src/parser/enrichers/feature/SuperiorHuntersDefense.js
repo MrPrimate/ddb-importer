@@ -9,7 +9,6 @@ export default class SuperiorHuntersDefense extends DDBEnricherMixin {
   }
 
   get activity() {
-
     return {
       targetType: "self",
       activationType: "reaction",
@@ -21,8 +20,7 @@ export default class SuperiorHuntersDefense extends DDBEnricherMixin {
       return {
         name: `Superior Hunter's Defense: Resistance to ${utils.capitalize(damage)}`,
         options: {
-          transfer: true,
-          disabled: true,
+          durationSeconds: 6,
         },
         changes: [
           DDBEnricherMixin.generateUnsignedAddChange(damage, 20, "system.traits.dr.value"),
