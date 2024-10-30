@@ -20,6 +20,11 @@ export default class HuntersMark extends DDBEnricherMixin {
       ? DDBEnricherMixin.allDamageTypes()
       : ["force"];
 
+    const hasFoeSlayer = this.is2024 && this.hasClassFeature({ featureName: "Foe Slayer", className: "Ranger" });
+    const denomination = hasFoeSlayer
+      ? 10
+      : 6;
+
     return [
       {
         constructor: {
@@ -34,7 +39,7 @@ export default class HuntersMark extends DDBEnricherMixin {
           onsave: false,
           noeffect: true,
           activationOverride: { type: "", condition: "When you hit creature with attack" },
-          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 6, types: damageTypes, scalingFormula: "" })],
+          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination, types: damageTypes, scalingFormula: "" })],
         },
       },
     ];

@@ -110,6 +110,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Improved Elemental Fury: Primal Strike",
     "Nature's Ward",
     "Deft Explorer",
+    "Otherworldly Glamour",
   ];
 
   _prepare() {
