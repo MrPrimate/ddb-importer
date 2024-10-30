@@ -122,6 +122,10 @@ export default class DDBAction extends DDBBaseFeature {
     "Hunter's Mark: Precise Hunter",
     "Temporary Hit Points",
     "Bolstering Performance",
+    "Dreadful Strike: Sudden Strike",
+    "Dreadful Strike: Mass Fear",
+    "Dreadful Strike",
+
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

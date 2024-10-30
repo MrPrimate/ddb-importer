@@ -3,7 +3,7 @@ import utils from "../../lib/utils.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-
+// enrichers
 import AbjureFoes from "./feature/AbjureFoes.js";
 import ArcaneRecovery from "./feature/ArcaneRecovery.js";
 import Archdruid from "./feature/Archdruid.js";
@@ -42,6 +42,13 @@ import BolsteringPerformance from "./feature/BolsteringPerformance.js";
 import InspiringLeader from "./feature/InspiringLeader.js";
 import MageSlayer from "./feature/MageSlayer.js";
 import BeguilingTwist from "./feature/BeguilingTwist.js";
+import DreadfulStrikes from "./feature/DreadfulStrikes.js";
+import StalkersFlurry from "./feature/StalkersFlurry.js";
+import DreadfulStrikeSuddenStrike from "./feature/DreadfulStrikeSuddenStrike.js";
+import DreadfulStrikeMassFear from "./feature/DreadfulStrikeMassFear.js";
+import DreadfulStrike from "./feature/DreadfulStrike.js";
+import DreadAmbusher from "./feature/DreadAmbusher.js";
+import ShadowyDodge from "./feature/ShadowyDodge.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -67,6 +74,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Boon of Fortitude": () => BoonOfFortitude,
     "Channel Divinity": () => ChannelDivinity,
     "Divine Intervention": () => DivineIntervention,
+    "Dreadful Strike": () => DreadfulStrike,
+    "Dreadful Strikes": () => DreadfulStrikes,
     "Elder Champion": () => ElderChampion,
     "Eldritch Invocations: Ghostly Gaze": () => GhostlyGaze,
     "Embody Legends": () => EmbodyLegends,
@@ -95,6 +104,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Tireless": () => Tireless,
     "Undying Sentinel": () => UndyingSentinel,
     "Vow of Enmity": () => VowOfEnmity,
+    "Stalker's Flurry": () => StalkersFlurry,
+    "Dreadful Strike: Sudden Strike": () => DreadfulStrikeSuddenStrike,
+    "Dreadful Strike: Mass Fear": () => DreadfulStrikeMassFear,
+    "Dread Ambusher": () => DreadAmbusher,
+    "Shadowy Dodge": () => ShadowyDodge,
   };
 
   DND_2014 = {

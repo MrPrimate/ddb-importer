@@ -85,19 +85,9 @@ export default class DDBBaseEnricher {
   }
 
   _getEnricherMatchesV2() {
-
     const loadedEnricher = this._loadEnricherData(this.hintName);
-
     if (!loadedEnricher) return;
-
     this.loadedEnricher = loadedEnricher;
-
-    // this.activity = loadedMatch.activity;
-    // this.effect = loadedMatch.effect;
-    // this.override = loadedMatch.override;
-    // this.additionalActivities = loadedMatch.additionalActivities;
-    // this.documentStub = loadedMatch.documentStub;
-    // return true;
   }
 
   _findEnricherMatch(type) {
@@ -117,18 +107,8 @@ export default class DDBBaseEnricher {
       }
     }
     return loadedMatch;
-
-
-    // lookupName
   }
 
-  // _getEnricherMatchesV1() {
-  //   this.activity = this._findEnricherMatch("ACTIVITY_HINTS");
-  //   this.effect = this._findEnricherMatch("EFFECT_HINTS");
-  //   this.override = this._findEnricherMatch("DOCUMENT_OVERRIDES");
-  //   this.additionalActivities = this._findEnricherMatch("ADDITIONAL_ACTIVITIES");
-  //   this.documentStub = this._findEnricherMatch("DOCUMENT_STUB");
-  // }
 
   _prepare() {
     if (this.isCustomAction) return;
