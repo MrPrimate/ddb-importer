@@ -19,7 +19,7 @@ export default class DDBSpell {
 
   _generateDataStub() {
     this.data = {
-      _id: utils.namedIDStub(this.name, { postfix: this.namePostfix }),
+      _id: utils.namedIDStub(this.name, { prefix: this.namePrefix, postfix: this.namePostfix }),
       type: "spell",
       system: utils.getTemplate("spell"),
       effects: [],
@@ -102,7 +102,7 @@ export default class DDBSpell {
   }
 
   constructor({
-    ddbData, spellData, rawCharacter = null, namePostfix = null, isGeneric = null, updateExisting = null,
+    ddbData, spellData, rawCharacter = null, namePrefix = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
   } = {}) {
@@ -110,6 +110,7 @@ export default class DDBSpell {
     this.spellData = spellData;
     this.spellDefinition = spellData.definition;
     this.rawCharacter = rawCharacter;
+    this.namePrefix = namePrefix;
     this.namePostfix = namePostfix;
     this.nameOverride = nameOverride ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.nameOverride");
     this.originalName = utils.nameString(this.spellDefinition.name);
@@ -1096,12 +1097,13 @@ export default class DDBSpell {
     this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }
 
-  static async parseSpell(data, character, { namePostfix = null, ddbData = null, enricher = null } = {}) {
+  static async parseSpell(data, character, { namePrefix = null, namePostfix = null, ddbData = null, enricher = null } = {}) {
     const spell = new DDBSpell({
       ddbData,
       spellData: data,
       rawCharacter: character,
-      namePostfix: namePostfix,
+      namePrefix,
+      namePostfix,
       enricher,
     });
     await spell.init();

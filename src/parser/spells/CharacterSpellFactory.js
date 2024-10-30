@@ -333,6 +333,7 @@ export default class CharacterSpellFactory {
     delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
     const parsedSpell = await DDBSpell.parseSpell(unlimitedSpell, this.character, {
       ddbData: this.ddb,
+      namePrefix: `Gr`,
       namePostfix: `${this._getSpellCount(unlimitedSpell.definition.name)}`,
     });
     // console.warn(`Granted Spell`, {
