@@ -6551,6 +6551,13 @@ export const RULE_DATA = {
       isReleased: true,
     },
     {
+      id: 146,
+      name: "DMG-2024",
+      description: "Dungeon Master’s Guide (2024)",
+      sourceCategoryId: 24,
+      isReleased: true,
+    },
+    {
       id: 148,
       name: "free-rules",
       description: "D&D Free Rules (2024)",
@@ -6583,6 +6590,13 @@ export const RULE_DATA = {
       name: "TFtS",
       description: "Tales from the Shadows",
       sourceCategoryId: 21,
+      isReleased: true,
+    },
+    {
+      id: 153,
+      name: "SoEE",
+      description: "Scions of Elemental Evil",
+      sourceCategoryId: 1,
       isReleased: true,
     },
   ],
