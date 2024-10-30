@@ -1,10 +1,12 @@
 import { effectModules, generateATLChange, generateCustomChange, generateOverrideChange, generateSignedAddChange, generateTokenMagicFXChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import utils from "../../lib/utils.js";
-import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 import DDBSpellActivity from "../spells/DDBSpellActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
+// Enrichers
+import ArcaneHand from "./spell/ArcaneHand.js";
 import EldritchBlast from "./spell/EldritchBlast.js";
 import HuntersMark from "./spell/HuntersMark.js";
+import Shillelagh from "./spell/Shillelagh.js";
 
 export default class DDDSpellEnricher extends DDBBaseEnricher {
   constructor() {
@@ -20,16 +22,17 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
   }
 
   ENRICHERS = {
+    "Arcane Hand": () => ArcaneHand,
     "Eldritch Blast": () => EldritchBlast,
     "Hunter's Mark": () => HuntersMark,
+    "Shillelagh": () => Shillelagh,
   };
 
   DND_2014 = {
     NAME_HINTS: {
     },
     ACTIVITY_HINTS: {
-      "Animate Objects": {
-      },
+      "Animate Objects": {},
       "Counterspell": {
         type: "check",
         check: {
@@ -108,27 +111,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
       "Mass Suggestion": {},
-      "Shillelagh": {
-        multiple: () => {
-          return ["Physical", "Spellcasting"].map((type) => {
-            const changes = [
-              generateOverrideChange(`{} [${this.data.name.split("(")[0]}]`, 20, "name"),
-              generateUnsignedAddChange("mgc", 20, "system.properties"),
-              generateOverrideChange("1", 20, "system.damage.base.number"),
-              generateOverrideChange("8", 20, "system.damage.base.denomination"),
-            ];
-            const spellCastingChanges = type !== "Physical"
-              ? [generateOverrideChange("spellcasting", 20, "system.ability")]
-              : [];
-
-            return {
-              name: `Shillelagh (${type})`,
-              type: "enchant",
-              changes: [...changes, ...spellCastingChanges],
-            };
-          });
-        },
-      },
       "Suggestion": {
       },
       "True Strike": {},
@@ -174,45 +156,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       type: "summon",
       noTemplate: true,
       profileKeys: ["ArcaneEye"],
-    },
-    "Arcane Hand": () => {
-      return {
-        type: "summon",
-        noTemplate: true,
-        generateSummons: !this.is2014,
-        summonsFunction: DDBSummonsManager.get2024ArcaneHands,
-        profileKeys: this.is2014
-          ? [
-            "ArcaneHandRed",
-            "ArcaneHandPurple",
-            "ArcaneHandGreen",
-            "ArcaneHandBlue",
-            "ArcaneHandRock",
-            "ArcaneHandRainbow",
-          ]
-          : [
-            "BigbysHandRed2024",
-            "BigbysHandPurple2024",
-            "BigbysHandGreen2024",
-            "BigbysHandBlue2024",
-            "BigbysHandRock2024",
-            "BigbysHandRainbow2024",
-          ],
-        summons: {
-          "match": {
-            "proficiency": false,
-            "attacks": true,
-            "saves": false,
-          },
-          "bonuses": {
-            "ac": "",
-            "hp": "@attributes.hp.max",
-            "attackDamage": "",
-            "saveDamage": "",
-            "healing": "",
-          },
-        },
-      };
     },
     "Arcane Sword": {
       type: "summon",
@@ -533,15 +476,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         lookupName: "Circlet of Blasting",
         flatAttack: "5",
       }],
-    },
-    "Shillelagh": {
-      type: "enchant",
-      data: {
-        restrictions: {
-          type: "weapon",
-          allowMagical: true,
-        },
-      },
     },
     "Sorcerous Burst": {
       type: "attack",
@@ -2489,35 +2423,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
       data: {
         "flags.dae.specialDuration": ["turnStart"],
-      },
-    },
-    "Shillelagh": {
-      multiple: () => {
-        return ["Physical", "Spellcasting"].map((type) => {
-          return [
-            { level: 1, denomination: 8 },
-            { level: 5, denomination: 10 },
-            { level: 11, denomination: 12 },
-            { level: 17, number: 2, denomination: 6 },
-          ].map((data) => {
-            const changes = [
-              generateOverrideChange(`{} [${this.data.name.split("(")[0]}]`, 20, "name"),
-              generateUnsignedAddChange("mgc", 20, "system.properties"),
-              generateOverrideChange(`${data.number ?? 1}`, 20, "system.damage.base.number"),
-              generateOverrideChange(`${data.denomination}`, 20, "system.damage.base.denomination"),
-              generateUnsignedAddChange("force", 20, "system.damage.base.types"),
-            ];
-            const spellcastingChanges = type !== "Physical"
-              ? [generateOverrideChange("spellcasting", 20, "system.ability")]
-              : [];
-
-            return {
-              name: `Shillelagh (${type}) - Level ${data.level}`,
-              type: "enchant",
-              changes: [...changes, ...spellcastingChanges],
-            };
-          });
-        }).flat();
       },
     },
     "Shield of Faith": {
