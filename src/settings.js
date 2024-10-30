@@ -610,6 +610,13 @@ const SETTINGS = {
           type: Boolean,
           default: true,
         },
+        "show-read-alouds-all-content": {
+          name: "ddb-importer.settings.show-read-alouds-all-content.name",
+          hint: "ddb-importer.settings.show-read-alouds-all-content.hint",
+          config: true,
+          type: Boolean,
+          default: false,
+        },
       },
       PERMISSIONS: {
         "restrict-to-trusted": {

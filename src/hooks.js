@@ -98,10 +98,16 @@ export function renderItemSheet(sheet, html) {
 }
 
 export function renderJournalSheet(sheet, html, data) {
-  if (data.cssClass !== "editable" && sheet.document.flags?.ddb) {
-    linkTables("journal", html);
-    linkImages(html, data);
-    showReadAlouds(html, data);
+  if (data.cssClass !== "editable") {
+    if (sheet.document.flags?.ddb) {
+      linkTables("journal", html);
+      linkImages(html, data);
+    }
+    
+    const enableReadAloudsForAllContent = game.settings.get("ddb-importer", "show-read-alouds-all-content");
+    if (sheet.document.flags?.ddb || enableReadAloudsForAllContent) {
+      showReadAlouds(html, data);
+    }
   }
   adventureFlags(sheet, html, data);
 }
