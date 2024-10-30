@@ -20,6 +20,8 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Circle of the Land Spells",
     "Primal Order",
     "Fighting Style",
+    "Hunter's Prey",
+    "Defensive Tactics",
   ];
 
   static KEEP_CHOICE_FEATURE_NAME = [
@@ -29,6 +31,8 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Unbreakable Majesty",
     "Druidic Warrior",
     "Primal Companion",
+    "Hunter's Prey",
+    "Defensive Tactics",
   ];
 
   static KEEP_CHOICE_FEATURE_NAME_STARTSWITH = [
@@ -82,6 +86,8 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Improved Elemental Fury",
     "Improved Elemental Fury: Potent Spellcasting",
     "Improved Elemental Fury: Primal Strike",
+    "Hunter's Prey",
+    "Defensive Tactics",
   ];
 
   static USE_ALL_CHOICES = [

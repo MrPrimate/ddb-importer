@@ -49,6 +49,10 @@ import DreadfulStrikeMassFear from "./feature/DreadfulStrikeMassFear.js";
 import DreadfulStrike from "./feature/DreadfulStrike.js";
 import DreadAmbusher from "./feature/DreadAmbusher.js";
 import ShadowyDodge from "./feature/ShadowyDodge.js";
+import DefensiveTactics from "./feature/DefensiveTactics.js";
+import SuperiorHuntersPrey from "./feature/SuperiorHuntersPrey.js";
+import HuntersPrey from "./feature/HuntersPrey.js";
+import SuperiorHuntersDefense from "./feature/SuperiorHuntersDefense.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -109,6 +113,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Dreadful Strike: Mass Fear": () => DreadfulStrikeMassFear,
     "Dread Ambusher": () => DreadAmbusher,
     "Shadowy Dodge": () => ShadowyDodge,
+    "Defensive Tactics": () => DefensiveTactics,
+    "Hunter's Prey": () => HuntersPrey,
+    "Superior Hunter's Prey": () => SuperiorHuntersPrey,
+    "Superior Hunter's Defense": () => SuperiorHuntersDefense,
   };
 
   DND_2014 = {

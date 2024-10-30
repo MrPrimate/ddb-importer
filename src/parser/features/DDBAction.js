@@ -125,6 +125,9 @@ export default class DDBAction extends DDBBaseFeature {
     "Dreadful Strike: Sudden Strike",
     "Dreadful Strike: Mass Fear",
     "Dreadful Strike",
+    "Hunter's Prey: Colossus Slayer",
+    "Hunter's Mark: Superior Hunter's Prey",
+    "Colossus Slayer",
 
   ];
 
