@@ -18,14 +18,14 @@ export default class BoonOfEnergyResistance extends DDBEnricherMixin {
 
   get effect() {
     const activeType = this.ddbParser?._chosen.find((a) =>
-      utils.nameString(a.label).startsWith("Boon of Energe Resistance"),
+      utils.nameString(a.label).startsWith("Boon of Energy Resistance"),
     )?.label ?? "";
 
     const types = ["Acid", "Cold", "Fire", "Lightning", "Necrotic", "Poison", "Psychic", "Radiant", "Thunder"];
     const multiple = [];
     types.forEach((type) => {
       multiple.push({
-        name: `Boon of Energe Resistance: ${type}`,
+        name: `Boon of Energy Resistance: ${type}`,
         options: {
           transfer: true,
           disabled: !activeType.includes(type),
@@ -37,6 +37,7 @@ export default class BoonOfEnergyResistance extends DDBEnricherMixin {
     });
 
     return {
+      noCreate: true,
       multiple,
     };
   }

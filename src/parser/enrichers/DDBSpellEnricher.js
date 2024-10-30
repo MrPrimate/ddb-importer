@@ -1,11 +1,9 @@
-import DICTIONARY from "../../dictionary.js";
 import { effectModules, generateATLChange, generateCustomChange, generateOverrideChange, generateSignedAddChange, generateTokenMagicFXChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
-import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
 import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 import DDBSpellActivity from "../spells/DDBSpellActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
+import EldritchBlast from "./spell/EldritchBlast.js";
 import HuntersMark from "./spell/HuntersMark.js";
 
 export default class DDDSpellEnricher extends DDBBaseEnricher {
@@ -22,65 +20,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
   }
 
   ENRICHERS = {
+    "Eldritch Blast": () => EldritchBlast,
     "Hunter's Mark": () => HuntersMark,
   };
-
-  _getEldritchInvocations() {
-    let damage = "";
-    let range = 0;
-
-    const eldritchBlastMods = DDBHelper.filterBaseModifiers(this.ddbParser.ddbData, "eldritch-blast").filter((modifier) => modifier.isGranted);
-
-    eldritchBlastMods.forEach((mod) => {
-      switch (mod.subType) {
-        case "bonus-damage": {
-          // almost certainly CHA :D
-          const abilityModifierLookup = DICTIONARY.character.abilities.find((ability) => ability.id === mod.statId);
-          if (abilityModifierLookup) {
-            if (damage !== "") damage += " + ";
-            damage += `@abilities.${abilityModifierLookup.value}.mod`;
-          } else if (mod.fixedValue) {
-            if (damage !== "") damage += " + ";
-            damage += `${mod.fixedValue}`;
-          }
-          break;
-        }
-        case "bonus-range":
-          range = mod.value;
-          break;
-        default:
-          logger.warn(`Not yet able to process ${mod.subType}, please raise an issue.`);
-      }
-    });
-
-    return {
-      damage: damage,
-      range: range,
-    };
-  }
-
-  eldritchBlastRangeAdjustments(initialRange) {
-    const eldritchBlastMods = this.ddbParser?.ddbData
-      ? this._getEldritchInvocations()
-      : null;
-
-    if (eldritchBlastMods?.range && Number.parseInt(eldritchBlastMods.range)) {
-      const range = Number.parseInt(initialRange) + Number.parseInt(eldritchBlastMods.range);
-      return `${range}`;
-    }
-    return initialRange;
-  }
-
-  eldritchBlastDamageBonus() {
-    const eldritchBlastMods = this.ddbParser?.ddbData
-      ? this._getEldritchInvocations()
-      : null;
-    const bonus = eldritchBlastMods?.damage
-      ? `${eldritchBlastMods["damage"]}`
-      : "";
-
-    return bonus;
-  }
 
   DND_2014 = {
     NAME_HINTS: {
@@ -418,16 +360,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
             DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 6, types: ["acid", "cold", "fire", "lightning", "poison"], scalingMode: "whole", scalingNumber: 1 }),
           ],
         },
-      },
-    },
-    "Eldritch Blast": {
-      type: "attack",
-      data: () => {
-        return {
-          damage: {
-            parts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 10, type: "force", scalingMode: "none", bonus: this.eldritchBlastDamageBonus() })],
-          },
-        };
       },
     },
     "Elemental Weapon": {
@@ -1893,13 +1825,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           },
         },
       },
-    },
-    "Eldritch Blast": () => {
-      return {
-        data: {
-          "system.range.value": this.eldritchBlastRangeAdjustments(this.ddbParser.spellDefinition?.range?.rangeValue ?? 0),
-        },
-      };
     },
     "Flaming Sphere": {
       data: {

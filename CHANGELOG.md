@@ -8,6 +8,8 @@
 - Ranger Parsing improvements.
 - Improvement to spell and item parsing notifications.
 - Mark Paladin Known Spells as Prepared for 2024 Paladins.
+- Allow Journal Aside/Readalouds tochat/handouts to be enabled for non-DDB journals. Thanks @jconabree
+- Boon of Energy Resistance fixes.
 
 # 6.0.22
 

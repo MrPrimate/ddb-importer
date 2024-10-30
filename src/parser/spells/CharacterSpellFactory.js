@@ -302,7 +302,7 @@ export default class CharacterSpellFactory {
     return levelSlots;
   }
 
-  async handleGrantedSpells(spell, type, { forceCopy = false, flags = {} }) {
+  async handleGrantedSpells(spell, type, { forceCopy = false, flags = {} } = {}) {
     if (!forceCopy && (!spell.limitedUse || spell.definition.level === 0)) return;
     if (!forceCopy && !this.slots) return;
     const levelSlots = utils.arrayRange(9, 1, 1).some((i) => {

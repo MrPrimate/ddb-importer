@@ -50,7 +50,27 @@ export default class Example extends DDBEnricherMixin {
   }
 
   get additionalActivities() {
-    return [];
+    return [
+      // builds from a DDB action
+      { action: { name: "Activity Name", type: "utility", rename: ["Save vs Frightened", "Cast"] } },
+      // build from scratch
+      {
+        constructor: {
+          name: "Activity Name",
+          type: "utility",
+        },
+        build: {
+          // passed to the activity constructor for the type, varies depending on item.spell.feature etc
+          generateActivation: true,
+          generateTarget: true,
+        },
+        overrides: {
+          // same as activity getter., e.g.
+          noConsumeTargets: true,
+          data: {},
+        },
+      },
+    ];
   }
 
   get override() {
@@ -67,6 +87,7 @@ export default class Example extends DDBEnricherMixin {
       data: {}, // merged with document data
     };
   }
+
 
   get effect() {
     return {

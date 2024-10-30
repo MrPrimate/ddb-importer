@@ -97,6 +97,10 @@ export default class DDBEnricherMixin {
     this.manager = ddbEnricher.manager;
   }
 
+  /**
+   * activity type - if type is none, activity hit will be generally undefined
+   * @returns {string}
+   */
   get type() {
     return null;
   }
@@ -105,22 +109,103 @@ export default class DDBEnricherMixin {
     return this.ddbEnricher.ddbParser.data;
   }
 
+
+  /**
+   * This is the activity property that is used to make adjustments to the activity.
+   * @returns {object} An object with the following properties:
+   *   name: {string} The name of the activity. If not type default.
+   *   type: {string} The type of the activity. If not type default, set to none.
+   *   parent: {string} The name of the lookup parent if only applies to certain types.
+   *   noConsumeTargets: {boolean} Remove any auto generated consumption targets.
+   *   addItemConsume: {boolean} Add item consume.
+   *   itemConsumeValue: {number} The item consume value if not 1.
+   *   addScalingMode: {string} Add scaling mode to item consume.
+   *   addScalingFormula: {string} Add scaling formula to item consume.
+   *   addActivityConsume: {boolean} Add activity consume.
+   *   activityConsumeValue: {number} The activity consume value if not 1.
+   *   addActivityScalingMode: {string} Add scaling mode to activity consume.
+   *   addActivityScalingFormula: {string} Add scaling formula to activity consume.
+   *   addSpellSlotConsume: {boolean} Add spell slot consume.
+   *   spellSlotConsumeValue: {number} The spell slot consume value if not 1.
+   *   addSpellSlotScalingMode: {string} Add scaling mode to spell slot consume.
+   *   addSpellSlotScalingFormula: {string} Add scaling formula to spell slot consume.
+   *   additionalConsumptionTargets: {object[]} Add additional consumption targets.
+   *   addConsumptionScalingMax: {string} Enable consumption scaling and add max.
+   *   targetType: {string} Target type override.
+   *   rangeSelf: {boolean} Set range self.
+   *   noTemplate: {boolean} Remove target template.
+   *   overrideTemplate: {boolean} Add override target template.
+   *   overrideRange: {boolean} Add override range.
+   *   activationType: {string} Activation type.
+   *   activationCondition: {string} Activation condition.
+   *   overrideActivation: {boolean} Add override activation.
+   *   midiManualReaction: {boolean} Add midi manual reaction.
+   *   flatAttack: {string} Flat attack value, sets flat attack for activity.
+   *   damageParts: {object[]} Adds damage parts.
+   *   data: {object} Merge this with activity data.
+   *   func: {function} Run this function passing in the activity as the only variable.
+   *   allowMagical: {boolean} Allow magical restrictions.
+   *   addSingleFreeUse: {boolean} Duplicates activity and adds single free use consumption activity.
+   *   addSingleFreeRecoveryPeriod: {string} Single free use recovery period.
+   */
   get activity() {
     return null;
   }
 
+  /**
+   * Gets additional effects to be added to the document. This is generally used
+   * to add additional abilities that are not directly related to the document.
+   * @returns {object} An object with the following properties:
+   *   noCreate: {boolean} If true, prevents the call to generate effect.
+   *   type: {string} If effect base type does not match spell/feat etc
+   *   name: {string} Override auto name generation
+   *   data: {object} Merge with effect data
+   *   changes: {object[]} Merge with effect changes
+   *   multiple: {object[]} Nest this for multiple effects
+   *   options: {object} Passed to the ddb effect generator
+   *   magicalBonus: {object} Add magical bonus
+   *   statuses: {object[]} Add status effects
+   *   atlChanges: {object[]} Adds atl changes if atl active
+   *   tokenMagicChanges: {object[]} Adds token magic changes
+   *   midiChanges: {object[]} Adds midi changes
+   *   func: {function} Run this funciton passing in the activity as the only variable
+   *   descriptionHint: {string} Adds enchantment description hint
+   *   descriptionSuffix: {string} Append to item description
+   *   clearAutoEffects: {boolean} Clear auto effects
+   */
   get effect() {
     return null;
   }
 
+  /**
+   * Provides an override configuration for the document.
+   * @returns {object} An object with the following properties:
+   *   noTemplate: {boolean} If true, removes the document template.
+   *   data: {object} Data to be merged with the document data.
+   *   descriptionSuffix: {string} A suffix to be appended to the document description.
+   */
   get override() {
     return null;
   }
 
+  /**
+   * Gets additional activities to be added to the document. This is generally
+   * used to add additional abilities that are not directly related to the
+   * document.
+   * @returns {object[]} An array of objects with the following properties:
+   *   action: {object} An object representing the activity to be duplicated.
+   *   overrides: {object} An object with overrides for the activity.
+   */
   get additionalActivities() {
     return null;
   }
 
+  /**
+   * Provides an override configuration for the document.
+   * @returns {object} An object with the following properties:
+   *   stopDefaultActivity: {boolean} If true, prevents the call to generate activity.
+   *   data: {object} Data to be merged with the document data.
+   */
   get documentStub() {
     return null;
   }
