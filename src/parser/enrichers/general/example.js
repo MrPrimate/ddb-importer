@@ -46,6 +46,7 @@ export default class Example extends DDBEnricherMixin {
       // THESE ARE RUN OUTSIDE OF THE ENRICHER, and act as flags for other elemetns
       addSingleFreeUse: true, // duplicates activity and adds single free use consumption activity
       addSingleFreeRecoveryPeriod: "lr", // single free use recovery period.
+      additionalDamageIncludeBase: true, // items only, additional damage parsing should include base damage
     };
   }
 

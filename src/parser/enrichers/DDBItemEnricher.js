@@ -1,6 +1,28 @@
 import { generateMultiplyChange, generateOverrideChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import DDBItemActivity from "../item/DDBItemActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
+// enrichers
+import AbsorbingTattoo from "./item/AbsorbingTattoo.js";
+import Acid from "./item/Acid.js";
+import AcidVial from "./item/AcidVial.js";
+import AlchemistsFire from "./item/AlchemistsFire.js";
+import ArcaneOil from "./item/ArcaneOil.js";
+import ArmorOfInvulnerability from "./item/ArmorOfInvulnerability.js";
+import BloodFuryTattoo from "./item/BloodFuryTattoo.js";
+import FlameTongue from "./item/FlameTongue.js";
+import GnomengardeGrenade from "./item/GnomengardeGrenade.js";
+import HammerOfThunderbolts from "./item/HammerOfThunderbolts.js";
+import KorolnorScepter from "./item/KorolnorScepter.js";
+import NeedlerPistol from "./item/NeedlerPistol.js";
+import ParalysisPistol from "./item/ParalysisPistol.js";
+import PotionOfHealing from "./item/PotionOfHealing.js";
+import PotionOfHealingGreater from "./item/PotionOfHealingGreater.js";
+import PotionOfHealingSuperior from "./item/PotionOfHealingSuperior.js";
+import PotionOfHealingSupreme from "./item/PotionOfHealingSupreme.js";
+import WandOfFireballs from "./item/WandOfFireballs.js";
+import WandOfMagicMissiles from "./item/WandOfMagicMissiles.js";
+import WarriorsPasskey from "./item/WarriorsPasskey.js";
+import Waterskin from "./item/Waterskin.js";
 
 export default class DDDItemEnricher extends DDBBaseEnricher {
   constructor() {
@@ -15,63 +37,29 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     this._prepare();
   }
 
-  DND_2014 = {
-    NAME_HINTS: {},
-    ACTIVITY_HINTS: {
-      "Alchemist's Fire": {
-        type: "attack",
-        addItemConsume: true,
-        targetType: "creature",
-        data: {
-          attack: {
-            ability: "dex",
-            type: {
-              value: "ranged",
-              classification: "weapon",
-            },
-          },
-        },
-      },
-    },
-    ADDITIONAL_ACTIVITIES: {
-      "Alchemist's Fire": [
-        {
-          constructor: {
-            name: "Estinquish Flames Check",
-            type: "check",
-          },
-          build: {
-            generateCheck: true,
-            checkOverride: {
-              associated: [],
-              ability: "dex",
-              dc: {
-                calculation: "",
-                formula: "10",
-              },
-            },
-          },
-        },
-      ],
-    },
-    DOCUMENT_OVERRIDES: {},
-    EFFECT_HINTS: {
-      "Alchemist's Fire": {
-        options: {
-          transfer: false,
-          description: "You are on fire, take [[/damage 1d4 fire]] at the start of your turn. You can use an action to distinguish with a [[/check dex 10]].",
-        },
-      },
-    },
-    DOCUMENT_STUB: {},
+  ENRICHERS = {
+    "Absorbing Tattoo": () => AbsorbingTattoo,
+    "Acid (vial)": () => AcidVial,
+    "Acid": () => Acid,
+    "Alchemist's Fire": () => AlchemistsFire,
+    "Arcane Oil": () => ArcaneOil,
+    "Armor of Invulnerability": () => ArmorOfInvulnerability,
+    "Blood Fury Tattoo": () => BloodFuryTattoo,
+    "Flame Tongue": () => FlameTongue,
+    "Gnomengarde Grenade": () => GnomengardeGrenade,
+    "Hammer of Thunderbolts": () => HammerOfThunderbolts,
+    "Korolnor Scepter": () => KorolnorScepter,
+    "Needler Pistol": () => NeedlerPistol,
+    "Paralysis Pistol": () => ParalysisPistol,
+    "Potion of Healing (Greater)": () => PotionOfHealingGreater,
+    "Potion of Healing (Superior)": () => PotionOfHealingSuperior,
+    "Potion of Healing (Supreme)": () => PotionOfHealingSupreme,
+    "Potion of Healing": () => PotionOfHealing,
+    "Wand of Fireballs": () => WandOfFireballs,
+    "Wand of Magic Missiles": () => WandOfMagicMissiles,
+    "Warrior's Passkey": () => WarriorsPasskey,
+    "Waterskin": () => Waterskin,
   };
-
-  //
-  // Above this is 2014 Only Hints
-  //
-  //
-  //
-  //
 
   NAME_HINTS = {
     "Absorbing Tattoo, Acid": "Absorbing Tattoo",
@@ -99,78 +87,8 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
   };
 
   ACTIVITY_HINTS = {
-    "Absorbing Tattoo": () => {
-      return {
-        type: "utility",
-        addItemConsume: true,
-        activationType: "reaction",
-        activationCondition: `When you take ${this.ddbParser.originalName.split(',').pop().trim().toLowerCase()} damage`,
-        targetType: "self",
-        data: {
-          name: "Healing Reaction",
-        },
-      };
-    },
-    "Acid": {
-      type: "save",
-      addItemConsume: true,
-      targetType: "creature",
-      data: {
-        save: {
-          ability: "con",
-          dc: {
-            calculation: "dex",
-            formula: "",
-          },
-        },
-      },
-    },
-    "Acid (vial)": {
-      type: "attack",
-      addItemConsume: true,
-      targetType: "creature",
-      data: {
-        attack: {
-          ability: "dex",
-          type: {
-            value: "ranged",
-            classification: "weapon",
-          },
-        },
-      },
-    },
-    "Alchemist's Fire": {
-      type: "save",
-      addItemConsume: true,
-      targetType: "creature",
-      data: {
-        save: {
-          ability: "dex",
-          dc: {
-            calculation: "dex",
-            formula: "",
-          },
-        },
-      },
-    },
-    "Arcane Oil": {
-      type: "enchant",
-    },
-    "Armor of Invulnerability": {
-      type: "utility",
-      addItemConsume: true,
-      targetType: "self",
-      activationType: "action",
-      data: {
-        name: "Become Invulnerable!",
-      },
-    },
     "Bead of Force": {
       type: "save",
-      addItemConsume: true,
-    },
-    "Blood Fury Tattoo": {
-      type: "damage",
       addItemConsume: true,
     },
     "Boots of Speed": {
@@ -201,24 +119,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Flame Tongue": {
-      additionalDamageIncludeBase: true,
-    },
-    "Gnomengarde Grenade": {
-      data: {
-        name: "Fire Damage",
-        "flags.ddbimporter.noeffect": true,
-        damage: {
-          onSave: "half",
-          parts: [DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 6, type: "fire" })],
-        },
-      },
-    },
-    "Hammer of Thunderbolts": {
-      noConsumeTargets: true,
-      name: "Attack",
-      noeffect: true,
-    },
     "Healer's Kit": {
       type: "utility",
       addItemConsume: true,
@@ -241,185 +141,16 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Needler Pistol": {
-      type: "save",
-      addItemConsume: true,
-      data: {
-        damage: {
-          onSave: "half",
-        },
-      },
-    },
     "Oil of Sharpness": {
       type: "enchant",
       allowMagical: true,
     },
-    "Paralysis Pistol": {
-      type: "save",
-      addItemConsume: true,
-      targetType: "creature",
-      data: {
-        range: {
-          value: "60",
-          units: "ft",
-        },
-        target: {
-          "affects": {
-            "count": "1",
-            "type": "creature",
-          },
-          "template": {
-            "contiguous": false,
-            "type": "",
-            "size": "",
-            "units": "ft",
-          },
-        },
-      },
-    },
-    "Potion of Healing": () => {
-      return {
-        type: "heal",
-        addItemConsume: true,
-        activationType: this.is2014 ? "action" : "bonus",
-        targetType: "creature",
-        data: {
-          range: {
-            units: "touch",
-          },
-        },
-      };
-    },
-    "Potion of Healing (Greater)": () => {
-      return {
-        type: "heal",
-        addItemConsume: true,
-        activationType: this.is2014 ? "action" : "bonus",
-        targetType: "creature",
-        data: {
-          range: {
-            units: "touch",
-          },
-        },
-      };
-    },
-    "Potion of Healing (Superior)": () => {
-      return {
-        type: "heal",
-        addItemConsume: true,
-        activationType: this.is2014 ? "action" : "bonus",
-        targetType: "creature",
-        data: {
-          range: {
-            units: "touch",
-          },
-        },
-      };
-    },
-    "Potion of Healing (Supreme)": () => {
-      return {
-        type: "heal",
-        addItemConsume: true,
-        activationType: this.is2014 ? "action" : "bonus",
-        targetType: "creature",
-        data: {
-          range: {
-            units: "touch",
-          },
-        },
-      };
-    },
     "Stink Bomb": {
       targetType: "creature",
-    },
-    "Wand of Fireballs": {
-      type: "save",
-      addItemConsume: true,
-      // addScalingMode: "scaling",
-      data: {
-        save: {
-          ability: "dex",
-          dc: {
-            calculation: "",
-            formula: "15",
-          },
-        },
-        damage: {
-          onSave: "half",
-          parts: [foundry.utils.mergeObject(
-            DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 6, type: "fire" }),
-            {
-              scaling: {
-                "mode": "whole",
-                "number": 1,
-                "formula": "",
-              },
-            },
-          )],
-        },
-        "consumption.scaling": {
-          allowed: true,
-          max: "@item.uses.max - @item.uses.spent",
-        },
-        range: {
-          value: "150",
-          units: "ft",
-        },
-        target: {
-          "affects": {
-            "count": "",
-            "type": "",
-          },
-          "template": {
-            "contiguous": false,
-            "type": "sphere",
-            "size": "20",
-            "units": "ft",
-          },
-        },
-      },
-    },
-    "Wand of Magic Missiles": {
-      type: "damage",
-      addItemConsume: true,
-      targetType: "creature",
-      data: {
-        damage: {
-          onSave: "half",
-          parts: [foundry.utils.mergeObject(
-            DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 4, bonus: "3", type: "force" }),
-            {
-              scaling: {
-                "mode": "whole",
-                "number": null,
-                "formula": "1d4 + 1",
-              },
-            },
-          )],
-        },
-        "consumption.scaling": {
-          allowed: true,
-          max: "@item.uses.max - @item.uses.spent",
-        },
-        range: {
-          value: "120",
-          units: "ft",
-        },
-      },
-    },
-    "Waterskin": {
-      type: "utility",
-      activationType: "special",
-      addItemConsume: true,
     },
   };
 
   DOCUMENT_OVERRIDES = {
-    "Alchemist's Fire": {
-      data: {
-        "system.uses.autoDestroy": false,
-      },
-    },
     "Canaith Mandolin": {
       data: {
         "flags.magicitems": {
@@ -428,11 +159,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
           recharge: "1",
           rechargeType: "t1",
         },
-      },
-    },
-    "Hammer of Thunderbolts": {
-      data: {
-        "system.range.long": "60",
       },
     },
     "Healer's Kit": {
@@ -464,99 +190,9 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Needler Pistol": {
-      "flags.ddbimporter.retainUseSpent": true,
-      data: {
-        "system.uses": {
-          spent: 0,
-          max: 10,
-          recovery: [],
-          autoDestroy: false,
-          autoUse: true,
-        },
-      },
-    },
-    "Paralysis Pistol": {
-      data: {
-        "flags.ddbimporter.retainUseSpent": true,
-        "system.uses": {
-          spent: 0,
-          max: 6,
-          recovery: [],
-          autoDestroy: false,
-          autoUse: true,
-        },
-      },
-    },
-    "Potion of Healing (Greater)": {
-      data: {
-        "flags.ddbimporter.dndbeyond.alternativeNames": ["Potion of Greater Healing"],
-      },
-    },
-    "Potion of Healing (Superior)": {
-      data: {
-        "flags.ddbimporter.dndbeyond.alternativeNames": ["Potion of Superior Healing"],
-      },
-    },
-    "Potion of Healing (Supreme)": {
-      data: {
-        "flags.ddbimporter.dndbeyond.alternativeNames": ["Potion of Supreme Healing"],
-      },
-    },
-    "Warrior's Passkey": {
-      data: {
-        "system.damage.base": {
-          number: 1,
-          denomination: 10,
-          bonus: "",
-          type: "force",
-        },
-      },
-    },
-    "Waterskin": {
-      data: {
-        "system.uses": {
-          spent: 0,
-          max: 4,
-          recovery: [],
-          autoDestroy: false,
-          autoUse: true,
-        },
-      },
-    },
-
   };
 
   EFFECT_HINTS = {
-    "Alchemist's Fire": {
-      statuses: ["Burning"],
-      options: {
-        transfer: false,
-        description: "You are &Reference[Burning] take [[/damage 1d4 fire]] at the start of your turn.",
-      },
-    },
-    "Arcane Oil": {
-      type: "enchant",
-      magicalBonus: {
-        makeMagical: false,
-        bonus: "2",
-      },
-    },
-    "Armor of Invulnerability": {
-      name: "Invulnerable!",
-      options: {
-        transfer: false,
-        description: "You are invincible!",
-        durationRounds: 100,
-        durationSeconds: 600,
-      },
-      changes: [
-        generateUnsignedAddChange("bludgeoning", 20, "system.traits.di.value"),
-        generateUnsignedAddChange("piercing", 20, "system.traits.di.value"),
-        generateUnsignedAddChange("slashing", 20, "system.traits.di.value"),
-        generateUnsignedAddChange("mgc", 20, "system.traits.di.bypasses"),
-      ],
-    },
     "Bead of Force": {
       options: {
         transfer: false,
@@ -647,34 +283,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
       },
       statuses: ["Incapacitated", "Suffocating"], // ?
     },
-    "Gnomengarde Grenade": {
-      options: {
-        transfer: false,
-      },
-      statuses: ["Stunned"],
-    },
-    "Hammer of Thunderbolts": {
-      multiple: [
-        {
-          noCreate: true,
-          options: {
-            transfer: false,
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Giant: Save vs Death",
-          },
-        },
-        {
-          options: {
-            transfer: false,
-          },
-          statuses: ["Stunned"],
-          data: {
-            "flags.ddbimporter.activityMatch": "Save vs Stunned",
-          },
-        },
-      ],
-    },
     "Moon Sickle": {
       noCreate: true,
       changes: [
@@ -689,76 +297,7 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
     },
   };
 
-  DOCUMENT_STUB = {
-    "Korolnor Scepter": {
-      // scepter can be used as a regular club
-      documentType: "weapon",
-      parsingType: "weapon",
-      stopDefaultActivity: true,
-      replaceDefaultActivity: false,
-      systemType: {
-        value: "simpleM",
-        baseItem: "club",
-      },
-      copySRD: {
-        name: "Club",
-        type: "weapon",
-        uuid: "Compendium.dnd5e.items.Item.nfIRTECQIG81CvM4",
-      },
-    },
-    "Needler Pistol": {
-      documentType: "consumable",
-      parsingType: "wonderous",
-      systemType: {
-        value: "trinket",
-      },
-    },
-    "Paralysis Pistol": {
-      documentType: "consumable",
-      parsingType: "wonderous",
-      systemType: {
-        value: "trinket",
-      },
-    },
-    "Warrior's Passkey": {
-      documentType: "weapon",
-      parsingType: "weapon",
-      stopDefaultActivity: true,
-      replaceDefaultActivity: false,
-      systemType: {
-        value: "martialM",
-        baseItem: "longsword",
-      },
-      copySRD: {
-        name: "Longsword +1",
-        type: "weapon",
-        uuid: "Compendium.dnd5e.items.Item.IPkf0XNowClwXnjQ",
-      },
-    },
-  };
-
   ADDITIONAL_ACTIVITIES = {
-    "Blood Fury Tattoo": [
-      {
-        constructor: {
-          name: "Reactive Strike",
-          type: "utility",
-        },
-        build: {
-          generateTarget: false,
-          generateRange: false,
-          generateActivation: true,
-          activationOverride: {
-            type: "reaction",
-            value: 1,
-            condition: "",
-          },
-        },
-        overrides: {
-          addItemConsume: true,
-        },
-      },
-    ],
     "Donjon's Sundering Sphere": [
       {
         constructor: {
@@ -779,103 +318,6 @@ export default class DDDItemEnricher extends DDBBaseEnricher {
         },
         overrides: {
           addActivityConsume: true,
-        },
-      },
-    ],
-    "Gnomengarde Grenade": [
-      {
-        constructor: {
-          name: "Thunder Damage",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateDamage: true,
-          onSave: "half",
-          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 8, denomination: 6, type: "thunder" })],
-        },
-      },
-    ],
-    "Hammer of Thunderbolts": [
-      {
-        constructor: {
-          name: "Giant: Save vs Death",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateTarget: true,
-          targetOverride: {
-            affects: {
-              type: "creature",
-            },
-          },
-          saveOverride: {
-            ability: "con",
-            dc: {
-              calculation: "",
-              formula: "17",
-            },
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Ranged Attack (Uses Charge)",
-          type: "attack",
-        },
-        build: {
-          generateTarget: true,
-          generateRange: true,
-          generateDamage: true,
-          generateAttack: true,
-          generateConsumption: true,
-          attackOverride: {
-            ability: "str",
-            type: {
-              value: "ranged",
-              classification: "weapon",
-            },
-          },
-          rangeOverride: {
-            override: true,
-            value: "20",
-            long: "60",
-            units: "ft",
-          },
-          targetOverride: {
-            affects: {
-              count: "1",
-              type: "creature",
-            },
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Save vs Stunned",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateTarget: true,
-          targetOverride: {
-            affects: {
-              type: "creature",
-            },
-            template: {
-              type: "radius",
-              size: "30",
-              units: "ft",
-            },
-          },
-          saveOverride: {
-            ability: "con",
-            dc: {
-              calculation: "",
-              formula: "17",
-            },
-          },
         },
       },
     ],

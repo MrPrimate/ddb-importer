@@ -147,6 +147,7 @@ export default class DDBEnricherMixin {
    *   allowMagical: {boolean} Allow magical restrictions.
    *   addSingleFreeUse: {boolean} Duplicates activity and adds single free use consumption activity.
    *   addSingleFreeRecoveryPeriod: {string} Single free use recovery period.
+   *   additionalDamageIncludeBase: {boolean} Add additional damage include base.
    */
   get activity() {
     return null;
