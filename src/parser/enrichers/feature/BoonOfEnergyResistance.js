@@ -37,7 +37,7 @@ export default class BoonOfEnergyResistance extends DDBEnricherMixin {
     });
 
     return {
-      noCreate: true,
+      clearAutoEffects: true,
       multiple,
     };
   }

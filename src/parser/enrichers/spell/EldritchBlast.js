@@ -70,8 +70,10 @@ export default class EldritchBlast extends DDBEnricherMixin {
 
   get activity() {
     return {
-      damage: {
-        parts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 10, type: "force", scalingMode: "none", bonus: this.eldritchBlastDamageBonus() })],
+      data: {
+        damage: {
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 10, type: "force", scalingMode: "none", bonus: this.eldritchBlastDamageBonus() })],
+        },
       },
     };
   }
