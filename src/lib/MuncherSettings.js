@@ -218,7 +218,7 @@ const MuncherSettings = {
       {
         name: "import-full-spell-list",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-full-spell-list"),
-        title: "Import full spell list",
+        title: "Import full spell list?",
         description:
           "If a Cobalt Cookie is set, import all available spells for classes such as Cleric, where spells can be changed out on a long rest.",
         enabled: true,
@@ -226,7 +226,7 @@ const MuncherSettings = {
       {
         name: "use-active-sources",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-active-sources"),
-        title: "Restrict imported spells to allowed sources",
+        title: "Restrict imported spells to allowed sources?",
         description:
           "Use allowed source on DDB when adding spells to character.",
         enabled: true,
@@ -234,7 +234,7 @@ const MuncherSettings = {
       {
         name: "remove-2024",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-2024"),
-        title: "Remove 2024 Spells",
+        title: "Remove 2024 Spells?",
         description:
           "Removes 2024 spells from character imports, and removes (Legacy) suffix on spell names.",
         enabled: true,
@@ -242,7 +242,7 @@ const MuncherSettings = {
       {
         name: "remove-legacy",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-legacy"),
-        title: "Remove Legacy Spells",
+        title: "Remove Legacy Spells?",
         description:
           "Removes legacy spells from character imports.",
         enabled: true,
