@@ -10,6 +10,7 @@ import MagicItemMaker from "./MagicItemMaker.js";
 import SETTINGS from "../../settings.js";
 import { getStatusEffect } from "../../effects/effects.js";
 import Iconizer from "../../lib/Iconizer.js";
+import DDBItemEnricher from "../enrichers/DDBItemEnricher.js";
 
 export default class DDBItem {
 
@@ -205,7 +206,7 @@ export default class DDBItem {
 
     this.addMagical = false;
 
-    this.enricher = enricher;
+    this.enricher = enricher ?? new DDBItemEnricher();
 
   }
 
@@ -1113,6 +1114,7 @@ export default class DDBItem {
 
 
   async #prepare() {
+    await this.enricher.init();
     this.enricher.load({
       ddbParser: this,
     });
@@ -2044,7 +2046,7 @@ export default class DDBItem {
 
     const dictionaryWeapon = DICTIONARY.character.proficiencies
       .find((prof) =>
-        prof.type === "Weapon" && prof.name.toLowerCase() === this.ddbDefinition.type.toLowerCase(),
+        prof.type === "Weapon" && prof.name.toLowerCase() === this.ddbDefinition.type?.toLowerCase(),
       );
 
     if (dictionaryWeapon?.ammunitionType) {
