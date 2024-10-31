@@ -205,6 +205,7 @@ export default class CharacterSpellFactory {
 
   }
 
+  // eslint-disable-next-line complexity
   async getSpecialClassSpells() {
     for (const spell of this.ddb.character.spells.class) {
       if (!spell.definition) continue;
@@ -237,6 +238,12 @@ export default class CharacterSpellFactory {
       } else {
         // if there is no ability on spell, we default to wis
         spellCastingAbility = "wis";
+      }
+
+      if (!spell.alwaysPrepared && !spell.prepared && !spell.countsAsKnownSpell && spell.usesSpellSlot
+        && !spell.limitedUse
+      ) {
+        spell.alwaysPrepared = true;
       }
 
       const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
