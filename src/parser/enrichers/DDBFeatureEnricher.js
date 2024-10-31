@@ -62,6 +62,8 @@ import FastHands from "./feature/FastHands.js";
 import UseMagicDevice from "./feature/UseMagicDevice.js";
 import UseMagicDeviceCharges from "./feature/UseMagicDeviceCharges.js";
 import UseMagicDeviceScroll from "./feature/UseMagicDeviceScroll.js";
+import SneakAttackSupremeSneak from "./feature/SneakAttackSupremeSneak.js";
+import SupremeSneak from "./feature/SupremeSneak.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -139,6 +141,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Use Magic Device": () => UseMagicDevice,
     "Use Magic Device: Charges": () => UseMagicDeviceCharges,
     "Use Magic Device: Scroll": () => UseMagicDeviceScroll,
+    "Sneak Attack: Supreme Sneak (Cost: 1d6)": () => SneakAttackSupremeSneak,
+    "Supreme Sneak": () => SupremeSneak,
   };
 
   DND_2014 = {
