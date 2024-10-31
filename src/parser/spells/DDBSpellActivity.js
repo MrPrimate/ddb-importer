@@ -37,7 +37,7 @@ export default class DDBSpellActivity {
     this.name = name;
     this.ddbParent = ddbParent;
     this.spellData = ddbParent.spellData;
-    this.spellDefinition = this.spellData.definition;
+    this.ddbDefinition = this.spellData.definition;
 
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
@@ -48,7 +48,7 @@ export default class DDBSpellActivity {
     this.spellEffects = spellEffects ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.addSpellEffects");
     this.damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !this.spellEffects;
 
-    this.isCantrip = this.spellDefinition.level === 0;
+    this.isCantrip = this.ddbDefinition.level === 0;
     const boost = cantripBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.cantripBoost");
     this.cantripBoost = this.isCantrip && boost;
 
@@ -123,7 +123,7 @@ export default class DDBSpellActivity {
 
   #getAlternativeFormula() {
     // this might be specifically for Toll the Dead only, but it's better than nothing
-    let match = this.spellDefinition.description.match(/instead[\w\s]+(\d+d\d+) (\w+) damage/);
+    let match = this.ddbDefinition.description.match(/instead[\w\s]+(\d+d\d+) (\w+) damage/);
     if (match) {
       return match[1];
     } else {
@@ -137,7 +137,7 @@ export default class DDBSpellActivity {
     // SPELLLEVEL - these spells have benefits that come in at particular levels e.g. bestow curse, hex. typically  duration changes
     // CHARACTERLEVEL - typical cantrip based levelling, some expections (eldritch blast)
     let scaleType = null;
-    const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : this.spellDefinition.scaleType;
+    const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : this.ddbDefinition.scaleType;
     const isHigherLevelDefinitions
       = mod.atHigherLevels.higherLevelDefinitions
       && Array.isArray(mod.atHigherLevels.higherLevelDefinitions)
@@ -148,7 +148,7 @@ export default class DDBSpellActivity {
       if (definition) {
         scaleType = modScaleType;
       } else {
-        logger.warn("No spell definition found for " + this.spellDefinition.name);
+        logger.warn("No spell definition found for " + this.ddbDefinition.name);
       }
     } else if (modScaleType === "spellscale") {
       // lets handle cases where there is a spellscale type but no damage
@@ -183,7 +183,7 @@ export default class DDBSpellActivity {
       // examples include: hex, shadowblade, magic weapon, bestow curse
       scaleType = modScaleType;
     } else {
-      logger.warn(`${this.spellDefinition.name} parse failed: `, modScaleType);
+      logger.warn(`${this.ddbDefinition.name} parse failed: `, modScaleType);
       scaleType = modScaleType; // if this is new/unknow will use default
     }
 
@@ -197,10 +197,10 @@ export default class DDBSpellActivity {
     let scaleType = null; // defaults to null, so will be picked up as a None scaling spell.
 
     // spell scaling
-    if (this.spellDefinition.canCastAtHigherLevel) {
+    if (this.ddbDefinition.canCastAtHigherLevel) {
       const damageMods = damageMod
         ? [damageMod]
-        : this.spellDefinition.modifiers
+        : this.ddbDefinition.modifiers
           .filter((mod) => mod.type === "damage" || (mod.type === "bonus" && mod.subType === "hit-points"));
 
       // iterate over each spell modifier
@@ -233,7 +233,7 @@ export default class DDBSpellActivity {
           && mod.atHigherLevels.higherLevelDefinitions.length >= 1;
 
         // lets handle normal spell leveling first
-        const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : this.spellDefinition.scaleType;
+        const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : this.ddbDefinition.scaleType;
         if (isHigherLevelDefinitions && modScaleType === "spellscale") {
           const definition = mod.atHigherLevels.higherLevelDefinitions[0];
           if (definition) {
@@ -268,7 +268,7 @@ export default class DDBSpellActivity {
               scaleDamage = modScaleDamage;
             }
           } else {
-            logger.warn("No definition found for " + this.spellDefinition.name);
+            logger.warn("No definition found for " + this.ddbDefinition.name);
           }
         } else if (isHigherLevelDefinitions && modScaleType === "characterlevel") {
           // cantrip support, important to set to a fixed value if using abilities like potent spellcasting
@@ -364,7 +364,7 @@ export default class DDBSpellActivity {
     let chatFlavor = [];
 
     // damage
-    const damages = this.spellDefinition.modifiers.filter((mod) => mod.type === "damage");
+    const damages = this.ddbDefinition.modifiers.filter((mod) => mod.type === "damage");
     if (damages.length !== 0) {
       damages.forEach((damageMod) => {
         const restrictionText = damageMod.restriction && damageMod.restriction !== "" ? damageMod.restriction : "";
@@ -441,9 +441,9 @@ export default class DDBSpellActivity {
       this.data.save = saveOverride;
       return;
     }
-    if (this.spellDefinition.requiresSavingThrow && this.spellDefinition.saveDcAbilityId) {
+    if (this.ddbDefinition.requiresSavingThrow && this.ddbDefinition.saveDcAbilityId) {
       const saveAbility = DICTIONARY.character.abilities
-        .find((ability) => ability.id === this.spellDefinition.saveDcAbilityId)?.value;
+        .find((ability) => ability.id === this.ddbDefinition.saveDcAbilityId)?.value;
       if (this.spellData.overrideSaveDc) {
         this.data.save = {
           ability: saveAbility,
@@ -465,8 +465,8 @@ export default class DDBSpellActivity {
   }
 
   _generateAttack() {
-    let type = this.spellDefinition.range.rangeValue
-      && this.spellDefinition.range.rangeValue > 0
+    let type = this.ddbDefinition.range.rangeValue
+      && this.ddbDefinition.range.rangeValue > 0
       ? "ranged"
       : "melee";
 

@@ -81,7 +81,7 @@ export default class EldritchBlast extends DDBEnricherMixin {
   get override() {
     return {
       data: {
-        "system.range.value": this.eldritchBlastRangeAdjustments(this.ddbParser.spellDefinition?.range?.rangeValue ?? 0),
+        "system.range.value": this.eldritchBlastRangeAdjustments(this.ddbParser.ddbDefinition?.range?.rangeValue ?? 0),
       },
     };
   }

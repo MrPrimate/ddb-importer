@@ -899,11 +899,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          // "character-update-policy-use-action-and-feature": {
-          //   scope: "player",
-          //   type: Boolean,
-          //   default: false,
-          // },
           "character-update-policy-dae-effect-copy": {
             scope: "player",
             type: Boolean,
@@ -924,10 +919,30 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-include-versatile-features": {
+          "character-update-policy-include-versatile-features": {
             scope: "player",
             type: Boolean,
             default: false,
+          },
+          "character-update-policy-remove-2024": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
+          "character-update-policy-remove-legacy": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
+          "character-update-policy-import-full-spell-list": {
+            scope: "player",
+            type: Boolean,
+            default: true,
+          },
+          "character-update-policy-use-active-sources": {
+            scope: "player",
+            type: Boolean,
+            default: true,
           },
         },
         SYNC: {

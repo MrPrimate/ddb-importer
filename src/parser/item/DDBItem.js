@@ -102,6 +102,11 @@ export default class DDBItem {
     this.isCompendiumItem = isCompendium;
     foundry.utils.setProperty(this.ddbItem, "isCompendiumItem", isCompendium);
 
+    const sourceIds = this.ddbDefinition.sources.map((sm) => sm.sourceId);
+    this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
+      sourceIds.includes(ddbSource.id)
+      && [23, 26].includes(ddbSource.sourceCategoryId),
+    );
     this.is2014 = this.ddbDefinition.isLegacy
       && this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
@@ -242,6 +247,7 @@ export default class DDBItem {
           },
           is2014: this.is2014,
           is2024: !this.is2014,
+          legacy: this.legacy,
         },
       },
     };

@@ -75,6 +75,11 @@ export default class DDBRace {
     this.groupName = DDBRace.getGroupName(this.race.groupIds, this.baseRaceName);
     this.isSubRace = this.race.isSubRace || this.groupName !== this.raceName;
 
+    const sourceIds = this.race.sources.map((sm) => sm.sourceId);
+    this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
+      sourceIds.includes(ddbSource.id)
+      && [23, 26].includes(ddbSource.sourceCategoryId),
+    );
     this.is2014 = this.race.isLegacy
       && this.race.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
@@ -91,6 +96,9 @@ export default class DDBRace {
       subRaceShortName: this.race.subRaceShortName,
       isHomebrew: this.race.isHomebrew,
       isLegacy: this.race.isLegacy,
+      legacy: this.legacy,
+      is2014: this.is2014,
+      is2024: !this.is2014,
       isSubRace: this.isSubRace,
       moreDetailsUrl: this.race.moreDetailsUrl,
       featIds: this.race.featIds,

@@ -299,6 +299,7 @@ export default class DDBClass {
           ddbImg: this.ddbClass.definition.portraitAvatarUrl,
           is2014: this.is2014,
           is2024: !this.is2014,
+          legacy: this.legacy,
         },
         obsidian: {
           source: {
@@ -400,6 +401,11 @@ export default class DDBClass {
     this.ddbClass = ddbData.character.classes.find((c) => c.definition.id === classId);
     this.ddbClassDefinition = this.ddbClass.definition;
 
+    const sourceIds = this.ddbClassDefinition.sources.map((sm) => sm.sourceId);
+    this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
+      sourceIds.includes(ddbSource.id)
+      && [23, 26].includes(ddbSource.sourceCategoryId),
+    );
     this.is2014 = this.ddbClassDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     // quick helpers

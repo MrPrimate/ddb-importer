@@ -1,3 +1,11 @@
+# Next Up
+
+- Rogue class features (2024)
+- Added option for available spells on casters such as Cleric will filter on unprepared spells based on the allowed sources on your DDB Character (see Advanced Tab).
+- Added a character import option to remove 2024 spells when importing a character (see Advanced Tab).
+- Added a character import option to not add unprepared spells to a character on import (see Advanced Tab).
+- Some spell parsing improvements.
+
 # 6.0.24
 
 - Item import fix.

@@ -86,6 +86,7 @@ export default class DDBBaseFeature {
           isCustomAction: this.ddbDefinition.isCustomAction,
           is2014: this.is2014,
           is2024: !this.is2014,
+          legacy: this.legacy,
         },
         infusions: { infused: false },
         obsidian: {
@@ -236,8 +237,14 @@ export default class DDBBaseFeature {
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
 
     this._parent = this._getActionParent();
-    this.is2014 = (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? [])
-      .some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+
+    const sources = (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? []);
+    const sourceIds = sources.map((sm) => sm.sourceId);
+    this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
+      sourceIds.includes(ddbSource.id)
+      && [23, 26].includes(ddbSource.sourceCategoryId),
+    );
+    this.is2014 = sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     this._generateDataStub();
 
@@ -1064,7 +1071,7 @@ export default class DDBBaseFeature {
       if (!ddbOption) return null;
       return ddbOption.definition.description;
     } else {
-      return this.spellDefinition.description;
+      return this.ddbDefinition.description;
     }
   }
 

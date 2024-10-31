@@ -7,6 +7,7 @@ import { getLookups } from "./metadata.js";
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import logger from "../../logger.js";
 import DDBSpell from "./DDBSpell.js";
+import SETTINGS from "../../settings.js";
 
 export default class CharacterSpellFactory {
 
@@ -119,6 +120,29 @@ export default class CharacterSpellFactory {
     }
   }
 
+  filterSpellsByAllowedCategories(spells) {
+    return spells.filter((s) => {
+      const sourceIds = s.definition.sources.map((sm) => sm.sourceId);
+      const hasActiveCategory = CONFIG.DDB.sources.some((ddbSource) =>
+        sourceIds.includes(ddbSource.id)
+        && this.ddb.character.activeSourceCategories.includes(ddbSource.sourceCategoryId),
+      );
+      return hasActiveCategory;
+    });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  removeSpellsBySourceCategoryIds(spells, ids = []) {
+    return spells.filter((s) => {
+      const sourceIds = s.definition.sources.map((sm) => sm.sourceId);
+      const isInRestrictedCategory = CONFIG.DDB.sources.some((ddbSource) =>
+        sourceIds.includes(ddbSource.id)
+        && ids.includes(ddbSource.sourceCategoryId),
+      );
+      return !isInRestrictedCategory;
+    });
+  }
+
   async getClassSpells() {
     for (const playerClass of this.ddb.character.classSpells) {
       const classInfo = this.ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
@@ -143,12 +167,29 @@ export default class CharacterSpellFactory {
             && (mod.restriction === null || mod.restriction === ""),
         ).length > 0;
 
-      // parse spells chosen as spellcasting (playerClass.spells)
-      const targetSpells = [
+      const rawSpells = [
         ...playerClass.spells,
         ...playerClass.alwaysPreparedSpells,
-        ...playerClass.alwaysKnownSpells,
       ];
+      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-full-spell-list")) {
+        const filteredAlwaysKnownSpells = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-active-sources")
+          ? this.filterSpellsByAllowedCategories(playerClass.alwaysKnownSpells)
+          : playerClass.alwaysKnownSpells;
+        rawSpells.push(...filteredAlwaysKnownSpells);
+      }
+
+      const removeIds = [];
+
+      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-2024"))
+        removeIds.push(24);
+
+      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-legacy"))
+        removeIds.push(23, 26);
+
+      const targetSpells = removeIds.length > 0
+        ? this.removeSpellsBySourceCategoryIds(rawSpells, removeIds)
+        : rawSpells;
+
       for (const spell of targetSpells) {
         if (!spell.definition) continue;
         await this._processClassSpell({

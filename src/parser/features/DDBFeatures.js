@@ -95,7 +95,7 @@ export default class DDBFeatures {
   }
 
   static includedFeatureNameCheck(featName) {
-    const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-include-versatile-features");
+    const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-include-versatile-features");
 
     const nameAllowed = !featName.startsWith("Proficiencies")
       && !featName.includes("Ability Score")

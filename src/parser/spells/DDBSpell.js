@@ -27,15 +27,17 @@ export default class DDBSpell {
       flags: {
         ddbimporter: {
           id: this.spellData.id,
-          definitionId: this.spellDefinition.id,
+          definitionId: this.ddbDefinition.id,
           entityTypeId: this.spellData.entityTypeId,
           dndbeyond: this.spellData.flags.ddbimporter.dndbeyond,
           originalName: this.originalName,
-          sources: this.spellDefinition.sources,
-          tags: this.spellDefinition.tags,
+          sources: this.ddbDefinition.sources,
+          tags: this.ddbDefinition.tags,
           version: CONFIG.DDBI.version,
           is2014: this.is2014,
           is2024: !this.is2014,
+          addSpellEffects: this.addSpellEffects,
+          legacy: this.legacy,
         },
         "midi-qol": {
           removeAttackDamageButtons: "default",
@@ -50,8 +52,7 @@ export default class DDBSpell {
       },
     };
 
-    const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-    if (legacyName && this.is2014) {
+    if (this.legacyPostfix && this.is2014) {
       this.data.name += " (Legacy)";
     }
   }
@@ -84,7 +85,7 @@ export default class DDBSpell {
     } else if (this.nameOverride) {
       return utils.nameString(this.nameOverride);
     } else {
-      return utils.nameString(this.spellDefinition.name);
+      return utils.nameString(this.ddbDefinition.name);
     }
   }
 
@@ -101,6 +102,7 @@ export default class DDBSpell {
     }
   }
 
+  // eslint-disable-next-line complexity
   constructor({
     ddbData, spellData, rawCharacter = null, namePrefix = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
@@ -108,29 +110,30 @@ export default class DDBSpell {
   } = {}) {
     this.ddbData = ddbData;
     this.spellData = spellData;
-    this.spellDefinition = spellData.definition;
+    this.ddbDefinition = spellData.definition;
     this.rawCharacter = rawCharacter;
     this.namePrefix = namePrefix;
     this.namePostfix = namePostfix;
     this.nameOverride = nameOverride ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.nameOverride");
-    this.originalName = utils.nameString(this.spellDefinition.name);
+    this.originalName = utils.nameString(this.ddbDefinition.name);
     this.name = this.getName(this.spellData, this.rawCharacter);
     this.data = {};
     this.activities = [];
     this.activityTypes = [];
     this.activityType = null;
     this.additionalActivities = [];
-
     this.healingParts = [];
 
     this.isGeneric = isGeneric ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.generic");
-    this.addSpellEffects = isGeneric
+    this.addSpellEffects = this.isGeneric
       ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects")
       : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects");
-    foundry.utils.setProperty(this.data, "flags.ddbimporter.addSpellEffects", this.addSpellEffects);
 
+    this.legacyPostfix = this.isGeneric
+      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-legacy-postfix")
+      : !game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-2024");
     this.updateExisting = updateExisting ?? this.isGeneric
-      ? game.settings.get("ddb-importer", "munching-policy-update-existing")
+      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")
       : false;
     this.pactSpellsPrepared = game.settings.get("ddb-importer", "pact-spells-prepared");
     this.limitedUse = limitedUse ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.limitedUse");
@@ -140,7 +143,7 @@ export default class DDBSpell {
     this.lookup = lookup ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.lookup");
     this.lookupName = lookupName ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.lookupName");
     this.ability = ability ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.ability");
-    this.school = DICTIONARY.spell.schools.find((s) => s.name === this.spellDefinition.school.toLowerCase());
+    this.school = DICTIONARY.spell.schools.find((s) => s.name === this.ddbDefinition.school.toLowerCase());
     this.dc = dc ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.dc");
     this.overrideDC = overrideDC ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.overrideDC");
     this.isHomebrew = isHomebrew ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.homebrew");
@@ -148,8 +151,13 @@ export default class DDBSpell {
     this.onlyPactMagic = this.ddbData?.character?.classes?.length === 1
       && this.ddbData.character.classes[0].definition.name === "Warlock";
 
-    this.is2014 = this.spellDefinition.isLegacy
-      && this.spellDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+    const sourceIds = this.ddbDefinition.sources.map((sm) => sm.sourceId);
+    this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
+      sourceIds.includes(ddbSource.id)
+      && [23, 26].includes(ddbSource.sourceCategoryId),
+    );
+    this.is2014 = this.ddbDefinition.isLegacy
+      && this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     this._generateDataStub();
 
@@ -166,27 +174,27 @@ export default class DDBSpell {
 
 
   _generateProperties() {
-    if (this.spellDefinition.components.includes(1)) this.data.system.properties.push("vocal");
-    if (this.spellDefinition.components.includes(2)) this.data.system.properties.push("somatic");
-    if (this.spellDefinition.components.includes(3) || this.forceMaterial) {
+    if (this.ddbDefinition.components.includes(1)) this.data.system.properties.push("vocal");
+    if (this.ddbDefinition.components.includes(2)) this.data.system.properties.push("somatic");
+    if (this.ddbDefinition.components.includes(3) || this.forceMaterial) {
       this.data.system.properties.push("material");
     }
-    if (this.spellDefinition.ritual) this.data.system.properties.push("ritual");
-    if (this.spellDefinition.concentration) this.data.system.properties.push("concentration");
+    if (this.ddbDefinition.ritual) this.data.system.properties.push("ritual");
+    if (this.ddbDefinition.concentration) this.data.system.properties.push("concentration");
   }
 
   _generateMaterials() {
     // this is mainly guessing
-    if (this.spellDefinition.componentsDescription && this.spellDefinition.componentsDescription.length > 0) {
+    if (this.ddbDefinition.componentsDescription && this.ddbDefinition.componentsDescription.length > 0) {
       let cost = 0;
-      let matches = (/([\d.,]+)\s*gp/i).exec(this.spellDefinition.componentsDescription);
+      let matches = (/([\d.,]+)\s*gp/i).exec(this.ddbDefinition.componentsDescription);
       if (matches) {
         cost = parseInt(matches[1].replace(/,|\./g, ""));
       }
 
       this.data.system.materials = {
-        value: this.spellDefinition.componentsDescription,
-        consumed: this.spellDefinition.componentsDescription.toLowerCase().indexOf("consume") !== -1,
+        value: this.ddbDefinition.componentsDescription,
+        consumed: this.ddbDefinition.componentsDescription.toLowerCase().indexOf("consume") !== -1,
         cost: cost,
         supply: 0,
       };
@@ -213,7 +221,7 @@ export default class DDBSpell {
     ) {
       this.data.system.preparation.mode = "ritual";
       this.data.system.preparation.prepared = false;
-    } else if (!this.spellData.usesSpellSlot && this.spellDefinition.level !== 0) {
+    } else if (!this.spellData.usesSpellSlot && this.ddbDefinition.level !== 0) {
       // some class features such as druid circle of stars grants x uses of a spell
       // at the lowest level. for these we add as an innate.
       this.data.system.preparation.mode = "innate";
@@ -224,7 +232,7 @@ export default class DDBSpell {
     }
     // Warlocks should use Pact spells
     // but lets mark level 0 as regular spells so they show up as cantrips
-    if (this.data.system.preparation.mode === "pact" && this.spellDefinition.level === 0) {
+    if (this.data.system.preparation.mode === "pact" && this.ddbDefinition.level === 0) {
       this.data.system.preparation.mode = "prepared";
       this.data.system.preparation.prepared = true;
     } else if (this.data.system.preparation.mode === "pact" && this.pactSpellsPrepared) {
@@ -238,7 +246,7 @@ export default class DDBSpell {
     this.data.system.preparation = {
       mode: "prepared",
       // If always prepared mark as such, if not then check to see if prepared, mark cantrips as prepared
-      prepared: this.spellData.alwaysPrepared || this.spellData.prepared || this.spellDefinition.level === 0,
+      prepared: this.spellData.alwaysPrepared || this.spellData.prepared || this.ddbDefinition.level === 0,
     };
 
     // handle classSpells
@@ -247,7 +255,7 @@ export default class DDBSpell {
 
     if (this.lookup === "classSpell" || featureClass) {
       this._generateClassPreparationMode();
-    } else if (this.lookup === "race" && this.spellDefinition.level !== 0) {
+    } else if (this.lookup === "race" && this.ddbDefinition.level !== 0) {
       // set race spells as innate
       this.data.system.preparation.mode = "innate";
       if (this.spellData.usesSpellSlot) {
@@ -261,12 +269,12 @@ export default class DDBSpell {
       // these have limited uses (set with getUses())
       this.data.system.preparation.mode = "pact";
       this.data.system.preparation.prepared = false;
-    } else if (this.lookup === "item " && this.spellDefinition.level !== 0) {
+    } else if (this.lookup === "item " && this.ddbDefinition.level !== 0) {
       this.data.system.preparation.mode = "prepared";
       this.data.system.preparation.prepared = false;
     } else {
       // If spell doesn't use a spell slot and is not a cantrip, mark as always preped
-      let always = !this.spellData.usesSpellSlot && this.spellDefinition.level !== 0;
+      let always = !this.spellData.usesSpellSlot && this.ddbDefinition.level !== 0;
       let ritualOnly = this.spellData.ritualCastingType !== null || this.spellData.castOnlyAsRitual; // e.g. Book of ancient secrets & totem barb
       if (always && ritualOnly) {
         // in this case we want the spell to appear in the spell list unprepared
@@ -288,7 +296,7 @@ export default class DDBSpell {
   }
 
   async _generateDescription() {
-    let description = await generateTable(this.data.name, this.spellDefinition.description, this.updateExisting);
+    let description = await generateTable(this.data.name, this.ddbDefinition.description, this.updateExisting);
     this.data.system.description = {
       value: parseTags(description),
       chat: "",
@@ -297,7 +305,7 @@ export default class DDBSpell {
 
   _generateActivation() {
     // for newer override spells, activation is at higher level
-    const activation = this.spellData.activation ?? this.spellDefinition.activation;
+    const activation = this.spellData.activation ?? this.ddbDefinition.activation;
     const activationType = DICTIONARY.spell.activationTypes.find(
       (type) => type.activationType === activation.activationType,
     );
@@ -305,28 +313,28 @@ export default class DDBSpell {
       this.data.system.activation = {
         type: activationType.value,
         value: activation.activationTime,
-        condition: this.spellDefinition.castingTimeDescription ?? "",
+        condition: this.ddbDefinition.castingTimeDescription ?? "",
       };
     } else {
       this.data.system.activation = {
         type: "action",
         value: 1,
-        condition: this.spellDefinition.castingTimeDescription ?? "",
+        condition: this.ddbDefinition.castingTimeDescription ?? "",
       };
     }
   }
 
   _generateDuration() {
-    if (this.spellDefinition.duration) {
+    if (this.ddbDefinition.duration) {
       let units = "";
-      if (this.spellDefinition.duration.durationUnit !== null) {
-        units = this.spellDefinition.duration.durationUnit.toLowerCase();
+      if (this.ddbDefinition.duration.durationUnit !== null) {
+        units = this.ddbDefinition.duration.durationUnit.toLowerCase();
       } else {
-        units = this.spellDefinition.duration.durationType.toLowerCase().substring(0, 4);
+        units = this.ddbDefinition.duration.durationType.toLowerCase().substring(0, 4);
       }
       this.data.system.duration = {
-        concentration: this.spellDefinition.concentration,
-        value: this.spellDefinition.duration.durationInterval ?? "",
+        concentration: this.ddbDefinition.concentration,
+        value: this.ddbDefinition.duration.durationInterval ?? "",
         units: units,
       };
     }
@@ -338,9 +346,9 @@ export default class DDBSpell {
     const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range/gi;
     const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
     const targets = /spell attack against the target|at a target in range/gi;
-    return this.spellDefinition.description.match(creature)
-      || this.spellDefinition.description.match(creaturesRange)
-      || this.spellDefinition.description.match(targets);
+    return this.ddbDefinition.description.match(creature)
+      || this.ddbDefinition.description.match(creaturesRange)
+      || this.ddbDefinition.description.match(targets);
   }
 
   /**
@@ -349,7 +357,7 @@ export default class DDBSpell {
    */
   _getTargetValue() {
     const numCreatures = /(?!At Higher Levels.*)(\w*) (?:falling )?(?:willing )?(?:Bloodied )?(creature(?:s)?|target|monster|celestial|fiend|fey|corpse(?:s)? of|humanoid)(?!.*you have animated)/gim;
-    const targets = [...this.spellDefinition.description.matchAll(numCreatures)];
+    const targets = [...this.ddbDefinition.description.matchAll(numCreatures)];
     const targetValues = targets
       .filter((target) => {
         return DICTIONARY.numbers.some((n) => n.natural === target[1].toLowerCase());
@@ -385,21 +393,21 @@ export default class DDBSpell {
     };
 
     const thickReg = new RegExp(/ (\d*)(?:[ -])foot(?:[ -])(thick|wide)/);
-    const thickMatch = thickReg.exec(this.spellDefinition.description);
+    const thickMatch = thickReg.exec(this.ddbDefinition.description);
     if (thickMatch && thickMatch[1] > 5) {
       target.template.width = parseInt(thickMatch[1]);
     }
 
     const heightReg = new RegExp(/ (\d*)(?:[ -])foot(?:[ -])(tall|high)/);
-    const heightMatch = heightReg.exec(this.spellDefinition.description);
+    const heightMatch = heightReg.exec(this.ddbDefinition.description);
     if (heightMatch && heightMatch[1] > 5) {
       target.template.height = parseInt(heightMatch[1]);
     }
 
     // if spell is an AOE effect get some details
-    if (this.spellDefinition.range.aoeType && this.spellDefinition.range.aoeValue) {
-      const type = this.spellDefinition.range.aoeType.toLowerCase();
-      target.template.size = parseInt(this.spellDefinition.range.aoeValue);
+    if (this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeValue) {
+      const type = this.ddbDefinition.range.aoeType.toLowerCase();
+      target.template.size = parseInt(this.ddbDefinition.range.aoeValue);
       target.template.type = type === "emanation" ? "radius" : type;
       this.data.system.target = target;
       return;
@@ -413,9 +421,9 @@ export default class DDBSpell {
       target.affects.count = count ? `${count}` : "";
     }
 
-    const rangeValue = foundry.utils.getProperty(this.spellDefinition, "range.rangeValue");
+    const rangeValue = foundry.utils.getProperty(this.ddbDefinition, "range.rangeValue");
 
-    switch (this.spellDefinition.range.origin) {
+    switch (this.ddbDefinition.range.origin) {
       case "Touch":
         if (targetsCreatures) {
           target.affects.count = "1";
@@ -423,7 +431,7 @@ export default class DDBSpell {
         }
         break;
       case "Self": {
-        const dmgSpell = this.spellDefinition.modifiers.some((mod) => mod.type === "damage");
+        const dmgSpell = this.ddbDefinition.modifiers.some((mod) => mod.type === "damage");
         if (dmgSpell && rangeValue) {
           this.data.system.range.value = rangeValue;
           this.data.system.range.units = "ft";
@@ -461,15 +469,15 @@ export default class DDBSpell {
     }
 
     // wall type spell?
-    if (this.spellDefinition.name.includes("Wall")) {
+    if (this.ddbDefinition.name.includes("Wall")) {
       target.template.type = "wall";
       target.template.units = "ft";
 
-      if (this.spellDefinition.description.includes("ten 10-foot-")) {
+      if (this.ddbDefinition.description.includes("ten 10-foot-")) {
         target.template.size = 100;
       } else {
         const wallReg = new RegExp(/ (\d*) feet long/);
-        const matches = wallReg.exec(this.spellDefinition.description);
+        const matches = wallReg.exec(this.ddbDefinition.description);
         if (matches) {
           target.template.size = parseInt(matches[1]);
         }
@@ -480,10 +488,10 @@ export default class DDBSpell {
   }
 
   _generateRange() {
-    let value = this.spellDefinition.range.rangeValue ?? null;
+    let value = this.ddbDefinition.range.rangeValue ?? null;
     let units = "ft";
 
-    switch (this.spellDefinition.range.origin) {
+    switch (this.ddbDefinition.range.origin) {
       case "Touch":
         value = null;
         units = "touch";
@@ -600,7 +608,7 @@ export default class DDBSpell {
       ddbParent: this,
     });
 
-    const heals = this.spellDefinition.modifiers.filter((mod) =>
+    const heals = this.ddbDefinition.modifiers.filter((mod) =>
       mod.type === "bonus"
       && ["temporary-hit-points", "hit-points"].includes(mod.subType),
     );
@@ -734,7 +742,7 @@ export default class DDBSpell {
       const summons = await this.enricher.activity.summonsFunction({
         ddbParser: this,
         document: this.data,
-        raw: this.spellDefinition.description,
+        raw: this.ddbDefinition.description,
         text: this.data.system.description,
       });
 
@@ -742,7 +750,7 @@ export default class DDBSpell {
     }
 
     if (!this.isSummons) return;
-    this.ddbCompanionFactory = new DDBCompanionFactory(this.spellDefinition.description, {
+    this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
       type: "spell",
       originDocument: this.data,
       is2014: this.is2014,
@@ -834,19 +842,19 @@ export default class DDBSpell {
     if (this.isSummons) {
       return "summon";
     }
-    if (this.spellDefinition.requiresSavingThrow && !this.spellDefinition.requiresAttackRoll) {
+    if (this.ddbDefinition.requiresSavingThrow && !this.ddbDefinition.requiresAttackRoll) {
       return "save";
-    } else if ((this.spellDefinition.tags.includes("Damage") && this.spellDefinition.requiresAttackRoll)
-      || this.spellDefinition.attackType !== null
+    } else if ((this.ddbDefinition.tags.includes("Damage") && this.ddbDefinition.requiresAttackRoll)
+      || this.ddbDefinition.attackType !== null
     ) {
       return "attack";
-    } else if (this.spellDefinition.tags.includes("Damage")) {
+    } else if (this.ddbDefinition.tags.includes("Damage")) {
       return "damage";
-    } else if (this.spellDefinition.tags.includes("Healing") && this.healingParts.length === 0) {
+    } else if (this.ddbDefinition.tags.includes("Healing") && this.healingParts.length === 0) {
       return "utility"; // e.g. things like lesser restoration
-    } else if (this.spellDefinition.tags.includes("Buff")) {
+    } else if (this.ddbDefinition.tags.includes("Buff")) {
       return "utility";
-    } else if (this.spellDefinition.modifiers.some((mod) => mod.type === "damage")) {
+    } else if (this.ddbDefinition.modifiers.some((mod) => mod.type === "damage")) {
       return "damage";
     } else if (this.enricher.effect && !this.enricher.effect.noActivity) {
       return "utility";
@@ -927,9 +935,9 @@ export default class DDBSpell {
   }
 
   #addConditionEffects() {
-    if ((this.spellDefinition.conditions ?? []).length === 0) return;
+    if ((this.ddbDefinition.conditions ?? []).length === 0) return;
 
-    for (const data of this.spellDefinition.conditions.filter((c) => c.type === 1)) {
+    for (const data of this.ddbDefinition.conditions.filter((c) => c.type === 1)) {
       const condition = DICTIONARY.character.damageAdjustments
         .filter((type) => type.type === 4)
         .find((type) => type.id === data.conditionId);
@@ -1043,9 +1051,9 @@ export default class DDBSpell {
   }
 
   async parse() {
-    this.data.system.level = this.spellDefinition.level;
+    this.data.system.level = this.ddbDefinition.level;
     this.data.system.school = (this.school) ? this.school.id : null;
-    this.data.system.source = DDBHelper.parseSource(this.spellDefinition);
+    this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
     if (this.spellClass) {
