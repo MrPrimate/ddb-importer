@@ -6,6 +6,7 @@ import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../effects/specialSpells.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
+import logger from "../../logger.js";
 import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 
 export default class DDBBaseEnricher {
@@ -650,7 +651,9 @@ export default class DDBBaseEnricher {
         activityClone._id = `${activityClone._id.slice(0, -3)}clo`;
         activityData.activities = [activityClone];
       } else if (actionActivity) {
+        logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
         const result = this._buildActivitiesFromAction(actionActivity, i);
+        console.warn(result);
         activityData.activities = result.activities;
         activityData.effects = result.effects;
       } else {

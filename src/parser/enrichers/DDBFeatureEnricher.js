@@ -58,6 +58,10 @@ import EnvenomWeapons from "./feature/EnvenomWeapons.js";
 import SneakAttackPoisonEnvenom from "./feature/SneakAttackPoisonEnvenom.js";
 import DeathStrike from "./feature/DeathStrike.js";
 import BoonOfFate from "./feature/BoonOfFate.js";
+import FastHands from "./feature/FastHands.js";
+import UseMagicDevice from "./feature/UseMagicDevice.js";
+import UseMagicDeviceCharges from "./feature/UseMagicDeviceCharges.js";
+import UseMagicDeviceScroll from "./feature/UseMagicDeviceScroll.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -131,6 +135,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Sneak Attack: Poison (Envenom)": () => SneakAttackPoisonEnvenom,
     "Death Strike": () => DeathStrike,
     "Boon of Fate": () => BoonOfFate,
+    "Fast Hands": () => FastHands,
+    "Use Magic Device": () => UseMagicDevice,
+    "Use Magic Device: Charges": () => UseMagicDeviceCharges,
+    "Use Magic Device: Scroll": () => UseMagicDeviceScroll,
   };
 
   DND_2014 = {

@@ -1011,6 +1011,25 @@ export default class DDBBaseFeature {
     return activity;
   }
 
+  _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const activity = new DDBFeatureActivity({
+      name,
+      type: "check",
+      ddbParent: this,
+      nameIdPrefix: "check",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    activity.build(foundry.utils.mergeObject({
+      generateAttack: false,
+      generateRange: false,
+      generateDamage: false,
+      generateCheck: true,
+      generateActivation: true,
+    }, options));
+    return activity;
+  }
+
   _getDDBMacroActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const activity = new DDBFeatureActivity({
       name,
@@ -1129,6 +1148,8 @@ export default class DDBBaseFeature {
         return this._getSummonActivity(data, options);
       case "ddbmacro":
         return this._getDDBMacroActivity(data, options);
+      case "check":
+        return this._getCheckActivity(data, options);
       case "none":
         return undefined;
       default:
