@@ -5,6 +5,7 @@ import DDBBaseEnricher from "./DDBBaseEnricher.js";
 // Enrichers
 import ArcaneHand from "./spell/ArcaneHand.js";
 import EldritchBlast from "./spell/EldritchBlast.js";
+import GlyphOfWarding from "./spell/GlyphOfWarding.js";
 import HuntersMark from "./spell/HuntersMark.js";
 import Shillelagh from "./spell/Shillelagh.js";
 
@@ -26,6 +27,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
     "Eldritch Blast": () => EldritchBlast,
     "Hunter's Mark": () => HuntersMark,
     "Shillelagh": () => Shillelagh,
+    "Glyph of Warding": () => GlyphOfWarding,
   };
 
   DND_2014 = {
@@ -2407,7 +2409,7 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       return {
         name: "Enfeebled",
         options: {
-          description: this.ddbParser?.spellDefinition?.description ?? "",
+          description: this.ddbParser?.ddbDefinition?.description ?? "",
         },
       };
     },
