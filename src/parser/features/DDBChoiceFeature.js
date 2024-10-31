@@ -117,6 +117,12 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Nature's Ward",
     "Deft Explorer",
     "Otherworldly Glamour",
+    "Breath Weapon",
+    "Breath Weapon (Acid)",
+    "Breath Weapon (Fire)",
+    "Breath Weapon (Poison)",
+    "Breath Weapon (Cold)",
+    "Breath Weapon (Lightning)",
   ];
 
   _prepare() {

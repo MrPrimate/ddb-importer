@@ -53,6 +53,7 @@ import DefensiveTactics from "./feature/DefensiveTactics.js";
 import SuperiorHuntersPrey from "./feature/SuperiorHuntersPrey.js";
 import HuntersPrey from "./feature/HuntersPrey.js";
 import SuperiorHuntersDefense from "./feature/SuperiorHuntersDefense.js";
+import BreathWeapon2024 from "./feature/BreathWeapon2024.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -117,6 +118,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Hunter's Prey": () => HuntersPrey,
     "Superior Hunter's Prey": () => SuperiorHuntersPrey,
     "Superior Hunter's Defense": () => SuperiorHuntersDefense,
+    "Breath Weapon (Acid)": () => BreathWeapon2024,
+    "Breath Weapon (Cold)": () => BreathWeapon2024,
+    "Breath Weapon (Fire)": () => BreathWeapon2024,
+    "Breath Weapon (Lightning)": () => BreathWeapon2024,
+    "Breath Weapon (Poison)": () => BreathWeapon2024,
   };
 
   DND_2014 = {
@@ -125,28 +131,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       "Lay on Hands Pool": "Lay On Hands: Healing Pool",
     },
     ACTIVITY_HINTS: {
-      "Breath Weapon (Acid)": {},
-      "Breath Weapon (Cold)": {},
-      "Breath Weapon (Fire)": {},
-      "Breath Weapon (Lightning)": {},
-      "Breath Weapon (Poison)": {},
       // "Celestial Revelation": {},
       "Relentless": {},
       "Slow Fall": {},
     },
-    ADDITIONAL_ACTIVITIES: {
-      "Breath Weapon (Acid)": [],
-      "Breath Weapon (Cold)": [],
-      "Breath Weapon (Fire)": [],
-      "Breath Weapon (Lightning)": [],
-      "Breath Weapon (Poison)": [],
-    },
+    ADDITIONAL_ACTIVITIES: {},
     DOCUMENT_OVERRIDES: {
-      "Breath Weapon (Acid)": {},
-      "Breath Weapon (Cold)": {},
-      "Breath Weapon (Fire)": {},
-      "Breath Weapon (Lightning)": {},
-      "Breath Weapon (Poison)": {},
       "Dark One's Own Luck": {},
     },
     EFFECT_HINTS: {},
@@ -285,111 +275,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         range: {
           value: "30",
           units: "ft",
-        },
-      },
-    },
-    "Breath Weapon (Acid)": {
-      name: "Cone",
-      type: "save",
-      data: {
-        damage: {
-          onSave: "half",
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "acid" })],
-        },
-        target: {
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "cone",
-            size: "15",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Breath Weapon (Cold)": {
-      name: "Cone",
-      type: "save",
-      data: {
-        damage: {
-          onSave: "half",
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "cold" })],
-        },
-        target: {
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "cone",
-            size: "15",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Breath Weapon (Fire)": {
-      name: "Cone",
-      type: "save",
-      data: {
-        damage: {
-          onSave: "half",
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "fire" })],
-        },
-        target: {
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "cone",
-            size: "15",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Breath Weapon (Lightning)": {
-      name: "Cone",
-      type: "save",
-      data: {
-        damage: {
-          onSave: "half",
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "lightning" })],
-        },
-        target: {
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "cone",
-            size: "15",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Breath Weapon (Poison)": {
-      name: "Cone",
-      type: "save",
-      data: {
-        damage: {
-          onSave: "half",
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "poison" })],
-        },
-        target: {
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "cone",
-            size: "15",
-            units: "ft",
-          },
         },
       },
     },
@@ -2454,126 +2339,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     ],
     "Boon of the Night Spirit": [
       { action: { name: "Merge with Shadows", type: "feat", rename: ["Merge with Shadows"] } },
-    ],
-    "Breath Weapon (Acid)": [
-      {
-        constructor: {
-          name: "Line",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateDamage: true,
-          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "acid" })],
-          targetOverride: {
-            affects: {
-              type: "creature",
-            },
-            template: {
-              contiguous: false,
-              type: "line",
-              size: "30",
-              units: "ft",
-            },
-          },
-        },
-      },
-    ],
-    "Breath Weapon (Cold)": [
-      {
-        constructor: {
-          name: "Line",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateDamage: true,
-          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "cold" })],
-          targetOverride: {
-            affects: {
-              type: "creature",
-            },
-            template: {
-              contiguous: false,
-              type: "line",
-              size: "30",
-              units: "ft",
-            },
-          },
-        },
-      },
-    ],
-    "Breath Weapon (Lightning)": [
-      {
-        constructor: {
-          name: "Line",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateDamage: true,
-          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "lightning" })],
-          targetOverride: {
-            affects: {
-              type: "creature",
-            },
-            template: {
-              contiguous: false,
-              type: "line",
-              size: "30",
-              units: "ft",
-            },
-          },
-        },
-      },
-    ],
-    "Breath Weapon (Fire)": [
-      {
-        constructor: {
-          name: "Line",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateDamage: true,
-          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "fire" })],
-          targetOverride: {
-            affects: {
-              type: "creature",
-            },
-            template: {
-              contiguous: false,
-              type: "line",
-              size: "30",
-              units: "ft",
-            },
-          },
-        },
-      },
-    ],
-    "Breath Weapon (Poison)": [
-      {
-        constructor: {
-          name: "Line",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateDamage: true,
-          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: "poison" })],
-          targetOverride: {
-            affects: {
-              type: "creature",
-            },
-            template: {
-              contiguous: false,
-              type: "line",
-              size: "30",
-              units: "ft",
-            },
-          },
-        },
-      },
     ],
     "Brutal Strike": [
       {
