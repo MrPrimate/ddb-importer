@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.25
 
 - Rogue class features (2024)
 - Added option for available spells on casters such as Cleric will filter on unprepared spells based on the allowed sources on your DDB Character (see Advanced Tab).
