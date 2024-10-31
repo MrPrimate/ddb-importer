@@ -128,7 +128,9 @@ export default class DDBAction extends DDBBaseFeature {
     "Hunter's Prey: Colossus Slayer",
     "Hunter's Mark: Superior Hunter's Prey",
     "Colossus Slayer",
-
+    "Masterful Mimicry",
+    "Steady Aim: Roving Aim",
+    "Improve Fate",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

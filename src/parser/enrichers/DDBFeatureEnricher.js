@@ -54,6 +54,10 @@ import SuperiorHuntersPrey from "./feature/SuperiorHuntersPrey.js";
 import HuntersPrey from "./feature/HuntersPrey.js";
 import SuperiorHuntersDefense from "./feature/SuperiorHuntersDefense.js";
 import BreathWeapon2024 from "./feature/BreathWeapon2024.js";
+import EnvenomWeapons from "./feature/EnvenomWeapons.js";
+import SneakAttackPoisonEnvenom from "./feature/SneakAttackPoisonEnvenom.js";
+import DeathStrike from "./feature/DeathStrike.js";
+import BoonOfFate from "./feature/BoonOfFate.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -123,6 +127,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Breath Weapon (Fire)": () => BreathWeapon2024,
     "Breath Weapon (Lightning)": () => BreathWeapon2024,
     "Breath Weapon (Poison)": () => BreathWeapon2024,
+    "Envenom Weapons": () => EnvenomWeapons,
+    "Sneak Attack: Poison (Envenom)": () => SneakAttackPoisonEnvenom,
+    "Death Strike": () => DeathStrike,
+    "Boon of Fate": () => BoonOfFate,
   };
 
   DND_2014 = {
