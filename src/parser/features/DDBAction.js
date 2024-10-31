@@ -131,6 +131,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Masterful Mimicry",
     "Steady Aim: Roving Aim",
     "Improve Fate",
+    "Wild Magic Surge Table",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
@@ -165,6 +166,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Slasher:",
     "Fast Hands:",
     "Use Magic Device:",
+    "Metamagic Options:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [

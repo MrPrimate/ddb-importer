@@ -84,6 +84,7 @@ export default class DDBFeatures {
     "Living Legend",
     "Elder Champion",
     "Defensive Tactics",
+    "Innate Sorcery",
   ];
 
   static isDuplicateFeature(items, item) {
