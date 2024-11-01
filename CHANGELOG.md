@@ -1,7 +1,10 @@
-# Next Up
+# 6.0.26
 
 - Fix an issue with updating items with (Legacy) in the name.
 - Don't add (Legacy) to item names when items are imported on characters.
+- Sorcerer 2024 base class features, Wild and Aberrant class features.
+- Improve detection of spells granted by Race/Feats/Backgrounds that could add muliple castable versions of the spell.
+- Some rework of feature enricher structure to support 4.1 system changes.
 
 # 6.0.25
 
