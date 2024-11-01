@@ -71,6 +71,7 @@ import SorcerousRestoration from "./feature/sorcerer/SorcerousRestoration.js";
 import SorceryIncarnate from "./feature/sorcerer/SorceryIncarnate.js";
 import BendLuck from "./feature/sorcerer/BendLuck.js";
 import Telekinetic from "./feat/Telekinetic.js";
+import RevelationInFlesh from "./feature/sorcerer/RevelationInFlesh.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -157,6 +158,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Use Magic Device": () => UseMagicDevice,
     "Vow of Enmity": () => VowOfEnmity,
     "Wild Magic Surge": () => WildMagicSurge,
+    "Revelation in Flesh": () => RevelationInFlesh,
   };
 
   DND_2014 = {

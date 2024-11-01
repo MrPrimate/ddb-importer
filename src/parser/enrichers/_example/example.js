@@ -16,6 +16,7 @@ export default class Example extends DDBEnricherMixin {
       parent: "name", // name of lookup parent if only applies to certain types, e.g. spells attached to items, this would be the item name
       noConsumeTargets: true, // remove any auto generated consumption targets
       addItemConsume: true, // add item consume
+      itemConsumeTargetName: "Item Name", // item consume target name
       itemConsumeValue: 2, // item consume value if not 1
       addScalingMode: "amount", // add scaling mode to item consume
       addScalingFormula: "1", // add scaling formula to item consume

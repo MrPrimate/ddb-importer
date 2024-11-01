@@ -118,6 +118,7 @@ export default class DDBEnricherMixin {
    *   parent: {string} The name of the lookup parent if only applies to certain types.
    *   noConsumeTargets: {boolean} Remove any auto generated consumption targets.
    *   addItemConsume: {boolean} Add item consume.
+   *   itemConsumeTargetName: "Item Name", // item consume target name
    *   itemConsumeValue: {number} The item consume value if not 1.
    *   addScalingMode: {string} Add scaling mode to item consume.
    *   addScalingFormula: {string} Add scaling formula to item consume.

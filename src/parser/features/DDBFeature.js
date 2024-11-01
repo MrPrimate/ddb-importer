@@ -26,6 +26,7 @@ export default class DDBFeature extends DDBBaseFeature {
     "Extra Attack",
     "Improved Critical",
     "Unarmored Movement",
+    "Metamagic",
   ];
 
   static LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH = [
