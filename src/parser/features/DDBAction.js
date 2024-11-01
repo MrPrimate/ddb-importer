@@ -133,6 +133,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Improve Fate",
     "Wild Magic Surge Table",
     "Font of Magic: Convert Spell Slots",
+    "Telekinetic Shove",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
