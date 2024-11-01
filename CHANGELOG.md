@@ -1,3 +1,7 @@
+# Next Up
+
+- Fix an issue with updating items with (Legacy) in the name.
+
 # 6.0.25
 
 - Rogue class features (2024)

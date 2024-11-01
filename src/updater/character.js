@@ -823,7 +823,7 @@ async function updateDDBCustomNames(actor, items) {
         contextTypeId: null,
         notes: null,
         typeId: 8,
-        value: item.name.replaceAll("[Infusion]", "").trim(),
+        value: item.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim(),
         valueId: `${item.flags.ddbimporter.id}`,
         valueTypeId: `${item.flags.ddbimporter.entityTypeId}`,
       },
@@ -851,7 +851,7 @@ async function updateCustomNames(actor, ddbCharacter) {
     && ddbItems.some((ddbItem) =>
       ddbItem.flags.ddbimporter?.id === item.flags.ddbimporter.id
       && ddbItem.type === item.type
-      && ddbItem.name.replaceAll("[Infusion]", "").trim() !== item.name.replaceAll("[Infusion]", "").trim(),
+      && ddbItem.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim() !== item.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim(),
     ),
   );
 
@@ -949,7 +949,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
         contextTypeId: null,
         notes: null,
         typeId: 8,
-        value: item.name.replaceAll("[Infusion]", "").trim(),
+        value: item.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim(),
         valueId: `${item.flags.ddbimporter.id}`,
         valueTypeId: `${entityTypeId}`,
       },
@@ -1079,9 +1079,9 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
     && !foundry.utils.getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
       item.flags.ddbimporter.originalName === dItem.definition.name
-      && item.flags.ddbimporter.originalName !== item.name.replaceAll("[Infusion]", "").trim()
+      && item.flags.ddbimporter.originalName !== item.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim()
       && foundry.utils.getProperty(item, "flags.ddbimporter.id") === dItem.id
-      && item.name.replaceAll("[Infusion]", "").trim() !== dItem.definition.name,
+      && item.name.replaceAll("[Infusion]", "").replace(/\(Legacy\)$/, "").trim() !== dItem.definition.name,
     ),
   );
 
