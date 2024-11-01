@@ -16,7 +16,7 @@ export default class CharacterSpellFactory {
     this.ddb = ddbCharacter.source.ddb;
     this.character = ddbCharacter.raw.character;
 
-    this.items = [];
+    this.processed = [];
 
     this.proficiencyModifier = this.character.system.attributes.prof;
     this.lookups = getLookups(this.ddb.character);
@@ -96,7 +96,7 @@ export default class CharacterSpellFactory {
       namePostfix: `${this._getSpellCount(spell.definition.name)}`,
     });
     foundry.utils.setProperty(parsedSpell, "system.sourceClass", classInfo.definition.name.toLowerCase());
-    const duplicateSpell = this.items.findIndex(
+    const duplicateSpell = this.processed.findIndex(
       (existingSpell) => {
         const existingName = (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name);
         const parsedName = (parsedSpell.flags.ddbimporter.originalName ? parsedSpell.flags.ddbimporter.originalName : parsedSpell.name);
@@ -106,14 +106,14 @@ export default class CharacterSpellFactory {
           || (parsedSpell.flags.ddbimporter.is2024 ?? false) === (existingSpell.flags.ddbimporter.is2024 ?? false);
         return existingName === parsedName && classIdMatch && legacyMatch;
       });
-    const duplicateItem = this.items[duplicateSpell];
+    const duplicateItem = this.processed[duplicateSpell];
     if (!duplicateItem) {
-      this.items.push(parsedSpell);
+      this.processed.push(parsedSpell);
     } else if (spell.alwaysPrepared || parsedSpell.system.preparation.mode === "always"
       || (spell.alwaysPrepared === duplicateItem.alwaysPrepared && parsedSpell.system.preparation.mode === duplicateItem.system.preparation.mode && parsedSpell.prepared && !duplicateItem.prepared)) {
       // if our new spell is always known we overwrite!
       // it's probably domain
-      this.items[duplicateSpell] = parsedSpell;
+      this.processed[duplicateSpell] = parsedSpell;
     } else {
       // we'll emit a console message if it doesn't match this case for future debugging
       logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.definition.name}.`);
@@ -279,20 +279,20 @@ export default class CharacterSpellFactory {
       // Check for duplicate spells, normally domain ones
       // We will import spells from a different class that are the same though
       // as they may come from with different spell casting mods
-      const duplicateSpell = this.items.findIndex(
+      const duplicateSpell = this.processed.findIndex(
         (existingSpell) =>
           (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
           && klass
           && klass.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class
           && spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
       );
-      if (!this.items[duplicateSpell]) {
+      if (!this.processed[duplicateSpell]) {
         const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
           ddbData: this.ddb,
           namePostfix: `${this._getSpellCount(spell.definition.name)}`,
         });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
-        this.items.push(parsedSpell);
+        this.processed.push(parsedSpell);
 
         // console.warn({
         //   spell,
@@ -328,7 +328,7 @@ export default class CharacterSpellFactory {
         //   parsedSpell,
         // });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
-        this.items[duplicateSpell] = parsedSpell;
+        this.processed[duplicateSpell] = parsedSpell;
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
         logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.name}.`);
@@ -362,13 +362,13 @@ export default class CharacterSpellFactory {
     if (!levelSlots && !this.pactSlots) return;
 
     const dups = this.ddb.character.spells[type].filter((otherSpell) => otherSpell.definition && otherSpell.definition.name === spell.definition.name).length > 1;
-    const duplicateSpell = this.items.findIndex(
+    const duplicateSpell = this.processed.findIndex(
       (existingSpell) =>
         (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
         && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
     );
 
-    if (dups && this.items[duplicateSpell]) return;
+    if (dups && this.processed[duplicateSpell]) return;
 
     // also parse spell as non-limited use
     let unlimitedSpell = foundry.utils.duplicate(spell);
@@ -390,7 +390,7 @@ export default class CharacterSpellFactory {
     //   parsedSpell: deepClone(parsedSpell),
     //   unlimitedSpell: deepClone(unlimitedSpell),
     // });
-    this.items.push(parsedSpell);
+    this.processed.push(parsedSpell);
   }
 
   async getRaceSpells() {
@@ -438,13 +438,15 @@ export default class CharacterSpellFactory {
         },
       };
 
-      this.handleGrantedSpells(spell, "race");
+      if (this.ddb.character.spells.race.filter((sp) => sp.definition.name === spell.definition.name).length === 1) {
+        this.handleGrantedSpells(spell, "race");
+      }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
         ddbData: this.ddb,
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
       });
-      this.items.push(parsedSpell);
+      this.processed.push(parsedSpell);
     }
   }
 
@@ -492,13 +494,15 @@ export default class CharacterSpellFactory {
         },
       };
 
-      this.handleGrantedSpells(spell, "feat");
+      if (this.ddb.character.spells.feat.filter((sp) => sp.definition.name === spell.definition.name).length === 1) {
+        this.handleGrantedSpells(spell, "feat");
+      }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
         ddbData: this.ddb,
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
       });
-      this.items.push(parsedSpell);
+      this.processed.push(parsedSpell);
     }
   }
 
@@ -535,13 +539,15 @@ export default class CharacterSpellFactory {
         },
       };
 
-      this.handleGrantedSpells(spell, "background");
+      if (this.ddb.character.spells.background.filter((sp) => sp.definition.name === spell.definition.name).length === 1) {
+        this.handleGrantedSpells(spell, "background");
+      }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
         ddbData: this.ddb,
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
       });
-      this.items.push(parsedSpell);
+      this.processed.push(parsedSpell);
     }
   }
 
@@ -562,6 +568,6 @@ export default class CharacterSpellFactory {
     // background spells are handled slightly differently
     await this.getBackgroundSpells();
 
-    return this.items.sort((a, b) => a.name.localeCompare(b.name));
+    return this.processed.sort((a, b) => a.name.localeCompare(b.name));
   }
 }

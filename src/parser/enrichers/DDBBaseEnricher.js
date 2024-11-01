@@ -239,7 +239,7 @@ export default class DDBBaseEnricher {
       foundry.utils.setProperty(activity, "consumption.targets", []);
       activity.consumption.targets.push({
         type: "itemUses",
-        target: overrideData.itemConsumeTargetName ??"",
+        target: overrideData.itemConsumeTargetName ?? "",
         value: overrideData.itemConsumeValue ?? "1",
         scaling: {
           mode: overrideData.addScalingMode ?? "",
