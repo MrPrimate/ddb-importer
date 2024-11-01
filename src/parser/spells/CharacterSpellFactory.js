@@ -169,12 +169,13 @@ export default class CharacterSpellFactory {
 
       const rawSpells = [
         ...playerClass.spells,
-        ...playerClass.alwaysPreparedSpells,
+        ...(playerClass.alwaysPreparedSpells ?? []),
       ];
       if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-full-spell-list")) {
+        const knownSpells = playerClass.alwaysKnownSpells ?? [];
         const filteredAlwaysKnownSpells = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-active-sources")
-          ? this.filterSpellsByAllowedCategories(playerClass.alwaysKnownSpells)
-          : playerClass.alwaysKnownSpells;
+          ? this.filterSpellsByAllowedCategories(knownSpells)
+          : knownSpells;
         rawSpells.push(...filteredAlwaysKnownSpells);
       }
 
