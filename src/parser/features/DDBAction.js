@@ -132,6 +132,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Steady Aim: Roving Aim",
     "Improve Fate",
     "Wild Magic Surge Table",
+    "Font of Magic: Convert Spell Slots",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
@@ -166,10 +167,10 @@ export default class DDBAction extends DDBBaseFeature {
     "Slasher:",
     "Fast Hands:",
     "Use Magic Device:",
-    "Metamagic Options:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [
+    "Convert Sorcery Points",
   ];
 
   static SKIPPED_2024_ONLY_ACTIONS = [

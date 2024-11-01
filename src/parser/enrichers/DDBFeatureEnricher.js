@@ -4,66 +4,71 @@ import DDBBaseEnricher from "./DDBBaseEnricher.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 // enrichers
-import AbjureFoes from "./feature/AbjureFoes.js";
-import ArcaneRecovery from "./feature/ArcaneRecovery.js";
-import Archdruid from "./feature/Archdruid.js";
-import DivineIntervention from "./feature/DivineIntervention.js";
-import GhostlyGaze from "./feature/GhostlyGaze.js";
-import NatureMagician from "./feature/NatureMagician.js";
-import PatientDefense from "./feature/PatientDefense.js";
-import SacredWeapon from "./feature/SacredWeapon.js";
-import LivingLegend from "./feature/LivingLegend.js";
-import InspiringSmite from "./feature/InspiringSmite.js";
-import EmbodyLegends from "./feature/EmbodyLegends.js";
-import RadiantStrikes from "./feature/RadiantStrikes.js";
-import LayOnHandsPurifyPoison from "./feature/LayOnHandsPurifyPoison.js";
-import LayOnHands from "./feature/LayOnHands.js";
-import PeerlessAthlete from "./feature/PeerlessAthlete.js";
-import UndyingSentinel from "./feature/UndyingSentinel.js";
-import HolyNimbus from "./feature/HolyNimbus.js";
-import ElderChampion from "./feature/ElderChampion.js";
-import ChannelDivinity from "./feature/ChannelDivinity.js";
-import GloriousDefense from "./feature/GloriousDefense.js";
-import BoonOfEnergyResistance from "./feature/BoonOfEnergyResistance.js";
-import Slasher from "./feature/Slasher.js";
-import EnergyRedirection from "./feature/EnergyRedirection.js";
-import Healer from "./feature/Healer.js";
-import AvengingAngel from "./feature/AvengingAngel.js";
-import VowOfEnmity from "./feature/VowOfEnmity.js";
-import RelentlessAvenger from "./feature/RelentlessAvenger.js";
-import SoulOfVengeance from "./feature/SoulOfVengeance.js";
-import PrimalCompanion from "./feature/PrimalCompanion.js";
-import PrimalCompanionSummon from "./feature/PrimalCompanionSummon.js";
-import PrimalCompanionRestoreBeast from "./feature/PrimalCompanionRestoreBeast.js";
-import Tireless from "./feature/Tireless.js";
-import TemporaryHitPoints from "./feature/TemporaryHitPoints.js";
-import BoonOfFortitude from "./feature/BoonOfFortitude.js";
-import BolsteringPerformance from "./feature/BolsteringPerformance.js";
-import InspiringLeader from "./feature/InspiringLeader.js";
-import MageSlayer from "./feature/MageSlayer.js";
-import BeguilingTwist from "./feature/BeguilingTwist.js";
-import DreadfulStrikes from "./feature/DreadfulStrikes.js";
-import StalkersFlurry from "./feature/StalkersFlurry.js";
-import DreadfulStrikeSuddenStrike from "./feature/DreadfulStrikeSuddenStrike.js";
-import DreadfulStrikeMassFear from "./feature/DreadfulStrikeMassFear.js";
-import DreadfulStrike from "./feature/DreadfulStrike.js";
-import DreadAmbusher from "./feature/DreadAmbusher.js";
-import ShadowyDodge from "./feature/ShadowyDodge.js";
-import DefensiveTactics from "./feature/DefensiveTactics.js";
-import SuperiorHuntersPrey from "./feature/SuperiorHuntersPrey.js";
-import HuntersPrey from "./feature/HuntersPrey.js";
-import SuperiorHuntersDefense from "./feature/SuperiorHuntersDefense.js";
-import BreathWeapon2024 from "./feature/BreathWeapon2024.js";
-import EnvenomWeapons from "./feature/EnvenomWeapons.js";
-import SneakAttackPoisonEnvenom from "./feature/SneakAttackPoisonEnvenom.js";
-import DeathStrike from "./feature/DeathStrike.js";
-import BoonOfFate from "./feature/BoonOfFate.js";
-import FastHands from "./feature/FastHands.js";
-import UseMagicDevice from "./feature/UseMagicDevice.js";
-import UseMagicDeviceCharges from "./feature/UseMagicDeviceCharges.js";
-import UseMagicDeviceScroll from "./feature/UseMagicDeviceScroll.js";
-import SneakAttackSupremeSneak from "./feature/SneakAttackSupremeSneak.js";
-import SupremeSneak from "./feature/SupremeSneak.js";
+import AbjureFoes from "./feature/paladin/AbjureFoes.js";
+import ArcaneRecovery from "./feature/wizard/ArcaneRecovery.js";
+import Archdruid from "./feature/druid/Archdruid.js";
+import DivineIntervention from "./feature/cleric/DivineIntervention.js";
+import GhostlyGaze from "./feature/warlock/GhostlyGaze.js";
+import NatureMagician from "./feature/druid/NatureMagician.js";
+import PatientDefense from "./feature/monk/PatientDefense.js";
+import SacredWeapon from "./feature/paladin/SacredWeapon.js";
+import LivingLegend from "./feature/paladin/LivingLegend.js";
+import InspiringSmite from "./feature/paladin/InspiringSmite.js";
+import EmbodyLegends from "./feature/paladin/EmbodyLegends.js";
+import RadiantStrikes from "./feature/paladin/RadiantStrikes.js";
+import LayOnHandsPurifyPoison from "./feature/paladin/LayOnHandsPurifyPoison.js";
+import LayOnHands from "./feature/paladin/LayOnHands.js";
+import PeerlessAthlete from "./feature/paladin/PeerlessAthlete.js";
+import UndyingSentinel from "./feature/paladin/UndyingSentinel.js";
+import HolyNimbus from "./feature/paladin/HolyNimbus.js";
+import ElderChampion from "./feature/paladin/ElderChampion.js";
+import ChannelDivinity from "./feature/shared/ChannelDivinity.js";
+import GloriousDefense from "./feature/paladin/GloriousDefense.js";
+import BoonOfEnergyResistance from "./feat/BoonOfEnergyResistance.js";
+import Slasher from "./feat/Slasher.js";
+import EnergyRedirection from "./feat/EnergyRedirection.js";
+import Healer from "./feat/Healer.js";
+import AvengingAngel from "./feature/paladin/AvengingAngel.js";
+import VowOfEnmity from "./feature/paladin/VowOfEnmity.js";
+import RelentlessAvenger from "./feature/paladin/RelentlessAvenger.js";
+import SoulOfVengeance from "./feature/paladin/SoulOfVengeance.js";
+import PrimalCompanion from "./feature/ranger/PrimalCompanion.js";
+import PrimalCompanionSummon from "./feature/ranger/PrimalCompanionSummon.js";
+import PrimalCompanionRestoreBeast from "./feature/ranger/PrimalCompanionRestoreBeast.js";
+import Tireless from "./feature/ranger/Tireless.js";
+import TemporaryHitPoints from "./feature/ranger/TemporaryHitPoints.js";
+import BoonOfFortitude from "./feat/BoonOfFortitude.js";
+import BolsteringPerformance from "./feat/BolsteringPerformance.js";
+import InspiringLeader from "./feat/InspiringLeader.js";
+import MageSlayer from "./feat/MageSlayer.js";
+import BeguilingTwist from "./feature/ranger/BeguilingTwist.js";
+import DreadfulStrikes from "./feature/ranger/DreadfulStrikes.js";
+import StalkersFlurry from "./feature/ranger/StalkersFlurry.js";
+import DreadfulStrikeSuddenStrike from "./feature/ranger/DreadfulStrikeSuddenStrike.js";
+import DreadfulStrikeMassFear from "./feature/ranger/DreadfulStrikeMassFear.js";
+import DreadfulStrike from "./feature/ranger/DreadfulStrike.js";
+import DreadAmbusher from "./feature/ranger/DreadAmbusher.js";
+import ShadowyDodge from "./feature/ranger/ShadowyDodge.js";
+import DefensiveTactics from "./feature/ranger/DefensiveTactics.js";
+import SuperiorHuntersPrey from "./feature/ranger/SuperiorHuntersPrey.js";
+import HuntersPrey from "./feature/ranger/HuntersPrey.js";
+import SuperiorHuntersDefense from "./feature/ranger/SuperiorHuntersDefense.js";
+import BreathWeapon2024 from "./trait/BreathWeapon2024.js";
+import EnvenomWeapons from "./feature/rogue/EnvenomWeapons.js";
+import SneakAttackPoisonEnvenom from "./feature/rogue/SneakAttackPoisonEnvenom.js";
+import DeathStrike from "./feature/rogue/DeathStrike.js";
+import BoonOfFate from "./feat/BoonOfFate.js";
+import FastHands from "./feature/rogue/FastHands.js";
+import UseMagicDevice from "./feature/rogue/UseMagicDevice.js";
+import UseMagicDeviceCharges from "./feature/rogue/UseMagicDeviceCharges.js";
+import UseMagicDeviceScroll from "./feature/rogue/UseMagicDeviceScroll.js";
+import SneakAttackSupremeSneak from "./feature/rogue/SneakAttackSupremeSneak.js";
+import SupremeSneak from "./feature/rogue/SupremeSneak.js";
+import SorceryPoints from "./feature/sorcerer/SorceryPoints.js";
+import FontOfMagic from "./feature/sorcerer/FontOfMagic.js";
+import WildMagicSurge from "./feature/sorcerer/WildMagicSurge.js";
+import SorcerousRestoration from "./feature/sorcerer/SorcerousRestoration.js";
+import SorceryIncarnate from "./feature/sorcerer/SorceryIncarnate.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -143,6 +148,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Use Magic Device: Scroll": () => UseMagicDeviceScroll,
     "Sneak Attack: Supreme Sneak (Cost: 1d6)": () => SneakAttackSupremeSneak,
     "Supreme Sneak": () => SupremeSneak,
+    "Sorcery Points": () => SorceryPoints,
+    "Font of Magic": () => FontOfMagic,
+    "Wild Magic Surge": () => WildMagicSurge,
+    "Sorcerous Restoration": () => SorcerousRestoration,
+    "Sorcery Incarnate": () => SorceryIncarnate,
   };
 
   DND_2014 = {
@@ -174,7 +184,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Aura Of Protection": "Aura of",
     "Aura of Alacrity": "Aura of",
     "Aura of Warding": "Aura of",
-    "Font of Magic: Convert Spell Slots": "Convert Sorcery Points",
+    "Convert Sorcery Points": "Font of Magic",
+    "Font of Magic: Convert Spell Slots": "Font of Magic",
     "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",
     "Invoke Duplicity": "Channel Divinity: Invoke Duplicity",
@@ -431,18 +442,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           visible: true,
           formula: "@scale.bard.bardic-inspiration",
           name: "Inspiration Roll",
-        },
-      },
-    },
-    "Convert Sorcery Points": {
-      type: "ddbmacro",
-      data: {
-        name: "Font of Magic",
-        macro: {
-          name: "Convert Sorcery Points/Spell Slots",
-          function: "ddb.feat.fontOfMagic",
-          visible: false,
-          parameters: "",
         },
       },
     },
@@ -821,18 +820,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "save",
       activationType: "special",
       activationCondition: "You hit a creature with a Flurry of Blows strike",
-    },
-    "Font of Magic": {
-      type: "ddbmacro",
-      data: {
-        name: "Font of Magic",
-        macro: {
-          name: "Convert Sorcery Points/Spell Slots",
-          function: "ddb.feat.fontOfMagic",
-          visible: false,
-          parameters: "",
-        },
-      },
     },
     "Form of the Beast: Tail": {
       noTemplate: true,
@@ -1875,30 +1862,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         img: "systems/dnd5e/icons/svg/trait-saves.svg",
       },
-    },
-    "Sorcerous Restoration": {
-      type: "utility",
-      noConsumeTargets: true,
-      additionalConsumptionTargets: [
-        {
-          type: "itemUses",
-          target: "",
-          value: "-(floor(@classes.sorcerer.levels / 2))",
-          scaling: {
-            mode: "",
-            formula: "",
-          },
-        },
-        {
-          type: "itemUses",
-          target: "",
-          value: "1",
-          scaling: {
-            mode: "",
-            formula: "",
-          },
-        },
-      ],
     },
     "Speedy Recovery": {
       type: "none",
@@ -4055,11 +4018,11 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "flags.ddbimporter.retainResourceConsumption": true,
       },
     },
-    "Font of Magic: Convert Spell Slots": {
-      data: {
-        name: "Convert Spell Slots",
-      },
-    },
+    // "Font of Magic: Convert Spell Slots": {
+    //   data: {
+    //     name: "Convert Spell Slots",
+    //   },
+    // },
     "Font of Magic: Sorcery Points": {
       data: {
         "name": "Sorcery Points",

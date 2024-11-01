@@ -75,6 +75,24 @@ export default class DDBFeatures {
     "Maneuver: Menacing Attack (Dex.)",
   ];
 
+  static SKIPPED_FEATURES_STARTS_WITH = [
+    "Metamagic Options:",
+    "Weapon Mastery -",
+    "Expertise",
+    "Size",
+    "Proficiencies",
+    // "Skills",
+  ];
+
+  static SKIPPED_FEATURES_ENDS_WITH = [
+    "Subclass",
+    // " Weapon Mastery",
+  ];
+
+  static SKIPPED_FEATURES_INCLUDES = [
+    "Ability Score",
+  ];
+
   // if there are duplicate name entries in your feature use this, due to multiple features in builder
   // and sheet with different descriptions.
   static FORCE_DUPLICATE_FEATURE = [
@@ -98,19 +116,18 @@ export default class DDBFeatures {
   static includedFeatureNameCheck(featName) {
     const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-include-versatile-features");
 
-    const nameAllowed = !featName.startsWith("Proficiencies")
-      && !featName.includes("Ability Score")
-      && !featName.startsWith("Size")
-      && !featName.startsWith("Expertise")
-      && !featName.endsWith("Subclass")
+    // eslint-disable-next-line operator-linebreak
+    const nameAllowed =
+      !DDBFeatures.LEGACY_SKIPPED_FEATURES.includes(featName)
+      && !DDBFeatures.SKIPPED_FEATURES.includes(featName)
+      && !DDBFeatures.SKIPPED_FEATURES_STARTS_WITH.some((text) => featName.startsWith(text))
+      && !DDBFeatures.SKIPPED_FEATURES_ENDS_WITH.some((text) => featName.endsWith(text))
+      && !DDBFeatures.SKIPPED_FEATURES_INCLUDES.some((text) => featName.includes(text))
       && !featName.match(/(?:\w+) Weapon Masteries(?:y|ies)(?:$|:)/igm)
       && !featName.match(/(?:\d+:) Weapon Master(?:y|ies)(?:$|:)/igm)
-      && !featName.startsWith("Weapon Mastery -")
-      // && !featName.endsWith(" Weapon Mastery")
-      // && !featName.startsWith("Skills")
-      && (includeTashaVersatile || (!includeTashaVersatile && !DDBFeatures.TASHA_VERSATILE.includes(featName)))
-      && !DDBFeatures.LEGACY_SKIPPED_FEATURES.includes(featName)
-      && !DDBFeatures.SKIPPED_FEATURES.includes(featName);
+      && (includeTashaVersatile || (!includeTashaVersatile && !DDBFeatures.TASHA_VERSATILE.includes(featName)));
+
+    logger.debug(`Checking ${featName}, status: ${nameAllowed}`);
 
     return nameAllowed;
   }

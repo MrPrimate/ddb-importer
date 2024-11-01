@@ -278,7 +278,7 @@ export default class DDBItem {
     this.data.system.identified = true;
 
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-    if (legacyName && this.is2014) {
+    if (this.isCompendiumItem && legacyName && this.is2014) {
       this.data.name += " (Legacy)";
     }
 

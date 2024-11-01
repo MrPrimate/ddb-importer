@@ -1,6 +1,7 @@
 # Next Up
 
 - Fix an issue with updating items with (Legacy) in the name.
+- Don't add (Legacy) to item names when items are imported on characters.
 
 # 6.0.25
 

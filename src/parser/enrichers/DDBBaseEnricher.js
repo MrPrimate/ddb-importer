@@ -559,6 +559,10 @@ export default class DDBBaseEnricher {
       };
     }
 
+    if (override.replaceActivityUses) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+    }
+
     if (override.noTemplate) {
       foundry.utils.setProperty(this.data.system, "target.template", {
         count: "",

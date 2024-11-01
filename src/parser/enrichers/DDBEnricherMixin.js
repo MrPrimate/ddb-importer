@@ -184,6 +184,7 @@ export default class DDBEnricherMixin {
    *   noTemplate: {boolean} If true, removes the document template.
    *   data: {object} Data to be merged with the document data.
    *   descriptionSuffix: {string} A suffix to be appended to the document description.
+   *   replaceActivityUses: {boolean} If true, replaces activity uses with matched parent in target
    */
   get override() {
     return null;
