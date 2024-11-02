@@ -2,12 +2,14 @@ import { effectModules, generateATLChange, generateCustomChange, generateOverrid
 import utils from "../../lib/utils.js";
 import DDBSpellActivity from "../spells/DDBSpellActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
+import AlterSelf from "./spell/AlterSelf.js";
 // Enrichers
 import ArcaneHand from "./spell/ArcaneHand.js";
 import EldritchBlast from "./spell/EldritchBlast.js";
 import GlyphOfWarding from "./spell/GlyphOfWarding.js";
 import HuntersMark from "./spell/HuntersMark.js";
 import Shillelagh from "./spell/Shillelagh.js";
+import SpiderClimb from "./spell/SpiderClimb.js";
 
 export default class DDDSpellEnricher extends DDBBaseEnricher {
   constructor() {
@@ -23,16 +25,18 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
   }
 
   ENRICHERS = {
+    "Alter Self": () => AlterSelf,
     "Arcane Hand": () => ArcaneHand,
     "Eldritch Blast": () => EldritchBlast,
+    "Glyph of Warding": () => GlyphOfWarding,
     "Hunter's Mark": () => HuntersMark,
     "Shillelagh": () => Shillelagh,
-    "Glyph of Warding": () => GlyphOfWarding,
+    "Spider Climb": () => SpiderClimb,
   };
 
+  NAME_HINTS_2014 = {};
+
   DND_2014 = {
-    NAME_HINTS: {
-    },
     ACTIVITY_HINTS: {
       "Animate Objects": {},
       "Counterspell": {
@@ -140,13 +144,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         "damage.parts": [
           DDBBaseEnricher.basicDamagePart({ number: 4, denomination: 4, type: "acid" }),
         ],
-      },
-    },
-    "Alter Self": {
-      type: "utility",
-      data: {
-        name: "Aquatic Adaptation",
-        img: "icons/creatures/fish/fish-bluefin-yellow-blue.webp",
       },
     },
     "Animate Objects": {
@@ -802,40 +799,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           onsave: false,
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 4, type: "acid" })],
           noeffect: true,
-        },
-      },
-    ],
-    "Alter Self": [
-      {
-        constructor: {
-          name: "Change Appearance",
-          type: "utility",
-        },
-        build: {
-          img: "icons/creatures/magical/spirit-undead-ghost-blue.webp",
-          generateDamage: false,
-          generateHealing: false,
-          generateRange: false,
-          generateConsumption: true,
-        },
-      },
-      {
-        constructor: {
-          name: "Natural Weapons",
-          type: "enchant",
-        },
-        build: {
-          img: "icons/creatures/abilities/fang-tooth-blood-red.webp",
-          generateDamage: false,
-          generateHealing: false,
-          generateRange: false,
-          generateConsumption: true,
-          data: {
-            restrictions: {
-              type: "weapon",
-              allowMagical: true,
-            },
-          },
         },
       },
     ],
@@ -2003,57 +1966,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         };
       }),
     },
-    "Alter Self": {
-      multiple: () => {
-        const effects = [];
-        const naturalWeaponEffect = {
-          name: "Natural Weapons",
-          type: "enchant",
-          changes: [
-            generateOverrideChange(`{} [Natural Weapons]`, 20, "name"),
-            generateUnsignedAddChange("mgc", 20, "system.properties"),
-            generateOverrideChange("1", 20, "system.damage.base.number"),
-            generateOverrideChange("6", 20, "system.damage.base.denomination"),
-            generateUnsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
-            generateUnsignedAddChange("piercing", 20, "system.damage.base.types"),
-            generateUnsignedAddChange("slashing", 20, "system.damage.base.types"),
-          ],
-          data: {
-            "flags.ddbimporter.activityMatch": "Natural Weapons",
-          },
-        };
-        if (this.is2014) {
-          naturalWeaponEffect.magicalBonus = {
-            makeMagical: false,
-            bonus: "1",
-          };
-        } else {
-          naturalWeaponEffect.changes.push(
-            generateOverrideChange("spellcasting", 20, "system.ability"));
-        }
-
-        effects.push(naturalWeaponEffect);
-        effects.push(
-          {
-            name: "Change Appearance",
-            data: {
-              "flags.ddbimporter.activityMatch": "Change Appearance",
-            },
-          },
-          {
-            name: "Aquatic Adaptation",
-            data: {
-              "flags.ddbimporter.activityMatch": "Aquatic Adaptation",
-            },
-            changes: [
-              generateUpgradeChange("@attributes.movement.walk", 5, "system.attributes.movement.swim"),
-            ],
-          },
-        );
-
-        return effects;
-      },
-    },
     "Animal Friendship": {
       statuses: "Charmed",
     },
@@ -2451,11 +2363,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       ],
       midiChanges: [
         generateCustomChange("/2", 20, "system.attributes.movement.all"),
-      ],
-    },
-    "Spider Climb": {
-      changes: [
-        generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.climb"),
       ],
     },
     "Suggestion": {

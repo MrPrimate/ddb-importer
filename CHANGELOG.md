@@ -3,6 +3,7 @@
 - Characters that had not made spell choices for feats, backgrounds, and species would fail to import.
 - Fix for import failure for some characters when using MidiQoL alpha.
 - More Sorcerer 2024 feature improvements.
+- Better support movement upgrade effects if DAE is not installed.
 
 # 6.0.26
 

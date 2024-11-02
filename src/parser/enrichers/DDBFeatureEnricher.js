@@ -53,7 +53,7 @@ import DefensiveTactics from "./feature/ranger/DefensiveTactics.js";
 import SuperiorHuntersPrey from "./feature/ranger/SuperiorHuntersPrey.js";
 import HuntersPrey from "./feature/ranger/HuntersPrey.js";
 import SuperiorHuntersDefense from "./feature/ranger/SuperiorHuntersDefense.js";
-import BreathWeapon2024 from "./trait/BreathWeapon2024.js";
+import BreathWeapon2024 from "./trait/dragonborn/BreathWeapon2024.js";
 import EnvenomWeapons from "./feature/rogue/EnvenomWeapons.js";
 import SneakAttackPoisonEnvenom from "./feature/rogue/SneakAttackPoisonEnvenom.js";
 import DeathStrike from "./feature/rogue/DeathStrike.js";
@@ -73,6 +73,19 @@ import BendLuck from "./feature/sorcerer/BendLuck.js";
 import Telekinetic from "./feat/Telekinetic.js";
 import RevelationInFlesh from "./feature/sorcerer/RevelationInFlesh.js";
 import WarpingImplosion from "./feature/sorcerer/WarpingImplosion.js";
+import AspectOfTheWilds from "./feature/barbarian/AspectOfTheWilds.js";
+import CelestialRevelationHeavenlyWings from "./trait/aasimar/CelestialRevelationHeavenlyWings.js";
+import CelestialRevelation from "./trait/aasimar/CelestialRevelation.js";
+import CelestialRevelationRadiantSoul from "./generic/CelestialRevelationRadiantSoul.js";
+import CelestialRevelationNecroticShroud from "./trait/aasimar/CelestialRevelationNecroticShroud.js";
+import CelestialRevelationInnerRadiance from "./trait/aasimar/CelestialRevelationInnerRadiance.js";
+import CelestialRevelationRadiantConsumption from "./trait/aasimar/CelestialRevelationRadiantConsumption.js";
+import Relentless from "./feature/fighter/Relentless.js";
+import SlowFall from "./feature/monk/SlowFall.js";
+import DarkOnesOwnLuck from "./feature/warlock/DarkOnesOwnLuck.js";
+import PowerOfTheWilds from "./feature/barbarian/PowerOfTheWilds.js";
+import Stormborn from "./feature/druid/Stormborn.js";
+import StrideOfTheElements from "./feature/monk/StrideOfTheElements.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -91,6 +104,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Abjure Foes": () => AbjureFoes,
     "Arcane Recovery": () => ArcaneRecovery,
     "Archdruid": () => Archdruid,
+    "Aspect of the Wilds": () => AspectOfTheWilds,
     "Avenging Angel": () => AvengingAngel,
     "Beguiling Twist": () => BeguilingTwist,
     "Bend Luck": () => BendLuck,
@@ -103,7 +117,14 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Breath Weapon (Fire)": () => BreathWeapon2024,
     "Breath Weapon (Lightning)": () => BreathWeapon2024,
     "Breath Weapon (Poison)": () => BreathWeapon2024,
+    "Celestial Revelation (Heavenly Wings)": () => CelestialRevelationHeavenlyWings,
+    "Celestial Revelation (Inner Radiance)": () => CelestialRevelationInnerRadiance,
+    "Celestial Revelation (Necrotic Shroud)": () => CelestialRevelationNecroticShroud,
+    "Celestial Revelation (Radiant Consumption)": () => CelestialRevelationRadiantConsumption,
+    "Celestial Revelation (Radiant Soul)": () => CelestialRevelationRadiantSoul,
+    "Celestial Revelation": () => CelestialRevelation,
     "Channel Divinity": () => ChannelDivinity,
+    "Dark One's Own Luck": () => DarkOnesOwnLuck,
     "Death Strike": () => DeathStrike,
     "Defensive Tactics": () => DefensiveTactics,
     "Divine Intervention": () => DivineIntervention,
@@ -132,14 +153,18 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Nature Magician": () => NatureMagician,
     "Patient Defense": () => PatientDefense,
     "Peerless Athlete": () => PeerlessAthlete,
+    "Power of the Wilds": () => PowerOfTheWilds,
     "Primal Companion: Restore Beast": () => PrimalCompanionRestoreBeast,
     "Primal Companion: Summon": () => PrimalCompanionSummon,
     "Primal Companion": () => PrimalCompanion,
     "Radiant Strikes": () => RadiantStrikes,
     "Relentless Avenger": () => RelentlessAvenger,
+    "Relentless": () => Relentless,
+    "Revelation in Flesh": () => RevelationInFlesh,
     "Sacred Weapon": () => SacredWeapon,
     "Shadowy Dodge": () => ShadowyDodge,
     "Slasher": () => Slasher,
+    "Slow Fall": () => SlowFall,
     "Sneak Attack: Poison (Envenom)": () => SneakAttackPoisonEnvenom,
     "Sneak Attack: Supreme Sneak (Cost: 1d6)": () => SneakAttackSupremeSneak,
     "Sorcerous Restoration": () => SorcerousRestoration,
@@ -147,6 +172,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Sorcery Points": () => SorceryPoints,
     "Soul of Vengeance": () => SoulOfVengeance,
     "Stalker's Flurry": () => StalkersFlurry,
+    "Stormborn": () => Stormborn,
+    "Stride of the Elements": () => StrideOfTheElements,
     "Superior Hunter's Defense": () => SuperiorHuntersDefense,
     "Superior Hunter's Prey": () => SuperiorHuntersPrey,
     "Supreme Sneak": () => SupremeSneak,
@@ -158,31 +185,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Use Magic Device: Scroll": () => UseMagicDeviceScroll,
     "Use Magic Device": () => UseMagicDevice,
     "Vow of Enmity": () => VowOfEnmity,
-    "Wild Magic Surge": () => WildMagicSurge,
-    "Revelation in Flesh": () => RevelationInFlesh,
     "Warping Implosion": () => WarpingImplosion,
+    "Wild Magic Surge": () => WildMagicSurge,
   };
 
-  DND_2014 = {
-    NAME_HINTS: {
-      "Channel Divinity: Sacred Weapon": "Sacred Weapon",
-      "Lay on Hands Pool": "Lay On Hands: Healing Pool",
-    },
-    ACTIVITY_HINTS: {
-      // "Celestial Revelation": {},
-      "Relentless": {},
-      "Slow Fall": {},
-    },
-    ADDITIONAL_ACTIVITIES: {},
-    DOCUMENT_OVERRIDES: {
-      "Dark One's Own Luck": {},
-    },
-    EFFECT_HINTS: {},
-    DOCUMENT_STUB: {
-      // "Celestial Revelation": {
-      //   stopDefaultActivity: true,
-      // },
-    },
+  NAME_HINTS_2014 = {
+    "Channel Divinity: Sacred Weapon": "Sacred Weapon",
+    "Lay on Hands Pool": "Lay On Hands: Healing Pool",
   };
 
   NAME_HINTS = {
@@ -226,12 +235,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           onSave: "none",
         },
       },
-    },
-    "Aspect of the Wilds": {
-      type: "utility",
-      targetType: "self",
-      name: "Owl",
-      activationType: "special",
     },
     "Bardic Inspiration": {
       targetType: "creature",
@@ -325,61 +328,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
         },
       },
-    },
-    "Celestial Revelation": {
-      type: this.is2014 ? "utility" : "damage",
-      noTemplate: true,
-      data: {
-        damage: {
-          parts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", types: ["radiant", "necrotic"] }),
-          ],
-        },
-      },
-    },
-    "Celestial Revelation (Heavenly Wings)": {
-      type: "utility",
-      activationType: "special",
-    },
-    "Celestial Revelation (Inner Radiance)": {
-      type: "damage",
-      activationType: "special",
-      data: {
-        damage: {
-          parts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "radiant" }),
-          ],
-        },
-      },
-    },
-    "Celestial Revelation (Radiant Consumption)": {
-      type: "damage",
-      activationType: "special",
-      data: {
-        damage: {
-          parts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "radiant" }),
-          ],
-        },
-      },
-    },
-    "Celestial Revelation (Radiant Soul)": () => {
-      return {
-        type: "damage",
-        activationType: "special",
-        data: {
-          damage: {
-            parts: [
-              DDBBaseEnricher.basicDamagePart({ customFormula: foundry.utils.getProperty(this.data, "flags.ddbimporter.type") === "class" ? "@abilities.cha.mod" : "@prof", type: "radiant" }),
-            ],
-          },
-        },
-      };
-    },
-    "Celestial Revelation (Necrotic Shroud)": {
-      type: "save",
-      activationType: "special",
-      targetType: "enemy",
     },
     "Channel Divinity: Preserve Life": {
       type: "heal",
@@ -517,17 +465,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         "activation.condition": "Reduce a hostile creature to 0 HP",
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@abilities.cha.mod + @classes.warlock.levels", types: ["temphp"] }),
-      },
-    },
-    "Dark One's Own Luck": {
-      targetType: "self",
-      data: {
-        roll: {
-          prompt: false,
-          visible: false,
-          formula: "1d10",
-          name: "Roll for your luck",
-        },
       },
     },
     "Dazzling Footwork": {
@@ -1472,12 +1409,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Power of the Wilds": {
-      type: "utility",
-      targetType: "self",
-      name: "Falcon",
-      activationType: "special",
-    },
     "Psionic Power": () => {
       const formula = `1(@scale.${DDBHelper.classIdentifierName(this.ddbParser.subKlass)}.energy-die.die)`;
       const result = {
@@ -1715,18 +1646,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         name: "Regain via Spell Slot",
       },
     },
-    "Relentless": {
-      type: "utility",
-      activationType: "special",
-      data: {
-        roll: {
-          prompt: false,
-          visible: false,
-          formula: "1d8",
-          name: "Maneuver Roll",
-        },
-      },
-    },
     "Relentless Rage": {
       type: "save",
       activationType: "special",
@@ -1819,14 +1738,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       targetType: "self",
       data: {
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
-      },
-    },
-    "Slow Fall": {
-      type: "heal",
-      activationType: "reaction",
-      targetType: "self",
-      data: {
-        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@classes.sorcerer.levels", types: ["healing"] }),
       },
     },
     "Sneak Attack": {
@@ -2268,44 +2179,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
   };
 
   ADDITIONAL_ACTIVITIES = {
-    "Aspect of the Wilds": [
-      {
-        constructor: {
-          name: "Panther",
-          type: "utility",
-        },
-        build: {
-          generateTarget: true,
-          generateActivation: true,
-          activationOverride: {
-            type: "special",
-          },
-          targetOverride: {
-            affects: {
-              type: "self",
-            },
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Salmon",
-          type: "utility",
-        },
-        build: {
-          generateTarget: true,
-          generateActivation: true,
-          activationOverride: {
-            type: "special",
-          },
-          targetOverride: {
-            affects: {
-              type: "self",
-            },
-          },
-        },
-      },
-    ],
     "Beguiling Magic": [
       {
         constructor: {
@@ -3203,44 +3076,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
 
       return results;
     },
-    "Power of the Wilds": [
-      {
-        constructor: {
-          name: "Lion",
-          type: "utility",
-        },
-        build: {
-          generateTarget: true,
-          generateActivation: true,
-          activationOverride: {
-            type: "special",
-          },
-          targetOverride: {
-            affects: {
-              type: "creature",
-            },
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Ram",
-          type: "utility",
-        },
-        build: {
-          generateTarget: true,
-          generateActivation: true,
-          activationOverride: {
-            type: "special",
-          },
-          targetOverride: {
-            affects: {
-              type: "creature",
-            },
-          },
-        },
-      },
-    ],
     "Psionic Power": () => {
       const results = [];
       if (this.ddbParser.subKlass === "Soulknife") {
@@ -3926,9 +3761,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Celestial Revelation (Inner Radiance)": {
-      descriptionSuffix: `<br><p>[[/ddbifunc functionName="innerRadiance" functionType="feat"]]{Toggle Inner Radiance Light}</div></p>`,
-    },
     "Chef": {
       data: {
         "flags.ddbimporter": {
@@ -3957,11 +3789,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           "system.uses": uses,
         },
       };
-    },
-    "Dark One's Own Luck": {
-      data: {
-        "system.uses.max": "@abilities.cha.mod",
-      },
     },
     "Deflect Attacks": {
       data: {
@@ -4510,52 +4337,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       };
     },
-    "Aspect of the Wilds": {
-      multiple: [
-        {
-          name: "Owl",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Owl",
-          },
-          changes: [
-            {
-              key: "system.attributes.senses.darkvision",
-              value: "60",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 20,
-            },
-          ],
-          atlChanges: [
-            generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.ADD, 60, 5),
-            generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
-          ],
-        },
-        {
-          name: "Panther",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Panther",
-          },
-          changes: [
-            generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.climb"),
-          ],
-        },
-        {
-          name: "Salmon",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Salmon",
-          },
-          changes: [
-            generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.swim"),
-          ],
-        },
-      ],
-    },
     "Bardic Inspiration": {
       options: {
         durationSeconds: 600,
@@ -4618,16 +4399,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       return {
         multiple: [shadow, merge],
       };
-    },
-    "Celestial Revelation": {
-    },
-    "Celestial Revelation (Heavenly Wings)": {
-      options: {
-        durationSeconds: 60,
-      },
-      changes: [
-        generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-      ],
     },
     "Circle Forms": {
       name: "Circle Form AC",
@@ -5139,46 +4910,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateOverrideChange("true", 20, "flags.dnd5e.powerfulBuild"),
       ],
     },
-    "Power of the Wilds": {
-      multiple: [
-        {
-          name: "Falcoln",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Falcoln",
-          },
-          changes: [
-            generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-          ],
-        },
-        {
-          name: "Lion",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Lion",
-          },
-        },
-        {
-          name: "Ram",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Ram",
-          },
-        },
-        {
-          name: "Prone",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Ram",
-          },
-          statuses: ["Prone"],
-        },
-      ],
-    },
     "Psionic Power: Telekinetic Thrust": {
       name: "Telekinetic Thrust: Prone",
       statuses: ["Prone"],
@@ -5393,20 +5124,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
       changes: [
         generateUnsignedAddChange("60", 20, "system.attributes.senses.tremorsense"),
-      ],
-    },
-    "Stormborn": {
-      changes: [
-        generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-        generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
-        generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
-        generateUnsignedAddChange("thunder", 20, "system.traits.dr.value"),
-      ],
-    },
-    "Stride of the Elements": {
-      changes: [
-        generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-        generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.swim"),
       ],
     },
     "Superior Critical": {

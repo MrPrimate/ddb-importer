@@ -121,6 +121,7 @@ export default class Example extends DDBEnricherMixin {
       descriptionSuffix: "", // append to item description
       // outside enricher flags
       clearAutoEffects: true, // clear auto effects
+      midiOnly: true, // only generate this effect if midi qol is installed
     };
   }
 

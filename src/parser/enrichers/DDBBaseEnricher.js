@@ -49,13 +49,14 @@ export default class DDBBaseEnricher {
   }
 
   DND_2014 = {
-    NAME_HINTS: {},
     ACTIVITY_HINTS: {},
     ADDITIONAL_ACTIVITIES: {},
     DOCUMENT_OVERRIDES: {},
     EFFECT_HINTS: {},
     DOCUMENT_STUB: {},
   };
+
+  NAME_HINTS_2014 = {};
 
   NAME_HINTS = {};
 
@@ -113,7 +114,7 @@ export default class DDBBaseEnricher {
 
   _prepare() {
     if (this.isCustomAction) return;
-    this.hintName = (this.is2014 ? this.DND_2014.NAME_HINTS[this.name] : null)
+    this.hintName = (this.is2014 ? this.NAME_HINTS_2014[this.name] : null)
       ?? this.NAME_HINTS[this.name]
       ?? this.name;
 
@@ -430,6 +431,7 @@ export default class DDBBaseEnricher {
         ? effectHintFunction()
         : effectHintFunction;
       if (!effectHint) continue;
+      if (effectHint.midiOnly && !effectModules().midiQolInstalled) continue;
       let name = effectHint.name ?? this.name;
       let effectOptions = effectHint.options ?? {};
 

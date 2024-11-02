@@ -83,6 +83,12 @@ export default class DDBEnricherMixin {
 
   static allDamageTypes = DDBBaseEnricher.allDamageTypes;
 
+  get movementChange() {
+    return game.modules.get("dae")?.active
+      ? DDBEnricherMixin.generateUpgradeChange
+      : DDBEnricherMixin.generateCustomChange;
+  }
+
   constructor({ ddbEnricher }) {
     this.ddbEnricher = ddbEnricher;
     this.ddbParser = ddbEnricher.ddbParser;
@@ -174,6 +180,7 @@ export default class DDBEnricherMixin {
    *   descriptionHint: {string} Adds enchantment description hint
    *   descriptionSuffix: {string} Append to item description
    *   clearAutoEffects: {boolean} Clear auto effects
+   *   midiOnly: {boolean} only generate this effect if midi qol is installed
    */
   get effect() {
     return null;

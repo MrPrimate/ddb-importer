@@ -16,7 +16,7 @@ export default class DDDMonsterFeatureEnricher extends DDBBaseEnricher {
   }
 
   _prepare() {
-    this.hintName = (this.is2014 ? this.DND_2014.NAME_HINTS[this.monsterName]?.[this.name] : null)
+    this.hintName = (this.is2014 ? this.NAME_HINTS_2014[this.monsterName]?.[this.name] : null)
       ?? this.NAME_HINTS[this.monsterName]?.[this.name]
       ?? this.name;
 
@@ -40,6 +40,8 @@ export default class DDDMonsterFeatureEnricher extends DDBBaseEnricher {
   DND_2014 = {
     NAME_HINTS: {},
   };
+
+  NAME_HINTS_2014 = {};
 
   NAME_HINTS = {};
 
