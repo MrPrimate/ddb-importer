@@ -1,3 +1,7 @@
+# Next Up
+
+- Characters that had not made spell choices for feats, backgrounds, and species would fail to import.
+
 # 6.0.26
 
 - Fix an issue with updating items with (Legacy) in the name.

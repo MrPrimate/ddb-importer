@@ -438,7 +438,10 @@ export default class CharacterSpellFactory {
         },
       };
 
-      if (this.ddb.character.spells.race.filter((sp) => sp.definition.name === spell.definition.name).length === 1) {
+      if (this.ddb.character.spells.race.filter((sp) =>
+        sp.definition
+        && sp.definition.name === spell.definition.name).length === 1
+      ) {
         this.handleGrantedSpells(spell, "race");
       }
       if (!this.canCast(spell)) continue;
@@ -494,7 +497,10 @@ export default class CharacterSpellFactory {
         },
       };
 
-      if (this.ddb.character.spells.feat.filter((sp) => sp.definition.name === spell.definition.name).length === 1) {
+      if (this.ddb.character.spells.feat.filter((sp) =>
+        sp.definition
+        && sp.definition.name === spell.definition.name).length === 1
+      ) {
         this.handleGrantedSpells(spell, "feat");
       }
       if (!this.canCast(spell)) continue;
@@ -539,7 +545,9 @@ export default class CharacterSpellFactory {
         },
       };
 
-      if (this.ddb.character.spells.background.filter((sp) => sp.definition.name === spell.definition.name).length === 1) {
+      if (this.ddb.character.spells.background.filter((sp) => sp.definition
+        && sp.definition.name === spell.definition.name).length === 1
+      ) {
         this.handleGrantedSpells(spell, "background");
       }
       if (!this.canCast(spell)) continue;
