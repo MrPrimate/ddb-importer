@@ -1,3 +1,5 @@
+# NEXT UP
+
 # 6.0.27
 
 - Characters that had not made spell choices for feats, backgrounds, and species would fail to import.
