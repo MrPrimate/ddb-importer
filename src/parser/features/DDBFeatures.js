@@ -105,6 +105,10 @@ export default class DDBFeatures {
     "Innate Sorcery",
   ];
 
+  static FORCE_DUPLICATE_OVERWRITE = [
+    "Trance of Order",
+  ];
+
   static isDuplicateFeature(items, item) {
     return items.some((dup) => dup.name === item.name && dup.system.description.value === item.system.description.value);
   }
@@ -232,8 +236,12 @@ export default class DDBFeatures {
       const duplicateFeature = DDBFeatures.isDuplicateFeature(this.parsed, item)
         || DDBFeatures.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
       if (existingFeature && !duplicateFeature) {
-        const klassAdjustment = `<h3>${item.flags.ddbimporter.dndbeyond.class}</h3>${item.system.description.value}`;
-        existingFeature.system.description.value += klassAdjustment;
+        if (DDBFeatures.FORCE_DUPLICATE_OVERWRITE.includes(item.flags.ddbimporter.originalName ?? item.name)) {
+          existingFeature.system.description.value = `${item.system.description.value}`;
+        } else {
+          const klassAdjustment = `<h3>${item.flags.ddbimporter.dndbeyond.class}</h3>${item.system.description.value}`;
+          existingFeature.system.description.value += klassAdjustment;
+        }
       } else if (!existingFeature) {
         this.parsed.push(item);
       }

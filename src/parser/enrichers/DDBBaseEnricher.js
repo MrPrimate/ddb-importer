@@ -659,7 +659,6 @@ export default class DDBBaseEnricher {
       } else if (actionActivity) {
         logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
         const result = this._buildActivitiesFromAction(actionActivity, i);
-        console.warn(result);
         activityData.activities = result.activities;
         activityData.effects = result.effects;
       } else {

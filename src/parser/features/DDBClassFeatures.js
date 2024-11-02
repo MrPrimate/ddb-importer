@@ -208,8 +208,12 @@ export default class DDBClassFeatures {
         const duplicateFeature = DDBFeatures.isDuplicateFeature(subClassItems, item)
           || DDBFeatures.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
         if (existingFeature && !duplicateFeature) {
-          const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
-          existingFeature.system.description.value += levelAdjustment;
+          if (DDBFeatures.FORCE_DUPLICATE_OVERWRITE.includes(item.flags.ddbimporter.originalName ?? item.name)) {
+            existingFeature.system.description.value = `${item.system.description.value}`;
+          } else {
+            const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
+            existingFeature.system.description.value += levelAdjustment;
+          }
         } else if (!existingFeature) {
           subClassItems.push(item);
         }
@@ -224,8 +228,12 @@ export default class DDBClassFeatures {
       const duplicateFeature = DDBFeatures.isDuplicateFeature(this.data, item)
         || DDBFeatures.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
       if (existingFeature && !duplicateFeature) {
-        const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
-        existingFeature.system.description.value += levelAdjustment;
+        if (DDBFeatures.FORCE_DUPLICATE_OVERWRITE.includes(item.flags.ddbimporter.originalName ?? item.name)) {
+          existingFeature.system.description.value = `${item.system.description.value}`;
+        } else {
+          const levelAdjustment = `<h3>${subClassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
+          existingFeature.system.description.value += levelAdjustment;
+        }
       } else if (!existingFeature) {
         this.data.push(item);
       }
