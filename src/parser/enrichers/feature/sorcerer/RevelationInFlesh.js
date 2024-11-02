@@ -46,7 +46,8 @@ export default class RevelationInFlesh extends DDBEnricherMixin {
             durationSeconds: 600,
           },
           changes: [
-            DDBEnricherMixin.generateUpgradeChange("2 * @attributes.movement.walk", 20, "system.attributes.movement.fly"),
+            DDBEnricherMixin.generateUpgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+            DDBEnricherMixin.generateCustomChange("true", 20, "system.attributes.movement.hover"),
           ],
         },
         {

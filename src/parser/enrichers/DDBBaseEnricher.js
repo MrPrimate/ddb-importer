@@ -360,7 +360,7 @@ export default class DDBBaseEnricher {
       foundry.utils.setProperty(activity, "activation.override", true);
 
     if (overrideData.midiManualReaction && effectModules().midiQolInstalled)
-      foundry.utils.setProperty(activity, "activation.type", "reactionmanual");
+      foundry.utils.setProperty(this.data, "flags.midi-qol.reactionCondition", "false");
 
     if (foundry.utils.hasProperty(overrideData, "flatAttack")) {
       foundry.utils.setProperty(activity, "attack.bonus", overrideData.flatAttack);

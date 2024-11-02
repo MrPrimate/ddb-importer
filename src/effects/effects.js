@@ -414,7 +414,7 @@ export function forceItemEffect(document) {
 }
 
 export function forceManualReaction(document) {
-  foundry.utils.setProperty(document, "system.activation.type", "reactionmanual");
+  foundry.utils.setProperty(document, "flags.midi-qol.reactionCondition", "false");
   return document;
 }
 
