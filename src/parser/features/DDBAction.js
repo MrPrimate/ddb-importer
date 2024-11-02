@@ -135,6 +135,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Font of Magic: Convert Spell Slots",
     "Telekinetic Shove",
     "Revelation in Flesh: Transform",
+    "Trance of Order: Align Consciousness",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

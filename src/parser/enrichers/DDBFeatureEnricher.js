@@ -86,6 +86,9 @@ import DarkOnesOwnLuck from "./feature/warlock/DarkOnesOwnLuck.js";
 import PowerOfTheWilds from "./feature/barbarian/PowerOfTheWilds.js";
 import Stormborn from "./feature/druid/Stormborn.js";
 import StrideOfTheElements from "./feature/monk/StrideOfTheElements.js";
+import TranceOfOrder from "./feature/sorcerer/TranceOfOrder.js";
+import BastionOfLaw from "./feature/sorcerer/BastionOfLaw.js";
+import ClockworkCavalcade from "./feature/sorcerer/ClockworkCavalcade.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -187,6 +190,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Vow of Enmity": () => VowOfEnmity,
     "Warping Implosion": () => WarpingImplosion,
     "Wild Magic Surge": () => WildMagicSurge,
+    "Trance of Order": () => TranceOfOrder,
+    "Bastion of Law": () => BastionOfLaw,
+    "Clockwork Cavalcade": () => ClockworkCavalcade,
   };
 
   NAME_HINTS_2014 = {
