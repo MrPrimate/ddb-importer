@@ -92,6 +92,8 @@ import ClockworkCavalcade from "./feature/sorcerer/ClockworkCavalcade.js";
 import Rage from "./feature/barbarian/Rage.js";
 import ElementalAffinity from "./feature/sorcerer/ElementalAffinity.js";
 import DragonWings from "./feature/sorcerer/DragonWIngs.js";
+import HealingLight from "./feature/warlock/HealingLight.js";
+import SearingVengeance from "./feature/warlock/SearingVengeance.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -112,6 +114,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Archdruid": () => Archdruid,
     "Aspect of the Wilds": () => AspectOfTheWilds,
     "Avenging Angel": () => AvengingAngel,
+    "Bastion of Law": () => BastionOfLaw,
     "Beguiling Twist": () => BeguilingTwist,
     "Bend Luck": () => BendLuck,
     "Bolstering Performance": () => BolsteringPerformance,
@@ -130,10 +133,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Celestial Revelation (Radiant Soul)": () => CelestialRevelationRadiantSoul,
     "Celestial Revelation": () => CelestialRevelation,
     "Channel Divinity": () => ChannelDivinity,
+    "Clockwork Cavalcade": () => ClockworkCavalcade,
     "Dark One's Own Luck": () => DarkOnesOwnLuck,
     "Death Strike": () => DeathStrike,
     "Defensive Tactics": () => DefensiveTactics,
     "Divine Intervention": () => DivineIntervention,
+    "Dragon Wings": () => DragonWings,
     "Dread Ambusher": () => DreadAmbusher,
     "Dreadful Strike: Mass Fear": () => DreadfulStrikeMassFear,
     "Dreadful Strike: Sudden Strike": () => DreadfulStrikeSuddenStrike,
@@ -141,6 +146,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Dreadful Strikes": () => DreadfulStrikes,
     "Elder Champion": () => ElderChampion,
     "Eldritch Invocations: Ghostly Gaze": () => GhostlyGaze,
+    "Elemental Affinity": () => ElementalAffinity,
     "Embody Legends": () => EmbodyLegends,
     "Energy Redirection": () => EnergyRedirection,
     "Envenom Weapons": () => EnvenomWeapons,
@@ -148,6 +154,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Font of Magic": () => FontOfMagic,
     "Glorious Defense": () => GloriousDefense,
     "Healer": () => Healer,
+    "Healing Light": () => HealingLight,
     "Holy Nimbus": () => HolyNimbus,
     "Hunter's Prey": () => HuntersPrey,
     "Inspiring Leader": () => InspiringLeader,
@@ -164,10 +171,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Primal Companion: Summon": () => PrimalCompanionSummon,
     "Primal Companion": () => PrimalCompanion,
     "Radiant Strikes": () => RadiantStrikes,
+    "Rage": () => Rage,
     "Relentless Avenger": () => RelentlessAvenger,
     "Relentless": () => Relentless,
     "Revelation in Flesh": () => RevelationInFlesh,
     "Sacred Weapon": () => SacredWeapon,
+    "Searing Vengeance": () => SearingVengeance,
     "Shadowy Dodge": () => ShadowyDodge,
     "Slasher": () => Slasher,
     "Slow Fall": () => SlowFall,
@@ -186,6 +195,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Telekinetic": () => Telekinetic,
     "Temporary Hit Points": () => TemporaryHitPoints,
     "Tireless": () => Tireless,
+    "Trance of Order": () => TranceOfOrder,
     "Undying Sentinel": () => UndyingSentinel,
     "Use Magic Device: Charges": () => UseMagicDeviceCharges,
     "Use Magic Device: Scroll": () => UseMagicDeviceScroll,
@@ -193,12 +203,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Vow of Enmity": () => VowOfEnmity,
     "Warping Implosion": () => WarpingImplosion,
     "Wild Magic Surge": () => WildMagicSurge,
-    "Trance of Order": () => TranceOfOrder,
-    "Bastion of Law": () => BastionOfLaw,
-    "Clockwork Cavalcade": () => ClockworkCavalcade,
-    "Rage": () => Rage,
-    "Elemental Affinity": () => ElementalAffinity,
-    "Dragon Wings": () => DragonWings,
   };
 
   NAME_HINTS_2014 = {
@@ -929,18 +933,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         // "range.units": "touch",
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "(@prof)d4", types: ["healing"] }),
-      },
-    },
-    "Healing Light": {
-      type: "heal",
-      addItemConsume: true,
-      addScalingMode: "amount",
-      data: {
-        "consumption.scaling": {
-          allowed: true,
-          max: "@item.uses.max - @item.uses.spent",
-        },
-        healing: DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, bonus: "3", types: ["healing"], scalingMode: "whole", scalingNumber: "1" }),
       },
     },
     "Heightened Focus": {
@@ -3892,11 +3884,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Harness Divine Power": {
       data: {
         "flags.ddbimporter.retainOriginalConsumption": true,
-      },
-    },
-    "Healing Light": {
-      data: {
-        "system.uses.max": "1 + @classes.warlock.levels",
       },
     },
     "Hypnotic Gaze": {

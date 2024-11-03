@@ -136,6 +136,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Telekinetic Shove",
     "Revelation in Flesh: Transform",
     "Trance of Order: Align Consciousness",
+    "Healing Light: Expend Healing",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
