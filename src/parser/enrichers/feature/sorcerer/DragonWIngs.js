@@ -1,29 +1,27 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherMixin from "../../DDBEnricherMixin.js";
 
-export default class AvengingAngel extends DDBEnricherMixin {
+export default class DragonWings extends DDBEnricherMixin {
+
+  get type() {
+    return "utility";
+  }
 
   get activity() {
-    if (this.ddbParser.isAction) {
-      return null;
-    }
     return {
-      name: "Activate",
-      type: "utility",
+      name: "Use",
+      noConsumeTargets: true,
+      // default scrape picks up the 5 sorcery point recharge effect
       addItemConsume: true,
-      activationType: "bonus",
+      targetType: "self",
     };
   }
 
   get additionalActivities() {
-    if (this.ddbParser.isAction) {
-      return [];
-    }
     return [
-      { action: { name: "Avenging Angel", type: "class" } },
       {
         constructor: {
-          name: "Spend Spell Slot to Restore Use",
+          name: "Spend Sorcery Points to Restore Use",
           type: "utility",
         },
         build: {
@@ -45,9 +43,9 @@ export default class AvengingAngel extends DDBEnricherMixin {
                 scaling: { mode: "", formula: "" },
               },
               {
-                type: "spellSlots",
-                value: "1",
-                target: "5",
+                type: "itemUses",
+                value: "3",
+                target: "Font of Magic: Sorcery Points",
                 scaling: { allowed: false, max: "" },
               },
             ],
@@ -57,32 +55,21 @@ export default class AvengingAngel extends DDBEnricherMixin {
     ];
   }
 
-  get effect() {
-    if (this.ddbParser.isAction) {
-      return null;
-    }
+  get override() {
     return {
-      clearAutoEffects: true,
-      name: "Avenging Angel (Wings)",
-      options: {
-        durationSeconds: 600,
-      },
-      data: {
-        "flags.ddbimporter.activitiesMatch": ["Activate"],
-      },
-      changes: [
-        DDBEnricherMixin.generateUpgradeChange("60", 2, "system.attributes.speed.fly"),
-      ],
+      replaceActivityUses: true,
     };
   }
 
-  get override() {
-    const uses = this._getUsesWithSpent({ type: "class", name: "Avenging Angel", max: "1", period: "lr" });
+  get effect() {
     return {
-      data: {
-        name: "Avenging Angel",
-        "system.uses": uses,
+      name: "Dragon Wings",
+      options: {
+        durationSeconds: 600,
       },
+      changes: [
+        DDBEnricherMixin.generateUpgradeChange("60", 2, "system.attributes.movement.fly"),
+      ],
     };
   }
 

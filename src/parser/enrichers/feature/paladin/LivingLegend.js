@@ -31,9 +31,6 @@ export default class LivingLegend extends DDBEnricherMixin {
   get effect() {
     return {
       name: "Living Legend",
-      options: {
-        transfer: false,
-      },
       data: {
         "flags.ddbimporter.activitiesMatch": ["Activate Living Legend"],
       },

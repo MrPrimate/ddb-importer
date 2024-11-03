@@ -170,6 +170,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Slasher:",
     "Fast Hands:",
     "Use Magic Device:",
+    "Elemental Affinity:",
   ];
 
   static SKIPPED_2014_ONLY_ACTIONS = [

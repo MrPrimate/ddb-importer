@@ -90,6 +90,8 @@ import TranceOfOrder from "./feature/sorcerer/TranceOfOrder.js";
 import BastionOfLaw from "./feature/sorcerer/BastionOfLaw.js";
 import ClockworkCavalcade from "./feature/sorcerer/ClockworkCavalcade.js";
 import Rage from "./feature/barbarian/Rage.js";
+import ElementalAffinity from "./feature/sorcerer/ElementalAffinity.js";
+import DragonWings from "./feature/sorcerer/DragonWIngs.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -195,6 +197,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Bastion of Law": () => BastionOfLaw,
     "Clockwork Cavalcade": () => ClockworkCavalcade,
     "Rage": () => Rage,
+    "Elemental Affinity": () => ElementalAffinity,
+    "Dragon Wings": () => DragonWings,
   };
 
   NAME_HINTS_2014 = {
@@ -4705,9 +4709,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Improved Circle Forms": {
       noCreate: true,
-      data: {
-        transfer: false,
-      },
     },
     "Improved Critical": {
       options: {
@@ -5099,7 +5100,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Superior Defense": {
       clearAutoEffects: true,
       options: {
-        transfer: false,
         durationSeconds: 60,
       },
       changes: [

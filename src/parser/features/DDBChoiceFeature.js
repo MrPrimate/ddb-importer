@@ -72,6 +72,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Boon of Energy Resistance",
     "Musician",
     "Metamagic Options",
+    "Elemental Affinity",
   ];
 
   static NO_CHOICE_SECRET = [
@@ -124,6 +125,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Breath Weapon (Poison)",
     "Breath Weapon (Cold)",
     "Breath Weapon (Lightning)",
+    "Elemental Affinity",
   ];
 
   _prepare() {
