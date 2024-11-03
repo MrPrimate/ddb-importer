@@ -249,6 +249,7 @@ export default class DDBCharacter {
           && action.effects.length === 0
         ) {
           for (const key of Object.keys(action.system.activities)) {
+            if (foundry.utils.getProperty(action.system.activities[key], "flags.ddbimporter.noeffect")) continue;
             const effects = [];
             for (const effect of featureMatch.effects) {
               // eslint-disable-next-line max-depth

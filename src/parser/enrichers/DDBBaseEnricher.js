@@ -369,11 +369,7 @@ export default class DDBBaseEnricher {
     }
 
     if (overrideData.damageParts) {
-      const parts = [];
-      for (const part of overrideData.damageParts) {
-        parts.push(activity.damage.parts[part]);
-      }
-      activity.damage.parts = parts;
+      activity.damage.parts = activity.damage.parts.concat(overrideData.damageParts);
     }
 
     if (overrideData.data) {
@@ -391,6 +387,13 @@ export default class DDBBaseEnricher {
 
     if (overrideData.type === "summon" && this.manager) {
       this.manager.addProfilesToActivity(activity, overrideData.profileKeys, overrideData.summons);
+    }
+
+    if (overrideData.noeffect) {
+      const ids = foundry.utils.getProperty(this.data, "flags.ddbimporter.noeffect") ?? [];
+      ids.push(this.data._id);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.noEffectIds", ids);
+      foundry.utils.setProperty(activity, "flags.ddbimporter.noeffect", true);
     }
 
     return activity;

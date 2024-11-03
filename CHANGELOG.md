@@ -1,7 +1,7 @@
 # NEXT UP
 
 - Barbarian Rages fix for 2014 Barbarian.
-
+- Clockwork and Draconic Sorcerer 2024 parsing.
 
 # 6.0.27
 

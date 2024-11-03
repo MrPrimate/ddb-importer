@@ -5,9 +5,9 @@ export default class GnomengardeGrenade extends DDBEnricherMixin {
 
   get activity() {
     return {
+      noeffect: true,
       data: {
         name: "Fire Damage",
-        "flags.ddbimporter.noeffect": true,
         damage: {
           onSave: "half",
           parts: [DDBEnricherMixin.basicDamagePart({ number: 8, denomination: 6, type: "fire" })],

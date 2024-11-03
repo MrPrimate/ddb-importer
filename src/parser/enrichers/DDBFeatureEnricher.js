@@ -1264,9 +1264,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Maneuver: Tactical Assessment": {
       type: "check",
+      noeffect: true,
       data: {
         name: "Roll Check (Apply Effect First)",
-        "flags.ddbimporter.noeffect": true,
         check: {
           associated: ["his", "inv", "ins"],
           ability: "",
@@ -1401,8 +1401,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       name: "Brew Poisons",
       addItemConsume: true,
       itemConsumeValue: "-@prof",
+      noeffect: true,
       data: {
-        "flags.ddbimporter.noeffect": true,
         img: "systems/dnd5e/icons/svg/items/consumable.svg",
         duration: {
           value: "1",
@@ -2099,9 +2099,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "utility",
       activationType: "bonus",
       targetType: "self",
-      data: {
-        "flags.ddbimporter.noeffect": true,
-      },
+      noeffect: true,
     },
     "War Caster": {
       type: "utility",

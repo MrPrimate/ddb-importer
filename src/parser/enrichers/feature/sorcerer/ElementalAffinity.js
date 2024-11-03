@@ -21,12 +21,13 @@ export default class ElementalAffinity extends DDBEnricherMixin {
   get activity() {
     return {
       name: "Damage bonus",
+      type: "damage",
       noeffect: true,
       activationType: "special",
       activationCondition: "1/turn. Damage someone with a spell of the same damage type",
       damageParts: [
         DDBEnricherMixin.basicDamagePart({
-          customFormula: "@abilites.cha.mod",
+          bonus: "@abilities.cha.mod",
           types: this.damageTypes(),
         }),
       ],
@@ -35,20 +36,16 @@ export default class ElementalAffinity extends DDBEnricherMixin {
 
   get effect() {
     const activeType = this.ddbParser?._chosen.find((a) =>
-      utils.nameString(a.label).startsWith("Elemental Affinity"),
-    )?.label ?? "";
+      utils.nameString(a.label).endsWith("Damage"),
+    )?.label?.split(" Damage")[0].toLowerCase() ?? "";
 
-    console.warn("Elemental Affinity", {
-      this: this,
-      activeType,
-    });
     return {
       clearAutoEffects: true,
       multiple: this.damageTypes().map((type) => {
         return {
           name: `Elemental Affinity, Resistance: ${utils.capitalize(type)}`,
           options: {
-            transfer: !activeType.includes(type),
+            transfer: activeType.includes(type),
             disabled: !activeType.includes(type),
           },
           changes: [
