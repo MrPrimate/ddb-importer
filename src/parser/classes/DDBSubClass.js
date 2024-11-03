@@ -34,9 +34,13 @@ export default class DDBSubClass extends DDBClass {
     },
   };
 
-  static NOT_ADVANCEMENT = [
+  static NOT_ADVANCEMENT_FOR_FEATURE = [
     "Soul Blades",
   ];
+
+  static NO_ADVANCEMENT_2014 = [];
+
+  static NO_ADVANCEMENT_2024 = [];
 
   _fleshOutCommonDataStub() {
     super._fleshOutCommonDataStub();
@@ -77,7 +81,9 @@ export default class DDBSubClass extends DDBClass {
     this.ddbClassDefinition = this.ddbClass.subclassDefinition;
     this._isSubClass = true;
     this.SPECIAL_ADVANCEMENTS = DDBSubClass.SPECIAL_ADVANCEMENTS;
-    this.NOT_ADVANCEMENT = DDBSubClass.NOT_ADVANCEMENT;
+    this.NOT_ADVANCEMENT_FOR_FEATURE = DDBSubClass.NOT_ADVANCEMENT_FOR_FEATURE;
+    this.NO_ADVANCEMENT_2014 = DDBSubClass.NO_ADVANCEMENT_2014;
+    this.NO_ADVANCEMENT_2024 = DDBSubClass.NO_ADVANCEMENT_2024;
   }
 
 

@@ -89,6 +89,7 @@ import StrideOfTheElements from "./feature/monk/StrideOfTheElements.js";
 import TranceOfOrder from "./feature/sorcerer/TranceOfOrder.js";
 import BastionOfLaw from "./feature/sorcerer/BastionOfLaw.js";
 import ClockworkCavalcade from "./feature/sorcerer/ClockworkCavalcade.js";
+import Rage from "./feature/barbarian/Rage.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -193,6 +194,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Trance of Order": () => TranceOfOrder,
     "Bastion of Law": () => BastionOfLaw,
     "Clockwork Cavalcade": () => ClockworkCavalcade,
+    "Rage": () => Rage,
   };
 
   NAME_HINTS_2014 = {
@@ -1533,17 +1535,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @prof", types: ["healing"] }),
       },
-    },
-    "Rage": () => {
-      return {
-        targetType: "self",
-        data: {
-          "range.units": "self",
-          duration: this.is2014
-            ? { units: "second", value: "60" }
-            : { units: "minute", value: "10" },
-        },
-      };
     },
     "Raging Storm: Desert": {
       type: "save",
@@ -4080,22 +4071,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       };
 
     },
-    "Rage": () => {
-      return {
-        data: {
-          name: "Rage",
-          "system.uses": {
-            max: "@scale.barbarian.rages",
-            recovery: this.is2014
-              ? [{ period: "lr", type: 'recoverAll', formula: "" }]
-              : [
-                { period: "lr", type: 'recoverAll', formula: "" },
-                { period: "sr", type: 'formula', formula: "1" },
-              ],
-          },
-        },
-      };
-    },
     "Persistent Rage": () => {
       return {
         data: {
@@ -4919,25 +4894,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Psionic Power: Telekinetic Thrust": {
       name: "Telekinetic Thrust: Prone",
       statuses: ["Prone"],
-    },
-    "Rage": () => {
-      return {
-        name: "Rage",
-        options: {
-          // transfer: true,
-          // disabled: true,
-          durationSeconds: this.is2014 ? 60 : 600,
-        },
-        changes: [
-          generateUnsignedAddChange("@scale.barbarian.rage-damage", 20, "system.bonuses.mwak.damage"),
-          generateUnsignedAddChange("piercing", 20, "system.traits.dr.value"),
-          generateUnsignedAddChange("slashing", 20, "system.traits.dr.value"),
-          generateUnsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
-          generateCustomChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
-          generateCustomChange("1", 20, "flags.midi-qol.advantage.ability.check.str"),
-          generateCustomChange("outline", 20, "macro.tokenMagic"),
-        ],
-      };
     },
     "Raging Storm: Tundra": {
       changes: [

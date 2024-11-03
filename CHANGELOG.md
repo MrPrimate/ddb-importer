@@ -1,5 +1,8 @@
 # NEXT UP
 
+- Barbarian Rages fix for 2014 Barbarian.
+
+
 # 6.0.27
 
 - Characters that had not made spell choices for feats, backgrounds, and species would fail to import.

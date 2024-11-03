@@ -19,16 +19,15 @@ export default class DDBClass {
       additionalAdvancements: false,
       additionalFunctions: [],
     },
-    "Rage": {
-      fix: true,
-      fixFunction: AdvancementHelper.rename,
-      functionArgs: { newName: "Rages", identifier: "rages" },
-      additionalAdvancements: false,
-      additionalFunctions: [],
-    },
   };
 
-  static NOT_ADVANCEMENT = [
+  static NO_ADVANCEMENT_2014 = [
+    "rage",
+  ];
+
+  static NO_ADVANCEMENT_2024 = [];
+
+  static NOT_ADVANCEMENT_FOR_FEATURE = [
   ];
 
   static PROFICIENCY_FEATURES = [
@@ -445,7 +444,9 @@ export default class DDBClass {
     });
 
     this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
-    this.NOT_ADVANCEMENT = DDBClass.NOT_ADVANCEMENT;
+    this.NOT_ADVANCEMENT_FOR_FEATURE = DDBClass.NOT_ADVANCEMENT_FOR_FEATURE;
+    this.NO_ADVANCEMENT_2014 = DDBClass.NO_ADVANCEMENT_2014;
+    this.NO_ADVANCEMENT_2024 = DDBClass.NO_ADVANCEMENT_2024;
 
     this.isStartingClass = this.ddbClass.isStartingClass;
 
@@ -673,7 +674,7 @@ export default class DDBClass {
     let specialFeatures = [];
     const advancements = this.classFeatures
       .filter((feature) => feature.levelScales?.length > 0)
-      .filter((feature) => !this.NOT_ADVANCEMENT.includes(feature.name))
+      .filter((feature) => !this.NOT_ADVANCEMENT_FOR_FEATURE.includes(feature.name))
       .map((feature) => {
         let advancement = AdvancementHelper.generateScaleValueAdvancement(feature);
         const specialLookup = this.SPECIAL_ADVANCEMENTS[advancement.title];
@@ -691,7 +692,10 @@ export default class DDBClass {
           }
         }
         return advancement;
-      });
+      }).filter((a) =>
+        (this.is2014 && !this.NO_ADVANCEMENT_2014.includes(a.configuration?.identifier))
+        || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes(a.configuration?.identifier)),
+      );
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements, specialFeatures);
   }
@@ -1425,6 +1429,11 @@ export default class DDBClass {
         icon: null,
       };
       this.data.system.advancement.push(damage);
+      for (let advancement of this.data.system.advancement) {
+        if (advancement.title !== "Rage") continue;
+        advancement.title = "Rages";
+        advancement.configuration.identifier = "rages";
+      };
     }
   }
 
