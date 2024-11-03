@@ -94,6 +94,8 @@ import ElementalAffinity from "./feature/sorcerer/ElementalAffinity.js";
 import DragonWings from "./feature/sorcerer/DragonWIngs.js";
 import HealingLight from "./feature/warlock/HealingLight.js";
 import SearingVengeance from "./feature/warlock/SearingVengeance.js";
+import RadiantSoul from "./feature/warlock/RadiantSoul.js";
+import CelestialResilience from "./feature/warlock/CelestialResilience.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -203,6 +205,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Vow of Enmity": () => VowOfEnmity,
     "Warping Implosion": () => WarpingImplosion,
     "Wild Magic Surge": () => WildMagicSurge,
+    "Radiant Soul": () => RadiantSoul,
+    "Celestial Resilience": () => CelestialResilience,
   };
 
   NAME_HINTS_2014 = {
