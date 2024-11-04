@@ -90,7 +90,7 @@ async function generateImportItems(items, notifier) {
   return results;
 }
 
-function getItemData({ useSourceFilter = false, ids = [] } = {}) {
+function getItemData({ useSourceFilter = true, ids = [] } = {}) {
   const cobaltCookie = getCobalt();
   const campaignId = DDBCampaigns.getCampaignId();
   const parsingApi = DDBProxy.getProxy();
@@ -105,6 +105,14 @@ function getItemData({ useSourceFilter = false, ids = [] } = {}) {
 
   const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
 
+  logger.debug(`Fetching Items with:`, {
+    debugJson,
+    enableSources,
+    useGenerics,
+    sources,
+    excludeLegacy,
+    useSourceFilter,
+  });
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/items`, {
@@ -127,7 +135,7 @@ function getItemData({ useSourceFilter = false, ids = [] } = {}) {
       })
       .then((data) => {
         const genericsFilteredData = data.data.filter((item) => item.canBeAddedToInventory || useGenerics);
-        if (sources.length == 0 || !useSourceFilter) return genericsFilteredData;
+        if (sources.length === 0 || !useSourceFilter) return genericsFilteredData;
         return genericsFilteredData.filter((item) =>
           item.sources.some((source) => sources.includes(source.sourceId)),
         );
@@ -175,7 +183,7 @@ async function addMagicItemSpells(items, spells, updateBool) {
   });
 }
 
-export async function parseItems({ useSourceFilter = false, ids = [], deleteBeforeUpdate = null } = {}) {
+export async function parseItems({ useSourceFilter = true, ids = [], deleteBeforeUpdate = null } = {}) {
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   const magicItemsInstalled = !!game.modules.get("magicitems");
   const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -195,7 +203,7 @@ export async function parseItems({ useSourceFilter = false, ids = [], deleteBefo
   DDBMuncher.munchNote("Downloading item data..");
 
   // disable source filter if ids provided
-  const sourceFilter = (ids === null && ids.length === 0) && useSourceFilter;
+  const sourceFilter = (ids === null || ids.length === 0) && useSourceFilter;
   const raw = await getItemData({ useSourceFilter: sourceFilter, ids });
 
   const characterInventory = getCharacterInventory(raw);
