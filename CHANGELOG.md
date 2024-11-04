@@ -2,7 +2,8 @@
 
 - Barbarian Rages fix for 2014 Barbarian.
 - Clockwork and Draconic Sorcerer 2024 parsing.
-- Warlock Celestial 2024 parsing.
+- Warlock Celestial & Fiend 2024 parsing.
+- Fix an issue where source filtering was not always working for items.
 
 # 6.0.27
 
