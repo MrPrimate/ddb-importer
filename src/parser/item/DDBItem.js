@@ -1358,7 +1358,7 @@ export default class DDBItem {
       default: {
         if (this.actionInfo.magicBonus.zero > 0) {
           this.addMagical = true;
-          if (!this.enricher.effect)
+          if (!this.enricher.effects || this.enricher.effects.length === 0)
             logger.error(`Magical Bonus detected, but not handled for ${this.name}`, {
               this: this,
             });
@@ -2441,6 +2441,8 @@ export default class DDBItem {
 
       const statusEffect = getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
       if (statusEffect) this.data.effects.push(statusEffect);
+
+      if (this.enricher.clearAutoEffects) this.data.effects = [];
 
       if (this.documentType !== "container") {
         // containers can't have activities.

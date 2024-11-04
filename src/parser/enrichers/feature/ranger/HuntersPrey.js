@@ -17,23 +17,21 @@ export default class HuntersPrey extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
-      multiple: [
-        {
-          name: "Colossus Slayer",
-          data: {
-            "flags.ddbimporter.activityMatch": "Choice",
-          },
+  get effects() {
+    return [
+      {
+        name: "Colossus Slayer",
+        data: {
+          "flags.ddbimporter.activityMatch": "Choice",
         },
-        {
-          name: "Horde Breaker",
-          data: {
-            "flags.ddbimporter.activityMatch": "Choice",
-          },
+      },
+      {
+        name: "Horde Breaker",
+        data: {
+          "flags.ddbimporter.activityMatch": "Choice",
         },
-      ],
-    };
+      },
+    ];
   }
 
   get override() {

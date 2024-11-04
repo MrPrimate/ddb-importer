@@ -42,33 +42,30 @@ export default class Slasher extends DDBEnricherMixin {
     ];
   }
 
-  get effect() {
-
-    return {
-      multiple: [
-        {
-          name: "Slashed: Hamstrung",
-          options: {
-            description: "Speed penalty until the start of the origins next turn",
-          },
-          changes: [
-            DDBEnricherMixin.generateSignedAddChange("-10", 20, "system.attributes.speed.walk"),
-          ],
-          data: {
-            "flags.ddbimporter.activitiesMatch": ["Hamstring"],
-          },
+  get effects() {
+    return [
+      {
+        name: "Slashed: Hamstrung",
+        options: {
+          description: "Speed penalty until the start of the origins next turn",
         },
-        {
-          name: "Slashed: Enhanced Critical",
-          options: {
-            description: "Disadvantage on attack rolls until the start of the origins next turn",
-          },
-          data: {
-            "flags.ddbimporter.activitiesMatch": ["Enhanced Critical"],
-          },
+        changes: [
+          DDBEnricherMixin.generateSignedAddChange("-10", 20, "system.attributes.speed.walk"),
+        ],
+        data: {
+          "flags.ddbimporter.activitiesMatch": ["Hamstring"],
         },
-      ],
-    };
+      },
+      {
+        name: "Slashed: Enhanced Critical",
+        options: {
+          description: "Disadvantage on attack rolls until the start of the origins next turn",
+        },
+        data: {
+          "flags.ddbimporter.activitiesMatch": ["Enhanced Critical"],
+        },
+      },
+    ];
   }
 
 }

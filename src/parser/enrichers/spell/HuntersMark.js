@@ -45,10 +45,10 @@ export default class HuntersMark extends DDBEnricherMixin {
     ];
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Hunter's Mark",
-    };
+    }];
   }
 
 

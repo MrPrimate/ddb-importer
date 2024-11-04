@@ -11,8 +11,8 @@ export default class RelentlessAvenger extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Relentless Avenger: Speed Reduction",
       options: {
         durationSeconds: 6,
@@ -20,7 +20,7 @@ export default class RelentlessAvenger extends DDBEnricherMixin {
       changes: [
         DDBEnricherMixin.generateOverrideChange("0", 90, "system.attributes.movement.walk"),
       ],
-    };
+    }];
   }
 
 

@@ -856,7 +856,7 @@ export default class DDBSpell {
       return "utility";
     } else if (this.ddbDefinition.modifiers.some((mod) => mod.type === "damage")) {
       return "damage";
-    } else if (this.enricher.effect && !this.enricher.effect.noActivity) {
+    } else if (this.enricher.effects?.length > 0) {
       return "utility";
     } else if (this.healingParts.length > 0) {
       return "heal";
@@ -982,7 +982,7 @@ export default class DDBSpell {
     foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
 
     if (this.data.effects.length === 0) this.#addConditionEffects();
-    if (this.enricher.effect?.clearAutoEffects) this.data.effects = [];
+    if (this.enricher.clearAutoEffects) this.data.effects = [];
     const effects = this.enricher.createEffect();
     this.data.effects.push(...effects);
 

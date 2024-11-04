@@ -37,8 +37,8 @@ export default class Rage extends DDBEnricherMixin {
     };
   }
 
-  effect() {
-    return {
+  get effects() {
+    return [{
       name: "Rage",
       options: {
         // transfer: true,
@@ -58,7 +58,7 @@ export default class Rage extends DDBEnricherMixin {
       tokenMagicChanges: [
         DDBEnricherMixin.generateCustomChange("outline", 20, "macro.tokenMagic"),
       ],
-    };
+    }];
   }
 
 }

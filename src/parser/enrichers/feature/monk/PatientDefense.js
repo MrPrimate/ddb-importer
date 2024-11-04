@@ -25,9 +25,9 @@ export default class PatientDefense extends DDBEnricherMixin {
     ];
   }
 
-  get effect() {
+  get effects() {
     if (this.is2014) {
-      return {
+      return [{
         name: "Patient Defense: Dodging",
         options: {
           durationRounds: 1,
@@ -37,33 +37,31 @@ export default class PatientDefense extends DDBEnricherMixin {
         data: {
           "flags.ddbimporter.activitiesMatch": ["Patient Defense: Dodge"],
         },
-      };
+      }];
     } else {
-      return {
-        multiple: [
-          {
-            name: "Patient Defense: Disengaged",
-            options: {
-              durationRounds: 1,
-              durationSeconds: 6,
-            },
-            data: {
-              "flags.ddbimporter.activitiesMatch": ["Patient Defense: Disengage"],
-            },
+      return [
+        {
+          name: "Patient Defense: Disengaged",
+          options: {
+            durationRounds: 1,
+            durationSeconds: 6,
           },
-          {
-            name: "Patient Defense: Disengaged & Dodging",
-            options: {
-              durationRounds: 1,
-              durationSeconds: 6,
-            },
-            statuses: ["dodging"],
-            data: {
-              "flags.ddbimporter.activitiesMatch": ["Patient Defense: Disengage & Dodge"],
-            },
+          data: {
+            "flags.ddbimporter.activitiesMatch": ["Patient Defense: Disengage"],
           },
-        ],
-      };
+        },
+        {
+          name: "Patient Defense: Disengaged & Dodging",
+          options: {
+            durationRounds: 1,
+            durationSeconds: 6,
+          },
+          statuses: ["dodging"],
+          data: {
+            "flags.ddbimporter.activitiesMatch": ["Patient Defense: Disengage & Dodge"],
+          },
+        },
+      ];
     }
   }
 }

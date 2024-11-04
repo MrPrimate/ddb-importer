@@ -91,38 +91,45 @@ export default class Example extends DDBEnricherMixin {
     };
   }
 
+  get effects() {
+    return [
+      {
+        noCreate: true, // don't create effect, use an auto generated one
+        type: "enchant", // if effect base type does not match spell/feat etc
+        name: "Effect Name", // override auto name generation
+        data: {}, // merge with effect data
+        changes: [], // merge with effect changes
+        options: { // passed to the ddb effect generator
+          description: "Effect Description", // add a description to effect
+          durationSeconds: 60, // add duration seconds
+          durationRounds: 10, // add duration rounds
+        },
+        magicalBonus: { // add magical bonus
+          name: "Name",
+          bonus: 1,
+          bonusMode: "ADD",
+          makeMagical: true,
+        },
+        statuses: [], // add status effects
+        atlChanges: [], // adds atl changes if atl active
+        tokenMagicChanges: [], // adds token magic changes
+        midiChanges: [], // adds midi changes
+        func: function() {}, // run this funciton passing in the activity as the only variable
+        descriptionHint: "hint text", // adds enchantment description hint
+        descriptionSuffix: "", // append to item description
+        midiOnly: true, // only generate this effect if midi qol is installed
+      },
+    ];
+  }
 
-  get effect() {
-    return {
-      // THESE ARE EFFECT ADJUSTMENTS RAN EVERYWHERE
-      noCreate: true, // don't create effect, use an auto generated one
-      type: "enchant", // if effect base type does not match spell/feat etc
-      name: "Effect Name", // override auto name generation
-      data: {}, // merge with effect data
-      changes: [], // merge with effect changes
-      multiple: [], // nest this for multiple effects
-      options: { // passed to the ddb effect generator
-        description: "Effect Description", // add a description to effect
-        durationSeconds: 60, // add duration seconds
-        durationRounds: 10, // add duration rounds
-      },
-      magicalBonus: { // add magical bonus
-        name: "Name",
-        bonus: 1,
-        bonusMode: "ADD",
-        makeMagical: true,
-      },
-      statuses: [], // add status effects
-      atlChanges: [], // adds atl changes if atl active
-      tokenMagicChanges: [], // adds token magic changes
-      midiChanges: [], // adds midi changes
-      func: function() {}, // run this funciton passing in the activity as the only variable
-      descriptionHint: "hint text", // adds enchantment description hint
-      descriptionSuffix: "", // append to item description
-      // outside enricher flags
-      clearAutoEffects: true, // clear auto effects
-      midiOnly: true, // only generate this effect if midi qol is installed
-    };
+
+  /**
+   * Whether to clear auto generated effects.
+   * If true, DDB will clear out effects auto generated before processing effect hints on the enricher.
+   * @returns {boolean} Whether to clear auto generated effects.
+   */
+  get clearAutoEffects() {
+    return true;
   }
 
 

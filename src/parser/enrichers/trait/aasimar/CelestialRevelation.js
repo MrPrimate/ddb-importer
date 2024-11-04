@@ -21,8 +21,4 @@ export default class CelestialRevelation extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {};
-  }
-
 }

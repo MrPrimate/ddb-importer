@@ -3,15 +3,13 @@ import DDBEnricherMixin from "../../DDBEnricherMixin.js";
 
 export default class Stormborn extends DDBEnricherMixin {
 
-  get effect() {
-    return {
-      multiple: [
-        this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-        DDBEnricherMixin.generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
-        DDBEnricherMixin.generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
-        DDBEnricherMixin.generateUnsignedAddChange("thunder", 20, "system.traits.dr.value"),
-      ],
-    };
+  get effects() {
+    return [
+      this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+      DDBEnricherMixin.generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
+      DDBEnricherMixin.generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
+      DDBEnricherMixin.generateUnsignedAddChange("thunder", 20, "system.traits.dr.value"),
+    ];
   }
 
 }

@@ -11,14 +11,14 @@ export default class DreadfulStrikeMassFear extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Dreadful Strike: Fear",
       options: {
         durationSeconds: 6,
       },
       statuses: ["Frightened"],
-    };
+    }];
   }
 
 }

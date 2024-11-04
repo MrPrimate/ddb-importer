@@ -161,29 +161,34 @@ export default class DDBEnricherMixin {
   }
 
   /**
-   * Gets additional effects to be added to the document. This is generally used
-   * to add additional abilities that are not directly related to the document.
-   * @returns {object} An object with the following properties:
-   *   noCreate: {boolean} If true, prevents the call to generate effect.
-   *   type: {string} If effect base type does not match spell/feat etc
-   *   name: {string} Override auto name generation
-   *   data: {object} Merge with effect data
-   *   changes: {object[]} Merge with effect changes
-   *   multiple: {object[]} Nest this for multiple effects
-   *   options: {object} Passed to the ddb effect generator
-   *   magicalBonus: {object} Add magical bonus
-   *   statuses: {object[]} Add status effects
-   *   atlChanges: {object[]} Adds atl changes if atl active
-   *   tokenMagicChanges: {object[]} Adds token magic changes
-   *   midiChanges: {object[]} Adds midi changes
-   *   func: {function} Run this funciton passing in the activity as the only variable
-   *   descriptionHint: {string} Adds enchantment description hint
-   *   descriptionSuffix: {string} Append to item description
-   *   clearAutoEffects: {boolean} Clear auto effects
-   *   midiOnly: {boolean} only generate this effect if midi qol is installed
+   * Generates a collection of effects with specific properties and configurations.
+   * Each effect can modify attributes such as type, name, data, and various changes.
+   * Additional options include magical bonuses, status effects, and integration with
+   * external systems like ATL or MIDI. Some effects are only generated if certain
+   * conditions, such as having MIDI-QOL installed, are met.
+   *
+   * @returns {object} An object containing:
+   *   - effects: {Array} A list of effect objects with the following properties:
+   *     - noCreate: {boolean} If true, prevents the creation of the effect, using an auto-generated one instead.
+   *     - type: {string} Specifies the type of effect, e.g., "enchant".
+   *     - name: {string} Overrides the auto-generated name for the effect.
+   *     - data: {object} Data to merge with the effect's data.
+   *     - changes: {Array} Modifications to merge with the effect's changes.
+   *     - options: {object} Configuration options passed to the DDB effect generator, including descriptions and durations.
+   *     - magicalBonus: {object} Includes details for adding a magical bonus.
+   *     - statuses: {Array} Status effects to add.
+   *     - atlChanges: {Array} ATL changes, if ATL is active.
+   *     - tokenMagicChanges: {Array} Token magic changes.
+   *     - midiChanges: {Array} MIDI changes.
+   *     - func: {function} A function executed with the activity as the sole argument.
+   *     - descriptionHint: {string} A hint for the enchantment description.
+   *     - descriptionSuffix: {string} Text to append to the item description.
+   *     - midiOnly: {boolean} Indicates that the effect is generated only if MIDI-QOL is installed.
+   * // to be removed
+   *   - clearAutoEffects: {boolean} Flag to clear auto effects.
    */
-  get effect() {
-    return null;
+  get effects() {
+    return [];
   }
 
   /**
@@ -218,6 +223,11 @@ export default class DDBEnricherMixin {
    */
   get documentStub() {
     return null;
+  }
+
+  // a hint to clear any generated auto effects before processing effect hints on the enricher
+  get clearAutoEffects() {
+    return this.effect?.clearAutoEffects ?? false;
   }
 
 }

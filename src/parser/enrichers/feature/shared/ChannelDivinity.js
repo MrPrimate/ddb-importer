@@ -158,14 +158,14 @@ export default class ChannelDivinity extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
+  get effects() {
     if (this.is2014) {
-      return null;
+      return [];
     } else if (this.is2024) {
       if (this.ddbParser.klass === "Cleric") {
-        return this._effectCleric2024;
+        return [this._effectCleric2024];
       } else if (this.ddbParser.klass === "Paladin") {
-        return this._effectPaladin2024;
+        return [this._effectPaladin2024];
       }
     }
 

@@ -1,4 +1,4 @@
-import { effectModules, generateATLChange, generateCustomChange, generateDowngradeChange, generateOverrideChange, generateSignedAddChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
+import { generateATLChange, generateCustomChange, generateDowngradeChange, generateOverrideChange, generateSignedAddChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import utils from "../../lib/utils.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
@@ -96,6 +96,20 @@ import HealingLight from "./feature/warlock/HealingLight.js";
 import SearingVengeance from "./feature/warlock/SearingVengeance.js";
 import RadiantSoul from "./feature/warlock/RadiantSoul.js";
 import CelestialResilience from "./feature/warlock/CelestialResilience.js";
+import BeguilingMagic from "./feature/bard/BeguilingMagic.js";
+import BoonOfTheNightSpirit from "./feat/BoonOfTheNightSpirit.js";
+import CunningStrike from "./feature/rogue/CunningStrike.js";
+import CoronaOfLight from "./feature/cleric/CoronaOfLight.js";
+import DazzlingFootwork from "./feature/bard/DazzlingFootwork.js";
+import DeviousStrikes from "./feature/rogue/DeviousStrikes.js";
+import ElementalEpitome from "./feature/monk/ElementalEpitome.js";
+import ChromaticInfusion from "./trait/dragonborn/ChromaticInfusion.js";
+import ImprovedBrutalStrike from "./feature/barbarian/ImprovedBrutalStrike.js";
+import MonksFocus from "./feature/monk/MonksFocus.js";
+import ShieldingStorm from "./feature/barbarian/ShieldingStorm.js";
+import StarryForm from "./feature/druid/StarryForm.js";
+import TheThirdEye from "./feature/wizard/TheThirdEye.js";
+import HurlThroughHell from "./feature/warlock/HurlThroughHell.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -117,17 +131,20 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Aspect of the Wilds": () => AspectOfTheWilds,
     "Avenging Angel": () => AvengingAngel,
     "Bastion of Law": () => BastionOfLaw,
+    "Beguiling Magic": () => BeguilingMagic,
     "Beguiling Twist": () => BeguilingTwist,
     "Bend Luck": () => BendLuck,
     "Bolstering Performance": () => BolsteringPerformance,
     "Boon of Energy Resistance": () => BoonOfEnergyResistance,
     "Boon of Fate": () => BoonOfFate,
     "Boon of Fortitude": () => BoonOfFortitude,
+    "Boon of the Night Spirit": () => BoonOfTheNightSpirit,
     "Breath Weapon (Acid)": () => BreathWeapon2024,
     "Breath Weapon (Cold)": () => BreathWeapon2024,
     "Breath Weapon (Fire)": () => BreathWeapon2024,
     "Breath Weapon (Lightning)": () => BreathWeapon2024,
     "Breath Weapon (Poison)": () => BreathWeapon2024,
+    "Celestial Resilience": () => CelestialResilience,
     "Celestial Revelation (Heavenly Wings)": () => CelestialRevelationHeavenlyWings,
     "Celestial Revelation (Inner Radiance)": () => CelestialRevelationInnerRadiance,
     "Celestial Revelation (Necrotic Shroud)": () => CelestialRevelationNecroticShroud,
@@ -136,9 +153,13 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Celestial Revelation": () => CelestialRevelation,
     "Channel Divinity": () => ChannelDivinity,
     "Clockwork Cavalcade": () => ClockworkCavalcade,
+    "Corona of Light": () => CoronaOfLight,
+    "Cunning Strike": () => CunningStrike,
     "Dark One's Own Luck": () => DarkOnesOwnLuck,
+    "Dazzling Footwork": () => DazzlingFootwork,
     "Death Strike": () => DeathStrike,
     "Defensive Tactics": () => DefensiveTactics,
+    "Devious Strikes": () => DeviousStrikes,
     "Divine Intervention": () => DivineIntervention,
     "Dragon Wings": () => DragonWings,
     "Dread Ambusher": () => DreadAmbusher,
@@ -149,22 +170,27 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Elder Champion": () => ElderChampion,
     "Eldritch Invocations: Ghostly Gaze": () => GhostlyGaze,
     "Elemental Affinity": () => ElementalAffinity,
+    "Elemental Epitome": () => ElementalEpitome,
     "Embody Legends": () => EmbodyLegends,
     "Energy Redirection": () => EnergyRedirection,
     "Envenom Weapons": () => EnvenomWeapons,
     "Fast Hands": () => FastHands,
     "Font of Magic": () => FontOfMagic,
+    "Gift of the Chromatic Dragon: Chromatic Infusion": () => ChromaticInfusion,
     "Glorious Defense": () => GloriousDefense,
     "Healer": () => Healer,
     "Healing Light": () => HealingLight,
     "Holy Nimbus": () => HolyNimbus,
     "Hunter's Prey": () => HuntersPrey,
+    "Hurl Through Hell": () => HurlThroughHell,
+    "Improved Brutal Strike": () => ImprovedBrutalStrike,
     "Inspiring Leader": () => InspiringLeader,
     "Inspiring Smite": () => InspiringSmite,
     "Lay On Hands: Healing Pool": () => LayOnHands,
     "Lay On Hands: Purify Poison": () => LayOnHandsPurifyPoison,
     "Living Legend": () => LivingLegend,
     "Mage Slayer": () => MageSlayer,
+    "Monk's Focus": () => MonksFocus,
     "Nature Magician": () => NatureMagician,
     "Patient Defense": () => PatientDefense,
     "Peerless Athlete": () => PeerlessAthlete,
@@ -172,6 +198,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Primal Companion: Restore Beast": () => PrimalCompanionRestoreBeast,
     "Primal Companion: Summon": () => PrimalCompanionSummon,
     "Primal Companion": () => PrimalCompanion,
+    "Radiant Soul": () => RadiantSoul,
     "Radiant Strikes": () => RadiantStrikes,
     "Rage": () => Rage,
     "Relentless Avenger": () => RelentlessAvenger,
@@ -180,6 +207,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Sacred Weapon": () => SacredWeapon,
     "Searing Vengeance": () => SearingVengeance,
     "Shadowy Dodge": () => ShadowyDodge,
+    "Shielding Storm": () => ShieldingStorm,
     "Slasher": () => Slasher,
     "Slow Fall": () => SlowFall,
     "Sneak Attack: Poison (Envenom)": () => SneakAttackPoisonEnvenom,
@@ -189,6 +217,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Sorcery Points": () => SorceryPoints,
     "Soul of Vengeance": () => SoulOfVengeance,
     "Stalker's Flurry": () => StalkersFlurry,
+    "Starry Form": () => StarryForm,
     "Stormborn": () => Stormborn,
     "Stride of the Elements": () => StrideOfTheElements,
     "Superior Hunter's Defense": () => SuperiorHuntersDefense,
@@ -196,6 +225,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Supreme Sneak": () => SupremeSneak,
     "Telekinetic": () => Telekinetic,
     "Temporary Hit Points": () => TemporaryHitPoints,
+    "The Third Eye": () => TheThirdEye,
     "Tireless": () => Tireless,
     "Trance of Order": () => TranceOfOrder,
     "Undying Sentinel": () => UndyingSentinel,
@@ -205,8 +235,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Vow of Enmity": () => VowOfEnmity,
     "Warping Implosion": () => WarpingImplosion,
     "Wild Magic Surge": () => WildMagicSurge,
-    "Radiant Soul": () => RadiantSoul,
-    "Celestial Resilience": () => CelestialResilience,
   };
 
   NAME_HINTS_2014 = {
@@ -277,11 +305,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Beguiling Magic": {
-      data: {
-        name: "Save",
-      },
-    },
     "Blessed Healer": {
       type: "heal",
       activationType: "special",
@@ -309,13 +332,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.cleric.divine-strike", types: ["radiant", "necrotic"] })],
         },
       },
-    },
-    "Boon of the Night Spirit": {
-      name: "Shadowy Form",
-      type: "utility",
-      activationType: "special",
-      activationCondition: "Within dim light or darkness",
-      targetType: "self",
     },
     "Branches of the Tree": {
       type: "save",
@@ -421,47 +437,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Corona of Light": () => {
-      if (effectModules().atlInstalled) {
-        return {
-          type: "utility",
-          data: {
-            name: "Use/Apply Light",
-          },
-        };
-      } else {
-        return {
-          type: "ddbmacro",
-          data: {
-            name: "Use/Apply Light",
-            macro: {
-              name: "Apply Light",
-              function: "ddb.generic.light",
-              visible: false,
-              parameters: '{"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":60,"bright":30},"flag":"light"}',
-            },
-          },
-        };
-      }
-    },
     "Cunning Action": {
       type: "utility",
       targetType: "self",
       activationType: "bonus",
-    },
-    "Cunning Strike": {
-      type: "save",
-      targetType: "creature",
-      activationType: "spec",
-      activationCondition: "Dealing Sneak Attack damage",
-      data: {
-        name: "Poison",
-        save: {
-          ability: "con",
-          dc: { calculation: "dex", formula: "" },
-        },
-        duration: { units: "inst" },
-      },
     },
     "Cutting Words": {
       targetType: "creature",
@@ -485,17 +464,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         "activation.condition": "Reduce a hostile creature to 0 HP",
         healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@abilities.cha.mod + @classes.warlock.levels", types: ["temphp"] }),
-      },
-    },
-    "Dazzling Footwork": {
-      type: "enchant",
-      targetType: "self",
-      data: {
-        name: "Bardic Damage",
-        restrictions: {
-          type: "weapon",
-          allowMagical: true,
-        },
       },
     },
     "Deflect Attack": {
@@ -561,20 +529,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       targetType: "creature",
       data: {
         "damage.parts": [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @abilities.dex.mod", types: DDBBaseEnricher.allDamageTypes() })],
-      },
-    },
-    "Devious Strikes": {
-      type: "save",
-      targetType: "creature",
-      activationType: "spec",
-      activationCondition: "Dealing Sneak Attack damage",
-      data: {
-        name: "Daze",
-        save: {
-          ability: "con",
-          dc: { calculation: "dex", formula: "" },
-        },
-        duration: { units: "inst" },
       },
     },
     "Disciple of Life": {
@@ -683,14 +637,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.elements.elemental-burst", types: ["acid", "cold", "fire", "lightning", "thunder"] })],
         },
       },
-    },
-    "Elemental Epitome": {
-      type: "utility",
-      name: "Elemental Attunement Effects",
-      activationType: "special",
-      activationCondition: "Become Elementally Attuned",
-      targetType: "self",
-      noTemplate: true,
     },
     "Elemental Fury: Primal Strike": {
       type: "damage",
@@ -870,16 +816,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Gift of the Chromatic Dragon: Chromatic Infusion": {
-      type: "enchant",
-      data: {
-        name: "Chromatic Infusion",
-        restrictions: {
-          type: "weapon",
-          allowMagical: true,
-        },
-      },
-    },
     "Guardian Armor: Defensive Field": {
       type: "heal",
       targetType: "self",
@@ -971,16 +907,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "creatureSizes": ["med"],
         "creatureTypes": ["monstrosity"],
         "bonuses.hp": "floor(@classes.sorcerer.levels / 2)",
-      },
-    },
-    "Improved Brutal Strike": {
-      type: "damage",
-      targetType: "creature",
-      name: "Staggering Blow",
-      data: {
-        damage: {
-          parts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
-        },
       },
     },
     "Improved Blessed Strikes: Potent Spellcasting": {
@@ -1698,13 +1624,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         healing: DDBBaseEnricher.basicDamagePart({ number: "1", denomination: "10", bonus: "@classes.fighter.levels", types: ["healing"] }),
       },
     },
-    "Shielding Storm": {
-      type: "utility",
-      activationType: "special",
-      data: {
-        name: "Shielding Storm: Desert",
-      },
-    },
     "Shifting: Beasthide": {
       type: "heal",
       activationType: "bonus",
@@ -1781,15 +1700,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     },
     "Speedy Recovery": {
       type: "none",
-    },
-    "Starry Form": {
-      type: "utility",
-      noTemplate: true,
-      targetType: "self",
-      activationType: "bonus",
-      data: {
-        name: "Activate Starry Form",
-      },
     },
     "Steel Defender": {
       noConsumeTargets: true,
@@ -2031,13 +1941,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ],
     },
-    "The Third Eye": {
-      type: "utility",
-      targetType: "self",
-      data: {
-        name: "Darkvision",
-      },
-    },
     "Travel along the Tree": {
       type: "utility",
       targetType: "self",
@@ -2174,31 +2077,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
   };
 
   ADDITIONAL_ACTIVITIES = {
-    "Beguiling Magic": [
-      {
-        constructor: {
-          name: "Recharge",
-          type: "utility",
-        },
-        build: {
-          generateConsumption: true,
-          consumptionOverride: {
-            targets: [
-              {
-                type: "itemUses",
-                target: "",
-                value: -1,
-                scaling: { mode: "", formula: "" },
-              },
-            ],
-            scaling: { allowed: false, max: "" },
-          },
-        },
-      },
-    ],
-    "Boon of the Night Spirit": [
-      { action: { name: "Merge with Shadows", type: "feat", rename: ["Merge with Shadows"] } },
-    ],
     "Brutal Strike": [
       {
         constructor: {
@@ -2224,93 +2102,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           generateDamage: true,
           damageParts: [
             DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.bard.bardic-inspiration" }),
-          ],
-        },
-      },
-    ],
-    "Cunning Strike": [
-      {
-        constructor: {
-          name: "Trip",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateDamage: false,
-          generateTarget: true,
-          generateRange: false,
-          generateActivation: true,
-          activationOverride: {
-            type: "",
-            condition: "Dealing Sneak Attack damage",
-          },
-          saveOverride: {
-            ability: "dex",
-            dc: { calculation: "dex", formula: "" },
-          },
-          targetOverride: {
-            affects: {
-              count: "",
-              type: "creature",
-              choice: false,
-              special: "",
-            },
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Withdraw",
-          type: "utility",
-        },
-        build: {
-          generateSave: true,
-          generateDamage: false,
-          generateTarget: true,
-          targetSelf: true,
-          generateRange: false,
-          noeffect: true,
-          generateActivation: true,
-          activationOverride: {
-            type: "",
-            condition: "Dealing Sneak Attack damage",
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Modified Sneak Attack Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateActivation: true,
-          generateRange: true,
-          generateConsumption: true,
-          noeffect: true,
-          activationOverride: {
-            type: "spec",
-            condition: "",
-          },
-          rangeOverride: {
-            units: "spec",
-          },
-          targetOverride: {
-            affects: {
-              count: "",
-              type: "creature",
-              choice: false,
-              special: "",
-            },
-          },
-          consumptionOverride: {
-            scaling: {
-              allowed: true,
-              max: "@scale.rogue.sneak-attack.number",
-            },
-          },
-          damageParts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6", types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
           ],
         },
       },
@@ -2387,108 +2178,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ];
     },
-    "Devious Strikes": [
-      {
-        constructor: {
-          name: "Knock Out",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateDamage: false,
-          generateTarget: true,
-          generateRange: false,
-          generateActivation: true,
-          activationOverride: {
-            type: "",
-            condition: "Dealing Sneak Attack damage",
-          },
-          saveOverride: {
-            ability: "con",
-            dc: { calculation: "dex", formula: "" },
-          },
-          targetOverride: {
-            affects: {
-              count: "",
-              type: "creature",
-              choice: false,
-              special: "",
-            },
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Obscure",
-          type: "save",
-        },
-        build: {
-          generateSave: true,
-          generateDamage: false,
-          generateTarget: true,
-          generateRange: false,
-          generateActivation: true,
-          generateDuration: true,
-          durationOverride: {
-            value: "1",
-            units: "min",
-          },
-          activationOverride: {
-            type: "",
-            condition: "Dealing Sneak Attack damage",
-          },
-          saveOverride: {
-            ability: "dex",
-            dc: { calculation: "dex", formula: "" },
-          },
-          targetOverride: {
-            affects: {
-              count: "",
-              type: "creature",
-              choice: false,
-              special: "",
-            },
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Modified Sneak Attack Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateActivation: true,
-          generateRange: true,
-          generateConsumption: true,
-          noeffect: true,
-          activationOverride: {
-            type: "spec",
-            condition: "",
-          },
-          rangeOverride: {
-            units: "spec",
-          },
-          targetOverride: {
-            affects: {
-              count: "",
-              type: "creature",
-              choice: false,
-              special: "",
-            },
-          },
-          consumptionOverride: {
-            scaling: {
-              allowed: true,
-              max: "@scale.rogue.sneak-attack.number",
-            },
-          },
-          damageParts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6", types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
-          ],
-        },
-      },
-    ],
     "Durable": [
       { action: { name: "Speedy Recovery", type: "feat" } },
     ],
@@ -2605,39 +2294,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
               range: {
                 value: 15,
                 units: "ft",
-              },
-            },
-          },
-        },
-      ];
-    },
-    "Elemental Epitome": () => {
-      return [
-        {
-          constructor: {
-            name: "Elemental Epitome Damage",
-            type: "damage",
-          },
-          build: {
-            generateDamage: true,
-            generateActivation: true,
-            generateConsumption: false,
-            generateTarget: false,
-            generateRange: false,
-            damageParts: [
-              DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die", types: ["acid", "cold", "fire", "lightning", "thunder"] }),
-            ],
-          },
-          overrides: {
-            data: {
-              target: {
-                affects: {
-                  count: "1",
-                  type: "creature",
-                },
-              },
-              range: {
-                units: "self",
               },
             },
           },
@@ -2797,21 +2453,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
-    "Improved Brutal Strike": [
-      {
-        constructor: {
-          name: "Staggering Blow",
-          type: "damage",
-        },
-        build: {
-          generateActivation: true,
-          generateDamage: true,
-          damageParts: [
-            DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" }),
-          ],
-        },
-      },
-    ],
     "Ki": () => {
       const results = [
         { action: { name: "Flurry of Blows", type: "class", rename: ["Flurry of Blows"] }, overrides: { addItemConsume: true } },
@@ -2873,14 +2514,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       },
     ],
-    "Monk's Focus": () => {
-      const results = [
-        { action: { name: "Flurry of Blows", type: "class", rename: ["Flurry of Blows"] }, overrides: { addItemConsume: true } },
-        { action: { name: "Patient Defense", type: "class" } },
-        { action: { name: "Step of the Wind", type: "class", rename: ["Step of the Wind"] }, overrides: { addItemConsume: true } },
-      ];
-      return results;
-    },
     "Natural Recovery": () => {
       return [
         {
@@ -3150,44 +2783,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     //       { action: { name: "Psychic Blades: Rend Mind", type: "class" } },
     //     ];
     // },
-    "Shielding Storm": [
-      {
-        constructor: {
-          name: "Shielding Storm: Sea",
-          type: "utility",
-        },
-        build: {
-          generateDamage: false,
-          generateAttack: false,
-          generateTarget: false,
-          generateRange: false,
-          generateActivation: true,
-          activationOverride: {
-            type: "special",
-            value: 1,
-            condition: "",
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Shielding Storm: Tundra",
-          type: "utility",
-        },
-        build: {
-          generateDamage: false,
-          generateAttack: false,
-          generateTarget: false,
-          generateRange: false,
-          generateActivation: true,
-          activationOverride: {
-            type: "special",
-            value: 1,
-            condition: "",
-          },
-        },
-      },
-    ],
     "Shifting: Longtooth": [
       {
         constructor: {
@@ -3312,131 +2907,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         };
       });
     },
-    "The Third Eye": [
-      {
-        constructor: {
-          name: "Greater Comprehension",
-          type: "utility",
-        },
-        build: {
-          generateConsumption: true,
-          generateTarget: true,
-          targetOverride: {
-            affects: {
-              type: "self",
-            },
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "See Invisibility",
-          type: "utility",
-        },
-        build: {
-          generateConsumption: true,
-          generateTarget: true,
-          targetOverride: {
-            affects: {
-              type: "self",
-            },
-          },
-        },
-      },
-    ],
-    "Starry Form": [
-      {
-        constructor: {
-          name: "Archer Attack",
-          type: "attack",
-        },
-        build: {
-          generateAttack: true,
-          generateConsumption: false,
-          generateTarget: true,
-          generateDamage: true,
-          attackOverride: {
-            ability: "spellcasting",
-            type: {
-              classification: "spell",
-              value: "range",
-            },
-          },
-          damageParts: [DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.stars.starry-form + @mod", type: "radiant" })],
-          targetOverride: {
-            affects: {
-              count: "1",
-              type: "creature",
-            },
-          },
-          rangeOverride: {
-            value: "60",
-            units: "ft",
-          },
-          activationOverride: {
-            type: "bonus",
-            value: 1,
-            condition: "",
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Chalice Healing",
-          type: "heal",
-        },
-        build: {
-          generateAttack: false,
-          generateConsumption: false,
-          generateTarget: true,
-          generateDamage: false,
-          generateHealing: true,
-          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "@scale.stars.starry-form + @mod", type: "healing" }),
-          targetOverride: {
-            affects: {
-              count: "1",
-              type: "creature",
-            },
-          },
-          rangeOverride: {
-            value: "30",
-            units: "ft",
-          },
-          activationOverride: {
-            type: "bonus",
-            value: 1,
-            condition: "",
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Dragon Constitution",
-          type: "utility",
-        },
-        build: {
-          generateAttack: false,
-          generateConsumption: false,
-          generateTarget: true,
-          generateDamage: false,
-          generateHealing: false,
-          targetOverride: {
-            affects: {
-              count: "1",
-              type: "self",
-            },
-          },
-          rangeOverride: {
-            units: "self",
-          },
-          activationOverride: {
-            type: "bonus",
-            value: 1,
-            condition: "",
-          },
-        },
-      },
-    ],
     "Steps of the Fey": [
       {
         constructor: {
@@ -3748,14 +3218,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         name: "Arms of the Astral Self",
       },
     },
-    "Beguiling Magic": {
-      data: {
-        "flags.ddbimporter": {
-          ignoredConsumptionActivities: ["Save"],
-          retainOriginalConsumption: true,
-        },
-      },
-    },
     "Chef": {
       data: {
         "flags.ddbimporter": {
@@ -3984,19 +3446,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         name: "Maneuver: Trip Attack",
       },
     },
-    "Monk's Focus": () => {
-      return {
-        data: {
-          "flags.ddbimporter.ignoredConsumptionActivities": ["Patient Defense: Disengage"],
-          "system.uses": this._getUsesWithSpent({
-            type: "class",
-            name: "Focus Points",
-            max: "@scale.monk.focus-points",
-            period: "sr",
-          }),
-        },
-      };
-    },
     "Partially Amphibious": {
       data: {
         "system.uses": {
@@ -4187,11 +3636,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       };
     },
-    "Starry Form": {
-      data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": ["Archer Attack", "Chalice Healing", "Dragon Constitution"],
-      },
-    },
     "Steel Defender": {
       data: {
         "system.uses": {
@@ -4233,13 +3677,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           }),
         },
       };
-    },
-    "The Third Eye": {
-      "system.uses": {
-        spent: 0,
-        max: "1",
-        recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
-      },
     },
     "Unbreakable Majesty": () => {
       return {
@@ -4325,54 +3762,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateUnsignedAddChange("topple", 20, "system.traits.weaponProf.mastery.bonus"),
       ],
     },
-    "Beguiling Magic": {
-      multiple: [
-        {
-          name: "Frightened",
-          options: {
-          },
-          statuses: ["Frightened"],
-        },
-        {
-          name: "Charmed",
-          options: {
-          },
-          statuses: ["Charmed"],
-        },
-      ],
-    },
     "Blessing of the Trickster": {
       options: {
         description: "Advantage on Dexterity (Stealth) checks.",
       },
-    },
-    "Boon of the Night Spirit": () => {
-      const shadow = {
-        name: "Shadowy Form",
-        changes: [
-          "bludgeoning", "piercing", "slashing",
-          "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "thunder",
-        ].map((element) =>
-          generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
-        ),
-        data: {
-          "flags.ddbimporter.activityMatch": "Shadowy Form",
-        },
-      };
-      const merge = {
-        name: "Merge with Shadows: Invisible",
-        statuses: ["Invisible"],
-        options: {
-          description: " The condition ends on you immediately after you take an action, a Bonus Action, or a Reaction.",
-          durationSeconds: 6,
-        },
-        data: {
-          "flags.ddbimporter.activityMatch": "Merge with Shadows",
-        },
-      };
-      return {
-        multiple: [shadow, merge],
-      };
     },
     "Circle Forms": {
       name: "Circle Form AC",
@@ -4383,108 +3776,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateUpgradeChange("13 + @abilities.wis.mod", 20, "system.attributes.ac.min"),
       ],
     },
-    "Cunning Strike": {
-      clearAutoEffects: true,
-      multiple: [
-        {
-          name: "Poisoned",
-          options: {
-            durationSeconds: 60,
-          },
-          statuses: ["Poisoned"],
-          data: {
-            "flags.ddbimporter.activityMatch": "Poison",
-          },
-        },
-        {
-          name: "Prone",
-          statuses: ["Prone"],
-          data: {
-            "flags.ddbimporter.activityMatch": "Trip",
-          },
-        },
-      ],
-    },
     "Cloak of Shadows": {
       name: "Invisible",
       options: {
         durationSeconds: 60,
       },
       statuses: ["Invisible"],
-    },
-    "Corona of Light": {
-      multiple: () => {
-        let effects = [];
-        if (effectModules().atlInstalled) {
-          effects.push({
-            options: {
-            },
-            data: {
-              "flags.ddbimporter.activityMatch": "Use/Apply Light",
-            },
-            atlChanges: [
-              generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '30'),
-              generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '60'),
-              generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-              generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
-            ],
-          });
-        }
-      },
-    },
-    "Dazzling Footwork": {
-      clearAutoEffects: true,
-      multiple: [
-        {
-          options: {
-            transfer: true,
-          },
-          changes: [
-            generateOverrideChange("unarmoredBard", 10, "system.attributes.ac.calc"),
-          ],
-          data: {
-            "flags.ddbimporter.activityMatch": "No Activity",
-          },
-        },
-        {
-          type: "enchant",
-          changes: [
-            generateOverrideChange(`{} [Dazzling Footwork]`, 20, "name"),
-            generateUnsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
-            generateOverrideChange("dex", 20, "system.ability"),
-            generateOverrideChange("true", 20, "system.damage.base.custom.enabled"),
-            generateOverrideChange("@scale.dance.dazzling-footwork + @abilities.dex.mod", 20, "system.damage.base.custom.formula"),
-          ],
-          data: {
-            "flags.ddbimporter.activityMatch": "Bardic Damage",
-          },
-        },
-      ],
-
-    },
-    "Devious Strikes": {
-      clearAutoEffects: true,
-      multiple: [
-        {
-          name: "Knocked Out",
-          options: {
-            durationSeconds: 60,
-          },
-          statuses: ["Unconscious"],
-          data: {
-            "flags.ddbimporter.activityMatch": "Knock Out",
-          },
-        },
-        {
-          name: "Blinded",
-          options: {
-          },
-          statuses: ["Blinded"],
-          data: {
-            "flags.ddbimporter.activityMatch": "Obscure",
-          },
-        },
-      ],
     },
     "Diamond Soul": {
       options: {
@@ -4542,34 +3839,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         "flags.ddbimporter.activityMatch": "Elemental Attunement",
       },
     },
-    "Elemental Epitome": () => {
-      const resistance = ["acid", "cold", "fire", "lightning", "thunder"].map((element) => {
-        return {
-          name: `${utils.capitalize(element)} Resistance`,
-          changes: [
-            generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
-          ],
-          data: {
-            "flags.ddbimporter.activityMatch": "Elemental Attunement Effects",
-          },
-        };
-      });
-      const speed = {
-        name: "Step of the Wind Bonus",
-        changes: [
-          generateUnsignedAddChange("20", 20, "system.attributes.speed.walk"),
-        ],
-        data: {
-          "flags.ddbimporter.activityMatch": "Elemental Attunement Effects",
-        },
-      };
-      return {
-        multiple: [
-          ...resistance,
-          speed,
-        ],
-      };
-    },
     "Elven Accuracy": {
       options: {
         transfer: true,
@@ -4624,27 +3893,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateOverrideChange("lg", 25, "system.traits.size"),
       ],
     },
-    "Gift of the Chromatic Dragon: Chromatic Infusion": {
-      multiple: [
-        { type: "acid", img: "icons/magic/acid/dissolve-bone-white.webp" },
-        { type: "cold", img: "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp" },
-        { type: "fire", img: "icons/magic/fire/barrier-wall-flame-ring-yellow.webp" },
-        { type: "lightning", img: "icons/magic/lightning/bolt-strike-blue.webp" },
-        { type: "poison", img: "icons/skills/toxins/poison-bottle-corked-fire-green.webp" },
-      ].map((element) => {
-        return {
-          type: "enchant",
-          name: `Chromatic Infusion: ${utils.capitalize(element.type)}`,
-          data: {
-            img: element.img,
-          },
-          changes: [
-            generateOverrideChange(`{} [Chromatic Infusion ${utils.capitalize(element.type)}]`, 20, "name"),
-            generateUnsignedAddChange(`[["1d4", "${element.type}"]]`, 20, "system.damage.parts"),
-          ],
-        };
-      }),
-    },
     "Halfling Lucky": {
       options: {
         transfer: true,
@@ -4676,24 +3924,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Innate Sorcery": {
       changes: [
         generateUnsignedAddChange("1", 20, "system.bonuses.spell.dc"),
-      ],
-    },
-    "Improved Brutal Strike": {
-      multiple: [
-        {
-          name: "Staggered",
-          changes: [],
-          data: {
-            "flags.ddbimporter.activityMatch": "Staggering Blow",
-          },
-        },
-        {
-          name: "Sundered",
-          changes: [],
-          data: {
-            "flags.ddbimporter.activityMatch": "Sundering Blow",
-          },
-        },
       ],
     },
     "Improved Circle Forms": {
@@ -4798,16 +4028,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       options: {
         description: "You have Advantage on the next attack roll you make before the end of this turn.",
       },
-    },
-    "Monk's Focus": {
-      multiple: [
-        {
-          name: "Disengage",
-          data: {
-            "flags.ddbimporter.activityMatch": "Step of the Wind",
-          },
-        },
-      ],
     },
     "Nature's Ward": () => {
       const multiple = [
@@ -4917,82 +4137,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         generateOverrideChange("true", 20, "flags.dnd5e.remarkableAthlete"),
       ],
     },
-    "Shielding Storm": {
-      multiple: [
-        {
-          name: "Shielding Storm: Desert",
-          options: {
-          },
-          data: {
-            flags: {
-              ddbimporter: {
-                activityMatch: "Shielding Storm: Desert",
-              },
-              ActiveAuras: {
-                aura: "Allies",
-                radius: "10",
-                isAura: true,
-                ignoreSelf: true,
-                inactive: false,
-                hidden: false,
-                displayTemp: true,
-              },
-            },
-          },
-          changes: [
-            generateUnsignedAddChange("fire", 20, "system.traits.dr.value"),
-          ],
-        },
-        {
-          name: "Shielding Storm: Sea",
-          options: {
-          },
-          data: {
-            flags: {
-              ddbimporter: {
-                activityMatch: "Shielding Storm: Sea",
-              },
-              ActiveAuras: {
-                aura: "Allies",
-                radius: "10",
-                isAura: true,
-                ignoreSelf: true,
-                inactive: false,
-                hidden: false,
-                displayTemp: true,
-              },
-            },
-          },
-          changes: [
-            generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
-          ],
-        },
-        {
-          name: "Shielding Storm: Tundra",
-          options: {
-          },
-          data: {
-            flags: {
-              ddbimporter: {
-                activityMatch: "Shielding Storm: Tundra",
-              },
-              ActiveAuras: {
-                aura: "Allies",
-                radius: "10",
-                isAura: true,
-                ignoreSelf: true,
-                inactive: false,
-                hidden: false,
-                displayTemp: true,
-              },
-            },
-          },
-          changes: [
-            generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
-          ],
-        },
-      ],
-    },
     "Shadow Arts": {
       clearAutoEffects: true,
       options: {
@@ -5013,55 +4157,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       ],
     },
     "Shifting: Wildhunt": {
-    },
-    "Starry Form": {
-      multiple: [
-        {
-          options: {
-          },
-          data: {
-            flags: {
-              ddbimporter: {
-                activityMatch: "Activate Starry Form",
-              },
-            },
-          },
-          atlChanges: [
-            generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '20'),
-            generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '10'),
-            generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#f3f5e5'),
-            generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.35'),
-            generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": ""starlight"", "speed": 5,"intensity": 5}'),
-          ],
-        },
-        {
-          options: {
-          },
-          data: {
-            flags: {
-              ddbimporter: {
-                activityMatch: "Dragon Constitution",
-              },
-            },
-          },
-          changes: [],
-        },
-        {
-          options: {
-          },
-          data: {
-            name: "Dragon Form: Twinkling Constellations",
-            flags: {
-              ddbimporter: {
-                activityMatch: "Dragon Constitution",
-              },
-            },
-          },
-          changes: [
-            generateUpgradeChange("20", 20, "system.attributes.movement.fly"),
-          ],
-        },
-      ],
     },
     "Steps of the Fey": {
       options: {
@@ -5114,54 +4209,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       },
       changes: [
         generateOverrideChange("true", 20, "flags.dnd5e.tavernBrawlerFeat"),
-      ],
-    },
-    "The Third Eye": {
-      multiple: [
-        {
-          name: "Darkvision",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Darkvision",
-          },
-          changes: [
-            {
-              key: "system.attributes.senses.darkvision",
-              value: "120",
-              mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
-              priority: 20,
-            },
-          ],
-          atlChanges: [
-            generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5),
-            generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
-          ],
-        },
-        {
-          name: "Greater Comprehension",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Greater Comprehension",
-            description: "You can read any language",
-          },
-          changes: [
-            generateUnsignedAddChange(";Read Any Language", 20, "system.traits.languages.special"),
-          ],
-        },
-        {
-          name: "See Invisibility",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "See Invisibility",
-          },
-          changes: [
-            generateUnsignedAddChange(";Invisible Creatures", 20, "system.attributes.senses.special"),
-            generateUnsignedAddChange(";Ethereal Plane", 20, "system.attributes.senses.special"),
-          ],
-        },
       ],
     },
     "Tongue of the Sun and Moon": {

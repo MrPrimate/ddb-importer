@@ -2454,15 +2454,8 @@
     "name": "Eldritch Invocations",
     "class_feature": "Eldritch Invocations",
     "class": "Warlock",
-    "subclass": "The Fiend",
-    "path": "icons/magic/water/bubbles-air-water-pink.webp"
-  },
-  {
-    "name": "Eldritch Invocations",
-    "class_feature": "Eldritch Invocations",
-    "class": "Warlock",
     "subclass": "",
-    "path": "icons/magic/water/bubbles-air-water-pink.webp"
+    "path": "icons/sundries/lights/candles-lit-red-evil.webp"
   },
   {
     "name": "Eldritch Invocations: Aspect of the Moon",
@@ -10332,5 +10325,9 @@
   {
     "name": "Misty Step",
     "path": "icons/magic/control/debuff-energy-snare-blue.webp"
+  },
+  {
+    "name": "Eldritch Invocation Options",
+    "path": "icons/magic/water/bubbles-air-water-pink.webp"
   }
 ]

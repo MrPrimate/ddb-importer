@@ -15,7 +15,7 @@ export default class SuperiorHuntersDefense extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
+  get effects() {
     const multiple = DDBEnricherMixin.allDamageTypes().map((damage) => {
       return {
         name: `Superior Hunter's Defense: Resistance to ${utils.capitalize(damage)}`,
@@ -27,10 +27,11 @@ export default class SuperiorHuntersDefense extends DDBEnricherMixin {
         ],
       };
     });
-    return {
-      clearAutoEffects: true,
-      multiple,
-    };
+    return multiple;
+  }
+
+  get clearAutoEffects() {
+    return true;
   }
 
 }

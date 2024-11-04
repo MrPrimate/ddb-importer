@@ -3,25 +3,23 @@ import DDBEnricherMixin from "../../DDBEnricherMixin.js";
 
 export default class BeguilingTwist extends DDBEnricherMixin {
 
-  get effect() {
-    return {
-      multiple: [
-        {
-          name: "Charmed",
-          options: {
-            durationSeconds: 60,
-          },
-          statuses: ["Charmed"],
+  get effects() {
+    return [
+      {
+        name: "Charmed",
+        options: {
+          durationSeconds: 60,
         },
-        {
-          name: "Frightened",
-          options: {
-            durationSeconds: 60,
-          },
-          statuses: ["Frightened"],
+        statuses: ["Charmed"],
+      },
+      {
+        name: "Frightened",
+        options: {
+          durationSeconds: 60,
         },
-      ],
-    };
+        statuses: ["Frightened"],
+      },
+    ];
   }
 
 }

@@ -32,8 +32,8 @@ export default class DarkOnesOwnLuck extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       midiOnly: true,
       options: {
         transfer: true,
@@ -70,7 +70,7 @@ export default class DarkOnesOwnLuck extends DDBEnricherMixin {
           priority: 20,
         },
       ],
-    };
+    }];
   }
 
 }

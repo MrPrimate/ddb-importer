@@ -17,23 +17,21 @@ export default class DefensiveTactics extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
-      multiple: [
-        {
-          name: "Escape the Horde",
-          data: {
-            "flags.ddbimporter.activityMatch": "Choice",
-          },
+  get effects() {
+    return [
+      {
+        name: "Escape the Horde",
+        data: {
+          "flags.ddbimporter.activityMatch": "Choice",
         },
-        {
-          name: "Multiattack Defense",
-          data: {
-            "flags.ddbimporter.activityMatch": "Choice",
-          },
+      },
+      {
+        name: "Multiattack Defense",
+        data: {
+          "flags.ddbimporter.activityMatch": "Choice",
         },
-      ],
-    };
+      },
+    ];
   }
 
   get override() {

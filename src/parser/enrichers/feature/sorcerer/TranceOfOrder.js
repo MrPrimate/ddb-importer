@@ -81,14 +81,14 @@ export default class TranceOfOrder extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Trance of Order",
       options: {
         description: "attack rolls against you can't benefit from Advantage, treat D20 Test rolls of 9 or lower on the d20 as a 10.",
         durationSeconds: 60,
       },
-    };
+    }];
   }
 
 }

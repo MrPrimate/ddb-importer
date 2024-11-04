@@ -43,9 +43,9 @@ export default class SacredWeapon extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
+  get effects() {
     if (this.is2014) {
-      return {
+      return [{
         type: "enchant",
         name: "Sacred Weapon",
         magicalBonus: {
@@ -65,9 +65,9 @@ export default class SacredWeapon extends DDBEnricherMixin {
           description: `The weapon shines with Sacred Energy.`,
           durationSeconds: 60,
         },
-      };
+      }];
     } else {
-      return {
+      return [{
         type: "enchant",
         name: "Sacred Weapon",
         magicalBonus: {
@@ -83,7 +83,7 @@ export default class SacredWeapon extends DDBEnricherMixin {
           description: `The weapon shines with Sacred Energy.`,
           durationSeconds: 600,
         },
-      };
+      }];
     }
   }
 }

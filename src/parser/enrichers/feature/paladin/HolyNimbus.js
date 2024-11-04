@@ -85,26 +85,21 @@ export default class HolyNimbus extends DDBEnricherMixin {
     ];
   }
 
-  get effect() {
-    return {
-      multiple: () => {
-        let effects = [];
-        if (DDBEnricherMixin.effectModules().atlInstalled) {
-          effects.push({
-            options: {
-            },
-            data: {
-              "flags.ddbimporter.activityMatch": "Use/Apply Light",
-            },
-            atlChanges: [
-              DDBEnricherMixin.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '@scale.paladin.aura-of-protection'),
-              DDBEnricherMixin.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-              DDBEnricherMixin.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
-            ],
-          });
-        }
-      },
-    };
+  get effects() {
+    let effects = [];
+    if (DDBEnricherMixin.effectModules().atlInstalled) {
+      effects.push({
+        data: {
+          "flags.ddbimporter.activityMatch": "Use/Apply Light",
+        },
+        atlChanges: [
+          DDBEnricherMixin.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '@scale.paladin.aura-of-protection'),
+          DDBEnricherMixin.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+          DDBEnricherMixin.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+        ],
+      });
+    }
+    return effects;
   }
 
   get override() {

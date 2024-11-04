@@ -67,7 +67,7 @@ export default class AlchemistsFire extends DDBEnricherMixin {
 
   }
 
-  override() {
+  get override() {
     if (this.is2014) {
       return {
         options: {
@@ -85,16 +85,16 @@ export default class AlchemistsFire extends DDBEnricherMixin {
 
   }
 
-  effect() {
-    if (this.is2014) return null;
+  get effects() {
+    if (this.is2014) return [];
 
-    return {
+    return [{
       statuses: ["Burning"],
       options: {
         transfer: false,
         description: "You are &Reference[Burning] take [[/damage 1d4 fire]] at the start of your turn.",
       },
-    };
+    }];
   }
 
 }

@@ -56,48 +56,45 @@ export default class PowerOfTheWilds extends DDBEnricherMixin {
     ];
   }
 
-  get effect() {
-
-    return {
-      multiple: [
-        {
-          name: "Falcoln",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Falcoln",
-          },
-          changes: [
-            this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-          ],
+  get effects() {
+    return [
+      {
+        name: "Falcoln",
+        options: {
         },
-        {
-          name: "Lion",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Lion",
-          },
+        data: {
+          "flags.ddbimporter.activityMatch": "Falcoln",
         },
-        {
-          name: "Ram",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Ram",
-          },
+        changes: [
+          this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+        ],
+      },
+      {
+        name: "Lion",
+        options: {
         },
-        {
-          name: "Prone",
-          options: {
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Ram",
-          },
-          statuses: ["Prone"],
+        data: {
+          "flags.ddbimporter.activityMatch": "Lion",
         },
-      ],
-    };
+      },
+      {
+        name: "Ram",
+        options: {
+        },
+        data: {
+          "flags.ddbimporter.activityMatch": "Ram",
+        },
+      },
+      {
+        name: "Prone",
+        options: {
+        },
+        data: {
+          "flags.ddbimporter.activityMatch": "Ram",
+        },
+        statuses: ["Prone"],
+      },
+    ];
   }
 
 }

@@ -28,13 +28,13 @@ export default class LivingLegend extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Living Legend",
       data: {
         "flags.ddbimporter.activitiesMatch": ["Activate Living Legend"],
       },
-    };
+    }];
   }
 
 }
