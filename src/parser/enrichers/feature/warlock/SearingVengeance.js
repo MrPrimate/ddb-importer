@@ -48,14 +48,14 @@ export default class SearingVengeance extends DDBEnricherMixin {
     ];
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Searing Vengeance: Blinded",
       options: {
         durationSeconds: 6,
       },
       statuses: ["Blinded"],
-    };
+    }];
   }
 
 }

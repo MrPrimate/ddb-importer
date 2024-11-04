@@ -61,8 +61,8 @@ export default class DragonWings extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Dragon Wings",
       options: {
         durationSeconds: 600,
@@ -70,7 +70,7 @@ export default class DragonWings extends DDBEnricherMixin {
       changes: [
         DDBEnricherMixin.generateUpgradeChange("60", 2, "system.attributes.movement.fly"),
       ],
-    };
+    }];
   }
 
 }

@@ -9,15 +9,15 @@ export default class RadiantStrikes extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       options: {
         transfer: true,
       },
       changes: [
         DDBEnricherMixin.generateUnsignedAddChange("1d8[radiant]", 20, "system.bonuses.mwak.damage"),
       ],
-    };
+    }];
   }
 
 }

@@ -18,9 +18,9 @@ export default class Shillelagh extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
+  get effects() {
     if (this.is2014) {
-      const multiple = ["Physical", "Spellcasting"].map((type) => {
+      return ["Physical", "Spellcasting"].map((type) => {
         const changes = [
           DDBEnricherMixin.generateOverrideChange(`{} [${this.data.name.split("(")[0]}]`, 20, "name"),
           DDBEnricherMixin.generateUnsignedAddChange("mgc", 20, "system.properties"),
@@ -37,11 +37,8 @@ export default class Shillelagh extends DDBEnricherMixin {
           changes: [...changes, ...spellCastingChanges],
         };
       });
-      return {
-        multiple,
-      };
     } else {
-      const multiple = ["Physical", "Spellcasting"].map((type) => {
+      return ["Physical", "Spellcasting"].map((type) => {
         return [
           { level: 1, denomination: 8 },
           { level: 5, denomination: 10 },
@@ -66,9 +63,6 @@ export default class Shillelagh extends DDBEnricherMixin {
           };
         });
       }).flat();
-      return {
-        multiple,
-      };
     }
 
   }

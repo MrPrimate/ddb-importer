@@ -16,13 +16,13 @@ export default class GnomengardeGrenade extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       options: {
         transfer: false,
       },
       statuses: ["Stunned"],
-    };
+    }];
   }
 
   get additionalActivities() {

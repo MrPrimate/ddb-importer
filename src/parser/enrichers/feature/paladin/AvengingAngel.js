@@ -57,12 +57,11 @@ export default class AvengingAngel extends DDBEnricherMixin {
     ];
   }
 
-  get effect() {
+  get effects() {
     if (this.ddbParser.isAction) {
-      return null;
+      return [];
     }
-    return {
-      clearAutoEffects: true,
+    return [{
       name: "Avenging Angel (Wings)",
       options: {
         durationSeconds: 600,
@@ -73,7 +72,7 @@ export default class AvengingAngel extends DDBEnricherMixin {
       changes: [
         DDBEnricherMixin.generateUpgradeChange("60", 2, "system.attributes.speed.fly"),
       ],
-    };
+    }];
   }
 
   get override() {
@@ -84,6 +83,10 @@ export default class AvengingAngel extends DDBEnricherMixin {
         "system.uses": uses,
       },
     };
+  }
+
+  get clearAutoEffects() {
+    return true;
   }
 
 }

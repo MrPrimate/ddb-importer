@@ -126,6 +126,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Breath Weapon (Cold)",
     "Breath Weapon (Lightning)",
     "Elemental Affinity",
+    "Eldritch Invocations",
   ];
 
   _prepare() {

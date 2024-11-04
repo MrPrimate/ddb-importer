@@ -20,15 +20,15 @@ export default class VowOfEnmity extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Vow of Enmity",
       options: {
         description: "You gain advantage on attack rolls against the creature",
         durationSeconds: 60,
       },
       midiChanges: [],
-    };
+    }];
   }
 
 

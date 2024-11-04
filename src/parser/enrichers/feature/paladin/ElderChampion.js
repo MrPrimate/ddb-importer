@@ -78,8 +78,8 @@ export default class ElderChampion extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Diminish Defiance",
       options: {
         description: "Enemies in the aura have Disadvantage on saving throws against your spells and Channel Divinity options.",
@@ -87,7 +87,7 @@ export default class ElderChampion extends DDBEnricherMixin {
       data: {
         "flags.ddbimporter.activitiesMatch": ["Activate Elder Champion"],
       },
-    };
+    }];
   }
 
 }

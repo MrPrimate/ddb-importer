@@ -28,48 +28,46 @@ export default class RevelationInFlesh extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
-      multiple: [
-        {
-          name: "Aquatic Adaptation",
-          options: {
-            durationSeconds: 600,
-          },
-          changes: [
-            this.movementChange("2 * @attributes.movement.walk", 20, "system.attributes.movement.swim"),
-          ],
+  get effects() {
+    return [
+      {
+        name: "Aquatic Adaptation",
+        options: {
+          durationSeconds: 600,
         },
-        {
-          name: "Glistening Flight",
-          options: {
-            durationSeconds: 600,
-          },
-          changes: [
-            this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-            DDBEnricherMixin.generateCustomChange("true", 20, "system.attributes.movement.hover"),
-          ],
+        changes: [
+          this.movementChange("2 * @attributes.movement.walk", 20, "system.attributes.movement.swim"),
+        ],
+      },
+      {
+        name: "Glistening Flight",
+        options: {
+          durationSeconds: 600,
         },
-        {
-          name: "See the Invisible",
-          options: {
-            durationSeconds: 600,
-          },
-          changes: [
-            DDBEnricherMixin.generateUnsignedAddChange(";See Invisibility (60ft)", 1, "system.attributes.senses.special"),
-          ],
-          atlChanges: [
-            DDBEnricherMixin.generateUpgradeChange("60", 20, "ATL.detectionModes.seeInvisibility.range"),
-          ],
+        changes: [
+          this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+          DDBEnricherMixin.generateCustomChange("true", 20, "system.attributes.movement.hover"),
+        ],
+      },
+      {
+        name: "See the Invisible",
+        options: {
+          durationSeconds: 600,
         },
-        {
-          name: "Wormlike Movement",
-          options: {
-            durationSeconds: 600,
-          },
+        changes: [
+          DDBEnricherMixin.generateUnsignedAddChange(";See Invisibility (60ft)", 1, "system.attributes.senses.special"),
+        ],
+        atlChanges: [
+          DDBEnricherMixin.generateUpgradeChange("60", 20, "ATL.detectionModes.seeInvisibility.range"),
+        ],
+      },
+      {
+        name: "Wormlike Movement",
+        options: {
+          durationSeconds: 600,
         },
-      ],
-    };
+      },
+    ];
   }
 
 }

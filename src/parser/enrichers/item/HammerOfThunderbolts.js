@@ -105,29 +105,23 @@ export default class HammerOfThunderbolts extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
-      multiple: [
-        {
-          noCreate: true,
-          options: {
-            transfer: false,
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Giant: Save vs Death",
-          },
+  get effects() {
+    return [
+      {
+        noCreate: true,
+        options: {
+          transfer: false,
         },
-        {
-          options: {
-            transfer: false,
-          },
-          statuses: ["Stunned"],
-          data: {
-            "flags.ddbimporter.activityMatch": "Save vs Stunned",
-          },
+        activityMatch: "Giant: Save vs Death",
+      },
+      {
+        options: {
+          transfer: false,
         },
-      ],
-    };
+        statuses: ["Stunned"],
+        activityMatch: "Save vs Stunned",
+      },
+    ];
   }
 
 }

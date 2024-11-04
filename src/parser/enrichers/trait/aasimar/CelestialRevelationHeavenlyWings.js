@@ -13,15 +13,15 @@ export default class CelestialRevelationHeavenlyWings extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       options: {
         durationSeconds: 60,
       },
       changes: [
         this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
       ],
-    };
+    }];
   }
 
 }

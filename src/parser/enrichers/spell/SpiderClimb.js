@@ -3,12 +3,12 @@ import DDBEnricherMixin from "../DDBEnricherMixin.js";
 
 export default class SpiderClimb extends DDBEnricherMixin {
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       changes: [
         this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.climb"),
       ],
-    };
+    }];
   }
 
 }

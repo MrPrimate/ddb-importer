@@ -34,26 +34,27 @@ export default class ElementalAffinity extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
+  get effects() {
     const activeType = this.ddbParser?._chosen.find((a) =>
       utils.nameString(a.label).endsWith("Damage"),
     )?.label?.split(" Damage")[0].toLowerCase() ?? "";
 
-    return {
-      clearAutoEffects: true,
-      multiple: this.damageTypes().map((type) => {
-        return {
-          name: `Elemental Affinity, Resistance: ${utils.capitalize(type)}`,
-          options: {
-            transfer: activeType.includes(type),
-            disabled: !activeType.includes(type),
-          },
-          changes: [
-            DDBEnricherMixin.generateUnsignedAddChange(type, 20, "system.traits.dr.value"),
-          ],
-        };
-      }),
-    };
+    return this.damageTypes().map((type) => {
+      return {
+        name: `Elemental Affinity, Resistance: ${utils.capitalize(type)}`,
+        options: {
+          transfer: activeType.includes(type),
+          disabled: !activeType.includes(type),
+        },
+        changes: [
+          DDBEnricherMixin.generateUnsignedAddChange(type, 20, "system.traits.dr.value"),
+        ],
+      };
+    });
+  }
+
+  get clearAutoEffects() {
+    return true;
   }
 
 }

@@ -137,11 +137,11 @@ export default class DDBBaseEnricher {
     }
   }
 
-  get effect() {
+  get effects() {
     if (this.loadedEnricher) {
-      return this.loadedEnricher.effect;
+      return this.loadedEnricher.effects;
     } else {
-      return this._findEnricherMatch("EFFECT_HINTS");
+      return [this._findEnricherMatch("EFFECT_HINTS")];
     }
   }
 
@@ -166,6 +166,14 @@ export default class DDBBaseEnricher {
       return this.loadedEnricher.documentStub;
     } else {
       return this._findEnricherMatch("DOCUMENT_STUB");
+    }
+  }
+
+  get clearAutoEffects() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.clearAutoEffects;
+    } else {
+      return this._findEnricherMatch("EFFECT_HINTS")?.clearAutoEffects ?? false;
     }
   }
 
@@ -413,13 +421,11 @@ export default class DDBBaseEnricher {
   // eslint-disable-next-line complexity
   createEffect() {
     const effects = [];
-    if (!this.effect) return effects;
+    if (!this.effects?.effects || this.effects?.length === 0) return effects;
 
-    let effect;
-
-    const effectHintsRaw = utils.isFunction(this.effect)
-      ? this.effect()
-      : this.effect;
+    const effectHintsRaw = utils.isFunction(this.effects)
+      ? this.effects()
+      : this.effects;
 
     if (!effectHintsRaw) return effects;
 
@@ -438,6 +444,7 @@ export default class DDBBaseEnricher {
       let name = effectHint.name ?? this.name;
       let effectOptions = effectHint.options ?? {};
 
+      let effect;
       if (effectHint.noCreate && this.data.effects.length > 0) {
         effect = this.data.effects[0];
       } else {
@@ -510,6 +517,14 @@ export default class DDBBaseEnricher {
 
       if (effectHint.midiChanges && effectModules().midiQolInstalled) {
         effect.changes.push(...effectHint.midiChanges);
+      }
+
+      if (effectHint.activityMatch) {
+        foundry.utils.setProperty(effect, "flags.ddbimporter.activityMatch", effectHint.activityMatch);
+      }
+
+      if (effectHint.activitiesMatch) {
+        foundry.utils.setProperty(effect, "flags.ddbimporter.activitiesMatch", effectHint.activitiesMatch);
       }
 
       if (effectHint.data) {

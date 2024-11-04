@@ -14,8 +14,8 @@ export default class UseMagicDevice extends DDBEnricherMixin {
     ];
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Attunement",
       options: {
         transfer: true,
@@ -23,7 +23,7 @@ export default class UseMagicDevice extends DDBEnricherMixin {
       changes: [
         DDBEnricherMixin.generateUpgradeChange("4", 10, "system.attributes.attunement.max"),
       ],
-    };
+    }];
   }
 
 }

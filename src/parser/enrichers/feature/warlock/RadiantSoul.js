@@ -10,7 +10,6 @@ export default class RadiantSoul extends DDBEnricherMixin {
   get activity() {
     return {
       name: "Damage bonus",
-      type: "damage",
       noeffect: true,
       activationType: "special",
       activationCondition: "1/turn. Damage someone with a radiant or fire",

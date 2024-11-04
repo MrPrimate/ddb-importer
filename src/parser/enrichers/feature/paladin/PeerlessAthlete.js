@@ -17,14 +17,14 @@ export default class PeerlessAthlete extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Peerless Athlete",
       options: {
         durationSeconds: 3600,
         description: "Advantage on Strength (Athletics) and Dexterity (Acrobatics) checks, and the distance of your Long and High Jumps increases by 10 feet",
       },
-    };
+    }];
   }
 
 }

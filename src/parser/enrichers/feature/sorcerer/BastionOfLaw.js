@@ -39,10 +39,10 @@ export default class BastionOfLaw extends DDBEnricherMixin {
     };
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       name: "Bastion of Law",
-    };
+    }];
   }
 
 }

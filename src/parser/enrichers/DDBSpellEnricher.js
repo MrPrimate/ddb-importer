@@ -1,15 +1,28 @@
 import { effectModules, generateATLChange, generateCustomChange, generateOverrideChange, generateSignedAddChange, generateTokenMagicFXChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
-import utils from "../../lib/utils.js";
 import DDBSpellActivity from "../spells/DDBSpellActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
+import AbsorbElements from "./spell/AbsorbElements.js";
+import Aid from "./spell/Aid.js";
 import AlterSelf from "./spell/AlterSelf.js";
 // Enrichers
 import ArcaneHand from "./spell/ArcaneHand.js";
+import ArcaneVigor from "./spell/ArcaneVigor.js";
 import EldritchBlast from "./spell/EldritchBlast.js";
+import ElementalWeapon from "./spell/ElementalWeapon.js";
+import FaerieFire from "./spell/FaerieFire.js";
+import FireShield from "./spell/FireShield.js";
+import FountOfMoonlight from "./spell/FountOfMoonlight.js";
 import GlyphOfWarding from "./spell/GlyphOfWarding.js";
 import HuntersMark from "./spell/HuntersMark.js";
+import MagicWeapon from "./spell/MagicWeapon.js";
+import PowerWordFortify from "./spell/PowerWordFortify.js";
+import PrismaticWall from "./spell/PrismaticWall.js";
+import ProtectionFromEnergy from "./spell/ProtectionFromEnergy.js";
 import Shillelagh from "./spell/Shillelagh.js";
+import Sleep from "./spell/Sleep.js";
 import SpiderClimb from "./spell/SpiderClimb.js";
+import TashasBubblingCauldron from "./spell/TashasBubblingCauldron.js";
+import TrueStrike from "./spell/TrueStrike.js";
 
 export default class DDDSpellEnricher extends DDBBaseEnricher {
   constructor() {
@@ -25,13 +38,27 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
   }
 
   ENRICHERS = {
+    "Absorb Elements": () => AbsorbElements,
+    "Aid": () => Aid,
     "Alter Self": () => AlterSelf,
     "Arcane Hand": () => ArcaneHand,
+    "Arcane Vigor": () => ArcaneVigor,
     "Eldritch Blast": () => EldritchBlast,
+    "Elemental Weapon": () => ElementalWeapon,
+    "Faerie Fire": () => FaerieFire,
+    "Fire Shield": () => FireShield,
+    "Fount of Moonlight": () => FountOfMoonlight,
     "Glyph of Warding": () => GlyphOfWarding,
     "Hunter's Mark": () => HuntersMark,
+    "Magic Weapon": () => MagicWeapon,
+    "Power Word Fortify": () => PowerWordFortify,
+    "Prismatic Wall": () => PrismaticWall,
+    "Protection from Energy": () => ProtectionFromEnergy,
     "Shillelagh": () => Shillelagh,
+    "Sleep": () => Sleep,
     "Spider Climb": () => SpiderClimb,
+    "Tasha's Bubbling Cauldron": () => TashasBubblingCauldron,
+    "True Strike": () => TrueStrike,
   };
 
   NAME_HINTS_2014 = {};
@@ -64,18 +91,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       "Ray of Sickness": {
         noeffect: true,
       },
-      "Sleep": {
-        type: "utility",
-        data: {
-          roll: {
-            prompt: false,
-            visible: false,
-            formula: "3d8 + (2*@item.level)d8",
-            name: "HP Effected",
-          },
-        },
-      },
-      "True Strike": {},
     },
     ADDITIONAL_ACTIVITIES: {
       "Animate Objects": [],
@@ -95,7 +110,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           },
         },
       ],
-      "True Strike": [],
     },
     DOCUMENT_OVERRIDES: {},
     EFFECT_HINTS: {
@@ -117,7 +131,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       "Mass Suggestion": {},
       "Suggestion": {
       },
-      "True Strike": {},
     },
     DOCUMENT_STUB: {},
   };
@@ -130,13 +143,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
   };
 
   ACTIVITY_HINTS = {
-    "Absorb Elements": {
-      type: "utility",
-      data: {
-        "description.chatFlavor": "Uses the damage type of the triggered attack: Acid, Cold, Fire, Lightning, or Poison.",
-        name: "Absorb Elements Effect",
-      },
-    },
     "Acid Arrow": {
       data: {
         "damage.parts": [
@@ -167,12 +173,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           "attacks": true,
           "saves": false,
         },
-      },
-    },
-    "Arcane Vigor": {
-      type: "utility",
-      data: {
-        name: "Cast Spell",
       },
     },
     "Armor of Agathys": {
@@ -302,41 +302,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Elemental Weapon": {
-      type: "enchant",
-      data: {
-        restrictions: {
-          type: "weapon",
-          allowMagical: false,
-        },
-      },
-    },
-    "Fire Shield": {
-      type: "utility",
-    },
-    "Fount of Moonlight": () => {
-      if (effectModules().atlInstalled) {
-        return {
-          type: "utility",
-          data: {
-            name: "Cast Spell",
-          },
-        };
-      } else {
-        return {
-          type: "ddbmacro",
-          data: {
-            name: "Cast Spell",
-            macro: {
-              name: "Place Light on Token",
-              function: "ddb.generic.light",
-              visible: false,
-              parameters: '{"distance":20,"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":40,"bright":20},"flag":"light"}',
-            },
-          },
-        };
-      }
-    },
     "Gust of Wind": {
       data: {
         target: {
@@ -409,31 +374,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         "MageHandRainbow",
       ],
       summons: {
-      },
-    },
-    "Magic Weapon": {
-      type: "enchant",
-      data: {
-        restrictions: {
-          type: "weapon",
-          allowMagical: false,
-        },
-      },
-    },
-    "Prismatic Wall": {
-      type: "utility",
-      data: {
-        name: "Place Wall",
-        target: {
-          override: true,
-          template: {
-            type: "wall",
-            size: "90",
-            width: "1/12",
-            height: "30",
-            units: "ft",
-          },
-        },
       },
     },
     "Pyrotechnics": {
@@ -519,31 +459,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     },
-    "Tasha's Bubbling Cauldron": {
-      type: "summon",
-      noTemplate: true,
-      profileKeys: [
-        "TashasBubblingCauldron",
-      ],
-      addItemConsume: true,
-      itemConsumeValue: "-@attributes.spelldc",
-      data: {
-        name: "Create Cauldron",
-        img: "systems/dnd5e/icons/svg/activity/summon.svg",
-        target: {
-          override: true,
-          template: {
-            count: "1",
-            contiguous: false,
-            type: "",
-            size: "",
-            height: "",
-            units: "",
-          },
-          affects: {},
-        },
-      },
-    },
     "Tidal Wave": {
       type: "save",
     },
@@ -565,16 +480,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
             size: "10",
             units: "ft",
           },
-        },
-      },
-    },
-    "True Strike": {
-      type: "enchant",
-      data: {
-        name: "Enchant Weapon",
-        restrictions: {
-          type: "weapon",
-          allowMagical: true,
         },
       },
     },
@@ -766,23 +671,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
   };
 
   ADDITIONAL_ACTIVITIES = {
-    "Absorb Elements": [
-      {
-        constructor: {
-          name: "Elemental Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          noSpellslot: true,
-          generateAttack: false,
-          onsave: false,
-          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, types: ["acid", "cold", "fire", "lightning", "thunder"] })],
-          noeffect: true,
-        },
-      },
-    ],
     "Acid Arrow": [
       {
         constructor: {
@@ -800,42 +688,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         },
       },
     ],
-    "Arcane Vigor": () => {
-      return [4, 6, 8, 10, 12]
-        .map((die) => {
-          return {
-            constructor: {
-              name: `Spend spells level HD (d${die})`,
-              type: "heal",
-            },
-            build: {
-              generateDamage: false,
-              generateHealing: true,
-              generateRange: true,
-              generateConsumption: true,
-              healingPart: DDBBaseEnricher.basicDamagePart({ number: 2, denomination: die, bonus: "@mod", type: "healing", scalingMode: "whole", scalingNumber: 1 }),
-              consumptionOverride: {
-                spellSlot: false,
-                scaling: {
-                  allowed: true,
-                  max: "@item.level",
-                },
-                targets: [
-                  {
-                    type: "hitDice",
-                    target: `d${die}`,
-                    value: 2,
-                    scaling: {
-                      mode: "amount",
-                      formula: "1",
-                    },
-                  },
-                ],
-              },
-            },
-          };
-        });
-    },
     "Armor of Agathys": [
       {
         constructor: {
@@ -976,44 +828,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           onsave: false,
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 3, denomination: 8, type: "radiant", scalingMode: "whole", scalingNumber: 1 })],
           noeffect: true,
-        },
-      },
-    ],
-    "Fount of Moonlight": [
-      {
-        constructor: {
-          name: "Force Blinding Save",
-          type: "save",
-        },
-        build: {
-          generateDamage: false,
-          generateSave: true,
-          noSpellslot: true,
-          rangeOverride: {
-            value: "60",
-            units: "ft",
-            special: "",
-          },
-          targetOverride: {
-            affects: {
-              type: "creature",
-              count: "1",
-
-            },
-            template: {
-              count: "",
-              contiguous: false,
-              type: "",
-              size: "",
-              width: "",
-              height: "",
-              units: "",
-            },
-          },
-          durationOverride: {
-            units: "inst",
-            concentration: false,
-          },
         },
       },
     ],
@@ -1160,71 +974,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         ];
       }
     },
-    "Prismatic Wall": [
-      {
-        constructor: {
-          name: "Create Globe",
-          type: "utility",
-        },
-        build: {
-          generateDamage: false,
-          generateConsumption: true,
-          generateSave: false,
-          generateTarget: true,
-          targetOverride: {
-            override: true,
-            template: {
-              contiguous: false,
-              type: "radius",
-              size: "15",
-              units: "ft",
-            },
-            affects: {},
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Blinding Save",
-          type: "save",
-        },
-        build: {
-          generateDamage: false,
-          generateConsumption: false,
-          generateSave: true,
-          generateTarget: true,
-          noSpellslot: true,
-          activationOverride: { type: "spec", condition: "Within 20ft" },
-          durationOverride: { units: "inst", concentration: false },
-          targetOverride: {
-            override: true,
-            affects: { type: "creature" },
-            template: {},
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Damage Save",
-          type: "save",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          generateSave: true,
-          generateTarget: true,
-          noSpellslot: true,
-          activationOverride: { type: "spec", condition: "Moving through" },
-          durationOverride: { units: "inst", concentration: false },
-          targetOverride: {
-            override: true,
-            affects: { type: "creature" },
-            template: {},
-          },
-          damageParts: [DDBBaseEnricher.basicDamagePart({ number: 1, denomination: 6, types: ["fire", "acid", "lightning", "poison", "cold"] })],
-        },
-      },
-    ],
     "Pyrotechnics": [
       {
         constructor: {
@@ -1325,24 +1074,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           noeffect: true,
           activationOverride: { type: "", condition: "Moves 5ft" },
           damageParts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 4, type: "piercing" })],
-        },
-      },
-    ],
-    "Tasha's Bubbling Cauldron": [
-      {
-        constructor: {
-          name: "Withdraw Potion",
-          type: "utility",
-        },
-        build: {
-          img: "systems/dnd5e/icons/svg/ink-pot.svg",
-          generateDamage: true,
-          generateConsumption: true,
-          consumeItem: true,
-          noSpellslot: true,
-          generateAttack: false,
-          noeffect: true,
-          activationOverride: { type: "bonus", condition: "" },
         },
       },
     ],
@@ -1747,35 +1478,11 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         "flags.midiProperties.autoFailFriendly": true,
       },
     },
-    "Power Word Fortify": {
-      descriptionSuffix: `
-<details>
-    <summary><strong>Temp HP Helpers</strong></summary>
-    <p>[[/healing 20 type=temphp]]</p>
-    <p>[[/healing 30 type=temphp]]</p>
-    <p>[[/healing 40 type=temphp]]</p>
-    <p>[[/healing 60 type=temphp]]</p>
-    <p>[[/healing 120 type=temphp]]</p>
-</details>`,
-    },
     "Primal Savagery": {
       data: {
         "system.range": {
           value: "5",
           units: "ft",
-        },
-      },
-    },
-    "Prismatic Wall": {
-      data: {
-        "system.target": {
-          template: {
-            contiguous: false,
-            type: "",
-            size: "",
-            width: "",
-            units: "",
-          },
         },
       },
     },
@@ -1786,40 +1493,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
           units: "ft",
         },
       },
-    },
-    "Tasha's Bubbling Cauldron": () => {
-      let descriptionSuffix = "";
-      if (this.ddbParser.itemCompendium) {
-        const possibleItems = this.ddbParser.itemCompendium.index
-          .filter((i) => ["common", "uncommon"].includes(i.system.rarity)
-            && i.type == "consumable"
-            && i.system.type.value === "potion"
-            && i.name.toLowerCase().includes("potion"),
-          );
-        if (possibleItems.length > 0) {
-          descriptionSuffix += `<details>
-<summary><strong>Suggested Potions</strong></summary>`;
-          for (const item of possibleItems) {
-            descriptionSuffix += `<p>@UUID[${item.uuid}]</p>`;
-          }
-          descriptionSuffix += "</details>";
-        }
-      }
-      descriptionSuffix += `
-<section class="secret" id="secret-ddbTasBubCauldro">
-<p><strong>Implementation Details</strong></p>
-<p>The Uses of this spell represent the number of potions remaining in the cauldron, which is reset by the <strong>Create Cauldron</strong> activity.</p>
-<p>The <strong>Withdraw Potion</strong> activity will consume a use of the cauldron.</p>
-</section>`;
-      return {
-        descriptionSuffix,
-        data: {
-          "system.uses": {
-            max: "@attributes.spellmod",
-            spent: "0",
-          },
-        },
-      };
     },
     "Thunderclap": {
       data: {
@@ -1935,34 +1608,11 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
   };
 
   EFFECT_HINTS = {
-    "Absorb Elements": {
-      multiple: ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
-        return {
-          name: `Absorb ${element}`,
-          changes: [
-            generateUnsignedAddChange(element.toLowerCase(), 1, "system.traits.dr.value"),
-          ],
-          data: {
-            "flags.ddbimporter.activityMatch": "Absorb Elements Effect",
-          },
-        };
-      }),
-    },
     "Acid Arrow": {
       name: "Covered in Acid",
       options: {
         durationSeconds: 6,
       },
-    },
-    "Aid": {
-      multiple: [2, 3, 4, 5, 6, 7, 8, 9].map((level) => {
-        return {
-          name: `Aid: Level ${level} Temp Max HP Bonus`,
-          changes: [
-            generateUnsignedAddChange(`${5 * (level - 1)}`, 20, "system.attributes.hp.bonuses.overall"),
-          ],
-        };
-      }),
     },
     "Animal Friendship": {
       statuses: "Charmed",
@@ -2023,69 +1673,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         generateUnsignedAddChange("1d4[radiant]", 0, "system.bonuses.rwak.damage"),
       ],
     },
-    "Elemental Weapon": {
-      multiple: [
-        { type: "acid", img: "icons/magic/acid/dissolve-bone-white.webp" },
-        { type: "cold", img: "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp" },
-        { type: "fire", img: "icons/magic/fire/barrier-wall-flame-ring-yellow.webp" },
-        { type: "lightning", img: "icons/magic/lightning/bolt-strike-blue.webp" },
-        { type: "thunder", img: "icons/magic/sonic/explosion-shock-wave-teal.webp" },
-      ].map((element) => {
-        return [
-          { bonus: "1", min: null, max: 3 },
-          { bonus: "2", min: 5, max: 6 },
-          { bonus: "3", min: 7, max: null },
-        ].map((data) => {
-          return {
-            type: "enchant",
-            name: `Elemental Weapon: ${utils.capitalize(element.type)} +${data.bonus}`,
-            magicalBonus: {
-              makeMagical: true,
-              bonus: `+${data.bonus}`,
-              nameAddition: `+${data.bonus}`,
-            },
-            options: {
-              description: `This weapon has become a +${data.bonus} magic weapon, granting a bonus to attack and damage rolls. It also gains additional elemental damage.`,
-            },
-            data: {
-              img: element.img,
-              "flags.ddbimporter.effectIdLevel": {
-                min: data.min,
-                max: data.max,
-              },
-            },
-            changes: [
-              generateUnsignedAddChange(`[["${data.bonus}d4[${element.type}]", "${element.type}"]]`, 20, "system.damage.parts"),
-            ],
-          };
-        });
-      }).flat(),
-    },
-    "Faerie Fire": {
-      multiple: () => {
-        return [
-          { colour: "Blue", hex: "#5ab9e2" },
-          { colour: "Green", hex: "#55d553" },
-          { colour: "Violet", hex: "#844ec6" },
-        ].map((data) => {
-          return {
-            name: `${data.colour} Light`,
-            midiChanges: [
-              generateCustomChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
-            ],
-            atlChanges: [
-              generateOverrideChange(data.hex, 30, "ATL.light.color"),
-              generateOverrideChange("0.65", 30, "ATL.light.alpha"),
-              generateOverrideChange("10", 30, "ATL.light.dim"),
-              generateOverrideChange('{"type": "pulse","speed": 1,"intensity": 3}', 30, "ATL.light.animation"),
-            ],
-            tokenMagicChanges: [
-              generateTokenMagicFXChange("glow"),
-            ],
-          };
-        });
-      },
-    },
     "Feeblemind": {
       changes: [
         generateOverrideChange("1", 20, "system.abilities.cha.value"),
@@ -2095,61 +1682,9 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         generateOverrideChange("1", 20, "flags.midi-qol.fail.spell.all"),
       ],
     },
-    "Fire Shield": {
-      multiple: [
-        {
-          name: "Cold Shield",
-          changes: [
-            generateUnsignedAddChange("fire", 0, "system.traits.dr.value"),
-          ],
-        },
-        {
-          name: "Warm Shield",
-          changes: [
-            generateUnsignedAddChange("cold", 0, "system.traits.dr.value"),
-          ],
-        },
-      ],
-    },
     "Fly": {
       changes: [
         generateUpgradeChange("60", 20, "system.attributes.movement.fly"),
-      ],
-    },
-    "Fount of Moonlight": {
-      clearAutoEffects: true,
-      multiple: [
-        {
-          name: "Wreathed in Moonlight",
-          data: {
-            "flags.ddbimporter.activityMatch": "Cast Spell",
-          },
-          options: {
-            durationSeconds: 600,
-            durationRounds: 60,
-          },
-          changes: [
-            generateUnsignedAddChange("radiant", 20, "system.traits.dr.value"),
-            generateUnsignedAddChange("2d6[radiant]", 20, "system.bonuses.mwak.damage"),
-            generateUnsignedAddChange("2d6[radiant]", 20, "system.bonuses.msak.damage"),
-          ],
-          atlChanges: [
-            generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'),
-            generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
-            generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-            generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
-          ],
-        },
-        {
-          name: "Blinded by Moonlight",
-          data: {
-            "flags.ddbimporter.activityMatch": "Force Blinding Save",
-          },
-          options: {
-            durationSeconds: 6,
-          },
-          statuses: ["Blinded"],
-        },
       ],
     },
     "Haste": {
@@ -2207,32 +1742,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         generateOverrideChange("mage", 5, "system.attributes.ac.calc"),
       ],
     },
-    "Magic Weapon": {
-      multiple: [
-        { bonus: "1", min: null, max: 3 },
-        { bonus: "2", min: 4, max: 5 },
-        { bonus: "3", min: 6, max: null },
-      ].map((data) => {
-        return {
-          type: "enchant",
-          name: `Magic Weapon +${data.bonus}`,
-          magicalBonus: {
-            makeMagical: true,
-            bonus: data.bonus,
-            nameAddition: `+${data.bonus}`,
-          },
-          options: {
-            description: `This weapon has become a +${data.bonus} magic weapon, granting a bonus to attack and damage rolls.`,
-          },
-          data: {
-            "flags.ddbimporter.effectIdLevel": {
-              min: data.min,
-              max: data.max,
-            },
-          },
-        };
-      }),
-    },
     "Mass Suggestion": {
       statuses: ["Charmed"],
     },
@@ -2256,64 +1765,11 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
         generateUnsignedAddChange("poison", 20, "system.traits.dr.value"),
       ],
     },
-    "Prismatic Wall": {
-      clearAutoEffects: true,
-      multiple: [
-        {
-          name: "Blinded",
-          statuses: ["Blinded"],
-          options: {
-            durationSeconds: 60,
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Blinding Save",
-          },
-        },
-        {
-          name: "Restrained",
-          statuses: ["Restrained"],
-          options: {
-            durationSeconds: 6,
-            description: "Save at the end of each turn, 3 failures results in &Reference[Petrified]",
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Damage Save",
-          },
-        },
-        {
-          name: "Petrified",
-          statuses: ["Petrified"],
-          data: {
-            "flags.ddbimporter.activityMatch": "Damage Save",
-          },
-        },
-        {
-          name: "Blinded",
-          statuses: ["Blinded"],
-          options: {
-            durationSeconds: 60,
-          },
-          data: {
-            "flags.ddbimporter.activityMatch": "Damage Save",
-          },
-        },
-      ],
-    },
     "Pyrotechnics": {
       statuses: ["Blinded"],
       data: {
         "flags.ddbimporter.activityMatch": "Fireworks",
       },
-    },
-    "Protection from Energy": {
-      multiple: ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
-        return {
-          name: `Protection from ${element}`,
-          changes: [
-            generateUnsignedAddChange(element.toLowerCase(), 0, "system.traits.dr.value"),
-          ],
-        };
-      }),
     },
     "Ray of Enfeeblement": () => {
       return {
@@ -2384,29 +1840,6 @@ export default class DDDSpellEnricher extends DDBBaseEnricher {
       options: {
         description: "You are covered in acid. Take 2d4 &Reference[acid] damage at start of each of your turns until you use an action to scrape it off.",
       },
-    },
-    "True Strike": {
-      multiple: [
-        { type: "Melee", img: "icons/skills/melee/strike-sword-slashing-red.webp" },
-        { type: "Ranged", img: "icons/skills/ranged/arrow-strike-glowing-teal.webp" },
-      ].map((data) => {
-        return {
-          type: "enchant",
-          name: `${data.type} Weapon`,
-          options: {
-            description: `This weapon is infused with True Strike`,
-          },
-          changes: [
-            generateUnsignedAddChange("{} (True Strike)", 20, "name"),
-            generateUnsignedAddChange("radiant", 20, "system.damage.base.types"),
-            generateUnsignedAddChange("(floor((@details.level + 1) / 6))d6[radiant]", 20, "system.damage.base.bonus"),
-            generateOverrideChange("spellcasting", 20, "system.ability"),
-          ],
-          data: {
-            img: data.img,
-          },
-        };
-      }),
     },
     "Wall of Light": {
       name: "Blinded",

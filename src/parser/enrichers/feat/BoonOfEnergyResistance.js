@@ -16,7 +16,7 @@ export default class BoonOfEnergyResistance extends DDBEnricherMixin {
     ];
   }
 
-  get effect() {
+  get effects() {
     const activeType = this.ddbParser?._chosen.find((a) =>
       utils.nameString(a.label).startsWith("Boon of Energy Resistance"),
     )?.label ?? "";
@@ -36,9 +36,10 @@ export default class BoonOfEnergyResistance extends DDBEnricherMixin {
       });
     });
 
-    return {
-      clearAutoEffects: true,
-      multiple,
-    };
+    return multiple;
+  }
+
+  get clearAutoEffects() {
+    return true;
   }
 }

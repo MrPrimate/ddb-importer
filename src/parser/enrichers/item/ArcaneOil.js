@@ -7,14 +7,14 @@ export default class ArcaneOil extends DDBEnricherMixin {
     return "enchant";
   }
 
-  get effect() {
-    return {
+  get effects() {
+    return [{
       type: "enchant",
       magicalBonus: {
         makeMagical: false,
         bonus: "2",
       },
-    };
+    }];
   }
 
 }
