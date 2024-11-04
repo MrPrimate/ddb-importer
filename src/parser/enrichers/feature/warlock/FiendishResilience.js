@@ -9,7 +9,7 @@ export default class FiendishResilience extends DDBEnricherMixin {
   }
 
   damageTypes() {
-    return this.allDamageTypes(["force"]);
+    return DDBEnricherMixin.allDamageTypes(["force"]);
   }
 
   get activity() {
@@ -37,24 +37,24 @@ export default class FiendishResilience extends DDBEnricherMixin {
 
   get effects() {
     const activeType = this.ddbParser?._chosen.find((a) =>
-      utils.nameString(a.label).endsWith("Damage"),
-    )?.label?.split(" Damage")[0].toLowerCase() ?? "";
+      this.damageTypes().includes(a.label.toLowerCase()),
+    )?.label.toLowerCase() ?? "";
 
-
-    console.warn("FiendishResilience", { activeType, this: this });
-
-    return this.damageTypes().map((type) => {
+    const effects = this.damageTypes().map((type) => {
       return {
         name: `Fiendish Resilience: ${utils.capitalize(type)}`,
         options: {
-          transfer: activeType.includes(type),
-          disabled: !activeType.includes(type),
+          transfer: true,
+          disabled: activeType !== type,
         },
         changes: [
           DDBEnricherMixin.generateUnsignedAddChange(type, 20, "system.traits.dr.value"),
         ],
       };
     });
+
+    return effects;
+
   }
 
   get clearAutoEffects() {

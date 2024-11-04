@@ -137,6 +137,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Revelation in Flesh: Transform",
     "Trance of Order: Align Consciousness",
     "Healing Light: Expend Healing",
+    "Awakened Mind: Clairvoyant Combatant",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

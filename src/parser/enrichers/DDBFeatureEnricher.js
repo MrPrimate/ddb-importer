@@ -114,6 +114,7 @@ import DarkOnesBlessing from "./feature/warlock/DarkOnesBlessing.js";
 import EldritchMaster from "./feature/warlock/EldritchMaster.js";
 import MagicalCunning from "./feature/warlock/MagicalCunning.js";
 import FiendishResilience from "./feature/warlock/FiendishResilience.js";
+import ClairvoyantCombatant from "./feature/warlock/ClairvoyantCombatant.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -243,6 +244,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Eldritch Master": () => EldritchMaster,
     "Magical Cunning": () => MagicalCunning,
     "Fiendish Resilience": () => FiendishResilience,
+    "Clairvoyant Combatant": () => ClairvoyantCombatant,
   };
 
   NAME_HINTS_2014 = {

@@ -136,7 +136,8 @@ export default class DDBBaseEnricher {
     if (this.loadedEnricher) {
       return this.loadedEnricher.activity;
     } else {
-      return this._findEnricherMatch("ACTIVITY_HINTS");
+      const rawActivity = this._findEnricherMatch("ACTIVITY_HINTS");
+      return utils.isFunction(rawActivity) ? rawActivity() : rawActivity;
     }
   }
 
@@ -144,7 +145,11 @@ export default class DDBBaseEnricher {
     if (this.loadedEnricher) {
       return this.loadedEnricher.effects;
     } else {
-      return [this._findEnricherMatch("EFFECT_HINTS")];
+      const rawEffect = this._findEnricherMatch("EFFECT_HINTS");
+      const effectHintsRaw = utils.isFunction(rawEffect)
+        ? rawEffect()
+        : rawEffect;
+      return [effectHintsRaw];
     }
   }
 
@@ -152,7 +157,11 @@ export default class DDBBaseEnricher {
     if (this.loadedEnricher) {
       return this.loadedEnricher.override;
     } else {
-      return this._findEnricherMatch("DOCUMENT_OVERRIDES");
+      const rawOverride = this._findEnricherMatch("DOCUMENT_OVERRIDES");
+
+      return utils.isFunction(rawOverride)
+        ? rawOverride()
+        : rawOverride;
     }
   }
 
@@ -160,7 +169,11 @@ export default class DDBBaseEnricher {
     if (this.loadedEnricher) {
       return this.loadedEnricher.additionalActivities;
     } else {
-      return this._findEnricherMatch("ADDITIONAL_ACTIVITIES");
+      const rawAdditionalActivities = this._findEnricherMatch("ADDITIONAL_ACTIVITIES");
+
+      return utils.isFunction(rawAdditionalActivities)
+        ? rawAdditionalActivities()
+        : rawAdditionalActivities;
     }
   }
 
@@ -412,33 +425,18 @@ export default class DDBBaseEnricher {
 
   applyActivityOverride(activityData) {
     this.originalActivity = activityData;
-    if (!this.activity) return activityData;
+    const activity = this.activity;
+    if (!activity) return activityData;
 
-    let activityHint = utils.isFunction(this.activity) ? this.activity() : this.activity;
-
-    if (!activityHint) return activityData;
-
-    return this._applyActivityDataOverride(activityData, activityHint);
+    return this._applyActivityDataOverride(activityData, activity);
   }
 
   // eslint-disable-next-line complexity
   createEffect() {
     const effects = [];
-    if (!this.effects?.effects || this.effects?.length === 0) return effects;
+    if (!this.effects || this.effects?.length === 0) return effects;
 
-    const effectHintsRaw = utils.isFunction(this.effects)
-      ? this.effects()
-      : this.effects;
-
-    if (!effectHintsRaw) return effects;
-
-    const effectHints = effectHintsRaw.multiple
-      ? utils.isFunction(effectHintsRaw.multiple)
-        ? effectHintsRaw.multiple()
-        : effectHintsRaw.multiple
-      : [effectHintsRaw];
-
-    for (const effectHintFunction of effectHints) {
+    for (const effectHintFunction of this.effects) {
       const effectHint = utils.isFunction(effectHintFunction)
         ? effectHintFunction()
         : effectHintFunction;
@@ -559,9 +557,7 @@ export default class DDBBaseEnricher {
   }
 
   addDocumentOverride() {
-    const override = utils.isFunction(this.override)
-      ? this.override()
-      : this.override;
+    const override = this.override;
 
     if (!override) return this.data;
     if (override.removeDamage) {
@@ -655,13 +651,8 @@ export default class DDBBaseEnricher {
   }
 
   addAdditionalActivities(ddbParent) {
-    if (!this.additionalActivities || !this.additionalActivityClass) return;
-
-    const additionalActivities = utils.isFunction(this.additionalActivities)
-      ? this.additionalActivities()
-      : this.additionalActivities;
-
-    if (!additionalActivities) return;
+    const additionalActivities = this.additionalActivities;
+    if (!additionalActivities || !this.additionalActivityClass) return;
 
     let i = this.data.system.activities.length ?? 0 + 1;
     for (const activityHint of additionalActivities) {
