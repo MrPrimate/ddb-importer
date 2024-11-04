@@ -11,8 +11,11 @@ import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 
 export default class DDBBaseEnricher {
 
-  static allDamageTypes() {
-    return DICTIONARY.actions.damageType.filter((d) => d.name !== null).map((d) => d.name);
+  static allDamageTypes(exclude = []) {
+    return DICTIONARY.actions.damageType
+      .filter((d) => d.name !== null)
+      .map((d) => d.name)
+      .filter((d) => !exclude.includes(d));
   }
 
   static basicDamagePart({

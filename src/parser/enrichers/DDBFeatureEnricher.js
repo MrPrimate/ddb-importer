@@ -110,6 +110,10 @@ import ShieldingStorm from "./feature/barbarian/ShieldingStorm.js";
 import StarryForm from "./feature/druid/StarryForm.js";
 import TheThirdEye from "./feature/wizard/TheThirdEye.js";
 import HurlThroughHell from "./feature/warlock/HurlThroughHell.js";
+import DarkOnesBlessing from "./feature/warlock/DarkOnesBlessing.js";
+import EldritchMaster from "./feature/warlock/EldritchMaster.js";
+import MagicalCunning from "./feature/warlock/MagicalCunning.js";
+import FiendishResilience from "./feature/warlock/FiendishResilience.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -235,6 +239,10 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Vow of Enmity": () => VowOfEnmity,
     "Warping Implosion": () => WarpingImplosion,
     "Wild Magic Surge": () => WildMagicSurge,
+    "Dark One's Blessing": () => DarkOnesBlessing,
+    "Eldritch Master": () => EldritchMaster,
+    "Magical Cunning": () => MagicalCunning,
+    "Fiendish Resilience": () => FiendishResilience,
   };
 
   NAME_HINTS_2014 = {
@@ -456,14 +464,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
           long: null,
           units: "ft",
         },
-      },
-    },
-    "Dark One's Blessing": {
-      type: "heal",
-      targetType: "self",
-      data: {
-        "activation.condition": "Reduce a hostile creature to 0 HP",
-        healing: DDBBaseEnricher.basicDamagePart({ customFormula: "@abilities.cha.mod + @classes.warlock.levels", types: ["temphp"] }),
       },
     },
     "Deflect Attack": {
@@ -1026,20 +1026,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         damage: {
           parts: [DDBBaseEnricher.basicDamagePart({ number: 2, denomination: 10, type: "radiant" })],
         },
-      },
-    },
-    "Magical Cunning": {
-      targetType: "self",
-      type: "utility",
-      additionalConsumptionTargets: [
-        {
-          "type": "attribute",
-          "value": "-(ceil(@spells.pact.max / 2))",
-          "target": "spells.pact.value",
-        },
-      ],
-      data: {
-        name: "Regain Pact Slots",
       },
     },
     "Maneuver: Disarming Attack (Str.)": {
