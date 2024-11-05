@@ -1,3 +1,5 @@
+# Next Up
+
 # 6.0.29
 
 - Fairie Fire parsing fail.
