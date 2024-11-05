@@ -117,6 +117,8 @@ import FiendishResilience from "./feature/warlock/FiendishResilience.js";
 import ClairvoyantCombatant from "./feature/warlock/ClairvoyantCombatant.js";
 import CreateThrall from "./feature/warlock/CreateThrall.js";
 import ArcaneWard from "./feature/wizard/ArcaneWard.js";
+import Overchannel from "./feature/wizard/Overchannel.js";
+import EmpoweredEvocation from "./feature/wizard/EmpoweredEvocation.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -249,6 +251,8 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Clairvoyant Combatant": () => ClairvoyantCombatant,
     "Create Thrall": () => CreateThrall,
     "Arcane Ward": () => ArcaneWard,
+    "Overchannel": () => Overchannel,
+    "Empowered Evocation": () => EmpoweredEvocation,
   };
 
   NAME_HINTS_2014 = {
