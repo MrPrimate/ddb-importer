@@ -1,4 +1,14 @@
-import { effectModules, generateATLChange, generateCustomChange, generateDowngradeChange, generateOverrideChange, generateSignedAddChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
+import {
+  effectModules,
+  generateATLChange,
+  generateCustomChange,
+  generateDowngradeChange,
+  generateOverrideChange,
+  generateSignedAddChange,
+  generateTokenMagicFXChange,
+  generateUnsignedAddChange,
+  generateUpgradeChange,
+} from "../../effects/effects.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
@@ -78,6 +88,8 @@ export default class DDBEnricherMixin {
   static generateUnsignedAddChange = generateUnsignedAddChange;
 
   static generateUpgradeChange = generateUpgradeChange;
+
+  static generateTokenMagicFXChange = generateTokenMagicFXChange;
 
   static basicDamagePart = DDBBaseEnricher.basicDamagePart;
 
@@ -227,7 +239,7 @@ export default class DDBEnricherMixin {
 
   // a hint to clear any generated auto effects before processing effect hints on the enricher
   get clearAutoEffects() {
-    return this.effect?.clearAutoEffects ?? false;
+    return false;
   }
 
 }

@@ -1,3 +1,7 @@
+# 6.0.29
+
+- Fairie Fire parsing fail.
+
 # 6.0.28
 
 - Barbarian Rages fix for 2014 Barbarian.
