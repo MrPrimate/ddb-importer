@@ -138,6 +138,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Trance of Order: Align Consciousness",
     "Healing Light: Expend Healing",
     "Awakened Mind: Clairvoyant Combatant",
+    "Arcane Ward: Hit Points",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

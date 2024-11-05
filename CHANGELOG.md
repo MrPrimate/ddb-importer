@@ -1,5 +1,7 @@
 # Next Up
 
+- Wizard 2024 parsing improvements.
+
 # 6.0.29
 
 - Fairie Fire parsing fail.

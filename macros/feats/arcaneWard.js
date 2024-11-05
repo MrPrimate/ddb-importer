@@ -1,4 +1,4 @@
-const arcaneWardItemName = "Arcane Ward - Hit Points";
+const arcaneWardItemName = "Arcane Ward";
 const arcaneWardAbsorptionEffectLabel = "Arcane Ward: Absorption Effect";
 
 // increase ward if abjuration spell passed
