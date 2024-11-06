@@ -419,7 +419,6 @@ export default class DDBBasicActivity {
     includeBaseDamage = false,
     noeffect = false,
     noManualActivation = false,
-    noSpellslot = false,
     onSave = null,
     partialDamageParts = null,
     rangeOverride = null,
@@ -459,11 +458,6 @@ export default class DDBBasicActivity {
     if (generateUses) this._generateUses({ usesOverride });
     if (generateRoll) this._generateRoll({ roll });
     if (generateCheck) this._generateCheck({ checkOverride });
-
-
-    if (noSpellslot) {
-      foundry.utils.setProperty(this.data, "consumption.spellSlot", false);
-    }
 
     if (noeffect) {
       const ids = foundry.utils.getProperty(this.ddbParent.data, "flags.ddbimporter.noeffect") ?? [];

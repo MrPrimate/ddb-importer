@@ -91,17 +91,6 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
   }
 
-  _generateDescription() {
-    this.data.description = {
-      chatFlavor: this.foundryFeature.system?.chatFlavor ?? "",
-    };
-  }
-
-  _generateEffects() {
-    logger.debug(`Stubbed effect generation for ${this.name}`);
-    // Enchantments need effects here
-  }
-
   #getAlternativeFormula() {
     // this might be specifically for Toll the Dead only, but it's better than nothing
     let match = this.ddbDefinition.description.match(/instead[\w\s]+(\d+d\d+) (\w+) damage/);
@@ -406,11 +395,6 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
   }
 
-  _generateHealing({ healingPart } = {}) {
-    if (healingPart.chatFlavor) this.data.description.chatFlavor = healingPart.chatFlavor;
-    this.data.healing = healingPart.part ?? healingPart;
-  }
-
   _generateSave({ saveOverride = null } = {}) {
     if (saveOverride) {
       this.data.save = saveOverride;
@@ -439,133 +423,114 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
   }
 
-  _generateAttack() {
-    let type = this.ddbDefinition.range.rangeValue
-      && this.ddbDefinition.range.rangeValue > 0
-      ? "ranged"
-      : "melee";
-
-    const attack = {
-      ability: "spellcasting",
-      bonus: "",
-      critical: {
-        threshold: undefined,
-      },
-      flat: false, // almost never false for PC features
-      type: {
-        value: type,
-        classification: "spell",
-      },
-    };
-
-    this.data.attack = attack;
-    foundry.utils.setProperty(this.data.damage, "includeBase", true);
-
-  }
-
-  _generateEnchant() {
-    logger.debug(`Stubbed enchantment generation for ${this.name}`);
-  }
-
-  _generateSummon() {
-    logger.debug(`Stubbed summon generation for ${this.name}`);
-  }
-
-  _generateRange({ rangeOverride = null } = {}) {
-    if (rangeOverride) {
-      this.data.range = rangeOverride;
-      this.data.range.override = true;
-    }
-  }
-
-  _generateTarget({ targetOverride = null } = {}) {
-    if (targetOverride) {
-      this.data.target = targetOverride;
-      this.data.target.override = true;
-    }
-  }
-
-  _generateActivation({ activationOverride = null } = {}) {
-    if (activationOverride) {
-      this.data.activation = activationOverride;
-      this.data.activation.override = true;
-    }
-  }
-
-  _generateDuration({ durationOverride = null } = {}) {
-    if (durationOverride) {
-      this.data.duration = durationOverride;
-      this.data.duration.override = true;
-    }
-  }
-
   // eslint-disable-next-line complexity
   build({
+    activationOverride = null,
+    additionalTargets = [],
+    attackData = {},
+    chatFlavor = null,
+    checkOverride = null,
+    consumeActivity = false,
+    consumeItem = null,
+    consumptionOverride = null,
+    criticalDamage = null,
+    damageParts = null,
+    damageScalingOverride = null,
+    data = null,
+    ddbMacroOverride = null,
+    durationOverride = null,
+    generateActivation = false,
     generateAttack = false,
+    generateCheck = false,
     generateConsumption = true,
     generateDamage = false,
     generateDDBMacro = false,
     generateDescription = false,
+    generateDuration = false,
     generateEffects = true,
     generateEnchant = false,
     generateHealing = false,
+    generateRange = false,
     generateRoll = false,
     generateSave = false,
     generateSummon = false,
+    generateTarget = false,
+    generateUses = false,
     healingPart = null,
-    damageParts = null,
-    chatFlavor = null,
-    onSave = null,
-    noeffect = false,
-    roll = null,
-    noSpellslot = false,
-    targetOverride = null,
-    rangeOverride = null,
-    activationOverride = null,
-    durationOverride = null,
-    saveOverride = null,
     img = null,
+    includeBaseDamage = false,
+    noeffect = false,
+    noSpellslot = false,
+    onSave = null,
     partialDamageParts = null,
-    ddbMacroOverride = null,
+    rangeOverride = null,
+    roll = null,
+    saveOverride = null,
+    targetOverride = null,
     usesOverride = null,
-    additionalTargets = [],
-    consumptionOverride = null,
-    consumeActivity = false,
-    consumeItem = null,
-    data = null,
   } = {}) {
 
-    if (activationOverride) this._generateActivation({ activationOverride });
-    if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption({ consumptionOverride, additionalTargets, consumeActivity, consumeItem });
-    if (generateDescription) this._generateDescription(chatFlavor);
-    if (generateEffects) this._generateEffects();
     if (generateSave) this._generateSave({ saveOverride });
     if (generateDamage) this._generateDamage({ damageParts, onSave, partialDamageParts });
-    if (generateEnchant) this._generateEnchant();
-    if (generateSummon) this._generateSummon();
-    if (generateHealing) this._generateHealing({ healingPart });
-    if (rangeOverride) this._generateRange({ rangeOverride });
-    if (targetOverride) this._generateTarget({ targetOverride });
-    if (durationOverride) this._generateDuration({ durationOverride });
-    if (generateDDBMacro) this._generateDDBMacro({ ddbMacroOverride });
-    if (usesOverride) this._generateUses({ usesOverride });
-
-    if (generateRoll) this._generateRoll({ roll });
 
     if (noSpellslot) {
       foundry.utils.setProperty(this.data, "consumption.spellSlot", false);
     }
 
-    if (noeffect) {
-      const ids = foundry.utils.getProperty(this.ddbParent.data, "flags.ddbimporter.noeffect") ?? [];
-      ids.push(this.data._id);
-      foundry.utils.setProperty(this.ddbParent.data, "flags.ddbimporter.noEffectIds", ids);
-      foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
-    }
-    if (img) foundry.utils.setProperty(this.data, "img", img);
-    if (data) foundry.utils.mergeObject(this.data, data);
-
+    super.build({
+      generateActivation: generateActivation || activationOverride !== null,
+      generateAttack,
+      generateConsumption: false,
+      generateCheck,
+      generateDamage: false,
+      generateDescription,
+      generateDuration,
+      generateEffects,
+      generateHealing,
+      generateRange,
+      generateSave: false,
+      generateTarget,
+      generateDDBMacro,
+      generateEnchant,
+      generateRoll,
+      generateSummon,
+      generateUses,
+      chatFlavor,
+      onSave,
+      noeffect,
+      roll,
+      targetOverride,
+      checkOverride,
+      rangeOverride,
+      activationOverride,
+      noManualActivation: true,
+      durationOverride,
+      img,
+      ddbMacroOverride,
+      usesOverride,
+      additionalTargets,
+      consumeActivity,
+      consumeItem,
+      saveOverride,
+      data,
+      attackData: foundry.utils.mergeObject({
+        ability: "spellcasting",
+        bonus: "",
+        criticalThreshold: undefined,
+        type: this.ddbDefinition.range.rangeValue && this.ddbDefinition.range.rangeValue > 0
+          ? "ranged"
+          : "melee",
+        flat: false,
+        classification: "spell",
+      }, attackData),
+      includeBaseDamage,
+      criticalDamage,
+      damageScalingOverride,
+      healingPart: healingPart?.part ?? healingPart ?? null,
+      healingChatFlavor: healingPart?.chatFlavor ?? null,
+      damageParts,
+    });
 
   }
 
