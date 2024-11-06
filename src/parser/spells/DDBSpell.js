@@ -487,6 +487,19 @@ export default class DDBSpell {
     this.data.system.target = target;
   }
 
+  #specialRange() {
+    // Improved Illusions
+    // if range 10+ then illusion range increases by 60
+    if (this.isGeneric || !this.spellClass || !this.rawCharacter) return;
+
+    console.warn(`${this.name}`, {
+      rawCharacter: this.rawCharacter,
+      spellClass: this.spellClass,
+      this: this,
+    });
+
+  }
+
   _generateRange() {
     let value = this.ddbDefinition.range.rangeValue ?? null;
     let units = "ft";
@@ -529,6 +542,8 @@ export default class DDBSpell {
       value: value,
       units: units,
     };
+
+    this.#specialRange();
   }
 
   _generateUses() {

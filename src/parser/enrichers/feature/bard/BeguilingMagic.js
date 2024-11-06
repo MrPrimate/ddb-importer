@@ -34,7 +34,7 @@ export default class BeguilingMagic extends DDBEnricherMixin {
     ];
   }
 
-  override() {
+  get override() {
     return {
       data: {
         "flags.ddbimporter": {

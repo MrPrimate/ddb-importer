@@ -20,7 +20,7 @@ export default class Healer extends DDBEnricherMixin {
     }
   }
 
-  additionalActivities() {
+  get additionalActivities() {
     if (this.is2024) {
       return [4, 6, 8, 10, 12]
         .map((die) => {

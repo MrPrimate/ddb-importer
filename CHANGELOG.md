@@ -1,6 +1,8 @@
 # Next Up
 
 - Wizard 2024 parsing improvements.
+- Some trait improvements.
+- Various parsing tweaks/fixes.
 
 # 6.0.29
 

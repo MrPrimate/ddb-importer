@@ -4,7 +4,7 @@ import PotionOfHealing from "./PotionOfHealing.js";
 
 export default class PotionOfHealingSuperior extends PotionOfHealing {
 
-  override() {
+  get override() {
     return {
       data: {
         "flags.ddbimporter.dndbeyond.alternativeNames": ["Potion of Superior Healing"],

@@ -144,7 +144,7 @@ export default class PrismaticWall extends DDBEnricherMixin {
     ];
   }
 
-  clearAutoEffects() {
+  get clearAutoEffects() {
     return true;
   }
 

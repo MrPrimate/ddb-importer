@@ -789,6 +789,11 @@ export default class DDBBaseFeature {
     const effects = this.enricher.createEffect();
     this.data.effects.push(...effects);
 
+    console.warn(`${this.name} enricher effects`, {
+      effects: this.data.effects,
+      this: this,
+    })
+
     if (this.data.effects.length > 0 && this.data.system.activities) {
       for (const activityId of Object.keys(this.data.system.activities)) {
         const activity = this.data.system.activities[activityId];

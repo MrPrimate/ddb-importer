@@ -120,6 +120,7 @@ import ArcaneWard from "./feature/wizard/ArcaneWard.js";
 import Overchannel from "./feature/wizard/Overchannel.js";
 import EmpoweredEvocation from "./feature/wizard/EmpoweredEvocation.js";
 import FormOfTheBeast from "./feature/barbarian/FormOfTheBeast.js";
+import Luck from "./trait/halfling/Luck.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -255,6 +256,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Overchannel": () => Overchannel,
     "Empowered Evocation": () => EmpoweredEvocation,
     "Form of the Beast": () => FormOfTheBeast,
+    "Luck": () => Luck,
   };
 
   NAME_HINTS_2014 = {
@@ -291,6 +293,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Form of the Beast: Tail": "Form of the Beast",
     "Form of the Beast: Claw": "Form of the Beast",
     "Form of the Beast: Bite": "Form of the Beast",
+    "Halfling Lucky": "Luck",
   };
 
   ACTIVITY_HINTS = {
@@ -3811,14 +3814,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       ],
       changes: [
         generateOverrideChange("lg", 25, "system.traits.size"),
-      ],
-    },
-    "Halfling Lucky": {
-      options: {
-        transfer: true,
-      },
-      changes: [
-        generateOverrideChange("true", 20, "flags.dnd5e.halflingLucky"),
       ],
     },
     "Heightened Focus": {
