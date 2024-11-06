@@ -1175,6 +1175,16 @@ const DDBHelper = {
     return result;
   },
 
+  hasClassFeature({ ddbData, featureName, className = null, subClassName = null } = {}) {
+    const result = ddbData.character.classes.some((klass) =>
+      klass.classFeatures.some((feature) => feature.definition.name === featureName && klass.level >= feature.definition.requiredLevel)
+      && ((className === null || klass.definition.name === className)
+        && (subClassName === null || klass.subclassDefinition?.name === subClassName)),
+    );
+
+    return result;
+  },
+
 };
 
 export default DDBHelper;

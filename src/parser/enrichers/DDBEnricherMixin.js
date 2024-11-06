@@ -10,25 +10,23 @@ import {
   generateUpgradeChange,
 } from "../../effects/effects.js";
 import DDBHelper from "../../lib/DDBHelper.js";
+import utils from "../../lib/utils.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
 
 /* eslint-disable class-methods-use-this */
 export default class DDBEnricherMixin {
 
-  static META_DATA = {
-
-  };
+  static META_DATA = {};
 
   hasClassFeature({ featureName, className = null, subClassName = null } = {}) {
     if (!this.ddbParser?.ddbData) return false;
 
-    const result = this.ddbParser.ddbData.character.classes.some((klass) =>
-      klass.classFeatures.some((feature) => feature.definition.name === featureName && klass.level >= feature.definition.requiredLevel)
-      && ((className === null || klass.definition.name === className)
-        && (subClassName === null || klass.subclassDefinition?.name === subClassName)),
-    );
-
-    return result;
+    return utils.hasClassFeature({
+      ddbData: this.ddbParser.ddbData,
+      featureName,
+      className,
+      subClassName,
+    });
   }
 
   hasAction({ name, type } = {}) {

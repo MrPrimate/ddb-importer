@@ -119,6 +119,7 @@ import CreateThrall from "./feature/warlock/CreateThrall.js";
 import ArcaneWard from "./feature/wizard/ArcaneWard.js";
 import Overchannel from "./feature/wizard/Overchannel.js";
 import EmpoweredEvocation from "./feature/wizard/EmpoweredEvocation.js";
+import FormOfTheBeast from "./feature/barbarian/FormOfTheBeast.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -253,6 +254,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Arcane Ward": () => ArcaneWard,
     "Overchannel": () => Overchannel,
     "Empowered Evocation": () => EmpoweredEvocation,
+    "Form of the Beast": () => FormOfTheBeast,
   };
 
   NAME_HINTS_2014 = {
@@ -286,6 +288,9 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     // "War God's Blessing": "Channel Divinity: War God's Blessing",
     "Telekinetic Adept: Psi-Powered Leap": "Psionic Power: Psi-Powered Leap",
     "Telekinetic Adept: Telekinetic Thrust": "Psionic Power: Telekinetic Thrust",
+    "Form of the Beast: Tail": "Form of the Beast",
+    "Form of the Beast: Claw": "Form of the Beast",
+    "Form of the Beast: Bite": "Form of the Beast",
   };
 
   ACTIVITY_HINTS = {
@@ -741,15 +746,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       type: "save",
       activationType: "special",
       activationCondition: "You hit a creature with a Flurry of Blows strike",
-    },
-    "Form of the Beast: Tail": {
-      noTemplate: true,
-      data: {
-        range: {
-          value: 10,
-          units: "ft",
-        },
-      },
     },
     "Frenzy": {
       type: "damage",
@@ -2296,51 +2292,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
         },
       ];
     },
-    "Form of the Beast: Bite": [
-      {
-        constructor: {
-          name: "Healing Bonus (1/your turn)",
-          type: "heal",
-        },
-        build: {
-          generateConsumption: false,
-          generateTarget: true,
-          targetSelf: true,
-          generateRange: false,
-          generateActivation: true,
-          generateDamage: false,
-          generateHealing: true,
-          activationOverride: {
-            type: "special",
-            value: 1,
-            condition: "",
-          },
-          healingPart: DDBBaseEnricher.basicDamagePart({ customFormula: "@prof", type: "healing" }),
-        },
-      },
-    ],
-    "Form of the Beast: Tail": [
-      {
-        constructor: {
-          name: "Reactive Attack",
-          type: "attack",
-        },
-        build: {
-          noTemplate: true,
-          generateConsumption: false,
-          generateTarget: true,
-          generateRange: false,
-          generateActivation: true,
-          generateDamage: true,
-          generateAttack: true,
-          activationOverride: {
-            type: "reaction",
-            value: 1,
-            condition: "",
-          },
-        },
-      },
-    ],
     "Fleet Step": [
       { action: { name: "Step of the Wind: Fleet Step", type: "class" } },
     ],
@@ -3315,33 +3266,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
       data: {
         "name": "Sorcery Points",
       },
-    },
-    "Form of the Beast: Bite": () => {
-      return {
-        data: {
-          "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
-            ? utils.addToProperties(this.data.system.properties, "mgc")
-            : this.data.system.properties),
-        },
-      };
-    },
-    "Form of the Beast: Claws": () => {
-      return {
-        data: {
-          "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
-            ? utils.addToProperties(this.data.system.properties, "mgc")
-            : this.data.system.properties),
-        },
-      };
-    },
-    "Form of the Beast: Tail": () => {
-      return {
-        data: {
-          "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
-            ? utils.addToProperties(this.data.system.properties, "mgc")
-            : this.data.system.properties),
-        },
-      };
     },
     "Harness Divine Power": {
       data: {
