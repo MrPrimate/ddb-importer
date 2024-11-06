@@ -1,10 +1,10 @@
 import { effectModules, generateATLChange, generateCustomChange, generateOverrideChange, generateSignedAddChange, generateTokenMagicFXChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import DDBSpellActivity from "../spells/DDBSpellActivity.js";
 import DDBBaseEnricher from "./DDBBaseEnricher.js";
+// Enrichers
 import AbsorbElements from "./spell/AbsorbElements.js";
 import Aid from "./spell/Aid.js";
 import AlterSelf from "./spell/AlterSelf.js";
-// Enrichers
 import ArcaneHand from "./spell/ArcaneHand.js";
 import ArcaneVigor from "./spell/ArcaneVigor.js";
 import EldritchBlast from "./spell/EldritchBlast.js";

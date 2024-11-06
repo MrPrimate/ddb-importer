@@ -6,121 +6,122 @@ import DDBHelper from "../../lib/DDBHelper.js";
 // enrichers
 import AbjureFoes from "./feature/paladin/AbjureFoes.js";
 import ArcaneRecovery from "./feature/wizard/ArcaneRecovery.js";
+import ArcaneWard from "./feature/wizard/ArcaneWard.js";
 import Archdruid from "./feature/druid/Archdruid.js";
-import DivineIntervention from "./feature/cleric/DivineIntervention.js";
-import GhostlyGaze from "./feature/warlock/GhostlyGaze.js";
-import NatureMagician from "./feature/druid/NatureMagician.js";
-import PatientDefense from "./feature/monk/PatientDefense.js";
-import SacredWeapon from "./feature/paladin/SacredWeapon.js";
-import LivingLegend from "./feature/paladin/LivingLegend.js";
-import InspiringSmite from "./feature/paladin/InspiringSmite.js";
-import EmbodyLegends from "./feature/paladin/EmbodyLegends.js";
-import RadiantStrikes from "./feature/paladin/RadiantStrikes.js";
-import LayOnHandsPurifyPoison from "./feature/paladin/LayOnHandsPurifyPoison.js";
-import LayOnHands from "./feature/paladin/LayOnHands.js";
-import PeerlessAthlete from "./feature/paladin/PeerlessAthlete.js";
-import UndyingSentinel from "./feature/paladin/UndyingSentinel.js";
-import HolyNimbus from "./feature/paladin/HolyNimbus.js";
-import ElderChampion from "./feature/paladin/ElderChampion.js";
-import ChannelDivinity from "./feature/shared/ChannelDivinity.js";
-import GloriousDefense from "./feature/paladin/GloriousDefense.js";
-import BoonOfEnergyResistance from "./feat/BoonOfEnergyResistance.js";
-import Slasher from "./feat/Slasher.js";
-import EnergyRedirection from "./feat/EnergyRedirection.js";
-import Healer from "./feat/Healer.js";
+import AspectOfTheWilds from "./feature/barbarian/AspectOfTheWilds.js";
 import AvengingAngel from "./feature/paladin/AvengingAngel.js";
-import VowOfEnmity from "./feature/paladin/VowOfEnmity.js";
-import RelentlessAvenger from "./feature/paladin/RelentlessAvenger.js";
-import SoulOfVengeance from "./feature/paladin/SoulOfVengeance.js";
-import PrimalCompanion from "./feature/ranger/PrimalCompanion.js";
-import PrimalCompanionSummon from "./feature/ranger/PrimalCompanionSummon.js";
-import PrimalCompanionRestoreBeast from "./feature/ranger/PrimalCompanionRestoreBeast.js";
-import Tireless from "./feature/ranger/Tireless.js";
-import TemporaryHitPoints from "./feature/ranger/TemporaryHitPoints.js";
-import BoonOfFortitude from "./feat/BoonOfFortitude.js";
-import BolsteringPerformance from "./feat/BolsteringPerformance.js";
-import InspiringLeader from "./feat/InspiringLeader.js";
-import MageSlayer from "./feat/MageSlayer.js";
+import BastionOfLaw from "./feature/sorcerer/BastionOfLaw.js";
+import BeguilingMagic from "./feature/bard/BeguilingMagic.js";
 import BeguilingTwist from "./feature/ranger/BeguilingTwist.js";
-import DreadfulStrikes from "./feature/ranger/DreadfulStrikes.js";
-import StalkersFlurry from "./feature/ranger/StalkersFlurry.js";
-import DreadfulStrikeSuddenStrike from "./feature/ranger/DreadfulStrikeSuddenStrike.js";
-import DreadfulStrikeMassFear from "./feature/ranger/DreadfulStrikeMassFear.js";
-import DreadfulStrike from "./feature/ranger/DreadfulStrike.js";
-import DreadAmbusher from "./feature/ranger/DreadAmbusher.js";
-import ShadowyDodge from "./feature/ranger/ShadowyDodge.js";
-import DefensiveTactics from "./feature/ranger/DefensiveTactics.js";
-import SuperiorHuntersPrey from "./feature/ranger/SuperiorHuntersPrey.js";
-import HuntersPrey from "./feature/ranger/HuntersPrey.js";
-import SuperiorHuntersDefense from "./feature/ranger/SuperiorHuntersDefense.js";
-import BreathWeapon2024 from "./trait/dragonborn/BreathWeapon2024.js";
-import EnvenomWeapons from "./feature/rogue/EnvenomWeapons.js";
-import SneakAttackPoisonEnvenom from "./feature/rogue/SneakAttackPoisonEnvenom.js";
-import DeathStrike from "./feature/rogue/DeathStrike.js";
+import BendLuck from "./feature/sorcerer/BendLuck.js";
+import BolsteringPerformance from "./feat/BolsteringPerformance.js";
+import BoonOfEnergyResistance from "./feat/BoonOfEnergyResistance.js";
 import BoonOfFate from "./feat/BoonOfFate.js";
+import BoonOfFortitude from "./feat/BoonOfFortitude.js";
+import BoonOfTheNightSpirit from "./feat/BoonOfTheNightSpirit.js";
+import BreathWeapon2024 from "./trait/dragonborn/BreathWeapon2024.js";
+import CelestialResilience from "./feature/warlock/CelestialResilience.js";
+import CelestialRevelation from "./trait/aasimar/CelestialRevelation.js";
+import CelestialRevelationHeavenlyWings from "./trait/aasimar/CelestialRevelationHeavenlyWings.js";
+import CelestialRevelationInnerRadiance from "./trait/aasimar/CelestialRevelationInnerRadiance.js";
+import CelestialRevelationNecroticShroud from "./trait/aasimar/CelestialRevelationNecroticShroud.js";
+import CelestialRevelationRadiantConsumption from "./trait/aasimar/CelestialRevelationRadiantConsumption.js";
+import CelestialRevelationRadiantSoul from "./generic/CelestialRevelationRadiantSoul.js";
+import ChannelDivinity from "./feature/shared/ChannelDivinity.js";
+import ChromaticInfusion from "./trait/dragonborn/ChromaticInfusion.js";
+import ClairvoyantCombatant from "./feature/warlock/ClairvoyantCombatant.js";
+import ClockworkCavalcade from "./feature/sorcerer/ClockworkCavalcade.js";
+import CoronaOfLight from "./feature/cleric/CoronaOfLight.js";
+import CreateThrall from "./feature/warlock/CreateThrall.js";
+import CunningStrike from "./feature/rogue/CunningStrike.js";
+import DarkOnesBlessing from "./feature/warlock/DarkOnesBlessing.js";
+import DarkOnesOwnLuck from "./feature/warlock/DarkOnesOwnLuck.js";
+import DazzlingFootwork from "./feature/bard/DazzlingFootwork.js";
+import DeathStrike from "./feature/rogue/DeathStrike.js";
+import DefensiveTactics from "./feature/ranger/DefensiveTactics.js";
+import DeviousStrikes from "./feature/rogue/DeviousStrikes.js";
+import DivineIntervention from "./feature/cleric/DivineIntervention.js";
+import DragonWings from "./feature/sorcerer/DragonWIngs.js";
+import DreadAmbusher from "./feature/ranger/DreadAmbusher.js";
+import DreadfulStrike from "./feature/ranger/DreadfulStrike.js";
+import DreadfulStrikeMassFear from "./feature/ranger/DreadfulStrikeMassFear.js";
+import DreadfulStrikes from "./feature/ranger/DreadfulStrikes.js";
+import DreadfulStrikeSuddenStrike from "./feature/ranger/DreadfulStrikeSuddenStrike.js";
+import ElderChampion from "./feature/paladin/ElderChampion.js";
+import EldritchMaster from "./feature/warlock/EldritchMaster.js";
+import ElementalAffinity from "./feature/sorcerer/ElementalAffinity.js";
+import ElementalEpitome from "./feature/monk/ElementalEpitome.js";
+import EmbodyLegends from "./feature/paladin/EmbodyLegends.js";
+import EmpoweredEvocation from "./feature/wizard/EmpoweredEvocation.js";
+import EnergyRedirection from "./feat/EnergyRedirection.js";
+import EnvenomWeapons from "./feature/rogue/EnvenomWeapons.js";
 import FastHands from "./feature/rogue/FastHands.js";
+import FiendishResilience from "./feature/warlock/FiendishResilience.js";
+import FontOfMagic from "./feature/sorcerer/FontOfMagic.js";
+import FormOfTheBeast from "./feature/barbarian/FormOfTheBeast.js";
+import GhostlyGaze from "./feature/warlock/GhostlyGaze.js";
+import GloriousDefense from "./feature/paladin/GloriousDefense.js";
+import Healer from "./feat/Healer.js";
+import HealingLight from "./feature/warlock/HealingLight.js";
+import HolyNimbus from "./feature/paladin/HolyNimbus.js";
+import HuntersPrey from "./feature/ranger/HuntersPrey.js";
+import HurlThroughHell from "./feature/warlock/HurlThroughHell.js";
+import IllusorySelf from "./feature/wizard/IllusorySelf.js";
+import ImprovedBrutalStrike from "./feature/barbarian/ImprovedBrutalStrike.js";
+import InspiringLeader from "./feat/InspiringLeader.js";
+import InspiringSmite from "./feature/paladin/InspiringSmite.js";
+import LayOnHands from "./feature/paladin/LayOnHands.js";
+import LayOnHandsPurifyPoison from "./feature/paladin/LayOnHandsPurifyPoison.js";
+import LivingLegend from "./feature/paladin/LivingLegend.js";
+import Luck from "./trait/halfling/Luck.js";
+import MageSlayer from "./feat/MageSlayer.js";
+import MagicalCunning from "./feature/warlock/MagicalCunning.js";
+import MonksFocus from "./feature/monk/MonksFocus.js";
+import NatureMagician from "./feature/druid/NatureMagician.js";
+import Overchannel from "./feature/wizard/Overchannel.js";
+import PatientDefense from "./feature/monk/PatientDefense.js";
+import PeerlessAthlete from "./feature/paladin/PeerlessAthlete.js";
+import PowerOfTheWilds from "./feature/barbarian/PowerOfTheWilds.js";
+import PrimalCompanion from "./feature/ranger/PrimalCompanion.js";
+import PrimalCompanionRestoreBeast from "./feature/ranger/PrimalCompanionRestoreBeast.js";
+import PrimalCompanionSummon from "./feature/ranger/PrimalCompanionSummon.js";
+import RadiantSoul from "./feature/warlock/RadiantSoul.js";
+import RadiantStrikes from "./feature/paladin/RadiantStrikes.js";
+import Rage from "./feature/barbarian/Rage.js";
+import Relentless from "./feature/fighter/Relentless.js";
+import RelentlessAvenger from "./feature/paladin/RelentlessAvenger.js";
+import RevelationInFlesh from "./feature/sorcerer/RevelationInFlesh.js";
+import SacredWeapon from "./feature/paladin/SacredWeapon.js";
+import SearingVengeance from "./feature/warlock/SearingVengeance.js";
+import ShadowyDodge from "./feature/ranger/ShadowyDodge.js";
+import ShieldingStorm from "./feature/barbarian/ShieldingStorm.js";
+import Slasher from "./feat/Slasher.js";
+import SlowFall from "./feature/monk/SlowFall.js";
+import SneakAttackPoisonEnvenom from "./feature/rogue/SneakAttackPoisonEnvenom.js";
+import SneakAttackSupremeSneak from "./feature/rogue/SneakAttackSupremeSneak.js";
+import SorcerousRestoration from "./feature/sorcerer/SorcerousRestoration.js";
+import SorceryIncarnate from "./feature/sorcerer/SorceryIncarnate.js";
+import SorceryPoints from "./feature/sorcerer/SorceryPoints.js";
+import SoulOfVengeance from "./feature/paladin/SoulOfVengeance.js";
+import StalkersFlurry from "./feature/ranger/StalkersFlurry.js";
+import StarryForm from "./feature/druid/StarryForm.js";
+import Stormborn from "./feature/druid/Stormborn.js";
+import StrideOfTheElements from "./feature/monk/StrideOfTheElements.js";
+import SuperiorHuntersDefense from "./feature/ranger/SuperiorHuntersDefense.js";
+import SuperiorHuntersPrey from "./feature/ranger/SuperiorHuntersPrey.js";
+import SupremeSneak from "./feature/rogue/SupremeSneak.js";
+import Telekinetic from "./feat/Telekinetic.js";
+import TemporaryHitPoints from "./feature/ranger/TemporaryHitPoints.js";
+import TheThirdEye from "./feature/wizard/TheThirdEye.js";
+import Tireless from "./feature/ranger/Tireless.js";
+import TranceOfOrder from "./feature/sorcerer/TranceOfOrder.js";
+import UndyingSentinel from "./feature/paladin/UndyingSentinel.js";
 import UseMagicDevice from "./feature/rogue/UseMagicDevice.js";
 import UseMagicDeviceCharges from "./feature/rogue/UseMagicDeviceCharges.js";
 import UseMagicDeviceScroll from "./feature/rogue/UseMagicDeviceScroll.js";
-import SneakAttackSupremeSneak from "./feature/rogue/SneakAttackSupremeSneak.js";
-import SupremeSneak from "./feature/rogue/SupremeSneak.js";
-import SorceryPoints from "./feature/sorcerer/SorceryPoints.js";
-import FontOfMagic from "./feature/sorcerer/FontOfMagic.js";
-import WildMagicSurge from "./feature/sorcerer/WildMagicSurge.js";
-import SorcerousRestoration from "./feature/sorcerer/SorcerousRestoration.js";
-import SorceryIncarnate from "./feature/sorcerer/SorceryIncarnate.js";
-import BendLuck from "./feature/sorcerer/BendLuck.js";
-import Telekinetic from "./feat/Telekinetic.js";
-import RevelationInFlesh from "./feature/sorcerer/RevelationInFlesh.js";
+import VowOfEnmity from "./feature/paladin/VowOfEnmity.js";
 import WarpingImplosion from "./feature/sorcerer/WarpingImplosion.js";
-import AspectOfTheWilds from "./feature/barbarian/AspectOfTheWilds.js";
-import CelestialRevelationHeavenlyWings from "./trait/aasimar/CelestialRevelationHeavenlyWings.js";
-import CelestialRevelation from "./trait/aasimar/CelestialRevelation.js";
-import CelestialRevelationRadiantSoul from "./generic/CelestialRevelationRadiantSoul.js";
-import CelestialRevelationNecroticShroud from "./trait/aasimar/CelestialRevelationNecroticShroud.js";
-import CelestialRevelationInnerRadiance from "./trait/aasimar/CelestialRevelationInnerRadiance.js";
-import CelestialRevelationRadiantConsumption from "./trait/aasimar/CelestialRevelationRadiantConsumption.js";
-import Relentless from "./feature/fighter/Relentless.js";
-import SlowFall from "./feature/monk/SlowFall.js";
-import DarkOnesOwnLuck from "./feature/warlock/DarkOnesOwnLuck.js";
-import PowerOfTheWilds from "./feature/barbarian/PowerOfTheWilds.js";
-import Stormborn from "./feature/druid/Stormborn.js";
-import StrideOfTheElements from "./feature/monk/StrideOfTheElements.js";
-import TranceOfOrder from "./feature/sorcerer/TranceOfOrder.js";
-import BastionOfLaw from "./feature/sorcerer/BastionOfLaw.js";
-import ClockworkCavalcade from "./feature/sorcerer/ClockworkCavalcade.js";
-import Rage from "./feature/barbarian/Rage.js";
-import ElementalAffinity from "./feature/sorcerer/ElementalAffinity.js";
-import DragonWings from "./feature/sorcerer/DragonWIngs.js";
-import HealingLight from "./feature/warlock/HealingLight.js";
-import SearingVengeance from "./feature/warlock/SearingVengeance.js";
-import RadiantSoul from "./feature/warlock/RadiantSoul.js";
-import CelestialResilience from "./feature/warlock/CelestialResilience.js";
-import BeguilingMagic from "./feature/bard/BeguilingMagic.js";
-import BoonOfTheNightSpirit from "./feat/BoonOfTheNightSpirit.js";
-import CunningStrike from "./feature/rogue/CunningStrike.js";
-import CoronaOfLight from "./feature/cleric/CoronaOfLight.js";
-import DazzlingFootwork from "./feature/bard/DazzlingFootwork.js";
-import DeviousStrikes from "./feature/rogue/DeviousStrikes.js";
-import ElementalEpitome from "./feature/monk/ElementalEpitome.js";
-import ChromaticInfusion from "./trait/dragonborn/ChromaticInfusion.js";
-import ImprovedBrutalStrike from "./feature/barbarian/ImprovedBrutalStrike.js";
-import MonksFocus from "./feature/monk/MonksFocus.js";
-import ShieldingStorm from "./feature/barbarian/ShieldingStorm.js";
-import StarryForm from "./feature/druid/StarryForm.js";
-import TheThirdEye from "./feature/wizard/TheThirdEye.js";
-import HurlThroughHell from "./feature/warlock/HurlThroughHell.js";
-import DarkOnesBlessing from "./feature/warlock/DarkOnesBlessing.js";
-import EldritchMaster from "./feature/warlock/EldritchMaster.js";
-import MagicalCunning from "./feature/warlock/MagicalCunning.js";
-import FiendishResilience from "./feature/warlock/FiendishResilience.js";
-import ClairvoyantCombatant from "./feature/warlock/ClairvoyantCombatant.js";
-import CreateThrall from "./feature/warlock/CreateThrall.js";
-import ArcaneWard from "./feature/wizard/ArcaneWard.js";
-import Overchannel from "./feature/wizard/Overchannel.js";
-import EmpoweredEvocation from "./feature/wizard/EmpoweredEvocation.js";
-import FormOfTheBeast from "./feature/barbarian/FormOfTheBeast.js";
-import Luck from "./trait/halfling/Luck.js";
+import WildMagicSurge from "./feature/sorcerer/WildMagicSurge.js";
 
 export default class DDBFeatureEnricher extends DDBBaseEnricher {
   constructor() {
@@ -138,6 +139,7 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
   ENRICHERS = {
     "Abjure Foes": () => AbjureFoes,
     "Arcane Recovery": () => ArcaneRecovery,
+    "Arcane Ward": () => ArcaneWard,
     "Archdruid": () => Archdruid,
     "Aspect of the Wilds": () => AspectOfTheWilds,
     "Avenging Angel": () => AvengingAngel,
@@ -163,9 +165,12 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Celestial Revelation (Radiant Soul)": () => CelestialRevelationRadiantSoul,
     "Celestial Revelation": () => CelestialRevelation,
     "Channel Divinity": () => ChannelDivinity,
+    "Clairvoyant Combatant": () => ClairvoyantCombatant,
     "Clockwork Cavalcade": () => ClockworkCavalcade,
     "Corona of Light": () => CoronaOfLight,
+    "Create Thrall": () => CreateThrall,
     "Cunning Strike": () => CunningStrike,
+    "Dark One's Blessing": () => DarkOnesBlessing,
     "Dark One's Own Luck": () => DarkOnesOwnLuck,
     "Dazzling Footwork": () => DazzlingFootwork,
     "Death Strike": () => DeathStrike,
@@ -180,13 +185,17 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Dreadful Strikes": () => DreadfulStrikes,
     "Elder Champion": () => ElderChampion,
     "Eldritch Invocations: Ghostly Gaze": () => GhostlyGaze,
+    "Eldritch Master": () => EldritchMaster,
     "Elemental Affinity": () => ElementalAffinity,
     "Elemental Epitome": () => ElementalEpitome,
     "Embody Legends": () => EmbodyLegends,
+    "Empowered Evocation": () => EmpoweredEvocation,
     "Energy Redirection": () => EnergyRedirection,
     "Envenom Weapons": () => EnvenomWeapons,
     "Fast Hands": () => FastHands,
+    "Fiendish Resilience": () => FiendishResilience,
     "Font of Magic": () => FontOfMagic,
+    "Form of the Beast": () => FormOfTheBeast,
     "Gift of the Chromatic Dragon: Chromatic Infusion": () => ChromaticInfusion,
     "Glorious Defense": () => GloriousDefense,
     "Healer": () => Healer,
@@ -194,15 +203,19 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Holy Nimbus": () => HolyNimbus,
     "Hunter's Prey": () => HuntersPrey,
     "Hurl Through Hell": () => HurlThroughHell,
+    "Illusory Self": () => IllusorySelf,
     "Improved Brutal Strike": () => ImprovedBrutalStrike,
     "Inspiring Leader": () => InspiringLeader,
     "Inspiring Smite": () => InspiringSmite,
     "Lay On Hands: Healing Pool": () => LayOnHands,
     "Lay On Hands: Purify Poison": () => LayOnHandsPurifyPoison,
     "Living Legend": () => LivingLegend,
+    "Luck": () => Luck,
     "Mage Slayer": () => MageSlayer,
+    "Magical Cunning": () => MagicalCunning,
     "Monk's Focus": () => MonksFocus,
     "Nature Magician": () => NatureMagician,
+    "Overchannel": () => Overchannel,
     "Patient Defense": () => PatientDefense,
     "Peerless Athlete": () => PeerlessAthlete,
     "Power of the Wilds": () => PowerOfTheWilds,
@@ -246,17 +259,6 @@ export default class DDBFeatureEnricher extends DDBBaseEnricher {
     "Vow of Enmity": () => VowOfEnmity,
     "Warping Implosion": () => WarpingImplosion,
     "Wild Magic Surge": () => WildMagicSurge,
-    "Dark One's Blessing": () => DarkOnesBlessing,
-    "Eldritch Master": () => EldritchMaster,
-    "Magical Cunning": () => MagicalCunning,
-    "Fiendish Resilience": () => FiendishResilience,
-    "Clairvoyant Combatant": () => ClairvoyantCombatant,
-    "Create Thrall": () => CreateThrall,
-    "Arcane Ward": () => ArcaneWard,
-    "Overchannel": () => Overchannel,
-    "Empowered Evocation": () => EmpoweredEvocation,
-    "Form of the Beast": () => FormOfTheBeast,
-    "Luck": () => Luck,
   };
 
   NAME_HINTS_2014 = {
