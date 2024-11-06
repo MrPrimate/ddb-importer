@@ -3,47 +3,28 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 
-export default class DDBSpellActivity {
+export default class DDBSpellActivity extends DDBBasicActivity {
 
   _init() {
     logger.debug(`Generating DDBSpellActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
-
-  _generateDataStub() {
-
-    const rawStub = new this.activityType.documentClass({
-      name: this.name,
-      type: this.type,
-    });
-
-    this.data = rawStub.toObject();
-    this.data._id = utils.namedIDStub(this.name ?? this.ddbParent.data.name ?? this.type, {
-      prefix: this.nameIdPrefix,
-      postfix: this.nameIdPostfix,
-    });
-  }
-
 
   constructor({
     type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null, spellEffects = null,
     cantripBoost = null, healingBoost = null,
   } = {}) {
 
-    this.type = type.toLowerCase();
-    this.activityType = CONFIG.DND5E.activityTypes[this.type];
-    if (!this.activityType) {
-      throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
-    }
-    this.name = name;
-    this.ddbParent = ddbParent;
+    super({
+      type,
+      name,
+      ddbParent,
+      foundryFeature: ddbParent.data,
+      nameIdPrefix,
+      nameIdPostfix,
+    });
+
     this.spellData = ddbParent.spellData;
     this.ddbDefinition = this.spellData.definition;
-
-    this.nameIdPrefix = nameIdPrefix ?? "act";
-    this.nameIdPostfix = nameIdPostfix ?? "";
-
-    this._init();
-    this._generateDataStub();
 
     this.spellEffects = spellEffects ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.addSpellEffects");
     this.damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !this.spellEffects;
@@ -425,12 +406,6 @@ export default class DDBSpellActivity {
 
   }
 
-  _generateDDBMacro({ ddbMacroOverride = null } = {}) {
-    if (ddbMacroOverride) {
-      this.data.macro = ddbMacroOverride;
-    }
-  }
-
   _generateHealing({ healingPart } = {}) {
     if (healingPart.chatFlavor) this.data.description.chatFlavor = healingPart.chatFlavor;
     this.data.healing = healingPart.part ?? healingPart;
@@ -503,12 +478,6 @@ export default class DDBSpellActivity {
     }
   }
 
-  _generateRoll({ roll = null } = {}) {
-    if (roll) {
-      this.data.roll = roll;
-    }
-  }
-
   _generateTarget({ targetOverride = null } = {}) {
     if (targetOverride) {
       this.data.target = targetOverride;
@@ -527,13 +496,6 @@ export default class DDBSpellActivity {
     if (durationOverride) {
       this.data.duration = durationOverride;
       this.data.duration.override = true;
-    }
-  }
-
-  _generateUses({ usesOverride = null } = {}) {
-    if (usesOverride) {
-      this.data.uses = usesOverride;
-      this.data.uses.override = true;
     }
   }
 
@@ -573,35 +535,6 @@ export default class DDBSpellActivity {
     data = null,
   } = {}) {
 
-    // logger.debug(`Generating Activity for ${this.ddbParent.name}`, {
-    //   damageParts,
-    //   healingPart,
-    //   generateAttack,
-    //   generateDDBMacro,
-    //   generateConsumption,
-    //   generateDamage,
-    //   generateDescription,
-    //   generateEffects,
-    //   generateHealing,
-    //   generateSave,
-    //   chatFlavor,
-    //   onSave,
-    //   this: this,
-    //   noeffect,
-    //   roll,
-    //   noSpellslot,
-    //   targetOverride,
-    //   rangeOverride,
-    //   activationOverride,
-    //   durationOverride,
-    //   saveOverride,
-    //   img,
-    //   partialDamageParts,
-    //   ddbMacroOverride,
-    // });
-
-    // override set to false on object if overriding
-
     if (activationOverride) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack();
     if (generateConsumption) this._generateConsumption({ consumptionOverride, additionalTargets, consumeActivity, consumeItem });
@@ -632,82 +565,6 @@ export default class DDBSpellActivity {
     }
     if (img) foundry.utils.setProperty(this.data, "img", img);
     if (data) foundry.utils.mergeObject(this.data, data);
-
-    // ATTACK has
-    // activation
-    // attack
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // uses
-
-    // DAMAGE
-    // activation
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // uses
-
-
-    // ENCHANT:
-    // DAMAGE + enchant
-
-    // HEAL
-    // activation
-    // consumption
-    // healing
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // uses
-
-    // SAVE
-    // activation
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // save
-    // target
-    // uses
-
-    // SUMMON
-    // activation
-    // bonuses
-    // consumption
-    // creatureSizes
-    // creatureTypes
-    // description
-    // duration
-    // match
-    // profles
-    // range
-    // summon
-    // target
-    // uses
-
-    // UTILITY
-    // activation
-    // consumption
-    // description
-    // duration
-    // effects
-    // range
-    // roll - name, formula, prompt, visible
-    // target
-    // uses
 
 
   }

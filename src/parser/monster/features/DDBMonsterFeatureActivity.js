@@ -1,47 +1,25 @@
-import utils from "../../../lib/utils.js";
 import logger from "../../../logger.js";
+import DDBBasicActivity from "../../enrichers/DDBBasicActivity.js";
 
 
-export default class DDBMonsterFeatureActivity {
+export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
   _init() {
     logger.debug(`Generating DDBMonsterFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.actor.name}`);
   }
 
-  _generateDataStub() {
-
-    const rawStub = new this.activityType.documentClass({
-      name: this.name,
-      type: this.type,
-    });
-
-    this.data = rawStub.toObject();
-    this.data._id = utils.namedIDStub(this.name ?? this.feature.name ?? this.type, {
-      prefix: this.nameIdPrefix,
-      postfix: this.nameIdPostfix,
-    });
-  }
-
-
   constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+    super({
+      type,
+      name,
+      ddbParent,
+      foundryFeature: ddbParent.data,
+      nameIdPrefix,
+      nameIdPostfix,
+      actor: ddbParent.ddbMonster.npc,
+    });
 
-    this.type = type.toLowerCase();
-    this.activityType = CONFIG.DND5E.activityTypes[this.type];
-    if (!this.activityType) {
-      throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
-    }
-    this.name = name;
-    this.ddbParent = ddbParent;
-    this.feature = ddbParent.data;
-    this.actor = ddbParent.ddbMonster.npc;
     this.actionInfo = ddbParent.actionInfo;
-
-    this.nameIdPrefix = nameIdPrefix ?? "act";
-    this.nameIdPostfix = nameIdPostfix ?? "";
-
-    this._init();
-    this._generateDataStub();
-
   }
 
   _generateActivation() {
@@ -84,7 +62,7 @@ export default class DDBMonsterFeatureActivity {
 
   _generateDescription() {
     this.data.description = {
-      chatFlavor: this.feature.system?.chatFlavor ?? "",
+      chatFlavor: this.foundryFeature.system?.chatFlavor ?? "",
     };
   }
 
@@ -246,90 +224,6 @@ export default class DDBMonsterFeatureActivity {
     if (generateHealing) this._generateHealing({ part: healingPart });
 
     if (generateCheck) this._generateCheck({ checkOverride });
-
-
-    // ATTACK has
-    // activation
-    // attack
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // type
-    // uses
-
-    // DAMAGE
-    // activation
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // type
-    // uses
-
-
-    // ENCHANT:
-    // DAMAGE + enchant
-
-    // HEAL
-    // activation
-    // consumption
-    // healing
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // type
-    // uses
-
-    // SAVE
-    // activation
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // save
-    // target
-    // type
-    // uses
-
-    // SUMMON
-    // activation
-    // bonuses
-    // consumption
-    // creatureSizes
-    // creatureTypes
-    // description
-    // duration
-    // match
-    // profles
-    // range
-    // summon
-    // target
-    // type
-    // uses
-
-    // UTILITY
-    // activation
-    // consumption
-    // description
-    // duration
-    // effects
-    // range
-    // roll - name, formula, prompt, visible
-    // target
-    // type
-    // uses
-
 
   }
 

@@ -13,47 +13,27 @@ import DICTIONARY from "../../dictionary.js";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 
 
 // CONFIG.DND5E.activityTypes
 
 
-export default class DDBFeatureActivity {
+export default class DDBFeatureActivity extends DDBBasicActivity {
 
   _init() {
     logger.debug(`Generating DDBFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
 
-  _generateDataStub() {
-
-    const rawStub = new this.activityType.documentClass({
-      name: this.name,
-      type: this.type,
-    });
-
-    this.data = rawStub.toObject();
-    this.data._id = utils.namedIDStub(this.name ?? this.ddbParent.data.name ?? this.type, {
-      prefix: this.nameIdPrefix,
-      postfix: this.nameIdPostfix,
-    });
-
-  }
-
-
   constructor({ type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null } = {}) {
-
-    this.type = type.toLowerCase();
-    this.activityType = CONFIG.DND5E.activityTypes[this.type];
-    if (!this.activityType) {
-      throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
-    }
-    this.name = name;
-    this.ddbParent = ddbParent;
-    this.nameIdPrefix = nameIdPrefix ?? "act";
-    this.nameIdPostfix = nameIdPostfix ?? "";
-
-    this._init();
-    this._generateDataStub();
+    super({
+      type,
+      name,
+      ddbParent,
+      foundryFeature: ddbParent.data,
+      nameIdPrefix,
+      nameIdPostfix,
+    });
 
     this.ddbDefinition = this.ddbParent.ddbDefinition;
 
@@ -526,16 +506,6 @@ export default class DDBFeatureActivity {
 
   }
 
-  _generateDDBMacro({ ddbMacroOverride = null } = {}) {
-    if (ddbMacroOverride) {
-      this.data.macro = ddbMacroOverride;
-    }
-  }
-
-  _generateRoll({ roll = null } = {}) {
-    this.data.roll = roll;
-  }
-
   build({
     generateActivation = true,
     generateAttack = false,
@@ -571,32 +541,6 @@ export default class DDBFeatureActivity {
     data = null,
   } = {}) {
 
-
-    // console.warn(`Build for ${this.ddbDefinition.name} ${this.type} activity`, {
-    //   generateActivation,
-    //   generateAttack,
-    //   generateConsumption,
-    //   generateDescription,
-    //   generateDuration,
-    //   generateEffects,
-    //   generateHealing,
-    //   generateRange,
-    //   generateSave,
-    //   generateTarget,
-    //   generateRoll,
-    //   roll,
-    //   targetOverride,
-    //   targetSelf,
-    //   noTemplate,
-    //   includeBase,
-    //   damageParts,
-    //   attackOverride,
-    //   saveOverride,
-    //   rangeOverride,
-    // });
-
-    // override set to false on object if overriding
-
     if (generateActivation) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack({ attackOverride, unarmed: null, spell: null });
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
@@ -627,83 +571,6 @@ export default class DDBFeatureActivity {
     if (data) {
       this.data = foundry.utils.mergeObject(this.data, data);
     }
-
-    // ATTACK has
-    // activation
-    // attack
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // uses
-
-    // DAMAGE
-    // activation
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // uses
-
-
-    // ENCHANT:
-    // DAMAGE + enchant
-
-    // HEAL
-    // activation
-    // consumption
-    // healing
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // uses
-
-    // SAVE
-    // activation
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // save
-    // target
-    // uses
-
-    // SUMMON
-    // activation
-    // bonuses
-    // consumption
-    // creatureSizes
-    // creatureTypes
-    // description
-    // duration
-    // match
-    // profles
-    // range
-    // summon
-    // target
-    // uses
-
-    // UTILITY
-    // activation
-    // consumption
-    // description
-    // duration
-    // effects
-    // range
-    // roll - name, formula, prompt, visible
-    // target
-    // uses
-
 
   }
 

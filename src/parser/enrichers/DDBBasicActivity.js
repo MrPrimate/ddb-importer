@@ -1,19 +1,5 @@
-
-// game.dnd5e.documents.activity
-// ActivityMixin(…)
-// AttackActivity(…)
-// DamageActivity(…)
-// EnchantActivity(…)
-// HealActivity(…)
-// SaveActivity(…)
-// SummonActivity(…)
-// UtilityActivity(…)
-
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
-
-
-// CONFIG.DND5E.activityTypes
 
 export default class DDBBasicActivity {
 
@@ -22,7 +8,6 @@ export default class DDBBasicActivity {
   }
 
   _generateDataStub() {
-
     const rawStub = new this.activityType.documentClass({
       name: this.name,
       type: this.type,
@@ -36,7 +21,10 @@ export default class DDBBasicActivity {
   }
 
 
-  constructor({ type, name, foundryFeature, actor = null, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+  constructor({
+    type, name, foundryFeature = null, actor = null, ddbParent = null,
+    nameIdPrefix = null, nameIdPostfix = null,
+  } = {}) {
 
     this.type = type.toLowerCase();
     this.activityType = CONFIG.DND5E.activityTypes[this.type];
@@ -44,7 +32,8 @@ export default class DDBBasicActivity {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
     this.name = name;
-    this.foundryFeature = foundryFeature;
+    this.ddbParent = ddbParent;
+    this.foundryFeature = this.ddbParent?.data ?? foundryFeature;
     this.actor = actor;
 
     this.nameIdPrefix = nameIdPrefix ?? "act";
@@ -70,7 +59,15 @@ export default class DDBBasicActivity {
   }
 
   // note spells do not have activation
-  _generateActivation() {
+  _generateActivation({ activationOverride = null, noManual = false } = {}) {
+    if (activationOverride) {
+      this.data.activation = activationOverride;
+      this.data.activation.override = true;
+      return;
+    }
+
+    if (noManual) return;
+
     const description = this.foundryFeature.system?.description?.value;
 
     if (!description) return;
@@ -84,7 +81,12 @@ export default class DDBBasicActivity {
     };
   }
 
-  _generateConsumption() {
+  // eslint-disable-next-line no-unused-vars
+  _generateConsumption({ targetOverrides = null, consumptionOverride = null, additionalTargets = [], consumeActivity = false, consumeItem = null } = {}) {
+    if (consumptionOverride) {
+      this.data.consumption = consumptionOverride;
+      return;
+    }
     let targets = [];
     let scaling = false;
 
@@ -94,20 +96,26 @@ export default class DDBBasicActivity {
     // "material"
     // "itemUses"
 
-    if (this.actor) {
-      Object.keys(this.actor.system.resources).forEach((resource) => {
-        const detail = this.actor.system.resources[resource];
-        if (this.foundryFeature.name === detail.label) {
-          targets.push({
-            type: "attribute",
-            target: `resources.${resource}.value`,
-            value: 1,
-            scaling: {
-              mode: "",
-              formula: "",
-            },
-          });
-        }
+    // this is a spell with limited uses such as one granted by a feat
+    if (consumeActivity) {
+      targets.push({
+        type: "activityUses",
+        target: "", // this item
+        value: 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
+      });
+    } else if (consumeItem) {
+      targets.push({
+        type: "itemUses",
+        target: "", // this item
+        value: 1,
+        scaling: {
+          mode: "",
+          formula: "",
+        },
       });
     }
 
@@ -116,24 +124,13 @@ export default class DDBBasicActivity {
     // you can spend one Hit Die to heal yourself.
     // right now most of these target other creatures
 
-    const kiPointRegex = /(?:spend|expend) (\d) (?:ki|focus) point/;
-    const match = this.foundryFeature.system?.description?.value.match(kiPointRegex);
-    if (match) {
-      targets.push({
-        type: "itemUses",
-        target: "", // adjusted later
-        value: match[1],
-        scaling: {
-          mode: "",
-          formula: "",
-        },
-      });
-    }
-    // else if (this.ddbFeature.resourceCharges !== null) {
+    // const kiPointRegex = /(?:spend|expend) (\d) (?:ki|focus) point/;
+    // const match = this.foundryFeature.system?.description?.value.match(kiPointRegex);
+    // if (match) {
     //   targets.push({
     //     type: "itemUses",
     //     target: "", // adjusted later
-    //     value: this._resourceCharges,
+    //     value: match[1],
     //     scaling: {
     //       mode: "",
     //       formula: "",
@@ -141,8 +138,10 @@ export default class DDBBasicActivity {
     //   });
     // }
 
+    if (additionalTargets && additionalTargets.length > 0) targets.push(...additionalTargets);
+
     this.data.consumption = {
-      targets,
+      targets: targetOverrides ?? targets,
       scaling: {
         allowed: scaling,
         max: "",
@@ -151,19 +150,25 @@ export default class DDBBasicActivity {
 
   }
 
-  _generateDescription() {
+  _generateDescription({ overRide = null } = {}) {
     this.data.description = {
-      chatFlavor: this.foundryFeature.system?.chatFlavor ?? "",
+      chatFlavor: overRide ?? this.foundryFeature.system?.chatFlavor ?? "",
     };
   }
 
-  _generateDuration() {
-    // KNOWN_ISSUE_4_0: improve duration parsing
-    this.data.duration = {
-      value: null,
-      units: "inst",
-      special: "",
-    };
+  _generateEnchant() {
+    logger.debug(`Stubbed enchantment generation for ${this.name}`);
+  }
+
+  _generateSummon() {
+    logger.debug(`Stubbed summon generation for ${this.name}`);
+  }
+
+  _generateDuration({ durationOverride = null } = {}) {
+    if (durationOverride) {
+      this.data.duration = durationOverride;
+      this.data.duration.override = true;
+    }
   }
 
   _generateEffects() {
@@ -171,51 +176,49 @@ export default class DDBBasicActivity {
     // Enchantments need effects here
   }
 
-  _generateRange() {
-    this.data.range = {
-      value: null,
-      units: "ft",
-      special: "",
+  _generateRange({ rangeOverride = null } = {}) {
+    if (rangeOverride) {
+      this.data.range = rangeOverride;
+      this.data.range.override = true;
+    }
+  }
+
+  _generateTarget({ targetOverride = null } = {}) {
+    if (targetOverride) {
+      this.data.target = targetOverride;
+      this.data.target.override = true;
+    }
+  }
+
+  _generateUses({ usesOverride = null } = {}) {
+    if (usesOverride) {
+      this.data.uses = usesOverride;
+      this.data.uses.override = true;
+    }
+  }
+
+  _generateCheck({ checkOverride = null } = {}) {
+    this.data.check = checkOverride ?? {
+      associated: this.actionInfo.associatedToolsOrAbilities,
+      ability: this.actionInfo.ability,
+      dc: {},
     };
   }
 
-  _generateTarget() {
-    let data = {
-      template: {
-        count: "",
-        contiguous: false,
-        type: "",
-        size: "",
-        width: "",
-        height: "",
-        units: "ft",
-      },
-      affects: {
-        count: "",
-        type: "",
-        choice: false,
-        special: "",
-      },
-      prompt: true,
-    };
+  _generateDamage({ includeBase, damageParts = null, onSave = null, scalingOverride = null, criticalDamage = null } = {}) {
+    if (damageParts) {
+      this.data.damage = {
+        parts: damageParts,
+        onSave: onSave ?? "",
+        includeBase: false,
+        scaling: scalingOverride ?? undefined,
+        critical: {
+          bonus: criticalDamage ?? "",
+        },
+      };
+      return;
+    }
 
-    // if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
-    //   data = foundry.utils.mergeObject(data, {
-    //     template: {
-    //       type: DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value ?? "",
-    //       size: this.ddbDefinition.range.aoeSize,
-    //       width: "",
-    //     },
-    //   });
-    // }
-
-    // KNOWN_ISSUE_4_0: improve target parsing
-    this.data.target = data;
-
-  }
-
-
-  _generateDamage(includeBase = false) {
     this.data.damage = {
       includeBase,
       parts: [],
@@ -232,24 +235,16 @@ export default class DDBBasicActivity {
     // }
   }
 
-  _generateHealing(includeBase = false) {
-    this.data.healing = {
-      includeBase,
-      parts: [],
-    };
-
-    // damage: {
-    //   critical: {
-    //     allow: false,
-    //     bonus: source.system.critical?.damage
-    //   },
-    //   onSave: (source.type === "spell") && (source.system.level === 0) ? "none" : "half",
-    //   includeBase: true,
-    //   parts: damageParts.map(part => this.transformDamagePartData(source, part)) ?? []
-    // }
+  _generateHealing({ healingPart, healingChatFlavor = null } = {}) {
+    if (healingChatFlavor) this.data.description.chatFlavor = healingChatFlavor;
+    this.data.healing = healingPart;
   }
 
-  _generateSave() {
+  _generateSave({ saveOverride = null } = {}) {
+    if (saveOverride) {
+      this.data.save = saveOverride;
+      return;
+    }
     this.data.save = {
       ability: Object.keys(CONFIG.DND5E.abilities)[0],
       dc: {
@@ -259,24 +254,29 @@ export default class DDBBasicActivity {
     };
   }
 
-
-  _generateAttack({ type = "melee", unarmed = false, spell = false } = {}) {
-    let classification = unarmed
+  static deriveAttackClassification({ unarmed = false, spell = false } = {}) {
+    return unarmed
       ? "unarmed"
       : spell
         ? "spell"
-        : "weapon"; // unarmed, weapon, spell
+        : "weapon";
+  }
+
+  _generateAttack({
+    type = "melee", unarmed = false, spell = false, classification = null,
+    ability = null, bonus = "", criticalThreshold = undefined, flat = false,
+  } = {}) {
 
     const attack = {
-      ability: Object.keys(CONFIG.DND5E.abilities)[0],
-      bonus: "",
+      ability: ability ?? Object.keys(CONFIG.DND5E.abilities)[0],
+      bonus,
       critical: {
-        threshold: undefined,
+        threshold: criticalThreshold,
       },
-      flat: false, // almost never false for PC features
+      flat, // almost never false for PC features
       type: {
         value: type,
-        classification,
+        classification: classification ?? DDBBasicActivity.deriveAttackClassification({ unarmed, spell }),
       },
     };
 
@@ -284,118 +284,195 @@ export default class DDBBasicActivity {
 
   }
 
+  _generateRoll({ roll = null } = {}) {
+    if (roll) {
+      this.data.roll = roll;
+    }
+  }
+
+
+  _generateDDBMacro({ ddbMacroOverride = null } = {}) {
+    if (ddbMacroOverride) {
+      this.data.macro = ddbMacroOverride;
+    }
+  }
+
+  // ATTACK has
+  // activation
+  // attack
+  // consumption
+  // damage
+  // description
+  // duration
+  // effects
+  // range
+  // target
+  // type
+  // uses
+
+  // DAMAGE
+  // activation
+  // consumption
+  // damage
+  // description
+  // duration
+  // effects
+  // range
+  // target
+  // type
+  // uses
+
+
+  // ENCHANT:
+  // DAMAGE + enchant
+
+  // HEAL
+  // activation
+  // consumption
+  // healing
+  // description
+  // duration
+  // effects
+  // range
+  // target
+  // type
+  // uses
+
+  // SAVE
+  // activation
+  // consumption
+  // damage
+  // description
+  // duration
+  // effects
+  // range
+  // save
+  // target
+  // type
+  // uses
+
+  // SUMMON
+  // activation
+  // bonuses
+  // consumption
+  // creatureSizes
+  // creatureTypes
+  // description
+  // duration
+  // match
+  // profles
+  // range
+  // summon
+  // target
+  // type
+  // uses
+
+  // UTILITY
+  // activation
+  // consumption
+  // description
+  // duration
+  // effects
+  // range
+  // roll - name, formula, prompt, visible
+  // target
+  // type
+  // uses
+
+  // eslint-disable-next-line complexity
   build({
+    activationOverride = null,
+    additionalTargets = [],
+    attackData = {},
+    chatFlavor = null,
+    checkOverride = null,
+    consumeActivity = null,
+    consumeItem = null,
+    consumptionOverride = null,
+    consumptionTargetOverrides = null,
+    criticalDamage = null,
+    damageParts = null,
+    damageScalingOverride = null,
+    data = null,
+    ddbMacroOverride = null,
+    durationOverride = null,
     generateActivation = true,
     generateAttack = false,
+    generateCheck = false,
     generateConsumption = true,
     generateDamage = false,
+    generateDDBMacro = false,
     generateDescription = false,
     generateDuration = true,
     generateEffects = true,
+    generateEnchant = false,
     generateHealing = false,
     generateRange = true,
+    generateRoll = false,
     generateSave = false,
+    generateSummon = false,
     generateTarget = true,
+    generateUses = false,
+    healingChatFlavor = null,
+    healingPart = null,
+    img = null,
+    includeBaseDamage = false,
+    noeffect = false,
+    noManualActivation = false,
+    noSpellslot = false,
+    onSave = null,
+    partialDamageParts = null,
+    rangeOverride = null,
+    roll = null,
+    saveOverride = null,
+    targetOverride = null,
+    usesOverride = null,
   } = {}) {
 
-    // override set to false on object if overriding
-
-    if (generateActivation) this._generateActivation();
-    if (generateAttack) this._generateAttack();
-    if (generateConsumption) this._generateConsumption();
-    if (generateDescription) this._generateDescription();
-    if (generateDuration) this._generateDuration();
+    if (generateActivation) this._generateActivation({ activationOverride, noManual: noManualActivation });
+    if (generateAttack) this._generateAttack(attackData);
+    if (generateConsumption) this._generateConsumption({
+      targetOverrides: consumptionTargetOverrides,
+      consumptionOverride,
+      additionalTargets,
+      consumeActivity,
+      consumeItem,
+    });
+    if (generateDescription) this._generateDescription({ overRide: chatFlavor });
     if (generateEffects) this._generateEffects();
-    if (generateRange) this._generateRange();
-    if (generateTarget) this._generateTarget();
-
-    if (generateSave) this._generateSave();
-    if (generateDamage) this._generateDamage();
-
-    if (generateHealing) this._generateHealing();
-
-
-    // ATTACK has
-    // activation
-    // attack
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // type
-    // uses
-
-    // DAMAGE
-    // activation
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // type
-    // uses
+    if (generateSave) this._generateSave({ saveOverride });
+    if (generateDamage) this._generateDamage({
+      damageParts,
+      onSave,
+      partialDamageParts,
+      includeBase: includeBaseDamage,
+      scalingOverride: damageScalingOverride,
+      criticalDamage,
+    });
+    if (generateEnchant) this._generateEnchant();
+    if (generateSummon) this._generateSummon();
+    if (generateHealing) this._generateHealing({ healingPart, healingChatFlavor });
+    if (generateRange) this._generateRange({ rangeOverride });
+    if (generateTarget) this._generateTarget({ targetOverride });
+    if (generateDuration) this._generateDuration({ durationOverride });
+    if (generateDDBMacro) this._generateDDBMacro({ ddbMacroOverride });
+    if (generateUses) this._generateUses({ usesOverride });
+    if (generateRoll) this._generateRoll({ roll });
+    if (generateCheck) this._generateCheck({ checkOverride });
 
 
-    // ENCHANT:
-    // DAMAGE + enchant
+    if (noSpellslot) {
+      foundry.utils.setProperty(this.data, "consumption.spellSlot", false);
+    }
 
-    // HEAL
-    // activation
-    // consumption
-    // healing
-    // description
-    // duration
-    // effects
-    // range
-    // target
-    // type
-    // uses
-
-    // SAVE
-    // activation
-    // consumption
-    // damage
-    // description
-    // duration
-    // effects
-    // range
-    // save
-    // target
-    // type
-    // uses
-
-    // SUMMON
-    // activation
-    // bonuses
-    // consumption
-    // creatureSizes
-    // creatureTypes
-    // description
-    // duration
-    // match
-    // profles
-    // range
-    // summon
-    // target
-    // type
-    // uses
-
-    // UTILITY
-    // activation
-    // consumption
-    // description
-    // duration
-    // effects
-    // range
-    // roll - name, formula, prompt, visible
-    // target
-    // type
-    // uses
+    if (noeffect) {
+      const ids = foundry.utils.getProperty(this.ddbParent.data, "flags.ddbimporter.noeffect") ?? [];
+      ids.push(this.data._id);
+      foundry.utils.setProperty(this.ddbParent.data, "flags.ddbimporter.noEffectIds", ids);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
+    }
+    if (img) foundry.utils.setProperty(this.data, "img", img);
+    if (data) foundry.utils.mergeObject(this.data, data);
 
 
   }
