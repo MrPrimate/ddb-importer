@@ -488,29 +488,20 @@ export default class DDBSpell {
   }
 
   #specialRange() {
-    // Improved Illusions
-    // if range 10+ then illusion range increases by 60
     if (this.isGeneric || !this.spellClass || !this.rawCharacter) return;
 
+    // Improved Illusions - at the time of this implemented, this was not handled
+    // automatically by DDB. This may change in the future, and this will need to be removed.
+    // if range 10+ then illusion range increases by 60
     const hasIllusionSavant = DDBHelper.hasClassFeature({
       ddbData: this.ddbData,
       featureName: "Improved Illusions",
       className: "Wizard",
       subClassName: "Illusionist",
     });
-
     if (hasIllusionSavant && this.school.id === "ill" && Number.parseInt(this.data.system.range.value) >= 10) {
       this.data.system.range.value = Number.parseInt(this.data.system.range.value) + 60;
     }
-
-    console.warn(`${this.name}`, {
-      rawCharacter: this.rawCharacter,
-      spellClass: this.spellClass,
-      this: this,
-      hasIllusionSavant,
-      illusionist: this.school.id === "ill",
-      range: Number.parseInt(this.data.system.range.value) >= 10,
-    });
 
   }
 
