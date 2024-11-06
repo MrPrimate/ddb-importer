@@ -104,12 +104,20 @@
     "path": "icons/magic/life/ankh-gold-blue.webp"
   },
   {
+    "name": "Clockwork Sorcery",
+    "path": "icons/commodities/tech/watch.webp"
+  },
+  {
     "name": "Clockwork Soul",
     "path": "icons/commodities/tech/watch.webp"
   },
   {
     "name": "College of Creation",
     "path": "icons/magic/light/orb-hands-humanoid-yellow.webp"
+  },
+  {
+    "name": "College of Dance",
+    "path": "icons/magic/symbols/circled-gem-pink.webp"
   },
   {
     "name": "College of Eloquence",
@@ -149,6 +157,10 @@
   },
   {
     "name": "Draconic Bloodline",
+    "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
+  },
+  {
+    "name": "Draconic Sorcery",
     "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
   },
   {
@@ -300,6 +312,14 @@
     "path": "icons/magic/control/fear-fright-white.webp"
   },
   {
+    "name": "Path of the World Tree",
+    "path": "icons/magic/nature/tree-twisted-glow-yellow.webp"
+  },
+  {
+    "name": "Path of the Wild Heart",
+    "path": "icons/magic/nature/stealth-hide-beast-eyes-green.webp"
+  },
+  {
     "name": "Path of the Zealot",
     "path": "icons/magic/death/skeleton-skull-soul-blue.webp"
   },
@@ -340,11 +360,19 @@
     "path": "icons/skills/trades/smithing-anvil-silver-red.webp"
   },
   {
+    "name": "Abjurer",
+    "path": "icons/skills/trades/smithing-anvil-silver-red.webp"
+  },
+  {
     "name": "School of Conjuration",
     "path": "icons/magic/nature/stealth-hide-eyes-pink.webp"
   },
   {
     "name": "School of Divination",
+    "path": "icons/magic/death/grave-tombstone-glow-teal.webp"
+  },
+  {
+    "name": "Diviner",
     "path": "icons/magic/death/grave-tombstone-glow-teal.webp"
   },
   {
@@ -354,6 +382,14 @@
   {
     "name": "School of Evocation",
     "path": "icons/skills/targeting/crosshair-scope-sniper-green.webp"
+  },
+  {
+    "name": "Evoker",
+    "path": "icons/skills/targeting/crosshair-scope-sniper-green.webp"
+  },
+  {
+    "name": "Illusionist",
+    "path": "icons/creatures/eyes/human-single-brown.webp"
   },
   {
     "name": "School of Illusion",
@@ -408,7 +444,15 @@
     "path": "icons/magic/unholy/hand-weapon-glow-black-green.webp"
   },
   {
+    "name": "Archfey Patron",
+    "path": "icons/magic/unholy/hand-weapon-glow-black-green.webp"
+  },
+  {
     "name": "The Celestial",
+    "path": "icons/environment/wilderness/portal.webp"
+  },
+  {
+    "name": "Celestial Patron",
     "path": "icons/environment/wilderness/portal.webp"
   },
   {
@@ -420,11 +464,19 @@
     "path": "icons/magic/nature/stealth-hide-eyes-pink.webp"
   },
   {
+    "name": "Fiend Patron",
+    "path": "icons/magic/nature/stealth-hide-eyes-pink.webp"
+  },
+  {
     "name": "The Genie",
     "path": "icons/magic/death/grave-tombstone-glow-teal.webp"
   },
   {
     "name": "The Great Old One",
+    "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
+  },
+  {
+    "name": "Great Old One Patron",
     "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
   },
   {
@@ -464,7 +516,15 @@
     "path": "icons/magic/death/skeleton-skull-soul-blue.webp"
   },
   {
+    "name": "Warrior of Mercy",
+    "path": "icons/magic/death/skeleton-skull-soul-blue.webp"
+  },
+  {
     "name": "Way of Shadow",
+    "path": "icons/magic/holy/angel-winged-humanoid-blue.webp"
+  },
+  {
+    "name": "Warrior of Shadow",
     "path": "icons/magic/holy/angel-winged-humanoid-blue.webp"
   },
   {
@@ -484,6 +544,10 @@
     "path": "icons/magic/unholy/hand-weapon-glow-black-green.webp"
   },
   {
+    "name": "Warrior of the Elements",
+    "path": "icons/magic/unholy/hand-weapon-glow-black-green.webp"
+  },
+  {
     "name": "Way of the Kensei",
     "path": "icons/environment/wilderness/portal.webp"
   },
@@ -496,6 +560,10 @@
     "path": "icons/magic/nature/stealth-hide-eyes-pink.webp"
   },
   {
+    "name": "Warrior of the Open Hand",
+    "path": "icons/magic/nature/stealth-hide-eyes-pink.webp"
+  },
+  {
     "name": "Way of the Sun Soul",
     "path": "icons/magic/death/grave-tombstone-glow-teal.webp"
   },
@@ -504,7 +572,15 @@
     "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
   },
   {
+    "name": "Wild Magic Sorcery",
+    "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
+  },
+  {
     "name": "Wizard",
     "path": "icons/magic/air/wind-tornado-wall-blue.webp"
+  },
+  {
+    "name": "Aberrant Sorcery",
+    "path": "icons/magic/unholy/hand-marked-pink.webp"
   }
 ]
