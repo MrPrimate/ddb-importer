@@ -159,12 +159,6 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
-  _generateDescription() {
-    this.data.description = {
-      chatFlavor: this.foundryFeature.system?.chatFlavor ?? "",
-    };
-  }
-
   _generateDuration({ durationOverride = null } = {}) {
     if (durationOverride) {
       this.data.duration = durationOverride;
@@ -507,70 +501,107 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
   }
 
   build({
+    activationOverride = null,
+    additionalTargets = null,
+    attackData = {},
+    attackOverride = null,
+    chatFlavor = null,
+    checkOverride = null,
+    consumeActivity = null,
+    consumeItem = null,
+    consumptionOverride = null,
+    criticalDamage = null,
+    damageParts = null,
+    damageScalingOverride = null,
+    data = null,
+    ddbMacroOverride = null,
+    durationOverride = null,
     generateActivation = true,
     generateAttack = false,
+    generateCheck = false,
     generateConsumption = true,
     generateDamage = false,
     generateDDBMacro = false,
     generateDescription = false,
     generateDuration = true,
     generateEffects = true,
+    generateEnchant = false,
     generateHealing = false,
     generateRange = true,
-    generateSave = false,
-    generateTarget = true,
     generateRoll = false,
+    generateSave = false,
+    generateSummon = false,
+    generateTarget = true,
     generateUses = false,
+    healingPart = null,
+    img = null,
+    includeBase = false,
+    includeBaseDamage = false,
+    noeffect = false,
+    noTemplate = null,
+    onSave = null,
+    rangeOverride = null,
     roll = null,
-
+    saveOverride = null,
     targetOverride = null,
     targetSelf = null,
-    noTemplate = null,
-    includeBase = false,
-    damageParts = null,
-    healingPart = null,
-    activationOverride = null,
-    noeffect = false,
-    consumptionOverride = null,
-    attackOverride = null,
-    saveOverride = null,
-    rangeOverride = null,
-    ddbMacroOverride = null,
-    durationOverride = null,
     usesOverride = null,
-    data = null,
   } = {}) {
 
     if (generateActivation) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack({ attackOverride, unarmed: null, spell: null });
     if (generateConsumption) this._generateConsumption({ consumptionOverride });
-    if (generateDescription) this._generateDescription();
     if (generateDuration) this._generateDuration({ durationOverride });
-    if (generateEffects) this._generateEffects();
     if (generateSave) this._generateSave({ saveOverride });
     if (generateDamage) this._generateDamage({ includeBase, parts: damageParts });
     if (generateHealing) this._generateHealing({ part: healingPart });
     if (generateRange) this._generateRange({ rangeOverride });
     if (generateTarget) this._generateTarget({ targetOverride, targetSelf, noTemplate });
-    if (generateDDBMacro) this._generateDDBMacro({ ddbMacroOverride });
 
-    if (generateUses) {
-      this.data.uses = usesOverride;
-      this.data.uses.override = true;
-    }
-
-    if (generateRoll) this._generateRoll({ roll });
-
-    if (noeffect) {
-      const ids = foundry.utils.getProperty(this.ddbParent.data, "flags.ddbimporter.noeffect") ?? [];
-      ids.push(this.data._id);
-      foundry.utils.setProperty(this.ddbParent.data, "flags.ddbimporter.noEffectIds", ids);
-      foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
-    }
-
-    if (data) {
-      this.data = foundry.utils.mergeObject(this.data, data);
-    }
+    super.build({
+      generateActivation: false,
+      generateAttack: false,
+      generateConsumption: false,
+      generateCheck,
+      generateDamage: false,
+      generateDescription,
+      generateDuration: false,
+      generateEffects,
+      generateHealing: false,
+      generateRange: false,
+      generateSave: false,
+      generateTarget: false,
+      generateDDBMacro,
+      generateEnchant,
+      generateRoll,
+      generateSummon,
+      generateUses,
+      chatFlavor,
+      onSave,
+      noeffect,
+      roll,
+      targetOverride,
+      checkOverride,
+      rangeOverride,
+      activationOverride,
+      noManualActivation: true,
+      durationOverride,
+      img,
+      ddbMacroOverride,
+      usesOverride,
+      additionalTargets,
+      consumeActivity,
+      consumeItem,
+      saveOverride,
+      data,
+      attackData,
+      includeBaseDamage,
+      criticalDamage,
+      damageScalingOverride,
+      healingPart: healingPart?.part ?? healingPart ?? null,
+      healingChatFlavor: healingPart?.chatFlavor ?? null,
+      damageParts,
+    });
 
   }
 
