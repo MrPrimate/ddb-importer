@@ -1,28 +1,16 @@
-import { effectModules, generateATLChange, generateCustomChange, generateOverrideChange, generateSignedAddChange, generateTokenMagicFXChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
+import {
+  effectModules,
+  generateATLChange,
+  generateCustomChange,
+  generateOverrideChange,
+  generateSignedAddChange,
+  generateTokenMagicFXChange,
+  generateUnsignedAddChange,
+  generateUpgradeChange,
+} from "../../effects/effects.js";
 import DDBSpellActivity from "../spells/DDBSpellActivity.js";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
-// Enrichers
-import AbsorbElements from "./spell/AbsorbElements.js";
-import Aid from "./spell/Aid.js";
-import AlterSelf from "./spell/AlterSelf.js";
-import ArcaneHand from "./spell/ArcaneHand.js";
-import ArcaneVigor from "./spell/ArcaneVigor.js";
-import EldritchBlast from "./spell/EldritchBlast.js";
-import ElementalWeapon from "./spell/ElementalWeapon.js";
-import FaerieFire from "./spell/FaerieFire.js";
-import FireShield from "./spell/FireShield.js";
-import FountOfMoonlight from "./spell/FountOfMoonlight.js";
-import GlyphOfWarding from "./spell/GlyphOfWarding.js";
-import HuntersMark from "./spell/HuntersMark.js";
-import MagicWeapon from "./spell/MagicWeapon.js";
-import PowerWordFortify from "./spell/PowerWordFortify.js";
-import PrismaticWall from "./spell/PrismaticWall.js";
-import ProtectionFromEnergy from "./spell/ProtectionFromEnergy.js";
-import Shillelagh from "./spell/Shillelagh.js";
-import Sleep from "./spell/Sleep.js";
-import SpiderClimb from "./spell/SpiderClimb.js";
-import TashasBubblingCauldron from "./spell/TashasBubblingCauldron.js";
-import TrueStrike from "./spell/TrueStrike.js";
+import { SpellEnrichers } from "./_module.mjs";
 
 export default class DDDSpellEnricher extends DDBEnricherAbstract {
   constructor() {
@@ -38,27 +26,27 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
   }
 
   ENRICHERS = {
-    "Absorb Elements": () => AbsorbElements,
-    "Aid": () => Aid,
-    "Alter Self": () => AlterSelf,
-    "Arcane Hand": () => ArcaneHand,
-    "Arcane Vigor": () => ArcaneVigor,
-    "Eldritch Blast": () => EldritchBlast,
-    "Elemental Weapon": () => ElementalWeapon,
-    "Faerie Fire": () => FaerieFire,
-    "Fire Shield": () => FireShield,
-    "Fount of Moonlight": () => FountOfMoonlight,
-    "Glyph of Warding": () => GlyphOfWarding,
-    "Hunter's Mark": () => HuntersMark,
-    "Magic Weapon": () => MagicWeapon,
-    "Power Word Fortify": () => PowerWordFortify,
-    "Prismatic Wall": () => PrismaticWall,
-    "Protection from Energy": () => ProtectionFromEnergy,
-    "Shillelagh": () => Shillelagh,
-    "Sleep": () => Sleep,
-    "Spider Climb": () => SpiderClimb,
-    "Tasha's Bubbling Cauldron": () => TashasBubblingCauldron,
-    "True Strike": () => TrueStrike,
+    "Absorb Elements": () => SpellEnrichers.AbsorbElements,
+    "Aid": () => SpellEnrichers.Aid,
+    "Alter Self": () => SpellEnrichers.AlterSelf,
+    "Arcane Hand": () => SpellEnrichers.ArcaneHand,
+    "Arcane Vigor": () => SpellEnrichers.ArcaneVigor,
+    "Eldritch Blast": () => SpellEnrichers.EldritchBlast,
+    "Elemental Weapon": () => SpellEnrichers.ElementalWeapon,
+    "Faerie Fire": () => SpellEnrichers.FaerieFire,
+    "Fire Shield": () => SpellEnrichers.FireShield,
+    "Fount of Moonlight": () => SpellEnrichers.FountOfMoonlight,
+    "Glyph of Warding": () => SpellEnrichers.GlyphOfWarding,
+    "Hunter's Mark": () => SpellEnrichers.HuntersMark,
+    "Magic Weapon": () => SpellEnrichers.MagicWeapon,
+    "Power Word Fortify": () => SpellEnrichers.PowerWordFortify,
+    "Prismatic Wall": () => SpellEnrichers.PrismaticWall,
+    "Protection from Energy": () => SpellEnrichers.ProtectionFromEnergy,
+    "Shillelagh": () => SpellEnrichers.Shillelagh,
+    "Sleep": () => SpellEnrichers.Sleep,
+    "Spider Climb": () => SpellEnrichers.SpiderClimb,
+    "Tasha's Bubbling Cauldron": () => SpellEnrichers.TashasBubblingCauldron,
+    "True Strike": () => SpellEnrichers.TrueStrike,
   };
 
   NAME_HINTS_2014 = {};

@@ -36,7 +36,7 @@ export default class CharacterSpellFactory {
     });
     this.pactSlots = this.slots.pact?.max && this.slots.pact.max > 0;
     this.hasSlots = this.levelSlots || this.pactSlots;
-
+    this.generateSummons = ddbCharacter.generateSummons;
   }
 
   _getSpellCount(name) {
@@ -94,6 +94,7 @@ export default class CharacterSpellFactory {
     const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
       ddbData: this.ddb,
       namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+      generateSummons: this.generateSummons,
     });
     foundry.utils.setProperty(parsedSpell, "system.sourceClass", classInfo.definition.name.toLowerCase());
     const duplicateSpell = this.processed.findIndex(
@@ -290,6 +291,7 @@ export default class CharacterSpellFactory {
         const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
           ddbData: this.ddb,
           namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+          generateSummons: this.generateSummons,
         });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
         this.processed.push(parsedSpell);
@@ -322,6 +324,7 @@ export default class CharacterSpellFactory {
         const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
           ddbData: this.ddb,
           namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+          generateSummons: this.generateSummons,
         });
         // console.warn(`Overwriting duplicate spell, ${parsedSpell.flags.ddbimporter.originalName} to class granted spells`, {
         //   spell,
@@ -384,6 +387,7 @@ export default class CharacterSpellFactory {
       ddbData: this.ddb,
       namePrefix: `Gr`,
       namePostfix: `${this._getSpellCount(unlimitedSpell.definition.name)}`,
+      generateSummons: this.generateSummons,
     });
     // console.warn(`Granted Spell`, {
     //   spell: deepClone(spell),
@@ -448,6 +452,7 @@ export default class CharacterSpellFactory {
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
         ddbData: this.ddb,
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+        generateSummons: this.generateSummons,
       });
       this.processed.push(parsedSpell);
     }
@@ -507,6 +512,7 @@ export default class CharacterSpellFactory {
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
         ddbData: this.ddb,
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+        generateSummons: this.generateSummons,
       });
       this.processed.push(parsedSpell);
     }
@@ -554,6 +560,7 @@ export default class CharacterSpellFactory {
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
         ddbData: this.ddb,
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
+        generateSummons: this.generateSummons,
       });
       this.processed.push(parsedSpell);
     }

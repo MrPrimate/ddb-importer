@@ -3,7 +3,7 @@ import utils from "../lib/utils.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DICTIONARY from "../dictionary.js";
 import SETTINGS from "../settings.js";
-import { isEqual } from "../../vendor/lowdash/isequal.js";
+import { isEqual } from "../../vendor/lowdash/_module.js";
 import DDBCampaigns from "../lib/DDBCampaigns.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getActorConditionStates, getCondition } from "../parser/special/conditions.js";
@@ -1208,6 +1208,7 @@ export async function updateDDBCharacter(actor) {
     characterId,
     selectResources: false,
     enableCompanions: false,
+    enableSummons: false,
   };
   const getOptions = {
     syncId,

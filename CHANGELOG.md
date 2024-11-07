@@ -2,7 +2,7 @@
 
 - Wizard 2024 parsing improvements.
 - Some trait improvements.
-- Various parsing tweaks/fixes.
+- Various parsing tweaks/fixes and refactoring for performance.
 
 # 6.0.29
 

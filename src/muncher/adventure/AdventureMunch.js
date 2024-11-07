@@ -409,7 +409,7 @@ export default class AdventureMunch extends FormApplication {
       && this.adventure.required?.monsterData?.length > 0
     ) {
       logger.debug(`${this.adventure.name} - Importing Remaining Actors`);
-      AdventureMunch._progressNote(`Checking for missing world actors (${this.adventure.required.monsterData}) from compendium...`);
+      AdventureMunch._progressNote(`Checking for missing world actors (${this.adventure.required.monsterData.length}) from compendium...`);
       await this.importRemainingActors(this.adventure.required.monsterData);
     }
     logger.debug("Missing data check complete");

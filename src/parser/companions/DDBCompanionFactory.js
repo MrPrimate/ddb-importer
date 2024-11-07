@@ -4,7 +4,7 @@ import logger from "../../logger.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
 import DDBCompanion from "./DDBCompanion.js";
-import { isEqual } from "../../../vendor/lowdash/isequal.js";
+import { isEqual } from "../../../vendor/lowdash/_module.js";
 import DDBSummonsManager from "./DDBSummonsManager.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";

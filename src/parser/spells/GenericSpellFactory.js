@@ -5,7 +5,7 @@ import DDBSpell from "./DDBSpell.js";
 
 export default class GenericSpellFactory {
 
-  static async getGenericItemSpells(itemList, itemSpells) {
+  static async getGenericItemSpells(itemList, itemSpells, generateSummons = null) {
     let items = [];
 
     // feat spells are handled slightly differently
@@ -44,7 +44,10 @@ export default class GenericSpellFactory {
         },
       };
       const namePostfix = utils.namedIDStub(itemInfo.definition.name, { prefix: "", length: 5 });
-      const parsedSpell = await DDBSpell.parseSpell(spell, null, { namePostfix: namePostfix });
+      const parsedSpell = await DDBSpell.parseSpell(spell, null, {
+        namePostfix: namePostfix,
+        generateSummons,
+      });
 
       items.push(parsedSpell);
     }
@@ -52,7 +55,7 @@ export default class GenericSpellFactory {
     return items;
   }
 
-  static async getSpells(spells, notifier = null) {
+  static async getSpells(spells, notifier = null, generateSummons = null) {
     const results = [];
 
     const filteredSpells = spells
@@ -82,7 +85,7 @@ export default class GenericSpellFactory {
           },
         },
       };
-      const spell = await DDBSpell.parseSpell(spellData, null);
+      const spell = await DDBSpell.parseSpell(spellData, null, { generateSummons });
       results.push(spell);
     }
 
@@ -96,7 +99,7 @@ export default class GenericSpellFactory {
     return ++dict[name];
   }
 
-  static async getItemSpells(ddb, character) {
+  static async getItemSpells(ddb, character, { generateSummons = null } = {}) {
     let items = [];
     const proficiencyModifier = character.system.attributes.prof;
     const lookups = getLookups(ddb.character);
@@ -152,7 +155,7 @@ export default class GenericSpellFactory {
         },
       };
       const namePostfix = `It${GenericSpellFactory.getSpellCount(spellCountDict, spell.definition.name)}`;
-      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix: namePostfix }));
+      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix, generateSummons }));
     }
 
     return items;

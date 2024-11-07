@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
 
-export default class FlyingSnakeBite extends DDBEnricherMixin {
+export default class Bite extends DDBEnricherMixin {
 
   get type() {
     return "attack";

@@ -21,7 +21,7 @@ import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 
 export default class DDBCharacter {
-  constructor({ currentActor = null, characterId = null, selectResources = true, enableCompanions = false } = {}) {
+  constructor({ currentActor = null, characterId = null, selectResources = true, enableCompanions = false, enableSummons = false } = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
     this.currentActorId = currentActor?.id;
@@ -56,6 +56,7 @@ export default class DDBCharacter {
     this.totalLevels = 0;
     this.companionFactories = [];
     this.enableCompanions = enableCompanions;
+    this.enableSummons = enableSummons;
 
     this._currency = {
       pp: 0,

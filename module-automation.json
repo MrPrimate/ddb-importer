@@ -99,7 +99,7 @@
   "scripts": [
     "./vendor/jszip/jszip.min.js"
   ],
-  "esmodules": ["dist/main.js"],
+  "esmodules": ["dist/main.bundle.js"],
   "styles": [
     "./css/default.css",
     "./css/import.css",

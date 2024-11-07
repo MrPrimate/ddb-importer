@@ -1,13 +1,18 @@
-import { generateATLChange, generateCustomChange, generateDowngradeChange, generateOverrideChange, generateSignedAddChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
+import {
+  generateATLChange,
+  generateCustomChange,
+  generateOverrideChange,
+  generateSignedAddChange,
+  generateUnsignedAddChange,
+  generateUpgradeChange,
+  generateDowngradeChange,
+} from "../../effects/effects.js";
 import utils from "../../lib/utils.js";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 // enrichers
-import * as ClassEnrichers from "./class/_module.mjs";
-import * as SpeciesEnrichers from "./trait/_module.mjs";
-import * as FeatEnrichers from "./feat/_module.mjs";
-import * as GenericEnrichers from "./generic/_module.mjs";
+import { ClassEnrichers, SpeciesEnrichers, FeatEnrichers, GenericEnrichers } from "./_module.mjs";
 
 export default class DDBFeatureEnricher extends DDBEnricherAbstract {
   constructor() {

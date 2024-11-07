@@ -1,28 +1,7 @@
 import { generateMultiplyChange, generateOverrideChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import DDBItemActivity from "../item/DDBItemActivity.js";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
-// enrichers
-import AbsorbingTattoo from "./item/AbsorbingTattoo.js";
-import Acid from "./item/Acid.js";
-import AcidVial from "./item/AcidVial.js";
-import AlchemistsFire from "./item/AlchemistsFire.js";
-import ArcaneOil from "./item/ArcaneOil.js";
-import ArmorOfInvulnerability from "./item/ArmorOfInvulnerability.js";
-import BloodFuryTattoo from "./item/BloodFuryTattoo.js";
-import FlameTongue from "./item/FlameTongue.js";
-import GnomengardeGrenade from "./item/GnomengardeGrenade.js";
-import HammerOfThunderbolts from "./item/HammerOfThunderbolts.js";
-import KorolnorScepter from "./item/KorolnorScepter.js";
-import NeedlerPistol from "./item/NeedlerPistol.js";
-import ParalysisPistol from "./item/ParalysisPistol.js";
-import PotionOfHealing from "./item/PotionOfHealing.js";
-import PotionOfHealingGreater from "./item/PotionOfHealingGreater.js";
-import PotionOfHealingSuperior from "./item/PotionOfHealingSuperior.js";
-import PotionOfHealingSupreme from "./item/PotionOfHealingSupreme.js";
-import WandOfFireballs from "./item/WandOfFireballs.js";
-import WandOfMagicMissiles from "./item/WandOfMagicMissiles.js";
-import WarriorsPasskey from "./item/WarriorsPasskey.js";
-import Waterskin from "./item/Waterskin.js";
+import { ItemEnrichers } from "./_module.mjs";
 
 export default class DDDItemEnricher extends DDBEnricherAbstract {
   constructor() {
@@ -38,27 +17,27 @@ export default class DDDItemEnricher extends DDBEnricherAbstract {
   }
 
   ENRICHERS = {
-    "Absorbing Tattoo": () => AbsorbingTattoo,
-    "Acid (vial)": () => AcidVial,
-    "Acid": () => Acid,
-    "Alchemist's Fire": () => AlchemistsFire,
-    "Arcane Oil": () => ArcaneOil,
-    "Armor of Invulnerability": () => ArmorOfInvulnerability,
-    "Blood Fury Tattoo": () => BloodFuryTattoo,
-    "Flame Tongue": () => FlameTongue,
-    "Gnomengarde Grenade": () => GnomengardeGrenade,
-    "Hammer of Thunderbolts": () => HammerOfThunderbolts,
-    "Korolnor Scepter": () => KorolnorScepter,
-    "Needler Pistol": () => NeedlerPistol,
-    "Paralysis Pistol": () => ParalysisPistol,
-    "Potion of Healing (Greater)": () => PotionOfHealingGreater,
-    "Potion of Healing (Superior)": () => PotionOfHealingSuperior,
-    "Potion of Healing (Supreme)": () => PotionOfHealingSupreme,
-    "Potion of Healing": () => PotionOfHealing,
-    "Wand of Fireballs": () => WandOfFireballs,
-    "Wand of Magic Missiles": () => WandOfMagicMissiles,
-    "Warrior's Passkey": () => WarriorsPasskey,
-    "Waterskin": () => Waterskin,
+    "Absorbing Tattoo": () => ItemEnrichers.AbsorbingTattoo,
+    "Acid (vial)": () => ItemEnrichers.AcidVial,
+    "Acid": () => ItemEnrichers.Acid,
+    "Alchemist's Fire": () => ItemEnrichers.AlchemistsFire,
+    "Arcane Oil": () => ItemEnrichers.ArcaneOil,
+    "Armor of Invulnerability": () => ItemEnrichers.ArmorOfInvulnerability,
+    "Blood Fury Tattoo": () => ItemEnrichers.BloodFuryTattoo,
+    "Flame Tongue": () => ItemEnrichers.FlameTongue,
+    "Gnomengarde Grenade": () => ItemEnrichers.GnomengardeGrenade,
+    "Hammer of Thunderbolts": () => ItemEnrichers.HammerOfThunderbolts,
+    "Korolnor Scepter": () => ItemEnrichers.KorolnorScepter,
+    "Needler Pistol": () => ItemEnrichers.NeedlerPistol,
+    "Paralysis Pistol": () => ItemEnrichers.ParalysisPistol,
+    "Potion of Healing (Greater)": () => ItemEnrichers.PotionOfHealingGreater,
+    "Potion of Healing (Superior)": () => ItemEnrichers.PotionOfHealingSuperior,
+    "Potion of Healing (Supreme)": () => ItemEnrichers.PotionOfHealingSupreme,
+    "Potion of Healing": () => ItemEnrichers.PotionOfHealing,
+    "Wand of Fireballs": () => ItemEnrichers.WandOfFireballs,
+    "Wand of Magic Missiles": () => ItemEnrichers.WandOfMagicMissiles,
+    "Warrior's Passkey": () => ItemEnrichers.WarriorsPasskey,
+    "Waterskin": () => ItemEnrichers.Waterskin,
   };
 
   NAME_HINTS = {

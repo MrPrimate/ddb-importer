@@ -107,6 +107,7 @@ export default class DDBSpell {
     ddbData, spellData, rawCharacter = null, namePrefix = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
+    generateSummons = null,
   } = {}) {
     this.ddbData = ddbData;
     this.spellData = spellData;
@@ -169,6 +170,8 @@ export default class DDBSpell {
     this.isCompanionSpell = SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName);
     this.isCRSummonSpell = SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName);
     this.isSummons = this.isCompanionSpell || this.isCRSummonSpell;
+    this.generateSummons = this.isGeneric
+      || (generateSummons ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions"));
     this.DDBCompanionFactory = null; // lazy init
   }
 
@@ -1125,7 +1128,9 @@ export default class DDBSpell {
     this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }
 
-  static async parseSpell(data, character, { namePrefix = null, namePostfix = null, ddbData = null, enricher = null } = {}) {
+  static async parseSpell(data, character,
+    { namePrefix = null, namePostfix = null, ddbData = null, enricher = null, generateSummons = null } = {},
+  ) {
     const spell = new DDBSpell({
       ddbData,
       spellData: data,
@@ -1133,6 +1138,7 @@ export default class DDBSpell {
       namePrefix,
       namePostfix,
       enricher,
+      generateSummons,
     });
     await spell.init();
     await spell.parse();

@@ -1,6 +1,6 @@
 import DDBMonsterFeatureActivity from "../monster/features/DDBMonsterFeatureActivity.js";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
-import FlyingSnakeBite from "./monster/FlyingSnake/FlyingSnakeBite.mjs";
+import { MonsterEnrichers } from "./_module.mjs";
 
 export default class DDDMonsterFeatureEnricher extends DDBEnricherAbstract {
 
@@ -46,7 +46,7 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherAbstract {
   NAME_HINTS = {};
 
   ENRICHERS = {
-    "Flying Snake": { "Bite": () => FlyingSnakeBite },
+    "Flying Snake": { "Bite": () => MonsterEnrichers.FlyingSnake.Bite },
   };
 
 }

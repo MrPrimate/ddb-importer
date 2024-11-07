@@ -1,1 +1,1 @@
-export { default as FlyingSnakeBite } from "./FlyingSnakeBite.mjs";
+export { default as Bite } from "./Bite.mjs";
