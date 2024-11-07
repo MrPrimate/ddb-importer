@@ -1,6 +1,6 @@
 import { generateMultiplyChange, generateOverrideChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import DDBItemActivity from "../item/DDBItemActivity.js";
-import DDBGenericEnricher from "./DDBGenericEnricher.mjs";
+import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 // enrichers
 import AbsorbingTattoo from "./item/AbsorbingTattoo.js";
 import Acid from "./item/Acid.js";
@@ -24,7 +24,7 @@ import WandOfMagicMissiles from "./item/WandOfMagicMissiles.js";
 import WarriorsPasskey from "./item/WarriorsPasskey.js";
 import Waterskin from "./item/Waterskin.js";
 
-export default class DDDItemEnricher extends DDBGenericEnricher {
+export default class DDDItemEnricher extends DDBEnricherAbstract {
   constructor() {
     super();
     this.additionalActivityClass = DDBItemActivity;

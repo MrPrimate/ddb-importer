@@ -1,6 +1,6 @@
 import { effectModules, generateATLChange, generateCustomChange, generateOverrideChange, generateSignedAddChange, generateTokenMagicFXChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
 import DDBSpellActivity from "../spells/DDBSpellActivity.js";
-import DDBGenericEnricher from "./DDBGenericEnricher.mjs";
+import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 // Enrichers
 import AbsorbElements from "./spell/AbsorbElements.js";
 import Aid from "./spell/Aid.js";
@@ -24,7 +24,7 @@ import SpiderClimb from "./spell/SpiderClimb.js";
 import TashasBubblingCauldron from "./spell/TashasBubblingCauldron.js";
 import TrueStrike from "./spell/TrueStrike.js";
 
-export default class DDDSpellEnricher extends DDBGenericEnricher {
+export default class DDDSpellEnricher extends DDBEnricherAbstract {
   constructor() {
     super();
     this.additionalActivityClass = DDBSpellActivity;
@@ -146,7 +146,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
     "Acid Arrow": {
       data: {
         "damage.parts": [
-          DDBGenericEnricher.basicDamagePart({ number: 4, denomination: 4, type: "acid" }),
+          DDBEnricherAbstract.basicDamagePart({ number: 4, denomination: 4, type: "acid" }),
         ],
       },
     },
@@ -211,7 +211,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
       data: {
         damage: {
           parts: [
-            DDBGenericEnricher.basicDamagePart({ customFormula: "2d8 + 1d6", scalingMode: "whole", scalingFormula: "1d6" }),
+            DDBEnricherAbstract.basicDamagePart({ customFormula: "2d8 + 1d6", scalingMode: "whole", scalingFormula: "1d6" }),
             // DDBBaseEnricher.basicDamagePart({ customFormula: "2d8 + 1d6", types: ["acid", "cold", "fire", "force", "lightning", "poison", "psychic", "thunder"] }),
           ],
         },
@@ -221,7 +221,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
       data: {
         damage: {
           parts: [
-            DDBGenericEnricher.basicDamagePart({ number: 3, denomination: 8, types: ["acid", "cold", "fire", "lightning", "poison", "thunder"], scalingMode: "whole", scalingNumber: 1 }),
+            DDBEnricherAbstract.basicDamagePart({ number: 3, denomination: 8, types: ["acid", "cold", "fire", "lightning", "poison", "thunder"], scalingMode: "whole", scalingNumber: 1 }),
           ],
         },
       },
@@ -287,7 +287,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
         name: "Damage",
         damage: {
           parts: [
-            DDBGenericEnricher.basicDamagePart({ number: 2, denomination: 8, type: "radiant", scalingMode: "whole", scalingNumber: 1 }),
+            DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 8, type: "radiant", scalingMode: "whole", scalingNumber: 1 }),
           ],
         },
       },
@@ -297,7 +297,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
         damage: {
           onSave: "half",
           parts: [
-            DDBGenericEnricher.basicDamagePart({ number: 3, denomination: 6, types: ["acid", "cold", "fire", "lightning", "poison"], scalingMode: "whole", scalingNumber: 1 }),
+            DDBEnricherAbstract.basicDamagePart({ number: 3, denomination: 6, types: ["acid", "cold", "fire", "lightning", "poison"], scalingMode: "whole", scalingNumber: 1 }),
           ],
         },
       },
@@ -330,14 +330,14 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
         name: "Secondary Target Damage",
         damage: {
           parts: [
-            DDBGenericEnricher.basicDamagePart({ customFormula: "@mod", types: ["fire"], scalingMode: "whole", scalingFormula: "1d8" }),
+            DDBEnricherAbstract.basicDamagePart({ customFormula: "@mod", types: ["fire"], scalingMode: "whole", scalingFormula: "1d8" }),
           ],
         },
       },
     },
     "False Life": {
       data: {
-        healing: DDBGenericEnricher.basicDamagePart({ customFormula: "1d4 + 4", types: ["temphp"], scalingMode: "whole", scalingNumber: 5 }),
+        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "1d4 + 4", types: ["temphp"], scalingMode: "whole", scalingNumber: 5 }),
       },
     },
     "Heroism": {
@@ -403,7 +403,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
         name: "Initial Damage",
         damage: {
           parts: [
-            DDBGenericEnricher.basicDamagePart({ number: 2, denomination: 6, types: ["fire"], scalingMode: "whole", scalingNumber: "1" }),
+            DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 6, types: ["fire"], scalingMode: "whole", scalingNumber: "1" }),
           ],
         },
       },
@@ -419,7 +419,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
       data: {
         damage: {
           parts: [
-            DDBGenericEnricher.basicDamagePart({ customFormula: "1d8x@mod=8", types: ["acid", "cold", "fire", "lightning", "poison", "psychic", "thunder"], scalingMode: "whole", scalingNumber: "1" }),
+            DDBEnricherAbstract.basicDamagePart({ customFormula: "1d8x@mod=8", types: ["acid", "cold", "fire", "lightning", "poison", "psychic", "thunder"], scalingMode: "whole", scalingNumber: "1" }),
           ],
         },
       },
@@ -441,7 +441,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
       data: {
         damage: {
           parts: [
-            DDBGenericEnricher.basicDamagePart({ number: 1, denomination: 8, types: ["radiant", "necrotic", "cold"], scalingMode: "half", scalingNumber: "1" }),
+            DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 8, types: ["radiant", "necrotic", "cold"], scalingMode: "half", scalingNumber: "1" }),
           ],
         },
       },
@@ -489,7 +489,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
         name: "Save",
         damage: {
           onSave: "half",
-          parts: [DDBGenericEnricher.basicDamagePart({ number: 10, denomination: 4, type: "acid", scalingMode: "whole", scalingNumber: "2" })],
+          parts: [DDBEnricherAbstract.basicDamagePart({ number: 10, denomination: 4, type: "acid", scalingMode: "whole", scalingNumber: "2" })],
         },
         target: {
           override: true,
@@ -683,7 +683,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 2, denomination: 4, type: "acid" })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 4, type: "acid" })],
           noeffect: true,
         },
       },
@@ -700,7 +700,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          damageParts: [DDBGenericEnricher.basicDamagePart({ bonus: "5", type: "cold", scalingFormula: "5", scalingMode: "whole" })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ bonus: "5", type: "cold", scalingFormula: "5", scalingMode: "whole" })],
           noeffect: true,
         },
       },
@@ -717,7 +717,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 1, denomination: 8, type: "thunder" })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 8, type: "thunder" })],
           noeffect: true,
           overrideRange: {
             value: "5",
@@ -741,7 +741,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
           noSpellslot: true,
           generateDamage: true,
           generateSave: true,
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 3, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 3, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
           rangeOverride: {
             value: "",
             units: "spec",
@@ -772,7 +772,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
         build: {
           generateDamage: true,
           generateSave: true,
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 4, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 4, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
           rangeOverride: {
             value: "",
             units: "spec",
@@ -826,7 +826,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 3, denomination: 8, type: "radiant", scalingMode: "whole", scalingNumber: 1 })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 3, denomination: 8, type: "radiant", scalingMode: "whole", scalingNumber: 1 })],
           noeffect: true,
         },
       },
@@ -840,7 +840,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
         build: {
           generateDamage: true,
           generateConsumption: false,
-          damageParts: [DDBGenericEnricher.basicDamagePart({ customFormula: "ceil((@details.level+1)/6)d8", types: ["fire"], scalingMode: "none" })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "ceil((@details.level+1)/6)d8", types: ["fire"], scalingMode: "none" })],
         },
       },
     ],
@@ -869,7 +869,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          healingPart: DDBGenericEnricher.basicDamagePart({ customFormula: "@mod", type: "temphp" }),
+          healingPart: DDBEnricherAbstract.basicDamagePart({ customFormula: "@mod", type: "temphp" }),
           noeffect: true,
           activationOverride: { type: "spec", condition: "Start of each creatures turn" },
           durationOverride: {
@@ -891,7 +891,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 1, denomination: 6, type: "necrotic" })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 6, type: "necrotic" })],
           noeffect: true,
           activationOverride: { type: "", condition: "When you hit creature with attack" },
         },
@@ -1006,7 +1006,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
         },
         build: {
           generateDamage: true,
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 1, denomination: 6, type: "fire" })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 6, type: "fire" })],
           noeffect: true,
           activationOverride: { type: "", condition: "Start of the creatures turn" },
         },
@@ -1022,7 +1022,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
           generateDamage: true,
           generateSave: true,
           onSave: "half",
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 3, denomination: 8, types: ["necrotic", "radiant"], scalingMode: "whole", scalingNumber: 1 })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 3, denomination: 8, types: ["necrotic", "radiant"], scalingMode: "whole", scalingNumber: 1 })],
           noeffect: true,
           activationOverride: { type: "", condition: "Enters or ends turn in emanation (1 turn only)" },
           durationOverride: { units: "inst", concentration: false },
@@ -1054,7 +1054,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
           generateAttack: true,
           onsave: false,
           noSpellslot: true,
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 1, denomination: 8, type: "force", scalingMode: "half", scalingNumber: 1 })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 8, type: "force", scalingMode: "half", scalingNumber: 1 })],
           activationOverride: { type: "bonus", condition: "" },
         },
       },
@@ -1073,7 +1073,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
           onsave: false,
           noeffect: true,
           activationOverride: { type: "", condition: "Moves 5ft" },
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 2, denomination: 4, type: "piercing" })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 4, type: "piercing" })],
         },
       },
     ],
@@ -1085,7 +1085,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
         },
         build: {
           generateDamage: true,
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 1, denomination: 12, type: "necrotic" })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 12, type: "necrotic" })],
           generateSave: true,
         },
       },
@@ -1105,7 +1105,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
           noeffect: true,
           activationOverride: { type: "spec", condition: "End of next turn" },
           durationOverride: { units: "inst", concentration: false },
-          damageParts: [DDBGenericEnricher.basicDamagePart({ number: 5, denomination: 4, type: "acid" })],
+          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 5, denomination: 4, type: "acid" })],
         },
       },
     ],
@@ -1417,7 +1417,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
               affects: {},
             },
             damageParts: [
-              DDBGenericEnricher.basicDamagePart({ number: 1, denomination: 12, type: "lightning", scalingMode: "none", scalingNumber: null }),
+              DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 12, type: "lightning", scalingMode: "none", scalingNumber: null }),
             ],
           },
         },
@@ -1852,7 +1852,7 @@ export default class DDDSpellEnricher extends DDBGenericEnricher {
       },
     },
     "Warding Bond": () => {
-      const damageChanges = DDBGenericEnricher.allDamageTypes().map((type) => {
+      const damageChanges = DDBEnricherAbstract.allDamageTypes().map((type) => {
         return generateUnsignedAddChange(type, 0, "system.traits.dr.value");
       });
       return {

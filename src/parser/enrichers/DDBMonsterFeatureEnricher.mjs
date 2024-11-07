@@ -1,13 +1,13 @@
 import DDBMonsterFeatureActivity from "../monster/features/DDBMonsterFeatureActivity.js";
-import DDBGenericEnricher from "./DDBGenericEnricher.mjs";
+import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 import FlyingSnakeBite from "./monster/FlyingSnake/FlyingSnakeBite.mjs";
 
-export default class DDDMonsterFeatureEnricher extends DDBGenericEnricher {
+export default class DDDMonsterFeatureEnricher extends DDBEnricherAbstract {
 
   _loadEnricherData(name) {
     const stub = this.ENRICHERS?.[this.monsterName]?.[name];
     if (stub) {
-      const EnricherClass = DDBGenericEnricher._loadDataStub(stub);
+      const EnricherClass = DDBEnricherAbstract._loadDataStub(stub);
       return new EnricherClass({
         ddbEnricher: this,
       });

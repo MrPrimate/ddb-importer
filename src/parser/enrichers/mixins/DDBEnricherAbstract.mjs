@@ -1,15 +1,15 @@
-import DICTIONARY from "../../dictionary.js";
-import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
-import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, baseEnchantmentEffect, baseItemEffect, effectModules, forceItemEffect } from "../../effects/effects.js";
-import { baseFeatEffect } from "../../effects/specialFeats.js";
-import { baseMonsterFeatureEffect } from "../../effects/specialMonsters.js";
-import { baseSpellEffect } from "../../effects/specialSpells.js";
-import DDBHelper from "../../lib/DDBHelper.js";
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
-import DDBSummonsManager from "../companions/DDBSummonsManager.js";
+import DICTIONARY from "../../../dictionary.js";
+import DDBEffectHelper from "../../../effects/DDBEffectHelper.js";
+import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, baseEnchantmentEffect, baseItemEffect, effectModules, forceItemEffect } from "../../../effects/effects.js";
+import { baseFeatEffect } from "../../../effects/specialFeats.js";
+import { baseMonsterFeatureEffect } from "../../../effects/specialMonsters.js";
+import { baseSpellEffect } from "../../../effects/specialSpells.js";
+import DDBHelper from "../../../lib/DDBHelper.js";
+import utils from "../../../lib/utils.js";
+import logger from "../../../logger.js";
+import DDBSummonsManager from "../../companions/DDBSummonsManager.js";
 
-export default class DDBGenericEnricher {
+export default class DDBEnricherAbstract {
 
   static allDamageTypes(exclude = []) {
     return DICTIONARY.actions.damageType
@@ -69,7 +69,7 @@ export default class DDBGenericEnricher {
 
   _loadEnricherData(name) {
     if (this.ENRICHERS?.[name]) {
-      const ExternalEnricher = DDBGenericEnricher._loadDataStub(this.ENRICHERS?.[name]);
+      const ExternalEnricher = DDBEnricherAbstract._loadDataStub(this.ENRICHERS?.[name]);
       return new ExternalEnricher({
         ddbEnricher: this,
       });
@@ -89,14 +89,14 @@ export default class DDBGenericEnricher {
       : null;
     const match = match2014 ?? this[type]?.[this.hintName];
 
-    const loadedMatch = DDBGenericEnricher._loadDataStub(match);
+    const loadedMatch = DDBEnricherAbstract._loadDataStub(match);
     if (!loadedMatch) return null;
 
     if (loadedMatch.lookupName && this.ddbParser) {
       const lookupName = foundry.utils.getProperty(this.ddbParser, "lookupName");
       if (loadedMatch?.lookupName[lookupName]) {
         this.useLookupName = true;
-        return DDBGenericEnricher._loadDataStub(loadedMatch.lookupName[lookupName]);
+        return DDBEnricherAbstract._loadDataStub(loadedMatch.lookupName[lookupName]);
       }
     }
     return loadedMatch;

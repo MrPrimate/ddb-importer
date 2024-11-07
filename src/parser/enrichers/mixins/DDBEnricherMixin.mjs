@@ -11,7 +11,7 @@ import {
 } from "../../../effects/effects.js";
 import DDBHelper from "../../../lib/DDBHelper.js";
 import utils from "../../../lib/utils.js";
-import DDBGenericEnricher from "../DDBGenericEnricher.mjs";
+import DDBEnricherAbstract from "./DDBEnricherAbstract.mjs";
 
 /* eslint-disable class-methods-use-this */
 export default class DDBEnricherMixin {
@@ -89,9 +89,9 @@ export default class DDBEnricherMixin {
 
   static generateTokenMagicFXChange = generateTokenMagicFXChange;
 
-  static basicDamagePart = DDBGenericEnricher.basicDamagePart;
+  static basicDamagePart = DDBEnricherAbstract.basicDamagePart;
 
-  static allDamageTypes = DDBGenericEnricher.allDamageTypes;
+  static allDamageTypes = DDBEnricherAbstract.allDamageTypes;
 
   get movementChange() {
     return game.modules.get("dae")?.active
