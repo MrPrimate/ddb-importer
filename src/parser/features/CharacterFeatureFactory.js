@@ -3,10 +3,10 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import logger from "../../logger.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
-import DDBBaseFeature from "./DDBBaseFeature.js";
+import DDBBaseFeature from "./DDBFeatureMixin.js";
 import DDBFeatures from "./DDBFeatures.js";
 import { addExtraEffects } from "./extraEffects.js";
-import DDBFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
+import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
 import utils from "../../lib/utils.js";
 
 export default class CharacterFeatureFactory {

@@ -5,7 +5,7 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
 import DDBAttackAction from "./DDBAttackAction.js";
-import DDBBaseFeature from "./DDBBaseFeature.js";
+import DDBBaseFeature from "./DDBFeatureMixin.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 
 

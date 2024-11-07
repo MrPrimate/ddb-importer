@@ -7,7 +7,7 @@ import DDBCompanion from "./DDBCompanion.js";
 import { isEqual } from "../../../vendor/lowdash/isequal.js";
 import DDBSummonsManager from "./DDBSummonsManager.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
+import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
 async function getFindFamiliarActivityData() {
   const ddbCompendium = CompendiumHelper.getCompendiumType("monster", false);

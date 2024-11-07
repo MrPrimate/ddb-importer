@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../DDBEnricherMixin.js";
+import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
 
 export default class SpiderClimb extends DDBEnricherMixin {
 

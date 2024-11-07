@@ -5,8 +5,9 @@ import { generateTable } from "../../../lib/DDBTable.js";
 import SETTINGS from "../../../settings.js";
 import { parseDamageRolls, parseTags } from "../../../lib/DDBReferenceLinker.js";
 import DDBMonsterFeatureActivity from "./DDBMonsterFeatureActivity.js";
-import DDBBasicActivity from "../../enrichers/DDBBasicActivity.js";
-import DDDMonsterFeatureEnricher from "../../enrichers/DDBMonsterFeatureEnricher.js";
+
+import { DDBMonsterFeatureEnricher } from "../../enrichers/_module.mjs";
+import { DDBBasicActivity } from "../../enrichers/mixins/_module.mjs";
 
 export default class DDBMonsterFeature {
 
@@ -229,7 +230,7 @@ export default class DDBMonsterFeature {
     this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
     this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
 
-    this.enricher = new DDDMonsterFeatureEnricher();
+    this.enricher = new DDBMonsterFeatureEnricher();
     this.prepare();
 
     // copy source details from parent

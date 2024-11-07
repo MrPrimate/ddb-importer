@@ -4,13 +4,14 @@ import { generateTable } from "../../lib/DDBTable.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
-import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
 import DDBItemActivity from "./DDBItemActivity.js";
 import MagicItemMaker from "./MagicItemMaker.js";
 import SETTINGS from "../../settings.js";
 import { getStatusEffect } from "../../effects/effects.js";
 import Iconizer from "../../lib/Iconizer.js";
-import DDBItemEnricher from "../enrichers/DDBItemEnricher.js";
+
+import { DDBItemEnricher } from "../enrichers/_module.mjs";
+import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
 export default class DDBItem {
 

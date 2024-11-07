@@ -2,7 +2,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBFeature from "./DDBFeature.js";
-import DDBFeatureEnricher from "../enrichers/DDBFeatureEnricher.js";
+import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
 
 
 export default class DDBChoiceFeature extends DDBFeature {

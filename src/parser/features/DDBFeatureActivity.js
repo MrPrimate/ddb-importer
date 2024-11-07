@@ -1,23 +1,8 @@
-
-// game.dnd5e.documents.activity
-// ActivityMixin(…)
-// AttackActivity(…)
-// DamageActivity(…)
-// EnchantActivity(…)
-// HealActivity(…)
-// SaveActivity(…)
-// SummonActivity(…)
-// UtilityActivity(…)
-
 import DICTIONARY from "../../dictionary.js";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
-import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
-
-
-// CONFIG.DND5E.activityTypes
-
+import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
 export default class DDBFeatureActivity extends DDBBasicActivity {
 

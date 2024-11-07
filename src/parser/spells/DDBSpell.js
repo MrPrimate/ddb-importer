@@ -10,7 +10,7 @@ import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import { baseSpellEffect, spellEffectAdjustment } from "../../effects/specialSpells.js";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
 import DDBSpellActivity from "./DDBSpellActivity.js";
-import DDBSpellEnricher from "../enrichers/DDBSpellEnricher.js";
+import { DDBSpellEnricher } from "../enrichers/_module.mjs";
 import { addStatusEffectChange } from "../../effects/effects.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import DDBSummonsManager from "../companions/DDBSummonsManager.js";

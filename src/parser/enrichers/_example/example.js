@@ -1,6 +1,6 @@
 /* eslint-disable no-empty-function */
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../DDBEnricherMixin.js";
+import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
 
 export default class Example extends DDBEnricherMixin {
 

@@ -1,7 +1,8 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
-import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
+import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
+
 
 export default class DDBSpellActivity extends DDBBasicActivity {
 

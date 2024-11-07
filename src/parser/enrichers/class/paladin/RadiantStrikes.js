@@ -1,0 +1,23 @@
+/* eslint-disable class-methods-use-this */
+import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+
+export default class RadiantStrikes extends DDBEnricherMixin {
+
+  get activity() {
+    return {
+      type: "none",
+    };
+  }
+
+  get effects() {
+    return [{
+      options: {
+        transfer: true,
+      },
+      changes: [
+        DDBEnricherMixin.generateUnsignedAddChange("1d8[radiant]", 20, "system.bonuses.mwak.damage"),
+      ],
+    }];
+  }
+
+}

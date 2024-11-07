@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import utils from "../../../../lib/utils.js";
-import DDBEnricherMixin from "../../DDBEnricherMixin.js";
+import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
 
 export default class ChromaticInfusion extends DDBEnricherMixin {
 

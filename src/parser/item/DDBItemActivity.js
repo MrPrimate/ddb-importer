@@ -1,5 +1,5 @@
 import logger from "../../logger.js";
-import DDBBasicActivity from "../enrichers/DDBBasicActivity.js";
+import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
 
 export default class DDBItemActivity extends DDBBasicActivity {

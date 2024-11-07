@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { effectModules } from "../../../effects/effects.js";
-import DDBEnricherMixin from "../DDBEnricherMixin.js";
+import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
 
 export default class FountOfMoonlight extends DDBEnricherMixin {
 

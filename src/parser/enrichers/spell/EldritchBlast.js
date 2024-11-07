@@ -2,7 +2,7 @@
 import DICTIONARY from "../../../dictionary.js";
 import DDBHelper from "../../../lib/DDBHelper.js";
 import logger from "../../../logger.js";
-import DDBEnricherMixin from "../DDBEnricherMixin.js";
+import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
 
 export default class EldritchBlast extends DDBEnricherMixin {
 

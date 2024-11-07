@@ -2,7 +2,7 @@ import DICTIONARY from "../dictionary.js";
 import logger from "../logger.js";
 import { getEffectExcludedModifiers } from "../effects/effects.js";
 import utils from "./utils.js";
-import DDBBasicActivity from "../parser/enrichers/DDBBasicActivity.js";
+import { DDBBasicActivity } from "../parser/enrichers/mixins/_module.mjs";
 
 const DDBHelper = {
 
