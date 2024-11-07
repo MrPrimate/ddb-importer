@@ -205,12 +205,12 @@ export default class DDBBasicActivity {
     };
   }
 
-  _generateDamage({ includeBase, damageParts = null, onSave = null, scalingOverride = null, criticalDamage = null } = {}) {
+  _generateDamage({ includeBase = false, damageParts = null, onSave = null, scalingOverride = null, criticalDamage = null } = {}) {
     if (damageParts) {
       this.data.damage = {
         parts: damageParts,
         onSave: onSave ?? "",
-        includeBase: false,
+        includeBase,
         scaling: scalingOverride ?? undefined,
         critical: {
           bonus: criticalDamage ?? "",

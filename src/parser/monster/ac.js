@@ -40,7 +40,8 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
 
   // Eternal flame guardian 17 (breastplate, shield; 15 while using a crossbow)
 
-  let itemsToCheck = [...additionalItems.map((item) => item.toLowerCase())];
+  let itemsToCheck = [];
+  descriptionItems.push(...additionalItems.map((item) => item.toLowerCase()))
   if (descriptionItems.length > 0) {
     descriptionItems.forEach((item) => {
       if (item == "natural" || item == "natural armor") {
@@ -72,17 +73,18 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   }
 
   logger.debug("Checking for items", itemsToCheck);
-  const unAttunedItems = await DDBItemImporter.getCompendiumItems(itemsToCheck, "inventory", { monsterMatch: true });
+  const rawItems = await DDBItemImporter.getCompendiumItems(itemsToCheck, "inventory", { monsterMatch: true });
+  const unAttunedItems = rawItems.filter((i) => i.type !== "weapon"); // filter out weapons for now
   const attunedItems = unAttunedItems.map((item) => {
     if (item.system.attunement === 1) item.system.attunement = 2;
     return item;
   });
 
-  logger.debug("Found items", { unAttunedItems, attunedItems });
+  logger.debug("Found items", { unAttunedItems, attunedItems, rawItems });
   const allItemsMatched = attunedItems.length > 0 && attunedItems.length == itemsToCheck.length;
   const badACMonster = this.BAD_AC_MONSTERS.includes(this.source.name.toLowerCase());
 
-  if (allItemsMatched && this.useItemAC && ac.calc !== "natural" && !badACMonster) {
+  if (this.useItemAC && ac.calc !== "natural" && !badACMonster) {
     ac.flat = null;
     ac.calc = "default";
     ac.formula = "";

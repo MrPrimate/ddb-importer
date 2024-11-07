@@ -458,7 +458,9 @@ export default class DDBMonsterFeatureFactory {
   }
 
   #generateGear(text) {
-    console.warn("gear", text);
+    const plain = utils.stripHtml(text);
+    const gearArray = plain.replace("Gear.", "").split(",").map((g) => g.trim());
+    this.gear.push(...gearArray);
   }
 
   #generateSpecialActions(type) {
@@ -565,12 +567,9 @@ export default class DDBMonsterFeatureFactory {
     });
 
     const gearFeatureIndex = this.featureBlocks[type].findIndex((act) => act.name === "Gear");
-    console.warn("gearFeatureIndex", deepClone(this.featureBlocks[type]));
-    if (gearFeatureIndex) {
+    if (gearFeatureIndex !== -1) {
       const gearFeatures = this.featureBlocks[type].splice(gearFeatureIndex, 1);
-      console.warn("gearFeatures", deepClone(gearFeatures));
       this.#generateGear(gearFeatures[0].options.html);
-      console.warn("HERE")
     }
 
   }
