@@ -84,6 +84,13 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(abilityL
  * Retrieves character abilities, including proficiency on saving throws
  * @param {obj} includeExcludedEffects Include effects from dae added items?
  */
+
+
+/**
+ * Retrieves character abilities, including proficiency on saving throws
+ * @param {boolean} [includeExcludedEffects=false] Include bonuses from generated effects?
+ * @returns {object} abilities populated with character abilities
+ */
 DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEffects = false) {
   let result = {};
   DICTIONARY.character.abilities.forEach((ability) => {
@@ -167,6 +174,16 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
   return result;
 };
 
+/**
+ * Get ability bonuses for a character.
+ * @param {boolean} [includeExcludedEffects=false] Whether to include effects that are excluded by default.
+ * @returns {object} A dictionary of ability bonuses, keyed by ability names.
+ * @property {object} [bonuses] A dictionary of bonuses for the ability.
+ * @property {string} [bonuses.check] A string representing the bonus to ability checks.
+ * @property {string} [bonuses.save] A string representing the bonus to saving throws.
+ * @property {number} [bonuses.checkMinimum] The minimum bonus to ability checks.
+ * @property {number} [bonuses.saveMinimum] The minimum bonus to saving throws.
+ */
 DDBCharacter.prototype._getAbilitiesBonuses = function (includeExcludedEffects = false) {
 
   let result = {};

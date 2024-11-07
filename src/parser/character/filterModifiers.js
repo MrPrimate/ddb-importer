@@ -1,23 +1,24 @@
 import logger from "../../logger.js";
 
 /**
- * UTILITY
- * Returns a string representation of friendlyTypename and friendlySubtypeName for an obj[]
- * @param {object[]} arr array of objects
+ * Generates an array of strings representing the type and subtype of each object in the input array.
+ * @param {object[]} arr - The array of objects, each containing `friendlyTypeName` and `friendlySubtypeName` properties.
+ * @returns {string[]} An array of strings formatted as "friendlyTypeName (friendlySubtypeName)".
  */
 function extractInfo(arr) {
   return arr.map((e) => `${e.friendlyTypeName} (${e.friendlySubtypeName})`);
 }
 
+
 /**
- * Extracts basic character information
- * @param {object} data Character JSON
- * returns information about the classes this character chose, including
- * - {string} name
- * - {number} level
- * - {boolean} isStartingClass
- * - {object[]} modifiers (empty, will be filled later)
- * }
+ * Extracts character class information from the input data.
+ * @param {object} data The character JSON data
+ * @returns {object[]} An array of objects containing class information for each class the character has chosen.
+ * Each object has properties:
+ * - {string} name - The name of the class (including subclass, if any)
+ * - {number} level - The character's level in this class
+ * - {boolean} isStartingClass - Whether this class is the character's starting class
+ * - {object[]} modifiers - An empty array, to be filled with modifiers later
  */
 function getClassInfo(data) {
   return data.classes.map((cls) => {
@@ -33,10 +34,12 @@ function getClassInfo(data) {
   });
 }
 
+
 /**
  * Gets all class features up to a certain class level
  * @param {obj} cls character.classes[] entry
- * @param {*} classLevel level requirement up to which the class features should be extracted
+ * @param {*} [classLevel=20] level requirement up to which the class features should be extracted
+ * @returns {object[]} An array of class feature definitions, sorted by required level
  */
 export function getClassFeatures(cls, classLevel = 20) {
   if (
@@ -86,12 +89,14 @@ function isStartingClass(data, className) {
 }
 
 /**
- * Gets all class modifiers for a given character
+ * Gets all class modifiers for a given character and class features
  * This filters out all modifiers that do not have an entry in the class features passed in
  * For multiclassing characters, it checks if the given class is the starting class or a multiclass,
  *    then the `.availableToMulticlass` is queried if this modifier is enabled or not
- * @param {obj} cls character.classes[] entry
- * @param {*} classLevel level requirement up to which the class features should be extracted
+ * @param {object} data character data
+ * @param {array} classFeatures array of class feature definitions
+ * @param {boolean} [isStartingClass=false] whether this class is the starting class or not
+ * @returns {array} array of class modifiers that are available for the given class
  */
 function getClassModifiers(data, classFeatures, isStartingClass = false) {
   const modifiers = data.modifiers.class.filter((classModifier) => {
@@ -138,9 +143,15 @@ function getClassOptionModifiers(data) {
 }
 
 /**
- * Filters the modifiers with the utility functions above
+ * Filters the modifiers for each class of the character
  * @param {object} data character data
- * @returns {[object[]]} an array containing an array of filtered modifiers, grouped by class
+ * @param {Array} classInfo an array of objects containing class information for each class the character has chosen.
+ * Each object has properties:
+ * - {string} name - The name of the class (including subclass, if any)
+ * - {number} level - The character's level in this class
+ * - {boolean} isStartingClass - Whether this class is the character's starting class
+ * - {object[]} modifiers - An empty array, to be filled with modifiers by this function
+ * @returns {Array} the same array as `classInfo`, but with modifiers populated
  */
 function filterModifiers(data, classInfo) {
   // get the classFeatures for all classes
@@ -151,6 +162,12 @@ function filterModifiers(data, classInfo) {
   return classInfo;
 }
 
+/**
+ * Fixes the character levels by removing modifiers that are not applicable
+ * to the current class configuration of the character.
+ * @param {object} data character data
+ * @returns {object} the same character data, but with modifiers fixed
+ */
 export function fixCharacterLevels(data) {
   data.unfilteredModifiers = foundry.utils.deepClone(data.character.modifiers);
   const classInfo = getClassInfo(data.character);

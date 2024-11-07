@@ -569,6 +569,7 @@ export function generateDowngradeChange(bonus, priority, key) {
 /**
  * Generates a global add for an item
  */
+
 export function addAddBonusEffect(modifiers, name, type, key) {
   let changes = [];
   // const bonus = DDBHelper.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
@@ -583,6 +584,7 @@ export function addAddBonusEffect(modifiers, name, type, key) {
 /**
  * Generates a global custom bonus for an item
  */
+
 function addCustomEffect(modifiers, name, type, key, extra = "") {
   let changes = [];
   const bonus = DDBHelper.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
@@ -629,6 +631,7 @@ function addGlobalSavingBonusEffect(modifiers, name) {
 /**
  * Adds languages, can't handle custom languages
  */
+
 function addLanguages(modifiers, name) {
   let changes = [];
 
@@ -670,7 +673,8 @@ function damageBonus(type, modifiers, name) {
 
 /**
  * Generate global damage bonuses
-*/
+ */
+
 function addGlobalDamageBonus(modifiers, name) {
   let changes = [];
   // melee restricted attacks
@@ -913,8 +917,8 @@ function addCriticalHitImmunities(modifiers, name) {
 
 /**
  * Get  Damage Conditions, and Condition Immunities
- * @param {*} ddbItem
  */
+
 function addDamageConditions(modifiers) {
   let charges = [];
 
@@ -1110,6 +1114,7 @@ function addSetSpeedEffect(modifiers, name, subType) {
 /**
  * Innate Speeds
  */
+
 function addSetSpeeds(modifiers, name) {
   let changes = [];
   const speedSets = [
@@ -1160,6 +1165,7 @@ function addBonusSpeedEffect(modifiers, name, subType, speedType = null) {
 /**
  * Bonus Speeds
  */
+
 function addBonusSpeeds(modifiers, name) {
   let changes = [];
   const speedBonuses = ["speed-walking", "speed-climbing", "speed-swimming", "speed-flying", "speed-burrowing"];
@@ -1226,9 +1232,8 @@ function addProficiencies(modifiers, name) {
 
 /**
  * Add HP effects
- * @param {*} modifiers
- * @param {*} name
  */
+
 function addHPEffect(ddb, modifiers, name, consumable) {
   let changes = [];
 
@@ -1446,6 +1451,17 @@ function consumableEffect(effect, ddbItem, foundryItem) {
  * @param {*} effect
  * @param {*} ddbItem
  * @param {*} isCompendiumItem
+ */
+
+
+/**
+ * Checks attunement status, equipped status, and item type to determine if effect should be disabled.
+ * This is used to prevent non-usable items from being used if the item is not equipped or attuned.
+ * @param {object} foundryItem the foundry item data
+ * @param {object} effect the effect to modify
+ * @param {object} ddbItem the ddb item data
+ * @param {boolean} isCompendiumItem is this a compendium item
+ * @returns {Array} [foundryItem, effect] the modified foundry item and effect
  */
 function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
   // check attunement status etc

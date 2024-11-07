@@ -96,9 +96,6 @@ export default class CharacterFeatureFactory {
     return customActions;
   }
 
-  /**
-   * Everyone has an Unarmed Strike
-   */
   async getUnarmedStrike(overrides = {}) {
     const unarmedStrikeMock = CONFIG.DDB.naturalActions[0];
     unarmedStrikeMock.displayAsAttack = true;

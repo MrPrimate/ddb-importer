@@ -27,9 +27,11 @@ export function getActorConditionStates(actor, ddb, keepLocal = false) {
 }
 
 /**
- * Set conditions
- * @param {*} ddb
- * @param {*} actor
+ * Syncs the conditions between the actor and DDB
+ * @param {Actor5e} actor the actor to sync
+ * @param {object} ddb the DDB data
+ * @param {boolean} [keepLocal=false] if true, will not remove conditions that are not in DDB
+ * @returns {Promise<void>}
  */
 export async function setConditions(actor, ddb, keepLocal = false) {
   const conditionStates = getActorConditionStates(actor, ddb, keepLocal);

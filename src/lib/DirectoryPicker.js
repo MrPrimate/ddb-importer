@@ -132,9 +132,13 @@ export class DirectoryPicker extends FilePicker {
   }
 
   /**
-   * @param  {string} source
-   * @param  {string} target
-   * @param  {object} options={}
+   * Create a directory on the file system. If running on ForgeVTT, will use the Forge's API
+   * to create a new folder. Otherwise falls back to `FilePicker.createDirectory`.
+   * @param {string} source
+   * @param {string} target directory name
+   * @param {object} options options passed to FilePicker.createDirectory
+   * @returns {Promise<string|undefined>} path to the created directory, or undefined if
+   * failure
    */
   static async createDirectory(source, target, options = {}) {
     if (!target) {
@@ -149,9 +153,9 @@ export class DirectoryPicker extends FilePicker {
   /**
    * Verifies server path exists, and if it doesn't creates it.
    *
-   * @param  {object} parsedPath - output from DirectoryPicker,parse
-   * @param  {string} targetPath - if set will check this path, else check parsedPath.current
-   * @returns {boolean} - true if verfied, false if unable to create/verify
+   * @param  {object} parsedPath output from DirectoryPicker,parse
+   * @param  {string} targetPath if set will check this path, else check parsedPath.current
+   * @returns {boolean} true if verified, false if unable to create/verify
    */
   static async verifyPath(parsedPath, targetPath = null) {
     try {
@@ -198,9 +202,10 @@ export class DirectoryPicker extends FilePicker {
 
   /**
    * Browse files using Forge API
-   * @param  {string} source
-   * @param  {string} target
-   * @param  {object} options={}
+   * @param {string} source
+   * @param {string} target directory name
+   * @param {object} options options passed to FilePicker
+   * @returns {Promise<string|undefined>} path to the created directory, or undefined if
    */
   static async browseForgeFiles(source, target, options = {}) {
     if (target.startsWith(ForgeVTT.ASSETS_LIBRARY_URL_PREFIX)) {
@@ -230,9 +235,10 @@ export class DirectoryPicker extends FilePicker {
 
   /**
    * Browse files using FilePicker
-   * @param  {string} source
-   * @param  {string} target
-   * @param  {object} options={}
+   * @param {string} source
+   * @param {string} target directory name
+   * @param {object} options options passed to FilePicker
+   * @returns {Promise<string|undefined>} path to the created directory, or undefined if
    */
   static async browseFiles(source, target, options = {}) {
     if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {

@@ -118,9 +118,11 @@ DDBMonster.prototype.parseAdditionalAtWillSpells = function(text) {
 
 
 /**
- * First pass at breaking out spells to cast
- * @param text spell text block
- * @returns
+ * Parses out spells from the monster description block
+ * @param {string} text The spell text to parse
+ * @param {object} [options] Options to pass to the function
+ * @param {string} [options.pactText] The pact text to parse
+ * @returns {void}
  */
 // eslint-disable-next-line complexity
 DDBMonster.prototype.parseOutSpells = function(text, { pactText = null } = {}) {
@@ -331,9 +333,11 @@ DDBMonster.prototype._generateSpells = function() {
 
 };
 
+
 /**
- *
- * @param {[items]} spells Array of Strings or items
+ * Retrieves matching spells from a compendium given a list of names.
+ * @param {string[]} spells List of spell names to search for.
+ * @returns {<Item[]>} A list of spells objects that were found.
  */
 DDBMonster.prototype.retrieveCompendiumSpells = async function(spells) {
   const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");

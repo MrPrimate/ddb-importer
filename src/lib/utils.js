@@ -17,8 +17,8 @@ const utils = {
   /**
    * Async for each loop
    *
-   * @param  {array} array - Array to loop through
-   * @param  {function} callback - Function to apply to each array item loop
+   * @param  {Array} array Array to loop through
+   * @param  {Function} callback Function to apply to each array item loop
    */
   asyncForEach: async (array, callback) => {
     for (let index = 0; index < array.length; index += 1) {

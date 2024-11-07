@@ -113,9 +113,23 @@ export default class AdventureMunch extends FormApplication {
   }
 
   /**
-   * @param  {String} path
-   * @param  {Boolean} misc Miscellaneous import type/location?
-   * @returns {Object} An object detailing various file path
+   * Returns an object with various file paths, including the key to the file in the upload folder,
+   * the path to the file relative to the adventure upload path, the full path to the file, and the
+   * filename with or without the .webp extension.
+   * @param {string} path the path to the file
+   * @param {boolean} misc whether the file is a miscellaneous import
+   * @returns {object} an object with the following properties:
+   *   pathKey: the key to the file in the upload folder
+   *   adventurePath: the path to the file relative to the adventure upload path
+   *   targetPath: the path to the file relative to the base upload path
+   *   filename: the filename with the .webp extension if useWebP is true
+   *   baseUploadPath: the base upload path
+   *   parsedBaseUploadPath: the parsed base upload path
+   *   uploadPath: the full path to the file
+   *   returnFilePath: the path to the file relative to the adventure upload path
+   *   baseFilename: the filename without the .webp extension
+   *   fullUploadPath: the full path to the file
+   *   forcingWebp: whether the .webp extension was added
    */
   getImportFilePaths(path, misc) {
     const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
@@ -155,11 +169,11 @@ export default class AdventureMunch extends FormApplication {
 
   /**
    * Import a non-image file
-   * @param {String} path
+   * @param {string} path
    * @param {Blob} content
-   * @param {String} mimeType
-   * @param {Boolean} misc Miscellaneous import type/location?
-   * @returns {Promise<String>} file path
+   * @param {string} mimeType
+   * @param {boolean} misc Miscellaneous import type/location?
+   * @returns {Promise<string>} file path
    */
   async importRawFile(path, content, mimeType, misc) {
     try {
@@ -202,8 +216,9 @@ export default class AdventureMunch extends FormApplication {
   /**
    * Imports binary file, by extracting from zip file and uploading to path.
    *
-   * @param  {String} path - Path to image within zip file
-   * @returns {Promise<String>} - Path to file within VTT
+   * @param  {string} path Path to image within zip file
+   * @param  {boolean} misc Miscellaneous import type/location?
+   * @returns {Promise<string>} Path to file within VTT
    */
   async importImage(path, misc = false) {
     try {
@@ -467,8 +482,8 @@ export default class AdventureMunch extends FormApplication {
   /**
    * Search temporary items and return a match
    *
-   * @param  {String} uuid - Item id or uuid
-   * @returns {Object} - Document
+   * @param  {string} uuid Item id or uuid
+   * @returns {object} Document
    */
   fetchTemporaryItem(uuid) {
     const id = uuid.split(".").pop();
@@ -486,8 +501,8 @@ export default class AdventureMunch extends FormApplication {
   /**
    * Get the world actor, or actor that represents the world actor for adventure compendium build
    *
-   * @param  {String} actorId - Actor Id
-   * @returns {Object} - Actor
+   * @param  {string} actorId Actor Id
+   * @returns {object} Actor
    */
   _getWorldActor(actorId) {
     return this.importToAdventureCompendium
@@ -894,7 +909,6 @@ export default class AdventureMunch extends FormApplication {
   /**
    * Import actors, matching up import ids and actor ids for scene token linking
    * @param {object} data array of actor data objects
-   * @param {boolean} temporary create the items in the world?
    * @returns {Promise<Array>} array of world actors
    */
   async importRemainingActors(data) {
@@ -1479,7 +1493,6 @@ export default class AdventureMunch extends FormApplication {
   /**
    * Replaced ddb links with compendium or world links
    * @param {Document} doc HTML document to act on
-   * @param {Object} options provide journalWorldActors and actorData if linking to world actors
    * @returns {Document} HTML document with modified links
    */
   replaceLookupLinks(doc) {
@@ -1523,8 +1536,7 @@ export default class AdventureMunch extends FormApplication {
 
   /**
    * Replaced ddb links with compendium or world links, or links back to DDB
-   * @param {Document} doc HTML document to act on
-   * @param {Object} options provide journalWorldActors and actorData if linking to world actors
+   * @param {string} text HTML text to act on
    * @returns {Document} HTML document with modified links
    */
   foundryCompendiumReplace(text) {

@@ -189,12 +189,15 @@ const CompendiumHelper = {
   },
 
   /**
-   * Attempts to find a compendium pack by name, if not found, create a new one based on item type
-   * @param  {string} label - Label of compendium to find
-   * @param  {string} type - Name of compendium
-   * @param  {string} id - Id of compendium, optional, used in place of label to find compendium
-   * @param  {string} packageType - package type of compendium, defaults to world
-   * @returns {object} - Object consisting of compendium and creation result
+   * Checks if a compendium exists with the given id or label, if not, creates a new one.
+   * @param {object} options
+   * @param {string} options.label Label of compendium to find
+   * @param {string} options.type Name of compendium
+   * @param {string} [options.id] Id of compendium, optional, used in place of label to find compendium
+   * @param {string} [options.packageType] package type of compendium, defaults to world
+   * @param {string} [options.folderId] folder id for compendium
+   * @param {string[]} [options.dnd5eTypeTags] dnd5e type tags for compendium
+   * @returns {object} Object consisting of compendium and creation result
    */
   // eslint-disable-next-line no-unused-vars
   createIfNotExists: async ({ label, type, id = undefined, packageType = "world", folderId = null, dnd5eTypeTags = [] } = {}) => {
@@ -262,9 +265,13 @@ const CompendiumHelper = {
     }
   },
 
+
   /**
-   * Queries a compendium for a single document
-   * Returns either the entry from the index, or the complete document from the compendium
+   * Queries a compendium for a single document. Returns either the entry from the index, or the complete document
+   * @param {string} compendiumName The name of the compendium to query
+   * @param {string} documentName The name of the document to query
+   * @param {boolean} getDocument If true, returns the complete document from the compendium. Defaults to false.
+   * @returns {object|null} The entry from the index, or the complete document if getDocument is true. Null if no match.
    */
   queryCompendiumEntry: async (compendiumName, documentName, getDocument = false) => {
     // normalize the entity name for comparison
@@ -286,8 +293,14 @@ const CompendiumHelper = {
   },
 
   /**
-   * Queries a compendium for a single document
-   * Returns either the entry from the index, or the complete document from the compendium
+   * Queries a compendium for multiple documents by their names.
+   * Returns either the index entries of the documents or the complete documents.
+   *
+   * @param {string} compendiumName The name of the compendium to query.
+   * @param {string[]} documentNames An array of document names to query.
+   * @param {boolean} [getDocuments=false] If true, returns the complete documents from the compendium. Defaults to false.
+   * @returns {Promise<Array<object|null>>} A promise that resolves to an array of index entries or complete documents.
+   *                                          Returns null for documents that are not found.
    */
   queryCompendiumEntries: async (compendiumName, documentNames, getDocuments = false) => {
     // get the compendium
@@ -356,7 +369,10 @@ const CompendiumHelper = {
 
   /**
    * Queries a compendium for a given document name
-   * @returns the index entries of all matches, otherwise an empty array
+   * @param {string} compendiumName the name of the compendium to query
+   * @param {string} documentName the name of the document to search for
+   * @param {boolean} getDocument if true, returns the document entity, otherwise the index entry
+   * @returns {object|null} the index entries of all matches, otherwise an empty array
    */
   queryCompendium: async (compendiumName, documentName, getDocument = false) => {
     documentName = utils.normalizeString(documentName);
@@ -373,8 +389,10 @@ const CompendiumHelper = {
   },
 
   /**
-   *
-   * @param {[string]} items Array of Strings or
+   * Queries a compendium for a list of items, returning the matching documents.
+   * @param {string[]|{name: string}[]} items an array of strings or objects with a "name" property
+   * @param {string} compendiumName the name of the compendium to query
+   * @returns {object[]} the matching documents, or an empty array if none are found.
    */
   async retrieveMatchingCompendiumItems(items, compendiumName) {
     const GET_ENTITY = true;

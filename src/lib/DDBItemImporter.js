@@ -140,8 +140,9 @@ export default class DDBItemImporter {
   }
 
   /**
-   * Removes items
-   * @param {*} itemsToRemove
+   * Removes items from the documents collection that match the given criteria.
+   * @param {Array} itemsToRemove array of objects to remove from the documents collection
+   * @param {boolean} matchDDBId if true, only remove items where the ddb id matches
    */
   removeItems(itemsToRemove, matchDDBId = false) {
     this.documents = this.documents.filter((item) =>
@@ -228,8 +229,8 @@ export default class DDBItemImporter {
 
   /**
    * Asynchronously creates a new item to be added to a compendium based on its type.
-   * @param {object} item - the data for the new item to be created
-   * @return {Promise<object|null>} a Promise that resolves with the imported item or null if import failed
+   * @param {object} item the data for the new item to be created
+   * @returns {Promise<object|null>} a Promise that resolves with the imported item or null if import failed
    */
   async createCompendiumItem(item) {
     let newItem;
@@ -442,10 +443,17 @@ ${item.system.description.chat}
 
 
   /**
-   * gets items from compendium
-   * @param {*} items
-   * @param {*} type
-   * @param {*} options
+   * loads items from compendium
+   * @param {<Item[]>} items items to search for
+   * @param {string} type type of item to search for
+   * @param {object} options
+   * @param {boolean} [options.looseMatch=false] whether to match item names loosely
+   * @param {boolean} [options.monsterMatch=false] whether to match monster names
+   * @param {boolean} [options.keepId=false] whether to keep the item id
+   * @param {boolean} [options.deleteCompendiumId=true] whether to delete the compendium id
+   * @param {boolean} [options.keepDDBId=false] whether to keep the item ddb id
+   * @param {boolean} [options.linkItemFlags=false] whether to link item flags
+   * @returns {<Document[]>} documents loaded from compendium
    */
   static async getCompendiumItems(items, type,
     { looseMatch = false, monsterMatch = false, keepId = false,

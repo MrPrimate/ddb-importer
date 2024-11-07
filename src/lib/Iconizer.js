@@ -629,10 +629,6 @@ export default class Iconizer {
   }
 
 
-  /**
-   * Add an item to effects, if available
-   * @param {*} items
-   */
   static addItemEffectIcons(items) {
     logger.debug("Adding Icons to effects");
     items.forEach((item) => {

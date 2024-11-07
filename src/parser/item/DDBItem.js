@@ -626,6 +626,7 @@ export default class DDBItem {
   /**
    * Gets the DND5E weapontype (simpleM, martialR etc.) as string
    * Supported Types only: Simple/Martial Melee/Ranged and Ammunition (Firearms in D&DBeyond)
+   * @returns {string} WeaponType
    */
   #getWeaponType() {
     const type = DICTIONARY.weapon.weaponType.find(
@@ -1049,10 +1050,13 @@ export default class DDBItem {
   }
 
   /**
- * We get extra damage to a weapon attack here, for example Improved
- * Divine Smite
- * @param {*} restrictions (array)
- */
+   * Retrieves extra damage modifiers for weapon attacks based on provided restrictions.
+   * e.g. Divine Smite
+   * @param {Array} restrictions An array of restrictions to filter damage modifiers.
+   * @returns {Array} An array of damage modifiers, each represented as a tuple
+   *                  [diceString or value, subType]. If no matching die or value is found,
+   *                  returns [null, null].
+   */
   #getExtraDamage(restrictions) {
     return DDBHelper.filterBaseModifiers(this.ddbData, "damage", { restriction: restrictions }).map((mod) => {
       const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;

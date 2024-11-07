@@ -149,11 +149,11 @@ function getRuleLookups() {
 /**
  * Replaces a rule based on the given type, reference, slug, and forceTrimCheck flag.
  *
- * @param {string} baseType - The base type of the rule.
- * @param {string} text - The text to be replaced/used as description.
- * @param {string} slug - The slug to identify the rule.
- * @param {boolean} forceTrimCheck - Optional flag to force trim check.
- * @return {string} The replaced reference based on the rule.
+ * @param {string} baseType The base type of the rule.
+ * @param {string} text The text to be replaced/used as description.
+ * @param {string} slug The slug to identify the rule.
+ * @param {boolean} forceTrimCheck Optional flag to force trim check.
+ * @returns {string} The replaced reference based on the rule.
  */
 function ruleReplacer(baseType, text, slug, forceTrimCheck = false) {
   const type = RULE_ADJUSTMENT[baseType] ?? baseType;
@@ -182,13 +182,13 @@ function ruleReplacer(baseType, text, slug, forceTrimCheck = false) {
  * Replaces a tag in the given string with a modified version.
  *  /(\[([^\]]+)]([^[]+)\[\/([^\]]+)]/g;
  *
- * @param {string} match - the entire matched string
- * @param {string} tagType - tag name e.g. skills
- * @param {string} tagName - tag name e.g. Acrobatics
- * @param {number} _p4 - final tag closure
- * @param {number} _offset - the zero-based index of the match in the string
- * @param {string} _string - the input string
- * @return {string} the modified string with the replaced tag
+ * @param {string} match the entire matched string
+ * @param {string} tagType tag name e.g. skills
+ * @param {string} tagName tag name e.g. Acrobatics
+ * @param {number} _p4 final tag closure
+ * @param {number} _offset the zero-based index of the match in the string
+ * @param {string} _string the input string
+ * @returns {string} the modified string with the replaced tag
  */
 // eslint-disable-next-line no-unused-vars
 function replaceTag(match, tagType, tagName, _p4, _offset, _string) {
@@ -212,9 +212,9 @@ function replaceTag(match, tagType, tagName, _p4, _offset, _string) {
  * Parses loose rule references in the given text.
  * Fast and loose search and replace
  *
- * @param {string} text - The text to parse rule references from
- * @param {boolean} superLoose - Flag to indicate whether to allow super loose rule references
- * @return {string} The parsed text with rule references replaced
+ * @param {string} text The text to parse rule references from
+ * @param {boolean} superLoose Flag to indicate whether to allow super loose rule references
+ * @returns {string} The parsed text with rule references replaced
  */
 function parseLooseRuleReferences(text, superLoose = false) {
   for (const [type, entries] of Object.entries(getRuleLookups())) {

@@ -53,7 +53,7 @@ DDBCharacter.prototype._generateAppearance = function _generateAppearance() {
 /**
  * Gets the character's alignment
  * Defaults to Neutral, if not set in DDB
- * @todo: returns .name right now, should switch to .value once the DND5E options are fully implemented
+ * returns .name right now, should switch to .value once the DND5E options are fully implemented
  */
 DDBCharacter.prototype._generateAlignment = function _generateAlignment() {
   const alignmentID = this.source.ddb.character.alignmentId || 5;

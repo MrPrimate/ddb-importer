@@ -72,6 +72,9 @@ export default class Crosshairs extends MeasuredTemplate {
 
   /**
    * Outwards facing function of the Crosshairs class, will do the constructing itself.
+   * @param {object} [config] Configuration for the Crosshairs.
+   * @param {object} [callbacks] Callbacks for the Crosshairs.
+   * @returns {Promise<object>} Current Crosshairs Data.
    */
   static async showCrosshairs(config = {}, callbacks = {}) {
     config = foundry.utils.mergeObject(config, Crosshairs.defaultCrosshairsConfig(), { overwrite: false });
@@ -110,12 +113,12 @@ export default class Crosshairs extends MeasuredTemplate {
    * Returns desired types of placeables whose center point
    * is within the crosshairs radius.
    *
-   * @param {Object} crosshairsData Requires at least {x,y,radius,parent} (all in pixels, parent is a Scene)
-   * @param {String|Array<String>} [types='Token'] Collects the desired embedded placeable types.
+   * @param {object} crosshairsData Requires at least {x,y,radius,parent} (all in pixels, parent is a Scene)
+   * @param {string|Array<string>} [types='Token'] Collects the desired embedded placeable types.
    * @param {Function} [containedFilter=Gateway._containsCenter] Optional function for determining if a placeable
    *   is contained by the crosshairs. Default function tests for centerpoint containment. {@link Gateway._containsCenter}
    *
-   * @return {Object<String,PlaceableObject>} List of collected placeables keyed by embeddedName
+   * @returns {Object<string,PlaceableObject>} List of collected placeables keyed by embeddedName
    */
   static collectPlaceables(crosshairsData, types = "Token", containedFilter = Crosshairs._containsCenter) {
     let isArray = Array.isArray(types);
@@ -154,6 +157,10 @@ export default class Crosshairs extends MeasuredTemplate {
 
   /**
    * Main function of the Crosshairs Class, will return the finished Crosshairs object which the X and Y can be taken from for position
+   *
+   * Renders the Crosshairs object and adds it to the canvas preview layer,
+   * waiting indefinitely for placement to be decided.
+   * @returns {Crosshairs} Returns the Crosshairs object
    */
   async drawPreview() {
     await this.draw();
@@ -323,6 +330,9 @@ export default class Crosshairs extends MeasuredTemplate {
    * shift = scale size (if not locked)
    * ctrl = rotate 30 or 15 degrees (square/hex)
    * alt = zoom canvas
+   *
+   * @param {MouseEvent} event The mouse event that triggered this function.
+   * @returns {undefined}
    */
   _mouseWheelHandler(event) {
     if (event.ctrlKey) event.preventDefault(); // Avoid zooming the browser window

@@ -99,7 +99,7 @@ function diceInt(text) {
  * a range of values 19-20
  * remaining values 19+
  * @param {*} value
- * @returns array of range
+ * @returns {Array} array of range
  */
 function getDiceTableRange(value) {
   const document = utils.htmlToDoc(value);

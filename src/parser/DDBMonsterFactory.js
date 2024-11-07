@@ -145,9 +145,10 @@ export default class DDBMonsterFactory {
   }
 
   /**
-   * Processes the downloaded (or provided) DDB Source data for monsters and generates actors
+   * Parses the downloaded (or provided) DDB Source data for monsters and generates actors
    * Use this.fetchDDBMonsterSourceData() if you need to get monster data from ddb
-   * @returns
+   * @param {object[]} [monsters] Optional monster data to parse. If not provided, will use data from fetchDDBMonsterSourceData()
+   * @returns {object} Object with two properties: actors (an array of parsed actor documents) and failedMonsterNames (an array of names of monsters that failed to parse)
    */
   async parse(monsters = []) {
     let foundryActors = [];
@@ -222,6 +223,13 @@ export default class DDBMonsterFactory {
 
   /**
    * Downloads, parses, prepares
+   * Takes a list of monsters and parses them into a format suitable for importing
+   * into Foundry.
+   * @param {object} opts
+   * @param {Array} [opts.monsters=[]] A list of monsters to import
+   * @param {number} [opts.i=0] The number of monsters imported so far
+   * @returns {Promise<Array>} A promise that resolves with an array of parsed
+   * monster documents
    */
   async #createMonsterDocuments({ monsters = [], i = 0 } = {}) {
     logger.time(`Monster Process Time ${i}`);
@@ -278,6 +286,9 @@ export default class DDBMonsterFactory {
 
   /**
    * Downloads, parses and imports monsters into a compendium
+   * @param {Array} ids - a list of monster ids to import, if null imports all monsters
+   * @returns {Promise<number|Array>} If ids is null, returns the total number of monsters processed
+   * If ids is not null, returns a Promise that resolves with an array of the parsed monster documents
    */
   async processIntoCompendium(ids = null) {
 

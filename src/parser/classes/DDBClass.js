@@ -468,8 +468,8 @@ export default class DDBClass {
   /**
    * Retrieves the class features, excluding the ones specified by their IDs.
    *
-   * @param {Array} excludedIds - An array of IDs of class features to exclude (default: [])
-   * @return {Array} An array of class features
+   * @param {Array} excludedIds An array of IDs of class features to exclude (default: [])
+   * @returns {Array} An array of class features
    */
   getClassFeatures(excludedIds = []) {
     const excludedFeatures = this.ddbData.character.optionalClassFeatures
@@ -497,8 +497,8 @@ export default class DDBClass {
   /**
    * Finds a match in the compendium features for the given feature.
    *
-   * @param {Object} feature - The feature to find a match for.
-   * @return {Object|undefined} - The matched feature, or undefined if no match is found.
+   * @param {object} feature The feature to find a match for.
+   * @returns {object|undefined} - The matched feature, or undefined if no match is found.
    */
   getFeatureCompendiumMatch(feature) {
     if (!this._compendiums.features) {

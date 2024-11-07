@@ -12,9 +12,9 @@ export default class AdventureMunchHelpers {
 
   /**
    * Find an entity by the import key.
-   * @param  {string} type - Entity type to search for
-   * @param  {string} id - Entity Id
-   * @returns {object} - Entity Object Data
+   * @param  {string} type Entity type to search for
+   * @param  {string} id Entity Id
+   * @returns {object} Entity Object Data
    */
   static findEntityByImportId(type, id) {
     return game.data[type].find((item) => item._id === id);
@@ -23,9 +23,9 @@ export default class AdventureMunchHelpers {
   /**
    * Async replace for all matching patterns
    *
-   * @param  {string} str - Original string to replace values in
-   * @param  {string} regex - regex for matching
-   * @param  {function} asyncFn - async function to run on each match
+   * @param {string} str Original string to replace values in
+   * @param {string} regex regex for matching
+   * @param {Function} asyncFn async function to run on each match
    * @returns {string}
    */
   static async replaceAsync(str, regex, asyncFn) {
@@ -59,7 +59,7 @@ export default class AdventureMunchHelpers {
 
   /**
    * Replaces matchAll as it's not yet available in Electron App
-   * @param   {string} regex  RegEx to use
+   * @param   {string} regexp RegEx to use
    * @param   {string} string String to match on
    * @returns {Array}
    */
@@ -162,6 +162,7 @@ export default class AdventureMunchHelpers {
    * Get documents for ids from compendium
    * @param {string} type compendium type
    * @param {Array} ids array of ddb ids
+   * @param {object} overrides overrides
    * @param {boolean} temporary create the items in the world?
    * @returns {Promise<Array>} array of world actors
    */
@@ -295,9 +296,9 @@ export default class AdventureMunchHelpers {
 
   /**
    * Does the folder exist in the zip archive?
-   * @param {String} folder folder name
+   * @param {string} folder folder name
    * @param {Zip} zip
-   * @returns {Boolean}
+   * @returns {boolean}
    */
   static folderExists(folder, zip) {
     const files = Object.values(zip.files).filter((file) => {
@@ -309,7 +310,7 @@ export default class AdventureMunchHelpers {
 
   /**
    * Get the files in the zip archive at the specified path
-   * @param {String} folder a folder path to start from
+   * @param {string} folder a folder path to start from
    * @param {Zip} zip
    * @returns {Array} list of files in zip
    */

@@ -9,13 +9,19 @@ function evaluateMath(obj) {
   return Function('"use strict";return ' + obj.replace(/\+\s*\+/g, "+"))();
 }
 
-
 /**
- * Parse a match and replace template values ready for evaluation
- * @param {*} ddb
- * @param {*} character
- * @param {*} match
- * @param {*} feature
+ * Parses a match string and replaces template values with corresponding
+ * character attributes for evaluation. Supports template elements such as
+ * scale values, save DCs, ability modifiers, class and character levels,
+ * proficiency bonuses, spell attacks, ability scores, limited uses, and
+ * fixed values. The function generates a parsed string for computation
+ * and a link text for display.
+ *
+ * @param {object} ddb The DDB data object.
+ * @param {object} character The character data object.
+ * @param {string} match The match string containing template values.
+ * @param {object} feature The feature object associated with the match.
+ * @returns {object} An object containing the parsed string and link text.
  */
 // eslint-disable-next-line complexity
 function parseMatch(ddb, character, match, feature) {
@@ -187,9 +193,10 @@ function parseMatch(ddb, character, match, feature) {
 }
 
 /**
- * Apply the expression constraint
- * @param {*} value
- * @param {*} constraint
+ * Applies a template constraint to a value.
+ * @param {number|string} value The value to apply the constraint to
+ * @param {string} constraint The constraint string, in the format of a template string
+ * @returns {number|string} The value with the constraint applied
  */
 const applyConstraint = (value, constraint) => {
   // {{(classlevel/2)@rounddown#unsigned}}
@@ -246,9 +253,11 @@ const applyConstraint = (value, constraint) => {
 
 
 /**
- * Apply the expression constraint
- * @param {*} result
- * @param {*} constraint
+ * Applies any template constraints to the given value.
+ * Example: {{@rounddown,max:9}} or {{(classlevel/2)@rounddown#unsigned}}
+ * @param {*} value the value to which the constraints should be applied
+ * @param {string} constraintList a comma-separated list of constraints
+ * @returns {*} the value with any constraints applied
  */
 const addConstraintEvaluations = (value, constraintList) => {
   let result = `${value}`;
@@ -317,10 +326,10 @@ const getNumber = (theNumber, signed) => {
 /**
  * Replaces the matched string with the appropriate value or format, based on the value of p2.
  *
- * @param {string} match - the matched string
- * @param {string} p1 - the first capturing group
- * @param {string} p2 - the second capturing group
- * @return {string} the replaced or formatted string
+ * @param {string} match the matched string
+ * @param {string} p1 the first capturing group
+ * @param {string} p2 the second capturing group
+ * @returns {string} the replaced or formatted string
  */
 function replaceRoll(match, p1, p2) {
   if (!p2) {
@@ -342,8 +351,8 @@ function replaceRoll(match, p1, p2) {
 /**
  * Fix rollables in the given text by replacing them with the correct syntax.
  *
- * @param {string} text - The input text to be fixed.
- * @return {string} The text with corrected rollables.
+ * @param {string} text The input text to be fixed.
+ * @returns {string} The text with corrected rollables.
  */
 function fixRollables(text) {
   const diceMatchRegex = /(?:<strong>)?\+*\s*(\d*d\d\d*\s*\+*)\s*(?:<\/strong>)?\+*\s*\[\[(\/roll)?/g;
@@ -364,9 +373,9 @@ function fixRollables(text) {
 /**
  * Replaces occurrences of matchString in the text with a roll command where appropriate
  *
- * @param {string} text - the input text
- * @param {string} matchString - the string to match and replace
- * @return {string} the text with replacements
+ * @param {string} text the input text
+ * @param {string} matchString the string to match and replace
+ * @returns {string} the text with replacements
  */
 function rollMatch(text, matchString) {
   const rollMatch = new RegExp(`(?:^|[ "'(+>])(\\d*d\\d\\d*\\s)({{${matchString}}})(?:$|[., "')+<])`, "g");
@@ -376,11 +385,11 @@ function rollMatch(text, matchString) {
 /**
  * This will parse a snippet/description with template boilerplate in from DDB.
  * e.g. Each creature in the area must make a DC {{savedc:con}} saving throw.
- * @param {object} ddb - The ddb object.
- * @param {object} character - The character object.
- * @param {string} text - The template string to parse.
- * @param {object} feature - The feature object.
- * @return {object} - The parsed template string result object.
+ * @param {object} ddb The ddb object.
+ * @param {object} character The character object.
+ * @param {string} text The template string to parse.
+ * @param {object} feature The feature object.
+ * @returns {object} The parsed template string result object.
  */
 export default function parseTemplateString(ddb, character, text, feature) {
   if (!text) return text;

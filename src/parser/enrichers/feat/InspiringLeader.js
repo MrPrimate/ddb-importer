@@ -8,9 +8,6 @@ export default class InspiringLeader extends DDBEnricherMixin {
   }
 
   get additionalActivities() {
-    console.warn("additional activities for Inspiring Leader", {
-      this: this,
-    });
     return [
       {
         action: { name: "Bolstering Performance", type: "feat", rename: ["Temp HP (Wisdom)"] },

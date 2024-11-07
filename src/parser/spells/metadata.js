@@ -2,7 +2,14 @@
  * Generates some meta data for a character to use to determine what to do
  * with a spell.
  * We use this like a quick lookup table
- * @param {*} character
+ *
+ * @param {object} character The character object containing detailed attributes.
+ * @returns {object} lookups - An object containing categorized lists of character data:
+ *   - race: Array of objects with race traits, each including `id` and `name`.
+ *   - feat: Array of objects with feats, each including `id`, `name`, and `componentId`.
+ *   - class: Array of objects with class and subclass information, each including `id` and `name`.
+ *   - classFeature: Array of objects with class features, each including `id`, `name`, `classId`, and `componentId`.
+ *   - item: Array of objects with inventory items, each including properties such as `id`, `name`, `limitedUse`, `equipped`, `isAttuned`, `canAttune`, and `canEquip`.
  */
 export function getLookups(character) {
   // racialTraits

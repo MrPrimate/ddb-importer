@@ -357,9 +357,6 @@ async function midiFeatureEffects(ddb, character, document) {
   return document;
 }
 
-/**
- * These are effects that can't be generated dynamically and have extra requirements
- */
 // eslint-disable-next-line complexity
 export async function featureEffectAdjustment(ddb, character, document, midiEffects = false) {
   if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;

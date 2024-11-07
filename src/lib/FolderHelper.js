@@ -47,9 +47,9 @@ export default class FolderHelper {
   /**
    * Retrieves the folder ID of a compendium with a given name within a specified compendium.
    *
-   * @param {string} name - The name of the folder to search for.
-   * @param {string} compendiumName - The name of the compendium to search within.
-   * @return {Promise<string|undefined>} The ID of the folder if found, otherwise undefined.
+   * @param {string} name The name of the folder to search for.
+   * @param {string} compendiumName The name of the compendium to search within.
+   * @returns {Promise<string|undefined>} The ID of the folder if found, otherwise undefined.
    */
   static async getCompendiumFolderId(name, compendiumName) {
     const compendium = game.packs.get(compendiumName);
@@ -57,8 +57,13 @@ export default class FolderHelper {
   }
 
   /**
-   * Updates game folder items
-   * @param {*} type
+   * Updates or creates items in game folders based on the specified type and input data.
+   *
+   * @param {string} type The type of items to update or create.
+   * @param {object} input The input data containing items to be processed.
+   * @param {boolean} [update=true] Determines whether existing items should be updated.
+   *
+   * @returns {Promise<Array>} A promise that resolves to an array of processed items with compendium information.
    */
   static async updateFolderItems(type, input, update = true) {
     const folderLookup = SETTINGS.GAME_FOLDER_LOOKUPS.find((c) => c.type == type);

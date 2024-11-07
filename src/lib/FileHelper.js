@@ -17,7 +17,7 @@ const FileHelper = {
   /**
    * Read data from a user provided File object
    * @param {File} file           A File object
-   * @return {Promise.<String>}   A Promise which resolves to the loaded text data
+   * @returns {Promise.<>}   A Promise which resolves to the loaded text data
    */
   readBlobFromFile: (file) => {
     const reader = new FileReader();

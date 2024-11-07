@@ -98,10 +98,6 @@ export function baseSpellEffect(document, label,
   return baseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
 }
 
-/**
- * This function is for effects that can't be dynamically generated
- * @param {*} document
- */
 // eslint-disable-next-line complexity
 async function midiEffectAdjustment(document) {
   const deps = effectModules();

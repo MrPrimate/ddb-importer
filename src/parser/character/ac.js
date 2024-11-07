@@ -6,7 +6,9 @@ import { generateFixedACEffect, generateBonusACEffect } from "../../effects/acEf
 import { getAllClassFeatures } from "./filterModifiers.js";
 
 /**
- * This excludes shields
+ * Checks if the character is armored, excluding shields.
+ *
+ * @returns {boolean} - Whether the character is armored.
  */
 DDBCharacter.prototype.isArmored = function isArmored() {
   return (
@@ -17,7 +19,9 @@ DDBCharacter.prototype.isArmored = function isArmored() {
 };
 
 /**
- * This excludes shields
+ * Checks if the character is unarmored, excluding shields.
+ *
+ * @returns {boolean} - Whether the character is unarmored.
  */
 DDBCharacter.prototype.isUnArmored = function isUnArmored() {
   return !this.isArmored();

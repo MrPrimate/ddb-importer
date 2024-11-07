@@ -5,20 +5,20 @@ class AdvancedDialog {
   /**
    * A class that constructs a chooser dialog with the given prompt information and buttons.
    *
-   * @param {Array} inputs - An array of input fields for the dialog.
-   *   @param {string} input.label - The label of the input field.
-   *   @param {string} input.type - The type of the input field.
-   *   @param {Array} input.options - The options of the input field. This varies depending on the type, see notes below.
-   * @param {Array} buttons - An array of buttons for the dialog.
-   *   @param {string} button.label - The label of the button.
-   *   @param {string} button.value - The value associated with the button.
-   *   @param {function} button.callback - The (optional) callback function for the button.
-   * @param {object} config - The configuration object for the dialog.
-   *   @param {string} config.title - The title of the dialog.
-   *   @param {string} config.defaultButton - The default button label.
-   *   @param {function} config.close - The callback function for closing the dialog.
-   *   @param {object} config.options - Additional options for the foundry Dialog.
-   *   @param {function} config.render - Optional function to pass to render call for Dialog.
+   * @param {{label: string, type: string, options: Array}[]} inputs An array of input fields for the dialog.
+   *   input.label The label of the input field.
+   *   input.type The type of the input field.
+   *   input.options The options of the input field. This varies depending on the type, see notes below.
+   * @param {{label: string, value: string, callback: Function}[]} buttons An array of buttons for the dialog.
+   *   button.label The label of the button.
+   *   button.value The value associated with the button.
+   *   button.callback The (optional) callback function for the button.
+   * @param {object} config The configuration object for the dialog.
+   *   @param {string} config.title The title of the dialog.
+   *   @param {string} config.defaultButton The default button label.
+   *   @param {Function} config.close The callback function for closing the dialog.
+   *   @param {object} config.options Additional options for the foundry Dialog.
+   *   @param {Function} config.render Optional function to pass to render call for Dialog.
    */
   constructor(inputs = [], buttons = [], // prompt information
     { title = "", defaultButton = "OK", close = (resolve) => resolve({ success: false }), options = {}, render = null } = {}, // dialog config
@@ -40,9 +40,9 @@ class AdvancedDialog {
   /**
    * Generates the table header label HTML element with the specified ID and label text.
    *
-   * @param {type} id - The ID of the input element associated with the label.
-   * @param {type} label - The text to be displayed as the label.
-   * @return {string} The generated HTML for the table header label.
+   * @param {type} id The ID of the input element associated with the label.
+   * @param {type} label The text to be displayed as the label.
+   * @returns {string} The generated HTML for the table header label.
    */
   static _generateTableHeaderLabel(id, label) {
     return `<th><label for="ddb-${id}">${label}</label></th>`;
@@ -51,11 +51,11 @@ class AdvancedDialog {
   /**
    * Generates the HTML stub for a selection element based on the given type, label, options, and index.
    *
-   * @param {string} type - The type of the selection element.
-   * @param {string} label - The label of the selection element.
-   * @param {array} options - The options for the selection element.
-   * @param {number} idx - The index of the selection element.
-   * @return {string} The HTML stub for the selection element.
+   * @param {string} type The type of the selection element.
+   * @param {string} label The label of the selection element.
+   * @param {Array} options The options for the selection element.
+   * @param {number} idx The index of the selection element.
+   * @returns {string} The HTML stub for the selection element.
    */
   static _generateSelectionHtmlStub(type, label, options, idx) {
     const thLabel = AdvancedDialog._generateTableHeaderLabel(idx, label);
@@ -115,8 +115,7 @@ class AdvancedDialog {
   /**
    * Generate the HTML for the selection table.
    *
-   * @param {Array} data - An array of objects containing type, label, and options.
-   * @return {string} The generated HTML.
+   * @returns {string} The generated HTML.
    */
   _generateSelectionHtml() {
     return [
@@ -133,8 +132,8 @@ class AdvancedDialog {
   /**
    * Parses the selection results based on the given inputs, HTML, and checked text.
    *
-   * @param {HTMLElement} html - The HTML element to parse.
-   * @return {Array} The parsed selection results.
+   * @param {HTMLElement} html The HTML element to parse.
+   * @returns {Array} The parsed selection results.
    */
   _parseSelectionResults(html) {
     const results = this.inputs
@@ -166,7 +165,7 @@ export class ChooserDialog extends AdvancedDialog {
   /**
    * Asynchronously waits for the dialog choices to be made or closed.
    *
-   * @return {Promise} A promise that resolves when the action is completed.
+   * @returns {Promise} A promise that resolves when the action is completed.
    * @example
    *  let dialog = new DDBImporter.DialogHelper.ChooserDialog([{
    *      label: 'Group 1 Radio Label 1',

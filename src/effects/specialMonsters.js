@@ -54,10 +54,6 @@ export function transferEffectsToActor(document) {
   return document;
 }
 
-/**
- * This function is mainly for effects that can't be dynamically generated
- * @param {*} document
- */
 // eslint-disable-next-line complexity
 export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects = false) {
   let npc = foundry.utils.duplicate(ddbMonster.npc);

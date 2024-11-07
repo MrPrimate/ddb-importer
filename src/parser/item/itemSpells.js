@@ -37,7 +37,10 @@ async function getCompendiumItemSpells(spells) {
 }
 
 /**
- * This adds magic item spells to an item, by looking in compendium or from a world.
+ * Add magic item spells to an item, by looking in compendium or from a world.
+ * @param {object} input Object with `itemSpells` and `inventory` properties.
+ * @param {Array<object>} input.itemSpells Array of objects with `name` and `flags.ddbimporter.lookupId` properties.
+ * @param {Array<object>} input.inventory Array of items to be enriched with magic item spells.
  */
 export async function addMagicItemSpells(input) {
   // check for existing spells in spell compendium & srdCompendium

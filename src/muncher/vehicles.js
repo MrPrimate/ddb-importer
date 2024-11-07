@@ -17,8 +17,9 @@ import DDBItemImporter from "../lib/DDBItemImporter.js";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 /**
- *
- * @returns {Promise<Array<JSON>>} A promise that resolves to an array of JSON vehicles from DDB
+ * Get the JSON data for vehicles from DDB
+ * @param {Array<string>} [ids] The ids of the vehicles to fetch. If not provided, all vehicles will be fetched
+ * @returns {Promise<Array<JSON>>} A promise that resolves to an array of JSON vehicle data
  */
 export function getVehicleData(ids) {
   const cobaltCookie = getCobalt();
@@ -77,9 +78,10 @@ export function getVehicleData(ids) {
 }
 
 /**
+ * Processes vehicle data retrieved from DDB and parses it into Foundry-compatible actors.
  *
- * @param {*} ddbData json data from DDB
- * @returns array of vehicles processed to Foundry
+ * @param {Array} ddbData Array of vehicle data objects from DDB.
+ * @returns {Array} An array of parsed vehicle actors ready for use in Foundry.
  */
 async function processVehicleData(ddbData) {
   DDBMuncher.munchNote(`Retrieved ${ddbData.length} vehicles, starting parse...`, true, false);

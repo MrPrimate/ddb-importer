@@ -93,9 +93,10 @@ const DDBHelper = {
   },
 
   /**
- * Gets the levelscaling value for a feature
- * @param {*} feature
- */
+   * Gets the levelscaling value for a feature
+   * @param {*} feature
+   * @returns {string}
+   */
   getExactScalingValue: (feature) => {
     const die = feature.levelScale?.dice ? feature.levelScale.dice : feature.levelScale?.die ? feature.levelScale.die : undefined;
     if (feature && feature.levelScale && feature.levelScale.fixedValue) {
@@ -173,11 +174,20 @@ const DDBHelper = {
   },
 
   /**
-   *
-   * Gets the sourcebook for a subset of dndbeyond sources
+   * Given a definition, returns an array of sourcebook objects.
+   * The sourcebook object is an object with the following properties:
+   * - book: the name of the sourcebook
+   * - page: the page number of the sourcebook
+   * - license: the license of the sourcebook
+   * - custom: the custom name of the sourcebook
+   * - id: the id of the sourcebook
+   * If the definition has a sources array, it will return an array of sourcebook objects.
+   * If the definition has a sourceId, it will return an array with one sourcebook object.
+   * If the definition has a sourceIds array, it will return an array with one sourcebook object for each sourceId.
+   * If the definition has no source information, it will return an empty array.
    * @param {obj} definition item definition
+   * @returns {Array} an array of sourcebook objects
    */
-  // eslint-disable-next-line complexity
   getSourceData: (definition) => {
     const results = [];
     if (definition.sources?.length > 0) {
@@ -234,8 +244,9 @@ const DDBHelper = {
   },
 
   /**
-   * Fetches the sources and pages for a definition
-   * @param {obj} data item
+   * Parses the source data of a definition into a single source object
+   * @param {obj} definition definition to parse
+   * @returns {obj} a source object with the following properties: name, page, license, and custom
    */
   parseSource: (definition) => {
     const sources = DDBHelper.getSourceData(definition);
@@ -615,11 +626,11 @@ const DDBHelper = {
   },
 
   /**
-   * Checks the list of modifiers provided for a matching bonus type
-   * and returns a sum of it's value. May include a dice string.
-   * @param {*} modifiers
-   * @param {*} character
-   * @param {*} bonusSubType
+   * Given a list of modifiers, sums up the bonus value and returns
+   * a string representation of the result. May include a dice string.
+   * @param {object[]} modifiers modifiers to sum up
+   * @param {object} character character to get ability modifiers from
+   * @returns {string} a string representation of the sum of modifiers
    */
   getModifierSum: (modifiers, character) => {
     let sum = "";
@@ -669,9 +680,17 @@ const DDBHelper = {
   },
 
   /**
-   * Searches for selected options if a given feature provides choices to the user
-   * @param {string} type character property: "class", "race" etc.
-   * @param {object} feat options to search for
+   * Retrieves a list of character choices based on the provided parameters.
+   *
+   * @param {object} params The parameters for retrieving choices.
+   * @param {object} params.ddb The DDB data object containing character information.
+   * @param {string} params.type The type of choice to retrieve.
+   * @param {object} params.feat The feature object used to identify the choice.
+   * @param {boolean} [params.selectionOnly=true] Whether to return only selections.
+   * @param {boolean} [params.filterByParentChoice=false] Whether to filter choices by parent choice ID.
+   * @param {string|null} [params.parentChoiceId=null] The parent choice ID to filter by, if applicable.
+   *
+   * @returns {object[]} An array of choice objects, each representing a valid choice option.
    */
   getChoices: ({ ddb, type, feat, selectionOnly = true, filterByParentChoice = false,
     parentChoiceId = null } = {},

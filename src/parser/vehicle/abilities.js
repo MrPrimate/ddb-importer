@@ -30,10 +30,12 @@ export const ABILITIES = [
 //   "checkBonus": 0,
 //   "dc": 17
 // },
+
 /**
- * Retrieves character abilities, including proficiency on saving throws
+ * Retrieves vehicle abilities, including proficiency on saving throws
+ * @param {obj} abilities empty abilities object
  * @param {obj} ddb JSON Import
- * @param {obj} CONFIG.DDB config
+ * @returns {obj} abilities populated with vehicle abilities
  */
 export function getAbilities(abilities, ddb) {
   // go through every ability
@@ -53,6 +55,11 @@ export function getAbilities(abilities, ddb) {
 }
 
 
+/**
+ * Retrieves vehicle ability modifiers
+ * @param {obj} ddb JSON Import
+ * @returns {obj} abilities populated with vehicle ability modifiers
+ */
 export function getAbilityMods(ddb) {
   let abilities = {};
 

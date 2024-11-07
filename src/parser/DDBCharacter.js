@@ -90,7 +90,7 @@ export default class DDBCharacter {
    * - public sharing link
    * - direct link to the endpoint already
    * @returns {string|null} DDB CharacterId
-   * @param {String} url
+   * @param {string} url
    */
   static getCharacterId(url) {
     const ddbNamePattern = /(?:https?:\/\/)?(?:www\.)?(?:dndbeyond\.com|ddb\.ac)(?:\/profile\/.+)?\/characters\/(\d+)\/?/;
@@ -109,13 +109,8 @@ export default class DDBCharacter {
 
   /**
    * Loads and parses character in the proxy
-   * This will return an object containing the character, and items separated into arrays relating to their types
-   * Additional processing is required after this step.
-   * @param {String} syncId
-   * @param {String} localCobaltPostFix
-   * @returns {Object} Parsed Character Data and DDB data
+   * @param {{syncId?:string, localCobaltPostFix?:string}} [options]
    */
-
   async getCharacterData({ syncId = undefined, localCobaltPostFix = "" } = {}) {
     const cobaltCookie = getCobalt(localCobaltPostFix);
     const parsingApi = DDBProxy.getProxy();
@@ -314,9 +309,6 @@ export default class DDBCharacter {
   /**
    * Parses the collected Character JSON data into various foundry features.
    * Additional steps are needed after this based on the settings in the character import, but this will give the "raw" items
-   *
-   * @returns Object containing various parsed Foundry features
-   *
    */
   async _parseCharacter() {
     try {

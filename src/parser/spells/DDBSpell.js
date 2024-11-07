@@ -343,8 +343,10 @@ export default class DDBSpell {
     }
   }
 
-
-  // Does the spell target creatures?
+  /**
+   * Check if the spell targets creatures.
+   * @returns {boolean} true if the spell targets creatures, false otherwise.
+   */
   targetsCreature() {
     const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range/gi;
     const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
@@ -355,8 +357,8 @@ export default class DDBSpell {
   }
 
   /**
-   * Get Target Value
    * Uses regex magic to try and determine the number of creatures affected
+   * @returns {number|null} The maximum number of creatures affected, or null if no valid number is found
    */
   _getTargetValue() {
     const numCreatures = /(?!At Higher Levels.*)(\w*) (?:falling )?(?:willing )?(?:Bloodied )?(creature(?:s)?|target|monster|celestial|fiend|fey|corpse(?:s)? of|humanoid)(?!.*you have animated)/gim;
@@ -374,6 +376,11 @@ export default class DDBSpell {
     }
   }
 
+
+  /**
+   * Generates the target details for the spell.
+   * @private
+   */
   // eslint-disable-next-line complexity
   _generateTarget() {
     let target = {

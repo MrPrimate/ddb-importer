@@ -1,15 +1,15 @@
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBCharacter from "../DDBCharacter.js";
 
+
 /**
- * Gets global bonuses to attacks and damage
- * Supply a list of maps that have the fvtt tyoe and ddb sub type, e,g,
- * { fvttType: "attack", ddbSubType: "magic" }
-  {
-    "attack": "",
-    "damage": "",
-  },
- * @param {*} lookupTable
+ * Given a list of lookup tables, e.g. { fvttType: "attack", ddbSubType: "magic" }
+ * returns an object with attack and damage properties that contain a string
+ * that can be used to set the global bonus to hit and damage.
+ * The string is either a dice string, e.g. "d6 + 2"
+ * or an integer, e.g. "2"
+ * @param {array} lookupTable - list of lookup tables
+ * @returns {object} - { attack: string, damage: string }
  */
 DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(lookupTable) {
   let result = {
@@ -59,14 +59,13 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(lookupTable) {
 };
 
 /**
- * Gets global bonuses to spell attacks and damage
- * Most likely from items such as wand of the warmage
- * supply type as 'ranged' or 'melee'
-  {
-    "attack": "",
-    "damage": "",
-  },
- * @param {*} type
+ * Retrieves global bonuses to spell attacks, potentially derived from items
+ * like a wand of the warmage. This function focuses on attack bonuses, as
+ * there are no corresponding global spell damage boosting modifiers found in
+ * DDB.
+ *
+ * @param {string} type - The type of spell attack, either 'ranged' or 'melee'.
+ * @returns {object} - An object containing the calculated global bonus for spell attacks.
  */
 DDBCharacter.prototype.getBonusSpellAttacks = function(type) {
   // I haven't found any matching global spell damage boosting mods in ddb
@@ -86,14 +85,11 @@ DDBCharacter.prototype._generateBonusSpellAttacks = function() {
 
 
 /**
- * Gets global bonuses to weapon attacks and damage
- * Most likely from items such as wand of the warmage
- * supply type as 'ranged' or 'melee'
-  {
-    "attack": "",
-    "damage": "",
-  },
- * @param {*} type
+ * Retrieves global bonuses to weapon attacks, potentially derived from items
+ * like a wand of the warmage.
+ *
+ * @param {string} type - The type of attack, either 'ranged' or 'melee'.
+ * @returns {object} - An object containing the calculated global bonus for the given attack type.
  */
 DDBCharacter.prototype.getBonusWeaponAttacks = function(type) {
   // global melee damage is not a ddb type, in that it's likely to be
@@ -114,14 +110,15 @@ DDBCharacter.prototype._generateBonusWeaponAttacks = function() {
 };
 
 /**
- * Gets global bonuses to ability checks, saves and skills
- * These can come from Paladin auras or items etc
-  "abilities": {
-    "check": "",
-    "save": "",
-    "skill": ""
-  },
- * @param {*} this.raw.character
+ * Calculates global bonuses to ability checks, saves and skills, which can
+ * come from items, spells, or other sources. These bonuses are applied to
+ * all ability checks, saves and skills.
+ *
+ * Modifiers are sourced from the "bonus" type of modifiers in the character's
+ * source data.
+ *
+ * The resulting bonuses are stored in the character's data in the
+ * "system.bonuses.abilities" property.
  */
 DDBCharacter.prototype._generateBonusAbilities = function() {
   let result = {
@@ -143,6 +140,16 @@ DDBCharacter.prototype._generateBonusAbilities = function() {
   this.raw.character.system.bonuses.abilities = result;
 };
 
+
+/**
+ * Calculates global bonuses to spell DCs, which can come from items, spells or other sources.
+ * These bonuses are applied to all spell DCs.
+ *
+ * Modifiers are sourced from the "bonus" type of modifiers in the character's source data.
+ *
+ * The resulting bonuses are stored in the character's data in the
+ * "system.bonuses.spell.dc" property.
+ */
 DDBCharacter.prototype._generateBonusSpellDC = function() {
   let result = {
     "dc": "",
