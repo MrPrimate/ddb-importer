@@ -7,19 +7,19 @@ module.exports = {
   entry: {
     main: {
       import: './src/index.js',
-      dependOn: ['lowdash', 'parseTable'],
+      // dependOn: ['lowdash', 'parseTable'],
     },
     // enrichers: {
     //   import: './src/parser/enrichers/_module.mjs',
     //   dependOn: ['main'],
     // },
-    lowdash: {
-      import: './vendor/lowdash/_module.js',
-    },
-    parseTable: {
-      import: './vendor/parseTable.js',
-      dependOn: ['lowdash'],
-    },
+    // lowdash: {
+    //   import: './vendor/lowdash/_module.js',
+    // },
+    // parseTable: {
+    //   import: './vendor/parseTable.js',
+    //   dependOn: ['lowdash'],
+    // },
   },
   optimization: {
     minimize: true,
@@ -41,7 +41,7 @@ module.exports = {
     // },
   },
   output: {
-    filename: '[name].bundle.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
   },
 };

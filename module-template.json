@@ -45,7 +45,7 @@
   "scripts": [
     "./vendor/jszip/jszip.min.js"
   ],
-  "esmodules": ["dist/main.bundle.js"],
+  "esmodules": ["dist/main.js"],
   "styles": [
     "./css/default.css",
     "./css/import.css",
