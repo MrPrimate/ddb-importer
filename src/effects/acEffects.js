@@ -10,10 +10,6 @@ import { baseItemEffect, addAddBonusEffect } from "./effects.js";
 // // bracers of defence
 // { type: "bonus", subType: "unarmored-armor-class" },
 
-/**
- *
- * @param {*} label
- */
 function buildBaseACEffect(label) {
   let effect = {
     changes: [],
@@ -44,11 +40,12 @@ function buildBaseACEffect(label) {
  *
  * Generate an effect given inputs for AC
  * This is a high priority set effect that will typically override all other AE.
- * @param {*} formula
- * @param {*} label
- * @param {*} alwaysActive
- * @param {*} priority
- * @param {*} mode
+ * @param {string} formula
+ * @param {string} label
+ * @param {boolean} alwaysActive
+ * @param {number} priority
+ * @param {number} mode
+ * @returns {object} effect
  */
 export function generateFixedACEffect(formula, label, alwaysActive = false, priority = 30, mode = CONST.ACTIVE_EFFECT_MODES.OVERRIDE) {
   let effect = buildBaseACEffect(label);
@@ -68,13 +65,6 @@ export function generateFixedACEffect(formula, label, alwaysActive = false, prio
   return effect;
 }
 
-/**
- * Generate stat sets
- *
- * @param {*} modifiers
- * @param {*} name
- * @param {*} subType
- */
 function addACSetEffect(modifiers, name, subType) {
   let bonuses;
 
@@ -137,11 +127,6 @@ function addACSetEffect(modifiers, name, subType) {
   return effects;
 }
 
-/**
- *
- * @param {*} modifiers
- * @param {*} name
- */
 function addACSets(modifiers, name) {
   let changes = [];
   const stats = ["unarmored-armor-class"];
@@ -153,13 +138,6 @@ function addACSets(modifiers, name) {
   return changes;
 }
 
-/**
- * Generates an AC bonus for an item
- *
- * @param {*} modifiers
- * @param {*} name
- * @param {*} subType
- */
 function addACBonusEffect(modifiers, name, subType, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
   const bonusModifiers = DDBHelper.filterModifiersOld(modifiers, "bonus", subType, restrictions);
   const changes = addAddBonusEffect(bonusModifiers, name, subType, "system.attributes.ac.bonus");
@@ -169,16 +147,6 @@ function addACBonusEffect(modifiers, name, subType, restrictions = ["while weari
 }
 
 
-/**
- *
- * Generate an effect given inputs for AC
- * This is a high priority set effect that will typically override all other AE.
- * @param {*} formula
- * @param {*} label
- * @param {*} alwaysActive
- * @param {*} priority
- * @param {*} mode
- */
 export function generateBonusACEffect(modifiers, label, subType, restrictions = [], alwaysActive = true) {
   let effect = buildBaseACEffect(label);
 
@@ -291,14 +259,7 @@ export function generateACEffectChangesForItem(ddb, character, ddbItem, foundryI
 
 }
 
-/**
- *
- * @param {*} ddb
- * @param {*} character
- * @param {*} ddbItem
- * @param {*} foundryItem
- * @param {*} isCompendiumItem
- */
+
 export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
   const noACValue = !foundryItem.system?.armor?.value;

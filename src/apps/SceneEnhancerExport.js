@@ -2,12 +2,23 @@ import DDBSources from "./DDBSources.js";
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 
+
 /**
-   * Extracts all notes that have been placed by ddb-importer
-   * Creates the expected data structure for the database by
-   * getting the real label from the appropriate Journal Entry
-   * @param {Scene} scene The scene to extract the notes from
-  */
+ * Extracts all notes that have been placed by ddb-importer
+ * Creates the expected data structure for the database by
+ * getting the real label from the appropriate Journal Entry
+ * @param {Scene} scene The scene to extract the notes from
+ * @param {string} bookCode The bookCode to filter the journal entries by
+ * @returns {object[]} An array of extracted notes, each containing the keys:
+ *  - label: The label of the note
+ *  - flags: The flags of the note
+ *  - texture: The texture of the note
+ *  - positions: An array of positions the note has been placed at
+ *  - iconSize: The size of the icon
+ *  - iconTint: The tint of the icon
+ *  - textColor: The color of the text
+ *  - textAnchor: The anchor of the text
+ */
 function getNotes(scene, bookCode) {
   // get all notes in the Journal related to this scene
   const relatedJournalEntries = game.journal.filter((journal) =>
@@ -118,10 +129,7 @@ function getNotes(scene, bookCode) {
   return notes;
 }
 
-/**
- * Prepares the scene data for download
- * @param {Scene} scene
- */
+// Prepares the scene data for download
 export function collectSceneData(scene, bookCode) {
   const notes = getNotes(scene, bookCode);
 

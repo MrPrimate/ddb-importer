@@ -333,6 +333,18 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
    * Exectutes a DDB Macro as GM, don't pass in world objects like actors
    * ids = { actor, effect, token}
    */
+
+  /**
+   * Execute a DDB Macro as GM, don't pass in world objects like actors
+   * @param {string} type The type of the macro. e.g. gm
+   * @param {string} name The name of the macro. e.g. test
+   * @param {object} ids An object of ids you wish to resolve for the macro to run, { actor, effect, token}
+   * @param {Array} ids.actor
+   * @param {Array} ids.token
+   * @param {Array} ids.effect
+   * @param {...any} params Any additional information/parameters in an array to pass to the macro
+   * @returns {Promise<any>} The result of the macro function.
+   */
   static async executeDDBMacroAsGM(type, name, ids = {}, ...params) {
     const gmUser = game.users.find((user) => user.active && user.isGM);
     if (!gmUser) {

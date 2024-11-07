@@ -76,8 +76,15 @@ export default class DDBMonsterFactory {
 
   /**
    * Fetch monsters from DDB
-   * @param {*} ids limit monsters fetched to specific ids
-   * @returns
+   * @param {object} options
+   * @param {number[]|number} [options.ids] limit monsters fetched to specific ids
+   * @param {string} [options.searchTerm] search term for monsters
+   * @param {string[]} [options.sources] sources to search in
+   * @param {boolean} [options.homebrew=false] include homebrew monsters
+   * @param {boolean} [options.homebrewOnly=false] only search homebrew monsters
+   * @param {boolean} [options.exactMatch=false] search for exact monster name
+   * @param {boolean} [options.excludeLegacy=false] exclude legacy content
+   * @returns {Promise<object[]>} a promise that resolves with an array of monsters
    */
   async fetchDDBMonsterSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
     homebrewOnly = false, exactMatch = false, excludeLegacy = false },
@@ -286,7 +293,7 @@ export default class DDBMonsterFactory {
 
   /**
    * Downloads, parses and imports monsters into a compendium
-   * @param {Array} ids - a list of monster ids to import, if null imports all monsters
+   * @param {Array} ids a list of monster ids to import, if null imports all monsters
    * @returns {Promise<number|Array>} If ids is null, returns the total number of monsters processed
    * If ids is not null, returns a Promise that resolves with an array of the parsed monster documents
    */

@@ -69,9 +69,7 @@ export default class DDBCharacterManager extends FormApplication {
     return true;
   }
 
-  /**
-   * Define default options
-   */
+  // Define default options
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.title = game.i18n.localize("ddb-importer.module-name");
@@ -118,9 +116,10 @@ export default class DDBCharacterManager extends FormApplication {
   }
 
   /**
-   * Returns a combined array of all items to process, filtered by the user's selection on what to skip and what to include
-   * @param {object} result object containing all character items sectioned as individual properties
-   * @param {array[string]} sections an array of object properties which should be filtered
+   * Filters the character items based on the user's selection in the settings.
+   * The invert flag inverts the selection (i.e. instead of including the selected items, it excludes them)
+   * @param {boolean} [invert=false] flag to invert the selection
+   * @returns {object[]} the filtered array of items
    */
   filterItemsByUserSelection(invert = false) {
     let items = [];
@@ -200,11 +199,6 @@ export default class DDBCharacterManager extends FormApplication {
     });
   }
 
-  /**
-   * Removes items
-   * @param {*} items
-   * @param {*} itemsToRemove
-   */
   static async removeItems(items, itemsToRemove) {
     return new Promise((resolve) => {
       resolve(
@@ -222,6 +216,7 @@ export default class DDBCharacterManager extends FormApplication {
     });
   }
 
+
   /**
    * Deletes items from the inventory bases on which sections a user wants to update
    * Possible sections:
@@ -231,6 +226,8 @@ export default class DDBCharacterManager extends FormApplication {
    * - equipment
    * - inventory: consumable, loot, tool and container
    * - spell
+   * @param {Array} excludedList list of items to not remove
+   * @returns {Promise<Array<string>>} list of item ids removed
    */
   async clearItemsByUserSelection(excludedList = []) {
     const includedItems = DDBCharacterManager.getCharacterUpdatePolicyTypes();

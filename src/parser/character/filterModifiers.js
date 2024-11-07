@@ -2,7 +2,7 @@ import logger from "../../logger.js";
 
 /**
  * Generates an array of strings representing the type and subtype of each object in the input array.
- * @param {object[]} arr - The array of objects, each containing `friendlyTypeName` and `friendlySubtypeName` properties.
+ * @param {object[]} arr The array of objects, each containing `friendlyTypeName` and `friendlySubtypeName` properties.
  * @returns {string[]} An array of strings formatted as "friendlyTypeName (friendlySubtypeName)".
  */
 function extractInfo(arr) {
@@ -94,9 +94,9 @@ function isStartingClass(data, className) {
  * For multiclassing characters, it checks if the given class is the starting class or a multiclass,
  *    then the `.availableToMulticlass` is queried if this modifier is enabled or not
  * @param {object} data character data
- * @param {array} classFeatures array of class feature definitions
+ * @param {Array} classFeatures array of class feature definitions
  * @param {boolean} [isStartingClass=false] whether this class is the starting class or not
- * @returns {array} array of class modifiers that are available for the given class
+ * @returns {Array} array of class modifiers that are available for the given class
  */
 function getClassModifiers(data, classFeatures, isStartingClass = false) {
   const modifiers = data.modifiers.class.filter((classModifier) => {

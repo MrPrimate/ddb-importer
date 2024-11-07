@@ -1445,16 +1445,6 @@ function consumableEffect(effect, ddbItem, foundryItem) {
 }
 
 /**
- * This checks attunement status and similar to determine effect state
- * set disabled flags etc
- * @param {*} foundryItem
- * @param {*} effect
- * @param {*} ddbItem
- * @param {*} isCompendiumItem
- */
-
-
-/**
  * Checks attunement status, equipped status, and item type to determine if effect should be disabled.
  * This is used to prevent non-usable items from being used if the item is not equipped or attuned.
  * @param {object} foundryItem the foundry item data
@@ -1535,13 +1525,6 @@ export function getStatusEffect({ ddbDefinition, foundryItem, labelOverride } = 
   return effect;
 }
 
-/**
- * Generate supported effects for items
- * @param {*} ddb
- * @param {*} character
- * @param {*} ddbItem
- * @param {*} foundryItem
- */
 // eslint-disable-next-line no-unused-vars
 function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompendiumItem, labelOverride, description = "" } = {}) {
   if (!foundryItem.effects) foundryItem.effects = [];

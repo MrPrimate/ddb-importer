@@ -54,12 +54,12 @@ export default class DDBSimpleMacro {
   /**
    * Executes a DDB macro function.
    *
-   * @param {string} type - The type of the macro. e.g. gm
-   * @param {string} name - The name of the macro. e.g. test
-   * @param {object} context - The context object.
-   * @param {object} ids - An object of ids you wish to resolve for the macro to run
-   * @param {object} scope - ANy additional information/parameters in an object to pass to the macro
-   * @return {Promise<any>} The result of the macro function.
+   * @param {string} type The type of the macro. e.g. gm
+   * @param {string} name The name of the macro. e.g. test
+   * @param {object} context The context object.
+   * @param {object} ids An object of ids you wish to resolve for the macro to run
+   * @param {object} scope ANy additional information/parameters in an object to pass to the macro
+   * @returns {Promise<any>} The result of the macro function.
    */
   static async execute(type, name, context = {}, ids = {}, { ...scope } = {}) {
     const names = DDBMacros._getMacroFileNameFromName(name);

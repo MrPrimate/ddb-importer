@@ -43,10 +43,11 @@ export default class DDBEffectHelper {
   /**
    * Generates and applies DDBI effects to a document.
    *
-   * @param {Document} document - The document to apply effects to.
-   * @param {object} options - Options for effect generation.
-   * @param {boolean} options.useChrisPremades - Whether to use Chris premade effects. Default is false.
-   * @return {Promise<void>} A promise that resolves when the effects have been applied.
+   * @param {Document} document The document to apply effects to.
+   * @param {object} options Options for effect generation.
+   * @param {boolean} options.useChrisPremades Whether to use Chris premade effects. Default is false.
+   * @param {boolean} options.isMonster Whether the document is a monster. Default is false.
+   * @returns {Promise<void>} A promise that resolves when the effects have been applied.
    */
   static async addDDBIEffectToDocument(document, { useChrisPremades = false, isMonster = false } = {}) {
     if (foundry.utils.getProperty(document, "flags.ddbimporter.effectsApplied") === true
@@ -126,10 +127,10 @@ export default class DDBEffectHelper {
   /**
    * Adds DDBI effects to actor documents.
    *
-   * @param {Object} actor - The actor object.
-   * @param {Object} options - The options object.
-   * @param {boolean} options.useChrisPremades - Whether to use Chris premades.
-   * @return {Promise<void>} - A promise that resolves when the effects are added.
+   * @param {object} actor The actor object.
+   * @param {object} options The options object.
+   * @param {boolean} options.useChrisPremades Whether to use Chris premades.
+   * @returns {Promise<void>} A promise that resolves when the effects are added.
    */
   static async addDDBIEffectsToActorDocuments(actor, { useChrisPremades = false } = {}) {
     logger.info("Starting to add effects to actor items");
@@ -144,9 +145,12 @@ export default class DDBEffectHelper {
   /**
    * Adds a save advantage effect for the next save on the specified target actor.
    *
-   * @param {*} targetActor the target actor on which to add the effect.
-   * @param {*} originItem the item that is the origin of the effect.
-   * @param {*} ability the short ability name to use for save, e.g. str
+   * @param {Actor} targetActor The target actor on which to add the effect.
+   * @param {Item} originItem The item that is the origin of the effect.
+   * @param {string} ability The short ability name to use for save, e.g. str
+   * @param {string} [additionLabel=""] A label to add to the effect name.
+   * @param {string} [icon=null] An icon to use for the effect.
+   * @returns {Promise<void>}
    */
   static async addSaveAdvantageToTarget(targetActor, originItem, ability, additionLabel = "", icon = null) {
     const effectData = {
@@ -217,11 +221,11 @@ export default class DDBEffectHelper {
   /**
    * Checks the cover bonus for a given token, target, item, and displayName.
    *
-   * @param {any} token - The token object.
-   * @param {any} target - The target object.
-   * @param {any} item - The item object.
-   * @param {string} displayName - The display name of the cover.
-   * @return {string|number} The cover bonus or the display name of the cover.
+   * @param {any} token The token object.
+   * @param {any} target The target object.
+   * @param {any} item The item object.
+   * @param {string} displayName The display name of the cover.
+   * @returns {string|number} The cover bonus or the display name of the cover.
    */
   static checkCover(token, target, item, displayName) {
     const cover = MidiQOL.computeCoverBonus(token, target, item);
@@ -333,8 +337,8 @@ export default class DDBEffectHelper {
   /**
    * Display an item card on the screen.
    *
-   * @param {Object} item - The item to display the card for
-   * @return {Promise} A promise that resolves when the card is displayed
+   * @param {object} item The item to display the card for
+   * @returns {Promise} A promise that resolves when the card is displayed
    */
   static async displayItemCard(item) {
     const msg = await item.displayCard({ createMessage: false });
@@ -345,9 +349,10 @@ export default class DDBEffectHelper {
   }
 
   /**
-   * Returns ids of tokens in template
+   * Identifies and returns the IDs of tokens that are contained within a given template.
    *
-   * @param {*} templateDoc the templatedoc to check
+   * @param {object} templateDoc The template document used to determine token containment.
+   * @returns {Array} An array of token IDs that are contained within the specified template.
    */
   static findContainedTokensInTemplate(templateDoc) {
     const contained = new Set();
@@ -371,9 +376,9 @@ export default class DDBEffectHelper {
   /**
    * Finds the effect with the specified name for the given actor.
    *
-   * @param {Actor} actor - The actor to search for the effect.
-   * @param {string} name - The name of the effect to find.
-   * @return {Effect} - The effect with the specified name, or undefined if not found.
+   * @param {Actor} actor The actor to search for the effect.
+   * @param {string} name The name of the effect to find.
+   * @returns {Effect} - The effect with the specified name, or undefined if not found.
    */
   static findEffect(actor, name) {
     return actor.effects.getName(name);
@@ -384,11 +389,15 @@ export default class DDBEffectHelper {
   }
 
   /**
- * Asynchronously gets a new target and updates workflow data.
- *
- * @param {Object} item - The item to get the new target for
- * @return {Token|undefined} The new target, or undefined if no new target is found
- */
+   * Asynchronously gets a new target and updates workflow data.
+   *
+   * @param {object} workflow The workflow object to update
+   * @param {object} item The item to get the new target for
+   * @param {Token} oldToken The old token to remove from the workflow targets
+   * @param {string} [targetTitle] An optional title to display in the target confirmation dialog
+   *
+   * @returns {Token|undefined} The new target, or undefined if no new target is found
+   */
   static async getNewMidiQOLWorkflowTarget(workflow, item, oldToken, targetTitle = undefined) {
     workflow.targets.delete(oldToken);
     workflow.saves.delete(oldToken);
@@ -407,9 +416,9 @@ export default class DDBEffectHelper {
   /**
    * Finds effects for the given actor and names.
    *
-   * @param {Actor} actor - The actor to find effects for.
-   * @param {string[]} names - An array of effect names to search for.
-   * @return {object[]} - An array of effects matching the given names.
+   * @param {Actor} actor The actor to find effects for.
+   * @param {string[]} names An array of effect names to search for.
+   * @returns {object[]} An array of effects matching the given names.
    */
   static findEffects(actor, names) {
     const results = [];
@@ -424,8 +433,8 @@ export default class DDBEffectHelper {
   /**
    * Return actor from a UUID
    *
-   * @param {string} uuid - The UUID of the actor.
-   * @return {object|null} - Returns the actor document or null if not found.
+   * @param {string} uuid The UUID of the actor.
+   * @returns {object|null} Returns the actor document or null if not found.
    */
   static fromActorUuid(uuid) {
     const doc = fromUuidSync(uuid);
@@ -437,8 +446,8 @@ export default class DDBEffectHelper {
   /**
    * Returns the actor object associated with the given actor reference.
    *
-   * @param {any} actorRef - The actor reference to retrieve the actor from.
-   * @return {Actor|null} The actor object associated with the given actor reference, or null if no actor is found.
+   * @param {any} actorRef The actor reference to retrieve the actor from.
+   * @returns {Actor|null} The actor object associated with the given actor reference, or null if no actor is found.
    */
   static getActor(actorRef) {
     if (actorRef instanceof Actor) return actorRef;
@@ -451,8 +460,8 @@ export default class DDBEffectHelper {
   /**
    * Retrieves the number of cantrip dice based on the level of the actor.
    *
-   * @param {Actor} actor - The actor object
-   * @return {number} The number of cantrip dice.
+   * @param {Actor} actor The actor object
+   * @returns {number} The number of cantrip dice.
    */
   static getCantripDice(actor) {
     const level = actor.type === "character"
@@ -471,9 +480,9 @@ export default class DDBEffectHelper {
    * This is a simple reworking of midi-qols measureDistances function, for use where midi-qol is not available
    * Measure distances for given segments with optional grid spaces.
    *
-   * @param {Array} segments - Array of segments to measure distances for
-   * @param {Object} options - Optional object with grid spaces configuration
-   * @return {Array} Array of distances for each segment
+   * @param {Array} segments Array of segments to measure distances for
+   * @param {object} options Optional object with grid spaces configuration
+   * @returns {Array} Array of distances for each segment
    */
   static simpleMeasureDistances(segments, options = {}) {
     if (canvas?.grid?.grid.constructor.name !== "BaseGrid" || !options.gridSpaces) {
@@ -520,10 +529,10 @@ export default class DDBEffectHelper {
   /**
    * Get the distance segments between two objects.
    *
-   * @param {Object} t1 - the first token
-   * @param {Object} t2 - the second token
-   * @param {boolean} wallBlocking - whether to consider walls as blocking
-   * @return {Array} an array of segments representing the distance between the two objects
+   * @param {object} t1 the first token
+   * @param {object} t2 the second token
+   * @param {boolean} wallBlocking whether to consider walls as blocking
+   * @returns {Array} an array of segments representing the distance between the two objects
    */
   static _getDistanceSegments(t1, t2, wallBlocking = false) {
     const t1StartX = t1.document.width >= 1 ? 0.5 : t1.document.width / 2;
@@ -556,9 +565,9 @@ export default class DDBEffectHelper {
   /**
    * Calculate the height difference between two tokens based on their elevation and dimensions.
    *
-   * @param {type} t1 - description of parameter t1
-   * @param {type} t2 - description of parameter t2
-   * @return {type} the height difference between the two tokens
+   * @param {type} t1 description of parameter t1
+   * @param {type} t2 description of parameter t2
+   * @returns {type} the height difference between the two tokens
    */
   static _calculateTokeHeightDifference(t1, t2) {
     const t1Elevation = t1.document.elevation ?? 0;
@@ -585,10 +594,10 @@ export default class DDBEffectHelper {
    * This is a simple reworking of midi-qols get distance function, for use where midi-qol is not available
    * Calculate the distance between two tokens on the canvas, considering the presence of walls.
    *
-   * @param {string} token1 - The ID of the first token
-   * @param {string} token2 - The ID of the second token
-   * @param {boolean} wallBlocking - Whether to consider walls as obstacles (default is false)
-   * @return {number} The calculated distance between the two tokens
+   * @param {string} token1 The ID of the first token
+   * @param {string} token2 The ID of the second token
+   * @param {boolean} wallBlocking Whether to consider walls as obstacles (default is false)
+   * @returns {number} The calculated distance between the two tokens
    */
   static getSimpleDistance(token1, token2, wallBlocking = false) {
     if (!canvas || !canvas.scene) return -1;
@@ -635,9 +644,9 @@ export default class DDBEffectHelper {
   /**
    * Returns the highest ability of an actor based on the given abilities.
    *
-   * @param {Object} actor - The actor object.
-   * @param {Array|string} abilities - The abilities array or string.
-   * @return {string|undefined} - The highest ability or undefined if no abilities are provided.
+   * @param {object} actor The actor object.
+   * @param {Array|string} abilities The abilities array or string.
+   * @returns {string|undefined} The highest ability or undefined if no abilities are provided.
    */
   static getHighestAbility(actor, abilities) {
     if (typeof abilities === "string") {
@@ -654,8 +663,8 @@ export default class DDBEffectHelper {
   /**
    * Returns the race or type of the given entity.
    *
-   * @param {object} entity - The entity for which to retrieve the race or type.
-   * @return {string} The race or type of the entity, in lowercase.
+   * @param {object} entity The entity for which to retrieve the race or type.
+   * @returns {string} The race or type of the entity, in lowercase.
    */
   static getRaceOrType(entity) {
     const actor = DDBEffectHelper.getActor(entity);
@@ -670,8 +679,8 @@ export default class DDBEffectHelper {
   /**
    * Retrieves the token based on the provided token reference.
    *
-   * @param {any} tokenRef - The token reference to retrieve the token from.
-   * @return {Token|undefined} The retrieved token if it exists, otherwise undefined.
+   * @param {any} tokenRef The token reference to retrieve the token from.
+   * @returns {Token|undefined} The retrieved token if it exists, otherwise undefined.
    */
   static getToken(tokenRef) {
     if (!tokenRef) return undefined;
@@ -684,8 +693,8 @@ export default class DDBEffectHelper {
   /**
    * Retrieves the TokenDocument associated with the given token reference.
    *
-   * @param {any} tokenRef - The token reference to retrieve the TokenDocument for.
-   * @return {TokenDocument|undefined} The TokenDocument associated with the token reference, or undefined if not found.
+   * @param {any} tokenRef The token reference to retrieve the TokenDocument for.
+   * @returns {TokenDocument|undefined} The TokenDocument associated with the token reference, or undefined if not found.
    */
   static getTokenDocument(tokenRef) {
     if (!tokenRef) return undefined;
@@ -702,8 +711,8 @@ export default class DDBEffectHelper {
   /**
    * Returns a token for the provided actor.
    *
-   * @param {Actor} actor - The actor for which to retrieve the token.
-   * @return {Token|undefined} The token associated with the actor, or undefined if no token is found.
+   * @param {Actor} actor The actor for which to retrieve the token.
+   * @returns {Token|undefined} The token associated with the actor, or undefined if no token is found.
    */
   static getTokenForActor(actor) {
     const tokens = actor.getActiveTokens();
@@ -715,8 +724,8 @@ export default class DDBEffectHelper {
   /**
    * Get the image for the token.
    *
-   * @param {object} token - The token for which to get the image.
-   * @return {string} The image URL for the token.
+   * @param {object} token The token for which to get the image.
+   * @returns {string} The image URL for the token.
    */
   static async getTokenImage(token) {
     const midiConfigSettings = game.settings.get("midi-qol", "ConfigSettings");
@@ -733,8 +742,8 @@ export default class DDBEffectHelper {
   /**
    * Retrieves the type or race of the given entity.
    *
-   * @param {any} entity - The entity to retrieve the type or race from.
-   * @return {string} The type or race of the entity, in lowercase. If the type or race is not available, an empty string is returned.
+   * @param {any} entity The entity to retrieve the type or race from.
+   * @returns {string} The type or race of the entity, in lowercase. If the type or race is not available, an empty string is returned.
    */
   static getTypeOrRace(entity) {
     const actor = DDBEffectHelper.getActor(entity);
@@ -747,11 +756,11 @@ export default class DDBEffectHelper {
   }
 
   /**
- * Returns a new duration which reflects the remaining duration of the specified one.
- *
- * @param {*} duration the source duration
- * @returns a new duration which reflects the remaining duration of the specified one.
- */
+   * Returns a new duration which reflects the remaining duration of the specified one.
+   *
+   * @param {*} duration the source duration
+   * @returns {number} a new duration which reflects the remaining duration of the specified one.
+   */
   static getRemainingDuration(duration) {
     const newDuration = {};
     if (duration.type === "seconds") {
@@ -770,7 +779,7 @@ export default class DDBEffectHelper {
    * Returns true if the attack is a ranged weapon attack that hit. It also supports melee weapons
    * with the thrown property.
    * @param {*} macroData the midi-qol macro data.
-   * @returns true if the attack is a ranged weapon attack that hit
+   * @returns {boolean} true if the attack is a ranged weapon attack that hit
    */
   static isRangedWeaponAttack(macroData) {
     if (macroData.hitTargets.length < 1) {
@@ -795,7 +804,7 @@ export default class DDBEffectHelper {
    *
    * @param {type} a
    * @param {type} b
-   * @return {boolean} true if a is smaller than b, false otherwise
+   * @returns {boolean} true if a is smaller than b, false otherwise
    */
   static isSmaller (a, b) {
     const sizeA = DICTIONARY.SIZES.find((s) => s.value === a.system.traits.size)?.size;
@@ -804,9 +813,11 @@ export default class DDBEffectHelper {
   }
 
   /**
-   * If the requirements are met, returns true, false otherwise.
+   * Checks if all specified module dependencies are installed and active.
    *
-   * @returns true if the requirements are met, false otherwise.
+   * @param {string} name The name of the feature or module that has dependencies.
+   * @param {Array<string>} dependencies An array of module names to check for installation and activation.
+   * @returns {boolean} true if all dependencies are installed and active, false otherwise.
    */
   static requirementsSatisfied(name, dependencies) {
     let missingDep = false;
@@ -824,10 +835,10 @@ export default class DDBEffectHelper {
   /**
    * Asynchronously rolls a saving throw for an item.
    *
-   * @param {Object} item - The item for which the saving throw is rolled
-   * @param {Object} targetToken - The token representing the target of the saving throw
-   * @param {Object} [workflow=null] - The workflow for which the saving throw is rolled
-   * @return {Promise} A promise that resolves with the save result
+   * @param {object} item The item for which the saving throw is rolled
+   * @param {object} targetToken The token representing the target of the saving throw
+   * @param {object} [workflow=null] The workflow for which the saving throw is rolled
+   * @returns {Promise} A promise that resolves with the save result
    */
   static async rollSaveForItem(item, targetToken, workflow = null) {
     const { ability, dc } = foundry.utils.duplicate(item.system.save);
@@ -856,7 +867,7 @@ export default class DDBEffectHelper {
    * @param {Token} sourceToken the reference token from which to compute the distance.
    * @param {number} distance the distance from the reference token.
    * @param {boolean} includeSource flag to indicate if the reference token should be included or not in the selected targets.
-   * @returns an array of Token instances that were selected.
+   * @returns {Array[Token]} an array of Token instances that were selected.
    */
   static selectTargetsWithinX(sourceToken, distance, includeSource) {
     let aoeTargets = MidiQOL.findNearby(null, sourceToken, distance);

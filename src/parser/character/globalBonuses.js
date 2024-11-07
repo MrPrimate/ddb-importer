@@ -8,8 +8,8 @@ import DDBCharacter from "../DDBCharacter.js";
  * that can be used to set the global bonus to hit and damage.
  * The string is either a dice string, e.g. "d6 + 2"
  * or an integer, e.g. "2"
- * @param {array} lookupTable - list of lookup tables
- * @returns {object} - { attack: string, damage: string }
+ * @param {Array} lookupTable list of lookup tables
+ * @returns {object} { attack: string, damage: string }
  */
 DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(lookupTable) {
   let result = {
@@ -64,8 +64,8 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(lookupTable) {
  * there are no corresponding global spell damage boosting modifiers found in
  * DDB.
  *
- * @param {string} type - The type of spell attack, either 'ranged' or 'melee'.
- * @returns {object} - An object containing the calculated global bonus for spell attacks.
+ * @param {string} type The type of spell attack, either 'ranged' or 'melee'.
+ * @returns {object} An object containing the calculated global bonus for spell attacks.
  */
 DDBCharacter.prototype.getBonusSpellAttacks = function(type) {
   // I haven't found any matching global spell damage boosting mods in ddb
@@ -88,8 +88,8 @@ DDBCharacter.prototype._generateBonusSpellAttacks = function() {
  * Retrieves global bonuses to weapon attacks, potentially derived from items
  * like a wand of the warmage.
  *
- * @param {string} type - The type of attack, either 'ranged' or 'melee'.
- * @returns {object} - An object containing the calculated global bonus for the given attack type.
+ * @param {string} type The type of attack, either 'ranged' or 'melee'.
+ * @returns {object} An object containing the calculated global bonus for the given attack type.
  */
 DDBCharacter.prototype.getBonusWeaponAttacks = function(type) {
   // global melee damage is not a ddb type, in that it's likely to be
