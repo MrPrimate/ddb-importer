@@ -228,7 +228,6 @@ export default class DDBMonster {
     this._generateLanguages();
     this._generateHitPoints();
     this._generateMovement();
-    await this._generateAC();
 
     this.cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
     this._generateType();
@@ -243,6 +242,8 @@ export default class DDBMonster {
     this.npc.system.details.biography.value = this.source.characteristicsDescription;
 
     await this._generateFeatures();
+
+    await this._generateAC(this.featureFactory.gear);
 
     // Spellcasting
     this._generateSpells();

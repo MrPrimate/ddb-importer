@@ -78,6 +78,8 @@ export default class DDBMonsterFeatureFactory {
     };
 
     this.resistance = {};
+
+    this.gear = [];
   }
 
   getFeatures(type) {
@@ -455,6 +457,10 @@ export default class DDBMonsterFeatureFactory {
     }
   }
 
+  #generateGear(text) {
+    console.warn("gear", text);
+  }
+
   #generateSpecialActions(type) {
     let splitActions = this.html[type].split("<h3>Roleplaying Information</h3>");
     if (splitActions.length > 1) {
@@ -557,6 +563,16 @@ export default class DDBMonsterFeatureFactory {
         this.resources.resistance.max = parseInt(resistanceMatch[1]);
       }
     });
+
+    const gearFeatureIndex = this.featureBlocks[type].findIndex((act) => act.name === "Gear");
+    console.warn("gearFeatureIndex", deepClone(this.featureBlocks[type]));
+    if (gearFeatureIndex) {
+      const gearFeatures = this.featureBlocks[type].splice(gearFeatureIndex, 1);
+      console.warn("gearFeatures", deepClone(gearFeatures));
+      this.#generateGear(gearFeatures[0].options.html);
+      console.warn("HERE")
+    }
+
   }
 
   // possible regular types:

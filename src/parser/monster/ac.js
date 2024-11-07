@@ -6,7 +6,7 @@ DDBMonster.prototype.BAD_AC_MONSTERS = [
   "arkhan the cruel",
 ];
 
-DDBMonster.prototype._generateAC = async function _generateAC() {
+DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = []) {
 
   const ac = {
     "flat": this.source.armorClass,
@@ -40,7 +40,7 @@ DDBMonster.prototype._generateAC = async function _generateAC() {
 
   // Eternal flame guardian 17 (breastplate, shield; 15 while using a crossbow)
 
-  let itemsToCheck = [];
+  let itemsToCheck = [...additionalItems.map((item) => item.toLowerCase())];
   if (descriptionItems.length > 0) {
     descriptionItems.forEach((item) => {
       if (item == "natural" || item == "natural armor") {
