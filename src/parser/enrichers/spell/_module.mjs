@@ -19,3 +19,4 @@ export { default as Sleep } from "./Sleep.js";
 export { default as SpiderClimb } from "./SpiderClimb.js";
 export { default as TashasBubblingCauldron } from "./TashasBubblingCauldron.js";
 export { default as TrueStrike } from "./TrueStrike.js";
+export { default as GreenFlameBlade } from "./GreenFlameBlade.mjs";

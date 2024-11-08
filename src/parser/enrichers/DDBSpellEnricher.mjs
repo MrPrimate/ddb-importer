@@ -47,6 +47,7 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
     "Spider Climb": () => SpellEnrichers.SpiderClimb,
     "Tasha's Bubbling Cauldron": () => SpellEnrichers.TashasBubblingCauldron,
     "True Strike": () => SpellEnrichers.TrueStrike,
+    "Green-Flame Blade": () => SpellEnrichers.GreenFlameBlade,
   };
 
   NAME_HINTS_2014 = {};
@@ -309,17 +310,6 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
             choice: false,
             special: "",
           },
-        },
-      },
-    },
-    "Green-Flame Blade": {
-      type: "damage",
-      data: {
-        name: "Secondary Target Damage",
-        damage: {
-          parts: [
-            DDBEnricherAbstract.basicDamagePart({ customFormula: "@mod", types: ["fire"], scalingMode: "whole", scalingFormula: "1d8" }),
-          ],
         },
       },
     },
@@ -816,19 +806,6 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
           onsave: false,
           damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 3, denomination: 8, type: "radiant", scalingMode: "whole", scalingNumber: 1 })],
           noeffect: true,
-        },
-      },
-    ],
-    "Green-Flame Blade": [
-      {
-        constructor: {
-          name: "Main Weapon Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "ceil((@details.level+1)/6)d8", types: ["fire"], scalingMode: "none" })],
         },
       },
     ],
@@ -1446,18 +1423,6 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
       data: {
         "system.target.template": {
           size: "2.5",
-        },
-      },
-    },
-    "Green-Flame Blade": {
-      data: {
-        "system.range": {
-          value: "5",
-          units: "ft",
-        },
-        "system.target.template": {
-          size: "",
-          type: "",
         },
       },
     },
