@@ -41,7 +41,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   // Eternal flame guardian 17 (breastplate, shield; 15 while using a crossbow)
 
   let itemsToCheck = [];
-  descriptionItems.push(...additionalItems.map((item) => item.toLowerCase()))
+  descriptionItems.push(...additionalItems.map((item) => item.toLowerCase()));
   if (descriptionItems.length > 0) {
     descriptionItems.forEach((item) => {
       if (item == "natural" || item == "natural armor") {
