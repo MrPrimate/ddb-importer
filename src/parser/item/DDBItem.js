@@ -942,9 +942,14 @@ export default class DDBItem {
         }
         break;
       }
-      case "Scroll":
       case "Wand":
       case "Rod":
+        this.documentType = "equipment";
+        this.systemType.value = this.ddbDefinition.filterType.toLowerCase();
+        this.parsingType = this.ddbDefinition.filterType.toLowerCase();
+        this.overrides.ddbType = this.ddbDefinition.type;
+        break;
+      case "Scroll":
         this.documentType = "consumable";
         this.systemType.value = this.ddbDefinition.filterType.toLowerCase();
         this.parsingType = "consumable";
@@ -2107,6 +2112,13 @@ export default class DDBItem {
     }
   }
 
+  #generateWandAndRodSpecifics() {
+    this.addMagical = true;
+    this._generateUses();
+    this.#generateTargets();
+    this.#generateDamageFromDescription();
+  }
+
   #generateTypeSpecifics() {
     switch (this.parsingType) {
       case "ammunition": {
@@ -2143,6 +2155,11 @@ export default class DDBItem {
       }
       case "wonderous": {
         this.#generateWonderousSpecifics();
+        break;
+      }
+      case "wand":
+      case "rod": {
+        this.#generateWandAndRodSpecifics();
         break;
       }
       case "custom":

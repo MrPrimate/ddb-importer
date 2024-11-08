@@ -1,3 +1,8 @@
+# Next Up
+
+- D&D 4.1.x required
+- Wand and Rods now use the Rod and Wand equipment type rather than consumable.
+
 # 6.0.31
 
 - Fixes breaking spell and item parsing.

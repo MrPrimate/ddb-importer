@@ -833,6 +833,9 @@ const DICTIONARY = {
       trinket: "Trinket",
       shield: "Shield",
       clothing: "Clothing",
+      wand: "Wand",
+      rod: "Rod",
+      trap: "Trap",
     },
     WEAPON: {
       simpleM: "Simple Melee",
@@ -855,8 +858,6 @@ const DICTIONARY = {
       "Potion",
       "Scroll",
       "Poison",
-      "Wand",
-      "Rod",
       "Wondrous item",
       "Miscellaneous",
     ],
