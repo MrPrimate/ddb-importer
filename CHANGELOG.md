@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.30
 
 - Wizard 2024 parsing improvements.
 - Some trait improvements.
