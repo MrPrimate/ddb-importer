@@ -48,81 +48,17 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
     "Tasha's Bubbling Cauldron": () => SpellEnrichers.TashasBubblingCauldron,
     "True Strike": () => SpellEnrichers.TrueStrike,
     "Green-Flame Blade": () => SpellEnrichers.GreenFlameBlade,
+    "Counterspell": () => SpellEnrichers.Counterspell,
+    "Animate Objects": () => SpellEnrichers.AnimateObjects,
+    "Color Spray": () => SpellEnrichers.ColorSpray,
+    "Ray of Sickness": () => SpellEnrichers.RayOfSickness,
+    "Barkskin": () => SpellEnrichers.Barkskin,
+    "Blade Ward": () => SpellEnrichers.BladeWard,
+    "Mass Suggestion": () => SpellEnrichers.MassSuggestion,
+    "Suggestion": () => SpellEnrichers.Suggestion,
   };
 
   NAME_HINTS_2014 = {};
-
-  DND_2014 = {
-    ACTIVITY_HINTS: {
-      "Animate Objects": {},
-      "Counterspell": {
-        type: "check",
-        check: {
-          associated: [],
-          ability: "spellcasting",
-          dc: {
-            calculation: "",
-            formula: "",
-          },
-        },
-      },
-      "Color Spray": {
-        type: "utility",
-        data: {
-          roll: {
-            prompt: false,
-            visible: false,
-            formula: "4d10 + (2*@item.level)d10",
-            name: "HP Effected",
-          },
-        },
-      },
-      "Ray of Sickness": {
-        noeffect: true,
-      },
-    },
-    ADDITIONAL_ACTIVITIES: {
-      "Animate Objects": [],
-      "Ray of Sickness": [
-        {
-          constructor: {
-            name: "Save vs Poisoned",
-            type: "save",
-          },
-          build: {
-            generateDamage: false,
-            generateConsumption: false,
-            generateSave: true,
-            generateTarget: true,
-            noSpellslot: true,
-            saveOverride: { ability: "con", dc: { calculation: "spellcasting" } },
-          },
-        },
-      ],
-    },
-    DOCUMENT_OVERRIDES: {},
-    EFFECT_HINTS: {
-      "Barkskin": {
-        changes: [
-          generateUpgradeChange("17", 100, "system.attributes.ac.min"),
-        ],
-      },
-      "Blade Ward": {
-        changes: [
-          generateUnsignedAddChange("bludgeoning", 10, "system.traits.dr.value"),
-          generateUnsignedAddChange("slashing", 10, "system.traits.dr.value"),
-          generateUnsignedAddChange("piercing", 10, "system.traits.dr.value"),
-        ],
-        data: {
-          "flags.dae.specialDuration": ["turnEnd"],
-        },
-      },
-      "Mass Suggestion": {},
-      "Suggestion": {
-      },
-    },
-    DOCUMENT_STUB: {},
-  };
 
   NAME_HINTS = {
     "Bigby's Hand": "Arcane Hand",
@@ -138,8 +74,6 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
           DDBEnricherAbstract.basicDamagePart({ number: 4, denomination: 4, type: "acid" }),
         ],
       },
-    },
-    "Animate Objects": {
     },
     "Aura of Life": {
       type: "utility",
@@ -234,9 +168,6 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
           units: "mi",
         },
       },
-    },
-    "Counterspell": {
-      type: "save",
     },
     "Dancing Lights": {
       type: "summon",
@@ -1584,11 +1515,6 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
         generateSignedAddChange("-1d4", 20, "system.bonuses.abilities.save"),
       ],
     },
-    "Barkskin": {
-      changes: [
-        generateUpgradeChange("17", 100, "system.attributes.ac.min"),
-      ],
-    },
     "Bless": {
       options: {
         durationSeconds: 60,
@@ -1695,9 +1621,6 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
         generateOverrideChange("mage", 5, "system.attributes.ac.calc"),
       ],
     },
-    "Mass Suggestion": {
-      statuses: ["Charmed"],
-    },
     "Mirror Image": {
       tokenMagicChanges: [
         generateTokenMagicFXChange("images"),
@@ -1771,9 +1694,6 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
       midiChanges: [
         generateCustomChange("/2", 20, "system.attributes.movement.all"),
       ],
-    },
-    "Suggestion": {
-      statuses: ["Charmed"],
     },
     "Stoneskin": {
       changes: [
