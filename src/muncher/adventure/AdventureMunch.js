@@ -881,7 +881,7 @@ export default class AdventureMunch extends FormApplication {
       if (!worldActor) {
         logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
         try {
-          const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
+          const options = { keepId: true, keepEmbeddedIds: true };
           worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, options);
         } catch (err) {
           logger.error(err);
@@ -931,7 +931,7 @@ export default class AdventureMunch extends FormApplication {
           logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id} (temporary? ${this.importToAdventureCompendium})`);
           try {
             const actorOverride = { _id: actorData.actorId, folder: actorData.folderId };
-            const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
+            const options = { keepId: true, keepEmbeddedIds: true };
             // eslint-disable-next-line require-atomic-updates
             worldActor = await game.actors.importFromCompendium(monsterCompendium, monsterHit._id, actorOverride, options);
           } catch (err) {
@@ -1213,7 +1213,7 @@ export default class AdventureMunch extends FormApplication {
       }
 
       if (overwriteEntity) await Scene.deleteDocuments([data._id]);
-      const options = { keepId: true, keepEmbeddedIds: true, temporary: false };
+      const options = { keepId: true, keepEmbeddedIds: true };
       logger.debug(`Creating Scene ${data.name}`, foundry.utils.deepClone(data));
       const tokens = foundry.utils.deepClone(data.tokens);
       data.tokens = [];
@@ -1234,7 +1234,7 @@ export default class AdventureMunch extends FormApplication {
   // eslint-disable-next-line complexity
   async _importRenderedFile(typeName, data, needRevisit, overwriteIds) {
     const overwriteEntity = overwriteIds.includes(data._id);
-    const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
+    const options = { keepId: true, keepEmbeddedIds: true };
     switch (typeName) {
       case "Scene": {
         await this._importRenderedSceneFile(data, overwriteEntity);
@@ -1262,7 +1262,7 @@ export default class AdventureMunch extends FormApplication {
           if (this.importToAdventureCompendium) this.temporary.journals.push(journal);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("journal", data._id)) {
-          const cOptions = foundry.utils.mergeObject(options, { temporary: false, pack: this.compendiums.journal.metadata.id });
+          const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.journal.metadata.id });
           data.pages.forEach((page) => {
             if (page.type == "text") {
               page.text.content = this.replaceUUIDSForCompendium(page.text.content);
@@ -1279,7 +1279,7 @@ export default class AdventureMunch extends FormApplication {
           if (this.importToAdventureCompendium) this.temporary.tables.push(rolltable);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("table", data._id)) {
-          const cOptions = foundry.utils.mergeObject(options, { temporary: false, pack: this.compendiums.table.metadata.id });
+          const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.table.metadata.id });
           let cTable = await RollTable.create(data, cOptions);
           this._compendiumItemsToRevisit.push(cTable);
         }
