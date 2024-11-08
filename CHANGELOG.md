@@ -1,3 +1,7 @@
+# 6.0.31
+
+- Fixes breaking spell and item parsing.
+
 # 6.0.30
 
 - Wizard 2024 parsing improvements.
