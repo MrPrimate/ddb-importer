@@ -198,10 +198,8 @@ export default class DDBBasicActivity {
   }
 
   _generateCheck({ checkOverride = null } = {}) {
-    this.data.check = checkOverride ?? {
-      associated: this.actionInfo.associatedToolsOrAbilities,
-      ability: this.actionInfo.ability,
-      dc: {},
+    if (checkOverride) {
+      this.data.check = checkOverride;
     };
   }
 

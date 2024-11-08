@@ -112,7 +112,7 @@ const CR_DATA = {
         "types": ["beast"],
       },
       {
-        "count": "2 * floor((@item.level - 1) / 2",
+        "count": "2 * floor((@item.level - 1) / 2)",
         "cr": "1",
         "types": ["beast"],
       },

@@ -79,6 +79,14 @@ export default class DDBItemActivity extends DDBBasicActivity {
 
   }
 
+  _generateCheck({ checkOverride = null } = {}) {
+    this.data.check = checkOverride ?? {
+      associated: this.actionInfo.associatedToolsOrAbilities,
+      ability: this.actionInfo.ability,
+      dc: {},
+    };
+  }
+
   // eslint-disable-next-line complexity
   build({
     activationOverride = null,
@@ -132,11 +140,13 @@ export default class DDBItemActivity extends DDBBasicActivity {
       consumeActivity,
     });
 
+    if (generateCheck) this._generateCheck({ checkOverride });
+
     super.build({
       generateActivation,
       generateAttack,
       generateConsumption: false,
-      generateCheck,
+      generateCheck: false,
       generateDamage,
       generateDescription: generateDescription || chatFlavor,
       generateDuration,
