@@ -1195,7 +1195,7 @@ export default class DDBItem {
     };
 
     if (this.ddbDefinition.description.includes("touch")) {
-      range.value = "touch";
+      range.units = "touch";
     }
 
     const thrownRangeRegex = /(throw|thrown|throw this|throw it|throw the|throw a (?:\w+))( \w+| at a point)? (the|this|up to) (\d+) feet/ig;
