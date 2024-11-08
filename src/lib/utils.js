@@ -91,6 +91,13 @@ const utils = {
     return str.replaceAll("’", "'").trim();
   },
 
+  regexSanitizeString(str) {
+    // eslint-disable-next-line no-useless-escape
+    return str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, (x) => {
+      return `\\${x}`;
+    }).trim();
+  },
+
   stripHtml: (html, preferInnerText = false) => {
     let tmp = document.createElement("DIV");
     tmp.innerHTML = html;

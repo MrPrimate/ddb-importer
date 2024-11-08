@@ -9,3 +9,4 @@ export { default as InspiringLeader } from "./InspiringLeader.js";
 export { default as Slasher } from "./Slasher.js";
 export { default as MageSlayer } from "./MageSlayer.js";
 export { default as Telekinetic } from "./Telekinetic.js";
+export { default as Observant } from "./Observant.mjs";

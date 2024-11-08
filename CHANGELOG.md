@@ -3,6 +3,9 @@
 - Wizard 2024 parsing improvements.
 - Some trait improvements.
 - Various parsing tweaks/fixes and refactoring for performance.
+- Some Circle of the Blighted wildshape and feature corrections.
+- Custom named features or actions with multiple `?`'s in them would break import.
+- 2024 Monsters will now get non-weapon gear such as armour added to them.
 
 # 6.0.29
 

@@ -179,7 +179,7 @@ export default class DDBCharacter {
       const featureMatch = this.raw.features.find((feature) => {
         const originalFeatureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
         const featureNamePrefix = originalFeatureName.split(":")[0].trim();
-        const replaceRegex = new RegExp(`${featureNamePrefix}(?:\\s*)-`);
+        const replaceRegex = new RegExp(`${utils.regexSanitizeString(featureNamePrefix)}(?:\\s*)-`);
         const featureFlagType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
         const actionFlagType = foundry.utils.getProperty(action, "flags.ddbimporter.type");
         const replacedActionName = originalActionName.replace(replaceRegex, `${featureNamePrefix}:`);

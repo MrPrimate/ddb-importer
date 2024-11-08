@@ -66,12 +66,7 @@ export default class AspectOfTheWilds extends DDBEnricherMixin {
           "flags.ddbimporter.activityMatch": "Owl",
         },
         changes: [
-          {
-            key: "system.attributes.senses.darkvision",
-            value: "60",
-            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-            priority: 20,
-          },
+          DDBEnricherMixin.generateUpgradeChange("60", 20, "system.attributes.senses.darkvision"),
         ],
         atlChanges: [
           DDBEnricherMixin.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.ADD, 60, 5),

@@ -150,6 +150,11 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Vow of Enmity": () => ClassEnrichers.Paladin.VowOfEnmity,
     "Warping Implosion": () => ClassEnrichers.Sorcerer.WarpingImplosion,
     "Wild Magic Surge": () => ClassEnrichers.Sorcerer.WildMagicSurge,
+    "Circle Forms": () => ClassEnrichers.Druid.CircleForms,
+    "Blighted Shape": () => ClassEnrichers.Druid.BlightedShape,
+    "Observant": () => FeatEnrichers.Observant,
+    "Defile Ground": () => ClassEnrichers.Druid.DefileGround,
+    "Defile Ground: Move Corruption": () => ClassEnrichers.Druid.DefileGroundMoveCorruption,
   };
 
   NAME_HINTS_2014 = {
@@ -3583,15 +3588,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         description: "Advantage on Dexterity (Stealth) checks.",
       },
     },
-    "Circle Forms": {
-      name: "Circle Form AC",
-      options: {
-        description: "You gain a minimum AC of 13 + your Wisdom modifier.",
-      },
-      changes: [
-        generateUpgradeChange("13 + @abilities.wis.mod", 20, "system.attributes.ac.min"),
-      ],
-    },
     "Cloak of Shadows": {
       name: "Invisible",
       options: {
@@ -3873,14 +3869,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         clearAutoEffects: true,
         multiple,
       };
-    },
-    "Observant": {
-      options: {
-        transfer: true,
-      },
-      changes: [
-        generateOverrideChange("true", 20, "flags.dnd5e.observantFeat"),
-      ],
     },
     "Partially Amphibious": {
       data: {

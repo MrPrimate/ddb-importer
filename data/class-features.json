@@ -10329,5 +10329,13 @@
   {
     "name": "Eldritch Invocation Options",
     "path": "icons/magic/water/bubbles-air-water-pink.webp"
+  },
+  {
+    "name": "Defile Ground",
+    "path": "icons/creatures/slimes/slime-giant-face-eyes.webp"
+  },
+  {
+    "name": "Blighted Shape",
+    "path": "icons/creatures/slimes/slime-face-hollow-green.webp"
   }
 ]

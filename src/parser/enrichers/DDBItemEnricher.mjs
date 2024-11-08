@@ -200,12 +200,7 @@ export default class DDDItemEnricher extends DDBEnricherAbstract {
     "Bracers of Archery": {
       noCreate: true,
       changes: [
-        {
-          key: "system.bonuses.rwak.damage",
-          value: "2",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
+        generateUnsignedAddChange("2", 20, "system.bonuses.rwak.damage"),
       ],
     },
     // "Demon Armor": {

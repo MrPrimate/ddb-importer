@@ -59,12 +59,7 @@ export default class TheThirdEye extends DDBEnricherMixin {
           "flags.ddbimporter.activityMatch": "Darkvision",
         },
         changes: [
-          {
-            key: "system.attributes.senses.darkvision",
-            value: "120",
-            mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
-            priority: 20,
-          },
+          DDBEnricherMixin.generateUpgradeChange("120", 20, "system.attributes.senses.darkvision"),
         ],
         atlChanges: [
           DDBEnricherMixin.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5),

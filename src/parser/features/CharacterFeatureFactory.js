@@ -15,12 +15,14 @@ export default class CharacterFeatureFactory {
     const isAttackAction = isAttack ?? DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
     const ddbAction = isAttackAction
       ? new DDBAttackAction({
+        ddbCharacter: this.ddbCharacter,
         ddbData: this.ddbData,
         ddbDefinition: action,
         rawCharacter: this.rawCharacter,
         type: action.actionSource,
       })
       : new DDBAction({
+        ddbCharacter: this.ddbCharacter,
         ddbData: this.ddbData,
         ddbDefinition: action,
         rawCharacter: this.rawCharacter,
@@ -152,6 +154,7 @@ export default class CharacterFeatureFactory {
         const enricher = new DDBFeatureEnricher();
         await enricher.init();
         const ddbAttackAction = new DDBAttackAction({
+          ddbCharacter: this.ddbCharacter,
           ddbData: this.ddbData,
           ddbDefinition: action,
           rawCharacter: this.rawCharacter,

@@ -626,7 +626,10 @@ export default class DDBEnricherAbstract {
     });
     actionFeatures.forEach((feature, i) => {
       for (const activityKey of (Object.keys(feature.system.activities))) {
-        const newKey = `${activityKey.slice(0, -3)}Ne${y + i}`;
+        let newKey = `${activityKey.slice(0, -3)}Ne${y + i}`;
+        while (result.activities[newKey] || this.data.system.activities[newKey]) {
+          newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
+        }
         result.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
         result.activities[newKey]._id = `${newKey}`;
         if (rename) {
@@ -635,6 +638,7 @@ export default class DDBEnricherAbstract {
       }
       result.effects.push(...(foundry.utils.deepClone(feature.effects)));
     });
+    logger.debug(`Additional Activities from Action ${name}`, { result });
     return result;
   }
 

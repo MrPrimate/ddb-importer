@@ -582,5 +582,9 @@
   {
     "name": "Aberrant Sorcery",
     "path": "icons/magic/unholy/hand-marked-pink.webp"
+  },
+  {
+    "name": "Circle of the Blighted",
+    "path": "icons/creatures/magical/humanoid-silhouette-green.webp"
   }
 ]

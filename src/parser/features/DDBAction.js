@@ -140,6 +140,7 @@ export default class DDBAction extends DDBBaseFeature {
     "Awakened Mind: Clairvoyant Combatant",
     "Arcane Ward: Hit Points",
     "Arcane Ward - Hit Points",
+    "Defile Ground: Move Corruption",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [
