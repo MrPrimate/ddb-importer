@@ -95,9 +95,3 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   //   }
   // },
 };
-
-DDBCharacter.prototype._generateHitDice = function _generateHitDice() {
-  const used = this.source.ddb.character.classes.reduce((prev, cls) => prev + cls.hitDiceUsed, 0);
-  const total = this.source.ddb.character.classes.reduce((prev, cls) => prev + cls.level, 0);
-  this.raw.character.system.attributes.hd = total - used;
-};

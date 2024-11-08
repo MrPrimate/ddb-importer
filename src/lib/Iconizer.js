@@ -46,7 +46,7 @@ const FILE_MAP = {
   races: ["races.json"],
   feats: ["feats.json", "class-features.json", "races.json", "general.json"],
   classes: ["classes.json"],
-  monster: ["named-monster-features.json", "generic-monster-features.json"],
+  monster: ["named-monster-features.json", "generic-monster-features.json", "spells.json", "items.json", "general.json"],
   backgrounds: ["backgrounds.json", "feats.json", "class-features.json", "races.json", "general.json"],
 };
 

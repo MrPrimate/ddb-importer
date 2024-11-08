@@ -7,6 +7,7 @@
 - Custom named features or actions with multiple `?`'s in them would break import.
 - 2024 Monsters will now get non-weapon gear such as armour added to them.
 - Improvements to parsing 2024 Monster attacks.
+- HD Changes for D&D 4.1.x
 
 # 6.0.29
 

@@ -60,7 +60,6 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this._setSpecialTraitFlags();
 
   this._generateAbilities();
-  this._generateHitDice();
   this._generateDeathSaves();
   this._generateExhaustion();
   this.raw.character.system.attributes.inspiration = this.source.ddb.character.inspiration;
