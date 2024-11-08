@@ -582,7 +582,11 @@ export default class DDBItem {
       .filter((mod) => mod.restriction && mod.restriction !== "")
       .forEach((mod) => {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
-        const damagePart = die ? die.diceString : `${mod.value}`;
+        const damagePart = die
+          ? die.diceString
+          : mod.value
+            ? `${mod.value}`
+            : undefined;
         if (damagePart) {
           const damage = DDBBasicActivity.buildDamagePart({
             damageString: damagePart,
