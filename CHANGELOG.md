@@ -6,6 +6,7 @@
 - Some Circle of the Blighted wildshape and feature corrections.
 - Custom named features or actions with multiple `?`'s in them would break import.
 - 2024 Monsters will now get non-weapon gear such as armour added to them.
+- Improvements to parsing 2024 Monster attacks.
 
 # 6.0.29
 

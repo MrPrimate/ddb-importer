@@ -62,7 +62,7 @@ export default class DDBMonsterFeature {
     this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
 
     const matches = this.strippedHtml.match(
-      /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?:Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\.)/i,
+      /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\(|\.)/i,
     );
 
     const healingRegex = /(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i;
@@ -78,29 +78,29 @@ export default class DDBMonsterFeature {
     const halfMatch = halfSaveSearch.test(this.strippedHtml);
 
     // set calc flags
-    this.isAttack = matches ? matches[1] !== undefined : false;
+    this.isAttack = matches ? matches.groups.range !== undefined : false;
     this.spellSave = spellSave;
     this.savingThrow = saveMatch;
     this.isSave = Boolean(spellSave || saveMatch);
     this.halfDamage = halfMatch;
     this.pbToAttack = matches ? matches[4] !== undefined : false;
     this.weaponAttack = matches
-      ? (matches[2].toLowerCase() === "weapon" || matches[2] === "")
+      ? (matches.groups.type.toLowerCase() === "weapon" || matches.groups.type === "")
       : false;
     // warning - unclear how to parse these out for 2024 monsters
     // https://comicbook.com/gaming/news/dungeons-dragons-first-look-2025-monster-manual/
-    this.spellAttack = matches ? matches[2].toLowerCase() === "spell" : false;
-    this.meleeAttack = matches ? matches[1].indexOf("Melee") !== -1 : false;
-    this.rangedAttack = matches ? matches[1].indexOf("Ranged") !== -1 : false;
+    this.spellAttack = matches ? matches.groups.type.toLowerCase() === "spell" : false;
+    this.meleeAttack = matches ? matches.groups.range.includes("Melee") : false;
+    this.rangedAttack = matches ? matches.groups.range.includes("Ranged") : false;
     this.healingAction = healingMatch;
     this.toHit = matches
-      ? Number.isInteger(parseInt(matches[3]))
-        ? parseInt(matches[3])
+      ? Number.isInteger(parseInt(matches.groups.bonus))
+        ? parseInt(matches.groups.bonus)
         : 0
       : 0;
     this.isRecharge = this.#matchRecharge();
     this.templateType = this.isAttack && this.isRecharge === null ? "weapon" : "feat";
-    this.yourSpellAttackModToHit = matches ? matches[3]?.startsWith("your spell") : false;
+    this.yourSpellAttackModToHit = matches ? matches.groups.bonus?.startsWith("your spell") : false;
 
     if (!this.data) this.createBaseFeature();
     this.#generateAdjustedName();
