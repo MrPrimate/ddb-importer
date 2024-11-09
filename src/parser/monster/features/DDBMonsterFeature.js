@@ -219,7 +219,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
     super({
       enricher: new DDBMonsterFeatureEnricher(),
       activityGenerator: DDBMonsterFeatureActivity,
-    })
+    });
 
     this.name = name.trim();
     this.ddbMonster = ddbMonster;
