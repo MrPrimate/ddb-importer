@@ -3,7 +3,7 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
-import DDBBaseFeature from "./DDBFeatureMixin.js";
+import DDBFeatureMixin from "./DDBFeatureMixin.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBClassFeatures from "./DDBClassFeatures.js";
 import DDBFeature from "./DDBFeature.js";
@@ -336,7 +336,7 @@ export default class DDBFeatures {
     this._setLevelScales();
 
     for (const feature of this.parsed) {
-      await DDBBaseFeature.finalFixes(feature);
+      await DDBFeatureMixin.finalFixes(feature);
     }
     this.fixAcEffects();
     this.data = await addExtraEffects(this.ddbData, this.parsed, this.rawCharacter);

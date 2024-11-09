@@ -3,7 +3,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import logger from "../../logger.js";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
-import DDBBaseFeature from "./DDBFeatureMixin.js";
+import DDBFeatureMixin from "./DDBFeatureMixin.js";
 import DDBFeatures from "./DDBFeatures.js";
 import { addExtraEffects } from "./extraEffects.js";
 import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
@@ -286,7 +286,7 @@ export default class CharacterFeatureFactory {
     });
 
     for (const action of this.processed.actions) {
-      await DDBBaseFeature.finalFixes(action);
+      await DDBFeatureMixin.finalFixes(action);
     }
 
     this.processed.actions = await addExtraEffects(this.ddbData, this.processed.actions, this.rawCharacter);

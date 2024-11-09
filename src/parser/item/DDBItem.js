@@ -9,11 +9,9 @@ import MagicItemMaker from "./MagicItemMaker.js";
 import SETTINGS from "../../settings.js";
 import { getStatusEffect } from "../../effects/effects.js";
 import Iconizer from "../../lib/Iconizer.js";
+import { DDBItemEnricher, mixins } from "../enrichers/_module.mjs";
 
-import { DDBItemEnricher } from "../enrichers/_module.mjs";
-import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
-
-export default class DDBItem {
+export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   static CLOTHING_ITEMS = [
     "Helm",
@@ -93,6 +91,11 @@ export default class DDBItem {
 
   // eslint-disable-next-line complexity
   constructor({ characterManager, ddbItem, isCompendium = false, enricher = null } = {}) {
+    super({
+      enricher,
+      activityGenerator: DDBItemActivity,
+      documentType: "item",
+    });
 
     this.characterManager = characterManager;
     this.ddbData = characterManager.source.ddb;
@@ -198,18 +201,11 @@ export default class DDBItem {
       consumptionValue: null,
     };
 
-    this.activityType = null;
-    this.activities = [];
-    this.activityTypes = [];
-
-
     this.activityOptions = {};
 
     this.damageParts = [];
     this.healingParts = [];
-    this.additionalActivities = [];
     this.versatileDamage = "";
-
     this.addMagical = false;
 
     this.enricher = enricher ?? new DDBItemEnricher();
@@ -389,19 +385,19 @@ export default class DDBItem {
       .map((mod) => {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         if (die) {
-          const damage = DDBBasicActivity.buildDamagePart({
+          const damage = mixins.DDBBasicActivity.buildDamagePart({
             damageString: die.diceString,
             type: typeOverride ?? mod.subType,
           });
           return damage;
         } else if (mod.value) {
-          const damage = DDBBasicActivity.buildDamagePart({
+          const damage = mixins.DDBBasicActivity.buildDamagePart({
             damageString: mod.value,
             type: typeOverride ?? mod.subType,
           });
           return damage;
         } else if (mod.fixedValue) {
-          const damage = DDBBasicActivity.buildDamagePart({
+          const damage = mixins.DDBBasicActivity.buildDamagePart({
             damageString: mod.fixedValue,
             type: typeOverride ?? mod.subType,
           });
@@ -417,7 +413,7 @@ export default class DDBItem {
     // blowguns and other weapons rely on ammunition that provides the damage parts
     if (this.ddbDefinition.damage && this.ddbDefinition.damage.diceString && this.ddbDefinition.damageType) {
       const damageString = utils.parseDiceString(this.ddbDefinition.damage.diceString).diceString;
-      const damage = DDBBasicActivity.buildDamagePart({
+      const damage = mixins.DDBBasicActivity.buildDamagePart({
         damageString,
         type: this.ddbDefinition.damageType.toLowerCase(),
       });
@@ -490,7 +486,7 @@ export default class DDBItem {
     // blowguns and other weapons rely on ammunition that provides the damage parts
     if (weaponBehavior.damage && weaponBehavior.damage.diceString && weaponBehavior.damageType) {
       const damageString = utils.parseDiceString(weaponBehavior.damage.diceString).diceString;
-      const damage = DDBBasicActivity.buildDamagePart({
+      const damage = mixins.DDBBasicActivity.buildDamagePart({
         damageString,
         type: weaponBehavior.damageType.toLowerCase(),
         stripMod: true,
@@ -525,7 +521,7 @@ export default class DDBItem {
     const martialArtsDie = this.flags.martialArtsDie;
 
     if (Number.isInteger(this.ddbDefinition.fixedDamage)) {
-      const damage = DDBBasicActivity.buildDamagePart({
+      const damage = mixins.DDBBasicActivity.buildDamagePart({
         damageString: utils.parseDiceString(this.ddbDefinition.fixedDamage, "", "", fightingStyleDiceMod).diceString,
         stripMod: true,
         type: damageType,
@@ -536,7 +532,7 @@ export default class DDBItem {
       if (martialArtsDie.diceValue && this.ddbDefinition.damage.diceValue && martialArtsDie.diceValue > this.ddbDefinition.damage.diceValue) {
         diceString = martialArtsDie.diceString;
       }
-      const damage = DDBBasicActivity.buildDamagePart({
+      const damage = mixins.DDBBasicActivity.buildDamagePart({
         damageString: utils.parseDiceString(diceString, "", "", fightingStyleDiceMod).diceString,
         stripMod: true,
         type: damageType,
@@ -567,7 +563,7 @@ export default class DDBItem {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         const damagePart = die ? die.diceString : mod.value;
         if (damagePart) {
-          const damage = DDBBasicActivity.buildDamagePart({
+          const damage = mixins.DDBBasicActivity.buildDamagePart({
             damageString: utils.parseDiceString(damagePart, "", "", fightingStyleDiceMod).diceString,
             stripMod: true,
             type: mod.subType ? mod.subType : "",
@@ -588,7 +584,7 @@ export default class DDBItem {
             ? `${mod.value}`
             : undefined;
         if (damagePart) {
-          const damage = DDBBasicActivity.buildDamagePart({
+          const damage = mixins.DDBBasicActivity.buildDamagePart({
             damageString: damagePart,
             stripMod: true,
             type: mod.subType ? mod.subType : "",
@@ -617,7 +613,7 @@ export default class DDBItem {
     // add damage modifiers from other sources like improved divine smite
     if (this.flags.damage.parts) {
       this.flags.damage.parts.forEach((part) => {
-        const damage = DDBBasicActivity.buildDamagePart({
+        const damage = mixins.DDBBasicActivity.buildDamagePart({
           damageString: part[0],
           stripMod: true,
           type: part[1],
@@ -1135,9 +1131,7 @@ export default class DDBItem {
 
   async #prepare() {
     await this.enricher.init();
-    this.enricher.load({
-      ddbParser: this,
-    });
+    this._loadEnricher();
     await this.#generateDataStub();
     this.#generateBaseItem();
     this.#generateActionInfo();
@@ -1610,7 +1604,7 @@ export default class DDBItem {
           ? utils.parseDiceString(damage.replace("plus", "+"), null).diceString
           : damage.replace("plus", "+");
 
-        const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
+        const part = mixins.DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
 
         // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into a second damage calculation
         // ignore if dmg[1] is and as it likely indicates the whole thing is a save
@@ -1635,7 +1629,7 @@ export default class DDBItem {
 
     if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
-      const part = DDBBasicActivity.buildDamagePart({
+      const part = mixins.DDBBasicActivity.buildDamagePart({
         damageString: utils.parseDiceString(damageValue, null).diceString,
         type: 'healing',
       });
@@ -2473,9 +2467,9 @@ export default class DDBItem {
       if (this.documentType !== "container") {
         // containers can't have activities.
         if (!this.enricher.documentStub?.stopDefaultActivity)
-          this.#generateActivity({}, this.activityOptions);
+          this._generateActivity({}, this.activityOptions);
         this.#addHealAdditionalActivities();
-        this.#generateAdditionalActivities();
+        this._generateAdditionalActivities();
         this.enricher.addAdditionalActivities(this);
       }
 
@@ -2551,152 +2545,49 @@ export default class DDBItem {
   }
 
 
+  /** @override */
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const saveActivity = new DDBItemActivity({
-      name,
-      type: "save",
-      ddbParent: this,
-      nameIdPrefix: "save",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    saveActivity.build(foundry.utils.mergeObject({
-      generateSave: true,
+    const itemOptions = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
       damageParts: ["weapon", "staff"].includes(this.parsingType)
         ? this.damageParts.slice(1)
         : null,
-      generateDamage: true,
-    }, options));
+    }, options);
 
-    return saveActivity;
+    return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
   }
 
+  /** @override */
   _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const attackActivity = new DDBItemActivity({
-      name,
-      type: "attack",
-      ddbParent: this,
-      nameIdPrefix: "attack",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    attackActivity.build(foundry.utils.mergeObject({
-      generateAttack: true,
+    const itemOptions = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
       // don't add extra damages if it's a save (assume its save damage)
       generateDamage: !this.actionInfo.save,
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
-    }, options));
-    return attackActivity;
+    }, options);
+
+    return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
   }
 
+  /** @override */
   _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const utilityActivity = new DDBItemActivity({
-      name,
-      type: "utility",
-      ddbParent: this,
-      nameIdPrefix: "utility",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    utilityActivity.build(foundry.utils.mergeObject({
+    const itemOptions = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
-      generateDamage: true,
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
-    }, options));
+    }, options);
 
-    return utilityActivity;
+    return super._getUtilityActivity({ name, nameIdPostfix }, itemOptions);
   }
 
-  _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const healActivity = new DDBItemActivity({
-      name,
-      type: "heal",
-      ddbParent: this,
-      nameIdPrefix: "heal",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    healActivity.build(foundry.utils.mergeObject({
-      generateDamage: false,
-      generateHealing: true,
-      generateRange: true,
-    }, options));
-
-    return healActivity;
-  }
-
+  /** @override */
   _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const damageActivity = new DDBItemActivity({
-      name,
-      type: "damage",
-      ddbParent: this,
-      nameIdPrefix: "damage",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    damageActivity.build(foundry.utils.mergeObject({
-      generateAttack: false,
+    const itemOptions = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
-      generateDamage: true,
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
-    }, options));
-    return damageActivity;
-  }
+    }, options);
 
-  _getEnchantActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const enchantActivity = new DDBItemActivity({
-      name,
-      type: "enchant",
-      ddbParent: this,
-      nameIdPrefix: "enchant",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    enchantActivity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: true,
-      generateDamage: false,
-    }, options));
-    return enchantActivity;
-  }
-
-  _getSummonActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const summonActivity = new DDBItemActivity({
-      name,
-      type: "summon",
-      ddbParent: this,
-      nameIdPrefix: "summon",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    summonActivity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: true,
-      generateDamage: false,
-    }, options));
-    return summonActivity;
-  }
-
-  _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const checkActivity = new DDBItemActivity({
-      name,
-      type: "check",
-      ddbParent: this,
-      nameIdPrefix: "check",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    checkActivity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: false,
-      generateDamage: false,
-      generateCheck: true,
-      generateActivation: true,
-    }, options));
-    return checkActivity;
+    return super._getDamageActivity({ name, nameIdPostfix }, itemOptions);
   }
 
   #addSaveAdditionalActivity(includeBase = false) {
@@ -2728,6 +2619,7 @@ export default class DDBItem {
     });
   }
 
+  /** @override */
   // eslint-disable-next-line complexity
   _getActivitiesType() {
     if (this.documentType === "container") return null;
@@ -2761,83 +2653,6 @@ export default class DDBItem {
     if (this.data.effects.length > 0) return "utility";
     if (["cone", "radius", "sphere", "line", "cube"].includes(this.actionInfo.target?.template?.type)) return "utility";
     return null;
-  }
-
-  getActivity({ typeOverride = null, typeFallback = null, name = null, nameIdPostfix = null } = {}, options = {}) {
-    const type = typeOverride ?? this._getActivitiesType();
-    this.activityTypes.push(type);
-    const data = { name, nameIdPostfix };
-    switch (type) {
-      case "save":
-        return this._getSaveActivity(data, options);
-      case "attack":
-        return this._getAttackActivity(data, options);
-      case "damage":
-        return this._getDamageActivity(data, options);
-      case "heal":
-        return this._getHealActivity(data, options);
-      case "utility":
-        return this._getUtilityActivity(data, options);
-      case "enchant":
-        return this._getEnchantActivity(data, options);
-      case "summon":
-        return this._getSummonActivity(data, options);
-      case "check":
-        return this._getCheckActivity(data, options);
-      case "spell":
-      case "teleport":
-      case "transform":
-      case "forward":
-      default:
-        if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
-        return undefined;
-    }
-  }
-
-  #generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null } = {},
-    optionsOverride = {},
-  ) {
-    if (hintsOnly && !this.enricher.activity) return undefined;
-
-    const activity = this.getActivity({
-      typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type,
-      name,
-      nameIdPostfix,
-    }, optionsOverride);
-
-
-    if (!activity) {
-      logger.debug(`No Activity type found for ${this.data.name}`, {
-        this: this,
-      });
-      return undefined;
-    }
-
-    if (!this.activityType) this.activityType = activity.data.type;
-
-    this.enricher.applyActivityOverride(activity.data);
-    this.activities.push(activity);
-    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
-
-    return activity.data._id;
-  }
-
-  #generateAdditionalActivities() {
-    if (this.additionalActivities.length === 0) return;
-    // console.warn(`ADDITIONAL ITEM ACTIVITIES for ${this.data.name}`, this.additionalActivities);
-    this.additionalActivities.forEach((activityData, i) => {
-      const id = this.#generateActivity({
-        hintsOnly: false,
-        name: activityData.name,
-        nameIdPostfix: i,
-        typeOverride: activityData.type,
-      }, activityData.options);
-      logger.debug(`Generated additional Activity with id ${id}`, {
-        this: this,
-        activityData,
-        id,
-      });
-    });
   }
 
 }

@@ -10,10 +10,9 @@ import SETTINGS from "../../settings.js";
 import { generateTable } from "../../lib/DDBTable.js";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 
-import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
-import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
+import { DDBFeatureEnricher, mixins } from "../enrichers/_module.mjs";
 
-export default class DDBBaseFeature {
+export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   static LEVEL_SCALE_EXCLUSION = [
     "Fire Rune",
@@ -62,11 +61,6 @@ export default class DDBBaseFeature {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
 
-  _loadEnricher() {
-    this.enricher.load({
-      ddbParser: this,
-    });
-  }
 
   _generateDataStub() {
     this.data = {
@@ -103,10 +97,10 @@ export default class DDBBaseFeature {
   }
 
   _generateLevelScale() {
-    this.excludedScale = DDBBaseFeature.LEVEL_SCALE_EXCLUSION.includes(this.ddbDefinition.name)
-      || DDBBaseFeature.LEVEL_SCALE_EXCLUSION.includes(this.data.name);
-    this.levelScaleInfusion = DDBBaseFeature.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
-      || DDBBaseFeature.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
+    this.excludedScale = DDBFeatureMixin.LEVEL_SCALE_EXCLUSION.includes(this.ddbDefinition.name)
+      || DDBFeatureMixin.LEVEL_SCALE_EXCLUSION.includes(this.data.name);
+    this.levelScaleInfusion = DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
+      || DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
     this.scaleValueLink = DDBHelper.getScaleValueString(this.ddbData, this.ddbDefinition).value;
     this.useScaleValueLink = !this.excludedScale
       && this.scaleValueLink
@@ -201,6 +195,12 @@ export default class DDBBaseFeature {
     ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false, activityType = null,
     extraFlags = {}, enricher = null, ddbCharacter = null,
   } = {}) {
+    super({
+      enricher,
+      activityGenerator: DDBFeatureActivity,
+      documentType,
+    });
+
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
@@ -221,7 +221,6 @@ export default class DDBBaseFeature {
     this.excludedScaleUses = false;
     this.scaleValueUsesLink = "";
     this.useUsesScaleValueLink = false;
-    this.documentType = documentType;
     this.tagType = "other";
     this.activities = [];
     this.data = {};
@@ -266,7 +265,7 @@ export default class DDBBaseFeature {
 
     this._prepare();
 
-    this.naturalWeapon = DDBBaseFeature.NATURAL_WEAPONS.includes(this.originalName);
+    this.naturalWeapon = DDBFeatureMixin.NATURAL_WEAPONS.includes(this.originalName);
 
     this.isCompanionFeature = this._isCompanionFeature();
     this.isCompanionFeatureOption = this._isCompanionFeatureOption();
@@ -396,7 +395,7 @@ export default class DDBBaseFeature {
     if (!chatAdd) {
       const snippet = utils.stringKindaEqual(this.description, rawSnippet) ? "" : rawSnippet;
       const descriptionSnippet = (!useCombinedSetting || forceFull) && this.description !== "" ? null : snippet;
-      const fullDescription = DDBBaseFeature.buildFullDescription(this.description, descriptionSnippet);
+      const fullDescription = DDBFeatureMixin.buildFullDescription(this.description, descriptionSnippet);
 
       return {
         value: fullDescription + extraDescription + macroHelper,
@@ -581,7 +580,7 @@ export default class DDBBaseFeature {
 
     if (die || this.useScaleValueLink) {
       if (this.useScaleValueLink) {
-        DDBBasicActivity.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
+        mixins.DDBBasicActivity.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
       } else if (die.diceString) {
         const profBonus = CONFIG.DDB.levelProficiencyBonuses.find((b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0))?.bonus;
         const replaceProf = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
@@ -591,9 +590,9 @@ export default class DDBBaseFeature {
           : die.diceString;
         const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
         const damageString = utils.parseDiceString(diceString, mods).diceString;
-        DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
+        mixins.DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
       } else if (fixedBonus) {
-        DDBBasicActivity.parseBasicDamageFormula(damage, fixedBonus + bonusString);
+        mixins.DDBBasicActivity.parseBasicDamageFormula(damage, fixedBonus + bonusString);
       }
     }
 
@@ -672,15 +671,15 @@ export default class DDBBaseFeature {
         : utils.parseDiceString(die, `${bonusString} + @mod`).diceString;
 
       // set the weapon damage
-      DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
+      mixins.DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
     } else if (actionDie !== null && actionDie !== undefined) {
       // The Lizardfolk jaws have a different base damage, its' detailed in
       // dice so lets capture that for actions if it exists
       const damageString = utils.parseDiceString(actionDie.diceString, `${bonusString} + @mod`).diceString;
-      DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
+      mixins.DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
     } else {
       // default to basics
-      DDBBasicActivity.parseBasicDamageFormula(damage, `1${bonusString} + @mod`);
+      mixins.DDBBasicActivity.parseBasicDamageFormula(damage, `1${bonusString} + @mod`);
     }
 
     return damage;
@@ -891,182 +890,6 @@ export default class DDBBaseFeature {
     }
   }
 
-  _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    this._generateDamage();
-
-    const activity = new DDBFeatureActivity({
-      name,
-      nameIdPostfix,
-      type: "save",
-      ddbParent: this,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateSave: true,
-      generateRange: this.documentType !== "weapon",
-      generateDamage: this.documentType !== "weapon",
-    }, options));
-
-    return activity;
-  }
-
-  _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    this._generateDamage();
-
-    const activity = new DDBFeatureActivity({
-      name,
-      nameIdPostfix,
-      type: "attack",
-      ddbParent: this,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: true,
-      generateRange: this.documentType !== "weapon",
-      generateDamage: this.documentType !== "weapon",
-    }, options));
-    return activity;
-  }
-
-  _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    this._generateDamage();
-
-    const activity = new DDBFeatureActivity({
-      name,
-      nameIdPostfix,
-      type: "utility",
-      ddbParent: this,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateActivation: true,
-      generateRange: this.documentType !== "weapon",
-      generateDamage: this.documentType !== "weapon",
-    }, options));
-
-    return activity;
-  }
-
-  _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBFeatureActivity({
-      type: "heal",
-      ddbParent: this,
-      name,
-      nameIdPostfix,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateActivation: true,
-      generateDamage: false,
-      generateHealing: true,
-      generateRange: true,
-    }, options));
-
-    return activity;
-  }
-
-  _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    this._generateDamage();
-
-    const activity = new DDBFeatureActivity({
-      type: "damage",
-      ddbParent: this,
-      name,
-      nameIdPostfix,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: this.documentType !== "weapon",
-      generateDamage: this.documentType !== "weapon",
-    }, options));
-    return activity;
-  }
-
-  _getEnchantActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    this._generateDamage();
-
-    const activity = new DDBFeatureActivity({
-      type: "enchant",
-      ddbParent: this,
-      name,
-      nameIdPostfix,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: true,
-      generateDamage: false,
-    }, options));
-    return activity;
-  }
-
-  _getSummonActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBFeatureActivity({
-      type: "summon",
-      ddbParent: this,
-      name,
-      nameIdPostfix,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: true,
-      generateDamage: false,
-    }, options));
-    return activity;
-  }
-
-  _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBFeatureActivity({
-      name,
-      type: "check",
-      ddbParent: this,
-      nameIdPrefix: "check",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: false,
-      generateDamage: false,
-      generateCheck: true,
-      generateActivation: true,
-    }, options));
-    return activity;
-  }
-
-  _getDDBMacroActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBFeatureActivity({
-      name,
-      type: "ddbmacro",
-      ddbParent: this,
-      nameIdPrefix: "mac",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: false,
-      generateDamage: false,
-      generateCheck: false,
-      generateActivation: true,
-      generateTarget: true,
-      generateDDBMacro: true,
-      targetOverride: {
-        override: true,
-        template: {
-          contiguous: false,
-          type: "",
-          size: "",
-          units: "ft",
-        },
-        affects: {},
-      },
-    }, options));
-    return activity;
-  }
-
   _isCompanionFeature() {
     return SETTINGS.COMPANIONS.COMPANION_FEATURES.includes(this.originalName)
       // only run this on class features
@@ -1119,6 +942,7 @@ export default class DDBBaseFeature {
       || description.match(targets);
   }
 
+  /** @override */
   _getActivitiesType() {
     if (this.isCompanionFeature || this._isCompanionFeatureOption()) return "summon";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
@@ -1128,56 +952,17 @@ export default class DDBBaseFeature {
     if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) return "attack";
     if (this.data.system.uses?.max && this.data.system.uses.max !== "0") return "utility";
     if (this.data.effects.length > 0 || this.enricher.effects?.length > 0) return "utility";
-    if (DDBBaseFeature.UTILITY_FEATURES.some((f) => this.originalName.startsWith(f))) return "utility";
+    if (DDBFeatureMixin.UTILITY_FEATURES.some((f) => this.originalName.startsWith(f))) return "utility";
     if (this.isForceResourceLinked()) return "utility";
     if (this.getParsedActionType()) return "utility";
     return null;
   }
 
-  getActivity({ name = null, nameIdPostfix = null, typeOverride = null, typeFallback = null } = {}, options = {}) {
-    const type = typeOverride ?? this._getActivitiesType();
-    const data = { name, nameIdPostfix };
-    switch (type) {
-      case "save":
-        return this._getSaveActivity(data, options);
-      case "attack":
-        return this._getAttackActivity(data, options);
-      case "damage":
-        return this._getDamageActivity(data, options);
-      case "heal":
-        return this._getHealActivity(data, options);
-      case "utility":
-        return this._getUtilityActivity(data, options);
-      case "enchant":
-        return this._getEnchantActivity(data, options);
-      case "summon":
-        return this._getSummonActivity(data, options);
-      case "ddbmacro":
-        return this._getDDBMacroActivity(data, options);
-      case "check":
-        return this._getCheckActivity(data, options);
-      case "none":
-        return undefined;
-      default:
-        if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
-        return undefined;
-    }
-  }
-
+  /** @override */
   _generateActivity({ hintsOnly = false, statusEffects = true, name = null, nameIdPostfix = null,
     typeOverride = null } = {}, optionsOverride = {},
   ) {
 
-    // console.warn(`_generateActivity: ${this.originalName}`, {
-    //   typeOverride,
-    //   name,
-    //   nameIdPostfix,
-    //   hintsOnly,
-    //   statusEffects,
-    //   activity: this.enricher.activity,
-    //   typeHint: this.enricher.activity?.type,
-    //   test: this.enricher.activity(),
-    // });
     if (this.enricher.activity?.type === "none") return undefined;
 
     if (statusEffects) {
@@ -1187,49 +972,13 @@ export default class DDBBaseFeature {
 
     if (hintsOnly && !this.enricher.activity) return undefined;
 
-    const activityOptions = this.enricher.activity?.options ?? {};
-    const options = foundry.utils.mergeObject(
-      foundry.utils.deepClone(optionsOverride),
-      foundry.utils.deepClone(activityOptions),
-    );
-
-    const activity = this.getActivity({
-      typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type ?? this.activityType,
+    return super._generateActivity({
+      hintsOnly,
       name,
       nameIdPostfix,
-    }, options);
+      typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type ?? this.activityType,
+    }, optionsOverride);
 
-    if (!activity) return undefined;
-
-    this.enricher.applyActivityOverride(activity.data);
-    this.activities.push(activity);
-    if (this.enricher.activity?.addSingleFreeUse) {
-      const singleActivity = foundry.utils.deepClone(activity.data);
-      singleActivity.name = `${singleActivity.name} (Free use)`;
-      singleActivity._id = `${singleActivity._id.slice(0, -3)}fre`;
-      foundry.utils.setProperty(singleActivity, "consumption.targets", [
-        {
-          type: "activityUses",
-          target: "",
-          value: "1",
-          scaling: {
-            mode: "",
-            formula: "",
-          },
-        },
-      ]);
-      const period = this.enricher.activity.addSingleFreeRecoveryPeriod ?? "lr";
-      foundry.utils.setProperty(singleActivity, "uses", {
-        override: true,
-        max: "1",
-        spent: 0,
-        recovery: [{ period, type: 'recoverAll', formula: undefined }],
-      });
-      foundry.utils.setProperty(this.data, `system.activities.${singleActivity._id}`, singleActivity);
-    }
-    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
-
-    return activity.data._id;
   }
 
   // eslint-disable-next-line class-methods-use-this

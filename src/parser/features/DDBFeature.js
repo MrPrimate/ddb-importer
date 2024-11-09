@@ -5,11 +5,11 @@ import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
 import DDBAttackAction from "./DDBAttackAction.js";
-import DDBBaseFeature from "./DDBFeatureMixin.js";
+import DDBFeatureMixin from "./DDBFeatureMixin.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 
 
-export default class DDBFeature extends DDBBaseFeature {
+export default class DDBFeature extends DDBFeatureMixin {
 
   static DOC_TYPE = {
     class: "feat", // class feature

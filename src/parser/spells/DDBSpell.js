@@ -10,12 +10,12 @@ import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import { baseSpellEffect, spellEffectAdjustment } from "../../effects/specialSpells.js";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
 import DDBSpellActivity from "./DDBSpellActivity.js";
-import { DDBSpellEnricher } from "../enrichers/_module.mjs";
+import { DDBSpellEnricher, mixins } from "../enrichers/_module.mjs";
 import { addStatusEffectChange } from "../../effects/effects.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 
-export default class DDBSpell {
+export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
   _generateDataStub() {
     this.data = {
@@ -109,6 +109,12 @@ export default class DDBSpell {
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
     generateSummons = null,
   } = {}) {
+    super({
+      enricher,
+      activityGenerator: DDBSpellActivity,
+      documentType: "spell",
+    });
+
     this.ddbData = ddbData;
     this.spellData = spellData;
     this.ddbDefinition = spellData.definition;
@@ -164,15 +170,14 @@ export default class DDBSpell {
 
     this.itemCompendium = CompendiumHelper.getCompendiumType("item", false);
     this.enricher = enricher ?? new DDBSpellEnricher();
-    this.enricher.load({
-      ddbParser: this,
-    });
+    this._loadEnricher();
     this.isCompanionSpell = SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName);
     this.isCRSummonSpell = SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName);
     this.isSummons = this.isCompanionSpell || this.isCRSummonSpell;
     this.generateSummons = this.isGeneric
       || (generateSummons ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions"));
     this.DDBCompanionFactory = null; // lazy init
+
   }
 
 
@@ -668,105 +673,6 @@ export default class DDBSpell {
     });
   }
 
-  _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBSpellActivity({
-      name,
-      type: "save",
-      ddbParent: this,
-      nameIdPrefix: "save",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateSave: true,
-      generateDamage: true,
-    }, options));
-
-    return activity;
-  }
-
-  _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBSpellActivity({
-      name,
-      type: "attack",
-      ddbParent: this,
-      nameIdPrefix: "attack",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: true,
-      generateDamage: true,
-    }, options));
-    return activity;
-  }
-
-  _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBSpellActivity({
-      name,
-      type: "utility",
-      ddbParent: this,
-      nameIdPrefix: "utility",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateDamage: false,
-    }, options));
-
-    return activity;
-  }
-
-  _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBSpellActivity({
-      name,
-      type: "heal",
-      ddbParent: this,
-      nameIdPrefix: "heal",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateDamage: false,
-      generateHealing: true,
-      healingPart: this.healingParts[0],
-    }, options));
-
-    return activity;
-  }
-
-  _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBSpellActivity({
-      name,
-      type: "damage",
-      ddbParent: this,
-      nameIdPrefix: "damage",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateDamage: true,
-    }, options));
-    return activity;
-  }
-
-  _getEnchantActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBSpellActivity({
-      name,
-      type: "enchant",
-      ddbParent: this,
-      nameIdPrefix: "enchant",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateDamage: false,
-    }, options));
-    return activity;
-  }
-
   async #generateSummons() {
     if (this.enricher.activity?.generateSummons) {
       const summons = await this.enricher.activity.summonsFunction({
@@ -797,77 +703,7 @@ export default class DDBSpell {
     });
   }
 
-  async _getSummonActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBSpellActivity({
-      name,
-      type: "summon",
-      ddbParent: this,
-      nameIdPrefix: "summon",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateDamage: false,
-    }, options));
-
-    if (this.isCompanionSpell)
-      await this.ddbCompanionFactory.addCompanionsToDocuments([], activity.data);
-    else if (SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName))
-      await this.ddbCompanionFactory.addCRSummoning(activity.data);
-    return activity;
-  }
-
-  _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBSpellActivity({
-      name,
-      type: "check",
-      ddbParent: this,
-      nameIdPrefix: "check",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: false,
-      generateDamage: false,
-      generateCheck: true,
-      generateActivation: true,
-    }, options));
-    return activity;
-  }
-
-  _getDDBMacroActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const activity = new DDBSpellActivity({
-      name,
-      type: "ddbmacro",
-      ddbParent: this,
-      nameIdPrefix: "mac",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    activity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: false,
-      generateDamage: false,
-      generateCheck: false,
-      generateActivation: true,
-      generateTarget: true,
-      generateDDBMacro: true,
-      targetOverride: {
-        override: true,
-        template: {
-          contiguous: false,
-          type: "",
-          size: "",
-          units: "ft",
-        },
-        affects: {},
-      },
-    }, options));
-    return activity;
-  }
-
+  /** @override */
   _getActivitiesType() {
     if (this.isSummons) {
       return "summon";
@@ -896,72 +732,28 @@ export default class DDBSpell {
     return undefined;
   }
 
-  async getActivity({ typeOverride = null, typeFallback = null, name = null, nameIdPostfix = null } = {}, options = {}) {
-    const type = typeOverride ?? this._getActivitiesType();
-    this.activityTypes.push(type);
-    const data = { name, nameIdPostfix };
-    switch (type) {
-      case "save":
-        return this._getSaveActivity(data, options);
-      case "attack":
-        return this._getAttackActivity(data, options);
-      case "damage":
-        return this._getDamageActivity(data, options);
-      case "heal":
-        return this._getHealActivity(data, options);
-      case "utility":
-        return this._getUtilityActivity(data, options);
-      case "enchant":
-        return this._getEnchantActivity(data, options);
-      case "summon": {
-        const activity = await this._getSummonActivity(data, options);
-        return activity;
-      }
-      case "check":
-        return this._getCheckActivity(data, options);
-      case "ddbmacro": {
-        return this._getDDBMacroActivity(data, options);
-      }
-      case "spell":
-      case "teleport":
-      case "transform":
-      case "forward":
-      default:
-        if (typeFallback) {
-          const activity = await this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
-          return activity;
-        }
-        // return undefined;
-        // spells should always generate an activity
-        return this._getUtilityActivity(data, options);
-    }
-  }
-
-  async _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null } = {},
+  /** @override */
+  async _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null, typeFallback = "utility" } = {},
     optionsOverride = {},
   ) {
-    if (hintsOnly && !this.enricher.activity) return undefined;
 
-    const activity = await this.getActivity({
-      typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type,
+    const activity = super._generateActivity({
+      hintsOnly,
       name,
       nameIdPostfix,
+      typeOverride,
+      typeFallback, // spells should always generate an activity
     }, optionsOverride);
 
-    if (!activity) {
-      logger.debug(`No Activity type found for ${this.data.name}`, {
-        this: this,
-      });
-      return undefined;
-    }
+    if (!activity) return undefined;
+    const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`);
 
-    if (!this.activityType) this.activityType = activity.data.type;
-
-    this.enricher.applyActivityOverride(activity.data);
-    this.activities.push(activity);
-    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
-
-    return activity.data._id;
+    if (activityData.type !== "summon") return activity;
+    if (this.isCompanionSpell)
+      await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData);
+    else if (SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName))
+      await this.ddbCompanionFactory.addCRSummoning(activityData);
+    return activity;
   }
 
   #addConditionEffects() {
@@ -1036,7 +828,7 @@ export default class DDBSpell {
     }
   }
 
-  async #generateAdditionalActivities() {
+  async _generateAdditionalActivities() {
     if (this.additionalActivities.length === 0) return;
     logger.debug(`Additional Spell Activities for ${this.data.name}`, this.additionalActivities);
     let i = 0;
@@ -1108,7 +900,7 @@ export default class DDBSpell {
     if (!this.enricher.activity?.stopHealSpellActivity)
       this.#addHealAdditionalActivities();
     if (!this.enricher.documentStub?.stopSpellAutoAdditionalActivities)
-      await this.#generateAdditionalActivities();
+      await this._generateAdditionalActivities();
     this.enricher.addAdditionalActivities(this);
 
     // TO DO: activities

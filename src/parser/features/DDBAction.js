@@ -2,9 +2,9 @@ import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
-import DDBBaseFeature from "./DDBFeatureMixin.js";
+import DDBFeatureMixin from "./DDBFeatureMixin.js";
 
-export default class DDBAction extends DDBBaseFeature {
+export default class DDBAction extends DDBFeatureMixin {
 
   static SKIPPED_ACTIONS = [
     // weapon properties
