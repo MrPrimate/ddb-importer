@@ -6,9 +6,9 @@ import { parseDamageRolls, parseTags } from "../../../lib/DDBReferenceLinker.js"
 import DDBMonsterFeatureActivity from "./DDBMonsterFeatureActivity.js";
 
 import { DDBMonsterFeatureEnricher } from "../../enrichers/_module.mjs";
-import { DDBBasicActivity } from "../../enrichers/mixins/_module.mjs";
+import { DDBActivityFactoryMixin, DDBBasicActivity } from "../../enrichers/mixins/_module.mjs";
 
-export default class DDBMonsterFeature {
+export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
 
   #generateAdjustedName() {
     this.originalName = `${this.name}`;
@@ -112,12 +112,16 @@ export default class DDBMonsterFeature {
 
     this.isCompanion = foundry.utils.getProperty(this.ddbMonster, "npc.flags.ddbimporter.entityTypeId") === "companion-feature";
 
+    this._loadEnricher();
+
+  }
+
+  _loadEnricher() {
     this.enricher.load({
       ddbParser: this,
       monster: this.ddbMonster.npc,
       name: this.name,
     });
-
   }
 
   resetActionInfo() {
@@ -212,6 +216,11 @@ export default class DDBMonsterFeature {
 
   constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription, sort } = {}) {
 
+    super({
+      enricher: new DDBMonsterFeatureEnricher(),
+      activityGenerator: DDBMonsterFeatureActivity,
+    })
+
     this.name = name.trim();
     this.ddbMonster = ddbMonster;
     this.type = type;
@@ -221,21 +230,15 @@ export default class DDBMonsterFeature {
     this.actionCopy = actionCopy ?? false;
     this.sort = sort ?? null;
 
-    this.activityType = null;
-    this.activities = [];
-    this.activityTypes = [];
-
     this.hideDescription = hideDescription ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description");
     this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
     this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
 
-    this.enricher = new DDBMonsterFeatureEnricher();
     this.prepare();
 
     // copy source details from parent
     if (this.ddbMonster) this.data.system.source = this.ddbMonster.npc.system.details.source;
 
-    this.additionalActivities = [];
     this.actionInfo = {};
     this.resetActionInfo();
 
@@ -481,7 +484,7 @@ export default class DDBMonsterFeature {
       const rechargeMatch = matchString.match(shortLongRegex);
       if (rechargeMatch) {
         recovery.period = rechargeMatch[1] === "Long" ? "lr" : "sr";
-        uses.max = 1;
+        uses.max = "1";
       }
     }
 
@@ -492,9 +495,9 @@ export default class DDBMonsterFeature {
     const recharge = this.#getRechargeRecovery();
     if (recharge) {
       uses.recovery.push(recharge);
-      if (uses.max === null) uses.max = 1;
+      if (uses.max === null) uses.max = "1";
       uses.spent = 0;
-      this.actionInfo.consumptionValue = 1;
+      this.actionInfo.consumptionValue = "1";
     }
 
     return uses;
@@ -1048,33 +1051,15 @@ ${this.data.system.description.value}
   }
 
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const saveActivity = new DDBMonsterFeatureActivity({
-      name,
-      type: "save",
-      ddbParent: this,
-      nameIdPrefix: "save",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    saveActivity.build(foundry.utils.mergeObject({
-      generateSave: true,
+    const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: this.templateType === "weapon",
-      generateDamage: true,
-    }, options));
+    }, options);
 
-    return saveActivity;
+    return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
   }
 
   _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const attackActivity = new DDBMonsterFeatureActivity({
-      name,
-      type: "attack",
-      ddbParent: this,
-      nameIdPrefix: "attack",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
     const isFlatWeaponDamage = this.templateType === "weapon" && this.actionInfo.damageParts.length > 0
       ? !this.actionInfo.damageParts[0].includesDice
       : false;
@@ -1087,121 +1072,33 @@ ${this.data.system.description.value}
         ? this.actionInfo.damageParts.map((s) => s.part) // includes no dice, i.e. is flat, we want to ignore the base damage
         : [];
 
-    attackActivity.build(foundry.utils.mergeObject({
+    const itemOptions = foundry.utils.mergeObject({
       generateAttack: true,
       generateRange: this.templateType !== "weapon",
       generateDamage: !this.isSave,
       includeBaseDamage: this.templateType === "weapon" && !isFlatWeaponDamage,
       damageParts: parts,
-    }, options));
-    return attackActivity;
+    }, options);
+
+    super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
   }
 
   _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const utilityActivity = new DDBMonsterFeatureActivity({
-      name,
-      type: "utility",
-      ddbParent: this,
-      nameIdPrefix: "utility",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    utilityActivity.build(foundry.utils.mergeObject({
+    const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
-      generateDamage: true,
       includeBaseDamage: this.templateType === "weapon",
-    }, options));
+    }, options);
 
-    return utilityActivity;
-  }
-
-  _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const healActivity = new DDBMonsterFeatureActivity({
-      name,
-      type: "heal",
-      ddbParent: this,
-      nameIdPrefix: "heal",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    healActivity.build(foundry.utils.mergeObject({
-      generateDamage: false,
-      generateHealing: true,
-      generateRange: true,
-    }, options));
-
-    return healActivity;
+    return super._getUtilityActivity({ name, nameIdPostfix }, itemOptions);
   }
 
   _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const damageActivity = new DDBMonsterFeatureActivity({
-      name,
-      type: "damage",
-      ddbParent: this,
-      nameIdPrefix: "damage",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    damageActivity.build(foundry.utils.mergeObject({
-      generateAttack: false,
+    const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
-      generateDamage: true,
       includeBaseDamage: this.templateType === "weapon",
-    }, options));
-    return damageActivity;
-  }
+    }, options);
 
-  _getEnchantActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const enchantActivity = new DDBMonsterFeatureActivity({
-      name,
-      type: "enchant",
-      ddbParent: this,
-      nameIdPrefix: "enchant",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    enchantActivity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: true,
-      generateDamage: false,
-    }, options));
-    return enchantActivity;
-  }
-
-  _getSummonActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const summonActivity = new DDBMonsterFeatureActivity({
-      name,
-      type: "summon",
-      ddbParent: this,
-      nameIdPrefix: "summon",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    summonActivity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: true,
-      generateDamage: false,
-    }, options));
-    return summonActivity;
-  }
-
-  _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const checkActivity = new DDBMonsterFeatureActivity({
-      name,
-      type: "check",
-      ddbParent: this,
-      nameIdPrefix: "check",
-      nameIdPostfix: nameIdPostfix ?? this.type,
-    });
-
-    checkActivity.build(foundry.utils.mergeObject({
-      generateAttack: false,
-      generateRange: false,
-      generateDamage: false,
-      generateCheck: true,
-      generateActivation: true,
-    }, options));
-    return checkActivity;
+    return super._getDamageActivity({ name, nameIdPostfix }, itemOptions);
   }
 
   #addSaveAdditionalActivity(includeBase = false) {
@@ -1257,74 +1154,6 @@ ${this.data.system.description.value}
     }
     if (this.actionInfo.activation.type && !this.healingAction) return "utility";
     return null;
-  }
-
-  getActivity({ typeOverride = null, typeFallback = null, name = null, nameIdPostfix = null } = {}, options = {}) {
-    const type = typeOverride ?? this._getActivitiesType();
-    this.activityTypes.push(type);
-    const data = { name, nameIdPostfix };
-    switch (type) {
-      case "save":
-        return this._getSaveActivity(data, options);
-      case "attack":
-        return this._getAttackActivity(data, options);
-      case "damage":
-        return this._getDamageActivity(data, options);
-      case "heal":
-        return this._getHealActivity(data, options);
-      case "utility":
-        return this._getUtilityActivity(data, options);
-      case "enchant":
-        return this._getEnchantActivity(data, options);
-      case "summon":
-        return this._getSummonActivity(data, options);
-      case "check":
-        return this._getCheckActivity(data, options);
-      default:
-        if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
-        return undefined;
-    }
-  }
-
-  _generateActivity({ hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null } = {},
-    optionsOverride = {},
-  ) {
-    if (hintsOnly && !this.enricher.activity) return undefined;
-
-    const activity = this.getActivity({
-      typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type,
-      name,
-      nameIdPostfix,
-    }, optionsOverride);
-
-
-    if (!activity) return undefined;
-
-    if (!this.activityType) this.activityType = activity.data.type;
-
-    this.enricher.applyActivityOverride(activity.data);
-    this.activities.push(activity);
-    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
-
-    return activity.data._id;
-  }
-
-  _generateAdditionalActivities() {
-    if (this.additionalActivities.length === 0) return;
-    // console.warn(`ADDITIONAL ITEM ACTIVITIES for ${this.data.name}`, this.additionalActivities);
-    this.additionalActivities.forEach((activityData, i) => {
-      const id = this._generateActivity({
-        hintsOnly: false,
-        name: activityData.name,
-        nameIdPostfix: i,
-        typeOverride: activityData.type,
-      }, activityData.options);
-      logger.debug(`Generated additional Activity with id ${id}`, {
-        this: this,
-        activityData,
-        id,
-      });
-    });
   }
 
   async parse() {

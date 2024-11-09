@@ -2321,7 +2321,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     if (this.isPerSpell) {
       // spells manage charges
-      uses.max = spellData.limitedUse.maxNumberConsumed ?? 1;
+      uses.max = spellData.limitedUse.maxNumberConsumed ? `${spellData.limitedUse.maxNumberConsumed}` : "1";
       uses.recovery.push({
         period: resetType,
         type: "recoverAll",

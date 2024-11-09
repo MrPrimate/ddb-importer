@@ -37,7 +37,7 @@ export default class BoonOfFate extends DDBEnricherMixin {
         },
         "system.uses": {
           spent: 0,
-          max: 1,
+          max: "1",
           recovery: [
             { period: "lr", type: 'recoverAll', formula: undefined },
           ],

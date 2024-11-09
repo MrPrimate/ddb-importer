@@ -20,7 +20,7 @@ export default class Waterskin extends DDBEnricherMixin {
       data: {
         "system.uses": {
           spent: 0,
-          max: 4,
+          max: "4",
           recovery: [],
           autoDestroy: false,
           autoUse: true,

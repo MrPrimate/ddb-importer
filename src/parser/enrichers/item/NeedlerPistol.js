@@ -35,7 +35,7 @@ export default class NeedlerPistol extends DDBEnricherMixin {
       data: {
         "system.uses": {
           spent: 0,
-          max: 10,
+          max: "10",
           recovery: [],
           autoDestroy: false,
           autoUse: true,

@@ -49,7 +49,7 @@ export default class ParalysisPistol extends DDBEnricherMixin {
         "flags.ddbimporter.retainUseSpent": true,
         "system.uses": {
           spent: 0,
-          max: 6,
+          max: "6",
           recovery: [],
           autoDestroy: false,
           autoUse: true,

@@ -700,7 +700,7 @@ export default class DDBEnricherAbstract {
   _getUsesWithSpent({ type, name, max, period = "", formula = null, override = null, matchSubClass = null } = {}) {
     const uses = {
       spent: this._getSpentValue(type, name, matchSubClass),
-      max,
+      max: max ? `${max}` : null,
     };
 
     if (formula) {

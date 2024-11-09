@@ -39,7 +39,7 @@ export default class Tireless extends DDBEnricherMixin {
             uses: {
               override: true,
               spent: 0,
-              max: 1,
+              max: "1",
               recovery: [{ period: "sr", type: "recoverAll", formula: undefined }],
             },
           },

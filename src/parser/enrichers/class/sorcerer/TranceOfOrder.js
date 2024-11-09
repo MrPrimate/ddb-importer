@@ -68,7 +68,7 @@ export default class TranceOfOrder extends DDBEnricherMixin {
       data: {
         "system.uses": {
           spent: 0,
-          max: 1,
+          max: "1",
           recovery: [
             {
               period: "lr",

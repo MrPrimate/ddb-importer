@@ -148,7 +148,7 @@ export default class DDDItemEnricher extends DDBEnricherAbstract {
         },
         "system.uses": {
           spent: 0,
-          max: 10,
+          max: "10",
           recovery: [],
           autoDestroy: false,
           autoUse: true,
@@ -159,7 +159,7 @@ export default class DDDItemEnricher extends DDBEnricherAbstract {
       data: {
         "system.uses": {
           spent: 0,
-          max: 1,
+          max: "1",
           recovery: [{
             period: "day",
             type: "recoverAll",
@@ -284,7 +284,7 @@ export default class DDDItemEnricher extends DDBEnricherAbstract {
           generateSave: true,
           generateUses: true,
           usesOverride: {
-            max: 1,
+            max: "1",
             spent: 0,
             prompt: true,
             recovery: [{ period: "lr", type: "recoverAll" }],
@@ -333,7 +333,7 @@ export default class DDDItemEnricher extends DDBEnricherAbstract {
           generateUses: true,
           usesOverride: {
             override: true,
-            max: 1,
+            max: "1",
             spent: 0,
             prompt: true,
             recovery: [{ period: "lr", type: "recoverAll" }],

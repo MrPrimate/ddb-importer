@@ -479,7 +479,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       // KNOWN_ISSUE_4_0: revist to check recovery type
       this.data.system.uses = {
         spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
-        max: (finalMaxUses != 0) ? finalMaxUses : null,
+        max: (finalMaxUses != 0) ? `${finalMaxUses}` : null,
         recovery: [
           { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
         ],

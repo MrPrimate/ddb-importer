@@ -2375,7 +2375,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
             generateTarget: true,
             generateUses: true,
             generateDDBMacro: true,
-            usesOverride: this._getUsesWithSpent({ type: "class", name: "Natural Recovery: Recover Spell Slots", max: 1, period: "lr" }),
+            usesOverride: this._getUsesWithSpent({ type: "class", name: "Natural Recovery: Recover Spell Slots", max: "1", period: "lr" }),
             targetOverride: {
               affects: {
                 type: "self",
@@ -2971,7 +2971,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       const uses = this._getUsesWithSpent({
         type: "class",
         name: "Wild Resurgence: Regain Spell Slot",
-        max: 1,
+        max: "1",
         period: "lr",
         override: true,
       });
@@ -3213,7 +3213,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         data: {
           "system.uses": {
             value: this.ddbParser?.ddbData?.character.actions.race.find((a) => a.name === "Activate Large Form")?.limitedUse?.numberUsed ?? null,
-            max: 1,
+            max: "1",
             recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
           },
         },
@@ -3525,7 +3525,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         },
         "system.uses": {
           spent: 0,
-          max: 2,
+          max: "2",
         },
       },
     },

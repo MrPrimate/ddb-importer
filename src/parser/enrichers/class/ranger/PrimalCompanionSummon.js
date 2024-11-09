@@ -13,7 +13,7 @@ export default class PrimalCompanionSummon extends DDBEnricherMixin {
       data: {
         uses: {
           spent: 0,
-          max: 1,
+          max: "1",
           override: true,
           recovery: [
             { period: "lr", type: 'recoverAll', formula: undefined },

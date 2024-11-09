@@ -23,7 +23,7 @@ export default class GhostlyGaze extends DDBEnricherMixin {
           },
           "system.uses": {
             value: this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Ghostly Gaze")?.limitedUse?.numberUsed ?? null,
-            max: 1,
+            max: "1",
             recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
           },
         },
