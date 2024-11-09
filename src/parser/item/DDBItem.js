@@ -234,6 +234,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       _id: foundry.utils.randomID(),
       name: this.name,
       type: this.documentType,
+      effects: [],
       system: utils.getTemplate(this.documentType),
       flags: {
         ddbimporter: {

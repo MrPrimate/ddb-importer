@@ -3,6 +3,7 @@
 - D&D 4.1.x required
 - Wand and Rods now use the Rod and Wand equipment type rather than consumable.
 - Macro activities will auto roll.
+- Some items on characters would cause a character import failure.
 
 # 6.0.31
 
