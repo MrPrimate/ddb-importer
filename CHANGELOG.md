@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.32
 
 - D&D 4.1.x required
 - Wand and Rods now use the Rod and Wand equipment type rather than consumable.
