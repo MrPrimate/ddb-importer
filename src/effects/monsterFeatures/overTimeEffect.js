@@ -1,5 +1,5 @@
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import DDBMonsterFeature from "../../parser/monster/features/DDBMonsterFeature.js";
 import DDBEffectHelper from "../DDBEffectHelper.js";
 

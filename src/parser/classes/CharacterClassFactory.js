@@ -1,5 +1,5 @@
 import DDBClass from "./DDBClass.js";
-import logger from '../../logger.js';
+import { logger } from '../../lib/_module.mjs';
 import DDBSubClass from "./DDBSubClass.js";
 
 export default class CharacterClassFactory {

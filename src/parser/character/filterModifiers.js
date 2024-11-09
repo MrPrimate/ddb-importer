@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 
 /**
  * Generates an array of strings representing the type and subtype of each object in the input array.

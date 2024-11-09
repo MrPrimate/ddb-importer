@@ -4,7 +4,7 @@ import { newNPC } from "./monster/templates/monster.js";
 import { specialCases } from "./monster/special.js";
 import { monsterFeatureEffectAdjustment, transferEffectsToActor } from "../effects/specialMonsters.js";
 
-import logger from '../logger.js';
+import { logger, utils } from '../lib/_module.mjs';
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory.js";
 import SETTINGS from "../settings.js";
@@ -14,7 +14,6 @@ import { getCobalt } from "../lib/Secrets.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
-import utils from "../lib/utils.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 
 export default class DDBMonster {

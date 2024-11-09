@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import { getGenericConditionAffectData } from "../../effects/effects.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype._generateDeathSaves = function _generateDeathSaves () {

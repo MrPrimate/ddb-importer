@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
 

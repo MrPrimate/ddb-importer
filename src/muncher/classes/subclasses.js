@@ -1,8 +1,7 @@
-import logger from "../../logger.js";
+import { logger, utils } from "../../lib/_module.mjs";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements, getClassImages } from "./shared.js";
 import DDBMuncher from "../../apps/DDBMuncher.js";
-import utils from "../../lib/utils.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";

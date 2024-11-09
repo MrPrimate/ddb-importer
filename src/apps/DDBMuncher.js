@@ -1,5 +1,5 @@
 // Main module class
-import logger from "../logger.js";
+import { logger } from "../lib/_module.mjs";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";

@@ -1,4 +1,4 @@
-import utils from "./utils.js";
+import { utils } from "./_module.mjs";
 
 /**
  * This class is based on Chris' Premades, and is also licensed under MIT.

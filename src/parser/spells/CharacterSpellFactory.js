@@ -1,11 +1,10 @@
 /* eslint-disable no-continue */
-import utils from "../../lib/utils.js";
+import { utils, logger } from "../../lib/_module.mjs";
 import DDBHelper from "../../lib/DDBHelper.js";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
-import logger from "../../logger.js";
 import DDBSpell from "./DDBSpell.js";
 import SETTINGS from "../../settings.js";
 

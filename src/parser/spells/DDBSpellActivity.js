@@ -1,6 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
+import { utils, logger } from "../../lib/_module.mjs";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
 

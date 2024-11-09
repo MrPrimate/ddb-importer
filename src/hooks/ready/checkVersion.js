@@ -1,5 +1,4 @@
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
+import { utils, logger } from "../../lib/_module.mjs";
 
 const MODULE_TITLE = "DDB Importer";
 const MODULE_NAME = "ddb-importer";

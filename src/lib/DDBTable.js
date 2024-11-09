@@ -1,7 +1,6 @@
 import { parseTable, getHeadings } from "../../vendor/parseTable.js";
 import CompendiumHelper from "./CompendiumHelper.js";
-import utils from "./utils.js";
-import logger from "../logger.js";
+import { utils, logger } from "./_module.mjs";
 import DDBItemImporter from "./DDBItemImporter.js";
 
 function diceRollMatcher(match, p1, p2, p3, p4, p5) {

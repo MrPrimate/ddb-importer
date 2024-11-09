@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import { fallbackDDBConfig } from "./fallbackConfig.js";
 import FileHelper from "../../lib/FileHelper.js";
 import SETTINGS from "../../settings.js";

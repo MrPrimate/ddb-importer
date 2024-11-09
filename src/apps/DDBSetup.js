@@ -3,7 +3,7 @@ import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBCampaigns from "../lib/DDBCampaigns.js";
 import DDBMuncher from "./DDBMuncher.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "../lib/Secrets.js";
-import logger from "../logger.js";
+import { logger } from "../lib/_module.mjs";
 import SETTINGS from "../settings.js";
 import FileHelper from "../lib/FileHelper.js";
 

@@ -1,5 +1,5 @@
 /* eslint-disable no-continue */
-import FileHelper from "./lib/FileHelper.js";
+import FileHelper from "./FileHelper.js";
 
 const logger = {
 

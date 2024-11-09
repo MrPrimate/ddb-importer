@@ -1,7 +1,7 @@
 // Main module class
 import DDBMuncher from "../apps/DDBMuncher.js";
 import FileHelper from "../lib/FileHelper.js";
-import logger from "../logger.js";
+import { logger, utils } from "../lib/_module.mjs";
 import { getCobalt } from "../lib/Secrets.js";
 import DDBCampaigns from "../lib/DDBCampaigns.js";
 import SETTINGS from "../settings.js";
@@ -11,7 +11,6 @@ import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBMacros from "../effects/DDBMacros.js";
 import Iconizer from "../lib/Iconizer.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
-import utils from "../lib/utils.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 

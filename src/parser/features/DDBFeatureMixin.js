@@ -1,7 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
+import { utils, logger } from "../../lib/_module.mjs";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import { generateEffects, getStatusEffect } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";

@@ -10,7 +10,7 @@ import {
   generateUpgradeChange,
 } from "../../../effects/effects.js";
 import DDBHelper from "../../../lib/DDBHelper.js";
-import utils from "../../../lib/utils.js";
+import { utils } from "../../../lib/_module.mjs";
 import DDBEnricherAbstract from "./DDBEnricherAbstract.mjs";
 
 /* eslint-disable class-methods-use-this */

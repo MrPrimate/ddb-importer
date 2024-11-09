@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype.resourceList = function resourceList() {

@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 
 import { getClassFeature, NO_TRAITS } from "./shared.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";

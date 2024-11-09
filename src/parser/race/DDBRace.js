@@ -3,8 +3,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import FileHelper from "../../lib/FileHelper.js";
 import SETTINGS from "../../settings.js";
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
+import { utils, logger } from "../../lib/_module.mjs";
 import DICTIONARY from "../../dictionary.js";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
 

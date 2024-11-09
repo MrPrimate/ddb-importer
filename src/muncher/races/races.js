@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import DDBRace from "../../parser/race/DDBRace.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import DDBRaceTrait from "../../parser/race/DDBRaceTrait.js";

@@ -1,6 +1,6 @@
 // Main module class
 import DDBMuncher from "../apps/DDBMuncher.js";
-import logger from "../logger.js";
+import { logger } from "../lib/_module.mjs";
 import { getCobalt } from "../lib/Secrets.js";
 import FileHelper from "../lib/FileHelper.js";
 import SETTINGS from "../settings.js";

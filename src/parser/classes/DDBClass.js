@@ -1,6 +1,5 @@
-import logger from '../../logger.js';
+import { logger, utils } from '../../lib/_module.mjs';
 import DICTIONARY from '../../dictionary.js';
-import utils from '../../lib/utils.js';
 import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from '../../lib/CompendiumHelper.js';
 import { getSpellCastingAbility } from "../spells/ability.js";

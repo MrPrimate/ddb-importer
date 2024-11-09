@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import { DDBInfusion } from "./DDBInfusion.js";
 
 export class DDBInfusionFactory {

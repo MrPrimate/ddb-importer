@@ -1,5 +1,4 @@
-import logger from "../logger.js";
-import utils from "../lib/utils.js";
+import { logger, utils } from "../lib/_module.mjs";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DICTIONARY from "../dictionary.js";
 import SETTINGS from "../settings.js";

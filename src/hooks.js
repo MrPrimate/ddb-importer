@@ -1,5 +1,5 @@
 import "./hooks/init/extendClasses.js";
-import logger, { setupLogger } from "./logger.js";
+import { logger, Logger, Notifications } from "./lib/_module.mjs";
 
 // init hooks
 import { registerApi } from "./api.js";
@@ -31,8 +31,6 @@ import { linkImages } from "./hooks/renderJournalSheet/linkImages.js";
 import adventureFlags from "./hooks/renderJournalSheet/adventure.js";
 import { showReadAlouds } from "./hooks/renderJournalSheet/linkReadAlouds.js";
 
-import registerNotifications from "./lib/Notification.js";
-
 import { activateUpdateHooks } from "./updater/character.js";
 import { registerCustomEnrichers } from "./hooks/ready/enrichers.js";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.js";
@@ -42,7 +40,7 @@ import DDBEnhancers from "./hooks/enhancers/DDBEnhancers.js";
 // foundry is initializing
 export function init() {
   earlySettings();
-  setupLogger();
+  Logger.setupLogger();
   registerApi();
   chatHooks();
   adventureImporter();
@@ -64,8 +62,8 @@ export async function onceReady() {
 
   DDBEnhancers.loadEnhancers();
 
-  // notificaitons
-  registerNotifications();
+  // notifications
+  Notifications.registerNotifications();
   loadDDBConfig();
 
   // delay the startup just a tiny little bit
@@ -103,7 +101,7 @@ export function renderJournalSheet(sheet, html, data) {
       linkTables("journal", html);
       linkImages(html, data);
     }
-    
+
     const enableReadAloudsForAllContent = game.settings.get("ddb-importer", "show-read-alouds-all-content");
     if (sheet.document.flags?.ddb || enableReadAloudsForAllContent) {
       showReadAlouds(html, data);

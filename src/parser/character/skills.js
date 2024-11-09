@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { generateBaseSkillEffect } from "../../effects/effects.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill, modifiers = null) {

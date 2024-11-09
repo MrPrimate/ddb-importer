@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../lib/utils.js";
+import { utils } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype.getBackgroundName = function getBackgroundName() {

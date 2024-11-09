@@ -1,5 +1,5 @@
 import DDBSources from "./DDBSources.js";
-import logger from "../logger.js";
+import { logger } from "../lib/_module.mjs";
 import FileHelper from "../lib/FileHelper.js";
 
 

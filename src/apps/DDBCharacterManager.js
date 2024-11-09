@@ -1,9 +1,8 @@
-import utils from "../lib/utils.js";
+import { utils, logger } from "../lib/_module.mjs";
 import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import MuncherSettings from "../lib/MuncherSettings.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
-import logger from "../logger.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import Iconizer from "../lib/Iconizer.js";
 import { updateDDBCharacter } from "../updater/character.js";

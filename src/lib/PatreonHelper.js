@@ -1,8 +1,7 @@
 import DDBMuncher from "../apps/DDBMuncher.js";
-import logger from "../logger.js";
+import { logger, utils } from "./_module.mjs";
 import SETTINGS from "../settings.js";
 import DDBProxy from "./DDBProxy.js";
-import utils from "./utils.js";
 
 async function setLocalStorage(key, value) {
   // remove item if null or undefined

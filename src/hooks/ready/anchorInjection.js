@@ -1,5 +1,4 @@
-import logger from "../../logger.js";
-import utils from "../../lib/utils.js";
+import { logger, utils } from "../../lib/_module.mjs";
 
 function getOptions(page, current) {
   let options = "<option></option>";

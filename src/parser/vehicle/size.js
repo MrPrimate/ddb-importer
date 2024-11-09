@@ -1,4 +1,4 @@
-import logger from '../../logger.js';
+import { logger } from '../../lib/_module.mjs';
 
 const SIZES = [
   { name: "Tiny", value: "tiny", size: 0.5 },

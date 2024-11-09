@@ -1,4 +1,4 @@
-import utils from "../../lib/utils.js";
+import { utils } from "../../lib/_module.mjs";
 import { getLookups } from "./metadata.js";
 import { hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import DDBSpell from "./DDBSpell.js";

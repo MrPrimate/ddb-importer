@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";

@@ -1,8 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { generateTable } from "../../lib/DDBTable.js";
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
+import { utils, logger } from "../../lib/_module.mjs";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBItemActivity from "./DDBItemActivity.js";
 import MagicItemMaker from "./MagicItemMaker.js";

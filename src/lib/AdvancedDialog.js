@@ -1,4 +1,4 @@
-import utils from "./utils.js";
+import { utils } from "./_module.mjs";
 
 class AdvancedDialog {
 

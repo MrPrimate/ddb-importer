@@ -1,8 +1,7 @@
 import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
+import { utils, logger } from "../../lib/_module.mjs";
 import DDBRace from "./DDBRace.js";
 
 

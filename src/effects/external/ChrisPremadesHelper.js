@@ -6,8 +6,7 @@
 import DICTIONARY from "../../dictionary.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import FolderHelper from "../../lib/FolderHelper.js";
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
+import { utils, logger } from "../../lib/_module.mjs";
 import SETTINGS from "../../settings.js";
 
 export default class ChrisPremadesHelper {

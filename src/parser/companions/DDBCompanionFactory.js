@@ -1,6 +1,5 @@
 import FolderHelper from "../../lib/FolderHelper.js";
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
+import { utils, logger } from "../../lib/_module.mjs";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
 import DDBCompanion from "./DDBCompanion.js";

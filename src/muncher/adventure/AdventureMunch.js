@@ -1,11 +1,10 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
-import logger from "../../logger.js";
+import { logger, utils } from "../../lib/_module.mjs";
 import FileHelper from "../../lib/FileHelper.js";
 import { generateAdventureConfig } from "../adventure.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import SETTINGS from "../../settings.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import utils from "../../lib/utils.js";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";
 

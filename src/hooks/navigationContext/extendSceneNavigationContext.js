@@ -1,4 +1,4 @@
-// import utils from "../../lib/utils.js";
+// import { utils } from "../../lib/_module.mjs";
 import FileHelper from "../../lib/FileHelper.js";
 import { collectSceneData, SceneEnhancerExport } from "../../apps/SceneEnhancerExport.js";
 

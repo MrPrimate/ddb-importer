@@ -28,13 +28,12 @@ import { DDBCompendiumFolders } from "./lib/DDBCompendiumFolders.js";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.js";
 import SETTINGS from "./settings.js";
 import DICTIONARY from "./dictionary.js";
-import logger from "./logger.js";
+import lib from "./_module.mjs";
 import NameMatcher from "./lib/NameMatcher.js";
 import OriginFixer from "./lib/OriginFixer.js";
 import DDBEffectHelper from "./effects/DDBEffectHelper.js";
 import DDBItemImporter from "./lib/DDBItemImporter.js";
 import DialogHelper from "./lib/DialogHelper.js";
-import utils from "./lib/utils.js";
 import DDBHelper from "./lib/DDBHelper.js";
 import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
 import DDBCampaigns from "./lib/DDBCampaigns.js";
@@ -70,22 +69,22 @@ function debugStop() {
 }
 
 function testFunction(testName) {
-  logger.debug(`generating test function: ${testName}`, testName);
+  lib.logger.debug(`generating test function: ${testName}`, testName);
   const print = (...params) => {
-    logger.warn(`test function "${testName}" called with params`, { params });
+    lib.logger.warn(`test function "${testName}" called with params`, { params });
   };
   return print;
 }
 
 function simpleTest(...params) {
-  logger.warn(`running simple test with params`, { params });
+  lib.logger.warn(`running simple test with params`, { params });
 }
 
 async function updateFoundryCharacters() {
   for (const actor of game.actors.values()) {
     const ddbImported = 'ddbimporter' in actor.flags;
     if (ddbImported && actor.type === "character") {
-      logger.info(`Updating ${actor.name} to DDB`);
+      lib.logger.info(`Updating ${actor.name} to DDB`);
       await importCharacter(actor);
     }
   }
@@ -95,7 +94,7 @@ async function updateDDBCharacters() {
   for (const actor of game.actors.values()) {
     const ddbImported = 'ddbimporter' in actor.flags;
     if (ddbImported && actor.type === "character") {
-      logger.info(`Updating ${actor.name} to DDB`);
+      lib.logger.info(`Updating ${actor.name} to DDB`);
       await updateDDBCharacter(actor);
     }
   }
@@ -243,7 +242,8 @@ export function registerApi() {
       stop: debugStop,
       test: testFunction,
       simpleTest: simpleTest,
-      utils,
+      utils: lib.utils,
+      lib,
     },
     DICTIONARY,
   };

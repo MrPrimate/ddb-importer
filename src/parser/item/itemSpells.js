@@ -1,6 +1,6 @@
 import FolderHelper from "../../lib/FolderHelper.js";
 import Iconizer from "../../lib/Iconizer.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 
 async function getCompendiumItemSpells(spells) {

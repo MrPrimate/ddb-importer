@@ -1,5 +1,5 @@
 import CharacterSpellFactory from "./spells/CharacterSpellFactory.js";
-import logger from "../logger.js";
+import { logger, utils } from "../lib/_module.mjs";
 import DDBMacros from "../effects/DDBMacros.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -11,7 +11,6 @@ import { addVision5eStubs } from "../effects/vision5e.js";
 import { fixCharacterLevels } from "./character/filterModifiers.js";
 import CharacterClassFactory from "./classes/CharacterClassFactory.js";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory.js";
-import utils from "../lib/utils.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DDBHelper from "../lib/DDBHelper.js";
 import { DDBInfusionFactory } from "./features/DDBInfusionFactory.js";

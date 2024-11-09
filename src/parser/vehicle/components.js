@@ -1,6 +1,6 @@
 import { newComponent } from "./templates/component.js";
 import DICTIONARY from "../../dictionary.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";
 
 const TYPE_MAPPING = {

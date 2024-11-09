@@ -2,7 +2,7 @@
 /* eslint-disable require-atomic-updates */
 
 import PatreonHelper from "../../lib/PatreonHelper.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import SETTINGS from "../../settings.js";
 import ChrisPremadesHelper from "./ChrisPremadesHelper.js";
 

@@ -1,7 +1,6 @@
-import logger from "../logger.js";
+import { logger, utils } from "./_module.mjs";
 import DDBItemImporter from "./DDBItemImporter.js";
 import SETTINGS from '../settings.js';
-import utils from "./utils.js";
 
 const CompendiumHelper = {
 

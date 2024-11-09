@@ -1,8 +1,7 @@
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
+import { utils, logger } from "../../lib/_module.mjs";
 import { addNPC } from "../../muncher/importMonster.js";
 
 

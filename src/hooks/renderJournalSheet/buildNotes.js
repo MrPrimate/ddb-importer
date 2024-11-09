@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 
 function copyToClipboard(text) {
   logger.debug("Copy block", text);

@@ -1,8 +1,7 @@
 import DDBHelper from "../../lib/DDBHelper.js";
 import DICTIONARY from "../../dictionary.js";
-import logger from "../../logger.js";
+import { logger, utils } from "../../lib/_module.mjs";
 import SETTINGS from "../../settings.js";
-import utils from "../../lib/utils.js";
 
 // Import parsing functions
 import { generateTable } from "../../lib/DDBTable.js";

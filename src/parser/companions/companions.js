@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import SETTINGS from "../../settings.js";
 import DDBCharacter from "../DDBCharacter.js";
 import DDBCompanionFactory from "./DDBCompanionFactory.js";

@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 
 export function getCondition(conditionDDBName) {
   return DICTIONARY.conditions.find((condition) => condition.label === conditionDDBName);

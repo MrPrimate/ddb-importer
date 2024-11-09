@@ -1,5 +1,5 @@
-// import logger from "../logger.js";
-import logger from "../logger.js";
+// import { logger } from "../_module.mjs";
+import { logger } from "./_module.mjs";
 import FileHelper from "./FileHelper.js";
 import PatreonHelper from "./PatreonHelper.js";
 import { getCobalt } from "./Secrets.js";

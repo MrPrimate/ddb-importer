@@ -7,7 +7,7 @@ import {
   generateUpgradeChange,
   generateDowngradeChange,
 } from "../../effects/effects.js";
-import utils from "../../lib/utils.js";
+import { utils } from "../../lib/_module.mjs";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 import DDBHelper from "../../lib/DDBHelper.js";

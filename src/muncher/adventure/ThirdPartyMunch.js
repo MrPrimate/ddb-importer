@@ -1,11 +1,10 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
-import logger from "../../logger.js";
+import { logger, utils } from "../../lib/_module.mjs";
 import { generateAdventureConfig } from "../adventure.js";
 import Iconizer from "../../lib/Iconizer.js";
 import AdventureMunch from "./AdventureMunch.js";
 import { PageFinder } from "./PageFinder.js";
 import SETTINGS from "../../settings.js";
-import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 
 const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";

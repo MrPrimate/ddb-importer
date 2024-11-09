@@ -1,7 +1,7 @@
 /* eslint-disable no-unreachable */
 // these are non-compliant monsters that currently don't meet parsing requirements
 
-import utils from "../../lib/utils.js";
+import { utils } from "../../lib/_module.mjs";
 
 // these are temporary work arounds till parsing is fixed.
 export function specialCases(monster) {

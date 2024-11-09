@@ -1,4 +1,4 @@
-import logger from "../logger.js";
+import { logger } from "../lib/_module.mjs";
 import DDBMonsterFactory from "./DDBMonsterFactory.js";
 import { getAbilityMods } from "./monster/helpers.js";
 import DICTIONARY from "../dictionary.js";

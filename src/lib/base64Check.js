@@ -1,4 +1,4 @@
-import logger from "../logger.js";
+import { logger } from "./_module.mjs";
 
 function occurrences(string, subString, allowOverlapping) {
   string += "";

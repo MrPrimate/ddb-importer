@@ -1,6 +1,5 @@
-import utils from "../lib/utils.js";
+import { utils, logger } from "../lib/_module.mjs";
 import DDBHelper from "../lib/DDBHelper.js";
-import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { infusionEffectAdjustment } from "./specialInfusions.js";
 import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEffects.js";

@@ -1,7 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
-import utils from "../../lib/utils.js";
-import logger from "../../logger.js";
+import { utils, logger } from "../../lib/_module.mjs";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
 export default class DDBFeatureActivity extends DDBBasicActivity {

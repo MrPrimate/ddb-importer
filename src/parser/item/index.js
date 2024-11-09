@@ -11,7 +11,7 @@ import { addRestrictionFlags } from "../../effects/restrictions.js";
 import { midiItemEffects } from "../../effects/specialEquipment.js";
 
 import DDBItem from "./DDBItem.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 
 
 // TO DO: revisit to break up item parsing

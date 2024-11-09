@@ -1,10 +1,9 @@
 import { getAbilityMods } from "./helpers.js";
-import logger from '../../logger.js';
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import SETTINGS from "../../settings.js";
 import DDBMonster from "../DDBMonster.js";
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../lib/utils.js";
+import { utils, logger } from "../../lib/_module.mjs";
 
 
 DDBMonster.prototype.getSpellcasting = function(text) {

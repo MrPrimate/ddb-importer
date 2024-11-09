@@ -4,7 +4,7 @@ import DDBSetup from "../../apps/DDBSetup.js";
 import { isValidKey } from "../../apps/DDBKeyChange.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 import PatreonHelper from "../../lib/PatreonHelper.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 
 
 export function addEncounterMuncher (app, html) {

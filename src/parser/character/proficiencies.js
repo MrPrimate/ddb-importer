@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../lib/utils.js";
+import { utils } from "../../lib/_module.mjs";
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBCharacter from "../DDBCharacter.js";
 

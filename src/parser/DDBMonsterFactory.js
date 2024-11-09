@@ -1,4 +1,4 @@
-import logger from "../logger.js";
+import { logger } from "../lib/_module.mjs";
 import DDBMonster from "./DDBMonster.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";

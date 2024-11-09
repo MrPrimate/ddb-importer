@@ -9,7 +9,7 @@ import FileHelper from "../lib/FileHelper.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
-import utils from "../lib/utils.js";
+import { utils } from "../lib/_module.mjs";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 function getSubClassesData(className) {

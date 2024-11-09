@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBFeature from "./DDBFeature.js";
 import DDBFeatures from "./DDBFeatures.js";

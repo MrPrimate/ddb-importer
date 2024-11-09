@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 
 /**
  * Parse a roll string into a configuration object.

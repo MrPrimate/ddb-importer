@@ -1,7 +1,7 @@
 import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { getCobalt } from "./Secrets.js";
-import logger from "../logger.js";
+import { logger } from "./_module.mjs";
 import DDBProxy from "./DDBProxy.js";
 
 

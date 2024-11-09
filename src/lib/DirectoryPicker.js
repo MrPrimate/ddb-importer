@@ -2,8 +2,7 @@
  * Game Settings: Directory
  */
 
-import logger from "../logger.js";
-import utils from "./utils.js";
+import { logger, utils } from "./_module.mjs";
 
 export class DirectoryPicker extends FilePicker {
   constructor(options = {}) {

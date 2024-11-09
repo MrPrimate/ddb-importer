@@ -1,4 +1,4 @@
-import utils from "../../../lib/utils.js";
+import { utils } from "../../../lib/_module.mjs";
 
 export function newNPC(name, ddbId = null) {
   const options = {

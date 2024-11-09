@@ -19,7 +19,7 @@ import { deathlyChoirEffect } from "./monsterFeatures/deathlyChoir.js";
 import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
 import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
 import { spellReflectionEffect } from "./monsterFeatures/spellReflection.js";
-import logger from "../logger.js";
+import { logger } from "../lib/_module.mjs";
 import { giantSpiderEffects } from "./monsterFeatures/giantSpider.js";
 import { beholderEyeRayLegendaryEffect } from "./monsterFeatures/beholderEyeRayLegendary.js";
 import { multiAttackEffect } from "./monsterFeatures/multiAttack.js";

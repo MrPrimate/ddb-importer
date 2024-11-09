@@ -13,7 +13,7 @@
 //     "sizeId": 7,
 
 import DICTIONARY from '../../dictionary.js';
-import logger from '../../logger.js';
+import { logger } from '../../lib/_module.mjs';
 import SETTINGS from '../../settings.js';
 import DDBMonster from "../DDBMonster.js";
 

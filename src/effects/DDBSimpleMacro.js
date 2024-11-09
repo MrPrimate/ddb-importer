@@ -1,5 +1,4 @@
-import utils from "../lib/utils.js";
-import logger from "../logger.js";
+import { utils, logger } from "../lib/_module.mjs";
 import DDBMacros from "./DDBMacros.js";
 
 /**

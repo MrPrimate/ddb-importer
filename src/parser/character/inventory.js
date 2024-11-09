@@ -1,5 +1,5 @@
 import DDBCharacter from "../DDBCharacter.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import GenericSpellFactory from "../spells/GenericSpellFactory.js";
 
 DDBCharacter.prototype._generateInventory = async function _generateInventory() {

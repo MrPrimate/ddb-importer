@@ -1,8 +1,7 @@
 import DialogHelper from "../lib/DialogHelper.js";
 import DICTIONARY from "../dictionary.js";
 import FolderHelper from "../lib/FolderHelper.js";
-import utils from "../lib/utils.js";
-import logger from "../logger.js";
+import { utils, logger } from "../lib/_module.mjs";
 import { midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";

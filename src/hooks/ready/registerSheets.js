@@ -1,5 +1,5 @@
 import DDBCharacterManager from "../../apps/DDBCharacterManager.js";
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import DDBSetup from "../../apps/DDBSetup.js";
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags.js";
 

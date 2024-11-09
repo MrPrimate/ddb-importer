@@ -1,9 +1,8 @@
-import logger from "../logger.js";
+import { logger, utils } from "../lib/_module.mjs";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import FileHelper from "../lib/FileHelper.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import SETTINGS from "../settings.js";
-import utils from "../lib/utils.js";
 import Iconizer from "../lib/Iconizer.js";
 import DDBItemImporter from "../lib/DDBItemImporter.js";
 

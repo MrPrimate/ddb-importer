@@ -1,13 +1,12 @@
 import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import logger from "../../logger.js";
+import { logger, utils } from "../../lib/_module.mjs";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";
 import DDBFeatures from "./DDBFeatures.js";
 import { addExtraEffects } from "./extraEffects.js";
 import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
-import utils from "../../lib/utils.js";
 
 export default class CharacterFeatureFactory {
 

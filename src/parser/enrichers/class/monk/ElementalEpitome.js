@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import utils from "../../../../lib/utils.js";
+import { utils } from "../../../../lib/_module.mjs";
 import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
 
 export default class ElementalEpitome extends DDBEnricherMixin {

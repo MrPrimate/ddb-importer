@@ -1,5 +1,5 @@
 import DICTIONARY from "../dictionary.js";
-import logger from "../logger.js";
+import { logger } from "./_module.mjs";
 
 export default class NameMatcher {
 

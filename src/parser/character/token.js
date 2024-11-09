@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import DICTIONARY from "../../dictionary.js";
 import DDBCharacter from "../DDBCharacter.js";
 

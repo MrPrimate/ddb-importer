@@ -1,8 +1,7 @@
 import DICTIONARY from '../../dictionary.js';
 import { getGenericConditionAffectData } from '../../effects/effects.js';
 import DDBHelper from '../../lib/DDBHelper.js';
-import utils from '../../lib/utils.js';
-import logger from '../../logger.js';
+import { utils, logger } from '../../lib/_module.mjs';
 
 function htmlToText(html) {
   // keep html brakes and tabs

@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import { logger } from "../../lib/_module.mjs";
 import { generateBackground } from "../../parser/character/bio.js";
 // import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBHelper from "../../lib/DDBHelper.js";

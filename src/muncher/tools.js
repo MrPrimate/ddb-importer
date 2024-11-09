@@ -1,4 +1,4 @@
-import logger from "../logger.js";
+import { logger } from "../lib/_module.mjs";
 import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DDBMuncher from "../apps/DDBMuncher.js";

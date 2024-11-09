@@ -1,11 +1,10 @@
 import DDBMuncher from "../apps/DDBMuncher.js";
 import DICTIONARY from "../dictionary.js";
-import logger from "../logger.js";
+import { logger, utils } from "./_module.mjs";
 import SETTINGS from "../settings.js";
 import CompendiumHelper from "./CompendiumHelper.js";
 import FileHelper from "./FileHelper.js";
 import NameMatcher from "./NameMatcher.js";
-import utils from "./utils.js";
 
 // const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
 
