@@ -1,7 +1,10 @@
-import FolderHelper from "../../lib/FolderHelper.js";
-import Iconizer from "../../lib/Iconizer.js";
-import { logger } from "../../lib/_module.mjs";
-import DDBItemImporter from "../../lib/DDBItemImporter.js";
+import {
+  logger,
+  Iconizer,
+  FolderHelper,
+  DDBItemImporter,
+} from "../../lib/_module.mjs";
+import DDBMuncher from "../../apps/DDBMuncher.js";
 
 async function getCompendiumItemSpells(spells) {
   const getItemsOptions = {
@@ -9,7 +12,9 @@ async function getCompendiumItemSpells(spells) {
     keepId: true,
     deleteCompendiumId: false,
   };
-  const itemImporter = new DDBItemImporter("spell", spells);
+  const itemImporter = new DDBItemImporter("spell", spells, {
+    notifier: DDBMuncher.munchNote,
+  });
   await itemImporter.init();
   const compendiumSpells = await itemImporter.loadPassedItemsFromCompendium(spells, getItemsOptions);
   itemImporter.removeItems(compendiumSpells);
@@ -46,7 +51,10 @@ export async function addMagicItemSpells(input) {
   // check for existing spells in spell compendium & srdCompendium
   const [compendiumSpells, compendiumItemSpells] = await getCompendiumItemSpells(input.itemSpells);
   // if spells not found create world version
-  const itemImporter = new DDBItemImporter("spell", input.itemSpells, { matchFlags: ["is2014", "is2024"] });
+  const itemImporter = new DDBItemImporter("spell", input.itemSpells, {
+    matchFlags: ["is2014", "is2024"],
+    notifier: DDBMuncher.munchNote,
+  });
   itemImporter.removeItems(compendiumSpells);
   const remainingSpells = {
     itemSpells: await Iconizer.updateMagicItemImages(itemImporter.documents),

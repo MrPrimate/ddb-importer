@@ -1,5 +1,4 @@
-import { utils, logger } from "./_module.mjs";
-import CompendiumHelper from "./CompendiumHelper.js";
+import { utils, logger, CompendiumHelper } from "./_module.mjs";
 import SETTINGS from "../settings.js";
 
 const INDEX_COMPENDIUMS = [

@@ -1,6 +1,5 @@
 
-import { logger } from "./_module.mjs";
-import CompendiumHelper from "./CompendiumHelper.js";
+import { logger, CompendiumHelper } from "./_module.mjs";
 
 export default class OriginFixer {
 

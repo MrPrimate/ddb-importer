@@ -1,4 +1,5 @@
 // for exports
+import { lib } from "./_module.mjs";
 import DDBMonster from "./parser/DDBMonster.js";
 import DDBMonsterFactory from "./parser/DDBMonsterFactory.js";
 import { parseSpells } from "./muncher/spells.js";
@@ -28,7 +29,6 @@ import { DDBCompendiumFolders } from "./lib/DDBCompendiumFolders.js";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.js";
 import SETTINGS from "./settings.js";
 import DICTIONARY from "./dictionary.js";
-import lib from "./_module.mjs";
 import NameMatcher from "./lib/NameMatcher.js";
 import OriginFixer from "./lib/OriginFixer.js";
 import DDBEffectHelper from "./effects/DDBEffectHelper.js";

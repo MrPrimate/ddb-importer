@@ -1,7 +1,11 @@
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
-import DDBItemImporter from "../../lib/DDBItemImporter.js";
-import { utils, logger } from "../../lib/_module.mjs";
+import DDBMuncher from "../../apps/DDBMuncher.js";
+import {
+  utils,
+  logger,
+  CompendiumHelper,
+  DDBCompendiumFolders,
+  DDBItemImporter,
+} from "../../lib/_module.mjs";
 import { addNPC } from "../../muncher/importMonster.js";
 
 
@@ -836,6 +840,7 @@ export default class DDBSummonsManager {
     this.itemHandler = new DDBItemImporter("summons", [], {
       indexFilter: this.indexFilter,
       matchFlags: ["is2014", "is2024"],
+      notifier: DDBMuncher.munchNote,
     });
     await this.itemHandler.init();
   }

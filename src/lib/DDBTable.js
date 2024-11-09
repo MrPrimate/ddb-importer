@@ -2,6 +2,7 @@ import { parseTable, getHeadings } from "../../vendor/parseTable.js";
 import CompendiumHelper from "./CompendiumHelper.js";
 import { utils, logger } from "./_module.mjs";
 import DDBItemImporter from "./DDBItemImporter.js";
+import DDBMuncher from "../apps/DDBMuncher.js";
 
 function diceRollMatcher(match, p1, p2, p3, p4, p5) {
   if (p5 && p5.toLowerCase() === "damage") {
@@ -233,7 +234,7 @@ function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, html }
 
 async function buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, updateExisting, html } = {}) {
   const data = buildTable({ parsedTable, keys, diceKeys, tableName: finalName, parentName: name, html });
-  const handlerOptions = { srdFidding: false, updateIcons: false };
+  const handlerOptions = { srdFidding: false, updateIcons: false, notifier: DDBMuncher.munchNote };
   const handler = await DDBItemImporter.buildHandler("tables", data, updateExisting, handlerOptions);
   return handler.results;
 }

@@ -3,7 +3,7 @@
  */
 const MARGIN = 10;
 
-const registerNotifications = () => {
+export function registerNotifications() {
   // register the notification global object
 
   if ($("#ddbimporter-notifications").length === 0) {
@@ -130,5 +130,3 @@ const registerNotifications = () => {
     },
   };
 };
-
-export default registerNotifications;

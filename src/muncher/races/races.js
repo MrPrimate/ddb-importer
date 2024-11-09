@@ -3,6 +3,7 @@ import DDBRace from "../../parser/race/DDBRace.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import DDBRaceTrait from "../../parser/race/DDBRaceTrait.js";
 import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
+import DDBMuncher from "../../apps/DDBMuncher.js";
 
 const NO_TRAITS = [
   "Speed",
@@ -54,7 +55,12 @@ export async function getRaces(data) {
 
   const raceCompendiumFolders = new DDBCompendiumFolders("races");
   await raceCompendiumFolders.loadCompendium("races");
-  const traitOptions = { chrisPremades: true, matchFlags: ["entityRaceId"], useCompendiumFolders: true };
+  const traitOptions = {
+    chrisPremades: true,
+    matchFlags: ["entityRaceId"],
+    useCompendiumFolders: true,
+    notifier: DDBMuncher.munchNote,
+  };
 
   const traitHelper = await DDBItemImporter.buildHandler("traits", racialFeatures, updateBool, traitOptions);
   const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traitHelper.documents);
@@ -68,7 +74,7 @@ export async function getRaces(data) {
   }
 
   logger.debug("Pre-fiddled races", foundry.utils.duplicate(races));
-  const raceOptions = { matchFlags: ["entityRaceId"], useCompendiumFolders: true };
+  const raceOptions = { matchFlags: ["entityRaceId"], useCompendiumFolders: true, notifier: DDBMuncher.munchNote };
   await DDBItemImporter.buildHandler("races", races, updateBool, raceOptions);
 
   return results;

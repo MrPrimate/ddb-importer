@@ -16,7 +16,7 @@ import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
-  const campaignId = DDBCampaigns.getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
@@ -151,7 +151,11 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
     && t.flags.ddbimporter.is2014 === v.flags.ddbimporter.is2014
     && t.flags.ddbimporter.is2024 === v.flags.ddbimporter.is2024) === i);
 
-  const itemHandler = new DDBItemImporter("spells", uniqueSpells, { deleteBeforeUpdate, matchFlags: ["is2014", "is2024"] });
+  const itemHandler = new DDBItemImporter("spells", uniqueSpells, {
+    deleteBeforeUpdate,
+    matchFlags: ["is2014", "is2024"],
+    notifier: DDBMuncher.munchNote,
+  });
   await itemHandler.init();
   await itemHandler.srdFiddling();
   await itemHandler.iconAdditions();

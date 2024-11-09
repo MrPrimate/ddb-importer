@@ -129,6 +129,7 @@ export async function getClasses(data) {
     classFeatures,
     featureHandlerOptions,
     updateBool,
+    notifier: DDBMuncher.munchNote,
   });
   const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
   const firstPassFeatures = await featureHandler.compendiumIndex.filter((i) =>
@@ -148,7 +149,10 @@ export async function getClasses(data) {
   }
 
   logger.debug("Class build finished", klasses);
-  await DDBItemImporter.buildHandler("classes", klasses, updateBool, { useCompendiumFolders: true });
+  await DDBItemImporter.buildHandler("classes", klasses, updateBool, {
+    useCompendiumFolders: true,
+    notifier: DDBMuncher.munchNote,
+  });
 
   return results;
 }

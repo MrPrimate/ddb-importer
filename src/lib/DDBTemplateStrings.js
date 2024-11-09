@@ -1,5 +1,4 @@
-import { utils, logger } from "./_module.mjs";
-import DDBHelper from "./DDBHelper.js";
+import { utils, logger, DDBHelper } from "./_module.mjs";
 import { parseTags } from './DDBReferenceLinker.js';
 
 

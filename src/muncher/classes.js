@@ -14,7 +14,7 @@ import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 function getSubClassesData(className) {
   const cobaltCookie = getCobalt();
-  const campaignId = DDBCampaigns.getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
@@ -46,7 +46,7 @@ function getSubClassesData(className) {
 
 function getClassOptionsData(className) {
   const cobaltCookie = getCobalt();
-  const campaignId = DDBCampaigns.getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
@@ -78,7 +78,7 @@ function getClassOptionsData(className) {
 
 function getClassesData() {
   const cobaltCookie = getCobalt();
-  const campaignId = DDBCampaigns.getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };

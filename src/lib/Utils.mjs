@@ -4,15 +4,18 @@ const Range = function *(total = 0, step = 1, from = 0) {
   for (let i = 0; i < total; yield from + i++ * step) {}
 };
 
-const utils = {
-  debug: () => {
-    return true;
-  },
 
-  capitalize: (s) => {
+export default class Utils {
+
+  static debug() {
+    return true;
+  }
+
+
+  static capitalize(s) {
     if (typeof s !== "string") return "";
     return s.charAt(0).toUpperCase() + s.slice(1);
-  },
+  }
 
   /**
    * Async for each loop
@@ -20,21 +23,20 @@ const utils = {
    * @param  {Array} array Array to loop through
    * @param  {Function} callback Function to apply to each array item loop
    */
-  asyncForEach: async (array, callback) => {
+  static async asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index += 1) {
       // eslint-disable-next-line callback-return, no-await-in-loop
       await callback(array[index], index, array);
     }
-  },
+  }
 
-  _range: Range,
+  static _range = Range;
 
-  arrayRange: (total = 0, step = 1, from = 0) => {
-    return Array.from(utils._range(total, step, from));
-  },
+  static arrayRange(total = 0, step = 1, from = 0) {
+    return Array.from(Utils._range(total, step, from));
+  }
 
-
-  removeCompendiumLinks: (text) => {
+  static removeCompendiumLinks(text) {
     const linkRegExTag = /@\w+\[(.*)\](\{.*?\})/g;
     const linkRegExNoTag = /@\w+\[(.*)\]/g;
     function replaceRule(match, p1, p2) {
@@ -45,23 +47,23 @@ const utils = {
       }
     }
     return text.replaceAll(linkRegExTag, replaceRule).replaceAll(linkRegExNoTag, replaceRule);
-  },
+  }
 
-  normalizeString: (str) => {
+  static normalizeString(str) {
     return str.toLowerCase().replace(/\W/g, "");
-  },
+  }
 
-  referenceNameString: (str) => {
-    const identifier = utils.nameString(str).replaceAll("'", "").replaceAll(/(\w+)([\\|/])(\w+)/g, "$1-$3");
+  static referenceNameString(str) {
+    const identifier = Utils.nameString(str).replaceAll("'", "").replaceAll(/(\w+)([\\|/])(\w+)/g, "$1-$3");
     return identifier.slugify({ strict: true });
-  },
+  }
 
-  idString: (str) => {
+  static idString(str) {
     return str.replace(/[^a-zA-Z0-9]/g, "");
-  },
+  }
 
-  namedIDStub(name, { prefix = "ddb", postfix = null, length = 16 } = {}) {
-    const nameSplit = name.split(" ").map((n) => utils.idString(n));
+  static namedIDStub(name, { prefix = "ddb", postfix = null, length = 16 } = {}) {
+    const nameSplit = name.split(" ").map((n) => Utils.idString(n));
     const remainingN = length - (prefix ? `${prefix}`.length : 0) - (postfix ? `${postfix}`.length : 0);
     const quotient = Math.floor(remainingN / nameSplit.length);
     let remainder = remainingN % nameSplit.length;
@@ -71,7 +73,7 @@ const utils = {
       const splitLength = nameSplit[i].length > quotient + remainder
         ? quotient + remainder
         : Math.min(nameSplit[i].length, quotient + remainder);
-      result += utils.capitalize(nameSplit[i].substring(0, splitLength));
+      result += Utils.capitalize(nameSplit[i].substring(0, splitLength));
       const remainderUsed = splitLength > quotient
         ? splitLength - quotient
         : 0;
@@ -85,61 +87,61 @@ const utils = {
     }
 
     return result;
-  },
+  }
 
-  nameString: (str) => {
+  static nameString(str) {
     return str.replaceAll("’", "'").trim();
-  },
+  }
 
-  regexSanitizeString(str) {
+  static regexSanitizeString(str) {
     // eslint-disable-next-line no-useless-escape
     return str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, (x) => {
       return `\\${x}`;
     }).trim();
-  },
+  }
 
-  stripHtml: (html, preferInnerText = false) => {
+  static stripHtml(html, preferInnerText = false) {
     let tmp = document.createElement("DIV");
     tmp.innerHTML = html;
     if (preferInnerText) {
       return tmp.innerText ?? tmp.textContent ?? "";
     }
     return tmp.textContent || tmp.innerText || "";
-  },
+  }
 
-  htmlToElement: (html) => {
+  static htmlToElement(html) {
     const template = document.createElement('template');
     html = html.trim(); // Never return a text node of whitespace as the result
     template.innerHTML = html;
     return template.content.firstChild;
-  },
+  }
 
-  htmlToDoc: (text) => {
+  static htmlToDoc(text) {
     const parser = new DOMParser();
     return parser.parseFromString(text, "text/html");
-  },
+  }
 
-  htmlToDocumentFragment: (text) => {
+  static htmlToDocumentFragment(text) {
     const dom = new DocumentFragment();
     $.parseHTML(text).forEach((element) => {
       dom.appendChild(element);
     });
     return dom;
-  },
+  }
 
-  replaceHtmlSpaces: (str) => {
+  static replaceHtmlSpaces(str) {
     return str.replace(/&nbsp;/g, ' ').replace(/\xA0/g, ' ').replace(/\s\s+/g, ' ').trim();
-  },
+  }
 
-  renderLesserString: (str) => {
-    return utils.replaceHtmlSpaces(utils.stripHtml(str)).trim().toLowerCase();
-  },
+  static renderLesserString(str) {
+    return Utils.replaceHtmlSpaces(Utils.stripHtml(str)).trim().toLowerCase();
+  }
 
-  stringKindaEqual(a, b) {
-    return utils.renderLesserString(a) === utils.renderLesserString(b);
-  },
+  static stringKindaEqual(a, b) {
+    return Utils.renderLesserString(a) === Utils.renderLesserString(b);
+  }
 
-  findByProperty: (arr, property, searchString) => {
+  static findByProperty(arr, property, searchString) {
     function levenshtein(a, b) {
       let tmp;
       if (a.length === 0) {
@@ -192,13 +194,13 @@ const utils = {
       });
 
     return nearestHit;
-  },
+  }
 
-  calculateModifier: (val) => {
+  static calculateModifier(val) {
     return Math.floor((val - 10) / 2);
-  },
+  }
 
-  diceStringResultBuild: (diceMap, dice, bonus = "", mods = "", diceHint = "", specialFlags = "", addHint = false) => {
+  static diceStringResultBuild(diceMap, dice, bonus = "", mods = "", diceHint = "", specialFlags = "", addHint = false) {
     const globalDamageHints = addHint;
     const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? ' +' : ' '} ${bonus}`;
     const diceHintAdd = globalDamageHints && diceHint && diceMap;
@@ -219,9 +221,9 @@ const utils = {
       ].join('').trim(),
     };
     return result;
-  },
+  }
 
-  parseDiceString: (inStr, mods = "", diceHint = "", specialFlags = "") => {
+  static parseDiceString(inStr, mods = "", diceHint = "", specialFlags = "") {
     // sanitizing possible inputs a bit
     const str = `${inStr}`.toLowerCase().replace(/[–-–−]/gu, "-").replace(/\s+/gu, "");
 
@@ -266,9 +268,9 @@ const utils = {
     // +1d8-2d8 => +1d8 -2d8 will remain as-is
     const diceMap = [];
 
-    const groupBySign = utils.groupBy(dice, 'sign');
+    const groupBySign = Utils.groupBy(dice, 'sign');
     for (const group of groupBySign.values()) {
-      const groupByDie = utils.groupBy(group, 'die');
+      const groupByDie = Utils.groupBy(group, 'die');
 
       for (const dieGroup of groupByDie.values()) {
         diceMap.push(
@@ -292,46 +294,46 @@ const utils = {
       }
     });
 
-    const result = utils.diceStringResultBuild(diceMap, dice, bonus, mods, diceHint, specialFlags);
+    const result = Utils.diceStringResultBuild(diceMap, dice, bonus, mods, diceHint, specialFlags);
     return result;
-  },
+  }
 
-  isObject: (obj) => {
+  static isObject(obj) {
     return typeof obj === 'object' && !Array.isArray(obj) && obj !== null;
-  },
+  }
 
-  isString: (str) => {
+  static isString(str) {
     return typeof str === 'string' || str instanceof String;
-  },
+  }
 
-  isArray: (arr) => {
+  static isArray(arr) {
     return Array.isArray(arr);
-  },
+  }
 
-  isBoolean: (bool) => {
+  static isBoolean(bool) {
     return typeof bool === 'boolean';
-  },
+  }
 
-  isFunction: (func) => {
+  static isFunction(func) {
     return func instanceof Function;
-  },
+  }
 
-  mergeDeep: (target, source) => {
+  static mergeDeep(target, source) {
     let output = Object.assign({}, target);
-    if (utils.isObject(target) && utils.isObject(source)) {
+    if (Utils.isObject(target) && Utils.isObject(source)) {
       Object.keys(source).forEach((key) => {
-        if (utils.isObject(source[key])) {
+        if (Utils.isObject(source[key])) {
           if (!(key in target)) Object.assign(output, { [key]: source[key] });
-          else output[key] = utils.mergeDeep(target[key], source[key]);
+          else output[key] = Utils.mergeDeep(target[key], source[key]);
         } else {
           Object.assign(output, { [key]: source[key] });
         }
       });
     }
     return output;
-  },
+  }
 
-  filterDeprecated: (data) => {
+  static filterDeprecated(data) {
     for (let prop in data) {
       if (
         data[prop]
@@ -345,9 +347,9 @@ const utils = {
       }
     }
     return data;
-  },
+  }
 
-  getTemplateLegacy: (type) => {
+  static getTemplateLegacy(type) {
     const templates = game.data.template;
     for (let entityType in templates) {
       if (
@@ -355,10 +357,10 @@ const utils = {
         && Array.isArray(templates[entityType].types)
         && templates[entityType].types.includes(type)
       ) {
-        let obj = utils.mergeDeep({}, utils.filterDeprecated(templates[entityType][type]));
+        let obj = Utils.mergeDeep({}, Utils.filterDeprecated(templates[entityType][type]));
         if (obj.templates) {
           obj.templates.forEach((tpl) => {
-            obj = utils.mergeDeep(obj, utils.filterDeprecated(templates[entityType].templates[tpl]));
+            obj = Utils.mergeDeep(obj, Utils.filterDeprecated(templates[entityType].templates[tpl]));
           });
           delete obj.templates;
         }
@@ -367,10 +369,10 @@ const utils = {
       }
     }
     return undefined;
-  },
+  }
 
   // eslint-disable-next-line complexity
-  getTemplate: (type) => {
+  static getTemplate(type) {
     switch (type.toLowerCase()) {
       case "character":
         return game.dnd5e.dataModels.actor.CharacterData.schema.initial();
@@ -412,9 +414,9 @@ const utils = {
       default:
         return undefined;
     }
-  },
+  }
 
-  entityMap: () => {
+  static entityMap() {
     let entityTypes = new Map();
     entityTypes.set("spell", "Item");
     entityTypes.set("spells", "Item");
@@ -453,9 +455,9 @@ const utils = {
     entityTypes.set("races", "Item");
     entityTypes.set("traits", "Item");
     return entityTypes;
-  },
+  }
 
-  versionCompare: (v1, v2, options) => {
+  static versionCompare(v1, v2, options) {
     let lexicographical = options && options.lexicographical,
       zeroExtend = options && options.zeroExtend,
       v1parts = v1.split("."),
@@ -497,9 +499,9 @@ const utils = {
     }
 
     return 0;
-  },
+  }
 
-  groupBy(arr, property) {
+  static groupBy(arr, property) {
     const map = new Map();
 
     for (const item of arr) {
@@ -511,9 +513,9 @@ const utils = {
     }
 
     return map;
-  },
+  }
 
-  async namePrompt(question) {
+  static async namePrompt(question) {
     const content = `
     <label class="text-label">
       <input type="text" name="name"/>
@@ -545,9 +547,9 @@ const utils = {
       }).render(true);
     });
     return name;
-  },
+  }
 
-  renderPopup: (type, url) => {
+  static renderPopup(type, url) {
     if (CONFIG.DDBI.POPUPS[type] && !CONFIG.DDBI.POPUPS[type].close) {
       CONFIG.DDBI.POPUPS[type].focus();
       CONFIG.DDBI.POPUPS[type].location.href = url;
@@ -562,41 +564,41 @@ const utils = {
       );
     }
     return true;
-  },
+  }
 
-  addToProperties: (properties, value) => {
+  static addToProperties(properties, value) {
     const setProperties = properties
-      ? utils.isArray(properties)
+      ? Utils.isArray(properties)
         ? new Set(properties)
         : properties
       : new Set();
 
     setProperties.add(value);
     return Array.from(setProperties);
-  },
+  }
 
-  removeFromProperties: (properties, value) => {
+  static removeFromProperties(properties, value) {
     const setProperties = properties
-      ? utils.isArray(properties)
+      ? Utils.isArray(properties)
         ? new Set(properties)
         : properties
       : new Set();
 
     setProperties.delete(value);
     return Array.from(setProperties);
-  },
+  }
 
   // matchedProperties = { "system.activation.type": "bonus" }
-  matchProperties: (document, matchedProperties = {}) => {
+  static matchProperties(document, matchedProperties = {}) {
     for (const [key, value] of Object.entries(matchedProperties)) {
-      if (foundry.utils.getProperty(document, key) !== value) {
+      if (foundry.Utils.getProperty(document, key) !== value) {
         return false;
       }
     }
     return true;
-  },
+  }
 
-  ordinalSuffixOf(i) {
+  static ordinalSuffixOf(i) {
     let j = i % 10,
       k = i % 100;
     if (j === 1 && k !== 11) {
@@ -609,15 +611,15 @@ const utils = {
       return i + "rd";
     }
     return i + "th";
-  },
+  }
 
-  async wait(ms) {
+  static async wait(ms) {
     return new Promise((resolve) => {
       setTimeout(resolve, ms);
     });
-  },
+  }
 
-  async waitFor(fn, maxIter = 600, iterWaitTime = 100) {
+  static async waitFor(fn, maxIter = 600, iterWaitTime = 100) {
     let i = 0;
     const continueWait = (current, max) => {
       // Negative maxIter will wait forever
@@ -628,11 +630,9 @@ const utils = {
 
     while (!fn(i, i * iterWaitTime) && continueWait(i, maxIter)) {
       i++;
-      await utils.wait(iterWaitTime);
+      await Utils.wait(iterWaitTime);
     }
     return i !== maxIter;
-  },
+  }
 
-};
-
-export default utils;
+}

@@ -1,22 +1,18 @@
-import PatreonHelper from "../lib/PatreonHelper.js";
-import DDBMuncher from "../apps/DDBMuncher.js";
-import { getCobalt } from "./Secrets.js";
-import { logger } from "./_module.mjs";
-import DDBProxy from "./DDBProxy.js";
+import { logger, DDBProxy, PatreonHelper, Secrets } from "./_module.mjs";
 
 
 export default class DDBCampaigns {
 
 
-  static getCampaignId() {
+  static getCampaignId(notifier = null) {
     const campaignId = game.settings.get("ddb-importer", "campaign-id").split("/").pop();
 
     if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
-      DDBMuncher.munchNote(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, true);
+      if (notifier) notifier(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, true);
       logger.error(`Campaign Id is invalid! Set to "${campaignId}", using empty string`);
       return "";
     } else if (campaignId.includes("join")) {
-      DDBMuncher.munchNote(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`, true);
+      if (notifier) notifier(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`, true);
       logger.error(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`);
       return "";
     }
@@ -24,7 +20,7 @@ export default class DDBCampaigns {
   }
 
   static getDDBCampaigns(cobalt = null) {
-    const cobaltCookie = cobalt ? cobalt : getCobalt();
+    const cobaltCookie = cobalt ? cobalt : Secrets.getCobalt();
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
     const body = { cobalt: cobaltCookie, betaKey: betaKey };
@@ -65,11 +61,11 @@ export default class DDBCampaigns {
     return CONFIG.DDBI.CAMPAIGNS;
   }
 
-  static async getAvailableCampaigns() {
+  static async getAvailableCampaigns(notifier = null) {
     if (CONFIG.DDBI.CAMPAIGNS) return CONFIG.DDBI.CAMPAIGNS;
     // eslint-disable-next-line require-atomic-updates
     CONFIG.DDBI.CAMPAIGNS = [];
-    const campaignId = DDBCampaigns.getCampaignId();
+    const campaignId = DDBCampaigns.getCampaignId(notifier);
     const campaigns = await DDBCampaigns.getDDBCampaigns();
 
     if (!campaigns || campaigns.length === 0) {

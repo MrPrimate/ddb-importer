@@ -91,7 +91,7 @@ async function generateImportItems(items, notifier) {
 
 function getItemData({ useSourceFilter = true, ids = [] } = {}) {
   const cobaltCookie = getCobalt();
-  const campaignId = DDBCampaigns.getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
@@ -164,7 +164,10 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
 
 async function addMagicItemSpells(items, spells, updateBool) {
   if (spells.length === 0) return;
-  const itemHandler = new DDBItemImporter("itemspells", spells, { matchFlags: ["is2014", "is2024"] });
+  const itemHandler = new DDBItemImporter("itemspells", spells, {
+    matchFlags: ["is2014", "is2024"],
+    notifier: DDBMuncher.munchNote,
+  });
   await itemHandler.init();
   const itemSpells = await itemHandler.updateCompendium(updateBool);
   // scan the inventory for each item with spells and copy the imported data over
@@ -223,7 +226,11 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
 
   await Iconizer.preFetchDDBIconImages();
 
-  const itemHandler = new DDBItemImporter("items", items, { deleteBeforeUpdate, matchFlags: ["is2014", "is2024"] });
+  const itemHandler = new DDBItemImporter("items", items, {
+    deleteBeforeUpdate,
+    matchFlags: ["is2014", "is2024"],
+    notifier: DDBMuncher.munchNote,
+  });
   await itemHandler.init();
   await itemHandler.srdFiddling();
   DDBMuncher.munchNote(`Painting Item Icons (this can take a while)`, true);

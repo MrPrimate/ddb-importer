@@ -2,6 +2,7 @@ import { logger } from "../../lib/_module.mjs";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
+import DDBMuncher from "../../apps/DDBMuncher.js";
 
 const FEAT_TEMPLATE = {
   "name": "",
@@ -76,6 +77,9 @@ export async function getFeats(data) {
     feats.push(parsedFeat);
   });
 
-  const itemHandler = await DDBItemImporter.buildHandler("feats", feats, updateBool, { chrisPremades: true });
+  const itemHandler = await DDBItemImporter.buildHandler("feats", feats, updateBool, {
+    chrisPremades: true,
+    notifier: DDBMuncher.munchNote,
+  });
   return itemHandler.documents;
 }

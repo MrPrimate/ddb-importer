@@ -1,7 +1,7 @@
+import { utils, logger } from "../lib/_module.mjs";
 import DialogHelper from "../lib/DialogHelper.js";
 import DICTIONARY from "../dictionary.js";
 import FolderHelper from "../lib/FolderHelper.js";
-import { utils, logger } from "../lib/_module.mjs";
 import { midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
@@ -33,11 +33,17 @@ export default class DDBEffectHelper {
 
   static generateATLChange = generateATLChange;
 
-  static addToProperties = utils.addToProperties;
+  static addToProperties(properties, value) {
+    return utils.addToProperties(properties, value);
+  }
 
-  static removeFromProperties = utils.removeFromProperties;
+  static removeFromProperties(properties, value) {
+    utils.removeFromProperties(properties, value);
+  }
 
-  static wait = utils.wait;
+  static wait(ms) {
+    utils.wait(ms);
+  }
 
   /**
    * Generates and applies DDBI effects to a document.

@@ -1,4 +1,4 @@
-import { ChooserDialog } from "./AdvancedDialog.js";
+import { ChooserDialog } from "./_module.mjs";
 
 export default class DialogHelper {
 

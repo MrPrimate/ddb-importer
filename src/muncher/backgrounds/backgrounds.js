@@ -4,6 +4,7 @@ import { generateBackground } from "../../parser/character/bio.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import DDBFeature from "../../parser/features/DDBFeature.js";
+import DDBMuncher from "../../apps/DDBMuncher.js";
 
 // const BACKGROUND_TEMPLATE = {
 //   "name": "",
@@ -89,6 +90,9 @@ export async function getBackgrounds(data) {
     backgrounds.push(parsedBackground);
   }
 
-  const itemHandler = await DDBItemImporter.buildHandler("backgrounds", backgrounds, updateBool, { chrisPremades: true });
+  const itemHandler = await DDBItemImporter.buildHandler("backgrounds", backgrounds, updateBool, {
+    chrisPremades: true,
+    notifier: DDBMuncher.munchNote,
+  });
   return itemHandler.documents;
 }

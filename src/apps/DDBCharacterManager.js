@@ -1,23 +1,26 @@
-import { utils, logger } from "../lib/_module.mjs";
-import FileHelper from "../lib/FileHelper.js";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
-import MuncherSettings from "../lib/MuncherSettings.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
+import {
+  utils,
+  logger,
+  FileHelper,
+  CompendiumHelper,
+  MuncherSettings,
+  PatreonHelper,
+  Secrets,
+  DDBItemImporter,
+  DDBHelper,
+  Iconizer,
+} from "../lib/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
-import Iconizer from "../lib/Iconizer.js";
 import { updateDDBCharacter } from "../updater/character.js";
 import { generateCharacterExtras } from "../parser/DDBExtras.js";
 import DICTIONARY from "../dictionary.js";
-import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
 import DDBCookie from "../apps/DDBCookie.js";
 import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/special/conditions.js";
 import SETTINGS from "../settings.js";
 import DDBMacros from "../effects/DDBMacros.js";
-import DDBItemImporter from "../lib/DDBItemImporter.js";
 import { addMagicItemSpells } from "../parser/item/itemSpells.js";
-import DDBHelper from "../lib/DDBHelper.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 import { createInfusedItems } from "../parser/item/infusions.js";
 
@@ -308,8 +311,8 @@ export default class DDBCharacterManager extends FormApplication {
     const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
     const syncOnly = trustedUsersOnly && allowAllSync && !game.user.isTrusted;
 
-    const localCobalt = isLocalCobalt(this.actor.id);
-    const cobaltCookie = getCobalt(this.actor.id);
+    const localCobalt = Secrets.isLocalCobalt(this.actor.id);
+    const cobaltCookie = Secrets.getCobalt(this.actor.id);
     const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
 
     const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
@@ -478,7 +481,7 @@ export default class DDBCharacterManager extends FormApplication {
       .on("click", async () => {
         this.html = html;
         try {
-          deleteLocalCobalt(this.actor.id);
+          Secrets.deleteLocalCobalt(this.actor.id);
           $(html).find("#delete-local-cobalt").prop("disabled", true);
           $(html).find("#set-local-cobalt").text("Add Cobalt Cookie");
         } catch (error) {

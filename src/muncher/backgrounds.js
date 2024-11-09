@@ -11,7 +11,7 @@ import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 function getBackgroundData() {
   const cobaltCookie = getCobalt();
-  const campaignId = DDBCampaigns.getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };

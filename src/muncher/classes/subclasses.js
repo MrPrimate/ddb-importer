@@ -61,7 +61,11 @@ export async function getSubClasses(subClassData, klassData) {
   logger.debug("get subclasses started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
-  const classHandler = new DDBItemImporter("class", [], { deleteBeforeUpdate: false, matchFlags: ["is2014", "is2024"] });
+  const classHandler = new DDBItemImporter("class", [], {
+    deleteBeforeUpdate: false,
+    matchFlags: ["is2014", "is2024"],
+    notifier: DDBMuncher.munchNote,
+  });
   await classHandler.init();
   const classDocs = await classHandler.compendium.getDocuments();
 
@@ -124,6 +128,7 @@ export async function getSubClasses(subClassData, klassData) {
     classFeatures,
     featureHandlerOptions,
     updateBool,
+    notifier: DDBMuncher.munchNote,
   });
   const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
   await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
@@ -147,7 +152,12 @@ export async function getSubClasses(subClassData, klassData) {
   }
 
   logger.debug("Subclass build finished", subClasses);
-  const subClassOptions = { deleteBeforeUpdate: false, matchFlags: ["id"], useCompendiumFolders: true };
+  const subClassOptions = {
+    deleteBeforeUpdate: false,
+    matchFlags: ["id"],
+    useCompendiumFolders: true,
+    notifier: DDBMuncher.munchNote,
+  };
   await DDBItemImporter.buildHandler("subclasses", subClasses, updateBool, subClassOptions);
 
   return results;

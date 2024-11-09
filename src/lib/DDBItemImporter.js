@@ -1,17 +1,24 @@
-import { logger } from "./_module.mjs";
+import {
+  logger,
+  CompendiumHelper,
+  Iconizer,
+  DDBCompendiumFolders,
+  NameMatcher,
+} from "./_module.mjs";
 import DICTIONARY from "../dictionary.js";
 import SETTINGS from "../settings.js";
-import CompendiumHelper from "./CompendiumHelper.js";
-import DDBMuncher from "../apps/DDBMuncher.js";
-import Iconizer from "./Iconizer.js";
-import { DDBCompendiumFolders } from "./DDBCompendiumFolders.js";
-import NameMatcher from "./NameMatcher.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 
 export default class DDBItemImporter {
 
-  constructor(type, documents, { matchFlags = [], deleteBeforeUpdate = null, indexFilter = {}, useCompendiumFolders = null } = {}) {
+  constructor(type, documents, {
+    matchFlags = [],
+    deleteBeforeUpdate = null,
+    indexFilter = {},
+    useCompendiumFolders = null,
+    notifier = null,
+  } = {}) {
     this.type = type;
     this.documents = documents;
     this.useCompendiumFolders = useCompendiumFolders ?? true;
@@ -25,6 +32,7 @@ export default class DDBItemImporter {
     this.results = [];
 
     this.deleteBeforeUpdate = deleteBeforeUpdate ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-delete-during-update");
+    this.notifier = notifier;
   }
 
   async buildIndex(indexFilter = {}) {
@@ -258,7 +266,7 @@ export default class DDBItemImporter {
     if (!newItem) {
       logger.error(`Item ${item.name} failed creation`, { item, newItem });
     }
-    DDBMuncher.munchNote(`Creating ${item.name}`);
+    this.notifier(`Creating ${item.name}`);
     logger.debug(`Pushing ${item.name} to compendium`);
     return this.compendium.importDocument(newItem);
   }
@@ -268,7 +276,7 @@ export default class DDBItemImporter {
     if (existingItem.results) await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
     if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
-    DDBMuncher.munchNote(`Updating ${updateItem.name} compendium entry`);
+    this.notifier(`Updating ${updateItem.name} compendium entry`);
     logger.debug(`Updating ${updateItem.name} compendium entry`, {
       updateItem,
       existingItem,
@@ -282,7 +290,7 @@ export default class DDBItemImporter {
 
   async deleteCreateCompendiumItem(updateItem, existingItem) {
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
-    DDBMuncher.munchNote(`Removing and Recreating ${updateItem.name} compendium entry`);
+    this.notifier(`Removing and Recreating ${updateItem.name} compendium entry`);
     logger.debug(`Removing and Recreating ${updateItem.name} compendium entry`);
     await existingItem.delete();
     let newItem = await this.createCompendiumItem(updateItem);
@@ -365,7 +373,7 @@ ${item.system.description.chat}
 
     let results = [];
     // update existing items
-    DDBMuncher.munchNote(`Creating and updating ${inputItems.length} ${this.type} documents in compendium...`, true);
+    this.notifier(`Creating and updating ${inputItems.length} ${this.type} documents in compendium...`, true);
 
     if (updateExisting) {
       results = await this.updateCompendiumItems(inputItems);
@@ -375,7 +383,7 @@ ${item.system.description.chat}
     // create new items
     const createResults = await this.createCompendiumItems(inputItems);
     logger.debug(`Created ${createResults.length} new ${this.type} documents in compendium`);
-    DDBMuncher.munchNote("", true);
+    this.notifier("", true);
 
     this.results = createResults.concat(results);
     return new Promise((resolve) => resolve(this.results));
@@ -494,9 +502,9 @@ ${item.system.description.chat}
 
   static async buildHandler(type, documents, updateBool,
     { srdFidding = true, removeSRDDuplicates = true, ids = null, vision5e = false, chrisPremades = false, matchFlags = [],
-      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true } = {},
+      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null } = {},
   ) {
-    const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate, useCompendiumFolders });
+    const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate, useCompendiumFolders, notifier });
     await handler.init();
     if (srdFidding) await handler.srdFiddling(removeSRDDuplicates);
     if (updateIcons) await handler.iconAdditions();
@@ -509,7 +517,7 @@ ${item.system.description.chat}
     if (chrisPremades) {
       handler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: handler.documents, compendiumItem: true });
     }
-    DDBMuncher.munchNote(`Importing ${handler.documents.length} ${type} documents!`, true);
+    this.notifier(`Importing ${handler.documents.length} ${type} documents!`, true);
     logger.debug(`Importing ${handler.documents.length} ${type} documents!`, foundry.utils.deepClone(documents));
     await handler.updateCompendium(updateBool, filterDuplicates);
     await handler.buildIndex();

@@ -1,11 +1,15 @@
-import { logger } from "../lib/_module.mjs";
+import {
+  logger,
+  DDBItemImporter,
+  DDBProxy,
+  FileHelper,
+  Secrets,
+  PatreonHelper,
+  DDBCompendiumFolders,
+  Iconizer,
+} from "../lib/_module.mjs";
 import DDBMonster from "./DDBMonster.js";
-import FileHelper from "../lib/FileHelper.js";
-import { getCobalt } from "../lib/Secrets.js";
-import DDBProxy from "../lib/DDBProxy.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
 import SETTINGS from "../settings.js";
-import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 // targets for migration
 import {
@@ -14,8 +18,7 @@ import {
   copyExistingMonsterImages,
   useSRDMonsterImages,
 } from "../muncher/importMonster.js";
-import Iconizer from "../lib/Iconizer.js";
-import DDBItemImporter from "../lib/DDBItemImporter.js";
+import DDBMuncher from "../apps/DDBMuncher.js";
 
 export default class DDBMonsterFactory {
 
@@ -89,7 +92,7 @@ export default class DDBMonsterFactory {
   async fetchDDBMonsterSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
     homebrewOnly = false, exactMatch = false, excludeLegacy = false },
   ) {
-    const cobaltCookie = getCobalt();
+    const cobaltCookie = Secrets.getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
 
@@ -243,7 +246,9 @@ export default class DDBMonsterFactory {
 
     const monsterResults = await this.parse(monsters);
 
-    const itemHandler = new DDBItemImporter(this.type, monsterResults.actors);
+    const itemHandler = new DDBItemImporter(this.type, monsterResults.actors, {
+      notifier: DDBMuncher.munchNote,
+    });
     await itemHandler.init();
 
     logger.debug("Item Importer Loaded");

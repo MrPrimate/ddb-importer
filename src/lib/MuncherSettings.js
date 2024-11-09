@@ -1,8 +1,10 @@
 // import { logger } from "../_module.mjs";
-import { logger } from "./_module.mjs";
-import FileHelper from "./FileHelper.js";
-import PatreonHelper from "./PatreonHelper.js";
-import { getCobalt } from "./Secrets.js";
+import {
+  logger,
+  Secrets,
+  FileHelper,
+  PatreonHelper,
+} from "./_module.mjs";
 import DDBSources from "../apps/DDBSources.js";
 import SETTINGS from "../settings.js";
 import { effectModules } from "../effects/effects.js";
@@ -460,7 +462,7 @@ const MuncherSettings = {
   },
 
   getMuncherSettings: (includeHomebrew = true) => {
-    const cobalt = getCobalt() != "";
+    const cobalt = Secrets.getCobalt() != "";
     const betaKey = PatreonHelper.getPatreonKey() != "";
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);

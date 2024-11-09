@@ -58,7 +58,9 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 
 
 async function addNPCToCompendium(npc, type = "monster") {
-  const itemImporter = new DDBItemImporter(type, []);
+  const itemImporter = new DDBItemImporter(type, [], {
+    notifier: DDBMuncher.munchNote,
+  });
   if (itemImporter.compendium) {
     const npcBasic = (await itemImporter.addCompendiumFolderIds([foundry.utils.duplicate(npc)]))[0];
 

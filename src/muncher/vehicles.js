@@ -26,7 +26,7 @@ export function getVehicleData(ids) {
   const betaKey = PatreonHelper.getPatreonKey();
   const parsingApi = DDBProxy.getProxy();
 
-  const campaignId = DDBCampaigns.getCampaignId();
+  const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
 
   if (ids && ids.length > 0) {
@@ -119,7 +119,10 @@ export async function parseTransports(ids = null) {
   let vehicleJSON = await getVehicleData(ids);
   let vehicles = await processVehicleData(vehicleJSON);
 
-  const vehicleHandler = new DDBItemImporter("vehicles", vehicles, { matchFlags: ["is2014", "is2024"] });
+  const vehicleHandler = new DDBItemImporter("vehicles", vehicles, {
+    matchFlags: ["is2014", "is2024"],
+    notifier: DDBMuncher.munchNote,
+  });
   await vehicleHandler.init();
 
   if (!updateBool || !updateImages) {

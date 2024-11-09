@@ -1,6 +1,5 @@
 import DICTIONARY from "../dictionary.js";
-import { logger, utils } from "./_module.mjs";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
+import { logger, utils, CompendiumHelper } from "./_module.mjs";
 
 export class DDBCompendiumFolders {
   resetFolderLookups() {
