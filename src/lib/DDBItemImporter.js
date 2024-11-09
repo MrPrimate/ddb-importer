@@ -517,7 +517,7 @@ ${item.system.description.chat}
     if (chrisPremades) {
       handler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: handler.documents, compendiumItem: true });
     }
-    this.notifier(`Importing ${handler.documents.length} ${type} documents!`, true);
+    if (notifier) notifier(`Importing ${handler.documents.length} ${type} documents!`, true);
     logger.debug(`Importing ${handler.documents.length} ${type} documents!`, foundry.utils.deepClone(documents));
     await handler.updateCompendium(updateBool, filterDuplicates);
     await handler.buildIndex();
