@@ -21,7 +21,7 @@ export default class DDBEnricherMixin {
   hasClassFeature({ featureName, className = null, subClassName = null } = {}) {
     if (!this.ddbParser?.ddbData) return false;
 
-    return utils.hasClassFeature({
+    return DDBHelper.hasClassFeature({
       ddbData: this.ddbParser.ddbData,
       featureName,
       className,
