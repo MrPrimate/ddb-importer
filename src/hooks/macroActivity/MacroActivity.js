@@ -117,7 +117,19 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
     } else {
       this._executeFoundryMacro(targets);
     }
+  }
 
+  /** @override */
+  // eslint-disable-next-line no-unused-vars
+  async _triggerSubsequentActions(config, results) {
+    // this.rollDamage({ event: config.event }, {}, { data: { "flags.dnd5e.originatingMessage": results.message?.id } });
 
+    const targets = Array.from(game.user.targets);
+
+    if (this.macro.function.startsWith("ddb.")) {
+      this._executeDDBMacro(targets.map((t) => t.document.uuid));
+    } else {
+      this._executeFoundryMacro(targets);
+    }
   }
 }
