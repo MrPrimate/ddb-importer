@@ -38,6 +38,13 @@ export default class DDDItemEnricher extends DDBEnricherAbstract {
     "Wand of Magic Missiles": () => ItemEnrichers.WandOfMagicMissiles,
     "Warrior's Passkey": () => ItemEnrichers.WarriorsPasskey,
     "Waterskin": () => ItemEnrichers.Waterskin,
+    "Bead of Force": () => ItemEnrichers.BeadOfForce,
+    "Boots of Speed": () => ItemEnrichers.BootsOfSpeed,
+    "Concussion Grenade": () => ItemEnrichers.ConcussionGrenade,
+    "Demon Armor": () => ItemEnrichers.DemonArmor,
+    "Donjon's Sundering Sphere": () => ItemEnrichers.DonjonsSunderingSphere,
+    "Iron Bands of Binding": () => ItemEnrichers.IronBandsOfBinding,
+    "Far Realm Shard": () => ItemEnrichers.FarRealmShard,
   };
 
   NAME_HINTS = {
@@ -66,38 +73,6 @@ export default class DDDItemEnricher extends DDBEnricherAbstract {
   };
 
   ACTIVITY_HINTS = {
-    "Bead of Force": {
-      type: "save",
-      addItemConsume: true,
-    },
-    "Boots of Speed": {
-      type: "utility",
-      targetType: "self",
-      activationType: "bonus",
-    },
-    "Concussion Grenade": {
-      data: {
-        range: {
-          value: "60",
-          unit: "ft",
-        },
-      },
-    },
-    "Demon Armor": {
-      type: "enchant",
-    },
-    "Donjon's Sundering Sphere": {
-      type: "enchant",
-    },
-    "Far Realm Shard": {
-      type: "save",
-      activationType: "special",
-      data: {
-        damage: {
-          onSave: "none",
-        },
-      },
-    },
     "Healer's Kit": {
       type: "utility",
       addItemConsume: true,
@@ -105,19 +80,6 @@ export default class DDDItemEnricher extends DDBEnricherAbstract {
       targetType: "creature",
       data: {
         "range.units": "touch",
-      },
-    },
-    "Iron Bands of Binding": {
-      type: "attack",
-      data: {
-        attack: {
-          bonus: "@prof",
-          ability: "dex",
-          type: {
-            value: "ranged",
-            classification: "weapon",
-          },
-        },
       },
     },
     "Oil of Sharpness": {
@@ -155,99 +117,19 @@ export default class DDDItemEnricher extends DDBEnricherAbstract {
         },
       },
     },
-    "Iron Bands of Binding": {
-      data: {
-        "system.uses": {
-          spent: 0,
-          max: "1",
-          recovery: [{
-            period: "day",
-            type: "recoverAll",
-          }],
-          autoDestroy: false,
-          autoUse: true,
-        },
-      },
-    },
   };
 
   EFFECT_HINTS = {
-    "Bead of Force": {
-      options: {
-        transfer: false,
-        description: "Trapped in a sphere of force!",
-        durationRounds: 10,
-        durationSeconds: 60,
-      },
-    },
     "Belashyrra's Beholder Crown": {
       changes: [
         generateUpgradeChange(120, 10, "system.attributes.senses.darkvision"),
       ],
-    },
-    "Boots of Speed": {
-      options: {
-        transfer: false,
-        durationSeconds: 600,
-        durationRounds: 100,
-      },
-      data: {
-        changes: [
-          generateMultiplyChange(2, 20, "system.attributes.movement.walk"),
-        ],
-      },
     },
     "Bracers of Archery": {
       noCreate: true,
       changes: [
         generateUnsignedAddChange("2", 20, "system.bonuses.rwak.damage"),
       ],
-    },
-    // "Demon Armor": {
-    // previous DAE/Midi effect
-    //   noCreate: true,
-    //   changes: [
-    //     {
-    //       key: "items.Unarmed Strike.system.attack.bonus",
-    //       value: "1",
-    //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-    //       priority: 20,
-    //     },
-    //     {
-    //       key: "items.Unarmed Strike.system.damage.parts.0.0",
-    //       value: "1d8+@mod+1",
-    //       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    //       priority: 20,
-    //     },
-    //     {
-    //       key: "items.Unarmed Strike.system.properties.mgc",
-    //       value: "true",
-    //       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    //       priority: 20,
-    //     },
-    //   ],
-    // },
-    "Demon Armor": {
-      type: "enchant",
-      descriptionHint: true,
-      magicalBonus: {
-        makeMagical: true,
-        bonus: "1",
-      },
-      changes: [
-        generateOverrideChange("1", 20, "system.bonuses.base.number"),
-        generateOverrideChange("8", 20, "system.damage.base.denomination"),
-        generateOverrideChange("false", 20, "system.damage.base.custom.enabled"),
-      ],
-      data: {
-        "restrictions.type": "weapon",
-      },
-    },
-    "Donjon's Sundering Sphere": {
-      type: "enchant",
-      magicalBonus: {
-        bonus: "1",
-      },
     },
     "Dust of Sneezing and Choking": {
       name: "Sneezing and Choking",
@@ -272,53 +154,6 @@ export default class DDDItemEnricher extends DDBEnricherAbstract {
   };
 
   ADDITIONAL_ACTIVITIES = {
-    "Donjon's Sundering Sphere": [
-      {
-        constructor: {
-          name: "Isolating Smite: Save vs Banishment",
-          type: "save",
-        },
-        build: {
-          generateTarget: false,
-          generateRange: false,
-          generateSave: true,
-          generateUses: true,
-          usesOverride: {
-            max: "1",
-            spent: 0,
-            prompt: true,
-            recovery: [{ period: "lr", type: "recoverAll" }],
-          },
-        },
-        overrides: {
-          addActivityConsume: true,
-        },
-      },
-    ],
-    "Iron Bands of Binding": [
-      {
-        constructor: {
-          name: "Escape Check",
-          type: "check",
-        },
-        build: {
-          generateTarget: false,
-          generateRange: false,
-          generateCheck: true,
-          checkOverride: {
-            associated: [],
-            ability: "str",
-            dc: {
-              calculation: "",
-              formula: "20",
-            },
-          },
-        },
-        overrides: {
-          addItemConsume: true,
-        },
-      },
-    ],
     "Staff of Charming": [
       {
         constructor: {

@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 
-import PotionOfHealing from "./PotionOfHealing.js";
+import PotionOfHealing from "./PotionOfHealing.mjs";
 
 export default class PotionOfHealingSupreme extends PotionOfHealing {
 

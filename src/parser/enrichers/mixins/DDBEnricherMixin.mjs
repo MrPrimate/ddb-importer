@@ -8,6 +8,7 @@ import {
   generateTokenMagicFXChange,
   generateUnsignedAddChange,
   generateUpgradeChange,
+  generateMultiplyChange,
 } from "../../../effects/effects.js";
 import { DDBHelper } from "../../../lib/_module.mjs";
 import DDBEnricherAbstract from "./DDBEnricherAbstract.mjs";
@@ -83,6 +84,8 @@ export default class DDBEnricherMixin {
   static generateSignedAddChange = generateSignedAddChange;
 
   static generateUnsignedAddChange = generateUnsignedAddChange;
+
+  static generateMultiplyChange = generateMultiplyChange;
 
   static generateUpgradeChange = generateUpgradeChange;
 
