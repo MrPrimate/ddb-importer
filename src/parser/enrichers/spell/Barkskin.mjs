@@ -8,7 +8,7 @@ export default class Barkskin extends DDBEnricherMixin {
       return [
         {
           changes: [
-            generateUpgradeChange("16", 100, "system.attributes.ac.min"),
+            DDBEnricherMixin.generateUpgradeChange("16", 100, "system.attributes.ac.min"),
           ],
         },
       ];
@@ -16,7 +16,7 @@ export default class Barkskin extends DDBEnricherMixin {
       return [
         {
           changes: [
-            generateUpgradeChange("17", 100, "system.attributes.ac.min"),
+            DDBEnricherMixin.generateUpgradeChange("17", 100, "system.attributes.ac.min"),
           ],
         },
       ];
