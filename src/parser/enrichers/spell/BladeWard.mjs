@@ -8,14 +8,14 @@ export default class BladeWard extends DDBEnricherMixin {
       return [
         {
           changes: [
-            generateUnsignedAddChange("bludgeoning", 10, "system.traits.dr.value"),
-            generateUnsignedAddChange("slashing", 10, "system.traits.dr.value"),
-            generateUnsignedAddChange("piercing", 10, "system.traits.dr.value"),
+            DDBEnricherMixin.generateUnsignedAddChange("bludgeoning", 10, "system.traits.dr.value"),
+            DDBEnricherMixin.generateUnsignedAddChange("slashing", 10, "system.traits.dr.value"),
+            DDBEnricherMixin.generateUnsignedAddChange("piercing", 10, "system.traits.dr.value"),
           ],
           data: {
             "flags.dae.specialDuration": ["turnEnd"],
           },
-        }
+        },
       ];
     } else {
       return [

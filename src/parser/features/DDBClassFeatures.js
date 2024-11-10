@@ -52,7 +52,7 @@ export default class DDBClassFeatures {
     feature.build();
     const allowedByLevel = !filterByLevel || (filterByLevel && feature.hasRequiredLevel);
 
-    logger.debug(`DDBClassFeatures._getFeatures: ${feature.ddbDefinition.name}`, {
+    logger.debug(`DDBClassFeatures._getFeatures generated: ${feature.ddbDefinition.name}`, {
       featureDefinition,
       feature,
       this: this,
@@ -61,8 +61,22 @@ export default class DDBClassFeatures {
     if (DDBClassFeatures.EXCLUDED_FEATURES.some((e) => feature.name.startsWith(e))
       || (feature.is2014 && DDBClassFeatures.EXCLUDED_FEATURES_2014.some((e) => feature.originalName.startsWith(e)))
       || (!feature.is2014 && DDBClassFeatures.EXCLUDED_FEATURES_2024.some((e) => feature.originalName.startsWith(e)))
-    ) return [];
-    if (!allowedByLevel) return [];
+    ) {
+      logger.debug(`DDBClassFeatures._getFeatures: ${feature.ddbDefinition.name} excluded`, {
+        featureDefinition,
+        feature,
+        this: this,
+      });
+      return [];
+    }
+    if (!allowedByLevel) {
+      logger.debug(`DDBClassFeatures._getFeatures: ${feature.ddbDefinition.name} not allowed by level`, {
+        featureDefinition,
+        feature,
+        this: this,
+      });
+      return [];
+    }
     const choiceFeatures = feature.isChoiceFeature
       ? await DDBChoiceFeature.buildChoiceFeatures(feature)
       : [];
