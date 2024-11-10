@@ -1,3 +1,9 @@
+# Next Up
+
+- Rage of the Wilds feature did not import for Barbarians (2024)
+- Higher level artificers would not import due to changes in class feature import
+- Please note that when the class, class feature, and species munch returns, it will now import classes and class features into the same compendium, DDB Classes, and Species and Species traits in to DBB Species. Although this won't be for a little longer Artificer parsing does add infusions into your compendium when importing as a GM.
+
 # 6.0.32
 
 - D&D 4.1.x required

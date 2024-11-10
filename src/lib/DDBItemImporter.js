@@ -33,6 +33,12 @@ export default class DDBItemImporter {
 
     this.deleteBeforeUpdate = deleteBeforeUpdate ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-delete-during-update");
     this.notifier = notifier;
+
+    if (!notifier) {
+      this.notifier = (note, nameField = false, monsterNote = false) => {
+        logger.info(note, { nameField, monsterNote });
+      };
+    }
   }
 
   async buildIndex(indexFilter = {}) {

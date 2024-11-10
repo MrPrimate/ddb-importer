@@ -59,8 +59,8 @@ export default class DDBClassFeatures {
     });
 
     if (DDBClassFeatures.EXCLUDED_FEATURES.some((e) => feature.name.startsWith(e))
-      || (feature.is2014 && DDBClassFeatures.EXCLUDED_FEATURES_2014.some((e) => feature.originalName.startsWith(e)))
-      || (!feature.is2014 && DDBClassFeatures.EXCLUDED_FEATURES_2024.some((e) => feature.originalName.startsWith(e)))
+      || (feature.is2014 && DDBClassFeatures.EXCLUDED_FEATURES_2014.includes(feature.originalName))
+      || (!feature.is2014 && DDBClassFeatures.EXCLUDED_FEATURES_2024.includes(feature.originalName))
     ) {
       logger.debug(`DDBClassFeatures._getFeatures: ${feature.ddbDefinition.name} excluded`, {
         featureDefinition,
