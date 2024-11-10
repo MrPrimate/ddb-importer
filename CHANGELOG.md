@@ -1,3 +1,7 @@
+# 6.0.34
+
+- Item parsing fixes.
+
 # 6.0.33
 
 - Rage of the Wilds feature did not import for Barbarians (2024)
