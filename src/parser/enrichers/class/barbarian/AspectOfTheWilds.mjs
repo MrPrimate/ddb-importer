@@ -62,9 +62,7 @@ export default class AspectOfTheWilds extends DDBEnricherMixin {
         name: "Owl",
         options: {
         },
-        data: {
-          "flags.ddbimporter.activityMatch": "Owl",
-        },
+        activityMatch: "Owl",
         changes: [
           DDBEnricherMixin.generateUpgradeChange("60", 20, "system.attributes.senses.darkvision"),
         ],
@@ -77,9 +75,7 @@ export default class AspectOfTheWilds extends DDBEnricherMixin {
         name: "Panther",
         options: {
         },
-        data: {
-          "flags.ddbimporter.activityMatch": "Panther",
-        },
+        activityMatch: "Panther",
         changes: [
           this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.climb"),
         ],
@@ -88,9 +84,7 @@ export default class AspectOfTheWilds extends DDBEnricherMixin {
         name: "Salmon",
         options: {
         },
-        data: {
-          "flags.ddbimporter.activityMatch": "Salmon",
-        },
+        activityMatch: "Salmon",
         changes: [
           this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.swim"),
         ],

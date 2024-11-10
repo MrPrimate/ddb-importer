@@ -155,6 +155,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Observant": () => FeatEnrichers.Observant,
     "Defile Ground": () => ClassEnrichers.Druid.DefileGround,
     "Defile Ground: Move Corruption": () => ClassEnrichers.Druid.DefileGroundMoveCorruption,
+    "Rage of the Wilds": () => ClassEnrichers.Barbarian.RageOfTheWilds,
   };
 
   NAME_HINTS_2014 = {

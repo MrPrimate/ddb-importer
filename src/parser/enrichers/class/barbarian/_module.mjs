@@ -1,6 +1,7 @@
-export { default as AspectOfTheWilds } from "./AspectOfTheWilds.js";
-export { default as Rage } from "./Rage.js";
-export { default as FormOfTheBeast } from "./FormOfTheBeast.js";
-export { default as ShieldingStorm } from "./ShieldingStorm.js";
-export { default as PowerOfTheWilds } from "./PowerOfTheWilds.js";
-export { default as ImprovedBrutalStrike } from "./ImprovedBrutalStrike.js";
+export { default as AspectOfTheWilds } from "./AspectOfTheWilds.mjs";
+export { default as Rage } from "./Rage.mjs";
+export { default as FormOfTheBeast } from "./FormOfTheBeast.mjs";
+export { default as ShieldingStorm } from "./ShieldingStorm.mjs";
+export { default as PowerOfTheWilds } from "./PowerOfTheWilds.mjs";
+export { default as ImprovedBrutalStrike } from "./ImprovedBrutalStrike.mjs";
+export { default as RageOfTheWilds } from "./RageOfTheWilds.mjs";
