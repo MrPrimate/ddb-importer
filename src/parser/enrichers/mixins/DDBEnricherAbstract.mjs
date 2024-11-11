@@ -179,17 +179,19 @@ export default class DDBEnricherAbstract {
     }
   }
 
-  constructor() {
+  constructor({
+    activityGenerator = null, effectType = "basic", enricherType = "general",
+  } = {}) {
     this.ddbParser = null;
     this.document = null;
     this.name = null;
     this.isCustomAction = null;
-    this.additionalActivityClass = null;
+    this.activityGenerator = activityGenerator;
     this.is2014 = null;
     this.is2024 = null;
     this.useLookupName = false;
-    this.effectType = "basic";
-    this.enricherType = "general";
+    this.effectType = effectType;
+    this.enricherType = enricherType;
     this.manager = null;
     this.loadedEnricher = null;
     this._originalActivity = null;
@@ -596,7 +598,7 @@ export default class DDBEnricherAbstract {
       nameIdPostfix: `${i}`,
     }, activityHint.constructor);
     activationData.ddbParent = ddbParent;
-    const activity = new this.additionalActivityClass(activationData);
+    const activity = new this.activityGenerator(activationData);
     activity.build(activityHint.build);
 
     return {
@@ -642,7 +644,7 @@ export default class DDBEnricherAbstract {
 
   addAdditionalActivities(ddbParent) {
     const additionalActivities = this.additionalActivities;
-    if (!additionalActivities || !this.additionalActivityClass) return;
+    if (!additionalActivities || !this.activityGenerator) return;
 
     let i = this.data.system.activities.length ?? 0 + 1;
     for (const activityHint of additionalActivities) {

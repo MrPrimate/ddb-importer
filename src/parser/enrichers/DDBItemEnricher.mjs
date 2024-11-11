@@ -1,14 +1,13 @@
-import { generateMultiplyChange, generateOverrideChange, generateUnsignedAddChange, generateUpgradeChange } from "../../effects/effects.js";
-import DDBItemActivity from "../item/DDBItemActivity.js";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 import { ItemEnrichers } from "./_module.mjs";
 
-export default class DDDItemEnricher extends DDBEnricherAbstract {
-  constructor() {
-    super();
-    this.additionalActivityClass = DDBItemActivity;
-    this.effectType = "item";
-    this.enricherType = "item";
+export default class DDBItemEnricher extends DDBEnricherAbstract {
+  constructor({ activityGenerator } = {}) {
+    super({
+      activityGenerator,
+      effectType: "item",
+      enricherType: "item",
+    });
   }
 
   load({ ddbParser, document, name = null } = {}) {

@@ -1,2 +1,2 @@
-export { default as BeguilingMagic } from "./BeguilingMagic.js";
-export { default as DazzlingFootwork } from "./DazzlingFootwork.js";
+export { default as BeguilingMagic } from "./BeguilingMagic.mjs";
+export { default as DazzlingFootwork } from "./DazzlingFootwork.mjs";

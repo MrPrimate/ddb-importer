@@ -107,7 +107,7 @@ export default class DDBEnricherMixin {
     this.is2014 = ddbEnricher.is2014;
     this.is2024 = ddbEnricher.is2024;
     this.useLookupName = ddbEnricher.useLookupName;
-    this.additionalActivityClass = ddbEnricher.additionalActivityClass;
+    this.activityGenerator = ddbEnricher.activityGenerator;
     this.effectType = ddbEnricher.effectType;
     this.document = ddbEnricher.document;
     this.name = ddbEnricher.name;

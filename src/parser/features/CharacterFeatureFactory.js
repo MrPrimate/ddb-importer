@@ -6,6 +6,7 @@ import DDBFeatureMixin from "./DDBFeatureMixin.js";
 import DDBFeatures from "./DDBFeatures.js";
 import { addExtraEffects } from "./extraEffects.js";
 import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
+import DDBFeatureActivity from "./DDBFeatureActivity.js";
 
 export default class CharacterFeatureFactory {
 
@@ -101,7 +102,7 @@ export default class CharacterFeatureFactory {
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, overrides);
 
-    const enricher = new DDBFeatureEnricher();
+    const enricher = new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
     await enricher.init();
     const unarmedStrikeAction = new DDBAttackAction({
       ddbCharacter: this.ddbCharacter,
@@ -149,7 +150,7 @@ export default class CharacterFeatureFactory {
 
     const attackActions = (await Promise.all(attackActionsBase
       .map(async (action) => {
-        const enricher = new DDBFeatureEnricher();
+        const enricher = new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
         await enricher.init();
         const ddbAttackAction = new DDBAttackAction({
           ddbCharacter: this.ddbCharacter,
@@ -233,7 +234,7 @@ export default class CharacterFeatureFactory {
       .map(async(action) => {
         logger.debug(`Getting Other Action ${action.name}`);
 
-        const enricher = new DDBFeatureEnricher();
+        const enricher = new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
         await enricher.init();
 
         const ddbAction = new DDBAction({

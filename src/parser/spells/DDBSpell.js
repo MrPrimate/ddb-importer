@@ -162,7 +162,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this._generateDataStub();
 
     this.itemCompendium = CompendiumHelper.getCompendiumType("item", false);
-    this.enricher = enricher ?? new DDBSpellEnricher();
+    this.enricher = enricher ?? new DDBSpellEnricher({ activityGenerator: DDBSpellActivity });
     this._loadEnricher();
     this.isCompanionSpell = SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName);
     this.isCRSummonSpell = SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName);

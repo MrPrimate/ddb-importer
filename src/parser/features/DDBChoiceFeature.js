@@ -1,6 +1,7 @@
 import DDBFeature from "./DDBFeature.js";
 import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
 import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
+import DDBFeatureActivity from "./DDBFeatureActivity.js";
 
 export default class DDBChoiceFeature extends DDBFeature {
 
@@ -270,7 +271,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       feature: ddbFeature,
       allFeatures,
     });
-    const enricher = new DDBFeatureEnricher();
+    const enricher = new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
     await enricher.init();
     for (const choice of choices) {
       const choiceFeature = new DDBChoiceFeature({

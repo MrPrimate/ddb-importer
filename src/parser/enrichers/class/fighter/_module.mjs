@@ -1,2 +1,2 @@
 
-export { default as Relentless } from "./Relentless.js";
+export { default as Relentless } from "./Relentless.mjs";

@@ -1,4 +1,3 @@
-import DDBMonsterFeatureActivity from "../monster/features/DDBMonsterFeatureActivity.js";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 import { MonsterEnrichers } from "./_module.mjs";
 
@@ -23,18 +22,18 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherAbstract {
     this._getEnricherMatchesV2();
   }
 
-  constructor() {
-    super();
-    this.additionalActivityClass = DDBMonsterFeatureActivity;
+  constructor({ activityGenerator } = {}) {
+    super({
+      activityGenerator,
+      effectType: "feat",
+      enricherType: "monster",
+    });
   }
 
   load({ ddbParser, document, name = null, monster, is2014 = null } = {}) {
     this.monster = monster;
     this.monsterName = this.monster.name;
     super.load({ ddbParser, document, name, is2014 });
-    this.additionalActivityClass = DDBMonsterFeatureActivity;
-    this.effectType = "feat";
-    this.enricherType = "monster";
   }
 
   DND_2014 = {

@@ -1,2 +1,2 @@
-export { default as CoronaOfLight } from "./CoronaOfLight.js";
-export { default as DivineIntervention } from "./DivineIntervention.js";
+export { default as CoronaOfLight } from "./CoronaOfLight.mjs";
+export { default as DivineIntervention } from "./DivineIntervention.mjs";

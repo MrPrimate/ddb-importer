@@ -9,17 +9,17 @@ import {
 } from "../../effects/effects.js";
 import { utils, DDBHelper } from "../../lib/_module.mjs";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
-import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
 
 // enrichers
 import { ClassEnrichers, SpeciesEnrichers, FeatEnrichers, GenericEnrichers } from "./_module.mjs";
 
 export default class DDBFeatureEnricher extends DDBEnricherAbstract {
-  constructor() {
-    super();
-    this.additionalActivityClass = DDBFeatureActivity;
-    this.effectType = "feat";
-    this.enricherType = "feat";
+  constructor({ activityGenerator } = {}) {
+    super({
+      activityGenerator,
+      effectType: "feat",
+      enricherType: "feat",
+    });
   }
 
   load({ ddbParser, document, name = null } = {}) {

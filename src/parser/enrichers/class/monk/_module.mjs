@@ -1,5 +1,5 @@
-export { default as ElementalEpitome } from "./ElementalEpitome.js";
-export { default as MonksFocus } from "./MonksFocus.js";
-export { default as StrideOfTheElements } from "./StrideOfTheElements.js";
-export { default as SlowFall } from "./SlowFall.js";
-export { default as PatientDefense } from "./PatientDefense.js";
+export { default as ElementalEpitome } from "./ElementalEpitome.mjs";
+export { default as MonksFocus } from "./MonksFocus.mjs";
+export { default as StrideOfTheElements } from "./StrideOfTheElements.mjs";
+export { default as SlowFall } from "./SlowFall.mjs";
+export { default as PatientDefense } from "./PatientDefense.mjs";

@@ -3,6 +3,7 @@ import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBFeature from "./DDBFeature.js";
 import DDBFeatures from "./DDBFeatures.js";
 import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
+import DDBFeatureActivity from "./DDBFeatureActivity.js";
 
 
 export default class DDBClassFeatures {
@@ -37,7 +38,7 @@ export default class DDBClassFeatures {
   }
 
   async _getFeatures({ featureDefinition, type, source, filterByLevel = true, flags = {} } = {}) {
-    const enricher = new DDBFeatureEnricher();
+    const enricher = new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
     await enricher.init();
     const feature = new DDBFeature({
       ddbCharacter: this.ddbCharacter,

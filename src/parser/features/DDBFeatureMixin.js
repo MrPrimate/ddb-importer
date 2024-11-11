@@ -272,7 +272,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this.data.system.source = localSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
-    this.enricher = enricher ?? new DDBFeatureEnricher();
+    this.enricher = enricher ?? new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
     this._loadEnricher();
   }
 

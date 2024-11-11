@@ -202,7 +202,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.versatileDamage = "";
     this.addMagical = false;
 
-    this.enricher = enricher ?? new DDBItemEnricher();
+    this.enricher = enricher ?? new DDBItemEnricher({ activityGenerator: DDBItemActivity });
 
   }
 

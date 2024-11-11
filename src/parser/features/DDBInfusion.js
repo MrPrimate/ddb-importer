@@ -14,6 +14,7 @@ import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import { addExtraEffects } from "./extraEffects.js";
+import DDBFeatureActivity from "./DDBFeatureActivity.js";
 
 export class DDBInfusion {
 
@@ -95,7 +96,7 @@ export class DDBInfusion {
     this.addToCompendium = addToCompendium;
     this.nameIdPostfix = nameIdPostfix;
     this.activityType = this._getActivityType();
-    this.enricher = new DDBFeatureEnricher();
+    this.enricher = new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
   }
 
   _buildBaseActivity() {

@@ -8,16 +8,16 @@ import {
   generateUnsignedAddChange,
   generateUpgradeChange,
 } from "../../effects/effects.js";
-import DDBSpellActivity from "../spells/DDBSpellActivity.js";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 import { SpellEnrichers } from "./_module.mjs";
 
-export default class DDDSpellEnricher extends DDBEnricherAbstract {
-  constructor() {
-    super();
-    this.additionalActivityClass = DDBSpellActivity;
-    this.effectType = "spell";
-    this.enricherType = "spell";
+export default class DDBSpellEnricher extends DDBEnricherAbstract {
+  constructor({ activityGenerator } = {}) {
+    super({
+      activityGenerator,
+      effectType: "spell",
+      enricherType: "spell",
+    });
   }
 
   load({ ddbParser, document, name = null } = {}) {
@@ -56,6 +56,7 @@ export default class DDDSpellEnricher extends DDBEnricherAbstract {
     "Blade Ward": () => SpellEnrichers.BladeWard,
     "Mass Suggestion": () => SpellEnrichers.MassSuggestion,
     "Suggestion": () => SpellEnrichers.Suggestion,
+    "Acid Arrow": () => SpellEnrichers.AcidArrow,
   };
 
   NAME_HINTS_2014 = {};
