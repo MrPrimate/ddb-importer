@@ -1,12 +1,8 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
-import { logger, utils } from "../../lib/_module.mjs";
-import FileHelper from "../../lib/FileHelper.js";
+import { logger, utils, FileHelper, CompendiumHelper, DDBReferenceLinker } from "../../lib/_module.mjs";
 import { generateAdventureConfig } from "../adventure.js";
-import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { SETTINGS } from "../../config/_module.mjs";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
-import { parseTags } from "../../lib/DDBReferenceLinker.js";
 
 export default class AdventureMunch extends FormApplication {
 
@@ -35,8 +31,6 @@ export default class AdventureMunch extends FormApplication {
   constructor(object = {}, options = {}) {
     super(object, options);
     this._itemsToRevisit = [];
-    const importPathData = game.settings.get(SETTINGS.MODULE_ID, "adventure-import-path");
-    this._importPathData = DirectoryPicker.parse(importPathData);
     this.adventure = null;
     this.folders = null;
     this.raw = {
@@ -142,7 +136,7 @@ export default class AdventureMunch extends FormApplication {
     const baseUploadPath = misc
       ? game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path")
       : game.settings.get(SETTINGS.MODULE_ID, "adventure-upload-path");
-    const parsedBaseUploadPath = DirectoryPicker.parse(baseUploadPath);
+    const parsedBaseUploadPath = FileHelper.parseDirectory(baseUploadPath);
     const uploadPath = misc
       ? `${parsedBaseUploadPath.current}/${targetPath}`
       : `${parsedBaseUploadPath.current}/${adventurePath}/${targetPath}`;
@@ -188,7 +182,7 @@ export default class AdventureMunch extends FormApplication {
 
         if (paths.fullUploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.fullUploadPath)) {
           logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
-          await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
+          await FileHelper.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
           await FileHelper.generateCurrentFiles(paths.fullUploadPath);
           CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.fullUploadPath);
         }
@@ -196,7 +190,7 @@ export default class AdventureMunch extends FormApplication {
         if (!CONFIG.DDBI.KNOWN.FILES.has(paths.pathKey)) {
           logger.debug(`Importing raw file from ${path}`, paths);
           const fileData = new File([content], paths.filename, { type: mimeType });
-          const targetPath = (await DirectoryPicker.uploadToPath(paths.fullUploadPath, fileData))?.path;
+          const targetPath = (await FileHelper.uploadToPath(paths.fullUploadPath, fileData))?.path;
           CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
           CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}`, targetPath);
         } else {
@@ -233,7 +227,7 @@ export default class AdventureMunch extends FormApplication {
 
         if (paths.fullUploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.fullUploadPath)) {
           logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
-          await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
+          await FileHelper.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
           await FileHelper.generateCurrentFiles(paths.fullUploadPath);
           CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.fullUploadPath);
         }
@@ -261,38 +255,11 @@ export default class AdventureMunch extends FormApplication {
   /** @override */
   // eslint-disable-next-line class-methods-use-this
   async getData() {
-    let data;
-    let files = [];
-
-    try {
-      const verifiedDirectory = await DirectoryPicker.verifyPath(this._importPathData);
-      if (verifiedDirectory) {
-        const options = {
-          bucket: this._importPathData.bucket,
-          extensions: [".fvttadv", ".FVTTADV", ".zip"],
-          wildcard: false,
-        };
-        data = await DirectoryPicker.browseFiles(this._importPathData.activeSource, this._importPathData.current, options);
-        files = data.files.map((file) => {
-          const filename = decodeURIComponent(file).replace(/^.*[\\/]/, "");
-
-          return { path: decodeURIComponent(file), name: filename };
-        });
-      }
-    } catch (err) {
-      logger.error(err);
-      logger.warn(
-        `Unable to verify import path, this may be due to permissions on the server. You may be able to ignore this message.`,
-      );
-    }
-
     return {
-      data,
       allScenes: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-scenes"),
       allMonsters: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world"),
       journalWorldActors: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors"),
       addToCompendiums: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums"),
-      files,
       cssClass: "ddb-importer-window",
     };
   }
@@ -1584,7 +1551,7 @@ export default class AdventureMunch extends FormApplication {
       });
     }
 
-    doc.body.innerHTML = parseTags(doc.body.innerHTML);
+    doc.body.innerHTML = DDBReferenceLinker.parseTags(doc.body.innerHTML);
 
     return doc.body.innerHTML;
   }

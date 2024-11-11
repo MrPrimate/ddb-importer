@@ -46,7 +46,7 @@
   "scripts": [
     "./vendor/jszip/jszip.min.js"
   ],
-  "esmodules": ["src/index.js"],
+  "esmodules": ["src/index.mjs"],
   "styles": [
     "./css/default.css",
     "./css/import.css",

@@ -2,7 +2,7 @@ import "./hooks/init/extendClasses.js";
 import { logger, Logger, Notifications } from "./lib/_module.mjs";
 
 // init hooks
-import { registerApi } from "./api.js";
+import { registerApi } from "./api.mjs";
 import { chatHooks } from "./hooks/init/chatHooks.js";
 import adventureImporter from "./hooks/init/adventureImporter.js";
 
@@ -18,7 +18,7 @@ import { setupUpdateCreatedOrigins } from "./hooks/ready/originFixing.js";
 import DDBEffectHooks from "./effects/DDBEffectHooks.js";
 
 // monster muncher
-import { earlySettings } from "./hooks/renderMuncher/earlySettings.js";
+import { earlySettings } from "./hooks/init/settings.js";
 import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
 import { addEncounterMuncher } from "./hooks/renderMuncher/addEncounterMuncher.js";
 

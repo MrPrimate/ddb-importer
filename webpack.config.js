@@ -6,7 +6,7 @@ module.exports = {
   devtool: "source-map",
   entry: {
     main: {
-      import: './src/index.js',
+      import: './src/index.mjs',
       // dependOn: ['lib', 'lowdash'],
     },
     // enrichers: {
@@ -41,7 +41,7 @@ module.exports = {
     // },
   },
   output: {
-    filename: '[name].js',
+    filename: '[name].mjs',
     path: path.resolve(__dirname, 'dist'),
   },
 };

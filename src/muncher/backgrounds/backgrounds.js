@@ -1,8 +1,16 @@
+// import { generateBackground } from "../../parser/character/bio.js";
 import { logger, DDBHelper, DDBItemImporter } from "../../lib/_module.mjs";
-import { generateBackground } from "../../parser/character/bio.js";
 // import { parseTags } from "../../lib/DDBReferenceLinker.js";
-import DDBFeature from "../../parser/features/DDBFeature.js";
+// import DDBFeature from "../../parser/features/DDBFeature.js";
 import DDBMuncher from "../../apps/DDBMuncher.js";
+
+function generateBackground(data) {
+  return data;
+}
+
+class DDBFeature {
+
+}
 
 // const BACKGROUND_TEMPLATE = {
 //   "name": "",

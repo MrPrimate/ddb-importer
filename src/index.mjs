@@ -5,7 +5,7 @@ import {
   renderSidebarTab,
   renderItemSheet,
   renderJournalSheet,
-} from "./hooks.js";
+} from "./hooks.mjs";
 import extendSceneNavigationContext from "./hooks/navigationContext/extendSceneNavigationContext.js";
 
 // register hooks

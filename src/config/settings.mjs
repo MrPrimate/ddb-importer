@@ -1,5 +1,6 @@
-import { DirectoryPicker, PatreonHelper } from "../lib/_module.mjs";
-import { DICTIONARY } from "./_module.mjs";
+import { PatreonHelper } from "../lib/_module.mjs";
+import { DirectoryPicker } from "../lib/DirectoryPicker.mjs";
+import DICTIONARY from "./dictionary.mjs";
 
 const COMPENDIUMS = [
   {
@@ -546,12 +547,6 @@ const SETTINGS = {
           hint: "ddb-importer.settings.frame-image-upload-directory.hint",
           type: DirectoryPicker.Directory,
           default: "[data] ddb-images/frames",
-        },
-        "adventure-import-path": {
-          name: "ddb-importer.settings.adventure-import-path.name",
-          hint: "ddb-importer.settings.adventure-import-path.hint",
-          default: "[data] adventures/import",
-          type: DirectoryPicker.Directory,
         },
         "adventure-upload-path": {
           name: "ddb-importer.settings.adventure-upload-path.name",

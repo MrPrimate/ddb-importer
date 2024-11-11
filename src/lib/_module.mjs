@@ -18,7 +18,7 @@ export * as DDBReferenceLinker from "./DDBReferenceLinker.js";
 export * as DDBTable from "./DDBTable.js";
 export * as DDBTemplateStrings from "./DDBTemplateStrings.js";
 export { default as DialogHelper } from "./DialogHelper.js";
-export { DirectoryPicker } from "./DirectoryPicker.js";
+export { DirectoryPicker } from "./DirectoryPicker.mjs";
 export { default as FileHelper } from "./FileHelper.js";
 export { default as FolderHelper } from "./FolderHelper.js";
 export { default as Iconizer } from "./Iconizer.js";

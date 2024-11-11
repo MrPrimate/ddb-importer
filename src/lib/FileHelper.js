@@ -1,22 +1,22 @@
 import { logger, utils, DDBProxy, DirectoryPicker } from "./_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 
-const FileHelper = {
-  BAD_DIRS: ["[data]", "[data] ", "", null],
+export class FileHelper {
 
-  removeFileExtension: (name) => {
+  static BAD_DIRS = ["[data]", "[data] ", "", null];
+
+  static removeFileExtension(name) {
     let nameArray = name.split(".");
     nameArray.pop();
     return nameArray.join(".");
-  },
-
+  }
 
   /**
    * Read data from a user provided File object
    * @param {File} file           A File object
    * @returns {Promise.<>}   A Promise which resolves to the loaded text data
    */
-  readBlobFromFile: (file) => {
+  static readBlobFromFile(file) {
     const reader = new FileReader();
     return new Promise((resolve, reject) => {
       reader.onload = () => {
@@ -28,17 +28,17 @@ const FileHelper = {
       };
       reader.readAsBinaryString(file);
     });
-  },
+  }
 
-  download: (content, fileName, contentType) => {
+  static download(content, fileName, contentType) {
     let a = document.createElement("a");
     let file = new Blob([content], { type: contentType });
     a.href = URL.createObjectURL(file);
     a.download = fileName;
     a.click();
-  },
+  }
 
-  addFileToKnown: (parsedDir, file) => {
+  static addFileToKnown(parsedDir, file) {
     CONFIG.DDBI.KNOWN.FILES.add(file);
     const split = file.split(parsedDir.current);
     if (split.length > 1) {
@@ -46,23 +46,23 @@ const FileHelper = {
       CONFIG.DDBI.KNOWN.FILES.add(`${parsedDir.fullPath}${fileName}`);
       CONFIG.DDBI.KNOWN.LOOKUPS.set(`${parsedDir.fullPath}${fileName}`, file);
     }
-  },
+  }
 
-  fileExistsUpdate: (parsedDir, fileList) => {
+  static fileExistsUpdate(parsedDir, fileList) {
     const targetFiles = fileList.filter((f) => !CONFIG.DDBI.KNOWN.FILES.has(f));
     for (const file of targetFiles) {
       FileHelper.addFileToKnown(parsedDir, file);
     }
-  },
+  }
 
-  dirExistsUpdate: (dirList) => {
+  static dirExistsUpdate(dirList) {
     const targetFiles = dirList.filter((f) => !CONFIG.DDBI.KNOWN.DIRS.has(f));
     for (const file of targetFiles) {
       CONFIG.DDBI.KNOWN.DIRS.add(file);
     }
-  },
+  }
 
-  doesDirExist: async (directoryPath) => {
+  static async doesDirExist(directoryPath) {
     const dir = DirectoryPicker.parse(directoryPath);
     try {
       await DirectoryPicker.browse(dir.activeSource, dir.current, {
@@ -72,9 +72,9 @@ const FileHelper = {
     } catch (error) {
       return false;
     }
-  },
+  }
 
-  generateCurrentFilesFromParsedDir: async (parsedDir) => {
+  static async generateCurrentFilesFromParsedDir(parsedDir) {
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedDir.fullPath)) {
       logger.debug(`Checking for files in ${parsedDir.fullPath}...`, parsedDir);
       const fileList = await DirectoryPicker.browse(parsedDir.activeSource, parsedDir.current, {
@@ -104,9 +104,9 @@ const FileHelper = {
     } else {
       logger.debug(`Skipping full dir scan for ${parsedDir.fullPath}...`);
     }
-  },
+  }
 
-  generateCurrentFiles: async (directoryPath) => {
+  static async generateCurrentFiles(directoryPath) {
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(directoryPath)) {
       logger.debug(`Checking for files in directoryPath ${directoryPath}...`);
       const dir = DirectoryPicker.parse(directoryPath);
@@ -114,9 +114,9 @@ const FileHelper = {
     } else {
       logger.debug(`Skipping full dir scan for ${directoryPath}...`);
     }
-  },
+  }
 
-  fileExists: async (directoryPath, filename) => {
+  static async fileExists(directoryPath, filename) {
     const fileRef = `${directoryPath}/${filename}`;
     let existingFile = CONFIG.DDBI.KNOWN.FILES.has(fileRef);
     if (existingFile) return true;
@@ -137,9 +137,9 @@ const FileHelper = {
     }
 
     return filePresent;
-  },
+  }
 
-  convertImageToWebp: async function (file, filename) {
+  static async convertImageToWebp(file, filename) {
     logger.info(`Converting file ${filename} to webp`);
 
     // Load the data into an image
@@ -172,9 +172,9 @@ const FileHelper = {
       });
 
     return result;
-  },
+  }
 
-  uploadFile: async function (data, path, filename, forceWebp = false) {
+  static async uploadFile(data, path, filename, forceWebp = false) {
     const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
     const file = new File([data], filename, { type: data.type });
     const imageType = data.type.startsWith("image") && data.type !== "image/webp";
@@ -182,11 +182,11 @@ const FileHelper = {
       ? new File([await FileHelper.convertImageToWebp(file, filename)], filename, { type: "image/webp" })
       : file;
 
-    const result = await DirectoryPicker.uploadToPath(path, uploadFile);
+    const result = await FileHelper.uploadToPath(path, uploadFile);
     return result;
-  },
+  }
 
-  uploadImage: async function (data, path, filename, forceWebp = false) {
+  static async uploadImage(data, path, filename, forceWebp = false) {
     return new Promise((resolve, reject) => {
       FileHelper.uploadFile(data, path, filename, forceWebp)
         .then((result) => {
@@ -197,9 +197,9 @@ const FileHelper = {
           reject(error);
         });
     });
-  },
+  }
 
-  downloadImage: async function (url) {
+  static async downloadImage(url) {
     return new Promise((resolve, reject) => {
       fetch(url, {
         method: "GET",
@@ -216,9 +216,9 @@ const FileHelper = {
         .then((blob) => resolve(blob))
         .catch((error) => reject(error.message));
     });
-  },
+  }
 
-  uploadRemoteImage: async function (originalUrl, targetDirectory, baseFilename, useProxy = true) {
+  static async uploadRemoteImage(originalUrl, targetDirectory, baseFilename, useProxy = true) {
     // prepare filenames
     const filename = baseFilename;
     const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
@@ -250,9 +250,9 @@ const FileHelper = {
       ui.notifications.warn(`Image upload failed. Please check your ddb-importer upload folder setting. ${originalUrl}`);
       return null;
     }
-  },
+  }
 
-  getForgeUrl: async (directoryPath, filename) => {
+  static async getForgeUrl(directoryPath, filename) {
     let uri;
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(directoryPath)) {
       await FileHelper.generateCurrentFiles(directoryPath);
@@ -277,9 +277,9 @@ const FileHelper = {
       }
     }
     return uri;
-  },
+  }
 
-  getFileUrl: async (directoryPath, filename) => {
+  static async getFileUrl(directoryPath, filename) {
     let uri;
     try {
       if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
@@ -305,11 +305,11 @@ const FileHelper = {
       throw new Error(`Unable to determine file URL for directoryPath "${directoryPath}" and filename "${filename}"`);
     }
     return encodeURI(uri);
-  },
+  }
 
-  getImagePath: async (imageUrl, { type = "ddb", imageNamePrefix = "", name = undefined, download = false,
+  static async getImagePath(imageUrl, { type = "ddb", imageNamePrefix = "", name = undefined, download = false,
     remoteImages = false, force = false, pathPostfix = "", targetDirectory = undefined } = {},
-  ) => {
+  ) {
     if (!name || !targetDirectory) {
       logger.error(`You must supply a targetDirectory and name for the image ${imageUrl}`, { name, targetDirectory, type });
       throw new Error(`You must supply a targetDirectory and name for the image ${imageUrl}`);
@@ -327,7 +327,7 @@ const FileHelper = {
     const uploadDirectory = `${targetDirectory}${pathPostfix}`;
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(uploadDirectory)) {
       const parsedPath = DirectoryPicker.parse(uploadDirectory);
-      await DirectoryPicker.verifyPath(parsedPath);
+      await FileHelper.verifyPath(parsedPath);
       await FileHelper.generateCurrentFilesFromParsedDir(parsedPath);
     }
     const downloadImage = (download) ? download : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
@@ -369,7 +369,85 @@ const FileHelper = {
       }
     }
     return null;
-  },
+  }
+
+  static async forgeCreateDirectory(target) {
+    if (!target) return undefined;
+    const response = await ForgeAPI.call('assets/new-folder', { path: target });
+    if (!response || response.error) {
+      throw new Error(response ? response.error : "Unknown error while creating directory.");
+    }
+    return response;
+  }
+
+  /**
+   * Create a directory on the file system. If running on ForgeVTT, will use the Forge's API
+   * to create a new folder. Otherwise falls back to `FilePicker.createDirectory`.
+   * @param {string} source
+   * @param {string} target directory name
+   * @param {object} options options passed to FilePicker.createDirectory
+   * @returns {Promise<string|undefined>} path to the created directory, or undefined if
+   * failure
+   */
+  static async createDirectory(source, target, options = {}) {
+    if (!target) {
+      throw new Error("No directory name provided");
+    }
+    if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
+      return FileHelper.forgeCreateDirectory(target);
+    }
+    return FilePicker.createDirectory(source, target, options);
+  }
+
+  /**
+   * Verifies server path exists, and if it doesn't creates it.
+   *
+   * @param  {object} parsedPath output from DirectoryPicker,parse
+   * @param  {string} targetPath if set will check this path, else check parsedPath.current
+   * @returns {boolean} true if verified, false if unable to create/verify
+   */
+  static async verifyPath(parsedPath, targetPath = null) {
+    try {
+      if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) return true;
+      const paths = (targetPath) ? targetPath.split("/") : parsedPath.current.split("/");
+      let currentSource = paths[0];
+
+      for (let i = 0; i < paths.length; i += 1) {
+        try {
+          if (currentSource !== paths[i]) {
+            currentSource = `${currentSource}/${paths[i]}`;
+          }
+          await FileHelper.createDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
+        } catch (err) {
+          const errMessage = `${(err?.message ?? utils.isString(err) ? err : err)}`.replace(/^Error: /, "").trim();
+          if (!errMessage.startsWith("EEXIST") && !errMessage.startsWith("The S3 key")) {
+            logger.error(`Error trying to verify path [${parsedPath.activeSource}], ${parsedPath.current}`, err);
+            logger.error("parsedPath", parsedPath);
+            logger.error("targetPath", targetPath);
+          }
+        }
+      }
+    } catch (err) {
+      logger.error("Unable to verify path", err);
+      return false;
+    }
+
+    return true;
+  }
+
+  static async verifyDirectory(parsedPath, targetPath = null) {
+    if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) return true;
+    return FileHelper.verifyPath(parsedPath, targetPath);
+  }
+
+  static async uploadToPath(path, file) {
+    const options = DirectoryPicker.parse(path);
+    return FilePicker.upload(options.activeSource, options.current, file, { bucket: options.bucket }, { notify: false });
+  }
+
+  static parseDirectory(str) {
+    return DirectoryPicker.parse(str);
+  }
 
 };
 

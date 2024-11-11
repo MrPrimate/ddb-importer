@@ -2,8 +2,6 @@
  * Game Settings: Directory
  */
 
-import { logger, utils } from "./_module.mjs";
-
 export class DirectoryPicker extends FilePicker {
   constructor(options = {}) {
     super(options);
@@ -36,11 +34,6 @@ export class DirectoryPicker extends FilePicker {
       path,
     });
     this.close();
-  }
-
-  static async uploadToPath(path, file) {
-    const options = DirectoryPicker.parse(path);
-    return FilePicker.upload(options.activeSource, options.current, file, { bucket: options.bucket }, { notify: false });
   }
 
   // returns the type "Directory" for rendering the SettingsConfig
@@ -121,83 +114,6 @@ export class DirectoryPicker extends FilePicker {
     $(html).find("footer button").text("Select Directory");
   }
 
-  static async forgeCreateDirectory(target) {
-    if (!target) return undefined;
-    const response = await ForgeAPI.call('assets/new-folder', { path: target });
-    if (!response || response.error) {
-      throw new Error(response ? response.error : "Unknown error while creating directory.");
-    }
-    return response;
-  }
-
-  /**
-   * Create a directory on the file system. If running on ForgeVTT, will use the Forge's API
-   * to create a new folder. Otherwise falls back to `FilePicker.createDirectory`.
-   * @param {string} source
-   * @param {string} target directory name
-   * @param {object} options options passed to FilePicker.createDirectory
-   * @returns {Promise<string|undefined>} path to the created directory, or undefined if
-   * failure
-   */
-  static async createDirectory(source, target, options = {}) {
-    if (!target) {
-      throw new Error("No directory name provided");
-    }
-    if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
-      return DirectoryPicker.forgeCreateDirectory(target);
-    }
-    return FilePicker.createDirectory(source, target, options);
-  }
-
-  /**
-   * Verifies server path exists, and if it doesn't creates it.
-   *
-   * @param  {object} parsedPath output from DirectoryPicker,parse
-   * @param  {string} targetPath if set will check this path, else check parsedPath.current
-   * @returns {boolean} true if verified, false if unable to create/verify
-   */
-  static async verifyPath(parsedPath, targetPath = null) {
-    try {
-      if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) return true;
-      const paths = (targetPath) ? targetPath.split("/") : parsedPath.current.split("/");
-      let currentSource = paths[0];
-
-      for (let i = 0; i < paths.length; i += 1) {
-        try {
-          if (currentSource !== paths[i]) {
-            currentSource = `${currentSource}/${paths[i]}`;
-          }
-          await DirectoryPicker.createDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
-        } catch (err) {
-          const errMessage = `${(err?.message ?? utils.isString(err) ? err : err)}`.replace(/^Error: /, "").trim();
-          // if (errMessage.startsWith("EEXIST")) {
-          //   const newBrowsePath = DirectoryPicker.format({
-          //     activeSource: parsedPath.activeSource,
-          //     bucket: parsedPath.bucket,
-          //     current: currentSource,
-          //   });
-          //   console.warn("about to check files on existing folder", newBrowsePath);
-          //   await FileHelper.generateCurrentFiles(newBrowsePath);
-          // }
-          if (!errMessage.startsWith("EEXIST") && !errMessage.startsWith("The S3 key")) {
-            logger.error(`Error trying to verify path [${parsedPath.activeSource}], ${parsedPath.current}`, err);
-            logger.error("parsedPath", parsedPath);
-            logger.error("targetPath", targetPath);
-          }
-        }
-      }
-    } catch (err) {
-      logger.error("Unable to verify path", err);
-      return false;
-    }
-
-    return true;
-  }
-
-  static async verifyDirectory(parsedPath, targetPath = null) {
-    if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) return true;
-    return DirectoryPicker.verifyPath(parsedPath, targetPath);
-  }
 
   /**
    * Browse files using Forge API

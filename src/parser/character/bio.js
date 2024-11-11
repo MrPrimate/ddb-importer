@@ -1,6 +1,6 @@
+import DDBCharacter from "../DDBCharacter.js";
 import { DICTIONARY } from "../../config/_module.mjs";
 import { utils } from "../../lib/_module.mjs";
-import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype.getBackgroundName = function getBackgroundName() {
   if (this.source.ddb.character.background.hasCustomBackground === false) {

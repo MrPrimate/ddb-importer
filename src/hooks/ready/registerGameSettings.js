@@ -1,6 +1,6 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { DDBProxySetup } from "../../apps/DDBProxySetup.js";
-import { DirectoryPicker, FileHelper } from "../../lib/_module.mjs";
+import { FileHelper } from "../../lib/_module.mjs";
 import DDBDynamicUpdateSetup from "../../apps/DDBDynamicUpdateSetup.js";
 import DDBSetup from "../../apps/DDBSetup.js";
 import DDBCompendiumSetup from "../../apps/DDBCompendiumSetup.js";
@@ -94,22 +94,22 @@ class ResetSettingsDialog extends FormApplication {
 async function createFolderPaths() {
   if (game.user.isGM) {
     const characterUploads = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
-    DirectoryPicker.verifyPath(DirectoryPicker.parse(characterUploads));
+    FileHelper.verifyPath(FileHelper.parseDirectory(characterUploads));
 
     const otherUploads = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory");
     if (!(await FileHelper.doesDirExist(otherUploads))) {
       await game.settings.set(SETTINGS.MODULE_ID, "use-deep-file-paths", true);
     }
-    DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
+    FileHelper.verifyPath(FileHelper.parseDirectory(otherUploads));
 
     const frameUploads = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory");
-    DirectoryPicker.verifyPath(DirectoryPicker.parse(frameUploads));
+    FileHelper.verifyPath(FileHelper.parseDirectory(frameUploads));
 
     const adventureUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-upload-path");
-    DirectoryPicker.verifyPath(DirectoryPicker.parse(adventureUploads));
+    FileHelper.verifyPath(FileHelper.parseDirectory(adventureUploads));
 
     const iconUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path");
-    DirectoryPicker.verifyPath(DirectoryPicker.parse(iconUploads));
+    FileHelper.verifyPath(FileHelper.parseDirectory(iconUploads));
   }
 }
 

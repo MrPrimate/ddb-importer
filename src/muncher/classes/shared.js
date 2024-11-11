@@ -8,7 +8,7 @@ import {
   DDBHelper,
 } from "../../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import DDBMuncher from "../../apps/DDBMuncher";
+import DDBMuncher from "../../apps/DDBMuncher.js";
 
 const CLASS_TEMPLATE = {
   "name": "",

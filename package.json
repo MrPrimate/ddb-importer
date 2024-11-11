@@ -8,7 +8,8 @@
     "lint": "npx eslint src/",
     "lint-fix": "npx eslint src/ --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "npm run clear; webpack",
+    "clear": "rm -rf dist/*"
   },
   "devDependencies": {
     "node-fetch": "^3.2.10",
