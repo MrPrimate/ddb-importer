@@ -28,3 +28,4 @@ export { default as Barkskin } from "./Barkskin.mjs";
 export { default as BladeWard } from "./BladeWard.mjs";
 export { default as MassSuggestion } from "./MassSuggestion.mjs";
 export { default as Suggestion } from "./Suggestion.mjs";
+export { default as AcidArrow } from "./AcidArrow.mjs";
