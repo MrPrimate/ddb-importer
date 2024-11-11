@@ -1,4 +1,4 @@
-import { DICTIONARY } from '../../dictionary.js';
+import { DICTIONARY } from '../../config/_module.mjs';
 import { getGenericConditionAffectData } from '../../effects/effects.js';
 import { utils, logger, DDBHelper } from '../../lib/_module.mjs';
 

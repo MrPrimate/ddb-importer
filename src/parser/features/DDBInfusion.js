@@ -381,7 +381,7 @@ export class DDBInfusion {
   }
 
   _addDescriptionToEffect(effect) {
-    const description = DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, this.ddbInfusion.description, this.ddbInfusion).text;
+    const description = DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbInfusion.description, this.ddbInfusion).text;
     effect.changes.push({
       key: "system.description.value",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -408,7 +408,7 @@ export class DDBInfusion {
         },
       };
 
-      const description = DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, this.ddbInfusion.snippet, this.ddbInfusion).text;
+      const description = DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbInfusion.snippet, this.ddbInfusion).text;
 
       switch (this.ddbInfusion.modifierDataType) {
         case "class-level": {

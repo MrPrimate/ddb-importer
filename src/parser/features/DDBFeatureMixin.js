@@ -297,7 +297,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
           ),
         );
       if (feature) {
-        return DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
+        return DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
       }
     }
     return "";
@@ -314,7 +314,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       );
 
     if (feature) {
-      return DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
+      return DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
     }
     return "";
 
@@ -368,14 +368,14 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
     this.snippet = this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
-      ? DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text
+      ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text
       : "";
     const rawSnippet = this.ddbDefinition.snippet
       ? this.snippet
       : "";
 
     this.description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-      ? DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature).text
+      ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature).text
       : !useCombinedSetting || forceFull
         ? this.type === "race"
           ? this._getRaceFeatureDescription()
@@ -383,7 +383,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
         : "";
 
     const extraDescription = extra && extra !== ""
-      ? DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, extra, this.ddbFeature).text
+      ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, extra, this.ddbFeature).text
       : "";
 
     const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");

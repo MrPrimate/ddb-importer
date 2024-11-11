@@ -1,9 +1,9 @@
 import {
   logger,
   DDBItemImporter,
-  DDBMuncher,
   DDBCompendiumFolders,
 } from "../../lib/_module.mjs";
+import DDBMuncher from "../../apps/DDBMuncher.js";
 import DDBRace from "../../parser/race/DDBRace.js";
 import DDBRaceTrait from "../../parser/race/DDBRaceTrait.js";
 

@@ -1,4 +1,4 @@
-import parseTemplateString from "../../lib/DDBTemplateStrings.js";
+import { DDBTemplateStrings } from "../../lib/_module.mjs";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function shiftEffect(ddb, character, document) {
@@ -21,7 +21,7 @@ export function shiftEffect(ddb, character, document) {
     );
     foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
     foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
-    const description = parseTemplateString(ddb, character, isBeasthide.definition.description, isBeasthide.definition).text;
+    const description = DDBTemplateStrings.parse(ddb, character, isBeasthide.definition.description, isBeasthide.definition).text;
     document.system.description.value += `<h2>Beasthide</h2>\n${description}`;
     document.effects.push(effect);
   } else if (isSwiftstride) {
@@ -35,7 +35,7 @@ export function shiftEffect(ddb, character, document) {
     );
     foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
     foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
-    const description = parseTemplateString(ddb, character, isSwiftstride.definition.description, isSwiftstride.definition).text;
+    const description = DDBTemplateStrings.parse(ddb, character, isSwiftstride.definition.description, isSwiftstride.definition).text;
     document.system.description.value += `<h2>Swiftstride</h2>\n${description}`;
     document.effects.push(effect);
   } else if (isWildhunt) {
@@ -49,11 +49,11 @@ export function shiftEffect(ddb, character, document) {
     );
     foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
     foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
-    const description = parseTemplateString(ddb, character, isWildhunt.definition.description, isWildhunt.definition).text;
+    const description = DDBTemplateStrings.parse(ddb, character, isWildhunt.definition.description, isWildhunt.definition).text;
     document.system.description.value += `<h2>Wildhunt</h2>\n${description}`;
     document.effects.push(effect);
   } else if (isLongtooth) {
-    const description = parseTemplateString(ddb, character, isLongtooth.definition.description, isLongtooth.definition).text;
+    const description = DDBTemplateStrings.parse(ddb, character, isLongtooth.definition.description, isLongtooth.definition).text;
     document.system.description.value += `<h2>Longtooth</h2>\n${description}`;
   }
 

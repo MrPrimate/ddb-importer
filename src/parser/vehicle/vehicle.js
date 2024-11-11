@@ -1,4 +1,4 @@
-import { logger, DDBHelper, CompendiumHelper, ReferenceLinker } from '../../lib/_module.mjs';
+import { logger, DDBHelper, CompendiumHelper, DDBReferenceLinker } from '../../lib/_module.mjs';
 
 import { newVehicle } from './templates/vehicle.js';
 import { getDamageImmunities, getConditionImmunities } from "./conditions.js";
@@ -104,7 +104,7 @@ async function parseVehicle(ddb, extra = {}) {
 
   // details
   vehicle.system.details.source = DDBHelper.parseSource(ddb);
-  vehicle.system.details.biography.value = ReferenceLinker.parseTags(ddb.description);
+  vehicle.system.details.biography.value = DDBReferenceLinker.parseTags(ddb.description);
 
   if (configurations.EAS) {
     vehicle.system.attributes.actions.stations = true;

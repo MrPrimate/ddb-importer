@@ -389,7 +389,7 @@ function rollMatch(text, matchString) {
  * @param {object} feature The feature object.
  * @returns {object} The parsed template string result object.
  */
-export default function parseTemplateString(ddb, character, text, feature) {
+export function parse(ddb, character, text, feature) {
   if (!text) return text;
   const featureDefinition = feature.definition ?? feature;
 

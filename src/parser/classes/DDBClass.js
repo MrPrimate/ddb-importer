@@ -5,10 +5,9 @@ import {
   CompendiumHelper,
   DDBTemplateStrings,
 } from '../../lib/_module.mjs';
-import { DICTIONARY } from '../../dictionary.js';
 import { getSpellCastingAbility } from "../spells/ability.js";
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
-import { SETTINGS } from '../../settings.js';
+import { SETTINGS, DICTIONARY } from '../../config/_module.mjs';
 
 
 export default class DDBClass {
@@ -364,7 +363,7 @@ export default class DDBClass {
     }
 
     if (character) {
-      this.data.system.description.value = DDBTemplateStrings.parseTemplateString(
+      this.data.system.description.value = DDBTemplateStrings.parse(
         this.ddbData,
         character,
         this.data.system.description.value,

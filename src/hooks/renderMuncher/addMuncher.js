@@ -1,7 +1,7 @@
 import DDBMuncher from "../../apps/DDBMuncher.js";
 import DDBCookie from "../../apps/DDBCookie.js";
 import DDBSetup from "../../apps/DDBSetup.js";
-import { Secrets } from "../../lib/_module.js";
+import { Secrets } from "../../lib/_module.mjs";
 import { isValidKey } from "../../apps/DDBKeyChange.js";
 
 export function addMuncher(app, html) {

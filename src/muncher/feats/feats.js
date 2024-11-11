@@ -1,9 +1,9 @@
+import DDBMuncher from "../../apps/DDBMuncher.js";
 import {
   logger,
   DDBReferenceLinker,
   DDBHelper,
   DDBItemImporter,
-  DDBMuncher,
 } from "../../lib/_module.mjs";
 
 const FEAT_TEMPLATE = {

@@ -1,5 +1,5 @@
-import { DirectoryPicker, PatreonHelper } from "./lib/_module.js";
-import { DICTIONARY } from "./dictionary.mjs";
+import { DirectoryPicker, PatreonHelper } from "../lib/_module.mjs";
+import { DICTIONARY } from "./_module.mjs";
 
 const COMPENDIUMS = [
   {

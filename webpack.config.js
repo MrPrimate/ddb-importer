@@ -7,18 +7,18 @@ module.exports = {
   entry: {
     main: {
       import: './src/index.js',
-      // dependOn: ['lowdash', 'parseTable'],
+      // dependOn: ['lib', 'lowdash'],
     },
     // enrichers: {
     //   import: './src/parser/enrichers/_module.mjs',
-    //   dependOn: ['main'],
+    //   dependOn: ['main', 'lib'],
+    // },
+    // lib: {
+    //   import: './src/parser/enrichers/_module.mjs',
+    //   dependOn: ['lowdash'],
     // },
     // lowdash: {
     //   import: './vendor/lowdash/_module.js',
-    // },
-    // parseTable: {
-    //   import: './vendor/parseTable.js',
-    //   dependOn: ['lowdash'],
     // },
   },
   optimization: {

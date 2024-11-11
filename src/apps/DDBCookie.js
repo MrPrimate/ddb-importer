@@ -1,5 +1,5 @@
 import DDBMuncher from "../apps/DDBMuncher.js";
-import { Secrets } from "../lib/_module.js";
+import { Secrets } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 
 export default class DDBCookie extends FormApplication {
