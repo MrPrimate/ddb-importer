@@ -1718,7 +1718,12 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         chat: chatAdd ? this.ddbDefinition.snippet ?? "" : "",
       };
     } else {
-      this.ddbDefinition.description = await DDBTable.generateTable(this.name, this.ddbDefinition.description, this.updateExisting);
+      this.ddbDefinition.description = await DDBTable.generateTable({
+        parentName: this.name,
+        html: this.ddbDefinition.description,
+        updateExisting: this.updateExisting,
+        notifier: this.notifier,
+      });
       this.data.system.description = this.#getDescription();
     }
   }

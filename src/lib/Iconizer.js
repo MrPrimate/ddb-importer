@@ -207,6 +207,15 @@ function unPad(match, p1) {
 
 export default class Iconizer {
 
+  constructor({ notifier = null } = {}) {
+    this.notifier = notifier;
+    if (!notifier) {
+      this.notifier = (note, nameField = false, monsterNote = false) => {
+        logger.info(note, { nameField, monsterNote });
+      };
+    }
+  }
+
   static async generateIcon(adventure, title) {
     // default path
     let iconPath = "icons/svg/book.svg";

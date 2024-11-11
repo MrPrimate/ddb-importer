@@ -8,6 +8,7 @@ import {
   DDBHelper,
 } from "../../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
+import DDBMuncher from "../../apps/DDBMuncher";
 
 const CLASS_TEMPLATE = {
   "name": "",
@@ -78,7 +79,12 @@ async function buildBase(data) {
   const updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
   result.name = data.name;
-  const tableDescription = await DDBTable.generateTable(data.name, data.description, updateExisting);
+  const tableDescription = await DDBTable.generateTable({
+    parentName: data.name,
+    html: data.description,
+    updateExisting,
+    notifier: DDBMuncher.munchNote,
+  });
   result.system.description.value += `${tableDescription}\n\n`;
 
   result.flags.ddbimporter = {

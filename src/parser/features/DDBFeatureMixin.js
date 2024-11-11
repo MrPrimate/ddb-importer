@@ -983,7 +983,13 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   static async finalFixes(feature) {
-    const tableDescription = await DDBTable.generateTable(feature.name, feature.system.description.value, true, feature.type);
+    const tableDescription = await DDBTable.generateTable({
+      parentName: feature.name,
+      html: feature.system.description.value,
+      updateExisting: true,
+      type: feature.type,
+      notifier: this.notifier,
+    });
     // eslint-disable-next-line require-atomic-updates
     feature.system.description.value = tableDescription;
   }

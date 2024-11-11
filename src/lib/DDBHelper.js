@@ -1,7 +1,7 @@
 import { DICTIONARY } from "../config/_module.mjs";
 import { logger, utils } from "./_module.mjs";
 import { getEffectExcludedModifiers } from "../effects/effects.js";
-import { DDBBasicActivity } from "../parser/enrichers/mixins/_module.mjs";
+import { mixins } from "../parser/enrichers/_module.mjs";
 
 const DDBHelper = {
 
@@ -1003,7 +1003,7 @@ const DDBHelper = {
           }
         }
         if (activity.damage && damageBonus) {
-          const part = DDBBasicActivity.buildDamagePart({ damageString: damageBonus });
+          const part = mixins.DDBBasicActivity.buildDamagePart({ damageString: damageBonus });
           activity.damage.parts.push(part);
         }
         if (activity.type === "save") {

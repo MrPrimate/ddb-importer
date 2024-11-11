@@ -1,8 +1,5 @@
 import { parseTable, getHeadings } from "../../vendor/parseTable.js";
-import CompendiumHelper from "./CompendiumHelper.js";
-import { utils, logger } from "./_module.mjs";
-import DDBItemImporter from "./DDBItemImporter.js";
-import DDBMuncher from "../apps/DDBMuncher.js";
+import { utils, logger, DDBItemImporter, CompendiumHelper } from "./_module.mjs";
 
 function diceRollMatcher(match, p1, p2, p3, p4, p5) {
   if (p5 && p5.toLowerCase() === "damage") {
@@ -232,14 +229,14 @@ function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, html }
 }
 
 
-async function buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, updateExisting, html } = {}) {
+async function buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, updateExisting, html, notifier } = {}) {
   const data = buildTable({ parsedTable, keys, diceKeys, tableName: finalName, parentName: name, html });
-  const handlerOptions = { srdFidding: false, updateIcons: false, notifier: DDBMuncher.munchNote };
+  const handlerOptions = { srdFidding: false, updateIcons: false, notifier };
   const handler = await DDBItemImporter.buildHandler("tables", data, updateExisting, handlerOptions);
   return handler.results;
 }
 
-export async function generateTable(parentName, html, updateExisting, type = "") {
+export async function generateTable({ parentName, html, updateExisting, type = "", notifier = null } = {}) {
   let name = `${parentName}`;
   const document = utils.htmlToDoc(html);
   const tableNodes = document.querySelectorAll("table");
@@ -285,7 +282,7 @@ export async function generateTable(parentName, html, updateExisting, type = "")
     try {
       const builtTables = tableGenerated
         ? [tableGenerated]
-        : await buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, updateExisting, html });
+        : await buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, updateExisting, html, notifier });
 
       if (builtTables.length > 0) {
         let tableData = {

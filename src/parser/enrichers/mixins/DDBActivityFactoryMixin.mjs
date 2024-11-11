@@ -17,11 +17,14 @@ export default class DDBActivityFactoryMixin {
 
   documentType = null;
 
+  notifier = null;
 
-  constructor({ enricher = null, activityGenerator, documentType = null } = {}) {
+
+  constructor({ enricher = null, activityGenerator, documentType = null, notifier = null } = {}) {
     this.enricher = enricher;
     this.activityGenerator = activityGenerator;
     this.documentType = documentType;
+    this.notifier = notifier;
   }
 
   _loadEnricher() {

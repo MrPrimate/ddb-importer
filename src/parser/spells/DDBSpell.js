@@ -297,7 +297,12 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   }
 
   async _generateDescription() {
-    let description = await DDBTable.generateTable(this.data.name, this.ddbDefinition.description, this.updateExisting);
+    let description = await DDBTable.generateTable({
+      parentName: this.data.name,
+      html: this.ddbDefinition.description,
+      updateExisting: this.updateExisting,
+      notifier: this.notifier,
+    });
     this.data.system.description = {
       value: DDBReferenceLinker.parseTags(description),
       chat: "",

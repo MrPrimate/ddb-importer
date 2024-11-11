@@ -857,7 +857,12 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
     description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbMonster.npc });
     // description = parseToHitRoll({ text: description, document: this.feature });
     description = DDBReferenceLinker.parseTags(description);
-    this.data.system.description.value = await DDBTable.generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
+    this.data.system.description.value = await DDBTable.generateTable({
+      parentName: this.ddbMonster.npc.name,
+      html: description,
+      updateExisting: this.updateExisting,
+      notifier: this.notifier,
+    });
     this.data.system.description.value = `<div class="ddb">
 ${this.data.system.description.value}
 </div>`;
