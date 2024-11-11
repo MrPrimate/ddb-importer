@@ -1414,7 +1414,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         });
       }
       return {
-        max: this.ddbItem.limitedUse.maxUses,
+        max: `${this.ddbItem.limitedUse.maxUses}`,
         spent: this.ddbItem.limitedUse.numberUsed ?? 0,
         recovery,
         prompt,
@@ -2204,7 +2204,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           type: "recoverAll",
         },
       ],
-      max: spellData.charges,
+      max: `${spellData.charges}`,
     };
 
     const activityConsumptionTarget = this.isPerSpell
