@@ -36,9 +36,6 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherAbstract {
     super.load({ ddbParser, document, name, is2014 });
   }
 
-  DND_2014 = {
-    NAME_HINTS: {},
-  };
 
   NAME_HINTS_2014 = {};
 

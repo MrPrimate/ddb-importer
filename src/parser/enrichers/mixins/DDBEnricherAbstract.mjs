@@ -37,14 +37,6 @@ export default class DDBEnricherAbstract {
     };
   }
 
-  DND_2014 = {
-    ACTIVITY_HINTS: {},
-    ADDITIONAL_ACTIVITIES: {},
-    DOCUMENT_OVERRIDES: {},
-    EFFECT_HINTS: {},
-    DOCUMENT_STUB: {},
-  };
-
   NAME_HINTS_2014 = {};
 
   NAME_HINTS = {};
@@ -82,10 +74,7 @@ export default class DDBEnricherAbstract {
   }
 
   _findEnricherMatch(type) {
-    const match2014 = this.is2014
-      ? this.DND_2014[type]?.[this.hintName]
-      : null;
-    const match = match2014 ?? this[type]?.[this.hintName];
+    const match = this[type]?.[this.hintName];
 
     const loadedMatch = DDBEnricherAbstract._loadDataStub(match);
     if (!loadedMatch) return null;
