@@ -1,19 +1,7 @@
 <form class="{{cssClass}}" autocomplete="off" onsubmit="event.preventDefault();">
   <div class="import-file-selector form-description">
-    <p>Select an adventure file already uploaded to Foundry or select a local file to import.</p>
-    <hr>
+    <p>Select an adventure file to upload and import.</p>
     <div>
-      <select style="text-align:center" name="import-file" id="import-file">
-        <option></option>
-        {{#each files}}
-        <option value="{{this.path}}">{{this.name}}</option>
-        {{/each}}
-      </select>
-      Select an uploaded adventure?
-    </div>
-    <hr>
-    <div>
-      Upload a local adventure?
       <div class="form-group">
         <input type="file" name="data" accept=".fvttadv"/>
       </div>
