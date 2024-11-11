@@ -1,4 +1,4 @@
-import DICTIONARY from "../../dictionary.js";
+import { DICTIONARY } from "../../config/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
 
 //      "languages": {

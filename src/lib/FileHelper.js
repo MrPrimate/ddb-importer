@@ -1,5 +1,5 @@
 import { logger, utils, DDBProxy, DirectoryPicker } from "./_module.mjs";
-import SETTINGS from "../settings.js";
+import { SETTINGS } from "../config/_module.mjs";
 
 const FileHelper = {
   BAD_DIRS: ["[data]", "[data] ", "", null],

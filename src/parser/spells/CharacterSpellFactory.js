@@ -6,7 +6,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import { getLookups } from "./metadata.js";
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import DDBSpell from "./DDBSpell.js";
-import SETTINGS from "../../settings.js";
+import { SETTINGS } from "../../config/_module.mjs";
 
 export default class CharacterSpellFactory {
 

@@ -1,9 +1,6 @@
-import { logger, utils } from "../../lib/_module.mjs";
-import { parseTags } from "../../lib/DDBReferenceLinker.js";
+import { logger, utils, DDBReferenceLinker, DDBItemImporter, DDBCompendiumFolders } from "../../lib/_module.mjs";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements, getClassImages } from "./shared.js";
 import DDBMuncher from "../../apps/DDBMuncher.js";
-import DDBItemImporter from "../../lib/DDBItemImporter.js";
-import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 
 async function buildSubClassBase(klass, subClass) {
@@ -49,7 +46,7 @@ async function buildSubClass(klass, subclass, compendiumSubClassFeatures) {
   let result = await buildSubClassBase(baseClass, subclass);
   const ignoreIds = klass.flags.ddbimporter.data.classFeatures.map((f) => f.id);
   result.system.description.value += await buildClassFeatures(subclass, compendiumSubClassFeatures, ignoreIds);
-  result.system.description.value = parseTags(result.system.description.value);
+  result.system.description.value = DDBReferenceLinker.parseTags(result.system.description.value);
   result.system.advancement.push(...(await generateFeatureAdvancements(subclass, compendiumSubClassFeatures, ignoreIds)));
   return result;
 }

@@ -1,21 +1,24 @@
 // Main module class
+import {
+  utils,
+  logger,
+  DDBCampaigns,
+  Secrets,
+  FileHelper,
+  PatreonHelper,
+  DDBProxy,
+  Iconizer,
+  DDBItemImporter,
+} from "../lib/_module.mjs";
 import DDBMuncher from "../apps/DDBMuncher.js";
-import FileHelper from "../lib/FileHelper.js";
-import { logger, utils } from "../lib/_module.mjs";
-import { getCobalt } from "../lib/Secrets.js";
-import DDBCampaigns from "../lib/DDBCampaigns.js";
-import SETTINGS from "../settings.js";
-import DDBProxy from "../lib/DDBProxy.js";
+import { SETTINGS } from "../config/_module.mjs";
 import { addVision5eStubs } from "../effects/vision5e.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBMacros from "../effects/DDBMacros.js";
-import Iconizer from "../lib/Iconizer.js";
-import DDBItemImporter from "../lib/DDBItemImporter.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 
 function getSpellData(className, sourceFilter) {
-  const cobaltCookie = getCobalt();
+  const cobaltCookie = Secrets.getCobalt();
   const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();

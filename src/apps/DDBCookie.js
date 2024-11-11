@@ -1,6 +1,6 @@
 import DDBMuncher from "../apps/DDBMuncher.js";
-import { getCobalt, setCobalt, checkCobalt } from "../lib/Secrets.js";
-import SETTINGS from "../settings.js";
+import { Secrets } from "../lib/_module.js";
+import { SETTINGS } from "../config/_module.mjs";
 
 export default class DDBCookie extends FormApplication {
 
@@ -27,8 +27,8 @@ export default class DDBCookie extends FormApplication {
   /** @override */
   async getData() {
     const keyPostFix = this.localCobalt && this.actor ? this.actor.id : null;
-    const cobalt = getCobalt(keyPostFix);
-    const cobaltStatus = cobalt == "" ? { success: true } : await checkCobalt();
+    const cobalt = Secrets.getCobalt(keyPostFix);
+    const cobaltStatus = cobalt == "" ? { success: true } : await Secrets.checkCobalt();
     const expired = !cobaltStatus.success;
 
     return {
@@ -43,9 +43,9 @@ export default class DDBCookie extends FormApplication {
   async _updateObject(event, formData) {
     event.preventDefault();
     const keyPostFix = this.localCobalt && this.actor ? this.actor.id : null;
-    await setCobalt(formData['cobalt-cookie'], keyPostFix);
+    await Secrets.setCobalt(formData['cobalt-cookie'], keyPostFix);
 
-    const cobaltStatus = await checkCobalt();
+    const cobaltStatus = await Secrets.checkCobalt();
     if (!cobaltStatus.success) {
       new DDBCookie().render(true);
     } else {

@@ -1,4 +1,4 @@
-import DICTIONARY from "../dictionary.js";
+import { DICTIONARY } from "../config/_module.mjs";
 import { generateOverrideChange } from "./effects.js";
 
 function buildBaseOverrideEffect(label) {

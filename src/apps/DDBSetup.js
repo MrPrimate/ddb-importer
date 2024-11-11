@@ -1,11 +1,13 @@
-import { DirectoryPicker } from "../lib/DirectoryPicker.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
-import DDBCampaigns from "../lib/DDBCampaigns.js";
 import DDBMuncher from "./DDBMuncher.js";
-import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "../lib/Secrets.js";
-import { logger } from "../lib/_module.mjs";
-import SETTINGS from "../settings.js";
-import FileHelper from "../lib/FileHelper.js";
+import {
+  logger,
+  FileHelper,
+  DirectoryPicker,
+  PatreonHelper,
+  DDBCampaigns,
+  Secrets,
+} from "../lib/_module.mjs";
+import { SETTINGS } from "../config/_module.mjs";
 
 // eslint-disable-next-line no-unused-vars
 Hooks.on("renderma", (app, html, user) => {
@@ -24,7 +26,7 @@ export default class DDBSetup extends FormApplication {
   static isSetupComplete(needsCobalt = true) {
     const uploadDir = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
     const dataDirSet = !FileHelper.BAD_DIRS.includes(uploadDir);
-    const cobalt = getCobalt() != "";
+    const cobalt = Secrets.getCobalt() != "";
     const setupComplete = dataDirSet && (cobalt || !needsCobalt);
     return setupComplete;
   }
@@ -37,9 +39,9 @@ export default class DDBSetup extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
-    const cobalt = getCobalt();
+    const cobalt = Secrets.getCobalt();
     const isCobalt = cobalt !== "";
-    const cobaltStatus = await checkCobalt("", cobalt);
+    const cobaltStatus = await Secrets.checkCobalt("", cobalt);
     const cobaltLocal = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
     const key = PatreonHelper.getPatreonKey();
     const hasKey = key !== "";
@@ -114,7 +116,7 @@ export default class DDBSetup extends FormApplication {
       event.preventDefault();
       const cookie = html.find("#cobalt-cookie-input");
       if (cookie[0].value === undefined) throw new Error("undefined");
-      const cobaltStatus = await checkCobalt("", cookie[0].value);
+      const cobaltStatus = await Secrets.checkCobalt("", cookie[0].value);
       const button = html.find("#check-cobalt-button");
       if (cobaltStatus.success) {
         button[0].innerHTML = "Check Cobalt Cookie - Success!";
@@ -128,7 +130,7 @@ export default class DDBSetup extends FormApplication {
 
   // eslint-disable-next-line class-methods-use-this
   static async checkCobaltCookie(value) {
-    const cookieStatus = await checkCobalt("", value);
+    const cookieStatus = await Secrets.checkCobalt("", value);
     if (value !== "" && !cookieStatus.success) {
       $('#munching-task-setup').text(`Your Cobalt Cookie is invalid, please check that you pasted the right information.`);
       $('#ddb-importer-settings').css("height", "auto");
@@ -139,13 +141,13 @@ export default class DDBSetup extends FormApplication {
 
   static async setCobaltCookie(value, local) {
     await DDBSetup.checkCobaltCookie(value);
-    await setCobalt(value);
+    await Secrets.setCobalt(value);
     await game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", local);
     const runCookieMigrate = local != game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
     if (runCookieMigrate && local) {
-      moveCobaltToLocal();
+      Secrets.moveCobaltToLocal();
     } else if (runCookieMigrate && !local) {
-      moveCobaltToSettings();
+      Secrets.moveCobaltToSettings();
     }
   }
 

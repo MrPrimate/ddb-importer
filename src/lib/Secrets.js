@@ -1,5 +1,5 @@
 import { logger, DDBProxy, PatreonHelper } from "./_module.mjs";
-import SETTINGS from "../settings.js";
+import { SETTINGS } from "../config/_module.mjs";
 
 function isJSON(str) {
   try {

@@ -1,5 +1,4 @@
-import DDBHelper from "../../lib/DDBHelper.js";
-import { logger } from "../../lib/_module.mjs";
+import { logger, DDBHelper } from "../../lib/_module.mjs";
 
 
 function getInfusionItemMap(ddb, item) {

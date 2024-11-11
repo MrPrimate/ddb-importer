@@ -1,12 +1,8 @@
-import DICTIONARY from "../../dictionary.js";
-import DDBHelper from "../../lib/DDBHelper.js";
-import { utils, logger } from "../../lib/_module.mjs";
-import parseTemplateString from "../../lib/DDBTemplateStrings.js";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
+import { utils, logger, DDBHelper, DDBTemplateStrings, DDBTable } from "../../lib/_module.mjs";
 import { generateEffects, getStatusEffect } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
 import DDBFeatureActivity from "./DDBFeatureActivity.js";
-import SETTINGS from "../../settings.js";
-import { generateTable } from "../../lib/DDBTable.js";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 
 import { DDBFeatureEnricher, mixins } from "../enrichers/_module.mjs";
@@ -301,7 +297,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
           ),
         );
       if (feature) {
-        return parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
+        return DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
       }
     }
     return "";
@@ -318,7 +314,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       );
 
     if (feature) {
-      return parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
+      return DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
     }
     return "";
 
@@ -372,14 +368,14 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
     this.snippet = this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
-      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text
+      ? DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text
       : "";
     const rawSnippet = this.ddbDefinition.snippet
       ? this.snippet
       : "";
 
     this.description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-      ? parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature).text
+      ? DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature).text
       : !useCombinedSetting || forceFull
         ? this.type === "race"
           ? this._getRaceFeatureDescription()
@@ -387,7 +383,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
         : "";
 
     const extraDescription = extra && extra !== ""
-      ? parseTemplateString(this.ddbData, this.rawCharacter, extra, this.ddbFeature).text
+      ? DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, extra, this.ddbFeature).text
       : "";
 
     const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");
@@ -987,7 +983,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   static async finalFixes(feature) {
-    const tableDescription = await generateTable(feature.name, feature.system.description.value, true, feature.type);
+    const tableDescription = await DDBTable.generateTable(feature.name, feature.system.description.value, true, feature.type);
     // eslint-disable-next-line require-atomic-updates
     feature.system.description.value = tableDescription;
   }

@@ -1,6 +1,5 @@
-import SETTINGS from '../../settings.js';
-import CompendiumHelper from '../../lib/CompendiumHelper.js';
-import FolderHelper from '../../lib/FolderHelper.js';
+import { SETTINGS } from '../../settings.js';
+import { CompendiumHelper, FolderHelper } from '../../lib/_module.mjs';
 
 export async function createDDBCompendium(compendiumSetting) {
   const compendiumName = game.settings.get(SETTINGS.MODULE_ID, compendiumSetting.setting);

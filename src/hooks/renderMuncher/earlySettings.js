@@ -1,4 +1,4 @@
-import SETTINGS from "../../settings.js";
+import { SETTINGS } from "../../config/_module.mjs";
 
 export function earlySettings() {
   for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS(true))) {

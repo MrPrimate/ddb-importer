@@ -1,15 +1,8 @@
-import { logger, utils } from "../lib/_module.mjs";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
-import DICTIONARY from "../dictionary.js";
-import SETTINGS from "../settings.js";
+import { logger, utils, CompendiumHelper, DDBCampaigns, Secrets, DDBProxy, PatreonHelper, NameMatcher } from "../lib/_module.mjs";
+import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { isEqual } from "../../vendor/lowdash/_module.js";
-import DDBCampaigns from "../lib/DDBCampaigns.js";
-import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getActorConditionStates, getCondition } from "../parser/special/conditions.js";
-import DDBProxy from "../lib/DDBProxy.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
-import NameMatcher from "../lib/NameMatcher.js";
 
 function getContainerItems(actor) {
   return actor.items
@@ -95,7 +88,7 @@ async function getCompendiumItemInfo(item) {
 // flavor is just useful for debugging
 async function updateCharacterCall(actor, path, bodyContent, flavor) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
-  const cobaltCookie = getCobalt(actor.id);
+  const cobaltCookie = Secrets.getCobalt(actor.id);
   const dynamicSync = SETTINGS.STATUS.activeUpdate();
   const parsingApi = dynamicSync
     ? DDBProxy.getDynamicProxy()
@@ -1189,7 +1182,7 @@ async function actionUseStatus(actor, ddbCharacter) {
 }
 
 export async function updateDDBCharacter(actor) {
-  const cobaltCheck = await checkCobalt(actor.id);
+  const cobaltCheck = await Secrets.checkCobalt(actor.id);
 
   if (cobaltCheck.success) {
     logger.debug(`Cobalt checked`);

@@ -1,17 +1,11 @@
 import DDBHelper from "../../lib/DDBHelper.js";
-import DICTIONARY from "../../dictionary.js";
-import { logger, utils } from "../../lib/_module.mjs";
-import SETTINGS from "../../settings.js";
-
-// Import parsing functions
-import { generateTable } from "../../lib/DDBTable.js";
-import { parseTags } from "../../lib/DDBReferenceLinker.js";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
+import { logger, utils, DDBTable, DDBReferenceLinker, CompendiumHelper } from "../../lib/_module.mjs";
 import { baseSpellEffect, spellEffectAdjustment } from "../../effects/specialSpells.js";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
 import DDBSpellActivity from "./DDBSpellActivity.js";
 import { DDBSpellEnricher, mixins } from "../enrichers/_module.mjs";
 import { addStatusEffectChange } from "../../effects/effects.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import DDBSummonsManager from "../companions/DDBSummonsManager.js";
 
 export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
@@ -303,9 +297,9 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   }
 
   async _generateDescription() {
-    let description = await generateTable(this.data.name, this.ddbDefinition.description, this.updateExisting);
+    let description = await DDBTable.generateTable(this.data.name, this.ddbDefinition.description, this.updateExisting);
     this.data.system.description = {
-      value: parseTags(description),
+      value: DDBReferenceLinker.parseTags(description),
       chat: "",
     };
   }

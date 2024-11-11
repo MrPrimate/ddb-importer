@@ -1,15 +1,29 @@
-import { utils, logger } from "../lib/_module.mjs";
-import DialogHelper from "../lib/DialogHelper.js";
-import DICTIONARY from "../dictionary.js";
-import FolderHelper from "../lib/FolderHelper.js";
+import {
+  utils,
+  logger,
+  DialogHelper,
+  Crosshairs,
+  FolderHelper,
+} from "../lib/_module.mjs";
+import { DICTIONARY } from "../config/_module.mjs";
 import { midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { addVision5eStub } from "./vision5e.js";
 import { addExtraEffects } from "../parser/features/extraEffects.js";
-import { generateOverTimeEffect, damageOverTimeEffect, getOvertimeDamage, getMonsterFeatureDamage } from "./monsterFeatures/overTimeEffect.js";
-import { baseEffect, generateDAEStatusEffectChange, addStatusEffectChange, generateTokenMagicFXChange, generateATLChange } from "./effects.js";
+import {
+  generateOverTimeEffect,
+  damageOverTimeEffect,
+  getOvertimeDamage,
+  getMonsterFeatureDamage,
+} from "./monsterFeatures/overTimeEffect.js";
+import {
+  baseEffect,
+  generateDAEStatusEffectChange,
+  addStatusEffectChange,
+  generateTokenMagicFXChange,
+  generateATLChange,
+} from "./effects.js";
 import ExternalAutomations from "./external/ExternalAutomations.js";
-import Crosshairs from "../lib/Crosshairs.js";
 
 export default class DDBEffectHelper {
 

@@ -13,12 +13,11 @@ import {
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { updateDDBCharacter } from "../updater/character.js";
 import { generateCharacterExtras } from "../parser/DDBExtras.js";
-import DICTIONARY from "../dictionary.js";
+import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import DDBCookie from "../apps/DDBCookie.js";
 import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/special/conditions.js";
-import SETTINGS from "../settings.js";
 import DDBMacros from "../effects/DDBMacros.js";
 import { addMagicItemSpells } from "../parser/item/itemSpells.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";

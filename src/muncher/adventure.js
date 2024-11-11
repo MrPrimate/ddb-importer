@@ -1,9 +1,12 @@
-import DDBCampaigns from "../lib/DDBCampaigns.js";
-import { getCobalt } from "../lib/Secrets.js";
+import {
+  DDBCampaigns,
+  Secrets,
+  FileHelper,
+  CompendiumHelper,
+  DDBProxy,
+} from "../lib/_module.mjs";
 import { getVehicleData } from "./vehicles.js";
-import FileHelper from "../lib/FileHelper.js";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
-import DDBProxy from "../lib/DDBProxy.js";
+
 
 async function getMonsterMap () {
   // ddb://monsters
@@ -117,7 +120,7 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
   };
 
   if (cobalt) {
-    result.cobalt = getCobalt();
+    result.cobalt = Secrets.getCobalt();
     result.campaignId = DDBCampaigns.getCampaignId();
   }
 

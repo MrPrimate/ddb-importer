@@ -1,8 +1,10 @@
-import { logger } from "../../lib/_module.mjs";
-import { parseTags } from "../../lib/DDBReferenceLinker.js";
-import DDBHelper from "../../lib/DDBHelper.js";
-import DDBItemImporter from "../../lib/DDBItemImporter.js";
-import DDBMuncher from "../../apps/DDBMuncher.js";
+import {
+  logger,
+  DDBReferenceLinker,
+  DDBHelper,
+  DDBItemImporter,
+  DDBMuncher,
+} from "../../lib/_module.mjs";
 
 const FEAT_TEMPLATE = {
   "name": "",
@@ -52,7 +54,7 @@ function buildBase(data) {
 
   result.system.source = DDBHelper.parseSource(data);
 
-  result.system.description.value = parseTags(result.system.description.value);
+  result.system.description.value = DDBReferenceLinker.parseTags(result.system.description.value);
 
   return result;
 }

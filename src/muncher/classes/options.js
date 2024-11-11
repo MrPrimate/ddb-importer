@@ -1,7 +1,5 @@
-import { logger } from "../../lib/_module.mjs";
-
+import { logger, DDBItemImporter } from "../../lib/_module.mjs";
 import { getClassFeature, NO_TRAITS } from "./shared.js";
-import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import DDBMuncher from "../../apps/DDBMuncher.js";
 
 export async function getClassOptions(data, className) {

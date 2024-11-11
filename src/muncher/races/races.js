@@ -1,9 +1,11 @@
-import { logger } from "../../lib/_module.mjs";
+import {
+  logger,
+  DDBItemImporter,
+  DDBMuncher,
+  DDBCompendiumFolders,
+} from "../../lib/_module.mjs";
 import DDBRace from "../../parser/race/DDBRace.js";
-import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import DDBRaceTrait from "../../parser/race/DDBRaceTrait.js";
-import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
-import DDBMuncher from "../../apps/DDBMuncher.js";
 
 const NO_TRAITS = [
   "Speed",

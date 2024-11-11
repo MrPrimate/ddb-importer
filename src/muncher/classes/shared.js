@@ -1,11 +1,13 @@
-import DDBHelper from "../../lib/DDBHelper.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import FileHelper from "../../lib/FileHelper.js";
-import { logger, utils } from "../../lib/_module.mjs";
-import DICTIONARY from "../../dictionary.js";
-import { generateTable } from "../../lib/DDBTable.js";
-import { parseTags } from "../../lib/DDBReferenceLinker.js";
-import SETTINGS from "../../settings.js";
+import {
+  logger,
+  utils,
+  DDBTable,
+  DDBReferenceLinker,
+  FileHelper,
+  CompendiumHelper,
+  DDBHelper,
+} from "../../lib/_module.mjs";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 
 const CLASS_TEMPLATE = {
   "name": "",
@@ -76,7 +78,7 @@ async function buildBase(data) {
   const updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
   result.name = data.name;
-  const tableDescription = await generateTable(data.name, data.description, updateExisting);
+  const tableDescription = await DDBTable.generateTable(data.name, data.description, updateExisting);
   result.system.description.value += `${tableDescription}\n\n`;
 
   result.flags.ddbimporter = {
@@ -194,7 +196,7 @@ export async function getClassFeature(feature, klass, subClassName = "", classNa
   const requiredLevel = feature.requiredLevel ? ` ${feature.requiredLevel}` : "";
   result.system.requirements = `${klass.name}${requiredLevel}`;
 
-  result.system.description.value = parseTags(result.system.description.value);
+  result.system.description.value = DDBReferenceLinker.parseTags(result.system.description.value);
 
   result.system.type = {
     value: "class",

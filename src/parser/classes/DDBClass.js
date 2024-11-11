@@ -1,11 +1,14 @@
-import { logger, utils } from '../../lib/_module.mjs';
-import DICTIONARY from '../../dictionary.js';
-import DDBHelper from "../../lib/DDBHelper.js";
-import CompendiumHelper from '../../lib/CompendiumHelper.js';
+import {
+  logger,
+  utils,
+  DDBHelper,
+  CompendiumHelper,
+  DDBTemplateStrings,
+} from '../../lib/_module.mjs';
+import { DICTIONARY } from '../../dictionary.js';
 import { getSpellCastingAbility } from "../spells/ability.js";
-import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
-import SETTINGS from '../../settings.js';
+import { SETTINGS } from '../../settings.js';
 
 
 export default class DDBClass {
@@ -361,7 +364,7 @@ export default class DDBClass {
     }
 
     if (character) {
-      this.data.system.description.value = parseTemplateString(
+      this.data.system.description.value = DDBTemplateStrings.parseTemplateString(
         this.ddbData,
         character,
         this.data.system.description.value,

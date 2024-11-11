@@ -1,11 +1,14 @@
-import FolderHelper from "../../lib/FolderHelper.js";
-import { utils, logger } from "../../lib/_module.mjs";
-import DDBItemImporter from "../../lib/DDBItemImporter.js";
+import {
+  utils,
+  logger,
+  DDBItemImporter,
+  FolderHelper,
+  CompendiumHelper,
+} from "../../lib/_module.mjs";
 import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
 import DDBCompanion from "./DDBCompanion.js";
 import { isEqual } from "../../../vendor/lowdash/_module.js";
 import DDBSummonsManager from "./DDBSummonsManager.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
 async function getFindFamiliarActivityData() {

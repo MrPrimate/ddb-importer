@@ -1,10 +1,6 @@
 import { utils, logger } from "../../../lib/_module.mjs";
-import DICTIONARY from "../../../dictionary.js";
-import { generateTable } from "../../../lib/DDBTable.js";
-import SETTINGS from "../../../settings.js";
-import { parseDamageRolls, parseTags } from "../../../lib/DDBReferenceLinker.js";
+import { DICTIONARY, SETTINGS, DDBTable, DDBReferenceLinker } from "../../../config/_module.mjs";
 import DDBMonsterFeatureActivity from "./DDBMonsterFeatureActivity.js";
-
 import { DDBMonsterFeatureEnricher } from "../../enrichers/_module.mjs";
 import { DDBActivityFactoryMixin, DDBBasicActivity } from "../../enrichers/mixins/_module.mjs";
 
@@ -858,10 +854,10 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
     this.html = this.html.replace(/<strong> \.<\/strong>/, "").trim();
     let description = this.hideDescription ? this.#getHiddenDescription() : `${this.html}`;
     description = description.replaceAll("<em><strong></strong></em>", "");
-    description = parseDamageRolls({ text: description, document: this.data, actor: this.ddbMonster.npc });
+    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbMonster.npc });
     // description = parseToHitRoll({ text: description, document: this.feature });
-    description = parseTags(description);
-    this.data.system.description.value = await generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
+    description = DDBReferenceLinker.parseTags(description);
+    this.data.system.description.value = await DDBTable.generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
     this.data.system.description.value = `<div class="ddb">
 ${this.data.system.description.value}
 </div>`;

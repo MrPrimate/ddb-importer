@@ -1,13 +1,16 @@
-import { logger, utils } from "../lib/_module.mjs";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
-import MuncherSettings from "../lib/MuncherSettings.js";
-import DDBCampaigns from "../lib/DDBCampaigns.js";
+import {
+  logger,
+  utils,
+  CompendiumHelper,
+  PatreonHelper,
+  MuncherSettings,
+  DDBCampaigns,
+  FolderHelper,
+} from "../lib/_module.mjs";
 import { importCharacterById } from "./DDBCharacterManager.js";
-import SETTINGS from "../settings.js";
+import { SETTINGS } from "../config/_module.mjs";
 import DDBEncounters from "../parser/DDBEncounters.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
-import FolderHelper from "../lib/FolderHelper.js";
 
 export default class DDBEncounterMunch extends Application {
 

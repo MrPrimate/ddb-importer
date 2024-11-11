@@ -1,6 +1,5 @@
-import DICTIONARY from "../../dictionary.js";
-import DDBHelper from "../../lib/DDBHelper.js";
-import { utils, logger } from "../../lib/_module.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
+import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";
 
 export default class DDBAction extends DDBFeatureMixin {

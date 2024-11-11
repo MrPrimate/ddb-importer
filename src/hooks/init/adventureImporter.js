@@ -1,5 +1,5 @@
 import { DDBAdventureImporter } from "../../apps/DDBAdventureImporter.js";
-import SETTINGS from "../../settings.js";
+import { SETTINGS } from "../../config/_module.mjs";
 
 export default function () {
   DocumentSheetConfig.registerSheet(Adventure, SETTINGS.MODULE_ID, DDBAdventureImporter, {

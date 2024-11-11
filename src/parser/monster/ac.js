@@ -1,6 +1,5 @@
-import { logger } from "../../lib/_module.mjs";
+import { logger, DDBItemImporter } from "../../lib/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
-import DDBItemImporter from "../../lib/DDBItemImporter.js";
 
 DDBMonster.prototype.BAD_AC_MONSTERS = [
   "arkhan the cruel",

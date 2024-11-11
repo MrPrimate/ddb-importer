@@ -1,19 +1,22 @@
-import { logger } from "../lib/_module.mjs";
-import FileHelper from "../lib/FileHelper.js";
+import {
+  logger,
+  FileHelper,
+  DDBItemImporter,
+  Secrets,
+  DDBCampaigns,
+  DDBProxy,
+  PatreonHelper,
+  DDBCompendiumFolders,
+
+} from "../lib/_module.mjs";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import {
   addNPC,
   generateIconMap,
   copyExistingMonsterImages,
 } from "./importMonster.js";
-import { getCobalt } from "../lib/Secrets.js";
-import DDBCampaigns from "../lib/DDBCampaigns.js";
 import { parseVehicles } from "../parser/vehicle/vehicle.js";
-import SETTINGS from "../settings.js";
-import DDBProxy from "../lib/DDBProxy.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
-import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
-import DDBItemImporter from "../lib/DDBItemImporter.js";
+import { SETTINGS } from "../config/_module.mjs";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 /**
@@ -22,7 +25,7 @@ import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
  * @returns {Promise<Array<JSON>>} A promise that resolves to an array of JSON vehicle data
  */
 export function getVehicleData(ids) {
-  const cobaltCookie = getCobalt();
+  const cobaltCookie = Secrets.getCobalt();
   const betaKey = PatreonHelper.getPatreonKey();
   const parsingApi = DDBProxy.getProxy();
 

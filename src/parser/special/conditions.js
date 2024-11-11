@@ -1,4 +1,4 @@
-import DICTIONARY from "../../dictionary.js";
+import { DICTIONARY } from "../../config/_module.mjs";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 import { logger } from "../../lib/_module.mjs";
 

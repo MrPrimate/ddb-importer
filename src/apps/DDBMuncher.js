@@ -1,27 +1,29 @@
 // Main module class
-import { logger } from "../lib/_module.mjs";
-import PatreonHelper from "../lib/PatreonHelper.js";
+import {
+  logger,
+  PatreonHelper,
+  MuncherSettings,
+  DDBReferenceLinker,
+  Secrets,
+  base64Check,
+  DDBCompendiumFolders,
+} from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";
 import { parseRaces } from "../muncher/races.js";
 import { parseFeats } from "../muncher/feats.js";
 import { parseClasses } from "../muncher/classes.js";
 import { parseFrames } from "../muncher/frames.js";
-import { getCobalt } from "../lib/Secrets.js";
-import { base64Check } from "../lib/base64Check.js";
 import { downloadAdventureConfig } from "../muncher/adventure.js";
 import AdventureMunch from "../muncher/adventure/AdventureMunch.js";
 import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
-import MuncherSettings from "../lib/MuncherSettings.js";
 import DDBMacros from "../effects/DDBMacros.js";
-import { importCacheLoad } from "../lib/DDBReferenceLinker.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools.js";
 import { parseBackgrounds } from "../muncher/backgrounds.js";
 import { parseTransports } from "../muncher/vehicles.js";
 import DDBSources from "./DDBSources.js";
-import SETTINGS from "../settings.js";
+import { SETTINGS } from "../config/_module.mjs";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
-import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 import { updateItemPrices } from "../muncher/prices.js";
 
 export default class DDBMuncher extends Application {
@@ -208,7 +210,7 @@ export default class DDBMuncher extends Application {
   }
 
   static enableButtons() {
-    const cobalt = getCobalt() != "";
+    const cobalt = Secrets.getCobalt() != "";
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
 
@@ -246,7 +248,7 @@ export default class DDBMuncher extends Application {
     try {
       logger.info("Munching monsters!");
       // await DDBMuncher.generateCompendiumFolders("monsters");
-      await importCacheLoad();
+      await DDBReferenceLinker.importCacheLoad();
       const monsterFactory = new DDBMonsterFactory({ munchNote: DDBMuncher.munchNote });
       const result = await monsterFactory.processIntoCompendium();
       await DDBMuncher.cleanupCompendiumFolders("monsters");
@@ -278,7 +280,7 @@ export default class DDBMuncher extends Application {
       if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects")) {
         await DDBMacros.createWorldMacros("spells");
       }
-      await importCacheLoad();
+      await DDBReferenceLinker.importCacheLoad();
       await parseSpells();
       await DDBMuncher.cleanupCompendiumFolders("spells");
       DDBMuncher.munchNote(`Finished importing spells!`, true);
@@ -309,7 +311,7 @@ export default class DDBMuncher extends Application {
     try {
       logger.info("Munching items!");
       // await DDBMuncher.generateCompendiumFolders("items");
-      await importCacheLoad();
+      await DDBReferenceLinker.importCacheLoad();
       await parseItems();
       await DDBMuncher.cleanupCompendiumFolders("items");
       DDBMuncher.munchNote(`Finished importing items!`, true);
@@ -324,7 +326,7 @@ export default class DDBMuncher extends Application {
   static async parseRaces() {
     try {
       logger.info("Munching races!");
-      await importCacheLoad();
+      await DDBReferenceLinker.importCacheLoad();
       const result = await parseRaces();
       DDBMuncher.munchNote(`Finished importing ${result.length} races and features!`, true);
       DDBMuncher.munchNote("");
@@ -338,7 +340,7 @@ export default class DDBMuncher extends Application {
   static async parseFeats() {
     try {
       logger.info("Munching feats!");
-      await importCacheLoad();
+      await DDBReferenceLinker.importCacheLoad();
       const result = await parseFeats();
       DDBMuncher.munchNote(`Finished importing ${result.length} feats!`, true);
       DDBMuncher.munchNote("");
@@ -352,7 +354,7 @@ export default class DDBMuncher extends Application {
   static async parseBackgrounds() {
     try {
       logger.info("Munching backgrounds!");
-      await importCacheLoad();
+      await DDBReferenceLinker.importCacheLoad();
       const result = await parseBackgrounds();
       DDBMuncher.munchNote(`Finished importing ${result.length} backgrounds!`, true);
       DDBMuncher.munchNote("");
@@ -366,7 +368,7 @@ export default class DDBMuncher extends Application {
   static async parseClasses() {
     try {
       logger.info("Munching classes!");
-      await importCacheLoad();
+      await DDBReferenceLinker.importCacheLoad();
       const result = await parseClasses();
       DDBMuncher.munchNote(`Finished importing ${result.length} classes and features!`, true);
       DDBMuncher.munchNote("");
@@ -455,7 +457,7 @@ export default class DDBMuncher extends Application {
 
   async getData() { // eslint-disable-line class-methods-use-this
     const resultData = MuncherSettings.getMuncherSettings();
-    await importCacheLoad();
+    await DDBReferenceLinker.importCacheLoad();
     return resultData;
   }
 }

@@ -9,7 +9,7 @@ import {
   Iconizer,
 } from "../lib/_module.mjs";
 import DDBMonster from "./DDBMonster.js";
-import SETTINGS from "../settings.js";
+import { SETTINGS } from "../config/_module.mjs";
 
 // targets for migration
 import {

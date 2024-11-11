@@ -1,6 +1,5 @@
-import DDBHelper from "../../lib/DDBHelper.js";
-import { utils, logger } from "../../lib/_module.mjs";
-import SETTINGS from "../../settings.js";
+import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
+import { SETTINGS } from "../../config/_module.mjs";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";

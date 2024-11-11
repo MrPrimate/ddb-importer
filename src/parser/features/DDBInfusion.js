@@ -1,12 +1,14 @@
-import DICTIONARY from "../../dictionary.js";
+import { DICTIONARY } from "../../config/_module.mjs";
 import { addSimpleConditionEffect, baseEnchantmentEffect, generateEffects } from "../../effects/effects.js";
-// import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
-import DDBHelper from "../../lib/DDBHelper.js";
-import DDBItemImporter from "../../lib/DDBItemImporter.js";
-import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
-import parseTemplateString from "../../lib/DDBTemplateStrings.js";
-import { utils, logger } from "../../lib/_module.mjs";
+import {
+  utils,
+  logger,
+  DDBHelper,
+  DDBItemImporter,
+  DDBReferenceLinker,
+  DDBTemplateStrings,
+  DDBCompendiumFolders,
+} from "../../lib/_module.mjs";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
 import DDBAction from "./DDBAction.js";
@@ -137,11 +139,11 @@ export class DDBInfusion {
       ? `<p><i>Item: ${itemText}</i></p>`
       : "";
 
-    const valueDamageText = parseDamageRolls({ text: this.ddbInfusion.description, document: this.data, actor: null });
-    const chatDamageText = chatAdd ? parseDamageRolls({ text: this.snippet, document: this.data, actor: null }) : "";
+    const valueDamageText = DDBReferenceLinker.parseDamageRolls({ text: this.ddbInfusion.description, document: this.data, actor: null });
+    const chatDamageText = chatAdd ? DDBReferenceLinker.parseDamageRolls({ text: this.snippet, document: this.data, actor: null }) : "";
     this.data.system.description = {
-      value: parseTags(prerequisitesHeader + itemHeader + valueDamageText),
-      chat: chatAdd ? parseTags(chatDamageText) : "",
+      value: DDBReferenceLinker.parseTags(prerequisitesHeader + itemHeader + valueDamageText),
+      chat: chatAdd ? DDBReferenceLinker.parseTags(chatDamageText) : "",
     };
   }
 
@@ -379,7 +381,7 @@ export class DDBInfusion {
   }
 
   _addDescriptionToEffect(effect) {
-    const description = parseTemplateString(this.ddbData, this.rawCharacter, this.ddbInfusion.description, this.ddbInfusion).text;
+    const description = DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, this.ddbInfusion.description, this.ddbInfusion).text;
     effect.changes.push({
       key: "system.description.value",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -406,7 +408,7 @@ export class DDBInfusion {
         },
       };
 
-      const description = parseTemplateString(this.ddbData, this.rawCharacter, this.ddbInfusion.snippet, this.ddbInfusion).text;
+      const description = DDBTemplateStrings.parseTemplateString(this.ddbData, this.rawCharacter, this.ddbInfusion.snippet, this.ddbInfusion).text;
 
       switch (this.ddbInfusion.modifierDataType) {
         case "class-level": {

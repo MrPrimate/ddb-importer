@@ -1,6 +1,5 @@
-import DICTIONARY from "../../dictionary.js";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { utils } from "../../lib/_module.mjs";
-import SETTINGS from "../../settings.js";
 
 function addLanguages() {
   if (!game.settings.get(SETTINGS.MODULE_ID, "add-ddb-languages")) return;

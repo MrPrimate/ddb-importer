@@ -1,4 +1,4 @@
-import DICTIONARY from "../../dictionary.js";
+import { DICTIONARY } from "../../config/_module.mjs";
 
 export function getDamageImmunities(ddb) {
   const config = CONFIG.DDB.damageTypes;

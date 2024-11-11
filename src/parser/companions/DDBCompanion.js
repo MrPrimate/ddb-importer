@@ -1,7 +1,5 @@
-import DICTIONARY from "../../dictionary.js";
-import DDBProxy from "../../lib/DDBProxy.js";
-import PatreonHelper from "../../lib/PatreonHelper.js";
-import { logger } from "../../lib/_module.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
+import { logger, DDBProxy, PatreonHelper } from "../../lib/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
 import DDBMonsterFactory from "../DDBMonsterFactory.js";
 import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFactory.js";

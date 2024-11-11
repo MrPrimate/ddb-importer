@@ -1,22 +1,13 @@
 import CharacterSpellFactory from "./spells/CharacterSpellFactory.js";
-import { logger, utils } from "../lib/_module.mjs";
+import { logger, utils, FileHelper, Secrets, DDBCampaigns, DDBProxy, DDBHelper, CompendiumHelper, DDBItemImporter, DDBCompendiumFolders, DDBReferenceLinker } from "../lib/_module.mjs";
 import DDBMacros from "../effects/DDBMacros.js";
-import FileHelper from "../lib/FileHelper.js";
-import { getCobalt } from "../lib/Secrets.js";
-import DDBCampaigns from "../lib/DDBCampaigns.js";
-import { importCacheLoad } from "../lib/DDBReferenceLinker.js";
-import DDBProxy from "../lib/DDBProxy.js";
-import SETTINGS from "../settings.js";
+import { SETTINGS } from "../config/_module.mjs";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import { fixCharacterLevels } from "./character/filterModifiers.js";
 import CharacterClassFactory from "./classes/CharacterClassFactory.js";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory.js";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
-import DDBHelper from "../lib/DDBHelper.js";
 import { DDBInfusionFactory } from "./features/DDBInfusionFactory.js";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
-import DDBItemImporter from "../lib/DDBItemImporter.js";
-import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 
 export default class DDBCharacter {
@@ -111,7 +102,7 @@ export default class DDBCharacter {
    * @param {{syncId?:string, localCobaltPostFix?:string}} [options]
    */
   async getCharacterData({ syncId = undefined, localCobaltPostFix = "" } = {}) {
-    const cobaltCookie = getCobalt(localCobaltPostFix);
+    const cobaltCookie = Secrets.getCobalt(localCobaltPostFix);
     const parsingApi = DDBProxy.getProxy();
     const betaKey = game.settings.get("ddb-importer", "beta-key");
     const campaignId = DDBCampaigns.getCampaignId();
@@ -142,7 +133,7 @@ export default class DDBCharacter {
       this.source.ddb = fixCharacterLevels(this.source.ddb);
 
       // load some required content
-      await importCacheLoad();
+      await DDBReferenceLinker.importCacheLoad();
 
       logger.debug("DDB Data to parse:", foundry.utils.duplicate(this.source.ddb));
       logger.debug("currentActorId", this.currentActorId);

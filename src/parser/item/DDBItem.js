@@ -1,13 +1,8 @@
-import DICTIONARY from "../../dictionary.js";
-import DDBHelper from "../../lib/DDBHelper.js";
-import { generateTable } from "../../lib/DDBTable.js";
-import { utils, logger } from "../../lib/_module.mjs";
-import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
+import { utils, logger, DDBHelper, DDBTable, DDBReferenceLinker, Iconizer } from "../../lib/_module.mjs";
 import DDBItemActivity from "./DDBItemActivity.js";
 import MagicItemMaker from "./MagicItemMaker.js";
-import SETTINGS from "../../settings.js";
 import { getStatusEffect } from "../../effects/effects.js";
-import Iconizer from "../../lib/Iconizer.js";
 import { DDBItemEnricher, mixins } from "../enrichers/_module.mjs";
 
 export default class DDBItem extends mixins.DDBActivityFactoryMixin {
@@ -1146,11 +1141,11 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       ? `<div class="item-attunement"><i>(Requires attunement by a ${this.ddbDefinition.attunementDescription})</i></div>`
       : "";
 
-    const valueDamageText = parseDamageRolls({ text: this.ddbDefinition.description, document: this.data, actor: null });
-    const chatDamageText = chatAdd ? parseDamageRolls({ text: chatSnippet, document: this.data, actor: null }) : "";
+    const valueDamageText = DDBReferenceLinker.parseDamageRolls({ text: this.ddbDefinition.description, document: this.data, actor: null });
+    const chatDamageText = chatAdd ? DDBReferenceLinker.parseDamageRolls({ text: chatSnippet, document: this.data, actor: null }) : "";
     return {
-      value: parseTags(attunementText + valueDamageText),
-      chat: chatAdd ? parseTags(chatDamageText) : "",
+      value: DDBReferenceLinker.parseTags(attunementText + valueDamageText),
+      chat: chatAdd ? DDBReferenceLinker.parseTags(chatDamageText) : "",
     };
   }
 
@@ -1723,7 +1718,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         chat: chatAdd ? this.ddbDefinition.snippet ?? "" : "",
       };
     } else {
-      this.ddbDefinition.description = await generateTable(this.name, this.ddbDefinition.description, this.updateExisting);
+      this.ddbDefinition.description = await DDBTable.generateTable(this.name, this.ddbDefinition.description, this.updateExisting);
       this.data.system.description = this.#getDescription();
     }
   }

@@ -1,6 +1,4 @@
-import { logger } from '../../lib/_module.mjs';
-import DDBHelper from "../../lib/DDBHelper.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import { logger, DDBHelper, CompendiumHelper, ReferenceLinker } from '../../lib/_module.mjs';
 
 import { newVehicle } from './templates/vehicle.js';
 import { getDamageImmunities, getConditionImmunities } from "./conditions.js";
@@ -10,7 +8,6 @@ import { getCapacity } from './capacity.js';
 import { FLIGHT_IDS, getMovement } from './movement.js';
 import { processComponents } from './components.js';
 import { ACTION_THRESHOLDS } from './threshold.js';
-import { parseTags } from '../../lib/DDBReferenceLinker.js';
 
 // eslint-disable-next-line complexity
 async function parseVehicle(ddb, extra = {}) {
@@ -107,7 +104,7 @@ async function parseVehicle(ddb, extra = {}) {
 
   // details
   vehicle.system.details.source = DDBHelper.parseSource(ddb);
-  vehicle.system.details.biography.value = parseTags(ddb.description);
+  vehicle.system.details.biography.value = ReferenceLinker.parseTags(ddb.description);
 
   if (configurations.EAS) {
     vehicle.system.attributes.actions.stations = true;

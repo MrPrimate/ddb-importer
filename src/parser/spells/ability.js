@@ -1,4 +1,4 @@
-import DICTIONARY from "../../dictionary.js";
+import { DICTIONARY } from "../../config/_module.mjs";
 
 // is there a spell casting ability?
 export function hasSpellCastingAbility(spellCastingAbilityId) {

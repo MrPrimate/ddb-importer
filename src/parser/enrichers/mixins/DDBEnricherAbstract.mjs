@@ -1,4 +1,4 @@
-import DICTIONARY from "../../../dictionary.js";
+import { DICTIONARY } from "../../../config/_module.mjs";
 import DDBEffectHelper from "../../../effects/DDBEffectHelper.js";
 import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, baseEnchantmentEffect, baseItemEffect, effectModules, forceItemEffect } from "../../../effects/effects.js";
 import { baseFeatEffect } from "../../../effects/specialFeats.js";

@@ -6,7 +6,7 @@ import {
   PatreonHelper,
 } from "./_module.mjs";
 import DDBSources from "../apps/DDBSources.js";
-import SETTINGS from "../settings.js";
+import { SETTINGS } from "../config/_module.mjs";
 import { effectModules } from "../effects/effects.js";
 
 const MuncherSettings = {

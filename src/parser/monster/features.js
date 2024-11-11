@@ -1,5 +1,5 @@
 import { logger } from "../../lib/_module.mjs";
-import SETTINGS from "../../settings.js";
+import { SETTINGS } from "../../config/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
 
 // extracts various attacks and features (not spells)

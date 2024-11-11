@@ -1,6 +1,5 @@
-import PatreonHelper from "../lib/PatreonHelper.js";
-import DDBMuncher from "./DDBMuncher.js";
-import SETTINGS from "../settings.js";
+import { PatreonHelper, DDBMuncher } from "../lib/_module.mjs";
+import { SETTINGS } from "../config/_module.mjs";
 
 export class DDBKeyChange extends FormApplication {
 

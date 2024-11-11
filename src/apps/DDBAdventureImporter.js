@@ -1,4 +1,4 @@
-import SETTINGS from "../settings.js";
+import { SETTINGS } from "../config/_module.mjs";
 
 
 export class DDBAdventureImporter extends AdventureImporter {

@@ -1,6 +1,5 @@
-import PatreonHelper from "../lib/PatreonHelper.js";
-import { logger } from "../lib/_module.mjs";
-import SETTINGS from "../settings.js";
+import { logger, PatreonHelper } from "../lib/_module.mjs";
+import { SETTINGS } from "../config/_module.mjs";
 
 export default class DDBDynamicUpdateSetup extends FormApplication {
   static get defaultOptions() {

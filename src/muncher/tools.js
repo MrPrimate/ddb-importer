@@ -1,10 +1,12 @@
-import { logger } from "../lib/_module.mjs";
-import FileHelper from "../lib/FileHelper.js";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
+import {
+  logger,
+  CompendiumHelper,
+  FileHelper,
+  DDBItemImporter,
+} from "../lib/_module.mjs";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { getNPCImage } from "./importMonster.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
-import DDBItemImporter from "../lib/DDBItemImporter.js";
 
 let totalTargets = 0;
 let count = 0;

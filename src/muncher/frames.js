@@ -1,14 +1,17 @@
 // Main module class
+import {
+  logger,
+  Secrets,
+  FileHelper,
+  PatreonHelper,
+  DDBProxy,
+} from "../lib/_module.mjs";
 import DDBMuncher from "../apps/DDBMuncher.js";
-import { logger } from "../lib/_module.mjs";
-import { getCobalt } from "../lib/Secrets.js";
-import FileHelper from "../lib/FileHelper.js";
-import SETTINGS from "../settings.js";
-import DDBProxy from "../lib/DDBProxy.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
+import { SETTINGS } from "../config/_module.mjs";
+
 
 async function getFrameData() {
-  const cobaltCookie = getCobalt();
+  const cobaltCookie = Secrets.getCobalt();
   const betaKey = PatreonHelper.getPatreonKey();
   const parsingApi = DDBProxy.getProxy();
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");

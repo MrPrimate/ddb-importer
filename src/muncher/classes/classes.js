@@ -1,11 +1,13 @@
-import { logger } from "../../lib/_module.mjs";
+import {
+  logger,
+  DDBItemImporter,
+  CompendiumHelper,
+  DDBReferenceLinker,
+  DDBCompendiumFolders,
+} from "../../lib/_module.mjs";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
-import { parseTags } from "../../lib/DDBReferenceLinker.js";
-import DDBItemImporter from "../../lib/DDBItemImporter.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import DDBMuncher from "../../apps/DDBMuncher.js";
-import { DDBCompendiumFolders } from "../../lib/DDBCompendiumFolders.js";
-import SETTINGS from "../../settings.js";
+import { SETTINGS } from "../../config/_module.mjs";
 
 function getHPAdvancement(klass, character) {
   // const value = "value": {
@@ -80,7 +82,7 @@ async function _getSRDEquipment(klass) {
 async function buildClass(klass, compendiumClassFeatures) {
   let result = await buildBaseClass(klass);
   result.system.description.value += await buildClassFeatures(klass, compendiumClassFeatures);
-  result.system.description.value = parseTags(result.system.description.value);
+  result.system.description.value = DDBReferenceLinker.parseTags(result.system.description.value);
   result.system.advancement.push(getHPAdvancement(), ...(await generateFeatureAdvancements(klass, compendiumClassFeatures)));
   result.system.advancement = await addSRDAdvancements(result.system.advancement, result);
   result.system.startingEquipment = await _getSRDEquipment(result);

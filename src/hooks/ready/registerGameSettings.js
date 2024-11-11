@@ -1,12 +1,10 @@
-import DICTIONARY from "../../dictionary.js";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { DDBProxySetup } from "../../apps/DDBProxySetup.js";
-import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
+import { DirectoryPicker, FileHelper } from "../../lib/_module.mjs";
 import DDBDynamicUpdateSetup from "../../apps/DDBDynamicUpdateSetup.js";
 import DDBSetup from "../../apps/DDBSetup.js";
 import DDBCompendiumSetup from "../../apps/DDBCompendiumSetup.js";
 import DDBLocationSetup from "../../apps/DDBLocationSetup.js";
-import SETTINGS from "../../settings.js";
-import FileHelper from "../../lib/FileHelper.js";
 
 foundry.utils.setProperty(CONFIG, "DDBI", {
   module: "DDB Importer",

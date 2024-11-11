@@ -1,5 +1,5 @@
-import DICTIONARY from "../../dictionary.js";
-import DDBHelper from "../../lib/DDBHelper.js";
+import { DICTIONARY } from "../../config/_module.mjs";
+import { DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype._generateSize = function _generateSize() {

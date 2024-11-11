@@ -3,16 +3,9 @@
 import { newNPC } from "./monster/templates/monster.js";
 import { specialCases } from "./monster/special.js";
 import { monsterFeatureEffectAdjustment, transferEffectsToActor } from "../effects/specialMonsters.js";
-
-import { logger, utils } from '../lib/_module.mjs';
-import CompendiumHelper from "../lib/CompendiumHelper.js";
+import { logger, utils, CompendiumHelper, FileHelper, Secrets, DDBProxy, PatreonHelper } from '../lib/_module.mjs';
 import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory.js";
-import SETTINGS from "../settings.js";
-
-import FileHelper from "../lib/FileHelper.js";
-import { getCobalt } from "../lib/Secrets.js";
-import DDBProxy from "../lib/DDBProxy.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
+import { SETTINGS } from "../config/_module.mjs";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 
@@ -126,7 +119,7 @@ export default class DDBMonster {
     if (!id && Number.isInteger(id) && Number.isInteger(Number.parseInt(id))) {
       throw new Error("Please provide a monster ID (number) to fetch");
     }
-    const cobaltCookie = getCobalt();
+    const cobaltCookie = Secrets.getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
 

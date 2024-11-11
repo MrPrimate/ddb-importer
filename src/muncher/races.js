@@ -1,16 +1,18 @@
 // Main module class
+import {
+  DDBCampaigns,
+  Secrets,
+  FileHelper,
+  PatreonHelper,
+  DDBProxy,
+} from "../lib/_module.mjs";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { getRaces } from "./races/races.js";
-import { getCobalt } from "../lib/Secrets.js";
-import DDBCampaigns from "../lib/DDBCampaigns.js";
-import FileHelper from "../lib/FileHelper.js";
-import SETTINGS from "../settings.js";
-import DDBProxy from "../lib/DDBProxy.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
+import { SETTINGS } from "../config/_module.mjs";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 function getRaceData() {
-  const cobaltCookie = getCobalt();
+  const cobaltCookie = Secrets.getCobalt();
   const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();

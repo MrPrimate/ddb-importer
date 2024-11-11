@@ -1,7 +1,5 @@
-import DICTIONARY from "../../dictionary.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import DDBHelper from "../../lib/DDBHelper.js";
-import { utils, logger } from "../../lib/_module.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
+import { utils, logger, CompendiumHelper, DDBHelper } from "../../lib/_module.mjs";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";

@@ -1,7 +1,7 @@
 import DDBMuncher from "../../apps/DDBMuncher.js";
 import DDBCookie from "../../apps/DDBCookie.js";
 import DDBSetup from "../../apps/DDBSetup.js";
-import { checkCobalt } from "../../lib/Secrets.js";
+import { Secrets } from "../../lib/_module.js";
 import { isValidKey } from "../../apps/DDBKeyChange.js";
 
 export function addMuncher(app, html) {
@@ -13,7 +13,7 @@ export function addMuncher(app, html) {
       const setupComplete = DDBSetup.isSetupComplete();
 
       if (setupComplete) {
-        const cobaltStatus = await checkCobalt();
+        const cobaltStatus = await Secrets.checkCobalt();
         if (cobaltStatus.success) {
           let validKey = await isValidKey();
           if (validKey) {

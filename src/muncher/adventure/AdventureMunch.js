@@ -3,7 +3,7 @@ import { logger, utils } from "../../lib/_module.mjs";
 import FileHelper from "../../lib/FileHelper.js";
 import { generateAdventureConfig } from "../adventure.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
-import SETTINGS from "../../settings.js";
+import { SETTINGS } from "../../config/_module.mjs";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
 import { parseTags } from "../../lib/DDBReferenceLinker.js";

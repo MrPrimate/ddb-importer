@@ -1,5 +1,4 @@
-import DDBHelper from "../../lib/DDBHelper.js";
-import { utils, logger } from "../../lib/_module.mjs";
+import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
 import DDBFeature from "./DDBFeature.js";
 import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
 

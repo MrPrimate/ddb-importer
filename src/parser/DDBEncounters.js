@@ -1,12 +1,7 @@
 
-import { logger } from "../lib/_module.mjs";
-import FileHelper from "../lib/FileHelper.js";
-import { getCobalt } from "../lib/Secrets.js";
-import DDBCampaigns from "../lib/DDBCampaigns.js";
-import SETTINGS from "../settings.js";
-import DDBProxy from "../lib/DDBProxy.js";
+import { logger, FileHelper, Secrets, DDBCampaigns, DDBProxy, PatreonHelper } from "../lib/_module.mjs";
+import { SETTINGS } from "../config/_module.mjs";
 import DDBEncounterMunch from "../apps/DDBEncounterMunch.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
 
 export default class DDBEncounters {
 
@@ -23,7 +18,7 @@ export default class DDBEncounters {
   ];
 
   static async getEncounterData() {
-    const cobaltCookie = getCobalt();
+    const cobaltCookie = Secrets.getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
     const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");

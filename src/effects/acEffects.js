@@ -1,6 +1,5 @@
-import DDBHelper from "../lib/DDBHelper.js";
-import { logger } from "../lib/_module.mjs";
-import DICTIONARY from "../dictionary.js";
+import { logger, DDBHelper } from "../lib/_module.mjs";
+import { DICTIONARY } from "../config/_module.mjs";
 import { baseItemEffect, addAddBonusEffect } from "./effects.js";
 
 // // ac -

@@ -1,10 +1,5 @@
-import { parseTags } from "../../lib/DDBReferenceLinker.js";
-import DDBHelper from "../../lib/DDBHelper.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import FileHelper from "../../lib/FileHelper.js";
-import SETTINGS from "../../settings.js";
-import { utils, logger } from "../../lib/_module.mjs";
-import DICTIONARY from "../../dictionary.js";
+import { SETTINGS, DICTIONARY } from "../../config/_module.mjs";
+import { utils, logger, DDBReferenceLinker, DDBHelper, CompendiumHelper, FileHelper } from "../../lib/_module.mjs";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
 
 
@@ -575,7 +570,7 @@ export default class DDBRace {
     foundry.utils.setProperty(this.data, "system.type.value", this.type);
 
     // finally a tag parse to update the description
-    this.data.system.description.value = parseTags(this.data.system.description.value);
+    this.data.system.description.value = DDBReferenceLinker.parseTags(this.data.system.description.value);
 
     logger.debug("Race generated", { DDBRace: this });
   }

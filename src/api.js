@@ -1,5 +1,5 @@
 // for exports
-import { lib } from "./_module.mjs";
+import { lib, config } from "./_module.mjs";
 import DDBMonster from "./parser/DDBMonster.js";
 import DDBMonsterFactory from "./parser/DDBMonsterFactory.js";
 import { parseSpells } from "./muncher/spells.js";
@@ -11,37 +11,17 @@ import DDBEncounters from "./parser/DDBEncounters.js";
 import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adventure.js";
 import { updateDDBCharacter } from "./updater/character.js";
 import DDBCharacterManager, { importCharacter, importCharacterById } from "./apps/DDBCharacterManager.js";
-import { checkCobalt } from "./lib/Secrets.js";
-// import { base64Check } from "./lib/base64Check.js";
 import { getFeats } from "./muncher/feats/feats.js";
 import DDBMacros from "./effects/DDBMacros.js";
-import Iconizer from "./lib/Iconizer.js";
-import { importCacheLoad } from "./lib/DDBReferenceLinker.js";
 import { getNPCImage } from "./muncher/importMonster.js";
-import PatreonHelper from "./lib/PatreonHelper.js";
-import CompendiumHelper from "./lib/CompendiumHelper.js";
-import FileHelper from "./lib/FileHelper.js";
-import { DirectoryPicker } from "./lib/DirectoryPicker.js";
-import MuncherSettings from "./lib/MuncherSettings.js";
-import DDBProxy from "./lib/DDBProxy.js";
 import DDBCompanion from "./parser/companions/DDBCompanion.js";
-import { DDBCompendiumFolders } from "./lib/DDBCompendiumFolders.js";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.js";
-import SETTINGS from "./settings.js";
-import DICTIONARY from "./dictionary.js";
-import NameMatcher from "./lib/NameMatcher.js";
-import OriginFixer from "./lib/OriginFixer.js";
 import DDBEffectHelper from "./effects/DDBEffectHelper.js";
-import DDBItemImporter from "./lib/DDBItemImporter.js";
-import DialogHelper from "./lib/DialogHelper.js";
-import DDBHelper from "./lib/DDBHelper.js";
 import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
-import DDBCampaigns from "./lib/DDBCampaigns.js";
 import ChrisPremadesHelper from "./effects/external/ChrisPremadesHelper.js";
 import ExternalAutomations from "./effects/external/ExternalAutomations.js";
 import DDBSimpleMacro from "./effects/DDBSimpleMacro.js";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.js";
-import Crosshairs from "./lib/Crosshairs.js";
 import * as Enrichers from "./parser/enrichers/_module.mjs";
 
 function resetSecrets() {
@@ -56,7 +36,7 @@ function migrateAllCompendiums(value, key, map) {
 }
 
 function migrateCompendiums() {
-  const compendiumNames = CompendiumHelper.getCompendiumNames();
+  const compendiumNames = lib.CompendiumHelper.getCompendiumNames();
   game.packs.filter((pack) => compendiumNames.includes(pack.collection)).forEach(migrateAllCompendiums);
 }
 
@@ -105,57 +85,57 @@ export function registerApi() {
     migrateCompendiums,
     compendiums: {
       migrateCompendiums,
-      DDBCompendiumFolders,
-      getCompendiumLabel: CompendiumHelper.getCompendiumLabel,
-      getCompendiumType: CompendiumHelper.getCompendiumType,
-      getCompendiumNames: CompendiumHelper.getCompendiumNames,
-      deleteDefaultCompendiums: CompendiumHelper.deleteDefaultCompendiums,
+      DDBCompendiumFolders: lib.DDBCompendiumFolders,
+      getCompendiumLabel: lib.CompendiumHelper.getCompendiumLabel,
+      getCompendiumType: lib.CompendiumHelper.getCompendiumType,
+      getCompendiumNames: lib.CompendiumHelper.getCompendiumNames,
+      deleteDefaultCompendiums: lib.CompendiumHelper.deleteDefaultCompendiums,
     },
     patreon: {
-      checkPatreon: PatreonHelper.checkPatreon,
-      getPatreonTier: PatreonHelper.getPatreonTier,
-      getPatreonUser: PatreonHelper.getPatreonUser,
-      calculateAccessMatrix: PatreonHelper.calculateAccessMatrix,
-      setPatreonTier: PatreonHelper.setPatreonTier,
-      fetchPatreonTier: PatreonHelper.fetchPatreonTier,
-      getPatreonValidity: PatreonHelper.getPatreonValidity,
+      checkPatreon: lib.PatreonHelper.checkPatreon,
+      getPatreonTier: lib.PatreonHelper.getPatreonTier,
+      getPatreonUser: lib.PatreonHelper.getPatreonUser,
+      calculateAccessMatrix: lib.PatreonHelper.calculateAccessMatrix,
+      setPatreonTier: lib.PatreonHelper.setPatreonTier,
+      fetchPatreonTier: lib.PatreonHelper.fetchPatreonTier,
+      getPatreonValidity: lib.PatreonHelper.getPatreonValidity,
     },
     lib: {
       ChrisPremadesHelper,
-      CompendiumHelper,
-      DDBCampaigns,
+      CompendiumHelper: lib.CompendiumHelper,
+      DDBCampaigns: lib.DDBCampaigns,
       DDBCharacterManager,
       DDBCompanion,
       DDBCompanionFactory,
-      DDBCompendiumFolders,
+      DDBCompendiumFolders: lib.DDBCompendiumFolders,
       DDBSimpleMacro,
       DDBEffectHelper,
       DDBEncounterMunch,
       DDBEncounters,
-      DDBHelper,
-      DDBItemImporter,
+      DDBHelper: lib.DDBHelper,
+      DDBItemImporter: lib.DDBItemImporter,
       DDBMacros,
       DDBMonster,
       DDBMonsterFactory,
-      DDBProxy,
+      DDBProxy: lib.DDBProxy,
       DDBSummonsManager,
-      DialogHelper,
-      DirectoryPicker,
-      FileHelper,
-      MuncherSettings,
-      NameMatcher,
-      OriginFixer,
-      Crosshairs,
+      DialogHelper: lib.DialogHelper,
+      DirectoryPicker: lib.DirectoryPicker,
+      FileHelper: lib.FileHelper,
+      MuncherSettings: lib.MuncherSettings,
+      NameMatcher: lib.NameMatcher,
+      OriginFixer: lib.OriginFixer,
+      Crosshairs: lib.Crosshairs,
       Enrichers,
     },
     settings: {
-      muncherSettings: MuncherSettings.getMuncherSettings,
-      characterSettings: MuncherSettings.getCharacterImportSettings,
+      muncherSettings: lib.MuncherSettings.getMuncherSettings,
+      characterSettings: lib.MuncherSettings.getCharacterImportSettings,
     },
 
     // base64Check: base64Check,
-    checkCobalt,
-    resetProxy: DDBProxy.resetProxy,
+    checkCobalt: lib.Secrets.checkCobalt,
+    resetProxy: lib.DDBProxy.resetProxy,
     resetSecrets,
 
     generateAdventureConfig,
@@ -186,17 +166,17 @@ export function registerApi() {
 
     updateWorldMonsters,
 
-    getIconPath: Iconizer.iconPath,
-    iconPath: Iconizer.iconPath,
-    generateIcon: Iconizer.generateIcon,
+    getIconPath: lib.Iconizer.iconPath,
+    iconPath: lib.Iconizer.iconPath,
+    generateIcon: lib.Iconizer.generateIcon,
 
-    importCacheLoad,
+    importCacheLoad: lib.DDBReferenceLinker.importCacheLoad,
     getNPCImage,
     resetCompendiumActorImages,
 
     generateItemMacroFlag: DDBMacros.generateItemMacroFlag,
     EffectHelper: DDBEffectHelper,
-    DialogHelper,
+    DialogHelper: lib.DialogHelper,
     effects: {
       helpers: DDBEffectHelper,
       ChrisPremadesHelper,
@@ -244,11 +224,12 @@ export function registerApi() {
       simpleTest: simpleTest,
       utils: lib.utils,
       lib,
+      importCacheLoad: lib.DDBReferenceLinker.importCacheLoad,
     },
-    DICTIONARY,
+    DICTIONARY: config.DICTIONARY,
   };
 
   globalThis['DDBImporter'] = API;
-  game.modules.get(SETTINGS.MODULE_ID).api = API;
-  game.modules.get(SETTINGS.MODULE_ID).DICTIONARY = DICTIONARY;
+  game.modules.get(config.SETTINGS.MODULE_ID).api = API;
+  game.modules.get(config.SETTINGS.MODULE_ID).DICTIONARY = config.DICTIONARY;
 }

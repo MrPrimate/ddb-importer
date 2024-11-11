@@ -1,7 +1,5 @@
-import { DirectoryPicker } from "../lib/DirectoryPicker.js";
-import { logger } from "../lib/_module.mjs";
-import SETTINGS from "../settings.js";
-import FileHelper from "../lib/FileHelper.js";
+import { logger, DirectoryPicker, FileHelper } from "../lib/_module.mjs";
+import { SETTINGS } from "../config/_module.mjs";
 
 export default class DDBLocationSetup extends FormApplication {
   static get defaultOptions() {

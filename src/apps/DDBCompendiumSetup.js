@@ -1,4 +1,4 @@
-import SETTINGS from "../settings.js";
+import { SETTINGS } from "../config/_module.mjs";
 
 export default class DDBCompendiumSetup extends FormApplication {
   static get defaultOptions() {

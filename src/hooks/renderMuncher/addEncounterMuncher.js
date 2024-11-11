@@ -2,9 +2,7 @@ import DDBEncounterMunch from "../../apps/DDBEncounterMunch.js";
 import DDBCookie from "../../apps/DDBCookie.js";
 import DDBSetup from "../../apps/DDBSetup.js";
 import { isValidKey } from "../../apps/DDBKeyChange.js";
-import { checkCobalt } from "../../lib/Secrets.js";
-import PatreonHelper from "../../lib/PatreonHelper.js";
-import { logger } from "../../lib/_module.mjs";
+import { logger, Secrets, PatreonHelper } from "../../lib/_module.mjs";
 
 
 export function addEncounterMuncher (app, html) {
@@ -25,7 +23,7 @@ export function addEncounterMuncher (app, html) {
         const setupComplete = DDBSetup.isSetupComplete();
 
         if (setupComplete) {
-          const cobaltStatus = await checkCobalt();
+          const cobaltStatus = await Secrets.checkCobalt();
           if (cobaltStatus.success) {
             let validKey = await isValidKey();
             if (validKey) {

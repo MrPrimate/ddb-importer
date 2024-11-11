@@ -1,7 +1,4 @@
-import { parseTags } from "../../lib/DDBReferenceLinker.js";
-import DDBHelper from "../../lib/DDBHelper.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import { utils, logger } from "../../lib/_module.mjs";
+import { utils, logger, DDBReferenceLinker, CompendiumHelper, DDBHelper } from "../../lib/_module.mjs";
 import DDBRace from "./DDBRace.js";
 
 
@@ -83,7 +80,7 @@ export default class DDBRaceTrait {
       value: "race",
     };
 
-    this.data.system.description.value = parseTags(this.data.system.description.value);
+    this.data.system.description.value = DDBReferenceLinker.parseTags(this.data.system.description.value);
   }
 
 }

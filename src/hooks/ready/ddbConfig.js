@@ -1,8 +1,6 @@
-import { logger } from "../../lib/_module.mjs";
+import { logger, FileHelper, DDBProxy } from "../../lib/_module.mjs";
 import { fallbackDDBConfig } from "./fallbackConfig.js";
-import FileHelper from "../../lib/FileHelper.js";
-import SETTINGS from "../../settings.js";
-import DDBProxy from "../../lib/DDBProxy.js";
+import { SETTINGS } from "../../config/_module.mjs";
 import addDDBConfig from "./addDDBConfig.js";
 // import { RULE_DATA } from "./fallbackRules.js";
 

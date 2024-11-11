@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import DICTIONARY from "../../../dictionary.js";
+import { DICTIONARY } from "../../../config/_module.mjs";
 import { logger, DDBHelper } from "../../../lib/_module.mjs";
 import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
 

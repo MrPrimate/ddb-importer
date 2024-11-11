@@ -1,7 +1,6 @@
 
-import DICTIONARY from "../dictionary.js";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
-import { logger } from "../lib/_module.mjs";
+import { DICTIONARY } from "../config/_module.mjs";
+import { logger, CompendiumHelper } from "../lib/_module.mjs";
 
 // Function to calculate the new price
 export async function calculatePrice(rarity, consumable = false) {

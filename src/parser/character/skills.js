@@ -1,7 +1,6 @@
-import DICTIONARY from "../../dictionary.js";
-import DDBHelper from "../../lib/DDBHelper.js";
+import { DICTIONARY } from "../../config/_module.mjs";
 import { generateBaseSkillEffect } from "../../effects/effects.js";
-import { logger } from "../../lib/_module.mjs";
+import { logger, DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill, modifiers = null) {

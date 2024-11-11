@@ -1,10 +1,8 @@
-import { logger } from "../../lib/_module.mjs";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import PatreonHelper from "../../lib/PatreonHelper.js";
+import { logger, CompendiumHelper, PatreonHelper } from "../../lib/_module.mjs";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
 import AdventureMunch from "./AdventureMunch.js";
-import SETTINGS from "../../settings.js";
+import { SETTINGS } from "../../config/_module.mjs";
 import DDBMonsterFactory from "../../parser/DDBMonsterFactory.js";
 import DDBMuncher from "../../apps/DDBMuncher.js";
 

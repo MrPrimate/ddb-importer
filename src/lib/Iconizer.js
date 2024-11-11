@@ -1,7 +1,6 @@
 import DDBMuncher from "../apps/DDBMuncher.js";
-import DICTIONARY from "../dictionary.js";
+import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { logger, utils, CompendiumHelper, FileHelper, NameMatcher } from "./_module.mjs";
-import SETTINGS from "../settings.js";
 
 // const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
 

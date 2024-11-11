@@ -1,5 +1,4 @@
-import DDBHelper from '../../lib/DDBHelper.js';
-import { utils } from '../../lib/_module.mjs';
+import { utils, DDBHelper } from '../../lib/_module.mjs';
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
 import DDBClass from './DDBClass.js';
 

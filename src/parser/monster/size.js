@@ -12,9 +12,8 @@
 
 //     "sizeId": 7,
 
-import DICTIONARY from '../../dictionary.js';
+import { DICTIONARY, SETTINGS } from '../../config/_module.mjs';
 import { logger } from '../../lib/_module.mjs';
-import SETTINGS from '../../settings.js';
 import DDBMonster from "../DDBMonster.js";
 
 DDBMonster.prototype.getSizeFromId = function getSizeFromId(sizeId) {

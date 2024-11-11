@@ -1,13 +1,14 @@
 /* eslint-disable no-continue */
 /* eslint-disable require-atomic-updates */
-// import DICTIONARY from "../dictionary.js";
-// import SETTINGS from "../settings.js";
 
-import DICTIONARY from "../../dictionary.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import FolderHelper from "../../lib/FolderHelper.js";
-import { utils, logger } from "../../lib/_module.mjs";
-import SETTINGS from "../../settings.js";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
+import {
+  utils,
+  logger,
+  FolderHelper,
+  CompendiumHelper,
+} from "../../lib/_module.mjs";
+
 
 export default class ChrisPremadesHelper {
 

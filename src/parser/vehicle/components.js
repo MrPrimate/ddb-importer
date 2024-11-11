@@ -1,7 +1,6 @@
 import { newComponent } from "./templates/component.js";
-import DICTIONARY from "../../dictionary.js";
-import { logger } from "../../lib/_module.mjs";
-import { parseTags } from "../../lib/DDBReferenceLinker.js";
+import { DICTIONARY } from "../../config/_module.mjs";
+import { logger, DDBReferenceLinker } from "../../lib/_module.mjs";
 
 const TYPE_MAPPING = {
   hull: "equipment",
@@ -159,7 +158,7 @@ function buildComponents(ddb, configurations, component) {
     foundry.utils.setProperty(item, "data.armor.type", "vehicle");
   }
 
-  if (component.description) item.system.description.value = parseTags(component.description);
+  if (component.description) item.system.description.value = DDBReferenceLinker.parseTags(component.description);
 
   item.system.quantity = component.count;
 

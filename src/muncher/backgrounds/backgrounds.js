@@ -1,8 +1,6 @@
-import { logger } from "../../lib/_module.mjs";
+import { logger, DDBHelper, DDBItemImporter } from "../../lib/_module.mjs";
 import { generateBackground } from "../../parser/character/bio.js";
 // import { parseTags } from "../../lib/DDBReferenceLinker.js";
-import DDBHelper from "../../lib/DDBHelper.js";
-import DDBItemImporter from "../../lib/DDBItemImporter.js";
 import DDBFeature from "../../parser/features/DDBFeature.js";
 import DDBMuncher from "../../apps/DDBMuncher.js";
 

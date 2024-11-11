@@ -1,4 +1,4 @@
-import DICTIONARY from "../dictionary.js";
+import { DICTIONARY } from "../config/_module.mjs";
 import { logger, utils } from "./_module.mjs";
 import { getEffectExcludedModifiers } from "../effects/effects.js";
 import { DDBBasicActivity } from "../parser/enrichers/mixins/_module.mjs";

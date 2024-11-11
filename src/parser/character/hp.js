@@ -1,4 +1,4 @@
-import DDBHelper from "../../lib/DDBHelper.js";
+import { DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {

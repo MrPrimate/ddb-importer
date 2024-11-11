@@ -1,5 +1,4 @@
-import DDBHelper from "../../lib/DDBHelper.js";
-import FolderHelper from "../../lib/FolderHelper.js";
+import { DDBHelper, FolderHelper } from "../../lib/_module.mjs";
 
 export function imageToChat(src) {
   const content = `<img class="ddbimporter-chat-image" data-src="${src}" src="${src}">`;

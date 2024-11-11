@@ -1,10 +1,14 @@
-import { logger, utils } from "../lib/_module.mjs";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
-import FileHelper from "../lib/FileHelper.js";
+import {
+  logger,
+  utils,
+  Iconizer,
+  DDBItemImporter,
+  FileHelper,
+  CompendiumHelper,
+} from "../lib/_module.mjs";
 import DDBMuncher from "../apps/DDBMuncher.js";
-import SETTINGS from "../settings.js";
-import Iconizer from "../lib/Iconizer.js";
-import DDBItemImporter from "../lib/DDBItemImporter.js";
+import { SETTINGS } from "../config/_module.mjs";
+
 
 // check items to see if retaining item, img or resources
 async function existingItemRetentionCheck(currentItems, newItems, checkId = true) {

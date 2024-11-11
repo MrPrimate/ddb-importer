@@ -5,8 +5,7 @@ import {
   DDBCompendiumFolders,
   NameMatcher,
 } from "./_module.mjs";
-import DICTIONARY from "../dictionary.js";
-import SETTINGS from "../settings.js";
+import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 

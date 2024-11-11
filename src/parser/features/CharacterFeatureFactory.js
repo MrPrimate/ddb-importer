@@ -1,6 +1,5 @@
-import DICTIONARY from "../../dictionary.js";
-import DDBHelper from "../../lib/DDBHelper.js";
-import { logger, utils } from "../../lib/_module.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
+import { logger, utils, DDBHelper } from "../../lib/_module.mjs";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";

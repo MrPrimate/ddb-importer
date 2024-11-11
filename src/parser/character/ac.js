@@ -1,6 +1,5 @@
-import DICTIONARY from "../../dictionary.js";
-import { logger } from "../../lib/_module.mjs";
-import DDBHelper from "../../lib/DDBHelper.js";
+import { DICTIONARY } from "../../config/_module.mjs";
+import { logger, DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 import { generateFixedACEffect, generateBonusACEffect } from "../../effects/acEffects.js";
 import { getAllClassFeatures } from "./filterModifiers.js";

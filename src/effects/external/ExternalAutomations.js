@@ -1,9 +1,8 @@
 /* eslint-disable no-continue */
 /* eslint-disable require-atomic-updates */
 
-import PatreonHelper from "../../lib/PatreonHelper.js";
-import { logger } from "../../lib/_module.mjs";
-import SETTINGS from "../../settings.js";
+import { logger, PatreonHelper } from "../../lib/_module.mjs";
+import { SETTINGS } from "../../config/_module.mjs";
 import ChrisPremadesHelper from "./ChrisPremadesHelper.js";
 
 export default class ExternalAutomations {

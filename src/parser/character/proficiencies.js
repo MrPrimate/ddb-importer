@@ -1,6 +1,5 @@
-import DICTIONARY from "../../dictionary.js";
-import { utils } from "../../lib/_module.mjs";
-import DDBHelper from "../../lib/DDBHelper.js";
+import { DICTIONARY } from "../../config/_module.mjs";
+import { utils, DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype._isHalfProficiencyRoundedUp = function _isHalfProficiencyRoundedUp(skill, modifiers = null) {
