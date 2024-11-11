@@ -7,10 +7,10 @@ import {
   generateUpgradeChange,
   generateDowngradeChange,
 } from "../../effects/effects.js";
-import { utils } from "../../lib/_module.mjs";
+import { utils, DDBHelper } from "../../lib/_module.mjs";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 import DDBFeatureActivity from "../features/DDBFeatureActivity.js";
-import DDBHelper from "../../lib/DDBHelper.js";
+
 // enrichers
 import { ClassEnrichers, SpeciesEnrichers, FeatEnrichers, GenericEnrichers } from "./_module.mjs";
 

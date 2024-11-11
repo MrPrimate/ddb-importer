@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import DICTIONARY from "../../../dictionary.js";
-import DDBHelper from "../../../lib/DDBHelper.js";
-import { logger } from "../../../lib/_module.mjs";
+import { logger, DDBHelper } from "../../../lib/_module.mjs";
 import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
 
 export default class EldritchBlast extends DDBEnricherMixin {
