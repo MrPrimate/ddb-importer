@@ -13,4 +13,35 @@ export default class AcidArrow extends DDBEnricherMixin {
     };
   }
 
+  get additionalActivities() {
+    return [
+      {
+        constructor: {
+          name: "End of Targets Turn Damage",
+          type: "damage",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: false,
+          noSpellslot: true,
+          generateAttack: false,
+          onsave: false,
+          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 4, type: "acid" })],
+          noeffect: true,
+        },
+      },
+    ];
+  }
+
+  get effects() {
+    return [
+      {
+        name: "Covered in Acid",
+        options: {
+          durationSeconds: 6,
+        },
+      },
+    ];
+  }
+
 }

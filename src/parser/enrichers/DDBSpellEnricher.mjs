@@ -69,13 +69,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
   };
 
   ACTIVITY_HINTS = {
-    "Acid Arrow": {
-      data: {
-        "damage.parts": [
-          DDBEnricherAbstract.basicDamagePart({ number: 4, denomination: 4, type: "acid" }),
-        ],
-      },
-    },
     "Aura of Life": {
       type: "utility",
     },
@@ -581,23 +574,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
   };
 
   ADDITIONAL_ACTIVITIES = {
-    "Acid Arrow": [
-      {
-        constructor: {
-          name: "End of Targets Turn Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          noSpellslot: true,
-          generateAttack: false,
-          onsave: false,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 4, type: "acid" })],
-          noeffect: true,
-        },
-      },
-    ],
     "Armor of Agathys": [
       {
         constructor: {
@@ -1493,12 +1469,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
   };
 
   EFFECT_HINTS = {
-    "Acid Arrow": {
-      name: "Covered in Acid",
-      options: {
-        durationSeconds: 6,
-      },
-    },
     "Animal Friendship": {
       statuses: "Charmed",
     },
