@@ -139,6 +139,7 @@ export default class DDBAction extends DDBFeatureMixin {
     "Arcane Ward: Hit Points",
     "Arcane Ward - Hit Points",
     "Defile Ground: Move Corruption",
+    "Unarmed Strike",
   ];
 
   static SKIPPED_ACTIONS_STARTSWITH = [

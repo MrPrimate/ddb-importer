@@ -206,6 +206,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Warping Implosion": () => ClassEnrichers.Sorcerer.WarpingImplosion,
     "Wild Magic Surge": () => ClassEnrichers.Sorcerer.WildMagicSurge,
     "Psionic Power": () => ClassEnrichers.Shared.PsionicPower,
+    "Unarmed Strike": () => GenericEnrichers.UnarmedStrike,
   };
 
   ACTIVITY_HINTS = {
