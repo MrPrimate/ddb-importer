@@ -1081,7 +1081,7 @@ ${this.data.system.description.value}
       damageParts: parts,
     }, options);
 
-    super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
+    return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
   }
 
   _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {

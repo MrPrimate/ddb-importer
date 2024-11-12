@@ -59,7 +59,7 @@ export default class DDBEnricherAbstract {
 
   _loadEnricherData(name) {
     if (this.ENRICHERS?.[name]) {
-      const ExternalEnricher = DDBEnricherAbstract._loadDataStub(this.ENRICHERS?.[name]);
+      const ExternalEnricher = DDBEnricherAbstract._loadDataStub(this.ENRICHERS[name]);
       return new ExternalEnricher({
         ddbEnricher: this,
       });

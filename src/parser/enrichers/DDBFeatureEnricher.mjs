@@ -192,7 +192,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Superior Hunter's Defense": () => ClassEnrichers.Ranger.SuperiorHuntersDefense,
     "Superior Hunter's Prey": () => ClassEnrichers.Ranger.SuperiorHuntersPrey,
     "Supreme Sneak": () => ClassEnrichers.Rogue.SupremeSneak,
-    "Tavern Brawler": FeatEnrichers.TavernBrawler,
+    "Tavern Brawler": () => FeatEnrichers.TavernBrawler,
     "Telekinetic": () => FeatEnrichers.Telekinetic,
     "Temporary Hit Points": () => ClassEnrichers.Ranger.TemporaryHitPoints,
     "The Third Eye": () => ClassEnrichers.Wizard.TheThirdEye,

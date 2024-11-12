@@ -208,6 +208,9 @@ export default class DDBActivityFactoryMixin {
 
   // eslint-disable-next-line class-methods-use-this
   _getActivitiesType() {
+    logger.error(`This method should be over ridden`, {
+      this: this,
+    });
     return null;
   }
 
@@ -250,7 +253,7 @@ export default class DDBActivityFactoryMixin {
   } = {}, optionsOverride = {},
   ) {
     if (hintsOnly && !this.enricher.activity) return undefined;
-    if (this.enricher.activity?.type === "none") return undefined;
+    if (this.enricher.type === "none" || this.enricher.activity?.type === "none") return undefined;
 
     const activityOptions = this.enricher.activity?.options ?? {};
     const options = foundry.utils.mergeObject(
