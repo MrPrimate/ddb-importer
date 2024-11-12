@@ -3078,17 +3078,17 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     },
     "Eldritch Cannon: Flamethrower": {
       data: {
-        "system.uses": { value: null, max: null },
+        "system.uses": { value: null, max: "" },
       },
     },
     "Eldritch Cannon: Force Ballista": {
       data: {
-        "system.uses": { value: null, max: null },
+        "system.uses": { value: null, max: "" },
       },
     },
     "Eldritch Cannon: Protector": {
       data: {
-        "system.uses": { value: null, max: null },
+        "system.uses": { value: null, max: "" },
       },
     },
     "Elemental Attunement": {
@@ -3138,7 +3138,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         "system.uses": {
           value: null,
-          max: null,
+          max: "",
           recovery: [],
         },
       },

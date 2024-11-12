@@ -26,7 +26,7 @@ export default class WildMagicSurge extends DDBEnricherMixin {
       data: {
         "system.uses": {
           spent: null,
-          max: null,
+          max: "",
           recovery: [],
         },
       },

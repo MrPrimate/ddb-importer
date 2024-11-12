@@ -567,7 +567,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   _generateUses() {
     this.data.system.uses = {
       spent: null,
-      max: null,
+      max: "",
       recovery: [],
     };
 
