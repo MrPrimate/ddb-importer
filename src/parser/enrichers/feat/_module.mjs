@@ -10,3 +10,7 @@ export { default as Slasher } from "./Slasher.mjs";
 export { default as MageSlayer } from "./MageSlayer.mjs";
 export { default as Telekinetic } from "./Telekinetic.mjs";
 export { default as Observant } from "./Observant.mjs";
+export { default as Alert } from "./Alert.mjs";
+export { default as ElvenAccuracy } from "./ElvenAccuracy.mjs";
+export { default as TavernBrawler } from "./TavernBrawler.mjs";
+export { default as ReliableTalent } from "./ReliableTalent.mjs";

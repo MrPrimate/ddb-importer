@@ -5,7 +5,6 @@ import {
   generateSignedAddChange,
   generateUnsignedAddChange,
   generateUpgradeChange,
-  generateDowngradeChange,
 } from "../../effects/effects.js";
 import { utils, DDBHelper } from "../../lib/_module.mjs";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
@@ -29,6 +28,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
 
   ENRICHERS = {
     "Abjure Foes": () => ClassEnrichers.Paladin.AbjureFoes,
+    "Alert": () => FeatEnrichers.Alert,
     "Arcane Recovery": () => ClassEnrichers.Wizard.ArcaneRecovery,
     "Arcane Ward": () => ClassEnrichers.Wizard.ArcaneWard,
     "Archdruid": () => ClassEnrichers.Druid.Archdruid,
@@ -38,6 +38,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Beguiling Magic": () => ClassEnrichers.Bard.BeguilingMagic,
     "Beguiling Twist": () => ClassEnrichers.Ranger.BeguilingTwist,
     "Bend Luck": () => ClassEnrichers.Sorcerer.BendLuck,
+    "Blighted Shape": () => ClassEnrichers.Druid.BlightedShape,
     "Bolstering Performance": () => FeatEnrichers.BolsteringPerformance,
     "Boon of Energy Resistance": () => FeatEnrichers.BoonOfEnergyResistance,
     "Boon of Fate": () => FeatEnrichers.BoonOfFate,
@@ -48,6 +49,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Breath Weapon (Fire)": () => SpeciesEnrichers.Dragonborn.BreathWeapon2024,
     "Breath Weapon (Lightning)": () => SpeciesEnrichers.Dragonborn.BreathWeapon2024,
     "Breath Weapon (Poison)": () => SpeciesEnrichers.Dragonborn.BreathWeapon2024,
+    "Brutal Critical": ClassEnrichers.Barbarian.BrutalCritical,
     "Celestial Resilience": () => ClassEnrichers.Warlock.CelestialResilience,
     "Celestial Revelation (Heavenly Wings)": () => SpeciesEnrichers.Aasimar.CelestialRevelationHeavenlyWings,
     "Celestial Revelation (Inner Radiance)": () => SpeciesEnrichers.Aasimar.CelestialRevelationInnerRadiance,
@@ -56,6 +58,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Celestial Revelation (Radiant Soul)": () => GenericEnrichers.CelestialRevelationRadiantSoul,
     "Celestial Revelation": () => SpeciesEnrichers.Aasimar.CelestialRevelation,
     "Channel Divinity": () => ClassEnrichers.Shared.ChannelDivinity,
+    "Circle Forms": () => ClassEnrichers.Druid.CircleForms,
     "Clairvoyant Combatant": () => ClassEnrichers.Warlock.ClairvoyantCombatant,
     "Clockwork Cavalcade": () => ClassEnrichers.Sorcerer.ClockworkCavalcade,
     "Corona of Light": () => ClassEnrichers.Cleric.CoronaOfLight,
@@ -66,7 +69,10 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Dazzling Footwork": () => ClassEnrichers.Bard.DazzlingFootwork,
     "Death Strike": () => ClassEnrichers.Rogue.DeathStrike,
     "Defensive Tactics": () => ClassEnrichers.Ranger.DefensiveTactics,
+    "Defile Ground: Move Corruption": () => ClassEnrichers.Druid.DefileGroundMoveCorruption,
+    "Defile Ground": () => ClassEnrichers.Druid.DefileGround,
     "Devious Strikes": () => ClassEnrichers.Rogue.DeviousStrikes,
+    "Diamond Soul": ClassEnrichers.Monk.DiamondSoul,
     "Divine Intervention": () => ClassEnrichers.Cleric.DivineIntervention,
     "Dragon Wings": () => ClassEnrichers.Sorcerer.DragonWings,
     "Dread Ambusher": () => ClassEnrichers.Ranger.DreadAmbusher,
@@ -79,10 +85,12 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Eldritch Master": () => ClassEnrichers.Warlock.EldritchMaster,
     "Elemental Affinity": () => ClassEnrichers.Sorcerer.ElementalAffinity,
     "Elemental Epitome": () => ClassEnrichers.Monk.ElementalEpitome,
+    "Elven Accuracy": () => FeatEnrichers.ElvenAccuracy,
     "Embody Legends": () => ClassEnrichers.Paladin.EmbodyLegends,
     "Empowered Evocation": () => ClassEnrichers.Wizard.EmpoweredEvocation,
     "Energy Redirection": () => FeatEnrichers.EnergyRedirection,
     "Envenom Weapons": () => ClassEnrichers.Rogue.EnvenomWeapons,
+    "Equine Build": () => SpeciesEnrichers.Generic.PowerfulBuild,
     "Fast Hands": () => ClassEnrichers.Rogue.FastHands,
     "Fiendish Resilience": () => ClassEnrichers.Warlock.FiendishResilience,
     "Font of Magic": () => ClassEnrichers.Sorcerer.FontOfMagic,
@@ -91,21 +99,26 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Glorious Defense": () => ClassEnrichers.Paladin.GloriousDefense,
     "Healer": () => FeatEnrichers.Healer,
     "Healing Light": () => ClassEnrichers.Warlock.HealingLight,
+    "Hippo Build": () => SpeciesEnrichers.Generic.PowerfulBuild,
     "Holy Nimbus": () => ClassEnrichers.Paladin.HolyNimbus,
     "Hunter's Prey": () => ClassEnrichers.Ranger.HuntersPrey,
     "Hurl Through Hell": () => ClassEnrichers.Warlock.HurlThroughHell,
     "Illusory Self": () => ClassEnrichers.Wizard.IllusorySelf,
     "Improved Brutal Strike": () => ClassEnrichers.Barbarian.ImprovedBrutalStrike,
+    "Improved Critical": ClassEnrichers.Fighter.ImprovedCritical,
     "Inspiring Leader": () => FeatEnrichers.InspiringLeader,
     "Inspiring Smite": () => ClassEnrichers.Paladin.InspiringSmite,
+    "Jack of All Trades": ClassEnrichers.Bard.JackOfAllTrades,
     "Lay On Hands: Healing Pool": () => ClassEnrichers.Paladin.LayOnHands,
     "Lay On Hands: Purify Poison": () => ClassEnrichers.Paladin.LayOnHandsPurifyPoison,
+    "Little Giant": () => SpeciesEnrichers.Generic.PowerfulBuild,
     "Living Legend": () => ClassEnrichers.Paladin.LivingLegend,
     "Luck": () => SpeciesEnrichers.Halfling.Luck,
     "Mage Slayer": () => FeatEnrichers.MageSlayer,
     "Magical Cunning": () => ClassEnrichers.Warlock.MagicalCunning,
     "Monk's Focus": () => ClassEnrichers.Monk.MonksFocus,
     "Nature Magician": () => ClassEnrichers.Druid.NatureMagician,
+    "Observant": () => FeatEnrichers.Observant,
     "Overchannel": () => ClassEnrichers.Wizard.Overchannel,
     "Patient Defense": () => ClassEnrichers.Monk.PatientDefense,
     "Peerless Athlete": () => ClassEnrichers.Paladin.PeerlessAthlete,
@@ -115,11 +128,15 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Primal Companion": () => ClassEnrichers.Ranger.PrimalCompanion,
     "Radiant Soul": () => ClassEnrichers.Warlock.RadiantSoul,
     "Radiant Strikes": () => ClassEnrichers.Paladin.RadiantStrikes,
+    "Rage of the Wilds": () => ClassEnrichers.Barbarian.RageOfTheWilds,
     "Rage": () => ClassEnrichers.Barbarian.Rage,
     "Relentless Avenger": () => ClassEnrichers.Paladin.RelentlessAvenger,
     "Relentless": () => ClassEnrichers.Fighter.Relentless,
+    "Reliable Talent": FeatEnrichers.ReliableTalent,
+    "Remarkable Athlete": ClassEnrichers.Fighter.RemarkableAthlete,
     "Revelation in Flesh": () => ClassEnrichers.Sorcerer.RevelationInFlesh,
     "Sacred Weapon": () => ClassEnrichers.Paladin.SacredWeapon,
+    "Savage Attacks": () => SpeciesEnrichers.HalfOrc.SavageAttacks,
     "Searing Vengeance": () => ClassEnrichers.Warlock.SearingVengeance,
     "Shadowy Dodge": () => ClassEnrichers.Ranger.ShadowyDodge,
     "Shielding Storm": () => ClassEnrichers.Barbarian.ShieldingStorm,
@@ -135,9 +152,11 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Starry Form": () => ClassEnrichers.Druid.StarryForm,
     "Stormborn": () => ClassEnrichers.Druid.Stormborn,
     "Stride of the Elements": () => ClassEnrichers.Monk.StrideOfTheElements,
+    "Superior Critical": ClassEnrichers.Fighter.SuperiorCritical,
     "Superior Hunter's Defense": () => ClassEnrichers.Ranger.SuperiorHuntersDefense,
     "Superior Hunter's Prey": () => ClassEnrichers.Ranger.SuperiorHuntersPrey,
     "Supreme Sneak": () => ClassEnrichers.Rogue.SupremeSneak,
+    "Tavern Brawler": FeatEnrichers.TavernBrawler,
     "Telekinetic": () => FeatEnrichers.Telekinetic,
     "Temporary Hit Points": () => ClassEnrichers.Ranger.TemporaryHitPoints,
     "The Third Eye": () => ClassEnrichers.Wizard.TheThirdEye,
@@ -150,12 +169,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Vow of Enmity": () => ClassEnrichers.Paladin.VowOfEnmity,
     "Warping Implosion": () => ClassEnrichers.Sorcerer.WarpingImplosion,
     "Wild Magic Surge": () => ClassEnrichers.Sorcerer.WildMagicSurge,
-    "Circle Forms": () => ClassEnrichers.Druid.CircleForms,
-    "Blighted Shape": () => ClassEnrichers.Druid.BlightedShape,
-    "Observant": () => FeatEnrichers.Observant,
-    "Defile Ground": () => ClassEnrichers.Druid.DefileGround,
-    "Defile Ground: Move Corruption": () => ClassEnrichers.Druid.DefileGroundMoveCorruption,
-    "Rage of the Wilds": () => ClassEnrichers.Barbarian.RageOfTheWilds,
   };
 
   NAME_HINTS_2014 = {
@@ -193,6 +206,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Form of the Beast: Claw": "Form of the Beast",
     "Form of the Beast: Bite": "Form of the Beast",
     "Halfling Lucky": "Luck",
+    "Powerful Build, Hippo Build": "Hippo Build",
   };
 
   ACTIVITY_HINTS = {
@@ -2818,9 +2832,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         },
       },
     ],
-    "Tavern Brawler": [
-      { action: { name: "Enhanced Unarmed Strike", type: "feat", rename: ["Enhanced Unarmed Strike"] } },
-    ],
     "Telekinetic Adept": () => {
       return this.is2024
         ? [
@@ -3596,14 +3607,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       },
       statuses: ["Invisible"],
     },
-    "Diamond Soul": {
-      options: {
-        transfer: true,
-      },
-      changes: [
-        generateOverrideChange("true", 20, "flags.dnd5e.diamondSoul"),
-      ],
-    },
     "Disciplined Survivor": {
       clearAutoEffects: true,
     },
@@ -3651,14 +3654,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         "flags.ddbimporter.activityMatch": "Elemental Attunement",
       },
-    },
-    "Elven Accuracy": {
-      options: {
-        transfer: true,
-      },
-      changes: [
-        generateOverrideChange("true", 20, "flags.dnd5e.elvenAccuracy"),
-      ],
     },
     "Empowered Strikes": {
       clearAutoEffects: true,
@@ -3733,22 +3728,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     },
     "Improved Circle Forms": {
       noCreate: true,
-    },
-    "Improved Critical": {
-      options: {
-        transfer: true,
-      },
-      changes: [
-        generateDowngradeChange("19", 20, "flags.dnd5e.weaponCriticalThreshold"),
-      ],
-    },
-    "Jack of All Trades": {
-      options: {
-        transfer: true,
-      },
-      changes: [
-        generateOverrideChange("true", 20, "flags.dnd5e.jackOfAllTrades"),
-      ],
     },
     "Large Form": {
       changes: [
@@ -3912,28 +3891,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Reckless Attack": {
       name: "Attacking Recklessly",
     },
-    "Reliable Talent": {
-      options: {
-        transfer: true,
-      },
-      changes: [
-        {
-          key: "flags.dnd5e.reliableTalent",
-          value: "true",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 20,
-        },
-        generateOverrideChange("true", 20, "flags.dnd5e.reliableTalent"),
-      ],
-    },
-    "Remarkable Athlete": {
-      options: {
-        transfer: true,
-      },
-      changes: [
-        generateOverrideChange("true", 20, "flags.dnd5e.remarkableAthlete"),
-      ],
-    },
     "Shadow Arts": {
       clearAutoEffects: true,
       options: {
@@ -3970,14 +3927,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         generateUnsignedAddChange("60", 20, "system.attributes.senses.tremorsense"),
       ],
     },
-    "Superior Critical": {
-      options: {
-        transfer: true,
-      },
-      changes: [
-        generateDowngradeChange("18", 30, "flags.dnd5e.weaponCriticalThreshold"),
-      ],
-    },
     "Superior Defense": {
       clearAutoEffects: true,
       options: {
@@ -3998,14 +3947,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         generateUnsignedAddChange("push", 10, "system.traits.weaponProf.mastery.bonus"),
         generateUnsignedAddChange("sap", 10, "system.traits.weaponProf.mastery.bonus"),
         generateUnsignedAddChange("slow", 10, "system.traits.weaponProf.mastery.bonus"),
-      ],
-    },
-    "Tavern Brawler": {
-      options: {
-        transfer: true,
-      },
-      changes: [
-        generateOverrideChange("true", 20, "flags.dnd5e.tavernBrawlerFeat"),
       ],
     },
     "Tongue of the Sun and Moon": {
