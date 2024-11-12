@@ -623,7 +623,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
       this.data.system.uses = {
         spent: limitedUse.numberUsed ?? null,
-        max: finalMaxUses,
+        max: `${finalMaxUses}`,
         recovery: resetType
           ? [{
             // KNOWN_ISSUE_4_0: if charges returned here maybe don't?
