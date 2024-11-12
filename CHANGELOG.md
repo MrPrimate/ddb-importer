@@ -1,3 +1,9 @@
+# Next Up
+
+- Some internal code refactoring.
+- Fix Alert 2024 feat parsing as 2014.
+- Psionic Power Parsing Failures fixed.
+
 # 6.0.34
 
 - Item parsing fixes.
