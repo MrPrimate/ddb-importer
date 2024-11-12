@@ -1,5 +1,5 @@
-import { logger } from "../../../lib/_module.mjs";
-import { DDBBasicActivity } from "../../enrichers/mixins/_module.mjs";
+import { logger } from "../../lib/_module.mjs";
+import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
 export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 

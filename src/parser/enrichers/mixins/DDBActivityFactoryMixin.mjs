@@ -86,7 +86,7 @@ export default class DDBActivityFactoryMixin {
   }
 
   _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const healActivity = new this.activityGenerator({
+    const activity = new this.activityGenerator({
       name,
       type: "heal",
       ddbParent: this,
@@ -94,14 +94,14 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    healActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateActivation: true,
       generateDamage: false,
       generateHealing: true,
       generateRange: !["spell"].includes(this.documentType),
     }, options));
 
-    return healActivity;
+    return activity;
   }
 
   _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
@@ -122,7 +122,7 @@ export default class DDBActivityFactoryMixin {
   }
 
   _getEnchantActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const enchantActivity = new this.activityGenerator({
+    const activity = new this.activityGenerator({
       name,
       type: "enchant",
       ddbParent: this,
@@ -130,16 +130,16 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    enchantActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: !["spell"].includes(this.documentType),
       generateDamage: false,
     }, options));
-    return enchantActivity;
+    return activity;
   }
 
   _getSummonActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const summonActivity = new this.activityGenerator({
+    const activity = new this.activityGenerator({
       name,
       type: "summon",
       ddbParent: this,
@@ -147,16 +147,16 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    summonActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: !["spell"].includes(this.documentType),
       generateDamage: false,
     }, options));
-    return summonActivity;
+    return activity;
   }
 
   _getCheckActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const checkActivity = new this.activityGenerator({
+    const activity = new this.activityGenerator({
       name,
       type: "check",
       ddbParent: this,
@@ -164,14 +164,14 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    checkActivity.build(foundry.utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: false,
       generateDamage: false,
       generateCheck: true,
       generateActivation: true,
     }, options));
-    return checkActivity;
+    return activity;
   }
 
   _getDDBMacroActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
@@ -205,6 +205,24 @@ export default class DDBActivityFactoryMixin {
     return activity;
   }
 
+  _getCastActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const activity = new this.activityGenerator({
+      name,
+      type: "cast",
+      ddbParent: this,
+      nameIdPrefix: "cast",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    activity.build(foundry.utils.mergeObject({
+      generateAttack: false,
+      generateRange: false,
+      generateDamage: false,
+      generateCast: true,
+      generateActivation: true,
+    }, options));
+    return activity;
+  }
 
   // eslint-disable-next-line class-methods-use-this
   _getActivitiesType() {

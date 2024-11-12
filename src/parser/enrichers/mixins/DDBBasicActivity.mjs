@@ -381,6 +381,7 @@ export default class DDBBasicActivity {
     activationOverride = null,
     additionalTargets = [],
     attackData = {},
+    castOverride = null,
     chatFlavor = null,
     checkOverride = null,
     consumeActivity = null,
@@ -395,6 +396,7 @@ export default class DDBBasicActivity {
     durationOverride = null,
     generateActivation = true,
     generateAttack = false,
+    generateCast = false,
     generateCheck = false,
     generateConsumption = true,
     generateDamage = false,
@@ -455,6 +457,7 @@ export default class DDBBasicActivity {
     if (generateUses) this._generateUses({ usesOverride });
     if (generateRoll) this._generateRoll({ roll });
     if (generateCheck) this._generateCheck({ checkOverride });
+    if (generateCast) this._generateCast({ castOverride });
 
     if (noeffect) {
       const ids = foundry.utils.getProperty(this.ddbParent.data, "flags.ddbimporter.noeffect") ?? [];

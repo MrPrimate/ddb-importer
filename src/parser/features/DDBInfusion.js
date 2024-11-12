@@ -14,7 +14,7 @@ import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import { addExtraEffects } from "./extraEffects.js";
-import DDBFeatureActivity from "./DDBFeatureActivity.js";
+import DDBFeatureActivity from "../activities/DDBFeatureActivity.js";
 
 export class DDBInfusion {
 

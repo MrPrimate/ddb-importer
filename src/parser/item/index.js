@@ -11,7 +11,7 @@ import { addRestrictionFlags } from "../../effects/restrictions.js";
 import { midiItemEffects } from "../../effects/specialEquipment.js";
 
 import DDBItem from "./DDBItem.js";
-import { logger } from "../../lib/_module.mjs";
+import { CompendiumHelper, logger } from "../../lib/_module.mjs";
 
 
 // TO DO: revisit to break up item parsing
@@ -38,6 +38,8 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
 
+  const spellCompendium = CompendiumHelper.getCompendiumType("spells", false);
+  await DDBItem.prepareSpellCompendiumIndex();
   let i = 0;
   const length = this.source.ddb.character.inventory.length;
   for (let ddbItem of this.source.ddb.character.inventory) {
@@ -47,6 +49,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
       characterManager: this,
       ddbItem,
       isCompendium: isCompendiumItem,
+      spellCompendium,
     });
     await itemParser.build();
 

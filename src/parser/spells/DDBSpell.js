@@ -3,7 +3,7 @@ import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { logger, utils, DDBTable, DDBReferenceLinker, CompendiumHelper } from "../../lib/_module.mjs";
 import { baseSpellEffect, spellEffectAdjustment } from "../../effects/specialSpells.js";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
-import DDBSpellActivity from "./DDBSpellActivity.js";
+import DDBSpellActivity from "../activities/DDBSpellActivity.js";
 import { DDBSpellEnricher, mixins } from "../enrichers/_module.mjs";
 import { addStatusEffectChange } from "../../effects/effects.js";
 import DDBSummonsManager from "../companions/DDBSummonsManager.js";

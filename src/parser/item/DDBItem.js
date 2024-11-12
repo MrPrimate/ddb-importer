@@ -1,6 +1,6 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { utils, logger, DDBHelper, DDBTable, DDBReferenceLinker, Iconizer } from "../../lib/_module.mjs";
-import DDBItemActivity from "./DDBItemActivity.js";
+import { utils, logger, DDBHelper, DDBTable, DDBReferenceLinker, Iconizer, CompendiumHelper } from "../../lib/_module.mjs";
+import DDBItemActivity from "../activities/DDBItemActivity.js";
 import MagicItemMaker from "./MagicItemMaker.js";
 import { getStatusEffect } from "../../effects/effects.js";
 import { DDBItemEnricher, mixins } from "../enrichers/_module.mjs";
@@ -84,7 +84,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   ];
 
   // eslint-disable-next-line complexity
-  constructor({ characterManager, ddbItem, isCompendium = false, enricher = null } = {}) {
+  constructor({ characterManager, ddbItem, isCompendium = false, enricher = null, spellCompendium = null } = {}) {
     super({
       enricher,
       activityGenerator: DDBItemActivity,
@@ -165,6 +165,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.updateExisting = this.isCompendiumItem
       ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")
       : false;
+    this.spellsAsCastActivity = true;
     this.spellsAsActivities = isCompendium
       || game.settings.get(SETTINGS.MODULE_ID, "spells-on-items-as-activities");
     this._init();
@@ -203,7 +204,14 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.addMagical = false;
 
     this.enricher = enricher ?? new DDBItemEnricher({ activityGenerator: DDBItemActivity });
+    this.spellCompendium = spellCompendium ?? CompendiumHelper.getCompendiumType("spells", false);
 
+  }
+
+  static async prepareSpellCompendiumIndex() {
+    await CompendiumHelper.loadCompendiumIndex("spells", {
+      fields: ["name", "flags.ddbimporter.id", "flags.ddbimporter.isLegacy"],
+    });
   }
 
   _init() {
@@ -320,7 +328,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   #generateSave() {
     const save = {
-      ability: "",
+      ability: [],
       dc: {
         calculation: "",
         formula: "",
@@ -444,7 +452,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
                 ? {
                   formula: `${saveMatch[1]}`,
                   calculation: "",
-                  ability: saveMatch[2].toLowerCase().substr(0, 3),
+                  ability: [saveMatch[2].toLowerCase().substr(0, 3)],
                 }
                 : null,
             },
@@ -2189,6 +2197,116 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     return match;
   }
 
+  #addSpellAsCastActivity(spell) {
+    logger.warn(`Spell`, {
+      this: this,
+      spell,
+    });
+    logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
+    const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
+
+    const compendiumSpell = this.spellCompendium?.index.find((s) => s.flags.ddbimporter?.id === spellData.flags?.ddbimporter?.id);
+
+    if (!compendiumSpell) return false;
+
+    const castData = {
+      uuid: compendiumSpell.uuid,
+      properties: ["vocal", "somatic", "material"],
+      level: null,
+      challenge: {
+        attack: null,
+        save: null,
+        override: false,
+      },
+      spellbook: true,
+    };
+
+    const usesOverride = {
+      spent: 0,
+      recovery: [],
+      max: "",
+    };
+    const generateUses = this.isPerSpell;
+    const consumptionOverride = {
+      spellSlot: false,
+      targets: [],
+      scaling: {
+        allowed: false,
+        max: "",
+      },
+    };
+
+    const resetType = this.ddbItem.limitedUse?.resetType
+      ? DICTIONARY.resets.find((reset) =>
+        reset.id == this.ddbItem.limitedUse.resetType,
+      )?.value ?? undefined
+      : undefined;
+
+    if (this.isPerSpell) {
+      // spells manage charges
+      usesOverride.max = spellData.limitedUse.maxNumberConsumed ? `${spellData.limitedUse.maxNumberConsumed}` : "1";
+      usesOverride.recovery.push({
+        period: resetType,
+        type: "recoverAll",
+      });
+    }
+
+    const activityConsumptionTarget = this.isPerSpell
+      ? {
+        type: "itemUses",
+        value: spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed,
+        scaling: {},
+      }
+      : spellData.limitedUse
+        ? {
+          type: "itemUses",
+          target: `${this.data._id}`,
+          value: spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1,
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        }
+        : null;
+
+    if (foundry.utils.hasProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
+      && foundry.utils.hasProperty(spell, "flags.ddbimporter.dndbeyond.dc")
+    ) {
+      castData.challenge.override = true;
+      castData.challenge.dc = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.dc");
+    }
+
+    if (foundry.utils.hasProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel")) {
+      // castData.level =  Number.parseInt(spellData.level);
+      castData.level = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel");
+    }
+
+    const scalingAllowed = !this.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
+    const scalingValue = this.data.system.uses.max ?? "";
+
+    if (activityConsumptionTarget) {
+      consumptionOverride.targets = [activityConsumptionTarget];
+    }
+
+    if (scalingAllowed) {
+      consumptionOverride.scaling.allowed = true;
+      consumptionOverride.scaling.max = scalingValue;
+    }
+
+    const activity = this._getCastActivity({ name: spell.name }, {
+      castOverride: castData,
+      generateUses,
+      usesOverride,
+      consumptionOverride,
+    });
+
+    this.activities.push(activity);
+    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
+
+    return true;
+
+  }
+
   // if this.spellsAsActivities
   // eslint-disable-next-line complexity
   async #addSpellAsActivity(spell) {
@@ -2409,15 +2527,23 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
 
     if (!this.raw.itemSpells) return;
+    const failedSpells = [];
     for (const spell of this.raw.itemSpells) {
       const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
         && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
       if (isItemSpell) {
-        // console.warn(`Adding Spell ${spell.name} for ${this.data.name}`, {
-        //   spell,
-        //   this: this,
-        // });
+        logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
+        const success = this.#addSpellAsCastActivity(spell);
+        if (!success) failedSpells.push(spell);
+      }
+    }
 
+    this.raw.itemSpells = failedSpells;
+
+    for (const spell of this.raw.itemSpells) {
+      const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
+        && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
+      if (isItemSpell) {
         logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
         if (this.spellsAsActivities) await this.#addSpellAsActivity(spell);
         else this.#spellsAsSpells(spell);

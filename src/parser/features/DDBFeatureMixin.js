@@ -2,7 +2,7 @@ import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { utils, logger, DDBHelper, DDBTemplateStrings, DDBTable } from "../../lib/_module.mjs";
 import { generateEffects, getStatusEffect } from "../../effects/effects.js";
 import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
-import DDBFeatureActivity from "./DDBFeatureActivity.js";
+import DDBFeatureActivity from "../activities/DDBFeatureActivity.js";
 import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
 
 import { DDBFeatureEnricher, mixins } from "../enrichers/_module.mjs";
