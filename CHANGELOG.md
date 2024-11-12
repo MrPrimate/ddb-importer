@@ -5,6 +5,7 @@
 - Psionic Power Parsing Failures fixed.
 - Monsters attack parsing went _weird_. Monsters imported after 6.0.32 probably need reimporting.
 - Improvements to Unarmed Strike Parsing.
+- If you have munched spells, spells on items will be added as cast activities (characters only for now).
 
 # 6.0.34
 

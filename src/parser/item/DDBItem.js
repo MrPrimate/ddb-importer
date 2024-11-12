@@ -210,7 +210,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   static async prepareSpellCompendiumIndex() {
     await CompendiumHelper.loadCompendiumIndex("spells", {
-      fields: ["name", "flags.ddbimporter.id", "flags.ddbimporter.isLegacy"],
+      fields: ["name", "flags.ddbimporter.id", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy"],
     });
   }
 
@@ -2198,15 +2198,14 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   #addSpellAsCastActivity(spell) {
-    logger.warn(`Spell`, {
-      this: this,
-      spell,
-    });
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
-    const compendiumSpell = this.spellCompendium?.index.find((s) => s.flags.ddbimporter?.id === spellData.flags?.ddbimporter?.id);
+    const compendiumSpell = this.spellCompendium?.index.find((s) =>
+      s.flags.ddbimporter?.definitionId === spell.flags?.ddbimporter?.definitionId,
+    );
 
+    foundry.utils.setProperty(spell, "flags.ddbimporter.removeSpell", false);
     if (!compendiumSpell) return false;
 
     const castData = {
@@ -2269,11 +2268,9 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         }
         : null;
 
-    if (foundry.utils.hasProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
-      && foundry.utils.hasProperty(spell, "flags.ddbimporter.dndbeyond.dc")
-    ) {
+    castData.challenge.save = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.dc") ?? null;
+    if (castData.challenge.save) {
       castData.challenge.override = true;
-      castData.challenge.dc = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.dc");
     }
 
     if (foundry.utils.hasProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel")) {
@@ -2293,16 +2290,32 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       consumptionOverride.scaling.max = scalingValue;
     }
 
-    const activity = this._getCastActivity({ name: spell.name }, {
+    const options = {
       castOverride: castData,
       generateUses,
       usesOverride,
       consumptionOverride,
+    };
+
+    const activity = this._getCastActivity({ name: spell.name }, options);
+
+    this.enricher.customFunction({
+      name: spellData.name,
+      activity: activity,
     });
+
+    // console.warn(`Spell ACtivity`, {
+    //   activity,
+    //   castData,
+    //   options,
+    //   spell,
+    //   spellData,
+    // });
 
     this.activities.push(activity);
     foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
 
+    foundry.utils.setProperty(spell, "flags.ddbimporter.removeSpell", true);
     return true;
 
   }
@@ -2527,18 +2540,21 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
 
     if (!this.raw.itemSpells) return;
-    const failedSpells = [];
     for (const spell of this.raw.itemSpells) {
       const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
         && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
       if (isItemSpell) {
         logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
-        const success = this.#addSpellAsCastActivity(spell);
-        if (!success) failedSpells.push(spell);
+        this.#addSpellAsCastActivity(spell);
       }
     }
 
-    this.raw.itemSpells = failedSpells;
+    this.raw.itemSpells = this.raw.itemSpells.filter((spell) => {
+      const matchedSpell = foundry.utils.getProperty(spell, "flags.ddbimporter.removeSpell")
+        && spell.flags.ddbimporter.dndbeyond.lookup === "item"
+        && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
+      return !matchedSpell;
+    });
 
     for (const spell of this.raw.itemSpells) {
       const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"

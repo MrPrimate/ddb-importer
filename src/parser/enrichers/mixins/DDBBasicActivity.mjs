@@ -202,6 +202,12 @@ export default class DDBBasicActivity {
     };
   }
 
+  _generateCast({ castOverride = null } = {}) {
+    if (castOverride) {
+      this.data.spell = castOverride;
+    };
+  }
+
   _generateDamage({ includeBase = false, damageParts = null, onSave = null, scalingOverride = null, criticalDamage = null } = {}) {
     if (damageParts) {
       this.data.damage = {

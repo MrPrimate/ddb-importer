@@ -242,4 +242,10 @@ export default class DDBEnricherMixin {
     return false;
   }
 
+
+  // eslint-disable-next-line no-unused-vars, no-empty-function
+  customFunction(options = {}) {
+
+  }
+
 }

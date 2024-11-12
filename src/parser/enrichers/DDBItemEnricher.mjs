@@ -77,6 +77,7 @@ export default class DDBItemEnricher extends DDBEnricherAbstract {
     "Belashyrra's Beholder Crown": () => ItemEnrichers.BelashyrrasBeholderCrown,
     "Dust of Sneezing and Choking": () => ItemEnrichers.DustOfSneezingAndChoking,
     "Moon Sickle": () => ItemEnrichers.MoonSickle,
+    "Circlet of Blasting": () => ItemEnrichers.CircletOfBlasting,
   };
 
 }

@@ -35,3 +35,4 @@ export { default as WandOfFireballs } from "./WandOfFireballs.mjs";
 export { default as WandOfMagicMissiles } from "./WandOfMagicMissiles.mjs";
 export { default as WarriorsPasskey } from "./WarriorsPasskey.mjs";
 export { default as Waterskin } from "./Waterskin.mjs";
+export { default as CircletOfBlasting } from "./CircletOfBlasting.mjs";

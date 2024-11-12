@@ -706,4 +706,8 @@ export default class DDBEnricherAbstract {
     return uses;
   }
 
+  customFunction(options = {}) {
+    return this.loadedEnricher?.customFunction(options);
+  }
+
 }

@@ -104,7 +104,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
     if (item.effects.length > 0 && item.system.activities) {
       for (const activityId of Object.keys(item.system.activities)) {
         const activity = item.system.activities[activityId];
-        if (activity.effects.length !== 0) continue;
+        if (activity.effects?.length !== 0) continue;
         if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
         for (const effect of item.effects) {
           if (effect.transfer) continue;
