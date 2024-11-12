@@ -6,10 +6,8 @@ import {
   generateUnsignedAddChange,
   generateUpgradeChange,
 } from "../../effects/effects.js";
-import { utils, DDBHelper } from "../../lib/_module.mjs";
+import { utils } from "../../lib/_module.mjs";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
-
-// enrichers
 import { ClassEnrichers, SpeciesEnrichers, FeatEnrichers, GenericEnrichers } from "./_module.mjs";
 
 export default class DDBFeatureEnricher extends DDBEnricherAbstract {
@@ -25,6 +23,44 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     super.load({ ddbParser, document, name });
     this._prepare();
   }
+
+  NAME_HINTS_2014 = {
+    "Channel Divinity: Sacred Weapon": "Sacred Weapon",
+    "Lay on Hands Pool": "Lay On Hands: Healing Pool",
+  };
+
+  NAME_HINTS = {
+    "Aura of Courage": "Aura of",
+    "Aura Of Courage": "Aura of",
+    "Aura of Protection": "Aura of",
+    "Aura Of Protection": "Aura of",
+    "Aura of Alacrity": "Aura of",
+    "Aura of Warding": "Aura of",
+    "Convert Sorcery Points": "Font of Magic",
+    "Font of Magic: Convert Spell Slots": "Font of Magic",
+    "Font Of Magic": "Font of Magic",
+    "Interception": "Fighting Style: Interception",
+    "Invoke Duplicity": "Channel Divinity: Invoke Duplicity",
+    "Preserve Life": "Channel Divinity: Preserve Life",
+    "Psychic Blades: Attack (DEX)": "Psychic Blades: Attack",
+    "Psychic Blades: Attack (STR)": "Psychic Blades: Attack",
+    "Psychic Blades: Bonus Attack (DEX)": "Psychic Blades: Bonus Attack",
+    "Psychic Blades: Bonus Attack (STR)": "Psychic Blades: Bonus Attack",
+    "Psychic Blades: Homing Strikes": "Soul Blades: Homing Strikes",
+    "Psychic Blades: Psychic Teleportation": "Soul Blades: Psychic Teleportation",
+    "Psychic Blades": "Psychic Blades: Attack",
+    "Psychic Teleportation": "Soul Blades: Psychic Teleportation",
+    "Radiance of the Dawn": "Channel Divinity: Radiance of the Dawn",
+    "Rage (Enter)": "Rage",
+    // "War God's Blessing": "Channel Divinity: War God's Blessing",
+    "Telekinetic Adept: Psi-Powered Leap": "Psionic Power: Psi-Powered Leap",
+    "Telekinetic Adept: Telekinetic Thrust": "Psionic Power: Telekinetic Thrust",
+    "Form of the Beast: Tail": "Form of the Beast",
+    "Form of the Beast: Claw": "Form of the Beast",
+    "Form of the Beast: Bite": "Form of the Beast",
+    "Halfling Lucky": "Luck",
+    "Powerful Build, Hippo Build": "Hippo Build",
+  };
 
   ENRICHERS = {
     "Abjure Foes": () => ClassEnrichers.Paladin.AbjureFoes,
@@ -169,44 +205,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Vow of Enmity": () => ClassEnrichers.Paladin.VowOfEnmity,
     "Warping Implosion": () => ClassEnrichers.Sorcerer.WarpingImplosion,
     "Wild Magic Surge": () => ClassEnrichers.Sorcerer.WildMagicSurge,
-  };
-
-  NAME_HINTS_2014 = {
-    "Channel Divinity: Sacred Weapon": "Sacred Weapon",
-    "Lay on Hands Pool": "Lay On Hands: Healing Pool",
-  };
-
-  NAME_HINTS = {
-    "Aura of Courage": "Aura of",
-    "Aura Of Courage": "Aura of",
-    "Aura of Protection": "Aura of",
-    "Aura Of Protection": "Aura of",
-    "Aura of Alacrity": "Aura of",
-    "Aura of Warding": "Aura of",
-    "Convert Sorcery Points": "Font of Magic",
-    "Font of Magic: Convert Spell Slots": "Font of Magic",
-    "Font Of Magic": "Font of Magic",
-    "Interception": "Fighting Style: Interception",
-    "Invoke Duplicity": "Channel Divinity: Invoke Duplicity",
-    "Preserve Life": "Channel Divinity: Preserve Life",
-    "Psychic Blades: Attack (DEX)": "Psychic Blades: Attack",
-    "Psychic Blades: Attack (STR)": "Psychic Blades: Attack",
-    "Psychic Blades: Bonus Attack (DEX)": "Psychic Blades: Bonus Attack",
-    "Psychic Blades: Bonus Attack (STR)": "Psychic Blades: Bonus Attack",
-    "Psychic Blades: Homing Strikes": "Soul Blades: Homing Strikes",
-    "Psychic Blades: Psychic Teleportation": "Soul Blades: Psychic Teleportation",
-    "Psychic Blades": "Psychic Blades: Attack",
-    "Psychic Teleportation": "Soul Blades: Psychic Teleportation",
-    "Radiance of the Dawn": "Channel Divinity: Radiance of the Dawn",
-    "Rage (Enter)": "Rage",
-    // "War God's Blessing": "Channel Divinity: War God's Blessing",
-    "Telekinetic Adept: Psi-Powered Leap": "Psionic Power: Psi-Powered Leap",
-    "Telekinetic Adept: Telekinetic Thrust": "Psionic Power: Telekinetic Thrust",
-    "Form of the Beast: Tail": "Form of the Beast",
-    "Form of the Beast: Claw": "Form of the Beast",
-    "Form of the Beast: Bite": "Form of the Beast",
-    "Halfling Lucky": "Luck",
-    "Powerful Build, Hippo Build": "Hippo Build",
+    "Psionic Power": () => ClassEnrichers.Shared.PsionicPower,
   };
 
   ACTIVITY_HINTS = {
@@ -1250,36 +1249,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           parts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 4, types: ["bludgeoning"] })],
         },
       },
-    },
-    "Psionic Power": () => {
-      const formula = `1(@scale.${DDBHelper.classIdentifierName(this.ddbParser.subKlass)}.energy-die.die)`;
-      const result = {
-        name: "",
-        type: "utility",
-        addItemConsume: true,
-        data: {
-          roll: {
-            prompt: false,
-            visible: false,
-            formula,
-            name: "Roll Bonus",
-          },
-        },
-      };
-
-      if (this.ddbParser.subKlass === "Soulknife") {
-        result.name = "Psi-Bolstered Knack";
-      } else {
-        result.name = "Protective Field";
-        result.activationType = "reaction";
-        result.targetType = "creature";
-        result.data.range = {
-          units: "ft",
-          value: "30",
-        };
-      }
-      return result;
-
     },
     "Psionic Power: Recovery": () => {
       return {
@@ -2567,26 +2536,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
 
       return results;
     },
-    "Psionic Power": () => {
-      const results = [];
-      if (this.ddbParser.subKlass === "Soulknife") {
-        results.push(
-          { action: { name: "Psionic Power: Psychic Whispers", type: "class" } },
-        );
-      } else {
-        results.push(
-          { action: { name: "Psionic Power: Psionic Strike", type: "class" } },
-          { action: { name: "Psionic Power: Telekinetic Movement", type: "class" } },
-        );
-      }
-
-      if (this.is2014) {
-        results.push({
-          action: { name: "Psionic Power: Recovery", type: "class" },
-        });
-      }
-      return results;
-    },
     "Psychic Blades: Attack": [
       {
         constructor: {
@@ -3319,32 +3268,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           },
         },
       };
-    },
-    "Psionic Power": () => {
-      const spent = this.ddbParser.subKlass === "Soulknife"
-        ? this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Soulknife")
-        : this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Psi Warrior");
-
-      const recovery = [
-        { period: "lr", type: 'recoverAll', formula: undefined },
-      ];
-      if (!this.is2014) {
-        recovery.push({ period: "sr", type: 'formula', formula: "1" });
-      }
-      const subclass = this.ddbParser.subKlass === "Soulknife"
-        ? "soulknife"
-        : "psi-warrior";
-
-      return {
-        data: {
-          "system.uses": {
-            spent,
-            max: this.is2014 ? "@prof * 2" : `@scale.${subclass}.energy-die.number`,
-            recovery,
-          },
-        },
-      };
-
     },
     "Persistent Rage": () => {
       return {
