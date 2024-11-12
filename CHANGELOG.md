@@ -3,6 +3,7 @@
 - Some internal code refactoring.
 - Fix Alert 2024 feat parsing as 2014.
 - Psionic Power Parsing Failures fixed.
+- Monsters attack parsing went _weird_. Monsters imported after 6.0.32 probably need reimporting.
 
 # 6.0.34
 
