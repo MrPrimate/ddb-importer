@@ -192,7 +192,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
         condition: "",
       },
       save: {
-        ability: "",
+        ability: [],
         dc: {
           calculation: "",
           formula: null,
@@ -530,7 +530,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
       this.actionInfo.save.ability = this.savingThrow.groups.ability.toLowerCase().substr(0, 3);
     } else if (this.spellSave) {
       // this.actionInfo.save.dc = 10;
-      this.actionInfo.save.ability = this.spellSave.groups.ability.toLowerCase().substr(0, 3);
+      this.actionInfo.save.ability = [this.spellSave.groups.ability.toLowerCase().substr(0, 3)];
       this.actionInfo.save.dc.calculation = "spellcasting";
     }
     if (this.halfDamage) {

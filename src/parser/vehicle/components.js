@@ -132,7 +132,7 @@ function getWeaponProperties(action, weapon) {
       ? DICTIONARY.character.abilities.find((stat) => stat.id === action.saveStatId).value
       : getSaveAbility(action.description);
     weapon.system.save = {
-      ability: saveAbility,
+      ability: [saveAbility],
       dc: Number.parseInt(action.fixedSaveDc),
       scaling: "flat",
     };

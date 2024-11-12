@@ -726,7 +726,7 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
         build: {
           generateDamage: false,
           generateSave: true,
-          saveOverride: { ability: "con", dc: { calculation: "spellcasting" } },
+          saveOverride: { ability: ["con"], dc: { calculation: "spellcasting" } },
         },
       },
     ],
@@ -906,7 +906,7 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
             },
           },
           saveOverride: {
-            ability: "wis",
+            ability: ["wis"],
             dc: {
               formula: "",
               calculation: "spellcasting",

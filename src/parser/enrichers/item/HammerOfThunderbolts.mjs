@@ -27,7 +27,7 @@ export default class HammerOfThunderbolts extends DDBEnricherMixin {
             },
           },
           saveOverride: {
-            ability: "con",
+            ability: ["con"],
             dc: {
               calculation: "",
               formula: "17",
@@ -86,7 +86,7 @@ export default class HammerOfThunderbolts extends DDBEnricherMixin {
             },
           },
           saveOverride: {
-            ability: "con",
+            ability: ["con"],
             dc: {
               calculation: "",
               formula: "17",

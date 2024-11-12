@@ -405,7 +405,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
         .find((ability) => ability.id === this.ddbDefinition.saveDcAbilityId)?.value;
       if (this.spellData.overrideSaveDc) {
         this.data.save = {
-          ability: saveAbility,
+          ability: [saveAbility],
           dc: {
             formula: this.spellData.overrideSaveDc,
             calculation: "",
@@ -413,7 +413,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
         };
       } else {
         this.data.save = {
-          ability: saveAbility,
+          ability: [saveAbility],
           dc: {
             formula: "",
             calculation: "spellcasting",

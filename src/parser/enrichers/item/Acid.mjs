@@ -10,7 +10,7 @@ export default class Acid extends DDBEnricherMixin {
       targetType: "creature",
       data: {
         save: {
-          ability: "con",
+          ability: ["con"],
           dc: {
             calculation: "dex",
             formula: "",

@@ -15,7 +15,7 @@ export default class DeviousStrikes extends DDBEnricherMixin {
       activationCondition: "Dealing Sneak Attack damage",
       data: {
         save: {
-          ability: "con",
+          ability: ["con"],
           dc: { calculation: "dex", formula: "" },
         },
         duration: { units: "inst" },
@@ -41,7 +41,7 @@ export default class DeviousStrikes extends DDBEnricherMixin {
             condition: "Dealing Sneak Attack damage",
           },
           saveOverride: {
-            ability: "con",
+            ability: ["con"],
             dc: { calculation: "dex", formula: "" },
           },
           targetOverride: {
@@ -75,7 +75,7 @@ export default class DeviousStrikes extends DDBEnricherMixin {
             condition: "Dealing Sneak Attack damage",
           },
           saveOverride: {
-            ability: "dex",
+            ability: ["dex"],
             dc: { calculation: "dex", formula: "" },
           },
           targetOverride: {

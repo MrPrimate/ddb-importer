@@ -8,7 +8,7 @@ export default class WandOfFireballs extends DDBEnricherMixin {
       addItemConsume: true,
       data: {
         save: {
-          ability: "dex",
+          ability: ["dex"],
           dc: {
             calculation: "",
             formula: "15",

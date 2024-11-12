@@ -27,7 +27,7 @@ export default class RayOfSickness extends DDBEnricherMixin {
             generateSave: true,
             generateTarget: true,
             noSpellslot: true,
-            saveOverride: { ability: "con", dc: { calculation: "spellcasting" } },
+            saveOverride: { ability: ["con"], dc: { calculation: "spellcasting" } },
           },
         },
       ];

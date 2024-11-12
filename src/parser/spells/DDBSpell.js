@@ -911,7 +911,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     // progression: spellProgression.value,
     // ability: spellCastingAbility,
     if (this.rawCharacter && !this.spellClass) {
-      this.data.system.ability = this.ability;
+      this.data.system.ability = [this.ability];
       // if (this.data.system.save.scaling == "spell") {
       //   this.data.system.save.scaling = this.ability;
       // }

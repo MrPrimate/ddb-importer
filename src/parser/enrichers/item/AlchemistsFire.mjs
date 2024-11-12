@@ -30,7 +30,7 @@ export default class AlchemistsFire extends DDBEnricherMixin {
         targetType: "creature",
         data: {
           save: {
-            ability: "dex",
+            ability: ["dex"],
             dc: {
               calculation: "dex",
               formula: "",

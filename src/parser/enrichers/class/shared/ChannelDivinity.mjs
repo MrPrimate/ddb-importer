@@ -54,7 +54,7 @@ export default class ChannelDivinity extends DDBEnricherMixin {
           generateRange: true,
           generateConsumption: true,
           saveOverride: {
-            ability: "con",
+            ability: ["con"],
             dc: { calculation: "wis", formula: "" },
           },
           damageParts: [
@@ -86,7 +86,7 @@ export default class ChannelDivinity extends DDBEnricherMixin {
           generateRange: true,
           generateConsumption: true,
           saveOverride: {
-            ability: "wis",
+            ability: ["wis"],
             dc: { calculation: "wis", formula: "" },
           },
           rangeOverride: {

@@ -14,7 +14,7 @@ export default class DeathStrike extends DDBEnricherMixin {
       activationCondition: "Hit with Sneak Attack in first round",
       data: {
         save: {
-          ability: "con",
+          ability: ["con"],
           dc: {
             calculation: "dex",
             formula: "",

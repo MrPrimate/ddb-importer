@@ -425,7 +425,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     }
 
     this.data.save = {
-      ability: saveAbility ?? Object.keys(CONFIG.DND5E.abilities)[0],
+      ability: saveAbility ? [saveAbility] : [Object.keys(CONFIG.DND5E.abilities)[0]],
       dc: {
         calculation,
         formula: String(fixedDC ?? ""),

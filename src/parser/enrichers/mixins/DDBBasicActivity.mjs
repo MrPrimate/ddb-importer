@@ -243,7 +243,7 @@ export default class DDBBasicActivity {
       return;
     }
     this.data.save = {
-      ability: Object.keys(CONFIG.DND5E.abilities)[0],
+      ability: [Object.keys(CONFIG.DND5E.abilities)[0]],
       dc: {
         calculation: "",
         formula: "",
@@ -265,7 +265,7 @@ export default class DDBBasicActivity {
   } = {}) {
 
     const attack = {
-      ability: ability ?? Object.keys(CONFIG.DND5E.abilities)[0],
+      ability: ability ? [ability] : [Object.keys(CONFIG.DND5E.abilities)[0]],
       bonus,
       critical: {
         threshold: criticalThreshold,

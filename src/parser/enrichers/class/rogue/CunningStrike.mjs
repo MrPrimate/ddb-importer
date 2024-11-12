@@ -15,7 +15,7 @@ export default class CunningStrike extends DDBEnricherMixin {
       data: {
         name: "Poison",
         save: {
-          ability: "con",
+          ability: ["con"],
           dc: { calculation: "dex", formula: "" },
         },
         duration: { units: "inst" },
@@ -41,7 +41,7 @@ export default class CunningStrike extends DDBEnricherMixin {
             condition: "Dealing Sneak Attack damage",
           },
           saveOverride: {
-            ability: "dex",
+            ability: ["dex"],
             dc: { calculation: "dex", formula: "" },
           },
           targetOverride: {

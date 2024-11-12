@@ -68,7 +68,7 @@ export function getDivineSmiteSpell(feature) {
       },
       formula: "",
       save: {
-        ability: "",
+        ability: [],
         dc: null,
         scaling: "spell",
       },

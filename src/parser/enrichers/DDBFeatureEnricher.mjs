@@ -277,7 +277,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "reaction",
       data: {
         save: {
-          ability: "str",
+          ability: ["str"],
           dc: {
             calculation: "str",
             formula: "",
@@ -425,7 +425,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       type: "save",
       data: {
         save: {
-          ability: "dex",
+          ability: ["dex"],
           dc: { calculation: "dex", formula: "" },
         },
         damage: {
@@ -878,7 +878,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         name: "Save",
         save: {
-          ability: "wis",
+          ability: ["wis"],
           dc: {
             calculation: "str",
             formula: "",
@@ -957,7 +957,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           onSave: "none",
         },
         save: {
-          ability: "str",
+          ability: ["str"],
           dc: {
             calculation: "",
             formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
@@ -981,7 +981,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           onSave: "none",
         },
         save: {
-          ability: "wis",
+          ability: ["wis"],
           dc: {
             calculation: "",
             formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
@@ -1023,7 +1023,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           onSave: "none",
         },
         save: {
-          ability: "wis",
+          ability: ["wis"],
           dc: {
             calculation: "",
             formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
@@ -1049,7 +1049,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           onSave: "none",
         },
         save: {
-          ability: "str",
+          ability: ["str"],
           dc: {
             calculation: "",
             formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
@@ -1114,7 +1114,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           onSave: "full",
         },
         save: {
-          ability: "str",
+          ability: ["str"],
           dc: {
             calculation: "",
             formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
@@ -1351,7 +1351,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         },
         target: {
           save: {
-            ability: "dex",
+            ability: ["dex"],
             dc: {
               calculation: "con",
               formula: "",
@@ -1377,7 +1377,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       targetType: "creature",
       data: {
         save: {
-          ability: "str",
+          ability: ["str"],
           dc: {
             calculation: "con",
             formula: "",
@@ -1405,7 +1405,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       targetType: "creature",
       data: {
         save: {
-          ability: "str",
+          ability: ["str"],
           dc: {
             calculation: "con",
             formula: "",
@@ -1454,7 +1454,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       addItemConsume: true,
       data: {
         save: {
-          ability: "con",
+          ability: ["con"],
           dc: {
             calculation: "",
             formula: "10 + (@item.uses.spent * 5)",
@@ -1473,7 +1473,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           data: {
             save: {
               dc: { formula: "", calculation: "dex" },
-              ability: "wis",
+              ability: ["wis"],
             },
           },
         };
@@ -1686,7 +1686,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         },
         target: {
           save: {
-            ability: "dex",
+            ability: ["dex"],
             dc: {
               calculation: "con",
               formula: "",
@@ -1742,7 +1742,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         "range.units": "touch",
         save: {
-          ability: "con",
+          ability: ["con"],
           dc: {
             calculation: "wis",
             formula: "",
@@ -2132,7 +2132,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
                 units: "ft",
               },
               attack: {
-                ability: "dex",
+                ability: ["dex"],
                 type: {
                   value: "melee",
                   classification: "unarmed",
@@ -2153,7 +2153,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
             generateActivation: true,
             generateConsumption: false,
             saveOverride: {
-              ability: "str",
+              ability: ["str"],
               dc: { calculation: "wis", formula: "" },
             },
             activationOverride: {
@@ -2468,7 +2468,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
             },
             damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 8, type: "poison" })],
             saveOverride: {
-              ability: "con",
+              ability: ["con"],
               dc: {
                 formula: "14",
                 calculation: "",
@@ -2497,7 +2497,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
               },
               damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 8, type: "poison" })],
               saveOverride: {
-                ability: "con",
+                ability: ["con"],
                 dc: {
                   formula: "",
                   calculation: "dex",
@@ -2524,7 +2524,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
               },
               damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 8, type: "poison" })],
               saveOverride: {
-                ability: "con",
+                ability: ["con"],
                 dc: {
                   formula: "",
                   calculation: "int",
@@ -2642,7 +2642,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
             condition: "",
           },
           saveOverride: {
-            ability: "dex",
+            ability: ["dex"],
             dc: {
               calculation: "spellcasting",
               formula: "",
@@ -3004,7 +3004,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           damageParts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "(@abilities.wis.mod)d6", types: ["cold"] })],
           generateSave: true,
           saveOverride: {
-            ability: "con",
+            ability: ["con"],
             dc: { calculation: "spellcasting", formula: "" },
           },
         },

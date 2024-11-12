@@ -33,7 +33,7 @@ export default class StaffOfCharming extends DDBEnricherMixin {
         build: {
           generateSave: true,
           saveOverride: {
-            ability: "",
+            ability: [""],
             dc: {
               calculation: "spellcasting",
               formula: "",
