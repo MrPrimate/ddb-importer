@@ -4,19 +4,18 @@ import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
 export default class Alert extends DDBEnricherMixin {
 
   get effects() {
-    if (this.is2014) {
-      return [
-        {
-          options: {
-            transfer: true,
-          },
-          changes: [
-            DDBEnricherMixin.generateOverrideChange("true", 20, "flags.dnd5e.initiativeAlert"),
-          ],
+    const changes = this.is2014
+      ? [DDBEnricherMixin.generateOverrideChange("true", 20, "flags.dnd5e.initiativeAlert")]
+      : [DDBEnricherMixin.generateUnsignedAddChange("@prof", 20, "system.attributes.init.bonus")];
+    return [
+      {
+        options: {
+          transfer: true,
         },
-      ];
-    }
-    return [];
+        changes,
+      },
+    ];
+
   }
 
 }

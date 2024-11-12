@@ -1,7 +1,6 @@
 import { applyDefaultMidiFlags, baseEffect, effectModules, forceItemEffect, forceManualReaction } from "./effects.js";
 
 // effect loads
-import { alertEffect } from "./feats/alert.js";
 import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
 import { arcaneRecoveryEffect } from "./feats/arcaneRecovery.js";
 import { arcaneWardEffect } from "./feats/arcaneWard.js";
@@ -369,10 +368,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
 
   // effects to always apply
   switch (name) {
-    case "Alert": {
-      document = alertEffect(document);
-      break;
-    }
     case "Aura of Hate": {
       document = auraOfHateEffect(document);
       break;
