@@ -1896,5 +1896,9 @@
   {
     "name": "Versatile",
     "path": "icons/skills/trades/academics-investigation-puzzles.webp"
+  },
+  {
+    "name": "Psychic Resilience",
+    "path": "icons/magic/symbols/triangle-glowing-green.webp"
   }
 ]
