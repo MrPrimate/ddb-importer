@@ -1,3 +1,7 @@
+# 6.0.39
+
+- Fix item munching if using custom proxy.
+
 # 6.0.38
 
 - Fix Lucky on legacy halflings.

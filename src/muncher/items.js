@@ -150,6 +150,16 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
         return data.data;
       })
       .then((data) => {
+        if (DDBProxy.isCustom()) {
+          return {
+            items: data,
+            spells: [],
+          };
+        } else {
+          return data;
+        }
+      })
+      .then((data) => {
         return {
           items: data.items,
           spells: data.spells.map((s) => s.data),
