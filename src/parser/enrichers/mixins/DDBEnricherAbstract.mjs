@@ -58,13 +58,10 @@ export default class DDBEnricherAbstract {
   }
 
   _loadEnricherData(name) {
-    if (this.ENRICHERS?.[name]) {
-      const ExternalEnricher = DDBEnricherAbstract._loadDataStub(this.ENRICHERS[name]);
-      return new ExternalEnricher({
-        ddbEnricher: this,
-      });
-    }
-    return null;
+    if (!this.ENRICHERS?.[name]) return null;
+    return new this.ENRICHERS[name]({
+      ddbEnricher: this,
+    });
   }
 
   _getEnricherMatchesV2() {

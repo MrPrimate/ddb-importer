@@ -11,7 +11,7 @@ export default class UnarmedStrike extends DDBEnricherMixin {
     const martialArtist = this.hasClassFeature({ featureName: "Martial Arts", className: "Monk" });
 
     const results = martialArtist
-      ? [{ duplicate: true, overrides: { activationType: "bonus" } }]
+      ? [{ duplicate: true, overrides: { name: "Attack (Bonus Action)", activationType: "bonus" } }]
       : [];
     results.push(
       {

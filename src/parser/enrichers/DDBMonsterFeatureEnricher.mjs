@@ -42,7 +42,7 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherAbstract {
   NAME_HINTS = {};
 
   ENRICHERS = {
-    "Flying Snake": { "Bite": () => MonsterEnrichers.FlyingSnake.Bite },
+    "Flying Snake": { "Bite": MonsterEnrichers.FlyingSnake.Bite },
   };
 
 }
