@@ -19,7 +19,6 @@ import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/special/conditions.js";
 import DDBMacros from "../effects/DDBMacros.js";
-import { addMagicItemSpells } from "../parser/item/itemSpells.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 import { createInfusedItems } from "../parser/item/infusions.js";
 
@@ -937,17 +936,8 @@ ${item.system.description.chat}
   }
 
   async fetchCharacterItems() {
-    const magicItemsInstalled = game.modules.get("magicitems")?.active || game.modules.get("magic-items-2")?.active;
-    const itemsWithSpellsInstalled = game.modules.get("items-with-spells-5e")?.active;
     // items for actor
     let items = [];
-
-    // process spells for magic items
-    if ((magicItemsInstalled || itemsWithSpellsInstalled) && Array.isArray(this.result.itemSpells)) {
-      this.showCurrentTask("Preparing magicitem spells");
-      logger.debug("Preparing magicitem spells");
-      await addMagicItemSpells(this.result);
-    }
 
     logger.debug("Calculating items to create and update...");
     this.showCurrentTask("Calculating items to create and update...");
@@ -966,7 +956,7 @@ ${item.system.description.chat}
     const spellsAsActivities = game.settings.get(SETTINGS.MODULE_ID, "spells-on-items-as-activities");
     // If there is no magicitems module fall back to importing the magic
     // item spells as normal spells fo the character
-    if (!spellsAsActivities && !magicItemsInstalled && !itemsWithSpellsInstalled) {
+    if (!spellsAsActivities) {
       logger.debug("No magic items module(s) found, adding spells to sheet.");
       items.push(
         this.result.itemSpells.filter((item) => {
