@@ -246,7 +246,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   });
   await itemHandler.init();
   await itemHandler.srdFiddling();
-  DDBMuncher.munchNote(`Painting Item Icons (this can take a while)`, true);
+  DDBMuncher.munchNote(`Imps are creating iconographs for ${itemHandler.documents.length} possible items (this can take a while)`, true);
   await itemHandler.iconAdditions();
   const filteredItems = (ids !== null && ids.length > 0)
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
