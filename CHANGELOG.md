@@ -2,6 +2,7 @@
 
 - Fix Lucky on legacy halflings.
 - Consumption value on some spells on items was not correct.
+- Fix spell scaling on magic items such as wand of fireballs.
 
 # 6.0.37
 

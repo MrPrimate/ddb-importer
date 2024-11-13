@@ -2197,6 +2197,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     return match;
   }
 
+  // eslint-disable-next-line complexity
   #addSpellAsCastActivity(spell) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
@@ -2250,9 +2251,11 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       });
     }
 
+    const scalingAmount = (spellData.limitedUse?.maxNumberConsumed ?? 1) > (spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1);
+
     const activityConsumptionTarget = this.isPerSpell
       ? {
-        type: "itemUses",
+        type: "activityUses",
         value: `${spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed}`,
         scaling: {},
       }
@@ -2262,7 +2265,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           target: `${this.data._id}`,
           value: `${spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1}`,
           scaling: {
-            mode: "",
+            mode: scalingAmount ? "amount" : "",
             formula: "",
           },
         }
@@ -2279,7 +2282,6 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
 
     const scalingAllowed = !this.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
-    const scalingValue = this.data.system.uses.max ?? "";
 
     if (activityConsumptionTarget) {
       consumptionOverride.targets = [activityConsumptionTarget];
@@ -2287,7 +2289,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     if (scalingAllowed) {
       consumptionOverride.scaling.allowed = true;
-      consumptionOverride.scaling.max = scalingValue;
+      consumptionOverride.scaling.max = `min(@item.uses.value,${spellData.limitedUse.maxNumberConsumed})`;
     }
 
     const options = {
@@ -2305,13 +2307,13 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       activity: activity,
     });
 
-    console.warn(`Spell Activity`, {
-      activity,
-      castData: spellOverride,
-      options,
-      spell,
-      spellData,
-    });
+    // console.warn(`Spell Activity`, {
+    //   activity,
+    //   castData: spellOverride,
+    //   options,
+    //   spell,
+    //   spellData,
+    // });
 
     this.activities.push(activity);
     foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
