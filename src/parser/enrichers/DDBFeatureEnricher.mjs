@@ -144,7 +144,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Improved Critical": ClassEnrichers.Fighter.ImprovedCritical,
     "Inspiring Leader": () => FeatEnrichers.InspiringLeader,
     "Inspiring Smite": () => ClassEnrichers.Paladin.InspiringSmite,
-    "Jack of All Trades": ClassEnrichers.Bard.JackOfAllTrades,
+    "Jack of All Trades": () => ClassEnrichers.Bard.JackOfAllTrades,
     "Lay On Hands: Healing Pool": () => ClassEnrichers.Paladin.LayOnHands,
     "Lay On Hands: Purify Poison": () => ClassEnrichers.Paladin.LayOnHandsPurifyPoison,
     "Little Giant": () => SpeciesEnrichers.Generic.PowerfulBuild,

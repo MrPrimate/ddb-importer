@@ -1,3 +1,7 @@
+# 6.0.36
+
+- Some bards would fail to import.
+
 # 6.0.35
 
 - Some internal code refactoring.
