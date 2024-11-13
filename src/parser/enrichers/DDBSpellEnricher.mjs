@@ -57,6 +57,20 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     "Suggestion": SpellEnrichers.Suggestion,
     "Tasha's Bubbling Cauldron": SpellEnrichers.TashasBubblingCauldron,
     "True Strike": SpellEnrichers.TrueStrike,
+    "Scorching Ray": SpellEnrichers.ScorchingRay,
+    "Aura of Life": SpellEnrichers.AuraOfLife,
+    "Arcane Eye": SpellEnrichers.ArcaneEye,
+    "Arcane Sword": SpellEnrichers.ArcaneSword,
+    "Armor of Agathys": SpellEnrichers.ArmorOfAgathys,
+    "Booming Blade": SpellEnrichers.BoomingBlade,
+    "Call Lightning": SpellEnrichers.CallLightning,
+    "Chaos Bolt": SpellEnrichers.ChaosBolt,
+    "Chromatic Orb": SpellEnrichers.ChromaticOrb,
+    "Command": SpellEnrichers.Command,
+    "Control Weather": SpellEnrichers.ControlWeather,
+    "Dancing Lights": SpellEnrichers.DancingLights,
+    "Darkness": SpellEnrichers.Darkness,
+    "Divine Favor": SpellEnrichers.DivineFavor,
   };
 
   NAME_HINTS_2014 = {};
@@ -69,132 +83,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
   };
 
   ACTIVITY_HINTS = {
-    "Aura of Life": {
-      type: "utility",
-    },
-    "Arcane Eye": {
-      type: "summon",
-      noTemplate: true,
-      profileKeys: ["ArcaneEye"],
-    },
-    "Arcane Sword": {
-      type: "summon",
-      noTemplate: true,
-      profileKeys: [
-        "ArcaneSwordSpectralGreen",
-        "ArcaneSwordAstralBlue",
-      ],
-      summons: {
-        "match": {
-          "proficiency": false,
-          "attacks": true,
-          "saves": false,
-        },
-      },
-    },
-    "Armor of Agathys": {
-      type: "heal",
-    },
-    "Booming Blade": {
-      type: "damage",
-      targetType: "creature",
-      overrideTemplate: true,
-      overrideRange: true,
-      noTemplate: true,
-      data: {
-        range: {
-          override: true,
-          value: 5,
-          units: "ft",
-        },
-        damage: {
-          parts: [{
-            types: ["thunder"],
-            scaling: {
-              mode: "whole",
-              formula: "1d8",
-            },
-          }],
-        },
-      },
-    },
-    "Call Lightning": {
-      type: "utility",
-      data: {
-        name: "Place Storm Cloud Template",
-      },
-    },
-    "Chaos Bolt": {
-      data: {
-        damage: {
-          parts: [
-            DDBEnricherAbstract.basicDamagePart({ customFormula: "2d8 + 1d6", scalingMode: "whole", scalingFormula: "1d6" }),
-            // DDBBaseEnricher.basicDamagePart({ customFormula: "2d8 + 1d6", types: ["acid", "cold", "fire", "force", "lightning", "poison", "psychic", "thunder"] }),
-          ],
-        },
-      },
-    },
-    "Chromatic Orb": {
-      data: {
-        damage: {
-          parts: [
-            DDBEnricherAbstract.basicDamagePart({ number: 3, denomination: 8, types: ["acid", "cold", "fire", "lightning", "poison", "thunder"], scalingMode: "whole", scalingNumber: 1 }),
-          ],
-        },
-      },
-    },
-    "Command": {
-      lookupName: {
-        "Activate Mantle of Majesty": {
-          data: {
-            name: "Activate Mantle of Majesty",
-          },
-        },
-      },
-    },
-    "Control Weather": {
-      type: "utility",
-      targetType: "self",
-      data: {
-        range: {
-          override: true,
-          value: 5,
-          units: "mi",
-        },
-      },
-    },
-    "Dancing Lights": {
-      type: "summon",
-      noTemplate: true,
-      profileKeys: [
-        "DancingLightsYellow",
-        "DancingLightsBlueTeal",
-        "DancingLightsGreen",
-        "DancingLightsBlueYellow",
-        "DancingLightsPink",
-        "DancingLightsPurpleGreen",
-        "DancingLightsRed",
-      ],
-      summons: {
-
-      },
-    },
-    "Darkness": {
-      type: "ddbmacro",
-      data: {
-        img: "icons/magic/unholy/orb-glowing-purple.webp",
-        macro: {
-          name: "Toggle Darkness",
-          function: "ddb.spell.darkness",
-          visible: false,
-          parameters: "",
-        },
-      },
-    },
-    "Divine Favor": {
-      type: "utility",
-      targetType: "self",
-    },
     "Divine Smite": {
       type: "damage",
       data: {
@@ -310,12 +198,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
           ],
         },
       },
-    },
-    "Scorching Ray": {
-      parent: [{
-        lookupName: "Circlet of Blasting",
-        flatAttack: "5",
-      }],
     },
     "Sorcerous Burst": {
       type: "attack",
@@ -574,132 +456,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
   };
 
   ADDITIONAL_ACTIVITIES = {
-    "Armor of Agathys": [
-      {
-        constructor: {
-          name: "Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          noSpellslot: true,
-          generateAttack: false,
-          onsave: false,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ bonus: "5", type: "cold", scalingFormula: "5", scalingMode: "whole" })],
-          noeffect: true,
-        },
-      },
-    ],
-    "Booming Blade": [
-      {
-        constructor: {
-          name: "Movement Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          noSpellslot: true,
-          generateAttack: false,
-          onsave: false,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 8, type: "thunder" })],
-          noeffect: true,
-          overrideRange: {
-            value: "5",
-            units: "ft",
-          },
-          overrideTarget: {
-            affects: { type: "creature", count: "1" },
-            template: {},
-          },
-          activationOverride: { type: "", condition: "Creature moves more than 5 ft" },
-        },
-      },
-    ],
-    "Call Lightning": [
-      {
-        constructor: {
-          name: "Damage",
-          type: "save",
-        },
-        build: {
-          noSpellslot: true,
-          generateDamage: true,
-          generateSave: true,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 3, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
-          rangeOverride: {
-            value: "",
-            units: "spec",
-            special: "Beneath storm cloud",
-          },
-          targetOverride: {
-            template: {
-              count: "",
-              contiguous: false,
-              type: "radius",
-              size: "5",
-              width: "",
-              height: "",
-              units: "ft",
-            },
-          },
-          durationOverride: {
-            units: "inst",
-            concentration: false,
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Damage (Outdoors in a Storm)",
-          type: "save",
-        },
-        build: {
-          generateDamage: true,
-          generateSave: true,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 4, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
-          rangeOverride: {
-            value: "",
-            units: "spec",
-            special: "Beneath storm cloud",
-          },
-          targetOverride: {
-            template: {
-              count: "",
-              contiguous: false,
-              type: "radius",
-              size: "5",
-              width: "",
-              height: "",
-              units: "ft",
-            },
-          },
-          durationOverride: {
-            units: "inst",
-            concentration: false,
-          },
-        },
-      },
-    ],
-    "Command": () => {
-      if (this.useLookupName && this.ddbParser.lookupName === "Activate Mantle of Majesty") {
-        return [
-          {
-            constructor: {
-              name: "Free Cast",
-              type: "save",
-            },
-            build: {
-              noSpellslot: true,
-              generateConsumption: true,
-              generateSave: true,
-            },
-          },
-        ];
-      }
-      return [];
-    },
     "Divine Smite": [
       {
         constructor: {
@@ -1299,9 +1055,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
   };
 
   DOCUMENT_OVERRIDES = {
-    // "Booming Blade": {
-    //   noTemplate: true,
-    // },
     "Bones of the Earth": {
       data: {
         "system.target.template": {
@@ -1313,18 +1066,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     "Catapult": {
       data: {
         "flags.midiProperties.nodam": true,
-      },
-    },
-    "Command": {
-      lookupName: {
-        "Activate Mantle of Majesty": {
-          data: {
-            "flags.ddbimporter": {
-              ignoredConsumptionActivities: ["Free Cast"],
-              // spellSlot: true,
-            },
-          },
-        },
       },
     },
     "Flaming Sphere": {
@@ -1472,11 +1213,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     "Animal Friendship": {
       statuses: "Charmed",
     },
-    "Aura of Life": {
-      changes: [
-        generateUnsignedAddChange("necrotic", 20, "system.traits.dr.value"),
-      ],
-    },
     "Bane": {
       changes: [
         generateSignedAddChange("-1d4", 0, "system.bonuses.mwak.attack"),
@@ -1501,8 +1237,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
         generateTokenMagicFXChange("bloom"),
       ],
     },
-    "Booming Blade": {
-    },
     "Chill Touch": {
       changes: [
         generateUnsignedAddChange("healing", 30, "system.traits.di.value"),
@@ -1515,12 +1249,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
       atlChanges: [
         generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 60, 5),
         generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
-      ],
-    },
-    "Divine Favor": {
-      changes: [
-        generateUnsignedAddChange("1d4[radiant]", 0, "system.bonuses.mwak.damage"),
-        generateUnsignedAddChange("1d4[radiant]", 0, "system.bonuses.rwak.damage"),
       ],
     },
     "Feeblemind": {
