@@ -2206,8 +2206,14 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       s.flags.ddbimporter?.definitionId === spell.flags?.ddbimporter?.definitionId,
     );
 
-    foundry.utils.setProperty(spell, "flags.ddbimporter.removeSpell", false);
-    if (!compendiumSpell) return false;
+    if (!compendiumSpell) {
+      logger.warn(`Missing Spell ${spell.name} from Spells Compendium, please Munch Spells`, {
+        spell,
+        definitionId: spell.flags?.ddbimporter?.definitionId,
+      });
+      foundry.utils.setProperty(spell, "flags.ddbimporter.removeSpell", false);
+      return false;
+    }
 
     const spellOverride = {
       uuid: compendiumSpell.uuid,
@@ -2242,28 +2248,30 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       )?.value ?? undefined
       : undefined;
 
+    const maxNumberConsumed = `${spellData.limitedUse?.maxNumberConsumed ?? 1}`;
+    const minNumberConsumed = `${spellData.limitedUse?.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1}`
     if (this.isPerSpell) {
       // spells manage charges
-      usesOverride.max = spellData.limitedUse.maxNumberConsumed ? `${spellData.limitedUse.maxNumberConsumed}` : "1";
+      usesOverride.max = maxNumberConsumed;
       usesOverride.recovery.push({
         period: resetType,
         type: "recoverAll",
       });
     }
 
-    const scalingAmount = (spellData.limitedUse?.maxNumberConsumed ?? 1) > (spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1);
+    const scalingAmount = maxNumberConsumed > minNumberConsumed;
 
     const activityConsumptionTarget = this.isPerSpell
       ? {
         type: "activityUses",
-        value: `${spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed}`,
+        value: `${spellData.limitedUse?.minNumberConsumed ?? spellData.limitedUse?.maxNumberConsumed ?? 1}`,
         scaling: {},
       }
       : spellData.limitedUse
         ? {
           type: "itemUses",
-          target: `${this.data._id}`,
-          value: `${spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1}`,
+          target: "",
+          value: `${minNumberConsumed}`,
           scaling: {
             mode: scalingAmount ? "amount" : "",
             formula: "",
@@ -2526,12 +2534,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   async #basicMagicItem() {
-    // if using magic items modules, these changes are not needed and a seperate
-    // function processes the required data later.
-    if (game.modules.get("magicitems")?.active
-     || game.modules.get("items-with-spells-5e")?.active) return;
     if (!this.ddbDefinition.magic) return;
-
 
     if (this.isPerSpell) {
       this.data.system.uses = {
@@ -2542,6 +2545,11 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       };
     }
 
+
+    console.warn(`Basic Magic Item ${this.data.name}`, {
+      this: this,
+    });
+
     if (!this.raw.itemSpells) return;
     for (const spell of this.raw.itemSpells) {
       const isItemSpell = spell.flags.ddbimporter.dndbeyond.lookup === "item"
@@ -2551,6 +2559,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         this.#addSpellAsCastActivity(spell);
       }
     }
+
+    if (this.isCompendiumItem) return;
 
     this.raw.itemSpells = this.raw.itemSpells.filter((spell) => {
       const matchedSpell = foundry.utils.getProperty(spell, "flags.ddbimporter.removeSpell")
@@ -2628,7 +2638,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
       this.enricher.addDocumentOverride();
 
-      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+      this.data.system.identifier = utils.referenceNameString(`${this.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
     } catch (err) {
       logger.warn(

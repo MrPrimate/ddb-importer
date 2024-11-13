@@ -16,6 +16,7 @@ import DDBCharacter from "../parser/DDBCharacter.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import DDBMacros from "../effects/DDBMacros.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
+import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 
 function getCharacterInventory(items) {
   return items.map((item) => {
@@ -34,7 +35,7 @@ function getCharacterInventory(items) {
   });
 }
 
-async function generateImportItems(items, notifier) {
+async function generateImportItems(items, notifier, itemSpells = []) {
   const mockCharacter = {
     system: utils.getTemplate("character"),
     type: "character",
@@ -66,6 +67,9 @@ async function generateImportItems(items, notifier) {
         race: [],
         feat: [],
       },
+      spells: {
+        item: itemSpells,
+      },
       modifiers: {
         race: [],
         class: [],
@@ -77,18 +81,28 @@ async function generateImportItems(items, notifier) {
       feats: [],
     },
   };
-  let itemSpells = []; // here we need to parse each available spell and build a mock spell parser
   const ddbCharacter = new DDBCharacter(mockDDB);
   ddbCharacter.raw.character = mockCharacter;
   ddbCharacter.source = {
     ddb: mockDDB,
   };
-  ddbCharacter.raw.itemSpells = [];
+
+  const spells = await GenericSpellFactory.getItemSpells(mockDDB, ddbCharacter.raw.character, {
+    generateSummons: true,
+  });
+  ddbCharacter.raw.itemSpells = spells;
+
+  // console.warn("spells", {
+  //   spells,
+  //   itemSpells,
+  // });
+
   const inventory = await ddbCharacter.getInventory(notifier);
   const results = {
     items: inventory,
-    itemSpellNames: itemSpells, // this needs to be a list of spells to find
+    spells: ddbCharacter.raw.itemSpells, // this needs to be a list of spells to find
   };
+  // console.warn(results);
   return results;
 }
 
@@ -97,7 +111,7 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
   const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
-  const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
+  const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, addSpells: true };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
   const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
   const useGenerics = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-generic-items");
@@ -133,64 +147,64 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
           DDBMuncher.munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
-        return data;
+        return data.data;
       })
       .then((data) => {
-        const genericsFilteredData = data.data.filter((item) => item.canBeAddedToInventory || useGenerics);
-        if (sources.length === 0 || !useSourceFilter) return genericsFilteredData;
-        return genericsFilteredData.filter((item) =>
-          item.sources.some((source) => sources.includes(source.sourceId)),
-        );
+        return {
+          items: data.items,
+          spells: data.spells.map((s) => s.data),
+        };
+      })
+      .then((data) => {
+        const genericsFilteredItems = data.items.filter((item) => item.canBeAddedToInventory || useGenerics);
+        return {
+          items: (sources.length === 0 || !useSourceFilter)
+            ? genericsFilteredItems
+            : genericsFilteredItems.filter((item) =>
+              item.sources.some((source) => sources.includes(source.sourceId)),
+            ),
+          spells: data.spells,
+        };
       })
       .then((data) => {
         if (sources.length > 0) return data;
         if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only")) {
-          return data.filter((item) => item.isHomebrew);
+          return {
+            items: data.items.filter((item) => item.isHomebrew),
+            spells: data.spells,
+          };
         } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew")) {
-          return data.filter((item) => !item.isHomebrew);
+          return {
+            items: data.items.filter((item) => !item.isHomebrew),
+            spells: data.spells,
+          };
         } else {
           return data;
         }
       })
       .then((data) => {
-        if (ids.length > 0) return data.filter((item) => ids.includes(item.id));
+        if (ids.length > 0) return {
+          items: data.items.filter((item) => ids.includes(item.id)),
+          spells: data.spells,
+        };
         return data;
       })
       .then((data) => {
         if (!excludeLegacy) return data;
-        return data.filter((r) => !r.isLegacy);
+        return {
+          items: data.items.filter((r) => !r.isLegacy),
+          spells: data.spells,
+        };
       })
       .then((data) => resolve(data))
       .catch((error) => reject(error));
   });
 }
 
-async function addMagicItemSpells(items, spells, updateBool) {
-  if (spells.length === 0) return;
-  const itemHandler = new DDBItemImporter("itemspells", spells, {
-    matchFlags: ["is2014", "is2024"],
-    notifier: DDBMuncher.munchNote,
-  });
-  await itemHandler.init();
-  const itemSpells = await itemHandler.updateCompendium(updateBool);
-  // scan the inventory for each item with spells and copy the imported data over
-  items.forEach((item) => {
-    if (item.flags.magicitems.spells) {
-      for (let [i, spell] of Object.entries(item.flags.magicitems.spells)) {
-        const itemSpell = itemSpells.find((item) => item.name === spell.name);
-        if (itemSpell) {
-          for (const [key, value] of Object.entries(itemSpell)) {
-            item.flags.magicitems.spells[i][key] = value;
-          }
-        }
-      }
-    }
-  });
-}
 
 export async function parseItems({ useSourceFilter = true, ids = [], deleteBeforeUpdate = null } = {}) {
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
-  const magicItemsInstalled = !!game.modules.get("magicitems");
+  // const magicItemsInstalled = !!game.modules.get("magicitems");
   const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
 
   // to speed up file checking we pregenerate existing files now.
@@ -211,21 +225,17 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   const sourceFilter = (ids === null || ids.length === 0) && useSourceFilter;
   const raw = await getItemData({ useSourceFilter: sourceFilter, ids });
 
-  const characterInventory = getCharacterInventory(raw);
-  const results = await generateImportItems(characterInventory, DDBMuncher.munchNote);
+  const characterInventory = getCharacterInventory(raw.items);
+  const results = await generateImportItems(characterInventory, DDBMuncher.munchNote, raw.spells);
 
   let items = results.items;
+  console.warn("spell imports", {
+    results,
+    raw,
+    characterInventory,
+  });
 
   DDBMuncher.munchNote("Parsing item data..");
-
-  // Items Spell addition is currently not done, parsing out spells needs to be addded
-  // let itemSpells = results.value.itemSpells;
-  let itemSpells = null;
-
-  // store all spells in the folder specific for Dynamic Items
-  if (magicItemsInstalled && itemSpells && Array.isArray(itemSpells)) {
-    await addMagicItemSpells(items, itemSpells, updateBool);
-  }
 
   await Iconizer.preFetchDDBIconImages();
 

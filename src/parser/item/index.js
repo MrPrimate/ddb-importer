@@ -1,8 +1,9 @@
+/* eslint-disable max-depth */
 import { DICTIONARY } from "../../config/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 
-// magic items support
-import MagicItemMaker from "./MagicItemMaker.js";
+// // magic items support
+// import MagicItemMaker from "./MagicItemMaker.js";
 
 // effects support
 import { generateEffects } from "../../effects/effects.js";
@@ -11,7 +12,7 @@ import { addRestrictionFlags } from "../../effects/restrictions.js";
 import { midiItemEffects } from "../../effects/specialEquipment.js";
 
 import DDBItem from "./DDBItem.js";
-import { CompendiumHelper, logger } from "../../lib/_module.mjs";
+import { CompendiumHelper } from "../../lib/_module.mjs";
 
 
 // TO DO: revisit to break up item parsing
@@ -52,23 +53,6 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
       spellCompendium,
     });
     await itemParser.build();
-
-    if (itemParser.data) {
-      const itemSpells = this.raw.spells ?? ddbItem.spells ?? [];
-
-      if (game.modules.get("magicitems")?.active) {
-        ddbItem.data.flags.magicitems = MagicItemMaker.parseMagicItemsModule(itemParser, itemSpells, !isCompendiumItem, true);
-      } else if (game.modules.get("items-with-spells-5e")?.active) {
-        MagicItemMaker.parseItemsWithSpellsModule(itemParser, itemSpells, !isCompendiumItem);
-      } else {
-        logger.debug(`${itemParser.name} Using basic magic item data`, {
-          item: foundry.utils.deepClone(ddbItem.data),
-          data: ddbItem.ddbItem,
-          itemSpells,
-          isCompendiumItem,
-        });
-      }
-    }
 
     let item = Object.assign({}, itemParser.data);
 

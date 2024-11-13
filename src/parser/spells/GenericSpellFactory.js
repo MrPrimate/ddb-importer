@@ -100,6 +100,9 @@ export default class GenericSpellFactory {
   }
 
   static async getItemSpells(ddb, character, { generateSummons = null } = {}) {
+
+    console.warn("GenericSpellFactory.getItemSpells", { ddb, character });
+
     let items = [];
     const proficiencyModifier = character.system.attributes.prof;
     const lookups = getLookups(ddb.character);
@@ -110,7 +113,7 @@ export default class GenericSpellFactory {
     for (const spell of ddb.character.spells.item) {
       if (!spell.definition) continue;
 
-      const itemInfo = lookups.item.find((it) => it.id === spell.componentId);
+      const itemInfo = lookups.item.find((item) => item.id === spell.componentId);
       if (!itemInfo) continue;
 
       const active

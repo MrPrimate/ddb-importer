@@ -59,9 +59,10 @@ Below are some recommended modules.
 
 I'd strongly recommend installing:
 
-- [Magic Items](https://foundryvtt.com/packages/magicitems/) for attaching spells to magic items
-- [Vision/Detection Modes 5e](https://foundryvtt.com/packages/vision-5e) adds those lovely missing vision modes for 5e.
-- [DAE](https://foundryvtt.com/packages/dae/) for some more dynamic bonus effects and basic effects
+- [Tokenizer](https://foundryvtt.com/packages/vtta-tokenizer) - Helps create _pog_ style tokens from DDB art.
+- [DAE](https://foundryvtt.com/packages/dae/) - Helps enrich some of the effects for things like speed bonuses.
+- [Active Token Effects](https://foundryvtt.com/packages/ATL) - Helps allow effect bonuses to transfer to tokens.
+- [Vision/Detection Modes 5e](https://foundryvtt.com/packages/vision-5e) - Adds some key missing vision and detection modes for 5e.
 
 
 To learn more about automation visit the [docs](http://localhost:3000/docs/ddb-importer/character#automation).
