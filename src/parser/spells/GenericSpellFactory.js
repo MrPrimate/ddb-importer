@@ -110,7 +110,9 @@ export default class GenericSpellFactory {
     const spellCountDict = {};
 
     // feat spells are handled slightly differently
-    for (const spell of ddb.character.spells.item) {
+    const spells = [...ddb.character.spells.item];
+    if (ddb.unequippedItemSpells) spells.push(...ddb.unequippedItemSpells);
+    for (const spell of spells) {
       if (!spell.definition) continue;
 
       const itemInfo = lookups.item.find((item) => item.id === spell.componentId);
