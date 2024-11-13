@@ -614,5 +614,9 @@
   {
     "name": "Enhanced Unarmed Strike",
     "path": "icons/skills/melee/unarmed-punch-fist-yellow-red.webp"
+  },
+  {
+    "name": "Draconic Senses",
+    "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
   }
 ]

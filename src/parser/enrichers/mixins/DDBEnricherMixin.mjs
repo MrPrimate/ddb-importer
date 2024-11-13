@@ -115,6 +115,10 @@ export default class DDBEnricherMixin {
     this.manager = ddbEnricher.manager;
   }
 
+  get featureType() {
+    return foundry.utils.getProperty(this.data, "flags.ddbimporter.type");
+  }
+
   /**
    * activity type - if type is none, activity hit will be generally undefined
    * @returns {string}

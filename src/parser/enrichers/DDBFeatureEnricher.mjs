@@ -58,7 +58,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Form of the Beast: Tail": "Form of the Beast",
     "Form of the Beast: Claw": "Form of the Beast",
     "Form of the Beast: Bite": "Form of the Beast",
-    "Halfling Lucky": "Luck",
+    "Halfling Lucky": "Lucky",
     "Powerful Build, Hippo Build": "Hippo Build",
   };
 
@@ -149,7 +149,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Lay On Hands: Purify Poison": ClassEnrichers.Paladin.LayOnHandsPurifyPoison,
     "Little Giant": SpeciesEnrichers.Generic.PowerfulBuild,
     "Living Legend": ClassEnrichers.Paladin.LivingLegend,
-    "Luck": SpeciesEnrichers.Halfling.Luck,
+    "Lucky": GenericEnrichers.Lucky,
     "Mage Slayer": FeatEnrichers.MageSlayer,
     "Magical Cunning": ClassEnrichers.Warlock.MagicalCunning,
     "Monk's Focus": ClassEnrichers.Monk.MonksFocus,
@@ -931,12 +931,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           units: "minute",
         },
       },
-    },
-    "Lucky": {
-      type: "utility",
-      name: "Spend Luck Point",
-      activationType: "special",
-      addItemConsume: true,
     },
     "Lunar Form": {
       type: "damage",
@@ -3185,19 +3179,6 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         name: "Lay On Hands",
       },
-    },
-    "Lucky": () => {
-      const uses = this._getUsesWithSpent({
-        type: "feat",
-        name: "Luck Points",
-        max: this.is2014 ? 3 : "@prof",
-        period: "lr",
-      });
-      return {
-        data: {
-          "system.uses": uses,
-        },
-      };
     },
     "Maneuver: Disarming Attack (Str.)": {
       data: {
