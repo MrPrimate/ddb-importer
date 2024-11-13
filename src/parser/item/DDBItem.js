@@ -2175,13 +2175,13 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   parsePerSpellMagicItem(useDescription) {
+    let limitedUseRegex = /can't be used this way again until the next|can't be used to cast that spell again until the next/i;
     if (useDescription === "") {
       // some times 1 use per day items, like circlet of blasting have nothing in
       // the limited use description, fall back to this
       // can’t be used to cast that spell again until the next
       // can't be used this way again until the next dawn.
-      let limitedUseRegex = /can't be used this way again until the next|can't be used to cast that spell again until the next/i;
-      if (limitedUseRegex.test(this.ddbDefinition.description.replace("’", "'").toLowerCase())) {
+      if (limitedUseRegex.test(this.ddbDefinition.description.replace("’", "'"))) {
         return true;
       }
       return false;
@@ -2194,6 +2194,13 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     } else {
       match = false;
     }
+
+    if (!match) {
+      if (limitedUseRegex.test(useDescription.replace("’", "'"))) {
+        return true;
+      }
+    }
+
     return match;
   }
 
@@ -2232,7 +2239,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       recovery: [],
       max: "",
     };
-    const generateUses = this.isPerSpell;
+    const generateActivityUses = this.isPerSpell;
     const consumptionOverride = {
       spellSlot: false,
       targets: [],
@@ -2242,6 +2249,10 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       },
     };
 
+    if (generateActivityUses) {
+      this.data.system.uses = foundry.utils.deepClone(usesOverride);
+    }
+
     const resetType = this.ddbItem.limitedUse?.resetType
       ? DICTIONARY.resets.find((reset) =>
         reset.id == this.ddbItem.limitedUse.resetType,
@@ -2249,8 +2260,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       : undefined;
 
     const maxNumberConsumed = `${spellData.limitedUse?.maxNumberConsumed ?? 1}`;
-    const minNumberConsumed = `${spellData.limitedUse?.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1}`
-    if (this.isPerSpell) {
+    const minNumberConsumed = `${spellData.limitedUse?.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1}`;
+    if (generateActivityUses) {
       // spells manage charges
       usesOverride.max = maxNumberConsumed;
       usesOverride.recovery.push({
@@ -2303,7 +2314,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     const options = {
       spellOverride,
       generateConsumption: true,
-      generateUses,
+      generateUses: generateActivityUses,
       usesOverride,
       consumptionOverride,
     };
@@ -2315,12 +2326,13 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       activity: activity,
     });
 
-    // console.warn(`Spell Activity`, {
+    // console.warn(`Spell Activity or ${this.name}`, {
     //   activity,
     //   castData: spellOverride,
     //   options,
     //   spell,
     //   spellData,
+    //   this: this,
     // });
 
     this.activities.push(activity);
@@ -2545,10 +2557,6 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       };
     }
 
-
-    console.warn(`Basic Magic Item ${this.data.name}`, {
-      this: this,
-    });
 
     if (!this.raw.itemSpells) return;
     for (const spell of this.raw.itemSpells) {

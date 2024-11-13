@@ -229,11 +229,11 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   const results = await generateImportItems(characterInventory, DDBMuncher.munchNote, raw.spells);
 
   let items = results.items;
-  console.warn("spell imports", {
-    results,
-    raw,
-    characterInventory,
-  });
+  // console.warn("spell imports", {
+  //   results,
+  //   raw,
+  //   characterInventory,
+  // });
 
   DDBMuncher.munchNote("Parsing item data..");
 

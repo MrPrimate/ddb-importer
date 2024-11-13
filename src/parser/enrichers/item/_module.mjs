@@ -9,7 +9,7 @@ export { default as BelashyrrasBeholderCrown } from "./BelashyrrasBeholderCrown.
 export { default as BloodFuryTattoo } from "./BloodFuryTattoo.mjs";
 export { default as BootsOfSpeed } from "./BootsOfSpeed.mjs";
 export { default as BracersOfArchery } from "./BracersOfArchery.mjs";
-export { default as CanaithMandolin } from "./CanaithMandolin.mjs";
+export { default as InstrumentOfTheBards } from "./InstrumentOfTheBards.mjs";
 export { default as ConcussionGrenade } from "./ConcussionGrenade.mjs";
 export { default as DemonArmor } from "./DemonArmor.mjs";
 export { default as DonjonsSunderingSphere } from "./DonjonsSunderingSphere.mjs";

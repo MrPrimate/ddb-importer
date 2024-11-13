@@ -101,7 +101,7 @@ export default class GenericSpellFactory {
 
   static async getItemSpells(ddb, character, { generateSummons = null } = {}) {
 
-    console.warn("GenericSpellFactory.getItemSpells", { ddb, character });
+    // console.warn("GenericSpellFactory.getItemSpells", { ddb, character });
 
     let items = [];
     const proficiencyModifier = character.system.attributes.prof;

@@ -51,7 +51,13 @@ export default class DDBItemEnricher extends DDBEnricherAbstract {
     "Belashyrra's Beholder Crown": ItemEnrichers.BelashyrrasBeholderCrown,
     "Blood Fury Tattoo": ItemEnrichers.BloodFuryTattoo,
     "Boots of Speed": ItemEnrichers.BootsOfSpeed,
-    "Canaith Mandolin": ItemEnrichers.CanaithMandolin,
+    "Anstruth Harp": ItemEnrichers.InstrumentOfTheBards,
+    "Cli Lyre": ItemEnrichers.InstrumentOfTheBards,
+    "Doss Lute": ItemEnrichers.InstrumentOfTheBards,
+    "Fochlucan Bandore": ItemEnrichers.InstrumentOfTheBards,
+    "Mac-Fuirmidh Cittern": ItemEnrichers.InstrumentOfTheBards,
+    "Ollamh Harp": ItemEnrichers.InstrumentOfTheBards,
+    "Canaith Mandolin": ItemEnrichers.InstrumentOfTheBards,
     "Circlet of Blasting": ItemEnrichers.CircletOfBlasting,
     "Concussion Grenade": ItemEnrichers.ConcussionGrenade,
     "Demon Armor": ItemEnrichers.DemonArmor,
@@ -81,3 +87,4 @@ export default class DDBItemEnricher extends DDBEnricherAbstract {
   };
 
 }
+
