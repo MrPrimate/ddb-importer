@@ -202,9 +202,9 @@ export default class DDBBasicActivity {
     };
   }
 
-  _generateCast({ castOverride = null } = {}) {
-    if (castOverride) {
-      this.data.spell = castOverride;
+  _generateSpell({ spellOverride = null } = {}) {
+    if (spellOverride) {
+      this.data.spell = spellOverride;
     };
   }
 
@@ -387,7 +387,7 @@ export default class DDBBasicActivity {
     activationOverride = null,
     additionalTargets = [],
     attackData = {},
-    castOverride = null,
+    spellOverride = null,
     chatFlavor = null,
     checkOverride = null,
     consumeActivity = null,
@@ -402,7 +402,7 @@ export default class DDBBasicActivity {
     durationOverride = null,
     generateActivation = true,
     generateAttack = false,
-    generateCast = false,
+    generateSpell = false,
     generateCheck = false,
     generateConsumption = true,
     generateDamage = false,
@@ -463,7 +463,7 @@ export default class DDBBasicActivity {
     if (generateUses) this._generateUses({ usesOverride });
     if (generateRoll) this._generateRoll({ roll });
     if (generateCheck) this._generateCheck({ checkOverride });
-    if (generateCast) this._generateCast({ castOverride });
+    if (generateSpell) this._generateSpell({ spellOverride });
 
     if (noeffect) {
       const ids = foundry.utils.getProperty(this.ddbParent.data, "flags.ddbimporter.noeffect") ?? [];
@@ -473,7 +473,6 @@ export default class DDBBasicActivity {
     }
     if (img) foundry.utils.setProperty(this.data, "img", img);
     if (data) foundry.utils.mergeObject(this.data, data);
-
 
   }
 

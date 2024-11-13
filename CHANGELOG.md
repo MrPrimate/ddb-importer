@@ -1,6 +1,7 @@
 # Next Up
 
-- Fix Lucky
+- Fix Lucky on legacy halflings.
+- Consumption value on some spells on items was not correct.
 
 # 6.0.37
 

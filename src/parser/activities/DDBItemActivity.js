@@ -23,7 +23,11 @@ export default class DDBItemActivity extends DDBBasicActivity {
 
   }
 
-  _generateConsumption({ targetOverrides = null, additionalTargets = null, consumeActivity = false } = {}) {
+  _generateConsumption({ targetOverrides = null, consumptionOverride = null, additionalTargets = [], consumeActivity = false } = {}) {
+    if (consumptionOverride) {
+      this.data.consumption = consumptionOverride;
+      return;
+    }
     let targets = [];
     let scaling = false;
 
@@ -67,7 +71,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
       });
     }
 
-    if (additionalTargets) targets.push(...additionalTargets);
+    if (additionalTargets && additionalTargets.length > 0) targets.push(...additionalTargets);
 
     this.data.consumption = {
       targets: targetOverrides ?? targets,
@@ -92,7 +96,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
     activationOverride = null,
     additionalTargets = null,
     attackData = {},
-    castOverride = null,
+    spellOverride = null,
     chatFlavor = null,
     checkOverride = null,
     consumeActivity = null,
@@ -107,7 +111,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
     durationOverride = null,
     generateActivation = true,
     generateAttack = false,
-    generateCast = false,
+    generateSpell = false,
     generateCheck = false,
     generateConsumption = true,
     generateDamage = false,
@@ -134,12 +138,14 @@ export default class DDBItemActivity extends DDBBasicActivity {
     saveOverride = null,
     targetOverride = null,
     usesOverride = null,
+    consumptionOverride = null,
   } = {}) {
 
     if (generateConsumption) this._generateConsumption({
       targetOverrides: consumptionTargetOverrides,
       additionalTargets,
       consumeActivity,
+      consumptionOverride,
     });
 
     if (generateCheck) this._generateCheck({ checkOverride });
@@ -147,7 +153,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
     super.build({
       generateActivation,
       generateAttack,
-      generateCast,
+      generateSpell,
       generateConsumption: false,
       generateCheck: false,
       generateDamage,
@@ -167,7 +173,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
       chatFlavor,
       onSave,
       noeffect,
-      castOverride,
+      spellOverride,
       roll,
       targetOverride: targetOverride ?? this.actionInfo.target,
       checkOverride,

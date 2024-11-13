@@ -2208,7 +2208,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     foundry.utils.setProperty(spell, "flags.ddbimporter.removeSpell", false);
     if (!compendiumSpell) return false;
 
-    const castData = {
+    const spellOverride = {
       uuid: compendiumSpell.uuid,
       properties: ["vocal", "somatic", "material"],
       level: null,
@@ -2253,14 +2253,14 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     const activityConsumptionTarget = this.isPerSpell
       ? {
         type: "itemUses",
-        value: spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed,
+        value: `${spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed}`,
         scaling: {},
       }
       : spellData.limitedUse
         ? {
           type: "itemUses",
           target: `${this.data._id}`,
-          value: spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1,
+          value: `${spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1}`,
           scaling: {
             mode: "",
             formula: "",
@@ -2268,14 +2268,14 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         }
         : null;
 
-    castData.challenge.save = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.dc") ?? null;
-    if (castData.challenge.save) {
-      castData.challenge.override = true;
+    spellOverride.challenge.save = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.dc") ?? null;
+    if (spellOverride.challenge.save) {
+      spellOverride.challenge.override = true;
     }
 
     if (foundry.utils.hasProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel")) {
       // castData.level =  Number.parseInt(spellData.level);
-      castData.level = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel");
+      spellOverride.level = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel");
     }
 
     const scalingAllowed = !this.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
@@ -2291,7 +2291,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
 
     const options = {
-      castOverride: castData,
+      spellOverride,
+      generateConsumption: true,
       generateUses,
       usesOverride,
       consumptionOverride,
@@ -2304,13 +2305,13 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       activity: activity,
     });
 
-    // console.warn(`Spell ACtivity`, {
-    //   activity,
-    //   castData,
-    //   options,
-    //   spell,
-    //   spellData,
-    // });
+    console.warn(`Spell Activity`, {
+      activity,
+      castData: spellOverride,
+      options,
+      spell,
+      spellData,
+    });
 
     this.activities.push(activity);
     foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);

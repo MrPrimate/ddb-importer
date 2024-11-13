@@ -428,7 +428,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     activationOverride = null,
     additionalTargets = [],
     attackData = {},
-    castOverride = null,
+    spellOverride = null,
     chatFlavor = null,
     checkOverride = null,
     consumeActivity = false,
@@ -443,7 +443,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     generateActivation = false,
     generateAttack = false,
     generateCheck = false,
-    generateCast = false,
+    generateSpell = false,
     generateConsumption = true,
     generateDamage = false,
     generateDDBMacro = false,
@@ -472,7 +472,12 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     usesOverride = null,
   } = {}) {
 
-    if (generateConsumption) this._generateConsumption({ consumptionOverride, additionalTargets, consumeActivity, consumeItem });
+    if (generateConsumption) this._generateConsumption({
+      consumptionOverride,
+      additionalTargets,
+      consumeActivity,
+      consumeItem,
+    });
     if (generateSave) this._generateSave({ saveOverride });
     if (generateDamage) this._generateDamage({ damageParts, onSave, partialDamageParts });
 
@@ -483,7 +488,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     super.build({
       generateActivation: generateActivation || activationOverride !== null,
       generateAttack,
-      generateCast,
+      generateSpell,
       generateConsumption: false,
       generateCheck,
       generateDamage: false,
@@ -503,7 +508,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       onSave,
       noeffect,
       roll,
-      castOverride,
+      spellOverride,
       targetOverride,
       checkOverride,
       rangeOverride,

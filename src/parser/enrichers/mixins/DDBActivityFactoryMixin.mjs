@@ -214,13 +214,15 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build(foundry.utils.mergeObject({
+    const buildOptions = foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: false,
       generateDamage: false,
-      generateCast: true,
+      generateSpell: true,
       generateActivation: true,
-    }, options));
+    }, options);
+
+    activity.build(buildOptions);
     return activity;
   }
 
