@@ -1,3 +1,7 @@
+# 6.0.37
+
+- Some features would cause the parser to fail.
+
 # 6.0.36
 
 - Some bards would fail to import.
