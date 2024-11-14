@@ -1,6 +1,13 @@
-import { DICTIONARY } from "../../../config/_module.mjs";
 import DDBEffectHelper from "../../../effects/DDBEffectHelper.js";
-import { addMagicalBonusToEnchantmentEffect, addStatusEffectChange, baseEffect, baseEnchantmentEffect, baseItemEffect, effectModules, forceItemEffect } from "../../../effects/effects.js";
+import {
+  addMagicalBonusToEnchantmentEffect,
+  addStatusEffectChange,
+  baseEffect,
+  baseEnchantmentEffect,
+  baseItemEffect,
+  effectModules,
+  forceItemEffect,
+} from "../../../effects/effects.js";
 import { baseFeatEffect } from "../../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../../effects/specialSpells.js";
@@ -8,34 +15,6 @@ import { utils, logger, DDBHelper } from "../../../lib/_module.mjs";
 import DDBSummonsManager from "../../companions/DDBSummonsManager.js";
 
 export default class DDBEnricherAbstract {
-
-  static allDamageTypes(exclude = []) {
-    return DICTIONARY.actions.damageType
-      .filter((d) => d.name !== null)
-      .map((d) => d.name)
-      .filter((d) => !exclude.includes(d));
-  }
-
-  static basicDamagePart({
-    number = null, denomination = null, type = null, types = [], bonus = "", scalingMode = "whole",
-    scalingNumber = 1, scalingFormula = "", customFormula = null,
-  } = {}) {
-    return {
-      number,
-      denomination,
-      bonus,
-      types: type ? [type] : types,
-      custom: {
-        enabled: customFormula !== null,
-        formula: customFormula,
-      },
-      scaling: {
-        mode: scalingMode, // whole, half or ""
-        number: scalingNumber,
-        formula: scalingFormula,
-      },
-    };
-  }
 
   NAME_HINTS_2014 = {};
 

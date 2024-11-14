@@ -809,7 +809,7 @@ const JB2A_LICENSE = `<p>The assets in this actor are kindly provided by JB2A an
 
 export default class DDBSummonsManager {
 
-  constructor({ ddbData } = {}) {
+  constructor({ ddbData, notifier = null } = {}) {
     this.ddbData = ddbData;
     this.indexFilter = { fields: [
       "name",
@@ -818,6 +818,7 @@ export default class DDBSummonsManager {
       "flags.ddbimporter.summons",
     ] };
     this.itemHandler = null;
+    this.notifier = notifier ?? DDBMuncher.munchNote;
   }
 
   async generateDDBDataActors(ddbFeature) {
@@ -840,7 +841,7 @@ export default class DDBSummonsManager {
     this.itemHandler = new DDBItemImporter("summons", [], {
       indexFilter: this.indexFilter,
       matchFlags: ["is2014", "is2024"],
-      notifier: DDBMuncher.munchNote,
+      notifier: this.notifier,
     });
     await this.itemHandler.init();
   }

@@ -41,13 +41,18 @@ export default class Example extends DDBEnricherMixin {
       midiManualReaction: true, // add midi manual reaction
       flatAttack: "1", // flat attack value, sets flat attack for activity
       damageParts: [], // adds damage parts
-      data: {}, // merge this ith activity data
+      data: {}, // merge this with activity data
       func: function() {}, // run this funciton passing in the activity as the only variable
       allowMagical: true, // allow magical restrictions
       // THESE ARE RUN OUTSIDE OF THE ENRICHER, and act as flags for other elemetns
       addSingleFreeUse: true, // duplicates activity and adds single free use consumption activity
       addSingleFreeRecoveryPeriod: "lr", // single free use recovery period.
       additionalDamageIncludeBase: true, // items only, additional damage parsing should include base damage
+      stopHealSpellActivity: true, // in spells prevents healing activity auto generation
+      generateSummons: true, // during spell parsing will call the summonsFunction
+      summonsFunction: () => {}, // summons function to call when generateSummons is true
+      profileKeys: [], // array of summon profile keys to use
+      summons: {}, // data to merge to summon config
     };
   }
 

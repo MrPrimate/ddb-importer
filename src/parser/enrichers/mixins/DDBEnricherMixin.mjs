@@ -1,3 +1,4 @@
+import DICTIONARY from "../../../config/_module.mjs";
 import {
   effectModules,
   generateATLChange,
@@ -11,7 +12,6 @@ import {
   generateMultiplyChange,
 } from "../../../effects/effects.js";
 import { DDBHelper } from "../../../lib/_module.mjs";
-import DDBEnricherAbstract from "./DDBEnricherAbstract.mjs";
 
 /* eslint-disable class-methods-use-this */
 export default class DDBEnricherMixin {
@@ -91,9 +91,33 @@ export default class DDBEnricherMixin {
 
   static generateTokenMagicFXChange = generateTokenMagicFXChange;
 
-  static basicDamagePart = DDBEnricherAbstract.basicDamagePart;
+  static allDamageTypes(exclude = []) {
+    return DICTIONARY.actions.damageType
+      .filter((d) => d.name !== null)
+      .map((d) => d.name)
+      .filter((d) => !exclude.includes(d));
+  }
 
-  static allDamageTypes = DDBEnricherAbstract.allDamageTypes;
+  static basicDamagePart({
+    number = null, denomination = null, type = null, types = [], bonus = "", scalingMode = "whole",
+    scalingNumber = 1, scalingFormula = "", customFormula = null,
+  } = {}) {
+    return {
+      number,
+      denomination,
+      bonus,
+      types: type ? [type] : types,
+      custom: {
+        enabled: customFormula !== null,
+        formula: customFormula,
+      },
+      scaling: {
+        mode: scalingMode, // whole, half or ""
+        number: scalingNumber,
+        formula: scalingFormula,
+      },
+    };
+  }
 
   get movementChange() {
     return game.modules.get("dae")?.active
@@ -171,6 +195,11 @@ export default class DDBEnricherMixin {
    *   addSingleFreeUse: {boolean} Duplicates activity and adds single free use consumption activity.
    *   addSingleFreeRecoveryPeriod: {string} Single free use recovery period.
    *   additionalDamageIncludeBase: {boolean} Add additional damage include base.
+   *   stopHealSpellActivity: {boolean} in spells prevents healing activity auto generation
+   *   generateSummons: {boolean} during spell parsing will call the summonsFunction
+   *   summonsFunction: {Function} summons function to call when generateSummons is true
+   *   profileKeys: {Array} array of summon profile keys to use
+   *   summons: {object} data to merge to summon config
    */
   get activity() {
     return null;

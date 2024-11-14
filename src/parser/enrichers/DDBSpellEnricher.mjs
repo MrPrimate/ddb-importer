@@ -1,15 +1,9 @@
 import {
   effectModules,
-  generateATLChange,
-  generateCustomChange,
-  generateOverrideChange,
-  generateSignedAddChange,
-  generateTokenMagicFXChange,
-  generateUnsignedAddChange,
-  generateUpgradeChange,
 } from "../../effects/effects.js";
 import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 import { SpellEnrichers } from "./_module.mjs";
+import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
 
 export default class DDBSpellEnricher extends DDBEnricherAbstract {
   constructor({ activityGenerator } = {}) {
@@ -71,6 +65,21 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     "Dancing Lights": SpellEnrichers.DancingLights,
     "Darkness": SpellEnrichers.Darkness,
     "Divine Favor": SpellEnrichers.DivineFavor,
+    "Divine Smite": SpellEnrichers.DivineSmite,
+    "Dragon's Breath": SpellEnrichers.DragonsBreath,
+    "Gust of Wind": SpellEnrichers.GustOfWind,
+    "False Life": SpellEnrichers.FalseLife,
+    "Heroism": SpellEnrichers.Heroism,
+    "Heroes' Feast": SpellEnrichers.HeroesFeast,
+    "Hex": SpellEnrichers.Hex,
+    "Mage Hand": SpellEnrichers.MageHand,
+    "Pyrotechnics": SpellEnrichers.Pyrotechnics,
+    "Ray of Enfeeblement": SpellEnrichers.RayOfEnfeeblement,
+    "Searing Smite": SpellEnrichers.SearingSmite,
+    "Sorcerous Burst": SpellEnrichers.SorcerousBurst,
+    "Spirit Guardians": SpellEnrichers.SpiritGuardians,
+    "Spike Growth": SpellEnrichers.SpikeGrowth,
+    "Spirit Shroud": SpellEnrichers.SpiritShroud,
   };
 
   NAME_HINTS_2014 = {};
@@ -83,154 +92,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
   };
 
   ACTIVITY_HINTS = {
-    "Divine Smite": {
-      type: "damage",
-      data: {
-        name: "Damage",
-        damage: {
-          parts: [
-            DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 8, type: "radiant", scalingMode: "whole", scalingNumber: 1 }),
-          ],
-        },
-      },
-    },
-    "Dragon's Breath": {
-      data: {
-        damage: {
-          onSave: "half",
-          parts: [
-            DDBEnricherAbstract.basicDamagePart({ number: 3, denomination: 6, types: ["acid", "cold", "fire", "lightning", "poison"], scalingMode: "whole", scalingNumber: 1 }),
-          ],
-        },
-      },
-    },
-    "Gust of Wind": {
-      data: {
-        target: {
-          override: true,
-          template: {
-            count: "",
-            contiguous: false,
-            type: "line",
-            size: "60",
-            width: "10",
-            height: "",
-            units: "ft",
-          },
-          affects: {
-            count: "",
-            type: "creature",
-            choice: false,
-            special: "",
-          },
-        },
-      },
-    },
-    "False Life": {
-      data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "1d4 + 4", types: ["temphp"], scalingMode: "whole", scalingNumber: 5 }),
-      },
-    },
-    "Heroism": {
-      type: "utility",
-      stopHealSpellActivity: true,
-      data: {
-        name: "Cast",
-      },
-    },
-    "Heroes' Feast": {
-      data: {
-        duration: {
-          value: 1,
-          units: "day",
-          override: true,
-        },
-      },
-    },
-    "Hex": {
-      type: "utility",
-      data: {
-        name: "Mark Target",
-      },
-    },
-    "Mage Hand": {
-      type: "summon",
-      noTemplate: true,
-      profileKeys: [
-        "MageHandRed",
-        "MageHandPurple",
-        "MageHandGreen",
-        "MageHandBlue",
-        "MageHandRock",
-        "MageHandRainbow",
-      ],
-      summons: {
-      },
-    },
-    "Pyrotechnics": {
-      type: "save",
-      data: {
-        name: "Fireworks",
-        target: {
-          override: true,
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "radius",
-            size: "10",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Ray of Enfeeblement": {
-      type: "attack",
-    },
-    "Searing Smite": {
-      type: "damage",
-      data: {
-        name: "Initial Damage",
-        damage: {
-          parts: [
-            DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 6, types: ["fire"], scalingMode: "whole", scalingNumber: "1" }),
-          ],
-        },
-      },
-    },
-    "Sorcerous Burst": {
-      type: "attack",
-      data: {
-        damage: {
-          parts: [
-            DDBEnricherAbstract.basicDamagePart({ customFormula: "1d8x@mod=8", types: ["acid", "cold", "fire", "lightning", "poison", "psychic", "thunder"], scalingMode: "whole", scalingNumber: "1" }),
-          ],
-        },
-      },
-    },
-    "Spirit Guardians": {
-      type: "utility",
-      data: {
-        name: "Place Template",
-      },
-    },
-    "Spike Growth": {
-      type: "utility",
-      data: {
-        name: "Place Template",
-      },
-    },
-    "Spirit Shroud": {
-      type: "damage",
-      data: {
-        damage: {
-          parts: [
-            DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 8, types: ["radiant", "necrotic", "cold"], scalingMode: "half", scalingNumber: "1" }),
-          ],
-        },
-      },
-    },
     "Spiritual Weapon": {
       type: "utility",
       data: {
@@ -274,7 +135,7 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
         name: "Save",
         damage: {
           onSave: "half",
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 10, denomination: 4, type: "acid", scalingMode: "whole", scalingNumber: "2" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 10, denomination: 4, type: "acid", scalingMode: "whole", scalingNumber: "2" })],
         },
         target: {
           override: true,
@@ -456,23 +317,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
   };
 
   ADDITIONAL_ACTIVITIES = {
-    "Divine Smite": [
-      {
-        constructor: {
-          name: "Damage vs Fiends or Undead",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          noSpellslot: true,
-          generateAttack: false,
-          onsave: false,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 3, denomination: 8, type: "radiant", scalingMode: "whole", scalingNumber: 1 })],
-          noeffect: true,
-        },
-      },
-    ],
     "Heat Metal": [
       {
         constructor: {
@@ -483,46 +327,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
           generateDamage: false,
           generateSave: true,
           saveOverride: { ability: ["con"], dc: { calculation: "spellcasting" } },
-        },
-      },
-    ],
-    "Heroism": [
-      {
-        constructor: {
-          name: "Start of Turn Temp HP",
-          type: "heal",
-        },
-        build: {
-          generateHealing: true,
-          generateConsumption: false,
-          noSpellslot: true,
-          generateAttack: false,
-          onsave: false,
-          healingPart: DDBEnricherAbstract.basicDamagePart({ customFormula: "@mod", type: "temphp" }),
-          noeffect: true,
-          activationOverride: { type: "spec", condition: "Start of each creatures turn" },
-          durationOverride: {
-            units: "inst",
-            concentration: false,
-          },
-        },
-      },
-    ],
-    "Hex": [
-      {
-        constructor: {
-          name: "Hex Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          noSpellslot: true,
-          generateAttack: false,
-          onsave: false,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 6, type: "necrotic" })],
-          noeffect: true,
-          activationOverride: { type: "", condition: "When you hit creature with attack" },
         },
       },
     ],
@@ -603,74 +407,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
         ];
       }
     },
-    "Pyrotechnics": [
-      {
-        constructor: {
-          name: "Smoke",
-          type: "utility",
-        },
-        build: {
-          generateDamage: false,
-          generateConsumption: false,
-          noeffect: true,
-          targetOverride: {
-            affects: {
-              type: "creature",
-            },
-            template: {
-              contiguous: false,
-              type: "radius",
-              size: "20",
-              units: "ft",
-            },
-          },
-        },
-      },
-    ],
-    "Searing Smite": [
-      {
-        constructor: {
-          name: "Save vs Ongoing Damage",
-          type: "save",
-        },
-        build: {
-          generateDamage: true,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 6, type: "fire" })],
-          noeffect: true,
-          activationOverride: { type: "", condition: "Start of the creatures turn" },
-        },
-      },
-    ],
-    "Spirit Guardians": [
-      {
-        constructor: {
-          name: "Save vs Damage",
-          type: "save",
-        },
-        build: {
-          generateDamage: true,
-          generateSave: true,
-          onSave: "half",
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 3, denomination: 8, types: ["necrotic", "radiant"], scalingMode: "whole", scalingNumber: 1 })],
-          noeffect: true,
-          activationOverride: { type: "", condition: "Enters or ends turn in emanation (1 turn only)" },
-          durationOverride: { units: "inst", concentration: false },
-          targetOverride: {
-            template: {},
-            affects: {
-              type: "creature",
-            },
-          },
-          saveOverride: {
-            ability: ["wis"],
-            dc: {
-              formula: "",
-              calculation: "spellcasting",
-            },
-          },
-        },
-      },
-    ],
     "Spiritual Weapon": [
       {
         constructor: {
@@ -683,26 +419,8 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
           generateAttack: true,
           onsave: false,
           noSpellslot: true,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 8, type: "force", scalingMode: "half", scalingNumber: 1 })],
+          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 8, type: "force", scalingMode: "half", scalingNumber: 1 })],
           activationOverride: { type: "bonus", condition: "" },
-        },
-      },
-    ],
-    "Spike Growth": [
-      {
-        constructor: {
-          name: "Movement Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateSave: false,
-          generateConsumption: false,
-          noSpellslot: true,
-          onsave: false,
-          noeffect: true,
-          activationOverride: { type: "", condition: "Moves 5ft" },
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 4, type: "piercing" })],
         },
       },
     ],
@@ -714,7 +432,7 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
         },
         build: {
           generateDamage: true,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 12, type: "necrotic" })],
+          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 12, type: "necrotic" })],
           generateSave: true,
         },
       },
@@ -734,7 +452,7 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
           noeffect: true,
           activationOverride: { type: "spec", condition: "End of next turn" },
           durationOverride: { units: "inst", concentration: false },
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 5, denomination: 4, type: "acid" })],
+          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 5, denomination: 4, type: "acid" })],
         },
       },
     ],
@@ -1046,7 +764,7 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
               affects: {},
             },
             damageParts: [
-              DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 12, type: "lightning", scalingMode: "none", scalingNumber: null }),
+              DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 12, type: "lightning", scalingMode: "none", scalingNumber: null }),
             ],
           },
         },
@@ -1215,11 +933,11 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     },
     "Bane": {
       changes: [
-        generateSignedAddChange("-1d4", 0, "system.bonuses.mwak.attack"),
-        generateSignedAddChange("-1d4", 0, "system.bonuses.rwak.attack"),
-        generateSignedAddChange("-1d4", 0, "system.bonuses.msak.attack"),
-        generateSignedAddChange("-1d4", 0, "system.bonuses.rsak.attack"),
-        generateSignedAddChange("-1d4", 20, "system.bonuses.abilities.save"),
+        DDBEnricherMixin.generateSignedAddChange("-1d4", 0, "system.bonuses.mwak.attack"),
+        DDBEnricherMixin.generateSignedAddChange("-1d4", 0, "system.bonuses.rwak.attack"),
+        DDBEnricherMixin.generateSignedAddChange("-1d4", 0, "system.bonuses.msak.attack"),
+        DDBEnricherMixin.generateSignedAddChange("-1d4", 0, "system.bonuses.rsak.attack"),
+        DDBEnricherMixin.generateSignedAddChange("-1d4", 20, "system.bonuses.abilities.save"),
       ],
     },
     "Bless": {
@@ -1227,70 +945,52 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
         durationSeconds: 60,
       },
       changes: [
-        generateSignedAddChange("+1d4", 0, "system.bonuses.mwak.attack"),
-        generateSignedAddChange("+1d4", 0, "system.bonuses.rwak.attack"),
-        generateSignedAddChange("+1d4", 0, "system.bonuses.msak.attack"),
-        generateSignedAddChange("+1d4", 0, "system.bonuses.rsak.attack"),
-        generateSignedAddChange("+1d4", 20, "system.bonuses.abilities.save"),
+        DDBEnricherMixin.generateSignedAddChange("+1d4", 0, "system.bonuses.mwak.attack"),
+        DDBEnricherMixin.generateSignedAddChange("+1d4", 0, "system.bonuses.rwak.attack"),
+        DDBEnricherMixin.generateSignedAddChange("+1d4", 0, "system.bonuses.msak.attack"),
+        DDBEnricherMixin.generateSignedAddChange("+1d4", 0, "system.bonuses.rsak.attack"),
+        DDBEnricherMixin.generateSignedAddChange("+1d4", 20, "system.bonuses.abilities.save"),
       ],
       tokenMagicChanges: [
-        generateTokenMagicFXChange("bloom"),
+        DDBEnricherMixin.generateTokenMagicFXChange("bloom"),
       ],
     },
     "Chill Touch": {
       changes: [
-        generateUnsignedAddChange("healing", 30, "system.traits.di.value"),
+        DDBEnricherMixin.generateUnsignedAddChange("healing", 30, "system.traits.di.value"),
       ],
     },
     "Darkvision": {
       changes: [
-        generateUpgradeChange("60", 20, "system.attributes.senses.darkvision"),
+        DDBEnricherMixin.generateUpgradeChange("60", 20, "system.attributes.senses.darkvision"),
       ],
       atlChanges: [
-        generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 60, 5),
-        generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
+        DDBEnricherMixin.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 60, 5),
+        DDBEnricherMixin.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
       ],
     },
     "Feeblemind": {
       changes: [
-        generateOverrideChange("1", 20, "system.abilities.cha.value"),
-        generateOverrideChange("1", 20, "system.abilities.int.value"),
+        DDBEnricherMixin.generateOverrideChange("1", 20, "system.abilities.cha.value"),
+        DDBEnricherMixin.generateOverrideChange("1", 20, "system.abilities.int.value"),
       ],
       midiChanges: [
-        generateOverrideChange("1", 20, "flags.midi-qol.fail.spell.all"),
+        DDBEnricherMixin.generateOverrideChange("1", 20, "flags.midi-qol.fail.spell.all"),
       ],
     },
     "Fly": {
       changes: [
-        generateUpgradeChange("60", 20, "system.attributes.movement.fly"),
+        DDBEnricherMixin.generateUpgradeChange("60", 20, "system.attributes.movement.fly"),
       ],
     },
     "Haste": {
       changes: [
-        generateSignedAddChange("2", 20, "system.attributes.ac.bonus"),
+        DDBEnricherMixin.generateSignedAddChange("2", 20, "system.attributes.ac.bonus"),
       ],
       midiChanges: [
-        generateOverrideChange("1", 20, "flags.midi-qol.advantage.ability.save.dex"),
-        generateCustomChange("*2", 30, "system.attributes.movement.all"),
+        DDBEnricherMixin.generateOverrideChange("1", 20, "flags.midi-qol.advantage.ability.save.dex"),
+        DDBEnricherMixin.generateCustomChange("*2", 30, "system.attributes.movement.all"),
       ],
-    },
-    "Heroism": {
-      options: {
-        description: "Gain temp hp at the start of your turn",
-      },
-      changes: [
-        generateUnsignedAddChange("frightened", 20, "system.traits.ci.value"),
-      ],
-    },
-    "Heroes' Feast": {
-      changes: [
-        generateUnsignedAddChange("frightened", 20, "system.traits.ci.value"),
-        generateUnsignedAddChange("poisoned", 20, "system.traits.ci.value"),
-        generateUnsignedAddChange("poison", 20, "system.traits.di.value"),
-      ],
-    },
-    "Hex": {
-      name: "Hexed",
     },
     "Invisibility": {
       noCreate: true,
@@ -1308,61 +1008,44 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     },
     "Light": {
       atlChanges: [
-        generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'),
-        generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
-        generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-        generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
-        generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": "pulse", "speed": 3,"intensity": 1}'),
+        DDBEnricherMixin.generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'),
+        DDBEnricherMixin.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
+        DDBEnricherMixin.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+        DDBEnricherMixin.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+        DDBEnricherMixin.generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": "pulse", "speed": 3,"intensity": 1}'),
       ],
     },
     "Mage Armor": {
       changes: [
-        generateOverrideChange("mage", 5, "system.attributes.ac.calc"),
+        DDBEnricherMixin.generateOverrideChange("mage", 5, "system.attributes.ac.calc"),
       ],
     },
     "Mirror Image": {
       tokenMagicChanges: [
-        generateTokenMagicFXChange("images"),
+        DDBEnricherMixin.generateTokenMagicFXChange("images"),
       ],
     },
     "Mind Blank": {
       changes: [
-        generateUnsignedAddChange("psychic", 20, "system.traits.di.value"),
+        DDBEnricherMixin.generateUnsignedAddChange("psychic", 20, "system.traits.di.value"),
       ],
     },
     "Pass Without Trace": {
       changes: [
-        generateSignedAddChange("10", 20, "system.skills.ste.bonuses.check"),
+        DDBEnricherMixin.generateSignedAddChange("10", 20, "system.skills.ste.bonuses.check"),
       ],
     },
     "Protection from Poison": {
       changes: [
-        generateUnsignedAddChange("poison", 20, "system.traits.dr.value"),
+        DDBEnricherMixin.generateUnsignedAddChange("poison", 20, "system.traits.dr.value"),
       ],
-    },
-    "Pyrotechnics": {
-      statuses: ["Blinded"],
-      data: {
-        "flags.ddbimporter.activityMatch": "Fireworks",
-      },
-    },
-    "Ray of Enfeeblement": () => {
-      return {
-        name: "Enfeebled",
-        options: {
-          description: this.ddbParser?.ddbDefinition?.description ?? "",
-        },
-      };
-    },
-    "Searing Smite": {
-      name: "On fire from Searing Smite",
     },
     "Shield": {
       changes: [
-        generateSignedAddChange("5", 20, "system.attributes.ac.bonus"),
+        DDBEnricherMixin.generateSignedAddChange("5", 20, "system.attributes.ac.bonus"),
       ],
       tokenMagicChanges: [
-        generateTokenMagicFXChange("water-field"),
+        DDBEnricherMixin.generateTokenMagicFXChange("water-field"),
       ],
       data: {
         "flags.dae.specialDuration": ["turnStart"],
@@ -1370,35 +1053,35 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     },
     "Shield of Faith": {
       changes: [
-        generateSignedAddChange("5", 20, "system.attributes.ac.bonus"),
+        DDBEnricherMixin.generateSignedAddChange("5", 20, "system.attributes.ac.bonus"),
       ],
       tokenMagicChanges: [
-        generateTokenMagicFXChange("bloom"),
+        DDBEnricherMixin.generateTokenMagicFXChange("bloom"),
       ],
     },
     "Shining Smite": {
       name: "Shedding Light",
       atlChanges: [
-        generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '5'),
-        generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-        generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
-        generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": "pulse", "speed": 3,"intensity": 1}'),
+        DDBEnricherMixin.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '5'),
+        DDBEnricherMixin.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+        DDBEnricherMixin.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+        DDBEnricherMixin.generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": "pulse", "speed": 3,"intensity": 1}'),
       ],
     },
     "Slow": {
       changes: [
-        generateSignedAddChange("-2", 20, "system.attributes.ac.bonus"),
-        generateSignedAddChange("-2", 20, "system.abilities.dex.bonuses.save"),
+        DDBEnricherMixin.generateSignedAddChange("-2", 20, "system.attributes.ac.bonus"),
+        DDBEnricherMixin.generateSignedAddChange("-2", 20, "system.abilities.dex.bonuses.save"),
       ],
       midiChanges: [
-        generateCustomChange("/2", 20, "system.attributes.movement.all"),
+        DDBEnricherMixin.generateCustomChange("/2", 20, "system.attributes.movement.all"),
       ],
     },
     "Stoneskin": {
       changes: [
-        generateUnsignedAddChange("bludgeoning", 0, "system.traits.dr.value"),
-        generateUnsignedAddChange("piercing", 0, "system.traits.dr.value"),
-        generateUnsignedAddChange("slashing", 0, "system.traits.dr.value"),
+        DDBEnricherMixin.generateUnsignedAddChange("bludgeoning", 0, "system.traits.dr.value"),
+        DDBEnricherMixin.generateUnsignedAddChange("piercing", 0, "system.traits.dr.value"),
+        DDBEnricherMixin.generateUnsignedAddChange("slashing", 0, "system.traits.dr.value"),
         // {
         //   key: "system.traits.dr.bypass",
         //   value: "mgc",
@@ -1424,14 +1107,14 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
       },
     },
     "Warding Bond": () => {
-      const damageChanges = DDBEnricherAbstract.allDamageTypes().map((type) => {
-        return generateUnsignedAddChange(type, 0, "system.traits.dr.value");
+      const damageChanges = DDBEnricherMixin.allDamageTypes().map((type) => {
+        return DDBEnricherMixin.generateUnsignedAddChange(type, 0, "system.traits.dr.value");
       });
       return {
         changes: [
           ...damageChanges,
-          generateSignedAddChange("1", 20, "system.attributes.ac.bonus"),
-          generateSignedAddChange("1", 20, "system.bonuses.abilities.save"),
+          DDBEnricherMixin.generateSignedAddChange("1", 20, "system.attributes.ac.bonus"),
+          DDBEnricherMixin.generateSignedAddChange("1", 20, "system.bonuses.abilities.save"),
         ],
       };
     },

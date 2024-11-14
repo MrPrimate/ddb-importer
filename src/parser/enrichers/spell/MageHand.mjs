@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
 
-export default class ArcaneSword extends DDBEnricherMixin {
+export default class MageHand extends DDBEnricherMixin {
 
   get type() {
     return "summon";
@@ -11,15 +11,14 @@ export default class ArcaneSword extends DDBEnricherMixin {
     return {
       noTemplate: true,
       profileKeys: [
-        "ArcaneSwordSpectralGreen",
-        "ArcaneSwordAstralBlue",
+        "MageHandRed",
+        "MageHandPurple",
+        "MageHandGreen",
+        "MageHandBlue",
+        "MageHandRock",
+        "MageHandRainbow",
       ],
       summons: {
-        "match": {
-          "proficiency": false,
-          "attacks": true,
-          "saves": false,
-        },
       },
     };
   }

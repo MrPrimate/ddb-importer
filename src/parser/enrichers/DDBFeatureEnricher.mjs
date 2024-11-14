@@ -7,7 +7,7 @@ import {
   generateUpgradeChange,
 } from "../../effects/effects.js";
 import { utils } from "../../lib/_module.mjs";
-import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
+import { DDBEnricherAbstract, DDBEnricherMixin } from "./mixins/_module.mjs";
 import { ClassEnrichers, SpeciesEnrichers, FeatEnrichers, GenericEnrichers } from "./_module.mjs";
 
 export default class DDBFeatureEnricher extends DDBEnricherAbstract {
@@ -218,7 +218,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Arms of the Astral Self: Summon": {
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die", type: "force" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die", type: "force" })],
           onSave: "none",
         },
       },
@@ -259,7 +259,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           allowed: true,
           max: "9",
         },
-        healing: DDBEnricherAbstract.basicDamagePart({ bonus: "3", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
+        healing: DDBEnricherMixin.basicDamagePart({ bonus: "3", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
       },
     },
     "Blessed Strikes: Divine Strike": {
@@ -268,7 +268,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationOverride: "special",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.cleric.divine-strike", types: ["radiant", "necrotic"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.cleric.divine-strike", types: ["radiant", "necrotic"] })],
         },
       },
     },
@@ -300,7 +300,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       name: "Forceful Blow",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
         },
       },
     },
@@ -308,7 +308,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       type: "heal",
       targetType: "ally",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "@classes.cleric.levels * 5", types: ["healing"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@classes.cleric.levels * 5", types: ["healing"] }),
       },
     },
     "Channel Divinity: Radiance of the Dawn": {
@@ -317,7 +317,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         damage: {
           onSave: "half",
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "2d10 + @classes.cleric.levels", type: "radiant" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "2d10 + @classes.cleric.levels", type: "radiant" })],
         },
         target: {
           template: {
@@ -334,7 +334,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         name: "Charge Damage",
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 8, types: DDBEnricherAbstract.allDamageTypes() })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 8, types: DDBEnricherMixin.allDamageTypes() })],
         },
       },
     },
@@ -345,7 +345,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       activationCondition: "As part of a short rest",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 8, type: "healing" }),
+        healing: DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 8, type: "healing" }),
       },
     },
     "Cloak of Shadows": {
@@ -409,7 +409,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         //   formula: "1d10 + @abilities.dex.mod + @classes.monk.levels",
         //   name: "Reduce Damage Amount",
         // },
-        healing: DDBEnricherAbstract.basicDamagePart({
+        healing: DDBEnricherMixin.basicDamagePart({
           number: 1,
           denomination: 10,
           bonus: "@abilities.dex.mod + @classes.monk.levels",
@@ -429,7 +429,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           dc: { calculation: "dex", formula: "" },
         },
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "2@scale.monk.martial-arts.die + @abilities.dex.mod", types: ["bludgeoning", "piercing", "slashing"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "2@scale.monk.martial-arts.die + @abilities.dex.mod", types: ["bludgeoning", "piercing", "slashing"] })],
         },
       },
     },
@@ -447,7 +447,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         //   formula: "1d10 + @abilities.dex.mod + @classes.monk.levels",
         //   name: "Reduce Damage Amount",
         // },
-        healing: DDBEnricherAbstract.basicDamagePart({
+        healing: DDBEnricherMixin.basicDamagePart({
           number: 1,
           denomination: 10,
           bonus: "@abilities.dex.mod + @classes.monk.levels",
@@ -459,7 +459,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       targetType: "creature",
       data: {
-        "damage.parts": [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @abilities.dex.mod", types: DDBEnricherAbstract.allDamageTypes() })],
+        "damage.parts": [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @abilities.dex.mod", types: DDBEnricherMixin.allDamageTypes() })],
       },
     },
     "Disciple of Life": {
@@ -473,7 +473,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           allowed: true,
           max: "9",
         },
-        healing: DDBEnricherAbstract.basicDamagePart({ bonus: "3", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
+        healing: DDBEnricherMixin.basicDamagePart({ bonus: "3", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
       },
     },
     "Disciplined Survivor": {
@@ -489,7 +489,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         },
         damage: {
           onSave: "half",
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 8, type: "fire" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 8, type: "fire" })],
         },
       },
     },
@@ -513,7 +513,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           },
         },
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 8, type: "force" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 8, type: "force" })],
         },
       },
     },
@@ -521,7 +521,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       type: "heal",
       targetType: "creature",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 8, bonus: "@abilities.int.mod", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 8, bonus: "@abilities.int.mod", types: ["temphp"] }),
         target: {
           affects: {
             type: "creature",
@@ -541,7 +541,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 6, types: ["necrotic", "psychic", "radiant"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 6, types: ["necrotic", "psychic", "radiant"] })],
         },
       },
     },
@@ -565,7 +565,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Elemental Burst": {
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.elements.elemental-burst", types: ["acid", "cold", "fire", "lightning", "thunder"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.elements.elemental-burst", types: ["acid", "cold", "fire", "lightning", "thunder"] })],
         },
       },
     },
@@ -575,7 +575,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationOverride: "special",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.druid.elemental-fury", types: ["cold", "fire", "lighting", "thunder"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.druid.elemental-fury", types: ["cold", "fire", "lighting", "thunder"] })],
         },
       },
     },
@@ -595,7 +595,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           },
         },
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @mod", types: ["bludgeoning", "force"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @mod", types: ["bludgeoning", "force"] })],
         },
       },
     },
@@ -644,7 +644,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 10, type: "fire" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 10, type: "fire" })],
         },
       },
     },
@@ -669,7 +669,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "(@scale.barbarian.rage-damage)d6" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "(@scale.barbarian.rage-damage)d6" })],
         },
       },
     },
@@ -679,7 +679,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 6, type: "cold" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 6, type: "cold" })],
         },
       },
     },
@@ -694,7 +694,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@prof", type: "bludgeoning" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@prof", type: "bludgeoning" })],
         },
       },
     },
@@ -704,7 +704,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@prof", type: "thunder" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@prof", type: "thunder" })],
         },
       },
     },
@@ -714,7 +714,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@prof", type: "fire" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@prof", type: "fire" })],
         },
       },
     },
@@ -724,7 +724,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@prof", type: "cold" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@prof", type: "cold" })],
         },
       },
     },
@@ -742,7 +742,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       type: "heal",
       targetType: "self",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ bonus: "@classes.artificer.levels", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ bonus: "@classes.artificer.levels", types: ["temphp"] }),
       },
     },
     "Guided Strike": {
@@ -780,7 +780,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die", type: "necrotic" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die", type: "necrotic" })],
         },
       },
     },
@@ -794,14 +794,14 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       targetType: "creature",
       data: {
         // "range.units": "touch",
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "(@prof)d4", types: ["healing"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "(@prof)d4", types: ["healing"] }),
       },
     },
     "Heightened Focus": {
       name: "Patient Defense Healing",
       type: "heal",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "2@scale.monk.martial-arts.die", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "2@scale.monk.martial-arts.die", types: ["temphp"] }),
       },
     },
     "Hill's Tumble (Hill Giant)": {
@@ -836,7 +836,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       targetType: "creature",
       activationType: "special",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "@abilities.wis.mod * 2", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@abilities.wis.mod * 2", types: ["temphp"] }),
         range: {
           value: "60",
           units: "ft",
@@ -848,7 +848,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       targetType: "creature",
       activationType: "special",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "@classes.cleric.levels", types: ["healing"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@classes.cleric.levels", types: ["healing"] }),
       },
     },
     "Improved Shadow Step": {
@@ -861,7 +861,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       targetType: "creature",
       activationType: "special",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 6, bonus: "@abilities.wis.mod", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 6, bonus: "@abilities.wis.mod", types: ["temphp"] }),
         range: {
           value: "60",
           units: "ft",
@@ -918,7 +918,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       targetType: "creature",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.land.lands-aid", types: ["necrotic"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.land.lands-aid", types: ["necrotic"] })],
         },
       },
     },
@@ -940,7 +940,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       targetType: "creature",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 10, type: "radiant" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 10, type: "radiant" })],
         },
       },
     },
@@ -964,7 +964,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         damage: {
           onSave: "none",
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
         },
       },
     },
@@ -988,7 +988,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         damage: {
           onSave: "none",
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
         },
       },
     },
@@ -997,7 +997,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         damage: {
           onSave: "none",
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
         },
       },
     },
@@ -1006,7 +1006,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         damage: {
           onSave: "none",
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
         },
       },
     },
@@ -1065,7 +1065,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Maneuver: Rally": {
       type: "heal",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die", types: ["temphp"] }),
       },
     },
     "Maneuver: Riposte": {
@@ -1073,7 +1073,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         damage: {
           onSave: "none",
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die" })],
         },
       },
     },
@@ -1082,7 +1082,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         damage: {
           onSave: "none",
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die", types: ["bludgeoning", "piercing", "slashing"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.battle-master.combat-superiority-die", types: ["bludgeoning", "piercing", "slashing"] })],
         },
       },
     },
@@ -1139,7 +1139,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           },
           prompt: false,
         },
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "2 * @scale.college-of-glamour.mantle-of-inspiration", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "2 * @scale.college-of-glamour.mantle-of-inspiration", types: ["temphp"] }),
       },
     },
     "Mind Link Response": {
@@ -1241,7 +1241,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         "reach.value": "10",
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 4, types: ["bludgeoning"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 4, types: ["bludgeoning"] })],
         },
       },
     },
@@ -1320,7 +1320,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       addItemConsume: true,
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.psi-warrior.energy-die.die + @abilities.mod.int", types: ["psychic"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.psi-warrior.energy-die.die + @abilities.mod.int", types: ["psychic"] })],
         },
         range: {
           units: "ft",
@@ -1331,7 +1331,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
     "Quickened Healing": {
       type: "heal",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @prof", types: ["healing"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @prof", types: ["healing"] }),
       },
     },
     "Raging Storm: Desert": {
@@ -1341,7 +1341,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         "range.units": "self",
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "floor(@classes.barbarian.levels / 2)", types: ["fire"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "floor(@classes.barbarian.levels / 2)", types: ["fire"] })],
         },
         target: {
           save: {
@@ -1484,7 +1484,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationCondition: "When you Turn Undead",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "(@abilities.wis.mod)d8", types: ["radiant"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "(@abilities.wis.mod)d8", types: ["radiant"] })],
         },
       },
     },
@@ -1493,7 +1493,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       addItemConsume: true,
       targetType: "self",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ number: "1", denomination: "10", bonus: "@classes.fighter.levels", types: ["healing"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ number: "1", denomination: "10", bonus: "@classes.fighter.levels", types: ["healing"] }),
       },
     },
     "Shifting: Beasthide": {
@@ -1501,7 +1501,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "bonus",
       targetType: "self",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "(@prof * 2) + 1d6", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "(@prof * 2) + 1d6", types: ["temphp"] }),
       },
     },
     "Shifting: Longtooth": {
@@ -1509,7 +1509,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "bonus",
       targetType: "self",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
       },
     },
     "Shifting: Swiftstride": {
@@ -1517,7 +1517,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "bonus",
       targetType: "self",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
       },
     },
     "Shifting: Wildhunt": {
@@ -1525,7 +1525,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "bonus",
       targetType: "self",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@prof * 2", types: ["temphp"] }),
       },
     },
     "Sneak Attack": {
@@ -1537,7 +1537,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         "range.units": "spec",
         damage: {
           parts: [
-            DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.rogue.sneak-attack", types: DDBEnricherAbstract.allDamageTypes() }),
+            DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.rogue.sneak-attack", types: DDBEnricherMixin.allDamageTypes() }),
           ],
         },
       },
@@ -1549,7 +1549,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           value: "1",
           units: "hour",
         },
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.bard.song-of-rest", types: ["healing"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.bard.song-of-rest", types: ["healing"] }),
       },
     },
     "Soul Blades: Homing Strikes": {
@@ -1583,7 +1583,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       data: {
         name: "Refreshing Step",
-        healing: DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 10, types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 10, types: ["temphp"] }),
       },
     },
     "Stonecunning": {
@@ -1655,7 +1655,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         "range.units": "self",
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.storm-herald.storm-aura-desert", types: ["fire"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.storm-herald.storm-aura-desert", types: ["fire"] })],
         },
         target: {
           affects: {
@@ -1676,7 +1676,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         "range.units": "self",
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.storm-herald.storm-aura-sea", types: ["lightning"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.storm-herald.storm-aura-sea", types: ["lightning"] })],
         },
         target: {
           save: {
@@ -1716,7 +1716,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
             units: "ft",
           },
         },
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.path-of-the-storm-herald.storm-aura-tundra", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.path-of-the-storm-herald.storm-aura-tundra", types: ["temphp"] }),
       },
     },
     "Storm's Thunder (Storm Giant)": {
@@ -1725,7 +1725,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "reaction",
       data: {
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 8, type: "thunder" })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 8, type: "thunder" })],
         },
       },
     },
@@ -1761,7 +1761,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         "range.units": "spec",
         damage: {
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 6 })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 6 })],
         },
       },
     },
@@ -1770,7 +1770,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       type: "heal",
       targetType: "self",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "5 + @abilities.con.mod", types: ["healing"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "5 + @abilities.con.mod", types: ["healing"] }),
       },
     },
     "Tactical Mind": {
@@ -1862,7 +1862,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       activationType: "special",
       activationCondition: "You enter a rage.",
       data: {
-        healing: DDBEnricherAbstract.basicDamagePart({ customFormula: "@classes.barbarian.levels", types: ["temphp"] }),
+        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@classes.barbarian.levels", types: ["temphp"] }),
       },
     },
     "War Bond": {
@@ -1890,7 +1890,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         type: "heal",
         targetType: "self",
         data: {
-          healing: DDBEnricherAbstract.basicDamagePart({ customFormula: formula, type: "healing" }),
+          healing: DDBEnricherMixin.basicDamagePart({ customFormula: formula, type: "healing" }),
         },
       };
     },
@@ -1942,7 +1942,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
       data: {
         damage: {
           onSave: "half",
-          parts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 8, types: ["thunder", "lightning"] })],
+          parts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 8, types: ["thunder", "lightning"] })],
         },
       },
     },
@@ -1959,7 +1959,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           generateActivation: true,
           generateDamage: true,
           damageParts: [
-            DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" }),
+            DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" }),
           ],
         },
       },
@@ -1973,7 +1973,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         build: {
           generateDamage: true,
           damageParts: [
-            DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.bard.bardic-inspiration" }),
+            DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.bard.bardic-inspiration" }),
           ],
         },
       },
@@ -2015,7 +2015,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
           generateTarget: true,
           generateRange: true,
           generateConsumption: true,
-          healingPart: DDBEnricherAbstract.basicDamagePart({ customFormula: "@prof", type: "temphp" }),
+          healingPart: DDBEnricherMixin.basicDamagePart({ customFormula: "@prof", type: "temphp" }),
         },
         overrides: {
           addItemConsume: true,
@@ -2045,7 +2045,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
         {
           action: { name: "Deflect Attack: Redirect Attack", type: "class" },
           override: { data: {
-            "damage.types": DDBEnricherAbstract.allDamageTypes(),
+            "damage.types": DDBEnricherMixin.allDamageTypes(),
           } },
         },
       ];
@@ -2073,7 +2073,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
               value: 1,
               condition: "Once per turn when you hit a creature with your pact weapon",
             },
-            healingPart: DDBEnricherAbstract.basicDamagePart({ customFormula: `@attributes.hd.${size.toLowerCase()}Available + (max(1,@abilities.con.mod))`, type: "healing" }),
+            healingPart: DDBEnricherMixin.basicDamagePart({ customFormula: `@attributes.hd.${size.toLowerCase()}Available + (max(1,@abilities.con.mod))`, type: "healing" }),
             consumptionOverride: {
               targets: [
                 {
@@ -2110,7 +2110,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
             generateActivation: true,
             generateConsumption: false,
             damageParts: [
-              DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @mod", types: ["bludgeoning", "acid", "cold", "fire", "lightning", "thunder"] }),
+              DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @mod", types: ["bludgeoning", "acid", "cold", "fire", "lightning", "thunder"] }),
             ],
           },
           overrides: {
@@ -2193,7 +2193,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
             value: 1,
             condition: "",
           },
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 6 })],
+          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 6 })],
         },
       },
     ],
@@ -2304,7 +2304,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
             value: 1,
             condition: "",
           },
-          healingPart: DDBEnricherAbstract.basicDamagePart({ customFormula: "@scale.land.lands-aid", types: ["healing"] }),
+          healingPart: DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.land.lands-aid", types: ["healing"] }),
           targetOverride: {
             affects: {
               type: "ally",
@@ -2460,7 +2460,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
               value: 1,
               condition: "",
             },
-            damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 8, type: "poison" })],
+            damageParts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 8, type: "poison" })],
             saveOverride: {
               ability: ["con"],
               dc: {
@@ -2489,7 +2489,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
                 value: 1,
                 condition: "",
               },
-              damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 8, type: "poison" })],
+              damageParts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 8, type: "poison" })],
               saveOverride: {
                 ability: ["con"],
                 dc: {
@@ -2516,7 +2516,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
                 value: 1,
                 condition: "",
               },
-              damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 8, type: "poison" })],
+              damageParts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 8, type: "poison" })],
               saveOverride: {
                 ability: ["con"],
                 dc: {
@@ -2550,7 +2550,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
               classification: "weapon",
             },
           },
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 4, type: "psychic" })],
+          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 4, type: "psychic" })],
           activationOverride: {
             type: "bonus",
             value: 1,
@@ -2577,7 +2577,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
             value: 1,
             condition: "",
           },
-          healingPart: DDBEnricherAbstract.basicDamagePart({ customFormula: "@classes.barbarian.levels * 2", type: "healing" }),
+          healingPart: DDBEnricherMixin.basicDamagePart({ customFormula: "@classes.barbarian.levels * 2", type: "healing" }),
         },
       },
     ],
@@ -2608,7 +2608,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
               classification: "weapon",
             },
           },
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 1, denomination: 6, type: "piercing" })],
+          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 6, type: "piercing" })],
           activationOverride: {
             type: "bonus",
             value: 1,
@@ -2659,7 +2659,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
               special: "",
             },
           },
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ number: 2, denomination: 6, type: "fire" })],
+          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 6, type: "fire" })],
         },
       },
     ],
@@ -2692,7 +2692,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
             activationOverride: {
               type: "bonus",
             },
-            healingPart: DDBEnricherAbstract.basicDamagePart({ customFormula: `@attributes.hd.${size.toLowerCase()}Available`, type: "healing" }),
+            healingPart: DDBEnricherMixin.basicDamagePart({ customFormula: `@attributes.hd.${size.toLowerCase()}Available`, type: "healing" }),
             consumptionOverride: {
               targets: [
                 {
@@ -2849,7 +2849,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
               type: "ally",
             },
           },
-          healingPart: DDBEnricherAbstract.basicDamagePart({ customFormula: "(@scale.barbarian.rage-damage)d4", type: "temphp" }),
+          healingPart: DDBEnricherMixin.basicDamagePart({ customFormula: "(@scale.barbarian.rage-damage)d4", type: "temphp" }),
         },
       },
     ],
@@ -2995,7 +2995,7 @@ export default class DDBFeatureEnricher extends DDBEnricherAbstract {
             },
           },
           generateDamage: true,
-          damageParts: [DDBEnricherAbstract.basicDamagePart({ customFormula: "(@abilities.wis.mod)d6", types: ["cold"] })],
+          damageParts: [DDBEnricherMixin.basicDamagePart({ customFormula: "(@abilities.wis.mod)d6", types: ["cold"] })],
           generateSave: true,
           saveOverride: {
             ability: ["con"],
