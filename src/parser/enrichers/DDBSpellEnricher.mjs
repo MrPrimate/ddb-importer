@@ -1,8 +1,5 @@
-import {
-  effectModules,
-} from "../../effects/effects.js";
-import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 import { SpellEnrichers } from "./_module.mjs";
+import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
 
 export default class DDBSpellEnricher extends DDBEnricherAbstract {
@@ -19,69 +16,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     this._prepare();
   }
 
-  ENRICHERS = {
-    "Absorb Elements": SpellEnrichers.AbsorbElements,
-    "Acid Arrow": SpellEnrichers.AcidArrow,
-    "Aid": SpellEnrichers.Aid,
-    "Alter Self": SpellEnrichers.AlterSelf,
-    "Animate Objects": SpellEnrichers.AnimateObjects,
-    "Arcane Hand": SpellEnrichers.ArcaneHand,
-    "Arcane Vigor": SpellEnrichers.ArcaneVigor,
-    "Barkskin": SpellEnrichers.Barkskin,
-    "Blade Ward": SpellEnrichers.BladeWard,
-    "Color Spray": SpellEnrichers.ColorSpray,
-    "Counterspell": SpellEnrichers.Counterspell,
-    "Eldritch Blast": SpellEnrichers.EldritchBlast,
-    "Elemental Weapon": SpellEnrichers.ElementalWeapon,
-    "Faerie Fire": SpellEnrichers.FaerieFire,
-    "Fire Shield": SpellEnrichers.FireShield,
-    "Fount of Moonlight": SpellEnrichers.FountOfMoonlight,
-    "Glyph of Warding": SpellEnrichers.GlyphOfWarding,
-    "Green-Flame Blade": SpellEnrichers.GreenFlameBlade,
-    "Hunter's Mark": SpellEnrichers.HuntersMark,
-    "Magic Weapon": SpellEnrichers.MagicWeapon,
-    "Mass Suggestion": SpellEnrichers.MassSuggestion,
-    "Power Word Fortify": SpellEnrichers.PowerWordFortify,
-    "Prismatic Wall": SpellEnrichers.PrismaticWall,
-    "Protection from Energy": SpellEnrichers.ProtectionFromEnergy,
-    "Ray of Sickness": SpellEnrichers.RayOfSickness,
-    "Shillelagh": SpellEnrichers.Shillelagh,
-    "Sleep": SpellEnrichers.Sleep,
-    "Spider Climb": SpellEnrichers.SpiderClimb,
-    "Suggestion": SpellEnrichers.Suggestion,
-    "Tasha's Bubbling Cauldron": SpellEnrichers.TashasBubblingCauldron,
-    "True Strike": SpellEnrichers.TrueStrike,
-    "Scorching Ray": SpellEnrichers.ScorchingRay,
-    "Aura of Life": SpellEnrichers.AuraOfLife,
-    "Arcane Eye": SpellEnrichers.ArcaneEye,
-    "Arcane Sword": SpellEnrichers.ArcaneSword,
-    "Armor of Agathys": SpellEnrichers.ArmorOfAgathys,
-    "Booming Blade": SpellEnrichers.BoomingBlade,
-    "Call Lightning": SpellEnrichers.CallLightning,
-    "Chaos Bolt": SpellEnrichers.ChaosBolt,
-    "Chromatic Orb": SpellEnrichers.ChromaticOrb,
-    "Command": SpellEnrichers.Command,
-    "Control Weather": SpellEnrichers.ControlWeather,
-    "Dancing Lights": SpellEnrichers.DancingLights,
-    "Darkness": SpellEnrichers.Darkness,
-    "Divine Favor": SpellEnrichers.DivineFavor,
-    "Divine Smite": SpellEnrichers.DivineSmite,
-    "Dragon's Breath": SpellEnrichers.DragonsBreath,
-    "Gust of Wind": SpellEnrichers.GustOfWind,
-    "False Life": SpellEnrichers.FalseLife,
-    "Heroism": SpellEnrichers.Heroism,
-    "Heroes' Feast": SpellEnrichers.HeroesFeast,
-    "Hex": SpellEnrichers.Hex,
-    "Mage Hand": SpellEnrichers.MageHand,
-    "Pyrotechnics": SpellEnrichers.Pyrotechnics,
-    "Ray of Enfeeblement": SpellEnrichers.RayOfEnfeeblement,
-    "Searing Smite": SpellEnrichers.SearingSmite,
-    "Sorcerous Burst": SpellEnrichers.SorcerousBurst,
-    "Spirit Guardians": SpellEnrichers.SpiritGuardians,
-    "Spike Growth": SpellEnrichers.SpikeGrowth,
-    "Spirit Shroud": SpellEnrichers.SpiritShroud,
-  };
-
   NAME_HINTS_2014 = {};
 
   NAME_HINTS = {
@@ -91,713 +25,90 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     "Evard's Black Tentacles": "Black Tentacles",
   };
 
-  ACTIVITY_HINTS = {
-    "Spiritual Weapon": {
-      type: "utility",
-      data: {
-        name: "Summon",
-        target: {
-          override: true,
-          template: {
-            size: "2.5",
-            type: "radius",
-          },
-        },
-      },
-    },
-    "Tidal Wave": {
-      type: "save",
-    },
-    "Thunder Step": {
-      data: {
-        range: {
-          override: true,
-          value: "",
-          units: "self",
-        },
-        target: {
-          override: true,
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "radius",
-            size: "10",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Vitriolic Sphere": {
-      type: "save",
-      data: {
-        name: "Save",
-        damage: {
-          onSave: "half",
-          parts: [DDBEnricherMixin.basicDamagePart({ number: 10, denomination: 4, type: "acid", scalingMode: "whole", scalingNumber: "2" })],
-        },
-        target: {
-          override: true,
-          affects: {
-            type: "creature",
-          },
-          template: {
-            contiguous: false,
-            type: "radius",
-            size: "20",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Wall of Sand": {
-      type: "save",
-      data: {
-        name: "Place Wall",
-        target: {
-          override: true,
-          template: {
-            type: "wall",
-            size: "30",
-            width: "10",
-            height: "10",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Wall of Water": {
-      type: "save",
-      data: {
-        name: "Place Wall",
-        target: {
-          override: true,
-          template: {
-            type: "wall",
-            size: "30",
-            width: "1",
-            height: "10",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Wall of Fire": {
-      type: "save",
-      damageParts: [0],
-      data: {
-        img: "icons/magic/fire/flame-burning-fence.webp",
-        name: "Place Wall",
-        target: {
-          override: true,
-          template: {
-            type: "wall",
-            size: "60",
-            width: "1",
-            height: "20",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Wall of Force": {
-      type: "utility",
-      data: {
-        name: "Place Panels",
-        img: "icons/magic/water/barrier-ice-wall-snow.webp",
-        target: {
-          override: true,
-          template: {
-            count: "10",
-            contiguous: true,
-            type: "wall",
-            size: "10",
-            width: "0.02",
-            height: "10",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Wall of Light": {
-      type: "save",
-      damageParts: [0],
-      data: {
-        name: "Place Wall",
-        target: {
-          override: true,
-          template: {
-            type: "wall",
-            size: "60",
-            width: "5",
-            height: "10",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Wall of Stone": {
-      type: "save",
-      data: {
-        name: "Place Square Panels",
-        target: {
-          override: true,
-          template: {
-            count: "10",
-            contiguous: true,
-            type: "wall",
-            size: "10",
-            width: "0.5",
-            height: "10",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Wall of Thorns": {
-      type: "save",
-      damageParts: [0],
-      data: {
-        name: "Place Wall",
-        img: "icons/magic/nature/root-vine-entwined-thorns.webp",
-        target: {
-          override: true,
-          template: {
-            type: "wall",
-            size: "60",
-            width: "5",
-            height: "10",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Wall of Ice": {
-      type: "save",
-      damageParts: [0],
-      data: {
-        name: "Place Panels",
-        img: "icons/magic/water/barrier-ice-wall-snow.webp",
-        target: {
-          override: true,
-          template: {
-            count: "10",
-            contiguous: true,
-            type: "wall",
-            size: "10",
-            width: "1",
-            height: "10",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Wind Wall": {
-      type: "save",
-      damageParts: [0],
-      data: {
-        target: {
-          override: true,
-          template: {
-            count: "5",
-            contiguous: true,
-            type: "wall",
-            size: "10",
-            width: "1",
-            height: "15",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Witch Bolt": {
-      splitDamage: true,
-    },
-  };
-
-  ADDITIONAL_ACTIVITIES = {
-    "Heat Metal": [
-      {
-        constructor: {
-          name: "Save vs Drop",
-          type: "save",
-        },
-        build: {
-          generateDamage: false,
-          generateSave: true,
-          saveOverride: { ability: ["con"], dc: { calculation: "spellcasting" } },
-        },
-      },
-    ],
-    "Light": () => {
-      const template = {
-        constructor: {
-          name: "Place or Remove Light",
-          type: "ddbmacro",
-        },
-        build: {
-          noeffect: true,
-          generateConsumption: false,
-          generateTarget: true,
-          generateRange: false,
-          generateActivation: true,
-          generateDDBMacro: true,
-          ddbMacroOverride: {
-            name: "Place or Remove Light",
-            function: "ddb.generic.light",
-            visible: false,
-            parameters: '{"distance":20,"isTemplate":true,"lightConfig":{"dim":40,"bright":20},"flag":"light"}',
-          },
-          targetOverride: {
-            override: true,
-            affects: { type: "" },
-            template: {},
-          },
-        },
-      };
-      if (effectModules().atlInstalled) {
-        return [
-          template,
-          {
-            constructor: {
-              name: "Apply Light Effect",
-              type: "utility",
-            },
-            build: {
-              generateConsumption: true,
-              generateTarget: true,
-              generateRange: false,
-              generateActivation: true,
-              targetOverride: {
-                override: true,
-                affects: { type: "" },
-                template: {},
-              },
-            },
-          },
-        ];
-      } else {
-        return [
-          template,
-          {
-            constructor: {
-              name: "Place on Targetted Token or Remove",
-              type: "ddbmacro",
-            },
-            build: {
-              generateConsumption: false,
-              generateTarget: true,
-              generateRange: false,
-              generateActivation: true,
-              generateDDBMacro: true,
-              ddbMacroOverride: {
-                name: "Place on Targetted Token",
-                function: "ddb.generic.light",
-                visible: false,
-                parameters: '{"distance":20,"targetsToken":true,"lightConfig":{"dim":40,"bright":20},"flag":"light"}',
-              },
-              targetOverride: {
-                override: true,
-                affects: { type: "" },
-                template: {},
-              },
-            },
-          },
-        ];
-      }
-    },
-    "Spiritual Weapon": [
-      {
-        constructor: {
-          name: "Attack",
-          type: "attack",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          generateAttack: true,
-          onsave: false,
-          noSpellslot: true,
-          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 8, type: "force", scalingMode: "half", scalingNumber: 1 })],
-          activationOverride: { type: "bonus", condition: "" },
-        },
-      },
-    ],
-    "Toll the Dead": [
-      {
-        constructor: {
-          name: "Save (D12 Damage)",
-          type: "save",
-        },
-        build: {
-          generateDamage: true,
-          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 12, type: "necrotic" })],
-          generateSave: true,
-        },
-      },
-    ],
-    "Vitriolic Sphere": [
-      {
-        constructor: {
-          name: "Secondary Acid Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          noSpellslot: true,
-          generateAttack: false,
-          onsave: false,
-          noeffect: true,
-          activationOverride: { type: "spec", condition: "End of next turn" },
-          durationOverride: { units: "inst", concentration: false },
-          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 5, denomination: 4, type: "acid" })],
-        },
-      },
-    ],
-    "Wall of Fire": [
-      {
-        constructor: {
-          name: "Place Ring",
-          type: "save",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: true,
-          generateSave: true,
-          generateTarget: true,
-          img: "icons/magic/fire/barrier-wall-flame-ring-yellow.webp",
-          partialDamageParts: [0],
-          targetOverride: {
-            override: true,
-            template: {
-              count: "1",
-              contiguous: false,
-              type: "cylinder",
-              size: "10",
-              height: "20",
-              units: "ft",
-            },
-            affects: {},
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Damage",
-          type: "damage",
-        },
-        build: {
-          img: "icons/magic/fire/flame-burning-skeleton-explosion.webp",
-          generateDamage: true,
-          generateConsumption: false,
-          generateTarget: true,
-          partialDamageParts: [0],
-          noSpellslot: true,
-          activationOverride: { type: "", condition: "" },
-          durationOverride: { units: "inst", concentration: false },
-          targetOverride: {
-            override: true,
-            affects: {
-              type: "creature",
-            },
-            template: {},
-          },
-        },
-      },
-    ],
-    "Wall of Force": [
-      {
-        constructor: {
-          name: "Create Dome/Globe",
-          type: "utility",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: true,
-          generateSave: true,
-          generateTarget: true,
-          targetOverride: {
-            override: true,
-            template: {
-              count: "1",
-              contiguous: false,
-              type: "sphere",
-              size: "10",
-              units: "ft",
-            },
-            affects: {},
-          },
-        },
-      },
-    ],
-    "Wall of Light": [
-      {
-        constructor: {
-          name: "Turn End Damage",
-          type: "damage",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          generateTarget: true,
-          partialDamageParts: [0],
-          noSpellslot: true,
-          activationOverride: { type: "spec", condition: "Ends turn in Light" },
-          durationOverride: { units: "inst", concentration: false },
-          targetOverride: {
-            override: true,
-            affects: {
-              type: "creature",
-            },
-            template: {},
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Beam of Radiance Attack",
-          type: "attack",
-        },
-        build: {
-          generateAttack: true,
-          generateDamage: true,
-          generateConsumption: false,
-          generateTarget: true,
-          partialDamageParts: [0],
-          noSpellslot: true,
-          rangeOverride: { value: 60, units: "ft" },
-          activationOverride: { type: "spec", condition: "" },
-          durationOverride: { units: "inst", concentration: false },
-          targetOverride: {
-            override: true,
-            affects: {
-              type: "creature",
-            },
-
-            template: {},
-          },
-        },
-      },
-    ],
-    "Wall of Ice": [
-      {
-        constructor: {
-          name: "Create Dome/Globe",
-          type: "save",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: true,
-          generateSave: true,
-          generateTarget: true,
-          img: "icons/magic/water/barrier-ice-shield.webp",
-          partialDamageParts: [0],
-          targetOverride: {
-            override: true,
-            template: {
-              count: "1",
-              contiguous: false,
-              type: "sphere",
-              size: "10",
-              units: "ft",
-            },
-            affects: {},
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Frigid Air Save",
-          type: "save",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          generateSave: true,
-          img: "icons/magic/water/snowflake-ice-blue-white.webp",
-          generateTarget: true,
-          partialDamageParts: [1],
-          noSpellslot: true,
-          activationOverride: { type: "spec", condition: "Moving through/starting in Frigid Air" },
-          durationOverride: { units: "inst", concentration: false },
-          targetOverride: {
-            override: true,
-            affects: {
-              type: "creature",
-            },
-            template: {},
-          },
-        },
-      },
-    ],
-    "Wall of Stone": [
-      {
-        constructor: {
-          name: "Place Long Panels",
-          type: "save",
-        },
-        build: {
-          generateDamage: false,
-          generateConsumption: true,
-          generateSave: true,
-          generateTarget: true,
-          targetOverride: {
-            override: true,
-            template: {
-              count: "10",
-              contiguous: true,
-              type: "wall",
-              size: "20",
-              width: "0.25",
-              height: "10",
-              units: "ft",
-            },
-            affects: {},
-          },
-        },
-      },
-    ],
-    "Wall of Thorns": [
-      {
-        constructor: {
-          name: "Create Circle",
-          type: "save",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: true,
-          generateSave: true,
-          generateTarget: true,
-          img: "icons/magic/nature/trap-spikes-thorns-green.webp",
-          partialDamageParts: [0],
-          targetOverride: {
-            override: true,
-            template: {
-              count: "1",
-              contiguous: false,
-              type: "cylinder",
-              size: "20",
-              height: "20",
-              width: "5",
-              units: "ft",
-            },
-            affects: {},
-          },
-        },
-      },
-      {
-        constructor: {
-          name: "Save to Travel Through Wall",
-          type: "save",
-        },
-        build: {
-          generateDamage: true,
-          generateConsumption: false,
-          generateSave: true,
-          img: "icons/magic/nature/root-vine-entangled-humanoid.webp",
-          generateTarget: true,
-          partialDamageParts: [1],
-          noSpellslot: true,
-          activationOverride: { type: "spec", condition: "Moving through/starting in Frigid Air" },
-          durationOverride: { units: "inst", concentration: false },
-          targetOverride: {
-            override: true,
-            affects: {
-              type: "creature",
-            },
-            template: {},
-          },
-        },
-      },
-    ],
-    "Wall of Water": [
-      {
-        constructor: {
-          name: "Create Ring",
-          type: "utility",
-        },
-        build: {
-          generateDamage: false,
-          generateConsumption: true,
-          generateTarget: true,
-          targetOverride: {
-            override: true,
-            template: {
-              count: "1",
-              contiguous: false,
-              type: "sphere",
-              size: "10",
-              units: "ft",
-            },
-            affects: {},
-          },
-        },
-      },
-    ],
-    "Witch Bolt": () => {
-      return [
-        {
-          constructor: {
-            name: "Ongoing Damage",
-            type: "damage",
-          },
-          build: {
-            generateDamage: true,
-            generateConsumption: false,
-            generateTarget: true,
-            generateActivation: true,
-            activationOverride: {
-              value: "1",
-              type: this.is2014 ? "action" : "bonus",
-            },
-            targetOverride: {
-              override: true,
-              template: {
-                count: "1",
-                contiguous: false,
-                type: "",
-                size: this.is2014 ? "30" : "60",
-                units: "ft",
-              },
-              affects: {},
-            },
-            damageParts: [
-              DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 12, type: "lightning", scalingMode: "none", scalingNumber: null }),
-            ],
-          },
-        },
-      ];
-    },
+  ENRICHERS = {
+    "Absorb Elements": SpellEnrichers.AbsorbElements,
+    "Acid Arrow": SpellEnrichers.AcidArrow,
+    "Aid": SpellEnrichers.Aid,
+    "Alter Self": SpellEnrichers.AlterSelf,
+    "Animate Objects": SpellEnrichers.AnimateObjects,
+    "Arcane Eye": SpellEnrichers.ArcaneEye,
+    "Arcane Hand": SpellEnrichers.ArcaneHand,
+    "Arcane Sword": SpellEnrichers.ArcaneSword,
+    "Arcane Vigor": SpellEnrichers.ArcaneVigor,
+    "Armor of Agathys": SpellEnrichers.ArmorOfAgathys,
+    "Aura of Life": SpellEnrichers.AuraOfLife,
+    "Barkskin": SpellEnrichers.Barkskin,
+    "Blade Ward": SpellEnrichers.BladeWard,
+    "Bones of the Earth": SpellEnrichers.BonesOfTheEarth,
+    "Booming Blade": SpellEnrichers.BoomingBlade,
+    "Call Lightning": SpellEnrichers.CallLightning,
+    "Catapult": SpellEnrichers.Catapult,
+    "Chaos Bolt": SpellEnrichers.ChaosBolt,
+    "Chromatic Orb": SpellEnrichers.ChromaticOrb,
+    "Color Spray": SpellEnrichers.ColorSpray,
+    "Command": SpellEnrichers.Command,
+    "Control Weather": SpellEnrichers.ControlWeather,
+    "Counterspell": SpellEnrichers.Counterspell,
+    "Dancing Lights": SpellEnrichers.DancingLights,
+    "Darkness": SpellEnrichers.Darkness,
+    "Divine Favor": SpellEnrichers.DivineFavor,
+    "Divine Smite": SpellEnrichers.DivineSmite,
+    "Dragon's Breath": SpellEnrichers.DragonsBreath,
+    "Eldritch Blast": SpellEnrichers.EldritchBlast,
+    "Elemental Weapon": SpellEnrichers.ElementalWeapon,
+    "Faerie Fire": SpellEnrichers.FaerieFire,
+    "False Life": SpellEnrichers.FalseLife,
+    "Fire Shield": SpellEnrichers.FireShield,
+    "Fount of Moonlight": SpellEnrichers.FountOfMoonlight,
+    "Glyph of Warding": SpellEnrichers.GlyphOfWarding,
+    "Green-Flame Blade": SpellEnrichers.GreenFlameBlade,
+    "Gust of Wind": SpellEnrichers.GustOfWind,
+    "Heroes' Feast": SpellEnrichers.HeroesFeast,
+    "Heroism": SpellEnrichers.Heroism,
+    "Hex": SpellEnrichers.Hex,
+    "Hunter's Mark": SpellEnrichers.HuntersMark,
+    "Light": SpellEnrichers.Light,
+    "Mage Hand": SpellEnrichers.MageHand,
+    "Magic Weapon": SpellEnrichers.MagicWeapon,
+    "Mass Suggestion": SpellEnrichers.MassSuggestion,
+    "Power Word Fortify": SpellEnrichers.PowerWordFortify,
+    "Prismatic Wall": SpellEnrichers.PrismaticWall,
+    "Protection from Energy": SpellEnrichers.ProtectionFromEnergy,
+    "Pyrotechnics": SpellEnrichers.Pyrotechnics,
+    "Ray of Enfeeblement": SpellEnrichers.RayOfEnfeeblement,
+    "Ray of Sickness": SpellEnrichers.RayOfSickness,
+    "Scorching Ray": SpellEnrichers.ScorchingRay,
+    "Searing Smite": SpellEnrichers.SearingSmite,
+    "Shillelagh": SpellEnrichers.Shillelagh,
+    "Sleep": SpellEnrichers.Sleep,
+    "Sorcerous Burst": SpellEnrichers.SorcerousBurst,
+    "Spider Climb": SpellEnrichers.SpiderClimb,
+    "Spike Growth": SpellEnrichers.SpikeGrowth,
+    "Spirit Guardians": SpellEnrichers.SpiritGuardians,
+    "Spirit Shroud": SpellEnrichers.SpiritShroud,
+    "Spiritual Weapon": SpellEnrichers.SpiritualWeapon,
+    "Suggestion": SpellEnrichers.Suggestion,
+    "Tasha's Bubbling Cauldron": SpellEnrichers.TashasBubblingCauldron,
+    "Thunder Step": SpellEnrichers.ThunderStep,
+    "Tidal Wave": SpellEnrichers.TidalWave,
+    "Toll the Dead": SpellEnrichers.TollTheDead,
+    "True Strike": SpellEnrichers.TrueStrike,
+    "Vitriolic Sphere": SpellEnrichers.VitriolicSphere,
+    "Wall of Fire": SpellEnrichers.WallOfFire,
+    "Wall of Force": SpellEnrichers.WallOfForce,
+    "Wall of Ice": SpellEnrichers.WallOfIce,
+    "Wall of Light": SpellEnrichers.WallOfLight,
+    "Wall of Sand": SpellEnrichers.WallOfSand,
+    "Wall of Stone": SpellEnrichers.WallOfStone,
+    "Wall of Thorns": SpellEnrichers.WallOfThorns,
+    "Wall of Water": SpellEnrichers.WallOfWater,
+    "Wind Wall": SpellEnrichers.WindWall,
+    "Witch Bolt": SpellEnrichers.WitchBolt,
+    "Heat Metal": SpellEnrichers.HeatMetal, //TODO: test
+    "Flaming Sphere": SpellEnrichers.FlamingSphere, //todo: test
   };
 
   DOCUMENT_OVERRIDES = {
-    "Bones of the Earth": {
-      data: {
-        "system.target.template": {
-          count: "6",
-          size: "2.5",
-        },
-      },
-    },
-    "Catapult": {
-      data: {
-        "flags.midiProperties.nodam": true,
-      },
-    },
-    "Flaming Sphere": {
-      data: {
-        "system.target.template": {
-          size: "2.5",
-        },
-      },
-    },
-    "Light": {
-      data: {
-        "flags.midiProperties.autoFailFriendly": true,
-      },
-    },
     "Primal Savagery": {
       data: {
         "system.range": {
@@ -823,104 +134,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
           template: {
             size: "15",
             type: "cube",
-          },
-        },
-      },
-    },
-    "Tidal Wave": {
-      data: {
-        "system.target": {
-          template: {
-            contiguous: false,
-            type: "line",
-            size: "30",
-            width: "10",
-            units: "ft",
-          },
-        },
-      },
-    },
-    "Wall of Thorns": {
-      data: {
-        "system.target": {
-          template: {
-            contiguous: false,
-            type: "",
-            size: "",
-            width: "",
-            units: "",
-          },
-        },
-      },
-    },
-    "Wall of Water": {
-      data: {
-        "system.target": {
-          template: {
-            contiguous: false,
-            type: "",
-            size: "",
-            width: "",
-            units: "",
-          },
-        },
-      },
-    },
-    "Wall of Fire": {
-      data: {
-        "system.target": {
-          template: {
-            contiguous: false,
-            type: "",
-            size: "",
-            width: "",
-            units: "",
-          },
-        },
-      },
-    },
-    "Wall of Force": {
-      data: {
-        "system.target": {
-          template: {
-            contiguous: false,
-            type: "",
-            size: "",
-            width: "",
-            units: "",
-          },
-        },
-      },
-    },
-    "Wall of Light": {
-      data: {
-        "system.range": {
-          units: "",
-        },
-      },
-    },
-    "Wall of Stone": {
-      data: {
-        "system.target": {
-          template: {
-            contiguous: false,
-            type: "",
-            size: "",
-            width: "",
-            units: "",
-          },
-        },
-      },
-    },
-    "Wall of Ice": {
-      data: {
-        "system.target": {
-          template: {
-            contiguous: false,
-            type: "",
-            size: "",
-            width: "",
-            units: "",
           },
         },
       },
@@ -1006,15 +219,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
         description: "You are unable to cast spells with the verbal component",
       },
     },
-    "Light": {
-      atlChanges: [
-        DDBEnricherMixin.generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'),
-        DDBEnricherMixin.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
-        DDBEnricherMixin.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-        DDBEnricherMixin.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
-        DDBEnricherMixin.generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": "pulse", "speed": 3,"intensity": 1}'),
-      ],
-    },
     "Mage Armor": {
       changes: [
         DDBEnricherMixin.generateOverrideChange("mage", 5, "system.attributes.ac.calc"),
@@ -1096,16 +300,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
         description: "You are covered in acid. Take 2d4 &Reference[acid] damage at start of each of your turns until you use an action to scrape it off.",
       },
     },
-    "Wall of Light": {
-      name: "Blinded",
-      statuses: ["Blinded"],
-      options: {
-        durationSeconds: 600,
-      },
-      data: {
-        "flags.ddbimporter.activityMatch": "Place Wall",
-      },
-    },
     "Warding Bond": () => {
       const damageChanges = DDBEnricherMixin.allDamageTypes().map((type) => {
         return DDBEnricherMixin.generateUnsignedAddChange(type, 0, "system.traits.dr.value");
@@ -1118,11 +312,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
         ],
       };
     },
-    "Witch Bolt": {
-    },
   };
 
-  DOCUMENT_STUB = {
-
-  };
 }

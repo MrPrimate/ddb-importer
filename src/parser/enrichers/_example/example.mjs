@@ -40,6 +40,7 @@ export default class Example extends DDBEnricherMixin {
       overrideActivation: true, // add override activation
       midiManualReaction: true, // add midi manual reaction
       flatAttack: "1", // flat attack value, sets flat attack for activity
+      removeDamageParts: true, // remove existing damage parts
       damageParts: [], // adds damage parts
       data: {}, // merge this with activity data
       func: function() {}, // run this funciton passing in the activity as the only variable
@@ -53,11 +54,14 @@ export default class Example extends DDBEnricherMixin {
       summonsFunction: () => {}, // summons function to call when generateSummons is true
       profileKeys: [], // array of summon profile keys to use
       summons: {}, // data to merge to summon config
+      splitDamage: true, // used by the spell parser to split damage
     };
   }
 
   get additionalActivities() {
     return [
+      // use a duplicate
+      { duplicate: true, overrides: {} },
       // builds from a DDB action
       { action: { name: "Activity Name", type: "utility", rename: ["Save vs Frightened", "Cast"] } },
       // build from scratch
@@ -123,6 +127,8 @@ export default class Example extends DDBEnricherMixin {
         descriptionHint: "hint text", // adds enchantment description hint
         descriptionSuffix: "", // append to item description
         midiOnly: true, // only generate this effect if midi qol is installed
+        activityMatch: "Attack", // Match to this activity only
+        activitiesMatch: ["Save"], // Match to only these activities
       },
     ];
   }

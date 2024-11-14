@@ -188,6 +188,7 @@ export default class DDBEnricherMixin {
    *   overrideActivation: {boolean} Add override activation.
    *   midiManualReaction: {boolean} Add midi manual reaction.
    *   flatAttack: {string} Flat attack value, sets flat attack for activity.
+   *   removeDamageParts: {boolean} remove existing damage parts
    *   damageParts: {object[]} Adds damage parts.
    *   data: {object} Merge this with activity data.
    *   func: {function} Run this function passing in the activity as the only variable.
@@ -200,6 +201,7 @@ export default class DDBEnricherMixin {
    *   summonsFunction: {Function} summons function to call when generateSummons is true
    *   profileKeys: {Array} array of summon profile keys to use
    *   summons: {object} data to merge to summon config
+   *   splitDamage: {boolean} used by the spell parser to split damage
    */
   get activity() {
     return null;
@@ -229,6 +231,8 @@ export default class DDBEnricherMixin {
    *     - descriptionHint: {string} A hint for the enchantment description.
    *     - descriptionSuffix: {string} Text to append to the item description.
    *     - midiOnly: {boolean} Indicates that the effect is generated only if MIDI-QOL is installed.
+   *     - activityMatch: {string} Match to this activity only
+   *     - activitiesMatch: {Array} Match to only these activities
    * // to be removed
    *   - clearAutoEffects: {boolean} Flag to clear auto effects.
    */
@@ -255,6 +259,7 @@ export default class DDBEnricherMixin {
    * @returns {object[]} An array of objects with the following properties:
    *   action: {object} An object representing the activity to be duplicated.
    *   overrides: {object} An object with overrides for the activity.
+   *   duplicate: {boolean} Duplicate the items first activity
    */
   get additionalActivities() {
     return null;

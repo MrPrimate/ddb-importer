@@ -345,6 +345,10 @@ export default class DDBEnricherAbstract {
       foundry.utils.setProperty(activity, "attack.flat", true);
     }
 
+    if (overrideData.removeDamageParts) {
+      activity.damage.parts = [];
+    }
+
     if (overrideData.damageParts) {
       activity.damage.parts = activity.damage.parts.concat(overrideData.damageParts);
     }
