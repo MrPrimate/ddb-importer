@@ -10,8 +10,7 @@ export default class WallOfFire extends DDBEnricherMixin {
   get activity() {
     return {
       name: "Place Wall",
-      removeDamageParts: true,
-      damageParts: foundry.utils.deepClone(this.data.damage.parts[0]),
+      splitDamage: true,
       data: {
         img: "icons/magic/fire/flame-burning-fence.webp",
         target: {

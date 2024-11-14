@@ -3,7 +3,7 @@ import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBFeature from "./DDBFeature.js";
 import DDBFeatures from "./DDBFeatures.js";
 import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
-import DDBFeatureActivity from "../activities/DDBFeatureActivity.js";
+import { DDBFeatureActivity } from "../activities/_module.mjs";
 
 
 export default class DDBClassFeatures {

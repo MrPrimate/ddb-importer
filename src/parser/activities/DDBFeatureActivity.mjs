@@ -1,6 +1,5 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import DDBEffectHelper from "../../effects/DDBEffectHelper.js";
-import { utils, logger } from "../../lib/_module.mjs";
+import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
 export default class DDBFeatureActivity extends DDBBasicActivity {
@@ -149,7 +148,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       return;
     }
     const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
-    const duration = DDBEffectHelper.getDuration(description, false);
+    const duration = DDBHelper.getDuration(description, false);
 
     if (duration.type === null) {
       this.data.duration = {

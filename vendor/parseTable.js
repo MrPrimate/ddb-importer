@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-import { uniq } from "./lowdash/_module.js";
+import { uniq } from "./lowdash/_module.mjs";
 
 /**
  * generates factory functions to convert table rows to objects,

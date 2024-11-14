@@ -1,9 +1,9 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { utils, logger, DDBHelper, DDBTable, DDBReferenceLinker, Iconizer, CompendiumHelper } from "../../lib/_module.mjs";
-import DDBItemActivity from "../activities/DDBItemActivity.js";
+import { DDBItemActivity } from "../activities/_module.mjs";
+import { DDBItemEnricher, mixins } from "../enrichers/_module.mjs";
 import MagicItemMaker from "./MagicItemMaker.js";
 import { getStatusEffect } from "../../effects/effects.js";
-import { DDBItemEnricher, mixins } from "../enrichers/_module.mjs";
 
 export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 

@@ -10,8 +10,7 @@ export default class WallOfThorns extends DDBEnricherMixin {
   get activity() {
     return {
       name: "Place Wall",
-      removeDamageParts: true,
-      damageParts: foundry.utils.deepClone(this.data.damage.parts[0]),
+      splitDamage: true,
       data: {
         img: "icons/magic/nature/root-vine-entwined-thorns.webp",
         target: {

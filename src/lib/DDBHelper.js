@@ -1203,6 +1203,82 @@ const DDBHelper = {
     return result;
   },
 
+
+  getDuration(text, returnDefault = true) {
+    const defaultDurationSeconds = 60;
+    const result = {
+      type: returnDefault ? "second" : null,
+      second: returnDefault ? defaultDurationSeconds : null,
+      round: returnDefault ? (defaultDurationSeconds / 6) : null,
+      minute: null,
+      hour: null,
+      special: "",
+      value: null,
+      units: "inst",
+    };
+    const re = /for (\d+) (minute|hour|round|day|month|year)/; // turn|day|month|year
+    const match = text.match(re);
+    if (match) {
+      let seconds = parseInt(match[1]);
+      result.type = match[2];
+      result.units = match[2];
+      result.value = match[1];
+      switch (match[2]) {
+        case "minute": {
+          result.minute = match[1];
+          seconds *= 60;
+          break;
+        }
+        case "hour": {
+          result.hour = match[1];
+          seconds *= 60 * 60;
+          break;
+        }
+        case "round": {
+          seconds *= 6;
+          result.round = match[1];
+          break;
+        }
+        case "turn": {
+          result.turns = match[1];
+          break;
+        }
+        case "day": {
+          result.day = match[1];
+          seconds *= 60 * 60 * 24;
+          break;
+        }
+        case "year": {
+          result.year = match[1];
+          seconds *= 60 * 60 * 24 * 365;
+          break;
+        }
+        case "month": {
+          result.month = match[1];
+          seconds *= 60 * 60 * 24 * 30;
+          break;
+        }
+        // no default
+      }
+
+      result.second = seconds;
+      return result;
+    }
+
+
+    const smallMatchRe = /until the (?:end|start) of its next turn|until the (?:end|start) of the target's next turn|until the (?:end|start) of your next turn/ig;
+    const smallMatch = smallMatchRe.exec(text);
+    if (smallMatch) {
+      result.type = "special";
+      result.units = "spec";
+      result.second = 6;
+      result.round = 1;
+      result.special = smallMatch[0];
+      return result;
+    }
+    return result;
+  },
+
 };
 
 export default DDBHelper;

@@ -1,4 +1,3 @@
-import DDBEffectHelper from "../../../effects/DDBEffectHelper.js";
 import {
   addMagicalBonusToEnchantmentEffect,
   addStatusEffectChange,
@@ -437,7 +436,7 @@ export default class DDBEnricherAbstract {
         }
 
         if (!effectOptions.durationSeconds && !effectOptions.durationRounds) {
-          const duration = DDBEffectHelper.getDuration(this.data.system.description.value, false);
+          const duration = DDBHelper.getDuration(this.data.system.description.value, false);
           if (duration.type) {
             foundry.utils.setProperty(effect, "duration.seconds", duration.second);
             foundry.utils.setProperty(effect, "duration.rounds", duration.round);

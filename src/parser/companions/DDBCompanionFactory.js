@@ -7,7 +7,7 @@ import {
 } from "../../lib/_module.mjs";
 import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
 import DDBCompanion from "./DDBCompanion.js";
-import { isEqual } from "../../../vendor/lowdash/_module.js";
+import { isEqual } from "../../../vendor/lowdash/_module.mjs";
 import DDBSummonsManager from "./DDBSummonsManager.js";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 

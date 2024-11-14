@@ -9,8 +9,7 @@ export default class WindWall extends DDBEnricherMixin {
 
   get activity() {
     return {
-      removeDamageParts: true,
-      damageParts: foundry.utils.deepClone(this.data.damage.parts[0]),
+      splitDamage: true,
       data: {
         target: {
           override: true,

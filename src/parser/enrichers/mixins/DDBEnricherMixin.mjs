@@ -1,4 +1,4 @@
-import DICTIONARY from "../../../config/_module.mjs";
+import { DICTIONARY } from "../../../config/_module.mjs";
 import {
   effectModules,
   generateATLChange,

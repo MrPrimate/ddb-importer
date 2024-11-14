@@ -10,8 +10,7 @@ export default class WallOfIce extends DDBEnricherMixin {
   get activity() {
     return {
       name: "Place Panels",
-      removeDamageParts: true,
-      damageParts: foundry.utils.deepClone(this.data.damage.parts[0]),
+      splitDamage: true,
       data: {
         img: "icons/magic/water/barrier-ice-wall-snow.webp",
         target: {
