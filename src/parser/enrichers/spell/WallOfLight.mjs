@@ -90,14 +90,14 @@ export default class WallOfLight extends DDBEnricherData {
   }
 
   get effects() {
-    return {
+    return [{
       name: "Blinded",
       statuses: ["Blinded"],
       options: {
         durationSeconds: 600,
       },
       activityMatch: "Place Wall",
-    };
+    }];
   }
 
 }
