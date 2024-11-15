@@ -36,9 +36,10 @@ function addSources() {
   if (!ddbRaw) return;
 
   const sources = {};
-  for (const source of ddbRaw.filter((s) => s.isReleased && [1, 148, 145])) {
-    sources[source.name] = source.description;
+  for (const source of ddbRaw.filter((s) => s.isReleased && !SETTINGS.NO_SOURCE_MATCH_IDS.includes(s.id))) {
+    sources[source.name.replace("-", " ")] = source.description;
   }
+  sources["Homebrew"] = "Homebrew";
   Object.assign(CONFIG.DND5E.sourceBooks, sources);
 }
 
