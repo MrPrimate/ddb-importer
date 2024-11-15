@@ -57,11 +57,11 @@ export default class SpellListFactory {
     if (!ddbSources) return;
 
     const sources = ddbSources
-      .filter((s) => s.isReleased && !SETTINGS.NO_SOURCE_MATCH_IDS.includes(s.id))
+      .filter((s) => s.isReleased)
       .map((s) => {
         return {
           id: s.id,
-          acronym: s.name.replace("-", " "),
+          acronym: DDBHelper.getAdjustedSourceBook(s.name),
           label: s.description,
         };
       });
@@ -85,9 +85,9 @@ export default class SpellListFactory {
     this.#buildSources();
 
     for (const source of this.sources) {
-      this.uuidLists[source.id] = {};
+      this.uuidLists[source.acronym] = {};
       for (const className of SpellListFactory.CLASS_NAMES) {
-        this.uuidLists[source.id][className] = [];
+        this.uuidLists[source.acronym][className] = [];
       }
     }
   }
@@ -129,9 +129,13 @@ export default class SpellListFactory {
   #generateUuidLists(className) {
     for (const source of this.sources) {
       for (const spell of this.spellListsData[className]) {
+        if (spell.isHomebrew) {
+          this.uuidLists["Homebrew"][className].push(spell);
+          continue;
+        }
         const sourceMatch = spell.sources.some((s) => s.id === source.id);
         if (!sourceMatch) continue;
-        this.uuidLists[source.id][className].push(spell);
+        this.uuidLists[source.acronym][className].push(spell);
       }
     }
   }
@@ -149,17 +153,25 @@ export default class SpellListFactory {
           isLegacy: s.definition.isLegacy,
           sources: DDBHelper.getSourceData(s.definition),
           sourceDefinition: s.definition.sources,
+          isHomebrew: s.definition.isHomebrew,
         };
       });
 
     this.#generateUuidLists(className);
+
+    console.warn(`Spell List Data for ${className}`, {
+      spellListsData: this.spellListsData[className],
+      spellData,
+      uuidList: this.uuidLists,
+      this: this,
+    })
 
     foundry.utils.setProperty(CONFIG, "DDBI.SPELL_LISTS", this.spellListsData);
   }
 
   async #createSpellListJournal(source) {
     const journalData = {
-      _id: utils.namedIDStub(source.label, { prefix: source.acronym.replaceAll(" ", "") }),
+      _id: utils.namedIDStub(source.label, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") }),
       name: source.label,
       sort: source.id,
       ownership: {
@@ -190,7 +202,7 @@ export default class SpellListFactory {
   async #getSpellListJournal(source) {
     const journalHit = this.journalCompendium.index.find((j) =>
       j.flags?.ddbimporter?.type === this.spellListJournalFlagName
-      && j.flags?.ddbimporter?.sourceId === source.id,
+      && j.flags?.ddbimporter?.sourceName === source.acronym,
     );
     if (journalHit) {
       return this.journalCompendium.getDocument(journalHit._id);
@@ -207,13 +219,13 @@ export default class SpellListFactory {
     const pageData = foundry.utils.deepClone(BASE_CLASS_PAGE);
     pageData.system.identifier = classIdentifier;
     pageData.name = `${className} ${this.spellListJournalNameBit}`;
-    pageData._id = utils.namedIDStub(className, { prefix: source.acronym.replaceAll(" ", "") });
-    console.warn(`Page Data`, {
-      journal,
-      pageData,
-      className,
-      source,
-    });
+    pageData._id = utils.namedIDStub(className, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") });
+    // console.warn(`Page Data`, {
+    //   journal,
+    //   pageData,
+    //   className,
+    //   source,
+    // });
     logger.debug(`Creating Spell Journal Page ${pageData.name}`);
     await journal.createEmbeddedDocuments("JournalEntryPage", [pageData], { keepId: true });
     const newPage = journal.pages.find((p) => p.system.identifier === classIdentifier);
@@ -226,12 +238,14 @@ export default class SpellListFactory {
       logger.error(`Journal not found for ${source.label}`);
     }
 
+    if (this.uuidLists[source.acronym][className].length === 0) return;
+
     const spells = [];
 
-    for (const spell of this.uuidLists[source.id][className]) {
-      const sourceMatch = this.spellCompendium.index.find((s) => s.lags.ddbimporter.id === spell.id);
+    for (const spell of this.uuidLists[source.acronym][className]) {
+      const sourceMatch = this.spellCompendium.index.find((s) => s.flags?.ddbimporter?.definitionId === spell.id);
       if (!sourceMatch) {
-        console.warn(`Spell not found in spell compendium: ${spell.name} (${spell.id})`, { spell, this: this });
+        logger.warn(`Spell not found in spell compendium: ${spell.name} (${spell.definition.id})`, { spell, this: this });
         continue;
       }
       spells.push(sourceMatch.uuid);
@@ -239,20 +253,22 @@ export default class SpellListFactory {
 
     if (spells.length === 0) return;
     const page = await this.#getJournalClassPage(journal, className, source);
-    const newSpells = new Set(page.system.spells, spells);
-
-    journal.updateEmbeddedDocuments("JournalEntryPage", [{
+    const newSpells = new Set([...page.system.spells, ...spells]);
+    const update = {
       _id: page._id,
       system: {
         spells: Array.from(newSpells),
       },
-    }]);
+    };
+
+    logger.debug(`Updating Journal Page`, { update, page, spells, newSpells });
+    await journal.updateEmbeddedDocuments("JournalEntryPage", [update]);
 
   }
 
   #sourceHasSpells(source) {
     for (const className of SpellListFactory.CLASS_NAMES) {
-      if (this.uuidLists[source.id][className].length > 0) return true;
+      if (this.uuidLists[source.acronym][className].length > 0) return true;
     }
     return false;
   }
