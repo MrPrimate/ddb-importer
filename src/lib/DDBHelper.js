@@ -160,12 +160,19 @@ const DDBHelper = {
     };
   },
 
+  getAdjustedSourceBook(sourceBook) {
+    if (["free-rules"].includes(sourceBook)) {
+      return "PHB 2024";
+    } else if (sourceBook === "BR") {
+      return "SRD 5.1";
+    } else {
+      return sourceBook.replace("-", " ");
+    }
+  },
 
   _tweakSourceData: (source) => {
-    if (["PHB-2024", "free-rules"].includes(source.book)) {
-      source.book = "PHB 2024";
-    } else if (source.book === "BR") {
-      source.book = "SRD 5.1";
+    source.book = DDBHelper.getAdjustedSourceBook(source.book);
+    if (source.book === "BR") {
       source.license = "CC-BY-4.0";
     }
     if (game.settings.get("ddb-importer", "no-source-book-pages"))
