@@ -68,6 +68,7 @@ export default class DDBSpellEnricher extends DDBEnricherMixin {
     "Heroes' Feast": SpellEnrichers.HeroesFeast,
     "Heroism": SpellEnrichers.Heroism,
     "Hex": SpellEnrichers.Hex,
+    "Hunger of Hadar": SpellEnrichers.HungerOfHadar,
     "Hunter's Mark": SpellEnrichers.HuntersMark,
     "Light": SpellEnrichers.Light,
     "Mage Hand": SpellEnrichers.MageHand,

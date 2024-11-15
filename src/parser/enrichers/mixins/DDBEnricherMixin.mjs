@@ -316,6 +316,7 @@ export default class DDBEnricherMixin {
         height: "",
         units: "ft",
       });
+      activity.target.prompt = false;
     }
 
     if (overrideData.overrideTemplate)
