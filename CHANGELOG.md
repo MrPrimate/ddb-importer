@@ -1,8 +1,8 @@
-# Next Up
+# 6.0.40
 
-- Hunger of Hadar
+- Hunger of Hadar parsing fixes
 - Under the hood refactoring
-- Work towards spell list generation
+- Spell List generation. When you munch spells DDB Importer will create Spell List Journals for each book with spells. It will register these journals with the system after spell munch and on world load.
 
 # 6.0.39
 
