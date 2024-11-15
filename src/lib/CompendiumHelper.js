@@ -408,6 +408,41 @@ const CompendiumHelper = {
     return cleanResults;
   },
 
+  async createFolder({
+    pack, name, parentId = null, color = "", folderId = null, flagTag = "", flags = {}, entityType,
+  } = {}) {
+    logger.debug("Finding folder", {
+      folders: pack.folders,
+      parentId,
+    });
+    const existingFolder = pack.folders.find((f) =>
+      f.name === name
+      && flagTag === f.flags?.ddbimporter?.flagTag
+      && (parentId === null
+        || (parentId === f.folder?._id)
+      ),
+    );
+    if (existingFolder) return existingFolder;
+
+    logger.debug("Creating folder", {
+      folders: pack.folders,
+      parentId,
+    });
+
+    const newFolder = await Folder.create({
+      _id: folderId,
+      name,
+      color,
+      type: entityType,
+      folder: parentId,
+      flags: {
+        ddbimporter: foundry.utils.mergeObject({ flagTag }, flags),
+      },
+    }, { pack: pack.metadata.id, keepId: true });
+
+    return newFolder;
+  },
+
 
 };
 

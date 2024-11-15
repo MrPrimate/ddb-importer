@@ -1,3 +1,9 @@
+# Next Up
+
+- Hunger of Hadar
+- Under the hood refactoring
+- Work towards spell list generation
+
 # 6.0.39
 
 - Fix item munching if using custom proxy.

@@ -16,6 +16,7 @@ import { addVision5eStubs } from "../effects/vision5e.js";
 import DDBMacros from "../effects/DDBMacros.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
+import SpellListFactory from "../parser/spells/SpellListFactory.mjs";
 
 function getSpellData(className, sourceFilter, rulesVersion = null) {
   const cobaltCookie = Secrets.getCobalt();
@@ -92,37 +93,18 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
   }
 
-
   DDBMuncher.munchNote("Downloading spell data..");
 
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
+  const results = [];
+  const spellListFactory = new SpellListFactory();
 
-  const clericSpells = await getSpellData("Cleric", sourceFilter);
-  const druidSpells = await getSpellData("Druid", sourceFilter);
-  const sorcererSpells = await getSpellData("Sorcerer", sourceFilter);
-  const warlockSpells = await getSpellData("Warlock", sourceFilter);
-  const wizardSpells = await getSpellData("Wizard", sourceFilter);
-  const paladinSpells = await getSpellData("Paladin", sourceFilter);
-  const rangerSpells = await getSpellData("Ranger", sourceFilter);
-  const bardSpells = await getSpellData("Bard", sourceFilter);
-  const graviturgySpells = await getSpellData("Graviturgy", sourceFilter);
-  const chronurgySpells = await getSpellData("Chronurgy", sourceFilter);
-  const artificerSpells = await getSpellData("Artificer", sourceFilter);
-
-  const results = [
-    ...clericSpells,
-    ...druidSpells,
-    ...sorcererSpells,
-    ...warlockSpells,
-    ...wizardSpells,
-    ...paladinSpells,
-    ...rangerSpells,
-    ...bardSpells,
-    ...graviturgySpells,
-    ...chronurgySpells,
-    ...artificerSpells,
-  ];
+  for (const className of SpellListFactory.CLASS_NAMES) {
+    const spellData = await getSpellData(className, sourceFilter);
+    spellListFactory.extractSpellListData(className, spellData);
+    results.push(...spellData);
+  }
 
   DDBMuncher.munchNote("Parsing spell data.");
 
@@ -146,7 +128,6 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   // });
 
   const rawSpells = await GenericSpellFactory.getSpells(filteredResults, DDBMuncher.munchNote);
-
 
   const spells = rawSpells
     .filter((spell) => spell?.name)
@@ -184,6 +165,12 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   logger.debug({ finalSpells: itemHandler.documents, updateResults, updatePromiseResults });
   DDBMuncher.munchNote("");
   logger.timeEnd("Spell Import Time");
+
+  logger.debug("Starting Spell List Generation");
+  DDBMuncher.munchNote(`Generating Spell List Journals...`, true);
+  await spellListFactory.buildSpellLists();
+  logger.debug("Spell List Generation Complete");
+
   return updateResults;
 }
 

@@ -60,38 +60,15 @@ export class DDBCompendiumFolders {
   }
 
   async createCompendiumFolder({ name, parentId = null, color = "#6f0006", folderId = null, flagTag = "" } = {}) {
-    logger.debug("Finding folder", {
-      folders: this.compendium.folders,
-      parentId,
-    });
-    const existingFolder = this.compendium.folders.find((f) =>
-      f.name === name
-      && flagTag === f.flags?.ddbimporter?.flagTag
-      && (parentId === null
-        || (parentId === f.folder?._id)
-      ),
-    );
-    if (existingFolder) return existingFolder;
-
-    logger.debug("Creating folder", {
-      folders: this.compendium.folders,
-      parentId,
-    });
-
-    const newFolder = await Folder.create({
-      _id: folderId,
+    return CompendiumHelper.createFolder({
+      pack: this.compendium,
       name,
+      parentId,
       color,
-      type: this.entityType,
-      folder: parentId,
-      flags: {
-        ddbimporter: {
-          flagTag,
-        },
-      },
-    }, { pack: this.packName, keepId: true });
-
-    return newFolder;
+      folderId,
+      flagTag,
+      entityType: this.entityType,
+    });
   }
 
   async createCreatureTypeCompendiumFolders() {
