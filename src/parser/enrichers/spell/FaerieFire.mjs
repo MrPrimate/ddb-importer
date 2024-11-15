@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class FaerieFire extends DDBEnricherMixin {
+export default class FaerieFire extends DDBEnricherData {
 
   get effects() {
     return [
@@ -12,16 +12,16 @@ export default class FaerieFire extends DDBEnricherMixin {
       return {
         name: `${data.colour} Light`,
         midiChanges: [
-          DDBEnricherMixin.generateCustomChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
+          DDBEnricherData.generateCustomChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
         atlChanges: [
-          DDBEnricherMixin.generateOverrideChange(data.hex, 30, "ATL.light.color"),
-          DDBEnricherMixin.generateOverrideChange("0.65", 30, "ATL.light.alpha"),
-          DDBEnricherMixin.generateOverrideChange("10", 30, "ATL.light.dim"),
-          DDBEnricherMixin.generateOverrideChange('{"type": "pulse","speed": 1,"intensity": 3}', 30, "ATL.light.animation"),
+          DDBEnricherData.generateOverrideChange(data.hex, 30, "ATL.light.color"),
+          DDBEnricherData.generateOverrideChange("0.65", 30, "ATL.light.alpha"),
+          DDBEnricherData.generateOverrideChange("10", 30, "ATL.light.dim"),
+          DDBEnricherData.generateOverrideChange('{"type": "pulse","speed": 1,"intensity": 3}', 30, "ATL.light.animation"),
         ],
         tokenMagicChanges: [
-          DDBEnricherMixin.generateTokenMagicFXChange("glow"),
+          DDBEnricherData.generateTokenMagicFXChange("glow"),
         ],
       };
     });

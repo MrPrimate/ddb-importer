@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class TheThirdEye extends DDBEnricherMixin {
+export default class TheThirdEye extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -59,11 +59,11 @@ export default class TheThirdEye extends DDBEnricherMixin {
           "flags.ddbimporter.activityMatch": "Darkvision",
         },
         changes: [
-          DDBEnricherMixin.generateUpgradeChange("120", 20, "system.attributes.senses.darkvision"),
+          DDBEnricherData.generateUpgradeChange("120", 20, "system.attributes.senses.darkvision"),
         ],
         atlChanges: [
-          DDBEnricherMixin.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5),
-          DDBEnricherMixin.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
+          DDBEnricherData.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5),
+          DDBEnricherData.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
         ],
       },
       {
@@ -75,7 +75,7 @@ export default class TheThirdEye extends DDBEnricherMixin {
           description: "You can read any language",
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange(";Read Any Language", 20, "system.traits.languages.special"),
+          DDBEnricherData.generateUnsignedAddChange(";Read Any Language", 20, "system.traits.languages.special"),
         ],
       },
       {
@@ -86,8 +86,8 @@ export default class TheThirdEye extends DDBEnricherMixin {
           "flags.ddbimporter.activityMatch": "See Invisibility",
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange(";Invisible Creatures", 20, "system.attributes.senses.special"),
-          DDBEnricherMixin.generateUnsignedAddChange(";Ethereal Plane", 20, "system.attributes.senses.special"),
+          DDBEnricherData.generateUnsignedAddChange(";Invisible Creatures", 20, "system.attributes.senses.special"),
+          DDBEnricherData.generateUnsignedAddChange(";Ethereal Plane", 20, "system.attributes.senses.special"),
         ],
       },
     ];

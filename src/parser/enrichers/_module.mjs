@@ -1,4 +1,5 @@
 export * as mixins from "./mixins/_module.mjs";
+export * as data from "./data/_module.mjs";
 export * as MonsterEnrichers from "./monster/_module.mjs";
 export * as ItemEnrichers from "./item/_module.mjs";
 export * as SpellEnrichers from "./spell/_module.mjs";

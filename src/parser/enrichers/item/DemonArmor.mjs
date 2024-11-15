@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class DemonArmor extends DDBEnricherMixin {
+export default class DemonArmor extends DDBEnricherData {
 
   get type() {
     return "enchant";
@@ -50,9 +50,9 @@ export default class DemonArmor extends DDBEnricherMixin {
           bonus: "1",
         },
         changes: [
-          DDBEnricherMixin.generateOverrideChange("1", 20, "system.bonuses.base.number"),
-          DDBEnricherMixin.generateOverrideChange("8", 20, "system.damage.base.denomination"),
-          DDBEnricherMixin.generateOverrideChange("false", 20, "system.damage.base.custom.enabled"),
+          DDBEnricherData.generateOverrideChange("1", 20, "system.bonuses.base.number"),
+          DDBEnricherData.generateOverrideChange("8", 20, "system.damage.base.denomination"),
+          DDBEnricherData.generateOverrideChange("false", 20, "system.damage.base.custom.enabled"),
         ],
         data: {
           "restrictions.type": "weapon",

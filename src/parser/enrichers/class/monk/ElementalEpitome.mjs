@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { utils } from "../../../../lib/_module.mjs";
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class ElementalEpitome extends DDBEnricherMixin {
+export default class ElementalEpitome extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -32,7 +32,7 @@ export default class ElementalEpitome extends DDBEnricherMixin {
           generateTarget: false,
           generateRange: false,
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die", types: ["acid", "cold", "fire", "lightning", "thunder"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die", types: ["acid", "cold", "fire", "lightning", "thunder"] }),
           ],
         },
         overrides: {
@@ -57,7 +57,7 @@ export default class ElementalEpitome extends DDBEnricherMixin {
       return {
         name: `${utils.capitalize(element)} Resistance`,
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
         ],
         activityMatch: "Elemental Attunement Effects",
       };
@@ -65,7 +65,7 @@ export default class ElementalEpitome extends DDBEnricherMixin {
     const speed = {
       name: "Step of the Wind Bonus",
       changes: [
-        DDBEnricherMixin.generateUnsignedAddChange("20", 20, "system.attributes.speed.walk"),
+        DDBEnricherData.generateUnsignedAddChange("20", 20, "system.attributes.speed.walk"),
       ],
       activityMatch: "Elemental Attunement Effects",
     };

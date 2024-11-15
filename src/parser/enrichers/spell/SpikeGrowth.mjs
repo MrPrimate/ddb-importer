@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class SpikeGrowth extends DDBEnricherMixin {
+export default class SpikeGrowth extends DDBEnricherData {
   get type() {
     return "utility";
   }
@@ -28,7 +28,7 @@ export default class SpikeGrowth extends DDBEnricherMixin {
           noeffect: true,
           activationOverride: { type: "", condition: "Moves 5ft" },
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               number: 2,
               denomination: 4,
               type: "piercing",

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class SearingSmite extends DDBEnricherMixin {
+export default class SearingSmite extends DDBEnricherData {
   get type() {
     return "damage";
   }
@@ -10,7 +10,7 @@ export default class SearingSmite extends DDBEnricherMixin {
     return {
       name: "Initial Damage",
       damageParts: [
-        DDBEnricherMixin.basicDamagePart({
+        DDBEnricherData.basicDamagePart({
           number: 2,
           denomination: 6,
           types: ["fire"],
@@ -31,7 +31,7 @@ export default class SearingSmite extends DDBEnricherMixin {
         build: {
           generateDamage: true,
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               number: 1,
               denomination: 6,
               type: "fire",

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class CallLightning extends DDBEnricherMixin {
+export default class CallLightning extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -26,7 +26,7 @@ export default class CallLightning extends DDBEnricherMixin {
           noSpellslot: true,
           generateDamage: true,
           generateSave: true,
-          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 3, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 3, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
           rangeOverride: {
             value: "",
             units: "spec",
@@ -57,7 +57,7 @@ export default class CallLightning extends DDBEnricherMixin {
         build: {
           generateDamage: true,
           generateSave: true,
-          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 4, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 4, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
           rangeOverride: {
             value: "",
             units: "spec",

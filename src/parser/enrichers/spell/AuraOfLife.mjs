@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class AuraOfLife extends DDBEnricherMixin {
+export default class AuraOfLife extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -11,7 +11,7 @@ export default class AuraOfLife extends DDBEnricherMixin {
     return [
       {
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange("necrotic", 20, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange("necrotic", 20, "system.traits.dr.value"),
         ],
       },
     ];

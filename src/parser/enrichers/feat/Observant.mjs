@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class Observant extends DDBEnricherMixin {
+export default class Observant extends DDBEnricherData {
 
   get effects() {
     return [
@@ -11,7 +11,7 @@ export default class Observant extends DDBEnricherMixin {
           transfer: true,
         },
         changes: [
-          DDBEnricherMixin.generateOverrideChange("true", 20, "flags.dnd5e.observantFeat"),
+          DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.observantFeat"),
         ],
       },
     ];

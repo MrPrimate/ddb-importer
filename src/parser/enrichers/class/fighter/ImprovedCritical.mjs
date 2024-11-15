@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class SuperiorCritical extends DDBEnricherMixin {
+export default class SuperiorCritical extends DDBEnricherData {
 
   get effects() {
     return [
@@ -10,7 +10,7 @@ export default class SuperiorCritical extends DDBEnricherMixin {
           transfer: true,
         },
         changes: [
-          DDBEnricherMixin.generateDowngradeChange("19", 25, "flags.dnd5e.weaponCriticalThreshold"),
+          DDBEnricherData.generateDowngradeChange("19", 25, "flags.dnd5e.weaponCriticalThreshold"),
         ],
       },
     ];

@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { utils } from "../../../../lib/_module.mjs";
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class FormOfTheBeast extends DDBEnricherMixin {
+export default class FormOfTheBeast extends DDBEnricherData {
 
   get activity() {
     const name = this.ddbParser.originalName;
@@ -47,7 +47,7 @@ export default class FormOfTheBeast extends DDBEnricherMixin {
                 value: 1,
                 condition: "",
               },
-              healingPart: DDBEnricherMixin.basicDamagePart({ customFormula: "@prof", type: "healing" }),
+              healingPart: DDBEnricherData.basicDamagePart({ customFormula: "@prof", type: "healing" }),
             },
           },
         ];

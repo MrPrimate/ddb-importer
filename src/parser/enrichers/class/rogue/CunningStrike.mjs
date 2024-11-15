@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class CunningStrike extends DDBEnricherMixin {
+export default class CunningStrike extends DDBEnricherData {
 
   get type() {
     return "save";
@@ -106,7 +106,7 @@ export default class CunningStrike extends DDBEnricherMixin {
             },
           },
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({ customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6", types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6", types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
           ],
         },
       },

@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
 import { DICTIONARY } from "../../../config/_module.mjs";
 import { logger, DDBHelper } from "../../../lib/_module.mjs";
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class EldritchBlast extends DDBEnricherMixin {
+export default class EldritchBlast extends DDBEnricherData {
 
   _getEldritchInvocations() {
     let damage = "";
@@ -71,7 +71,7 @@ export default class EldritchBlast extends DDBEnricherMixin {
     return {
       data: {
         damage: {
-          parts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 10, type: "force", scalingMode: "none", bonus: this.eldritchBlastDamageBonus() })],
+          parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 10, type: "force", scalingMode: "none", bonus: this.eldritchBlastDamageBonus() })],
         },
       },
     };

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class HuntersPrey extends DDBEnricherMixin {
+export default class HuntersPrey extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -66,7 +66,7 @@ export default class HuntersPrey extends DDBEnricherMixin {
           activationCondition: "Once per turn, if target is missing hit points",
           data: {
             damage: {
-              parts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 8, types: DDBEnricherMixin.allDamageTypes() })],
+              parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, types: DDBEnricherData.allDamageTypes() })],
             },
           },
         },

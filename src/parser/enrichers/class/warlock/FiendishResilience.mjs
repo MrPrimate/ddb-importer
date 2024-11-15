@@ -1,15 +1,15 @@
 /* eslint-disable class-methods-use-this */
 import { utils } from "../../../../lib/_module.mjs";
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class FiendishResilience extends DDBEnricherMixin {
+export default class FiendishResilience extends DDBEnricherData {
 
   get type() {
     return "utility";
   }
 
   damageTypes() {
-    return DDBEnricherMixin.allDamageTypes(["force"]);
+    return DDBEnricherData.allDamageTypes(["force"]);
   }
 
   get activity() {
@@ -48,7 +48,7 @@ export default class FiendishResilience extends DDBEnricherMixin {
           disabled: activeType !== type,
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange(type, 20, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange(type, 20, "system.traits.dr.value"),
         ],
       };
     });

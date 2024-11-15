@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class BootsOfSpeed extends DDBEnricherMixin {
+export default class BootsOfSpeed extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -24,7 +24,7 @@ export default class BootsOfSpeed extends DDBEnricherMixin {
         },
         data: {
           changes: [
-            DDBEnricherMixin.generateMultiplyChange(2, 20, "system.attributes.movement.walk"),
+            DDBEnricherData.generateMultiplyChange(2, 20, "system.attributes.movement.walk"),
           ],
         },
       },

@@ -1,13 +1,13 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class GlyphOfWarding extends DDBEnricherMixin {
+export default class GlyphOfWarding extends DDBEnricherData {
 
   get activity() {
     return {
       data: {
         "damage.parts": [
-          DDBEnricherMixin.basicDamagePart({
+          DDBEnricherData.basicDamagePart({
             number: 5,
             denomination: 8,
             types: ["acid", "cold", "fire", "lightning", "thunder"],

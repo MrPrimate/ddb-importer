@@ -1,8 +1,8 @@
 /* eslint-disable no-empty-function */
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../mixins/DDBEnricherData.mjs";
 
-export default class Example extends DDBEnricherMixin {
+export default class Example extends DDBEnricherData {
 
   get type() {
     return "utility"; // activity type - if type is none, activity hit will be generally undefined
@@ -24,7 +24,8 @@ export default class Example extends DDBEnricherMixin {
       activityConsumeValue: 2, // activity consume value if not 1
       addActivityScalingMode: "amount", // add scaling mode to activity consume
       addActivityScalingFormula: "1", // add scaling formula to activity consume
-      addSpellSlotConsume: true, // add spell slot consume
+      addSpellSlotConsume: true, // add spell slot consume (as a consumption target)
+      removeSpellSlotConsume: true, // remove spell slot consume (for spells)
       spellSlotConsumeValue: 2, // spell slot consume value if not 1
       addSpellSlotScalingMode: "level", // add scaling mode to spell slot consume
       addSpellSlotScalingFormula: "2", // add scaling formula to spell slot consume

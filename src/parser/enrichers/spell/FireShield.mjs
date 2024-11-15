@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class FireShield extends DDBEnricherMixin {
+export default class FireShield extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -12,13 +12,13 @@ export default class FireShield extends DDBEnricherMixin {
       {
         name: "Cold Shield",
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange("fire", 0, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange("fire", 0, "system.traits.dr.value"),
         ],
       },
       {
         name: "Warm Shield",
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange("cold", 0, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange("cold", 0, "system.traits.dr.value"),
         ],
       },
     ];

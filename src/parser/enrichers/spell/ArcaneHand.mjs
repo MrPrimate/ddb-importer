@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import DDBSummonsManager from "../../companions/DDBSummonsManager.js";
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class ArcaneHand extends DDBEnricherMixin {
+export default class ArcaneHand extends DDBEnricherData {
 
   get type() {
     return "summon";

@@ -1,13 +1,13 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class AcidArrow extends DDBEnricherMixin {
+export default class AcidArrow extends DDBEnricherData {
 
   get activity() {
     return {
       data: {
         "damage.parts": [
-          DDBEnricherMixin.basicDamagePart({ number: 4, denomination: 4, type: "acid" }),
+          DDBEnricherData.basicDamagePart({ number: 4, denomination: 4, type: "acid" }),
         ],
       },
     };
@@ -26,7 +26,7 @@ export default class AcidArrow extends DDBEnricherMixin {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 4, type: "acid" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 4, type: "acid" })],
           noeffect: true,
         },
       },

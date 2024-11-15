@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class BreathWeapon2024 extends DDBEnricherMixin {
+export default class BreathWeapon2024 extends DDBEnricherData {
 
   get type() {
     if (this.is2014) return null;
@@ -19,7 +19,7 @@ export default class BreathWeapon2024 extends DDBEnricherMixin {
       data: {
         damage: {
           onSave: "half",
-          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: this.damageType })],
+          parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: this.damageType })],
         },
         target: {
           affects: {
@@ -47,7 +47,7 @@ export default class BreathWeapon2024 extends DDBEnricherMixin {
         build: {
           generateSave: true,
           generateDamage: true,
-          damageParts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: this.damageType })],
+          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: this.damageType })],
           targetOverride: {
             affects: {
               type: "creature",

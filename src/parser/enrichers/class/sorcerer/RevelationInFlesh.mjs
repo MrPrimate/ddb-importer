@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class RevelationInFlesh extends DDBEnricherMixin {
+export default class RevelationInFlesh extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -46,7 +46,7 @@ export default class RevelationInFlesh extends DDBEnricherMixin {
         },
         changes: [
           this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-          DDBEnricherMixin.generateCustomChange("true", 20, "system.attributes.movement.hover"),
+          DDBEnricherData.generateCustomChange("true", 20, "system.attributes.movement.hover"),
         ],
       },
       {
@@ -55,10 +55,10 @@ export default class RevelationInFlesh extends DDBEnricherMixin {
           durationSeconds: 600,
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange(";See Invisibility (60ft)", 1, "system.attributes.senses.special"),
+          DDBEnricherData.generateUnsignedAddChange(";See Invisibility (60ft)", 1, "system.attributes.senses.special"),
         ],
         atlChanges: [
-          DDBEnricherMixin.generateUpgradeChange("60", 20, "ATL.detectionModes.seeInvisibility.range"),
+          DDBEnricherData.generateUpgradeChange("60", 20, "ATL.detectionModes.seeInvisibility.range"),
         ],
       },
       {

@@ -1,7 +1,7 @@
-import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
+import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
 import { ItemEnrichers } from "./_module.mjs";
 
-export default class DDBItemEnricher extends DDBEnricherAbstract {
+export default class DDBItemEnricher extends DDBEnricherMixin {
   constructor({ activityGenerator } = {}) {
     super({
       activityGenerator,

@@ -1,16 +1,16 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class BladeWard extends DDBEnricherMixin {
+export default class BladeWard extends DDBEnricherData {
 
   get effects() {
     if (this.is2014) {
       return [
         {
           changes: [
-            DDBEnricherMixin.generateUnsignedAddChange("bludgeoning", 10, "system.traits.dr.value"),
-            DDBEnricherMixin.generateUnsignedAddChange("slashing", 10, "system.traits.dr.value"),
-            DDBEnricherMixin.generateUnsignedAddChange("piercing", 10, "system.traits.dr.value"),
+            DDBEnricherData.generateUnsignedAddChange("bludgeoning", 10, "system.traits.dr.value"),
+            DDBEnricherData.generateUnsignedAddChange("slashing", 10, "system.traits.dr.value"),
+            DDBEnricherData.generateUnsignedAddChange("piercing", 10, "system.traits.dr.value"),
           ],
           data: {
             "flags.dae.specialDuration": ["turnEnd"],

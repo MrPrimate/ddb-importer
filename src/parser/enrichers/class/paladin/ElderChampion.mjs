@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class ElderChampion extends DDBEnricherMixin {
+export default class ElderChampion extends DDBEnricherData {
 
   get activity() {
     return {
@@ -23,7 +23,7 @@ export default class ElderChampion extends DDBEnricherMixin {
           generateActivation: true,
           generateTarget: true,
           generateHealing: true,
-          healingPart: DDBEnricherMixin.basicDamagePart({ bonus: "10", type: "healing" }),
+          healingPart: DDBEnricherData.basicDamagePart({ bonus: "10", type: "healing" }),
         },
         overrides: {
           data: {

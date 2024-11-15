@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class WandOfFireballs extends DDBEnricherMixin {
+export default class WandOfFireballs extends DDBEnricherData {
   get activity() {
     return {
       type: "save",
@@ -17,7 +17,7 @@ export default class WandOfFireballs extends DDBEnricherMixin {
         damage: {
           onSave: "half",
           parts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               number: 8,
               denomination: 6,
               type: "fire",

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class AvengingAngel extends DDBEnricherMixin {
+export default class AvengingAngel extends DDBEnricherData {
 
   get activity() {
     if (this.ddbParser.isAction) {
@@ -70,7 +70,7 @@ export default class AvengingAngel extends DDBEnricherMixin {
         "flags.ddbimporter.activitiesMatch": ["Activate"],
       },
       changes: [
-        DDBEnricherMixin.generateUpgradeChange("60", 2, "system.attributes.speed.fly"),
+        DDBEnricherData.generateUpgradeChange("60", 2, "system.attributes.speed.fly"),
       ],
     }];
   }

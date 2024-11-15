@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class DragonWings extends DDBEnricherMixin {
+export default class DragonWings extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -68,7 +68,7 @@ export default class DragonWings extends DDBEnricherMixin {
         durationSeconds: 600,
       },
       changes: [
-        DDBEnricherMixin.generateUpgradeChange("60", 2, "system.attributes.movement.fly"),
+        DDBEnricherData.generateUpgradeChange("60", 2, "system.attributes.movement.fly"),
       ],
     }];
   }

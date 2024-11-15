@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class RageOfTheWilds extends DDBEnricherMixin {
+export default class RageOfTheWilds extends DDBEnricherData {
 
   get type() {
     return "none";
@@ -45,8 +45,8 @@ export default class RageOfTheWilds extends DDBEnricherMixin {
         options: {
         },
         activityMatch: "Bear",
-        changes: DDBEnricherMixin.allDamageTypes(["force", "necrotic", "psychic", "radiant"]).map((damage) => {
-          return DDBEnricherMixin.generateUnsignedAddChange(damage, 20, "system.traits.dr.value");
+        changes: DDBEnricherData.allDamageTypes(["force", "necrotic", "psychic", "radiant"]).map((damage) => {
+          return DDBEnricherData.generateUnsignedAddChange(damage, 20, "system.traits.dr.value");
         }),
       },
       {

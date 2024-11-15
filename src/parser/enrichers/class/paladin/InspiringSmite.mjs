@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class InspiringSmite extends DDBEnricherMixin {
+export default class InspiringSmite extends DDBEnricherData {
 
   get activities() {
     return {
@@ -11,7 +11,7 @@ export default class InspiringSmite extends DDBEnricherMixin {
       activationCondition: "Immediately after you cast Divine Smite",
       addItemUse: true,
       data: {
-        healing: DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 8, bonus: "@classes.paladin.levels", type: "temphp" }),
+        healing: DDBEnricherData.basicDamagePart({ number: 2, denomination: 8, bonus: "@classes.paladin.levels", type: "temphp" }),
         range: {
           units: "ft",
           value: 30,

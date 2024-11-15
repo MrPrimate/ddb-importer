@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class RadiantStrikes extends DDBEnricherMixin {
+export default class RadiantStrikes extends DDBEnricherData {
 
   get activity() {
     return {
@@ -15,7 +15,7 @@ export default class RadiantStrikes extends DDBEnricherMixin {
         transfer: true,
       },
       changes: [
-        DDBEnricherMixin.generateUnsignedAddChange("1d8[radiant]", 20, "system.bonuses.mwak.damage"),
+        DDBEnricherData.generateUnsignedAddChange("1d8[radiant]", 20, "system.bonuses.mwak.damage"),
       ],
     }];
   }

@@ -1,14 +1,14 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class ChromaticOrb extends DDBEnricherMixin {
+export default class ChromaticOrb extends DDBEnricherData {
 
   get activity() {
     return {
       data: {
         damage: {
           parts: [
-            DDBEnricherMixin.basicDamagePart({ number: 3, denomination: 8, types: ["acid", "cold", "fire", "lightning", "poison", "thunder"], scalingMode: "whole", scalingNumber: 1 }),
+            DDBEnricherData.basicDamagePart({ number: 3, denomination: 8, types: ["acid", "cold", "fire", "lightning", "poison", "thunder"], scalingMode: "whole", scalingNumber: 1 }),
           ],
         },
       },

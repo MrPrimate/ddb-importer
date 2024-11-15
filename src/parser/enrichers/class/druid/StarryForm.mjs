@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class StarryForm extends DDBEnricherMixin {
+export default class StarryForm extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -35,7 +35,7 @@ export default class StarryForm extends DDBEnricherMixin {
               value: "range",
             },
           },
-          damageParts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.stars.starry-form + @mod", type: "radiant" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.stars.starry-form + @mod", type: "radiant" })],
           targetOverride: {
             affects: {
               count: "1",
@@ -64,7 +64,7 @@ export default class StarryForm extends DDBEnricherMixin {
           generateTarget: true,
           generateDamage: false,
           generateHealing: true,
-          healingPart: DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.stars.starry-form + @mod", type: "healing" }),
+          healingPart: DDBEnricherData.basicDamagePart({ customFormula: "@scale.stars.starry-form + @mod", type: "healing" }),
           targetOverride: {
             affects: {
               count: "1",
@@ -117,11 +117,11 @@ export default class StarryForm extends DDBEnricherMixin {
       {
         activityMatch: "Activate Starry Form",
         atlChanges: [
-          DDBEnricherMixin.generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '20'),
-          DDBEnricherMixin.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '10'),
-          DDBEnricherMixin.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#f3f5e5'),
-          DDBEnricherMixin.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.35'),
-          DDBEnricherMixin.generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": ""starlight"", "speed": 5,"intensity": 5}'),
+          DDBEnricherData.generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '20'),
+          DDBEnricherData.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '10'),
+          DDBEnricherData.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#f3f5e5'),
+          DDBEnricherData.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.35'),
+          DDBEnricherData.generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": ""starlight"", "speed": 5,"intensity": 5}'),
         ],
       },
       {
@@ -134,7 +134,7 @@ export default class StarryForm extends DDBEnricherMixin {
           name: "Dragon Form: Twinkling Constellations",
         },
         changes: [
-          DDBEnricherMixin.generateUpgradeChange("20", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.generateUpgradeChange("20", 20, "system.attributes.movement.fly"),
         ],
       },
     ];

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class HeatMetal extends DDBEnricherMixin {
+export default class HeatMetal extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
@@ -9,6 +9,7 @@ export default class HeatMetal extends DDBEnricherMixin {
         overrides: {
           name: "Bonus Action Damage",
           activationType: "bonus",
+          noSpellslot: true,
           noConsumeTargets: true,
           data: {
             type: "damage",
@@ -23,6 +24,7 @@ export default class HeatMetal extends DDBEnricherMixin {
         build: {
           generateDamage: false,
           generateSave: true,
+          noSpellslot: true,
           saveOverride: {
             ability: ["con"],
             dc: { calculation: "spellcasting" },

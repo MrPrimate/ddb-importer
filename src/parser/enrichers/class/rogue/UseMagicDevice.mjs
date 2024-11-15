@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class UseMagicDevice extends DDBEnricherMixin {
+export default class UseMagicDevice extends DDBEnricherData {
 
   get type() {
     return "none";
@@ -21,7 +21,7 @@ export default class UseMagicDevice extends DDBEnricherMixin {
         transfer: true,
       },
       changes: [
-        DDBEnricherMixin.generateUpgradeChange("4", 10, "system.attributes.attunement.max"),
+        DDBEnricherData.generateUpgradeChange("4", 10, "system.attributes.attunement.max"),
       ],
     }];
   }

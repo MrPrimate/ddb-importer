@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class GnomengardeGrenade extends DDBEnricherMixin {
+export default class GnomengardeGrenade extends DDBEnricherData {
 
   get activity() {
     return {
@@ -10,7 +10,7 @@ export default class GnomengardeGrenade extends DDBEnricherMixin {
         name: "Fire Damage",
         damage: {
           onSave: "half",
-          parts: [DDBEnricherMixin.basicDamagePart({ number: 8, denomination: 6, type: "fire" })],
+          parts: [DDBEnricherData.basicDamagePart({ number: 8, denomination: 6, type: "fire" })],
         },
       },
     };
@@ -36,7 +36,7 @@ export default class GnomengardeGrenade extends DDBEnricherMixin {
           generateSave: true,
           generateDamage: true,
           onSave: "half",
-          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 8, denomination: 6, type: "thunder" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 8, denomination: 6, type: "thunder" })],
         },
       },
     ];

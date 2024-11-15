@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class SpiritShroud extends DDBEnricherMixin {
+export default class SpiritShroud extends DDBEnricherData {
   get type() {
     return "damage";
   }
@@ -9,7 +9,7 @@ export default class SpiritShroud extends DDBEnricherMixin {
   get activity() {
     return {
       damageParts: [
-        DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 8, types: ["radiant", "necrotic", "cold"], scalingMode: "half", scalingNumber: "1" }),
+        DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, types: ["radiant", "necrotic", "cold"], scalingMode: "half", scalingNumber: "1" }),
       ],
     };
   }

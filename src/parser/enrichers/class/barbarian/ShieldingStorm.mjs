@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class ShieldingStorm extends DDBEnricherMixin {
+export default class ShieldingStorm extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -79,7 +79,7 @@ export default class ShieldingStorm extends DDBEnricherMixin {
           },
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange("fire", 20, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange("fire", 20, "system.traits.dr.value"),
         ],
       },
       {
@@ -103,7 +103,7 @@ export default class ShieldingStorm extends DDBEnricherMixin {
           },
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
         ],
       },
       {
@@ -127,7 +127,7 @@ export default class ShieldingStorm extends DDBEnricherMixin {
           },
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
         ],
       },
     ];

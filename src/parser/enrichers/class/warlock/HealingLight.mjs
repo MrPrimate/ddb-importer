@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class HealingLight extends DDBEnricherMixin {
+export default class HealingLight extends DDBEnricherData {
 
   get type() {
     return "heal";
@@ -16,7 +16,7 @@ export default class HealingLight extends DDBEnricherMixin {
           allowed: true,
           max: "@item.uses.max - @item.uses.spent",
         },
-        healing: DDBEnricherMixin.basicDamagePart({
+        healing: DDBEnricherData.basicDamagePart({
           number: 1,
           denomination: 6,
           bonus: "3",

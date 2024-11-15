@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class BlightedShape extends DDBEnricherMixin {
+export default class BlightedShape extends DDBEnricherData {
 
   get effects() {
     return [
@@ -11,12 +11,12 @@ export default class BlightedShape extends DDBEnricherMixin {
           description: "You gain +2 AC Bonus in Wild Shape",
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange("2", 20, "system.attributes.ac.bonus"),
-          DDBEnricherMixin.generateUnsignedAddChange("60", 20, "system.attributes.senses.darkvision"),
+          DDBEnricherData.generateUnsignedAddChange("2", 20, "system.attributes.ac.bonus"),
+          DDBEnricherData.generateUnsignedAddChange("60", 20, "system.attributes.senses.darkvision"),
         ],
         atlChanges: [
-          DDBEnricherMixin.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.ADD, 60, 5),
-          DDBEnricherMixin.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
+          DDBEnricherData.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.ADD, 60, 5),
+          DDBEnricherData.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
         ],
       },
     ];

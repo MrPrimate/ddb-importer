@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class Shillelagh extends DDBEnricherMixin {
+export default class Shillelagh extends DDBEnricherData {
 
   get type() {
     return "enchant";
@@ -22,13 +22,13 @@ export default class Shillelagh extends DDBEnricherMixin {
     if (this.is2014) {
       return ["Physical", "Spellcasting"].map((type) => {
         const changes = [
-          DDBEnricherMixin.generateOverrideChange(`{} [${this.data.name.split("(")[0]}]`, 20, "name"),
-          DDBEnricherMixin.generateUnsignedAddChange("mgc", 20, "system.properties"),
-          DDBEnricherMixin.generateOverrideChange("1", 20, "system.damage.base.number"),
-          DDBEnricherMixin.generateOverrideChange("8", 20, "system.damage.base.denomination"),
+          DDBEnricherData.generateOverrideChange(`{} [${this.data.name.split("(")[0]}]`, 20, "name"),
+          DDBEnricherData.generateUnsignedAddChange("mgc", 20, "system.properties"),
+          DDBEnricherData.generateOverrideChange("1", 20, "system.damage.base.number"),
+          DDBEnricherData.generateOverrideChange("8", 20, "system.damage.base.denomination"),
         ];
         const spellCastingChanges = type !== "Physical"
-          ? [DDBEnricherMixin.generateOverrideChange("spellcasting", 20, "system.ability")]
+          ? [DDBEnricherData.generateOverrideChange("spellcasting", 20, "system.ability")]
           : [];
 
         return {
@@ -46,14 +46,14 @@ export default class Shillelagh extends DDBEnricherMixin {
           { level: 17, number: 2, denomination: 6 },
         ].map((data) => {
           const changes = [
-            DDBEnricherMixin.generateOverrideChange(`{} [${this.data.name.split("(")[0]}]`, 20, "name"),
-            DDBEnricherMixin.generateUnsignedAddChange("mgc", 20, "system.properties"),
-            DDBEnricherMixin.generateOverrideChange(`${data.number ?? 1}`, 20, "system.damage.base.number"),
-            DDBEnricherMixin.generateOverrideChange(`${data.denomination}`, 20, "system.damage.base.denomination"),
-            DDBEnricherMixin.generateUnsignedAddChange("force", 20, "system.damage.base.types"),
+            DDBEnricherData.generateOverrideChange(`{} [${this.data.name.split("(")[0]}]`, 20, "name"),
+            DDBEnricherData.generateUnsignedAddChange("mgc", 20, "system.properties"),
+            DDBEnricherData.generateOverrideChange(`${data.number ?? 1}`, 20, "system.damage.base.number"),
+            DDBEnricherData.generateOverrideChange(`${data.denomination}`, 20, "system.damage.base.denomination"),
+            DDBEnricherData.generateUnsignedAddChange("force", 20, "system.damage.base.types"),
           ];
           const spellcastingChanges = type !== "Physical"
-            ? [DDBEnricherMixin.generateOverrideChange("spellcasting", 20, "system.ability")]
+            ? [DDBEnricherData.generateOverrideChange("spellcasting", 20, "system.ability")]
             : [];
 
           return {

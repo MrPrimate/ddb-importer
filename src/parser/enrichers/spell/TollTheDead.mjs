@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class TollTheDead extends DDBEnricherMixin {
+export default class TollTheDead extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
@@ -12,7 +12,7 @@ export default class TollTheDead extends DDBEnricherMixin {
         build: {
           generateDamage: true,
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               number: 1,
               denomination: 12,
               type: "necrotic",

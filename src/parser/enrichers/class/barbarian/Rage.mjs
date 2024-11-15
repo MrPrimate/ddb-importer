@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class Rage extends DDBEnricherMixin {
+export default class Rage extends DDBEnricherData {
 
   get activity() {
     return {
@@ -46,17 +46,17 @@ export default class Rage extends DDBEnricherMixin {
         durationSeconds: this.is2014 ? 60 : 600,
       },
       changes: [
-        DDBEnricherMixin.generateUnsignedAddChange("@scale.barbarian.rage-damage", 20, "system.bonuses.mwak.damage"),
-        DDBEnricherMixin.generateUnsignedAddChange("piercing", 20, "system.traits.dr.value"),
-        DDBEnricherMixin.generateUnsignedAddChange("slashing", 20, "system.traits.dr.value"),
-        DDBEnricherMixin.generateUnsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
+        DDBEnricherData.generateUnsignedAddChange("@scale.barbarian.rage-damage", 20, "system.bonuses.mwak.damage"),
+        DDBEnricherData.generateUnsignedAddChange("piercing", 20, "system.traits.dr.value"),
+        DDBEnricherData.generateUnsignedAddChange("slashing", 20, "system.traits.dr.value"),
+        DDBEnricherData.generateUnsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
       ],
       midiChanges: [
-        DDBEnricherMixin.generateCustomChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
-        DDBEnricherMixin.generateCustomChange("1", 20, "flags.midi-qol.advantage.ability.check.str"),
+        DDBEnricherData.generateCustomChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
+        DDBEnricherData.generateCustomChange("1", 20, "flags.midi-qol.advantage.ability.check.str"),
       ],
       tokenMagicChanges: [
-        DDBEnricherMixin.generateCustomChange("outline", 20, "macro.tokenMagic"),
+        DDBEnricherData.generateCustomChange("outline", 20, "macro.tokenMagic"),
       ],
     }];
   }

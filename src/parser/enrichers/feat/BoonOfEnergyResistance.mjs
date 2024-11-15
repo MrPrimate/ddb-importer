@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { utils } from "../../../lib/_module.mjs";
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class BoonOfEnergyResistance extends DDBEnricherMixin {
+export default class BoonOfEnergyResistance extends DDBEnricherData {
 
   get activity() {
     return {
@@ -31,7 +31,7 @@ export default class BoonOfEnergyResistance extends DDBEnricherMixin {
           disabled: !activeType.includes(type),
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange(type.toLowerCase(), 20, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange(type.toLowerCase(), 20, "system.traits.dr.value"),
         ],
       });
     });

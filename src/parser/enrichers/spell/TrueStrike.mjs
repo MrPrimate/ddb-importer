@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class TrueStrike extends DDBEnricherMixin {
+export default class TrueStrike extends DDBEnricherData {
 
   get type() {
     return this.is2014 ? null : "enchant";
@@ -38,10 +38,10 @@ export default class TrueStrike extends DDBEnricherMixin {
             description: `This weapon is infused with True Strike`,
           },
           changes: [
-            DDBEnricherMixin.generateUnsignedAddChange("{} (True Strike)", 20, "name"),
-            DDBEnricherMixin.generateUnsignedAddChange("radiant", 20, "system.damage.base.types"),
-            DDBEnricherMixin.generateUnsignedAddChange("(floor((@details.level + 1) / 6))d6[radiant]", 20, "system.damage.base.bonus"),
-            DDBEnricherMixin.generateOverrideChange("spellcasting", 20, "system.ability"),
+            DDBEnricherData.generateUnsignedAddChange("{} (True Strike)", 20, "name"),
+            DDBEnricherData.generateUnsignedAddChange("radiant", 20, "system.damage.base.types"),
+            DDBEnricherData.generateUnsignedAddChange("(floor((@details.level + 1) / 6))d6[radiant]", 20, "system.damage.base.bonus"),
+            DDBEnricherData.generateOverrideChange("spellcasting", 20, "system.ability"),
           ],
           data: {
             img: data.img,

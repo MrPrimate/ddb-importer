@@ -1,10 +1,10 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class HolyNimbus extends DDBEnricherMixin {
+export default class HolyNimbus extends DDBEnricherData {
 
   get activity() {
-    if (DDBEnricherMixin.effectModules().atlInstalled) {
+    if (DDBEnricherData.effectModules().atlInstalled) {
       return {
         type: "utility",
         data: {
@@ -46,7 +46,7 @@ export default class HolyNimbus extends DDBEnricherMixin {
             value: 1,
             condition: "",
           },
-          damageParts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@abilities.mod.cha + @prof", types: ["radiant"] })],
+          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "@abilities.mod.cha + @prof", types: ["radiant"] })],
         },
       },
       {
@@ -87,15 +87,15 @@ export default class HolyNimbus extends DDBEnricherMixin {
 
   get effects() {
     let effects = [];
-    if (DDBEnricherMixin.effectModules().atlInstalled) {
+    if (DDBEnricherData.effectModules().atlInstalled) {
       effects.push({
         data: {
           "flags.ddbimporter.activityMatch": "Use/Apply Light",
         },
         atlChanges: [
-          DDBEnricherMixin.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '@scale.paladin.aura-of-protection'),
-          DDBEnricherMixin.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-          DDBEnricherMixin.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+          DDBEnricherData.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '@scale.paladin.aura-of-protection'),
+          DDBEnricherData.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+          DDBEnricherData.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
         ],
       });
     }

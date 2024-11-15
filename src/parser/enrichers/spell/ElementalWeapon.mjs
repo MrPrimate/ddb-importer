@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { utils } from "../../../lib/_module.mjs";
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class ElementalWeapon extends DDBEnricherMixin {
+export default class ElementalWeapon extends DDBEnricherData {
 
   get type() {
     return "enchant";
@@ -51,7 +51,7 @@ export default class ElementalWeapon extends DDBEnricherMixin {
             },
           },
           changes: [
-            DDBEnricherMixin.generateUnsignedAddChange(`[["${data.bonus}d4[${element.type}]", "${element.type}"]]`, 20, "system.damage.parts"),
+            DDBEnricherData.generateUnsignedAddChange(`[["${data.bonus}d4[${element.type}]", "${element.type}"]]`, 20, "system.damage.parts"),
           ],
         };
       });

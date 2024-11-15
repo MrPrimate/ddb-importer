@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class RadiantSoul extends DDBEnricherMixin {
+export default class RadiantSoul extends DDBEnricherData {
 
   get type() {
     return "damage";
@@ -14,7 +14,7 @@ export default class RadiantSoul extends DDBEnricherMixin {
       activationType: "special",
       activationCondition: "1/turn. Damage someone with a radiant or fire",
       damageParts: [
-        DDBEnricherMixin.basicDamagePart({
+        DDBEnricherData.basicDamagePart({
           bonus: "@abilities.cha.mod",
           types: ["radiant", "fire"],
         }),

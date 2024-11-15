@@ -1,12 +1,12 @@
-import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
+import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
 import { MonsterEnrichers } from "./_module.mjs";
 
-export default class DDDMonsterFeatureEnricher extends DDBEnricherAbstract {
+export default class DDDMonsterFeatureEnricher extends DDBEnricherMixin {
 
   _loadEnricherData(name) {
     const stub = this.ENRICHERS?.[this.monsterName]?.[name];
     if (stub) {
-      const EnricherClass = DDBEnricherAbstract._loadDataStub(stub);
+      const EnricherClass = DDBEnricherMixin._loadDataStub(stub);
       return new EnricherClass({
         ddbEnricher: this,
       });

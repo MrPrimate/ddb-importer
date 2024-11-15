@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class SuperiorHuntersPrey extends DDBEnricherMixin {
+export default class SuperiorHuntersPrey extends DDBEnricherData {
 
   get type() {
     return "damage";
@@ -18,7 +18,7 @@ export default class SuperiorHuntersPrey extends DDBEnricherMixin {
       noTemplate: true,
       data: {
         damage: {
-          parts: DDBEnricherMixin.basicDamagePart({ number: 1, denomination, types: ["force"] }),
+          parts: DDBEnricherData.basicDamagePart({ number: 1, denomination, types: ["force"] }),
         },
       },
     };

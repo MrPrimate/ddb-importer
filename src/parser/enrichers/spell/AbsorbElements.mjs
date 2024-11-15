@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class AbsorbElements extends DDBEnricherMixin {
+export default class AbsorbElements extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -30,7 +30,7 @@ export default class AbsorbElements extends DDBEnricherMixin {
           generateAttack: false,
           onsave: false,
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               number: 1,
               denomination: 6,
               types: ["acid", "cold", "fire", "lightning", "thunder"],
@@ -47,7 +47,7 @@ export default class AbsorbElements extends DDBEnricherMixin {
       return {
         name: `Absorb ${element}`,
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange(element.toLowerCase(), 1, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange(element.toLowerCase(), 1, "system.traits.dr.value"),
         ],
         activityMatch: "Absorb Elements Effect",
       };

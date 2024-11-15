@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class ElvenAccuracy extends DDBEnricherMixin {
+export default class ElvenAccuracy extends DDBEnricherData {
 
   get effects() {
     return [
@@ -10,7 +10,7 @@ export default class ElvenAccuracy extends DDBEnricherMixin {
           transfer: true,
         },
         changes: [
-          DDBEnricherMixin.generateOverrideChange("true", 20, "flags.dnd5e.elvenAccuracy"),
+          DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.elvenAccuracy"),
         ],
       },
     ];

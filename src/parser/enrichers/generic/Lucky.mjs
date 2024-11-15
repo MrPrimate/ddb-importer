@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class Lucky extends DDBEnricherMixin {
+export default class Lucky extends DDBEnricherData {
 
   get type() {
     if (this.featureType !== "feat") return null;
@@ -42,7 +42,7 @@ export default class Lucky extends DDBEnricherMixin {
           transfer: true,
         },
         changes: [
-          DDBEnricherMixin.generateOverrideChange("true", 20, "flags.dnd5e.halflingLucky"),
+          DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.halflingLucky"),
         ],
       },
     ];

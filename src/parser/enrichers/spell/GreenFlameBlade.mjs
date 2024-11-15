@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class GreenFlameBlade extends DDBEnricherMixin {
+export default class GreenFlameBlade extends DDBEnricherData {
 
   get type() {
     return "damage";
@@ -13,7 +13,7 @@ export default class GreenFlameBlade extends DDBEnricherMixin {
         name: "Secondary Target Damage",
         damage: {
           parts: [
-            DDBEnricherMixin.basicDamagePart({ bonus: "@mod", types: ["fire"], scalingMode: "whole", scalingFormula: "1d8" }),
+            DDBEnricherData.basicDamagePart({ bonus: "@mod", types: ["fire"], scalingMode: "whole", scalingFormula: "1d8" }),
           ],
         },
       },
@@ -30,7 +30,7 @@ export default class GreenFlameBlade extends DDBEnricherMixin {
         build: {
           generateDamage: true,
           generateConsumption: false,
-          damageParts: [DDBEnricherMixin.basicDamagePart({ customFormula: "(ceil((@details.level+1)/6))d8", types: ["fire"], scalingMode: "none" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "(ceil((@details.level+1)/6))d8", types: ["fire"], scalingMode: "none" })],
         },
       },
     ];

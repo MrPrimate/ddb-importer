@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class TemporaryHitPoints extends DDBEnricherMixin {
+export default class TemporaryHitPoints extends DDBEnricherData {
 
   get type() {
     return "heal";
@@ -15,7 +15,7 @@ export default class TemporaryHitPoints extends DDBEnricherMixin {
       activationType: "action",
       addActivityConsume: true,
       data: {
-        healing: DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 8, bonus: "max(1, @abilities.wis.mod)", types: ["temphp"] }),
+        healing: DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, bonus: "max(1, @abilities.wis.mod)", types: ["temphp"] }),
         uses: {
           override: true,
           spent: 0,

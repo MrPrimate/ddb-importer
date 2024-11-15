@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class WitchBolt extends DDBEnricherMixin {
+export default class WitchBolt extends DDBEnricherData {
 
   get activity() {
     return {
@@ -37,7 +37,7 @@ export default class WitchBolt extends DDBEnricherMixin {
             affects: {},
           },
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               number: 1,
               denomination: 12,
               type: "lightning",

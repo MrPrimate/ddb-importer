@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class WandOfMagicMissiles extends DDBEnricherMixin {
+export default class WandOfMagicMissiles extends DDBEnricherData {
 
   get activity() {
     return {
@@ -11,7 +11,7 @@ export default class WandOfMagicMissiles extends DDBEnricherMixin {
       data: {
         damage: {
           onSave: "half",
-          parts: [DDBEnricherMixin.basicDamagePart({
+          parts: [DDBEnricherData.basicDamagePart({
             number: 3,
             denomination: 4,
             types: ["force"],

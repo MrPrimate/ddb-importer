@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class AspectOfTheWilds extends DDBEnricherMixin {
+export default class AspectOfTheWilds extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -64,11 +64,11 @@ export default class AspectOfTheWilds extends DDBEnricherMixin {
         },
         activityMatch: "Owl",
         changes: [
-          DDBEnricherMixin.generateUpgradeChange("60", 20, "system.attributes.senses.darkvision"),
+          DDBEnricherData.generateUpgradeChange("60", 20, "system.attributes.senses.darkvision"),
         ],
         atlChanges: [
-          DDBEnricherMixin.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.ADD, 60, 5),
-          DDBEnricherMixin.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
+          DDBEnricherData.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.ADD, 60, 5),
+          DDBEnricherData.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
         ],
       },
       {

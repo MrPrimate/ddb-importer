@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class CelestialResilience extends DDBEnricherMixin {
+export default class CelestialResilience extends DDBEnricherData {
 
   get type() {
     return "heal";
@@ -12,7 +12,7 @@ export default class CelestialResilience extends DDBEnricherMixin {
       name: "Heal Self",
       activationType: "special",
       data: {
-        healing: DDBEnricherMixin.basicDamagePart({
+        healing: DDBEnricherData.basicDamagePart({
           customFormula: "@classes.warlock.levels + @abilities.cha.mod",
           types: ["temphp"],
         }),
@@ -36,7 +36,7 @@ export default class CelestialResilience extends DDBEnricherMixin {
         overrides: {
           activationType: "special",
           data: {
-            healing: DDBEnricherMixin.basicDamagePart({
+            healing: DDBEnricherData.basicDamagePart({
               customFormula: "(floor(@classes.warlock.levels / 2)) + @abilities.cha.mod",
               types: ["temphp"],
             }),

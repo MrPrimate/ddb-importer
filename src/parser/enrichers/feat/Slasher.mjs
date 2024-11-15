@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class Slasher extends DDBEnricherMixin {
+export default class Slasher extends DDBEnricherData {
 
   get activity() {
     return {
@@ -50,7 +50,7 @@ export default class Slasher extends DDBEnricherMixin {
           description: "Speed penalty until the start of the origins next turn",
         },
         changes: [
-          DDBEnricherMixin.generateSignedAddChange("-10", 20, "system.attributes.speed.walk"),
+          DDBEnricherData.generateSignedAddChange("-10", 20, "system.attributes.speed.walk"),
         ],
         data: {
           "flags.ddbimporter.activitiesMatch": ["Hamstring"],

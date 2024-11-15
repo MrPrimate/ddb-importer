@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { effectModules } from "../../../effects/effects.js";
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class FountOfMoonlight extends DDBEnricherMixin {
+export default class FountOfMoonlight extends DDBEnricherData {
 
   get type() {
     return effectModules().atlInstalled ? "utility" : "ddbmacro";
@@ -83,15 +83,15 @@ export default class FountOfMoonlight extends DDBEnricherMixin {
           durationRounds: 60,
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange("radiant", 20, "system.traits.dr.value"),
-          DDBEnricherMixin.generateUnsignedAddChange("2d6[radiant]", 20, "system.bonuses.mwak.damage"),
-          DDBEnricherMixin.generateUnsignedAddChange("2d6[radiant]", 20, "system.bonuses.msak.damage"),
+          DDBEnricherData.generateUnsignedAddChange("radiant", 20, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange("2d6[radiant]", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.generateUnsignedAddChange("2d6[radiant]", 20, "system.bonuses.msak.damage"),
         ],
         atlChanges: [
-          DDBEnricherMixin.generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'),
-          DDBEnricherMixin.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
-          DDBEnricherMixin.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-          DDBEnricherMixin.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+          DDBEnricherData.generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'),
+          DDBEnricherData.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
+          DDBEnricherData.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+          DDBEnricherData.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
         ],
       },
       {

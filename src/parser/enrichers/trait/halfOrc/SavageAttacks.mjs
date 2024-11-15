@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class SavageAttacks extends DDBEnricherMixin {
+export default class SavageAttacks extends DDBEnricherData {
 
   get effects() {
     return [
@@ -10,8 +10,8 @@ export default class SavageAttacks extends DDBEnricherMixin {
           transfer: true,
         },
         changes: [
-          DDBEnricherMixin.generateOverrideChange("true", 20, "flags.dnd5e.savageAttacks"),
-          DDBEnricherMixin.generateUnsignedAddChange("+1", 20, "flags.dnd5e.meleeCriticalDamageDice"),
+          DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.savageAttacks"),
+          DDBEnricherData.generateUnsignedAddChange("+1", 20, "flags.dnd5e.meleeCriticalDamageDice"),
         ],
       },
     ];

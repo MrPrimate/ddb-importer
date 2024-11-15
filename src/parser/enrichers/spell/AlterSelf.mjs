@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class AlterSelf extends DDBEnricherMixin {
+export default class AlterSelf extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -59,13 +59,13 @@ export default class AlterSelf extends DDBEnricherMixin {
       name: "Natural Weapons",
       type: "enchant",
       changes: [
-        DDBEnricherMixin.generateOverrideChange(`{} [Natural Weapons]`, 20, "name"),
-        DDBEnricherMixin.generateUnsignedAddChange("mgc", 20, "system.properties"),
-        DDBEnricherMixin.generateOverrideChange("1", 20, "system.damage.base.number"),
-        DDBEnricherMixin.generateOverrideChange("6", 20, "system.damage.base.denomination"),
-        DDBEnricherMixin.generateUnsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
-        DDBEnricherMixin.generateUnsignedAddChange("piercing", 20, "system.damage.base.types"),
-        DDBEnricherMixin.generateUnsignedAddChange("slashing", 20, "system.damage.base.types"),
+        DDBEnricherData.generateOverrideChange(`{} [Natural Weapons]`, 20, "name"),
+        DDBEnricherData.generateUnsignedAddChange("mgc", 20, "system.properties"),
+        DDBEnricherData.generateOverrideChange("1", 20, "system.damage.base.number"),
+        DDBEnricherData.generateOverrideChange("6", 20, "system.damage.base.denomination"),
+        DDBEnricherData.generateUnsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
+        DDBEnricherData.generateUnsignedAddChange("piercing", 20, "system.damage.base.types"),
+        DDBEnricherData.generateUnsignedAddChange("slashing", 20, "system.damage.base.types"),
       ],
       activityMatch: "Natural Weapons",
     };
@@ -76,7 +76,7 @@ export default class AlterSelf extends DDBEnricherMixin {
       };
     } else {
       naturalWeaponEffect.changes.push(
-        DDBEnricherMixin.generateOverrideChange("spellcasting", 20, "system.ability"));
+        DDBEnricherData.generateOverrideChange("spellcasting", 20, "system.ability"));
     }
 
     effects.push(naturalWeaponEffect);

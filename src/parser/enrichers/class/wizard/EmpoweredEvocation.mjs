@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class EmpoweredEvocation extends DDBEnricherMixin {
+export default class EmpoweredEvocation extends DDBEnricherData {
 
   get type() {
     return "damage";
@@ -12,7 +12,7 @@ export default class EmpoweredEvocation extends DDBEnricherMixin {
       activationType: "special",
       targetType: "creature",
       damageParts: [
-        DDBEnricherMixin.basicDamagePart({
+        DDBEnricherData.basicDamagePart({
           customFormula: "@abilities.int.mod",
           types: this.allDamageTypes,
         }),

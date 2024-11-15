@@ -1,8 +1,8 @@
 import { SpellEnrichers } from "./_module.mjs";
-import DDBEnricherAbstract from "./mixins/DDBEnricherAbstract.mjs";
 import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "./data/DDBEnricherData.mjs";
 
-export default class DDBSpellEnricher extends DDBEnricherAbstract {
+export default class DDBSpellEnricher extends DDBEnricherMixin {
   constructor({ activityGenerator } = {}) {
     super({
       activityGenerator,
@@ -59,10 +59,12 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     "Faerie Fire": SpellEnrichers.FaerieFire,
     "False Life": SpellEnrichers.FalseLife,
     "Fire Shield": SpellEnrichers.FireShield,
+    "Flaming Sphere": SpellEnrichers.FlamingSphere,
     "Fount of Moonlight": SpellEnrichers.FountOfMoonlight,
     "Glyph of Warding": SpellEnrichers.GlyphOfWarding,
     "Green-Flame Blade": SpellEnrichers.GreenFlameBlade,
     "Gust of Wind": SpellEnrichers.GustOfWind,
+    "Heat Metal": SpellEnrichers.HeatMetal,
     "Heroes' Feast": SpellEnrichers.HeroesFeast,
     "Heroism": SpellEnrichers.Heroism,
     "Hex": SpellEnrichers.Hex,
@@ -104,8 +106,6 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     "Wall of Water": SpellEnrichers.WallOfWater,
     "Wind Wall": SpellEnrichers.WindWall,
     "Witch Bolt": SpellEnrichers.WitchBolt,
-    "Heat Metal": SpellEnrichers.HeatMetal, //TODO: test
-    "Flaming Sphere": SpellEnrichers.FlamingSphere, //todo: test
   };
 
   DOCUMENT_OVERRIDES = {
@@ -146,11 +146,11 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     },
     "Bane": {
       changes: [
-        DDBEnricherMixin.generateSignedAddChange("-1d4", 0, "system.bonuses.mwak.attack"),
-        DDBEnricherMixin.generateSignedAddChange("-1d4", 0, "system.bonuses.rwak.attack"),
-        DDBEnricherMixin.generateSignedAddChange("-1d4", 0, "system.bonuses.msak.attack"),
-        DDBEnricherMixin.generateSignedAddChange("-1d4", 0, "system.bonuses.rsak.attack"),
-        DDBEnricherMixin.generateSignedAddChange("-1d4", 20, "system.bonuses.abilities.save"),
+        DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.mwak.attack"),
+        DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.rwak.attack"),
+        DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.msak.attack"),
+        DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.rsak.attack"),
+        DDBEnricherData.generateSignedAddChange("-1d4", 20, "system.bonuses.abilities.save"),
       ],
     },
     "Bless": {
@@ -158,51 +158,51 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
         durationSeconds: 60,
       },
       changes: [
-        DDBEnricherMixin.generateSignedAddChange("+1d4", 0, "system.bonuses.mwak.attack"),
-        DDBEnricherMixin.generateSignedAddChange("+1d4", 0, "system.bonuses.rwak.attack"),
-        DDBEnricherMixin.generateSignedAddChange("+1d4", 0, "system.bonuses.msak.attack"),
-        DDBEnricherMixin.generateSignedAddChange("+1d4", 0, "system.bonuses.rsak.attack"),
-        DDBEnricherMixin.generateSignedAddChange("+1d4", 20, "system.bonuses.abilities.save"),
+        DDBEnricherData.generateSignedAddChange("+1d4", 0, "system.bonuses.mwak.attack"),
+        DDBEnricherData.generateSignedAddChange("+1d4", 0, "system.bonuses.rwak.attack"),
+        DDBEnricherData.generateSignedAddChange("+1d4", 0, "system.bonuses.msak.attack"),
+        DDBEnricherData.generateSignedAddChange("+1d4", 0, "system.bonuses.rsak.attack"),
+        DDBEnricherData.generateSignedAddChange("+1d4", 20, "system.bonuses.abilities.save"),
       ],
       tokenMagicChanges: [
-        DDBEnricherMixin.generateTokenMagicFXChange("bloom"),
+        DDBEnricherData.generateTokenMagicFXChange("bloom"),
       ],
     },
     "Chill Touch": {
       changes: [
-        DDBEnricherMixin.generateUnsignedAddChange("healing", 30, "system.traits.di.value"),
+        DDBEnricherData.generateUnsignedAddChange("healing", 30, "system.traits.di.value"),
       ],
     },
     "Darkvision": {
       changes: [
-        DDBEnricherMixin.generateUpgradeChange("60", 20, "system.attributes.senses.darkvision"),
+        DDBEnricherData.generateUpgradeChange("60", 20, "system.attributes.senses.darkvision"),
       ],
       atlChanges: [
-        DDBEnricherMixin.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 60, 5),
-        DDBEnricherMixin.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
+        DDBEnricherData.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 60, 5),
+        DDBEnricherData.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
       ],
     },
     "Feeblemind": {
       changes: [
-        DDBEnricherMixin.generateOverrideChange("1", 20, "system.abilities.cha.value"),
-        DDBEnricherMixin.generateOverrideChange("1", 20, "system.abilities.int.value"),
+        DDBEnricherData.generateOverrideChange("1", 20, "system.abilities.cha.value"),
+        DDBEnricherData.generateOverrideChange("1", 20, "system.abilities.int.value"),
       ],
       midiChanges: [
-        DDBEnricherMixin.generateOverrideChange("1", 20, "flags.midi-qol.fail.spell.all"),
+        DDBEnricherData.generateOverrideChange("1", 20, "flags.midi-qol.fail.spell.all"),
       ],
     },
     "Fly": {
       changes: [
-        DDBEnricherMixin.generateUpgradeChange("60", 20, "system.attributes.movement.fly"),
+        DDBEnricherData.generateUpgradeChange("60", 20, "system.attributes.movement.fly"),
       ],
     },
     "Haste": {
       changes: [
-        DDBEnricherMixin.generateSignedAddChange("2", 20, "system.attributes.ac.bonus"),
+        DDBEnricherData.generateSignedAddChange("2", 20, "system.attributes.ac.bonus"),
       ],
       midiChanges: [
-        DDBEnricherMixin.generateOverrideChange("1", 20, "flags.midi-qol.advantage.ability.save.dex"),
-        DDBEnricherMixin.generateCustomChange("*2", 30, "system.attributes.movement.all"),
+        DDBEnricherData.generateOverrideChange("1", 20, "flags.midi-qol.advantage.ability.save.dex"),
+        DDBEnricherData.generateCustomChange("*2", 30, "system.attributes.movement.all"),
       ],
     },
     "Invisibility": {
@@ -221,35 +221,35 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     },
     "Mage Armor": {
       changes: [
-        DDBEnricherMixin.generateOverrideChange("mage", 5, "system.attributes.ac.calc"),
+        DDBEnricherData.generateOverrideChange("mage", 5, "system.attributes.ac.calc"),
       ],
     },
     "Mirror Image": {
       tokenMagicChanges: [
-        DDBEnricherMixin.generateTokenMagicFXChange("images"),
+        DDBEnricherData.generateTokenMagicFXChange("images"),
       ],
     },
     "Mind Blank": {
       changes: [
-        DDBEnricherMixin.generateUnsignedAddChange("psychic", 20, "system.traits.di.value"),
+        DDBEnricherData.generateUnsignedAddChange("psychic", 20, "system.traits.di.value"),
       ],
     },
     "Pass Without Trace": {
       changes: [
-        DDBEnricherMixin.generateSignedAddChange("10", 20, "system.skills.ste.bonuses.check"),
+        DDBEnricherData.generateSignedAddChange("10", 20, "system.skills.ste.bonuses.check"),
       ],
     },
     "Protection from Poison": {
       changes: [
-        DDBEnricherMixin.generateUnsignedAddChange("poison", 20, "system.traits.dr.value"),
+        DDBEnricherData.generateUnsignedAddChange("poison", 20, "system.traits.dr.value"),
       ],
     },
     "Shield": {
       changes: [
-        DDBEnricherMixin.generateSignedAddChange("5", 20, "system.attributes.ac.bonus"),
+        DDBEnricherData.generateSignedAddChange("5", 20, "system.attributes.ac.bonus"),
       ],
       tokenMagicChanges: [
-        DDBEnricherMixin.generateTokenMagicFXChange("water-field"),
+        DDBEnricherData.generateTokenMagicFXChange("water-field"),
       ],
       data: {
         "flags.dae.specialDuration": ["turnStart"],
@@ -257,35 +257,35 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
     },
     "Shield of Faith": {
       changes: [
-        DDBEnricherMixin.generateSignedAddChange("5", 20, "system.attributes.ac.bonus"),
+        DDBEnricherData.generateSignedAddChange("5", 20, "system.attributes.ac.bonus"),
       ],
       tokenMagicChanges: [
-        DDBEnricherMixin.generateTokenMagicFXChange("bloom"),
+        DDBEnricherData.generateTokenMagicFXChange("bloom"),
       ],
     },
     "Shining Smite": {
       name: "Shedding Light",
       atlChanges: [
-        DDBEnricherMixin.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '5'),
-        DDBEnricherMixin.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-        DDBEnricherMixin.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
-        DDBEnricherMixin.generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": "pulse", "speed": 3,"intensity": 1}'),
+        DDBEnricherData.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '5'),
+        DDBEnricherData.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+        DDBEnricherData.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+        DDBEnricherData.generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": "pulse", "speed": 3,"intensity": 1}'),
       ],
     },
     "Slow": {
       changes: [
-        DDBEnricherMixin.generateSignedAddChange("-2", 20, "system.attributes.ac.bonus"),
-        DDBEnricherMixin.generateSignedAddChange("-2", 20, "system.abilities.dex.bonuses.save"),
+        DDBEnricherData.generateSignedAddChange("-2", 20, "system.attributes.ac.bonus"),
+        DDBEnricherData.generateSignedAddChange("-2", 20, "system.abilities.dex.bonuses.save"),
       ],
       midiChanges: [
-        DDBEnricherMixin.generateCustomChange("/2", 20, "system.attributes.movement.all"),
+        DDBEnricherData.generateCustomChange("/2", 20, "system.attributes.movement.all"),
       ],
     },
     "Stoneskin": {
       changes: [
-        DDBEnricherMixin.generateUnsignedAddChange("bludgeoning", 0, "system.traits.dr.value"),
-        DDBEnricherMixin.generateUnsignedAddChange("piercing", 0, "system.traits.dr.value"),
-        DDBEnricherMixin.generateUnsignedAddChange("slashing", 0, "system.traits.dr.value"),
+        DDBEnricherData.generateUnsignedAddChange("bludgeoning", 0, "system.traits.dr.value"),
+        DDBEnricherData.generateUnsignedAddChange("piercing", 0, "system.traits.dr.value"),
+        DDBEnricherData.generateUnsignedAddChange("slashing", 0, "system.traits.dr.value"),
         // {
         //   key: "system.traits.dr.bypass",
         //   value: "mgc",
@@ -301,14 +301,14 @@ export default class DDBSpellEnricher extends DDBEnricherAbstract {
       },
     },
     "Warding Bond": () => {
-      const damageChanges = DDBEnricherMixin.allDamageTypes().map((type) => {
-        return DDBEnricherMixin.generateUnsignedAddChange(type, 0, "system.traits.dr.value");
+      const damageChanges = DDBEnricherData.allDamageTypes().map((type) => {
+        return DDBEnricherData.generateUnsignedAddChange(type, 0, "system.traits.dr.value");
       });
       return {
         changes: [
           ...damageChanges,
-          DDBEnricherMixin.generateSignedAddChange("1", 20, "system.attributes.ac.bonus"),
-          DDBEnricherMixin.generateSignedAddChange("1", 20, "system.bonuses.abilities.save"),
+          DDBEnricherData.generateSignedAddChange("1", 20, "system.attributes.ac.bonus"),
+          DDBEnricherData.generateSignedAddChange("1", 20, "system.bonuses.abilities.save"),
         ],
       };
     },

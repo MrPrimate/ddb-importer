@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class DreadfulStrike extends DDBEnricherMixin {
+export default class DreadfulStrike extends DDBEnricherData {
 
   get type() {
     return "damage";
@@ -14,7 +14,7 @@ export default class DreadfulStrike extends DDBEnricherMixin {
       activationCondition: "Once per turn",
       data: {
         damage: {
-          parts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 6, types: ["psychic"] })],
+          parts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 6, types: ["psychic"] })],
         },
         uses: {
           override: true,

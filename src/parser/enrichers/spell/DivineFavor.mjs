@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class DivineFavor extends DDBEnricherMixin {
+export default class DivineFavor extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -17,8 +17,8 @@ export default class DivineFavor extends DDBEnricherMixin {
     return [
       {
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange("1d4[radiant]", 0, "system.bonuses.mwak.damage"),
-          DDBEnricherMixin.generateUnsignedAddChange("1d4[radiant]", 0, "system.bonuses.rwak.damage"),
+          DDBEnricherData.generateUnsignedAddChange("1d4[radiant]", 0, "system.bonuses.mwak.damage"),
+          DDBEnricherData.generateUnsignedAddChange("1d4[radiant]", 0, "system.bonuses.rwak.damage"),
         ],
       },
     ];

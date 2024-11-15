@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class DefileGround extends DDBEnricherMixin {
+export default class DefileGround extends DDBEnricherData {
 
   get activity() {
     return {
@@ -29,7 +29,7 @@ export default class DefileGround extends DDBEnricherMixin {
           generateTarget: true,
           generateRange: false,
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               customFormula: "@scale.blighted.defile-ground.die",
               types: ["necrotic"],
             }),

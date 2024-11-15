@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class UndyingSentinel extends DDBEnricherMixin {
+export default class UndyingSentinel extends DDBEnricherData {
 
   get activity() {
     return {
@@ -11,7 +11,7 @@ export default class UndyingSentinel extends DDBEnricherMixin {
       activationType: "special",
       condition: "Reduced to 0 HP",
       data: {
-        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "3 * @classes.paladin.levels", types: ["healing"] }),
+        healing: DDBEnricherData.basicDamagePart({ customFormula: "3 * @classes.paladin.levels", types: ["healing"] }),
       },
     };
   }

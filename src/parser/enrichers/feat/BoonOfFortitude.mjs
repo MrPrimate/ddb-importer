@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class BoonOfFortitude extends DDBEnricherMixin {
+export default class BoonOfFortitude extends DDBEnricherData {
 
   get activity() {
     return {
@@ -11,7 +11,7 @@ export default class BoonOfFortitude extends DDBEnricherMixin {
       activationType: "special",
       activationCondition: "Once a turn",
       data: {
-        healing: DDBEnricherMixin.basicDamagePart({ bonus: "@abilities.con.mod", type: "healing" }),
+        healing: DDBEnricherData.basicDamagePart({ bonus: "@abilities.con.mod", type: "healing" }),
       },
     };
   }

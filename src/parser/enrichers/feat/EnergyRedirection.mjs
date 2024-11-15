@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class EnergyRedirection extends DDBEnricherMixin {
+export default class EnergyRedirection extends DDBEnricherData {
 
   get activity() {
     return {
@@ -16,7 +16,7 @@ export default class EnergyRedirection extends DDBEnricherMixin {
           },
         },
         damage: {
-          parts: [DDBEnricherMixin.basicDamagePart({ number: 2, denomination: 8, bonus: "@abilities.con.mod", types: DDBEnricherMixin.allDamageTypes() })],
+          parts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 8, bonus: "@abilities.con.mod", types: DDBEnricherData.allDamageTypes() })],
         },
       },
     };

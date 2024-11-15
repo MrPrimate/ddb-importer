@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class DazzlingFootwork extends DDBEnricherMixin {
+export default class DazzlingFootwork extends DDBEnricherData {
 
   get type() {
     return "enchant";
@@ -27,7 +27,7 @@ export default class DazzlingFootwork extends DDBEnricherMixin {
           transfer: true,
         },
         changes: [
-          DDBEnricherMixin.generateOverrideChange("unarmoredBard", 10, "system.attributes.ac.calc"),
+          DDBEnricherData.generateOverrideChange("unarmoredBard", 10, "system.attributes.ac.calc"),
         ],
         data: {
           "flags.ddbimporter.activityMatch": "No Activity",
@@ -36,11 +36,11 @@ export default class DazzlingFootwork extends DDBEnricherMixin {
       {
         type: "enchant",
         changes: [
-          DDBEnricherMixin.generateOverrideChange(`{} [Dazzling Footwork]`, 20, "name"),
-          DDBEnricherMixin.generateUnsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
-          DDBEnricherMixin.generateOverrideChange("dex", 20, "system.ability"),
-          DDBEnricherMixin.generateOverrideChange("true", 20, "system.damage.base.custom.enabled"),
-          DDBEnricherMixin.generateOverrideChange("@scale.dance.dazzling-footwork + @abilities.dex.mod", 20, "system.damage.base.custom.formula"),
+          DDBEnricherData.generateOverrideChange(`{} [Dazzling Footwork]`, 20, "name"),
+          DDBEnricherData.generateUnsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
+          DDBEnricherData.generateOverrideChange("dex", 20, "system.ability"),
+          DDBEnricherData.generateOverrideChange("true", 20, "system.damage.base.custom.enabled"),
+          DDBEnricherData.generateOverrideChange("@scale.dance.dazzling-footwork + @abilities.dex.mod", 20, "system.damage.base.custom.formula"),
         ],
         data: {
           "flags.ddbimporter.activityMatch": "Bardic Damage",

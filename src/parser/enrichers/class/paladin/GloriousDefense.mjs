@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class GloriousDefense extends DDBEnricherMixin {
+export default class GloriousDefense extends DDBEnricherData {
 
   get activity() {
     return {

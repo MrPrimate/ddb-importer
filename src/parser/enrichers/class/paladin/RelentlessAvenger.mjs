@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class RelentlessAvenger extends DDBEnricherMixin {
+export default class RelentlessAvenger extends DDBEnricherData {
 
   get activity() {
     return {
@@ -18,7 +18,7 @@ export default class RelentlessAvenger extends DDBEnricherMixin {
         durationSeconds: 6,
       },
       changes: [
-        DDBEnricherMixin.generateOverrideChange("0", 90, "system.attributes.movement.walk"),
+        DDBEnricherData.generateOverrideChange("0", 90, "system.attributes.movement.walk"),
       ],
     }];
   }

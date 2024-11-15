@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class BoonOfTheNightSpirit extends DDBEnricherMixin {
+export default class BoonOfTheNightSpirit extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -29,7 +29,7 @@ export default class BoonOfTheNightSpirit extends DDBEnricherMixin {
         "bludgeoning", "piercing", "slashing",
         "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "thunder",
       ].map((element) =>
-        DDBEnricherMixin.generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
+        DDBEnricherData.generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
       ),
       activityMatch: "Shadowy Form",
     };

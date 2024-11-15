@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class BrutalCritical extends DDBEnricherMixin {
+export default class BrutalCritical extends DDBEnricherData {
 
   get effects() {
     return [
@@ -10,7 +10,7 @@ export default class BrutalCritical extends DDBEnricherMixin {
           transfer: true,
         },
         changes: [
-          DDBEnricherMixin.generateSignedAddChange("+1", 20, "flags.dnd5e.meleeCriticalDamageDice"),
+          DDBEnricherData.generateSignedAddChange("+1", 20, "flags.dnd5e.meleeCriticalDamageDice"),
         ],
       },
     ];

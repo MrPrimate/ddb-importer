@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class ArmorOfAgathys extends DDBEnricherMixin {
+export default class ArmorOfAgathys extends DDBEnricherData {
 
   get type() {
     return "heal";
@@ -20,7 +20,7 @@ export default class ArmorOfAgathys extends DDBEnricherMixin {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          damageParts: [DDBEnricherMixin.basicDamagePart({ bonus: "5", type: "cold", scalingFormula: "5", scalingMode: "whole" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ bonus: "5", type: "cold", scalingFormula: "5", scalingMode: "whole" })],
           noeffect: true,
         },
       },

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class Hex extends DDBEnricherMixin {
+export default class Hex extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -26,7 +26,7 @@ export default class Hex extends DDBEnricherMixin {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 6, type: "necrotic" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, type: "necrotic" })],
           noeffect: true,
           activationOverride: { type: "", condition: "When you hit creature with attack" },
         },

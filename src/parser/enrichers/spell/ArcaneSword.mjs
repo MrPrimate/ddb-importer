@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class ArcaneSword extends DDBEnricherMixin {
+export default class ArcaneSword extends DDBEnricherData {
 
   get type() {
     return "summon";

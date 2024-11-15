@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class BolsteringPerformance extends DDBEnricherMixin {
+export default class BolsteringPerformance extends DDBEnricherData {
 
   get activity() {
     return {
@@ -15,7 +15,7 @@ export default class BolsteringPerformance extends DDBEnricherMixin {
           value: 30,
           units: "feet",
         },
-        healing: DDBEnricherMixin.basicDamagePart({ bonus: "@details.level + @abilities.wis.mod", type: "temphp" }),
+        healing: DDBEnricherData.basicDamagePart({ bonus: "@details.level + @abilities.wis.mod", type: "temphp" }),
       },
     };
   }

@@ -1,14 +1,14 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class Stormborn extends DDBEnricherMixin {
+export default class Stormborn extends DDBEnricherData {
 
   get effects() {
     return [
       this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-      DDBEnricherMixin.generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
-      DDBEnricherMixin.generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
-      DDBEnricherMixin.generateUnsignedAddChange("thunder", 20, "system.traits.dr.value"),
+      DDBEnricherData.generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
+      DDBEnricherData.generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
+      DDBEnricherData.generateUnsignedAddChange("thunder", 20, "system.traits.dr.value"),
     ];
   }
 

@@ -1,14 +1,14 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class Barkskin extends DDBEnricherMixin {
+export default class Barkskin extends DDBEnricherData {
 
   get effects() {
     if (this.is2014) {
       return [
         {
           changes: [
-            DDBEnricherMixin.generateUpgradeChange("16", 100, "system.attributes.ac.min"),
+            DDBEnricherData.generateUpgradeChange("16", 100, "system.attributes.ac.min"),
           ],
         },
       ];
@@ -16,7 +16,7 @@ export default class Barkskin extends DDBEnricherMixin {
       return [
         {
           changes: [
-            DDBEnricherMixin.generateUpgradeChange("17", 100, "system.attributes.ac.min"),
+            DDBEnricherData.generateUpgradeChange("17", 100, "system.attributes.ac.min"),
           ],
         },
       ];

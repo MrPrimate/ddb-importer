@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { utils } from "../../../../lib/_module.mjs";
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class SuperiorHuntersDefense extends DDBEnricherMixin {
+export default class SuperiorHuntersDefense extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -16,14 +16,14 @@ export default class SuperiorHuntersDefense extends DDBEnricherMixin {
   }
 
   get effects() {
-    const multiple = DDBEnricherMixin.allDamageTypes().map((damage) => {
+    const multiple = DDBEnricherData.allDamageTypes().map((damage) => {
       return {
         name: `Superior Hunter's Defense: Resistance to ${utils.capitalize(damage)}`,
         options: {
           durationSeconds: 6,
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange(damage, 20, "system.traits.dr.value"),
+          DDBEnricherData.generateUnsignedAddChange(damage, 20, "system.traits.dr.value"),
         ],
       };
     });

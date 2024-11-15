@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class DiamondSoul extends DDBEnricherMixin {
+export default class DiamondSoul extends DDBEnricherData {
 
   get effects() {
     return [
@@ -10,7 +10,7 @@ export default class DiamondSoul extends DDBEnricherMixin {
           transfer: true,
         },
         changes: [
-          DDBEnricherMixin.generateOverrideChange("true", 20, "flags.dnd5e.diamondSoul"),
+          DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.diamondSoul"),
         ],
       },
     ];

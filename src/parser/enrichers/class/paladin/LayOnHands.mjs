@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class LayOnHands extends DDBEnricherMixin {
+export default class LayOnHands extends DDBEnricherData {
 
   get activity() {
     return {
@@ -15,7 +15,7 @@ export default class LayOnHands extends DDBEnricherMixin {
           allowed: true,
           max: "@item.uses.max - @item.uses.spent",
         },
-        healing: DDBEnricherMixin.basicDamagePart({ bonus: "1", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
+        healing: DDBEnricherData.basicDamagePart({ bonus: "1", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
       },
     };
   }

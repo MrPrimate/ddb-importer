@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class CelestialRevelationRadiantConsumption extends DDBEnricherMixin {
+export default class CelestialRevelationRadiantConsumption extends DDBEnricherData {
 
   get type() {
     return "damage";
@@ -11,7 +11,7 @@ export default class CelestialRevelationRadiantConsumption extends DDBEnricherMi
     return {
       activationType: "special",
       damageParts: [
-        DDBEnricherMixin.basicDamagePart({ customFormula: "@prof", type: "radiant" }),
+        DDBEnricherData.basicDamagePart({ customFormula: "@prof", type: "radiant" }),
       ],
     };
   }

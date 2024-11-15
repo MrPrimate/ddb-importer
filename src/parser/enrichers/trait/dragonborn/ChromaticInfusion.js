@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { utils } from "../../../../lib/_module.mjs";
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class ChromaticInfusion extends DDBEnricherMixin {
+export default class ChromaticInfusion extends DDBEnricherData {
 
   get type() {
     return "enchant";
@@ -35,8 +35,8 @@ export default class ChromaticInfusion extends DDBEnricherMixin {
           img: element.img,
         },
         changes: [
-          DDBEnricherMixin.generateOverrideChange(`{} [Chromatic Infusion ${utils.capitalize(element.type)}]`, 20, "name"),
-          DDBEnricherMixin.generateUnsignedAddChange(`[["1d4", "${element.type}"]]`, 20, "system.damage.parts"),
+          DDBEnricherData.generateOverrideChange(`{} [Chromatic Infusion ${utils.capitalize(element.type)}]`, 20, "name"),
+          DDBEnricherData.generateUnsignedAddChange(`[["1d4", "${element.type}"]]`, 20, "system.damage.parts"),
         ],
       };
     });

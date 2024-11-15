@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class Overchannel extends DDBEnricherMixin {
+export default class Overchannel extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -49,7 +49,7 @@ export default class Overchannel extends DDBEnricherMixin {
             },
             damage: {
               parts: [
-                DDBEnricherMixin.basicDamagePart({
+                DDBEnricherData.basicDamagePart({
                   customFormula: "(2 + @activity.uses.spent - 1)d12",
                   types: ["necrotic"],
                 }),

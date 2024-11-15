@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class CircletOfBlasting extends DDBEnricherMixin {
+export default class CircletOfBlasting extends DDBEnricherData {
 
   customFunction({ name, activity }) {
     if (name === "Scorching Ray") {

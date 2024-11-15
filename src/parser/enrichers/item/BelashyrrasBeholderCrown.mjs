@@ -1,13 +1,13 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class BelashyrrasBeholderCrown extends DDBEnricherMixin {
+export default class BelashyrrasBeholderCrown extends DDBEnricherData {
 
   get effects() {
     return [
       {
         changes: [
-          DDBEnricherMixin.generateUpgradeChange(120, 10, "system.attributes.senses.darkvision"),
+          DDBEnricherData.generateUpgradeChange(120, 10, "system.attributes.senses.darkvision"),
         ],
       },
     ];

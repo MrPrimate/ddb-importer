@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class CreateThrall extends DDBEnricherMixin {
+export default class CreateThrall extends DDBEnricherData {
 
   get type() {
     return "damage";
@@ -14,7 +14,7 @@ export default class CreateThrall extends DDBEnricherMixin {
       activationType: "special",
       activationCondition: "1/turn. Thrall hits creature under your hex",
       damageParts: [
-        DDBEnricherMixin.basicDamagePart({
+        DDBEnricherData.basicDamagePart({
           customFormula: "@abilities.cha.mod",
           types: ["psychic"],
         }),
@@ -42,7 +42,7 @@ export default class CreateThrall extends DDBEnricherMixin {
               type: "creature",
             },
           },
-          headlingPart: DDBEnricherMixin.basicDamagePart({
+          headlingPart: DDBEnricherData.basicDamagePart({
             customFormula: "@abilities.cha.mod + @classes.warlock.levels",
             types: ["temphp"],
           }),

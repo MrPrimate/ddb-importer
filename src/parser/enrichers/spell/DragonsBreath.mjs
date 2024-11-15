@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class DragonsBreath extends DDBEnricherMixin {
+export default class DragonsBreath extends DDBEnricherData {
 
   get activity() {
     return {
@@ -9,7 +9,7 @@ export default class DragonsBreath extends DDBEnricherMixin {
         damage: {
           onSave: "half",
           parts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               number: 3,
               denomination: 6,
               types: ["acid", "cold", "fire", "lightning", "poison"],

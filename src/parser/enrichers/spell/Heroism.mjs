@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class Heroism extends DDBEnricherMixin {
+export default class Heroism extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -27,7 +27,7 @@ export default class Heroism extends DDBEnricherMixin {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          healingPart: DDBEnricherMixin.basicDamagePart({ customFormula: "@mod", type: "temphp" }),
+          healingPart: DDBEnricherData.basicDamagePart({ customFormula: "@mod", type: "temphp" }),
           noeffect: true,
           activationOverride: { type: "spec", condition: "Start of each creatures turn" },
           durationOverride: {
@@ -46,7 +46,7 @@ export default class Heroism extends DDBEnricherMixin {
           description: "Gain temp hp at the start of your turn",
         },
         changes: [
-          DDBEnricherMixin.generateUnsignedAddChange("frightened", 20, "system.traits.ci.value"),
+          DDBEnricherData.generateUnsignedAddChange("frightened", 20, "system.traits.ci.value"),
         ],
       },
     ];

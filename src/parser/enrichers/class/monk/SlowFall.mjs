@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class SlowFall extends DDBEnricherMixin {
+export default class SlowFall extends DDBEnricherData {
 
   get type() {
     if (this.is2014) return null;
@@ -14,7 +14,7 @@ export default class SlowFall extends DDBEnricherMixin {
       activationType: "reaction",
       targetType: "self",
       data: {
-        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "@classes.sorcerer.levels", types: ["healing"] }),
+        healing: DDBEnricherData.basicDamagePart({ customFormula: "@classes.sorcerer.levels", types: ["healing"] }),
       },
     };
   }

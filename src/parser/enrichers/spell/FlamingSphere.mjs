@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class FlamingSphere extends DDBEnricherMixin {
+export default class FlamingSphere extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -24,6 +24,7 @@ export default class FlamingSphere extends DDBEnricherMixin {
         generateSave: true,
         generateActivation: false,
         generateConsumption: false,
+        noSpellslot: true,
       },
     }];
   }

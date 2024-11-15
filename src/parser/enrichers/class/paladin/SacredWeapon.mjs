@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class SacredWeapon extends DDBEnricherMixin {
+export default class SacredWeapon extends DDBEnricherData {
 
   get activity() {
     return {
@@ -75,8 +75,8 @@ export default class SacredWeapon extends DDBEnricherMixin {
         },
         descriptionSuffix: `<br><p>[[/ddbifunc functionName="sacredWeaponLight2024" functionType="feat"]]{Toggle Sacred Weapon Light}</div></p>`,
         changes: [
-          DDBEnricherMixin.generateOverrideChange("@abilities.cha.mod", 20, "attack.bonus"),
-          DDBEnricherMixin.generateUnsignedAddChange("radiant", 20, "damage.base.types"),
+          DDBEnricherData.generateOverrideChange("@abilities.cha.mod", 20, "attack.bonus"),
+          DDBEnricherData.generateUnsignedAddChange("radiant", 20, "damage.base.types"),
         ],
         options: {
           name: "Sacred Weapon",

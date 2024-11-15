@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class Healer extends DDBEnricherMixin {
+export default class Healer extends DDBEnricherData {
 
   get activity() {
     if (this.is2024) {
@@ -14,7 +14,7 @@ export default class Healer extends DDBEnricherMixin {
         activationType: "special",
         activationCondition: "Use a healers kit to stabalize a creature",
         data: {
-          healing: DDBEnricherMixin.basicDamagePart({ bonus: "1", type: "healing" }),
+          healing: DDBEnricherData.basicDamagePart({ bonus: "1", type: "healing" }),
         },
       };
     }
@@ -33,7 +33,7 @@ export default class Healer extends DDBEnricherMixin {
               generateDamage: false,
               generateHealing: true,
               generateRange: true,
-              healingPart: DDBEnricherMixin.basicDamagePart({ number: 1, denomination: die, bonus: "@prof", type: "healing" }),
+              healingPart: DDBEnricherData.basicDamagePart({ number: 1, denomination: die, bonus: "@prof", type: "healing" }),
             },
           };
         });

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class ImprovedBrutalStrike extends DDBEnricherMixin {
+export default class ImprovedBrutalStrike extends DDBEnricherData {
 
   get type() {
     return "damage";
@@ -14,7 +14,7 @@ export default class ImprovedBrutalStrike extends DDBEnricherMixin {
       name: "Staggering Blow",
       data: {
         damage: {
-          parts: [DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
+          parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
         },
       },
     };
@@ -31,7 +31,7 @@ export default class ImprovedBrutalStrike extends DDBEnricherMixin {
           generateActivation: true,
           generateDamage: true,
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" }),
+            DDBEnricherData.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" }),
           ],
         },
       },

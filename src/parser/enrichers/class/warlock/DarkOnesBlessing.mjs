@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class DarkOnesBlessing extends DDBEnricherMixin {
+export default class DarkOnesBlessing extends DDBEnricherData {
 
   get type() {
     return "heal";
@@ -12,7 +12,7 @@ export default class DarkOnesBlessing extends DDBEnricherMixin {
       targetType: "self",
       activationCondition: "Reduce an enemy to 0 HP",
       data: {
-        healing: DDBEnricherMixin.basicDamagePart({
+        healing: DDBEnricherData.basicDamagePart({
           customFormula: "@abilities.cha.mod + @classes.warlock.levels",
           types: ["temphp"],
         }),

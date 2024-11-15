@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class HuntersMark extends DDBEnricherMixin {
+export default class HuntersMark extends DDBEnricherData {
 
   get type() {
     return "utility"; // activity type - if type is none, activity hit will be generally undefined
@@ -17,7 +17,7 @@ export default class HuntersMark extends DDBEnricherMixin {
 
   get additionalActivities() {
     const damageTypes = this.is2014
-      ? DDBEnricherMixin.allDamageTypes()
+      ? DDBEnricherData.allDamageTypes()
       : ["force"];
 
     const hasFoeSlayer = this.is2024 && this.hasClassFeature({ featureName: "Foe Slayer", className: "Ranger" });
@@ -39,7 +39,7 @@ export default class HuntersMark extends DDBEnricherMixin {
           onsave: false,
           noeffect: true,
           activationOverride: { type: "", condition: "When you hit creature with attack" },
-          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination, types: damageTypes, scalingFormula: "" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination, types: damageTypes, scalingFormula: "" })],
         },
       },
     ];

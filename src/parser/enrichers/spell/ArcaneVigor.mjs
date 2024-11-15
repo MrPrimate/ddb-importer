@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class ArcaneVigor extends DDBEnricherMixin {
+export default class ArcaneVigor extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -26,7 +26,7 @@ export default class ArcaneVigor extends DDBEnricherMixin {
             generateHealing: true,
             generateRange: true,
             generateConsumption: true,
-            healingPart: DDBEnricherMixin.basicDamagePart({
+            healingPart: DDBEnricherData.basicDamagePart({
               number: 2,
               denomination: die,
               bonus: "@mod",

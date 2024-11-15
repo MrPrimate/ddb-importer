@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class Sleep extends DDBEnricherMixin {
+export default class Sleep extends DDBEnricherData {
 
   get type() {
     return this.is2014 ? "utility" : null;

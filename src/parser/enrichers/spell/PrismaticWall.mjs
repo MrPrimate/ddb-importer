@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class PrismaticWall extends DDBEnricherMixin {
+export default class PrismaticWall extends DDBEnricherData {
 
   get type() {
     return "utility";
@@ -87,7 +87,7 @@ export default class PrismaticWall extends DDBEnricherMixin {
             affects: { type: "creature" },
             template: {},
           },
-          damageParts: [DDBEnricherMixin.basicDamagePart({ number: 1, denomination: 6, types: ["fire", "acid", "lightning", "poison", "cold"] })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, types: ["fire", "acid", "lightning", "poison", "cold"] })],
         },
       },
     ];

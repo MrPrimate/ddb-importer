@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class BloodFuryTattoo extends DDBEnricherMixin {
+export default class BloodFuryTattoo extends DDBEnricherData {
 
   get type() {
     return "damage";

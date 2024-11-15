@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class ChannelDivinity extends DDBEnricherMixin {
+export default class ChannelDivinity extends DDBEnricherData {
 
   get _activityCleric2024() {
     return {
@@ -9,7 +9,7 @@ export default class ChannelDivinity extends DDBEnricherMixin {
       name: "Divine Spark (Healing)",
       targetType: "creature",
       data: {
-        healing: DDBEnricherMixin.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8", types: ["healing"] }),
+        healing: DDBEnricherData.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8", types: ["healing"] }),
         range: {
           value: "30",
           units: "ft",
@@ -58,7 +58,7 @@ export default class ChannelDivinity extends DDBEnricherMixin {
             dc: { calculation: "wis", formula: "" },
           },
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8", types: ["radiant", "necrotic"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8", types: ["radiant", "necrotic"] }),
           ],
           onSave: "half",
           rangeOverride: {

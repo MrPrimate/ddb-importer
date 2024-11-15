@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class SpiritualWeapon extends DDBEnricherMixin {
+export default class SpiritualWeapon extends DDBEnricherData {
   get type() {
     return "utility";
   }
@@ -35,7 +35,7 @@ export default class SpiritualWeapon extends DDBEnricherMixin {
           onsave: false,
           noSpellslot: true,
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               number: 1,
               denomination: 8,
               type: "force",

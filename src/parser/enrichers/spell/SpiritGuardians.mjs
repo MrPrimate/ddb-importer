@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class SpiritGuardians extends DDBEnricherMixin {
+export default class SpiritGuardians extends DDBEnricherData {
   get type() {
     return "utility";
   }
@@ -24,7 +24,7 @@ export default class SpiritGuardians extends DDBEnricherMixin {
           generateSave: true,
           onSave: "half",
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               number: 3,
               denomination: 8,
               types: ["necrotic", "radiant"],

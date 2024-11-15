@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherMixin from "../mixins/DDBEnricherMixin.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class VitriolicSphere extends DDBEnricherMixin {
+export default class VitriolicSphere extends DDBEnricherData {
   get type() {
     return "save";
   }
@@ -13,7 +13,7 @@ export default class VitriolicSphere extends DDBEnricherMixin {
         damage: {
           onSave: "half",
           parts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               number: 10,
               denomination: 4,
               type: "acid",
@@ -55,7 +55,7 @@ export default class VitriolicSphere extends DDBEnricherMixin {
           activationOverride: { type: "spec", condition: "End of next turn" },
           durationOverride: { units: "inst", concentration: false },
           damageParts: [
-            DDBEnricherMixin.basicDamagePart({
+            DDBEnricherData.basicDamagePart({
               number: 5,
               denomination: 4,
               type: "acid",
