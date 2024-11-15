@@ -1,4 +1,4 @@
-import DDBHelper from "../../lib/DDBHelper.js";
+import { DDBHelper } from "../../lib/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
 
 DDBMonster.prototype._generateSource = function _generateSource() {

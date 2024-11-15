@@ -1,6 +1,5 @@
-import DDBHelper from "../../lib/DDBHelper.js";
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { logger, utils, DDBTable, DDBReferenceLinker, CompendiumHelper } from "../../lib/_module.mjs";
+import { logger, utils, DDBTable, DDBReferenceLinker, CompendiumHelper, DDBHelper } from "../../lib/_module.mjs";
 import { baseSpellEffect, spellEffectAdjustment } from "../../effects/specialSpells.js";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
 import { DDBSpellActivity } from "../activities/_module.mjs";

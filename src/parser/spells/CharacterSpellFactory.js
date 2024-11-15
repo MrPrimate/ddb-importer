@@ -1,6 +1,5 @@
 /* eslint-disable no-continue */
-import { utils, logger } from "../../lib/_module.mjs";
-import DDBHelper from "../../lib/DDBHelper.js";
+import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";
