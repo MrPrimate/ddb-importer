@@ -91,12 +91,9 @@ export default class DDBEffectHelper {
       if (foundry.utils.hasProperty(data, "flags.ActiveAuras")) delete data.flags.ActiveAuras;
 
       if (DICTIONARY.types.inventory.includes(data.type)) {
-        // KNOWN_ISSUE_4_0 equipmentEffectAdjustment(data); // removed, no longer called
         data = await midiItemEffects(data);
-        // KNOWN_ISSUE_4_0: fix items removed here, this is now included earlier in teh item parser
       } else if (data.type === "spell") {
         data = await spellEffectAdjustment(data, true);
-        // await fixSpells(null, [data]); //moved into parsing
       } else if (data.type === "feat") {
         const mockCharacter = {
           system: utils.getTemplate("character"),
@@ -116,7 +113,6 @@ export default class DDBEffectHelper {
           },
         };
 
-        // KNOWN_ISSUE_4_0 await fixFeatures([data]); // removed, no longer called
         data = (await addExtraEffects(null, [data], mockCharacter))[0];
       }
 

@@ -17,12 +17,19 @@ import DDBMacros from "../effects/DDBMacros.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 
-function getSpellData(className, sourceFilter) {
+function getSpellData(className, sourceFilter, rulesVersion = null) {
   const cobaltCookie = Secrets.getCobalt();
   const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
-  const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
+  const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
+  const body = {
+    cobalt: cobaltCookie,
+    campaignId,
+    betaKey,
+    className,
+    rulesVersion: rulesVersion ?? (excludeLegacy ? "2024" : "2014"),
+  };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
   const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
   const sources = enableSources
@@ -119,7 +126,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
 
   DDBMuncher.munchNote("Parsing spell data.");
 
-  const excludeLegacy = game.settings.get("ddb-importer", "munching-policy-exclude-legacy");
+  const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
 
   const filteredResults = results
     .filter((r) => !excludeLegacy || (excludeLegacy && !r.definition.isLegacy))
