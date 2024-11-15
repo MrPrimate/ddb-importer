@@ -1,5 +1,6 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { utils } from "../../lib/_module.mjs";
+import SpellListFactory from "../../parser/spells/SpellListFactory.mjs";
 
 function addLanguages() {
   if (!game.settings.get(SETTINGS.MODULE_ID, "add-ddb-languages")) return;
@@ -43,7 +44,13 @@ function addSources() {
   Object.assign(CONFIG.DND5E.sourceBooks, sources);
 }
 
+function addSpellLists() {
+  const spellListFactory = new SpellListFactory();
+  spellListFactory.registerSpellLists();
+}
+
 export default function addDDBConfig() {
   addLanguages();
   addSources();
+  addSpellLists();
 }

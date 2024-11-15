@@ -169,6 +169,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   logger.debug("Starting Spell List Generation");
   DDBMuncher.munchNote(`Generating Spell List Journals...`, true);
   await spellListFactory.buildSpellLists();
+  await spellListFactory.registerSpellLists();
   logger.debug("Spell List Generation Complete");
 
   return updateResults;

@@ -1,4 +1,3 @@
-import SETTINGS from "../../config/settings.mjs";
 import { CompendiumHelper, DDBHelper, logger, utils } from "../../lib/_module.mjs";
 
 const BASE_CLASS_PAGE = {
@@ -28,6 +27,7 @@ const BASE_CLASS_PAGE = {
     default: -1,
   },
   flags: {
+    ddbimporter: {},
     dnd5e: {
       tocHidden: true,
     },
@@ -159,12 +159,12 @@ export default class SpellListFactory {
 
     this.#generateUuidLists(className);
 
-    console.warn(`Spell List Data for ${className}`, {
-      spellListsData: this.spellListsData[className],
-      spellData,
-      uuidList: this.uuidLists,
-      this: this,
-    })
+    // console.warn(`Spell List Data for ${className}`, {
+    //   spellListsData: this.spellListsData[className],
+    //   spellData,
+    //   uuidList: this.uuidLists,
+    //   this: this,
+    // })
 
     foundry.utils.setProperty(CONFIG, "DDBI.SPELL_LISTS", this.spellListsData);
   }
@@ -284,6 +284,26 @@ export default class SpellListFactory {
       for (const className of SpellListFactory.CLASS_NAMES) {
         await this.#generateJournalClassPage(journal, className, source);
       }
+    }
+  }
+
+  async registerSpellLists() {
+    await this.init();
+
+    const spellListJournals = this.journalCompendium.index.filter((j) =>
+      j.flags?.ddbimporter?.type === this.spellListJournalFlagName,
+    );
+
+    const pages = [];
+
+    for (const journal of spellListJournals) {
+      const journalEntry = await this.journalCompendium.getDocument(journal._id);
+      const spellListPages = journalEntry.pages.filter((p) => p.type === "spells");
+      pages.push(...spellListPages.map((p) => p.uuid));
+    }
+
+    for (const page of pages) {
+      dnd5e.registry.spellLists.register(page);
     }
   }
 
