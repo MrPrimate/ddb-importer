@@ -14,6 +14,7 @@ const scopeParameters = JSON.parse(scope.parameters ?? "\{\}");
 const flag = scopeParameters.flag ?? "light";
 const flagData = foundry.utils.getProperty(actor, `flags.world.${flag}`);
 
+const darkness = scopeParameters.darkness ?? false;
 const lightConfig = scopeParameters.lightConfig ?? {};
 const targetsToken = scopeParameters.targetsToken ?? false;
 const distance = scopeParameters.distance ?? 15;
@@ -32,7 +33,9 @@ console.warn("MACRO CALL", {
   targetsToken,
   distance,
   lightConfig,
-})
+  scopeParameters,
+  darkness,
+});
 
 async function placeTemplate({ origin, parentActor, distance, flag } = {}) {
   Hooks.once("createMeasuredTemplate", async (template) => {
@@ -44,6 +47,7 @@ async function placeTemplate({ origin, parentActor, distance, flag } = {}) {
       distance: template.distance,
       parentActorId: parentActor.id,
       lightConfig,
+      darkness,
       isTemplate: true,
       flag,
     };
@@ -67,7 +71,7 @@ async function placeTemplate({ origin, parentActor, distance, flag } = {}) {
     fillColor: game.user.color,
     flags: {
       spellEffects: {
-        Darkness: {
+        Light: {
           ActorId: parentActor.id,
         },
       },
@@ -110,6 +114,7 @@ if (isOff) {
     const params = {
       parentActorId: parentActor.id,
       lightConfig,
+      darkness,
       targetsToken: true,
       flag,
       targetTokenUuids: targetTokenUuids,
