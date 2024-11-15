@@ -37,12 +37,6 @@ export default class HungerOfHadar extends DDBEnricherData {
           noSpellslot: true,
           generateDuration: true,
           durationOverride: { units: "inst", concentration: false },
-        },
-        overrides: {
-          targetType: "creature",
-          activationType: "special",
-          activationCondition: "Start of turn",
-          noTemplate: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({
               number: 2,
@@ -52,6 +46,12 @@ export default class HungerOfHadar extends DDBEnricherData {
               scalingNumber: this.is2014 ? "" : "1",
             }),
           ],
+        },
+        overrides: {
+          targetType: "creature",
+          activationType: "special",
+          activationCondition: "Start of turn",
+          noTemplate: true,
         },
       },
       {
@@ -67,12 +67,6 @@ export default class HungerOfHadar extends DDBEnricherData {
           noSpellslot: true,
           generateDuration: true,
           durationOverride: { units: "inst", concentration: false },
-        },
-        overrides: {
-          targetType: "creature",
-          activationType: "special",
-          activationCondition: "End of turn",
-          noTemplate: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({
               number: 2,
@@ -82,6 +76,12 @@ export default class HungerOfHadar extends DDBEnricherData {
               scalingNumber: this.is2014 ? "" : "1",
             }),
           ],
+        },
+        overrides: {
+          targetType: "creature",
+          activationType: "special",
+          activationCondition: "End of turn",
+          noTemplate: true,
         },
       },
     ];
