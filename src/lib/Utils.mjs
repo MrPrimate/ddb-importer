@@ -407,7 +407,16 @@ export default class Utils {
       case "weapon":
         return game.dnd5e.dataModels.item.WeaponData.schema.initial();
       case "journalpage":
+      case "classjournalpage":
         return game.dnd5e.dataModels.journal.ClassJournalPageData.schema.initial();
+      case "spelllistjournalpage":
+        return game.dnd5e.dataModels.journal.SpellListJournalPageData.schema.initial();
+      case "maplocationjournalpage":
+        return game.dnd5e.dataModels.journal.MapLocationJournalPageData.schema.initial();
+      case "subclassjournalpage":
+        return game.dnd5e.dataModels.journal.SubClassJournalPageData.schema.initial();
+      case "rulejournalpage":
+        return game.dnd5e.dataModels.journal.RuleJournalPageData.schema.initial();
       case "dnd-tashas-cauldron.tattoo":
       case "tattoo":
         return CONFIG.Item.dataModels["dnd-tashas-cauldron.tattoo"].schema.initial();
