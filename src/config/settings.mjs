@@ -140,7 +140,7 @@ const COMPENDIUMS = [
     setting: "entity-journal-compendium",
     type: "JournalEntry",
     image: "https://media.dndbeyond.com/mega-menu/4af3d4c196428ab0809cf71d332d540d.png",
-    auto: false,
+    auto: true,
     types: [],
   },
   {
@@ -425,6 +425,7 @@ const SETTINGS = {
   COMPENDIUM_REMOVE_FLAGS,
   ADVENTURE_FLAG: "isDDBAdventure",
   ADVENTURE_CSS: "ddbAdventure",
+  NO_SOURCE_MATCH_IDS: [1, 148], // Basic rules and free-rules
   COMPANIONS: {
     COMPANION_FEATURES,
     COMPANION_SPELLS,
