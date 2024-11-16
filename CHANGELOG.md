@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.42
 
 - Prevent Generation of Empty Spell Lists
 - Rings will now import as ring equipment type
