@@ -40,5 +40,4 @@ import "./character/resources.js";
 import "./character/inventory.js";
 import "./character/globalBonuses.js";
 import "./character/special/special.js";
-
-import "./companions/companions.js";
+import "./character/companions.js";
