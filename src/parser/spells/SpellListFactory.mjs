@@ -1,3 +1,4 @@
+import SETTINGS from "../../config/settings.mjs";
 import { CompendiumHelper, DDBHelper, logger, utils } from "../../lib/_module.mjs";
 
 const BASE_CLASS_PAGE = {
@@ -288,7 +289,9 @@ export default class SpellListFactory {
 
     if (!this.sources) return;
 
-    for (const source of this.sources) {
+    const filteredSources = this.sources.filter((s) => !SETTINGS.NO_SOURCE_MATCH_IDS.includes(s.id));
+
+    for (const source of filteredSources) {
       if (!this.#sourceHasSpells(source)) continue;
       const journal = await this.#getSpellListJournal(source);
       for (const className of SpellListFactory.CLASS_NAMES) {
