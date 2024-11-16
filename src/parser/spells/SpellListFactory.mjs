@@ -50,7 +50,9 @@ export default class SpellListFactory {
 
   journalFolder = null;
 
-  uuidLists = {};
+  spellsBySourceAndClass = {};
+
+  uuidsBySourceAndClass = {};
 
   available = false;
 
@@ -88,9 +90,11 @@ export default class SpellListFactory {
     this.#buildSources();
 
     for (const source of this.sources) {
-      this.uuidLists[source.acronym] = {};
+      this.spellsBySourceAndClass[source.acronym] = {};
+      this.uuidsBySourceAndClass[source.acronym] = {};
       for (const className of SpellListFactory.CLASS_NAMES) {
-        this.uuidLists[source.acronym][className] = [];
+        this.spellsBySourceAndClass[source.acronym][className] = [];
+        this.uuidsBySourceAndClass[source.acronym][className] = [];
       }
     }
 
@@ -136,16 +140,16 @@ export default class SpellListFactory {
   static WIZARD_FILTER = ["Graviturgy", "Chronurgy"];
 
 
-  #generateUuidLists(className) {
+  #generateSpellsBySourceAndClass(className) {
     for (const source of this.sources) {
       for (const spell of this.spellListsData[className]) {
         if (spell.isHomebrew) {
-          this.uuidLists["Homebrew"][className].push(spell);
+          this.spellsBySourceAndClass["Homebrew"][className].push(spell);
           continue;
         }
         const sourceMatch = spell.sources.some((s) => s.id === source.id);
         if (!sourceMatch) continue;
-        this.uuidLists[source.acronym][className].push(spell);
+        this.spellsBySourceAndClass[source.acronym][className].push(spell);
       }
     }
   }
@@ -167,7 +171,7 @@ export default class SpellListFactory {
         };
       });
 
-    this.#generateUuidLists(className);
+    this.#generateSpellsBySourceAndClass(className);
 
     // console.warn(`Spell List Data for ${className}`, {
     //   spellListsData: this.spellListsData[className],
@@ -248,18 +252,8 @@ export default class SpellListFactory {
       logger.error(`Journal not found for ${source.label}`);
     }
 
-    if (this.uuidLists[source.acronym][className].length === 0) return;
-
-    const spells = [];
-
-    for (const spell of this.uuidLists[source.acronym][className]) {
-      const sourceMatch = this.spellCompendium.index.find((s) => s.flags?.ddbimporter?.definitionId === spell.id);
-      if (!sourceMatch) {
-        logger.debug(`Spell not found in spell compendium: ${spell.name} (${spell.id})`, { spell });
-        continue;
-      }
-      spells.push(sourceMatch.uuid);
-    }
+    if (this.uuidsBySourceAndClass[source.acronym][className].length === 0) return;
+    const spells = this.uuidsBySourceAndClass[source.acronym][className];
 
     if (spells.length === 0) return;
     const page = await this.#getJournalClassPage(journal, className, source);
@@ -276,9 +270,28 @@ export default class SpellListFactory {
 
   }
 
+  #generateUuidsBySourceAndClass() {
+    for (const source of this.sources) {
+      for (const className of SpellListFactory.CLASS_NAMES) {
+        const spells = new Set();
+        for (const spell of this.spellsBySourceAndClass[source.acronym][className]) {
+          const sourceMatch = this.spellCompendium.index.find((s) => s.flags?.ddbimporter?.definitionId === spell.id);
+          if (!sourceMatch) {
+            logger.debug(`Spell not found in spell compendium: ${spell.name} (${spell.id})`, { spell });
+            continue;
+          }
+          spells.add(sourceMatch.uuid);
+        }
+        this.uuidsBySourceAndClass[source.acronym][className] = Array.from(spells);
+      }
+    }
+  }
+
   #sourceHasSpells(source) {
     for (const className of SpellListFactory.CLASS_NAMES) {
-      if (this.uuidLists[source.acronym][className].length > 0) return true;
+      const spellNumber = this.uuidsBySourceAndClass[source.acronym][className].length;
+      if (spellNumber > 0) return true;
+      logger.debug(`Found ${spellNumber} Spells found for source "${source.label}" and class "${className}"`);
     }
     return false;
   }
@@ -289,10 +302,15 @@ export default class SpellListFactory {
 
     if (!this.sources) return;
 
+    this.#generateUuidsBySourceAndClass();
+
     const filteredSources = this.sources.filter((s) => !SETTINGS.NO_SOURCE_MATCH_IDS.includes(s.id));
 
     for (const source of filteredSources) {
-      if (!this.#sourceHasSpells(source)) continue;
+      if (!this.#sourceHasSpells(source)) {
+        logger.debug(`No Spells found for source "${source.label}"`);
+        continue;
+      }
       const journal = await this.#getSpellListJournal(source);
       for (const className of SpellListFactory.CLASS_NAMES) {
         await this.#generateJournalClassPage(journal, className, source);

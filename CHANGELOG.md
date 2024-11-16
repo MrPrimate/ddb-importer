@@ -1,3 +1,7 @@
+# Next Up
+
+- Prevent Generation of Empty Spell Lists
+
 # 6.0.41
 
 - Spell List generation could fail with certain option combinations.
