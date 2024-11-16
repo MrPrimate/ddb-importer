@@ -120,6 +120,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       armorType: null,
       name: null,
       custom: false,
+      earlyProperties: new Set(),
     };
 
     this.characterProficiencies = foundry.utils.getProperty(this.raw?.character, "flags.ddbimporter.dndbeyond.proficienciesIncludingEffects")
@@ -280,6 +281,10 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
     if (this.isCompendiumItem && legacyName && this.is2014) {
       this.data.name += " (Legacy)";
+    }
+
+    for (const value of Array.from(this.overrides.earlyProperties)) {
+      this.data.system.properties = utils.addToProperties(this.data.system.properties, value);
     }
 
     this.#addExtraDDBFlags();
@@ -705,9 +710,21 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       case "Holy Symbol":
       case "Druidic Focus":
         this.documentType = "equipment";
-        this.systemType.value = "trinket";
         this.parsingType = "wonderous";
         this.overrides.ddbType = this.ddbDefinition.subType;
+        this.overrides.earlyProperties.add("foc");
+        if (this.ddbDefinition.name.toLowerCase().includes("wand")) {
+          this.systemType.value = "wand";
+        } else if (this.ddbDefinition.name.toLowerCase().includes("rod")) {
+          this.systemType.value = "rod";
+        } else if (this.ddbDefinition.name.toLowerCase().includes("staff")) {
+          this.documentType = "weapon";
+          this.systemType.value = "simpleM";
+          this.systemType.baseItem = "quaterstaff";
+          this.parsingType = "weapon";
+        } else {
+          this.systemType.value = "trinket";
+        }
         break;
       case "Vehicle":
       case "Mount":
@@ -819,9 +836,10 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   #fallbackType() {
-    if (this.ddbDefinition.name.includes(" Ring")) {
+    if (this.ddbDefinition.name.includes(" Ring") || this.ddbDefinition.name.startsWith("Ring ")) {
       this.documentType = "equipment";
-      this.systemType.value = "trinket";
+      this.systemType.value = "ring";
+      this.overrides.armorType = "ring";
       this.parsingType = "wonderous";
       this.overrides.ddbType = "Ring";
     } else if (this.ddbDefinition.subType) {
@@ -907,13 +925,19 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         this.systemType.value = this.#getArmorType();
         this.parsingType = "armor";
         break;
-      case "Ring":
+      case "Ring": {
+        this.documentType = "equipment";
+        this.systemType.value = "ring";
+        this.overrides.armorType = "ring";
+        this.parsingType = "wonderous";
+        break;
+      }
       case "Wondrous item": {
         if ([
           "bead of",
           "dust of",
           "elemental gem",
-        ].some((consumablePrefix) => name.toLowerCase().startsWith(consumablePrefix.toLowerCase()))) {
+        ].some((consumablePrefix) => this.ddbDefinition.name.toLowerCase().startsWith(consumablePrefix.toLowerCase()))) {
           this.documentType = "consumable";
           this.systemType.value = "trinket";
           this.parsingType = "consumable";
@@ -947,6 +971,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         this.systemType.value = this.ddbDefinition.filterType.toLowerCase();
         this.parsingType = this.ddbDefinition.filterType.toLowerCase();
         this.overrides.ddbType = this.ddbDefinition.type;
+        this.overrides.earlyProperties.add("foc");
         break;
       case "Scroll":
         this.documentType = "consumable";
@@ -958,6 +983,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         this.documentType = "weapon";
         this.systemType.value = this.#getWeaponType();
         this.parsingType = "staff";
+        this.overrides.earlyProperties.add("foc");
         break;
       case "Potion":
         this.documentType = "consumable";
@@ -1535,7 +1561,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         autoUse: false,
       };
     }
-    this.data.system.uses.autoDestroy = !["wand", "trinket"].includes(this.systemType.value);
+    this.data.system.uses.autoDestroy = !["wand", "trinket", "ring"].includes(this.systemType.value);
   }
 
   targetsCreature() {
@@ -2119,6 +2145,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this._generateUses();
     this.#generateTargets();
     this.#generateDamageFromDescription();
+    this.data.system.properties = utils.addToProperties(this.data.system.properties, "foc");
   }
 
   #generateTypeSpecifics() {
@@ -2546,6 +2573,9 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   async #basicMagicItem() {
+    if ((/arcane focus|spellcasting focus/i).test(this.ddbDefinition.description)) {
+      this.data.system.properties = utils.addToProperties(this.data.system.properties, "foc");
+    }
     if (!this.ddbDefinition.magic) return;
 
     if (this.isPerSpell) {

@@ -836,6 +836,7 @@ const DICTIONARY = {
       wand: "Wand",
       rod: "Rod",
       trap: "Trap",
+      ring: "Ring",
     },
     WEAPON: {
       simpleM: "Simple Melee",

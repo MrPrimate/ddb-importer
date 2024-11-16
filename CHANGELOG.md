@@ -1,6 +1,8 @@
 # Next Up
 
 - Prevent Generation of Empty Spell Lists
+- Rings will now import as ring equipment type
+- Focus property will be added to focus items
 
 # 6.0.41
 
