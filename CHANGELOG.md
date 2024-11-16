@@ -1,3 +1,7 @@
+# 6.0.41
+
+- Spell List generation could fail with certain option combinations.
+
 # 6.0.40
 
 - Hunger of Hadar parsing fixes

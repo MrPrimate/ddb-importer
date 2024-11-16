@@ -51,6 +51,8 @@ export default class SpellListFactory {
 
   uuidLists = {};
 
+  available = false;
+
 
   #buildSources() {
     const ddbSources = foundry.utils.getProperty(CONFIG, "DDB.sources");
@@ -90,10 +92,17 @@ export default class SpellListFactory {
         this.uuidLists[source.acronym][className] = [];
       }
     }
+
+    if (this.journalCompendium && this.spellCompendium) {
+      this.available = true;
+    } else {
+      logger.error("Spell List Factory not available, check yur compendiums exist.");
+    }
   }
 
 
   async init() {
+    if (!this.available) return;
     await this.spellCompendium.getIndex({
       fields: ["name", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy"],
     });
@@ -245,7 +254,7 @@ export default class SpellListFactory {
     for (const spell of this.uuidLists[source.acronym][className]) {
       const sourceMatch = this.spellCompendium.index.find((s) => s.flags?.ddbimporter?.definitionId === spell.id);
       if (!sourceMatch) {
-        logger.warn(`Spell not found in spell compendium: ${spell.name} (${spell.definition.id})`, { spell, this: this });
+        logger.debug(`Spell not found in spell compendium: ${spell.name} (${spell.id})`, { spell });
         continue;
       }
       spells.push(sourceMatch.uuid);
@@ -274,6 +283,7 @@ export default class SpellListFactory {
   }
 
   async buildSpellLists() {
+    if (!this.available) return;
     await this.init();
 
     if (!this.sources) return;
@@ -288,6 +298,7 @@ export default class SpellListFactory {
   }
 
   async registerSpellLists() {
+    if (!this.available) return;
     await this.init();
 
     const spellListJournals = this.journalCompendium.index.filter((j) =>
