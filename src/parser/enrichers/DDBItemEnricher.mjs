@@ -2,11 +2,12 @@ import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
 import { ItemEnrichers } from "./_module.mjs";
 
 export default class DDBItemEnricher extends DDBEnricherMixin {
-  constructor({ activityGenerator } = {}) {
+  constructor({ activityGenerator, notifier = null } = {}) {
     super({
       activityGenerator,
       effectType: "item",
       enricherType: "item",
+      notifier,
     });
   }
 

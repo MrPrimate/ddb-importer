@@ -22,11 +22,12 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherMixin {
     this._getEnricherMatchesV2();
   }
 
-  constructor({ activityGenerator } = {}) {
+  constructor({ activityGenerator, notifier = null } = {}) {
     super({
       activityGenerator,
       effectType: "feat",
       enricherType: "monster",
+      notifier,
     });
   }
 

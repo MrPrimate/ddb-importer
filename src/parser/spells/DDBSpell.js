@@ -1,11 +1,11 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { logger, utils, DDBTable, DDBReferenceLinker, CompendiumHelper, DDBHelper } from "../../lib/_module.mjs";
 import { baseSpellEffect, spellEffectAdjustment } from "../../effects/specialSpells.js";
-import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
+import DDBCompanionFactory from "../companions/DDBCompanionFactory.mjs";
 import { DDBSpellActivity } from "../activities/_module.mjs";
 import { DDBSpellEnricher, mixins } from "../enrichers/_module.mjs";
 import { addStatusEffectChange } from "../../effects/effects.js";
-import DDBSummonsManager from "../companions/DDBSummonsManager.js";
+import DDBSummonsManager from "../companions/DDBSummonsManager.mjs";
 
 export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
@@ -99,14 +99,16 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     ddbData, spellData, rawCharacter = null, namePrefix = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
-    generateSummons = null,
+    generateSummons = null, notifier = null,
   } = {}) {
     super({
       enricher,
       activityGenerator: DDBSpellActivity,
       documentType: "spell",
+      notifier,
     });
 
+    this.notifier = notifier;
     this.ddbData = ddbData;
     this.spellData = spellData;
     this.ddbDefinition = spellData.definition;
@@ -161,7 +163,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this._generateDataStub();
 
     this.itemCompendium = CompendiumHelper.getCompendiumType("item", false);
-    this.enricher = enricher ?? new DDBSpellEnricher({ activityGenerator: DDBSpellActivity });
+    this.enricher = enricher ?? new DDBSpellEnricher({ activityGenerator: DDBSpellActivity, notifier: this.notifier });
     this._loadEnricher();
     this.isCompanionSpell = SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName);
     this.isCRSummonSpell = SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName);
@@ -687,6 +689,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       type: "spell",
       originDocument: this.data,
       is2014: this.is2014,
+      notifier: this.notifier,
     });
     await this.ddbCompanionFactory.parse();
     // always update compendium imports, but respect player import disable
@@ -925,7 +928,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   }
 
   static async parseSpell(data, character,
-    { namePrefix = null, namePostfix = null, ddbData = null, enricher = null, generateSummons = null } = {},
+    { namePrefix = null, namePostfix = null, ddbData = null, enricher = null, generateSummons = null, notifier = null } = {},
   ) {
     const spell = new DDBSpell({
       ddbData,
@@ -935,6 +938,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       namePostfix,
       enricher,
       generateSummons,
+      notifier,
     });
     await spell.init();
     await spell.parse();

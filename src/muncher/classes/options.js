@@ -1,6 +1,5 @@
-import { logger, DDBItemImporter } from "../../lib/_module.mjs";
+import { logger, DDBItemImporter, utils } from "../../lib/_module.mjs";
 import { getClassFeature, NO_TRAITS } from "./shared.js";
-import DDBMuncher from "../../apps/DDBMuncher.js";
 
 export async function getClassOptions(data, className) {
   logger.debug("get options started");
@@ -32,7 +31,7 @@ export async function getClassOptions(data, className) {
     removeSRDDuplicates: false,
     filterDuplicates: false,
     matchFlags: ["featureId"],
-    notifier: DDBMuncher.munchNote,
+    notifier: utils.munchNote,
   };
   await DDBItemImporter.buildHandler("features", classFeatures, updateBool, options);
 

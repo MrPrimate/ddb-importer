@@ -89,6 +89,7 @@ async function generateImportItems(items, notifier, itemSpells = []) {
 
   const spells = await GenericSpellFactory.getItemSpells(mockDDB, ddbCharacter.raw.character, {
     generateSummons: true,
+    notifier,
   });
   ddbCharacter.raw.itemSpells = spells;
 
@@ -108,7 +109,7 @@ async function generateImportItems(items, notifier, itemSpells = []) {
 
 function getItemData({ useSourceFilter = true, ids = [] } = {}) {
   const cobaltCookie = Secrets.getCobalt();
-  const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
+  const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, addSpells: true };
@@ -144,7 +145,7 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
           FileHelper.download(JSON.stringify(data), `items-raw.json`, "application/json");
         }
         if (!data.success) {
-          DDBMuncher.munchNote(`Failure: ${data.message}`);
+          utils.munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data.data;
@@ -229,14 +230,14 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
   }
 
-  DDBMuncher.munchNote("Downloading item data..");
+  utils.munchNote("Downloading item data..");
 
   // disable source filter if ids provided
   const sourceFilter = (ids === null || ids.length === 0) && useSourceFilter;
   const raw = await getItemData({ useSourceFilter: sourceFilter, ids });
 
   const characterInventory = getCharacterInventory(raw.items);
-  const results = await generateImportItems(characterInventory, DDBMuncher.munchNote, raw.spells);
+  const results = await generateImportItems(characterInventory, utils.munchNote, raw.spells);
 
   let items = results.items;
   // console.warn("spell imports", {
@@ -245,18 +246,18 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   //   characterInventory,
   // });
 
-  DDBMuncher.munchNote("Parsing item data..");
+  utils.munchNote("Parsing item data..");
 
   await Iconizer.preFetchDDBIconImages();
 
   const itemHandler = new DDBItemImporter("items", items, {
     deleteBeforeUpdate,
     matchFlags: ["is2014", "is2024"],
-    notifier: DDBMuncher.munchNote,
+    notifier: utils.munchNote,
   });
   await itemHandler.init();
   await itemHandler.srdFiddling();
-  DDBMuncher.munchNote(`Imps are creating iconographs for ${itemHandler.documents.length} possible items (this can take a while)`, true);
+  utils.munchNote(`Imps are creating iconographs for ${itemHandler.documents.length} possible items (this can take a while)`, true);
   await itemHandler.iconAdditions();
   const filteredItems = (ids !== null && ids.length > 0)
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
@@ -265,14 +266,14 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: vision5eItems, compendiumItem: true });
 
   const finalCount = itemHandler.documents.length;
-  DDBMuncher.munchNote(`Preparing to import ${finalCount} items!`, true);
+  utils.munchNote(`Preparing to import ${finalCount} items!`, true);
   logger.time("Item Import Time");
 
   const updateResults = await itemHandler.updateCompendium(updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
   logger.debug("Final Item Import Data", { finalItems: itemHandler.documents, updateResults, updatePromiseResults });
-  DDBMuncher.munchNote("");
+  utils.munchNote("");
   logger.timeEnd("Item Import Time");
   return updateResults;
 }

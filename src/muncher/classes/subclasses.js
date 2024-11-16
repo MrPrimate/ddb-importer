@@ -1,6 +1,5 @@
 import { logger, utils, DDBReferenceLinker, DDBItemImporter, DDBCompendiumFolders } from "../../lib/_module.mjs";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements, getClassImages } from "./shared.js";
-import DDBMuncher from "../../apps/DDBMuncher.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 
 async function buildSubClassBase(klass, subClass) {
@@ -61,7 +60,7 @@ export async function getSubClasses(subClassData, klassData) {
   const classHandler = new DDBItemImporter("class", [], {
     deleteBeforeUpdate: false,
     matchFlags: ["is2014", "is2024"],
-    notifier: DDBMuncher.munchNote,
+    notifier: utils.munchNote,
   });
   await classHandler.init();
   const classDocs = await classHandler.compendium.getDocuments();
@@ -71,11 +70,11 @@ export async function getSubClasses(subClassData, klassData) {
   let results = [];
 
   const featureCompendiumFolders = new DDBCompendiumFolders("features");
-  DDBMuncher.munchNote(`Checking compendium folders..`, true);
+  utils.munchNote(`Checking compendium folders..`, true);
   await featureCompendiumFolders.loadCompendium("features");
   const subClassCompendiumFolders = new DDBCompendiumFolders("subclasses");
   await subClassCompendiumFolders.loadCompendium("subclasses");
-  DDBMuncher.munchNote("", true);
+  utils.munchNote("", true);
 
 
   for (const subClass of subClassData) {
@@ -125,7 +124,7 @@ export async function getSubClasses(subClassData, klassData) {
     classFeatures,
     featureHandlerOptions,
     updateBool,
-    notifier: DDBMuncher.munchNote,
+    notifier: utils.munchNote,
   });
   const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
   await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
@@ -153,7 +152,7 @@ export async function getSubClasses(subClassData, klassData) {
     deleteBeforeUpdate: false,
     matchFlags: ["id"],
     useCompendiumFolders: true,
-    notifier: DDBMuncher.munchNote,
+    notifier: utils.munchNote,
   };
   await DDBItemImporter.buildHandler("subclasses", subClasses, updateBool, subClassOptions);
 

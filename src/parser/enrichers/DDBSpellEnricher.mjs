@@ -3,16 +3,17 @@ import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
 import DDBEnricherData from "./data/DDBEnricherData.mjs";
 
 export default class DDBSpellEnricher extends DDBEnricherMixin {
-  constructor({ activityGenerator } = {}) {
+  constructor({ activityGenerator, notifier = null } = {}) {
     super({
       activityGenerator,
       effectType: "spell",
       enricherType: "spell",
+      notifier,
     });
   }
 
-  load({ ddbParser, document, name = null } = {}) {
-    super.load({ ddbParser, document, name });
+  load({ ddbParser, document, name = null, notifier = null } = {}) {
+    super.load({ ddbParser, document, name, notifier });
     this._prepare();
   }
 

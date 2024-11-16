@@ -11,7 +11,7 @@ import { baseFeatEffect } from "../../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../../effects/specialSpells.js";
 import { utils, logger, DDBHelper } from "../../../lib/_module.mjs";
-import DDBSummonsManager from "../../companions/DDBSummonsManager.js";
+import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
 
 export default class DDBEnricherMixin {
 
@@ -144,7 +144,7 @@ export default class DDBEnricherMixin {
   }
 
   constructor({
-    activityGenerator = null, effectType = "basic", enricherType = "general",
+    activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null,
   } = {}) {
     this.ddbParser = null;
     this.document = null;
@@ -159,6 +159,7 @@ export default class DDBEnricherMixin {
     this.manager = null;
     this.loadedEnricher = null;
     this._originalActivity = null;
+    this.notifier = notifier;
   }
 
   load({ ddbParser, document, name = null, is2014 = null } = {}) {
@@ -173,7 +174,7 @@ export default class DDBEnricherMixin {
   }
 
   async init() {
-    this.manager = new DDBSummonsManager();
+    this.manager = new DDBSummonsManager({ notifier: this.notifier });
     await this.manager.init();
   }
 

@@ -1,9 +1,9 @@
-import DDBMuncher from "../../apps/DDBMuncher.js";
 import {
   logger,
   DDBReferenceLinker,
   DDBHelper,
   DDBItemImporter,
+  utils,
 } from "../../lib/_module.mjs";
 
 const FEAT_TEMPLATE = {
@@ -81,7 +81,7 @@ export async function getFeats(data) {
 
   const itemHandler = await DDBItemImporter.buildHandler("feats", feats, updateBool, {
     chrisPremades: true,
-    notifier: DDBMuncher.munchNote,
+    notifier: utils.munchNote,
   });
   return itemHandler.documents;
 }

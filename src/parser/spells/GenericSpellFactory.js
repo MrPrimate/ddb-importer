@@ -85,7 +85,7 @@ export default class GenericSpellFactory {
           },
         },
       };
-      const spell = await DDBSpell.parseSpell(spellData, null, { generateSummons });
+      const spell = await DDBSpell.parseSpell(spellData, null, { generateSummons, notifier });
       results.push(spell);
     }
 
@@ -99,7 +99,7 @@ export default class GenericSpellFactory {
     return ++dict[name];
   }
 
-  static async getItemSpells(ddb, character, { generateSummons = null } = {}) {
+  static async getItemSpells(ddb, character, { generateSummons = null, notifier = null } = {}) {
 
     // console.warn("GenericSpellFactory.getItemSpells", { ddb, character });
 
@@ -160,7 +160,7 @@ export default class GenericSpellFactory {
         },
       };
       const namePostfix = `It${GenericSpellFactory.getSpellCount(spellCountDict, spell.definition.name)}`;
-      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix, generateSummons }));
+      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix, generateSummons, notifier }));
     }
 
     return items;

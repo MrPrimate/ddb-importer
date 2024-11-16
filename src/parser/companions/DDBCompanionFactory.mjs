@@ -6,9 +6,9 @@ import {
   CompendiumHelper,
 } from "../../lib/_module.mjs";
 import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
-import DDBCompanion2014 from "./DDBCompanion2014.js";
+import DDBCompanion2014 from "./DDBCompanion2014.mjs";
 import { isEqual } from "../../../vendor/lowdash/_module.mjs";
-import DDBSummonsManager from "./DDBSummonsManager.js";
+import DDBSummonsManager from "./DDBSummonsManager.mjs";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
 async function getFindFamiliarActivityData() {
@@ -294,7 +294,8 @@ export default class DDBCompanionFactory {
       "flags.ddbimporter.id",
       "flags.ddbimporter.summons",
     ] };
-    this.summonsManager = new DDBSummonsManager();
+    this.notifier = options.notifier;
+    this.summonsManager = new DDBSummonsManager({ notifier: this.notifier });
     this.itemHandler = null;
   }
 

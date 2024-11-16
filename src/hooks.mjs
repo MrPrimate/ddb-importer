@@ -33,7 +33,7 @@ import { showReadAlouds } from "./hooks/renderJournalSheet/linkReadAlouds.js";
 
 import { activateUpdateHooks } from "./updater/character.js";
 import { registerCustomEnrichers } from "./hooks/ready/enrichers.js";
-import DDBSummonsManager from "./parser/companions/DDBSummonsManager.js";
+import DDBSummonsManager from "./parser/companions/DDBSummonsManager.mjs";
 import addActivitiesHooks from "./hooks/macroActivity/loadActivity.js";
 import DDBEnhancers from "./hooks/enhancers/DDBEnhancers.js";
 

@@ -6,7 +6,6 @@ import {
   FileHelper,
   CompendiumHelper,
 } from "../lib/_module.mjs";
-import DDBMuncher from "../apps/DDBMuncher.js";
 import { SETTINGS } from "../config/_module.mjs";
 
 
@@ -63,7 +62,7 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 
 async function addNPCToCompendium(npc, type = "monster") {
   const itemImporter = new DDBItemImporter(type, [], {
-    notifier: DDBMuncher.munchNote,
+    notifier: utils.munchNote,
   });
   if (itemImporter.compendium) {
     const npcBasic = (await itemImporter.addCompendiumFolderIds([foundry.utils.duplicate(npc)]))[0];
@@ -393,7 +392,7 @@ export async function useSRDMonsterImages(monsters) {
   // eslint-disable-next-line require-atomic-updates
   if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) {
     const srdImageLibrary = await Iconizer.getSRDImageLibrary();
-    DDBMuncher.munchNote(`Updating SRD Monster Images`, true);
+    utils.munchNote(`Updating SRD Monster Images`, true);
 
     monsters.forEach((monster) => {
       logger.debug(`Checking ${monster.name} for srd images`);
@@ -443,11 +442,11 @@ export async function generateIconMap(monsters) {
   // eslint-disable-next-line require-atomic-updates
   if (srdIcons) {
     const srdImageLibrary = await Iconizer.getSRDImageLibrary();
-    DDBMuncher.munchNote(`Updating SRD Icons`, true);
+    utils.munchNote(`Updating SRD Icons`, true);
     let itemMap = [];
 
     monsters.forEach((monster) => {
-      DDBMuncher.munchNote(`Processing ${monster.name}`);
+      utils.munchNote(`Processing ${monster.name}`);
       promises.push(
         Iconizer.copySRDIcons(monster.items, srdImageLibrary, itemMap).then((items) => {
           monster.items = items;

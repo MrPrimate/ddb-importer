@@ -20,7 +20,7 @@ import SpellListFactory from "../parser/spells/SpellListFactory.mjs";
 
 function getSpellData(className, sourceFilter, rulesVersion = null) {
   const cobaltCookie = Secrets.getCobalt();
-  const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
+  const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
@@ -51,7 +51,7 @@ function getSpellData(className, sourceFilter, rulesVersion = null) {
           FileHelper.download(JSON.stringify(data), `spells-raw.json`, "application/json");
         }
         if (!data.success) {
-          DDBMuncher.munchNote(`Failure: ${data.message}`);
+          utils.munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;
@@ -93,7 +93,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
   }
 
-  DDBMuncher.munchNote("Downloading spell data..");
+  utils.munchNote("Downloading spell data..");
 
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
@@ -106,7 +106,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
     results.push(...spellData);
   }
 
-  DDBMuncher.munchNote("Parsing spell data.");
+  utils.munchNote("Parsing spell data.");
 
   const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
 
@@ -127,7 +127,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   //   })
   // });
 
-  const rawSpells = await GenericSpellFactory.getSpells(filteredResults, DDBMuncher.munchNote);
+  const rawSpells = await GenericSpellFactory.getSpells(filteredResults, utils.munchNote);
 
   const spells = rawSpells
     .filter((spell) => spell?.name)
@@ -145,7 +145,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   const itemHandler = new DDBItemImporter("spells", uniqueSpells, {
     deleteBeforeUpdate,
     matchFlags: ["is2014", "is2024"],
-    notifier: DDBMuncher.munchNote,
+    notifier: utils.munchNote,
   });
   await itemHandler.init();
   await itemHandler.srdFiddling();
@@ -157,17 +157,17 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: visionSpells, compendiumItem: true });
 
   const finalCount = itemHandler.documents.length;
-  DDBMuncher.munchNote(`Importing ${finalCount} spells...`, true);
+  utils.munchNote(`Importing ${finalCount} spells...`, true);
   logger.time("Spell Import Time");
   const updateResults = await itemHandler.updateCompendium(updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
   logger.debug({ finalSpells: itemHandler.documents, updateResults, updatePromiseResults });
-  DDBMuncher.munchNote("");
+  utils.munchNote("");
   logger.timeEnd("Spell Import Time");
 
   logger.debug("Starting Spell List Generation");
-  DDBMuncher.munchNote(`Generating Spell List Journals...`, true);
+  utils.munchNote(`Generating Spell List Journals...`, true);
   await spellListFactory.buildSpellLists();
   await spellListFactory.registerSpellLists();
   logger.debug("Spell List Generation Complete");

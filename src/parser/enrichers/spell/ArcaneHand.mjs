@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import DDBSummonsManager from "../../companions/DDBSummonsManager.js";
+import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class ArcaneHand extends DDBEnricherData {

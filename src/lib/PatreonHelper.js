@@ -1,4 +1,3 @@
-import DDBMuncher from "../apps/DDBMuncher.js";
 import { logger, utils, DDBProxy } from "./_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 
@@ -81,7 +80,7 @@ const PatreonHelper = {
         .then((response) => response.json())
         .then((data) => {
           if (!data.success) {
-            DDBMuncher.munchNote(`API Failure: ${data.message}`);
+            utils.munchNote(`API Failure: ${data.message}`);
             reject(data.message);
           }
           let currentEmail = PatreonHelper.getPatreonUser(local);

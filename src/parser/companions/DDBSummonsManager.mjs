@@ -1,4 +1,3 @@
-import DDBMuncher from "../../apps/DDBMuncher.js";
 import {
   utils,
   logger,
@@ -818,7 +817,7 @@ export default class DDBSummonsManager {
       "flags.ddbimporter.summons",
     ] };
     this.itemHandler = null;
-    this.notifier = notifier ?? DDBMuncher.munchNote;
+    this.notifier = notifier;
   }
 
   async generateDDBDataActors(ddbFeature) {
@@ -898,9 +897,9 @@ export default class DDBSummonsManager {
 
   static get2024ArcaneHands = get2024ArcaneHands;
 
-  static async addGeneratedSummons(generatedSummonedActors) {
+  static async addGeneratedSummons(generatedSummonedActors, { notifier = null } = {}) {
     if (!game.user.isGM) return;
-    const manager = new DDBSummonsManager();
+    const manager = new DDBSummonsManager({ notifier });
     await manager.init();
 
     for (const [key, value] of Object.entries(generatedSummonedActors)) {

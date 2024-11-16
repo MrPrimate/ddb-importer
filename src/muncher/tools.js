@@ -3,8 +3,8 @@ import {
   CompendiumHelper,
   FileHelper,
   DDBItemImporter,
+  utils,
 } from "../lib/_module.mjs";
-import DDBMuncher from "../apps/DDBMuncher.js";
 import { getNPCImage } from "./importMonster.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 
@@ -16,7 +16,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
   count++;
 
   for (let targetActor of targetActors) {
-    DDBMuncher.munchNote(`Updating ${count}/${totalTargets} world monsters`);
+    utils.munchNote(`Updating ${count}/${totalTargets} world monsters`);
     logger.debug(`Updating ${count}/${totalTargets} world monsters`, targetActor);
     const monsterItems = sourceActor.items.toObject().map((item) => {
       delete item._id;
@@ -76,7 +76,7 @@ export async function updateWorldMonsters() {
     const index = await monsterCompendium.getIndex({ fields: monsterIndices });
     totalTargets = game.actors.filter((a) => a.type === "npc" && foundry.utils.hasProperty(a, "flags.ddbimporter.id")).length;
     count = 0;
-    DDBMuncher.munchNote(`Updating ${count}/${totalTargets} world monsters`);
+    utils.munchNote(`Updating ${count}/${totalTargets} world monsters`);
     logger.debug(`Checking ${totalTargets} world monsters`);
 
     for (const [key, value] of index.entries()) {
@@ -88,15 +88,15 @@ export async function updateWorldMonsters() {
       );
 
       if (worldMatches.length > 0) {
-        DDBMuncher.munchNote(`Found ${value.name} world monster`, true);
+        utils.munchNote(`Found ${value.name} world monster`, true);
         logger.debug(`Matched ${value.name} (${key})`);
         const monster = await monsterCompendium.getDocument(value._id);
         let updatedActors = await updateActorsWithActor(worldMatches, monster, count);
         results.push(updatedActors);
       }
     }
-    DDBMuncher.munchNote(`Finished updating ${totalTargets} world monsters`);
-    DDBMuncher.munchNote("", true);
+    utils.munchNote(`Finished updating ${totalTargets} world monsters`);
+    utils.munchNote("", true);
 
   } else {
     logger.error("Error opening compendium, check your settings");

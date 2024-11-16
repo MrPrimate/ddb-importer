@@ -1,4 +1,3 @@
-import DDBMuncher from "../apps/DDBMuncher.js";
 import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { logger, utils, CompendiumHelper, FileHelper, NameMatcher } from "./_module.mjs";
 
@@ -380,7 +379,7 @@ export default class Iconizer {
   }
 
   static async getDDBItemImages(items, download) {
-    DDBMuncher.munchNote(`Fetching DDB Item Images`);
+    utils.munchNote(`Fetching DDB Item Images`);
     const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
     const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -400,7 +399,7 @@ export default class Iconizer {
         if (item.flags.ddbimporter.dndbeyond.avatarUrl) {
           const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
           if (avatarUrl && avatarUrl != "") {
-            DDBMuncher.munchNote(`Downloading ${item.name} image`);
+            utils.munchNote(`Downloading ${item.name} image`);
             const imageNamePrefix = useDeepPaths ? "" : "item";
             const downloadOptions = { type: "item", name: item.name, download: downloadImages, remoteImages, targetDirectory, pathPostfix, imageNamePrefix };
             const smallImage = await FileHelper.getImagePath(avatarUrl, downloadOptions);
@@ -421,7 +420,7 @@ export default class Iconizer {
         }
       }
 
-      DDBMuncher.munchNote("");
+      utils.munchNote("");
       return itemImage;
     });
 
@@ -429,7 +428,7 @@ export default class Iconizer {
   }
 
   static async getDDBHintImages(type, items) {
-    DDBMuncher.munchNote(`Fetching DDB Hint Images for ${type}`);
+    utils.munchNote(`Fetching DDB Hint Images for ${type}`);
     // const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
     // const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -458,13 +457,13 @@ export default class Iconizer {
       if (img) item.img = img;
     }
 
-    DDBMuncher.munchNote("");
+    utils.munchNote("");
 
     return items;
   }
 
   static async getDDBGenericItemImages() {
-    DDBMuncher.munchNote(`Fetching DDB Generic Item icons`);
+    utils.munchNote(`Fetching DDB Generic Item icons`);
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
     const imageNamePrefix = useDeepPaths ? "" : "item";
@@ -480,13 +479,13 @@ export default class Iconizer {
       return itemIcons;
     });
 
-    DDBMuncher.munchNote("");
+    utils.munchNote("");
     return Promise.all(itemMap);
   }
 
 
   static async getDDBGenericLootImages() {
-    DDBMuncher.munchNote(`Fetching DDB Generic Loot icons`);
+    utils.munchNote(`Fetching DDB Generic Loot icons`);
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
     const imageNamePrefix = useDeepPaths ? "" : "equipment";
@@ -502,7 +501,7 @@ export default class Iconizer {
       return itemIcons;
     });
 
-    DDBMuncher.munchNote("");
+    utils.munchNote("");
     return Promise.all(itemMap);
   }
 
@@ -534,7 +533,7 @@ export default class Iconizer {
   }
 
   static async getDDBSchoolSpellImages() {
-    DDBMuncher.munchNote(`Fetching spell school icons`);
+    utils.munchNote(`Fetching spell school icons`);
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
     const imageNamePrefix = useDeepPaths ? "" : "spell";
@@ -551,7 +550,7 @@ export default class Iconizer {
       return schoolIcons;
     });
 
-    DDBMuncher.munchNote("");
+    utils.munchNote("");
     return Promise.all(schoolMap);
   }
 

@@ -2,8 +2,8 @@ import {
   logger,
   DDBItemImporter,
   DDBCompendiumFolders,
+  utils,
 } from "../../lib/_module.mjs";
-import DDBMuncher from "../../apps/DDBMuncher.js";
 import DDBRace from "../../parser/race/DDBRace.js";
 import DDBRaceTrait from "../../parser/race/DDBRaceTrait.js";
 
@@ -61,7 +61,7 @@ export async function getRaces(data) {
     chrisPremades: true,
     matchFlags: ["entityRaceId"],
     useCompendiumFolders: true,
-    notifier: DDBMuncher.munchNote,
+    notifier: utils.munchNote,
   };
 
   const traitHelper = await DDBItemImporter.buildHandler("traits", racialFeatures, updateBool, traitOptions);
@@ -76,7 +76,7 @@ export async function getRaces(data) {
   }
 
   logger.debug("Pre-fiddled races", foundry.utils.duplicate(races));
-  const raceOptions = { matchFlags: ["entityRaceId"], useCompendiumFolders: true, notifier: DDBMuncher.munchNote };
+  const raceOptions = { matchFlags: ["entityRaceId"], useCompendiumFolders: true, notifier: utils.munchNote };
   await DDBItemImporter.buildHandler("races", races, updateBool, raceOptions);
 
   return results;

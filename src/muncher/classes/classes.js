@@ -4,9 +4,9 @@ import {
   CompendiumHelper,
   DDBReferenceLinker,
   DDBCompendiumFolders,
+  utils,
 } from "../../lib/_module.mjs";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
-import DDBMuncher from "../../apps/DDBMuncher.js";
 import { SETTINGS } from "../../config/_module.mjs";
 
 function getHPAdvancement(klass, character) {
@@ -98,9 +98,9 @@ export async function getClasses(data) {
   let classFeatures = [];
 
   const compendiumFolders = new DDBCompendiumFolders("features");
-  DDBMuncher.munchNote(`Checking compendium folders..`, true);
+  utils.munchNote(`Checking compendium folders..`, true);
   await compendiumFolders.loadCompendium("features");
-  DDBMuncher.munchNote("", true);
+  utils.munchNote("", true);
 
   for (const klass of data) {
     logger.debug(`${klass.name} feature parsing started...`, { klass });
@@ -131,7 +131,7 @@ export async function getClasses(data) {
     classFeatures,
     featureHandlerOptions,
     updateBool,
-    notifier: DDBMuncher.munchNote,
+    notifier: utils.munchNote,
   });
   const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateBool, featureHandlerOptions);
   const firstPassFeatures = await featureHandler.compendiumIndex.filter((i) =>
@@ -153,7 +153,7 @@ export async function getClasses(data) {
   logger.debug("Class build finished", klasses);
   await DDBItemImporter.buildHandler("classes", klasses, updateBool, {
     useCompendiumFolders: true,
-    notifier: DDBMuncher.munchNote,
+    notifier: utils.munchNote,
   });
 
   return results;

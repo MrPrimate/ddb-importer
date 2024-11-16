@@ -169,7 +169,7 @@ export default class DDBEncounterMunch extends Application {
 
     if (importMonsters && this.encounter.missingMonsters && this.encounter.missingMonsterIds.length > 0) {
       logger.debug("Importing missing monsters from DDB");
-      const monsterFactory = new DDBMonsterFactory({ munchNote: DDBEncounterMunch.munchNote });
+      const monsterFactory = new DDBMonsterFactory({ notifier: DDBEncounterMunch.munchNote });
       await monsterFactory.processIntoCompendium(this.encounter.missingMonsterIds.map((monster) => monster.ddbId));
       logger.debug("Finised Importing missing monsters from DDB");
     }

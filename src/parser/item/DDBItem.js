@@ -84,13 +84,15 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   ];
 
   // eslint-disable-next-line complexity
-  constructor({ characterManager, ddbItem, isCompendium = false, enricher = null, spellCompendium = null } = {}) {
+  constructor({ characterManager, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null } = {}) {
     super({
       enricher,
       activityGenerator: DDBItemActivity,
       documentType: "item",
+      notifier,
     });
 
+    this.notifier = notifier;
     this.characterManager = characterManager;
     this.ddbData = characterManager.source.ddb;
     this.ddbItem = ddbItem;
@@ -204,7 +206,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.versatileDamage = "";
     this.addMagical = false;
 
-    this.enricher = enricher ?? new DDBItemEnricher({ activityGenerator: DDBItemActivity });
+    this.enricher = enricher ?? new DDBItemEnricher({ activityGenerator: DDBItemActivity, notifier: this.notifier });
     this.spellCompendium = spellCompendium ?? CompendiumHelper.getCompendiumType("spells", false);
 
   }

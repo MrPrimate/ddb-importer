@@ -644,4 +644,23 @@ export default class Utils {
     return i !== maxIter;
   }
 
+  /**
+   * Display information when Munching
+   * @param {*} note
+   * @param {*} nameField
+   * @param {*} monsterNote
+   */
+  static munchNote(note, nameField = false, monsterNote = false) {
+    if (nameField) {
+      $("#munching-task-name").text(note);
+      $("#ddb-importer-monsters").css("height", "auto");
+    } else if (monsterNote) {
+      $("#munching-task-monster").text(note);
+      $("#ddb-importer-monsters").css("height", "auto");
+    } else {
+      $("#munching-task-notes").text(note);
+      $("#ddb-importer-monsters").css("height", "auto");
+    }
+  }
+
 }

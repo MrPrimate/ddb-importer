@@ -5,8 +5,8 @@ import {
   FileHelper,
   PatreonHelper,
   DDBProxy,
+  utils,
 } from "../lib/_module.mjs";
-import DDBMuncher from "../apps/DDBMuncher.js";
 import { SETTINGS } from "../config/_module.mjs";
 
 
@@ -33,7 +33,7 @@ async function getFrameData() {
       .then((response) => response.json())
       .then((data) => {
         if (!data.success) {
-          DDBMuncher.munchNote(`API Failure: ${data.message}`);
+          utils.munchNote(`API Failure: ${data.message}`);
           reject(data.message);
         }
         if (debugJson) {
@@ -42,7 +42,7 @@ async function getFrameData() {
         return data;
       })
       .then((data) => {
-        DDBMuncher.munchNote(`Retrieved ${data.data.length} frames, starting parse...`, true, false);
+        utils.munchNote(`Retrieved ${data.data.length} frames, starting parse...`, true, false);
         logger.info(`Retrieved ${data.data.length} frames`);
         resolve(data.data);
       })
@@ -57,13 +57,13 @@ export async function parseFrames() {
   const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
   const imageNamePrefix = useDeepPaths ? "" : "frames";
 
-  DDBMuncher.munchNote(`Fetching DDB Frames`);
+  utils.munchNote(`Fetching DDB Frames`);
   frames.forEach(async (frame) => {
     const options = { type: "frame", name: `DDB ${frame.name}`, download: true, targetDirectory, pathPostfix: "", imageNamePrefix };
     await FileHelper.getImagePath(frame.frameAvatarUrl, options);
   });
 
-  DDBMuncher.munchNote("");
+  utils.munchNote("");
 
   return frames.length;
 }

@@ -12,11 +12,12 @@ import DDBEnricherData from "./data/DDBEnricherData.mjs";
 import { ClassEnrichers, SpeciesEnrichers, FeatEnrichers, GenericEnrichers } from "./_module.mjs";
 
 export default class DDBFeatureEnricher extends DDBEnricherMixin {
-  constructor({ activityGenerator } = {}) {
+  constructor({ activityGenerator, notifier = null } = {}) {
     super({
       activityGenerator,
       effectType: "feat",
       enricherType: "feat",
+      notifier,
     });
   }
 

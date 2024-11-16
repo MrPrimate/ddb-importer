@@ -7,6 +7,7 @@ import {
   Secrets,
   base64Check,
   DDBCompendiumFolders,
+  utils,
 } from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";
@@ -47,16 +48,7 @@ export default class DDBMuncher extends Application {
    * @param {*} monsterNote
    */
   static munchNote(note, nameField = false, monsterNote = false) {
-    if (nameField) {
-      $("#munching-task-name").text(note);
-      $("#ddb-importer-monsters").css("height", "auto");
-    } else if (monsterNote) {
-      $("#munching-task-monster").text(note);
-      $("#ddb-importer-monsters").css("height", "auto");
-    } else {
-      $("#munching-task-notes").text(note);
-      $("#ddb-importer-monsters").css("height", "auto");
-    }
+    utils.munchNote(note, nameField, monsterNote);
   }
 
   static munchMonsters() {

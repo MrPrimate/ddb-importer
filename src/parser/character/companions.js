@@ -1,7 +1,7 @@
 import { logger } from "../../lib/_module.mjs";
 import { SETTINGS } from "../../config/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
-import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
+import DDBCompanionFactory from "../companions/DDBCompanionFactory.mjs";
 
 
 DDBCharacter.prototype.getClassFeature = function(name) {

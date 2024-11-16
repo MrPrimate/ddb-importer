@@ -5,15 +5,15 @@ import {
   FileHelper,
   PatreonHelper,
   DDBProxy,
+  utils,
 } from "../lib/_module.mjs";
-import DDBMuncher from "../apps/DDBMuncher.js";
 import { getBackgrounds } from "./backgrounds/backgrounds.js";
 import { SETTINGS } from "../config/_module.mjs";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
 
 function getBackgroundData() {
   const cobaltCookie = Secrets.getCobalt();
-  const campaignId = DDBCampaigns.getCampaignId(DDBMuncher.munchNote);
+  const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
@@ -33,7 +33,7 @@ function getBackgroundData() {
           FileHelper.download(JSON.stringify(data), `backgrounds-raw.json`, "application/json");
         }
         if (!data.success) {
-          DDBMuncher.munchNote(`Failure: ${data.message}`);
+          utils.munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;

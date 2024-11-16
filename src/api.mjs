@@ -14,14 +14,14 @@ import DDBCharacterManager, { importCharacter, importCharacterById } from "./app
 import { getFeats } from "./muncher/feats/feats.js";
 import DDBMacros from "./effects/DDBMacros.js";
 import { getNPCImage } from "./muncher/importMonster.js";
-import DDBCompanion2014 from "./parser/companions/DDBCompanion2014.js";
-import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.js";
+import DDBCompanion2014 from "./parser/companions/DDBCompanion2014.mjs";
+import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.mjs";
 import DDBEffectHelper from "./effects/DDBEffectHelper.js";
 import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
 import ChrisPremadesHelper from "./effects/external/ChrisPremadesHelper.js";
 import ExternalAutomations from "./effects/external/ExternalAutomations.js";
 import DDBSimpleMacro from "./effects/DDBSimpleMacro.js";
-import DDBSummonsManager from "./parser/companions/DDBSummonsManager.js";
+import DDBSummonsManager from "./parser/companions/DDBSummonsManager.mjs";
 import * as Enrichers from "./parser/enrichers/_module.mjs";
 
 function resetSecrets() {
