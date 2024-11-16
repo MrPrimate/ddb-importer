@@ -12,7 +12,7 @@ import { addRestrictionFlags } from "../../effects/restrictions.js";
 import { midiItemEffects } from "../../effects/specialEquipment.js";
 
 import DDBItem from "./DDBItem.js";
-import { CompendiumHelper } from "../../lib/_module.mjs";
+import { CompendiumHelper, logger } from "../../lib/_module.mjs";
 
 
 // TO DO: revisit to break up item parsing
@@ -53,6 +53,8 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
       spellCompendium,
     });
     await itemParser.build();
+
+    logger.debug(`Item ${ddbItem.definition.name} parsed`, itemParser);
 
     let item = Object.assign({}, itemParser.data);
 

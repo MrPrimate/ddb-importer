@@ -3,6 +3,7 @@
 - Prevent Generation of Empty Spell Lists
 - Rings will now import as ring equipment type
 - Focus property will be added to focus items
+- Improved parsing for items with fixed attack bonuses, such as Ring of the Ram
 
 # 6.0.41
 

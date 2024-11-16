@@ -378,11 +378,32 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   }
 
+  #fixedAttackCheck() {
+    const attachRegex = /makes its attack roll with a \+(\d+) bonus/;
+    const attackMatch = (this.ddbDefinition.description ?? "").match(attachRegex);
+    if (attackMatch) {
+      this.actionInfo.isFlat = true;
+      this.actionInfo.extraAttackBonus = attackMatch[1];
+      this.actionInfo.ability = "none";
+      this.actionInfo.spellAttack = true;
+    }
+
+    const attackTypeRegex = /(ranged|melee) (spell|weapon|unarmed) attack/;
+    const attackTypeMatch = (this.ddbDefinition.description ?? "").match(attackTypeRegex);
+    if (attackTypeMatch) {
+      this.actionInfo.spellAttack = attackTypeMatch[2] === "spell";
+      this.actionInfo.rangedAttack = attackTypeMatch[1] === "ranged";
+      this.actionInfo.meleeAttack = attackTypeMatch[1] === "melee";
+    }
+
+  }
+
   #generateActionInfo() {
     this.actionInfo.duration = this.#getActivityDuration();
     this.actionInfo.range = this.#getActivityRange();
     this.actionInfo.activation = this.#generateActivityActivation();
     this.#generateSave();
+    this.#fixedAttackCheck();
   }
 
   static #getDamageParts(modifiers, typeOverride = null) {
@@ -1718,7 +1739,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       this.actionInfo.target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
       this.actionInfo.target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
-    const aoeSizeRegex = /(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
+    const aoeSizeRegex = /(?<!one creature you can see |an object you can see )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
     const aoeSizeMatch = aoeSizeRegex.exec(this.ddbDefinition.description);
 
     // console.warn(`Target generation for ${this.name}`, {
@@ -2573,7 +2594,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   async #basicMagicItem() {
-    if ((/arcane focus|spellcasting focus/i).test(this.ddbDefinition.description)) {
+    if ((/arcane focus|spellcasting focus/i).test(this.ddbDefinition.description ?? "")) {
       this.data.system.properties = utils.addToProperties(this.data.system.properties, "foc");
     }
     if (!this.ddbDefinition.magic) return;
@@ -2834,6 +2855,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       return "attack";
     }
     if (this.actionInfo.save) return "save";
+    if (this.actionInfo.isFlat) return "attack";
     if (this.damageParts.length > 0) return "damage";
     if (this.actionInfo.activation?.type === "special" && (!this.data.uses.max || this.data.uses.max === "")) {
       return undefined;
