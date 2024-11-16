@@ -14,7 +14,7 @@ import DDBCharacterManager, { importCharacter, importCharacterById } from "./app
 import { getFeats } from "./muncher/feats/feats.js";
 import DDBMacros from "./effects/DDBMacros.js";
 import { getNPCImage } from "./muncher/importMonster.js";
-import DDBCompanion from "./parser/companions/DDBCompanion.js";
+import DDBCompanion2014 from "./parser/companions/DDBCompanion2014.js";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.js";
 import DDBEffectHelper from "./effects/DDBEffectHelper.js";
 import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
@@ -105,8 +105,9 @@ export function registerApi() {
       CompendiumHelper: lib.CompendiumHelper,
       DDBCampaigns: lib.DDBCampaigns,
       DDBCharacterManager,
-      DDBCompanion,
+      DDBCompanion2014,
       DDBCompanionFactory,
+      // Companions,
       DDBCompendiumFolders: lib.DDBCompendiumFolders,
       DDBSimpleMacro,
       DDBEffectHelper,

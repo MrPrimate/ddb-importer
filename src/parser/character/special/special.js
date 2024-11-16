@@ -1,4 +1,4 @@
-import DDBCharacter from "../DDBCharacter.js";
+import DDBCharacter from "../../DDBCharacter.js";
 import { getDivineSmiteSpell } from "./additions/divineSmite.js";
 
 DDBCharacter.prototype._addSpecialAdditions = function _addSpecialAdditions() {

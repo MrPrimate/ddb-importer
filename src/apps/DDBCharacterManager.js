@@ -17,10 +17,10 @@ import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import DDBCookie from "../apps/DDBCookie.js";
 import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
-import { setConditions } from "../parser/special/conditions.js";
+import { setConditions } from "../parser/character/conditions.js";
 import DDBMacros from "../effects/DDBMacros.js";
 import ExternalAutomations from "../effects/external/ExternalAutomations.js";
-import { createInfusedItems } from "../parser/item/infusions.js";
+import { createInfusedItems } from "../parser/character/infusions.js";
 
 export default class DDBCharacterManager extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {

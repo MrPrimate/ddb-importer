@@ -39,9 +39,6 @@ import "./character/race.js";
 import "./character/resources.js";
 import "./character/inventory.js";
 import "./character/globalBonuses.js";
-
-import "./special/character.js";
-
-import "./item/index.js";
+import "./character/special/special.js";
 
 import "./companions/companions.js";

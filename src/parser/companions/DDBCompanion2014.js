@@ -6,7 +6,7 @@ import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFacto
 import { newNPC } from "../monster/templates/monster.js";
 import { DDBMonsterFeatureEnricher } from "../enrichers/_module.mjs";
 
-export default class DDBCompanion {
+export default class DDBCompanion2024 {
 
   constructor(block, options = {}) {
     // console.warn("DDBCompanion", { block });
@@ -408,21 +408,21 @@ export default class DDBCompanion {
     const data = this.getBlockData("Damage Immunities");
     if (!data) return;
 
-    this.npc.system.traits.di = DDBCompanion.getDamageAdjustments(this.filterDamageConditions(data));
+    this.npc.system.traits.di = DDBCompanion2024.getDamageAdjustments(this.filterDamageConditions(data));
   }
 
   #generateResistances() {
     const data = this.getBlockData("Damage Resistances");
     if (!data) return;
 
-    this.npc.system.traits.dr = DDBCompanion.getDamageAdjustments(this.filterDamageConditions(data));
+    this.npc.system.traits.dr = DDBCompanion2024.getDamageAdjustments(this.filterDamageConditions(data));
   }
 
   #generateVulnerabilities() {
     const data = this.getBlockData("Damage Vulnerabilities");
     if (!data) return;
 
-    this.npc.system.traits.dv = DDBCompanion.getDamageAdjustments(this.filterDamageConditions(data));
+    this.npc.system.traits.dv = DDBCompanion2024.getDamageAdjustments(this.filterDamageConditions(data));
   }
 
   // Condition Immunities exhaustion, frightened, paralyzed, poisoned
@@ -682,7 +682,7 @@ export default class DDBCompanion {
     // make friendly
     foundry.utils.setProperty(this.npc, "prototypeToken.disposition", 1);
 
-    const data = await DDBCompanion.addEnrichedImageData(foundry.utils.duplicate(this.npc));
+    const data = await DDBCompanion2024.addEnrichedImageData(foundry.utils.duplicate(this.npc));
 
     this.data = data;
     this.parsed = true;

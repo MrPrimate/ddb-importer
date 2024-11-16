@@ -6,7 +6,7 @@ import {
   CompendiumHelper,
 } from "../../lib/_module.mjs";
 import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
-import DDBCompanion from "./DDBCompanion.js";
+import DDBCompanion2014 from "./DDBCompanion2014.js";
 import { isEqual } from "../../../vendor/lowdash/_module.mjs";
 import DDBSummonsManager from "./DDBSummonsManager.js";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
@@ -324,7 +324,7 @@ export default class DDBCompanionFactory {
 
   async #buildCompanion(block, options = {}) {
     logger.debug("Beginning companion parse", { block });
-    const ddbCompanion = new DDBCompanion(block, foundry.utils.mergeObject(options, { type: this.options.type }));
+    const ddbCompanion = new DDBCompanion2014(block, foundry.utils.mergeObject(options, { type: this.options.type }));
     await ddbCompanion.parse();
     if (ddbCompanion.parsed) {
       this.companions.push(ddbCompanion);
