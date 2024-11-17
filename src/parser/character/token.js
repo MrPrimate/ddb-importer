@@ -17,7 +17,9 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
       },
       detectionModes: [],
     });
-    const senses = this.getSenses();
+    const atlActive = game.modules.get("ATL")?.active;
+    // if atl is active it can add vision upgrade effects, otherwise we don't take effects into account
+    const senses = this.getSenses({ includeEffects: !atlActive });
     // darkvision: 0,
     // blindsight: 0,
     // tremorsense: 0,

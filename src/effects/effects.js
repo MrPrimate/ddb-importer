@@ -1062,6 +1062,10 @@ function addSenseBonus(modifiers, name) {
     if (base.length > 0) {
       logger.debug(`Generating ${sense} base for ${name}`);
       changes.push(generateUpgradeChange(Math.max(base), 10, `system.attributes.senses.${sense}`));
+      if (effectModules().atlInstalled) {
+        changes.push(generateUpgradeChange(Math.max(base), 10, "ATL.sight.range"));
+        changes.push(generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 5));
+      }
     }
     const bonus = modifiers
       .filter((modifier) => modifier.type === "sense" && modifier.subType === sense)
@@ -1069,6 +1073,10 @@ function addSenseBonus(modifiers, name) {
     if (bonus > 0) {
       logger.debug(`Generating ${sense} bonus for ${name}`);
       changes.push(generateUnsignedAddChange(Math.max(bonus), 20, `system.attributes.senses.${sense}`));
+      if (effectModules().atlInstalled) {
+        changes.push(generateUnsignedAddChange(Math.max(bonus), 20, "ATL.sight.range"));
+        changes.push(generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 6));
+      }
     }
   });
   return changes;
