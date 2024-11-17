@@ -108,96 +108,19 @@ export default class DDBSpellEnricher extends DDBEnricherMixin {
     "Wall of Water": SpellEnrichers.WallOfWater,
     "Wind Wall": SpellEnrichers.WindWall,
     "Witch Bolt": SpellEnrichers.WitchBolt,
-  };
-
-  DOCUMENT_OVERRIDES = {
-    "Primal Savagery": {
-      data: {
-        "system.range": {
-          value: "5",
-          units: "ft",
-        },
-      },
-    },
-    "Produce Flame": {
-      data: {
-        "system.range": {
-          value: "30",
-          units: "ft",
-        },
-      },
-    },
-    "Thunderclap": {
-      data: {
-        "system.range": {
-          units: "spec",
-        },
-        "system.target": {
-          template: {
-            size: "15",
-            type: "cube",
-          },
-        },
-      },
-    },
+    "Animal Friendship": SpellEnrichers.AnimalFriendship,
+    "Primal Savagery": SpellEnrichers.PrimalSavagery,
+    "Produce Flame": SpellEnrichers.ProduceFlame,
+    "Thunderclap": SpellEnrichers.Thunderclap,
+    "Bane": SpellEnrichers.Bane,
+    "Bless": SpellEnrichers.Bless,
+    "Chill Touch": SpellEnrichers.ChillTouch,
+    "Darkvision": SpellEnrichers.Darkvision,
+    "Feeblemind": SpellEnrichers.Feeblemind,
+    "Fly": SpellEnrichers.Fly,
   };
 
   EFFECT_HINTS = {
-    "Animal Friendship": {
-      statuses: "Charmed",
-    },
-    "Bane": {
-      changes: [
-        DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.mwak.attack"),
-        DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.rwak.attack"),
-        DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.msak.attack"),
-        DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.rsak.attack"),
-        DDBEnricherData.generateSignedAddChange("-1d4", 20, "system.bonuses.abilities.save"),
-      ],
-    },
-    "Bless": {
-      options: {
-        durationSeconds: 60,
-      },
-      changes: [
-        DDBEnricherData.generateSignedAddChange("+1d4", 0, "system.bonuses.mwak.attack"),
-        DDBEnricherData.generateSignedAddChange("+1d4", 0, "system.bonuses.rwak.attack"),
-        DDBEnricherData.generateSignedAddChange("+1d4", 0, "system.bonuses.msak.attack"),
-        DDBEnricherData.generateSignedAddChange("+1d4", 0, "system.bonuses.rsak.attack"),
-        DDBEnricherData.generateSignedAddChange("+1d4", 20, "system.bonuses.abilities.save"),
-      ],
-      tokenMagicChanges: [
-        DDBEnricherData.generateTokenMagicFXChange("bloom"),
-      ],
-    },
-    "Chill Touch": {
-      changes: [
-        DDBEnricherData.generateUnsignedAddChange("healing", 30, "system.traits.di.value"),
-      ],
-    },
-    "Darkvision": {
-      changes: [
-        DDBEnricherData.generateUpgradeChange("60", 20, "system.attributes.senses.darkvision"),
-      ],
-      atlChanges: [
-        DDBEnricherData.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 60, 5),
-        DDBEnricherData.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
-      ],
-    },
-    "Feeblemind": {
-      changes: [
-        DDBEnricherData.generateOverrideChange("1", 20, "system.abilities.cha.value"),
-        DDBEnricherData.generateOverrideChange("1", 20, "system.abilities.int.value"),
-      ],
-      midiChanges: [
-        DDBEnricherData.generateOverrideChange("1", 20, "flags.midi-qol.fail.spell.all"),
-      ],
-    },
-    "Fly": {
-      changes: [
-        DDBEnricherData.generateUpgradeChange("60", 20, "system.attributes.movement.fly"),
-      ],
-    },
     "Haste": {
       changes: [
         DDBEnricherData.generateSignedAddChange("2", 20, "system.attributes.ac.bonus"),
