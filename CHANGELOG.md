@@ -1,3 +1,8 @@
+# Next Up
+
+- Fixes for exporting custom items back to DDB and retaining custom items during import. @jak_o
+- Small tweaks to token vision distance when not using ATL. (Was not always calculated correctly).
+
 # 6.0.42
 
 - Prevent Generation of Empty Spell Lists

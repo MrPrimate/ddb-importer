@@ -326,6 +326,7 @@ export class DDBCompendiumFolders {
     this.resetFolderLookups();
 
     switch (this.type) {
+      case "species":
       case "race":
       case "races": {
         // we create these as needed
@@ -662,6 +663,7 @@ export class DDBCompendiumFolders {
         name = this.getRaceTraitFolderName(document);
         break;
       }
+      case "species":
       case "race":
       case "races": {
         name = this.getRaceFolderName(document);
@@ -839,6 +841,7 @@ export class DDBCompendiumFolders {
       }
       case "trait":
       case "traits":
+      case "species":
       case "race":
       case "races": {
         return [
@@ -885,6 +888,7 @@ export class DDBCompendiumFolders {
       case "traits":
       case "race":
       case "races":
+      case "species":
       case "features":
       case "feature":
       case "class":

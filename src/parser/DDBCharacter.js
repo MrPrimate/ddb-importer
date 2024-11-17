@@ -7,8 +7,6 @@ import { fixCharacterLevels } from "./character/filterModifiers.js";
 import CharacterClassFactory from "./classes/CharacterClassFactory.js";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory.js";
 import { DDBInfusionFactory } from "./features/DDBInfusionFactory.js";
-import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
-
 
 export default class DDBCharacter {
   constructor({ currentActor = null, characterId = null, selectResources = true, enableCompanions = false, enableSummons = false } = {}) {
@@ -483,13 +481,11 @@ export default class DDBCharacter {
 
     const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "update-add-features-to-compendiums");
 
-    const documents = this.currentActor.getEmbeddedCollection("Item")
-      .toObject()
-      .filter((doc) =>
-        foundry.utils.hasProperty(doc, "flags.ddbimporter.class"),
-      );
+    const documents = this.currentActor.getEmbeddedCollection("Item").toObject();
 
-    const subKlasses = new Set(documents
+    const featTypeDocs = documents.filter((doc) => doc.type === "feat");
+
+    const subKlasses = new Set(featTypeDocs
       .filter((doc) => foundry.utils.hasProperty(doc, "flags.ddbimporter.subClass"))
       .map((doc) => {
         return {
@@ -504,9 +500,6 @@ export default class DDBCharacter {
     for (const subKlass of subKlasses) {
       await featureCompendiumFolders.createSubClassFeatureFolder(subKlass.subClass, subKlass.class);
     }
-    const classFeaturesCompData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Class Features");
-    await createDDBCompendium(classFeaturesCompData);
-
 
     const featureHandlerOptions = {
       chrisPremades: true,
@@ -529,18 +522,76 @@ export default class DDBCharacter {
     // "flags.ddbimporter.subClass",
     // "flags.ddbimporter.parentClassId"
 
-    const klassNames = new Set(documents.map((doc) => foundry.utils.getProperty(doc, "flags.ddbimporter.class")));
+    const klassNames = new Set(featTypeDocs.map((doc) => foundry.utils.getProperty(doc, "flags.ddbimporter.class")));
 
     for (const klassName of klassNames) {
-      const classFeatures = documents.filter((doc) =>
-        klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.class"),
-        // && !foundry.utils.getProperty(doc, "flags.ddbimporter.action")
+      logger.debug(`Processing class ${klassName} into the class compendium`);
+      const classFeatures = featTypeDocs.filter((doc) =>
+        ["class", "subclass"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
+        && (klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.class")
+        || klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.class")),
       );
 
+      logger.debug(`Adding class features for ${klassName} to the class compendium`, {
+        classFeatures,
+      });
+
       const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateFeatures, featureHandlerOptions);
-      // console.warn(featureHandler);
       await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
     }
+
+    const traitHandlerOptions = {
+      chrisPremades: true,
+      matchFlags: ["entityRaceId"],
+      useCompendiumFolders: true,
+      deleteBeforeUpdate: false,
+    };
+
+    const traitCompendiumFolders = new DDBCompendiumFolders("traits");
+    await traitCompendiumFolders.loadCompendium("traits");
+    const species = documents.filter((doc) => doc.type === "race");
+    for (const doc of species) {
+      const groupName = foundry.utils.getProperty(doc, "flags.ddbimporter.groupName");
+      const fullName = foundry.utils.getProperty(doc, "flags.ddbimporter.fullName");
+      await traitCompendiumFolders.createSubTraitFolders(groupName, fullName);
+    }
+    const speciesHandler = await DDBItemImporter.buildHandler("species", species, updateFeatures, traitHandlerOptions);
+    await speciesHandler.buildIndex(featureHandlerOptions.indexFilter);
+
+    const traitFeatures = featTypeDocs.filter((doc) =>
+      ["race", "trait", "species"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
+      && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
+    );
+    logger.debug(`Adding species traits to the species compendium`, {
+      traitFeatures,
+    });
+    const traitHandler = await DDBItemImporter.buildHandler("traits", traitFeatures, updateFeatures, traitHandlerOptions);
+    await traitHandler.buildIndex(featureHandlerOptions.indexFilter);
+
+
+    const featHandlerOptions = {
+      chrisPremades: true,
+      deleteBeforeUpdate: false,
+    };
+    const featFeatures = featTypeDocs.filter((doc) =>
+      ["feat"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
+      && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
+    );
+    logger.debug(`Adding feats to the feats compendium`, {
+      featFeatures,
+    });
+    const featHandler = await DDBItemImporter.buildHandler("feats", featFeatures, updateFeatures, featHandlerOptions);
+    await featHandler.buildIndex(featureHandlerOptions.indexFilter);
+
+    const backgroundFeatures = documents.filter((doc) =>
+      ["background"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
+      && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
+    );
+    logger.debug(`Adding backgrounds to the backgrounds compendium`, {
+      backgroundFeatures,
+    });
+    const backgroundHandler = await DDBItemImporter.buildHandler("background", backgroundFeatures, updateFeatures, featHandlerOptions);
+    await backgroundHandler.buildIndex(featureHandlerOptions.indexFilter);
 
   }
 
