@@ -1157,6 +1157,11 @@ const DDBHelper = {
         = item.name === owned.name
         && item.type === owned.type
         && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
+      const definitionIdMatch
+        = foundry.utils.hasProperty(item, "flags.ddbimporter.definitionId")
+        && foundry.utils.hasProperty(owned, "flags.ddbimporter.id")
+        && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id
+        && item.flags?.ddbimporter?.definitionId === owned.flags?.ddbimporter?.definitionId;
       // account for choices in ddb
       const isChoice
         = foundry.utils.hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
@@ -1173,7 +1178,7 @@ const DDBHelper = {
         && item.type === overrideDetails.type
         && item.flags?.ddbimporter?.id === overrideDetails.ddbId;
 
-      return (simpleMatch && choiceMatch) || overrideMatch;
+      return ((simpleMatch || definitionIdMatch) && choiceMatch) || overrideMatch;
     });
   },
 

@@ -84,11 +84,13 @@ export default class DDBItemImporter {
 
   static updateCharacterItemFlags(itemData, replaceData) {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
-    if (replaceData.flags?.ddbimporter?.ddbCustomAdded) {
-      replaceData.system = itemData.system;
-      replaceData.type = itemData.type;
+    const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") == replaceData._id;
+    if (replaceData.flags?.ddbimporter?.ddbCustomAdded || overrideIdMatch) {
+      replaceData.name = itemData.name;
+      foundry.utils.setProperty(replaceData, "flags.ddbimporter.replacedId", itemData._id);
+      return replaceData;
     }
-    // if (itemData.system.activities) replaceData.system.activities = itemData.system.activities;
+
     if (itemData.system.quantity) replaceData.system.quantity = itemData.system.quantity;
     if (itemData.system.attuned) replaceData.system.attuned = itemData.system.attuned;
     if (itemData.system.attunement) replaceData.system.attunement = itemData.system.attunement;
@@ -120,7 +122,7 @@ export default class DDBItemImporter {
 
       const matched = overrideId
         ? oldItems.find((oldItem) => foundry.utils.getProperty(oldItem, "flags.ddbimporter.overrideId") == item._id)
-        : NameMatcher.looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
+        : NameMatcher.looseItemNameMatch(item, oldItems, looseMatch, monster);
 
       if (matched) {
         const match = foundry.utils.duplicate(matched);

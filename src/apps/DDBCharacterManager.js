@@ -199,17 +199,19 @@ export default class DDBCharacterManager extends FormApplication {
     });
   }
 
-  static async removeItems(items, itemsToRemove) {
+  static async removeItems(itemList, itemsToRemove) {
     return new Promise((resolve) => {
       resolve(
-        items.filter(
+        itemList.filter(
           (item) =>
-            !itemsToRemove.some((originalItem) => {
-              const originalNameMatch = originalItem.flags?.ddbimporter?.originalItemName
-                ? originalItem.flags.ddbimporter.originalItemName === item.name
+            !itemsToRemove.some((newItem) => {
+              const originalNameMatch = newItem.flags?.ddbimporter?.originalItemName
+                ? newItem.flags.ddbimporter.originalItemName === item.name
                 : false;
-              const nameMatch = item.name === originalItem.name || originalNameMatch;
-              return nameMatch && item.type === originalItem.type;
+              const nameMatch = item.name === newItem.name || originalNameMatch;
+              const linkMatch = newItem.flags?.ddbimporter?.replacedId === item._id
+                && item.flags?.ddbimporter?.overrideId === newItem.flags?.ddbimporter?.overrideId;
+              return linkMatch || (nameMatch && item.type === newItem.type);
             }),
         ),
       );
