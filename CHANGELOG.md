@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.43
 
 - Fixes for exporting custom items back to DDB and retaining custom items during import. @jak_o
 - Small tweaks to token vision distance when not using ATL. (Was not always calculated correctly).
