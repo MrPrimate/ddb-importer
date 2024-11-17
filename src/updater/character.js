@@ -661,6 +661,20 @@ async function deleteDDBCustomItems(actor, itemsToDelete) {
   });
 }
 
+/**
+ * Adds custom items to a D&D Beyond character.
+ *
+ * This function processes an array of items, enriches them with DDB information,
+ * and adds them as custom items to the specified actor. It sets various properties
+ * on each item to mark it as a custom item and associates it with its container
+ * entity and type. The function returns a promise that resolves to an array of
+ * the processed custom items.
+ *
+ * @param {object} actor The actor to which the custom items are to be added.
+ * @param {Array} itemsToAdd An array of items to be added as custom items.
+ * @returns {Array} A n array of the added
+ * custom items, each enriched with DDB information.
+ */
 async function addDDBCustomItems(actor, itemsToAdd) {
   let customItemResults = [];
   for (let i = 0; i < itemsToAdd.length; i++) {
@@ -684,20 +698,20 @@ async function addDDBCustomItems(actor, itemsToAdd) {
         weight: Number.isInteger(item.system.weight) ? parseInt(item.system.weight) : 0,
       },
     };
-    const result = updateCharacterCall(actor, "custom/item", customData, { name: item.name }).then((data) => {
-      foundry.utils.setProperty(item, "flags.ddbimporter.id", data.data.addItems[0].id);
-      foundry.utils.setProperty(item, "flags.ddbimporter.custom", true);
-      foundry.utils.setProperty(item, "flags.ddbimporter.ddbCustomAdded", true);
-      foundry.utils.setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", true);
-      foundry.utils.setProperty(item, "flags.ddbimporter.definitionId", data.data.addItems[0].definition.id);
-      foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityId", data.data.addItems[0].definition.containerEntityId);
-      foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityTypeId", data.data.addItems[0].definition.containerEntityTypeId);
-      return item;
-    });
-    customItemResults.push(result);
+
+    const itemData = item.toObject();
+    const data = await updateCharacterCall(actor, "custom/item", customData, { name: itemData.name });
+    foundry.utils.setProperty(itemData, "flags.ddbimporter.id", data.data.addItems[0].id);
+    foundry.utils.setProperty(itemData, "flags.ddbimporter.custom", true);
+    foundry.utils.setProperty(itemData, "flags.ddbimporter.ddbCustomAdded", true);
+    foundry.utils.setProperty(itemData, "flags.ddbimporter.dndbeyond.isCustomItem", true);
+    foundry.utils.setProperty(itemData, "flags.ddbimporter.definitionId", data.data.addItems[0].definition.id);
+    foundry.utils.setProperty(itemData, "flags.ddbimporter.containerEntityId", data.data.addItems[0].definition.containerEntityId);
+    foundry.utils.setProperty(itemData, "flags.ddbimporter.containerEntityTypeId", data.data.addItems[0].definition.containerEntityTypeId);
+    customItemResults.push(itemData);
   }
 
-  return Promise.all(customItemResults);
+  return customItemResults;
 }
 
 async function addDDBEquipment(actor, itemsToAdd) {
@@ -723,9 +737,12 @@ async function addDDBEquipment(actor, itemsToAdd) {
   };
 
   const customItems = await addDDBCustomItems(actor, generatedItemsToAddData.custom);
-  logger.debug("Adding custom items:", customItems);
 
   try {
+    logger.debug("Adding custom items:", {
+      ddbData: generatedItemsToAddData.custom,
+      customItems,
+    });
     const customItemResults = await actor.updateEmbeddedDocuments("Item", customItems);
     logger.debug("customItemResults", customItemResults);
   } catch (err) {

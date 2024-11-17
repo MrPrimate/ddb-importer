@@ -863,8 +863,8 @@ ${item.system.description.chat}
       }
     }
     if (foundry.utils.getProperty(ddbItemFlags, "ddbCustomAdded") ?? false) {
-      item.system = existingItem.system;
-      item.type = existingItem.type;
+      item.system = foundry.utils.deepClone(existingItem.system);
+      item.type = foundry.utils.deepClone(existingItem.type);
     }
     return item;
   }
@@ -879,36 +879,6 @@ ${item.system.description.chat}
 
       for (let item of items) {
         let existingItem = DDBHelper.findMatchedDDBItem(item, ownedItems, matchedItems);
-        // let existingItem = ownedItems.find((owned) => {
-        //   // have we already matched against this id? lets not double dip
-        //   const existingMatch = matchedItems.find((matched) => {
-        //     return foundry.utils.getProperty(owned, "flags.ddbimporter.id") === foundry.utils.getProperty(matched, "flags.ddbimporter.id");
-        //   });
-        //   if (existingMatch) return false;
-        //   // the simple match
-        //   const simpleMatch
-        //     = item.name === owned.name
-        //     && item.type === owned.type
-        //     && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
-        //   // account for choices in ddb
-        //   const isChoice
-        //     = foundry.utils.hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
-        //     && foundry.utils.hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
-        //   const choiceMatch = isChoice
-        //     ? item.flags.ddbimporter.dndbeyond.choice.choiceId
-        //       === owned.flags.ddbimporter.dndbeyond.choice.choiceId
-        //     : true;
-        //   // force an override
-        //   const overrideDetails = foundry.utils.getProperty(owned, "flags.ddbimporter.overrideItem");
-        //   const overrideMatch
-        //     = overrideDetails
-        //     && item.name === overrideDetails.name
-        //     && item.type === overrideDetails.type
-        //     && item.flags?.ddbimporter?.id === overrideDetails.ddbId;
-
-        //   return (simpleMatch && choiceMatch) || overrideMatch;
-        // });
-
         logger.debug(`Checking ${item.name} for existing match`, existingItem);
 
         if (existingItem) {
