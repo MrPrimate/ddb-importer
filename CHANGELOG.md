@@ -1,3 +1,7 @@
+# Next Up
+
+- Items would import with Str set as the default, even on finesse weapons. Revert back to default ability.
+
 # 6.0.44
 
 - Fixes and issue where custom items could be removed after repeated sync cycles @jak_o

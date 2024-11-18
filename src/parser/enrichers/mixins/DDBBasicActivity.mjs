@@ -271,7 +271,7 @@ export default class DDBBasicActivity {
   } = {}) {
 
     const attack = {
-      ability: ability ? [ability] : [Object.keys(CONFIG.DND5E.abilities)[0]],
+      ability: ability ? ability : "",
       bonus,
       critical: {
         threshold: criticalThreshold,
