@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.45
 
 - Items would import with Str set as the default, even on finesse weapons. Revert back to default ability.
 
