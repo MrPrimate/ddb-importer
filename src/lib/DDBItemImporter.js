@@ -85,11 +85,12 @@ export default class DDBItemImporter {
   static updateCharacterItemFlags(itemData, replaceData) {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
     const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") == replaceData._id;
-    if (replaceData.flags?.ddbimporter?.ddbCustomAdded || overrideIdMatch) {
+    const customAdded = foundry.utils.getProperty(itemData, "flags.ddbimporter.ddbCustomAdded");
+    if (customAdded || overrideIdMatch) {
       replaceData.name = itemData.name;
       foundry.utils.setProperty(replaceData, "flags.ddbimporter.replacedId", itemData._id);
-      return replaceData;
     }
+    if (customAdded || (itemData.flags?.ddbimporter?.dndbeyond?.isCustomItem && itemData.type === "loot")) return replaceData;
 
     if (itemData.system.quantity) replaceData.system.quantity = itemData.system.quantity;
     if (itemData.system.attuned) replaceData.system.attuned = itemData.system.attuned;

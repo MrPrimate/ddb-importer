@@ -451,11 +451,13 @@ async function updateDDBDeathSaves(actor) {
 
 async function deathSaves(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-deathsaves")) resolve();
-    const same = isEqual(ddbCharacter.data.character.system.attributes.death, actor.system.attributes.death);
-
-    if (!same) {
-      resolve(updateDDBDeathSaves(actor));
+    if (game.settings.get(SETTINGS.MODULE_ID, "sync-policy-deathsaves")) {
+      const same = isEqual(ddbCharacter.data.character.system.attributes.death, actor.system.attributes.death);
+      if (!same) {
+        resolve(updateDDBDeathSaves(actor));
+      } else {
+        resolve();
+      }
     } else {
       resolve();
     }
@@ -888,16 +890,52 @@ async function removeEquipment(actor, ddbCharacter) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment")) return [];
   const ddbItems = ddbCharacter.data.inventory;
-
-  const items = getFoundryItems(actor);
-  const itemsToRemove = ddbItems.filter((item) =>
-    (!items.some((s) => (item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type) && !s.flags.ddbimporter?.action)
-    || items.some((s) => (item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type) && !s.flags.ddbimporter?.action && s.system.quantity == 0))
-    && DICTIONARY.types.inventory.includes(item.type)
-    && item.flags.ddbimporter?.id,
+  const actorItems = getFoundryItems(actor).filter((item) =>
+    foundry.utils.getProperty(item, "flags.ddbimporter.action") !== true
+    && DICTIONARY.types.inventory.includes(item.type),
   );
+  const itemsToRemove = ddbItems.filter((item) => {
+    const ddbItemId = foundry.utils.getProperty(item, "flags.ddbimporter.id");
+    if (!ddbItemId) return false;
+    if (!DICTIONARY.types.inventory.includes(item.type)) return false;
+    if (foundry.utils.getProperty(item, "flags.ddbimporter.action") === true) return false;
 
-  return removeDDBEquipment(actor, itemsToRemove);
+    const actorItemTypeMatch = actorItems.find((s) =>
+      item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type,
+    );
+    if (actorItemTypeMatch) {
+      // found an item but zero quantity, remove
+      if (actorItemTypeMatch.system.quantity == 0) return true;
+      else return false;
+    }
+    const customItemMatch = actorItems.find((s) =>
+      item.flags.ddbimporter?.id === s.flags.ddbimporter?.id
+      && s.type !== item.type
+      && (
+        (foundry.utils.hasProperty(s, "flags.ddbimporter.replacedId") && foundry.utils.hasProperty(s, "flags.ddbimporter.overrideId"))
+        || foundry.utils.getProperty(s, "flags.ddbimporter.ddbCustomAdded") === true
+      ),
+    );
+    if (customItemMatch) return false;
+
+    // no match, remove
+    return true;
+  });
+
+  if (itemsToRemove.length === 0) return [];
+  else {
+    // logger.warn("removing items", {
+    //   actorItems,
+    //   actor,
+    //   ddbCharacter,
+    //   itemsToRemove,
+    //   ddbItems,
+    // });
+    logger.debug(`Removing ${itemsToRemove.length} items`, {
+      itemsToRemove,
+    });
+    return removeDDBEquipment(actor, itemsToRemove);
+  }
 }
 
 async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
