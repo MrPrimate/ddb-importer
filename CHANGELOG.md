@@ -3,6 +3,7 @@
 - Rings would not get AC Bonus effects generated since 6.0.42
 - Synaptic Static and Spirit Shroud parsing improvements
 - Add Primal Knowledge feature for 2024 Barbarians
+- Draconic Resilience ac was not correct for 2024 sorcerers in some circumstances
 
 # 6.0.45
 
