@@ -14,11 +14,6 @@ export default class DDBRaceTrait {
         ddbimporter: {
           type: "race",
         },
-        obsidian: {
-          source: {
-            type: "race",
-          },
-        },
       },
       img: null,
     };

@@ -10,7 +10,7 @@ import { DDBFeatureActivity } from "../activities/_module.mjs";
 
 export default class CharacterFeatureFactory {
 
-  getFeatureFromAction({ action, isAttack = null, manager = null }) {
+  getFeatureFromAction({ action, isAttack = null, manager = null, extraFlags = {} }) {
     const isAttackAction = isAttack ?? DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
     const ddbAction = isAttackAction
       ? new DDBAttackAction({
@@ -19,12 +19,14 @@ export default class CharacterFeatureFactory {
         ddbDefinition: action,
         rawCharacter: this.rawCharacter,
         type: action.actionSource,
+        extraFlags,
       })
       : new DDBAction({
         ddbCharacter: this.ddbCharacter,
         ddbData: this.ddbData,
         ddbDefinition: action,
         rawCharacter: this.rawCharacter,
+        extraFlags,
       });
     if (manager) ddbAction.enricher.manager = manager;
     ddbAction.build();

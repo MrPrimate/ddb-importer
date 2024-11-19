@@ -118,11 +118,6 @@ export default class DDBFeature extends DDBFeatureMixin {
             entityType: this.ddbDefinition.entityType,
           },
         },
-        obsidian: {
-          source: {
-            type: this.tagType,
-          },
-        },
       },
     };
 

@@ -34,11 +34,6 @@ export default class DDBRace {
         ddbimporter: {
           type: "race",
         },
-        obsidian: {
-          source: {
-            type: "race",
-          },
-        },
       },
       img: null,
     };
@@ -72,7 +67,7 @@ export default class DDBRace {
     const sourceIds = this.race.sources.map((sm) => sm.sourceId);
     this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
       sourceIds.includes(ddbSource.id)
-      && [23, 26].includes(ddbSource.sourceCategoryId),
+      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
     this.is2014 = this.race.isLegacy
       && this.race.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);

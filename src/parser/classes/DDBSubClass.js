@@ -63,12 +63,6 @@ export default class DDBSubClass extends DDBClass {
           is2014: this.is2014,
           is2024: !this.is2014,
         },
-        obsidian: {
-          source: {
-            type: "class",
-            text: this.ddbClass.subclassDefinition.name,
-          },
-        },
       },
       img: null,
     };

@@ -301,12 +301,6 @@ export default class DDBClass {
           is2024: !this.is2014,
           legacy: this.legacy,
         },
-        obsidian: {
-          source: {
-            type: "class",
-            text: this.ddbClass.definition.name,
-          },
-        },
       },
       img: null,
     };
@@ -404,7 +398,7 @@ export default class DDBClass {
     const sourceIds = this.ddbClassDefinition.sources.map((sm) => sm.sourceId);
     this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
       sourceIds.includes(ddbSource.id)
-      && [23, 26].includes(ddbSource.sourceCategoryId),
+      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
     this.is2014 = this.ddbClassDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
@@ -436,7 +430,7 @@ export default class DDBClass {
       noMods,
     };
 
-    this.dictionary = DICTIONARY.character.class.find((c) => c.name === this.ddbClassDefinition.name);
+    this.dictionary = DICTIONARY.character.class.find((c) => c.name === this.ddbClassDefinition.name) ?? { multiclassSkill: 0 };
 
     this.advancementHelper = new AdvancementHelper({
       ddbData,

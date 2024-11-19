@@ -122,20 +122,10 @@ export default class DDBClassFeatures {
               class: klass.definition.name,
               classId: klass.definition.id,
             },
-            "flags.obsidian.source.text": className,
           },
         });
         this.featureList.class.push(...foundry.utils.duplicate(items));
         return items;
-        // return items.map((item) => {
-        //   item.flags.ddbimporter.dndbeyond.class = className;
-        //   foundry.utils.setProperty(item.flags, "ddbimporter.class", klass.definition.name);
-        //   foundry.utils.setProperty(item.flags, "ddbimporter.classId", klass.definition.id);
-        //   item.flags.obsidian.source.text = className;
-        //   // add feature to all features list
-        //   this.featureList.class.push(foundry.utils.duplicate(item));
-        //   return item;
-        // });
       })))
       .flat()
       .sort((a, b) => {
@@ -193,23 +183,10 @@ export default class DDBClassFeatures {
               subClass: subClass?.name,
               subClassId: subClass?.id,
             },
-            "flags.obsidian.source.text": className,
           },
         });
         this.featureList.subClass.push(...foundry.utils.duplicate(items));
         return items;
-        // return items.map((item) => {
-        //   item.flags.ddbimporter.dndbeyond.class = subClassName;
-        //   item.flags.obsidian.source.text = className;
-        //   foundry.utils.setProperty(item.flags, "ddbimporter.class", klass.definition.name);
-        //   foundry.utils.setProperty(item.flags, "ddbimporter.classId", klass.definition.id);
-        //   const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
-        //   foundry.utils.setProperty(item.flags, "ddbimporter.subClass", subClass?.name);
-        //   foundry.utils.setProperty(item.flags, "ddbimporter.subClassId", subClass?.id);
-        //   // add feature to all features list
-        //   this.featureList.subClass.push(foundry.utils.duplicate(item));
-        //   return item;
-        // });
       })))
       .flat()
       .sort((a, b) => {

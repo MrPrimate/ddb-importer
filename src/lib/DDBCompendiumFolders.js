@@ -14,9 +14,7 @@ export class DDBCompendiumFolders {
     this.validFolderIds = [];
     this.classFolders = {};
     this.subClassFolders = {};
-    this.raceFolders = {};
-    this.subRaceFolders = {};
-    this.traitFolders = {};
+    this.speciesFolders = {};
     this.traitSubFolders = {};
     this.summonFolders = {};
     this.summonSubFolders = {};
@@ -41,6 +39,10 @@ export class DDBCompendiumFolders {
   }
 
   async addCompendiumFolderIds(documents) {
+    console.warn(`Adding Compendium Folders to ${documents.length} documents`, {
+      this: this,
+      documents,
+    });
     const results = documents.map(async (d) => {
       const folderId = await this.getFolderId(d);
       // eslint-disable-next-line require-atomic-updates
@@ -223,10 +225,26 @@ export class DDBCompendiumFolders {
           ?? (await this.createCompendiumFolder({ name: "Optional Features", parentId: folder._id, color: "#222222", flagTag }));
         this.validFolderIds.push(optionalFolder._id);
       }
-      if (includeOptions && className === "Artificer") {
+      if (!includeOptions) return;
+      if (className === "Artificer") {
         const flagTag = `infusions/Artificer`;
         const infusionsFolder = this.getFolder("Infusions", flagTag)
           ?? (await this.createCompendiumFolder({ name: "Infusions", parentId: folder._id, color: "#222222", flagTag }));
+        this.validFolderIds.push(infusionsFolder._id);
+      } else if (className === "Fighter") {
+        const flagTag = `infusions/Maneuvers`;
+        const infusionsFolder = this.getFolder("Maneuvers", flagTag)
+          ?? (await this.createCompendiumFolder({ name: "Maneuvers", parentId: folder._id, color: "#222222", flagTag }));
+        this.validFolderIds.push(infusionsFolder._id);
+      } else if (className === "Sorcerer") {
+        const flagTag = `infusions/Metamagic`;
+        const infusionsFolder = this.getFolder("Metamagic", flagTag)
+          ?? (await this.createCompendiumFolder({ name: "Metamagic", parentId: folder._id, color: "#222222", flagTag }));
+        this.validFolderIds.push(infusionsFolder._id);
+      } else if (className === "Warlock") {
+        const flagTag = `infusions/Invocations`;
+        const infusionsFolder = this.getFolder("Invocations", flagTag)
+          ?? (await this.createCompendiumFolder({ name: "Invocations", parentId: folder._id, color: "#222222", flagTag }));
         this.validFolderIds.push(infusionsFolder._id);
       }
     }
@@ -247,43 +265,45 @@ export class DDBCompendiumFolders {
     this.validFolderIds.push(folder._id);
   }
 
-  async getRacialBaseFolder(type, baseRaceName) {
-    const folderType = type.includes("trait") ? "traitFolders" : "raceFolders";
-    const flagType = type.includes("trait") ? "trait" : "race";
-    logger.debug(`Checking for race folder '${baseRaceName}'`);
-    const existingFolder = this.getFolder(baseRaceName, `${flagType}/${baseRaceName}`);
+  async getSpeciesBaseFolder(baseSpeciesName) {
+    logger.debug(`Checking for species folder '${baseSpeciesName}'`);
+    const existingFolder = this.getFolder(baseSpeciesName, `species/${baseSpeciesName}`);
     if (existingFolder) return existingFolder;
-    logger.debug(`Not found, creating race folder '${baseRaceName}'`);
+    logger.debug(`Not found, creating species folder '${baseSpeciesName}'`);
     const newFolder = await this.createCompendiumFolder({
-      name: baseRaceName,
-      flagTag: `${flagType}/${baseRaceName}`,
+      name: baseSpeciesName,
+      flagTag: `species/${baseSpeciesName}`,
     });
     this.validFolderIds.push(newFolder._id);
-    this[folderType][baseRaceName] = newFolder;
+    this.speciesFolders[baseSpeciesName] = newFolder;
     return newFolder;
   }
 
-  async createBaseRacialFolders(type) {
+  async createBaseSpeciesFolders() {
     const raceNames = CONFIG.DDB.raceGroups.map((c) => c.name);
     for (const raceName of raceNames) {
-      await this.getRacialBaseFolder(type, raceName);
+      await this.getSpeciesBaseFolder(raceName);
     }
   }
 
-  async createSubTraitFolders(baseRaceName, fullRaceName) {
-    const flagTag = `trait/${baseRaceName}/${fullRaceName}`;
-    logger.debug(`Checking for Race folder '${fullRaceName}' with Base Race '${baseRaceName}'`);
+  async createSubTraitFolders(baseSpeciesName, fullSpeciesName) {
+    const flagTag = `trait/${baseSpeciesName}/${fullSpeciesName}`;
+    logger.debug(`Checking for Species folder '${fullSpeciesName}' with Base Species '${baseSpeciesName}'`);
 
-    const parentFolder = await this.getRacialBaseFolder("trait", baseRaceName);
+    const parentFolder = await this.getSpeciesBaseFolder(baseSpeciesName);
 
-    const folder = this.getFolder(fullRaceName, flagTag)
+    const name = fullSpeciesName === baseSpeciesName
+      ? "Traits"
+      : `${fullSpeciesName} Traits`;
+
+    const folder = this.getFolder(fullSpeciesName, flagTag)
       ?? (await this.createCompendiumFolder({
-        name: fullRaceName,
+        name,
         parentId: parentFolder._id,
         color: "#222222",
         flagTag,
       }));
-    this.traitSubFolders[fullRaceName] = folder;
+    this.traitSubFolders[fullSpeciesName] = folder;
     this.validFolderIds.push(folder._id);
   }
 
@@ -328,15 +348,11 @@ export class DDBCompendiumFolders {
     switch (this.type) {
       case "species":
       case "race":
-      case "races": {
-        // we create these as needed
-        // this.createBaseRacialFolders("race");
-        break;
-      }
+      case "races":
       case "trait":
       case "traits": {
         // we create these as needed
-        // this.createBaseRacialFolders("trait");
+        // this.createBaseSpeciesFolders();
         break;
       }
       case "summons":
@@ -562,6 +578,8 @@ export class DDBCompendiumFolders {
     const className = foundry.utils.getProperty(document, "flags.ddbimporter.class");
     const optional = foundry.utils.getProperty(document, "flags.ddbimporter.optionalFeature");
     const infusion = foundry.utils.getProperty(document, "flags.ddbimporter.infusionFeature");
+
+    // to do metamagic, Maneuvers, invocations
     if (infusion) {
       result.name = "Infusions";
       result.flagTag = `infusions/${className}`;
@@ -595,14 +613,16 @@ export class DDBCompendiumFolders {
     // const baseRaceName = foundry.utils.getProperty(document, "flags.ddbimporter.baseRaceName");
     // const baseName = foundry.utils.getProperty(document, "flags.ddbimporter.baseName");
     // const subRaceShortName = foundry.utils.getProperty(document, "flags.ddbimporter.subRaceShortName");
-    const fullRaceName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
+    const fullSpeciesName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
     // const name = document.name;
     // const lowercaseName = name.toLowerCase();
 
     const groupName = foundry.utils.getProperty(document, "flags.ddbimporter.groupName");
 
-    result.name = fullRaceName;
-    result.flagTag = `trait/${groupName}/${fullRaceName}`;
+    result.name = fullSpeciesName === groupName
+      ? "Traits"
+      : `${fullSpeciesName} Traits`;
+    result.flagTag = `trait/${groupName}/${fullSpeciesName}`;
 
     return result;
   }
@@ -614,10 +634,10 @@ export class DDBCompendiumFolders {
       flagTag: "",
     };
 
-    const fullRaceName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
+    const fullSpeciesName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
     const groupName = foundry.utils.getProperty(document, "flags.ddbimporter.groupName");
-    result.name = groupName ?? fullRaceName;
-    result.flagTag = `race/${(groupName ?? fullRaceName)}`;
+    result.name = groupName ?? fullSpeciesName;
+    result.flagTag = `species/${(groupName ?? fullSpeciesName)}`;
 
     return result;
   }
@@ -759,11 +779,13 @@ export class DDBCompendiumFolders {
 
   getFolderId(document) {
     const folderName = this.getCompendiumFolderName(document);
+    console.warn(folderName);
     if (folderName) {
       const folder = this.getFolder((folderName.name ?? folderName), (folderName.flagTag ?? ""));
+      console.warn(folder);
       if (folder) return folder._id;
     }
-
+    console.warn("No folder found for", document, folderName);
     return undefined;
   }
 

@@ -78,11 +78,6 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
           legacy: this.legacy,
         },
         infusions: { infused: false },
-        obsidian: {
-          source: {
-            type: this.tagType,
-          },
-        },
       },
     };
     // Spells will still have activation/duration/range/target,
@@ -102,13 +97,12 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   _generateFlagHints() {
-    // obsidian and klass names (used in effect enrichment)
+    this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
+
     if (this._actionType.class) {
       const klass = DDBHelper.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
       this.klass = klass.definition.name;
-      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "class");
       foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "class");
-      foundry.utils.setProperty(this.data.flags, "obsidian.source.text", klass.definition.name);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
       const subKlass = DDBHelper.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
@@ -117,10 +111,10 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass?.name);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass?.id);
     } else if (this._actionType.race) {
-      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "race");
       foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "race");
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.fullRaceName", this.ddbCharacter?._ddbRace.fullName);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.groupName", this.ddbCharacter?._ddbRace.groupName);
     } else if (this._actionType.feat) {
-      foundry.utils.setProperty(this.data.flags, "obsidian.source.type", "feat");
       foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "feat");
     }
 
@@ -132,8 +126,6 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
     }
-
-    // this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
   }
 
   _generateSaveFromDescription() {
@@ -236,7 +228,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     const sourceIds = sources.map((sm) => sm.sourceId);
     this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
       sourceIds.includes(ddbSource.id)
-      && [23, 26].includes(ddbSource.sourceCategoryId),
+      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
     this.is2014 = sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 

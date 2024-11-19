@@ -184,6 +184,8 @@ export default class DDBFeatures {
         if (existingFeature && !duplicateFeature) {
           existingFeature.system.description.value += `<h3>Racial Trait Addition</h3>${item.system.description.value}`;
         } else if (!existingFeature) {
+          foundry.utils.setProperty(item, "flags.ddbimporter.fullRaceName", this.ddbCharacter._ddbRace.fullName);
+          foundry.utils.setProperty(item, "flags.ddbimporter.groupName", this.ddbCharacter._ddbRace.groupName);
           this.parsed.push(item);
         }
       });

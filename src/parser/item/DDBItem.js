@@ -106,7 +106,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     const sourceIds = this.ddbDefinition.sources.map((sm) => sm.sourceId);
     this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
       sourceIds.includes(ddbSource.id)
-      && [23, 26].includes(ddbSource.sourceCategoryId),
+      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
     this.is2014 = this.ddbDefinition.isLegacy
       && this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);

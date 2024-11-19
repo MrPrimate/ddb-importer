@@ -43,7 +43,6 @@ export async function getRaces(data) {
   for (const race of filteredRaces) {
     logger.debug(`${race.fullName} features parsing started...`);
     const groupName = DDBRace.getGroupName(race.groupIds, race.baseRaceName);
-    // await traitCompendiumFolders.getRacialBaseFolder("trait", groupName);
     for (const trait of race.racialTraits) {
       logger.debug(`${trait.definition.name} trait starting...`);
       if (!trait.definition.hideInSheet && !NO_TRAITS.includes(trait.definition.name)) {
@@ -71,7 +70,7 @@ export async function getRaces(data) {
     logger.debug(`${race.fullName} race parsing started...`);
     const ddbRace = new DDBRace(null, race, compendiumRacialTraits, true);
     await ddbRace.build();
-    await raceCompendiumFolders.getRacialBaseFolder("race", ddbRace.groupName);
+    await raceCompendiumFolders.getSpeciesBaseFolder(ddbRace.groupName);
     races.push(ddbRace.data);
   }
 

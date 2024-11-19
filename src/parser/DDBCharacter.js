@@ -555,6 +555,7 @@ export default class DDBCharacter {
       const fullName = foundry.utils.getProperty(doc, "flags.ddbimporter.fullName");
       await traitCompendiumFolders.createSubTraitFolders(groupName, fullName);
     }
+
     const speciesHandler = await DDBItemImporter.buildHandler("race", species, updateFeatures, traitHandlerOptions);
     await speciesHandler.buildIndex(featureHandlerOptions.indexFilter);
 
