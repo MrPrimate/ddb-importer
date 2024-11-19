@@ -39,10 +39,6 @@ export class DDBCompendiumFolders {
   }
 
   async addCompendiumFolderIds(documents) {
-    console.warn(`Adding Compendium Folders to ${documents.length} documents`, {
-      this: this,
-      documents,
-    });
     const results = documents.map(async (d) => {
       const folderId = await this.getFolderId(d);
       // eslint-disable-next-line require-atomic-updates
@@ -779,13 +775,10 @@ export class DDBCompendiumFolders {
 
   getFolderId(document) {
     const folderName = this.getCompendiumFolderName(document);
-    console.warn(folderName);
     if (folderName) {
       const folder = this.getFolder((folderName.name ?? folderName), (folderName.flagTag ?? ""));
-      console.warn(folder);
       if (folder) return folder._id;
     }
-    console.warn("No folder found for", document, folderName);
     return undefined;
   }
 
