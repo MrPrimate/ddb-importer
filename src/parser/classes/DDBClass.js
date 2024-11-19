@@ -591,8 +591,11 @@ export default class DDBClass {
     "Proficiencies",
 
     // tashas
-    "Primal Knowledge",
     "Martial Versatility",
+  ];
+
+  static EXCLUDED_FEATURE_ADVANCEMENTS_2014 = [
+    "Primal Knowledge",
   ];
 
   async _generateFeatureAdvancements() {
@@ -600,7 +603,9 @@ export default class DDBClass {
 
     const advancements = [];
     this.classFeatures
-      .filter((feature) => !DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS.includes(feature.name))
+      .filter((feature) => !DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS.includes(feature.name)
+      || (this.is2014 && DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS_2014.includes(feature.name)),
+      )
       .forEach((feature) => {
         const featureMatch = this.getFeatureCompendiumMatch(feature);
 

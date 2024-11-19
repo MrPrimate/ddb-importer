@@ -72,6 +72,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Metamagic Options",
     "Elemental Affinity",
     "Fiendish Resilience",
+    "Primal Knowledge",
   ];
 
   static NO_CHOICE_SECRET = [

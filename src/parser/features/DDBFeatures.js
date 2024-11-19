@@ -33,8 +33,11 @@ export default class DDBFeatures {
     "Speed",
     "Skills",
     "Feat",
-    "Primal Knowledge",
     "Creature Type",
+  ];
+
+  static SKIPPED_FEATURES_2014 = [
+    "Primal Knowledge",
   ];
 
   static TASHA_VERSATILE = [

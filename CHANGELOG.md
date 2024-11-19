@@ -1,3 +1,9 @@
+# Next Up
+
+- Rings would not get AC Bonus effects generated since 6.0.42
+- Synaptic Static and Spirit Shroud parsing improvements
+- Add Primal Knowledge feature for 2024 Barbarians
+
 # 6.0.45
 
 - Items would import with Str set as the default, even on finesse weapons. Revert back to default ability.
