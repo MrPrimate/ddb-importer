@@ -5,6 +5,8 @@
 - Add Primal Knowledge feature for 2024 Barbarians
 - Draconic Resilience ac was not correct for 2024 sorcerers in some circumstances
 - Improve detection of DAE/Times Up special conditions for auto effect generation
+- DRY up some effect generation code
+- Flame Tongue (2024)parsing improvements
 
 # 6.0.45
 
