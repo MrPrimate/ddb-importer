@@ -586,6 +586,19 @@ export default class Utils {
     return Array.from(setProperties);
   }
 
+  static addArrayToProperties(properties, values) {
+    const setProperties = properties
+      ? Utils.isArray(properties)
+        ? new Set(properties)
+        : properties
+      : new Set();
+
+    values.forEach((value) => {
+      setProperties.add(value);
+    });
+    return Array.from(setProperties);
+  }
+
   static removeFromProperties(properties, value) {
     const setProperties = properties
       ? Utils.isArray(properties)
@@ -594,6 +607,19 @@ export default class Utils {
       : new Set();
 
     setProperties.delete(value);
+    return Array.from(setProperties);
+  }
+
+  static removeArrayFromProperties(properties, values) {
+    const setProperties = properties
+      ? Utils.isArray(properties)
+        ? new Set(properties)
+        : properties
+      : new Set();
+
+    values.forEach((value) => {
+      setProperties.delete(value);
+    });
     return Array.from(setProperties);
   }
 

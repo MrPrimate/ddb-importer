@@ -447,6 +447,8 @@ export default class DDBEnricherMixin {
             foundry.utils.setProperty(effect, "duration.seconds", duration.second);
             foundry.utils.setProperty(effect, "duration.rounds", duration.round);
           }
+          const specialDurations = utils.addArrayToProperties(effect.flags.dae.specialDuration, duration.dae ?? []);
+          foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
         }
 
       }

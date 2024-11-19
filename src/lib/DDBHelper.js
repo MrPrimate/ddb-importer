@@ -1216,7 +1216,7 @@ const DDBHelper = {
   },
 
 
-  getDuration(text, returnDefault = true) {
+  getDuration(text, returnDefault = true, generateSpecial = true) {
     const defaultDurationSeconds = 60;
     const result = {
       type: returnDefault ? "second" : null,
@@ -1227,6 +1227,7 @@ const DDBHelper = {
       special: "",
       value: null,
       units: "inst",
+      dae: [],
     };
     const re = /for (\d+) (minute|hour|round|day|month|year)/; // turn|day|month|year
     const match = text.match(re);
@@ -1278,14 +1279,29 @@ const DDBHelper = {
     }
 
 
-    const smallMatchRe = /until the (?:end|start) of its next turn|until the (?:end|start) of the target's next turn|until the (?:end|start) of your next turn/ig;
-    const smallMatch = smallMatchRe.exec(text);
+    if (!generateSpecial) return result;
+
+    const smallMatchRe = /until the (?<point>end|start) of (?<whos>its|the target's|your) next turn/ig;
+    const smallMatch = smallMatchRe.exec(utils.nameString(text));
     if (smallMatch) {
       result.type = "special";
       result.units = "spec";
       result.second = 6;
       result.round = 1;
       result.special = smallMatch[0];
+      // "turnStart" - expires at the start of the targets next turn
+      // "turnEnd" - expires at the end of the targets next turn
+      // "turnStartSource" - expires at the start of the source actors next turn
+      // "turnEndSource" - expires at the end of the source actors next turn
+      // "combatEnd" - expires at the end of combat
+      // "joinCombat" - expires at the start of combat
+      result.dae = [];
+      if (["its", "the target's"].includes(smallMatch.groups.whos)) {
+        result.dae.push(`turn${utils.capitalize(smallMatch.groups.point)}`);
+      } else if (["your"].includes(smallMatch.groups.whos)) {
+        result.dae.push(`turn${utils.capitalize(smallMatch.groups.point)}Source`);
+      }
+
       return result;
     }
     return result;

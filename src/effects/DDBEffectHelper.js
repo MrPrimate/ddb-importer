@@ -1319,7 +1319,11 @@ export default class DDBEffectHelper {
       effect: {
         name: "",
         changes: [],
-        flags: {},
+        flags: {
+          dae: {
+            specialDuration: [],
+          },
+        },
         statuses: [],
         duration: {
           seconds: null,
