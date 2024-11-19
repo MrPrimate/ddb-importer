@@ -275,6 +275,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
     let versatile = false;
     for (const dmg of matches) {
       let other = false;
+      let save = false;
       let thisVersatile = false;
       let thisOther = false;
       if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
@@ -310,10 +311,13 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
         // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
         // versatile for damage
         // ignore if dmg[1] is and as it likely indicates the whole thing is a save
-        if ((((dmg[5] ?? "").trim() == "on a failed save" && (dmg[1] ?? "").trim() !== "and")
-            || (dmg[1] && dmg[1].includes("saving throw")))
+        const savePart1 = dmg[1] && dmg[1].includes("saving throw");
+        const savePart5 = (dmg[5] ?? "").trim() == "on a failed save";
+        if (((savePart5 && (dmg[1] ?? "").trim() !== "and")
+            || savePart1)
           && this.actionInfo.damageParts.length >= 1
         ) {
+          save = savePart1 || savePart5;
           other = true;
           thisOther = true;
         }
@@ -326,8 +330,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
             this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
           } else {
             this.additionalActivities.push({
-              name: "Damage",
-              type: "damage",
+              name: save ? "Save vs" : "Damage",
+              type: save ? "save" : "damage",
               options: {
                 generateDamage: true,
                 damageParts: [part],
