@@ -209,6 +209,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     "Vow of Enmity": ClassEnrichers.Paladin.VowOfEnmity,
     "Warping Implosion": ClassEnrichers.Sorcerer.WarpingImplosion,
     "Wild Magic Surge": ClassEnrichers.Sorcerer.WildMagicSurge,
+    "Draconic Resilience": ClassEnrichers.Sorcerer.DraconicResilience,
   };
 
   ACTIVITY_HINTS = {
@@ -3516,14 +3517,6 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     },
     "Disciplined Survivor": {
       clearAutoEffects: true,
-    },
-    "Draconic Resilience": {
-      noCreate: true,
-      changesOverwrite: true,
-      changes: [
-        generateUnsignedAddChange("1 * @classes.sorcerer.levels", 20, "system.attributes.hp.bonuses.overall"),
-        generateOverrideChange("draconic", 20, "system.attributes.ac.calc"),
-      ],
     },
     "Dual Wielder": {
       options: {

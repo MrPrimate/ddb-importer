@@ -550,11 +550,15 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
   let calc = "default";
   let flat = null;
   let formula = "";
-  if (classFeatures.some((kf) =>
+  const draconicResilienceFeatures = classFeatures.filter((kf) =>
     kf.className === "Sorcerer"
-    && kf.subclassName === "Draconic Bloodline"
     && kf.name === "Draconic Resilience",
-  )) calc = "draconic";
+  );
+  if (draconicResilienceFeatures.some((kf) => kf.subclassName === "Draconic Bloodline")) {
+    calc = "draconic";
+  } else if (draconicResilienceFeatures.some((kf) => kf.subclassName === "Draconic Sorcery")) {
+    calc = "unarmoredBard";
+  }
 
   if (classFeatures.some((kf) =>
     kf.className === "Monk"

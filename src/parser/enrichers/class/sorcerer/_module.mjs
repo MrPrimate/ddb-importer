@@ -11,3 +11,4 @@ export { default as SorceryIncarnate } from "./SorceryIncarnate.mjs";
 export { default as TranceOfOrder } from "./TranceOfOrder.mjs";
 export { default as WarpingImplosion } from "./WarpingImplosion.mjs";
 export { default as WildMagicSurge } from "./WildMagicSurge.mjs";
+export { default as DraconicResilience } from "./DraconicResilience.mjs";
