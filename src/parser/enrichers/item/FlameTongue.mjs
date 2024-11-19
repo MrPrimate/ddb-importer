@@ -9,4 +9,12 @@ export default class FlameTongue extends DDBEnricherData {
     };
   }
 
+  get effects() {
+    return [
+      {
+        name: "Weapon Aflame",
+      },
+    ];
+  }
+
 }

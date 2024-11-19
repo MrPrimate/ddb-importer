@@ -3,7 +3,8 @@ import { utils, logger, DDBHelper, DDBTable, DDBReferenceLinker, Iconizer, Compe
 import { DDBItemActivity } from "../activities/_module.mjs";
 import { DDBItemEnricher, mixins } from "../enrichers/_module.mjs";
 import MagicItemMaker from "./MagicItemMaker.js";
-import { getStatusEffect } from "../../effects/effects.js";
+import { generateEffects, getStatusEffect } from "../../effects/effects.js";
+import { addRestrictionFlags } from "../../effects/restrictions.js";
 
 export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
@@ -2648,6 +2649,26 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     // }
   }
 
+  async _addEffects() {
+    if (this.data.name === "") this.data.name = "Unknown Object";
+    this.data = generateEffects({
+      ddb: this.ddbData,
+      character: this.raw.character,
+      ddbItem: this.ddbItem,
+      foundryItem: this.data,
+      isCompendiumItem: this.isCompendiumItem,
+      type: "item",
+      description: this.data.system.description.chat !== ""
+        ? this.data.system.description.chat
+        : this.data.system.description.value,
+    });
+    this.data = await addRestrictionFlags(this.data, this.addAutomationEffects);
+
+    const effects = this.enricher.createEffect();
+    this.data.effects.push(...effects);
+    this._activityEffectLinking();
+  }
+
   // eslint-disable-next-line complexity
   async build() {
     try {
@@ -2696,6 +2717,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       await this.#generateDescription();
       DDBHelper.addCustomValues(this.ddbData, this.data);
       await this.#basicMagicItem();
+
+      await this._addEffects();
 
       this.enricher.addDocumentOverride();
 

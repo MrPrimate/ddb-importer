@@ -17,28 +17,16 @@ export default class DDBItemEnricher extends DDBEnricherMixin {
   }
 
   NAME_HINTS = {
-    "Absorbing Tattoo, Acid": "Absorbing Tattoo",
-    "Absorbing Tattoo, Cold": "Absorbing Tattoo",
-    "Absorbing Tattoo, Fire": "Absorbing Tattoo",
-    "Absorbing Tattoo, Force": "Absorbing Tattoo",
-    "Absorbing Tattoo, Lightning": "Absorbing Tattoo",
-    "Absorbing Tattoo, Necrotic": "Absorbing Tattoo",
-    "Absorbing Tattoo, Poison": "Absorbing Tattoo",
-    "Absorbing Tattoo, Psychic": "Absorbing Tattoo",
-    "Absorbing Tattoo, Radiant": "Absorbing Tattoo",
-    "Absorbing Tattoo, Thunder": "Absorbing Tattoo",
     "Alchemist's Fire (flask)": "Alchemist's Fire",
-    "Moon Sickle, +1": "Moon Sickle",
-    "Moon Sickle, +2": "Moon Sickle",
-    "Moon Sickle, +3": "Moon Sickle",
     "Potion of Greater Healing": "Potion of Healing (Greater)",
     "Potion of Superior Healing": "Potion of Healing (Superior)",
     "Potion of Supreme Healing": "Potion of Healing (Supreme)",
-    "Flame Tongue Greatsword": "Flame Tongue",
-    "Flame Tongue Longsword": "Flame Tongue",
-    "Flame Tongue Rapier": "Flame Tongue",
-    "Flame Tongue Scimitar": "Flame Tongue",
-    "Flame Tongue Shortsword": "Flame Tongue",
+  };
+
+  NAME_HINT_INCLUDES = {
+    "Absorbing Tattoo": "Absorbing Tattoo",
+    "Flame Tongue": "Flame Tongue",
+    "Moon Sickle": "Moon Sickle",
   };
 
   ENRICHERS = {

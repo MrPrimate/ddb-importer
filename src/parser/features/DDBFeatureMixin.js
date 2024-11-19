@@ -782,38 +782,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     const effects = this.enricher.createEffect();
     this.data.effects.push(...effects);
 
-    // console.warn(`${this.name} enricher effects`, {
-    //   effects: this.data.effects,
-    //   this: this,
-    // })
-
-    if (this.data.effects.length > 0 && this.data.system.activities) {
-      for (const activityId of Object.keys(this.data.system.activities)) {
-        const activity = this.data.system.activities[activityId];
-        if (activity.effects.length !== 0) continue;
-        if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
-        for (const effect of this.data.effects) {
-          if (effect.transfer) continue;
-          if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
-          const activityNamesRequired = foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")
-            ? foundry.utils.getProperty(effect, "flags.ddbimporter.activitiesMatch")
-            : foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
-              ? [foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch")]
-              : [];
-          if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name)) continue;
-          const effectId = effect._id ?? foundry.utils.randomID();
-          effect._id = effectId;
-          activity.effects.push({ _id: effectId });
-        }
-        this.data.system.activities[activityId] = activity;
-      }
-    }
-
-    // console.warn(`Effect Addition ${this.name}`, {
-    //   dataEffects: this.data.effects,
-    //   activities: this.data.system.activities,
-    //   this: this,
-    // });
+    this._activityEffectLinking();
   }
 
 

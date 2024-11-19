@@ -6,9 +6,7 @@ import { DICTIONARY } from "../../config/_module.mjs";
 import DDBItem from "../item/DDBItem.js";
 
 // effects support
-import { generateEffects } from "../../effects/effects.js";
 import { parseInfusion } from "./infusions.js";
-import { addRestrictionFlags } from "../../effects/restrictions.js";
 import { midiItemEffects } from "../../effects/specialEquipment.js";
 
 // TO DO: revisit to break up item parsing
@@ -52,54 +50,17 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
     await itemParser.build();
 
     logger.debug(`Item ${ddbItem.definition.name} parsed`, itemParser);
-
     let item = Object.assign({}, itemParser.data);
-
     if (item) {
-      if (!item.effects) item.effects = [];
-      if (!item.name || item.name === "") item.name = "Item";
-      item = generateEffects({
-        ddb: this.source.ddb,
-        character: this.raw.character,
-        ddbItem,
-        foundryItem: item,
-        isCompendiumItem,
-        type: "item",
-        description: item.system.description.chat !== ""
-          ? item.system.description.chat
-          : item.system.description.value,
-      });
-      item = await addRestrictionFlags(item, addAutomationEffects);
-
-      if (!isCompendiumItem) item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
+      if (!isCompendiumItem) {
+        // parse any infusion data for characters
+        item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
+      }
 
       // KNOWN_ISSUE_4_0: refactor midi effects
       if (addAutomationEffects) item = await midiItemEffects(item);
 
-      const effects = itemParser.enricher.createEffect();
-      item.effects.push(...effects);
-
       items.push(item);
-    }
-  }
-
-  for (const item of items) {
-    if (item.effects.length > 0 && item.system.activities) {
-      for (const activityId of Object.keys(item.system.activities)) {
-        const activity = item.system.activities[activityId];
-        if (activity.effects?.length !== 0) continue;
-        if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
-        for (const effect of item.effects) {
-          if (effect.transfer) continue;
-          if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
-          const activityNameRequired = foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch");
-          if (activityNameRequired && activity.name !== activityNameRequired) continue;
-          const effectId = effect._id ?? foundry.utils.randomID();
-          effect._id = effectId;
-          activity.effects.push({ _id: effectId });
-        }
-        item.system.activities[activityId] = activity;
-      }
     }
   }
 
@@ -109,7 +70,6 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
 
 
 DDBCharacter.prototype._generateInventory = async function _generateInventory() {
-
   this.raw.itemSpells = await GenericSpellFactory.getItemSpells(this.source.ddb, this.raw.character, {
     generateSummons: this.generateSummons,
   });

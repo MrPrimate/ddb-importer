@@ -141,14 +141,6 @@ const RESTRICTION_MAPPINGS = [
     restriction: `["giant"].includes("@raceOrType")`,
   },
   {
-    name: "Flame Tongue",
-    ddb: ["While Flaming"],
-    restriction: "",
-    removeOther: true,
-    damageParts: [["2d6[fire]", "fire"]],
-    replaceFlavor: "Extra damage only whilst flaming",
-  },
-  {
     name: "Dwarven Thrower",
     ddb: ["On hit with a ranged attack against Giants", "When Thrown (+2d8 against Giants)"],
     restriction: `["giant"].includes("@raceOrType")`,

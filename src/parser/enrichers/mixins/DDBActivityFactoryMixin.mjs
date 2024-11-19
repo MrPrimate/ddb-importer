@@ -354,10 +354,16 @@ export default class DDBActivityFactoryMixin {
         const activity = this.data.system.activities[activityId];
         if (activity.effects.length !== 0) continue;
         if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
+        const ignoreTransfer = foundry.utils.getProperty(activity, "flags.ddbimporter.ignoreTransfer") ?? false;
         for (const effect of this.data.effects) {
+          if (effect.transfer && !ignoreTransfer) continue;
           if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
-          const activityNameRequired = foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch");
-          if (activityNameRequired && activity.name !== activityNameRequired) continue;
+          const activityNamesRequired = foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")
+            ? foundry.utils.getProperty(effect, "flags.ddbimporter.activitiesMatch")
+            : foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
+              ? [foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch")]
+              : [];
+          if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name)) continue;
           const effectId = effect._id ?? foundry.utils.randomID();
           effect._id = effectId;
           const level = foundry.utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null };

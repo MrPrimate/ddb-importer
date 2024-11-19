@@ -17,7 +17,11 @@ export default class DDBEnricherMixin {
 
   NAME_HINTS_2014 = {};
 
+  NAME_HINT_2014_INCLUDES = {};
+
   NAME_HINTS = {};
+
+  NAME_HINT_INCLUDES = {};
 
   ACTIVITY_HINTS = {};
 
@@ -35,15 +39,15 @@ export default class DDBEnricherMixin {
     return utils.isFunction(stub) ? stub() : stub;
   }
 
-  _loadEnricherData(name) {
-    if (!this.ENRICHERS?.[name]) return null;
-    return new this.ENRICHERS[name]({
+  _loadEnricherData() {
+    if (!this.ENRICHERS?.[this.hintName]) return null;
+    return new this.ENRICHERS[this.hintName]({
       ddbEnricher: this,
     });
   }
 
   _getEnricherMatchesV2() {
-    const loadedEnricher = this._loadEnricherData(this.hintName);
+    const loadedEnricher = this._loadEnricherData();
     if (!loadedEnricher) return;
     this.loadedEnricher = loadedEnricher;
   }
@@ -64,13 +68,36 @@ export default class DDBEnricherMixin {
     return loadedMatch;
   }
 
+  _getNameHint() {
+    if (this.isCustomAction) return;
+    const fullHint = (this.is2014 ? this.NAME_HINTS_2014[this.name] : null)
+      ?? this.NAME_HINTS[this.name];
+    if (fullHint) {
+      this.hintName = fullHint;
+      return;
+    }
+
+    if (this.is2014) {
+      const keys = Object.keys(this.NAME_HINT_2014_INCLUDES);
+      const hint = keys.find((key) => this.name.includes(key));
+      if (hint) {
+        this.hintName = this.NAME_HINT_2014_INCLUDES[hint];
+        return;
+      }
+    }
+
+    const keys = Object.keys(this.NAME_HINT_INCLUDES);
+    const hint = keys.find((key) => this.name.includes(key));
+    if (hint) {
+      this.hintName = this.NAME_HINT_INCLUDES[hint];
+      return;
+    }
+
+    this.hintName = this.name;
+  }
 
   _prepare() {
-    if (this.isCustomAction) return;
-    this.hintName = (this.is2014 ? this.NAME_HINTS_2014[this.name] : null)
-      ?? this.NAME_HINTS[this.name]
-      ?? this.name;
-
+    this._getNameHint();
     this._getEnricherMatchesV2();
   }
 
@@ -160,6 +187,7 @@ export default class DDBEnricherMixin {
     this.loadedEnricher = null;
     this._originalActivity = null;
     this.notifier = notifier;
+    this.hintName = null;
   }
 
   load({ ddbParser, document, name = null, is2014 = null } = {}) {
@@ -486,6 +514,10 @@ export default class DDBEnricherMixin {
 
       if (effectHint.activityMatch) {
         foundry.utils.setProperty(effect, "flags.ddbimporter.activityMatch", effectHint.activityMatch);
+      }
+
+      if (effectHint.ignoreTransfer) {
+        foundry.utils.setProperty(effect, "flags.ddbimporter.ignoreTransfer", effectHint.ignoreTransfer);
       }
 
       if (effectHint.activitiesMatch) {
