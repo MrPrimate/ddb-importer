@@ -2,7 +2,7 @@
 
 import { newNPC } from "./monster/templates/monster.js";
 import { specialCases } from "./monster/special.js";
-import { monsterFeatureEffectAdjustment, transferEffectsToActor } from "../effects/specialMonsters.js";
+import { monsterFeatureEffectAdjustment } from "../effects/specialMonsters.js";
 import { logger, utils, CompendiumHelper, FileHelper, Secrets, DDBProxy, PatreonHelper } from '../lib/_module.mjs';
 import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory.js";
 import { SETTINGS } from "../config/_module.mjs";
@@ -272,7 +272,6 @@ export default class DDBMonster {
         });
       }
     }
-    this.npc = transferEffectsToActor(this.npc);
 
     this._generateTaggerFlags();
     this._generate3DModels();

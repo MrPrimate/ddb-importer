@@ -248,6 +248,7 @@ export default class DDBEnricherData {
    *   data: {object} Data to be merged with the document data.
    *   descriptionSuffix: {string} A suffix to be appended to the document description.
    *   replaceActivityUses: {boolean} If true, replaces activity uses with matched parent in target
+   *   func: {function} Run this function passing in the enricher as a variable in teh params object
    */
   get override() {
     return null;

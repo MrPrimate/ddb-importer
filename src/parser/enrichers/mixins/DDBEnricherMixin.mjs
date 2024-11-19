@@ -365,8 +365,6 @@ export default class DDBEnricherMixin {
       activity = foundry.utils.mergeObject(activity, data);
     }
 
-    if (overrideData.func) overrideData.func(activity);
-
     if (overrideData.allowMagical) {
       activity.restrictions.allowMagical = true;
     }
@@ -381,6 +379,8 @@ export default class DDBEnricherMixin {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.noEffectIds", ids);
       foundry.utils.setProperty(activity, "flags.ddbimporter.noeffect", true);
     }
+
+    if (overrideData.func) overrideData.func(activity);
 
     return activity;
   }
@@ -565,6 +565,12 @@ export default class DDBEnricherMixin {
       if (this.data.system.description.chat !== "") this.data.system.description.chat += override.descriptionSuffix;
     }
 
+    if (override?.func) {
+      override.func({
+        enricher: this,
+      });
+    }
+
     return this.data;
   }
 
@@ -577,6 +583,8 @@ export default class DDBEnricherMixin {
     const activity = new this.activityGenerator(activationData);
     activity.build(activityHint.build);
 
+    if (activityHint.id) activity.data._id = activityHint.id;
+
     return {
       activities: {
         [activity.data._id]: activity.data,
@@ -585,7 +593,7 @@ export default class DDBEnricherMixin {
     };
   }
 
-  _buildActivitiesFromAction({ name, type, isAttack = null, rename = null }, y) {
+  _buildActivitiesFromAction({ name, type, isAttack = null, rename = null, id = null }, y) {
     const result = {
       activities: {},
       effects: [],
@@ -602,7 +610,7 @@ export default class DDBEnricherMixin {
     });
     actionFeatures.forEach((feature, i) => {
       for (const activityKey of (Object.keys(feature.system.activities))) {
-        let newKey = `${activityKey.slice(0, -3)}Ne${y + i}`;
+        let newKey = id ?? `${activityKey.slice(0, -3)}Ne${y + i}`;
         while (result.activities[newKey] || this.data.system.activities[newKey]) {
           newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
         }
@@ -626,6 +634,7 @@ export default class DDBEnricherMixin {
     for (const activityHint of additionalActivities) {
       const actionActivity = foundry.utils.getProperty(activityHint, "action");
       const duplicate = foundry.utils.getProperty(activityHint, "duplicate");
+      const _id = foundry.utils.getProperty(activityHint, "id");
       const activityData = {
         activities: {},
         effects: [],
@@ -634,7 +643,7 @@ export default class DDBEnricherMixin {
       if (duplicate) {
         const key = Object.keys(this.data.system.activities)[0];
         const activityClone = foundry.utils.deepClone(this.data.system.activities[key]);
-        activityClone._id = `${activityClone._id.slice(0, -3)}clo`;
+        activityClone._id = _id ?? `${activityClone._id.slice(0, -3)}clo`;
         activityData.activities = [activityClone];
       } else if (actionActivity) {
         logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });

@@ -319,13 +319,21 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
         }
         // assumption here is that there is just one field added to versatile. this is going to be rare.
         if (other) {
-          if (this.actionInfo.formula == "") this.actionInfo.formula = finalDamage;
-          else this.actionInfo.formula += ` + ${finalDamage}`;
+          const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
 
           if (!thisOther && dmg[1].trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
-            const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
             this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
+          } else {
+            this.additionalActivities.push({
+              name: "Damage",
+              type: "damage",
+              options: {
+                generateDamage: true,
+                damageParts: [part],
+                includeBaseDamage: false,
+              },
+            });
           }
         } else if (versatile) {
           if (this.actionInfo.damage.versatile == "") this.actionInfo.damage.versatile = finalDamage;
@@ -384,18 +392,6 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
       const part = DDBBasicActivity.buildDamagePart({ damageString: this.actionInfo.damage.versatile, stripMod: this.templateType === "weapon" });
       this.additionalActivities.push({
         name: `Versatile`,
-        options: {
-          generateDamage: true,
-          damageParts: [part],
-          includeBaseDamage: false,
-        },
-      });
-    }
-
-    if (this.actionInfo.formula != "") {
-      const part = DDBBasicActivity.buildDamagePart({ damageString: this.actionInfo.formula, stripMod: this.templateType === "weapon" });
-      this.additionalActivities.push({
-        name: `Other`,
         options: {
           generateDamage: true,
           damageParts: [part],
@@ -1157,6 +1153,19 @@ ${this.data.system.description.value}
     return null;
   }
 
+  async _generateEffects() {
+    // await spellEffectAdjustment(this.data, this.addSpellEffects);
+    // foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
+
+    // if (this.data.effects.length === 0) this.#addConditionEffects();
+    if (this.enricher.clearAutoEffects) this.data.effects = [];
+    const effects = this.enricher.createEffect();
+    this.data.effects.push(...effects);
+
+    this._activityEffectLinking();
+  }
+
+
   async parse() {
 
     await this.enricher.init();
@@ -1191,6 +1200,7 @@ ${this.data.system.description.value}
       this.#addHealAdditionalActivities();
       this._generateAdditionalActivities();
       this.enricher.addAdditionalActivities(this);
+      this._generateEffects();
     }
 
     foundry.utils.setProperty(this.data, "flags.monsterMunch.actionInfo.damage", this.actionInfo.damage);

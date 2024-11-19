@@ -30,30 +30,6 @@ export function baseMonsterFeatureEffect(document, label,
   return baseEffect(document, label, { transfer, disabled });
 }
 
-export function transferEffectsToActor(document) {
-  // when legacy transferral gets removed, we don't need to do this.
-  if (!CONFIG.ActiveEffect.legacyTransferral) return document;
-  if (!document.effects) document.effects = [];
-  // loop over items and item effect and transfer any effects to the actor
-  document.items.forEach((item) => {
-    item.effects.forEach((effect) => {
-      if (effect.transfer) {
-        const transferEffect = foundry.utils.duplicate(effect);
-        if (!foundry.utils.hasProperty(item, "_id")) item._id = foundry.utils.randomID();
-        if (!foundry.utils.hasProperty(effect, "_id")) effect._id = foundry.utils.randomID();
-        transferEffect._id = foundry.utils.randomID();
-        transferEffect.transfer = false;
-        transferEffect.origin = `Actor.${document._id}.Item.${item._id}`;
-        foundry.utils.setProperty(transferEffect, "flags.ddbimporter.originName", item.name);
-        foundry.utils.setProperty(transferEffect, "flags.ddbimporter.localOriginEffect", true);
-        document.effects.push(transferEffect);
-      }
-    });
-  });
-
-  return document;
-}
-
 // eslint-disable-next-line complexity
 export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects = false) {
   let npc = foundry.utils.duplicate(ddbMonster.npc);

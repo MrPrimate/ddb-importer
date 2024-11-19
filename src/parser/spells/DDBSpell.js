@@ -774,30 +774,6 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-  #activityEffectLinking() {
-    if (this.data.effects.length > 0) {
-      for (const activityId of Object.keys(this.data.system.activities)) {
-        const activity = this.data.system.activities[activityId];
-        if (activity.effects.length !== 0) continue;
-        if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
-        for (const effect of this.data.effects) {
-          if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
-          const activityNameRequired = foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch");
-          if (activityNameRequired && activity.name !== activityNameRequired) continue;
-          const effectId = effect._id ?? foundry.utils.randomID();
-          effect._id = effectId;
-          const level = foundry.utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null };
-          const riders = {
-            effect: [],
-            item: [],
-          };
-          activity.effects.push({ _id: effectId, level, riders });
-        }
-        this.data.system.activities[activityId] = activity;
-      }
-    }
-  }
-
   async _applyEffects() {
     // KNOWN_ISSUE_4_0: once spell effects adjusted
     await spellEffectAdjustment(this.data, this.addSpellEffects);
@@ -808,7 +784,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     const effects = this.enricher.createEffect();
     this.data.effects.push(...effects);
 
-    this.#activityEffectLinking();
+    this._activityEffectLinking();
   }
 
   #addHealAdditionalActivities() {

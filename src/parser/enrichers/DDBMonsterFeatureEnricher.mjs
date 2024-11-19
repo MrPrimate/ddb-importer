@@ -4,14 +4,10 @@ import { MonsterEnrichers } from "./_module.mjs";
 export default class DDDMonsterFeatureEnricher extends DDBEnricherMixin {
 
   _loadEnricherData(name) {
-    const stub = this.ENRICHERS?.[this.monsterName]?.[name];
-    if (stub) {
-      const EnricherClass = DDBEnricherMixin._loadDataStub(stub);
-      return new EnricherClass({
-        ddbEnricher: this,
-      });
-    }
-    return null;
+    if (!this.ENRICHERS?.[this.monsterName]?.[name]) return null;
+    return new this.ENRICHERS[this.monsterName][name]({
+      ddbEnricher: this,
+    });
   }
 
   _prepare() {
@@ -44,6 +40,7 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherMixin {
 
   ENRICHERS = {
     "Flying Snake": { "Bite": MonsterEnrichers.FlyingSnake.Bite },
+    "Purple Worm": { "Bite": MonsterEnrichers.PurpleWorm.Bite },
   };
 
 }
