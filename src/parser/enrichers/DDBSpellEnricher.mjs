@@ -1,6 +1,5 @@
 import { SpellEnrichers } from "./_module.mjs";
 import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
-import DDBEnricherData from "./data/DDBEnricherData.mjs";
 
 export default class DDBSpellEnricher extends DDBEnricherMixin {
   constructor({ activityGenerator, notifier = null } = {}) {
@@ -31,6 +30,7 @@ export default class DDBSpellEnricher extends DDBEnricherMixin {
     "Acid Arrow": SpellEnrichers.AcidArrow,
     "Aid": SpellEnrichers.Aid,
     "Alter Self": SpellEnrichers.AlterSelf,
+    "Animal Friendship": SpellEnrichers.AnimalFriendship,
     "Animate Objects": SpellEnrichers.AnimateObjects,
     "Arcane Eye": SpellEnrichers.ArcaneEye,
     "Arcane Hand": SpellEnrichers.ArcaneHand,
@@ -38,13 +38,16 @@ export default class DDBSpellEnricher extends DDBEnricherMixin {
     "Arcane Vigor": SpellEnrichers.ArcaneVigor,
     "Armor of Agathys": SpellEnrichers.ArmorOfAgathys,
     "Aura of Life": SpellEnrichers.AuraOfLife,
+    "Bane": SpellEnrichers.Bane,
     "Barkskin": SpellEnrichers.Barkskin,
     "Blade Ward": SpellEnrichers.BladeWard,
+    "Bless": SpellEnrichers.Bless,
     "Bones of the Earth": SpellEnrichers.BonesOfTheEarth,
     "Booming Blade": SpellEnrichers.BoomingBlade,
     "Call Lightning": SpellEnrichers.CallLightning,
     "Catapult": SpellEnrichers.Catapult,
     "Chaos Bolt": SpellEnrichers.ChaosBolt,
+    "Chill Touch": SpellEnrichers.ChillTouch,
     "Chromatic Orb": SpellEnrichers.ChromaticOrb,
     "Color Spray": SpellEnrichers.ColorSpray,
     "Command": SpellEnrichers.Command,
@@ -52,6 +55,7 @@ export default class DDBSpellEnricher extends DDBEnricherMixin {
     "Counterspell": SpellEnrichers.Counterspell,
     "Dancing Lights": SpellEnrichers.DancingLights,
     "Darkness": SpellEnrichers.Darkness,
+    "Darkvision": SpellEnrichers.Darkvision,
     "Divine Favor": SpellEnrichers.DivineFavor,
     "Divine Smite": SpellEnrichers.DivineSmite,
     "Dragon's Breath": SpellEnrichers.DragonsBreath,
@@ -59,41 +63,62 @@ export default class DDBSpellEnricher extends DDBEnricherMixin {
     "Elemental Weapon": SpellEnrichers.ElementalWeapon,
     "Faerie Fire": SpellEnrichers.FaerieFire,
     "False Life": SpellEnrichers.FalseLife,
+    "Feeblemind": SpellEnrichers.Feeblemind,
     "Fire Shield": SpellEnrichers.FireShield,
     "Flaming Sphere": SpellEnrichers.FlamingSphere,
+    "Fly": SpellEnrichers.Fly,
     "Fount of Moonlight": SpellEnrichers.FountOfMoonlight,
     "Glyph of Warding": SpellEnrichers.GlyphOfWarding,
     "Green-Flame Blade": SpellEnrichers.GreenFlameBlade,
     "Gust of Wind": SpellEnrichers.GustOfWind,
+    "Haste": SpellEnrichers.Haste,
     "Heat Metal": SpellEnrichers.HeatMetal,
     "Heroes' Feast": SpellEnrichers.HeroesFeast,
     "Heroism": SpellEnrichers.Heroism,
     "Hex": SpellEnrichers.Hex,
     "Hunger of Hadar": SpellEnrichers.HungerOfHadar,
     "Hunter's Mark": SpellEnrichers.HuntersMark,
+    "Invisibility": SpellEnrichers.Invisibility,
+    "Jallarzi's Storm of Radiance": SpellEnrichers.JallarzisStormOfRadiance,
     "Light": SpellEnrichers.Light,
+    "Mage Armor": SpellEnrichers.MageArmor,
     "Mage Hand": SpellEnrichers.MageHand,
     "Magic Weapon": SpellEnrichers.MagicWeapon,
     "Mass Suggestion": SpellEnrichers.MassSuggestion,
+    "Mind Blank": SpellEnrichers.MindBlank,
+    "Mirror Image": SpellEnrichers.MirrorImage,
+    "Pass Without Trace": SpellEnrichers.PassWithoutTrace,
     "Power Word Fortify": SpellEnrichers.PowerWordFortify,
+    "Primal Savagery": SpellEnrichers.PrimalSavagery,
     "Prismatic Wall": SpellEnrichers.PrismaticWall,
+    "Produce Flame": SpellEnrichers.ProduceFlame,
     "Protection from Energy": SpellEnrichers.ProtectionFromEnergy,
+    "Protection from Poison": SpellEnrichers.ProtectionFromPoison,
     "Pyrotechnics": SpellEnrichers.Pyrotechnics,
     "Ray of Enfeeblement": SpellEnrichers.RayOfEnfeeblement,
     "Ray of Sickness": SpellEnrichers.RayOfSickness,
     "Scorching Ray": SpellEnrichers.ScorchingRay,
     "Searing Smite": SpellEnrichers.SearingSmite,
+    "Shadow Blade": SpellEnrichers.ShadowBlade,
+    "Shield of Faith": SpellEnrichers.ShieldOfFaith,
+    "Shield": SpellEnrichers.Shield,
     "Shillelagh": SpellEnrichers.Shillelagh,
+    "Shining Smite": SpellEnrichers.ShiningSmite,
     "Sleep": SpellEnrichers.Sleep,
+    "Slow": SpellEnrichers.Slow,
     "Sorcerous Burst": SpellEnrichers.SorcerousBurst,
     "Spider Climb": SpellEnrichers.SpiderClimb,
     "Spike Growth": SpellEnrichers.SpikeGrowth,
     "Spirit Guardians": SpellEnrichers.SpiritGuardians,
     "Spirit Shroud": SpellEnrichers.SpiritShroud,
     "Spiritual Weapon": SpellEnrichers.SpiritualWeapon,
+    "Stoneskin": SpellEnrichers.Stoneskin,
     "Suggestion": SpellEnrichers.Suggestion,
+    "Synaptic Static": SpellEnrichers.SynapticStatic,
     "Tasha's Bubbling Cauldron": SpellEnrichers.TashasBubblingCauldron,
+    "Tasha's Caustic Brew": SpellEnrichers.TashasCausticBrew,
     "Thunder Step": SpellEnrichers.ThunderStep,
+    "Thunderclap": SpellEnrichers.Thunderclap,
     "Tidal Wave": SpellEnrichers.TidalWave,
     "Toll the Dead": SpellEnrichers.TollTheDead,
     "True Strike": SpellEnrichers.TrueStrike,
@@ -106,139 +131,9 @@ export default class DDBSpellEnricher extends DDBEnricherMixin {
     "Wall of Stone": SpellEnrichers.WallOfStone,
     "Wall of Thorns": SpellEnrichers.WallOfThorns,
     "Wall of Water": SpellEnrichers.WallOfWater,
+    "Warding Bond": SpellEnrichers.WardingBond,
     "Wind Wall": SpellEnrichers.WindWall,
     "Witch Bolt": SpellEnrichers.WitchBolt,
-    "Animal Friendship": SpellEnrichers.AnimalFriendship,
-    "Primal Savagery": SpellEnrichers.PrimalSavagery,
-    "Produce Flame": SpellEnrichers.ProduceFlame,
-    "Thunderclap": SpellEnrichers.Thunderclap,
-    "Bane": SpellEnrichers.Bane,
-    "Bless": SpellEnrichers.Bless,
-    "Chill Touch": SpellEnrichers.ChillTouch,
-    "Darkvision": SpellEnrichers.Darkvision,
-    "Feeblemind": SpellEnrichers.Feeblemind,
-    "Fly": SpellEnrichers.Fly,
-    "Synaptic Static": SpellEnrichers.SynapticStatic,
-    "Shadow Blade": SpellEnrichers.ShadowBlade,
-  };
-
-  EFFECT_HINTS = {
-    "Haste": {
-      changes: [
-        DDBEnricherData.generateSignedAddChange("2", 20, "system.attributes.ac.bonus"),
-      ],
-      midiChanges: [
-        DDBEnricherData.generateOverrideChange("1", 20, "flags.midi-qol.advantage.ability.save.dex"),
-        DDBEnricherData.generateCustomChange("*2", 30, "system.attributes.movement.all"),
-      ],
-    },
-    "Invisibility": {
-      noCreate: true,
-      data: {
-        "flags.dae.specialDuration": ["1Attack", "1Spell"],
-      },
-    },
-    "Jallarzi's Storm of Radiance": {
-      clearAutoEffects: true,
-      name: "Within Storm of Radiance",
-      statuses: ["Blinded", "Deafened"],
-      options: {
-        description: "You are unable to cast spells with the verbal component",
-      },
-    },
-    "Mage Armor": {
-      changes: [
-        DDBEnricherData.generateOverrideChange("mage", 5, "system.attributes.ac.calc"),
-      ],
-    },
-    "Mirror Image": {
-      tokenMagicChanges: [
-        DDBEnricherData.generateTokenMagicFXChange("images"),
-      ],
-    },
-    "Mind Blank": {
-      changes: [
-        DDBEnricherData.generateUnsignedAddChange("psychic", 20, "system.traits.di.value"),
-      ],
-    },
-    "Pass Without Trace": {
-      changes: [
-        DDBEnricherData.generateSignedAddChange("10", 20, "system.skills.ste.bonuses.check"),
-      ],
-    },
-    "Protection from Poison": {
-      changes: [
-        DDBEnricherData.generateUnsignedAddChange("poison", 20, "system.traits.dr.value"),
-      ],
-    },
-    "Shield": {
-      changes: [
-        DDBEnricherData.generateSignedAddChange("5", 20, "system.attributes.ac.bonus"),
-      ],
-      tokenMagicChanges: [
-        DDBEnricherData.generateTokenMagicFXChange("water-field"),
-      ],
-      data: {
-        "flags.dae.specialDuration": ["turnStart"],
-      },
-    },
-    "Shield of Faith": {
-      changes: [
-        DDBEnricherData.generateSignedAddChange("5", 20, "system.attributes.ac.bonus"),
-      ],
-      tokenMagicChanges: [
-        DDBEnricherData.generateTokenMagicFXChange("bloom"),
-      ],
-    },
-    "Shining Smite": {
-      name: "Shedding Light",
-      atlChanges: [
-        DDBEnricherData.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '5'),
-        DDBEnricherData.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-        DDBEnricherData.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
-        DDBEnricherData.generateATLChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": "pulse", "speed": 3,"intensity": 1}'),
-      ],
-    },
-    "Slow": {
-      changes: [
-        DDBEnricherData.generateSignedAddChange("-2", 20, "system.attributes.ac.bonus"),
-        DDBEnricherData.generateSignedAddChange("-2", 20, "system.abilities.dex.bonuses.save"),
-      ],
-      midiChanges: [
-        DDBEnricherData.generateCustomChange("/2", 20, "system.attributes.movement.all"),
-      ],
-    },
-    "Stoneskin": {
-      changes: [
-        DDBEnricherData.generateUnsignedAddChange("bludgeoning", 0, "system.traits.dr.value"),
-        DDBEnricherData.generateUnsignedAddChange("piercing", 0, "system.traits.dr.value"),
-        DDBEnricherData.generateUnsignedAddChange("slashing", 0, "system.traits.dr.value"),
-        // {
-        //   key: "system.traits.dr.bypass",
-        //   value: "mgc",
-        //   mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        //   priority: 0,
-        // },
-      ],
-    },
-    "Tasha's Caustic Brew": {
-      name: "Covered in Acid",
-      options: {
-        description: "You are covered in acid. Take 2d4 &Reference[acid] damage at start of each of your turns until you use an action to scrape it off.",
-      },
-    },
-    "Warding Bond": () => {
-      const damageChanges = DDBEnricherData.allDamageTypes().map((type) => {
-        return DDBEnricherData.generateUnsignedAddChange(type, 0, "system.traits.dr.value");
-      });
-      return {
-        changes: [
-          ...damageChanges,
-          DDBEnricherData.generateSignedAddChange("1", 20, "system.attributes.ac.bonus"),
-          DDBEnricherData.generateSignedAddChange("1", 20, "system.bonuses.abilities.save"),
-        ],
-      };
-    },
   };
 
 }
