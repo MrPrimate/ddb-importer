@@ -19,22 +19,6 @@ const COMPENDIUMS = [
     auto: true,
     types: ["class", "subclass", "feat", "weapon"],
   },
-  // {
-  //   title: "Subclasses",
-  //   setting: "entity-subclass-compendium",
-  //   type: "Item",
-  //   image: "https://media.dndbeyond.com/mega-menu/b778ff3ca3f18e5f75ad4b348615cab5.jpg",
-  //   auto: false,
-  //   types: ["subclass"],
-  // },
-  // {
-  //   title: "Class Features",
-  //   setting: "entity-feature-compendium",
-  //   type: "Item",
-  //   image: "https://media.dndbeyond.com/mega-menu/b778ff3ca3f18e5f75ad4b348615cab5.jpg",
-  //   auto: false,
-  //   types: ["feat", "weapon"],
-  // },
   {
     title: "Feats",
     setting: "entity-feat-compendium",
@@ -83,14 +67,6 @@ const COMPENDIUMS = [
     auto: true,
     types: ["race", "feat", "weapon"],
   },
-  // {
-  //   title: "Species Traits",
-  //   setting: "entity-trait-compendium",
-  //   type: "Item",
-  //   image: "https://media.dndbeyond.com/mega-menu/bfe65858aaa13919ce3d86d938bcb05b.jpg",
-  //   auto: false,
-  //   types: ["race", "feat"],
-  // },
   {
     title: "Spells",
     setting: "entity-spell-compendium",

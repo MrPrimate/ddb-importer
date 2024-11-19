@@ -3005,7 +3005,7 @@ export const fallbackDDBConfig = {
       id: 1,
       name: "BR",
       description: "Basic Rules (2014)",
-      sourceCategoryId: 23,
+      sourceCategoryId: 26,
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/10434/136/637248073409717512.jpeg",
       sourceURL: "sources/dnd/basic-rules-2014",
@@ -3014,7 +3014,7 @@ export const fallbackDDBConfig = {
       id: 2,
       name: "PHB",
       description: "Player’s Handbook (2014)",
-      sourceCategoryId: 23,
+      sourceCategoryId: 26,
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/10435/389/637248131811862290.jpeg",
       sourceURL: "sources/dnd/phb-2014",
@@ -3023,7 +3023,7 @@ export const fallbackDDBConfig = {
       id: 3,
       name: "DMG",
       description: "Dungeon Master’s Guide (2014)",
-      sourceCategoryId: 23,
+      sourceCategoryId: 26,
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/10367/593/637245347063211867.jpeg",
       sourceURL: "sources/dnd/dmg-2014",
@@ -3041,7 +3041,7 @@ export const fallbackDDBConfig = {
       id: 5,
       name: "MM",
       description: "Monster Manual (2014)",
-      sourceCategoryId: 24,
+      sourceCategoryId: 26,
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/10434/816/637248105832999293.jpeg",
       sourceURL: "sources/dnd/mm-2014",
@@ -3418,7 +3418,7 @@ export const fallbackDDBConfig = {
     {
       id: 54,
       name: "DDvRaM",
-      description: "Dungeons &amp; Dragons vs. Rick and Morty",
+      description: "Dungeons & Dragons vs. Rick and Morty",
       sourceCategoryId: 10,
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/10367/229/637245316031917098.jpeg",
@@ -4017,6 +4017,15 @@ export const fallbackDDBConfig = {
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/45054/529/638651161016677547.jpeg",
       sourceURL: "sources/dnd/soee",
+    },
+    {
+      id: 155,
+      name: "TIR",
+      description: "The Illrigger Revised",
+      sourceCategoryId: 22,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/45624/457/638675303929857493.png",
+      sourceURL: "sources/dnd/tir",
     },
   ],
   levelProficiencyBonuses: [
@@ -5157,7 +5166,7 @@ export const fallbackDDBConfig = {
       id: 3,
       name: "Playtest",
       description:
-        "<p><span style=\"color: rgba(255, 0, 0, 1)\"><strong>THIS IS&nbsp;PLAYTEST MATERIAL</strong></span></p>\n<p>The material here is presented for playtesting and to spark your imagination. These game mechanics are in draft form, usable in your campaign but not refined by&nbsp;full game design and editing. They aren’t officially part of the game and aren’t permitted in D&amp;D Adventurers League events.</p>\n<p>If this material is made official, it will be refined based on your feedback, and then it will appear in a D&amp;D product that you can unlock on DDB.</p>\n<p>If this material is not made official, it will be removed from D&amp;D Beyond following the playtest period and you will need to replace it with another option.</p>",
+        "<p><span style=\"color: rgba(255, 0, 0, 1)\"><strong>THIS IS&nbsp;PLAYTEST MATERIAL</strong></span></p>\n<p>The material here is presented for playtesting and to spark your imagination. These game mechanics are in draft form, usable in your campaign but not refined by&nbsp;full game design and editing. They aren’t officially part of the game and aren’t permitted in D&D Adventurers League events.</p>\n<p>If this material is made official, it will be refined based on your feedback, and then it will appear in a D&D product that you can unlock on DDB.</p>\n<p>If this material is not made official, it will be removed from D&D Beyond following the playtest period and you will need to replace it with another option.</p>",
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
@@ -5175,7 +5184,7 @@ export const fallbackDDBConfig = {
     {
       id: 7,
       name: "Magic: The Gathering",
-      description: "<p>Magic: The Gathering content for Dungeons &amp; Dragons</p>",
+      description: "<p>Magic: The Gathering content for Dungeons & Dragons</p>",
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
@@ -5184,7 +5193,7 @@ export const fallbackDDBConfig = {
     {
       id: 8,
       name: "Eberron",
-      description: "<p>The Eberron campaign setting for Dungeons &amp; Dragons</p>",
+      description: "<p>The Eberron campaign setting for Dungeons & Dragons</p>",
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
@@ -5212,7 +5221,7 @@ export const fallbackDDBConfig = {
       id: 11,
       name: "Runeterra",
       description:
-        "<p><span style=\"color: rgba(255, 0, 0, 1)\"><strong>THIS IS UNOFFICIAL MATERIAL</strong></span></p>\n<p>These game mechanics are usable in your campaign if your DM allows them but not refined by final game design and editing. They aren’t officially part of the Dungeons &amp; Dragons game and aren’t permitted in D&amp;D Adventurers League events unless otherwise stated.</p>",
+        "<p><span style=\"color: rgba(255, 0, 0, 1)\"><strong>THIS IS UNOFFICIAL MATERIAL</strong></span></p>\n<p>These game mechanics are usable in your campaign if your DM allows them but not refined by final game design and editing. They aren’t officially part of the Dungeons & Dragons game and aren’t permitted in D&D Adventurers League events unless otherwise stated.</p>",
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
@@ -5222,7 +5231,7 @@ export const fallbackDDBConfig = {
       id: 12,
       name: "Noncore D&D",
       description:
-        "<p><span style=\"color: rgba(255, 0, 0, 1)\"><strong>THIS IS NONCORE D&amp;D MATERIAL</strong></span></p>\n<p>These game mechanics are usable in your campaign if your DM allows them but not refined by final game design and editing.</p>",
+        "<p><span style=\"color: rgba(255, 0, 0, 1)\"><strong>THIS IS NONCORE D&D MATERIAL</strong></span></p>\n<p>These game mechanics are usable in your campaign if your DM allows them but not refined by final game design and editing.</p>",
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
@@ -5231,7 +5240,7 @@ export const fallbackDDBConfig = {
     {
       id: 13,
       name: "Adventurers League",
-      description: "<p>Adventurers League content for fifth edition Dungeons &amp; Dragons</p>",
+      description: "<p>Adventurers League content for fifth edition Dungeons & Dragons</p>",
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
@@ -5240,7 +5249,7 @@ export const fallbackDDBConfig = {
     {
       id: 14,
       name: "Dragonlance",
-      description: "<p>The Dragonlance campaign setting for Dungeons &amp; Dragons.</p>",
+      description: "<p>The Dragonlance campaign setting for Dungeons & Dragons.</p>",
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
@@ -5267,7 +5276,7 @@ export const fallbackDDBConfig = {
     {
       id: 17,
       name: "Planescape",
-      description: "<p>The Planescape campaign setting for Dungeons &amp; Dragons.</p>",
+      description: "<p>The Planescape campaign setting for Dungeons & Dragons.</p>",
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
@@ -5321,7 +5330,7 @@ export const fallbackDDBConfig = {
     },
     {
       id: 23,
-      name: "Legacy (includes 2014 rules)",
+      name: "Legacy",
       description:
         "<p>Character options from older sources that may conflict with the Core Rules. These include sources that are out of print or created for charity.</p>",
       isHideable: false,
@@ -5354,6 +5363,15 @@ export const fallbackDDBConfig = {
       name: "2014 Core Rules",
       description:
         "<p>Character options from the 2014 <em>Player's Handbook</em>, <em>Dungeon Master's Guide</em>, <em>Monster Manual</em>, and&nbsp;<em>Basic Rules</em>.</p>",
+      isHideable: false,
+      isEnabledByDefault: true,
+      isToggleable: true,
+      avatarUrl: "",
+    },
+    {
+      id: 27,
+      name: "The Griffon’s Saddlebag",
+      description: "<p>This contains content from the Griffon's Saddlebag.</p>",
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,

@@ -1,4 +1,7 @@
 const DICTIONARY = {
+  sourceCategories: {
+    legacy: [23, 26],
+  },
   types: {
     full: ["weapon", "equipment", "consumable", "tool", "loot", "class", "subclass", "background", "spell", "feat", "container"],
     equipment: ["equipment", "consumable", "tool", "loot", "container"],
@@ -169,6 +172,7 @@ const DICTIONARY = {
       { name: "Warlock", multiclassSkill: 0 },
       { name: "Wizard", multiclassSkill: 0 },
       { name: "Monk", multiclassSkill: 0 },
+      { name: "Illrigger", multiclassSkill: 0 },
     ],
     abilities: [
       { id: 1, value: "str", long: "strength" },
