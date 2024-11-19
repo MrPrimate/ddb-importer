@@ -8,10 +8,17 @@ export default class SpiritShroud extends DDBEnricherData {
 
   get activity() {
     return {
+      removeDamageParts: true,
       damageParts: [
         DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, types: ["radiant", "necrotic", "cold"], scalingMode: "half", scalingNumber: "1" }),
       ],
     };
+  }
+
+  get effects() {
+    return [{
+      name: "Surrounded by a Spirit Shroud",
+    }];
   }
 
 }

@@ -89,3 +89,4 @@ export { default as WallOfThorns } from "./WallOfThorns.mjs";
 export { default as WallOfWater } from "./WallOfWater.mjs";
 export { default as WindWall } from "./WindWall.mjs";
 export { default as WitchBolt } from "./WitchBolt.mjs";
+export { default as SynapticStatic } from "./SynapticStatic.mjs";
