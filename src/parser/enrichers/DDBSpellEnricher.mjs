@@ -119,6 +119,7 @@ export default class DDBSpellEnricher extends DDBEnricherMixin {
     "Feeblemind": SpellEnrichers.Feeblemind,
     "Fly": SpellEnrichers.Fly,
     "Synaptic Static": SpellEnrichers.SynapticStatic,
+    "Shadow Blade": SpellEnrichers.ShadowBlade,
   };
 
   EFFECT_HINTS = {
