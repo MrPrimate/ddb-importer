@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.46
 
 - Rings would not get AC Bonus effects generated since 6.0.42
 - Synaptic Static and Spirit Shroud parsing improvements
