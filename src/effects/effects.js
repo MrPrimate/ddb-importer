@@ -1648,7 +1648,7 @@ function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, eff
       if (foundryItem.type === "equipment") {
         if (type === "infusion"
           || (foundryItem.system.type?.value
-            && ["trinket", "clothing"].includes(foundryItem.system.type.value))
+            && ["trinket", "clothing", "ring"].includes(foundryItem.system.type.value))
         ) {
           foundryItem = generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem);
         }
