@@ -15,34 +15,34 @@ export default class ShadowBlade extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
-    return [
-      {
-        constructor: {
-          name: "Shadow Blade Attack",
-          type: "attack",
-        },
-        build: {
-          generateAttack: true,
-          generateDamage: true,
-          generateConsumption: false,
-          noSpellslot: true,
-          noeffect: true,
-          damageParts: [
-            DDBEnricherData.basicDamagePart({
-              number: 2,
-              denomination: 8,
-              types: ["psychic"],
-              scalingFormula: "half",
-              scalingNumber: 1,
-            }),
-          ],
-          attackOverride: {
-          },
-        },
-      },
-    ];
-  }
+  // get additionalActivities() {
+  //   return [
+  //     {
+  //       constructor: {
+  //         name: "Shadow Blade Attack",
+  //         type: "attack",
+  //       },
+  //       build: {
+  //         generateAttack: true,
+  //         generateDamage: true,
+  //         generateConsumption: false,
+  //         noSpellslot: true,
+  //         noeffect: true,
+  //         damageParts: [
+  //           DDBEnricherData.basicDamagePart({
+  //             number: 2,
+  //             denomination: 8,
+  //             types: ["psychic"],
+  //             scalingFormula: "half",
+  //             scalingNumber: 1,
+  //           }),
+  //         ],
+  //         attackOverride: {
+  //         },
+  //       },
+  //     },
+  //   ];
+  // }
 
   get effects() {
     return [
