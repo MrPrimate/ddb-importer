@@ -2666,6 +2666,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     const effects = this.enricher.createEffect();
     this.data.effects.push(...effects);
+    this.enricher.createDefaultEffects();
     this._activityEffectLinking();
   }
 

@@ -2,7 +2,6 @@ import CharacterSpellFactory from "./spells/CharacterSpellFactory.js";
 import { logger, utils, FileHelper, Secrets, DDBCampaigns, DDBProxy, DDBHelper, CompendiumHelper, DDBItemImporter, DDBCompendiumFolders, DDBReferenceLinker } from "../lib/_module.mjs";
 import { DDBMacros } from "../effects/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
-import { addVision5eStubs } from "../effects/vision5e.js";
 import { fixCharacterLevels } from "./character/filterModifiers.js";
 import CharacterClassFactory from "./classes/CharacterClassFactory.js";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory.js";
@@ -362,9 +361,7 @@ export default class DDBCharacter {
         await this.generateCompanions();
       }
 
-      this._addVision5eEffects();
       this._linkItemsToContainers();
-      // this.addToCompendiums();
 
     } catch (error) {
       logger.error(error);
@@ -421,13 +418,6 @@ export default class DDBCharacter {
     this.currentActor.flags.ddbimporter.activeSyncSpells = state;
     const activeUpdateData = { flags: { ddbimporter: { activeSyncSpells: state } } };
     await this.currentActor.update(activeUpdateData);
-  }
-
-  _addVision5eEffects() {
-    this.data.inventory = addVision5eStubs(this.data.inventory);
-    this.data.spells = addVision5eStubs(this.data.spells);
-    this.data.features = addVision5eStubs(this.data.features);
-    this.data.actions = addVision5eStubs(this.data.actions);
   }
 
   isMartialArtist() {

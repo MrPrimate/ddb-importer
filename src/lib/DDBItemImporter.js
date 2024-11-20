@@ -6,7 +6,6 @@ import {
   NameMatcher,
 } from "./_module.mjs";
 import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
-import { addVision5eStubs } from "../effects/vision5e.js";
 import { ExternalAutomations } from "../effects/_module.mjs";
 
 export default class DDBItemImporter {
@@ -509,7 +508,7 @@ ${item.system.description.chat}
   }
 
   static async buildHandler(type, documents, updateBool,
-    { srdFidding = true, removeSRDDuplicates = true, ids = null, vision5e = false, chrisPremades = false, matchFlags = [],
+    { srdFidding = true, removeSRDDuplicates = true, ids = null, chrisPremades = false, matchFlags = [],
       deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null } = {},
   ) {
     const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate, useCompendiumFolders, notifier });
@@ -519,9 +518,8 @@ ${item.system.description.chat}
     const filteredItems = (ids !== null && ids.length > 0)
       ? handler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
       : handler.documents;
-    if (vision5e) {
-      handler.documents = addVision5eStubs(filteredItems);
-    }
+
+    handler.documents = filteredItems;
     if (chrisPremades) {
       handler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: handler.documents, compendiumItem: true });
     }

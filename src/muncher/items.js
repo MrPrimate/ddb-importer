@@ -13,7 +13,6 @@ import {
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
-import { addVision5eStubs } from "../effects/vision5e.js";
 import { DDBMacros, ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 
@@ -261,8 +260,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   const filteredItems = (ids !== null && ids.length > 0)
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : itemHandler.documents;
-  const vision5eItems = addVision5eStubs(filteredItems);
-  itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: vision5eItems, compendiumItem: true });
+  itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: filteredItems, compendiumItem: true });
 
   const finalCount = itemHandler.documents.length;
   utils.munchNote(`Preparing to import ${finalCount} items!`, true);

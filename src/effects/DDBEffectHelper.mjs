@@ -9,7 +9,6 @@ import {
 import { DICTIONARY } from "../config/_module.mjs";
 import { midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
-import { addVision5eStub } from "./vision5e.js";
 import { addExtraEffects } from "../parser/features/extraEffects.js";
 import {
   generateOverTimeEffect,
@@ -25,6 +24,7 @@ import {
   generateATLChange,
 } from "./effects.js";
 import { ExternalAutomations } from "./external/_module.mjs";
+import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
 
 export default class DDBEffectHelper {
 
@@ -118,7 +118,8 @@ export default class DDBEffectHelper {
 
       if (useChrisPremades) data = (await ExternalAutomations.applyChrisPremadeEffects({ documents: [data], force: true, isMonster }))[0];
 
-      data = addVision5eStub(data);
+
+      data = AutoEffects.addVision5eStub(data);
 
       if (foundry.utils.getProperty(data, "flags.ddbimporter.effectsApplied") === true
         || foundry.utils.getProperty(data, "flags.ddbimporter.chrisEffectsApplied") === true

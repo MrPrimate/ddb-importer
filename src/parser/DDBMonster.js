@@ -6,7 +6,6 @@ import { monsterFeatureEffectAdjustment } from "../effects/specialMonsters.js";
 import { logger, utils, CompendiumHelper, FileHelper, Secrets, DDBProxy, PatreonHelper } from '../lib/_module.mjs';
 import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory.js";
 import { SETTINGS } from "../config/_module.mjs";
-import { addVision5eStubs } from "../effects/vision5e.js";
 import { ExternalAutomations } from "../effects/_module.mjs";
 
 export default class DDBMonster {
@@ -247,7 +246,6 @@ export default class DDBMonster {
       this.items = this.items.filter((i) => i.name && i.name !== "");
     }
 
-    this.items = addVision5eStubs(this.items);
     this.npc.items = this.items;
 
     if (this.legacyName) {

@@ -12,7 +12,6 @@ import {
 } from "../lib/_module.mjs";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { SETTINGS } from "../config/_module.mjs";
-import { addVision5eStubs } from "../effects/vision5e.js";
 import { DDBMacros, ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 import SpellListFactory from "../parser/spells/SpellListFactory.mjs";
@@ -152,8 +151,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   const filteredSpells = (ids !== null && ids.length > 0)
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : itemHandler.documents;
-  const visionSpells = addVision5eStubs(filteredSpells);
-  itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: visionSpells, compendiumItem: true });
+  itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: filteredSpells, compendiumItem: true });
 
   const finalCount = itemHandler.documents.length;
   utils.munchNote(`Importing ${finalCount} spells...`, true);

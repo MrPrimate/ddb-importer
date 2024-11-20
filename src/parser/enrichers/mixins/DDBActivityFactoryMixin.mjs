@@ -352,7 +352,7 @@ export default class DDBActivityFactoryMixin {
     if (this.data.effects.length > 0) {
       for (const activityId of Object.keys(this.data.system.activities)) {
         const activity = this.data.system.activities[activityId];
-        if (activity.effects.length !== 0) continue;
+        if (!activity.effects || activity.effects.length !== 0) continue;
         if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
         const ignoreTransfer = foundry.utils.getProperty(activity, "flags.ddbimporter.ignoreTransfer") ?? false;
         for (const effect of this.data.effects) {

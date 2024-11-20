@@ -7,6 +7,7 @@ export * as ClassEnrichers from "./class/_module.mjs";
 export * as FeatEnrichers from "./feat/_module.mjs";
 export * as SpeciesEnrichers from "./trait/_module.mjs";
 export * as GenericEnrichers from "./generic/_module.mjs";
+export * as Effects from "./effects/_module.mjs";
 export { default as DDBFeatureEnricher } from "./DDBFeatureEnricher.mjs";
 export { default as DDBItemEnricher } from "./DDBItemEnricher.mjs";
 export { default as DDBMonsterFeatureEnricher } from "./DDBMonsterFeatureEnricher.mjs";

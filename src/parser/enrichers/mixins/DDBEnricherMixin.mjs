@@ -1,8 +1,6 @@
 import {
-  addMagicalBonusToEnchantmentEffect,
   addStatusEffectChange,
   baseEffect,
-  baseEnchantmentEffect,
   baseItemEffect,
   effectModules,
   forceItemEffect,
@@ -12,6 +10,7 @@ import { baseMonsterFeatureEffect } from "../../../effects/specialMonsters.js";
 import { baseSpellEffect } from "../../../effects/specialSpells.js";
 import { utils, logger, DDBHelper } from "../../../lib/_module.mjs";
 import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
+import { AutoEffects, EnchantmentEffects } from "../effects/_module.mjs";
 
 export default class DDBEnricherMixin {
 
@@ -421,6 +420,11 @@ export default class DDBEnricherMixin {
     return this._applyActivityDataOverride(activityData, activity);
   }
 
+  createDefaultEffects() {
+    if (game.modules.get("vision-5e")?.active ?? false)
+      this.data = AutoEffects.addVision5eStub(this.data);
+  }
+
   // eslint-disable-next-line complexity
   createEffect() {
     const effects = [];
@@ -441,9 +445,9 @@ export default class DDBEnricherMixin {
       } else {
         switch (effectHint.type ?? this.effectType) {
           case "enchant":
-            effect = baseEnchantmentEffect(this.data, name, effectOptions);
+            effect = EnchantmentEffects.EnchantmentEffect(this.data, name, effectOptions);
             if (effectHint.magicalBonus) {
-              addMagicalBonusToEnchantmentEffect({
+              EnchantmentEffects.addMagicalBonus({
                 effect,
                 nameAddition: effectHint.magicalBonus.name,
                 bonus: effectHint.magicalBonus.bonus,

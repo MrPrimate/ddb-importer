@@ -783,7 +783,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     if (this.enricher.clearAutoEffects) this.data.effects = [];
     const effects = this.enricher.createEffect();
     this.data.effects.push(...effects);
-
+    this.enricher.createDefaultEffects();
     this._activityEffectLinking();
   }
 

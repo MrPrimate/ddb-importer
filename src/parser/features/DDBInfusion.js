@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { addSimpleConditionEffect, baseEnchantmentEffect, generateEffects } from "../../effects/effects.js";
+import { addSimpleConditionEffect, generateEffects } from "../../effects/effects.js";
 import {
   utils,
   logger,
@@ -9,8 +9,11 @@ import {
   DDBTemplateStrings,
   DDBCompendiumFolders,
 } from "../../lib/_module.mjs";
-import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
-import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
+import {
+  DDBFeatureEnricher,
+  mixins as EnricherMixins,
+  Effects,
+} from "../enrichers/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
@@ -101,7 +104,7 @@ export class DDBInfusion {
   }
 
   _buildBaseActivity() {
-    this.activity = new DDBBasicActivity({
+    this.activity = new EnricherMixins.DDBBasicActivity({
       type: this.activityType,
       actor: this.rawCharacter,
       foundryFeature: this.data,
@@ -312,7 +315,7 @@ export class DDBInfusion {
     const label = modifierData.name ?? this.name;
     const foundryItem = foundry.utils.deepClone(this.data);
     foundryItem.effects = [];
-    const effect = baseEnchantmentEffect(foundryItem, label, {
+    const effect = Effects.EnchantmentEffects.EnchantmentEffect(foundryItem, label, {
       origin: useOrigin ? `Item.${this.data._id}` : null,
     });
     effect.flags.ddbimporter.infusion = true;
