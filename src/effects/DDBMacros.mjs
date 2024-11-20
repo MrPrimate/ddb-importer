@@ -1,6 +1,5 @@
-import { logger } from "../lib/_module.mjs";
-import FileHelper from "../lib/FileHelper.js";
-// import DDBEffectHelper from "./DDBEffectHelper.js";
+import { logger, FileHelper } from "../lib/_module.mjs";
+
 
 export default class DDBMacros {
 

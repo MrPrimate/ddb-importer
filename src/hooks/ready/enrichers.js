@@ -1,6 +1,6 @@
 /* eslint-disable no-continue */
 
-import DDBSimpleMacro from "../../effects/DDBSimpleMacro.js";
+import { DDBSimpleMacro } from "../../effects/_module.mjs";
 import { logger } from "../../lib/_module.mjs";
 
 /**

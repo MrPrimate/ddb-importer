@@ -12,13 +12,12 @@ import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adve
 import { updateDDBCharacter } from "./updater/character.js";
 import DDBCharacterManager, { importCharacter, importCharacterById } from "./apps/DDBCharacterManager.js";
 import { getFeats } from "./muncher/feats/feats.js";
-import { DDBMacros, External } from "./effects/_module.mjs";
+import { DDBMacros, External, DDBEffectHelper } from "./effects/_module.mjs";
 import { getNPCImage } from "./muncher/importMonster.js";
 import DDBCompanion2014 from "./parser/companions/DDBCompanion2014.mjs";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.mjs";
-import DDBEffectHelper from "./effects/DDBEffectHelper.js";
 import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
-import DDBSimpleMacro from "./effects/DDBSimpleMacro.js";
+import DDBSimpleMacro from "./effects/DDBSimpleMacro.mjs";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.mjs";
 import * as Enrichers from "./parser/enrichers/_module.mjs";
 

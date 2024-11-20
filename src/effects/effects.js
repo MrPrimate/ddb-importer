@@ -4,7 +4,7 @@ import { infusionEffectAdjustment } from "./specialInfusions.js";
 import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEffects.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 // import { abilityOverrideEffects } from "./abilityOverrides.js";
-import DDBEffectHelper from "./DDBEffectHelper.js";
+import DDBEffectHelper from "./DDBEffectHelper.mjs";
 
 /**
  * Add supported effects here to exclude them from calculations.

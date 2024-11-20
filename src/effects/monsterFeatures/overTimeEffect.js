@@ -1,7 +1,7 @@
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 import { logger } from "../../lib/_module.mjs";
 import DDBMonsterFeature from "../../parser/monster/features/DDBMonsterFeature.js";
-import DDBEffectHelper from "../DDBEffectHelper.js";
+import DDBEffectHelper from "../DDBEffectHelper.mjs";
 
 export function getMonsterFeatureDamage(damageText, featureDoc = null) {
   const preParsed = foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionInfo.damage");
