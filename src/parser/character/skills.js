@@ -17,7 +17,7 @@ DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill
     // Jack of All trades/half-rounded down
       (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
         // e.g. champion for specific ability checks
-        || this._isHalfProficiencyRoundedUp(skill, modifiers),
+        || this.proficiencyFinder.isHalfProficiencyRoundedUp(skill, modifiers),
   ) !== undefined
     ? 0.5
     : 0;

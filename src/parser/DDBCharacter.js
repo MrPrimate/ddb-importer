@@ -1,5 +1,5 @@
 import CharacterSpellFactory from "./spells/CharacterSpellFactory.js";
-import { logger, utils, FileHelper, Secrets, DDBCampaigns, DDBProxy, DDBHelper, CompendiumHelper, DDBItemImporter, DDBCompendiumFolders, DDBReferenceLinker } from "../lib/_module.mjs";
+import { logger, utils, FileHelper, Secrets, DDBCampaigns, DDBProxy, DDBHelper, CompendiumHelper, DDBItemImporter, DDBCompendiumFolders, DDBReferenceLinker, ProficiencyFinder } from "../lib/_module.mjs";
 import { DDBMacros } from "../effects/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import { fixCharacterLevels } from "./character/filterModifiers.js";
@@ -68,7 +68,7 @@ export default class DDBCharacter {
 
     this.matchedFeatures = [];
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
-
+    this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source.ddb });
   }
 
   /**

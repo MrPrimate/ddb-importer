@@ -1,7 +1,6 @@
-import { utils, logger, DDBHelper } from "../lib/_module.mjs";
+import { utils, logger, DDBHelper, ProficiencyFinder } from "../lib/_module.mjs";
 import { DICTIONARY } from "../config/_module.mjs";
 import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEffects.js";
-import DDBCharacter from "../parser/DDBCharacter.js";
 // import { abilityOverrideEffects } from "./abilityOverrides.js";
 import DDBEffectHelper from "./DDBEffectHelper.mjs";
 import { AutoEffects, ChangeHelper, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
@@ -227,7 +226,7 @@ export function generateATLChange(atlKey, mode, value, priority = 20) {
  * Generates a global add for an item
  */
 
-export function addAddBonusEffect(modifiers, name, type, key) {
+export function addAddBonusChanges(modifiers, name, type, key) {
   let changes = [];
   // const bonus = DDBHelper.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
   const bonus = DDBHelper.getValueFromModifiers(modifiers, name, type, "bonus");
@@ -252,39 +251,6 @@ function addCustomEffect(modifiers, name, type, key, extra = "") {
   return changes;
 }
 
-//
-// Generate saving throw bonuses
-//
-function addGlobalSavingBonusEffect(modifiers, name) {
-  const type = "saving-throws";
-  const key = "system.bonuses.abilities.save";
-  let changes = [];
-  const regularBonuses = modifiers.filter((mod) => !mod.bonusTypes?.includes(2));
-  const customBonuses = modifiers.filter((mod) => mod.bonusTypes?.includes(2));
-
-  if (customBonuses.length > 0) {
-    let customEffects = addAddBonusEffect(customBonuses, name, type, key);
-    changes = changes.concat(customEffects);
-  }
-
-  const regularModifiers = DDBHelper.filterModifiersOld(regularBonuses, "bonus", type);
-
-  if (regularModifiers.length > 0) {
-    logger.debug(`Generating ${type} bonus for ${name}`);
-    let bonuses = "";
-    regularModifiers.forEach((modifier) => {
-      let bonusParse = DDBHelper.extractModifierValue(modifier);
-      if (bonuses !== "") bonuses += " + ";
-      bonuses += bonusParse;
-    });
-    if (bonuses === "") bonuses = 0;
-    changes.push(generateUnsignedAddChange(`+ ${bonuses}`, 20, key));
-    logger.debug(`Changes for ${type} bonus for ${name}`, changes);
-  }
-
-  return changes;
-}
-
 /**
  * Adds languages, can't handle custom languages
  */
@@ -292,8 +258,8 @@ function addGlobalSavingBonusEffect(modifiers, name) {
 function addLanguages(modifiers, name) {
   let changes = [];
 
-  const ddbCharacter = new DDBCharacter();
-  const languages = ddbCharacter.getLanguagesFromModifiers(modifiers);
+  const proficiencyFinder = new ProficiencyFinder();
+  const languages = proficiencyFinder.getLanguagesFromModifiers(modifiers);
 
   languages.value.forEach((prof) => {
     logger.debug(`Generating language ${prof} for ${name}`);
@@ -369,37 +335,37 @@ function addGlobalDamageBonus(modifiers, name) {
 }
 
 function addWeaponAttackBonuses(modifiers, name) {
-  const meleeAttackBonus = addAddBonusEffect(
+  const meleeAttackBonus = addAddBonusChanges(
     modifiers,
     name,
     "melee-attacks",
     "system.bonuses.mwak.attack",
   );
-  const rangedAttackBonus = addAddBonusEffect(
+  const rangedAttackBonus = addAddBonusChanges(
     modifiers,
     name,
     "ranged-attacks",
     "system.bonuses.rwak.attack",
   );
-  const meleeWeaponAttackBonus = addAddBonusEffect(
+  const meleeWeaponAttackBonus = addAddBonusChanges(
     modifiers,
     name,
     "melee-weapon-attacks",
     "system.bonuses.mwak.attack",
   );
-  const rangedWeaponAttackBonus = addAddBonusEffect(
+  const rangedWeaponAttackBonus = addAddBonusChanges(
     modifiers,
     name,
     "ranged-weapon-attacks",
     "system.bonuses.rwak.attack",
   );
-  const weaponAttackMeleeBonus = addAddBonusEffect(
+  const weaponAttackMeleeBonus = addAddBonusChanges(
     modifiers,
     name,
     "weapon-attacks",
     "system.bonuses.mwak.attack",
   );
-  const weaponAttackRangedBonus = addAddBonusEffect(
+  const weaponAttackRangedBonus = addAddBonusChanges(
     modifiers,
     name,
     "weapon-attacks",
@@ -417,49 +383,49 @@ function addWeaponAttackBonuses(modifiers, name) {
 
 
 function addSpellAttackBonuses(modifiers, name) {
-  const meleeSpellAttackBonus = addAddBonusEffect(
+  const meleeSpellAttackBonus = addAddBonusChanges(
     modifiers,
     name,
     "spell-attacks",
     "system.bonuses.msak.attack",
   );
-  const melee2SpellAttackBonus = addAddBonusEffect(
+  const melee2SpellAttackBonus = addAddBonusChanges(
     modifiers,
     name,
     "melee-spell-attacks",
     "system.bonuses.msak.attack",
   );
-  const rangedSpellAttackBonus = addAddBonusEffect(
+  const rangedSpellAttackBonus = addAddBonusChanges(
     modifiers,
     name,
     "spell-attacks",
     "system.bonuses.rsak.attack",
   );
-  const ranged2SpellAttackBonus = addAddBonusEffect(
+  const ranged2SpellAttackBonus = addAddBonusChanges(
     modifiers,
     name,
     "ranged-spell-attacks",
     "system.bonuses.rsak.attack",
   );
-  const warlockMeleeSpellAttackBonus = addAddBonusEffect(
+  const warlockMeleeSpellAttackBonus = addAddBonusChanges(
     modifiers,
     name,
     "warlock-spell-attacks",
     "system.bonuses.msak.attack",
   );
-  const warlockRangedSpellAttackBonus = addAddBonusEffect(
+  const warlockRangedSpellAttackBonus = addAddBonusChanges(
     modifiers,
     name,
     "warlock-spell-attacks",
     "system.bonuses.msak.attack",
   );
-  const warlockSpellDCBonus = addAddBonusEffect(
+  const warlockSpellDCBonus = addAddBonusChanges(
     modifiers,
     name,
     "warlock-spell-save-dc",
     "system.bonuses.spell.dc",
   );
-  const spellDCBonus = addAddBonusEffect(
+  const spellDCBonus = addAddBonusChanges(
     modifiers,
     name,
     "spell-save-dc",
@@ -698,8 +664,8 @@ function addStatChanges(modifiers, name) {
     const statEffect = addStatSetEffect(modifiers, name, `${stat}-score`);
     const savingThrowAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-saving-throws`, "save");
     const abilityCheckAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-ability-checks`, "check");
-    const abilityBonusesSave = addAddBonusEffect(modifiers, name, `${stat}-saving-throws`, `system.abilities.${ability.value}.bonuses.save`);
-    const abilityBonusesCheck = addAddBonusEffect(modifiers, name, `${stat}-ability-checks`, `system.abilities.${ability.value}.bonuses.check`);
+    const abilityBonusesSave = addAddBonusChanges(modifiers, name, `${stat}-saving-throws`, `system.abilities.${ability.value}.bonuses.save`);
+    const abilityBonusesCheck = addAddBonusChanges(modifiers, name, `${stat}-ability-checks`, `system.abilities.${ability.value}.bonuses.check`);
     changes = changes.concat(statEffect, savingThrowAdvantage, abilityCheckAdvantage, abilityBonusesSave, abilityBonusesCheck);
   });
 
@@ -847,9 +813,9 @@ function addBonusSpeeds(modifiers, name) {
 
 function addSkillProficiencies(modifiers) {
   let changes = [];
-  const ddbCharacter = new DDBCharacter();
+  const proficiencyFinder = new ProficiencyFinder();
   DICTIONARY.character.skills.forEach((skill) => {
-    const prof = ddbCharacter.getSkillProficiency(skill, modifiers);
+    const prof = proficiencyFinder.getSkillProficiency(skill, modifiers);
     if (prof != 0) {
       changes.push(generateUpgradeChange(prof, 9, `system.skills.${skill.name}.value`));
     }
@@ -866,12 +832,11 @@ function addProficiencies(modifiers, name) {
       return { name: mod.friendlySubtypeName };
     });
 
-  const ddbCharacter = new DDBCharacter();
-
   changes = changes.concat(addSkillProficiencies(modifiers));
-  const toolProf = ddbCharacter.getToolProficiencies(proficiencies);
-  const weaponProf = ddbCharacter.getWeaponProficiencies(proficiencies);
-  const armorProf = ddbCharacter.getArmorProficiencies(proficiencies);
+  const proficiencyFinder = new ProficiencyFinder();
+  const toolProf = proficiencyFinder.getToolProficiencies(proficiencies);
+  const weaponProf = proficiencyFinder.getWeaponProficiencies(proficiencies);
+  const armorProf = proficiencyFinder.getArmorProficiencies(proficiencies);
 
   for (const [key, value] of Object.entries(toolProf)) {
     logger.debug(`Generating tool proficiencies for ${name}`);
@@ -1211,19 +1176,19 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return [foundryItem, effect];
   logger.debug(`Generating Generic Effects for ${foundryItem.name}`, ddbItem);
 
-  const globalSaveBonus = addGlobalSavingBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const globalAbilityBonus = addAddBonusEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "ability-checks",
-    "system.bonuses.abilities.check",
-  );
-  const globalSkillBonus = addAddBonusEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "skill-checks",
-    "system.bonuses.abilities.skill",
-  );
+  // const globalSaveBonus = addGlobalSavingBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name);
+  // const globalAbilityBonus = addAddBonusChanges(
+  //   ddbItem.definition.grantedModifiers,
+  //   foundryItem.name,
+  //   "ability-checks",
+  //   "system.bonuses.abilities.check",
+  // );
+  // const globalSkillBonus = addAddBonusChanges(
+  //   ddbItem.definition.grantedModifiers,
+  //   foundryItem.name,
+  //   "skill-checks",
+  //   "system.bonuses.abilities.skill",
+  // );
   const languages = addLanguages(ddbItem.definition.grantedModifiers, foundryItem.name);
   const conditions = addDamageConditions(ddbItem.definition.grantedModifiers, foundryItem.name);
   const criticalHitImmunity = addCriticalHitImmunities(ddbItem.definition.grantedModifiers, foundryItem.name);
@@ -1247,9 +1212,9 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
 
   effect.changes = [
     ...criticalHitImmunity,
-    ...globalSaveBonus,
-    ...globalAbilityBonus,
-    ...globalSkillBonus,
+    // ...globalSaveBonus,
+    // ...globalAbilityBonus,
+    // ...globalSkillBonus,
     ...languages,
     ...conditions,
     ...statSets,

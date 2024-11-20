@@ -27,3 +27,4 @@ export { default as NameMatcher } from "./NameMatcher.js";
 export { default as OriginFixer } from "./OriginFixer.js";
 export { default as PatreonHelper } from "./PatreonHelper.js";
 export * as Secrets from "./Secrets.js";
+export { default as ProficiencyFinder } from "./ProficiencyFinder.mjs";
