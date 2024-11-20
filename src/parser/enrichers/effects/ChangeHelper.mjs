@@ -2,7 +2,7 @@ import AutoEffects from "./AutoEffects.mjs";
 
 export default class ChangeHelper {
 
-  static change(value, priority, key, type) {
+  static change({ value, priority, key, type }) {
     return {
       key,
       value,

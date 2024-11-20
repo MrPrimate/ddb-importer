@@ -4,7 +4,7 @@ import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEf
 import DDBCharacter from "../parser/DDBCharacter.js";
 // import { abilityOverrideEffects } from "./abilityOverrides.js";
 import DDBEffectHelper from "./DDBEffectHelper.mjs";
-import { AutoEffects, ChangeHelper } from "../parser/enrichers/effects/_module.mjs";
+import { AutoEffects, ChangeHelper, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
 
 /**
  * Add supported effects here to exclude them from calculations.
@@ -134,20 +134,11 @@ export function getMidiCEOnFlags(midiFlags = {}) {
 }
 
 export function applyDefaultMidiFlags(document) {
-  if (effectModules().midiQolInstalled) {
-    foundry.utils.setProperty(document, "flags.midi-qol.removeAttackDamageButtons", "default");
-    foundry.utils.setProperty(document, "flags.midiProperties.confirmTargets", "default");
-  }
-  return document;
+  return MidiEffects.applyDefaultMidiFlags(document);
 }
 
 export function forceItemEffect(document) {
-  if (document.effects.length > 0 || foundry.utils.hasProperty(document.flags, "dae") || foundry.utils.hasProperty(document.flags, "midi-qol.onUseMacroName")) {
-    document = applyDefaultMidiFlags(document);
-    foundry.utils.setProperty(document, "flags.ddbimporter.effectsApplied", true);
-    if (!foundry.utils.getProperty(document, "flags.midi-qol.forceCEOn")) foundry.utils.setProperty(document, "flags.midi-qol.forceCEOff", true);
-  }
-  return document;
+  return AutoEffects.forceDocumentEffect(document);
 }
 
 export function forceManualReaction(document) {

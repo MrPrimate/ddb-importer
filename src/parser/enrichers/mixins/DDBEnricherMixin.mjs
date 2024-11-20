@@ -1,8 +1,3 @@
-import {
-  forceItemEffect,
-} from "../../../effects/effects.js";
-import { baseFeatEffect } from "../../../effects/specialFeats.js";
-import { baseMonsterFeatureEffect } from "../../../effects/specialMonsters.js";
 import { utils, logger, DDBHelper } from "../../../lib/_module.mjs";
 import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
 import { AutoEffects, EnchantmentEffects } from "../effects/_module.mjs";
@@ -416,6 +411,7 @@ export default class DDBEnricherMixin {
   }
 
   createDefaultEffects() {
+    this.data = AutoEffects.forceDocumentEffect(this.data);
     if (game.modules.get("vision-5e")?.active ?? false)
       this.data = AutoEffects.addVision5eStub(this.data);
   }
@@ -452,13 +448,13 @@ export default class DDBEnricherMixin {
             }
             break;
           case "feat":
-            effect = baseFeatEffect(this.data, name, effectOptions);
+            effect = AutoEffects.FeatEffect(this.data, name, effectOptions);
             break;
           case "spell":
             effect = AutoEffects.SpellEffect(this.data, name, effectOptions);
             break;
           case "monster":
-            effect = baseMonsterFeatureEffect(this.data, name, effectOptions);
+            effect = AutoEffects.MonsterFeatureEffect(this.data, name, effectOptions);
             break;
           case "item":
             effect = AutoEffects.ItemEffect(this.data, name, effectOptions);
@@ -546,7 +542,7 @@ export default class DDBEnricherMixin {
 
       if (!effectHint.noCreate) effects.push(effect);
     }
-    forceItemEffect(this.data);
+    AutoEffects.forceDocumentEffect(this.data);
 
     return effects;
   }

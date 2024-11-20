@@ -82,7 +82,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
       npc = overTimeResults.actor;
     }
 
-    item = forceItemEffect(item);
+    item = AutoEffects.forceDocumentEffect(item);
     npc.items[index] = item;
   };
 

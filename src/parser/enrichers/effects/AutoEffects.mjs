@@ -1,5 +1,6 @@
 import { DICTIONARY } from "../../../config/_module.mjs";
 import ChangeHelper from "./ChangeHelper.mjs";
+import MidiEffects from "./MidiEffects.mjs";
 
 export default class AutoEffects {
 
@@ -162,5 +163,18 @@ export default class AutoEffects {
     return document;
   }
 
+  static forceDocumentEffect(document) {
+    if (document.effects.length > 0
+      || foundry.utils.hasProperty(document.flags, "dae")
+      || foundry.utils.hasProperty(document.flags, "midi-qol.onUseMacroName")
+    ) {
+      document = MidiEffects.applyDefaultMidiFlags(document);
+      foundry.utils.setProperty(document, "flags.ddbimporter.effectsApplied", true);
+      if (!foundry.utils.getProperty(document, "flags.midi-qol.forceCEOn")) {
+        foundry.utils.setProperty(document, "flags.midi-qol.forceCEOff", true);
+      }
+    }
+    return document;
+  }
 
 }

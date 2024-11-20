@@ -1,4 +1,4 @@
-import { applyDefaultMidiFlags, effectModules, forceItemEffect, forceManualReaction } from "./effects.js";
+import { applyDefaultMidiFlags, forceManualReaction } from "./effects.js";
 
 // effect loads
 import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
@@ -367,7 +367,7 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
   const name = document.flags.ddbimporter?.originalName ?? document.name;
 
   // check that we can gen effects
-  const deps = effectModules();
+  const deps = AutoEffects.effectModules();
 
   // effects to always apply
   switch (name) {
@@ -492,12 +492,12 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
   }
 
   if (!deps.hasCore || !midiEffects) {
-    return forceItemEffect(document);
+    return AutoEffects.forceDocumentEffect(document);
   }
 
   if (deps.midiQolInstalled && midiEffects) {
     document = await midiFeatureEffects(ddb, character, document);
   }
 
-  return forceItemEffect(document);
+  return AutoEffects.forceDocumentEffect(document);
 }

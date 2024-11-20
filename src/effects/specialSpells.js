@@ -1,7 +1,6 @@
 import { logger } from "../lib/_module.mjs";
 import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
 import {
-  forceItemEffect,
   effectModules,
   forceManualReaction,
   applyDefaultMidiFlags,
@@ -468,7 +467,7 @@ export async function spellEffectAdjustment(document, midiEffects = false) {
   if (!document.effects) document.effects = [];
   if (midiEffects) document = await midiEffectAdjustment(document);
   try {
-    document = forceItemEffect(document);
+    document = AutoEffects.forceDocumentEffect(document);
   } catch (err) {
     await Promise.all(document);
     logger.error("Error applying effects: ", { err, document });

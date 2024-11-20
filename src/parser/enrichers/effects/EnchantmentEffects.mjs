@@ -1,6 +1,6 @@
 import AutoEffects from "./AutoEffects.mjs";
 
-export default class EnchantmentEffects extends AutoEffects {
+export default class EnchantmentEffects {
 
   static EnchantmentEffect(document, label,
     { transfer = false, disabled = false, origin = null, id = null, description = null, durationSeconds = null,

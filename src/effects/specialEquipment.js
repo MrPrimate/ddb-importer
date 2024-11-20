@@ -2,7 +2,7 @@ import {
   generateCustomChange,
   forceItemEffect,
   effectModules,
-  applyDefaultMidiFlags,
+
 } from "./effects.js";
 // load item effects
 import { cloakOfDisplacementEffect } from "./items/cloakOfDisplacement.js";
@@ -22,7 +22,7 @@ export async function midiItemEffects(document) {
   const name = document.flags.ddbimporter?.originalName || document.name;
 
   if (!effectModules().hasCore) return document;
-  document = applyDefaultMidiFlags(document);
+  // document = forceDocumentEffect(document);
 
   switch (name) {
     case "Cloak of Displacement": {
