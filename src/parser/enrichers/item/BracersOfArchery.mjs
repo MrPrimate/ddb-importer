@@ -8,7 +8,7 @@ export default class BracersOfArchery extends DDBEnricherData {
       {
         noCreate: true,
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("2", 20, "system.bonuses.rwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("2", 20, "system.bonuses.rwak.damage"),
         ],
       },
     ];

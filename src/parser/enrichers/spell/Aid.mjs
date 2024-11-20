@@ -8,7 +8,7 @@ export default class Aid extends DDBEnricherData {
       return {
         name: `Aid: Level ${level} Temp Max HP Bonus`,
         changes: [
-          DDBEnricherData.generateUnsignedAddChange(`${5 * (level - 1)}`, 20, "system.attributes.hp.bonuses.overall"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${5 * (level - 1)}`, 20, "system.attributes.hp.bonuses.overall"),
         ],
       };
     });

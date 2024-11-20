@@ -11,7 +11,7 @@ export default class AuraOfLife extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("necrotic", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("necrotic", 20, "system.traits.dr.value"),
         ],
       },
     ];

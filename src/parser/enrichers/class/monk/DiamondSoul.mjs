@@ -10,7 +10,7 @@ export default class DiamondSoul extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.diamondSoul"),
+          DDBEnricherData.ChangeHelper.overrideChange("true", 20, "flags.dnd5e.diamondSoul"),
         ],
       },
     ];

@@ -7,7 +7,7 @@ export default class ChillTouch extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("healing", 30, "system.traits.di.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("healing", 30, "system.traits.di.value"),
         ],
       },
     ];

@@ -35,8 +35,8 @@ export default class ChromaticInfusion extends DDBEnricherData {
           img: element.img,
         },
         changes: [
-          DDBEnricherData.generateOverrideChange(`{} [Chromatic Infusion ${utils.capitalize(element.type)}]`, 20, "name"),
-          DDBEnricherData.generateUnsignedAddChange(`[["1d4", "${element.type}"]]`, 20, "system.damage.parts"),
+          DDBEnricherData.ChangeHelper.overrideChange(`{} [Chromatic Infusion ${utils.capitalize(element.type)}]`, 20, "name"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`[["1d4", "${element.type}"]]`, 20, "system.damage.parts"),
         ],
       };
     });

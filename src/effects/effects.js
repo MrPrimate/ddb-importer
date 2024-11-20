@@ -5,6 +5,7 @@ import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEf
 import DDBCharacter from "../parser/DDBCharacter.js";
 // import { abilityOverrideEffects } from "./abilityOverrides.js";
 import DDBEffectHelper from "./DDBEffectHelper.mjs";
+import { ChangeHelper } from "../parser/enrichers/effects/_module.mjs";
 
 /**
  * Add supported effects here to exclude them from calculations.
@@ -416,47 +417,6 @@ export function addStatusEffectChange({ effect, statusName, priority = 20, level
   return effect;
 }
 
-export function generateTokenMagicFXChange(macroValue, priority = 20) {
-  return {
-    key: 'macro.tokenMagic',
-    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-    value: macroValue,
-    priority: priority,
-  };
-}
-
-export function generateATLChange(atlKey, mode, value, priority = 20) {
-  let key = atlKey;
-
-  switch (atlKey) {
-    case 'ATL.dimLight':
-      key = 'ATL.light.dim';
-      break;
-    case 'ATL.brightLight':
-      key = 'ATL.light.bright';
-      break;
-    case 'ATL.lightAnimation':
-      key = 'ATL.light.animation';
-      break;
-    case 'ATL.lightColor':
-      key = 'ATL.light.color';
-      break;
-    case 'ATL.lightAlpha':
-      key = 'ATL.light.alpha';
-      break;
-    case 'ATL.lightAngle':
-      key = 'ATL.light.angle';
-      break;
-    // no default
-  }
-
-  return {
-    key,
-    mode,
-    value,
-    priority,
-  };
-}
 
 export function addSimpleConditionEffect(document, condition, { disabled, transfer } = {}) {
   document.effects = [];
@@ -466,54 +426,46 @@ export function addSimpleConditionEffect(document, condition, { disabled, transf
   return document;
 }
 
-export function generateChange(bonus, priority, key, mode) {
-  return {
-    key: key,
-    value: bonus,
-    mode,
-    priority,
-  };
+// Refactored functions
+
+export function generateSignedAddChange(value, priority, key) {
+  ChangeHelper.signedAddChange(value, priority, key);
 }
 
-export function generateSignedAddChange(bonus, priority, key) {
-  const bonusValue = (Number.isInteger(bonus) && bonus >= 0) // if bonus is a positive integer
-    || (!Number.isInteger(bonus) && !bonus.trim().startsWith("+") && !bonus.trim().startsWith("-")) // not an int and does not start with + or -
-    ? `+${bonus}`
-    : bonus;
-  return generateChange(bonusValue, priority, key, CONST.ACTIVE_EFFECT_MODES.ADD);
+export function generateUnsignedAddChange(value, priority, key) {
+  ChangeHelper.unsignedAddChange(value, priority, key);
 }
 
-export function generateUnsignedAddChange(bonus, priority, key) {
-  const bonusValue = `${bonus}`.trim().replace("+ +", "+").replace(/^\+\s+/, "");
-  return generateChange(bonusValue.trim(), priority, key, CONST.ACTIVE_EFFECT_MODES.ADD);
+export function generateCustomChange(value, priority, key) {
+  ChangeHelper.customChange(value, priority, key);
 }
 
-export function generateCustomChange(bonus, priority, key) {
-  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.CUSTOM);
+export function generateCustomBonusChange(value, priority, key) {
+  ChangeHelper.customBonusChange(value, priority, key);
 }
 
-export function generateCustomBonusChange(bonus, priority, key) {
-  const bonusValue = (Number.isInteger(bonus) && bonus >= 0) // if bonus is a positive integer
-    || (!Number.isInteger(bonus) && !bonus.trim().startsWith("+") && !bonus.trim().startsWith("-")) // not an int and does not start with + or -
-    ? `+${bonus}`
-    : bonus;
-  return generateChange(bonusValue, priority, key, CONST.ACTIVE_EFFECT_MODES.CUSTOM);
+export function generateUpgradeChange(value, priority, key) {
+  ChangeHelper.upgradeChange(value, priority, key);
 }
 
-export function generateUpgradeChange(bonus, priority, key) {
-  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.UPGRADE);
+export function generateOverrideChange(value, priority, key) {
+  ChangeHelper.overrideChange(value, priority, key);
 }
 
-export function generateOverrideChange(bonus, priority, key) {
-  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.OVERRIDE);
+export function generateMultiplyChange(value, priority, key) {
+  ChangeHelper.multiplyChange(value, priority, key);
 }
 
-export function generateMultiplyChange(bonus, priority, key) {
-  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.MULTIPLY);
+export function generateDowngradeChange(value, priority, key) {
+  ChangeHelper.downgradeChange(value, priority, key);
 }
 
-export function generateDowngradeChange(bonus, priority, key) {
-  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.DOWNGRADE);
+export function generateTokenMagicFXChange(macroValue, priority = 20) {
+  ChangeHelper.tokenMagicFXChange(macroValue, priority);
+}
+
+export function generateATLChange(atlKey, mode, value, priority = 20) {
+  ChangeHelper.atlChange(atlKey, mode, value, priority);
 }
 
 

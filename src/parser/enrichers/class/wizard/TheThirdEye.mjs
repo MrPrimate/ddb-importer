@@ -59,11 +59,11 @@ export default class TheThirdEye extends DDBEnricherData {
           "flags.ddbimporter.activityMatch": "Darkvision",
         },
         changes: [
-          DDBEnricherData.generateUpgradeChange("120", 20, "system.attributes.senses.darkvision"),
+          DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.darkvision"),
         ],
         atlChanges: [
-          DDBEnricherData.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5),
-          DDBEnricherData.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
         ],
       },
       {
@@ -75,7 +75,7 @@ export default class TheThirdEye extends DDBEnricherData {
           description: "You can read any language",
         },
         changes: [
-          DDBEnricherData.generateUnsignedAddChange(";Read Any Language", 20, "system.traits.languages.special"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(";Read Any Language", 20, "system.traits.languages.special"),
         ],
       },
       {
@@ -86,8 +86,8 @@ export default class TheThirdEye extends DDBEnricherData {
           "flags.ddbimporter.activityMatch": "See Invisibility",
         },
         changes: [
-          DDBEnricherData.generateUnsignedAddChange(";Invisible Creatures", 20, "system.attributes.senses.special"),
-          DDBEnricherData.generateUnsignedAddChange(";Ethereal Plane", 20, "system.attributes.senses.special"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(";Invisible Creatures", 20, "system.attributes.senses.special"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(";Ethereal Plane", 20, "system.attributes.senses.special"),
         ],
       },
     ];

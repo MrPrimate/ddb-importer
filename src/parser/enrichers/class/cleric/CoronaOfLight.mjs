@@ -1,17 +1,16 @@
 /* eslint-disable class-methods-use-this */
-import { effectModules } from "../../../../effects/effects.js";
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class CoronaOfLight extends DDBEnricherData {
 
   get type() {
-    return effectModules().atlInstalled
+    return DDBEnricherData.AutoEffects.effectModules().atlInstalled
       ? "utility"
       : "ddbmacro";
   }
 
   get activity() {
-    if (effectModules().atlInstalled) {
+    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return {
         type: "utility",
         data: {
@@ -36,7 +35,7 @@ export default class CoronaOfLight extends DDBEnricherData {
 
 
   get effects() {
-    if (!effectModules().atlInstalled) return [];
+    if (!DDBEnricherData.AutoEffects.effectModules().atlInstalled) return [];
     return [{
       options: {
       },
@@ -44,10 +43,10 @@ export default class CoronaOfLight extends DDBEnricherData {
         "flags.ddbimporter.activityMatch": "Use/Apply Light",
       },
       atlChanges: [
-        DDBEnricherData.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '30'),
-        DDBEnricherData.generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '60'),
-        DDBEnricherData.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-        DDBEnricherData.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+        DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '30'),
+        DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '60'),
+        DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+        DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
       ],
     }];
 

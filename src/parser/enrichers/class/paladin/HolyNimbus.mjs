@@ -4,7 +4,7 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 export default class HolyNimbus extends DDBEnricherData {
 
   get activity() {
-    if (DDBEnricherData.effectModules().atlInstalled) {
+    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return {
         type: "utility",
         data: {
@@ -87,15 +87,15 @@ export default class HolyNimbus extends DDBEnricherData {
 
   get effects() {
     let effects = [];
-    if (DDBEnricherData.effectModules().atlInstalled) {
+    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       effects.push({
         data: {
           "flags.ddbimporter.activityMatch": "Use/Apply Light",
         },
         atlChanges: [
-          DDBEnricherData.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '@scale.paladin.aura-of-protection'),
-          DDBEnricherData.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-          DDBEnricherData.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '@scale.paladin.aura-of-protection'),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
         ],
       });
     }

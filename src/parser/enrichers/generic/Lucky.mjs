@@ -42,7 +42,7 @@ export default class Lucky extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.halflingLucky"),
+          DDBEnricherData.ChangeHelper.overrideChange("true", 20, "flags.dnd5e.halflingLucky"),
         ],
       },
     ];

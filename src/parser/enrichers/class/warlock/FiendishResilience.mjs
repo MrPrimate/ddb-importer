@@ -48,7 +48,7 @@ export default class FiendishResilience extends DDBEnricherData {
           disabled: activeType !== type,
         },
         changes: [
-          DDBEnricherData.generateUnsignedAddChange(type, 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(type, 20, "system.traits.dr.value"),
         ],
       };
     });

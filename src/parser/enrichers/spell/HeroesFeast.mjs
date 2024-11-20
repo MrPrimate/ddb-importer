@@ -19,9 +19,9 @@ export default class HeroesFeast extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("frightened", 20, "system.traits.ci.value"),
-          DDBEnricherData.generateUnsignedAddChange("poisoned", 20, "system.traits.ci.value"),
-          DDBEnricherData.generateUnsignedAddChange("poison", 20, "system.traits.di.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("frightened", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("poisoned", 20, "system.traits.ci.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("poison", 20, "system.traits.di.value"),
         ],
       },
     ];

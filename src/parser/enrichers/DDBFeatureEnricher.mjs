@@ -1,11 +1,3 @@
-import {
-  generateATLChange,
-  generateCustomChange,
-  generateOverrideChange,
-  generateSignedAddChange,
-  generateUnsignedAddChange,
-  generateUpgradeChange,
-} from "../../effects/effects.js";
 import { utils } from "../../lib/_module.mjs";
 import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
 import DDBEnricherData from "./data/DDBEnricherData.mjs";
@@ -3499,8 +3491,8 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         transfer: true,
       },
       changes: [
-        generateUnsignedAddChange("push", 20, "system.traits.weaponProf.mastery.bonus"),
-        generateUnsignedAddChange("topple", 20, "system.traits.weaponProf.mastery.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("push", 20, "system.traits.weaponProf.mastery.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("topple", 20, "system.traits.weaponProf.mastery.bonus"),
       ],
     },
     "Blessing of the Trickster": {
@@ -3523,24 +3515,24 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         transfer: true,
       },
       changes: [
-        generateOverrideChange("true", 20, "flags.dnd5e.enhancedDualWielding"),
+        DDBEnricherData.ChangeHelper.overrideChange("true", 20, "flags.dnd5e.enhancedDualWielding"),
       ],
     },
     "Divine Order: Thaumaturge": {
       noCreate: true,
       changes: [
-        generateUnsignedAddChange("1", 20, "system.scale.cleric.cantrips-known.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "system.scale.cleric.cantrips-known.value"),
       ],
     },
     "Eldritch Invocations: Pact of the Blade": {
       type: "enchant",
       changes: [
-        generateOverrideChange(`{} [Pact Weapon]`, 20, "name"),
-        generateUnsignedAddChange("necrotic", 20, "system.damage.base.types"),
-        generateUnsignedAddChange("psychic", 20, "system.damage.base.types"),
-        generateUnsignedAddChange("radiant", 20, "system.damage.base.types"),
-        generateUnsignedAddChange("true", 20, "system.proficient"),
-        generateOverrideChange("cha", 20, "system.ability"),
+        DDBEnricherData.ChangeHelper.overrideChange(`{} [Pact Weapon]`, 20, "name"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("necrotic", 20, "system.damage.base.types"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("psychic", 20, "system.damage.base.types"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "system.damage.base.types"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("true", 20, "system.proficient"),
+        DDBEnricherData.ChangeHelper.overrideChange("cha", 20, "system.ability"),
       ],
     },
     "Eldritch Strike": {
@@ -3568,7 +3560,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
           "acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "poison", "psychic", "radiant",
           "thunder", "piercing", "slashing",
         ].map((element) =>
-          generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(element, 20, "system.traits.dr.value"),
         ),
       };
     },
@@ -3578,14 +3570,14 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     },
     "Full of Stars": {
       changes: [
-        generateUnsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
-        generateUnsignedAddChange("piercing", 20, "system.traits.dr.value"),
-        generateUnsignedAddChange("slashing", 20, "system.traits.dr.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
       ],
     },
     "Frost's Chill (Frost Giant)": {
       changes: [
-        generateSignedAddChange("-10", 20, "system.attributes.movement.walk"),
+        DDBEnricherData.ChangeHelper.signedAddChange("-10", 20, "system.attributes.movement.walk"),
       ],
     },
     "Giant's Might": {
@@ -3594,11 +3586,11 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         description: "You also gain advantage on Strength checks and saving throws.",
       },
       atlChanges: [
-        generateATLChange("ATL.width", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
-        generateATLChange("ATL.height", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
+        DDBEnricherData.ChangeHelper.atlChange("ATL.width", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
+        DDBEnricherData.ChangeHelper.atlChange("ATL.height", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
       ],
       changes: [
-        generateOverrideChange("lg", 25, "system.traits.size"),
+        DDBEnricherData.ChangeHelper.overrideChange("lg", 25, "system.traits.size"),
       ],
     },
     "Heightened Focus": {
@@ -3607,7 +3599,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     "Brutal Strike": {
       name: "Hamstrung",
       changes: [
-        generateOverrideChange("-15", 90, "system.attributes.movement.walk"),
+        DDBEnricherData.ChangeHelper.overrideChange("-15", 90, "system.attributes.movement.walk"),
       ],
       data: {
         "flags.ddbimporter.activityMatch": "Hamstrung Blow",
@@ -3623,7 +3615,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     },
     "Innate Sorcery": {
       changes: [
-        generateUnsignedAddChange("1", 20, "system.bonuses.spell.dc"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "system.bonuses.spell.dc"),
       ],
     },
     "Improved Circle Forms": {
@@ -3631,26 +3623,26 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     },
     "Large Form": {
       changes: [
-        generateOverrideChange("lg", 25, "system.traits.size"),
+        DDBEnricherData.ChangeHelper.overrideChange("lg", 25, "system.traits.size"),
       ],
       atlChanges: [
-        generateOverrideChange("2", 30, "ATL.width"),
-        generateOverrideChange("2", 30, "ATL.height"),
+        DDBEnricherData.ChangeHelper.overrideChange("2", 30, "ATL.width"),
+        DDBEnricherData.ChangeHelper.overrideChange("2", 30, "ATL.height"),
       ],
     },
     "Maneuver: Ambush": {
       changes: [
-        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.attributes.init.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.attributes.init.bonus"),
       ],
     },
     "Maneuver: Bait and Switch": {
       changes: [
-        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.attributes.ac.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.attributes.ac.bonus"),
       ],
     },
     "Maneuver: Evasive Footwork": {
       changes: [
-        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.attributes.ac.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.attributes.ac.bonus"),
       ],
     },
     // Future Enhancement: Add a macro that rolls dice and applies dr effect
@@ -3679,9 +3671,9 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     "Maneuver: Tactical Assessment": {
       name: "Tactical Assessment Bonus",
       changes: [
-        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.his.bonuses.check"),
-        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.inv.bonuses.check"),
-        generateUnsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.ins.bonuses.check"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.his.bonuses.check"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.inv.bonuses.check"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.ins.bonuses.check"),
       ],
     },
     "Mindless Rage": {
@@ -3690,8 +3682,8 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
       //   disabled: true,
       // },
       changes: [
-        generateUnsignedAddChange("frighened", 20, "system.traits.ci.value"),
-        generateUnsignedAddChange("charmed", 20, "system.traits.ci.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.ci.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("charmed", 20, "system.traits.ci.value"),
       ],
     },
     "Momentary Stasis": {
@@ -3699,11 +3691,11 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         durationRounds: 1,
       },
       changes: [
-        generateOverrideChange("*0", 90, "system.attributes.movement.all"),
-        generateOverrideChange("0", 90, "system.attributes.movement.walk"),
-        generateOverrideChange("0", 90, "system.attributes.movement.fly"),
-        generateOverrideChange("0", 90, "system.attributes.movement.swim"),
-        generateOverrideChange("0", 90, "system.attributes.movement.climb"),
+        DDBEnricherData.ChangeHelper.overrideChange("*0", 90, "system.attributes.movement.all"),
+        DDBEnricherData.ChangeHelper.overrideChange("0", 90, "system.attributes.movement.walk"),
+        DDBEnricherData.ChangeHelper.overrideChange("0", 90, "system.attributes.movement.fly"),
+        DDBEnricherData.ChangeHelper.overrideChange("0", 90, "system.attributes.movement.swim"),
+        DDBEnricherData.ChangeHelper.overrideChange("0", 90, "system.attributes.movement.climb"),
       ],
       statuses: ["incapacitated"],
     },
@@ -3721,7 +3713,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
             transfer: true,
           },
           changes: [
-            generateUnsignedAddChange("poisoned", 20, "system.traits.ci.value"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("poisoned", 20, "system.traits.ci.value"),
           ],
         },
       ];
@@ -3741,7 +3733,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
             disabled: !activeType.includes(effect.origin),
           },
           changes: [
-            generateUnsignedAddChange(effect.type, 20, "system.traits.dr.value"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange(effect.type, 20, "system.traits.dr.value"),
           ],
         });
       });
@@ -3774,7 +3766,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         transfer: true,
       },
       changes: [
-        generateOverrideChange("true", 20, "flags.dnd5e.powerfulBuild"),
+        DDBEnricherData.ChangeHelper.overrideChange("true", 20, "flags.dnd5e.powerfulBuild"),
       ],
     },
     "Psionic Power: Telekinetic Thrust": {
@@ -3783,9 +3775,9 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     },
     "Raging Storm: Tundra": {
       changes: [
-        generateCustomChange("*0", 20, "system.attributes.movement.all"),
-        generateOverrideChange("0", 60, "system.attributes.movement.walk"),
-        generateOverrideChange("0", 60, "system.attributes.movement.fly"),
+        DDBEnricherData.ChangeHelper.customChange("*0", 20, "system.attributes.movement.all"),
+        DDBEnricherData.ChangeHelper.overrideChange("0", 60, "system.attributes.movement.walk"),
+        DDBEnricherData.ChangeHelper.overrideChange("0", 60, "system.attributes.movement.fly"),
       ],
     },
     "Reckless Attack": {
@@ -3797,17 +3789,17 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         transfer: true,
       },
       changes: [
-        generateUnsignedAddChange("60", 20, "system.attributes.senses.darkvision"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("60", 20, "system.attributes.senses.darkvision"),
       ],
     },
     "Shifting: Beasthide": {
       changes: [
-        generateUnsignedAddChange("1", 20, "system.attributes.ac.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "system.attributes.ac.bonus"),
       ],
     },
     "Shifting: Swiftstride": {
       changes: [
-        generateUnsignedAddChange("10", 20, "system.attributes.movement.walk"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("10", 20, "system.attributes.movement.walk"),
       ],
     },
     "Shifting: Wildhunt": {
@@ -3824,7 +3816,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         durationSeconds: 600,
       },
       changes: [
-        generateUnsignedAddChange("60", 20, "system.attributes.senses.tremorsense"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("60", 20, "system.attributes.senses.tremorsense"),
       ],
     },
     "Superior Defense": {
@@ -3836,7 +3828,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         "acid", "bludgeoning", "cold", "fire", "lightning", "necrotic", "poison", "psychic", "radiant",
         "thunder", "piercing", "slashing",
       ].map((element) =>
-        generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange(element, 20, "system.traits.dr.value"),
       ),
     },
     "Tactial Master": {
@@ -3844,9 +3836,9 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         transfer: true,
       },
       changes: [
-        generateUnsignedAddChange("push", 10, "system.traits.weaponProf.mastery.bonus"),
-        generateUnsignedAddChange("sap", 10, "system.traits.weaponProf.mastery.bonus"),
-        generateUnsignedAddChange("slow", 10, "system.traits.weaponProf.mastery.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("push", 10, "system.traits.weaponProf.mastery.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("sap", 10, "system.traits.weaponProf.mastery.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("slow", 10, "system.traits.weaponProf.mastery.bonus"),
       ],
     },
     "Tongue of the Sun and Moon": {
@@ -3854,9 +3846,9 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         transfer: true,
       },
       changes: [
-        generateUnsignedAddChange("standard:*", 20, "system.traits.languages.value"),
-        generateUnsignedAddChange("exotic:*", 20, "system.traits.languages.value"),
-        generateUnsignedAddChange("ddb:*", 10, "system.traits.languages.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("standard:*", 20, "system.traits.languages.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("exotic:*", 20, "system.traits.languages.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("ddb:*", 10, "system.traits.languages.value"),
       ],
     },
     "Unarmored Movement": () => {
@@ -3869,7 +3861,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         changesOverwrite: true,
         changes: [
           // can't use scale values here yet
-          generateUnsignedAddChange(`${value}`, 20, "system.attributes.movement.walk"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${value}`, 20, "system.attributes.movement.walk"),
         ],
       };
     },
@@ -3888,11 +3880,11 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         const klass = foundry.utils.getProperty(data, "flags.ddbimporter.dndbeyond.class");
         if (klass === "Barbarian") {
           return [
-            generateOverrideChange("unarmoredBarb", 15, "system.attributes.ac.calc"),
+            DDBEnricherData.ChangeHelper.overrideChange("unarmoredBarb", 15, "system.attributes.ac.calc"),
           ];
         } else if (klass === "Monk") {
           return [
-            generateOverrideChange("unarmoredMonk", 15, "system.attributes.ac.calc"),
+            DDBEnricherData.ChangeHelper.overrideChange("unarmoredMonk", 15, "system.attributes.ac.calc"),
           ];
         }
         return [];
@@ -3902,7 +3894,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
       name: "Weapon Bond",
       type: "enchant",
       changes: [
-        generateOverrideChange(`{} [Bonded]`, 20, "name"),
+        DDBEnricherData.ChangeHelper.overrideChange(`{} [Bonded]`, 20, "name"),
       ],
     },
     "War Caster": {
@@ -3910,7 +3902,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         transfer: true,
       },
       changes: [
-        generateUpgradeChange("1", 10, "system.attributes.concentration.roll.mode"),
+        DDBEnricherData.ChangeHelper.upgradeChange("1", 10, "system.attributes.concentration.roll.mode"),
       ],
     },
   };

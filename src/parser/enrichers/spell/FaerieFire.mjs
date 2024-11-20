@@ -12,16 +12,16 @@ export default class FaerieFire extends DDBEnricherData {
       return {
         name: `${data.colour} Light`,
         midiChanges: [
-          DDBEnricherData.generateCustomChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
+          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
         atlChanges: [
-          DDBEnricherData.generateOverrideChange(data.hex, 30, "ATL.light.color"),
-          DDBEnricherData.generateOverrideChange("0.65", 30, "ATL.light.alpha"),
-          DDBEnricherData.generateOverrideChange("10", 30, "ATL.light.dim"),
-          DDBEnricherData.generateOverrideChange('{"type": "pulse","speed": 1,"intensity": 3}', 30, "ATL.light.animation"),
+          DDBEnricherData.ChangeHelper.overrideChange(data.hex, 30, "ATL.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.65", 30, "ATL.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("10", 30, "ATL.light.dim"),
+          DDBEnricherData.ChangeHelper.overrideChange('{"type": "pulse","speed": 1,"intensity": 3}', 30, "ATL.light.animation"),
         ],
         tokenMagicChanges: [
-          DDBEnricherData.generateTokenMagicFXChange("glow"),
+          DDBEnricherData.ChangeHelper.tokenMagicFXChange("glow"),
         ],
       };
     });

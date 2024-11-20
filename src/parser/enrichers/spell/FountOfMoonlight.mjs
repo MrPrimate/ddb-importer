@@ -1,15 +1,14 @@
 /* eslint-disable class-methods-use-this */
-import { effectModules } from "../../../effects/effects.js";
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class FountOfMoonlight extends DDBEnricherData {
 
   get type() {
-    return effectModules().atlInstalled ? "utility" : "ddbmacro";
+    return DDBEnricherData.AutoEffects.effectModules().atlInstalled ? "utility" : "ddbmacro";
   }
 
   get activity() {
-    if (effectModules().atlInstalled) {
+    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return {
         name: "Cast Spell",
       };
@@ -83,15 +82,15 @@ export default class FountOfMoonlight extends DDBEnricherData {
           durationRounds: 60,
         },
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("radiant", 20, "system.traits.dr.value"),
-          DDBEnricherData.generateUnsignedAddChange("2d6[radiant]", 20, "system.bonuses.mwak.damage"),
-          DDBEnricherData.generateUnsignedAddChange("2d6[radiant]", 20, "system.bonuses.msak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("2d6[radiant]", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("2d6[radiant]", 20, "system.bonuses.msak.damage"),
         ],
         atlChanges: [
-          DDBEnricherData.generateATLChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'),
-          DDBEnricherData.generateATLChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
-          DDBEnricherData.generateATLChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
-          DDBEnricherData.generateATLChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
         ],
       },
       {

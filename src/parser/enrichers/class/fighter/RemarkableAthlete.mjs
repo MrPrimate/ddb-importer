@@ -10,7 +10,7 @@ export default class RemarkableAthlete extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.remarkableAthlete"),
+          DDBEnricherData.ChangeHelper.overrideChange("true", 20, "flags.dnd5e.remarkableAthlete"),
         ],
       },
     ];

@@ -5,8 +5,8 @@ export default class Alert extends DDBEnricherData {
 
   get effects() {
     const changes = this.is2014
-      ? [DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.initiativeAlert")]
-      : [DDBEnricherData.generateUnsignedAddChange("@prof", 20, "system.attributes.init.bonus")];
+      ? [DDBEnricherData.ChangeHelper.overrideChange("true", 20, "flags.dnd5e.initiativeAlert")]
+      : [DDBEnricherData.ChangeHelper.unsignedAddChange("@prof", 20, "system.attributes.init.bonus")];
     return [
       {
         options: {

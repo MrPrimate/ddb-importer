@@ -10,12 +10,12 @@ export default class SynapticStatic extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("-1d6", 20, "system.bonuses.mwak.attack"),
-          DDBEnricherData.generateUnsignedAddChange("-1d6", 20, "system.bonuses.msak.attack"),
-          DDBEnricherData.generateUnsignedAddChange("-1d6", 20, "system.bonuses.rwak.attack"),
-          DDBEnricherData.generateUnsignedAddChange("-1d6", 20, "system.bonuses.rsak.attack"),
-          DDBEnricherData.generateUnsignedAddChange("-1d6", 20, "system.bonuses.abilities.check"),
-          DDBEnricherData.generateUnsignedAddChange("-1d6", 20, "system.attributes.concentration.bonuses.save"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.bonuses.mwak.attack"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.bonuses.msak.attack"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.bonuses.rwak.attack"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.bonuses.rsak.attack"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.bonuses.abilities.check"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d6", 20, "system.attributes.concentration.bonuses.save"),
         ],
       },
     ];

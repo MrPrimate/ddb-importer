@@ -15,7 +15,7 @@ export default class RadiantStrikes extends DDBEnricherData {
         transfer: true,
       },
       changes: [
-        DDBEnricherData.generateUnsignedAddChange("1d8[radiant]", 20, "system.bonuses.mwak.damage"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("1d8[radiant]", 20, "system.bonuses.mwak.damage"),
       ],
     }];
   }

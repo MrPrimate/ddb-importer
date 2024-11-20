@@ -57,7 +57,7 @@ export default class ElementalEpitome extends DDBEnricherData {
       return {
         name: `${utils.capitalize(element)} Resistance`,
         changes: [
-          DDBEnricherData.generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(element, 20, "system.traits.dr.value"),
         ],
         activityMatch: "Elemental Attunement Effects",
       };
@@ -65,7 +65,7 @@ export default class ElementalEpitome extends DDBEnricherData {
     const speed = {
       name: "Step of the Wind Bonus",
       changes: [
-        DDBEnricherData.generateUnsignedAddChange("20", 20, "system.attributes.speed.walk"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("20", 20, "system.attributes.speed.walk"),
       ],
       activityMatch: "Elemental Attunement Effects",
     };

@@ -8,7 +8,7 @@ export default class MoonSickle extends DDBEnricherData {
       {
         noCreate: true,
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("+4", 20, "system.bonuses.heal.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("+4", 20, "system.bonuses.heal.damage"),
         ],
       },
     ];

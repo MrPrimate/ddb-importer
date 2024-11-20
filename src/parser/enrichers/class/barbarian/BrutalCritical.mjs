@@ -10,7 +10,7 @@ export default class BrutalCritical extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.generateSignedAddChange("+1", 20, "flags.dnd5e.meleeCriticalDamageDice"),
+          DDBEnricherData.ChangeHelper.signedAddChange("+1", 20, "flags.dnd5e.meleeCriticalDamageDice"),
         ],
       },
     ];

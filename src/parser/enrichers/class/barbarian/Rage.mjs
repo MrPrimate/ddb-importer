@@ -46,17 +46,17 @@ export default class Rage extends DDBEnricherData {
         durationSeconds: this.is2014 ? 60 : 600,
       },
       changes: [
-        DDBEnricherData.generateUnsignedAddChange("@scale.barbarian.rage-damage", 20, "system.bonuses.mwak.damage"),
-        DDBEnricherData.generateUnsignedAddChange("piercing", 20, "system.traits.dr.value"),
-        DDBEnricherData.generateUnsignedAddChange("slashing", 20, "system.traits.dr.value"),
-        DDBEnricherData.generateUnsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.barbarian.rage-damage", 20, "system.bonuses.mwak.damage"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
       ],
       midiChanges: [
-        DDBEnricherData.generateCustomChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
-        DDBEnricherData.generateCustomChange("1", 20, "flags.midi-qol.advantage.ability.check.str"),
+        DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
+        DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.check.str"),
       ],
       tokenMagicChanges: [
-        DDBEnricherData.generateCustomChange("outline", 20, "macro.tokenMagic"),
+        DDBEnricherData.ChangeHelper.customChange("outline", 20, "macro.tokenMagic"),
       ],
     }];
   }

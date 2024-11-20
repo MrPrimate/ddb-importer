@@ -1,22 +1,15 @@
 import { DICTIONARY } from "../../../config/_module.mjs";
-import {
-  effectModules,
-  generateATLChange,
-  generateCustomChange,
-  generateDowngradeChange,
-  generateOverrideChange,
-  generateSignedAddChange,
-  generateTokenMagicFXChange,
-  generateUnsignedAddChange,
-  generateUpgradeChange,
-  generateMultiplyChange,
-} from "../../../effects/effects.js";
 import { DDBHelper } from "../../../lib/_module.mjs";
+import { AutoEffects, ChangeHelper } from "../effects/_module.mjs";
 
 /* eslint-disable class-methods-use-this */
 export default class DDBEnricherData {
 
   static META_DATA = {};
+
+  static AutoEffects = AutoEffects;
+
+  static ChangeHelper = ChangeHelper;
 
   hasClassFeature({ featureName, className = null, subClassName = null } = {}) {
     if (!this.ddbParser?.ddbData) return false;
@@ -71,25 +64,6 @@ export default class DDBEnricherData {
     return [base, ...parts];
   }
 
-  static effectModules = effectModules;
-
-  static generateATLChange = generateATLChange;
-
-  static generateCustomChange = generateCustomChange;
-
-  static generateDowngradeChange = generateDowngradeChange;
-
-  static generateOverrideChange = generateOverrideChange;
-
-  static generateSignedAddChange = generateSignedAddChange;
-
-  static generateUnsignedAddChange = generateUnsignedAddChange;
-
-  static generateMultiplyChange = generateMultiplyChange;
-
-  static generateUpgradeChange = generateUpgradeChange;
-
-  static generateTokenMagicFXChange = generateTokenMagicFXChange;
 
   static allDamageTypes(exclude = []) {
     return DICTIONARY.actions.damageType
@@ -120,7 +94,7 @@ export default class DDBEnricherData {
   }
 
   get movementChange() {
-    return game.modules.get("dae")?.active
+    return AutoEffects.effectModules().daeInstalled
       ? DDBEnricherData.generateUpgradeChange
       : DDBEnricherData.generateCustomChange;
   }

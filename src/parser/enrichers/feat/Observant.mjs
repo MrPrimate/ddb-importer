@@ -11,7 +11,7 @@ export default class Observant extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.observantFeat"),
+          DDBEnricherData.ChangeHelper.overrideChange("true", 20, "flags.dnd5e.observantFeat"),
         ],
       },
     ];

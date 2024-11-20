@@ -7,11 +7,11 @@ export default class Feeblemind extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateOverrideChange("1", 20, "system.abilities.cha.value"),
-          DDBEnricherData.generateOverrideChange("1", 20, "system.abilities.int.value"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "system.abilities.cha.value"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "system.abilities.int.value"),
         ],
         midiChanges: [
-          DDBEnricherData.generateOverrideChange("1", 20, "flags.midi-qol.fail.spell.all"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.fail.spell.all"),
         ],
       },
     ];

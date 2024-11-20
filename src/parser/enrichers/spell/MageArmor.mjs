@@ -7,7 +7,7 @@ export default class MageArmor extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateOverrideChange("mage", 5, "system.attributes.ac.calc"),
+          DDBEnricherData.ChangeHelper.overrideChange("mage", 5, "system.attributes.ac.calc"),
         ],
       },
     ];

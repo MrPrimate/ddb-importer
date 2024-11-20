@@ -29,7 +29,7 @@ export default class BoonOfTheNightSpirit extends DDBEnricherData {
         "bludgeoning", "piercing", "slashing",
         "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "thunder",
       ].map((element) =>
-        DDBEnricherData.generateUnsignedAddChange(element, 20, "system.traits.dr.value"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange(element, 20, "system.traits.dr.value"),
       ),
       activityMatch: "Shadowy Form",
     };

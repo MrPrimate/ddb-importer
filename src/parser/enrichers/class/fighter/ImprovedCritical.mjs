@@ -10,7 +10,7 @@ export default class SuperiorCritical extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.generateDowngradeChange("19", 25, "flags.dnd5e.weaponCriticalThreshold"),
+          DDBEnricherData.ChangeHelper.downgradeChange("19", 25, "flags.dnd5e.weaponCriticalThreshold"),
         ],
       },
     ];

@@ -7,11 +7,11 @@ export default class Haste extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateSignedAddChange("2", 20, "system.attributes.ac.bonus"),
+          DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.attributes.ac.bonus"),
         ],
         midiChanges: [
-          DDBEnricherData.generateOverrideChange("1", 20, "flags.midi-qol.advantage.ability.save.dex"),
-          DDBEnricherData.generateCustomChange("*2", 30, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.advantage.ability.save.dex"),
+          DDBEnricherData.ChangeHelper.customChange("*2", 30, "system.attributes.movement.all"),
         ],
       },
     ];

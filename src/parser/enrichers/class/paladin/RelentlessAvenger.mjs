@@ -18,7 +18,7 @@ export default class RelentlessAvenger extends DDBEnricherData {
         durationSeconds: 6,
       },
       changes: [
-        DDBEnricherData.generateOverrideChange("0", 90, "system.attributes.movement.walk"),
+        DDBEnricherData.ChangeHelper.overrideChange("0", 90, "system.attributes.movement.walk"),
       ],
     }];
   }

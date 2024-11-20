@@ -7,7 +7,7 @@ export default class MindBlank extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("psychic", 20, "system.traits.di.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("psychic", 20, "system.traits.di.value"),
         ],
       },
     ];

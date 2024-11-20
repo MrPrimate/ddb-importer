@@ -46,7 +46,7 @@ export default class RageOfTheWilds extends DDBEnricherData {
         },
         activityMatch: "Bear",
         changes: DDBEnricherData.allDamageTypes(["force", "necrotic", "psychic", "radiant"]).map((damage) => {
-          return DDBEnricherData.generateUnsignedAddChange(damage, 20, "system.traits.dr.value");
+          return DDBEnricherData.ChangeHelper.unsignedAddChange(damage, 20, "system.traits.dr.value");
         }),
       },
       {

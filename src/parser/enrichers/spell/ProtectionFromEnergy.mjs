@@ -8,7 +8,7 @@ export default class ProtectionFromEnergy extends DDBEnricherData {
       return {
         name: `Protection from ${element}`,
         changes: [
-          DDBEnricherData.generateUnsignedAddChange(element.toLowerCase(), 0, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(element.toLowerCase(), 0, "system.traits.dr.value"),
         ],
       };
     });

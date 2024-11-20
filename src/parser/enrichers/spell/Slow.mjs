@@ -7,9 +7,9 @@ export default class Slow extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateSignedAddChange("-2", 20, "system.attributes.ac.bonus"),
-          DDBEnricherData.generateSignedAddChange("-2", 20, "system.abilities.dex.bonuses.save"),
-          DDBEnricherData.generateCustomChange("/2", 20, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.signedAddChange("-2", 20, "system.attributes.ac.bonus"),
+          DDBEnricherData.ChangeHelper.signedAddChange("-2", 20, "system.abilities.dex.bonuses.save"),
+          DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
         ],
       },
     ];

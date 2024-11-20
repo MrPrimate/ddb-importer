@@ -12,13 +12,13 @@ export default class FireShield extends DDBEnricherData {
       {
         name: "Cold Shield",
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("fire", 0, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("fire", 0, "system.traits.dr.value"),
         ],
       },
       {
         name: "Warm Shield",
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("cold", 0, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("cold", 0, "system.traits.dr.value"),
         ],
       },
     ];

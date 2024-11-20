@@ -7,11 +7,11 @@ export default class Bane extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.mwak.attack"),
-          DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.rwak.attack"),
-          DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.msak.attack"),
-          DDBEnricherData.generateSignedAddChange("-1d4", 0, "system.bonuses.rsak.attack"),
-          DDBEnricherData.generateSignedAddChange("-1d4", 20, "system.bonuses.abilities.save"),
+          DDBEnricherData.ChangeHelper.signedAddChange("-1d4", 0, "system.bonuses.mwak.attack"),
+          DDBEnricherData.ChangeHelper.signedAddChange("-1d4", 0, "system.bonuses.rwak.attack"),
+          DDBEnricherData.ChangeHelper.signedAddChange("-1d4", 0, "system.bonuses.msak.attack"),
+          DDBEnricherData.ChangeHelper.signedAddChange("-1d4", 0, "system.bonuses.rsak.attack"),
+          DDBEnricherData.ChangeHelper.signedAddChange("-1d4", 20, "system.bonuses.abilities.save"),
         ],
       },
     ];

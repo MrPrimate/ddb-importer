@@ -11,7 +11,7 @@ export default class CircleForms extends DDBEnricherData {
           description: "You gain a minimum AC of 13 + your Wisdom modifier.",
         },
         changes: [
-          DDBEnricherData.generateUpgradeChange("13 + @abilities.wis.mod", 20, "system.attributes.ac.min"),
+          DDBEnricherData.ChangeHelper.upgradeChange("13 + @abilities.wis.mod", 20, "system.attributes.ac.min"),
         ],
       },
     ];

@@ -47,7 +47,7 @@ export default class AbsorbElements extends DDBEnricherData {
       return {
         name: `Absorb ${element}`,
         changes: [
-          DDBEnricherData.generateUnsignedAddChange(element.toLowerCase(), 1, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(element.toLowerCase(), 1, "system.traits.dr.value"),
         ],
         activityMatch: "Absorb Elements Effect",
       };

@@ -46,7 +46,7 @@ export default class RevelationInFlesh extends DDBEnricherData {
         },
         changes: [
           this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-          DDBEnricherData.generateCustomChange("true", 20, "system.attributes.movement.hover"),
+          DDBEnricherData.ChangeHelper.customChange("true", 20, "system.attributes.movement.hover"),
         ],
       },
       {
@@ -55,10 +55,10 @@ export default class RevelationInFlesh extends DDBEnricherData {
           durationSeconds: 600,
         },
         changes: [
-          DDBEnricherData.generateUnsignedAddChange(";See Invisibility (60ft)", 1, "system.attributes.senses.special"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(";See Invisibility (60ft)", 1, "system.attributes.senses.special"),
         ],
         atlChanges: [
-          DDBEnricherData.generateUpgradeChange("60", 20, "ATL.detectionModes.seeInvisibility.range"),
+          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "ATL.detectionModes.seeInvisibility.range"),
         ],
       },
       {

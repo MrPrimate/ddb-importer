@@ -10,7 +10,7 @@ export default class PowerfulBuild extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.powerfulBuild"),
+          DDBEnricherData.ChangeHelper.overrideChange("true", 20, "flags.dnd5e.powerfulBuild"),
         ],
       },
     ];

@@ -51,7 +51,7 @@ export default class ElementalWeapon extends DDBEnricherData {
             },
           },
           changes: [
-            DDBEnricherData.generateUnsignedAddChange(`[["${data.bonus}d4[${element.type}]", "${element.type}"]]`, 20, "system.damage.parts"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange(`[["${data.bonus}d4[${element.type}]", "${element.type}"]]`, 20, "system.damage.parts"),
           ],
         };
       });

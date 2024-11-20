@@ -1,6 +1,40 @@
 import { DICTIONARY } from "../../../config/_module.mjs";
+import ChangeHelper from "./ChangeHelper.mjs";
 
 export default class AutoEffects {
+
+  static ChangeHelper = ChangeHelper;
+
+  static effectModules() {
+    if (CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules) {
+      return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
+    }
+    const midiQolInstalled = game.modules.get("midi-qol")?.active ?? false;
+    const timesUp = game.modules.get("times-up")?.active ?? false;
+    const daeInstalled = game.modules.get("dae")?.active ?? false;
+
+    const activeAurasInstalled = game.modules.get("ActiveAuras")?.active ?? false;
+    const atlInstalled = game.modules.get("ATL")?.active ?? false;
+    const tokenMagicInstalled = game.modules.get("tokenmagic")?.active ?? false;
+    const autoAnimationsInstalled = game.modules.get("autoanimations")?.active ?? false;
+    const chrisInstalled = game.modules.get("chris-premades")?.active ?? false;
+    const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
+
+    CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
+      hasCore: midiQolInstalled && timesUp && daeInstalled,
+      hasMonster: midiQolInstalled && timesUp && daeInstalled,
+      midiQolInstalled,
+      timesUp,
+      daeInstalled,
+      atlInstalled,
+      tokenMagicInstalled,
+      activeAurasInstalled,
+      autoAnimationsInstalled,
+      chrisInstalled,
+      vision5eInstalled,
+    };
+    return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
+  }
 
   static generateBasicEffectDuration(document, activity) {
     let duration = {
@@ -115,5 +149,6 @@ export default class AutoEffects {
     }
     return document;
   }
+
 
 }

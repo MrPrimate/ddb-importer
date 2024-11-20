@@ -59,13 +59,13 @@ export default class AlterSelf extends DDBEnricherData {
       name: "Natural Weapons",
       type: "enchant",
       changes: [
-        DDBEnricherData.generateOverrideChange(`{} [Natural Weapons]`, 20, "name"),
-        DDBEnricherData.generateUnsignedAddChange("mgc", 20, "system.properties"),
-        DDBEnricherData.generateOverrideChange("1", 20, "system.damage.base.number"),
-        DDBEnricherData.generateOverrideChange("6", 20, "system.damage.base.denomination"),
-        DDBEnricherData.generateUnsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
-        DDBEnricherData.generateUnsignedAddChange("piercing", 20, "system.damage.base.types"),
-        DDBEnricherData.generateUnsignedAddChange("slashing", 20, "system.damage.base.types"),
+        DDBEnricherData.ChangeHelper.overrideChange(`{} [Natural Weapons]`, 20, "name"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("mgc", 20, "system.properties"),
+        DDBEnricherData.ChangeHelper.overrideChange("1", 20, "system.damage.base.number"),
+        DDBEnricherData.ChangeHelper.overrideChange("6", 20, "system.damage.base.denomination"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.damage.base.types"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.damage.base.types"),
       ],
       activityMatch: "Natural Weapons",
     };
@@ -76,7 +76,7 @@ export default class AlterSelf extends DDBEnricherData {
       };
     } else {
       naturalWeaponEffect.changes.push(
-        DDBEnricherData.generateOverrideChange("spellcasting", 20, "system.ability"));
+        DDBEnricherData.ChangeHelper.overrideChange("spellcasting", 20, "system.ability"));
     }
 
     effects.push(naturalWeaponEffect);

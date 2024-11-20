@@ -7,7 +7,7 @@ export default class BelashyrrasBeholderCrown extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateUpgradeChange(120, 10, "system.attributes.senses.darkvision"),
+          DDBEnricherData.ChangeHelper.upgradeChange(120, 10, "system.attributes.senses.darkvision"),
         ],
       },
     ];

@@ -21,7 +21,7 @@ export default class UseMagicDevice extends DDBEnricherData {
         transfer: true,
       },
       changes: [
-        DDBEnricherData.generateUpgradeChange("4", 10, "system.attributes.attunement.max"),
+        DDBEnricherData.ChangeHelper.upgradeChange("4", 10, "system.attributes.attunement.max"),
       ],
     }];
   }

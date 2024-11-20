@@ -17,8 +17,8 @@ export default class DivineFavor extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("1d4[radiant]", 0, "system.bonuses.mwak.damage"),
-          DDBEnricherData.generateUnsignedAddChange("1d4[radiant]", 0, "system.bonuses.rwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4[radiant]", 0, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4[radiant]", 0, "system.bonuses.rwak.damage"),
         ],
       },
     ];

@@ -79,7 +79,7 @@ export default class ShieldingStorm extends DDBEnricherData {
           },
         },
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("fire", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("fire", 20, "system.traits.dr.value"),
         ],
       },
       {
@@ -103,7 +103,7 @@ export default class ShieldingStorm extends DDBEnricherData {
           },
         },
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("lightning", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("lightning", 20, "system.traits.dr.value"),
         ],
       },
       {
@@ -127,7 +127,7 @@ export default class ShieldingStorm extends DDBEnricherData {
           },
         },
         changes: [
-          DDBEnricherData.generateUnsignedAddChange("cold", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("cold", 20, "system.traits.dr.value"),
         ],
       },
     ];

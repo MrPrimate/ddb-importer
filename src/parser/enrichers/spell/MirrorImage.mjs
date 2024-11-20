@@ -7,7 +7,7 @@ export default class MirrorImage extends DDBEnricherData {
     return [
       {
         tokenMagicChanges: [
-          DDBEnricherData.generateTokenMagicFXChange("images"),
+          DDBEnricherData.ChangeHelper.tokenMagicFXChange("images"),
         ],
       },
     ];

@@ -47,7 +47,7 @@ export default class ElementalAffinity extends DDBEnricherData {
           disabled: !activeType.includes(type),
         },
         changes: [
-          DDBEnricherData.generateUnsignedAddChange(type, 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(type, 20, "system.traits.dr.value"),
         ],
       };
     });

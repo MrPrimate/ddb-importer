@@ -10,8 +10,8 @@ export default class SavageAttacks extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.generateOverrideChange("true", 20, "flags.dnd5e.savageAttacks"),
-          DDBEnricherData.generateUnsignedAddChange("+1", 20, "flags.dnd5e.meleeCriticalDamageDice"),
+          DDBEnricherData.ChangeHelper.overrideChange("true", 20, "flags.dnd5e.savageAttacks"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("+1", 20, "flags.dnd5e.meleeCriticalDamageDice"),
         ],
       },
     ];

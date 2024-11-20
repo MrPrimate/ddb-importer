@@ -7,10 +7,10 @@ export default class Shield extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.generateSignedAddChange("5", 20, "system.attributes.ac.bonus"),
+          DDBEnricherData.ChangeHelper.signedAddChange("5", 20, "system.attributes.ac.bonus"),
         ],
         tokenMagicChanges: [
-          DDBEnricherData.generateTokenMagicFXChange("water-field"),
+          DDBEnricherData.ChangeHelper.tokenMagicFXChange("water-field"),
         ],
         data: {
           "flags.dae.specialDuration": ["turnStart"],
