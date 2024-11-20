@@ -16,19 +16,12 @@ import {
   getOvertimeDamage,
   getMonsterFeatureDamage,
 } from "./monsterFeatures/overTimeEffect.js";
-import {
-  baseEffect,
-  generateDAEStatusEffectChange,
-  addStatusEffectChange,
-  generateTokenMagicFXChange,
-  generateATLChange,
-} from "./effects.js";
 import { ExternalAutomations } from "./external/_module.mjs";
 import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
 
 export default class DDBEffectHelper {
 
-  static baseEffect = baseEffect;
+  static baseEffect = AutoEffects.BaseEffect;
 
   static Crosshairs = Crosshairs;
 
@@ -40,13 +33,13 @@ export default class DDBEffectHelper {
 
   static damageOverTimeEffect = damageOverTimeEffect;
 
-  static generateDAEStatusEffectChange = generateDAEStatusEffectChange;
+  static generateDAEStatusEffectChange = AutoEffects.ChangeHelper.daeStatusEffectChange;
 
-  static addStatusEffectChange = addStatusEffectChange;
+  static addStatusEffectChange = AutoEffects.ChangeHelper.addStatusEffectChange;
 
-  static generateTokenMagicFXChange = generateTokenMagicFXChange;
+  static generateTokenMagicFXChange = AutoEffects.ChangeHelper.tokenMagicFXChange;
 
-  static generateATLChange = generateATLChange;
+  static generateATLChange = AutoEffects.ChangeHelper.atlChange;
 
   static addToProperties(properties, value) {
     return utils.addToProperties(properties, value);

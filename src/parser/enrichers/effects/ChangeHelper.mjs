@@ -1,3 +1,5 @@
+import AutoEffects from "./AutoEffects.mjs";
+
 export default class ChangeHelper {
 
   static change(value, priority, key, type) {
@@ -135,6 +137,29 @@ export default class ChangeHelper {
     };
   }
 
+  static daeStatusEffectChange(statusName, priority = 20) {
+    return {
+      key: "macro.StatusEffect",
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      value: statusName.toLowerCase(),
+      priority: priority,
+    };
+  }
 
+  static addStatusEffectChange({ effect, statusName, priority = 20, level = null } = {}) {
+    if (AutoEffects.effectModules().daeInstalled) {
+      const key = ChangeHelper.daeStatusEffectChange(statusName, priority);
+      effect.changes.push(key);
+    } else {
+      if (effect.description && effect.description.trim() === "") {
+        effect.description = `You have the &Reference[${statusName.toLowerCase()}] status condition.`;
+      } else if (effect.description && effect.description.startsWith("You have the &Reference[")) {
+        effect.description += `<br> You have the &Reference[${statusName.toLowerCase()}] status condition.`;
+      }
+      effect.statuses.push(statusName.toLowerCase());
+      if (level) foundry.utils.setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
+    }
+    return effect;
+  }
 
 }

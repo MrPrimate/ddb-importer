@@ -1,196 +1,15 @@
 import { utils, logger, DDBHelper } from "../lib/_module.mjs";
 import { DICTIONARY } from "../config/_module.mjs";
-import { infusionEffectAdjustment } from "./specialInfusions.js";
 import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEffects.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 // import { abilityOverrideEffects } from "./abilityOverrides.js";
 import DDBEffectHelper from "./DDBEffectHelper.mjs";
-import { ChangeHelper } from "../parser/enrichers/effects/_module.mjs";
+import { AutoEffects, ChangeHelper } from "../parser/enrichers/effects/_module.mjs";
 
 /**
  * Add supported effects here to exclude them from calculations.
  */
-const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
-  { type: "bonus", subType: "saving-throws" },
-  { type: "bonus", subType: "ability-checks" },
-  { type: "bonus", subType: "skill-checks" },
-  { type: "bonus", subType: "proficiency-bonus" },
-
-  { type: "set", subType: "strength-score" },
-  { type: "set", subType: "dexterity-score" },
-  { type: "set", subType: "constitution-score" },
-  { type: "set", subType: "wisdom-score" },
-  { type: "set", subType: "intelligence-score" },
-  { type: "set", subType: "charisma-score" },
-
-  // skills
-  { type: "bonus", subType: "acrobatics" },
-  { type: "bonus", subType: "animal-handling" },
-  { type: "bonus", subType: "arcana" },
-  { type: "bonus", subType: "athletics" },
-  { type: "bonus", subType: "deception" },
-  { type: "bonus", subType: "history" },
-  { type: "bonus", subType: "insight" },
-  { type: "bonus", subType: "intimidation" },
-  { type: "bonus", subType: "investigation" },
-  { type: "bonus", subType: "medicine" },
-  { type: "bonus", subType: "nature" },
-  { type: "bonus", subType: "perception" },
-  { type: "bonus", subType: "performance" },
-  { type: "bonus", subType: "persuasion" },
-  { type: "bonus", subType: "religion" },
-  { type: "bonus", subType: "sleight-of-hand" },
-  { type: "bonus", subType: "stealth" },
-  { type: "bonus", subType: "survival" },
-
-  { type: "advantage", subType: "acrobatics" },
-  { type: "advantage", subType: "animal-handling" },
-  { type: "advantage", subType: "arcana" },
-  { type: "advantage", subType: "athletics" },
-  { type: "advantage", subType: "deception" },
-  { type: "advantage", subType: "history" },
-  { type: "advantage", subType: "insight" },
-  { type: "advantage", subType: "intimidation" },
-  { type: "advantage", subType: "investigation" },
-  { type: "advantage", subType: "medicine" },
-  { type: "advantage", subType: "nature" },
-  { type: "advantage", subType: "perception" },
-  { type: "advantage", subType: "performance" },
-  { type: "advantage", subType: "persuasion" },
-  { type: "advantage", subType: "religion" },
-  { type: "advantage", subType: "sleight-of-hand" },
-  { type: "advantage", subType: "stealth" },
-  { type: "advantage", subType: "survival" },
-
-
-  { type: "bonus", subType: "passive-insight" },
-  { type: "bonus", subType: "passive-investigation" },
-  { type: "bonus", subType: "passive-perception" },
-  // advantage on skills - not added here as not used elsewhere in importer.
-  // { type: "advantage", subType: "acrobatics" },
-
-  // initiative
-  { type: "advantage", subType: "initiative" },
-  { type: "bonus", subType: "initiative" },
-
-  { type: "bonus", subType: "strength-ability-checks" },
-  { type: "bonus", subType: "dexterity-ability-checks" },
-  { type: "bonus", subType: "constitution-ability-checks" },
-  { type: "bonus", subType: "wisdom-ability-checks" },
-  { type: "bonus", subType: "intelligence-ability-checks" },
-  { type: "bonus", subType: "charisma-ability-checks" },
-
-  { type: "bonus", subType: "strength-saving-throws" },
-  { type: "bonus", subType: "dexterity-saving-throws" },
-  { type: "bonus", subType: "constitution-saving-throws" },
-  { type: "bonus", subType: "wisdom-saving-throws" },
-  { type: "bonus", subType: "intelligence-saving-throws" },
-  { type: "bonus", subType: "charisma-saving-throws" },
-
-  // attack modifiers
-  { type: "bonus", subType: "weapon-attacks" },
-  { type: "bonus", subType: "melee-attacks" },
-  { type: "bonus", subType: "ranged-attacks" },
-  { type: "bonus", subType: "melee-weapon-attacks" },
-  { type: "bonus", subType: "ranged-weapon-attacks" },
-  { type: "damage", subType: null },
-
-  // spell modifiers
-  { type: "bonus", subType: "spell-save-dc" },
-  { type: "bonus", subType: "spell-attacks" },
-  { type: "bonus", subType: "melee-spell-attacks" },
-  { type: "bonus", subType: "ranged-spell-attacks" },
-  { type: "bonus", subType: "warlock-spell-save-dc" },
-  { type: "bonus", subType: "warlock-spell-attacks" },
-  { type: "bonus", subType: "spell-group-healing" }, // system.bonuses.heal.damage
-
-  // hp modifiers
-  { type: "bonus", subType: "hit-points-per-level" },
-  { type: "bonus", subType: "hit-points" },
-
-  // attunement
-  { type: "set", subType: "attunement-slots" },
-
-  // resistances - subType - e.g. poison - lookup from DICTIONARY
-  { type: "resistance", subType: null },
-  { type: "immunity", subType: null },
-  { type: "vulnerability", subType: null },
-
-];
-
-const EFFECT_EXCLUDED_SENSE_MODIFIERS = [
-  // senses
-  { type: "set-base", subType: "darkvision" },
-  { type: "sense", subType: "darkvision" },
-  { type: "set-base", subType: "blindsight" },
-  { type: "sense", subType: "blindsight" },
-  { type: "set-base", subType: "tremorsense" },
-  { type: "sense", subType: "tremorsense" },
-  { type: "set-base", subType: "truesight" },
-  { type: "sense", subType: "truesight" },
-];
-
-const EFFECT_EXCLUDED_SPEED_SET_MODIFIERS = [
-  // speeds
-  { type: "set", subType: "innate-speed-walking" },
-  { type: "set", subType: "innate-speed-climbing" },
-  { type: "set", subType: "innate-speed-swimming" },
-  { type: "set", subType: "innate-speed-flying" },
-];
-
-const EFFECT_EXCLUDED_SPEED_BONUS_MODIFIERS = [
-  { type: "bonus", subType: "speed" },
-  { type: "bonus", subType: "speed-walking" },
-  { type: "bonus", subType: "speed-climbing" },
-  { type: "bonus", subType: "speed-swimming" },
-  { type: "bonus", subType: "speed-flying" },
-];
-
-const EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS = EFFECT_EXCLUDED_SPEED_SET_MODIFIERS.concat(EFFECT_EXCLUDED_SPEED_BONUS_MODIFIERS);
-
-const EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS = [
-  { type: "bonus", subType: "unarmored-movement" },
-];
-
-const EFFECT_EXCLUDED_ALL_SPEED_MODIFIERS = EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
-
-const EFFECT_EXCLUDED_ABILITY_BONUSES = [
-  { type: "bonus", subType: "strength-score" },
-  { type: "bonus", subType: "dexterity-score" },
-  { type: "bonus", subType: "constitution-score" },
-  { type: "bonus", subType: "wisdom-score" },
-  { type: "bonus", subType: "intelligence-score" },
-  { type: "bonus", subType: "charisma-score" },
-  { type: "stacking-bonus", subType: "strength-score" },
-  { type: "stacking-bonus", subType: "dexterity-score" },
-  { type: "stacking-bonus", subType: "constitution-score" },
-  { type: "stacking-bonus", subType: "wisdom-score" },
-  { type: "stacking-bonus", subType: "intelligence-score" },
-  { type: "stacking-bonus", subType: "charisma-score" },
-];
-
-const EFFECT_EXCLUDED_PROFICIENCY_BONUSES = [
-  // profs
-  { type: "proficiency", subType: null },
-];
-
-const EFFECT_EXCLUDED_LANGUAGES_MODIFIERS = [
-  // languages - e.g. dwarvish -- lookup from DICTIONARY
-  { type: "language", subType: null },
-];
-
-const AC_BONUS_MODIFIERS = [
-  { type: "bonus", subType: "unarmored-armor-class" },
-  { type: "bonus", subType: "armor-class" },
-  { type: "bonus", subType: "armored-armor-class" },
-  { type: "bonus", subType: "dual-wield-armor-class" },
-];
-
-const AC_EFFECTS = [
-  { type: "set", subType: "unarmored-armor-class" },
-  { type: "ignore", subType: "unarmored-dex-ac-bonus" },
-  { type: "set", subType: "ac-max-dex-modifier" },
-];
+const EXCLUDED = DICTIONARY.effects.excludedModifiers;
 
 export function getEffectExcludedModifiers(type, features, ac) {
   let modifiers = [];
@@ -198,29 +17,31 @@ export function getEffectExcludedModifiers(type, features, ac) {
   if (type !== "item") {
     // features represent core non ac features
     if (features) {
-      modifiers = modifiers.concat(EFFECT_EXCLUDED_COMMON_MODIFIERS, EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
+      modifiers = modifiers.concat(EXCLUDED.common, EXCLUDED.speedMonk);
       if (!["race"].includes(type)) {
-        modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS, EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS);
+        modifiers = modifiers.concat(EXCLUDED.senses, EXCLUDED.speedSet, EXCLUDED.speedBonus);
       }
     }
     // here ac represents the more exotic ac effects that set limits and change base
-    modifiers = modifiers.concat(AC_BONUS_MODIFIERS);
+    modifiers = modifiers.concat(EXCLUDED.acBonus);
     if (ac) {
-      modifiers = modifiers.concat(AC_EFFECTS);
+      modifiers = modifiers.concat(EXCLUDED.ac);
     }
   }
 
   // items are basically their own thing, all or nuffin
   if (type === "item") {
     modifiers = modifiers.concat(
-      EFFECT_EXCLUDED_SENSE_MODIFIERS,
-      EFFECT_EXCLUDED_COMMON_MODIFIERS,
-      EFFECT_EXCLUDED_ABILITY_BONUSES,
-      EFFECT_EXCLUDED_LANGUAGES_MODIFIERS,
-      EFFECT_EXCLUDED_PROFICIENCY_BONUSES,
-      EFFECT_EXCLUDED_ALL_SPEED_MODIFIERS,
-      AC_EFFECTS,
-      AC_BONUS_MODIFIERS,
+      EXCLUDED.senses,
+      EXCLUDED.common,
+      EXCLUDED.abilityBonus,
+      EXCLUDED.languages,
+      EXCLUDED.proficiencyBonus,
+      EXCLUDED.speedSet,
+      EXCLUDED.speedBonus,
+      EXCLUDED.speedMonk,
+      EXCLUDED.ac,
+      EXCLUDED.acBonus,
     );
   }
   return modifiers;
@@ -292,54 +113,18 @@ export function baseEffect(foundryItem, name,
   { transfer = true, disabled = false, description = null, durationSeconds = null,
     durationRounds = null, durationTurns = null } = {},
 ) {
-  let effect = {
-    img: foundryItem.img,
-
-    changes: [],
-    duration: {},
-    // duration: {
-    //   seconds: null,
-    //   startTime: null,
-    //   rounds: null,
-    //   turns: null,
-    //   startRound: null,
-    //   startTurn: null,
-    // },
-    tint: "",
-    transfer,
-    disabled,
-    // origin: origin,
-    flags: {
-      dae: {
-        transfer,
-        stackable: "noneName",
-        // armorEffect: true
-      },
-      ddbimporter: {
-        disabled,
-      },
-      "midi-qol": { // by default force CE effect usage to off
-        forceCEOff: true,
-      },
-      core: {},
-    },
-  };
-  effect.name = name;
-  effect.statuses = [];
-  effect.duration = generateEffectDuration(foundryItem);
-  effect.description = description ?? "";
-  if (durationSeconds) effect.duration.seconds = durationSeconds;
-  if (durationRounds) effect.duration.rounds = durationRounds;
-  if (durationTurns) effect.duration.turns = durationTurns;
-  return effect;
+  return AutoEffects.BaseEffect(foundryItem, name, {
+    transfer, disabled, description, durationSeconds, durationRounds, durationTurns,
+  });
 }
 
-export function baseItemEffect(foundryItem, label,
+export function baseItemEffect(foundryItem, name,
   { transfer = true, disabled = false, description = null, durationSeconds = null,
     durationRounds = null, durationTurns = null } = {},
 ) {
-  const effect = baseEffect(foundryItem, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
-  return effect;
+  return AutoEffects.BaseEffect(foundryItem, name, {
+    transfer, disabled, description, durationSeconds, durationRounds, durationTurns,
+  });
 }
 
 export function getMidiCEOnFlags(midiFlags = {}) {
@@ -392,31 +177,9 @@ export function generateBaseSkillEffect(id, label) {
   return skillEffect;
 }
 
-export function generateDAEStatusEffectChange(statusName, priority = 20) {
-  return {
-    key: "macro.StatusEffect",
-    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-    value: statusName.toLowerCase(),
-    priority: priority,
-  };
-}
-
 export function addStatusEffectChange({ effect, statusName, priority = 20, level = null } = {}) {
-  if (effectModules().daeInstalled) {
-    const key = generateDAEStatusEffectChange(statusName, priority);
-    effect.changes.push(key);
-  } else {
-    if (effect.description && effect.description.trim() === "") {
-      effect.description = `You have the &Reference[${statusName.toLowerCase()}] status condition.`;
-    } else if (effect.description && effect.description.startsWith("You have the &Reference[")) {
-      effect.description += `<br> You have the &Reference[${statusName.toLowerCase()}] status condition.`;
-    }
-    effect.statuses.push(statusName.toLowerCase());
-    if (level) foundry.utils.setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
-  }
-  return effect;
+  return ChangeHelper.addStatusEffectChange({ effect, statusName, priority, level });
 }
-
 
 export function addSimpleConditionEffect(document, condition, { disabled, transfer } = {}) {
   document.effects = [];
@@ -429,43 +192,43 @@ export function addSimpleConditionEffect(document, condition, { disabled, transf
 // Refactored functions
 
 export function generateSignedAddChange(value, priority, key) {
-  ChangeHelper.signedAddChange(value, priority, key);
+  return ChangeHelper.signedAddChange(value, priority, key);
 }
 
 export function generateUnsignedAddChange(value, priority, key) {
-  ChangeHelper.unsignedAddChange(value, priority, key);
+  return ChangeHelper.unsignedAddChange(value, priority, key);
 }
 
 export function generateCustomChange(value, priority, key) {
-  ChangeHelper.customChange(value, priority, key);
+  return ChangeHelper.customChange(value, priority, key);
 }
 
 export function generateCustomBonusChange(value, priority, key) {
-  ChangeHelper.customBonusChange(value, priority, key);
+  return ChangeHelper.customBonusChange(value, priority, key);
 }
 
 export function generateUpgradeChange(value, priority, key) {
-  ChangeHelper.upgradeChange(value, priority, key);
+  return ChangeHelper.upgradeChange(value, priority, key);
 }
 
 export function generateOverrideChange(value, priority, key) {
-  ChangeHelper.overrideChange(value, priority, key);
+  return ChangeHelper.overrideChange(value, priority, key);
 }
 
 export function generateMultiplyChange(value, priority, key) {
-  ChangeHelper.multiplyChange(value, priority, key);
+  return ChangeHelper.multiplyChange(value, priority, key);
 }
 
 export function generateDowngradeChange(value, priority, key) {
-  ChangeHelper.downgradeChange(value, priority, key);
+  return ChangeHelper.downgradeChange(value, priority, key);
 }
 
 export function generateTokenMagicFXChange(macroValue, priority = 20) {
-  ChangeHelper.tokenMagicFXChange(macroValue, priority);
+  return ChangeHelper.tokenMagicFXChange(macroValue, priority);
 }
 
 export function generateATLChange(atlKey, mode, value, priority = 20) {
-  ChangeHelper.atlChange(atlKey, mode, value, priority);
+  return ChangeHelper.atlChange(atlKey, mode, value, priority);
 }
 
 
@@ -1444,6 +1207,12 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
     ? labelOverride
     : `${foundryItem.name}`;
 
+  // console.warn(`Generating Generic Effects for ${foundryItem.name}`, {
+  //   ddbItem,
+  //   label,
+  //   foundryItem: deepClone(foundryItem),
+  // });
+
   let effect = baseItemEffect(foundryItem, label);
   foundry.utils.setProperty(effect, "flags.ddbimporter.passive", true);
   effect.description = description;
@@ -1510,6 +1279,13 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
     ...attunementAdjustment,
   ];
 
+  // console.warn("effect", {
+  //   changes: effect.changes,
+  //   foundryItem,
+  //   ddbItem,
+  //   effect,
+  // });
+
   const hasInitiative = effect.changes.find((c) => c.key === "system.attributes.init.bonus"
     && c.mode === CONST.ACTIVE_EFFECT_MODES.ADD);
   const hasCheck = effect.changes.find((c) => c.key === "system.bonuses.abilities.check"
@@ -1532,7 +1308,7 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
   return [foundryItem, effect];
 }
 
-function addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect, type) {
+function addACEffect({ ddb, character, ddbItem, foundryItem, isCompendiumItem, effect, type } = {}) {
   // console.warn("addACEffect", {
   //   ddb,
   //   character,
@@ -1599,19 +1375,18 @@ export function generateEffects({ ddb, character, ddbItem, foundryItem, isCompen
     labelOverride: label,
     description,
   });
-  [foundryItem, effect] = addACEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect, type);
+  [foundryItem, effect] = addACEffect({
+    ddb,
+    character,
+    ddbItem,
+    foundryItem,
+    isCompendiumItem,
+    effect,
+    type,
+  });
 
   if (effect.changes?.length > 0) {
     foundryItem.effects.push(effect);
-  }
-
-  switch (type) {
-    case "infusion": {
-      foundryItem = infusionEffectAdjustment(foundryItem);
-      break;
-    }
-    // spells and feats get called from respective parsers for async loading
-    // no default
   }
 
   if (foundryItem.effects?.length > 0 || foundry.utils.hasProperty(document, "flags.dae") || foundry.utils.hasProperty(document, "flags.midi-qol.onUseMacroName")) {

@@ -1,13 +1,8 @@
 import {
-  addStatusEffectChange,
-  baseEffect,
-  baseItemEffect,
-  effectModules,
   forceItemEffect,
 } from "../../../effects/effects.js";
 import { baseFeatEffect } from "../../../effects/specialFeats.js";
 import { baseMonsterFeatureEffect } from "../../../effects/specialMonsters.js";
-import { baseSpellEffect } from "../../../effects/specialSpells.js";
 import { utils, logger, DDBHelper } from "../../../lib/_module.mjs";
 import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
 import { AutoEffects, EnchantmentEffects } from "../effects/_module.mjs";
@@ -369,7 +364,7 @@ export default class DDBEnricherMixin {
     if (overrideData.overrideActivation)
       foundry.utils.setProperty(activity, "activation.override", true);
 
-    if (overrideData.midiManualReaction && effectModules().midiQolInstalled)
+    if (overrideData.midiManualReaction && AutoEffects.effectModules().midiQolInstalled)
       foundry.utils.setProperty(this.data, "flags.midi-qol.reactionCondition", "false");
 
     if (foundry.utils.hasProperty(overrideData, "flatAttack")) {
@@ -435,7 +430,7 @@ export default class DDBEnricherMixin {
         ? effectHintFunction()
         : effectHintFunction;
       if (!effectHint) continue;
-      if (effectHint.midiOnly && !effectModules().midiQolInstalled) continue;
+      if (effectHint.midiOnly && !AutoEffects.effectModules().midiQolInstalled) continue;
       let name = effectHint.name ?? this.name;
       let effectOptions = effectHint.options ?? {};
 
@@ -460,17 +455,17 @@ export default class DDBEnricherMixin {
             effect = baseFeatEffect(this.data, name, effectOptions);
             break;
           case "spell":
-            effect = baseSpellEffect(this.data, name, effectOptions);
+            effect = AutoEffects.SpellEffect(this.data, name, effectOptions);
             break;
           case "monster":
             effect = baseMonsterFeatureEffect(this.data, name, effectOptions);
             break;
           case "item":
-            effect = baseItemEffect(this.data, name, effectOptions);
+            effect = AutoEffects.ItemEffect(this.data, name, effectOptions);
             break;
           case "basic":
           default:
-            effect = baseEffect(this.data, name, effectOptions);
+            effect = AutoEffects.BaseEffect(this.data, name, effectOptions);
         }
 
         if (!effectOptions.durationSeconds && !effectOptions.durationRounds) {
@@ -488,7 +483,7 @@ export default class DDBEnricherMixin {
       if (effectHint.statuses) {
         for (const status of effectHint.statuses) {
           const splitStatus = status.split(":");
-          addStatusEffectChange({
+          AutoEffects.ChangeHelper.addStatusEffectChange({
             effect,
             statusName: splitStatus[0],
             level: splitStatus.length > 1 ? splitStatus[1] : null,
@@ -504,15 +499,15 @@ export default class DDBEnricherMixin {
         else effect.changes.push(...changes);
       }
 
-      if (effectHint.atlChanges && effectModules().atlInstalled) {
+      if (effectHint.atlChanges && AutoEffects.effectModules().atlInstalled) {
         effect.changes.push(...effectHint.atlChanges);
       }
 
-      if (effectHint.tokenMagicChanges && effectModules().tokenMagicInstalled) {
+      if (effectHint.tokenMagicChanges && AutoEffects.effectModules().tokenMagicInstalled) {
         effect.changes.push(...effectHint.tokenMagicChanges);
       }
 
-      if (effectHint.midiChanges && effectModules().midiQolInstalled) {
+      if (effectHint.midiChanges && AutoEffects.effectModules().midiQolInstalled) {
         effect.changes.push(...effectHint.midiChanges);
       }
 

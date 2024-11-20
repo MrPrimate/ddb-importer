@@ -72,7 +72,8 @@ export default class AutoEffects {
   ) {
     let effect = {
       img: document.img,
-
+      name,
+      statuses: [],
       changes: [],
       duration: {},
       // duration: {
@@ -102,8 +103,6 @@ export default class AutoEffects {
         core: {},
       },
     };
-    effect.name = name;
-    effect.statuses = [];
     effect.duration = AutoEffects.generateBasicEffectDuration(document);
     effect.description = description ?? "";
     if (durationSeconds) effect.duration.seconds = durationSeconds;
@@ -118,6 +117,19 @@ export default class AutoEffects {
   ) {
     const options = { transfer, disabled, description, durationSeconds, durationRounds, durationTurns };
     return AutoEffects.BaseEffect(document, label, options);
+  }
+
+  static FeatEffect(document, label,
+    { transfer = false, disabled = false, description = null, durationSeconds = null,
+      durationRounds = null, durationTurns = null } = {},
+  ) {
+    return AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
+  }
+
+  static MonsterFeatureEffect(document, label,
+    { transfer = false, disabled = false } = {},
+  ) {
+    return AutoEffects.BaseEffect(document, label, { transfer, disabled });
   }
 
 

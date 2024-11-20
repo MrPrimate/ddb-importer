@@ -9,8 +9,9 @@ import { baseItemEffect, addAddBonusEffect } from "./effects.js";
 // // bracers of defence
 // { type: "bonus", subType: "unarmored-armor-class" },
 
-function buildBaseACEffect(label) {
+function buildBaseACEffect(name) {
   let effect = {
+    name,
     changes: [],
     duration: {
       seconds: null,
@@ -27,7 +28,6 @@ function buildBaseACEffect(label) {
     selectedKey: [],
     img: "icons/svg/shield.svg",
   };
-  effect.name = label;
   return effect;
 }
 

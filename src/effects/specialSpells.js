@@ -1,9 +1,9 @@
 import { logger } from "../lib/_module.mjs";
+import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
 import {
   forceItemEffect,
   effectModules,
   forceManualReaction,
-  baseEffect,
   applyDefaultMidiFlags,
 } from "./effects.js";
 
@@ -95,7 +95,9 @@ export function baseSpellEffect(document, label,
   { transfer = false, disabled = false, description = null, durationSeconds = null,
     durationRounds = null, durationTurns = null } = {},
 ) {
-  return baseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
+  return AutoEffects.BaseEffect(document, label, {
+    transfer, disabled, description, durationSeconds, durationRounds, durationTurns,
+  });
 }
 
 // eslint-disable-next-line complexity

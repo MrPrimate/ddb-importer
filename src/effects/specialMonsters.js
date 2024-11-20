@@ -1,5 +1,5 @@
 /* eslint-disable require-atomic-updates */
-import { addStatusEffectChange, applyDefaultMidiFlags, baseEffect, effectModules, forceItemEffect } from "./effects.js";
+import { addStatusEffectChange, applyDefaultMidiFlags, effectModules, forceItemEffect } from "./effects.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
@@ -23,11 +23,12 @@ import { logger } from "../lib/_module.mjs";
 import { giantSpiderEffects } from "./monsterFeatures/giantSpider.js";
 import { beholderEyeRayLegendaryEffect } from "./monsterFeatures/beholderEyeRayLegendary.js";
 import { multiAttackEffect } from "./monsterFeatures/multiAttack.js";
+import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
 
 export function baseMonsterFeatureEffect(document, label,
   { transfer = false, disabled = false } = {},
 ) {
-  return baseEffect(document, label, { transfer, disabled });
+  return AutoEffects.MonsterFeatureEffect(document, label, { transfer, disabled });
 }
 
 // eslint-disable-next-line complexity

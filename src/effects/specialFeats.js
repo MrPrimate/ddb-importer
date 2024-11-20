@@ -1,4 +1,4 @@
-import { applyDefaultMidiFlags, baseEffect, effectModules, forceItemEffect, forceManualReaction } from "./effects.js";
+import { applyDefaultMidiFlags, effectModules, forceItemEffect, forceManualReaction } from "./effects.js";
 
 // effect loads
 import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
@@ -80,13 +80,16 @@ import { twinklingConstellationsEffect } from "./feats/twinklingConstellations.j
 import { armsOfTheAstralSelfEffect } from "./feats/armsOfTheAstralSelf.js";
 import { ghostWalkEffect } from "./feats/ghostWalk.js";
 import { foeSlayerEffect } from "./feats/foeSlayer.js";
+import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
 
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false, description = null, durationSeconds = null,
     durationRounds = null, durationTurns = null } = {},
 ) {
-  return baseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
+  return AutoEffects.BaseEffect(document, label, {
+    transfer, disabled, description, durationSeconds, durationRounds, durationTurns,
+  });
 }
 
 // eslint-disable-next-line complexity
