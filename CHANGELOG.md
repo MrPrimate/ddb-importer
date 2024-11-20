@@ -1,3 +1,7 @@
+# 6.0.47
+
+- Fixes to spell parsing.
+
 # 6.0.46
 
 - Rings would not get AC Bonus effects generated since 6.0.42
