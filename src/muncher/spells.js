@@ -13,8 +13,7 @@ import {
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { SETTINGS } from "../config/_module.mjs";
 import { addVision5eStubs } from "../effects/vision5e.js";
-import DDBMacros from "../effects/DDBMacros.js";
-import ExternalAutomations from "../effects/external/ExternalAutomations.js";
+import { DDBMacros, ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 import SpellListFactory from "../parser/spells/SpellListFactory.mjs";
 

@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 import { effectModules } from "../effects.js";
 
 export async function sleepEffect(document) {

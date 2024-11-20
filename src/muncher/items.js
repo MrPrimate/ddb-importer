@@ -14,8 +14,7 @@ import {
 import { SETTINGS } from "../config/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
-import DDBMacros from "../effects/DDBMacros.js";
-import ExternalAutomations from "../effects/external/ExternalAutomations.js";
+import { DDBMacros, ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 
 function getCharacterInventory(items) {

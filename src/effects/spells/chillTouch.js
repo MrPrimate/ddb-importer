@@ -1,5 +1,5 @@
 import { effectModules } from "../effects.js";
-// import DDBMacros from "../DDBMacros.js";
+// import DDBMacros from "../DDBMacros.mjs";
 
 export async function chillTouchEffect(document) {
   if (effectModules().midiQolInstalled) {

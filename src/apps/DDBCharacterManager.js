@@ -18,8 +18,7 @@ import DDBCookie from "../apps/DDBCookie.js";
 import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/character/conditions.js";
-import DDBMacros from "../effects/DDBMacros.js";
-import ExternalAutomations from "../effects/external/ExternalAutomations.js";
+import { DDBMacros, ExternalAutomations } from "../effects/_module.mjs";
 import { createInfusedItems } from "../parser/character/infusions.js";
 
 export default class DDBCharacterManager extends FormApplication {

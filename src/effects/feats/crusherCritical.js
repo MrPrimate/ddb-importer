@@ -1,6 +1,6 @@
 
 import { baseFeatEffect } from "../specialFeats.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 
 export async function crusherCriticalEffect(document) {
   const effect = baseFeatEffect(document, document.name, { transfer: true });

@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 
 export async function enhanceAbilityEffect(document) {
   let effect = baseSpellEffect(document, document.name);

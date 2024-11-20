@@ -24,7 +24,7 @@ import {
   generateTokenMagicFXChange,
   generateATLChange,
 } from "./effects.js";
-import ExternalAutomations from "./external/ExternalAutomations.js";
+import { ExternalAutomations } from "./external/_module.mjs";
 
 export default class DDBEffectHelper {
 

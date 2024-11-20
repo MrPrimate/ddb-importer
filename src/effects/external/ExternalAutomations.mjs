@@ -3,7 +3,7 @@
 
 import { logger, PatreonHelper } from "../../lib/_module.mjs";
 import { SETTINGS } from "../../config/_module.mjs";
-import ChrisPremadesHelper from "./ChrisPremadesHelper.js";
+import ChrisPremadesHelper from "./ChrisPremadesHelper.mjs";
 
 export default class ExternalAutomations {
 

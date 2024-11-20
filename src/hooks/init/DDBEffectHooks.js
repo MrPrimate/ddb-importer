@@ -1,6 +1,5 @@
-// import { logger } from "../lib/_module.mjs";
-import { logger } from "../lib/_module.mjs";
-import DDBMacros from "./DDBMacros.js";
+import { logger } from "../../lib/_module.mjs";
+import { DDBMacros } from "../../effects/_module.mjs";
 
 // eslint-disable-next-line no-unused-vars, complexity
 function daeLightStubEffects(actor, change, _current, _delta, _changes) {

@@ -12,14 +12,12 @@ import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adve
 import { updateDDBCharacter } from "./updater/character.js";
 import DDBCharacterManager, { importCharacter, importCharacterById } from "./apps/DDBCharacterManager.js";
 import { getFeats } from "./muncher/feats/feats.js";
-import DDBMacros from "./effects/DDBMacros.js";
+import { DDBMacros, External } from "./effects/_module.mjs";
 import { getNPCImage } from "./muncher/importMonster.js";
 import DDBCompanion2014 from "./parser/companions/DDBCompanion2014.mjs";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.mjs";
 import DDBEffectHelper from "./effects/DDBEffectHelper.js";
 import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
-import ChrisPremadesHelper from "./effects/external/ChrisPremadesHelper.js";
-import ExternalAutomations from "./effects/external/ExternalAutomations.js";
 import DDBSimpleMacro from "./effects/DDBSimpleMacro.js";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.mjs";
 import * as Enrichers from "./parser/enrichers/_module.mjs";
@@ -101,7 +99,7 @@ export function registerApi() {
       getPatreonValidity: lib.PatreonHelper.getPatreonValidity,
     },
     lib: {
-      ChrisPremadesHelper,
+      ChrisPremadesHelper: External.ChrisPremadesHelper,
       CompendiumHelper: lib.CompendiumHelper,
       DDBCampaigns: lib.DDBCampaigns,
       DDBCharacterManager,
@@ -180,8 +178,8 @@ export function registerApi() {
     DialogHelper: lib.DialogHelper,
     effects: {
       helpers: DDBEffectHelper,
-      ChrisPremadesHelper,
-      addChrisEffectsToActorDocuments: ExternalAutomations.addChrisEffectsToActorDocuments,
+      ChrisPremadesHelper: External.ChrisPremadesHelper,
+      addChrisEffectsToActorDocuments: External.ExternalAutomations.addChrisEffectsToActorDocuments,
       addDDBIEffectsToActorDocuments: DDBEffectHelper.addDDBIEffectsToActorDocuments,
       addDDBIEffectToDocument: DDBEffectHelper.addDDBIEffectToDocument,
       // these are now in DDBEffectHelper, wrapped here for historical reasons
@@ -214,9 +212,9 @@ export function registerApi() {
       executeSimpleMacro: DDBSimpleMacro.execute,
     },
     chris: {
-      generateEffect: ExternalAutomations.applyChrisPremadeEffect,
-      generateEffects: ExternalAutomations.applyChrisPremadeEffects,
-      adjustActor: ExternalAutomations.addChrisEffectsToActorDocuments,
+      generateEffect: External.ExternalAutomations.applyChrisPremadeEffect,
+      generateEffects: External.ExternalAutomations.applyChrisPremadeEffects,
+      adjustActor: External.ExternalAutomations.addChrisEffectsToActorDocuments,
     },
     debug: {
       start: debugStart,

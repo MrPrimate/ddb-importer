@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 import { addStatusEffectChange, effectModules } from "../effects.js";
 import { baseSpellEffect } from "../specialSpells.js";
 

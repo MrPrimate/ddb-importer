@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 
 export async function ancestralProtectorsEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "feat", "ancestralProtectors.js");

@@ -1,5 +1,5 @@
 import { baseItemEffect } from "../effects.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 
 export async function blessedHealerEffect(document) {
   let effect = baseItemEffect(document, document.name);

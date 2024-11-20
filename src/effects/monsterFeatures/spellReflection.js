@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 import { baseEffect } from "../effects.js";
 
 export async function spellReflectionEffect(document) {

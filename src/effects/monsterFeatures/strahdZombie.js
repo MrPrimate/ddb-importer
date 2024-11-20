@@ -1,5 +1,5 @@
 import { forceItemEffect } from "../effects.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 
 

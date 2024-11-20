@@ -1,6 +1,6 @@
 import { baseFeatEffect } from "../specialFeats.js";
 import { addStatusEffectChange, forceManualReaction } from "../effects.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 import { logger } from "../../lib/_module.mjs";
 
 function dermineDiceString(ddb) {

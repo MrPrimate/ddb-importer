@@ -1,5 +1,5 @@
 import { utils, logger } from "../lib/_module.mjs";
-import DDBMacros from "./DDBMacros.js";
+import DDBMacros from "./DDBMacros.mjs";
 
 /**
  * This class helps execute DDB Macros and is mainl

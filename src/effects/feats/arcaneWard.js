@@ -1,5 +1,5 @@
 import { baseItemEffect } from "../effects.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 
 export async function arcaneWardEffect(document) {
   let detectionEffect = baseItemEffect(document, `${document.name}: Spell Detection`);

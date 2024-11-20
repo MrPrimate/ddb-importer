@@ -1,6 +1,6 @@
 import CharacterSpellFactory from "./spells/CharacterSpellFactory.js";
 import { logger, utils, FileHelper, Secrets, DDBCampaigns, DDBProxy, DDBHelper, CompendiumHelper, DDBItemImporter, DDBCompendiumFolders, DDBReferenceLinker } from "../lib/_module.mjs";
-import DDBMacros from "../effects/DDBMacros.js";
+import { DDBMacros } from "../effects/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import { fixCharacterLevels } from "./character/filterModifiers.js";

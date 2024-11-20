@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export async function thunderousSmiteEffect(document) {

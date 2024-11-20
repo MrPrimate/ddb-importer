@@ -1,6 +1,6 @@
 import { effectModules, generateATLChange } from "../effects.js";
 import { baseSpellEffect } from "../specialSpells.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 
 export async function crownofStarsEffect(document) {
   let effect = baseSpellEffect(document, document.name);

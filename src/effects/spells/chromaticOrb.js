@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 
 export async function chromaticOrbEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "spell", "chromaticOrb.js");

@@ -7,7 +7,7 @@ import { logger, utils, CompendiumHelper, FileHelper, Secrets, DDBProxy, Patreon
 import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory.js";
 import { SETTINGS } from "../config/_module.mjs";
 import { addVision5eStubs } from "../effects/vision5e.js";
-import ExternalAutomations from "../effects/external/ExternalAutomations.js";
+import { ExternalAutomations } from "../effects/_module.mjs";
 
 export default class DDBMonster {
 

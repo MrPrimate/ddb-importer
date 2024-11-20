@@ -15,7 +15,7 @@ import checkVersion from "./hooks/ready/checkVersion.js";
 import { loadDDBConfig } from "./hooks/ready/ddbConfig.js";
 import { anchorInjection } from "./hooks/ready/anchorInjection.js";
 import { setupUpdateCreatedOrigins } from "./hooks/ready/originFixing.js";
-import DDBEffectHooks from "./effects/DDBEffectHooks.js";
+import DDBEffectHooks from "./hooks/init/DDBEffectHooks.js";
 
 // monster muncher
 import { earlySettings } from "./hooks/init/settings.js";

@@ -1,6 +1,6 @@
 import { addStatusEffectChange } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 
 export async function ragingStormSeaEffect(document) {
 

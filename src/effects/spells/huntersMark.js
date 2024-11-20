@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 
 // this one is a bit different, the macro is triggered by midi-qol and applies effects to the actor
 // the Marked effect gets applied to the target

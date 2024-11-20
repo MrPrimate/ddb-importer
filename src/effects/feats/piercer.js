@@ -1,6 +1,6 @@
 
 import { baseFeatEffect } from "../specialFeats.js";
-import DDBMacros from "../DDBMacros.js";
+import DDBMacros from "../DDBMacros.mjs";
 
 async function commonPiercer(document) {
   document.system.target = {
