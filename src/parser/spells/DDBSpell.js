@@ -99,7 +99,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     ddbData, spellData, rawCharacter = null, namePrefix = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
-    generateSummons = null, notifier = null,
+    generateSummons = null, notifier = null, healingBoost = null, cantripBoost = null,
   } = {}) {
     super({
       enricher,
@@ -172,6 +172,13 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       || (generateSummons ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions"));
     this.DDBCompanionFactory = null; // lazy init
 
+    this.isCantrip = this.ddbDefinition.level === 0;
+    const boost = cantripBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.cantripBoost");
+    this.cantripBoost = this.isCantrip && boost;
+
+    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.healingBoost");
+    this.healingBonus = boostHeal ? ` + ${boostHeal} + @item.level` : "";
+
   }
 
 
@@ -234,7 +241,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     }
     // Warlocks should use Pact spells
     // but lets mark level 0 as regular spells so they show up as cantrips
-    if (this.data.system.preparation.mode === "pact" && this.ddbDefinition.level === 0) {
+    if (this.data.system.preparation.mode === "pact" && this.isCantrip) {
       this.data.system.preparation.mode = "prepared";
       this.data.system.preparation.prepared = true;
     } else if (this.data.system.preparation.mode === "pact" && this.pactSpellsPrepared) {
@@ -248,7 +255,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.data.system.preparation = {
       mode: "prepared",
       // If always prepared mark as such, if not then check to see if prepared, mark cantrips as prepared
-      prepared: this.spellData.alwaysPrepared || this.spellData.prepared || this.ddbDefinition.level === 0,
+      prepared: this.spellData.alwaysPrepared || this.spellData.prepared || this.isCantrip,
     };
 
     // handle classSpells
@@ -640,6 +647,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     const activityParser = new DDBSpellActivity({
       type: "heal",
       ddbParent: this,
+      healingBoost: this.healingBoost,
+      cantripBoost: this.cantripBoost,
     });
 
     const heals = this.ddbDefinition.modifiers.filter((mod) =>
@@ -659,8 +668,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
       const healValue = (heal.die.diceString) ? heal.die.diceString : heal.die.fixedValue;
       const diceString = heal.usePrimaryStat
-        ? `${healValue} + @mod${activityParser.healingBonus}`
-        : `${healValue}${activityParser.healingBonus}`;
+        ? `${healValue} + @mod${this.healingBonus}`
+        : `${healValue}${this.healingBonus}`;
       if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
         const damage = activityParser.buildDamagePart({
           damageString: diceString,
@@ -722,10 +731,10 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       return "utility";
     } else if (this.ddbDefinition.modifiers.some((mod) => mod.type === "damage")) {
       return "damage";
-    } else if (this.enricher.effects?.length > 0) {
-      return "utility";
     } else if (this.healingParts.length > 0) {
       return "heal";
+    } else if (this.enricher.effects?.length > 0) {
+      return "utility";
     }
     // KNOWN_ISSUE_4_0: Enchants like for magic weapon etc
     // KNOWN_ISSUE_4_0: Summoning
@@ -789,8 +798,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
   #addHealAdditionalActivities() {
     const healingParts = this.activityType === "heal"
-      ? this.healingParts.slice(1)
-      : this.healingParts;
+      ? foundry.utils.deepClone(this.healingParts).slice(1)
+      : foundry.utils.deepClone(this.healingParts);
     for (const part of healingParts) {
       this.additionalActivities.push({
         type: "heal",
@@ -922,5 +931,13 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     return spell.data;
   }
 
+  /** @override */
+  _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const spellOptions = foundry.utils.mergeObject({
+      healingPart: this.healingParts[0],
+    }, options);
+
+    return super._getHealActivity({ name, nameIdPostfix }, spellOptions);
+  }
 
 }

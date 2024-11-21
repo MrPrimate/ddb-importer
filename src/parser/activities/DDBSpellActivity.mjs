@@ -203,7 +203,9 @@ export default class DDBSpellActivity extends DDBBasicActivity {
           && mod.atHigherLevels.higherLevelDefinitions.length >= 1;
 
         // lets handle normal spell leveling first
-        const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : this.ddbDefinition.scaleType;
+        const modScaleType = mod.atHigherLevels.scaleType
+          ? mod.atHigherLevels.scaleType
+          : this.ddbDefinition.scaleType;
         if (isHigherLevelDefinitions && modScaleType === "spellscale") {
           const definition = mod.atHigherLevels.higherLevelDefinitions[0];
           if (definition) {
@@ -310,7 +312,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     if ((scalingMatch && (Number(scalingMatch[2]) === damage.denomination))
       || (scaling.old === "cantrip")
     ) {
-      damage.scaling.number = Number(scaling?.[1] || 1);
+      damage.scaling.number = Number(scalingMatch[1] ?? 1);
       damage.scaling.formula = "";
     } else {
       damage.scaling.formula = scaling.formula;
