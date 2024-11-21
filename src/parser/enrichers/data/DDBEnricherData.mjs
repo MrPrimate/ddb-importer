@@ -95,8 +95,8 @@ export default class DDBEnricherData {
 
   get movementChange() {
     return AutoEffects.effectModules().daeInstalled
-      ? DDBEnricherData.generateUpgradeChange
-      : DDBEnricherData.generateCustomChange;
+      ? AutoEffects.generateUpgradeChange
+      : AutoEffects.generateCustomChange;
   }
 
   constructor({ ddbEnricher }) {

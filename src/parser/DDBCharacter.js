@@ -68,7 +68,7 @@ export default class DDBCharacter {
 
     this.matchedFeatures = [];
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
-    this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source.ddb });
+    this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
   }
 
   /**
@@ -128,6 +128,8 @@ export default class DDBCharacter {
       if (!this.source.success) return;
 
       this.source.ddb = fixCharacterLevels(this.source.ddb);
+      // update proficiency finder with a character based version
+      this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source.ddb });
 
       // load some required content
       await DDBReferenceLinker.importCacheLoad();
