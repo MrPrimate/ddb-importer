@@ -8962,5 +8962,9 @@
   {
     "name": "Paralysis Pistol",
     "path": "icons/tools/laboratory/alembic-glass-ball-blue.webp"
+  },
+  {
+    "name": "Robe",
+    "path": "icons/equipment/chest/robe-layered-teal.webp"
   }
 ]

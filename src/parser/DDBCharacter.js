@@ -491,10 +491,10 @@ export default class DDBCharacter {
       }
     }
 
-    console.warn(`Compendium data`, {
-      featureCompendiumFolders,
-      currentFolders: deepClone(featureCompendiumFolders.classFolders),
-    });
+    // console.warn(`Compendium data`, {
+    //   featureCompendiumFolders,
+    //   currentFolders: deepClone(featureCompendiumFolders.classFolders),
+    // });
 
     const featureHandlerOptions = {
       chrisPremades: true,
