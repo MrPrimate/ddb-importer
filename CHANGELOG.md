@@ -1,3 +1,10 @@
+# Next Up
+
+- Internal auto effect generation refactor for future enhancements
+- Spell Scaling fix (especially on new healing spells)
+- Changes to support the new compendium folder structure.
+
+
 # 6.0.47
 
 - Fixes to spell parsing.
