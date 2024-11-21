@@ -1,4 +1,5 @@
 import { DICTIONARY } from "../../../config/_module.mjs";
+import { DDBHelper } from "../../../lib/_module.mjs";
 import ChangeHelper from "./ChangeHelper.mjs";
 import MidiEffects from "./MidiEffects.mjs";
 
@@ -175,6 +176,77 @@ export default class AutoEffects {
       }
     }
     return document;
+  }
+
+
+  static getGenericConditionAffectData(modifiers, condition, typeId, forceNoMidi = false) {
+    const restrictions = [
+      "",
+      null,
+      "While within 20 feet",
+      "Dwarf Only",
+      "While Not Incapacitated",
+      // "As an Action", this is a timed/limited effect, dealt with elsewhere
+      "While Staff is Held",
+      "Helm has at least one ruby remaining",
+      "while holding",
+      "While Held",
+    ];
+
+    const ddbAdjustments = typeId === 4
+      ? [
+        { id: 11, type: 4, name: "Poisoned", slug: "poison" },
+        { id: 16, type: 4, name: "Diseased", slug: "diseased" },
+        { id: 16, type: 4, name: "Diseased", slug: "disease" },
+      ]
+        .concat(CONFIG.DDB.conditions.map((a) => {
+          return {
+            id: a.definition.id,
+            type: 4,
+            name: a.definition.name,
+            slug: a.definition.slug,
+          };
+        }))
+      : CONFIG.DDB.damageAdjustments;
+
+    const result = DDBHelper
+      .filterModifiersOld(modifiers, condition, null, restrictions)
+      .filter((modifier) => {
+        const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
+        if (!ddbLookup) return false;
+        return DICTIONARY.character.damageAdjustments.some((adj) =>
+          adj.type === typeId
+          && ddbLookup.id === adj.id
+          && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue")),
+        );
+      })
+      .map((modifier) => {
+        const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
+        const entry = DICTIONARY.character.damageAdjustments.find((adj) =>
+          adj.type === typeId
+          && ddbLookup.id === adj.id,
+        );
+        if (!entry) return undefined;
+        const valueData = foundry.utils.hasProperty(entry, "foundryValues")
+          ? foundry.utils.getProperty(entry, "foundryValues")
+          : foundry.utils.hasProperty(entry, "foundryValue")
+            ? { value: entry.foundryValue }
+            : undefined;
+        return valueData;
+      })
+      .filter((adjustment) => adjustment !== undefined)
+      .map((result) => {
+        if (game.modules.get("midi-qol")?.active && result.midiValues && !forceNoMidi) {
+          return {
+            value: result.value.concat(result.midiValues),
+            bypass: result.bypass,
+          };
+        } else {
+          return result;
+        }
+      });
+
+    return result;
   }
 
 }

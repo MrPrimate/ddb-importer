@@ -1,6 +1,6 @@
 import { DICTIONARY } from '../../config/_module.mjs';
-import { getGenericConditionAffectData } from '../../effects/effects.js';
 import { utils, logger, DDBHelper } from '../../lib/_module.mjs';
+import { AutoEffects } from '../enrichers/effects/_module.mjs';
 
 function htmlToText(html) {
   // keep html brakes and tabs
@@ -873,7 +873,7 @@ export default class AdvancementHelper {
     ["resistance", "immunity", "vulnerability", "immunity"].forEach((condition, i) => {
       const proficiencyMods = DDBHelper.filterModifiers(mods, condition, { restriction: null });
       const conditionId = i + 1;
-      const conditionData = getGenericConditionAffectData(proficiencyMods, condition, conditionId, true);
+      const conditionData = AutoEffects.getGenericConditionAffectData(proficiencyMods, condition, conditionId, true);
       const conditionValues = new Set(conditionData.map((result) => `${AdvancementHelper.CONDITION_ID_MAPPING[conditionId]}:${result.value}`));
       // console.warn("Individual Parse", {
       //   proficiencyMods,

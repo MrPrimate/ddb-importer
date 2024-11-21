@@ -251,27 +251,27 @@ function addCustomEffect(modifiers, name, type, key, extra = "") {
   return changes;
 }
 
-/**
- * Adds languages, can't handle custom languages
- */
+// /**
+//  * Adds languages, can't handle custom languages
+//  */
 
-function addLanguages(modifiers, name) {
-  let changes = [];
+// function addLanguages(modifiers, name) {
+//   let changes = [];
 
-  const proficiencyFinder = new ProficiencyFinder();
-  const languages = proficiencyFinder.getLanguagesFromModifiers(modifiers);
+//   const proficiencyFinder = new ProficiencyFinder();
+//   const languages = proficiencyFinder.getLanguagesFromModifiers(modifiers);
 
-  languages.value.forEach((prof) => {
-    logger.debug(`Generating language ${prof} for ${name}`);
-    changes.push(generateUnsignedAddChange(prof, 0, "system.traits.languages.value"));
-  });
-  if (languages?.custom != "") {
-    logger.debug(`Generating language ${languages.custom} for ${name}`);
-    changes.push(generateUnsignedAddChange(languages.custom, 0, "system.traits.languages.custom"));
-  }
+//   languages.value.forEach((prof) => {
+//     logger.debug(`Generating language ${prof} for ${name}`);
+//     changes.push(generateUnsignedAddChange(prof, 0, "system.traits.languages.value"));
+//   });
+//   if (languages?.custom != "") {
+//     logger.debug(`Generating language ${languages.custom} for ${name}`);
+//     changes.push(generateUnsignedAddChange(languages.custom, 0, "system.traits.languages.custom"));
+//   }
 
-  return changes;
-}
+//   return changes;
+// }
 
 
 function damageBonus(type, modifiers, name) {
@@ -452,78 +452,78 @@ function addSpellAttackBonuses(modifiers, name) {
   ];
 }
 
-// *
-// Get list of generic conditions/damages
-//
-export function getGenericConditionAffectData(modifiers, condition, typeId, forceNoMidi = false) {
-  const restrictions = [
-    "",
-    null,
-    "While within 20 feet",
-    "Dwarf Only",
-    "While Not Incapacitated",
-    // "As an Action", this is a timed/limited effect, dealt with elsewhere
-    "While Staff is Held",
-    "Helm has at least one ruby remaining",
-    "while holding",
-    "While Held",
-  ];
+// // *
+// // Get list of generic conditions/damages
+// //
+// export function getGenericConditionAffectData(modifiers, condition, typeId, forceNoMidi = false) {
+//   const restrictions = [
+//     "",
+//     null,
+//     "While within 20 feet",
+//     "Dwarf Only",
+//     "While Not Incapacitated",
+//     // "As an Action", this is a timed/limited effect, dealt with elsewhere
+//     "While Staff is Held",
+//     "Helm has at least one ruby remaining",
+//     "while holding",
+//     "While Held",
+//   ];
 
-  const ddbAdjustments = typeId === 4
-    ? [
-      { id: 11, type: 4, name: "Poisoned", slug: "poison" },
-      { id: 16, type: 4, name: "Diseased", slug: "diseased" },
-      { id: 16, type: 4, name: "Diseased", slug: "disease" },
-    ]
-      .concat(CONFIG.DDB.conditions.map((a) => {
-        return {
-          id: a.definition.id,
-          type: 4,
-          name: a.definition.name,
-          slug: a.definition.slug,
-        };
-      }))
-    : CONFIG.DDB.damageAdjustments;
+//   const ddbAdjustments = typeId === 4
+//     ? [
+//       { id: 11, type: 4, name: "Poisoned", slug: "poison" },
+//       { id: 16, type: 4, name: "Diseased", slug: "diseased" },
+//       { id: 16, type: 4, name: "Diseased", slug: "disease" },
+//     ]
+//       .concat(CONFIG.DDB.conditions.map((a) => {
+//         return {
+//           id: a.definition.id,
+//           type: 4,
+//           name: a.definition.name,
+//           slug: a.definition.slug,
+//         };
+//       }))
+//     : CONFIG.DDB.damageAdjustments;
 
-  const result = DDBHelper
-    .filterModifiersOld(modifiers, condition, null, restrictions)
-    .filter((modifier) => {
-      const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
-      if (!ddbLookup) return false;
-      return DICTIONARY.character.damageAdjustments.some((adj) =>
-        adj.type === typeId
-        && ddbLookup.id === adj.id
-        && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue")),
-      );
-    })
-    .map((modifier) => {
-      const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
-      const entry = DICTIONARY.character.damageAdjustments.find((adj) =>
-        adj.type === typeId
-        && ddbLookup.id === adj.id,
-      );
-      if (!entry) return undefined;
-      const valueData = foundry.utils.hasProperty(entry, "foundryValues")
-        ? foundry.utils.getProperty(entry, "foundryValues")
-        : foundry.utils.hasProperty(entry, "foundryValue")
-          ? { value: entry.foundryValue }
-          : undefined;
-      return valueData;
-    })
-    .filter((adjustment) => adjustment !== undefined)
-    .map((result) => {
-      if (game.modules.get("midi-qol")?.active && result.midiValues && !forceNoMidi) {
-        return {
-          value: result.value.concat(result.midiValues),
-          bypass: result.bypass,
-        };
-      } else {
-        return result;
-      }
-    });
+//   const result = DDBHelper
+//     .filterModifiersOld(modifiers, condition, null, restrictions)
+//     .filter((modifier) => {
+//       const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
+//       if (!ddbLookup) return false;
+//       return DICTIONARY.character.damageAdjustments.some((adj) =>
+//         adj.type === typeId
+//         && ddbLookup.id === adj.id
+//         && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue")),
+//       );
+//     })
+//     .map((modifier) => {
+//       const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
+//       const entry = DICTIONARY.character.damageAdjustments.find((adj) =>
+//         adj.type === typeId
+//         && ddbLookup.id === adj.id,
+//       );
+//       if (!entry) return undefined;
+//       const valueData = foundry.utils.hasProperty(entry, "foundryValues")
+//         ? foundry.utils.getProperty(entry, "foundryValues")
+//         : foundry.utils.hasProperty(entry, "foundryValue")
+//           ? { value: entry.foundryValue }
+//           : undefined;
+//       return valueData;
+//     })
+//     .filter((adjustment) => adjustment !== undefined)
+//     .map((result) => {
+//       if (game.modules.get("midi-qol")?.active && result.midiValues && !forceNoMidi) {
+//         return {
+//           value: result.value.concat(result.midiValues),
+//           bypass: result.bypass,
+//         };
+//       } else {
+//         return result;
+//       }
+//     });
 
-  return result;
-}
+//   return result;
+// }
 
 
 function addCriticalHitImmunities(modifiers, name) {
@@ -542,41 +542,41 @@ function addCriticalHitImmunities(modifiers, name) {
  * Get  Damage Conditions, and Condition Immunities
  */
 
-function addDamageConditions(modifiers) {
-  let charges = [];
+// function addDamageConditions(modifiers) {
+//   let charges = [];
 
-  const damageImmunityData = getGenericConditionAffectData(modifiers, "immunity", 2);
-  const damageResistanceData = getGenericConditionAffectData(modifiers, "resistance", 1);
-  const damageVulnerabilityData = getGenericConditionAffectData(modifiers, "vulnerability", 3);
+//   const damageImmunityData = getGenericConditionAffectData(modifiers, "immunity", 2);
+//   const damageResistanceData = getGenericConditionAffectData(modifiers, "resistance", 1);
+//   const damageVulnerabilityData = getGenericConditionAffectData(modifiers, "vulnerability", 3);
 
-  damageImmunityData.forEach((data) => {
-    if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.di.value"));
-    if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.di.bypasses"));
-  });
-  damageResistanceData.forEach((data) => {
-    if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.dr.value"));
-    if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.dr.bypasses"));
-  });
-  damageVulnerabilityData.forEach((data) => {
-    if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.dv.value"));
-    if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.dv.bypasses"));
-  });
+//   damageImmunityData.forEach((data) => {
+//     if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.di.value"));
+//     if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.di.bypasses"));
+//   });
+//   damageResistanceData.forEach((data) => {
+//     if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.dr.value"));
+//     if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.dr.bypasses"));
+//   });
+//   damageVulnerabilityData.forEach((data) => {
+//     if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.dv.value"));
+//     if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.dv.bypasses"));
+//   });
 
-  const conditionImmunityData = getGenericConditionAffectData(modifiers, "immunity", 4);
+//   const conditionImmunityData = getGenericConditionAffectData(modifiers, "immunity", 4);
 
-  conditionImmunityData.forEach((data) => {
-    if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.ci.value"));
-    if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.ci.bypasses"));
-  });
+//   conditionImmunityData.forEach((data) => {
+//     if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.ci.value"));
+//     if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.ci.bypasses"));
+//   });
 
-  // system.traits.di.all
-  const allDamageImmunity = DDBHelper.filterModifiersOld(modifiers, "immunity", "all");
-  if (allDamageImmunity?.length > 0) {
-    charges.push(generateUnsignedAddChange("all", 1, "system.traits.di.value"));
-  }
+//   // system.traits.di.all
+//   const allDamageImmunity = DDBHelper.filterModifiersOld(modifiers, "immunity", "all");
+//   if (allDamageImmunity?.length > 0) {
+//     charges.push(generateUnsignedAddChange("all", 1, "system.traits.di.value"));
+//   }
 
-  return charges;
-}
+//   return charges;
+// }
 
 // *
 // Generate stat bonuses
@@ -1189,8 +1189,8 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
   //   "skill-checks",
   //   "system.bonuses.abilities.skill",
   // );
-  const languages = addLanguages(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const conditions = addDamageConditions(ddbItem.definition.grantedModifiers, foundryItem.name);
+  // const languages = addLanguages(ddbItem.definition.grantedModifiers, foundryItem.name);
+  // const conditions = addDamageConditions(ddbItem.definition.grantedModifiers, foundryItem.name);
   const criticalHitImmunity = addCriticalHitImmunities(ddbItem.definition.grantedModifiers, foundryItem.name);
   const statSets = addStatChanges(ddbItem.definition.grantedModifiers, foundryItem.name);
   const statBonuses = addStatBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
@@ -1215,8 +1215,8 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
     // ...globalSaveBonus,
     // ...globalAbilityBonus,
     // ...globalSkillBonus,
-    ...languages,
-    ...conditions,
+    // ...languages,
+    // ...conditions,
     ...statSets,
     ...statBonuses,
     ...senses,

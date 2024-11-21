@@ -1,6 +1,6 @@
 import { DDBHelper, logger, ProficiencyFinder } from "../../../lib/_module.mjs";
-import DDBCharacter from "../../DDBCharacter.js";
 import AutoEffects from "./AutoEffects.mjs";
+import ChangeHelper from "./ChangeHelper.mjs";
 import MidiEffects from "./MidiEffects.mjs";
 
 export default class EffectGenerator {
@@ -97,6 +97,52 @@ export default class EffectGenerator {
 
   }
 
+  getGenericConditionAffectData(condition, typeId, forceNoMidi = false) {
+    return AutoEffects.getGenericConditionAffectData(this.grantedModifiers, condition, typeId, forceNoMidi);
+  }
+
+  addDamageConditions() {
+
+    const damageImmunityData = this.getGenericConditionAffectData("immunity", 2);
+    const damageResistanceData = this.getGenericConditionAffectData("resistance", 1);
+    const damageVulnerabilityData = this.getGenericConditionAffectData("vulnerability", 3);
+
+    damageImmunityData.forEach((data) => {
+      if (data.value && data.value.length > 0)
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.di.value"));
+      if (data.bypass && data.bypass.length > 0)
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.di.bypasses"));
+    });
+    damageResistanceData.forEach((data) => {
+      if (data.value && data.value.length > 0)
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.dr.value"));
+      if (data.bypass && data.bypass.length > 0)
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.dr.bypasses"));
+    });
+    damageVulnerabilityData.forEach((data) => {
+      if (data.value && data.value.length > 0)
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.dv.value"));
+      if (data.bypass && data.bypass.length > 0)
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.dv.bypasses"));
+    });
+
+    const conditionImmunityData = this.getGenericConditionAffectData("immunity", 4);
+
+    conditionImmunityData.forEach((data) => {
+      if (data.value && data.value.length > 0)
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.ci.value"));
+      if (data.bypass && data.bypass.length > 0)
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.ci.bypasses"));
+    });
+
+    // system.traits.di.all
+    const allDamageImmunity = DDBHelper.filterModifiersOld(this.grantedModifiers, "immunity", "all");
+    if (allDamageImmunity?.length > 0) {
+      this.effect.changes.push(ChangeHelper.unsignedAddChange("all", 1, "system.traits.di.value"));
+    }
+
+  }
+
   _generateGenericEffects() {
     this.addGlobalSavingBonusEffect();
     this.addAddBonusChanges(
@@ -110,7 +156,7 @@ export default class EffectGenerator {
       "system.bonuses.abilities.skill",
     );
     this.addLanguages();
-    const conditions = addDamageConditions(this.grantedModifiers, this.document.name);
+    this.addDamageConditions();
     const criticalHitImmunity = addCriticalHitImmunities(this.grantedModifiers, this.document.name);
     const statSets = addStatChanges(this.grantedModifiers, this.document.name);
     const statBonuses = addStatBonuses(this.grantedModifiers, this.document.name);
