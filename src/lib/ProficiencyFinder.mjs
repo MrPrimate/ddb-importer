@@ -244,5 +244,34 @@ export default class ProficiencyFinder {
     };
   }
 
+  getSkillProficiency(skill, modifiers = null) {
+    if (!modifiers && !this.ddb) return false;
+    if (!modifiers) {
+      modifiers = DDBHelper.getAllModifiers(this.ddb, { includeExcludedEffects: true });
+    }
+
+    const skillMatches = modifiers
+      .filter((modifier) => modifier.friendlySubtypeName === skill.label)
+      .map((mod) => mod.type);
+
+    const halfProficiency = modifiers.find(
+      (modifier) =>
+      // Jack of All trades/half-rounded down
+        (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
+          // e.g. champion for specific ability checks
+          || this.isHalfProficiencyRoundedUp(skill, modifiers),
+    ) !== undefined
+      ? 0.5
+      : 0;
+
+    const proficient = skillMatches.includes("expertise")
+      ? 2
+      : skillMatches.includes("proficiency")
+        ? 1
+        : halfProficiency;
+
+    return proficient;
+  };
+
 
 }
