@@ -173,7 +173,9 @@ export class DDBInfusion {
   }
 
   async compendiumInit() {
-    this.compendiumFolders = new DDBCompendiumFolders("features");
+    this.compendiumFolders = new DDBCompendiumFolders("features", {
+      noCreateClassFolders: true,
+    });
     await this.compendiumFolders.loadCompendium("features");
   }
 

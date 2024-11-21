@@ -2,6 +2,16 @@ import { DICTIONARY } from "../config/_module.mjs";
 import { logger, utils, CompendiumHelper } from "./_module.mjs";
 
 export class DDBCompendiumFolders {
+
+  static SCHEMA_SUPPORT = {
+    "feature": 1,
+    "class": 1,
+    "race": 1,
+    "trait": 1,
+    "subclass": 1,
+    "feat": 1,
+  };
+
   resetFolderLookups() {
     this.rootItemFolders = {};
     this.equipmentFolders = {};
@@ -14,13 +24,15 @@ export class DDBCompendiumFolders {
     this.validFolderIds = [];
     this.classFolders = {};
     this.subClassFolders = {};
+    this.subClassFeaturesFolder = {};
     this.speciesFolders = {};
     this.traitSubFolders = {};
     this.summonFolders = {};
     this.summonSubFolders = {};
+    this.featFolders = {};
   }
 
-  constructor(type, packName) {
+  constructor(type, { packName = null, noCreateClassFolders = false } = {}) {
     this.type = type;
     this.packName = packName;
     this.resetFolderLookups();
@@ -36,6 +48,7 @@ export class DDBCompendiumFolders {
     this.compendiumFolderTypeSpell = game.settings.get("ddb-importer", "munching-selection-compendium-folders-spell");
     this.compendiumFolderTypeItem = game.settings.get("ddb-importer", "munching-selection-compendium-folders-item");
 
+    this.noCreateClassFolders = noCreateClassFolders;
   }
 
   async addCompendiumFolderIds(documents) {
@@ -58,7 +71,7 @@ export class DDBCompendiumFolders {
   }
 
   async createCompendiumFolder({ name, parentId = null, color = "#6f0006", folderId = null, flagTag = "" } = {}) {
-    return CompendiumHelper.createFolder({
+    const folder = await CompendiumHelper.createFolder({
       pack: this.compendium,
       name,
       parentId,
@@ -67,6 +80,7 @@ export class DDBCompendiumFolders {
       flagTag,
       entityType: this.entityType,
     });
+    return folder;
   }
 
   async createCreatureTypeCompendiumFolders() {
@@ -204,61 +218,115 @@ export class DDBCompendiumFolders {
     }
   }
 
-  async createClassFeatureFolders(includeOptions = true) {
+  async createFeatFolder(name, parentId, { color = "#222222" } = {}) {
+    const flagTag = `feat/${name}`;
+    const folder = this.getFolder(name, flagTag)
+      ?? (await this.createCompendiumFolder({ name, parentId, color, flagTag }));
+    this.validFolderIds.push(folder._id);
+    this.featFolders[name] = folder._id;
+    return folder;
+  }
+
+  async createFeatFolders() {
+    for (const type of Object.keys(CONFIG.DND5E.featureTypes.feat.subtypes)) {
+      const data = this._getFeatFlagData({ type });
+      await this.createFeatFolder(data.name);
+    }
+  }
+
+  async createFeatureFolder(className, name, parentId, { tagPrefix = "features", color = "#222222" } = {}) {
+    const flagTag = `${tagPrefix}/${className}/${name}`;
+    const folder = this.getFolder(name, flagTag)
+      ?? (await this.createCompendiumFolder({ name, parentId, color, flagTag }));
+    this.validFolderIds.push(folder._id);
+    return folder;
+  }
+
+  async createClassFolder(className) {
+    const classFolder = this.getFolder(className)
+      ?? (await this.createCompendiumFolder({ name: className }));
+    this.classFolders[className] = classFolder._id;
+    this.validFolderIds.push(classFolder._id);
+    return classFolder;
+  }
+
+  async createClassFeatureFolder(className) {
+    logger.debug(`Checking for class folder '${className}'`);
+    const classFolderId = this.classFolders[className]
+      ?? (await this.createClassFolder(className))._id;
+    const flagTag = `features/${className}`;
+    const classFeaturesFolder = this.getFolder("Class Features", flagTag)
+      ?? (await this.createCompendiumFolder({
+        name: "Class Features",
+        parentId: classFolderId,
+        color: "#222222",
+        flagTag,
+      }));
+    this.validFolderIds.push(classFeaturesFolder._id);
+
+    await this.createFeatureFolder(className, "Optional Features", classFolderId);
+
+    if (className === "Artificer") {
+      await this.createFeatureFolder(className, "Infusions", classFolderId, { tagPrefix: "infusions" });
+    } else if (className === "Sorcerer") {
+      await this.createFeatureFolder(className, "Metamagic", classFolderId);
+    } else if (className === "Warlock") {
+      await this.createFeatureFolder(className, "Invocations", classFolderId);
+      await this.createFeatureFolder(className, "Packs", classFolderId);
+    }
+  }
+
+  async createClassFeatureFolders() {
+    if (this.noCreateClassFolders) return;
+
     const classNames = CONFIG.DDB.classConfigurations
       .filter((c) => !c.name.includes("archived") && !c.name.includes("(UA)"))
       .map((c) => c.name);
 
     for (const className of classNames) {
-      logger.debug(`Checking for class folder '${className}'`);
-      const folder = this.getFolder(className)
-        ?? (await this.createCompendiumFolder({ name: className }));
-      this.validFolderIds.push(folder._id);
-      this.classFolders[className] = folder;
-      if (includeOptions) {
-        const flagTag = `optional/${className}`;
-        const optionalFolder = this.getFolder("Optional Features", flagTag)
-          ?? (await this.createCompendiumFolder({ name: "Optional Features", parentId: folder._id, color: "#222222", flagTag }));
-        this.validFolderIds.push(optionalFolder._id);
-      }
-      if (!includeOptions) return;
-      if (className === "Artificer") {
-        const flagTag = `infusions/Artificer`;
-        const infusionsFolder = this.getFolder("Infusions", flagTag)
-          ?? (await this.createCompendiumFolder({ name: "Infusions", parentId: folder._id, color: "#222222", flagTag }));
-        this.validFolderIds.push(infusionsFolder._id);
-      } else if (className === "Fighter") {
-        const flagTag = `infusions/Maneuvers`;
-        const infusionsFolder = this.getFolder("Maneuvers", flagTag)
-          ?? (await this.createCompendiumFolder({ name: "Maneuvers", parentId: folder._id, color: "#222222", flagTag }));
-        this.validFolderIds.push(infusionsFolder._id);
-      } else if (className === "Sorcerer") {
-        const flagTag = `infusions/Metamagic`;
-        const infusionsFolder = this.getFolder("Metamagic", flagTag)
-          ?? (await this.createCompendiumFolder({ name: "Metamagic", parentId: folder._id, color: "#222222", flagTag }));
-        this.validFolderIds.push(infusionsFolder._id);
-      } else if (className === "Warlock") {
-        const flagTag = `infusions/Invocations`;
-        const infusionsFolder = this.getFolder("Invocations", flagTag)
-          ?? (await this.createCompendiumFolder({ name: "Invocations", parentId: folder._id, color: "#222222", flagTag }));
-        this.validFolderIds.push(infusionsFolder._id);
-      }
+      await this.createClassFeatureFolder(className);
     }
   }
 
+  async createClassFeaturesHolderFolder(parentClassName, parentId) {
+    const subClassFlag = `features/subclass/${parentClassName}`;
+    const subClassFolder = this.getFolder("Subclass Features", subClassFlag)
+        ?? (await this.createCompendiumFolder({
+          name: "Subclass Features",
+          parentId,
+          color: "#222222",
+          flagTag: subClassFlag,
+        }));
+    this.validFolderIds.push(subClassFolder._id);
+    return subClassFolder;
+  }
+
   async createSubClassFeatureFolder(subclassName, parentClassName) {
-    const flagTag = `subclass/${subclassName}`;
     logger.debug(`Checking for Subclass folder '${subclassName}' with Parent Class '${parentClassName}'`);
 
+    const classFolderId = this.classFolders[parentClassName]
+     ?? (await this.createClassFolder(parentClassName))._id;
+    await this.createClassFeatureFolder(parentClassName);
+    const subClassFolderId = this.subClassFeaturesFolder[parentClassName]
+      ?? (await this.createClassFeaturesHolderFolder(parentClassName, classFolderId))._id;
+
+    // create actual folder
+    const flagTag = `features/${subclassName}`;
     const folder = this.getFolder(subclassName, flagTag)
       ?? (await this.createCompendiumFolder({
-        name: subclassName,
-        parentId: this.classFolders[parentClassName]._id,
+        name: `${subclassName}`,
+        parentId: subClassFolderId,
         color: "#222222",
         flagTag,
       }));
     this.subClassFolders[subclassName] = folder;
     this.validFolderIds.push(folder._id);
+
+    if (parentClassName === "Fighter" && subclassName === "Battle Master") {
+      await this.createFeatureFolder(subclassName, "Maneuver Options", classFolderId);
+    } else if (parentClassName === "Fighter" && subclassName === "Rune Knight") {
+      await this.createFeatureFolder(subclassName, "Runes", classFolderId);
+    }
   }
 
   async getSpeciesBaseFolder(baseSpeciesName) {
@@ -342,21 +410,6 @@ export class DDBCompendiumFolders {
     this.resetFolderLookups();
 
     switch (this.type) {
-      case "species":
-      case "race":
-      case "races":
-      case "trait":
-      case "traits": {
-        // we create these as needed
-        // this.createBaseSpeciesFolders();
-        break;
-      }
-      case "summons":
-      case "summon": {
-        // we create these as needed
-        // this.createBaseSummonFolders("summon");
-        break;
-      }
       case "monsters":
       case "npc":
       case "monster": {
@@ -404,15 +457,18 @@ export class DDBCompendiumFolders {
         }
         break;
       }
+      case "subclass":
+      case "subclasses":
       case "features": {
         await this.createClassFeatureFolders();
         break;
       }
-      case "subclass":
-      case "subclasses": {
-        await this.createClassFeatureFolders(false);
+      case "feats":
+      case "feat": {
+        await this.createFeatFolders();
         break;
       }
+      // others are created as needed
       // no default
     }
     return this.compendium.folders;
@@ -564,7 +620,7 @@ export class DDBCompendiumFolders {
     return name;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  // eslint-disable-next-line class-methods-use-this, complexity
   getClassFeatureFolderName(document) {
     const result = {
       name: undefined,
@@ -574,22 +630,54 @@ export class DDBCompendiumFolders {
     const className = foundry.utils.getProperty(document, "flags.ddbimporter.class");
     const optional = foundry.utils.getProperty(document, "flags.ddbimporter.optionalFeature");
     const infusion = foundry.utils.getProperty(document, "flags.ddbimporter.infusionFeature");
+    const subType = foundry.utils.getProperty(document, "system.type.subtype");
 
-    // to do metamagic, Maneuvers, invocations
+    const validSubclass = subClassName && subClassName.trim() !== "";
+    const validClass = className && className.trim() !== "";
+
     if (infusion) {
       result.name = "Infusions";
       result.flagTag = `infusions/${className}`;
     } else if (optional) {
       result.name = "Optional Features";
-      result.flagTag = `optional/${className}`;
-    } else if (subClassName && subClassName.trim() !== "") {
+      result.flagTag = `features/${className}/optional/`;
+    // specialist folders
+    } else if (subType === "metamagic" && className === "Sorcerer") {
+      result.name = "Metamagic";
+      result.flagTag = `features/${className}/Metamagic`;
+    } else if (subType === "pact" && className === "Warlock") {
+      result.name = "Pacts";
+      result.flagTag = `features/${className}/Pacts`;
+    } else if (subType === "eldritchInvocation" && className === "Warlock") {
+      result.name = "Invocations";
+      result.flagTag = `features/${className}/Invocations`;
+    } else if (subType === "maneuver" && className === "Fighter") {
+      result.name = "Maneuver Options";
+      result.flagTag = `features/${subClassName}/Maneuver Options`;
+    } else if (subType === "rune" && className === "Fighter") {
+      result.name = "Runes";
+      result.flagTag = `features/${subClassName}/Runes`;
+    } else if (validSubclass) {
       result.name = subClassName;
-      result.flagTag = `subclass/${subClassName}`;
-    } else if (className && className.trim() !== "") {
-      result.name = className;
+      result.flagTag = `features/${subClassName}`;
+    } else if (validClass) {
+      result.name = "Class Features";
+      result.flagTag = `features/${className}`;
     } else {
       result.name = "Unknown";
     }
+
+    // console.warn(`Folder Name`, {
+    //   result,
+    //   subClassName,
+    //   className,
+    //   optional,
+    //   infusion,
+    //   subType,
+    //   validSubclass,
+    //   validClass,
+    //   document,
+    // });
 
     if (result.name) return result;
     else return undefined;
@@ -670,10 +758,41 @@ export class DDBCompendiumFolders {
     else return undefined;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  _getFeatFlagData({ type } = {}) {
+    const result = {
+      name: undefined,
+      flagTag: "",
+    };
+    const name = CONFIG.DND5E.featureTypes.feat.subtypes[type];
+    if (name) {
+      result.name = `${name.replace(" Feat", "")}`;
+      result.flagTag = `feat/${result.name}`;
+    } else {
+      result.name = "General";
+      result.flagTag = "feat/General";
+    }
+
+    return result;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getFeatFolderName(document) {
+    const type = foundry.utils.getProperty(document, "system.type.subtype");
+    const result = this._getFeatFlagData({ type });
+
+    return result;
+  }
+
   // eslint-disable-next-line complexity
   getCompendiumFolderName(document) {
     let name;
     switch (this.type) {
+      case "feat":
+      case "feats": {
+        name = this.getFeatFolderName(document);
+        break;
+      }
       case "trait":
       case "traits": {
         name = this.getRaceTraitFolderName(document);
@@ -798,6 +917,7 @@ export class DDBCompendiumFolders {
   }
 
 
+  // eslint-disable-next-line complexity
   #getIndexFields() {
     switch (this.type) {
       case "spells":
@@ -821,6 +941,7 @@ export class DDBCompendiumFolders {
           "system.rarity",
           "system.type.value",
           "system.details.type.value",
+          "system.type.subtype",
         ];
       }
       case "monster":
@@ -845,6 +966,7 @@ export class DDBCompendiumFolders {
       case "subclass":
       case "classes":
       case "subclasses":
+      case "features":
       case "feature": {
         return [
           "name",
@@ -852,6 +974,14 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.subClass",
           "flags.ddbimporter.optionalFeature",
           "flags.ddbimporter.infusionFeature",
+          "system.type.subtype",
+        ];
+      }
+      case "feat":
+      case "feats": {
+        return [
+          "name",
+          "system.type.subtype",
         ];
       }
       case "trait":
@@ -870,7 +1000,7 @@ export class DDBCompendiumFolders {
         ];
       }
       default:
-        return ["name"];
+        return ["name", "system.type.subtype"];
     }
   }
 
@@ -899,25 +1029,6 @@ export class DDBCompendiumFolders {
     logger.debug("Folder update results", results);
 
     switch (this.type) {
-      case "trait":
-      case "traits":
-      case "race":
-      case "races":
-      case "species":
-      case "features":
-      case "feature":
-      case "class":
-      case "classes":
-      case "subclass":
-      case "subclasses":
-      case "inventory":
-      case "items":
-      case "item":
-      case "spells":
-      case "spell": {
-        await Item.updateDocuments(results, { pack: this.packName });
-        break;
-      }
       case "summon":
       case "summons":
       case "monsters":
@@ -926,7 +1037,10 @@ export class DDBCompendiumFolders {
         await Actor.updateDocuments(results, { pack: this.packName });
         break;
       }
-      // no default
+      default: {
+        await Item.updateDocuments(results, { pack: this.packName });
+        break;
+      }
     }
 
 

@@ -196,13 +196,22 @@ const CompendiumHelper = {
    * @param {string} [options.packageType] package type of compendium, defaults to world
    * @param {string} [options.folderId] folder id for compendium
    * @param {string[]} [options.dnd5eTypeTags] dnd5e type tags for compendium
+   * @param {number} [options.version] version of compendium
    * @returns {object} Object consisting of compendium and creation result
    */
-  // eslint-disable-next-line no-unused-vars
-  createIfNotExists: async ({ label, type, id = undefined, packageType = "world", folderId = null, dnd5eTypeTags = [] } = {}) => {
+  createIfNotExists: async ({
+    label,
+    type,
+    id = undefined,
+    packageType = "world",
+    folderId = null,
+    // eslint-disable-next-line no-unused-vars
+    dnd5eTypeTags = [],
+    version = null,
+  } = {}) => {
     if (id) logger.debug(`Checking if Compendium with id ${id} exists for ${SETTINGS.MODULE_ID}`);
     else if (label) logger.debug(`Checking if Compendium with label ${label} exists for ${SETTINGS.MODULE_ID}`);
-    const compendium = await game.packs.get(id) ?? game.packs.find((p) => p.metadata.label === label);
+    const compendium = (await game.packs.get(id)) ?? game.packs.find((p) => p.metadata.label === label);
     if (compendium) {
       logger.debug(`Compendium '${id}' (${compendium.metadata.label}) found, will not create compendium.`);
       return {
@@ -226,11 +235,14 @@ const CompendiumHelper = {
           label,
           name,
           package: packageType,
-          // flags: {
-          //   dnd5e: {
-          //     types: dnd5eTypeTags,
-          //   }
-          // }
+          flags: {
+            // dnd5e: {
+            //   types: dnd5eTypeTags,
+            // },
+            ddbimporter: {
+              schema: version,
+            },
+          },
         });
         if (folderId) await newCompendium.setFolder(folderId);
         return {
@@ -424,9 +436,10 @@ const CompendiumHelper = {
     );
     if (existingFolder) return existingFolder;
 
-    logger.debug("Creating folder", {
+    logger.debug(`Creating folder ${name}`, {
       folders: pack.folders,
       parentId,
+      flagTag,
     });
 
     const newFolder = await Folder.create({

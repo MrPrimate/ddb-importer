@@ -427,20 +427,6 @@ export default class Utils {
 
   static entityMap() {
     let entityTypes = new Map();
-    entityTypes.set("spell", "Item");
-    entityTypes.set("spells", "Item");
-    entityTypes.set("inventory", "Item");
-    entityTypes.set("item", "Item");
-    entityTypes.set("items", "Item");
-    entityTypes.set("equipment", "Item");
-    entityTypes.set("consumable", "Item");
-    entityTypes.set("tool", "Item");
-    entityTypes.set("loot", "Item");
-    entityTypes.set("class", "Item");
-    entityTypes.set("backpack", "Item");
-    entityTypes.set("container", "Item");
-    entityTypes.set("magic-items", "Item");
-    entityTypes.set("magic-item-spells", "Item");
     entityTypes.set("npc", "Actor");
     entityTypes.set("character", "Actor");
     entityTypes.set("monsters", "Actor");
@@ -452,17 +438,17 @@ export default class Utils {
     entityTypes.set("page", "JournalEntry");
     entityTypes.set("journal", "JournalEntry");
     entityTypes.set("journalEntry", "JournalEntry");
-    entityTypes.set("background", "Item");
     entityTypes.set("compendium", "Compendium");
-    entityTypes.set("class", "Item");
-    entityTypes.set("classes", "Item");
-    entityTypes.set("subclass", "Item");
-    entityTypes.set("subclasses", "Item");
-    entityTypes.set("feature", "Item");
-    entityTypes.set("features", "Item");
-    entityTypes.set("classfeatures", "Item");
-    entityTypes.set("races", "Item");
-    entityTypes.set("traits", "Item");
+
+    [
+      "feat", "spell", "inventory", "equipment", "consumable", "tool", "loot",
+      "item", "class", "backpack", "container", "magic-items", "magic-item-spells",
+      "background", "classes", "subclass", "feature", "race", "trait", "species",
+      "classfeature",
+    ].forEach((type) => {
+      entityTypes.set(type, "Item");
+      if (!type.endsWith("s")) entityTypes.set(`${type}s`, "Item");
+    });
     return entityTypes;
   }
 

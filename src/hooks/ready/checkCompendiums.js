@@ -10,6 +10,7 @@ export async function createDDBCompendium(compendiumSetting) {
     label: `DDB ${compendiumSetting.title}`,
     image: compendiumSetting.image,
     dnd5eTypeTags: compendiumSetting.types,
+    version: compendiumSetting.version,
   };
 
   const createCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "top-level-compendium-folder");

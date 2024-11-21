@@ -215,7 +215,9 @@ export default class DDBItemImporter {
 
   async addCompendiumFolderIds(documents) {
     if (this.useCompendiumFolders) {
-      const compendiumFolders = new DDBCompendiumFolders(this.type);
+      const compendiumFolders = new DDBCompendiumFolders(this.type, {
+        noCreateClassFolders: true,
+      });
       await compendiumFolders.loadCompendium(this.type);
       const results = await compendiumFolders.addCompendiumFolderIds(documents);
       return results;

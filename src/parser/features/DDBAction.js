@@ -233,18 +233,22 @@ export default class DDBAction extends DDBFeatureMixin {
       a.name === this.ddbDefinition.name
       || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name),
     )) {
+      if (!this.type) this.type = "class";
       this.data.system.type.value = "class";
     } else if (this.ddbData.character.actions.race.some((a) =>
       a.name === this.ddbDefinition.name
       || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name),
     )) {
+      if (!this.type) this.type = "race";
       this.data.system.type.value = "race";
     } else if (this.ddbData.character.actions.feat.some((a) =>
       a.name === this.ddbDefinition.name
       || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name),
     )) {
+      if (!this.type) this.type = "feat";
       this.data.system.type.value = "feat";
     } else if (typeNudge) {
+      if (!this.type) this.type = typeNudge;
       this.data.system.type.value = typeNudge;
       foundry.utils.setProperty(this.data, "flags.ddbimporter.type", typeNudge);
     }

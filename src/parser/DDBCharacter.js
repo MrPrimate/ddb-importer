@@ -477,21 +477,24 @@ export default class DDBCharacter {
 
     const featTypeDocs = documents.filter((doc) => doc.type === "feat");
 
-    const subKlasses = new Set(featTypeDocs
-      .filter((doc) => foundry.utils.hasProperty(doc, "flags.ddbimporter.subClass"))
-      .map((doc) => {
-        return {
-          subClass: foundry.utils.getProperty(doc, "flags.ddbimporter.subClass"),
-          class: foundry.utils.getProperty(doc, "flags.ddbimporter.class"),
-        };
-      }));
-
-    const featureCompendiumFolders = new DDBCompendiumFolders("features");
+    const featureCompendiumFolders = new DDBCompendiumFolders("features", {
+      noCreateClassFolders: true,
+    });
     await featureCompendiumFolders.loadCompendium("features");
 
-    for (const subKlass of subKlasses) {
-      await featureCompendiumFolders.createSubClassFeatureFolder(subKlass.subClass, subKlass.class);
+    const klassNames = [];
+    for (const classDef of this.source.ddb.character.classes) {
+      klassNames.push(classDef.definition.name);
+      await featureCompendiumFolders.createClassFeatureFolder(classDef.definition.name);
+      if (classDef.subclassDefinition) {
+        await featureCompendiumFolders.createSubClassFeatureFolder(classDef.subclassDefinition.name, classDef.definition.name);
+      }
     }
+
+    console.warn(`Compendium data`, {
+      featureCompendiumFolders,
+      currentFolders: deepClone(featureCompendiumFolders.classFolders),
+    });
 
     const featureHandlerOptions = {
       chrisPremades: true,
@@ -504,6 +507,7 @@ export default class DDBCharacter {
         fields: [
           "name",
           "flags.ddbimporter",
+          "system.type.subtype",
         ],
       },
     };
@@ -514,7 +518,6 @@ export default class DDBCharacter {
     // "flags.ddbimporter.subClass",
     // "flags.ddbimporter.parentClassId"
 
-    const klassNames = new Set(featTypeDocs.map((doc) => foundry.utils.getProperty(doc, "flags.ddbimporter.class")));
 
     for (const klassName of klassNames) {
       logger.debug(`Processing class ${klassName} into the class compendium`);

@@ -1349,14 +1349,18 @@ ${item.system.description.chat}
       // add infusions to actors items
       await createInfusedItems(this.ddbCharacter.source.ddb, this.actor);
 
+      this.showCurrentTask(`Linking resources...`);
       await this.ddbCharacter.autoLinkResources();
       // await this.ddbCharacter.fixItemSpellResources();
 
+      this.showCurrentTask(`Checking Compendiums...`);
       await this.ddbCharacter.addToCompendiums();
 
       if (this.settings.useChrisPremades) {
+        this.showCurrentTask(`Applying CPR...`);
         await ExternalAutomations.addChrisEffectsToActorDocuments(this.actor);
       }
+      this.showCurrentTask(`Updating conditions...`);
       await setConditions(this.actor, this.ddbCharacter.source.ddb, this.settings.activeEffectCopy);
 
     } catch (error) {

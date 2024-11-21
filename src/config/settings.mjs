@@ -10,6 +10,7 @@ const COMPENDIUMS = [
     image: "https://media.dndbeyond.com/mega-menu/86797d176a398d9f2f05b75b2f54b6dd.jpg",
     auto: false,
     types: ["feat"],
+    version: 1,
   },
   {
     title: "Classes",
@@ -18,14 +19,16 @@ const COMPENDIUMS = [
     image: "https://media.dndbeyond.com/mega-menu/b778ff3ca3f18e5f75ad4b348615cab5.jpg",
     auto: true,
     types: ["class", "subclass", "feat", "weapon"],
+    version: 1,
   },
   {
     title: "Feats",
     setting: "entity-feat-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/a69ab5bf67b03308893b582dbef700e9.jpg",
-    auto: false,
+    auto: true,
     types: ["feat"],
+    version: 1,
   },
   {
     title: "Items",
@@ -42,6 +45,7 @@ const COMPENDIUMS = [
       "feat",
       "container",
     ],
+    version: 1,
   },
   {
     title: "Monsters",
@@ -50,6 +54,7 @@ const COMPENDIUMS = [
     image: "https://media.dndbeyond.com/mega-menu/36ee49066331fc36e3b37147d123463a.jpg",
     auto: true,
     types: ["npc"],
+    version: 1,
   },
   {
     title: "Vehicles",
@@ -58,6 +63,7 @@ const COMPENDIUMS = [
     image: "https://media.dndbeyond.com/mega-menu/e95485e82519aa807da5011d42b8c9d3.jpg",
     auto: true,
     types: ["npc", "vehicle"],
+    version: 1,
   },
   {
     title: "Species",
@@ -66,6 +72,7 @@ const COMPENDIUMS = [
     image: "https://media.dndbeyond.com/mega-menu/bfe65858aaa13919ce3d86d938bcb05b.jpg",
     auto: true,
     types: ["race", "feat", "weapon"],
+    version: 1,
   },
   {
     title: "Spells",
@@ -74,6 +81,7 @@ const COMPENDIUMS = [
     image: "https://media.dndbeyond.com/mega-menu/8894f93deeca83cdf0a6df3f36ffb52e.jpg",
     auto: true,
     types: ["spell"],
+    version: 1,
   },
   {
     title: "Tables",
@@ -82,6 +90,7 @@ const COMPENDIUMS = [
     image: "https://media.dndbeyond.com/mega-menu/f1a2343aee786f21827daf763c60d30f.jpg",
     auto: true,
     types: [],
+    version: 1,
   },
   {
     title: "Override",
@@ -102,6 +111,7 @@ const COMPENDIUMS = [
       "class",
       "subclass",
     ],
+    version: 1,
   },
   {
     title: "Adventures",
@@ -110,6 +120,7 @@ const COMPENDIUMS = [
     image: "https://media.dndbeyond.com/mega-menu/4af3d4c196428ab0809cf71d332d540d.png",
     auto: false,
     types: [],
+    version: 1,
   },
   {
     title: "Journals",
@@ -118,6 +129,7 @@ const COMPENDIUMS = [
     image: "https://media.dndbeyond.com/mega-menu/4af3d4c196428ab0809cf71d332d540d.png",
     auto: true,
     types: [],
+    version: 1,
   },
   {
     title: "Summons",
@@ -126,6 +138,7 @@ const COMPENDIUMS = [
     image: "https://media.dndbeyond.com/mega-menu/4af3d4c196428ab0809cf71d332d540d.png",
     auto: true,
     types: ["npc"],
+    version: 1,
   },
 ];
 
