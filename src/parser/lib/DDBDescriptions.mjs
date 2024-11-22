@@ -118,7 +118,7 @@ export default class DDBDescriptions {
       durations.push("turnStartSource");
     }
 
-    const currentSpecialDurations = utils.getProperty(effect, "flags.dae.specialDuration") ?? [];
+    const currentSpecialDurations = foundry.utils.getProperty(effect, "flags.dae.specialDuration") ?? [];
     const specialDurations = utils.addArrayToProperties(currentSpecialDurations, durations ?? []);
     foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
     return effect;
@@ -267,6 +267,7 @@ export default class DDBDescriptions {
     // console.warn("condition status", match);
     if (matchResults.match) {
       const match = matchResults.match;
+      result.match = match;
       if (match.groups.type === "check") result.check = true;
       result.condition = match.groups["condition"];
 

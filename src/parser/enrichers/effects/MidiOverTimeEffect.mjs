@@ -11,7 +11,7 @@ export default class MidiOverTimeEffect {
     this.effect = AutoEffects.MonsterFeatureEffect(document, `${document.name}`);
     this.description = otherDescription ?? document.system.description.value;
     this.conditionStatus = DDBDescriptions.parseStatusCondition({ text: this.description });
-    this.conditionEffect = this.conditionStatus.status
+    this.conditionEffect = this.conditionStatus.success
       ? AutoEffects.getStatusConditionEffect({ status: this.conditionStatus })
       : null;
     this.parsedDescription = DDBDescriptions.featureBasics({ text: this.description });
@@ -56,7 +56,7 @@ export default class MidiOverTimeEffect {
     logger.debug(`Checking for over time effects for ${this.document.name} on ${this.actor.name}`);
     if (!this.document.effects) this.document.effects = [];
     // add any condition effects
-    if (this.conditionEffect?.success) {
+    if (this.conditionEffect) {
       this.effect.changes.push(...this.conditionEffect.changes);
       this.effect.statuses.push(...this.conditionEffect.statuses);
       if (this.conditionEffect.name) this.effect.name = this.conditionEffect.name;
@@ -132,17 +132,17 @@ export default class MidiOverTimeEffect {
     if (!this.document.effects) this.document.effects = [];
     this.effect._id = foundry.utils.randomID();
     // add any condition effects
-    if (!this.conditionEffect?.success) return;
+    if (!this.conditionEffect) {
+      return;
+    }
     this.effect.changes.push(...this.conditionEffect.changes);
     this.effect.statuses.push(...this.conditionEffect.statuses);
-    if (this.conditionEffect.name) this.effect.name = this.conditionEffect.name;
+    if (this.conditionEffect.name && this.conditionEffect.name !== "") this.effect.name = this.conditionEffect.name;
     this.effect.flags = foundry.utils.mergeObject(this.effect.flags, this.conditionEffect.flags);
 
-    const duration = foundry.utils.hasProperty(this.document.flags, "monsterMunch.overTime.durationSeconds")
-      ? foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.durationSeconds")
-      : DDBDescriptions.getDuration(this.description);
-    foundry.utils.setProperty(this.effect, "duration.seconds", duration.second);
-    foundry.utils.setProperty(this.effect, "duration.rounds", duration.round);
+    const duration = this.conditionEffect.duration;
+    if (duration.seconds) foundry.utils.setProperty(this.effect, "duration.seconds", duration.seconds);
+    if (duration.rounds) foundry.utils.setProperty(this.effect, "duration.rounds", duration.rounds);
 
     Object.keys(this.document.system.activities).forEach((id) => {
       this.document.system.activities[id].effects.push(

@@ -253,56 +253,37 @@ export default class AutoEffects {
 
   static getStatusConditionEffect({ text = null, status = null, nameHint = null } = {}) {
     const parsedStatus = status ?? DDBDescriptions.parseStatusCondition({ text });
-    const results = {
-      success: false,
-      check: false,
-      save: {
-        dc: {
-          formula: "",
-          calculation: "",
-        },
-        ability: null,
-      },
-      condition: null,
-      effect: {
-        name: "",
-        changes: [],
-        flags: {
-          dae: {
-            specialDuration: [],
-          },
-        },
-        statuses: [],
-        duration: {
-          seconds: null,
-          rounds: null,
-          turns: null,
-          startRound: null,
-          startTurn: null,
+    if (!parsedStatus.success) return null;
+
+    const effect = {
+      name: "",
+      changes: [],
+      flags: {
+        dae: {
+          specialDuration: parsedStatus.specialDurations,
         },
       },
+      statuses: [],
+      duration: parsedStatus.duration,
     };
 
-    if (!parsedStatus.success) return results;
-
     if (parsedStatus.group4) {
-      AutoEffects.ChangeHelper.addStatusEffectChange({ effect: results.effect, statusName: parsedStatus.group4Condition });
-      results.effect = DDBDescriptions.addSpecialDurationFlagsToEffect(results.effect, parsedStatus.match);
-      if (nameHint) results.effect.name = `${nameHint}: ${parsedStatus.group4Condition}`;
-      else results.effect.name = `Status: ${parsedStatus.group4Condition}`;
+      AutoEffects.ChangeHelper.addStatusEffectChange({ effect, statusName: parsedStatus.group4Condition });
+      DDBDescriptions.addSpecialDurationFlagsToEffect(effect, parsedStatus.match);
+      if (nameHint) effect.name = `${nameHint}: ${parsedStatus.group4Condition}`;
+      else effect.name = `Status: ${parsedStatus.group4Condition}`;
     } else if (parsedStatus.condition === "dead") {
-      AutoEffects.ChangeHelper.addStatusEffectChange({ effect: results.effect, statusName: "Dead" });
+      AutoEffects.ChangeHelper.addStatusEffectChange({ effect, statusName: "Dead" });
     } else {
-      logger.debug(`Odd condition ${results.condition} found`, {
+      logger.debug(`Odd condition ${status.condition} found`, {
         text,
         nameHint,
         status,
       });
-      return results;
+      return null;
     }
-    results.success = true;
 
-    return results.effect;
+    return effect;
   }
 
   static getStatusEffect({ ddbDefinition, foundryItem, labelOverride } = {}) {
@@ -314,7 +295,7 @@ export default class AutoEffects {
 
     if (!conditionResult.success) return null;
     const conditionEffect = AutoEffects.getStatusConditionEffect({ status: conditionResult, nameHint: labelOverride });
-    if (!conditionEffect.success) return null;
+    if (!conditionEffect) return null;
 
     const effectLabel = (labelOverride ?? conditionEffect.name ?? foundryItem.name ?? conditionResult.condition);
     let effect = AutoEffects.BaseEffect(foundryItem, effectLabel, {
@@ -323,12 +304,12 @@ export default class AutoEffects {
     });
     effect.changes.push(...conditionEffect.changes);
     effect.statuses.push(...conditionEffect.statuses);
-    if (conditionEffect.name) effect.name = conditionEffect.name;
+    if (conditionEffect.name && conditionEffect.name !== "") effect.name = conditionEffect.name;
     effect.flags = foundry.utils.mergeObject(effect.flags, conditionEffect.flags);
     if (conditionEffect.duration.seconds) effect.duration.seconds = conditionEffect.duration.seconds;
     if (conditionEffect.duration.rounds) effect.duration.rounds = conditionEffect.duration.rounds;
 
-    if (!effect.name) {
+    if (!effect.name || effect.name === "") {
       const condition = utils.capitalize(conditionResult.condition);
       effect.name = `Status: ${condition}`;
     }

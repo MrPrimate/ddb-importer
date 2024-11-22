@@ -1129,7 +1129,7 @@ ${this.data.system.description.value}
     const overtimeGenerator = new Effects.MidiOverTimeEffect({
       document: this.data,
       actor: this.ddbMonster.npc,
-      duration: this.strippedHtml,
+      otherDescription: this.strippedHtml,
     });
 
     const deps = Effects.AutoEffects.effectModules();
