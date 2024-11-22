@@ -14,7 +14,6 @@ export { DDBCompendiumFolders } from "./DDBCompendiumFolders.js";
 export { default as DDBHelper } from "./DDBHelper.js";
 export { default as DDBItemImporter } from "./DDBItemImporter.js";
 export { default as DDBProxy } from "./DDBProxy.js";
-export * as DDBTemplateStrings from "./DDBTemplateStrings.js";
 export { default as DialogHelper } from "./DialogHelper.js";
 export { DirectoryPicker } from "./DirectoryPicker.mjs";
 export { default as FileHelper } from "./FileHelper.js";

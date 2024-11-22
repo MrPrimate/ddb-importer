@@ -3,12 +3,11 @@ import {
   utils,
   DDBHelper,
   CompendiumHelper,
-  DDBTemplateStrings,
 } from '../../lib/_module.mjs';
 import { getSpellCastingAbility } from "../spells/ability.js";
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
 import { SETTINGS, DICTIONARY } from '../../config/_module.mjs';
-
+import { DDBTemplateStrings } from '../lib/_module.mjs';
 
 export default class DDBClass {
 

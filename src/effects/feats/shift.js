@@ -1,4 +1,4 @@
-import { DDBTemplateStrings } from "../../lib/_module.mjs";
+import { DDBTemplateStrings } from "../../parser/lib/_module.mjs";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function shiftEffect(ddb, character, document) {
