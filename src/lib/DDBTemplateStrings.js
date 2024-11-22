@@ -1,5 +1,5 @@
 import { utils, logger, DDBHelper } from "./_module.mjs";
-import { parseTags } from './DDBReferenceLinker.js';
+import { parseTags } from '../parser/lib/DDBReferenceLinker.js';
 
 
 function evaluateMath(obj) {

@@ -3,7 +3,6 @@ import {
   logger,
   PatreonHelper,
   MuncherSettings,
-  DDBReferenceLinker,
   Secrets,
   base64Check,
   DDBCompendiumFolders,
@@ -26,6 +25,7 @@ import DDBSources from "./DDBSources.js";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import { updateItemPrices } from "../muncher/prices.js";
+import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
 
 export default class DDBMuncher extends Application {
   static get defaultOptions() {

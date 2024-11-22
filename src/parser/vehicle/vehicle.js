@@ -1,4 +1,5 @@
-import { logger, DDBHelper, CompendiumHelper, DDBReferenceLinker } from '../../lib/_module.mjs';
+import { logger, DDBHelper, CompendiumHelper } from '../../lib/_module.mjs';
+import { DDBReferenceLinker } from '../lib/_module.mjs';
 
 import { newVehicle } from './templates/vehicle.js';
 import { getDamageImmunities, getConditionImmunities } from "./conditions.js";

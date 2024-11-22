@@ -1,10 +1,10 @@
 import {
   logger,
-  DDBReferenceLinker,
   DDBHelper,
   DDBItemImporter,
   utils,
 } from "../../lib/_module.mjs";
+import { DDBReferenceLinker } from "../../parser/lib/_module.mjs";
 
 const FEAT_TEMPLATE = {
   "name": "",

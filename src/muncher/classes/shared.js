@@ -1,13 +1,12 @@
 import {
   logger,
   utils,
-  DDBReferenceLinker,
   FileHelper,
   CompendiumHelper,
   DDBHelper,
 } from "../../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { DDBTable } from "../../parser/lib/_module.mjs";
+import { DDBTable, DDBReferenceLinker } from "../../parser/lib/_module.mjs";
 
 const CLASS_TEMPLATE = {
   "name": "",

@@ -5,7 +5,6 @@ import {
   logger,
   DDBHelper,
   DDBItemImporter,
-  DDBReferenceLinker,
   DDBTemplateStrings,
   DDBCompendiumFolders,
 } from "../../lib/_module.mjs";
@@ -18,6 +17,7 @@ import { DDBFeatureActivity } from "../activities/_module.mjs";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import { addExtraEffects } from "./extraEffects.js";
+import { DDBReferenceLinker } from "../lib/_module.mjs";
 
 
 export class DDBInfusion {

@@ -1,6 +1,7 @@
 import { SETTINGS, DICTIONARY } from "../../config/_module.mjs";
-import { utils, logger, DDBReferenceLinker, DDBHelper, CompendiumHelper, FileHelper } from "../../lib/_module.mjs";
+import { utils, logger, DDBHelper, CompendiumHelper, FileHelper } from "../../lib/_module.mjs";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
+import { DDBReferenceLinker } from "../lib/_module.mjs";
 
 
 export default class DDBRace {

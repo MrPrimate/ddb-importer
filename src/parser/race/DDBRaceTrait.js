@@ -1,6 +1,6 @@
-import { utils, logger, DDBReferenceLinker, CompendiumHelper, DDBHelper } from "../../lib/_module.mjs";
+import { utils, logger, CompendiumHelper, DDBHelper } from "../../lib/_module.mjs";
 import DDBRace from "./DDBRace.js";
-
+import { DDBReferenceLinker } from "../lib/_module.mjs";
 
 export default class DDBRaceTrait {
 

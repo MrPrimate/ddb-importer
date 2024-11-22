@@ -2,12 +2,12 @@ import {
   logger,
   DDBItemImporter,
   CompendiumHelper,
-  DDBReferenceLinker,
   DDBCompendiumFolders,
   utils,
 } from "../../lib/_module.mjs";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { SETTINGS } from "../../config/_module.mjs";
+import { DDBReferenceLinker } from "../../parser/lib/_module.mjs";
 
 function getHPAdvancement(klass, character) {
   // const value = "value": {

@@ -1,6 +1,7 @@
 import { newComponent } from "./templates/component.js";
 import { DICTIONARY } from "../../config/_module.mjs";
-import { logger, DDBReferenceLinker } from "../../lib/_module.mjs";
+import { logger } from "../../lib/_module.mjs";
+import { DDBReferenceLinker } from "../lib/_module.mjs";
 
 const TYPE_MAPPING = {
   hull: "equipment",

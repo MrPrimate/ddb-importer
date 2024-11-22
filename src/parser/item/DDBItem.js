@@ -1,11 +1,11 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { utils, logger, DDBHelper, DDBReferenceLinker, Iconizer, CompendiumHelper } from "../../lib/_module.mjs";
+import { utils, logger, DDBHelper, Iconizer, CompendiumHelper } from "../../lib/_module.mjs";
 import { DDBItemActivity } from "../activities/_module.mjs";
 import { DDBItemEnricher, mixins } from "../enrichers/_module.mjs";
 import MagicItemMaker from "./MagicItemMaker.js";
 import { generateEffects, getStatusEffect } from "../../effects/effects.js";
 import { addRestrictionFlags } from "../../effects/restrictions.js";
-import { DDBTable } from "../lib/_module.mjs";
+import { DDBTable, DDBReferenceLinker } from "../lib/_module.mjs";
 
 export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 

@@ -1,8 +1,9 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
-import { logger, utils, FileHelper, CompendiumHelper, DDBReferenceLinker } from "../../lib/_module.mjs";
+import { logger, utils, FileHelper, CompendiumHelper } from "../../lib/_module.mjs";
 import { generateAdventureConfig } from "../adventure.js";
 import { SETTINGS } from "../../config/_module.mjs";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
+import { DDBReferenceLinker } from "../../parser/lib/_module.mjs";
 
 export default class AdventureMunch extends FormApplication {
 

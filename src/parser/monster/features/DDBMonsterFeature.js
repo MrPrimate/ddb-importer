@@ -1,9 +1,9 @@
-import { utils, logger, DDBReferenceLinker } from "../../../lib/_module.mjs";
+import { utils, logger } from "../../../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../../../config/_module.mjs";
 import { DDBMonsterFeatureActivity } from "../../activities/_module.mjs";
 import { DDBMonsterFeatureEnricher } from "../../enrichers/_module.mjs";
 import { DDBActivityFactoryMixin, DDBBasicActivity } from "../../enrichers/mixins/_module.mjs";
-import { DDBTable } from "../../lib/_module.mjs";
+import { DDBTable, DDBReferenceLinker } from "../../lib/_module.mjs";
 
 export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
 

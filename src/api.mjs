@@ -20,6 +20,7 @@ import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
 import DDBSimpleMacro from "./effects/DDBSimpleMacro.mjs";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.mjs";
 import * as Enrichers from "./parser/enrichers/_module.mjs";
+import * as ParserLib from "./parser/lib/_module.mjs";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -168,7 +169,7 @@ export function registerApi() {
     iconPath: lib.Iconizer.iconPath,
     generateIcon: lib.Iconizer.generateIcon,
 
-    importCacheLoad: lib.DDBReferenceLinker.importCacheLoad,
+    importCacheLoad: ParserLib.DDBReferenceLinker.importCacheLoad,
     getNPCImage,
     resetCompendiumActorImages,
 
@@ -222,7 +223,7 @@ export function registerApi() {
       simpleTest: simpleTest,
       utils: lib.utils,
       lib,
-      importCacheLoad: lib.DDBReferenceLinker.importCacheLoad,
+      importCacheLoad: ParserLib.DDBReferenceLinker.importCacheLoad,
     },
     DICTIONARY: config.DICTIONARY,
   };

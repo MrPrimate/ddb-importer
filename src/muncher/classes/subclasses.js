@@ -1,6 +1,7 @@
-import { logger, utils, DDBReferenceLinker, DDBItemImporter, DDBCompendiumFolders } from "../../lib/_module.mjs";
+import { logger, utils, DDBItemImporter, DDBCompendiumFolders } from "../../lib/_module.mjs";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements, getClassImages } from "./shared.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
+import { DDBReferenceLinker } from "../../parser/lib/_module.mjs";
 
 async function buildSubClassBase(klass, subClass) {
   delete klass['_id'];
