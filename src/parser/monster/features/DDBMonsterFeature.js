@@ -1,11 +1,10 @@
 import { utils, logger } from "../../../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../../../config/_module.mjs";
 import { DDBMonsterFeatureActivity } from "../../activities/_module.mjs";
-import { DDBMonsterFeatureEnricher } from "../../enrichers/_module.mjs";
-import { DDBActivityFactoryMixin, DDBBasicActivity } from "../../enrichers/mixins/_module.mjs";
-import { DDBTable, DDBReferenceLinker } from "../../lib/_module.mjs";
+import { DDBMonsterFeatureEnricher, mixins, Effects } from "../../enrichers/_module.mjs";
+import { DDBTable, DDBReferenceLinker, DDBDescriptions } from "../../lib/_module.mjs";
 
-export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
+export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
   #generateAdjustedName() {
     this.originalName = `${this.name}`;
@@ -57,52 +56,36 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
   prepare() {
     this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
 
-    const matches = this.strippedHtml.match(
-      /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\(|\.)/i,
-    );
-
-    const healingRegex = /(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i;
-    const healingMatch = healingRegex.test(this.strippedHtml);
-
-    const spellSaveSearch = /(?<ability>\w+) saving throw against your spell save DC/i;
-    const spellSave = this.strippedHtml.match(spellSaveSearch);
-    const saveSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)/i;
-    const saveSearchNew = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)/i;
-    const saveMatch = this.strippedHtml.match(saveSearch) ?? this.strippedHtml.match(saveSearchNew);
-
-    const halfSaveSearch = /or half as much damage on a successful one|Success: Half damage/i;
-    const halfMatch = halfSaveSearch.test(this.strippedHtml);
+    const descriptionParse = DDBDescriptions.featureBasics({ text: this.strippedHtml });
 
     // set calc flags
-    this.isAttack = matches ? matches.groups.range !== undefined : false;
-    this.spellSave = spellSave;
-    this.savingThrow = saveMatch;
-    this.isSave = Boolean(spellSave || saveMatch);
-    this.halfDamage = halfMatch;
-    this.pbToAttack = matches ? matches[4] !== undefined : false;
-    this.weaponAttack = matches
-      ? (matches.groups.type.toLowerCase() === "weapon" || matches.groups.type === "")
-      : false;
+    this.isAttack = descriptionParse.properties.isAttack;
+    this.spellSave = descriptionParse.properties.spellSave;
+    this.savingThrow = descriptionParse.properties.savingThrow;
+    this.isSave = descriptionParse.properties.isSave;
+    this.halfDamage = descriptionParse.properties.halfDamage;
+    this.pbToAttack = descriptionParse.properties.pbToAttack;
+    this.weaponAttack = descriptionParse.properties.weaponAttack;
     // warning - unclear how to parse these out for 2024 monsters
     // https://comicbook.com/gaming/news/dungeons-dragons-first-look-2025-monster-manual/
-    this.spellAttack = matches ? matches.groups.type.toLowerCase() === "spell" : false;
-    this.meleeAttack = matches ? matches.groups.range.includes("Melee") : false;
-    this.rangedAttack = matches ? matches.groups.range.includes("Ranged") : false;
-    this.healingAction = healingMatch;
-    this.toHit = matches
-      ? Number.isInteger(parseInt(matches.groups.bonus))
-        ? parseInt(matches.groups.bonus)
-        : 0
-      : 0;
+    this.spellAttack = descriptionParse.properties.spellAttack;
+    this.meleeAttack = descriptionParse.properties.meleeAttack;
+    this.rangedAttack = descriptionParse.properties.rangedAttack;
+    this.healingAction = descriptionParse.properties.healingAction;
+    this.toHit = descriptionParse.properties.toHit;
+    this.yourSpellAttackModToHit = descriptionParse.properties.yourSpellAttackModToHit;
+    this.descriptionSave = descriptionParse.save;
+
     this.isRecharge = this.#matchRecharge();
     this.templateType = this.isAttack && this.isRecharge === null ? "weapon" : "feat";
     if (this.name === "Legendary Actions") {
       this.templateType = "feat";
     }
-    this.yourSpellAttackModToHit = matches ? matches.groups.bonus?.startsWith("your spell") : false;
 
     if (!this.data) this.createBaseFeature();
     this.#generateAdjustedName();
+
+    foundry.utils.setProperty(this.data, "flags.midiProperties", descriptionParse.midiProperties);
 
     this.identifier = utils.referenceNameString(this.data.name.toLowerCase());
     this.data.system.identifier = this.identifier;
@@ -137,10 +120,6 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
       damageParts: [],
       healingParts: [],
       formula: "",
-      damageSave: {
-        dc: null,
-        ability: null,
-      },
       target: {
         template: {
           count: "",
@@ -327,7 +306,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
         }
         // assumption here is that there is just one field added to versatile. this is going to be rare.
         if (other) {
-          const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
+          const part = mixins.DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
 
           if (!thisOther && dmg[1].trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
@@ -351,11 +330,11 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
           // }
           if (!thisVersatile && dmg[1].trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
-            const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
+            const part = mixins.DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
             this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
           }
         } else {
-          const part = DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
+          const part = mixins.DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
           this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
         }
       }
@@ -363,7 +342,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
 
     if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
-      const part = DDBBasicActivity.buildDamagePart({
+      const part = mixins.DDBBasicActivity.buildDamagePart({
         damageString: utils.parseDiceString(damageValue, null).diceString,
         type: 'healing',
       });
@@ -397,7 +376,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
     if (this.actionInfo.damageParts.length > 0 && this.templateType === "weapon") {
       this.actionInfo.damage.base = this.actionInfo.damageParts[0].part;
     } else if (this.templateType !== "weapon" && this.actionInfo.damage.versatile.trim() !== "") {
-      const part = DDBBasicActivity.buildDamagePart({ damageString: this.actionInfo.damage.versatile, stripMod: this.templateType === "weapon" });
+      const part = mixins.DDBBasicActivity.buildDamagePart({ damageString: this.actionInfo.damage.versatile, stripMod: this.templateType === "weapon" });
       this.additionalActivities.push({
         name: `Versatile`,
         options: {
@@ -519,34 +498,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
   }
 
   getFeatSave() {
-
-    // save: {
-    //   ability: "",
-    //   dc: {
-    //     calculation: "",
-    //     formula: "",
-    //   },
-    // },
-
-    if (this.savingThrow) {
-      this.actionInfo.save.dc.formula = parseInt(this.savingThrow.groups.dc);
-      this.actionInfo.save.dc.calculation = "";
-      this.actionInfo.save.ability = this.savingThrow.groups.ability.toLowerCase().substr(0, 3);
-    } else if (this.spellSave) {
-      // this.actionInfo.save.dc = 10;
-      this.actionInfo.save.ability = [this.spellSave.groups.ability.toLowerCase().substr(0, 3)];
-      this.actionInfo.save.dc.calculation = "spellcasting";
-    }
-    if (this.halfDamage) {
-      this.actionInfo.damage.onSave = "half";
-      if (this.isAttack) {
-        foundry.utils.setProperty(this.data, "flags.midiProperties.otherSaveDamage", "halfdam");
-      } else {
-        // foundry.utils.setProperty(this.feature, "flags.midiProperties.halfdam", true);
-        foundry.utils.setProperty(this.data, "flags.midiProperties.saveDamage", "halfdam");
-      }
-    }
-
+    this.actionInfo.save = this.descriptionSave;
     return this.actionInfo.save;
   }
 
@@ -1173,6 +1125,24 @@ ${this.data.system.description.value}
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
     this._activityEffectLinking();
+
+    const overtimeGenerator = new Effects.MidiOverTimeEffect({
+      document: this.data,
+      actor: this.ddbMonster.npc,
+      duration: this.strippedHtml,
+    });
+
+    const deps = Effects.AutoEffects.effectModules();
+    if (!deps.hasCore || !this.ddbMonster.addMonsterEffects) {
+      logger.debug(`Adding Condition Effects to ${this.name}`);
+      overtimeGenerator.generateConditionOnlyEffect();
+    }
+
+    if (this.ddbMonster.addMonsterEffects) {
+      logger.debug(`Adding Over Time Effects to ${this.name}`);
+      overtimeGenerator.generateOverTimeEffect();
+    }
+    Effects.AutoEffects.forceDocumentEffect(this.data);
   }
 
 

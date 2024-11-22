@@ -1,5 +1,6 @@
 import { DICTIONARY } from "../../../config/_module.mjs";
-import { DDBHelper } from "../../../lib/_module.mjs";
+import { DDBHelper, logger, utils } from "../../../lib/_module.mjs";
+import { DDBDescriptions } from "../../lib/_module.mjs";
 import ChangeHelper from "./ChangeHelper.mjs";
 import MidiEffects from "./MidiEffects.mjs";
 
@@ -247,6 +248,91 @@ export default class AutoEffects {
       });
 
     return result;
+  }
+
+
+  static getStatusConditionEffect({ text = null, status = null, nameHint = null } = {}) {
+    const parsedStatus = status ?? DDBDescriptions.parseStatusCondition({ text });
+    const results = {
+      success: false,
+      check: false,
+      save: {
+        dc: {
+          formula: "",
+          calculation: "",
+        },
+        ability: null,
+      },
+      condition: null,
+      effect: {
+        name: "",
+        changes: [],
+        flags: {
+          dae: {
+            specialDuration: [],
+          },
+        },
+        statuses: [],
+        duration: {
+          seconds: null,
+          rounds: null,
+          turns: null,
+          startRound: null,
+          startTurn: null,
+        },
+      },
+    };
+
+    if (!parsedStatus.success) return results;
+
+    if (parsedStatus.group4) {
+      AutoEffects.ChangeHelper.addStatusEffectChange({ effect: results.effect, statusName: parsedStatus.group4Condition });
+      results.effect = DDBDescriptions.addSpecialDurationFlagsToEffect(results.effect, parsedStatus.match);
+      if (nameHint) results.effect.name = `${nameHint}: ${parsedStatus.group4Condition}`;
+      else results.effect.name = `Status: ${parsedStatus.group4Condition}`;
+    } else if (parsedStatus.condition === "dead") {
+      AutoEffects.ChangeHelper.addStatusEffectChange({ effect: results.effect, statusName: "Dead" });
+    } else {
+      logger.debug(`Odd condition ${results.condition} found`, {
+        text,
+        nameHint,
+        status,
+      });
+      return results;
+    }
+    results.success = true;
+
+    return results.effect;
+  }
+
+  static getStatusEffect({ ddbDefinition, foundryItem, labelOverride } = {}) {
+    if (!foundryItem.effects) foundryItem.effects = [];
+
+    const text = ddbDefinition.description ?? ddbDefinition.snippet ?? "";
+
+    const conditionResult = DDBDescriptions.parseStatusCondition({ text, nameHint: labelOverride });
+
+    if (!conditionResult.success) return null;
+    const conditionEffect = AutoEffects.getStatusConditionEffect({ status: conditionResult, nameHint: labelOverride });
+    if (!conditionEffect.success) return null;
+
+    const effectLabel = (labelOverride ?? conditionEffect.name ?? foundryItem.name ?? conditionResult.condition);
+    let effect = AutoEffects.BaseEffect(foundryItem, effectLabel, {
+      transfer: false,
+      description: `Apply status ${conditionResult.condition}`,
+    });
+    effect.changes.push(...conditionEffect.changes);
+    effect.statuses.push(...conditionEffect.statuses);
+    if (conditionEffect.name) effect.name = conditionEffect.name;
+    effect.flags = foundry.utils.mergeObject(effect.flags, conditionEffect.flags);
+    if (conditionEffect.duration.seconds) effect.duration.seconds = conditionEffect.duration.seconds;
+    if (conditionEffect.duration.rounds) effect.duration.rounds = conditionEffect.duration.rounds;
+
+    if (!effect.name) {
+      const condition = utils.capitalize(conditionResult.condition);
+      effect.name = `Status: ${condition}`;
+    }
+    return effect;
   }
 
 }

@@ -1,9 +1,9 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { utils, logger, DDBHelper, Iconizer, CompendiumHelper } from "../../lib/_module.mjs";
 import { DDBItemActivity } from "../activities/_module.mjs";
-import { DDBItemEnricher, mixins } from "../enrichers/_module.mjs";
+import { DDBItemEnricher, mixins, Effects } from "../enrichers/_module.mjs";
 import MagicItemMaker from "./MagicItemMaker.js";
-import { generateEffects, getStatusEffect } from "../../effects/effects.js";
+import { generateEffects } from "../../effects/effects.js";
 import { addRestrictionFlags } from "../../effects/restrictions.js";
 import { DDBTable, DDBReferenceLinker } from "../lib/_module.mjs";
 
@@ -2698,7 +2698,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
       this.characterManager.updateItemId(this.data);
 
-      const statusEffect = getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
+      const statusEffect = Effects.AutoEffects.getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
       if (statusEffect) this.data.effects.push(statusEffect);
 
       if (this.enricher.clearAutoEffects) this.data.effects = [];

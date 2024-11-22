@@ -1,10 +1,9 @@
 /* eslint-disable require-atomic-updates */
-import { addStatusEffectChange, applyDefaultMidiFlags, effectModules, forceItemEffect } from "./effects.js";
+import { addStatusEffectChange, applyDefaultMidiFlags, forceItemEffect } from "./effects.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
 import { generateLegendaryEffect } from "./monsterFeatures/legendary.js";
-import { generateConditionOnlyEffect, generateOverTimeEffect } from "./monsterFeatures/overTimeEffect.js";
 import { generatePackTacticsEffect } from "./monsterFeatures/packTactics.js";
 import { generateReversalOfFortuneEffect } from "./monsterFeatures/reversalOfFortune.js";
 import { generateSuaveDefenseEffect } from "./monsterFeatures/suaveDefense.js";
@@ -19,7 +18,6 @@ import { deathlyChoirEffect } from "./monsterFeatures/deathlyChoir.js";
 import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
 import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
 import { spellReflectionEffect } from "./monsterFeatures/spellReflection.js";
-import { logger } from "../lib/_module.mjs";
 import { giantSpiderEffects } from "./monsterFeatures/giantSpider.js";
 import { beholderEyeRayLegendaryEffect } from "./monsterFeatures/beholderEyeRayLegendary.js";
 import { multiAttackEffect } from "./monsterFeatures/multiAttack.js";
@@ -36,25 +34,6 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
   let npc = foundry.utils.duplicate(ddbMonster.npc);
 
   if (!npc.effects) npc.effects = [];
-
-  const deps = effectModules();
-  if (!deps.hasCore || !addMidiEffects) {
-    logger.debug(`Adding Condition Effects to ${npc.name}`);
-    // damage over time effects
-    for (let [index, item] of npc.items.entries()) {
-      // auto condition effect
-      if (item.type !== "spell") {
-        // console.warn(`Auto-adding Condition Effect to ${item.name} in ${npc.name}`);
-        const overTimeResults = generateConditionOnlyEffect(npc, item, item.flags.monsterMunch?.description);
-        item = overTimeResults.document;
-        npc = overTimeResults.actor;
-      }
-
-      item = forceItemEffect(item);
-      npc.items[index] = item;
-    };
-    return npc;
-  }
 
   if (!addMidiEffects) return npc;
 
@@ -75,12 +54,6 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
     else if (item.name === "Spell Reflection") item = await spellReflectionEffect(item);
     else if (item.name === "Multiattack") item = await multiAttackEffect(item);
 
-    // auto overtime effect
-    if (item.type !== "spell") {
-      const overTimeResults = generateOverTimeEffect(npc, item, item.flags.monsterMunch?.description);
-      item = overTimeResults.document;
-      npc = overTimeResults.actor;
-    }
 
     item = AutoEffects.forceDocumentEffect(item);
     npc.items[index] = item;
@@ -161,18 +134,6 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
     }
     // no default
   }
-
-  // switch (npc.system.details.type.value) {
-  //   case "dragon": {
-  //     npc.items.forEach(function (item, index) {
-  //       if (item.name === "Frightful Presence") {
-  //         this[index].effects[0].duration.rounds = 10;
-  //       }
-  //     }, npc.items);
-  //     break;
-  //   }
-  //   // no default
-  // }
 
   return npc;
 }

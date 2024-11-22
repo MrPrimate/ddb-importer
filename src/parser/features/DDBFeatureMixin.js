@@ -1,10 +1,10 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
-import { generateEffects, getStatusEffect } from "../../effects/effects.js";
-import { DDBEffectHelper, DDBSimpleMacro } from "../../effects/_module.mjs";
-import { DDBFeatureEnricher, mixins } from "../enrichers/_module.mjs";
-import { DDBTable, DDBTemplateStrings } from "../lib/_module.mjs";
+import { generateEffects } from "../../effects/effects.js";
+import { DDBSimpleMacro } from "../../effects/_module.mjs";
+import { DDBFeatureEnricher, mixins, Effects } from "../enrichers/_module.mjs";
+import { DDBDescriptions, DDBTable, DDBTemplateStrings } from "../lib/_module.mjs";
 
 export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
@@ -130,7 +130,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   _generateSaveFromDescription() {
     const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
-    const textMatch = DDBEffectHelper.dcParser({ text: description });
+    const textMatch = DDBDescriptions.dcParser({ text: description });
     if (textMatch.match) {
       this._descriptionSave = textMatch.save;
     } else {
@@ -921,7 +921,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     if (this.enricher.activity?.type === "none") return undefined;
 
     if (statusEffects) {
-      const statusEffect = getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
+      const statusEffect = Effects.AutoEffects.getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
       if (statusEffect) this.data.effects.push(statusEffect);
     }
 

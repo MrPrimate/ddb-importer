@@ -1,3 +1,4 @@
+import { utils } from "../../../lib/_module.mjs";
 import AutoEffects from "./AutoEffects.mjs";
 
 export default class ChangeHelper {
@@ -160,6 +161,27 @@ export default class ChangeHelper {
       if (level) foundry.utils.setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
     }
     return effect;
+  }
+
+
+  static overTimeDamageChange({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc } = {}) {
+    return {
+      key: "flags.midi-qol.OverTime",
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      value: `turn=${turn},label=${document.name} (${utils.capitalize(turn)} of Turn),damageRoll=${damage},damageType=${damageType},saveRemove=${saveRemove},saveDC=${dc},saveAbility=${saveAbility},saveDamage=${saveDamage},killAnim=true`,
+      priority: "20",
+    };
+  }
+
+  static overTimeSaveChange({ document, turn, saveAbility, saveRemove = true, dc } = {}) {
+    const turnValue = turn === "action" ? "end" : turn;
+    const actionSave = turn === "action" ? ",actionSave=true" : "";
+    return {
+      key: "flags.midi-qol.OverTime",
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      value: `turn=${turnValue},label=${document.name} (${utils.capitalize(turn)} of Turn),saveRemove=${saveRemove},saveDC=${dc},saveAbility=${saveAbility},killAnim=true${actionSave}`,
+      priority: "20",
+    };
   }
 
 }

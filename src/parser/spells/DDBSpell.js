@@ -4,9 +4,9 @@ import { baseSpellEffect, spellEffectAdjustment } from "../../effects/specialSpe
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.mjs";
 import { DDBSpellActivity } from "../activities/_module.mjs";
 import { DDBSpellEnricher, mixins } from "../enrichers/_module.mjs";
-import { addStatusEffectChange } from "../../effects/effects.js";
 import DDBSummonsManager from "../companions/DDBSummonsManager.mjs";
 import { DDBTable, DDBReferenceLinker } from "../lib/_module.mjs";
+import { AutoEffects } from "../enrichers/effects/_module.mjs";
 
 export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
@@ -778,7 +778,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
         effect._id = foundry.utils.randomID();
 
         // KNOWN_ISSUE_4_0: add duration
-        addStatusEffectChange({ effect, statusName: condition.foundryValue });
+        AutoEffects.ChangeHelper.addStatusEffectChange({ effect, statusName: condition.foundryValue });
         this.data.effects.push(effect);
       }
     }

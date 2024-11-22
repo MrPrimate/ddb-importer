@@ -53,7 +53,7 @@ function damageRayEffect(document, nodamageSave = false) {
   foundry.utils.setProperty(document, "flags.midiProperties.magicdam", true);
 
   if (dmg) {
-    document.system.damage.parts = dmg.parts;
+    document.system.damage.base.parts = dmg;
   }
 }
 

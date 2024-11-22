@@ -1,8 +1,6 @@
 import { utils, logger, DDBHelper } from "../lib/_module.mjs";
 import { DICTIONARY } from "../config/_module.mjs";
 import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEffects.js";
-// import { abilityOverrideEffects } from "./abilityOverrides.js";
-import DDBEffectHelper from "./DDBEffectHelper.mjs";
 import { AutoEffects, ChangeHelper, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
 import { ProficiencyFinder } from "../parser/lib/_module.mjs";
 
@@ -1127,33 +1125,6 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
   }
 
   return [foundryItem, effect];
-}
-
-export function getStatusEffect({ ddbDefinition, foundryItem, labelOverride } = {}) {
-  if (!foundryItem.effects) foundryItem.effects = [];
-
-  const text = ddbDefinition.description ?? ddbDefinition.snippet ?? "";
-
-  const conditionResult = DDBEffectHelper.parseStatusCondition({ text, nameHint: labelOverride });
-
-  if (!conditionResult.success) return null;
-  const effectLabel = (labelOverride ?? conditionResult.effect.name ?? foundryItem.name ?? conditionResult.condition);
-  let effect = baseItemEffect(foundryItem, effectLabel, {
-    transfer: false,
-    description: `Apply status ${conditionResult.condition}`,
-  });
-  effect.changes.push(...conditionResult.effect.changes);
-  effect.statuses.push(...conditionResult.effect.statuses);
-  if (conditionResult.effect.name) effect.name = conditionResult.effect.name;
-  effect.flags = foundry.utils.mergeObject(effect.flags, conditionResult.effect.flags);
-  if (conditionResult.effect.duration.seconds) effect.duration.seconds = conditionResult.effect.duration.seconds;
-  if (conditionResult.effect.duration.rounds) effect.duration.rounds = conditionResult.effect.duration.rounds;
-
-  if (!effect.name) {
-    const condition = utils.capitalize(conditionResult.condition);
-    effect.name = `Status: ${condition}`;
-  }
-  return effect;
 }
 
 // eslint-disable-next-line no-unused-vars
