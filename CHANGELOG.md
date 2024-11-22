@@ -3,7 +3,8 @@
 - Internal auto effect generation refactor for future enhancements
 - Spell Scaling fix (especially on new healing spells)
 - Changes to support the new compendium folder structure.
-
+- The "Legendary Actions" feature would not import quite right for some monsters.
+- Unable to change folder locations in some ddb settings.
 
 # 6.0.47
 

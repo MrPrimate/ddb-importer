@@ -95,6 +95,9 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
       : 0;
     this.isRecharge = this.#matchRecharge();
     this.templateType = this.isAttack && this.isRecharge === null ? "weapon" : "feat";
+    if (this.name === "Legendary Actions") {
+      this.templateType = "feat";
+    }
     this.yourSpellAttackModToHit = matches ? matches.groups.bonus?.startsWith("your spell") : false;
 
     if (!this.data) this.createBaseFeature();
@@ -550,7 +553,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
     const reachSearch = /reach\s*(\s*\d+\s*)\s*ft/;
     const match = this.strippedHtml.match(reachSearch);
     if (!match) return null;
-    return match[1];
+    return match[1].trim();
   }
 
   getRange() {
@@ -931,6 +934,7 @@ ${this.data.system.description.value}
   #buildLegendary() {
     // for the legendary actions feature itself we don't want to do most processing
     if (this.name === "Legendary Actions") {
+      this.activityType = "none";
       this.actionInfo.activation.type = "";
       return;
     }
@@ -1131,6 +1135,7 @@ ${this.data.system.description.value}
 
   _getActivitiesType() {
     // lets see if we have a save stat for things like Dragon born Breath Weapon
+    if (this.name === "Legendary Actions") return null;
     if (this.healingAction) {
       if (!this.isAttack && !this.isSave && this.actionInfo.damageParts.length === 0) {
         // we generate heal activities as additionals;
