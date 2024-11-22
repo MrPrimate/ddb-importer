@@ -3,6 +3,7 @@ import AutoEffects from "./AutoEffects.mjs";
 import ChangeHelper from "./ChangeHelper.mjs";
 import MidiEffects from "./MidiEffects.mjs";
 import { ProficiencyFinder } from "../../lib/_module.mjs";
+import { DICTIONARY } from "../../../config/_module.mjs";
 
 export default class EffectGenerator {
 
@@ -50,7 +51,7 @@ export default class EffectGenerator {
     const bonus = DDBHelper.getValueFromModifiers(modifiers, this.document.name, type, "bonus");
     if (bonus) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`, bonus);
-      this.effect.changes.push(AutoEffects.unsignedAddChange(`+ ${bonus}`, 18, key));
+      this.effect.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonus}`, 18, key));
     }
   }
 
@@ -60,11 +61,11 @@ export default class EffectGenerator {
 
     languages.value.forEach((prof) => {
       logger.debug(`Generating language ${prof} for ${this.document.name}`);
-      this.effect.changes.push(AutoEffects.unsignedAddChange(prof, 0, "system.traits.languages.value"));
+      this.effect.changes.push(ChangeHelper.unsignedAddChange(prof, 0, "system.traits.languages.value"));
     });
     if (languages?.custom != "") {
       logger.debug(`Generating language ${languages.custom} for ${this.document.name}`);
-      this.effect.changes.push(AutoEffects.unsignedAddChange(languages.custom, 0, "system.traits.languages.custom"));
+      this.effect.changes.push(ChangeHelper.unsignedAddChange(languages.custom, 0, "system.traits.languages.custom"));
     }
   }
 
@@ -90,7 +91,7 @@ export default class EffectGenerator {
         bonuses += bonusParse;
       });
       if (bonuses === "") bonuses = 0;
-      changes.push(AutoEffects.unsignedAddChange(`+ ${bonuses}`, 20, key));
+      changes.push(ChangeHelper.unsignedAddChange(`+ ${bonuses}`, 20, key));
       logger.debug(`Changes for ${type} bonus for ${this.document.name}`, changes);
     }
 
@@ -141,7 +142,116 @@ export default class EffectGenerator {
     if (allDamageImmunity?.length > 0) {
       this.effect.changes.push(ChangeHelper.unsignedAddChange("all", 1, "system.traits.di.value"));
     }
+  }
 
+  addCriticalHitImmunities() {
+    if (!game.modules.get("midi-qol")?.active) return;
+    const result = DDBHelper.filterModifiersOld(this.grantedModifiers, "immunity", "critical-hits");
+
+    if (result.length > 0) {
+      logger.debug(`Generating critical hit immunity for ${this.document.name}`);
+      const change = ChangeHelper.customChange(1, 1, "flags.midi-qol.fail.critical.all");
+      this.effect.changes.push(change);
+    }
+  }
+
+  addAbilityAdvantageEffect(subType, type) {
+    const bonuses = DDBHelper.filterModifiersOld(this.grantedModifiers, "advantage", subType);
+
+    if (!game.modules.get("midi-qol")?.active) return;
+    if (bonuses.length > 0) {
+      logger.debug(`Generating ${subType} saving throw advantage for ${this.document.name}`);
+      const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
+      this.effect.changes.push(ChangeHelper.customChange(1, 4, `flags.midi-qol.advantage.ability.${type}.${ability}`));
+    }
+  }
+
+  addStatSetEffect(subType) {
+    const bonuses = this.grantedModifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
+
+    // dwarfen "Maximum of 20"
+    if (bonuses.length > 0) {
+      bonuses.forEach((bonus) => {
+        logger.debug(`Generating ${subType} stat set for ${this.document.name}`);
+        const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
+        this.effect.changes.push(ChangeHelper.upgradeChange(bonus.value, 3, `system.abilities.${ability}.value`));
+      });
+    }
+  }
+
+  addStatChanges() {
+    const stats = ["strength", "dexterity", "constitution", "wisdom", "intelligence", "charisma"];
+    stats.forEach((stat) => {
+      const ability = DICTIONARY.character.abilities.find((ab) => ab.long === stat);
+      this.addStatSetEffect(`${stat}-score`);
+      this.addAbilityAdvantageEffect(`${stat}-saving-throws`, "save");
+      this.addAbilityAdvantageEffect(`${stat}-ability-checks`, "check");
+      this.addAddBonusChanges(this.grantedModifiers, `${stat}-saving-throws`, `system.abilities.${ability.value}.bonuses.save`);
+      this.addAddBonusChanges(this.grantedModifiers, `${stat}-ability-checks`, `system.abilities.${ability.value}.bonuses.check`);
+    });
+  }
+
+  addStatBonusEffect(subType) {
+    const bonuses = this.grantedModifiers.filter((modifier) =>
+      (modifier.type === "bonus" || modifier.type === "stacking-bonus")
+      && modifier.subType === subType);
+
+    if (bonuses.length > 0) {
+      bonuses.forEach((bonus) => {
+        logger.debug(`Generating ${subType} stat bonus for ${this.document.name}`);
+        const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]);
+
+        if (game.modules.get("dae")?.active) {
+          const bonusString = `min(@abilities.${ability.value}.max, @abilities.${ability.value}.value + ${bonus.value})`;
+          // min(20, @abilities.con.value + 2)
+          this.effect.changes.push(ChangeHelper.overrideChange(bonusString, 5, `system.abilities.${ability.value}.value`));
+        } else {
+          this.effect.changes.push(ChangeHelper.signedAddChange(bonus.value, 5, `system.abilities.${ability.value}.value`));
+        }
+      });
+    }
+  }
+
+  addStatBonuses() {
+    [
+      "strength-score",
+      "dexterity-score",
+      "constitution-score",
+      "wisdom-score",
+      "intelligence-score",
+      "charisma-score",
+    ].forEach((stat) => {
+      this.addStatBonusEffect(stat);
+    });
+  }
+
+  addSenseBonus() {
+    const senses = ["darkvision", "blindsight", "tremorsense", "truesight"];
+
+    senses.forEach((sense) => {
+      const base = this.grantedModifiers
+        .filter((modifier) => modifier.type === "set-base" && modifier.subType === sense)
+        .map((mod) => mod.value);
+      if (base.length > 0) {
+        logger.debug(`Generating ${sense} base for ${this.document.name}`);
+        this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(base), 10, `system.attributes.senses.${sense}`));
+        if (AutoEffects.effectModules().atlInstalled) {
+          this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(base), 10, "ATL.sight.range"));
+          this.effect.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 5));
+        }
+      }
+      const bonus = this.grantedModifiers
+        .filter((modifier) => modifier.type === "sense" && modifier.subType === sense)
+        .reduce((a, b) => a + b.value, 0);
+      if (bonus > 0) {
+        logger.debug(`Generating ${sense} bonus for ${this.document.name}`);
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(Math.max(bonus), 20, `system.attributes.senses.${sense}`));
+        if (AutoEffects.effectModules().atlInstalled) {
+          this.effect.changes.push(ChangeHelper.unsignedAddChange(Math.max(bonus), 20, "ATL.sight.range"));
+          this.effect.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 6));
+        }
+      }
+    });
   }
 
   _generateGenericEffects() {
@@ -158,10 +268,10 @@ export default class EffectGenerator {
     );
     this.addLanguages();
     this.addDamageConditions();
-    const criticalHitImmunity = addCriticalHitImmunities(this.grantedModifiers, this.document.name);
-    const statSets = addStatChanges(this.grantedModifiers, this.document.name);
-    const statBonuses = addStatBonuses(this.grantedModifiers, this.document.name);
-    const senses = addSenseBonus(this.grantedModifiers, this.document.name);
+    this.addCriticalHitImmunities();
+    this.addStatChanges();
+    this.addStatBonuses();
+    this.addSenseBonus();
     const proficiencyBonus = addProficiencyBonus(this.grantedModifiers, this.document.name);
     const speedSets = addSetSpeeds(this.grantedModifiers, this.document.name);
     const spellAttackBonuses = addSpellAttackBonuses(this.grantedModifiers, this.document.name);

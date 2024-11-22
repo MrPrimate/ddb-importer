@@ -250,29 +250,6 @@ function addCustomEffect(modifiers, name, type, key, extra = "") {
   return changes;
 }
 
-// /**
-//  * Adds languages, can't handle custom languages
-//  */
-
-// function addLanguages(modifiers, name) {
-//   let changes = [];
-
-//   const proficiencyFinder = new ProficiencyFinder();
-//   const languages = proficiencyFinder.getLanguagesFromModifiers(modifiers);
-
-//   languages.value.forEach((prof) => {
-//     logger.debug(`Generating language ${prof} for ${name}`);
-//     changes.push(generateUnsignedAddChange(prof, 0, "system.traits.languages.value"));
-//   });
-//   if (languages?.custom != "") {
-//     logger.debug(`Generating language ${languages.custom} for ${name}`);
-//     changes.push(generateUnsignedAddChange(languages.custom, 0, "system.traits.languages.custom"));
-//   }
-
-//   return changes;
-// }
-
-
 function damageBonus(type, modifiers, name) {
   let changes = [];
   const bonus = modifiers
@@ -449,261 +426,6 @@ function addSpellAttackBonuses(modifiers, name) {
     ...spellDCBonus,
     ...healingSpellBonus,
   ];
-}
-
-// // *
-// // Get list of generic conditions/damages
-// //
-// export function getGenericConditionAffectData(modifiers, condition, typeId, forceNoMidi = false) {
-//   const restrictions = [
-//     "",
-//     null,
-//     "While within 20 feet",
-//     "Dwarf Only",
-//     "While Not Incapacitated",
-//     // "As an Action", this is a timed/limited effect, dealt with elsewhere
-//     "While Staff is Held",
-//     "Helm has at least one ruby remaining",
-//     "while holding",
-//     "While Held",
-//   ];
-
-//   const ddbAdjustments = typeId === 4
-//     ? [
-//       { id: 11, type: 4, name: "Poisoned", slug: "poison" },
-//       { id: 16, type: 4, name: "Diseased", slug: "diseased" },
-//       { id: 16, type: 4, name: "Diseased", slug: "disease" },
-//     ]
-//       .concat(CONFIG.DDB.conditions.map((a) => {
-//         return {
-//           id: a.definition.id,
-//           type: 4,
-//           name: a.definition.name,
-//           slug: a.definition.slug,
-//         };
-//       }))
-//     : CONFIG.DDB.damageAdjustments;
-
-//   const result = DDBHelper
-//     .filterModifiersOld(modifiers, condition, null, restrictions)
-//     .filter((modifier) => {
-//       const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
-//       if (!ddbLookup) return false;
-//       return DICTIONARY.character.damageAdjustments.some((adj) =>
-//         adj.type === typeId
-//         && ddbLookup.id === adj.id
-//         && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue")),
-//       );
-//     })
-//     .map((modifier) => {
-//       const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
-//       const entry = DICTIONARY.character.damageAdjustments.find((adj) =>
-//         adj.type === typeId
-//         && ddbLookup.id === adj.id,
-//       );
-//       if (!entry) return undefined;
-//       const valueData = foundry.utils.hasProperty(entry, "foundryValues")
-//         ? foundry.utils.getProperty(entry, "foundryValues")
-//         : foundry.utils.hasProperty(entry, "foundryValue")
-//           ? { value: entry.foundryValue }
-//           : undefined;
-//       return valueData;
-//     })
-//     .filter((adjustment) => adjustment !== undefined)
-//     .map((result) => {
-//       if (game.modules.get("midi-qol")?.active && result.midiValues && !forceNoMidi) {
-//         return {
-//           value: result.value.concat(result.midiValues),
-//           bypass: result.bypass,
-//         };
-//       } else {
-//         return result;
-//       }
-//     });
-
-//   return result;
-// }
-
-
-function addCriticalHitImmunities(modifiers, name) {
-  if (!game.modules.get("midi-qol")?.active) return [];
-  const result = DDBHelper.filterModifiersOld(modifiers, "immunity", "critical-hits");
-
-  if (result.length > 0) {
-    logger.debug(`Generating critical hit immunity for ${name}`);
-    return [generateCustomChange(1, 1, "flags.midi-qol.fail.critical.all")];
-  } else {
-    return [];
-  }
-}
-
-/**
- * Get  Damage Conditions, and Condition Immunities
- */
-
-// function addDamageConditions(modifiers) {
-//   let charges = [];
-
-//   const damageImmunityData = getGenericConditionAffectData(modifiers, "immunity", 2);
-//   const damageResistanceData = getGenericConditionAffectData(modifiers, "resistance", 1);
-//   const damageVulnerabilityData = getGenericConditionAffectData(modifiers, "vulnerability", 3);
-
-//   damageImmunityData.forEach((data) => {
-//     if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.di.value"));
-//     if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.di.bypasses"));
-//   });
-//   damageResistanceData.forEach((data) => {
-//     if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.dr.value"));
-//     if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.dr.bypasses"));
-//   });
-//   damageVulnerabilityData.forEach((data) => {
-//     if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.dv.value"));
-//     if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.dv.bypasses"));
-//   });
-
-//   const conditionImmunityData = getGenericConditionAffectData(modifiers, "immunity", 4);
-
-//   conditionImmunityData.forEach((data) => {
-//     if (data.value && data.value.length > 0) charges.push(generateUnsignedAddChange(data.value, 1, "system.traits.ci.value"));
-//     if (data.bypass && data.bypass.length > 0) charges.push(generateUnsignedAddChange(data.bypass, 1, "system.traits.ci.bypasses"));
-//   });
-
-//   // system.traits.di.all
-//   const allDamageImmunity = DDBHelper.filterModifiersOld(modifiers, "immunity", "all");
-//   if (allDamageImmunity?.length > 0) {
-//     charges.push(generateUnsignedAddChange("all", 1, "system.traits.di.value"));
-//   }
-
-//   return charges;
-// }
-
-// *
-// Generate stat bonuses
-//
-function addStatBonusEffect(modifiers, name, subType) {
-  const bonuses = modifiers.filter((modifier) =>
-    (modifier.type === "bonus" || modifier.type === "stacking-bonus")
-    && modifier.subType === subType);
-
-  let effects = [];
-  if (bonuses.length > 0) {
-    bonuses.forEach((bonus) => {
-      logger.debug(`Generating ${subType} stat bonus for ${name}`);
-      const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]);
-
-      if (game.modules.get("dae")?.active) {
-        const bonusString = `min(@abilities.${ability.value}.max, @abilities.${ability.value}.value + ${bonus.value})`;
-        // min(20, @abilities.con.value + 2)
-        effects.push(generateOverrideChange(bonusString, 5, `system.abilities.${ability.value}.value`));
-      } else {
-        effects.push(generateSignedAddChange(bonus.value, 5, `system.abilities.${ability.value}.value`));
-      }
-
-    });
-  }
-  return effects;
-}
-
-function addStatBonuses(modifiers, name) {
-  let changes = [];
-  const stats = [
-    "strength-score",
-    "dexterity-score",
-    "constitution-score",
-    "wisdom-score",
-    "intelligence-score",
-    "charisma-score",
-  ];
-  stats.forEach((stat) => {
-    const result = addStatBonusEffect(modifiers, name, stat);
-    changes = changes.concat(result);
-  });
-
-  return changes;
-}
-
-// *
-// Generate stat sets
-//
-function addStatSetEffect(modifiers, name, subType) {
-  const bonuses = modifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
-
-  let effects = [];
-  // dwarfen "Maximum of 20"
-  if (bonuses.length > 0) {
-    bonuses.forEach((bonus) => {
-      logger.debug(`Generating ${subType} stat set for ${name}`);
-      const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
-      effects.push(generateUpgradeChange(bonus.value, 3, `system.abilities.${ability}.value`));
-    });
-  }
-  return effects;
-}
-
-// requires midi
-// does not add advantages with restrictions - which is most of them
-function addAbilityAdvantageEffect(modifiers, name, subType, type) {
-  const bonuses = DDBHelper.filterModifiersOld(modifiers, "advantage", subType);
-
-  let effects = [];
-  if (!game.modules.get("midi-qol")?.active) return effects;
-  if (bonuses.length > 0) {
-    logger.debug(`Generating ${subType} saving throw advantage for ${name}`);
-    const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
-    effects.push(generateCustomChange(1, 4, `flags.midi-qol.advantage.ability.${type}.${ability}`));
-  }
-  return effects;
-}
-
-function addStatChanges(modifiers, name) {
-  let changes = [];
-  const stats = ["strength", "dexterity", "constitution", "wisdom", "intelligence", "charisma"];
-  stats.forEach((stat) => {
-    const ability = DICTIONARY.character.abilities.find((ab) => ab.long === stat);
-    const statEffect = addStatSetEffect(modifiers, name, `${stat}-score`);
-    const savingThrowAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-saving-throws`, "save");
-    const abilityCheckAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-ability-checks`, "check");
-    const abilityBonusesSave = addAddBonusChanges(modifiers, name, `${stat}-saving-throws`, `system.abilities.${ability.value}.bonuses.save`);
-    const abilityBonusesCheck = addAddBonusChanges(modifiers, name, `${stat}-ability-checks`, `system.abilities.${ability.value}.bonuses.check`);
-    changes = changes.concat(statEffect, savingThrowAdvantage, abilityCheckAdvantage, abilityBonusesSave, abilityBonusesCheck);
-  });
-
-  return changes;
-}
-
-// *
-// Senses
-//
-function addSenseBonus(modifiers, name) {
-  let changes = [];
-
-  const senses = ["darkvision", "blindsight", "tremorsense", "truesight"];
-
-  senses.forEach((sense) => {
-    const base = modifiers
-      .filter((modifier) => modifier.type === "set-base" && modifier.subType === sense)
-      .map((mod) => mod.value);
-    if (base.length > 0) {
-      logger.debug(`Generating ${sense} base for ${name}`);
-      changes.push(generateUpgradeChange(Math.max(base), 10, `system.attributes.senses.${sense}`));
-      if (effectModules().atlInstalled) {
-        changes.push(generateUpgradeChange(Math.max(base), 10, "ATL.sight.range"));
-        changes.push(generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 5));
-      }
-    }
-    const bonus = modifiers
-      .filter((modifier) => modifier.type === "sense" && modifier.subType === sense)
-      .reduce((a, b) => a + b.value, 0);
-    if (bonus > 0) {
-      logger.debug(`Generating ${sense} bonus for ${name}`);
-      changes.push(generateUnsignedAddChange(Math.max(bonus), 20, `system.attributes.senses.${sense}`));
-      if (effectModules().atlInstalled) {
-        changes.push(generateUnsignedAddChange(Math.max(bonus), 20, "ATL.sight.range"));
-        changes.push(generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 6));
-      }
-    }
-  });
-  return changes;
 }
 
 /**
@@ -1163,10 +885,10 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
   // );
   // const languages = addLanguages(ddbItem.definition.grantedModifiers, foundryItem.name);
   // const conditions = addDamageConditions(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const criticalHitImmunity = addCriticalHitImmunities(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const statSets = addStatChanges(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const statBonuses = addStatBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const senses = addSenseBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
+  // const criticalHitImmunity = addCriticalHitImmunities(ddbItem.definition.grantedModifiers, foundryItem.name);
+  // const statSets = addStatChanges(ddbItem.definition.grantedModifiers, foundryItem.name);
+  // const statBonuses = addStatBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
+  // const senses = addSenseBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
   const proficiencyBonus = addProficiencyBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
   const speedSets = addSetSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name);
   const spellAttackBonuses = addSpellAttackBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
@@ -1183,15 +905,15 @@ function generateGenericEffects({ ddb, character, ddbItem, foundryItem, isCompen
   const attunementAdjustment = addAttunementSlots(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
-    ...criticalHitImmunity,
+    // ...criticalHitImmunity,
     // ...globalSaveBonus,
     // ...globalAbilityBonus,
     // ...globalSkillBonus,
     // ...languages,
     // ...conditions,
-    ...statSets,
-    ...statBonuses,
-    ...senses,
+    // ...statSets,
+    // ...statBonuses,
+    // ...senses,
     ...proficiencyBonus,
     ...speedSets,
     ...spellAttackBonuses,
