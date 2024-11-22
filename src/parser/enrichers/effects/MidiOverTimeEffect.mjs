@@ -5,16 +5,17 @@ import ChangeHelper from "./ChangeHelper.mjs";
 
 export default class MidiOverTimeEffect {
 
-  constructor({ document, actor, otherDescription = null } = {}) {
+  constructor({ document, actor, otherDescription = null, flags = {} } = {}) {
     this.document = document;
     this.actor = actor;
     this.effect = AutoEffects.MonsterFeatureEffect(document, `${document.name}`);
     this.description = otherDescription ?? document.system.description.value;
     this.conditionStatus = DDBDescriptions.parseStatusCondition({ text: this.description });
     this.conditionEffect = this.conditionStatus.success
-      ? AutoEffects.getStatusConditionEffect({ status: this.conditionStatus })
+      ? AutoEffects.getStatusConditionEffect({ status: this.conditionStatus, flags })
       : null;
     this.parsedDescription = DDBDescriptions.featureBasics({ text: this.description });
+    this.flags = flags;
   }
 
   static getOverTimeSaveEndChange({ document, save, text }) {
@@ -126,7 +127,6 @@ export default class MidiOverTimeEffect {
     this.effectCleanup();
   }
 
-
   generateConditionOnlyEffect() {
     logger.debug(`Checking for condition effects for ${this.document.name} on ${this.actor.name}`);
     if (!this.document.effects) this.document.effects = [];
@@ -144,14 +144,14 @@ export default class MidiOverTimeEffect {
     if (duration.seconds) foundry.utils.setProperty(this.effect, "duration.seconds", duration.seconds);
     if (duration.rounds) foundry.utils.setProperty(this.effect, "duration.rounds", duration.rounds);
 
-    Object.keys(this.document.system.activities).forEach((id) => {
-      this.document.system.activities[id].effects.push(
-        {
-          "_id": this.effect._id,
-          "onSave": false,
-        },
-      );
-    });
+    // Object.keys(this.document.system.activities).forEach((id) => {
+    //   this.document.system.activities[id].effects.push(
+    //     {
+    //       "_id": this.effect._id,
+    //       "onSave": false,
+    //     },
+    //   );
+    // });
 
     this.effectCleanup();
 

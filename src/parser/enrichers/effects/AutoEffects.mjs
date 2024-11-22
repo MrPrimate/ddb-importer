@@ -251,18 +251,18 @@ export default class AutoEffects {
   }
 
 
-  static getStatusConditionEffect({ text = null, status = null, nameHint = null } = {}) {
+  static getStatusConditionEffect({ text = null, status = null, nameHint = null, flags = {} } = {}) {
     const parsedStatus = status ?? DDBDescriptions.parseStatusCondition({ text });
     if (!parsedStatus.success) return null;
 
     const effect = {
       name: "",
       changes: [],
-      flags: {
+      flags: foundry.utils.mergeObject({
         dae: {
           specialDuration: parsedStatus.specialDurations,
         },
-      },
+      }, flags),
       statuses: [],
       duration: parsedStatus.duration,
     };

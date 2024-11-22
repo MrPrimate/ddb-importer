@@ -1061,6 +1061,7 @@ ${this.data.system.description.value}
 
   #addSaveAdditionalActivity(includeBase = false) {
     this.additionalActivities.push({
+      name: "Save",
       type: "save",
       options: {
         generateDamage: this.actionInfo.damageParts.length > 1,
@@ -1098,7 +1099,7 @@ ${this.data.system.description.value}
     if (this.isAttack) {
       // some attacks will have a save and attack
       if (this.isSave) {
-        if (this.actionInfo.damageParts.length > 1) {
+        if (this.actionInfo.damageParts.length > 0) {
           this.#addSaveAdditionalActivity(false);
         }
       }
@@ -1124,12 +1125,20 @@ ${this.data.system.description.value}
     const effects = this.enricher.createEffect();
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
-    this._activityEffectLinking();
+
+    const flags = {
+      ddbimporter: {},
+    };
+
+    if (this.isAttack && this.isSave) {
+      flags.ddbimporter.activityMatch = "Save";
+    }
 
     const overtimeGenerator = new Effects.MidiOverTimeEffect({
       document: this.data,
       actor: this.ddbMonster.npc,
       otherDescription: this.strippedHtml,
+      flags,
     });
 
     const deps = Effects.AutoEffects.effectModules();
@@ -1142,6 +1151,8 @@ ${this.data.system.description.value}
       logger.debug(`Adding Over Time Effects to ${this.name}`);
       overtimeGenerator.generateOverTimeEffect();
     }
+
+    this._activityEffectLinking();
     Effects.AutoEffects.forceDocumentEffect(this.data);
   }
 
