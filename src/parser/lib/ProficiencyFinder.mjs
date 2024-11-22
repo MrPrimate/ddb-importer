@@ -1,5 +1,5 @@
-import { DICTIONARY } from "../config/_module.mjs";
-import { utils, DDBHelper } from "./_module.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
+import { utils, DDBHelper } from "../../lib/_module.mjs";
 
 export default class ProficiencyFinder {
 

@@ -1,11 +1,23 @@
 import CharacterSpellFactory from "./spells/CharacterSpellFactory.js";
-import { logger, utils, FileHelper, Secrets, DDBCampaigns, DDBProxy, DDBHelper, CompendiumHelper, DDBItemImporter, DDBCompendiumFolders, DDBReferenceLinker, ProficiencyFinder } from "../lib/_module.mjs";
+import {
+  logger,
+  utils,
+  FileHelper,
+  Secrets,
+  DDBCampaigns,
+  DDBProxy, DDBHelper,
+  CompendiumHelper,
+  DDBItemImporter,
+  DDBCompendiumFolders,
+  DDBReferenceLinker,
+} from "../lib/_module.mjs";
 import { DDBMacros } from "../effects/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import { fixCharacterLevels } from "./character/filterModifiers.js";
 import CharacterClassFactory from "./classes/CharacterClassFactory.js";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory.js";
 import { DDBInfusionFactory } from "./features/DDBInfusionFactory.js";
+import { ProficiencyFinder } from "./lib/_module.mjs";
 
 export default class DDBCharacter {
   constructor({ currentActor = null, characterId = null, selectResources = true, enableCompanions = false, enableSummons = false } = {}) {

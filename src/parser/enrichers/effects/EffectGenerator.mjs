@@ -1,7 +1,8 @@
-import { DDBHelper, logger, ProficiencyFinder } from "../../../lib/_module.mjs";
+import { DDBHelper, logger } from "../../../lib/_module.mjs";
 import AutoEffects from "./AutoEffects.mjs";
 import ChangeHelper from "./ChangeHelper.mjs";
 import MidiEffects from "./MidiEffects.mjs";
+import { ProficiencyFinder } from "../../lib/_module.mjs";
 
 export default class EffectGenerator {
 

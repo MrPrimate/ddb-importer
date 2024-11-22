@@ -1,5 +1,10 @@
-import { parseTable, getHeadings } from "../../vendor/parseTable.js";
-import { utils, logger, DDBItemImporter, CompendiumHelper } from "./_module.mjs";
+import { parseTable, getHeadings } from "../../../vendor/parseTable.js";
+import {
+  utils,
+  logger,
+  DDBItemImporter,
+  CompendiumHelper,
+} from "../../lib/_module.mjs";
 
 function diceRollMatcher(match, p1, p2, p3, p4, p5) {
   if (p5 && p5.toLowerCase() === "damage") {

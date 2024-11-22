@@ -1,9 +1,10 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { utils, logger, DDBHelper, DDBTemplateStrings, DDBTable } from "../../lib/_module.mjs";
+import { utils, logger, DDBHelper, DDBTemplateStrings } from "../../lib/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import { generateEffects, getStatusEffect } from "../../effects/effects.js";
 import { DDBEffectHelper, DDBSimpleMacro } from "../../effects/_module.mjs";
 import { DDBFeatureEnricher, mixins } from "../enrichers/_module.mjs";
+import { DDBTable } from "../lib/_module.mjs";
 
 export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 

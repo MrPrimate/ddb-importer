@@ -1,9 +1,10 @@
-import { utils, logger, DDBHelper, ProficiencyFinder } from "../lib/_module.mjs";
+import { utils, logger, DDBHelper } from "../lib/_module.mjs";
 import { DICTIONARY } from "../config/_module.mjs";
 import { generateACEffectChangesForItem, generateBaseACItemEffect } from "./acEffects.js";
 // import { abilityOverrideEffects } from "./abilityOverrides.js";
 import DDBEffectHelper from "./DDBEffectHelper.mjs";
 import { AutoEffects, ChangeHelper, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
+import { ProficiencyFinder } from "../parser/lib/_module.mjs";
 
 /**
  * Add supported effects here to exclude them from calculations.
