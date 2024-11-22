@@ -75,7 +75,7 @@ export default class DDBLocationSetup extends FormApplication {
         key,
         value,
         isBad: FileHelper.BAD_DIRS.includes(value),
-        isValid: await DirectoryPicker.verifyPath(DirectoryPicker.parse(value)),
+        isValid: await FileHelper.verifyPath(DirectoryPicker.parse(value)),
       });
     }
 
