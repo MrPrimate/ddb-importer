@@ -1,5 +1,5 @@
-import { DICTIONARY } from "../../config/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
+import { ProficiencyFinder } from "../lib/_module.mjs";
 
 //      "languages": {
 //   "value": [
@@ -16,8 +16,10 @@ DDBMonster.prototype._generateLanguages = function _generateLanguages () {
   let custom = [];
 
   this.source.languages.forEach((lng) => {
-    const language = config.find((cfg) => lng.languageId == cfg.id);
-    const foundryLanguage = DICTIONARY.character.languages.find((lang) => lang.name == language.name);
+    // languageId 100 is sometimes used, but not in config. it is thieves cant
+    const languageId = lng.languageId === 100 ? 46 : lng.languageId;
+    const language = config.find((cfg) => languageId == cfg.id);
+    const foundryLanguage = ProficiencyFinder.getCustomLanguage({ name: language?.name ?? "Unknown Language" });
     if (foundryLanguage && lng.notes == '') {
       values.push(foundryLanguage.value);
     } else if (language) {

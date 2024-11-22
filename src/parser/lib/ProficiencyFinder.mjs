@@ -198,6 +198,31 @@ export default class ProficiencyFinder {
     };
   }
 
+  static getCustomLanguage({ name = null, key = null } = {}) {
+
+    // Quick name Match
+    if (name) {
+      const dictMatch = DICTIONARY.character.languages.find((lang) => lang.name === name);
+      if (dictMatch) return dictMatch.value;
+    }
+
+    // rare ddb matches
+    if (!CONFIG.DND5E.languages.ddb) return null;
+    if (key) {
+      if (CONFIG.DND5E.languages.ddb.children[key]) return key;
+    }
+    if (!name) return null;
+
+    const simpleNameKey = utils.normalizeString(name);
+    if (CONFIG.DND5E.languages.ddb.children[simpleNameKey]) return simpleNameKey;
+
+    for (const [k, v] of Object.entries(CONFIG.DND5E.languages.ddb.children)) {
+      if (utils.nameString(v.name) === utils.nameString(name)) return k;
+    }
+    return null;
+
+  }
+
   getLanguagesFromModifiers(modifiers) {
     const languages = new Set();
     const custom = new Set();
@@ -205,9 +230,9 @@ export default class ProficiencyFinder {
     modifiers
       .filter((mod) => mod.type === "language")
       .forEach((language) => {
-        const result = DICTIONARY.character.languages.find((lang) => lang.name === language.friendlySubtypeName);
+        const result = ProficiencyFinder.getCustomLanguage({ name: language.friendlySubtypeName, key: language.value });
         if (result) {
-          languages.add(result.value);
+          languages.add(result);
         } else if (language.friendlySubtypeName !== "Choose a Language") {
           custom.add(language.friendlySubtypeName);
         }
@@ -217,9 +242,9 @@ export default class ProficiencyFinder {
       this.ddb.character.customProficiencies.forEach((proficiency) => {
         if (proficiency.type === 3) {
           // type 3 is LANGUAGE, 1 is SKILL, 2 is TOOL
-          const result = DICTIONARY.character.languages.find((lang) => lang.name === proficiency.name);
+          const result = ProficiencyFinder.getCustomLanguage({ name: proficiency.name });
           if (result) {
-            languages.add(result.value);
+            languages.add(result);
           } else {
             custom.add(proficiency.name);
           }
@@ -229,9 +254,9 @@ export default class ProficiencyFinder {
       // load custom proficiencies in characterValues
       const customProfs = this.getCustomProficiencies("Languages");
       for (const prof of customProfs) {
-        const result = DICTIONARY.character.languages.find((lang) => lang.name === prof);
+        const result = ProficiencyFinder.getCustomLanguage({ name: prof });
         if (result) {
-          languages.add(result.value);
+          languages.add(result);
         } else {
           custom.add(prof);
         }
