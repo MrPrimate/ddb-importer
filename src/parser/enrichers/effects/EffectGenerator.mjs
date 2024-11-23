@@ -52,6 +52,8 @@ export default class EffectGenerator {
 
     this.noGenerate = !this.grantedModifiers || this.grantedModifiers.length === 0;
 
+    this.separateACEffects = game.settings.get("ddb-importer", "separate-ac-effects");
+
     this._generateDataStub();
   }
 
@@ -725,7 +727,6 @@ export default class EffectGenerator {
 
 
   generateGenericEffects() {
-    this._generateDataStub();
     this._addGlobalSavingBonusEffect();
     this._addAddBonusChanges(
       this.grantedModifiers,
@@ -870,15 +871,6 @@ export default class EffectGenerator {
     this._addACBonusChanges("dual-wield-armor-class");
   }
 
-  _generateACEffectChangesForItem() {
-    if (this.noGenerate) return;
-
-    const acChanges = this._generateBaseACEffectChanges();
-    if (acChanges.length === 0) return;
-
-    this.effect.changes.push(...acChanges);
-  }
-
   _generateBaseACItemEffect() {
     const noACValue = !this.document.system?.armor?.value;
 
@@ -886,12 +878,11 @@ export default class EffectGenerator {
     logger.debug(`Generating supported AC effects for ${this.document.name}`);
 
     // generate flags for effect (e.g. checking attunement and equipped status)
-    this._generateACEffectChangesForItem();
+    this._generateBaseACEffectChanges();
   }
 
 
   generateACEffects() {
-    this._generateDataStub();
     switch (this.type) {
       case "infusion":
       case "equipment":
@@ -906,7 +897,7 @@ export default class EffectGenerator {
             this._generateBaseACItemEffect();
           }
         } else if (this.effect.transfer || this.type === "infusion") {
-          this._generateACEffectChangesForItem();
+          this._generateBaseACEffectChanges();
         } else {
           this._generateBaseACItemEffect();
         }
@@ -928,7 +919,11 @@ export default class EffectGenerator {
     this.generateGenericEffects();
     this.document = MidiEffects.applyDefaultMidiFlags(this.document);
 
-    this.labelSuffix = "(AC)";
+    if (this.separateACEffects) {
+      this._generateDataStub();
+      this.labelSuffix = "(AC)";
+    }
+
     this.generateACEffects();
 
     if (this.document.effects?.length > 0
