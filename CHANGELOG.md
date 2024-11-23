@@ -9,6 +9,7 @@
 - Unable to change folder locations in some ddb settings.
 - Some MCDM monster languages did not parse correctly.
 - Improvements to language proficiency parsing.
+- Fixes for midi-qol effect generation on monsters.
 
 # 6.0.47
 
