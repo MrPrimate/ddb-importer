@@ -1,6 +1,6 @@
 # Next Up
 
-- Internal auto effect generation refactor for future enhancements
+- Massive internal auto effect generation refactor
 - Spell Scaling fix (especially on new healing spells)
 - Changes to support the new compendium folder structure.
 - The "Legendary Actions" feature would not import quite right for some monsters.
