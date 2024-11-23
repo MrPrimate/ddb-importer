@@ -437,6 +437,7 @@ const SETTINGS = {
         config: true,
         type: String,
         choices: {
+          VERBOSE: "VERBOSE",
           DEBUG: "DEBUG",
           INFO: "INFO",
           WARN: "WARN",

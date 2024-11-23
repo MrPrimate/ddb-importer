@@ -4,7 +4,7 @@ import { FileHelper } from "./_module.mjs";
 const logger = {
 
   LOG_PREFIX: "DDB Importer",
-  LOG_MSG_DEFAULT: "No logging message provided.  Please see the payload for more information.",
+  LOG_MSG_DEFAULT: "No logging message provided. Please see the payload for more information.",
 
   _showMessage: (logLevel, data) => {
     if (!logLevel || !data || typeof (logLevel) !== 'string') {
@@ -13,7 +13,7 @@ const logger = {
 
     try {
       const setting = game.settings.get("ddb-importer", "log-level");
-      const logLevels = ["DEBUG", "TIME", "TIMEEND", "TIMELOG", "INFO", "WARN", "ERR", "OFF"];
+      const logLevels = ["VERBOSE", "DEBUG", "TIME", "TIMEEND", "TIMELOG", "INFO", "WARN", "ERR", "OFF"];
       const logLevelIndex = logLevels.indexOf(logLevel.toUpperCase());
       if (setting == "OFF"
               || logLevelIndex === -1
@@ -56,6 +56,13 @@ const logger = {
     const msg = `${logger.LOG_PREFIX} | ${logLevelType} > ${msgContent}`;
 
     switch (logLevel.toUpperCase()) {
+      case "VERBOSE":
+        if (payload) {
+          console.debug(msg, ...payload);// eslint-disable-line no-console
+        } else {
+          console.debug(msg);// eslint-disable-line no-console
+        }
+        break;
       case "DEBUG":
         if (payload) {
           console.debug(msg, ...payload);// eslint-disable-line no-console
@@ -127,6 +134,10 @@ const logger = {
 
   time: (...data) => {
     logger.log("TIME", ...data);
+  },
+
+  verbose: (...data) => {
+    logger.log("VERBOSE", ...data);
   },
 
   timeEnd: (...data) => {

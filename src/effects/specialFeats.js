@@ -455,11 +455,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       document = visageOfTheAstralSelfEffect(document);
       break;
     }
-    case "War Caster":
-    case "Warcaster": {
-      document = warCasterEffect(document);
-      break;
-    }
     // no default
   }
 

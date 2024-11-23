@@ -1121,10 +1121,6 @@ ${this.data.system.description.value}
     // foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
 
     // if (this.data.effects.length === 0) this.#addConditionEffects();
-    if (this.enricher.clearAutoEffects) this.data.effects = [];
-    const effects = this.enricher.createEffect();
-    this.data.effects.push(...effects);
-    this.enricher.createDefaultEffects();
 
     const flags = {
       ddbimporter: {},
@@ -1145,12 +1141,15 @@ ${this.data.system.description.value}
     if (!deps.hasCore || !this.ddbMonster.addMonsterEffects) {
       logger.debug(`Adding Condition Effects to ${this.name}`);
       overtimeGenerator.generateConditionOnlyEffect();
-    }
-
-    if (this.ddbMonster.addMonsterEffects) {
+    } else if (this.ddbMonster.addMonsterEffects) {
       logger.debug(`Adding Over Time Effects to ${this.name}`);
       overtimeGenerator.generateOverTimeEffect();
     }
+
+    if (this.enricher.clearAutoEffects) this.data.effects = [];
+    const effects = this.enricher.createEffect();
+    this.data.effects.push(...effects);
+    this.enricher.createDefaultEffects();
 
     this._activityEffectLinking();
     Effects.AutoEffects.forceDocumentEffect(this.data);

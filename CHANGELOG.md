@@ -1,10 +1,12 @@
 # Next Up
 
-- Massive internal auto effect generation refactor
+- Massive internal auto effect generation and helper library refactor
 - Spell Scaling fix (especially on new healing spells)
 - Changes to support the new compendium folder structure.
 - The "Legendary Actions" feature would not import quite right for some monsters.
 - Unable to change folder locations in some ddb settings.
+- Some MCDM monster languages did not parse correctly.
+- Improvements to language proficiency parsing.
 
 # 6.0.47
 

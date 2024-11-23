@@ -314,7 +314,7 @@ export class FileHelper {
       logger.error(`You must supply a targetDirectory and name for the image ${imageUrl}`, { name, targetDirectory, type });
       throw new Error(`You must supply a targetDirectory and name for the image ${imageUrl}`);
     }
-    logger.debug(`Getting image path for ${imageUrl}`, {
+    logger.verbose(`Getting image path for ${imageUrl}`, {
       type,
       imageNamePrefix,
       name,

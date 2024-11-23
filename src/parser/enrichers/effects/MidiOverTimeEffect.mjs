@@ -16,6 +16,13 @@ export default class MidiOverTimeEffect {
       : null;
     this.parsedDescription = DDBDescriptions.featureBasics({ text: this.description });
     this.flags = flags;
+    // console.warn(`MidiOvertimeEffect for ${this.document.name} on ${this.actor.name}`, {
+    //   this: this,
+    //   conditionStatus: deepClone(this.conditionStatus),
+    //   conditionEffect: deepClone(this.conditionEffect),
+    //   parsedDescription: this.parsedDescription,
+    //   effect: deepClone(this.effect),
+    // });
   }
 
   static getOverTimeSaveEndChange({ document, save, text }) {
@@ -63,16 +70,13 @@ export default class MidiOverTimeEffect {
       if (this.conditionEffect.name) this.effect.name = this.conditionEffect.name;
       this.effect.flags = foundry.utils.mergeObject(this.effect.flags, this.conditionEffect.flags);
       foundry.utils.setProperty(this.document, "flags.midiProperties.fulldam", true);
-      const change = MidiOverTimeEffect.getOverTimeSaveEndChange({ document: this.document, save: this.conditionEffect.save, text: this.description });
+      const change = MidiOverTimeEffect.getOverTimeSaveEndChange({ document: this.document, save: this.conditionStatus.save, text: this.description });
       if (change) this.effect.changes.push(change);
     }
 
-    const durationSeconds = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.durationSeconds")
-      ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.durationSeconds")
-      ?? DDBDescriptions.getDuration(this.description);
-    foundry.utils.setProperty(this.effect, "duration.seconds", durationSeconds);
-    const durationRounds = Number.parseInt(durationSeconds / 6);
-    foundry.utils.setProperty(this.effect, "duration.rounds", durationRounds);
+    const duration = this.conditionStatus.duration ?? DDBDescriptions.getDuration(this.description);
+    if (duration.seconds) foundry.utils.setProperty(this.effect, "duration.seconds", duration.seconds);
+    if (duration.rounds) foundry.utils.setProperty(this.effect, "duration.rounds", duration.rounds);
 
     const turn = DDBDescriptions.startOrEnd(this.description);
     if (!turn) {

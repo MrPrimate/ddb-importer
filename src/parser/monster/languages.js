@@ -21,14 +21,16 @@ DDBMonster.prototype._generateLanguages = function _generateLanguages () {
     const language = config.find((cfg) => languageId == cfg.id);
     const foundryLanguage = ProficiencyFinder.getCustomLanguage({ name: language?.name ?? "Unknown Language" });
     if (foundryLanguage && lng.notes == '') {
-      values.push(foundryLanguage.value);
+      values.push(foundryLanguage);
     } else if (language) {
       const notes = (lng.notes !== '') ? ` ${lng.notes}` : "";
       custom.push(language.name + notes);
     }
   });
 
-  if (this.source.languageNote && !this.source.languageNote.includes("--")) custom.push(this.source.languageNote);
+  if (this.source.languageNote && !this.source.languageNote.includes("--")) {
+    custom.push(this.source.languageNote);
+  }
 
   this.npc.system.traits.languages = {
     value: values,

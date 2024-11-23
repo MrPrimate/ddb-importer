@@ -41,7 +41,7 @@ export default class EffectGenerator {
       this.document.effects = [];
     }
 
-    this.proficiencyFinder = new ProficiencyFinder({ ddb });
+    this.proficiencyFinder = new ProficiencyFinder({ ddb: this.isCompendiumItem ? null : this.ddb });
     this.grantedModifiers = ddbItem.definition?.grantedModifiers;
 
     if (this.grantedModifiers && type === "item") {
