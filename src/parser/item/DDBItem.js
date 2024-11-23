@@ -3,7 +3,6 @@ import { utils, logger, DDBHelper, Iconizer, CompendiumHelper } from "../../lib/
 import { DDBItemActivity } from "../activities/_module.mjs";
 import { DDBItemEnricher, mixins, Effects } from "../enrichers/_module.mjs";
 import MagicItemMaker from "./MagicItemMaker.js";
-import { generateEffects } from "../../effects/effects.js";
 import { addRestrictionFlags } from "../../effects/restrictions.js";
 import { DDBTable, DDBReferenceLinker } from "../lib/_module.mjs";
 
@@ -2652,11 +2651,11 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   async _addEffects() {
     if (this.data.name === "") this.data.name = "Unknown Object";
-    this.data = generateEffects({
+    this.data = Effects.EffectGenerator.generateEffects({
       ddb: this.ddbData,
       character: this.raw.character,
       ddbItem: this.ddbItem,
-      foundryItem: this.data,
+      document: this.data,
       isCompendiumItem: this.isCompendiumItem,
       type: "item",
       description: this.data.system.description.chat !== ""

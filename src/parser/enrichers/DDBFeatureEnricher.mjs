@@ -202,6 +202,8 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     "Warping Implosion": ClassEnrichers.Sorcerer.WarpingImplosion,
     "Wild Magic Surge": ClassEnrichers.Sorcerer.WildMagicSurge,
     "Draconic Resilience": ClassEnrichers.Sorcerer.DraconicResilience,
+    "Deflect Missiles Attack": ClassEnrichers.Monk.DeflectMissilesAttack,
+    "War Caster": FeatEnrichers.WarCaster,
   };
 
   ACTIVITY_HINTS = {
@@ -448,13 +450,6 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
           bonus: "@abilities.dex.mod + @classes.monk.levels",
           types: ["healing"],
         }),
-      },
-    },
-    "Deflect Missiles Attack": {
-      activationType: "special",
-      targetType: "creature",
-      data: {
-        "damage.parts": [DDBEnricherData.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @abilities.dex.mod", types: DDBEnricherData.allDamageTypes() })],
       },
     },
     "Disciple of Life": {
@@ -1867,10 +1862,6 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
       targetType: "self",
       noeffect: true,
     },
-    "War Caster": {
-      type: "utility",
-      midiManualReaction: true,
-    },
     "War God's Blessing": {
       type: "utility",
     },
@@ -3175,6 +3166,9 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         name: "Lay On Hands",
       },
     },
+    "Maneuver: Brace": {
+      midiManualReaction: true,
+    },
     "Maneuver: Disarming Attack (Str.)": {
       data: {
         name: "Maneuver: Disarming Attack",
@@ -3895,14 +3889,6 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
       type: "enchant",
       changes: [
         DDBEnricherData.ChangeHelper.overrideChange(`{} [Bonded]`, 20, "name"),
-      ],
-    },
-    "War Caster": {
-      options: {
-        transfer: true,
-      },
-      changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("1", 10, "system.attributes.concentration.roll.mode"),
       ],
     },
   };

@@ -1,4 +1,4 @@
-import { applyDefaultMidiFlags, forceManualReaction } from "./effects.js";
+import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
 import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
@@ -15,7 +15,6 @@ import { crusherCriticalEffect } from "./feats/crusherCritical.js";
 import { crusherEffect } from "./feats/crusher.js";
 import { dauntingRoarEffect } from "./feats/dauntingRoar.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
-import { deflectMissilesAttackEffect } from "./feats/deflectMissilesAttack.js";
 import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
 import { deftStrikeEffect } from "./feats/deftStike.js";
 import { evasionEffect } from "./feats/evasion.js";
@@ -62,7 +61,6 @@ import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 import { vedalkenDispassionEffect } from "./feats/vedalkenDispassion.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
-import { warCasterEffect } from "./feats/warCaster.js";
 import { furyOfTheSmallEffect } from "./feats/furryOfTheSmall.js";
 import { intimidatingPresenceEffect } from "./feats/intimidatingPresence.js";
 import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
@@ -80,7 +78,7 @@ import { twinklingConstellationsEffect } from "./feats/twinklingConstellations.j
 import { armsOfTheAstralSelfEffect } from "./feats/armsOfTheAstralSelf.js";
 import { ghostWalkEffect } from "./feats/ghostWalk.js";
 import { foeSlayerEffect } from "./feats/foeSlayer.js";
-import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
+import { AutoEffects, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
 
 
 export function baseFeatEffect(document, label,
@@ -164,10 +162,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = deflectMissilesEffect(document);
       break;
     }
-    case "Deflect Missiles Attack": {
-      document = deflectMissilesAttackEffect(document);
-      break;
-    }
     case "Deft Strike": {
       document = await deftStrikeEffect(document);
       break;
@@ -205,7 +199,7 @@ async function midiFeatureEffects(ddb, character, document) {
       break;
     }
     case "Glide (Reaction)": {
-      document = forceManualReaction(document);
+      document = MidiEffects.forceManualReaction(document);
       break;
     }
     case "Hadozee Dodge": {
@@ -314,10 +308,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = await slayersPreyEffect(document);
       break;
     }
-    case "Slow Fall": {
-      document = forceManualReaction(document);
-      break;
-    }
     case "Squire of Solamnia: Precise Strike": {
       document = await squireOfSolamniaEffect(document);
       break;
@@ -343,7 +333,7 @@ async function midiFeatureEffects(ddb, character, document) {
     //   break;
     // }
     case "Swiftstride Reaction": {
-      document = forceManualReaction(document);
+      document = MidiEffects.forceManualReaction(document);
       break;
     }
     case "Uncanny Dodge": {

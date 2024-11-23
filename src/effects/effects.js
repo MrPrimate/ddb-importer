@@ -1,79 +1,8 @@
-import { utils } from "../lib/_module.mjs";
-import { DICTIONARY } from "../config/_module.mjs";
-import { AutoEffects, ChangeHelper, EffectGenerator, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
-
-
-/**
- * Add supported effects here to exclude them from calculations.
- */
-const EXCLUDED = DICTIONARY.effects.excludedModifiers;
-
-export function getEffectExcludedModifiers(type, features, ac) {
-  let modifiers = [];
-
-  if (type !== "item") {
-    // features represent core non ac features
-    if (features) {
-      modifiers = modifiers.concat(EXCLUDED.common, EXCLUDED.speedMonk);
-      if (!["race"].includes(type)) {
-        modifiers = modifiers.concat(EXCLUDED.senses, EXCLUDED.speedSet, EXCLUDED.speedBonus);
-      }
-    }
-    // here ac represents the more exotic ac effects that set limits and change base
-    modifiers = modifiers.concat(EXCLUDED.acBonus);
-    if (ac) {
-      modifiers = modifiers.concat(EXCLUDED.ac);
-    }
-  }
-
-  // items are basically their own thing, all or nuffin
-  if (type === "item") {
-    modifiers = modifiers.concat(
-      EXCLUDED.senses,
-      EXCLUDED.common,
-      EXCLUDED.abilityBonus,
-      EXCLUDED.languages,
-      EXCLUDED.proficiencyBonus,
-      EXCLUDED.speedSet,
-      EXCLUDED.speedBonus,
-      EXCLUDED.speedMonk,
-      EXCLUDED.ac,
-      EXCLUDED.acBonus,
-    );
-  }
-  return modifiers;
-}
+import { AutoEffects, ChangeHelper, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
 
 // eslint-disable-next-line complexity
 export function effectModules() {
-  if (CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules) {
-    return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
-  }
-  const midiQolInstalled = game.modules.get("midi-qol")?.active ?? false;
-  const timesUp = game.modules.get("times-up")?.active ?? false;
-  const daeInstalled = game.modules.get("dae")?.active ?? false;
-
-  const activeAurasInstalled = game.modules.get("ActiveAuras")?.active ?? false;
-  const atlInstalled = game.modules.get("ATL")?.active ?? false;
-  const tokenMagicInstalled = game.modules.get("tokenmagic")?.active ?? false;
-  const autoAnimationsInstalled = game.modules.get("autoanimations")?.active ?? false;
-  const chrisInstalled = game.modules.get("chris-premades")?.active ?? false;
-  const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
-
-  CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
-    hasCore: midiQolInstalled && timesUp && daeInstalled,
-    hasMonster: midiQolInstalled && timesUp && daeInstalled,
-    midiQolInstalled,
-    timesUp,
-    daeInstalled,
-    atlInstalled,
-    tokenMagicInstalled,
-    activeAurasInstalled,
-    autoAnimationsInstalled,
-    chrisInstalled,
-    vision5eInstalled,
-  };
-  return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
+  return AutoEffects.effectModules();
 }
 
 export function baseEffect(foundryItem, name,
@@ -95,9 +24,7 @@ export function baseItemEffect(foundryItem, name,
 }
 
 export function getMidiCEOnFlags(midiFlags = {}) {
-  foundry.utils.setProperty(midiFlags, "forceCEOff", false);
-  foundry.utils.setProperty(midiFlags, "forceCEOn", true);
-  return midiFlags;
+  return MidiEffects.getMidiCEOnFlags(midiFlags);
 }
 
 export function applyDefaultMidiFlags(document) {
@@ -106,11 +33,6 @@ export function applyDefaultMidiFlags(document) {
 
 export function forceItemEffect(document) {
   return AutoEffects.forceDocumentEffect(document);
-}
-
-export function forceManualReaction(document) {
-  foundry.utils.setProperty(document, "flags.midi-qol.reactionCondition", "false");
-  return document;
 }
 
 // *
@@ -123,28 +45,9 @@ export function forceManualReaction(document) {
 // UPGRADE: 4
 //
 
-export function generateBaseSkillEffect(id, label) {
-  const mockItem = {
-    img: "icons/svg/up.svg",
-  };
-  let skillEffect = baseItemEffect(mockItem, label);
-  skillEffect.flags.dae = {};
-  skillEffect.flags.ddbimporter.characterEffect = true;
-  skillEffect.origin = `Actor.${id}`;
-  delete skillEffect.transfer;
-  return skillEffect;
-}
 
 export function addStatusEffectChange({ effect, statusName, priority = 20, level = null } = {}) {
   return ChangeHelper.addStatusEffectChange({ effect, statusName, priority, level });
-}
-
-export function addSimpleConditionEffect(document, condition, { disabled, transfer } = {}) {
-  document.effects = [];
-  const effect = baseItemEffect(document, `${document.name} - ${utils.capitalize(condition)}`, { disabled, transfer });
-  addStatusEffectChange({ effect, statusName: condition });
-  document.effects.push(effect);
-  return document;
 }
 
 // Refactored functions
@@ -187,21 +90,4 @@ export function generateTokenMagicFXChange(macroValue, priority = 20) {
 
 export function generateATLChange(atlKey, mode, value, priority = 20) {
   return ChangeHelper.atlChange(atlKey, mode, value, priority);
-}
-
-export function generateEffects({ ddb, character, ddbItem, foundryItem, isCompendiumItem, type, description = "" } = {}) {
-
-  const generator = new EffectGenerator({
-    ddb,
-    character,
-    ddbItem,
-    foundryItem,
-    isCompendiumItem,
-    type,
-    description,
-  });
-
-  generator.generate();
-  return generator.document;
-
 }

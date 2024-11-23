@@ -7,14 +7,22 @@ module.exports = {
   entry: {
     main: {
       import: './src/index.mjs',
-      // dependOn: ['lib', 'lowdash'],
+      // dependOn: ['lib', 'lowdash', 'parserLib', 'enrichers', 'effects'],
     },
     // enrichers: {
     //   import: './src/parser/enrichers/_module.mjs',
+    //   dependOn: ['main', 'lib', 'effects', 'parserLib'],
+    // },
+    // effects: {
+    //   import: './src/parser/enrichers/effects/_module.mjs',
     //   dependOn: ['main', 'lib'],
     // },
     // lib: {
     //   import: './src/parser/enrichers/_module.mjs',
+    //   dependOn: ['lowdash'],
+    // },
+    // parserLib: {
+    //   import: './src/parser/lib/_module.mjs',
     //   dependOn: ['lowdash'],
     // },
     // lowdash: {

@@ -7,7 +7,7 @@ import {
 } from "./_module.mjs";
 import DDBSources from "../apps/DDBSources.js";
 import { SETTINGS } from "../config/_module.mjs";
-import { effectModules } from "../effects/effects.js";
+import { AutoEffects } from "../parser/enrichers/effects/_module.mjs";
 
 const MuncherSettings = {
 
@@ -29,10 +29,10 @@ const MuncherSettings = {
   },
 
   setRecommendedCharacterActiveEffectSettings: (html) => {
-    $(html).find("#character-import-policy-dae-effect-copy").prop("checked", !effectModules().hasCore);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", !effectModules().hasCore);
-    $(html).find("#character-import-policy-add-spell-effects").prop("checked", effectModules().hasCore);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects", effectModules().hasCore);
+    $(html).find("#character-import-policy-dae-effect-copy").prop("checked", !AutoEffects.effectModules().hasCore);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", !AutoEffects.effectModules().hasCore);
+    $(html).find("#character-import-policy-add-spell-effects").prop("checked", AutoEffects.effectModules().hasCore);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects", AutoEffects.effectModules().hasCore);
     $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
     $(html).find("#character-import-policy-add-item-effects").prop("checked", true);
@@ -41,13 +41,13 @@ const MuncherSettings = {
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects", true);
     $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
-    $(html).find("#character-update-policy-use-chris-premades").prop("checked", !effectModules().chrisInstalled);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades", !effectModules().chrisInstalled);
+    $(html).find("#character-update-policy-use-chris-premades").prop("checked", !AutoEffects.effectModules().chrisInstalled);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades", !AutoEffects.effectModules().chrisInstalled);
 
   },
 
   getInstalledIcon: (name) => {
-    return effectModules()[name] ? "<i class='fas fa-check-circle' style='color: green'></i>" : "<i class='fas fa-times-circle' style='color: red'></i> ";
+    return AutoEffects.effectModules()[name] ? "<i class='fas fa-check-circle' style='color: green'></i>" : "<i class='fas fa-times-circle' style='color: red'></i> ";
   },
 
   getCharacterImportSettings: () => {
@@ -126,7 +126,7 @@ const MuncherSettings = {
       },
     ];
 
-    const effectModulesAvailable = effectModules();
+    const effectModulesAvailable = AutoEffects.effectModules();
     const chrisInstalled = effectModulesAvailable.chrisInstalled;
     const generateSpellEffects = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects");
     if (generateSpellEffects && !effectModulesAvailable.hasCore) {
@@ -466,7 +466,7 @@ const MuncherSettings = {
     const betaKey = PatreonHelper.getPatreonKey() != "";
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
-    const effectModulesAvailable = effectModules();
+    const effectModulesAvailable = AutoEffects.effectModules();
     const campaignId = game.settings.get(SETTINGS.MODULE_ID, "campaign-id");
     const isCampaign = campaignId && campaignId !== "";
     const chrisInstalled = effectModulesAvailable.chrisInstalled;

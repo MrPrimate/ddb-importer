@@ -2,7 +2,6 @@ import { logger } from "../lib/_module.mjs";
 import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
 import {
   effectModules,
-  forceManualReaction,
   applyDefaultMidiFlags,
 } from "./effects.js";
 
@@ -199,10 +198,6 @@ async function midiEffectAdjustment(document) {
       document = await confusionEffect(document);
       break;
     }
-    case "Counterspell": {
-      document = forceManualReaction(document);
-      break;
-    }
     case "Crown of Madness": {
       document = crownofMadnessEffect(document);
       break;
@@ -241,10 +236,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Eyebite": {
       document = await eyebiteEffect(document);
-      break;
-    }
-    case "Feather Fall": {
-      document = forceManualReaction(document);
       break;
     }
     case "Fire Shield": {

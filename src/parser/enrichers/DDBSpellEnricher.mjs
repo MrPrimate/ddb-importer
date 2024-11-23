@@ -134,6 +134,7 @@ export default class DDBSpellEnricher extends DDBEnricherMixin {
     "Warding Bond": SpellEnrichers.WardingBond,
     "Wind Wall": SpellEnrichers.WindWall,
     "Witch Bolt": SpellEnrichers.WitchBolt,
+    "Feather Fall": SpellEnrichers.FeatherFall,
   };
 
 }

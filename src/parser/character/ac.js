@@ -1,8 +1,8 @@
 import { DICTIONARY } from "../../config/_module.mjs";
 import { logger, DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
-import { generateFixedACEffect, generateBonusACEffect } from "../../effects/acEffects.js";
-import { getAllClassFeatures } from "./filterModifiers.js";
+import { ACBonusEffects } from "../enrichers/effects/_module.mjs";
+import { FilterModifiers } from "../lib/_module.mjs";
 
 /**
  * Checks if the character is armored, excluding shields.
@@ -225,7 +225,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           calculatedArmor,
         };
         if (acCalc > actorBase) actorBase = acCalc - shieldMod;
-        effect = generateFixedACEffect(acValue.value, `AC ${calculatedArmor.armors[armor].definition.name} (Natural): ${acValue.value}`, true);
+        effect = ACBonusEffects.generateFixedACEffect(acValue.value, `AC ${calculatedArmor.armors[armor].definition.name} (Natural): ${acValue.value}`, true);
         break;
       }
       case "Unarmored Defense": {
@@ -239,7 +239,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           calculatedArmor,
         };
         if (acCalc > actorBase) actorBase = acCalc - shieldMod;
-        effect = generateFixedACEffect(acValue.value, `AC ${calculatedArmor.armors[armor].definition.name} (Unarmored Defense): ${acValue.value}`);
+        effect = ACBonusEffects.generateFixedACEffect(acValue.value, `AC ${calculatedArmor.armors[armor].definition.name} (Unarmored Defense): ${acValue.value}`);
         break;
       }
       case "Unarmored": {
@@ -254,7 +254,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           calculatedArmor,
         };
         if (acCalc > actorBase) actorBase = acCalc - shieldMod;
-        effect = generateFixedACEffect(`${acValue.value} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name} (Unarmored): ${acValue.value}`, true, 15);
+        effect = ACBonusEffects.generateFixedACEffect(`${acValue.value} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name} (Unarmored): ${acValue.value}`, true, 15);
         break;
       }
       case "Heavy Armor": {
@@ -267,7 +267,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           shieldMod,
           calculatedArmor,
         };
-        effect = generateFixedACEffect(acValue.value, `AC ${calculatedArmor.armors[armor].definition.name} (Heavy): ${acValue.value}`);
+        effect = ACBonusEffects.generateFixedACEffect(acValue.value, `AC ${calculatedArmor.armors[armor].definition.name} (Heavy): ${acValue.value}`);
         break;
       }
       case "Medium Armor": {
@@ -285,7 +285,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           shieldMod,
           calculatedArmor,
         };
-        effect = generateFixedACEffect(`${acCalc} + {@abilities.dex.mod, ${maxDexMedium}}kl`, `AC ${calculatedArmor.armors[armor].definition.name} (Medium): ${acValue.value}`);
+        effect = ACBonusEffects.generateFixedACEffect(`${acCalc} + {@abilities.dex.mod, ${maxDexMedium}}kl`, `AC ${calculatedArmor.armors[armor].definition.name} (Medium): ${acValue.value}`);
         break;
       }
       case "Light Armor": {
@@ -298,7 +298,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           shieldMod,
           calculatedArmor,
         };
-        effect = generateFixedACEffect(`${acCalc} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name} (Light): ${acValue.value}`);
+        effect = ACBonusEffects.generateFixedACEffect(`${acCalc} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name} (Light): ${acValue.value}`);
         break;
       }
       case "Custom": {
@@ -312,7 +312,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           formula: calculatedArmor.armors[armor].definition.formula,
           calculatedArmor,
         };
-        effect = generateFixedACEffect(acValue.formula, `AC ${acValue.name}: ${acValue.value}`, false, 22);
+        effect = ACBonusEffects.generateFixedACEffect(acValue.formula, `AC ${acValue.name}: ${acValue.value}`, false, 22);
         break;
       }
       default: {
@@ -325,7 +325,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           shieldMod,
           calculatedArmor,
         };
-        effect = generateFixedACEffect(`${acCalc} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name}: ${acValue.value}`, false, 22);
+        effect = ACBonusEffects.generateFixedACEffect(`${acCalc} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name}: ${acValue.value}`, false, 22);
         break;
       }
     }
@@ -355,7 +355,7 @@ function calculateACOptions(data, character, calculatedArmor) {
 
 
 DDBCharacter.prototype._generateOverrideArmorClass = function _generateOverrideArmorClass(overRideAC) {
-  const overRideEffect = generateFixedACEffect(overRideAC.value, `AC Override: ${overRideAC.value}`);
+  const overRideEffect = ACBonusEffects.generateFixedACEffect(overRideAC.value, `AC Override: ${overRideAC.value}`);
 
   this.raw.character.system.attributes.ac = {
     flat: overRideAC.value,
@@ -441,7 +441,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     const armoredBonuses = armorBonusSources.filter(
       (modifier) => modifier.subType === "armored-armor-class" && modifier.isGranted,
     );
-    const effect = generateBonusACEffect(armoredBonuses, "AC: Armored Misc Bonuses", "armored-armor-class", null);
+    const effect = ACBonusEffects.generateBonusACEffect(armoredBonuses, "AC: Armored Misc Bonuses", "armored-armor-class", null);
     if (effect.changes.length > 0) this.armor.bonusEffects.push(effect);
   }
 
@@ -457,7 +457,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
   DDBHelper.filterModifiersOld(this.armor.miscModifiers, "bonus", "armor-class", ["", null], true).forEach((bonus) => {
     const component = DDBHelper.findComponentByComponentId(this.source.ddb, bonus.componentId);
     const name = component ? component.definition?.name ?? component.name : `AC: Misc (${bonus.friendlySubtypeName})`;
-    const effect = generateBonusACEffect([bonus], name, "armor-class", null);
+    const effect = ACBonusEffects.generateBonusACEffect([bonus], name, "armor-class", null);
     if (effect.changes.length > 0) this.armor.bonusEffects.push(effect);
   });
 
@@ -466,7 +466,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     && value.value !== 0,
   ).forEach((custom) => {
     const name = custom.notes && custom.notes.trim() !== "" ? custom.notes : "AC: Custom Bonus";
-    const effect = generateBonusACEffect([], name, "custom", null);
+    const effect = ACBonusEffects.generateBonusACEffect([], name, "custom", null);
     if (custom.value && ((Number.isInteger(custom.value) && Number.parseInt(custom.value) !== 0) || `${custom.value}`.trim() !== "")) {
       effect.changes.push({
         key: "system.attributes.ac.bonus",
@@ -544,7 +544,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
 
 
   // const draconic = ddb.classes[0].classFeatures[1].definition
-  const classFeatures = getAllClassFeatures(this.source.ddb.character);
+  const classFeatures = FilterModifiers.getAllClassFeatures(this.source.ddb.character);
   logger.debug("Class features", classFeatures);
 
   let calc = "default";

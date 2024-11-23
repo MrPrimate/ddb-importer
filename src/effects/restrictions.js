@@ -1,11 +1,8 @@
-import {
-  baseItemEffect,
-} from "./effects.js";
-
+import { AutoEffects } from "../parser/enrichers/effects/_module.mjs";
 import DDBMacros from "./DDBMacros.mjs";
 
 async function woundingWeaponEffect(document) {
-  let effect = baseItemEffect(document, document.name);
+  let effect = AutoEffects.ItemEffect(document, document.name);
 
   effect.transfer = false;
   effect.flags.dae.macroRepeat = "startEveryTurn";
@@ -28,7 +25,7 @@ async function woundingWeaponEffect(document) {
 }
 
 async function lifeStealingEffect(document) {
-  let effect = baseItemEffect(document, document.name);
+  let effect = AutoEffects.ItemEffect(document, document.name);
   await DDBMacros.setItemMacroFlag(document, "item", "lifeStealing.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "item", "lifeStealing.js", ["postActiveEffects"]);
   document.effects.push(effect);

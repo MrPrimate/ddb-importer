@@ -4,3 +4,4 @@ export { default as StrideOfTheElements } from "./StrideOfTheElements.mjs";
 export { default as SlowFall } from "./SlowFall.mjs";
 export { default as PatientDefense } from "./PatientDefense.mjs";
 export { default as DiamondSoul } from "./DiamondSoul.mjs";
+export { default as DeflectMissilesAttack } from "./DeflectMissilesAttack.mjs";

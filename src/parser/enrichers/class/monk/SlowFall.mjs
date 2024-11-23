@@ -19,4 +19,10 @@ export default class SlowFall extends DDBEnricherData {
     };
   }
 
+  get override() {
+    return {
+      midiManualReaction: true,
+    };
+  }
+
 }

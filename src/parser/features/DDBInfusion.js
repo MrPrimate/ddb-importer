@@ -1,5 +1,4 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { addSimpleConditionEffect, generateEffects } from "../../effects/effects.js";
 import {
   utils,
   logger,
@@ -297,7 +296,7 @@ export class DDBInfusion {
       const name = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
       switch (name) {
         case "Radiant Weapon (Reaction)": {
-          action = addSimpleConditionEffect(action, "Blinded", { transfer: false });
+          action = Effects.AutoEffects.addSimpleConditionEffect(action, "Blinded", { transfer: false });
           break;
         }
         case "Spell-Refueling Ring (Reaction)": {
@@ -331,11 +330,11 @@ export class DDBInfusion {
       },
     };
 
-    const mockItem = generateEffects({
+    const mockItem = Effects.EffectGenerator.generateEffects({
       ddb: this.ddbData,
       character: this.rawCharacter,
       ddbItem: modifierItem,
-      foundryItem,
+      document: foundryItem,
       isCompendiumItem: this.noMods,
       type: "infusion",
       description: this.snippet,

@@ -12,13 +12,13 @@ import {
 } from "../lib/_module.mjs";
 import { DDBMacros } from "../effects/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
-import { fixCharacterLevels } from "./character/filterModifiers.js";
 import CharacterClassFactory from "./classes/CharacterClassFactory.js";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory.js";
 import { DDBInfusionFactory } from "./features/DDBInfusionFactory.js";
 import {
   ProficiencyFinder,
   DDBReferenceLinker,
+  FilterModifiers,
 } from "./lib/_module.mjs";
 
 export default class DDBCharacter {
@@ -141,7 +141,7 @@ export default class DDBCharacter {
       this.source = await response.json();
       if (!this.source.success) return;
 
-      this.source.ddb = fixCharacterLevels(this.source.ddb);
+      this.source.ddb = FilterModifiers.fixCharacterLevels(this.source.ddb);
       // update proficiency finder with a character based version
       this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source.ddb });
 

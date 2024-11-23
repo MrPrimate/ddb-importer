@@ -1,7 +1,6 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
-import { generateEffects } from "../../effects/effects.js";
 import { DDBSimpleMacro } from "../../effects/_module.mjs";
 import { DDBFeatureEnricher, mixins, Effects } from "../enrichers/_module.mjs";
 import { DDBDescriptions, DDBTable, DDBTemplateStrings } from "../lib/_module.mjs";
@@ -760,11 +759,11 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     // can we apply any auto-generated effects to this feature
     const compendiumItem = this.rawCharacter.flags.ddbimporter.compendium;
     const modifierItem = this._getFeatModifierItem(choice, type);
-    this.data = generateEffects({
+    this.data = Effects.EffectGenerator.generateEffects({
       ddb: this.ddbData,
       character: this.rawCharacter,
       ddbItem: modifierItem,
-      foundryItem: this.data,
+      document: this.data,
       isCompendiumItem: compendiumItem,
       type: "feat",
       description: this.snippet !== "" ? this.snippet : this.description,

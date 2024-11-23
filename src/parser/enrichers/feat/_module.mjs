@@ -14,3 +14,4 @@ export { default as Alert } from "./Alert.mjs";
 export { default as ElvenAccuracy } from "./ElvenAccuracy.mjs";
 export { default as TavernBrawler } from "./TavernBrawler.mjs";
 export { default as ReliableTalent } from "./ReliableTalent.mjs";
+export { default as WarCaster } from "./WarCaster.mjs";

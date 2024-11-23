@@ -6,6 +6,44 @@ import MidiEffects from "./MidiEffects.mjs";
 
 export default class AutoEffects {
 
+  static EXCLUDED = DICTIONARY.effects.excludedModifiers;
+
+  static getEffectExcludedModifiers(type, features, ac) {
+    let modifiers = [];
+
+    if (type !== "item") {
+      // features represent core non ac features
+      if (features) {
+        modifiers = modifiers.concat(AutoEffects.EXCLUDED.common, AutoEffects.EXCLUDED.speedMonk);
+        if (!["race"].includes(type)) {
+          modifiers = modifiers.concat(AutoEffects.EXCLUDED.senses, AutoEffects.EXCLUDED.speedSet, AutoEffects.EXCLUDED.speedBonus);
+        }
+      }
+      // here ac represents the more exotic ac effects that set limits and change base
+      modifiers = modifiers.concat(AutoEffects.EXCLUDED.acBonus);
+      if (ac) {
+        modifiers = modifiers.concat(AutoEffects.EXCLUDED.ac);
+      }
+    }
+
+    // items are basically their own thing, all or nuffin
+    if (type === "item") {
+      modifiers = modifiers.concat(
+        AutoEffects.EXCLUDED.senses,
+        AutoEffects.EXCLUDED.common,
+        AutoEffects.EXCLUDED.abilityBonus,
+        AutoEffects.EXCLUDED.languages,
+        AutoEffects.EXCLUDED.proficiencyBonus,
+        AutoEffects.EXCLUDED.speedSet,
+        AutoEffects.EXCLUDED.speedBonus,
+        AutoEffects.EXCLUDED.speedMonk,
+        AutoEffects.EXCLUDED.ac,
+        AutoEffects.EXCLUDED.acBonus,
+      );
+    }
+    return modifiers;
+  }
+
   static ChangeHelper = ChangeHelper;
 
   static effectModules() {
@@ -314,6 +352,26 @@ export default class AutoEffects {
       effect.name = `Status: ${condition}`;
     }
     return effect;
+  }
+
+  static addSimpleConditionEffect(document, condition, { disabled, transfer } = {}) {
+    document.effects = [];
+    const effect = this.ItemEffect(document, `${document.name} - ${utils.capitalize(condition)}`, { disabled, transfer });
+    ChangeHelper.addStatusEffectChange({ effect, statusName: condition });
+    document.effects.push(effect);
+    return document;
+  }
+
+  static generateBaseSkillEffect(id, label) {
+    const mockItem = {
+      img: "icons/svg/up.svg",
+    };
+    let skillEffect = this.ItemEffect(mockItem, label);
+    skillEffect.flags.dae = {};
+    skillEffect.flags.ddbimporter.characterEffect = true;
+    skillEffect.origin = `Actor.${id}`;
+    delete skillEffect.transfer;
+    return skillEffect;
   }
 
 }

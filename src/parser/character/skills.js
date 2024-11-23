@@ -1,7 +1,7 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { generateBaseSkillEffect } from "../../effects/effects.js";
 import { logger, DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
+import { AutoEffects } from "../enrichers/effects/_module.mjs";
 
 DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill, modifiers = null) {
   if (!modifiers) {
@@ -187,7 +187,7 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
       if (changeIndex >= 0) {
         this.raw.character.effects[changeIndex].changes.push(change);
       } else {
-        let skillEffect = generateBaseSkillEffect(this.source.ddb.character.id, label);
+        let skillEffect = AutoEffects.generateBaseSkillEffect(this.source.ddb.character.id, label);
         skillEffect.changes.push(change);
         this.raw.character.effects.push(skillEffect);
       }

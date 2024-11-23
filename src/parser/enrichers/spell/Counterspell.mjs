@@ -29,4 +29,10 @@ export default class Counterspell extends DDBEnricherData {
     }
   }
 
+  get override() {
+    return {
+      midiManualReaction: true,
+    };
+  }
+
 }

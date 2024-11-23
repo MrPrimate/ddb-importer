@@ -10,4 +10,15 @@ export default class MidiEffects {
     return document;
   }
 
+  static getMidiCEOnFlags(midiFlags = {}) {
+    foundry.utils.setProperty(midiFlags, "forceCEOff", false);
+    foundry.utils.setProperty(midiFlags, "forceCEOn", true);
+    return midiFlags;
+  }
+
+  static forceManualReaction(document) {
+    foundry.utils.setProperty(document, "flags.midi-qol.reactionCondition", "false");
+    return document;
+  }
+
 }

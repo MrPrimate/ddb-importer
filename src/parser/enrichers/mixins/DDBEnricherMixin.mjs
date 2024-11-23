@@ -1,6 +1,6 @@
 import { utils, logger, DDBHelper } from "../../../lib/_module.mjs";
 import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
-import { AutoEffects, EnchantmentEffects } from "../effects/_module.mjs";
+import { AutoEffects, EnchantmentEffects, MidiEffects } from "../effects/_module.mjs";
 
 export default class DDBEnricherMixin {
 
@@ -360,7 +360,7 @@ export default class DDBEnricherMixin {
       foundry.utils.setProperty(activity, "activation.override", true);
 
     if (overrideData.midiManualReaction && AutoEffects.effectModules().midiQolInstalled)
-      foundry.utils.setProperty(this.data, "flags.midi-qol.reactionCondition", "false");
+      MidiEffects.forceManualReaction(this.data);
 
     if (foundry.utils.hasProperty(overrideData, "flatAttack")) {
       foundry.utils.setProperty(activity, "attack.bonus", overrideData.flatAttack);

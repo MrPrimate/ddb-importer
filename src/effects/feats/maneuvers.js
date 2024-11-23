@@ -1,7 +1,8 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { addStatusEffectChange, forceManualReaction } from "../effects.js";
+import { addStatusEffectChange } from "../effects.js";
 import DDBMacros from "../DDBMacros.mjs";
 import { logger } from "../../lib/_module.mjs";
+import { MidiEffects } from "../../parser/enrichers/effects/_module.mjs";
 
 function dermineDiceString(ddb) {
   const fighterClass = ddb.character.classes.find((klass) => klass.definition.name === "Fighter");
@@ -112,7 +113,7 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Riposte":
     case "Maneuvers: Brace": {
       // manual reaction types
-      document = forceManualReaction(document);
+      document = MidiEffects.forceManualReaction(document);
       effect.changes.push(damageEffect);
       document.effects.push(effect);
       break;

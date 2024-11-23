@@ -1,7 +1,6 @@
 import { DICTIONARY } from "../config/_module.mjs";
 import { logger, utils } from "./_module.mjs";
-import { getEffectExcludedModifiers } from "../effects/effects.js";
-import { mixins } from "../parser/enrichers/_module.mjs";
+import { Effects, mixins } from "../parser/enrichers/_module.mjs";
 
 const DDBHelper = {
 
@@ -274,7 +273,9 @@ const DDBHelper = {
 
   getActiveItemModifiers: (ddb, includeExcludedEffects = false) => {
     // are we adding effects to items?
-    const excludedModifiers = (!includeExcludedEffects) ? getEffectExcludedModifiers("item", true, true) : [];
+    const excludedModifiers = (!includeExcludedEffects)
+      ? Effects.AutoEffects.getEffectExcludedModifiers("item", true, true)
+      : [];
     // get items we are going to interact on
     const modifiers = ddb.character.inventory
       .filter(
@@ -296,7 +297,8 @@ const DDBHelper = {
 
   getActiveItemEffectModifiers: (ddb) => {
     return DDBHelper.getActiveItemModifiers(ddb, true).filter((mod) =>
-      getEffectExcludedModifiers("item", true, true).some((exMod) => mod.type === exMod.type
+      Effects.AutoEffects.getEffectExcludedModifiers("item", true, true)
+        .some((exMod) => mod.type === exMod.type
       && (mod.subType === exMod.subType || !exMod.subType)),
     );
   },
@@ -304,8 +306,8 @@ const DDBHelper = {
   getModifiers: (ddb, type, includeExcludedEffects = false, effectOnly = false, useUnfilteredModifiers = false) => {
     // are we adding effects to documents?
     const excludedModifiers = (!includeExcludedEffects || (includeExcludedEffects && effectOnly))
-      ? getEffectExcludedModifiers(type, true, true)
-      : getEffectExcludedModifiers(type, false, false);
+      ? Effects.AutoEffects.getEffectExcludedModifiers(type, true, true)
+      : Effects.AutoEffects.getEffectExcludedModifiers(type, false, false);
     // get items we are going to interact on
     let modifiers = [];
     const baseMods = useUnfilteredModifiers
