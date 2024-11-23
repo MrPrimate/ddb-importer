@@ -309,9 +309,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
 
     const scalingMatch = scaling.formula.match(/^\s*(\d+)d(\d+)\s*$/i);
-    if ((scalingMatch && (Number(scalingMatch[2]) === damage.denomination))
-      || (scaling.old === "cantrip")
-    ) {
+    if (scalingMatch && Number(scalingMatch[2]) === damage.denomination) {
       damage.scaling.number = Number(scalingMatch[1] ?? 1);
       damage.scaling.formula = "";
     } else {
