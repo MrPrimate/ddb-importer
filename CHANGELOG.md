@@ -1,3 +1,5 @@
+# 6.0.49
+
 # 6.0.48
 
 - Massive internal auto effect generation and helper library refactor
