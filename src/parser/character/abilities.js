@@ -112,6 +112,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
       "+2 to maximum score",
       "+4 to maximum score",
       "Can't be an Ability Score you already increased with this trait.",
+      "That you do not have Saving Throw Proficiency in.",
     ];
 
     const bonus = this._filterAbilityMods(ability.long, "bonus", { restriction: bonusStatRestrictions, includeExcludedEffects })

@@ -1,6 +1,7 @@
 # Next Up
 
 - Unchosen langauges on DDB characters would break imports.
+- Resilient 2024 did not apply ability score bonus to imported characters.
 
 # 6.0.49
 
