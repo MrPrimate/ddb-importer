@@ -809,6 +809,8 @@ export class DDBCompendiumFolders {
         name = this.getClassFeatureFolderName(document);
         break;
       }
+      case "class":
+      case "classes":
       case "subclass":
       case "subclasses": {
         name = this.getClassFolderName(document);

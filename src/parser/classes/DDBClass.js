@@ -292,6 +292,7 @@ export default class DDBClass {
       system: utils.getTemplate("class"),
       flags: {
         ddbimporter: {
+          class: this.ddbClass.definition.name,
           id: this.ddbClass.id,
           definitionId: this.ddbClass.definition.id,
           entityTypeId: this.ddbClass.entityTypeId,
@@ -389,7 +390,7 @@ export default class DDBClass {
       subclasses: {},
     };
 
-    this.addToCompendium = addToCompendium ?? game.settings.get(SETTINGS.MODULE_ID, "add-features-to-compendiums");
+    this.addToCompendium = addToCompendium ?? false;
 
     this.rules = "2014";
 
@@ -1473,7 +1474,7 @@ export default class DDBClass {
       notifier: null,
     };
 
-    const handler = await DDBItemImporter.buildHandler("features", [foundry.utils.deepClone(this.data)], updateFeatures, handlerOptions);
+    const handler = await DDBItemImporter.buildHandler(type, [foundry.utils.deepClone(this.data)], updateFeatures, handlerOptions);
     await handler.buildIndex();
   }
 

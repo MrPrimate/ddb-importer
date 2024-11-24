@@ -56,6 +56,8 @@ export default class DDBSubClass extends DDBClass {
       system: utils.getTemplate("subclass"),
       flags: {
         ddbimporter: {
+          class: this.ddbClass.definition.name,
+          subclass: this.ddbClass.subclassDefinition.name,
           subclassDefinitionId: this.ddbClass.id,
           id: this.ddbClass.subclassDefinition.id,
           type: "class",

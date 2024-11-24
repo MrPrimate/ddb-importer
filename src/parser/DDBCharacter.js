@@ -317,7 +317,7 @@ export default class DDBCharacter {
   async _generateClass(addToCompendium = false) {
     this._classParser = new CharacterClassFactory(this, { addToCompendium });
     this.raw.classes = await this._classParser.processCharacter();
-    logger.debug("Classes parse complete");
+    logger.debug(`Classes parse complete (With Compendium: ${addToCompendium})`);
   }
 
   async _generateFeatures() {
