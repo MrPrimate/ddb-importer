@@ -1,4 +1,10 @@
+# Next Up
+
+- Unchosen langauges on DDB characters would break imports.
+
 # 6.0.49
+
+- Some cantrips would not parse
 
 # 6.0.48
 

@@ -198,7 +198,14 @@ export default class ProficiencyFinder {
     };
   }
 
-  static getCustomLanguage({ name = null, key = null } = {}) {
+  /**
+   * Attempts to map a language to a valid DND5E language key.
+   * @param {object} [options] options object
+   * @param {string} [options.name] name of language to match
+   * @param {string} [options.key] key of language to match
+   * @returns {string|null} key of matched language, or null if no match
+   */
+  static getMappedLanguage({ name = null, key = null } = {}) {
 
     // Quick name Match
     if (name) {
@@ -216,9 +223,11 @@ export default class ProficiencyFinder {
     const simpleNameKey = utils.normalizeString(name);
     if (CONFIG.DND5E.languages.ddb.children[simpleNameKey]) return simpleNameKey;
 
+    // final fallback, does the key not match the generated key, check name match
     for (const [k, v] of Object.entries(CONFIG.DND5E.languages.ddb.children)) {
-      if (utils.nameString(v.name) === utils.nameString(name)) return k;
+      if (utils.nameString(v) === utils.nameString(name)) return k;
     }
+    // must be a custom language, return null
     return null;
 
   }
@@ -230,7 +239,7 @@ export default class ProficiencyFinder {
     modifiers
       .filter((mod) => mod.type === "language")
       .forEach((language) => {
-        const result = ProficiencyFinder.getCustomLanguage({ name: language.friendlySubtypeName, key: language.value });
+        const result = ProficiencyFinder.getMappedLanguage({ name: language.friendlySubtypeName, key: language.value });
         if (result) {
           languages.add(result);
         } else if (language.friendlySubtypeName !== "Choose a Language") {
@@ -242,7 +251,7 @@ export default class ProficiencyFinder {
       this.ddb.character.customProficiencies.forEach((proficiency) => {
         if (proficiency.type === 3) {
           // type 3 is LANGUAGE, 1 is SKILL, 2 is TOOL
-          const result = ProficiencyFinder.getCustomLanguage({ name: proficiency.name });
+          const result = ProficiencyFinder.getMappedLanguage({ name: proficiency.name });
           if (result) {
             languages.add(result);
           } else {
@@ -254,7 +263,7 @@ export default class ProficiencyFinder {
       // load custom proficiencies in characterValues
       const customProfs = this.getCustomProficiencies("Languages");
       for (const prof of customProfs) {
-        const result = ProficiencyFinder.getCustomLanguage({ name: prof });
+        const result = ProficiencyFinder.getMappedLanguage({ name: prof });
         if (result) {
           languages.add(result);
         } else {
