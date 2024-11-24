@@ -893,10 +893,10 @@ const DICTIONARY = {
     ],
     "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
     "Combat Superiority": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
-    "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen"],
+    "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen", "Magical Guidance"],
     "Font of Magic: Sorcery Points": [
       "Metamagic - ", "Metamagic:", "Hound of Ill Omen", "Sorcerous Restoration",
-      "Bend Luck",
+      "Bend Luck", "Magical Guidance",
     ],
     "Bardic Inspiration": [
       "Mote of Potential", "Unsettling Words", "Mantle of Inspiration",

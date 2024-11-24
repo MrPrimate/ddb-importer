@@ -1456,7 +1456,7 @@ const SETTINGS = {
         },
         "update-add-features-to-compendiums": {
           type: Boolean,
-          default: false,
+          default: true,
         },
         "allow-scene-download": {
           type: Boolean,
