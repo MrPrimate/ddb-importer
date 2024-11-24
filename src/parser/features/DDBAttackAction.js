@@ -1,39 +1,11 @@
+import DICTIONARY from "../../config/dictionary.mjs";
 import { utils, logger } from "../../lib/_module.mjs";
 import DDBAction from "./DDBAction.js";
 
 
 export default class DDBAttackAction extends DDBAction {
 
-  static FORCE_WEAPON_FEATURES = [
-    "Unarmed Strike",
-    "Psychic Blades: Attack (DEX)",
-    "Psychic Blades: Attack (STR)",
-    "Psychic Blades: Bonus Attack (DEX)",
-    "Psychic Blades: Bonus Attack (STR)",
-    "Psychic Blades",
-    "Thunder Gauntlets",
-    "Lightning Launcher",
-    "Guardian Armor: Thunder Gauntlets",
-    "Guardian Armor: Thunder Gauntlets (STR)",
-    "Infiltrator Armor: Lightning Launcher",
-    "Infiltrator Armor: Lightning Launcher (DEX)",
-    "Arcane Propulsion Armor Gauntlet",
-    "Arms of the Astral Self (WIS)",
-    "Arms of the Astral Self (DEX/STR)",
-    "Arms of the Astral Self",
-    "Bite",
-    "Claw",
-    "Gore",
-    "Sting",
-    "Talon",
-    "Trunk",
-    "Claws",
-    "Fangs",
-    "Form of the Beast: Bite",
-    "Form of the Beast: Claws",
-    "Form of the Beast: Tail",
-    "Fanged Bite",
-  ];
+  static FORCE_WEAPON_FEATURES = DICTIONARY.parsing.attackActions.FORCE_WEAPON_FEATURES;
 
   _init() {
     this.isAction = true;

@@ -4,25 +4,30 @@ import DDBSubClass from "./DDBSubClass.js";
 
 export default class CharacterClassFactory {
 
-  constructor(ddbCharacter) {
+  constructor(ddbCharacter, { addToCompendium = false } = {}) {
     this.ddbCharacter = ddbCharacter;
     this.character = this.ddbCharacter.raw.character;
     this.source = this.ddbCharacter.source.ddb;
     this.ddbClasses = {
     };
     this.originalClass = null;
+    this.addToCompendium = addToCompendium;
   }
 
   async processCharacter() {
     const documents = [];
     for (const characterClass of this.source.character.classes) {
-      const ddbClass = new DDBClass(this.source, characterClass.definition.id);
+      const ddbClass = new DDBClass(this.source, characterClass.definition.id, {
+        addToCompendium: this.addToCompendium,
+      });
       await ddbClass.generateFromCharacter(this.character);
       this.ddbClasses[ddbClass.data.name] = ddbClass;
       documents.push(foundry.utils.deepClone(ddbClass.data));
 
       if (characterClass.subclassDefinition && characterClass.subclassDefinition.name) {
-        const ddbSubClass = new DDBSubClass(this.source, characterClass.definition.id);
+        const ddbSubClass = new DDBSubClass(this.source, characterClass.definition.id, {
+          addToCompendium: this.addToCompendium,
+        });
         await ddbSubClass.generateFromCharacter(this.character);
         this.ddbClasses[ddbSubClass.data.name] = ddbSubClass;
         documents.push(foundry.utils.deepClone(ddbSubClass.data));

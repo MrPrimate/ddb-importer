@@ -2,132 +2,27 @@ import DDBFeature from "./DDBFeature.js";
 import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
 import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
+import DICTIONARY from "../../config/dictionary.mjs";
 
 export default class DDBChoiceFeature extends DDBFeature {
 
-  static KEEP_CHOICE_FEATURE = [
-    "Genie's Vessel",
-    "Mantle of Majesty",
-    "The Third Eye",
-    "Unbreakable Majesty",
-    "Aspect of the Wilds",
-    "Power of the Wilds",
-    "Divine Order",
-    "Blessed Strikes",
-    "Elemental Fury",
-    "Circle of the Land Spells",
-    "Primal Order",
-    "Fighting Style",
-    "Hunter's Prey",
-    "Defensive Tactics",
-  ];
+  static KEEP_CHOICE_FEATURE = DICTIONARY.parsing.choiceFeatures.KEEP_CHOICE_FEATURE;
 
-  static KEEP_CHOICE_FEATURE_NAME = [
-    "Mantle of Majesty",
-    "Pact Boon",
-    "The Third Eye",
-    "Unbreakable Majesty",
-    "Druidic Warrior",
-    "Primal Companion",
-    "Hunter's Prey",
-    "Defensive Tactics",
-  ];
+  static KEEP_CHOICE_FEATURE_NAME = DICTIONARY.parsing.choiceFeatures.KEEP_CHOICE_FEATURE_NAME;
 
-  static KEEP_CHOICE_FEATURE_NAME_STARTSWITH = [
-    "Boon of ",
-  ];
+  static KEEP_CHOICE_FEATURE_NAME_STARTSWITH = DICTIONARY.parsing.choiceFeatures.KEEP_CHOICE_FEATURE_NAME_STARTSWITH;
 
-  static NO_FEATURE_PREFIX_NAME = [
-    "Rune Carver",
-  ];
+  static NO_FEATURE_PREFIX_NAME = DICTIONARY.parsing.choiceFeatures.NO_FEATURE_PREFIX_NAME;
 
-  static NO_CHOICE_BUILD = [
-    "Charger",
-    "Crusher",
-    "Dual Wielder",
-    "Elemental Adept",
-    "Mantle of Majesty",
-    "Piercer",
-    "Poisoner",
-    "Rune Shaper",
-    "Shadow Touched",
-    "Shadow-Touched",
-    "Slasher",
-    "Telekinetic",
-    "Telepathic",
-    "The Third Eye",
-    "Unbreakable Majesty",
-    "Aspect of the Wilds",
-    "Power of the Wilds",
-    "Circle of the Land Spells",
-    "Nature's Ward",
-    "Deft Explorer",
-    "Magic Initiate (Cleric)",
-    "Magic Initiate (Druid)",
-    "Magic Initiate (Wizard)",
-    "Magic Initiate (Warlock)",
-    "Magic Initiate (Sorcerer)",
-    "Boon of Energy Resistance",
-    "Musician",
-    "Metamagic Options",
-    "Elemental Affinity",
-    "Fiendish Resilience",
-    "Primal Knowledge",
-  ];
+  static NO_CHOICE_BUILD = DICTIONARY.parsing.choiceFeatures.NO_CHOICE_BUILD;
 
-  static NO_CHOICE_SECRET = [
-    "Divine Order",
-    "Divine Order: Protector",
-    "Divine Order: Thaumaturge",
-    "Improved Blessed Strikes: Divine Strike",
-    "Improved Blessed Strikes: Potent Spellcasting",
-    "Improved Blessed Strikes",
-    "Circle of the Land Spells",
-    "Primal Order",
-    "Elemental Fury",
-    "Improved Elemental Fury",
-    "Improved Elemental Fury: Potent Spellcasting",
-    "Improved Elemental Fury: Primal Strike",
-    "Hunter's Prey",
-    "Defensive Tactics",
-  ];
+  static NO_CHOICE_SECRET = DICTIONARY.parsing.choiceFeatures.NO_CHOICE_SECRET;
 
-  static USE_ALL_CHOICES = [
-  ];
+  static USE_ALL_CHOICES = DICTIONARY.parsing.choiceFeatures.USE_ALL_CHOICES;
 
-  static NO_CHOICE_ACTIVITY = [
-    "Mystic Arcanum (",
-  ];
+  static NO_CHOICE_ACTIVITY = DICTIONARY.parsing.choiceFeatures.NO_CHOICE_ACTIVITY;
 
-  static NO_CHOICE_DESCRIPTION_ADDITION = [
-    "Charger",
-    "Crusher",
-    "Dual Wielder",
-    "Mantle of Majesty",
-    "Piercer",
-    "Poisoner",
-    "Rune Carver",
-    "Rune Shaper",
-    "Slasher",
-    "Unbreakable Majesty",
-    "Giant Ancestry",
-    "Aspect of the Wilds",
-    "Power of the Wilds",
-    "Improved Elemental Fury",
-    "Improved Elemental Fury: Potent Spellcasting",
-    "Improved Elemental Fury: Primal Strike",
-    "Nature's Ward",
-    "Deft Explorer",
-    "Otherworldly Glamour",
-    "Breath Weapon",
-    "Breath Weapon (Acid)",
-    "Breath Weapon (Fire)",
-    "Breath Weapon (Poison)",
-    "Breath Weapon (Cold)",
-    "Breath Weapon (Lightning)",
-    "Elemental Affinity",
-    "Eldritch Invocations",
-  ];
+  static NO_CHOICE_DESCRIPTION_ADDITION = DICTIONARY.parsing.choiceFeatures.NO_CHOICE_DESCRIPTION_ADDITION;
 
   _prepare() {
     this._levelScale = null;
@@ -154,10 +49,6 @@ export default class DDBChoiceFeature extends DDBFeature {
       this._levelScale = this._classFeatureComponent.levelScale;
       this._levelScales = this._classFeatureComponent.definition?.levelScales;
       this._limitedUse = this._classFeatureComponent.definition?.limitedUse;
-      // I don't think I actually use these
-      // foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", this._levelScale);
-      // foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", this._levelScales);
-      // foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", this._limitedUse);
     }
 
   }

@@ -83,6 +83,11 @@ export default class DDBCharacter {
     this.matchedFeatures = [];
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
+    this.addToCompendiums = game.settings.get(SETTINGS.MODULE_ID, "add-features-to-compendiums");
+    this._infusionFactory = null;
+    this._classParser = null;
+    this._characterFeatureFactory = null;
+    this._spellParser = null;
   }
 
   /**
@@ -309,6 +314,50 @@ export default class DDBCharacter {
 
   }
 
+  async _generateClass(addToCompendium = false) {
+    this._classParser = new CharacterClassFactory(this, { addToCompendium });
+    this.raw.classes = await this._classParser.processCharacter();
+    logger.debug("Classes parse complete");
+  }
+
+  async _generateFeatures() {
+    if (!this._characterFeatureFactory)
+      this._characterFeatureFactory = new CharacterFeatureFactory(this);
+    await this._characterFeatureFactory.processFeatures();
+    this.raw.features = this._characterFeatureFactory.processed.features;
+    logger.debug("Feature parse complete");
+  }
+
+  async _generateInfusions() {
+    logger.debug("Parsing infusions");
+    this._infusionFactory = new DDBInfusionFactory(this);
+    await this._infusionFactory.processInfusions();
+    this.raw.features.push(...this._infusionFactory.processed.infusions);
+    logger.debug("Infusion parse complete");
+  }
+
+  async _generateSpells() {
+    this._spellParser = new CharacterSpellFactory(this);
+    this.raw.spells = await this._spellParser.getCharacterSpells();
+    logger.debug("Character Spells parse complete");
+  }
+
+  async _generateActions() {
+    if (!this._characterFeatureFactory)
+      this._characterFeatureFactory = new CharacterFeatureFactory(this);
+    await this._characterFeatureFactory.processActions();
+    this.raw.actions = this._characterFeatureFactory.processed.actions;
+    this.raw.actions.push(...this._infusionFactory.processed.actions);
+    logger.debug("Action parse complete");
+  }
+
+  async _addFeaturesToCompendium() {
+    if (!this.addToCompendiums) return;
+
+    logger.debug("Adding features to compendium");
+    // processing here
+  }
+
   /**
    * Parses the collected Character JSON data into various foundry features.
    * Additional steps are needed after this based on the settings in the character import, but this will give the "raw" items
@@ -327,28 +376,14 @@ export default class DDBCharacter {
         await this.resourceSelectionDialog();
       }
 
-      logger.debug("Character parse complete");
+      logger.debug("Character structure parse complete");
       await this._generateRace();
       logger.debug("Race parse complete");
-      this._classParser = new CharacterClassFactory(this);
-      this.raw.classes = await this._classParser.processCharacter();
-      logger.debug("Classes parse complete");
-      this._characterFeatureFactory = new CharacterFeatureFactory(this);
-      await this._characterFeatureFactory.processFeatures();
-      this.raw.features = this._characterFeatureFactory.processed.features;
-      logger.debug("Feature parse complete");
-      logger.debug("Parsing infusions");
-      this._infusionFactory = new DDBInfusionFactory(this);
-      await this._infusionFactory.processInfusions();
-      this.raw.features.push(...this._infusionFactory.processed.infusions);
-      logger.debug("Infusion parse complete");
-      this._spellParser = new CharacterSpellFactory(this);
-      this.raw.spells = await this._spellParser.getCharacterSpells();
-      logger.debug("Character Spells parse complete");
-      await this._characterFeatureFactory.processActions();
-      this.raw.actions = this._characterFeatureFactory.processed.actions;
-      this.raw.actions.push(...this._infusionFactory.processed.actions);
-      logger.debug("Action parse complete");
+      await this._generateClass();
+      await this._generateFeatures();
+      await this._generateInfusions();
+      await this._generateSpells();
+      await this._generateActions();
       await this._generateInventory();
       logger.debug("Inventory generation complete");
 
@@ -364,6 +399,9 @@ export default class DDBCharacter {
       });
 
       this._filterActionFeatures();
+
+      // regenerate classes now we have generated features in compendium
+      if (this.addToCompendiums) await this._generateClass(true);
 
       this._classParser.linkFeatures();
       this._ddbRace.linkFeatures(this);
@@ -482,7 +520,7 @@ export default class DDBCharacter {
     });
   }
 
-  async addToCompendiums() {
+  async addCurrentActorToCompendiums() {
     if (!game.settings.get(SETTINGS.MODULE_ID, "add-features-to-compendiums")) return;
 
     const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "update-add-features-to-compendiums");

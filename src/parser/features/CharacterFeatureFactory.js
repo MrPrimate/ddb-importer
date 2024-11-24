@@ -1,53 +1,39 @@
-import { DICTIONARY } from "../../config/_module.mjs";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { logger, utils, DDBHelper } from "../../lib/_module.mjs";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";
-import DDBFeatures from "./DDBFeatures.js";
+import DDBClassFeatures from "./DDBClassFeatures.js";
 import { addExtraEffects } from "./extraEffects.js";
 import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
+import DDBBasicActivity from "../enrichers/mixins/DDBBasicActivity.mjs";
+import DDBFeature from "./DDBFeature.js";
+import DDBChoiceFeature from "./DDBChoiceFeature.js";
 
 export default class CharacterFeatureFactory {
 
-  getFeatureFromAction({ action, isAttack = null, manager = null, extraFlags = {} }) {
-    const isAttackAction = isAttack ?? DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
-    const ddbAction = isAttackAction
-      ? new DDBAttackAction({
-        ddbCharacter: this.ddbCharacter,
-        ddbData: this.ddbData,
-        ddbDefinition: action,
-        rawCharacter: this.rawCharacter,
-        type: action.actionSource,
-        extraFlags,
-      })
-      : new DDBAction({
-        ddbCharacter: this.ddbCharacter,
-        ddbData: this.ddbData,
-        ddbDefinition: action,
-        rawCharacter: this.rawCharacter,
-        extraFlags,
-      });
-    if (manager) ddbAction.enricher.manager = manager;
-    ddbAction.build();
-    return ddbAction.data;
-  }
+  // feature parsing hints
 
-  getActions({ name, type }) {
-    const nameMatchedActions = this.ddbData.character.actions[type].filter((a) => utils.nameString(a.name) === name);
-    const levelAdjustedActions = nameMatchedActions.length > 1
-      ? nameMatchedActions.filter((a) =>
-        type !== "class"
-          || this._highestLevelActionFeature(a, type)?.definition?.id === a.componentId,
-      )
-      : nameMatchedActions;
+  static LEGACY_SKIPPED_FEATURES = DICTIONARY.parsing.features.LEGACY_SKIPPED_FEATURES;
 
-    const actions = levelAdjustedActions.map((a) => {
-      a.actionSource = type;
-      return a;
-    });
-    return actions;
-  }
+  static SKIPPED_FEATURES_2014 = DICTIONARY.parsing.features.SKIPPED_FEATURES_2014;
+
+  static TASHA_VERSATILE = DICTIONARY.parsing.features.TASHA_VERSATILE;
+
+  static SKIPPED_FEATURES = DICTIONARY.parsing.features.SKIPPED_FEATURES;
+
+  static SKIPPED_FEATURES_STARTS_WITH = DICTIONARY.parsing.features.SKIPPED_FEATURES_STARTS_WITH;
+
+  static SKIPPED_FEATURES_ENDS_WITH = DICTIONARY.parsing.features.SKIPPED_FEATURES_ENDS_WITH;
+
+  static SKIPPED_FEATURES_INCLUDES = DICTIONARY.parsing.features.SKIPPED_FEATURES_INCLUDES;
+
+  // if there are duplicate name entries in your feature use this, due to multiple features in builder
+  // and sheet with different descriptions.
+  static FORCE_DUPLICATE_FEATURE = DICTIONARY.parsing.features.FORCE_DUPLICATE_FEATURE;
+
+  static FORCE_DUPLICATE_OVERWRITE = DICTIONARY.parsing.features.FORCE_DUPLICATE_OVERWRITE;
 
   constructor(ddbCharacter) {
     this.ddbCharacter = ddbCharacter;
@@ -65,6 +51,37 @@ export default class CharacterFeatureFactory {
     };
 
     this.data = [];
+
+    this.excludedOriginFeatures = this.ddbData.character.optionalOrigins
+      .filter((f) => f.affectedRacialTraitId)
+      .map((f) => f.affectedRacialTraitId);
+  }
+
+  static isDuplicateFeature(items, item) {
+    return items.some((dup) => dup.name === item.name && dup.system.description.value === item.system.description.value);
+  }
+
+  static getNameMatchedFeature(items, item) {
+    return items.find((dup) => dup.name === item.name && item.flags.ddbimporter.type === dup.flags.ddbimporter.type);
+  }
+
+  static includedFeatureNameCheck(featName) {
+    const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-include-versatile-features");
+
+    // eslint-disable-next-line operator-linebreak
+    const nameAllowed =
+      !CharacterFeatureFactory.LEGACY_SKIPPED_FEATURES.includes(featName)
+      && !CharacterFeatureFactory.SKIPPED_FEATURES.includes(featName)
+      && !CharacterFeatureFactory.SKIPPED_FEATURES_STARTS_WITH.some((text) => featName.startsWith(text))
+      && !CharacterFeatureFactory.SKIPPED_FEATURES_ENDS_WITH.some((text) => featName.endsWith(text))
+      && !CharacterFeatureFactory.SKIPPED_FEATURES_INCLUDES.some((text) => featName.includes(text))
+      && !featName.match(/(?:\w+) Weapon Masteries(?:y|ies)(?:$|:)/igm)
+      && !featName.match(/(?:\d+:) Weapon Master(?:y|ies)(?:$|:)/igm)
+      && (includeTashaVersatile || (!includeTashaVersatile && !CharacterFeatureFactory.TASHA_VERSATILE.includes(featName)));
+
+    logger.debug(`Checking ${featName}, status: ${nameAllowed}`);
+
+    return nameAllowed;
   }
 
   _getCustomActions(displayedAsAttack) {
@@ -299,19 +316,6 @@ export default class CharacterFeatureFactory {
     this.ddbCharacter.updateItemIds(this.processed[type]);
   }
 
-  async processFeatures() {
-    const ddbFeatures = new DDBFeatures({
-      ddbCharacter: this.ddbCharacter,
-      ddbData: this.ddbData,
-      rawCharacter: this.rawCharacter,
-    });
-
-    await ddbFeatures.build();
-    this.processed.features = ddbFeatures.data;
-    this.updateIds("features");
-    this.data.push(...ddbFeatures.data);
-  }
-
   #itemGrantLink(feature, advancementIndex) {
     // "added": {
     //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
@@ -414,4 +418,312 @@ export default class CharacterFeatureFactory {
     }
     this.#addGenericAdvancementOrigins(types);
   }
+
+  async getFeaturesFromDefinition(featDefinition, type) {
+    const source = DDBHelper.parseSource(featDefinition);
+    const ddbFeature = new DDBFeature({
+      ddbCharacter: this.ddbCharacter,
+      ddbData: this.ddbData,
+      ddbDefinition: featDefinition,
+      rawCharacter: this.rawCharacter,
+      type,
+      source,
+    });
+    ddbFeature.build();
+    logger.debug(`CharacterFeatureFactory.getFeaturesFromDefinition (type: ${type}): ${ddbFeature.ddbDefinition.name}`, {
+      ddbFeature,
+      featDefinition,
+      this: this,
+    });
+    // only background features get advancements for now
+    if (type === "background") {
+      ddbFeature.generateBackgroundAbilityScoreAdvancement();
+      await ddbFeature.generateAdvancements();
+      await ddbFeature.buildBackgroundFeatAdvancements();
+    }
+    const choiceFeatures = ddbFeature.isChoiceFeature
+      ? await DDBChoiceFeature.buildChoiceFeatures(ddbFeature)
+      : [];
+    return [ddbFeature.data].concat(choiceFeatures);
+  }
+
+  fixAcEffects(type = "features") {
+    for (const feature of this.parsed[type]) {
+      logger.debug(`Checking ${feature.name} for AC effects`);
+      for (const effect of (feature.effects ?? [])) {
+        if (
+          !["Natural", "Unarmored Defense", "Custom", "Unarmored"].includes(this.ddbCharacter.armor.results.maxType)
+          && (
+            (effect.changes.length === 2
+            && effect.changes.some((change) => change.key === "system.attributes.ac.formula")
+            && effect.changes.some((change) => change.key === "system.attributes.ac.calc"))
+            || (effect.changes.length === 1
+              && effect.changes.some((change) => change.key === "system.attributes.ac.calc"))
+          )
+        ) {
+          effect.disabled = true;
+        }
+      }
+    }
+  }
+
+  async _buildRacialTraits(type = "features") {
+    logger.debug("Parsing racial traits");
+    const traits = this.ddbData.character.race.racialTraits
+      .filter(
+        (trait) => CharacterFeatureFactory.includedFeatureNameCheck(trait.definition.name)
+          && !trait.definition.hideInSheet
+          && !this.excludedOriginFeatures.includes(trait.definition.id)
+          && (trait.requiredLevel === undefined || trait.requiredLevel >= this.ddbCharacter.totalLevels),
+      );
+
+    for (const feat of traits) {
+      const features = await this.getFeaturesFromDefinition(feat, "race");
+      features.forEach((item) => {
+        const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed[type], item);
+        const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed[type], item)
+          || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
+        if (existingFeature && !duplicateFeature) {
+          existingFeature.system.description.value += `<h3>Racial Trait Addition</h3>${item.system.description.value}`;
+        } else if (!existingFeature) {
+          foundry.utils.setProperty(item, "flags.ddbimporter.fullRaceName", this.ddbCharacter._ddbRace.fullName);
+          foundry.utils.setProperty(item, "flags.ddbimporter.groupName", this.ddbCharacter._ddbRace.groupName);
+          this.parsed[type].push(item);
+        }
+      });
+    };
+  }
+
+  async _addFeats(type = "features") {
+    // add feats
+    logger.debug("Parsing feats");
+    const validFeats = this.ddbData.character.feats.filter((feat) =>
+      CharacterFeatureFactory.includedFeatureNameCheck(feat.definition.name),
+    );
+    for (const feat of validFeats) {
+      const feats = await this.getFeaturesFromDefinition(feat, "feat");
+      this.parsed[type].push(...feats);
+    };
+  }
+
+  async _addBackground(type = "features") {
+    logger.debug("Parsing background");
+    const backgroundFeature = this.ddbCharacter.getBackgroundData();
+    const backgroundFeats = await this.getFeaturesFromDefinition(backgroundFeature, "background");
+    this.parsed[type].push(...backgroundFeats);
+  }
+
+  async _buildOptionalClassFeatures({ type = "features", requireLevel = true } = {}) {
+    // optional class features
+    logger.debug("Parsing optional class features");
+    if (this.ddbData.classOptions) {
+      const options = this.ddbData.classOptions
+        .filter((feat) => {
+          if (!requireLevel || !foundry.utils.hasProperty(feat, "requiredLevel")) return true;
+          const requiredLevel = foundry.utils.getProperty(feat, "requiredLevel");
+          const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === feat.classId
+            || cls.subclassDefinition?.id === feat.classId);
+          if (!klass) {
+            logger.info(`Unable to determine class for optional feature ${feat.name}, you might not have a suitable subclass`, { feat, this: this, requiredLevel });
+            return false;
+          }
+          return klass.level >= requiredLevel;
+        })
+        .filter((feat) => CharacterFeatureFactory.includedFeatureNameCheck(feat.name));
+      for (const feat of options) {
+        logger.debug(`Parsing Optional Feature ${feat.name}`);
+        const feats = await this.getFeaturesFromDefinition(feat, "class");
+        this.parsed[type].push(...feats);
+      };
+    }
+  }
+
+  _setLevelScales(type = "features") {
+    this.parsed[type].forEach((feature) => {
+      const featureName = utils.referenceNameString(feature.name).toLowerCase();
+      const scaleKlass = this.ddbCharacter.raw.classes.find((klass) =>
+        klass.system.advancement
+          .some((advancement) => advancement.type === "ScaleValue"
+            && advancement.configuration.identifier === featureName,
+          ));
+
+      // KNOWN_ISSUE_4_0: fix level scales for activities
+      if (scaleKlass) {
+        const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
+        const damage = DDBBasicActivity.buildDamagePart({
+          damageString: `@scale.${identifier}.${featureName}`,
+        });
+        if (foundry.utils.hasProperty(feature, "system.damage.base")) {
+          feature.system.damage.base.custom = damage.custom;
+        } else if (foundry.utils.hasProperty(feature, "system.activities")) {
+          for (const [key, activity] of Object.entries(feature.system.activities)) {
+            if (activity.damage && activity.damage.parts.length === 0) {
+              // console.warn(`adding scale for ${feature.name} ${key}`, {
+              //   feature,
+              //   activity: deepClone(activity),
+              //   damage,
+              // });
+              activity.damage.parts = [damage];
+            } else if (activity.damage && activity.damage.parts.length > 0) {
+              // console.warn(`Replacing scale for ${feature.name} ${key}`, {
+              //   feature,
+              //   activity: deepClone(activity),
+              //   damage,
+              // });
+              activity.damage.parts[0].custom = damage.custom;
+            }
+            feature.system.activities[key] = activity;
+          }
+
+        }
+      }
+    });
+  }
+
+
+  async _buildClassFeatures() {
+    logger.debug("Parsing class and subclass features");
+    this._ddbClassFeatures = new DDBClassFeatures({
+      ddbCharacter: this.ddbCharacter,
+      ddbData: this.ddbData,
+      rawCharacter: this.rawCharacter,
+    });
+    await this._ddbClassFeatures.build();
+    await this._buildOptionalClassFeatures();
+
+    logger.debug("ddbClassFeatures._buildClassFeatures", {
+      ddbClassFeature: this._ddbClassFeatures,
+      this: this,
+    });
+
+    // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
+    logger.debug("Removing matching traits");
+    this._ddbClassFeatures.data.forEach((doc) => {
+      const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed.features, doc);
+      const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed.features, doc)
+        || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(doc.flags.ddbimporter.originalName ?? doc.name);
+      if (existingFeature && !duplicateFeature) {
+        if (CharacterFeatureFactory.FORCE_DUPLICATE_OVERWRITE.includes(doc.flags.ddbimporter.originalName ?? doc.name)) {
+          existingFeature.system.description.value = `${doc.system.description.value}`;
+        } else {
+          const klassAdjustment = `<h3>${doc.flags.ddbimporter.dndbeyond.class}</h3>${doc.system.description.value}`;
+          existingFeature.system.description.value += klassAdjustment;
+        }
+      } else if (!existingFeature) {
+        this.parsed.features.push(doc);
+      }
+    });
+  }
+
+
+  async processFeatures() {
+    // const ddbFeatures = new DDBFeatures({
+    //   ddbCharacter: this.ddbCharacter,
+    //   ddbData: this.ddbData,
+    //   rawCharacter: this.rawCharacter,
+    // });
+
+    // await CharacterFeatureFactory.build();
+    // this.processed.features = CharacterFeatureFactory.data;
+    await this._buildRacialTraits();
+    await this._buildClassFeatures();
+    await this._addFeats();
+    await this._addBackground();
+
+    this._setLevelScales();
+
+    for (const feature of this.parsed.features) {
+      await DDBFeatureMixin.finalFixes(feature);
+    }
+    this.fixAcEffects();
+    this.processed.features = await addExtraEffects(this.ddbData, this.parsed.features, this.rawCharacter);
+
+    this.updateIds("features");
+    this.data.push(...this.processed.features);
+  }
+
+
+  // helpers
+
+  getFeatureFromAction({ action, isAttack = null, manager = null, extraFlags = {} }) {
+    const isAttackAction = isAttack ?? DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
+    const ddbAction = isAttackAction
+      ? new DDBAttackAction({
+        ddbCharacter: this.ddbCharacter,
+        ddbData: this.ddbData,
+        ddbDefinition: action,
+        rawCharacter: this.rawCharacter,
+        type: action.actionSource,
+        extraFlags,
+      })
+      : new DDBAction({
+        ddbCharacter: this.ddbCharacter,
+        ddbData: this.ddbData,
+        ddbDefinition: action,
+        rawCharacter: this.rawCharacter,
+        extraFlags,
+      });
+    if (manager) ddbAction.enricher.manager = manager;
+    ddbAction.build();
+    return ddbAction.data;
+  }
+
+  getActions({ name, type }) {
+    const nameMatchedActions = this.ddbData.character.actions[type].filter((a) => utils.nameString(a.name) === name);
+    const levelAdjustedActions = nameMatchedActions.length > 1
+      ? nameMatchedActions.filter((a) =>
+        type !== "class"
+          || this._highestLevelActionFeature(a, type)?.definition?.id === a.componentId,
+      )
+      : nameMatchedActions;
+
+    const actions = levelAdjustedActions.map((a) => {
+      a.actionSource = type;
+      return a;
+    });
+    return actions;
+  }
+
+  // compendium additions
+
+  static COMPENDIUM_IMPORT_OPTIONS = {
+    features: {
+      chrisPremades: true,
+      removeSRDDuplicates: false,
+      filterDuplicates: false,
+      deleteBeforeUpdate: false,
+      matchFlags: ["id"],
+      useCompendiumFolders: true,
+      indexFilter: {
+        fields: [
+          "name",
+          "flags.ddbimporter",
+          "system.type.subtype",
+        ],
+      },
+    },
+    traits: {
+      chrisPremades: true,
+      matchFlags: ["entityRaceId"],
+      useCompendiumFolders: true,
+      deleteBeforeUpdate: false,
+    },
+    feat: {
+      chrisPremades: true,
+      deleteBeforeUpdate: false,
+    },
+  };
+
+  // async addFeatureToCompendium({} = {}) {
+  //   if (!game.settings.get(SETTINGS.MODULE_ID, "add-features-to-compendiums")) return;
+  //   const document = foundry.utils.deepClone(this.data);
+
+  //   const isClassFeature = this.data.type === "feat"
+  //     && ["class", "subclass"].includes(foundry.utils.getProperty(this.data, "flags.ddbimporter.type"))
+  //     && (foundry.utils.hasProperty(this.data, "flags.ddbimporter.class")
+  //     || foundry.utils.hasProperty(this.data, "flags.ddbimporter.dndbeyond.class"));
+
+  //   // WAIT we filter out a lot of options now!
+
+  // }
 }

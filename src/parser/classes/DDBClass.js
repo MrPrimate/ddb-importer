@@ -3,6 +3,8 @@ import {
   utils,
   DDBHelper,
   CompendiumHelper,
+  DDBCompendiumFolders,
+  DDBItemImporter,
 } from '../../lib/_module.mjs';
 import { getSpellCastingAbility } from "../spells/ability.js";
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
@@ -365,7 +367,7 @@ export default class DDBClass {
     }
   }
 
-  constructor(ddbData, classId, { noMods = false } = {}) {
+  constructor(ddbData, classId, { noMods = false, addToCompendium = null } = {}) {
     this._indexFilter = {
       features: {
         fields: [
@@ -386,6 +388,8 @@ export default class DDBClass {
       class: {},
       subclasses: {},
     };
+
+    this.addToCompendium = addToCompendium ?? game.settings.get(SETTINGS.MODULE_ID, "add-features-to-compendiums");
 
     this.rules = "2014";
 
@@ -1443,6 +1447,36 @@ export default class DDBClass {
     }; // KNOWN_ISSUE_4_0: can i use preq data in ddb for this?
   };
 
+  async _addToCompendium() {
+    if (!this.addToCompendium) return;
+
+    const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "update-add-features-to-compendiums");
+
+    const type = this._isSubClass ? "subclass" : "class";
+    const featureCompendiumFolders = new DDBCompendiumFolders(type, {
+      noCreateClassFolders: true,
+    });
+    await featureCompendiumFolders.loadCompendium(type);
+
+    if (this._isSubClass) {
+      await featureCompendiumFolders.createSubClassFeatureFolder(this.ddbClassDefinition.name, this.ddbClass.definition.name);
+    } else {
+      await featureCompendiumFolders.createClassFeatureFolder(this.ddbClassDefinition.name);
+    }
+
+    const handlerOptions = {
+      chrisPremades: false,
+      removeSRDDuplicates: false,
+      filterDuplicates: false,
+      deleteBeforeUpdate: false,
+      useCompendiumFolders: true,
+      notifier: null,
+    };
+
+    const handler = await DDBItemImporter.buildHandler("features", [foundry.utils.deepClone(this.data)], updateFeatures, handlerOptions);
+    await handler.buildIndex();
+  }
+
   // GENERATE CLASS
 
   async generateFromCharacter(character) {
@@ -1466,6 +1500,7 @@ export default class DDBClass {
 
     // FUTURE: choice options such as fighting styles, this requires improved feature parsing
     await this._addFoundryAdvancements();
+    await this._addToCompendium();
   }
 
 }

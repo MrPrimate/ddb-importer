@@ -1354,7 +1354,7 @@ ${item.system.description.chat}
       // await this.ddbCharacter.fixItemSpellResources();
 
       this.showCurrentTask(`Checking Compendiums...`);
-      await this.ddbCharacter.addToCompendiums();
+      await this.ddbCharacter.addCurrentActorToCompendiums();
 
       if (this.settings.useChrisPremades) {
         this.showCurrentTask(`Applying CPR...`);

@@ -68,8 +68,8 @@ export default class DDBSubClass extends DDBClass {
     };
   }
 
-  constructor(ddb, classId) {
-    super(ddb, classId);
+  constructor(ddb, classId, options = {}) {
+    super(ddb, classId, options);
 
     this.ddbClassDefinition = this.ddbClass.subclassDefinition;
     this._isSubClass = true;
@@ -253,6 +253,7 @@ export default class DDBSubClass extends DDBClass {
     await this._generateCommonAdvancements();
     await this._generateDescriptionStub(character);
     this._fixes();
+    await this._addToCompendium();
   }
 
 }
