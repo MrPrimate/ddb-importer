@@ -795,7 +795,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       else if (this.data.name.startsWith("Fighting Style:")) subType = "fightingStyle";
       else if (this.data.name.startsWith("Maneuver:")) subType = "maneuver";
       else if (this.data.name.startsWith("Battle Master Maneuver:")) subType = "maneuver";
-      else if (this.data.name.startsWith("Metamagic:")) subType = "metamagic";
+      else if (["Metamagic:", "Metamagic - "].some((s) => this.data.name.startsWith(s))) subType = "metamagic";
       else if (this.data.name.startsWith("Pact of the")) subType = "pact";
       else if (this.data.name.startsWith("Rune Carver:")) subType = "rune";
       else if (this.data.name.startsWith("Psionic Power")) subType = "psionicPower";
