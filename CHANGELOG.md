@@ -1,6 +1,6 @@
-# Next Up
+# 6.0.50
 
-- Unchosen langauges on DDB characters would break imports.
+- Unchosen languages on DDB characters would break imports.
 - Resilient 2024 did not apply ability score bonus to imported characters.
 - Ensure Metamagic options take the metamagic subtype.
 
