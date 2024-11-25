@@ -19,7 +19,7 @@ DDBMonster.prototype._generateLanguages = function _generateLanguages () {
     // languageId 100 is sometimes used, but not in config. it is thieves cant
     const languageId = lng.languageId === 100 ? 46 : lng.languageId;
     const language = config.find((cfg) => languageId == cfg.id);
-    const foundryLanguage = ProficiencyFinder.getCustomLanguage({ name: language?.name ?? "Unknown Language" });
+    const foundryLanguage = ProficiencyFinder.getMappedLanguage({ name: language?.name ?? "Unknown Language" });
     if (foundryLanguage && lng.notes == '') {
       values.push(foundryLanguage);
     } else if (language) {
