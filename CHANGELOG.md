@@ -1,3 +1,7 @@
+# 6.0.51
+
+- Some monsters would break if odd wording for language choice.
+
 # 6.0.50
 
 - Unchosen languages on DDB characters would break imports.
