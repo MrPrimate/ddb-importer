@@ -37,6 +37,14 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() 
   //   (feat) => feat.definition.name === "Observant"
   // );
 
+  // we set this as the UI does not show AE's effecting Concentration.
+  const warCaster = this.source.ddb.character.feats.some(
+    (feat) => feat.definition.name === "War Caster",
+  );
+  if (warCaster) {
+    foundry.utils.setProperty(this.raw.character, "system.attributes.concentration.roll.mode", "1");
+  }
+
   // weapon critical threshold
   // fighter improved crit
   // remarkable athlete
