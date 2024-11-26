@@ -385,8 +385,15 @@ export default class DDBRace {
     // };
 
     // advancement.updateSource(update);
+  }
 
+  #generateConditionAdvancement(trait) {
+    const mods = this.advancementHelper.noMods
+      ? []
+      : DDBHelper.getModifiers(this.ddbData, "race");
 
+    const advancement = this.advancementHelper.getConditionAdvancement(mods, trait, 0);
+    if (advancement) this.data.system.advancement.push(advancement.toObject());
   }
 
 
@@ -555,6 +562,7 @@ export default class DDBRace {
       this.#generateLanguageAdvancement(trait);
       this.#geneateToolAdvancement(trait);
       this.#generateFeatAdvancement(trait);
+      this.#generateConditionAdvancement(trait);
       // FUTURE, spells (at various levels, when supported)
     });
 
