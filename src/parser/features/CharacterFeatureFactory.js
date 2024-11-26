@@ -704,7 +704,7 @@ export default class CharacterFeatureFactory {
     },
     traits: {
       chrisPremades: true,
-      matchFlags: ["entityRaceId"],
+      matchFlags: ["fullRaceName", "groupName"],
       useCompendiumFolders: true,
       deleteBeforeUpdate: false,
     },

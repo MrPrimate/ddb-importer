@@ -58,7 +58,7 @@ export async function getRaces(data) {
   await raceCompendiumFolders.loadCompendium("races");
   const traitOptions = {
     chrisPremades: true,
-    matchFlags: ["entityRaceId"],
+    matchFlags: ["fullRaceName", "groupName"],
     useCompendiumFolders: true,
     notifier: utils.munchNote,
   };
@@ -76,7 +76,7 @@ export async function getRaces(data) {
 
   logger.debug("Pre-fiddled races", foundry.utils.duplicate(races));
   const raceOptions = {
-    matchFlags: ["entityRaceId"],
+    matchFlags: ["fullRaceName", "groupName"],
     useCompendiumFolders: true,
     notifier: utils.munchNote,
   };

@@ -589,7 +589,7 @@ export default class DDBCharacter {
 
     const traitHandlerOptions = {
       chrisPremades: true,
-      matchFlags: ["entityRaceId"],
+      matchFlags: ["fullRaceName", "groupName"],
       useCompendiumFolders: true,
       deleteBeforeUpdate: false,
     };
