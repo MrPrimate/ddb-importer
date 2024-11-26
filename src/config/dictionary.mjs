@@ -1383,6 +1383,7 @@ const DICTIONARY = {
         "Fiendish Resilience",
         "Primal Knowledge",
         "Elven Lineage Spells",
+        "Gnomish Lineage Spells",
       ],
       NO_CHOICE_SECRET: [
         "Divine Order",
@@ -1435,6 +1436,8 @@ const DICTIONARY = {
         "Elemental Affinity",
         "Eldritch Invocations",
         "Elven Lineage Spells",
+        "Gnomish Lineage Spells",
+        "Gnomish Lineage",
       ],
     },
   },
