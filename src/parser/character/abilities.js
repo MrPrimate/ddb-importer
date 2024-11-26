@@ -159,7 +159,11 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
 
     const proficient = customProficiency
       ? customProficiency
-      : DDBHelper.filterBaseModifiers(this.source.ddb, "proficiency", { subType: `${ability.long}-saving-throws`, includeExcludedEffects }).length > 0
+      : DDBHelper.filterBaseModifiers(this.source.ddb, "proficiency", {
+        subType: `${ability.long}-saving-throws`,
+        includeExcludedEffects,
+        restriction: null,
+      }).length > 0
         ? 1
         : 0;
 
