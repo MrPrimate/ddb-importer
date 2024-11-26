@@ -503,17 +503,25 @@ export default class DDBClass {
     if (!this._compendiums.features) {
       return [];
     }
-    return this._compendiums.features.index.find((match) =>
-      ((feature.name.trim().toLowerCase() == foundry.utils.getProperty(match, "flags.ddbimporter.featureName")?.trim().toLowerCase())
-        || (!foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
-          && (feature.name.trim().toLowerCase() == match.name.trim().toLowerCase()
-          || `${feature.name} (${this.ddbClassDefinition.name})`.trim().toLowerCase() == match.name.trim().toLowerCase()))
-      )
-      && foundry.utils.hasProperty(match, "flags.ddbimporter")
-      && (match.flags.ddbimporter.class == this.ddbClassDefinition.name
-        || match.flags.ddbimporter.parentClassId == this.ddbClassDefinition.id
-        || match.flags.ddbimporter.classId == this.ddbClassDefinition.id),
-    );
+    return this._compendiums.features.index.find((match) => {
+      const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
+        ?? foundry.utils.getProperty(match, "flags.ddbimporter");
+      if (!matchFlags) return false;
+      const featureFlagName = foundry.utils.getProperty(matchFlags, "featureName")?.trim().toLowerCase();
+      const featureFlagNameMatch = featureFlagName
+        && featureFlagName == feature.name.trim().toLowerCase();
+      const nameMatch = !featureFlagNameMatch
+        && match.name.trim().toLowerCase() == feature.name.trim().toLowerCase();
+      if (!nameMatch && !featureFlagNameMatch) return false;
+
+      const featureClassMatch = !this._isSubClass
+        && matchFlags.class == this.ddbClassDefinition.name
+        && matchFlags.classId == this.ddbClassDefinition.id;
+      const featureSubclassMatch = this._isSubClass
+        && matchFlags.subClass === this.ddbClassDefinition.name
+        && matchFlags.subClassId == this.ddbClassDefinition.id;
+      return featureClassMatch || featureSubclassMatch;
+    });
   }
 
   getFeatCompendiumMatch(featName) {
@@ -596,43 +604,47 @@ export default class DDBClass {
     "Primal Knowledge",
   ];
 
+  featureAdvancements = [];
+
+  async _generateFeatureAdvancementFromCompendiumMatch(feature) {
+    const featureMatch = this.getFeatureCompendiumMatch(feature);
+    if (!featureMatch) return;
+    const levelAdvancement = this.featureAdvancements.findIndex((advancement) => advancement.level === feature.requiredLevel);
+
+    if (levelAdvancement == -1) {
+      const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+      this._advancementMatches.features[advancement._id] = {};
+      this._advancementMatches.features[advancement._id][featureMatch.name] = featureMatch.uuid;
+
+      const update = {
+        configuration: {
+          items: [{ uuid: featureMatch.uuid }],
+        },
+        value: {},
+        level: feature.requiredLevel,
+        title: "Features",
+        icon: "",
+        classRestriction: "",
+      };
+      advancement.updateSource(update);
+      this.featureAdvancements.push(advancement.toObject());
+    } else {
+      this.featureAdvancements[levelAdvancement].configuration.items.push({ uuid: featureMatch.uuid });
+      this._advancementMatches.features[this.featureAdvancements[levelAdvancement]._id][featureMatch.name] = featureMatch.uuid;
+    }
+
+  }
+
   async _generateFeatureAdvancements() {
     logger.debug(`Parsing ${this.ddbClass.definition.name} features for advancement`);
+    this.featureAdvancements = [];
 
-    const advancements = [];
-    this.classFeatures
-      .filter((feature) => !DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS.includes(feature.name)
-      || (this.is2014 && DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS_2014.includes(feature.name)),
-      )
-      .forEach((feature) => {
-        const featureMatch = this.getFeatureCompendiumMatch(feature);
-
-        if (featureMatch) {
-          const levelAdvancement = advancements.findIndex((advancement) => advancement.level === feature.requiredLevel);
-
-          if (levelAdvancement == -1) {
-            const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
-            this._advancementMatches.features[advancement._id] = {};
-            this._advancementMatches.features[advancement._id][featureMatch.name] = featureMatch.uuid;
-
-            const update = {
-              configuration: {
-                items: [{ uuid: featureMatch.uuid }],
-              },
-              value: {},
-              level: feature.requiredLevel,
-              title: "Features",
-              icon: "",
-              classRestriction: "",
-            };
-            advancement.updateSource(update);
-            advancements.push(advancement.toObject());
-          } else {
-            advancements[levelAdvancement].configuration.items.push({ uuid: featureMatch.uuid });
-            this._advancementMatches.features[advancements[levelAdvancement]._id][featureMatch.name] = featureMatch.uuid;
-          }
-        }
-      });
+    const classFeatures = this.classFeatures.filter((feature) =>
+      !DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS.includes(feature.name)
+      || (this.is2014 && DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS_2014.includes(feature.name)));
+    for (const feature of classFeatures) {
+      await this._generateFeatureAdvancementFromCompendiumMatch(feature);
+    }
 
     // TO DO: for choice features such as fighting styles:
 
@@ -671,7 +683,7 @@ export default class DDBClass {
     //   "_id": "ih8WlydEZdg3rCPh"
     // },
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this.data.system.advancement = this.data.system.advancement.concat(this.featureAdvancements);
   }
 
   _generateScaleValueAdvancementsFromFeatures() {
@@ -1450,6 +1462,9 @@ export default class DDBClass {
 
   async _addToCompendium() {
     if (!this.addToCompendium) return;
+
+    // only add full level 20 classes
+    if (this.ddbClass.level !== 20) return;
 
     const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "update-add-features-to-compendiums");
 

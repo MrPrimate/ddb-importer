@@ -1,3 +1,10 @@
+# Next -
+
+- Refactoring for monster effect generation.
+- Background work to allow feats, races, and classes/class features to be imported into compendiums.
+- Resilient 2024 did not apply granted save proficiency.
+- If character is a Warcaster hard set Concentration with advantage as the character sheet does not show effects modifying this field.
+
 # 6.0.51
 
 - Some monsters would break if odd wording for language choice.

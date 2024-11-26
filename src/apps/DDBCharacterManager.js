@@ -1351,10 +1351,6 @@ ${item.system.description.chat}
 
       this.showCurrentTask(`Linking resources...`);
       await this.ddbCharacter.autoLinkResources();
-      // await this.ddbCharacter.fixItemSpellResources();
-
-      this.showCurrentTask(`Checking Compendiums...`);
-      await this.ddbCharacter.addCurrentActorToCompendiums();
 
       if (this.settings.useChrisPremades) {
         this.showCurrentTask(`Applying CPR...`);

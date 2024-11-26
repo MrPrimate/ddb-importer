@@ -261,64 +261,10 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
   });
 };
 
-// const chargeTypeMap = {
-//   "Lay on Hands": {
-//     "type": "none",
-//   },
-// };
-
 const notReplace = {
   "Starry Form": ["Starry Form: Archer", "Starry Form: Chalice", "Starry Form: Dragon"],
 };
 
-
-// KNOWN_ISSUE_4_0: update for activities
-// DDBCharacter.prototype.fixItemSpellResources = async function fixItemSpellResources() {
-//   const possibleItems = this.currentActor.items.toObject();
-//   let toUpdate = [];
-
-//   for (const spell of possibleItems) {
-//     if (spell.type !== "spell") continue;
-//     if (!foundry.utils.getProperty(spell, "flags.ddbimporter.isItemCharge")) continue;
-//     if (foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookup") !== "item") continue;
-//     const spellLookupId = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.lookupId");
-//     if (!spellLookupId) continue;
-//     const parentDoc = possibleItems.find((item) =>
-//       spellLookupId === item.flags?.ddbimporter?.definitionId,
-//     );
-//     if (!parentDoc) continue;
-//     toUpdate.push({
-//       _id: spell._id,
-//       // TODO: update for activities
-//       "system.consume.target": parentDoc._id,
-//       "system.uses.prompt": false,
-//     });
-//   }
-
-//   {
-//     _id: "GGJwqQSD1RqJx7RE",
-//     "system.activities.ddbStepOfTheWinI.consumption": {
-//       "targets": [
-//           {
-//               "type": "itemUses",
-//               "target": "",
-//               "value": "1",
-//               "scaling": {
-//                   "mode": "",
-//                   "formula": ""
-//               }
-//           }
-//       ],
-//       "spellSlot": false
-//     }
-//   }
-
-//   logger.debug("itemSpellsToUpdate", toUpdate);
-
-//   const results = await this.currentActor.updateEmbeddedDocuments("Item", toUpdate);
-//   logger.debug("itemSpellsToUpdate results", results);
-
-// };
 
 DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async function _getAutoLinkActivityDictionarySpellLinkUpdates() {
   const possibleItems = this.currentActor.items.toObject();
