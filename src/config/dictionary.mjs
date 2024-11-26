@@ -1382,6 +1382,7 @@ const DICTIONARY = {
         "Elemental Affinity",
         "Fiendish Resilience",
         "Primal Knowledge",
+        "Elven Lineage Spells",
       ],
       NO_CHOICE_SECRET: [
         "Divine Order",
@@ -1398,6 +1399,7 @@ const DICTIONARY = {
         "Improved Elemental Fury: Primal Strike",
         "Hunter's Prey",
         "Defensive Tactics",
+        "Elven Lineage",
       ],
       USE_ALL_CHOICES: [
       ],
@@ -1432,6 +1434,7 @@ const DICTIONARY = {
         "Breath Weapon (Lightning)",
         "Elemental Affinity",
         "Eldritch Invocations",
+        "Elven Lineage Spells",
       ],
     },
   },
