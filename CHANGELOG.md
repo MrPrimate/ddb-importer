@@ -1,10 +1,11 @@
-# Next -
+# Next Up
 
 - Refactoring for monster effect generation.
 - Background work to allow feats, races, and classes/class features to be imported into compendiums.
 - Resilient 2024 did not apply granted save proficiency.
 - If character is a Warcaster hard set Concentration with advantage as the character sheet does not show effects modifying this field.
 - Species now add damage resistances advancements.
+- Improved parsing of Species advancements for 2024 (more on the way, I know this is currently very limited).
 
 # 6.0.51
 
