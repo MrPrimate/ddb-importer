@@ -126,7 +126,10 @@ export default class Example extends DDBEnricherData {
         statuses: [], // add status effects
         atlChanges: [], // adds atl changes if atl active
         tokenMagicChanges: [], // adds token magic changes
+        daeStackable: "noneName", // set stackable dae value
+        daeSpecialDurations: [], // adds dae special durations
         midiChanges: [], // adds midi changes
+        midiProperties: {}, // adds midi properties to midi flags
         func: function() {}, // run this funciton passing in the activity as the only variable
         descriptionHint: "hint text", // adds enchantment description hint
         descriptionSuffix: "", // append to item description

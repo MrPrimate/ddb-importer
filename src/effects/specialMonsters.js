@@ -1,26 +1,15 @@
 /* eslint-disable require-atomic-updates */
-import { addStatusEffectChange, applyDefaultMidiFlags, forceItemEffect } from "./effects.js";
-import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
+import { addStatusEffectChange, forceItemEffect } from "./effects.js";
 
-import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
-import { generateLegendaryEffect } from "./monsterFeatures/legendary.js";
-import { generatePackTacticsEffect } from "./monsterFeatures/packTactics.js";
-import { generateReversalOfFortuneEffect } from "./monsterFeatures/reversalOfFortune.js";
-import { generateSuaveDefenseEffect } from "./monsterFeatures/suaveDefense.js";
 import { generateTauntEffect } from "./monsterFeatures/taunt.js";
 import { skeletalJuggernautEffects } from "./monsterFeatures/skeletalJuggernautEffects.js";
 import { venomTrollEffects } from "./monsterFeatures/venomTroll.js";
 import { quasitEffects } from "./monsterFeatures/quasit.js";
-import { invisibilityFeatureEffect } from "./monsterFeatures/invisibility.js";
-import { recklessAttackEffect } from "./feats/recklessAttack.js";
-import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
 import { deathlyChoirEffect } from "./monsterFeatures/deathlyChoir.js";
 import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
 import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
-import { spellReflectionEffect } from "./monsterFeatures/spellReflection.js";
 import { giantSpiderEffects } from "./monsterFeatures/giantSpider.js";
 import { beholderEyeRayLegendaryEffect } from "./monsterFeatures/beholderEyeRayLegendary.js";
-import { multiAttackEffect } from "./monsterFeatures/multiAttack.js";
 import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
 
 export function baseMonsterFeatureEffect(document, label,
@@ -36,28 +25,6 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
   if (!npc.effects) npc.effects = [];
 
   if (!addMidiEffects) return npc;
-
-  // damage over time effects
-  for (let [index, item] of npc.items.entries()) {
-    item = applyDefaultMidiFlags(item);
-    // Legendary Resistance Effects
-    if (item.name.startsWith("Legendary Resistance")) item = generateLegendaryEffect(item);
-    else if (item.name.startsWith("Pack Tactics")) item = generatePackTacticsEffect(item);
-    else if (item.name === "Reversal of Fortune") item = generateReversalOfFortuneEffect(item);
-    else if (item.name === "Suave Defense") item = generateSuaveDefenseEffect(ddbMonster, item);
-    else if (item.name === "Uncanny Dodge") item = uncannyDodgeEffect(item);
-    else if (item.name === "Reckless") item = recklessAttackEffect(item, true);
-    else if (["Shared Invisibility", "Fallible Invisibility", "Invisibility", "Superior Invisibility"].includes(item.name))
-      item = invisibilityFeatureEffect(item);
-    else if (item.name.includes("Absorption")) item = absorptionEffect(item);
-    else if (item.name === "Mask of the Wild") item = await maskOfTheWildEffect(item);
-    else if (item.name === "Spell Reflection") item = await spellReflectionEffect(item);
-    else if (item.name === "Multiattack") item = await multiAttackEffect(item);
-
-
-    item = AutoEffects.forceDocumentEffect(item);
-    npc.items[index] = item;
-  };
 
   switch (npc.name) {
     case "Bard": {

@@ -76,7 +76,7 @@ export class FileHelper {
 
   static async generateCurrentFilesFromParsedDir(parsedDir) {
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedDir.fullPath)) {
-      logger.debug(`Checking for files in ${parsedDir.fullPath}...`, parsedDir);
+      logger.verbose(`Checking for files in ${parsedDir.fullPath}...`, parsedDir);
       const fileList = await DirectoryPicker.browse(parsedDir.activeSource, parsedDir.current, {
         bucket: parsedDir.bucket,
       });
@@ -108,7 +108,7 @@ export class FileHelper {
 
   static async generateCurrentFiles(directoryPath) {
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(directoryPath)) {
-      logger.debug(`Checking for files in directoryPath ${directoryPath}...`);
+      logger.verbose(`Checking for files in directoryPath ${directoryPath}...`);
       const dir = DirectoryPicker.parse(directoryPath);
       await FileHelper.generateCurrentFilesFromParsedDir(dir);
     } else {

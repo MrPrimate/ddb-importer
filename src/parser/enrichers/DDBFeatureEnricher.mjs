@@ -204,6 +204,8 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     "Draconic Resilience": ClassEnrichers.Sorcerer.DraconicResilience,
     "Deflect Missiles Attack": ClassEnrichers.Monk.DeflectMissilesAttack,
     "War Caster": FeatEnrichers.WarCaster,
+    "Reckless Attack": GenericEnrichers.RecklessAttack,
+    "Uncanny Dodge": GenericEnrichers.UncannyDodge,
   };
 
   ACTIVITY_HINTS = {
@@ -1821,10 +1823,6 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
       data: {
         name: "Assume Unbreakable Majesty",
       },
-    },
-    "Uncanny Dodge": {
-      type: "utility",
-      activationType: "reaction",
     },
     "Uncanny Metabolism": {
       type: "heal",
@@ -3773,9 +3771,6 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
         DDBEnricherData.ChangeHelper.overrideChange("0", 60, "system.attributes.movement.walk"),
         DDBEnricherData.ChangeHelper.overrideChange("0", 60, "system.attributes.movement.fly"),
       ],
-    },
-    "Reckless Attack": {
-      name: "Attacking Recklessly",
     },
     "Shadow Arts": {
       clearAutoEffects: true,

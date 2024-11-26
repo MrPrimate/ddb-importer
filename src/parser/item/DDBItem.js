@@ -2664,7 +2664,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     });
     this.data = await addRestrictionFlags(this.data, this.addAutomationEffects);
 
-    const effects = this.enricher.createEffect();
+    const effects = this.enricher.createEffects();
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
     this._activityEffectLinking();

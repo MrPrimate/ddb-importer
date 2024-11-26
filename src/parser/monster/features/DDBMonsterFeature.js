@@ -1147,7 +1147,7 @@ ${this.data.system.description.value}
     }
 
     if (this.enricher.clearAutoEffects) this.data.effects = [];
-    const effects = this.enricher.createEffect();
+    const effects = this.enricher.createEffects();
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
 

@@ -487,7 +487,7 @@ export default class DDBBasicActivity {
     activity.build(options);
     enricher?.applyActivityOverride(activity.data);
 
-    const effects = enricher?.createEffect() ?? [];
+    const effects = enricher?.createEffects() ?? [];
     document.effects.push(...effects);
     enricher?.createDefaultEffects();
     enricher?.addDocumentOverride();

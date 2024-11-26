@@ -362,6 +362,9 @@ export default class DDBEnricherMixin {
     if (overrideData.midiManualReaction && AutoEffects.effectModules().midiQolInstalled)
       MidiEffects.forceManualReaction(this.data);
 
+    if (overrideData.midiDamageReaction && AutoEffects.effectModules().midiQolInstalled)
+      MidiEffects.reactionOnDamage(this.data);
+
     if (foundry.utils.hasProperty(overrideData, "flatAttack")) {
       foundry.utils.setProperty(activity, "attack.bonus", overrideData.flatAttack);
       foundry.utils.setProperty(activity, "attack.flat", true);
@@ -417,11 +420,12 @@ export default class DDBEnricherMixin {
   }
 
   // eslint-disable-next-line complexity
-  createEffect() {
+  createEffects() {
+    const effectHints = this.effects;
     const effects = [];
-    if (!this.effects || this.effects?.length === 0) return effects;
+    if (!effectHints || effectHints?.length === 0) return effects;
 
-    for (const effectHintFunction of this.effects) {
+    for (const effectHintFunction of effectHints) {
       const effectHint = utils.isFunction(effectHintFunction)
         ? effectHintFunction()
         : effectHintFunction;
@@ -505,6 +509,18 @@ export default class DDBEnricherMixin {
 
       if (effectHint.midiChanges && AutoEffects.effectModules().midiQolInstalled) {
         effect.changes.push(...effectHint.midiChanges);
+      }
+
+      if (effectHint.daeStackable && AutoEffects.effectModules().daeInstalled) {
+        foundry.utils.setProperty(effect, "flags.dae.stackable", effectHint.daeStackable);
+      }
+
+      if (effectHint.daeSpecialDurations && AutoEffects.effectModules().daeInstalled) {
+        foundry.utils.setProperty(effect, "flags.dae.specialDuration", effectHint.daeSpecialDurations);
+      }
+
+      if (effectHint.midiProperties && AutoEffects.effectModules().midiQolInstalled) {
+        foundry.utils.setProperty(this.data, "flags.midiProperties", effectHint.midiProperties);
       }
 
       if (effectHint.activityMatch) {

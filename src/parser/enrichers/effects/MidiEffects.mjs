@@ -21,4 +21,9 @@ export default class MidiEffects {
     return document;
   }
 
+  static reactionOnDamage(document) {
+    foundry.utils.setProperty(document, "flags.midi-qol.reactionCondition", "reaction == 'isDamaged'");
+    return document;
+  }
+
 }

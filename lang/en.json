@@ -36,6 +36,8 @@
         "name": "Munch button be at the top?",
         "hint": "Else button at bottom."
       },
+      "effects-uses-macro-status-effects.name": "Use macro status effects?",
+      "effects-uses-macro-status-effects.hint": "If ticket will apply effects via DAE macro.StatusEffect method, rather than as a normal status effect. Defaults to off.",
       "custom-proxy.name": "Use a custom proxy?",
       "custom-proxy.hint": "Tick if using a custom proxy and enter the proxy URL's below",
       "image-upload-directory.name": "Character image upload directory",

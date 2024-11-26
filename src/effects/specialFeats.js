@@ -41,7 +41,6 @@ import { planarWarriorEffect } from "./feats/planarWarrior.js";
 import { potentCantripEffect } from "./feats/potentCantrip.js";
 import { powerfulBuild } from "./feats/powerfulBuild.js";
 import { radiantSoulEffect } from "./feats/radiantSoul.js";
-import { recklessAttackEffect } from "./feats/recklessAttack.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
 import { sacredWeaponEffect } from "./feats/sacredWeapon.js";
 import { savageAttackerEffect } from "./feats/savageAttacker.js";
@@ -57,7 +56,6 @@ import { stoneRuneEffect } from "./feats/stoneRune.js";
 import { stonesEnduranceEffect } from "./feats/stonesEndurance.js";
 import { stormRuneEffect } from "./feats/stormRune.js";
 import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
-import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 import { vedalkenDispassionEffect } from "./feats/vedalkenDispassion.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
@@ -276,10 +274,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = await ragingStormTundraEffect(document);
       break;
     }
-    case "Reckless Attack": {
-      document = recklessAttackEffect(document);
-      break;
-    }
     case "Sculpt Spells": {
       document = sculptSpellsEffect(document);
       break;
@@ -334,10 +328,6 @@ async function midiFeatureEffects(ddb, character, document) {
     // }
     case "Swiftstride Reaction": {
       document = MidiEffects.forceManualReaction(document);
-      break;
-    }
-    case "Uncanny Dodge": {
-      document = uncannyDodgeEffect(document);
       break;
     }
     case "Vedalken Dispassion": {
@@ -441,10 +431,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Unarmored Movement": {
       document = unarmoredMovementEffect(document);
-      break;
-    }
-    case "Uncanny Dodge": {
-      document = uncannyDodgeEffect(document);
       break;
     }
     case "Vigilant Blessing": {

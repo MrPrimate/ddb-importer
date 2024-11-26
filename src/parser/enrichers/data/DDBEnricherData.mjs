@@ -201,7 +201,10 @@ export default class DDBEnricherData {
    *     - statuses: {Array} Status effects to add.
    *     - atlChanges: {Array} ATL changes, if ATL is active.
    *     - tokenMagicChanges: {Array} Token magic changes.
+   *     - daeStackable: {string} set stackable dae value
+   *     - daeSpecialDurations: {Array} adds dae special durations
    *     - midiChanges: {Array} MIDI changes.
+   *     - midiProperties: {object} MIDI properties.
    *     - func: {function} A function executed with the activity as the sole argument.
    *     - descriptionHint: {string} A hint for the enchantment description.
    *     - descriptionSuffix: {string} Text to append to the item description.

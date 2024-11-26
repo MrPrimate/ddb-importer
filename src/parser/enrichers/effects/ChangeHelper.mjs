@@ -148,7 +148,7 @@ export default class ChangeHelper {
   }
 
   static addStatusEffectChange({ effect, statusName, priority = 20, level = null } = {}) {
-    if (AutoEffects.effectModules().daeInstalled) {
+    if (AutoEffects.effectModules().daeInstalled && game.settings.get("ddb-importer", "effects-uses-macro-status-effects")) {
       const key = ChangeHelper.daeStatusEffectChange(statusName, priority);
       effect.changes.push(key);
     } else {

@@ -689,6 +689,13 @@ const SETTINGS = {
           type: Boolean,
           default: true,
         },
+        "effects-uses-macro-status-effects": {
+          name: "ddb-importer.settings.effects-uses-macro-status-effects.name",
+          hint: "ddb-importer.settings.effects-uses-macro-status-effects.hint",
+          config: false,
+          type: Boolean,
+          default: false,
+        },
       },
       // ????
       MISC: {
