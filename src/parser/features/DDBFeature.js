@@ -3,8 +3,6 @@ import { utils, logger, CompendiumHelper, DDBHelper } from "../../lib/_module.mj
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";
-import DDBChoiceFeature from "./DDBChoiceFeature.js";
-
 
 export default class DDBFeature extends DDBFeatureMixin {
 
@@ -442,6 +440,8 @@ export default class DDBFeature extends DDBFeatureMixin {
     }
   }
 
+  static CHOICE_DEFS = DICTIONARY.parsing.choiceFeatures;
+
   _buildChoiceFeature() {
     this._generateSystemType();
     this._generateSystemSubType();
@@ -453,9 +453,12 @@ export default class DDBFeature extends DDBFeatureMixin {
     // this._generateRange();
 
     const listItems = [];
-    const choices = DDBChoiceFeature.USE_ALL_CHOICES.includes(this.originalName)
-      ? this._choices
-      : this._parentOnlyChoices;
+    const chosenOnly = DDBFeature.CHOICE_DEFS.USE_CHOSEN_ONLY.includes(this.originalName);
+    const choices = chosenOnly
+      ? this._chosen
+      : DDBFeature.CHOICE_DEFS.USE_ALL_CHOICES.includes(this.originalName)
+        ? this._choices
+        : this._parentOnlyChoices;
     const choiceText = choices
       .sort((a, b) => ((a.label < b.label) ? -1 : (a.label > b.label) ? 1 : 0))
       .reduce((p, c) => {
@@ -479,15 +482,15 @@ ${description}`;
 <ul>${listItems.join("")}</ul>`
       : choiceText;
 
-    const secretText = DDBChoiceFeature.NO_CHOICE_DESCRIPTION_ADDITION.includes(this.originalName)
+    const secretText = DDBFeature.CHOICE_DEFS.NO_CHOICE_DESCRIPTION_ADDITION.includes(this.originalName)
       || ["feat"].includes(this.type) // don't add choice options for feats
       ? ""
-      : DDBChoiceFeature.NO_CHOICE_BUILD.includes(this.originalName)
-        || DDBChoiceFeature.NO_CHOICE_SECRET.includes(this.originalName)
+      : DDBFeature.CHOICE_DEFS.NO_CHOICE_BUILD.includes(this.originalName)
+        || DDBFeature.CHOICE_DEFS.NO_CHOICE_SECRET.includes(this.originalName)
         ? joinedText
         : `<section class="secret">${joinedText}</section>`;
 
-    this._generateDescription({ extra: secretText });
+    this._generateDescription({ forceFull: chosenOnly, extra: secretText });
     this._addEffects(undefined, this.type);
 
     // this._generateFlagHints();

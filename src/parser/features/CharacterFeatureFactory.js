@@ -479,8 +479,8 @@ export default class CharacterFeatureFactory {
           && (trait.requiredLevel === undefined || trait.requiredLevel >= this.ddbCharacter.totalLevels),
       );
 
-    for (const feat of traits) {
-      const features = await this.getFeaturesFromDefinition(feat, "race");
+    for (const trait of traits) {
+      const features = await this.getFeaturesFromDefinition(trait, "race");
       features.forEach((item) => {
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed[type], item);
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed[type], item)
@@ -488,8 +488,10 @@ export default class CharacterFeatureFactory {
         if (existingFeature && !duplicateFeature) {
           existingFeature.system.description.value += `<h3>Racial Trait Addition</h3>${item.system.description.value}`;
         } else if (!existingFeature) {
+          foundry.utils.setProperty(item, "flags.ddbimporter.baseName", (trait.definition.fullName ?? trait.definition.name));
           foundry.utils.setProperty(item, "flags.ddbimporter.fullRaceName", this.ddbCharacter._ddbRace.fullName);
           foundry.utils.setProperty(item, "flags.ddbimporter.groupName", this.ddbCharacter._ddbRace.groupName);
+          foundry.utils.setProperty(item, "flags.ddbimporter.isLineage", this.ddbCharacter._ddbRace.isLineage);
           this.parsed[type].push(item);
         }
       });
@@ -688,34 +690,6 @@ export default class CharacterFeatureFactory {
 
   // compendium additions
 
-  static COMPENDIUM_IMPORT_OPTIONS = {
-    features: {
-      chrisPremades: true,
-      removeSRDDuplicates: false,
-      filterDuplicates: false,
-      deleteBeforeUpdate: false,
-      matchFlags: ["id"],
-      useCompendiumFolders: true,
-      indexFilter: {
-        fields: [
-          "name",
-          "flags.ddbimporter",
-          "system.type.subtype",
-        ],
-      },
-    },
-    traits: {
-      chrisPremades: true,
-      matchFlags: ["fullRaceName", "groupName"],
-      useCompendiumFolders: true,
-      deleteBeforeUpdate: false,
-    },
-    feat: {
-      chrisPremades: true,
-      deleteBeforeUpdate: false,
-    },
-  };
-
   async addToCompendiums() {
     if (!game.settings.get(SETTINGS.MODULE_ID, "add-features-to-compendiums")) return;
     const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "update-add-features-to-compendiums");
@@ -779,24 +753,8 @@ export default class CharacterFeatureFactory {
       await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
     }
 
-    const traitHandlerOptions = {
-      chrisPremades: true,
-      matchFlags: ["fullRaceName", "groupName"],
-      useCompendiumFolders: true,
-      deleteBeforeUpdate: false,
-    };
-
     const traitCompendiumFolders = new DDBCompendiumFolders("traits");
     await traitCompendiumFolders.loadCompendium("traits");
-    const species = documents.filter((doc) => doc.type === "race");
-    for (const doc of species) {
-      const groupName = foundry.utils.getProperty(doc, "flags.ddbimporter.groupName");
-      const fullName = foundry.utils.getProperty(doc, "flags.ddbimporter.fullName");
-      await traitCompendiumFolders.createSubTraitFolders(groupName, fullName);
-    }
-
-    const speciesHandler = await DDBItemImporter.buildHandler("race", species, updateFeatures, traitHandlerOptions);
-    await speciesHandler.buildIndex(featureHandlerOptions.indexFilter);
 
     const traitFeatures = featTypeDocs.filter((doc) =>
       ["race", "trait", "species"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
@@ -805,9 +763,25 @@ export default class CharacterFeatureFactory {
     logger.debug(`Adding species traits to the species compendium`, {
       traitFeatures,
     });
-    const traitHandler = await DDBItemImporter.buildHandler("trait", traitFeatures, updateFeatures, traitHandlerOptions);
-    await traitHandler.buildIndex(featureHandlerOptions.indexFilter);
 
+    const groupName = this.ddbCharacter._ddbRace.groupName;
+    const fullName = this.ddbCharacter._ddbRace.fullName;
+    const isLineage = this.ddbCharacter._ddbRace.isLineage;
+    if (isLineage) {
+      await traitCompendiumFolders.createSubTraitFolders(groupName, groupName);
+    } else {
+      await traitCompendiumFolders.createSubTraitFolders(groupName, fullName);
+    }
+
+    const traitHandlerOptions = {
+      chrisPremades: true,
+      matchFlags: isLineage ? ["groupName", "isLineage"] : ["fullRaceName", "groupName", "isLineage"],
+      useCompendiumFolders: true,
+      deleteBeforeUpdate: false,
+    };
+
+    const traitHandler = await DDBItemImporter.buildHandler("trait", traitFeatures, updateFeatures, traitHandlerOptions);
+    await traitHandler.buildIndex(traitHandlerOptions.indexFilter);
 
     const featHandlerOptions = {
       chrisPremades: true,
@@ -821,7 +795,7 @@ export default class CharacterFeatureFactory {
       featFeatures,
     });
     const featHandler = await DDBItemImporter.buildHandler("feats", featFeatures, updateFeatures, featHandlerOptions);
-    await featHandler.buildIndex(featureHandlerOptions.indexFilter);
+    await featHandler.buildIndex(featHandlerOptions.indexFilter);
 
     const backgroundFeatures = documents.filter((doc) =>
       ["background"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
@@ -831,7 +805,7 @@ export default class CharacterFeatureFactory {
       backgroundFeatures,
     });
     const backgroundHandler = await DDBItemImporter.buildHandler("background", backgroundFeatures, updateFeatures, featHandlerOptions);
-    await backgroundHandler.buildIndex(featureHandlerOptions.indexFilter);
+    await backgroundHandler.buildIndex(featHandlerOptions.indexFilter);
 
   }
 

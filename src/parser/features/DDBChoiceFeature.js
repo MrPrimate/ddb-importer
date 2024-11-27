@@ -16,13 +16,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static NO_CHOICE_BUILD = DICTIONARY.parsing.choiceFeatures.NO_CHOICE_BUILD;
 
-  static NO_CHOICE_SECRET = DICTIONARY.parsing.choiceFeatures.NO_CHOICE_SECRET;
-
-  static USE_ALL_CHOICES = DICTIONARY.parsing.choiceFeatures.USE_ALL_CHOICES;
-
   static NO_CHOICE_ACTIVITY = DICTIONARY.parsing.choiceFeatures.NO_CHOICE_ACTIVITY;
-
-  static NO_CHOICE_DESCRIPTION_ADDITION = DICTIONARY.parsing.choiceFeatures.NO_CHOICE_DESCRIPTION_ADDITION;
 
   _prepare() {
     this._levelScale = null;
