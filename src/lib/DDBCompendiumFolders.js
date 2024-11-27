@@ -702,11 +702,13 @@ export class DDBCompendiumFolders {
     // const lowercaseName = name.toLowerCase();
 
     const groupName = foundry.utils.getProperty(document, "flags.ddbimporter.groupName");
+    const isLineage = foundry.utils.getProperty(document, "flags.ddbimporter.isLineage");
+    const tagName = isLineage ? groupName : fullSpeciesName;
 
-    result.name = fullSpeciesName === groupName
+    result.name = fullSpeciesName === groupName || isLineage
       ? "Traits"
       : `${fullSpeciesName} Traits`;
-    result.flagTag = `trait/${groupName}/${fullSpeciesName}`;
+    result.flagTag = `trait/${groupName}/${tagName}`;
 
     return result;
   }
@@ -999,6 +1001,7 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.isSubRace",
           "flags.ddbimporter.fullRaceName",
           "flags.ddbimporter.groupName",
+          "flags.ddbimporter.isLineage",
         ];
       }
       default:
