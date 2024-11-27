@@ -1286,6 +1286,9 @@ const DICTIONARY = {
         "Maneuver: Disarming Attack (Dex.)",
         "Maneuver: Parry (Dex.)",
         "Maneuver: Menacing Attack (Dex.)",
+        "Elven Lineage Spells",
+        "Gnomish Lineage Spells",
+        "Fiendish Lineage Spells",
       ],
       SKIPPED_FEATURES_STARTS_WITH: [
         "Metamagic Options:",
@@ -1403,6 +1406,9 @@ const DICTIONARY = {
         "Elven Lineage",
       ],
       USE_ALL_CHOICES: [
+      ],
+      USE_CHOSEN_ONLY: [
+        "Elven Lineage",
       ],
       NO_CHOICE_ACTIVITY: [
         "Mystic Arcanum (",
