@@ -1,5 +1,5 @@
 import { SETTINGS, DICTIONARY } from "../../config/_module.mjs";
-import { utils, logger, DDBHelper, CompendiumHelper, FileHelper } from "../../lib/_module.mjs";
+import { utils, logger, DDBHelper, CompendiumHelper, FileHelper, DDBCompendiumFolders, DDBItemImporter } from "../../lib/_module.mjs";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
 import { DDBReferenceLinker } from "../lib/_module.mjs";
 
@@ -11,6 +11,12 @@ export default class DDBRace {
   static EXCLUDED_FEATURE_ADVANCEMENTS = [];
 
   static EXCLUDED_FEATURE_ADVANCEMENTS_2014 = [];
+
+  static FORCE_SUBRACE_2024 = [
+    "Elf",
+    "Gnome",
+    "Tiefling",
+  ];
 
   static getGroupName(ids, baseRaceName) {
     const ddbGroup = CONFIG.DDB.raceGroups.find((r) => ids.includes(r.id));
@@ -51,31 +57,59 @@ export default class DDBRace {
     }
   }
 
+  get lineageName() {
+    if (!this.lineageTrait) return null;
+    return this.lineageTrait.label.replace(" Lineage", "").trim();
+  }
+
+  #getLineageTrait() {
+    if (DDBRace.FORCE_SUBRACE_2024.includes(this.race.baseRaceName)) {
+      const lineageTrait = this.race.racialTraits.find((r) => r.definition.name.includes("Lineage"));
+      const choice = DDBHelper.getChoices({ ddb: this.ddbData, type: "race", feat: lineageTrait, selectionOnly: true });
+      this.isLineage = true;
+      return choice[0];
+    }
+    return null;
+  }
+
+  #getFullName() {
+    const baseName = this.race.fullName ?? this.race.name;
+    if (this.is2014) return baseName;
+    const lineageName = this.lineageName;
+    if (lineageName) return lineageName;
+    return baseName;
+  }
+
   constructor(ddbData, race, compendiumRacialTraits, noMods = false) {
     this.ddbData = ddbData;
     this.race = race;
+    this.is2014 = this.race.isLegacy
+      && this.race.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+
     this.#fixups();
     this.compendiumRacialTraits = compendiumRacialTraits;
     this._generateDataStub();
     this.type = "humanoid";
     this._compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");
 
-    this.data.name = (this.race.fullName) ? utils.nameString(this.race.fullName) : utils.nameString(this.race.name);
+    this.isLineage = false;
+    this.lineageTrait = this.#getLineageTrait();
+    this.fullName = this.#getFullName();
+
+    this.data.name = utils.nameString(this.fullName);
     this.data.system.description.value += `${this.race.description}\n\n`;
 
-    this.fullName = this.race.fullName;
     this.isLegacy = this.race.isLegacy;
     this.baseRaceName = this.race.baseRaceName;
     this.groupName = DDBRace.getGroupName(this.race.groupIds, this.baseRaceName);
-    this.isSubRace = this.race.isSubRace || this.groupName !== this.raceName;
+    this.isSubRace = this.race.isSubRace || this.groupName !== this.fullName;
 
     const sourceIds = this.race.sources.map((sm) => sm.sourceId);
     this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
       sourceIds.includes(ddbSource.id)
       && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
-    this.is2014 = this.race.isLegacy
-      && this.race.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+
 
     this.data.flags.ddbimporter = {
       type: "race",
@@ -85,8 +119,8 @@ export default class DDBRace {
       baseName: this.race.baseName,
       baseRaceId: this.race.baseRaceId,
       baseRaceName: this.race.baseRaceName,
-      fullName: this.race.fullName,
-      fullRaceName: this.race.fullName,
+      fullName: this.fullName,
+      fullRaceName: this.fullName,
       subRaceShortName: this.race.subRaceShortName,
       isHomebrew: this.race.isHomebrew,
       isLegacy: this.race.isLegacy,
@@ -98,6 +132,8 @@ export default class DDBRace {
       featIds: this.race.featIds,
       groupIds: this.race.groupIds,
       groupName: this.groupName,
+      isLineage: this.isLineage,
+      lineageName: this.lineageName,
     };
 
     if (this.race.moreDetailsUrl) {
@@ -130,7 +166,28 @@ export default class DDBRace {
       name: null,
       uuid: null,
     };
+
+    // compendium
+    this._compendiums = {
+      traits: CompendiumHelper.getCompendiumType("traits", false),
+    };
+    this._indexFilter = {
+      traits: {
+        fields: [
+          "name",
+          "flags.ddbimporter.fullRaceName",
+          "flags.ddbimporter.isLineage",
+        ],
+      },
+    };
   }
+
+  async _buildCompendiumIndex(type, indexFilter = {}) {
+    if (Object.keys(indexFilter).length > 0) this._indexFilter[type] = indexFilter;
+    if (!this._compendiums[type]) return;
+    await this._compendiums[type].getIndex(this._indexFilter[type]);
+  }
+
 
   async _generateRaceImage() {
     let avatarUrl;
@@ -489,13 +546,9 @@ export default class DDBRace {
   }
 
   // #generateScaleValueAdvancements() {
-
   //   for (const trait of this.race.racialTraits) {
-
   //     continue;
-
   //     let specialFeatures = [];
-
   //     let advancement = AdvancementHelper.generateScaleValueAdvancement(trait);
   //     const specialLookup = DDBRace.SPECIAL_ADVANCEMENTS[advancement.title];
   //     if (specialLookup) {
@@ -506,12 +559,9 @@ export default class DDBRace {
   //       }
   //       if (specialLookup.fixFunction) advancement = specialLookup.fixFunction(advancement, specialLookup.functionArgs);
   //     }
-
   //     this.data.system.advancement.push(advancement);
   //     this.data.system.advancement.push(...specialFeatures);
-
   //   }
-
   // }
 
   #advancementFixes() {
@@ -559,6 +609,7 @@ export default class DDBRace {
       logger.error("Error generating race image, probably because you don't have permission to browse the host file system.", { e });
     }
 
+    await this._buildCompendiumIndex("traits", ["name", "fullRaceName"]);
 
     this.race.racialTraits.forEach((t) => {
       const trait = t.definition;
@@ -597,6 +648,33 @@ export default class DDBRace {
     } else {
       return [];
     }
+  }
+
+  async addToCompendium() {
+    if (!game.settings.get(SETTINGS.MODULE_ID, "add-features-to-compendiums")) return;
+    const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "update-add-features-to-compendiums");
+
+    const traitHandlerOptions = {
+      chrisPremades: true,
+      matchFlags: ["fullRaceName", "groupName", "isLineage"],
+      useCompendiumFolders: true,
+      deleteBeforeUpdate: false,
+    };
+
+    const traitCompendiumFolders = new DDBCompendiumFolders("traits");
+    await traitCompendiumFolders.loadCompendium("traits");
+
+    if (this.isLineage) {
+      await traitCompendiumFolders.createSubTraitFolders(this.groupName, this.groupName);
+    } else {
+      await traitCompendiumFolders.createSubTraitFolders(this.groupName, this.fullName);
+    }
+
+    const race = foundry.utils.deepClone(this.data);
+
+    const speciesHandler = await DDBItemImporter.buildHandler("race", [race], updateFeatures, traitHandlerOptions);
+    await speciesHandler.buildIndex(traitHandlerOptions.indexFilter);
+
   }
 
 }
