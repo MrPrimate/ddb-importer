@@ -267,7 +267,7 @@ export class DDBCompendiumFolders {
     await this.createFeatureFolder(className, "Optional Features", classFolderId);
 
     if (className === "Artificer") {
-      await this.createFeatureFolder(className, "Infusions", classFolderId, { tagPrefix: "infusions" });
+      await this.createFeatureFolder(className, "Infusions", classFolderId);
     } else if (className === "Sorcerer") {
       await this.createFeatureFolder(className, "Metamagic", classFolderId);
     } else if (className === "Warlock") {
@@ -637,10 +637,10 @@ export class DDBCompendiumFolders {
 
     if (infusion) {
       result.name = "Infusions";
-      result.flagTag = `infusions/${className}`;
+      result.flagTag = `features/${className}/Infusions`;
     } else if (optional) {
       result.name = "Optional Features";
-      result.flagTag = `features/${className}/optional/`;
+      result.flagTag = `features/${className}/Optional Features`;
     // specialist folders
     } else if (subType === "metamagic" && className === "Sorcerer") {
       result.name = "Metamagic";
@@ -667,17 +667,17 @@ export class DDBCompendiumFolders {
       result.name = "Unknown";
     }
 
-    // console.warn(`Folder Name`, {
-    //   result,
-    //   subClassName,
-    //   className,
-    //   optional,
-    //   infusion,
-    //   subType,
-    //   validSubclass,
-    //   validClass,
-    //   document,
-    // });
+    console.warn(`Folder Name for ${document.name}`, {
+      result,
+      subClassName,
+      className,
+      optional,
+      infusion,
+      subType,
+      validSubclass,
+      validClass,
+      document,
+    });
 
     if (result.name) return result;
     else return undefined;

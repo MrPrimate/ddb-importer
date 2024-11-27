@@ -63,6 +63,7 @@ export default class DDBRace {
   }
 
   #getLineageTrait() {
+    if (this.is2014) return null;
     if (DDBRace.FORCE_SUBRACE_2024.includes(this.race.baseRaceName)) {
       const lineageTrait = this.race.racialTraits.find((r) => r.definition.name.includes("Lineage"));
       const choice = DDBHelper.getChoices({ ddb: this.ddbData, type: "race", feat: lineageTrait, selectionOnly: true });
@@ -74,7 +75,6 @@ export default class DDBRace {
 
   #getFullName() {
     const baseName = this.race.fullName ?? this.race.name;
-    if (this.is2014) return baseName;
     const lineageName = this.lineageName;
     if (lineageName) return lineageName;
     return baseName;
@@ -176,7 +176,9 @@ export default class DDBRace {
         fields: [
           "name",
           "flags.ddbimporter.fullRaceName",
+          "flags.ddbimporter.groupName",
           "flags.ddbimporter.isLineage",
+          "flags.ddbimporter.featureMeta",
         ],
       },
     };

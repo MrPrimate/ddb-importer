@@ -741,6 +741,7 @@ export default class CharacterFeatureFactory {
       logger.debug(`Processing class ${klassName} into the class compendium`);
       const classFeatures = featTypeDocs.filter((doc) =>
         ["class", "subclass"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
+        && !foundry.utils.getProperty(doc, "flags.ddbimporter.infusionFeature")
         && (klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.class")
         || klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.class")),
       );

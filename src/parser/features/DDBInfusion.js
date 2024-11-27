@@ -36,7 +36,7 @@ export class DDBInfusion {
         ddbimporter: {
           id: this.ddbInfusion.id,
           infusionId: this.ddbInfusion.id,
-          class: "Artificer",
+          class: this.originClass,
           infusionFeature: true,
           type: this.tagType,
           dndbeyond: {
@@ -64,7 +64,7 @@ export class DDBInfusion {
     this.data.system.source.rules = "2014";
 
     if (this.requiredLevel && this.requiredLevel > 1) {
-      this.data.system.requirements = ` ${utils.ordinalSuffixOf(this.requiredLevel)}-level Artificer`;
+      this.data.system.requirements = ` ${utils.ordinalSuffixOf(this.requiredLevel)}-level ${this.originClass}`;
     }
   }
 
@@ -83,6 +83,7 @@ export class DDBInfusion {
     this.ddbInfusion = ddbInfusion;
     this.name = utils.nameString(this.ddbInfusion.name);
     this.type = "feat";
+    this.originClass = "Artificer";
     this.isAction = false;
     this.documentType = documentType;
     this.tagType = "infusion";
@@ -136,7 +137,7 @@ export class DDBInfusion {
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
     const itemText = foundry.utils.getProperty(this.ddbInfusion, "itemRuleData.text");
     const prerequisitesHeader = this.requiredLevel && this.requiredLevel > 1
-      ? `<p><i>Prerequisites: ${utils.ordinalSuffixOf(this.requiredLevel)}-level Artificer</i></p>`
+      ? `<p><i>Prerequisites: ${utils.ordinalSuffixOf(this.requiredLevel)}-level ${this.originClass}</i></p>`
       : "";
     const itemHeader = itemText
       ? `<p><i>Item: ${itemText}</i></p>`
@@ -152,7 +153,7 @@ export class DDBInfusion {
 
   _generateSystemType() {
     foundry.utils.setProperty(this.data, "system.type.value", "enchantment");
-    foundry.utils.setProperty(this.data, "system.type.subtype", "artificerInfusion");
+    foundry.utils.setProperty(this.data, "system.type.subtype", `${this.originClass.toLowerCase()}Infusion`);
   }
 
   _generateEnchantmentType() {
@@ -175,27 +176,28 @@ export class DDBInfusion {
       noCreateClassFolders: true,
     });
     await this.compendiumFolders.loadCompendium("features");
+    await this.compendiumFolders.createClassFeatureFolder(this.originClass);
   }
 
   async addInfusionsToCompendium(documents) {
-    const featureHandlerOptions = {
+    const handlerOptions = {
       chrisPremades: false,
       deleteBeforeUpdate: false,
       removeSRDDuplicates: false,
       filterDuplicates: false,
-      matchFlags: ["infusionId", "is2014", "is2024"],
+      matchFlags: ["infusionId"],
       useCompendiumFolders: true,
     };
 
     logger.debug(`Creating infusion compendium feature`, {
       documents,
-      featureHandlerOptions,
+      handlerOptions,
       addToCompendium: this.addToCompendium,
       this: this,
     });
     const featureHandler = this.addToCompendium
-      ? await DDBItemImporter.buildHandler("features", documents, true, featureHandlerOptions)
-      : new DDBItemImporter("features", documents, featureHandlerOptions);
+      ? await DDBItemImporter.buildHandler("features", documents, true, handlerOptions)
+      : new DDBItemImporter("features", documents, handlerOptions);
     await featureHandler.buildIndex({
       fields: [
         "name",
@@ -243,7 +245,7 @@ export class DDBInfusion {
           enricher: this.enricher,
         });
       action.build();
-      foundry.utils.setProperty(action.data, "flags.ddbimporter.class", "Artificer");
+      foundry.utils.setProperty(action.data, "flags.ddbimporter.class", this.originClass);
       foundry.utils.setProperty(action.data, "flags.ddbimporter.infusionFeature", true);
       foundry.utils.setProperty(action.data, "flags.ddbimporter.infusionId", actionData.id);
       action._id = utils.namedIDStub(actionData.name);

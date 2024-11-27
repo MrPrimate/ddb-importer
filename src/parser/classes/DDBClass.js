@@ -378,12 +378,14 @@ export default class DDBClass {
           "flags.ddbimporter.subClass",
           "flags.ddbimporter.parentClassId",
           "flags.ddbimporter.featureName",
+          "flags.ddbimporter.featureMeta",
         ],
       },
       feats: {
         fields: [
           "name",
           "flags.ddbimporter",
+          "flags.ddbimporter.featureMeta",
         ],
       },
       class: {},
@@ -608,7 +610,9 @@ export default class DDBClass {
 
   async _generateFeatureAdvancementFromCompendiumMatch(feature) {
     const featureMatch = this.getFeatureCompendiumMatch(feature);
-    if (!featureMatch) return;
+    if (!featureMatch) {
+      return;
+    }
     const levelAdvancement = this.featureAdvancements.findIndex((advancement) => advancement.level === feature.requiredLevel);
 
     if (levelAdvancement == -1) {
