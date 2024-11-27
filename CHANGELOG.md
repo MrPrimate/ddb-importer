@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.52
 
 - Refactoring for monster effect generation.
 - Background work to allow feats, races, and classes/class features to be imported into compendiums.
@@ -8,6 +8,7 @@
 - Species now add damage resistances advancements.
 - 2024 Elfs, Tieflings and Gnomes now import as seperate species rather than a generic one.
 - Improved parsing of Species advancements for 2024 (more on the way, I know this is currently very limited).
+- New option in Advanced character import settings to import to compendiums. This imports classes (level 20 characters only), features, feats, backgrounds, species and traits into the relevant DDB Importer compendiums. Please note, these will use a different structure to compendiums created in earlier versions of the software and D&D Systems. Classes, subclasses and features now go into the DDB Classes compendium. Species and Traits now go into the DDB Species compendium.
 
 # 6.0.51
 
