@@ -1900,5 +1900,9 @@
   {
     "name": "Psychic Resilience",
     "path": "icons/magic/symbols/triangle-glowing-green.webp"
+  },
+  {
+    "name": "Elven Lineage",
+    "path": "icons/magic/air/wind-weather-sailing-ship.webp"
   }
 ]
