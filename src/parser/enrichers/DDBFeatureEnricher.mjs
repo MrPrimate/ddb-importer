@@ -56,7 +56,13 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     "Powerful Build, Hippo Build": "Hippo Build",
   };
 
+  NAME_HINT_INCLUDES = {
+    " Lineage": "Lineage",
+  };
+
   ENRICHERS = {
+    None: GenericEnrichers.None,
+    "Lineage": SpeciesEnrichers.Generic.Lineage,
     "Abjure Foes": ClassEnrichers.Paladin.AbjureFoes,
     "Alert": FeatEnrichers.Alert,
     "Arcane Recovery": ClassEnrichers.Wizard.ArcaneRecovery,
