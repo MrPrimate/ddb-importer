@@ -9,6 +9,7 @@ export default class SorcerousBurst extends DDBEnricherData {
   get activity() {
     return {
       name: "Initial Damage",
+      removeDamageParts: true,
       damageParts: [
         DDBEnricherData.basicDamagePart({
           customFormula: "1d8x@mod=8",
