@@ -421,7 +421,7 @@ export default class CharacterFeatureFactory {
     this.#addGenericAdvancementOrigins(types);
   }
 
-  async getFeaturesFromDefinition(featDefinition, type) {
+  async getFeaturesFromDefinition(featDefinition, type, flags = {}) {
     const source = DDBHelper.parseSource(featDefinition);
     const ddbFeature = new DDBFeature({
       ddbCharacter: this.ddbCharacter,
@@ -430,6 +430,7 @@ export default class CharacterFeatureFactory {
       rawCharacter: this.rawCharacter,
       type,
       source,
+      extraFlags: flags,
     });
     ddbFeature.build();
     logger.debug(`CharacterFeatureFactory.getFeaturesFromDefinition (type: ${type}): ${ddbFeature.ddbDefinition.name}`, {
@@ -536,7 +537,16 @@ export default class CharacterFeatureFactory {
         .filter((feat) => CharacterFeatureFactory.includedFeatureNameCheck(feat.name));
       for (const feat of options) {
         logger.debug(`Parsing Optional Feature ${feat.name}`);
-        const feats = await this.getFeaturesFromDefinition(feat, "class");
+        const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === feat.classId
+            || cls.subclassDefinition?.id === feat.classId);
+        const flags = {
+          "ddbimporter": {
+            class: klass.definition.name,
+            classId: klass.definition.id,
+            optionalFeature: true,
+          },
+        };
+        const feats = await this.getFeaturesFromDefinition(feat, "class", flags);
         this.parsed[type].push(...feats);
       };
     }

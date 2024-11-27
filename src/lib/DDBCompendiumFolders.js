@@ -667,17 +667,17 @@ export class DDBCompendiumFolders {
       result.name = "Unknown";
     }
 
-    console.warn(`Folder Name for ${document.name}`, {
-      result,
-      subClassName,
-      className,
-      optional,
-      infusion,
-      subType,
-      validSubclass,
-      validClass,
-      document,
-    });
+    // console.warn(`Folder Name for ${document.name}`, {
+    //   result,
+    //   subClassName,
+    //   className,
+    //   optional,
+    //   infusion,
+    //   subType,
+    //   validSubclass,
+    //   validClass,
+    //   document,
+    // });
 
     if (result.name) return result;
     else return undefined;
