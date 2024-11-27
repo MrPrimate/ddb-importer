@@ -41,6 +41,7 @@ export default class DDBRaceTrait {
       version: CONFIG.DDBI.version,
       sourceId: this.trait.sources.length > 0 ? [0].sourceId : -1, // is homebrew
       baseName: this.name,
+      originalName: this.name,
       spellListIds: this.trait.spellListIds,
       definitionKey: this.trait.definitionKey,
       race: this.baseName,

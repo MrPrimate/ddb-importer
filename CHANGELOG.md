@@ -6,6 +6,7 @@
 - If character is a Warcaster hard set Concentration with advantage as the character sheet does not show effects modifying this field.
 - Sorcerous Burst damage was incorrectly parsed.
 - Species now add damage resistances advancements.
+- 2024 Elfs, Tieflings and Gnomes now import as seperate species rather than a generic one.
 - Improved parsing of Species advancements for 2024 (more on the way, I know this is currently very limited).
 
 # 6.0.51
