@@ -109,8 +109,8 @@ export async function generateFeatureAdvancements(klass, compendiumClassFeatures
     .filter((feature) => !ignoreIds.includes(feature.id))
     .forEach((feature) => {
       const featureMatch = compendiumClassFeatures.find((match) => {
-        const matchName = foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
-          ? foundry.utils.getProperty(match, "flags.ddbimporter.featureName").trim().toLowerCase()
+        const matchName = foundry.utils.hasProperty(match, "flags.ddbimporter.originalName")
+          ? foundry.utils.getProperty(match, "flags.ddbimporter.originalName").trim().toLowerCase()
           : match.name.trim().toLowerCase();
         return feature.name.trim().toLowerCase() == matchName
           && foundry.utils.hasProperty(match, "flags.ddbimporter")
@@ -160,8 +160,8 @@ export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreI
     // sort by level?
     if (!classFeaturesAdded && !ignoreIds.includes(feature.id)) {
       const featureMatch = compendiumClassFeatures.find((match) => {
-        const matchName = foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
-          ? foundry.utils.getProperty(match, "flags.ddbimporter.featureName").trim().toLowerCase()
+        const matchName = foundry.utils.hasProperty(match, "flags.ddbimporter.originalName")
+          ? foundry.utils.getProperty(match, "flags.ddbimporter.originalName").trim().toLowerCase()
           : match.name.trim().toLowerCase();
         return feature.name.trim().toLowerCase() == matchName
           && foundry.utils.hasProperty(match, "flags.ddbimporter")
@@ -190,7 +190,7 @@ export async function getClassFeature(feature, klass, subClassName = "", classNa
 
   result.name = feature.name;
   result.flags.ddbimporter['featureId'] = feature.id;
-  result.flags.ddbimporter['featureName'] = feature.name;
+  result.flags.ddbimporter['originalName'] = feature.name;
   result.flags.ddbimporter['requiredLevel'] = feature.requiredLevel;
   result.flags.ddbimporter['prerequisite'] = feature.prerequisite;
   result.flags.ddbimporter['class'] = className ?? klass.name;

@@ -59,13 +59,13 @@ export default class DDBRace {
 
   get lineageName() {
     if (!this.lineageTrait) return null;
-    return this.lineageTrait.label.replace(" Lineage", "").trim();
+    return this.lineageTrait.label.replace(" Lineage", "").replace(" Legacy", "").trim();
   }
 
   #getLineageTrait() {
     if (this.is2014) return null;
     if (DDBRace.FORCE_SUBRACE_2024.includes(this.race.baseRaceName)) {
-      const lineageTrait = this.race.racialTraits.find((r) => r.definition.name.includes("Lineage"));
+      const lineageTrait = this.race.racialTraits.find((r) => r.definition.name.includes("Lineage") || r.definition.name.includes("Fiendish Legacy"));
       const choice = DDBHelper.getChoices({ ddb: this.ddbData, type: "race", feat: lineageTrait, selectionOnly: true });
       this.isLineage = true;
       return choice[0];
@@ -179,9 +179,16 @@ export default class DDBRace {
           "flags.ddbimporter.groupName",
           "flags.ddbimporter.isLineage",
           "flags.ddbimporter.featureMeta",
+          "flags.ddbimporter.baseName",
+          "flags.ddbimporter.entityRaceId",
         ],
       },
     };
+
+    this._advancementMatches = {
+      traits: {},
+    };
+
   }
 
   async _buildCompendiumIndex(type, indexFilter = {}) {
@@ -249,11 +256,14 @@ export default class DDBRace {
   #addFeatureDescription(trait) {
     // for whatever reason 2024 races still have a hidden ability score entry
     if (!this.is2014 && trait.name.startsWith("Ability Score ")) return;
-    const featureMatch = this.compendiumRacialTraits?.find((match) =>
-      foundry.utils.hasProperty(match, "flags.ddbimporter.baseName") && foundry.utils.hasProperty(match, "flags.ddbimporter.entityRaceId")
-      && utils.nameString(trait.name) === utils.nameString(match.flags.ddbimporter.baseName)
-      && match.flags.ddbimporter.entityRaceId === trait.entityRaceId,
-    );
+    const featureMatch = this.compendiumRacialTraits?.find((match) => {
+      const baseName = foundry.utils.getProperty(match, "flags.ddbimporter.baseName");
+      if (!baseName) return false;
+      const entityRaceId = foundry.utils.getProperty(match, "flags.ddbimporter.entityRaceId");
+      if (!entityRaceId) return false;
+      return utils.nameString(trait.name) === utils.nameString(baseName)
+      && entityRaceId === trait.entityRaceId;
+    });
     const title = (featureMatch) ? `<p><b>@Compendium[${this._compendiumLabel}.${featureMatch._id}]{${trait.name}}</b></p>` : `<p><b>${trait.name}</b></p>`;
     this.data.system.description.value += `${title}\n${trait.description}\n\n`;
   }
@@ -463,6 +473,77 @@ export default class DDBRace {
     if (advancement) this.data.system.advancement.push(advancement.toObject());
   }
 
+  /**
+   * Finds a match in the compendium trait for the given feature.
+   *
+   * @param {object} trait The trait to find a match for.
+   * @returns {object|undefined} - The matched feature, or undefined if no match is found.
+   */
+  #getTraitCompendiumMatch(trait) {
+    if (!this._compendiums.traits) {
+      return [];
+    }
+    logger.debug(`Getting trait match for ${trait.name}`);
+    return this._compendiums.traits.index.find((match) => {
+      const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
+        ?? foundry.utils.getProperty(match, "flags.ddbimporter");
+      if (!matchFlags) return false;
+      const featureFlagName = foundry.utils.getProperty(matchFlags, "originalName")?.trim().toLowerCase();
+      const featureFlagNameMatch = featureFlagName
+        && featureFlagName == trait.name.trim().toLowerCase();
+      const nameMatch = !featureFlagNameMatch
+        && match.name.trim().toLowerCase() == trait.name.trim().toLowerCase();
+
+      if (!nameMatch && !featureFlagNameMatch) {
+        logger.debug(`Unable to find ${trait.name} in compendium`, { trait, matchFlags, match });
+        return false;
+      }
+
+      const traitMatch
+        = matchFlags.fullRaceName == this.race.fullName
+          || (matchFlags.groupName == this.groupName
+            && matchFlags.isLineage == this.isLineage);
+      return traitMatch;
+    });
+  }
+
+  traitAdvancements = [];
+
+  async #generateTraitAdvancementFromCompendiumMatch(trait) {
+    const traitMatch = this.#getTraitCompendiumMatch(trait);
+
+    if (!traitMatch) return;
+
+    const shouldInclude = !DDBRace.EXCLUDED_FEATURE_ADVANCEMENTS.includes(trait.name)
+      || (this.is2014 && DDBRace.EXCLUDED_FEATURE_ADVANCEMENTS_2014.includes(trait.name));
+    if (!shouldInclude) return;
+    const requiredLevel = trait.requiredLevel ?? 0;
+    const levelAdvancement = this.traitAdvancements.findIndex((advancement) => advancement.level === requiredLevel);
+
+    if (levelAdvancement == -1) {
+      const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+      this._advancementMatches.traits[advancement._id] = {};
+      this._advancementMatches.traits[advancement._id][traitMatch.name] = traitMatch.uuid;
+
+      const update = {
+        configuration: {
+          items: [{ uuid: traitMatch.uuid }],
+        },
+        value: {},
+        level: requiredLevel,
+        title: "Traits",
+        icon: "",
+        classRestriction: "",
+      };
+      advancement.updateSource(update);
+      const obj = advancement.toObject();
+      this.traitAdvancements.push(obj);
+      this.data.system.advancement.push(obj);
+    } else {
+      this.traitAdvancements[levelAdvancement].configuration.items.push({ uuid: traitMatch.uuid, optional: false });
+      this._advancementMatches.traits[this.traitAdvancements[levelAdvancement]._id][traitMatch.name] = traitMatch.uuid;
+    }
+  }
 
   linkFeatures(ddbCharacter) {
     logger.debug("Linking Advancements to Feats for Race", {
@@ -508,7 +589,6 @@ export default class DDBRace {
       }
     });
     logger.debug("Processed race advancements", ddbCharacter.data.race.system.advancement);
-
   }
 
   #generateHTMLSenses() {
@@ -522,7 +602,6 @@ export default class DDBRace {
     if (darkVisionMatch) {
       this.data.system.senses.darkvision = parseInt(darkVisionMatch[1]);
     }
-
   }
 
   #generateSenses() {
@@ -611,7 +690,7 @@ export default class DDBRace {
       logger.error("Error generating race image, probably because you don't have permission to browse the host file system.", { e });
     }
 
-    await this._buildCompendiumIndex("traits", ["name", "fullRaceName"]);
+    await this._buildCompendiumIndex("traits", this._indexFilter.traits);
 
     this.race.racialTraits.forEach((t) => {
       const trait = t.definition;
@@ -625,6 +704,8 @@ export default class DDBRace {
       this.#generateFeatAdvancement(trait);
       this.#generateConditionAdvancement(trait);
       // FUTURE, spells (at various levels, when supported)
+
+      this.#generateTraitAdvancementFromCompendiumMatch(trait);
     });
 
     this.#generateAbilityAdvancement();

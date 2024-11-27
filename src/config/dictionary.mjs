@@ -1288,7 +1288,7 @@ const DICTIONARY = {
         "Maneuver: Menacing Attack (Dex.)",
         "Elven Lineage Spells",
         "Gnomish Lineage Spells",
-        "Fiendish Lineage Spells",
+        "Fiendish Legacy Spells",
       ],
       SKIPPED_FEATURES_STARTS_WITH: [
         "Metamagic Options:",

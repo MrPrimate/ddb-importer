@@ -58,6 +58,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
 
   NAME_HINT_INCLUDES = {
     " Lineage": "Lineage",
+    " Legacy": "Lineage",
   };
 
   ENRICHERS = {

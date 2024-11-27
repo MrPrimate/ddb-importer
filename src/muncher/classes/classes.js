@@ -106,7 +106,7 @@ export async function getClasses(data) {
     logger.debug(`${klass.name} feature parsing started...`, { klass });
     for (const feature of klass.classFeatures.sort((a, b) => a.requiredLevel - b.requiredLevel)) {
       const existingFeature = classFeatures.some((f) =>
-        f.flags.ddbimporter.featureName === feature.name
+        f.flags.ddbimporter.originalName === feature.name
         && f.flags.ddbimporter.classId === klass.id,
       );
       logger.debug(`${feature.name} class feature starting...`, { existingFeature, feature });

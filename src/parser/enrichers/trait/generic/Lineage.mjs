@@ -10,7 +10,7 @@ export default class Lineage extends DDBEnricherData {
   get override() {
     return {
       data: {
-        name: `${this.data.name}`.replace(/ Lineage$/i, ""),
+        name: `${this.data.name}`.replace(/ Lineage| Legacy$/i, ""),
       },
     };
   }

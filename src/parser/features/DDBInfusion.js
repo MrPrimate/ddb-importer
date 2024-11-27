@@ -205,7 +205,7 @@ export class DDBInfusion {
         "flags.ddbimporter.class",
         "flags.ddbimporter.subClass",
         "flags.ddbimporter.parentClassId",
-        "flags.ddbimporter.featureName",
+        "flags.ddbimporter.originalName",
         "flags.ddbimporter.infusionId",
       ],
     });

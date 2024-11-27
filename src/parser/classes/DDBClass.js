@@ -377,7 +377,7 @@ export default class DDBClass {
           "flags.ddbimporter.class",
           "flags.ddbimporter.subClass",
           "flags.ddbimporter.parentClassId",
-          "flags.ddbimporter.featureName",
+          "flags.ddbimporter.originalName",
           "flags.ddbimporter.featureMeta",
         ],
       },
@@ -509,7 +509,7 @@ export default class DDBClass {
       const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
         ?? foundry.utils.getProperty(match, "flags.ddbimporter");
       if (!matchFlags) return false;
-      const featureFlagName = foundry.utils.getProperty(matchFlags, "featureName")?.trim().toLowerCase();
+      const featureFlagName = foundry.utils.getProperty(matchFlags, "originalName")?.trim().toLowerCase();
       const featureFlagNameMatch = featureFlagName
         && featureFlagName == feature.name.trim().toLowerCase();
       const nameMatch = !featureFlagNameMatch
@@ -532,9 +532,9 @@ export default class DDBClass {
     }
     const smallName = featName.trim().toLowerCase();
     return this._compendiums.feats.index.find((match) =>
-      ((foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
-        && smallName == match.flags.ddbimporter.featureName.trim().toLowerCase())
-        || (!foundry.utils.hasProperty(match, "flags.ddbimporter.featureName")
+      ((foundry.utils.hasProperty(match, "flags.ddbimporter.originalName")
+        && smallName == match.flags.ddbimporter.originalName.trim().toLowerCase())
+        || (!foundry.utils.hasProperty(match, "flags.ddbimporter.originalName")
           && (smallName == match.name.trim().toLowerCase()
           || smallName.split(":")[0].trim() == match.name.trim().toLowerCase()))
       ),
@@ -625,7 +625,7 @@ export default class DDBClass {
           items: [{ uuid: featureMatch.uuid }],
         },
         value: {},
-        level: feature.requiredLevel,
+        level: feature.requiredLevel ?? 0,
         title: "Features",
         icon: "",
         classRestriction: "",
@@ -633,7 +633,7 @@ export default class DDBClass {
       advancement.updateSource(update);
       this.featureAdvancements.push(advancement.toObject());
     } else {
-      this.featureAdvancements[levelAdvancement].configuration.items.push({ uuid: featureMatch.uuid });
+      this.featureAdvancements[levelAdvancement].configuration.items.push({ uuid: featureMatch.uuid, optional: false });
       this._advancementMatches.features[this.featureAdvancements[levelAdvancement]._id][featureMatch.name] = featureMatch.uuid;
     }
 
