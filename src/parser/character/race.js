@@ -3,11 +3,14 @@ import { DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 import DDBRace from "../race/DDBRace.js";
 
-DDBCharacter.prototype._generateRace = async function _generateRace() {
+DDBCharacter.prototype._generateRace = async function _generateRace(addToCompendium = false) {
   const traits = this.source.ddb.character.race.racialTraits.map((r) => r.definition);
   const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traits, false);
   this._ddbRace = new DDBRace(this.source.ddb, this.source.ddb.character.race, compendiumRacialTraits);
   await this._ddbRace.build();
+  if (addToCompendium) {
+    await this._ddbRace.addToCompendium();
+  }
   this.raw.race = (this.updateItemIds([this._ddbRace.data]))[0];
   delete this.raw.race.sort;
 
