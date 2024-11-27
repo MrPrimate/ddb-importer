@@ -1470,7 +1470,7 @@ export default class DDBClass {
     // only add full level 20 classes
     if (this.ddbClass.level !== 20) return;
 
-    const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "update-add-features-to-compendiums");
+    const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
     const type = this._isSubClass ? "subclass" : "class";
     const featureCompendiumFolders = new DDBCompendiumFolders(type, {

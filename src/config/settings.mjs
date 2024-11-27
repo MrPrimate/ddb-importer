@@ -8,7 +8,7 @@ const COMPENDIUMS = [
     setting: "entity-background-compendium",
     type: "Item",
     image: "https://media.dndbeyond.com/mega-menu/86797d176a398d9f2f05b75b2f54b6dd.jpg",
-    auto: false,
+    auto: true,
     types: ["feat"],
     version: 1,
   },
@@ -943,6 +943,14 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
+          "character-update-policy-add-features-to-compendiums": {
+            type: Boolean,
+            default: false,
+          },
+          "character-update-policy-update-add-features-to-compendiums": {
+            type: Boolean,
+            default: true,
+          },
         },
         SYNC: {
           "sync-policy-currency": {
@@ -1457,14 +1465,6 @@ const SETTINGS = {
       },
       // dev settings
       DEV: {
-        "add-features-to-compendiums": {
-          type: Boolean,
-          default: false,
-        },
-        "update-add-features-to-compendiums": {
-          type: Boolean,
-          default: true,
-        },
         "allow-scene-download": {
           type: Boolean,
           default: false,

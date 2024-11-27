@@ -218,6 +218,14 @@ const MuncherSettings = {
 
     const advancedImportConfig = [
       {
+        name: "add-features-to-compendiums",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums"),
+        title: "[EXPERIMENTAL] Import classes/class features, species, feats and backgrounds to compendiums?",
+        description:
+          "Adds classes (if level20), class features, backgrounds, species, species traits, and feats to your DDB Importer compendiums.",
+        enabled: true,
+      },
+      {
         name: "import-full-spell-list",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-full-spell-list"),
         title: "Import full spell list?",

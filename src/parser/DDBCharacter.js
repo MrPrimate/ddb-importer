@@ -90,7 +90,7 @@ export default class DDBCharacter {
     this.matchedFeatures = [];
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
-    this.addToCompendiums = game.settings.get(SETTINGS.MODULE_ID, "add-features-to-compendiums");
+    this.addToCompendiums = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums");
     this._infusionFactory = null;
     this._classParser = null;
     this._characterFeatureFactory = null;

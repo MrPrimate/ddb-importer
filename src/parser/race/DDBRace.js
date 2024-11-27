@@ -734,8 +734,8 @@ export default class DDBRace {
   }
 
   async addToCompendium() {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "add-features-to-compendiums")) return;
-    const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "update-add-features-to-compendiums");
+    if (!game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums")) return;
+    const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
     const traitHandlerOptions = {
       chrisPremades: true,
