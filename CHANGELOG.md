@@ -2,6 +2,7 @@
 
 - Backgrounds did not have sources parsed.
 - Background Compendium will now place documents into folders matching their source.
+- Some feature choice features were placed in the top level compendium rather than the class features folder.
 
 # 6.0.52
 
