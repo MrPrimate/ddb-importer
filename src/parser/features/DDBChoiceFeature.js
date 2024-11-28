@@ -45,6 +45,8 @@ export default class DDBChoiceFeature extends DDBFeature {
       this._limitedUse = this._classFeatureComponent.definition?.limitedUse;
     }
 
+    this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
+
   }
 
   async build(choice) {
@@ -173,14 +175,12 @@ export default class DDBChoiceFeature extends DDBFeature {
     });
     const enricher = new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
     await enricher.init();
-    const extraFlags = {
-      dndbeyond: {},
-    };
+    const extraFlags = {};
 
     for (const flag of DDBChoiceFeature._copyFlags) {
       const realFlag = foundry.utils.getProperty(ddbFeature.data.flags, `ddbimporter.${flag}`);
       if (realFlag) {
-        foundry.utils.setProperty(extraFlags, "dndbeyond", realFlag);
+        foundry.utils.setProperty(extraFlags, `ddbimporter.${flag}`, realFlag);
       }
     }
     for (const choice of choices) {
