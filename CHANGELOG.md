@@ -1,3 +1,8 @@
+# 6.0.53
+
+- Backgrounds did not have sources parsed.
+- Background Compendium will now place documents into folders matching their source.
+
 # 6.0.52
 
 - Refactoring for monster effect generation.

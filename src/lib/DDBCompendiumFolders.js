@@ -30,6 +30,7 @@ export class DDBCompendiumFolders {
     this.summonFolders = {};
     this.summonSubFolders = {};
     this.featFolders = {};
+    this.backgroundFolders = {};
   }
 
   constructor(type, { packName = null, noCreateClassFolders = false } = {}) {
@@ -383,6 +384,22 @@ export class DDBCompendiumFolders {
     });
     this.validFolderIds.push(newFolder._id);
     this.summonFolders[type] = newFolder;
+    return newFolder;
+  }
+
+  async createBackgroundFolder(document) {
+    const details = DDBCompendiumFolders.getBackgroundFolderName(document);
+    if (this.backgroundFolders[details.name]) return this.backgroundFolders[details.name];
+    logger.debug(`Checking for Background folder '${details.name}'`);
+    const existingFolder = this.getFolder(details.name, details.flagTag);
+    if (existingFolder) return existingFolder;
+    logger.debug(`Not found, creating backgrounds folder '${details.name}'`);
+    const newFolder = await this.createCompendiumFolder({
+      name: details.name,
+      flagTag: details.flagTag,
+    });
+    this.validFolderIds.push(newFolder._id);
+    this.backgroundFolders[details.name] = newFolder;
     return newFolder;
   }
 
@@ -786,10 +803,39 @@ export class DDBCompendiumFolders {
     return result;
   }
 
+  static getBackgroundFolderName(document) {
+    const result = {
+      name: undefined,
+      flagTag: "",
+    };
+    const source = foundry.utils.getProperty(document, "system.source.book");
+    const legacy = foundry.utils.getProperty(document, "flags.ddbimporter.legacy");
+
+    const sourceName = source && source.trim() !== ""
+      ? CONFIG.DND5E.sourceBooks[source]
+      : null;
+
+    if (sourceName) {
+      result.name = sourceName;
+      result.flagTag = `background/${sourceName}`;
+    } else {
+      const name = legacy ? "Legacy" : "Unknown";
+      result.name = name;
+      result.flagTag = `background/${name}`;
+    }
+
+    return result;
+  }
+
   // eslint-disable-next-line complexity
   getCompendiumFolderName(document) {
     let name;
     switch (this.type) {
+      case "background":
+      case "backgrounds": {
+        name = DDBCompendiumFolders.getBackgroundFolderName(document);
+        break;
+      }
       case "feat":
       case "feats": {
         name = this.getFeatFolderName(document);
@@ -1002,6 +1048,14 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.fullRaceName",
           "flags.ddbimporter.groupName",
           "flags.ddbimporter.isLineage",
+        ];
+      }
+      case "background":
+      case "backgrounds": {
+        return [
+          "name",
+          "system.source.book",
+          "flags.ddbimporter.legacy",
         ];
       }
       default:

@@ -422,7 +422,7 @@ export default class CharacterFeatureFactory {
   }
 
   async getFeaturesFromDefinition(featDefinition, type, flags = {}) {
-    const source = DDBHelper.parseSource(featDefinition);
+    const source = DDBHelper.parseSource(featDefinition.definition ? featDefinition.definition : featDefinition);
     const ddbFeature = new DDBFeature({
       ddbCharacter: this.ddbCharacter,
       ddbData: this.ddbData,
@@ -808,6 +808,8 @@ export default class CharacterFeatureFactory {
     const featHandler = await DDBItemImporter.buildHandler("feats", featFeatures, updateFeatures, featHandlerOptions);
     await featHandler.buildIndex(featHandlerOptions.indexFilter);
 
+    const backgroundCompendiumFolders = new DDBCompendiumFolders("backgrounds");
+    await backgroundCompendiumFolders.loadCompendium("backgrounds");
     const backgroundFeatures = documents.filter((doc) =>
       ["background"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
       && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
@@ -815,6 +817,9 @@ export default class CharacterFeatureFactory {
     logger.debug(`Adding backgrounds to the backgrounds compendium`, {
       backgroundFeatures,
     });
+    for (const backgroundFeature of backgroundFeatures) {
+      await backgroundCompendiumFolders.createBackgroundFolder(backgroundFeature);
+    }
     const backgroundHandler = await DDBItemImporter.buildHandler("background", backgroundFeatures, updateFeatures, featHandlerOptions);
     await backgroundHandler.buildIndex(featHandlerOptions.indexFilter);
 

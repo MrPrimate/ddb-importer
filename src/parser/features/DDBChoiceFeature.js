@@ -51,7 +51,8 @@ export default class DDBChoiceFeature extends DDBFeature {
     try {
       this._generateSystemType();
 
-      logger.debug(`Adding choice ${choice.label}`);
+      logger.debug(`Adding choice ${choice.label} to ${this.data.name}`);
+      const originalName = `${this.data.name}`;
 
       if (this.data.name === choice.label) {
         this._generateSystemSubType();
@@ -102,6 +103,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       this._generateDescription({ forceFull: false });
 
       this.data.flags.ddbimporter.dndbeyond.choice = {
+        parentName: originalName,
         label: choice.label,
         choiceId: choice.choiceId,
         componentId: choice.componentId,
@@ -143,6 +145,18 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Charisma Score",
   ];
 
+  static _copyFlags = [
+    "class",
+    "classId",
+    "baseName",
+    "fullRaceName",
+    "groupName",
+    "isLineage",
+    "optionalFeature",
+    "subClass",
+    "subClassId",
+  ];
+
   static async buildChoiceFeatures(ddbFeature, allFeatures = false) {
     const features = [];
     if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
@@ -159,6 +173,16 @@ export default class DDBChoiceFeature extends DDBFeature {
     });
     const enricher = new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
     await enricher.init();
+    const extraFlags = {
+      dndbeyond: {},
+    };
+
+    for (const flag of DDBChoiceFeature._copyFlags) {
+      const realFlag = foundry.utils.getProperty(ddbFeature.data.flags, `ddbimporter.${flag}`);
+      if (realFlag) {
+        foundry.utils.setProperty(extraFlags, "dndbeyond", realFlag);
+      }
+    }
     for (const choice of choices) {
       const choiceFeature = new DDBChoiceFeature({
         ddbData: ddbFeature.ddbData,
@@ -166,6 +190,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         type: ddbFeature.type,
         rawCharacter: ddbFeature.rawCharacter,
         enricher,
+        extraFlags,
       });
       await choiceFeature.build(choice);
       logger.debug(`DDBChoiceFeature.buildChoiceFeatures: ${choiceFeature.ddbDefinition.name}`, {

@@ -262,7 +262,7 @@ const DDBHelper = {
       : null;
 
     if (!latestSource) return {
-      name: "",
+      book: "",
       page: "",
       license: "",
       custom: "",
