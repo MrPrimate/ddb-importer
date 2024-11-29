@@ -2,6 +2,7 @@
 
 - Character Extras would not parse.
 - Improve monster condition detection for cases such as the yeti where there is damage and condition.
+- Pallid Elf would fail to import as a species.
 
 # 6.0.53
 

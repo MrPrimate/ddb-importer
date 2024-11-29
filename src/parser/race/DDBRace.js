@@ -66,6 +66,7 @@ export default class DDBRace {
     if (this.is2014) return null;
     if (DDBRace.FORCE_SUBRACE_2024.includes(this.race.baseRaceName)) {
       const lineageTrait = this.race.racialTraits.find((r) => r.definition.name.includes("Lineage") || r.definition.name.includes("Fiendish Legacy"));
+      if (!lineageTrait) return null;
       const choice = DDBHelper.getChoices({ ddb: this.ddbData, type: "race", feat: lineageTrait, selectionOnly: true });
       this.isLineage = true;
       return choice[0];
