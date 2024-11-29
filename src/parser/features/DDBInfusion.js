@@ -7,9 +7,9 @@ import {
   DDBCompendiumFolders,
 } from "../../lib/_module.mjs";
 import {
-  DDBFeatureEnricher,
   mixins as EnricherMixins,
   Effects,
+  DDBClassFeatureEnricher,
 } from "../enrichers/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import DDBAction from "./DDBAction.js";
@@ -99,7 +99,10 @@ export class DDBInfusion {
     this.addToCompendium = addToCompendium;
     this.nameIdPostfix = nameIdPostfix;
     this.activityType = this._getActivityType();
-    this.enricher = new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
+    this.enricher = new DDBClassFeatureEnricher({
+      activityGenerator: DDBFeatureActivity,
+      fallbackEnricher: "Class Feature",
+    });
   }
 
   _buildBaseActivity() {

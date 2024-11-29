@@ -12,21 +12,10 @@ export default class DDBEnricherMixin {
 
   NAME_HINT_INCLUDES = {};
 
-  ACTIVITY_HINTS = {};
-
-  ADDITIONAL_ACTIVITIES = {};
-
-  DOCUMENT_OVERRIDES = {};
-
-  EFFECT_HINTS = {};
-
-  DOCUMENT_STUB = {};
-
   ENRICHERS = {};
 
-  static _loadDataStub(stub) {
-    return utils.isFunction(stub) ? stub() : stub;
-  }
+  FALLBACK_ENRICHERS = {};
+
 
   _loadEnricherData() {
     if (!this.ENRICHERS?.[this.hintName]) return null;
@@ -35,26 +24,18 @@ export default class DDBEnricherMixin {
     });
   }
 
+  _loadFallbackEnricherData() {
+    if (!this.fallbackEnricher) return null;
+    if (!this.FALLBACK_ENRICHERS[this.hintName]) return null;
+    return new this.FALLBACK_ENRICHERS[this.hintName]({
+      ddbEnricher: this,
+    });
+  }
+
   _getEnricherMatchesV2() {
     const loadedEnricher = this._loadEnricherData();
     if (!loadedEnricher) return;
     this.loadedEnricher = loadedEnricher;
-  }
-
-  _findEnricherMatch(type) {
-    const match = this[type]?.[this.hintName];
-
-    const loadedMatch = DDBEnricherMixin._loadDataStub(match);
-    if (!loadedMatch) return null;
-
-    if (loadedMatch.lookupName && this.ddbParser) {
-      const lookupName = foundry.utils.getProperty(this.ddbParser, "lookupName");
-      if (loadedMatch?.lookupName[lookupName]) {
-        this.useLookupName = true;
-        return DDBEnricherMixin._loadDataStub(loadedMatch.lookupName[lookupName]);
-      }
-    }
-    return loadedMatch;
   }
 
   _getNameHint() {
@@ -88,6 +69,7 @@ export default class DDBEnricherMixin {
   _prepare() {
     this._getNameHint();
     this._getEnricherMatchesV2();
+    this._buildActionFeatures();
   }
 
   get type() {
@@ -102,8 +84,7 @@ export default class DDBEnricherMixin {
     if (this.loadedEnricher) {
       return this.loadedEnricher.activity;
     } else {
-      const rawActivity = this._findEnricherMatch("ACTIVITY_HINTS");
-      return utils.isFunction(rawActivity) ? rawActivity() : rawActivity;
+      return null;
     }
   }
 
@@ -111,23 +92,21 @@ export default class DDBEnricherMixin {
     if (this.loadedEnricher) {
       return this.loadedEnricher.effects;
     } else {
-      const rawEffect = this._findEnricherMatch("EFFECT_HINTS");
-      const effectHintsRaw = utils.isFunction(rawEffect)
-        ? rawEffect()
-        : rawEffect;
-      return [effectHintsRaw];
+      return [];
     }
   }
 
   get override() {
+    console.warn(`Override for ${this.data.name}`, {
+      this: this,
+    });
+
+    // TODO: Evaluate what from actionns should be stolen, e.g. uses
+
     if (this.loadedEnricher) {
       return this.loadedEnricher.override;
     } else {
-      const rawOverride = this._findEnricherMatch("DOCUMENT_OVERRIDES");
-
-      return utils.isFunction(rawOverride)
-        ? rawOverride()
-        : rawOverride;
+      return null;
     }
   }
 
@@ -135,19 +114,23 @@ export default class DDBEnricherMixin {
     if (this.loadedEnricher) {
       return this.loadedEnricher.additionalActivities;
     } else {
-      const rawAdditionalActivities = this._findEnricherMatch("ADDITIONAL_ACTIVITIES");
-
-      return utils.isFunction(rawAdditionalActivities)
-        ? rawAdditionalActivities()
-        : rawAdditionalActivities;
+      return [];
     }
+  }
+
+  get useDefaultAdditionalActivities() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.useDefaultAdditionalActivities;
+    }
+    if (this.isAction) return false;
+    return true;
   }
 
   get documentStub() {
     if (this.loadedEnricher) {
       return this.loadedEnricher.documentStub;
     } else {
-      return this._findEnricherMatch("DOCUMENT_STUB");
+      return null;
     }
   }
 
@@ -155,12 +138,13 @@ export default class DDBEnricherMixin {
     if (this.loadedEnricher) {
       return this.loadedEnricher.clearAutoEffects;
     } else {
-      return this._findEnricherMatch("EFFECT_HINTS")?.clearAutoEffects ?? false;
+      return false;
     }
   }
 
   constructor({
-    activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null,
+    activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null, fallbackEnricher = null,
+    ddbActionType = null,
   } = {}) {
     this.ddbParser = null;
     this.document = null;
@@ -172,11 +156,15 @@ export default class DDBEnricherMixin {
     this.useLookupName = false;
     this.effectType = effectType;
     this.enricherType = enricherType;
+    this.fallbackEnricher = fallbackEnricher;
     this.manager = null;
     this.loadedEnricher = null;
     this._originalActivity = null;
     this.notifier = notifier;
     this.hintName = null;
+    this.activityMatchedFeatures = {};
+    this.activityActionFeatures = {};
+    this.ddbActionType = ddbActionType;
   }
 
   load({ ddbParser, document, name = null, is2014 = null } = {}) {
@@ -210,6 +198,10 @@ export default class DDBEnricherMixin {
 
   set originalActivity(activity) {
     this._originalActivity = activity;
+  }
+
+  get isAction() {
+    return this.ddbParser.isAction ?? false;
   }
 
   // eslint-disable-next-line complexity
@@ -617,7 +609,7 @@ export default class DDBEnricherMixin {
     return this.data;
   }
 
-  _buildAdditionalActivityFromDDBParent(activityHint, i, ddbParent) {
+  _getActivityDataFromDDBParent(activityHint, i, ddbParent) {
     const activationData = foundry.utils.mergeObject({
       nameIdPrefix: "add",
       nameIdPostfix: `${i}`,
@@ -636,7 +628,7 @@ export default class DDBEnricherMixin {
     };
   }
 
-  _buildActivitiesFromAction({ name, type, isAttack = null, rename = null, id = null }, y) {
+  _getActivityDataFromAction({ name, type, isAttack = null, rename = null, id = null }, y) {
     const result = {
       activities: {},
       effects: [],
@@ -665,16 +657,17 @@ export default class DDBEnricherMixin {
       }
       result.effects.push(...(foundry.utils.deepClone(feature.effects)));
     });
+    this.activityActionFeatures[name] = actionFeatures;
     logger.debug(`Additional Activities from Action ${name}`, { result });
     return result;
   }
 
-  addAdditionalActivities(ddbParent) {
-    const additionalActivities = this.additionalActivities;
-    if (!additionalActivities || !this.activityGenerator) return;
+  _addActivityHintAdditionalActivities(additionalActivityHints, ddbParent) {
+    if (!additionalActivityHints) return;
+    if (!this.activityGenerator) return;
 
     let i = this.data.system.activities.length ?? 0 + 1;
-    for (const activityHint of additionalActivities) {
+    for (const activityHint of additionalActivityHints) {
       const actionActivity = foundry.utils.getProperty(activityHint, "action");
       const duplicate = foundry.utils.getProperty(activityHint, "duplicate");
       const _id = foundry.utils.getProperty(activityHint, "id");
@@ -690,11 +683,11 @@ export default class DDBEnricherMixin {
         activityData.activities = [activityClone];
       } else if (actionActivity) {
         logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
-        const result = this._buildActivitiesFromAction(actionActivity, i);
+        const result = this._getActivityDataFromAction(actionActivity, i);
         activityData.activities = result.activities;
         activityData.effects = result.effects;
       } else {
-        const result = this._buildAdditionalActivityFromDDBParent(activityHint, i, ddbParent);
+        const result = this._getActivityDataFromDDBParent(activityHint, i, ddbParent);
         activityData.activities = result.activities;
         activityData.effects = result.effects;
       }
@@ -717,32 +710,156 @@ export default class DDBEnricherMixin {
     }
   }
 
-  _getSpentValue(type, name, matchSubClass = null) {
-    const spent = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
-      a.name === name
-    && (matchSubClass === null
-      || DDBHelper.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
-    )?.limitedUse?.numberUsed ?? null;
-    return spent;
+  _addActionMatchedAdditionalActivities() {
+    let i = 0;
+    for (const [name, features] of Object.entries(this.activityMatchedFeatures)) {
+      let y = 0;
+      for (const feature of features) {
+        logger.debug(`Adding additional activities for ${name}`, { feature });
+        const activityData = {
+          activities: {},
+          effects: [],
+        };
+
+        const activityCount = Object.keys(feature.system.activities).length;
+
+        for (const activityKey of (Object.keys(feature.system.activities))) {
+          let newKey = `${activityKey.slice(0, -3)}Ne${y + i}`;
+          while (activityData.activities[newKey] || this.data.system.activities[newKey]) {
+            newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
+          }
+          activityData.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
+          activityData.activities[newKey]._id = `${newKey}`;
+          const name = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+          if (activityCount === 1) {
+            activityData.activities[newKey].name = name;
+          } else {
+            activityData.activities[newKey].name = `${name} (${utils.capitalize(activityData.activities[newKey].type)})`;
+          }
+        }
+        activityData.effects.push(...(foundry.utils.deepClone(feature.effects)));
+
+        for (const activity of Object.values(activityData.activities)) {
+          this.data.system.activities[activity._id] = activity;
+          i++;
+        }
+        if (activityData.effects) {
+          this.data.effects.push(...activityData.effects);
+        }
+        y++;
+      }
+    }
   }
 
-  _getUsesWithSpent({ type, name, max, period = "", formula = null, override = null, matchSubClass = null } = {}) {
-    const uses = {
-      spent: this._getSpentValue(type, name, matchSubClass),
-      max: max ? `${max}` : null,
+  addAdditionalActivities(ddbParent) {
+    console.warn(`Adding additional activities for ${this.name}`, {
+      this: this,
+      useDefaultAdditionalActivities: this.useDefaultAdditionalActivities,
+    });
+    if (this.useDefaultAdditionalActivities) {
+      this._addActionMatchedAdditionalActivities();
+    } else {
+      const additionalActivities = this.additionalActivities;
+      this._addActionMatchedAdditionalActivities(additionalActivities, ddbParent);
+    }
+  }
+
+  getFeatureActionsName({ type = null } = {}) {
+    const results = {
+      all: [],
+      name: [],
+      id: [],
+      options: [],
     };
 
-    if (formula) {
-      uses.recovery = [{ period, type: "formula", formula }];
-    } else if (period != "") {
-      uses.recovery = [{ period, type: 'recoverAll', formula: undefined }];
-    }
+    if (!this.ddbParser?.ddbDefinition) return results;
 
-    if (override) {
-      uses.override = true;
-    }
+    const name = this.ddbParser.ddbDefinition.name;
+    const id = this.ddbParser.ddbDefinition.id;
+    const entityTypeId = this.ddbParser.ddbDefinition.entityTypeId;
+    const derivedType = type ?? this.ddbActionType ?? this.enricherType;
 
-    return uses;
+    if (!this.ddbParser?.ddbData?.character?.actions[derivedType]) return results;
+
+    const nameMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action) =>
+      action.name === name
+      && action.componentId === id
+      && action.componentTypeId === entityTypeId,
+    );
+
+    results.name = nameMatches;
+
+    const idMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action) =>
+      !nameMatches.some((m) => m.id === action.id)
+      && action.componentId === id
+      && action.componentTypeId === entityTypeId,
+    );
+    results.id = idMatches;
+
+    const optionMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action) => {
+      const actionComponentId = foundry.utils.getProperty(action, "flags.ddbimporter.componentId");
+      const actionComponentTypeId = foundry.utils.getProperty(action, "flags.ddbimporter.componentTypeId");
+
+      const optionMatch = this.ddbParser.ddbData.character.options[derivedType].find((option) =>
+        option.definition.id === actionComponentId
+        && option.definition.entityTypeId === actionComponentTypeId,
+      );
+
+      return optionMatch
+        && !nameMatches.some((m) => m.id === action.id)
+        && !idMatches.some((m) => m.id === action.id)
+        && optionMatch.componentId === id
+        && optionMatch.componentTypeId === entityTypeId;
+    });
+
+    results.options = optionMatches;
+    results.all = [...nameMatches, ...idMatches, ...optionMatches];
+
+    console.warn(`Action match results ${name} (${derivedType})`, results);
+
+    return results;
+
+  }
+
+  _buildFeaturesFromAction({ name, type, isAttack = null }) {
+    if (!this.ddbParser?.ddbCharacter) return [];
+    const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type });
+    logger.debug(`Built Actions from Action "${name}" for ${this.ddbParser.originalName}`, { actions });
+    if (actions.length === 0) return [];
+    const actionFeatures = actions.map((action) => {
+      return this.ddbParser.ddbCharacter._characterFeatureFactory.getFeatureFromAction({
+        action,
+        isAttack,
+        manager: this.manager,
+      });
+    });
+    this.activityMatchedFeatures[name] = actionFeatures;
+    logger.debug(`Additional Features from Action ${name}`, { actionFeatures });
+    return actionFeatures;
+  }
+
+
+  _buildActionFeatures({ type = null } = {}) {
+    const derivedType = type ?? this.ddbActionType ?? this.enricherType;
+    if (!derivedType) return;
+    const actions = this.getFeatureActionsName({ type: derivedType });
+
+    const actionsToBuild = actions.all.map((action) => {
+      return {
+        action: {
+          name: action.name,
+          type: derivedType,
+        },
+      };
+    });
+
+    let i = 1;
+    for (const activityHint of actionsToBuild) {
+      const actionActivity = foundry.utils.getProperty(activityHint, "action");
+
+      logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
+      this._buildFeaturesFromAction(actionActivity, i);
+    }
   }
 
   customFunction(options = {}) {

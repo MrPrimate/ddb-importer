@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class TavernBrawler extends DDBEnricherData {
+export default class ReliableTalent extends DDBEnricherData {
 
   get effects() {
     return [

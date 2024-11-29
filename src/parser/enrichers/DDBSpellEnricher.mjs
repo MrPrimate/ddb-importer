@@ -8,6 +8,7 @@ export default class DDBSpellEnricher extends DDBEnricherMixin {
       effectType: "spell",
       enricherType: "spell",
       notifier,
+      ddbActionType: "spell",
     });
   }
 

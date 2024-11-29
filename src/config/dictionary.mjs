@@ -1281,8 +1281,8 @@ const DICTIONARY = {
         "Core Wizard Traits",
         "Weapon Mastery",
         "Maneuver Options",
-        "Lay On Hands", // 2024
-        "Lay on Hands", // 2014
+        // "Lay On Hands", // 2024
+        // "Lay on Hands", // 2014
         "Epic Boon: Choose an Epic Boon feat",
         "Epic Boon",
         "Maneuver: Trip Attack (Dex.)",

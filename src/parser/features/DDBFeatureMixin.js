@@ -2,7 +2,7 @@ import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import { DDBSimpleMacro } from "../../effects/_module.mjs";
-import { DDBFeatureEnricher, mixins, Effects } from "../enrichers/_module.mjs";
+import { DDBGenericEnricher, mixins, Effects, DDBFeatEnricher, DDBSpeciesTraitEnricher, DDBClassFeatureEnricher, DDBBackgroundEnricher } from "../enrichers/_module.mjs";
 import { DDBDescriptions, DDBTable, DDBTemplateStrings } from "../lib/_module.mjs";
 
 export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
@@ -49,6 +49,14 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     "Channel Divinity:",
     "Maneuver:",
   ];
+
+  DDB_TYPE_ENRICHERS = {
+    "class": DDBClassFeatureEnricher,
+    "race": DDBSpeciesTraitEnricher,
+    "feat": DDBFeatEnricher,
+    "other": DDBGenericEnricher,
+    "background": DDBBackgroundEnricher,
+  };
 
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
@@ -178,7 +186,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   constructor({
     ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false, activityType = null,
-    extraFlags = {}, enricher = null, ddbCharacter = null,
+    extraFlags = {}, enricher = null, ddbCharacter = null, fallbackEnricher = null,
   } = {}) {
     super({
       enricher,
@@ -262,7 +270,12 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this.data.system.source = localSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
-    this.enricher = enricher ?? new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
+    this.fallbackEnricher = fallbackEnricher;
+
+    this.enricher = enricher ?? new this.DDB_TYPE_ENRICHERS[type]({
+      activityGenerator: DDBFeatureActivity,
+      fallbackEnricher: this.fallbackEnricher,
+    });
     this._loadEnricher();
   }
 

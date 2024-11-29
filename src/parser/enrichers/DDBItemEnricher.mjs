@@ -8,6 +8,7 @@ export default class DDBItemEnricher extends DDBEnricherMixin {
       effectType: "item",
       enricherType: "item",
       notifier,
+      ddbActionType: "item",
     });
   }
 

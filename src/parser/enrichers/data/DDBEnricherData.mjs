@@ -11,6 +11,14 @@ export default class DDBEnricherData {
 
   static ChangeHelper = ChangeHelper;
 
+  get useDefaultAdditionalActivities() {
+    return false;
+  }
+
+  getFeatureActionsName({ type = null } = {}) {
+    return this.ddbEnricher.getFeatureActionsName({ type });
+  }
+
   hasClassFeature({ featureName, className = null, subClassName = null } = {}) {
     if (!this.ddbParser?.ddbData) return false;
 
@@ -223,8 +231,6 @@ export default class DDBEnricherData {
    *     - midiOnly: {boolean} Indicates that the effect is generated only if MIDI-QOL is installed.
    *     - activityMatch: {string} Match to this activity only
    *     - activitiesMatch: {Array} Match to only these activities
-   * // to be removed
-   *   - clearAutoEffects: {boolean} Flag to clear auto effects.
    */
   get effects() {
     return [];

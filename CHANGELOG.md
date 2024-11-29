@@ -1,6 +1,6 @@
 # Next Up
 
-
+- Fix Psychic Blades.
 
 # 6.0.54
 

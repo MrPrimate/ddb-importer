@@ -69,7 +69,7 @@ async function buildBackground(backgroundData) {
   });
 
   ddbFeature.build();
-  logger.debug(`DDBFeatures.getFeaturesFromDefinition: ${ddbFeature.ddbDefinition.name}`, {
+  logger.debug(`DDBFeatures.buildBackground: ${ddbFeature.ddbDefinition.name}`, {
     ddbFeature,
     featDefinition,
   });

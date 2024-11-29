@@ -1,6 +1,5 @@
 import DDBFeature from "./DDBFeature.js";
 import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
-import { DDBFeatureEnricher } from "../enrichers/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import DICTIONARY from "../../config/dictionary.mjs";
 
@@ -173,7 +172,11 @@ export default class DDBChoiceFeature extends DDBFeature {
       feature: ddbFeature,
       allFeatures,
     });
-    const enricher = new DDBFeatureEnricher({ activityGenerator: DDBFeatureActivity });
+    const enricherClass = ddbFeature.DDB_TYPE_ENRICHERS[ddbFeature.type];
+    const enricher = new enricherClass({
+      activityGenerator: DDBFeatureActivity,
+      fallbackEnricher: ddbFeature.fallbackEnricher,
+    });
     await enricher.init();
     const extraFlags = {};
 

@@ -6,7 +6,6 @@ export default class JallarzisStormOfRadiance extends DDBEnricherData {
   get effects() {
     return [
       {
-        clearAutoEffects: true,
         name: "Within Storm of Radiance",
         statuses: ["Blinded", "Deafened"],
         options: {
@@ -14,6 +13,10 @@ export default class JallarzisStormOfRadiance extends DDBEnricherData {
         },
       },
     ];
+  }
+
+  get clearAutoEffects() {
+    return true;
   }
 
 }

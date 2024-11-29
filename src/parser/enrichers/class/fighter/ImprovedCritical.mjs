@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class SuperiorCritical extends DDBEnricherData {
+export default class ImprovedCritical extends DDBEnricherData {
 
   get effects() {
     return [
