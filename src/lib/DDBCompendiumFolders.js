@@ -219,20 +219,36 @@ export class DDBCompendiumFolders {
     }
   }
 
-  async createFeatFolder(name, parentId, { color = "#222222" } = {}) {
-    const flagTag = `feat/${name}`;
-    const folder = this.getFolder(name, flagTag)
-      ?? (await this.createCompendiumFolder({ name, parentId, color, flagTag }));
-    this.validFolderIds.push(folder._id);
-    this.featFolders[name] = folder._id;
-    return folder;
+  async _createFeatParentFolder(document) {
+    const details = DDBCompendiumFolders.getSourceFolderName({ document, type: "feat" });
+    logger.debug(`Checking for Feat Parent folder '${details.name}'`);
+    const existingFolder = this.getFolder(details.name, details.flagTag);
+
+    if (existingFolder) return existingFolder;
+    logger.debug(`Not found, creating Feat Parent folder '${details.name}'`, details);
+    const newFolder = await this.createCompendiumFolder({
+      name: details.name,
+      flagTag: details.flagTag,
+    });
+    this.validFolderIds.push(newFolder._id);
+    return newFolder;
   }
 
-  async createFeatFolders() {
-    for (const type of Object.keys(CONFIG.DND5E.featureTypes.feat.subtypes)) {
-      const data = this._getFeatFlagData({ type });
-      await this.createFeatFolder(data.name);
-    }
+  async createFeatFolder(document) {
+    const parentFolder = await this._createFeatParentFolder(document);
+
+    const details = DDBCompendiumFolders.getFeatFolderName(document);
+    logger.debug(`Checking for Feat folder '${details.name}'`);
+    const existingFolder = this.getFolder(details.name, details.flagTag);
+    if (existingFolder) return existingFolder;
+    logger.debug(`Not found, creating Feat folder '${details.name}'`);
+    const newFolder = await this.createCompendiumFolder({
+      name: details.name,
+      flagTag: details.flagTag,
+      parentId: parentFolder._id,
+    });
+    this.validFolderIds.push(newFolder._id);
+    return newFolder;
   }
 
   async createFeatureFolder(className, name, parentId, { tagPrefix = "features", color = "#222222" } = {}) {
@@ -478,11 +494,6 @@ export class DDBCompendiumFolders {
       case "subclasses":
       case "features": {
         await this.createClassFeatureFolders();
-        break;
-      }
-      case "feats":
-      case "feat": {
-        await this.createFeatFolders();
         break;
       }
       // others are created as needed
@@ -777,54 +788,53 @@ export class DDBCompendiumFolders {
     else return undefined;
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _getFeatFlagData({ type } = {}) {
+  static getSourceFolderName({ document, type, noSourceNameOverride = null, suffixName = "", suffixFolder = "" }) {
     const result = {
       name: undefined,
       flagTag: "",
-    };
-    const name = CONFIG.DND5E.featureTypes.feat.subtypes[type];
-    if (name) {
-      result.name = `${name.replace(" Feat", "")}`;
-      result.flagTag = `feat/${result.name}`;
-    } else {
-      result.name = "General";
-      result.flagTag = "feat/General";
-    }
-
-    return result;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  getFeatFolderName(document) {
-    const type = foundry.utils.getProperty(document, "system.type.subtype");
-    const result = this._getFeatFlagData({ type });
-
-    return result;
-  }
-
-  static getBackgroundFolderName(document) {
-    const result = {
-      name: undefined,
-      flagTag: "",
+      parent: false,
     };
     const source = foundry.utils.getProperty(document, "system.source.book");
     const legacy = foundry.utils.getProperty(document, "flags.ddbimporter.legacy");
+
+    const suffix = suffixFolder && suffixFolder.trim() !== ""
+      ? `/${suffixFolder}`
+      : "";
 
     const sourceName = source && source.trim() !== ""
       ? CONFIG.DND5E.sourceBooks[source]
       : null;
 
     if (sourceName) {
-      result.name = sourceName;
-      result.flagTag = `background/${sourceName}`;
+      result.name = suffixName === "" ? sourceName : suffixName;
+      result.flagTag = `${type}/${sourceName}/${suffix}`;
+      result.parent = true;
     } else {
-      const name = legacy ? "Legacy" : "Unknown";
+      const name = noSourceNameOverride ?? (legacy ? "Legacy" : "Unknown");
       result.name = name;
-      result.flagTag = `background/${name}`;
+      result.flagTag = `${type}/${name}`;
     }
 
     return result;
+  }
+
+  static getFeatFolderName(document) {
+    const type = foundry.utils.getProperty(document, "system.type.subtype");
+    const typeName = CONFIG.DND5E.featureTypes.feat.subtypes[type];
+
+    const folderName = typeName ? `${typeName.replace(" Feat", "")}` : null;
+
+    return DDBCompendiumFolders.getSourceFolderName({
+      type: "feat",
+      document,
+      suffix: folderName ?? "General",
+      suffixName: folderName ?? "General",
+      noSourceNameOverride: "General",
+    });
+  }
+
+  static getBackgroundFolderName(document) {
+    return DDBCompendiumFolders.getSourceFolderName({ document, type: "background" });
   }
 
   // eslint-disable-next-line complexity
@@ -838,7 +848,7 @@ export class DDBCompendiumFolders {
       }
       case "feat":
       case "feats": {
-        name = this.getFeatFolderName(document);
+        name = DDBCompendiumFolders.getFeatFolderName(document);
         break;
       }
       case "trait":
@@ -1032,6 +1042,8 @@ export class DDBCompendiumFolders {
         return [
           "name",
           "system.type.subtype",
+          "system.source.book",
+          "flags.ddbimporter.legacy",
         ];
       }
       case "trait":

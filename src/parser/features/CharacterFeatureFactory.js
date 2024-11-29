@@ -786,7 +786,7 @@ export default class CharacterFeatureFactory {
 
     const traitHandlerOptions = {
       chrisPremades: true,
-      matchFlags: isLineage ? ["groupName", "isLineage"] : ["fullRaceName", "groupName", "isLineage"],
+      matchFlags: isLineage ? ["groupName", "isLineage", "is2014", "legacy"] : ["fullRaceName", "groupName", "isLineage", "is2014", "legacy"],
       useCompendiumFolders: true,
       deleteBeforeUpdate: false,
     };
@@ -797,7 +797,11 @@ export default class CharacterFeatureFactory {
     const featHandlerOptions = {
       chrisPremades: true,
       deleteBeforeUpdate: false,
+      matchFlags: ["id", "is2014"],
     };
+
+    const featCompendiumFolders = new DDBCompendiumFolders("feats");
+    await featCompendiumFolders.loadCompendium("feats");
     const featFeatures = featTypeDocs.filter((doc) =>
       ["feat"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
       && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
@@ -805,6 +809,9 @@ export default class CharacterFeatureFactory {
     logger.debug(`Adding feats to the feats compendium`, {
       featFeatures,
     });
+    for (const feat of featFeatures) {
+      await featCompendiumFolders.createFeatFolder(feat);
+    }
     const featHandler = await DDBItemImporter.buildHandler("feats", featFeatures, updateFeatures, featHandlerOptions);
     await featHandler.buildIndex(featHandlerOptions.indexFilter);
 
@@ -817,8 +824,8 @@ export default class CharacterFeatureFactory {
     logger.debug(`Adding backgrounds to the backgrounds compendium`, {
       backgroundFeatures,
     });
-    for (const backgroundFeature of backgroundFeatures) {
-      await backgroundCompendiumFolders.createBackgroundFolder(backgroundFeature);
+    for (const feature of backgroundFeatures) {
+      await backgroundCompendiumFolders.createBackgroundFolder(feature);
     }
     const backgroundHandler = await DDBItemImporter.buildHandler("background", backgroundFeatures, updateFeatures, featHandlerOptions);
     await backgroundHandler.buildIndex(featHandlerOptions.indexFilter);

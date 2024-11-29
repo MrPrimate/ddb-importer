@@ -3,6 +3,8 @@
 - Character Extras would not parse.
 - Improve monster condition detection for cases such as the yeti where there is damage and condition.
 - Pallid Elf would fail to import as a species.
+- Feats compendium will now create folders based on source and type.
+- Fix some issues with feat/backgrounds importing and not been able to determine difference between legacy and 2024 versions.
 
 # 6.0.53
 
