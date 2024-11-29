@@ -283,7 +283,9 @@ export default class DDBCompanionFactory {
       updated: [],
     };
     this.originDocument = options.originDocument;
-    this.originName = foundry.utils.getProperty(this.originDocument, "flags.ddbimporter.originalName") ?? this.originDocument.name;
+    this.originName = foundry.utils.getProperty(this.originDocument, "flags.ddbimporter.originalName")
+      ?? this.originDocument?.name
+      ?? null;
     this.is2014 = options.is2014 ?? true;
     this.summons = null;
     this.badSummons = false;
