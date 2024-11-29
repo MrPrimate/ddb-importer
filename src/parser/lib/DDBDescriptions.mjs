@@ -165,6 +165,15 @@ export default class DDBDescriptions {
         ability: null,
       },
       match: null,
+      damageAndSave: false,
+      duration: {
+        type: null,
+        value: null,
+      },
+      damage: {
+        type: null,
+        value: null,
+      },
     };
 
     let parserText = utils.nameString(text)
@@ -174,20 +183,32 @@ export default class DDBDescriptions {
       .replaceAll("[/save]", "")
       .replaceAll("[/action]", "")
       .replaceAll("[action]", "");
-    const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
+    const conditionSearch = /\[\[\/save (?<ability>\w+) (?<dc>\d\d) format=long\]\](?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?:&(?:amp;)?Reference\[(?<condition>\w+)\]{\w+})?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig;
     let match = conditionSearch.exec(parserText);
     if (!match) {
-      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+) (minute|round|hour)| until)?(.*)?(?:.|$)/ig;
+      const rawConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig;
       match = rawConditionSearch.exec(parserText);
     }
 
     if (!match) {
-      const rawNoDC = /(?<ability>\w+)? (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+)\s?(minute|round|hour)| until)?(.*)?(?:.|$)/ig;
+      const rawNoDC = /(?<ability>\w+)? (?<type>saving throw|check)(?:,)? or (?<hint>have the|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (\d+)\s?(?<durationType>minute|round|hour)| until)?(.*)??(?:.|$)/ig;
       match = rawNoDC.exec(parserText);
     }
 
     if (!match) {
-      const rawConditionSearch2 = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)(?:[ .,])(.*)Failure: The target has the (?<condition>\w+)(?: for (\d+) (minute|round|hour)| until)?/ig;
+      const rawDamageConditionSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)(?:,| against this magic)? or take (?<fixed>\d+) \((?<damageValue>\d+d\d+)\) (?<damageType>\w+) damage and (?<hint>have the|then be|be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(?<condition>\w+)?\s?(?:for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?(.*)?(?:.|$)/ig;
+      match = rawDamageConditionSearch.exec(parserText);
+      if (match) {
+        results.damageAndSave = true;
+        results.damage = {
+          type: match.groups.damageType.trim(),
+          value: match.groups.damageValue.trim(),
+        };
+      }
+    }
+
+    if (!match) {
+      const rawConditionSearch2 = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)(?:[ .,])(.*)Failure: The target has the (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour)| until)?/ig;
       match = rawConditionSearch2.exec(parserText);
     }
 
@@ -202,7 +223,7 @@ export default class DDBDescriptions {
     }
 
     if (!match) {
-      const saveSearch = /On a failed save, a creature takes (\d+)?d(\d+) (\w+) damage and is (?<condition>\w+)(?: for (\d+) (minute|round|hour))?/ig;
+      const saveSearch = /On a failed save, a creature takes (\d+)?d(\d+) (\w+) damage and is (?<condition>\w+)(?: for (?<durationUnits>\d+) (?<durationType>minute|round|hour))?/ig;
       match = saveSearch.exec(parserText);
     }
 
@@ -233,6 +254,14 @@ export default class DDBDescriptions {
     }
 
     results.match = match;
+
+    if (match?.groups.durationUnits) {
+      results.duration.units = match.groups.durationUnits.trim();
+    }
+    if (match?.groups.durationType) {
+      results.duration.type = match.groups.durationType.trim();
+    }
+
     return results;
   }
 

@@ -1,3 +1,8 @@
+# Next Up
+
+- Character Extras would not parse.
+- Improve monster condition detection for cases such as the yeti where there is damage and condition.
+
 # 6.0.53
 
 - Backgrounds did not have sources parsed.

@@ -354,10 +354,9 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
         temporary,
         displaySheet: false,
       };
-      const npc = await Actor.create(data, options);
-      // temporary
-      //   ? new Actor.implementation(data, options)
-      //   : await Actor.create(data, options);
+      const npc = temporary
+        ? new Actor.implementation(data, options)
+        : await Actor.create(data, options);
       return npc;
     }
 
