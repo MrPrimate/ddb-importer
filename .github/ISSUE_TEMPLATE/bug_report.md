@@ -10,7 +10,7 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+**How To Reproduce**
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
@@ -28,10 +28,20 @@ If applicable, add screenshots to help explain your problem.
  - Foundry Version [e.g. 10.288]
  - 5e System Version [e.g 2.0.3]
  - Module Version [e.g 3.1.21]
- - Does this behaviour occur with other modules disabled: Yes/No (Find The Culprit module can help with this)
+
+**Error Logs**
+Open the browser developer console (F12 or Ctrl+Shift+I) and copy/paste the error message here or screen shots of them.
+
+**Character Problem?**
+If the problem is a character import, please provide the character URL. Make sure it's publically accessible.
+
+**Disabled Other Modules?**
+Please try after disabling all other modules. (Find The Culprit module can help with this)
+
+- Have you tried with all other modules disabled?
+
+If you are reporting a bug with another modules, please disable all but the minimal set of modules required to reproduce the issue, then list them and the versions of them here.
 
 **Additional context**
 Add any other context about the problem here.
 
- - A Character URL, if the problem is a character import.
- - Details of any errors in the browser console (press F12).
