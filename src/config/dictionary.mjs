@@ -1388,6 +1388,7 @@ const DICTIONARY = {
         "Elven Lineage Spells",
         "Gnomish Lineage Spells",
         "Thieves' Cant",
+        "Linguist",
       ],
       NO_CHOICE_SECRET: [
         "Divine Order",
@@ -1446,6 +1447,7 @@ const DICTIONARY = {
         "Gnomish Lineage Spells",
         "Gnomish Lineage",
         "Thieves' Cant",
+        "Linguist",
       ],
     },
   },
