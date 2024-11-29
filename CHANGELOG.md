@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.54
 
 - Character Extras would not parse.
 - Improve monster condition detection for cases such as the yeti where there is damage and condition.
