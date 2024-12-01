@@ -9,3 +9,4 @@ export { default as SneakAttackPoisonEnvenom } from "./SneakAttackPoisonEnvenom.
 export { default as UseMagicDeviceCharges } from "./UseMagicDeviceCharges.mjs";
 export { default as UseMagicDevice } from "./UseMagicDevice.mjs";
 export { default as UseMagicDeviceScroll } from "./UseMagicDeviceScroll.mjs";
+export { default as PsychicBlade } from "./PsychicBlade.mjs";

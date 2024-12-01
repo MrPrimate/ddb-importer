@@ -67,7 +67,6 @@ import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
 import { giantStatureEffect } from "./feats/giantStature.js";
 import { demiurgicColossusEffect } from "./feats/demiurgicColossus.js";
 import { greatWeaponMasterEffect } from "./feats/greatWeaponMaster.js";
-import { psychicBladesEffect } from "./feats/psychicBlades.js";
 import { sneakAttackEffect } from "./feats/sneakAttack.js";
 import { aspectOfTheBeastBearEffect } from "./feats/aspectOfTheBeastBear.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
@@ -250,15 +249,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Planar Warrior": {
       document = await planarWarriorEffect(document);
-      break;
-    }
-    case "Psychic Blades: Attack (DEX)":
-    case "Psychic Blades: Attack (STR)":
-    case "Psychic Blades: Bonus Attack (DEX)":
-    case "Psychic Blades: Bonus Attack (STR)":
-    case "Psychic Blades: Bonus Attack":
-    case "Psychic Blades: Attack": {
-      document = psychicBladesEffect(document);
       break;
     }
     case "Celestial Revelation (Radiant Soul)":

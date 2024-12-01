@@ -24,7 +24,7 @@ export default class PsionicPower extends DDBEnricherData {
       },
     };
 
-    if (this.ddbParser.subKlass === "Soulknife") {
+    if (this.isSubclass("Soulknife")) {
       result.name = "Psi-Bolstered Knack";
     } else {
       result.name = "Protective Field";
@@ -40,7 +40,7 @@ export default class PsionicPower extends DDBEnricherData {
 
   get additionalActivities() {
     const results = [];
-    if (this.ddbParser.subKlass === "Soulknife") {
+    if (this.isSubclass("Soulknife")) {
       results.push(
         { action: { name: "Psionic Power: Psychic Whispers", type: "class" } },
       );
@@ -60,7 +60,7 @@ export default class PsionicPower extends DDBEnricherData {
   }
 
   get override() {
-    const spent = this.ddbParser.subKlass === "Soulknife"
+    const spent = this.isSubclass("Soulknife")
       ? this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Soulknife")
       : this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Psi Warrior");
 

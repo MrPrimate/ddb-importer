@@ -22,6 +22,18 @@ export default class DDBEnricherData {
     });
   }
 
+  get isAction() {
+    return this.ddbParser.isAction ?? false;
+  }
+
+  isClass(name) {
+    return this.ddbParser.klass === name;
+  }
+
+  isSubclass(name) {
+    return this.ddbParser.subclass === name;
+  }
+
   hasAction({ name, type } = {}) {
     return this.ddbParser?.ddbData?.character.actions[type].find((a) =>
       a.name === name,

@@ -36,13 +36,12 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     "Interception": "Fighting Style: Interception",
     "Invoke Duplicity": "Channel Divinity: Invoke Duplicity",
     "Preserve Life": "Channel Divinity: Preserve Life",
-    "Psychic Blades: Attack (DEX)": "Psychic Blades: Attack",
-    "Psychic Blades: Attack (STR)": "Psychic Blades: Attack",
-    "Psychic Blades: Bonus Attack (DEX)": "Psychic Blades: Bonus Attack",
-    "Psychic Blades: Bonus Attack (STR)": "Psychic Blades: Bonus Attack",
+    "Psychic Blades: Attack (DEX)": "Psychic Blade",
+    "Psychic Blades: Attack (STR)": "Psychic Blade",
+    "Psychic Blades: Attack": "Psychic Blade",
+    "Psychic Blades": "Psychic Blade",
     "Psychic Blades: Homing Strikes": "Soul Blades: Homing Strikes",
     "Psychic Blades: Psychic Teleportation": "Soul Blades: Psychic Teleportation",
-    "Psychic Blades": "Psychic Blades: Attack",
     "Psychic Teleportation": "Soul Blades: Psychic Teleportation",
     "Radiance of the Dawn": "Channel Divinity: Radiance of the Dawn",
     "Rage (Enter)": "Rage",
@@ -213,6 +212,7 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
     "War Caster": FeatEnrichers.WarCaster,
     "Reckless Attack": GenericEnrichers.RecklessAttack,
     "Uncanny Dodge": GenericEnrichers.UncannyDodge,
+    "Psychic Blade": ClassEnrichers.Rogue.PsychicBlade,
   };
 
   ACTIVITY_HINTS = {
@@ -2522,33 +2522,6 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
 
       return results;
     },
-    "Psychic Blades: Attack": [
-      {
-        constructor: {
-          name: "Bonus Action Attack",
-          type: "attack",
-        },
-        build: {
-          generateAttack: true,
-          generateConsumption: false,
-          includeBase: false,
-          generateTarget: true,
-          generateDamage: true,
-          attackOverride: {
-            ability: "cha",
-            type: {
-              value: "melee",
-              classification: "weapon",
-            },
-          },
-          damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 4, type: "psychic" })],
-          activationOverride: {
-            type: "bonus",
-            value: 1,
-          },
-        },
-      },
-    ],
     "Relentless Rage": [
       {
         constructor: {
@@ -3229,21 +3202,6 @@ export default class DDBFeatureEnricher extends DDBEnricherMixin {
           retainUseSpent: true,
         },
       },
-    },
-    "Psychic Blades: Attack": () => {
-      return {
-        data: {
-          name: "Psychic Blades",
-          system: {
-            mastery: "vex",
-            range: {
-              long: 120,
-            },
-            "type.value": "simpleM",
-            properties: ["fin", "thr"].concat(this.data.system.properties ?? []),
-          },
-        },
-      };
     },
     "Persistent Rage": () => {
       return {

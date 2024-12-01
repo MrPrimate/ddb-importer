@@ -840,6 +840,7 @@ export default class CharacterFeatureFactory {
     // eslint-disable-next-line complexity
     this.data.actions = this.processed.actions.map((action) => {
       const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
+      // if (DICTIONARY.parsing.actions.KEEP_ACTIONS.includes(originalActionName)) return action;
       const featureMatch = this.processed.features.find((feature) => {
         const originalFeatureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
         const featureNamePrefix = originalFeatureName.split(":")[0].trim();
@@ -957,6 +958,7 @@ export default class CharacterFeatureFactory {
     this.data.features = this.processed.features
       .filter((feature) =>
         actionAndFeature
+        || DICTIONARY.parsing.actions.KEEP_ACTIONS.includes(foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name)
         || !this.data.actions.some((action) =>
           ((foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name).trim().toLowerCase() === (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name).trim().toLowerCase()
           || foundry.utils.getProperty(action, "flags.ddbimporter.featureNameMatch") === (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name))

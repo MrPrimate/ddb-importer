@@ -29,9 +29,9 @@ export default class ChannelDivinity extends DDBEnricherData {
     if (this.is2014) {
       return {};
     } else if (this.is2024) {
-      if (this.ddbParser.klass === "Cleric") {
+      if (this.isClass("Cleric")) {
         return this._activityCleric2024;
-      } else if (this.ddbParser.klass === "Paladin") {
+      } else if (this.isClass("Paladin")) {
         return this._activityPaladin2024;
       }
     }
@@ -162,9 +162,9 @@ export default class ChannelDivinity extends DDBEnricherData {
     if (this.is2014) {
       return [];
     } else if (this.is2024) {
-      if (this.ddbParser.klass === "Cleric") {
+      if (this.isClass("Cleric")) {
         return [this._effectCleric2024];
-      } else if (this.ddbParser.klass === "Paladin") {
+      } else if (this.isClass("Paladin")) {
         return [this._effectPaladin2024];
       }
     }
