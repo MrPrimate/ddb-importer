@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherData from "../../data/DDBEnricherData.mjs";
+import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class PolearmMasterBonusAttack extends DDBEnricherData {
   get type() {
