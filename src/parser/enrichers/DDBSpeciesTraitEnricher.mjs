@@ -9,7 +9,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherMixin {
       enricherType: "feat",
       fallbackEnricher,
       notifier,
-      actionType: "race",
+      ddbActionType: "race",
     });
   }
 
@@ -32,7 +32,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherMixin {
   ENRICHERS = {
     None: GenericEnrichers.None,
     Generic: SpeciesEnrichers.Generic.Generic,
-    "Lineage": SpeciesEnrichers.Generic.Lineage,
+    Lineage: SpeciesEnrichers.Generic.Lineage,
     "Breath Weapon (Acid)": SpeciesEnrichers.Dragonborn.BreathWeapon2024,
     "Breath Weapon (Cold)": SpeciesEnrichers.Dragonborn.BreathWeapon2024,
     "Breath Weapon (Fire)": SpeciesEnrichers.Dragonborn.BreathWeapon2024,

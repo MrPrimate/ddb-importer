@@ -500,6 +500,8 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
           { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
         ],
       };
+    } else if (this.enricher?.activityNameMatchFeature) {
+      this.data.system.uses = foundry.utils.deepClone(this.enricher.activityNameMatchFeature.system.uses);
     }
   }
 

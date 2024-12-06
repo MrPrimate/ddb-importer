@@ -69,7 +69,7 @@ export default class DDBEnricherMixin {
   _prepare() {
     this._getNameHint();
     this._getEnricherMatchesV2();
-    this._buildActionFeatures();
+    if (!this.ddbParser.isAction) this._buildActionFeatures();
   }
 
   get type() {
@@ -97,10 +97,6 @@ export default class DDBEnricherMixin {
   }
 
   get override() {
-    console.warn(`Override for ${this.data.name}`, {
-      this: this,
-    });
-
     // TODO: Evaluate what from actionns should be stolen, e.g. uses
 
     if (this.loadedEnricher) {
@@ -165,6 +161,7 @@ export default class DDBEnricherMixin {
     this.activityMatchedFeatures = {};
     this.activityActionFeatures = {};
     this.ddbActionType = ddbActionType;
+    this.activityNameMatchFeature = null;
   }
 
   load({ ddbParser, document, name = null, is2014 = null } = {}) {
@@ -813,6 +810,79 @@ export default class DDBEnricherMixin {
     });
 
     results.options = optionMatches;
+
+    if (this.ddbParser.ddbFeature) {
+      // const choices = DDBHelper.getChoices({
+      //   ddb: this.ddbParser.ddbData,
+      //   type: derivedType,
+      //   feat: this.ddbParser.ddbFeature,
+      //   selectionOnly: false,
+      // });
+
+      // console.warn(`CHOICES`, {
+      //   choices,
+      //   this: this,
+      // });
+
+      if (this.ddbParser.ddbData.character.choices[derivedType]
+        && Array.isArray(this.ddbParser.ddbData.character.choices[derivedType])
+      ) {
+        // find a choice in the related choices-array
+        const choices = this.ddbParser.ddbData.character.choices[derivedType].filter((characterChoice) =>
+          characterChoice.componentId
+          && characterChoice.componentId === id
+          && characterChoice.componentTypeId === entityTypeId,
+        );
+
+        if (choices) {
+          const choiceDefinitions = this.ddbParser.ddbData.character.choices.choiceDefinitions;
+          const validChoices = choices
+            .filter(
+              (choice) => {
+                const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+                const validOption = optionChoice && optionChoice.options.find((option) => option.id === choice.optionValue);
+                return validOption;
+              });
+
+          const options = validChoices.map((choice) => {
+            const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+            // console.warn("details", {
+            //   choices,
+            //   choice,
+            //   optionChoice,
+            //   choiceDefinitions,
+            // });
+            let result = optionChoice.options
+              .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
+              .find((option) => option.id === choice.optionValue);
+            result.componentId = choice.componentId;
+            result.componentTypeId = choice.componentTypeId;
+            result.choiceId = choice.id;
+            result.parentChoiceId = choice.parentChoiceId;
+            result.subType = choice.subType;
+            result.type = type;
+            result.wasOption = false;
+            return result;
+          });
+
+          console.warn(`Options`, {
+            id,
+            entityTypeId,
+            derivedType,
+            options,
+            choices,
+            choiceDefinitions,
+            validChoices,
+            this: this,
+          });
+
+        }
+      }
+
+      // todo get choice matches, e.g. rock gnome lineage stuff
+
+    }
+
     results.all = [...nameMatches, ...idMatches, ...optionMatches];
 
     console.warn(`Action match results ${name} (${derivedType})`, results);
@@ -827,14 +897,34 @@ export default class DDBEnricherMixin {
     logger.debug(`Built Actions from Action "${name}" for ${this.ddbParser.originalName}`, { actions });
     if (actions.length === 0) return [];
     const actionFeatures = actions.map((action) => {
-      return this.ddbParser.ddbCharacter._characterFeatureFactory.getFeatureFromAction({
+      const generatedActionFeature = this.ddbParser.ddbCharacter._characterFeatureFactory.getFeatureFromAction({
         action,
         isAttack,
         manager: this.manager,
       });
+
+      const actionFeatureName = foundry.utils.getProperty(generatedActionFeature, "flags.ddbimporter.originalName") ?? generatedActionFeature.name;
+      if (this.ddbParser.originalName === actionFeatureName) {
+        if (this.activityNameMatchFeature) {
+          logger.warn(`Activity Name Match for ${this.ddbParser.originalName} already set`, {
+            this: this,
+            generatedActionFeature,
+            previous: foundry.utils.deepClone(this.activityNameMatchFeature),
+          });
+        }
+        this.activityNameMatchFeature = generatedActionFeature;
+      }
+
+      return generatedActionFeature;
     });
     this.activityMatchedFeatures[name] = actionFeatures;
     logger.debug(`Additional Features from Action ${name}`, { actionFeatures });
+
+    logger.warn(`Featurs from actions ${this.ddbParser.originalName}`, {
+      this: this,
+      activityMatchedFeatures: this.activityMatchedFeatures,
+    });
+
     return actionFeatures;
   }
 
@@ -851,6 +941,13 @@ export default class DDBEnricherMixin {
           type: derivedType,
         },
       };
+    });
+
+    console.warn(`Building Features from Actions for ${this.ddbParser.originalName}`, {
+      type,
+      derivedType,
+      actionsToBuild,
+      actions,
     });
 
     let i = 1;

@@ -20,45 +20,13 @@ export default class DDBFeatEnricher extends DDBEnricherMixin {
   }
 
   NAME_HINTS_2014 = {
-    "Channel Divinity: Sacred Weapon": "Sacred Weapon",
-    "Lay on Hands Pool": "Lay On Hands: Healing Pool",
   };
 
   NAME_HINTS = {
-    "Aura of Courage": "Aura of",
-    "Aura Of Courage": "Aura of",
-    "Aura of Protection": "Aura of",
-    "Aura Of Protection": "Aura of",
-    "Aura of Alacrity": "Aura of",
-    "Aura of Warding": "Aura of",
-    "Convert Sorcery Points": "Font of Magic",
-    "Font of Magic: Convert Spell Slots": "Font of Magic",
-    "Font Of Magic": "Font of Magic",
     "Interception": "Fighting Style: Interception",
-    "Invoke Duplicity": "Channel Divinity: Invoke Duplicity",
-    "Preserve Life": "Channel Divinity: Preserve Life",
-    "Psychic Blades: Attack (DEX)": "Psychic Blade",
-    "Psychic Blades: Attack (STR)": "Psychic Blade",
-    "Psychic Blades: Attack": "Psychic Blade",
-    "Psychic Blades": "Psychic Blade",
-    "Psychic Blades: Homing Strikes": "Soul Blades: Homing Strikes",
-    "Psychic Blades: Psychic Teleportation": "Soul Blades: Psychic Teleportation",
-    "Psychic Teleportation": "Soul Blades: Psychic Teleportation",
-    "Radiance of the Dawn": "Channel Divinity: Radiance of the Dawn",
-    "Rage (Enter)": "Rage",
-    // "War God's Blessing": "Channel Divinity: War God's Blessing",
-    "Telekinetic Adept: Psi-Powered Leap": "Psionic Power: Psi-Powered Leap",
-    "Telekinetic Adept: Telekinetic Thrust": "Psionic Power: Telekinetic Thrust",
-    "Form of the Beast: Tail": "Form of the Beast",
-    "Form of the Beast: Claw": "Form of the Beast",
-    "Form of the Beast: Bite": "Form of the Beast",
-    "Halfling Lucky": "Lucky",
-    "Powerful Build, Hippo Build": "Hippo Build",
   };
 
   NAME_HINT_INCLUDES = {
-    " Lineage": "Lineage",
-    " Legacy": "Lineage",
   };
 
   ENRICHERS = {

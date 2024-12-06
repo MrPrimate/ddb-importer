@@ -182,7 +182,8 @@ export default class CharacterFeatureFactory {
     ]
       .flat()
       .filter((action) => action.name && action.name !== ""
-        && (DDBAction.KEEP_ACTIONS.some((a) => utils.nameString(action.name) === a)
+        && (action.isCustomAction
+        || DDBAction.KEEP_ACTIONS.some((a) => utils.nameString(action.name) === a)
         || DDBAction.KEEP_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))),
       )
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter));
@@ -263,7 +264,8 @@ export default class CharacterFeatureFactory {
     ]
       .flat()
       .filter((action) => action.name && action.name !== ""
-        && (DDBAction.KEEP_ACTIONS.some((a) => utils.nameString(action.name) === a)
+        && (action.isCustomAction
+        || DDBAction.KEEP_ACTIONS.some((a) => utils.nameString(action.name) === a)
         || DDBAction.KEEP_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))),
       )
       .filter((action) => {
@@ -310,7 +312,6 @@ export default class CharacterFeatureFactory {
   }
 
   async processActions() {
-    // TODO: Adjust actions to import only explicitly named ones
     await this._generateAttackActions();
     await this._generateUnarmedStrikeAction();
     await this._generateOtherActions();
@@ -454,16 +455,8 @@ export default class CharacterFeatureFactory {
     this.#addGenericAdvancementOrigins(types);
   }
 
-  static GENERIC_ENRICHERS_MAP = {
-    "feat": "Generic",
-    "class": "Generic",
-    "race": "Generic",
-    "background": "Generic",
-  };
-
   async getFeaturesFromDefinition(featDefinition, type, flags = {}) {
     const source = DDBHelper.parseSource(featDefinition.definition ? featDefinition.definition : featDefinition);
-    const fallbackEnricher = CharacterFeatureFactory.GENERIC_ENRICHERS_MAP[type] ?? null;
     const ddbFeature = new DDBFeature({
       ddbCharacter: this.ddbCharacter,
       ddbData: this.ddbData,
@@ -472,13 +465,14 @@ export default class CharacterFeatureFactory {
       type,
       source,
       extraFlags: flags,
-      fallbackEnricher,
+      fallbackEnricher: "Generic",
     });
     ddbFeature.build();
     logger.debug(`CharacterFeatureFactory.getFeaturesFromDefinition (type: ${type}): ${ddbFeature.ddbDefinition.name}`, {
       ddbFeature,
       featDefinition,
       this: this,
+      type,
     });
     // only background features get advancements for now
     if (type === "background") {
@@ -519,7 +513,7 @@ export default class CharacterFeatureFactory {
         (trait) => CharacterFeatureFactory.includedFeatureNameCheck(trait.definition.name)
           && !trait.definition.hideInSheet
           && !this.excludedOriginFeatures.includes(trait.definition.id)
-          && (trait.requiredLevel === undefined || trait.requiredLevel >= this.ddbCharacter.totalLevels),
+          && (this.ddbCharacter.totalLevels >= (trait.requiredLevel ?? 1)),
       );
 
     for (const trait of traits) {
@@ -1059,69 +1053,69 @@ export default class CharacterFeatureFactory {
         ),
       );
 
-    const actionsNoFeatures = this.parsed.actions.filter((action) => {
-      const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
-      const actionFlagType = foundry.utils.getProperty(action, "flags.ddbimporter.type");
-      const featureMatch = this.processed.features.find((feature) => {
-        const originalFeatureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
-        const featureNamePrefix = originalFeatureName.split(":")[0].trim();
-        const replaceRegex = new RegExp(`${utils.regexSanitizeString(featureNamePrefix)}(?:\\s*)-`);
-        const featureFlagType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
-        const replacedActionName = originalActionName.replace(replaceRegex, `${featureNamePrefix}:`);
+    // const actionsNoFeatures = this.parsed.actions.filter((action) => {
+    //   const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
+    //   const actionFlagType = foundry.utils.getProperty(action, "flags.ddbimporter.type");
+    //   const featureMatch = this.processed.features.find((feature) => {
+    //     const originalFeatureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+    //     const featureNamePrefix = originalFeatureName.split(":")[0].trim();
+    //     const replaceRegex = new RegExp(`${utils.regexSanitizeString(featureNamePrefix)}(?:\\s*)-`);
+    //     const featureFlagType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
+    //     const replacedActionName = originalActionName.replace(replaceRegex, `${featureNamePrefix}:`);
 
-        return (
-          originalFeatureName === originalActionName
-          || replacedActionName === originalFeatureName
-          || feature.name === action.name
-          || replacedActionName === feature.name
-        )
-        && featureFlagType === actionFlagType;
-      });
+    //     return (
+    //       originalFeatureName === originalActionName
+    //       || replacedActionName === originalFeatureName
+    //       || feature.name === action.name
+    //       || replacedActionName === feature.name
+    //     )
+    //     && featureFlagType === actionFlagType;
+    //   });
 
-      return !featureMatch;
-    });
+    //   return !featureMatch;
+    // });
 
-    console.warn("actionsNoFeatures", actionsNoFeatures);
+    // console.warn("actionsNoFeatures", actionsNoFeatures);
 
-    const actionsNoFeatureIdMatch = actionsNoFeatures.filter((action) => {
-      const actionComponentId = foundry.utils.getProperty(action, "flags.ddbimporter.componentId");
-      const actionComponentTypeId = foundry.utils.getProperty(action, "flags.ddbimporter.componentTypeId");
+    // const actionsNoFeatureIdMatch = actionsNoFeatures.filter((action) => {
+    //   const actionComponentId = foundry.utils.getProperty(action, "flags.ddbimporter.componentId");
+    //   const actionComponentTypeId = foundry.utils.getProperty(action, "flags.ddbimporter.componentTypeId");
 
-      const match = this.processed.features.find((feature) => {
-        const id = foundry.utils.getProperty(feature, "flags.ddbimporter.id");
-        const entityTypeId = foundry.utils.getProperty(feature, "flags.ddbimporter.entityTypeId");
-        return id === actionComponentId && entityTypeId === actionComponentTypeId;
-      });
-      if (match) {
-        console.warn(`Match action ${action.name} to ${match.name}`, { action, match });
-      }
-      return !match;
-    });
+    //   const match = this.processed.features.find((feature) => {
+    //     const id = foundry.utils.getProperty(feature, "flags.ddbimporter.id");
+    //     const entityTypeId = foundry.utils.getProperty(feature, "flags.ddbimporter.entityTypeId");
+    //     return id === actionComponentId && entityTypeId === actionComponentTypeId;
+    //   });
+    //   if (match) {
+    //     console.warn(`Match action ${action.name} to ${match.name}`, { action, match });
+    //   }
+    //   return !match;
+    // });
 
-    console.warn("actionsNoFeatureIdMatch", actionsNoFeatureIdMatch);
+    // console.warn("actionsNoFeatureIdMatch", actionsNoFeatureIdMatch);
 
-    const noChoiceActions = actionsNoFeatureIdMatch.filter((action) => {
-      const actionComponentId = foundry.utils.getProperty(action, "flags.ddbimporter.componentId");
-      const actionComponentTypeId = foundry.utils.getProperty(action, "flags.ddbimporter.componentTypeId");
-      const type = foundry.utils.getProperty(action, "flags.ddbimporter.type");
-      if (!this.ddbData.character.options[type]) return true;
-      const optionMatch = this.ddbData.character.options[type].find((option) =>
-        option.definition.id === actionComponentId
-        && option.definition.entityTypeId === actionComponentTypeId,
-      );
+    // const noChoiceActions = actionsNoFeatureIdMatch.filter((action) => {
+    //   const actionComponentId = foundry.utils.getProperty(action, "flags.ddbimporter.componentId");
+    //   const actionComponentTypeId = foundry.utils.getProperty(action, "flags.ddbimporter.componentTypeId");
+    //   const type = foundry.utils.getProperty(action, "flags.ddbimporter.type");
+    //   if (!this.ddbData.character.options[type]) return true;
+    //   const optionMatch = this.ddbData.character.options[type].find((option) =>
+    //     option.definition.id === actionComponentId
+    //     && option.definition.entityTypeId === actionComponentTypeId,
+    //   );
 
-      const match = this.processed.features.find((feature) => {
-        const id = foundry.utils.getProperty(feature, "flags.ddbimporter.id");
-        const entityTypeId = foundry.utils.getProperty(feature, "flags.ddbimporter.entityTypeId");
-        return id === optionMatch.componentId && entityTypeId === optionMatch.componentTypeId;
-      });
-      if (match) {
-        console.warn(`Match action ${action.name} to option ${match.name}`, { action, match });
-      }
-      return !match;
-    });
+    //   const match = this.processed.features.find((feature) => {
+    //     const id = foundry.utils.getProperty(feature, "flags.ddbimporter.id");
+    //     const entityTypeId = foundry.utils.getProperty(feature, "flags.ddbimporter.entityTypeId");
+    //     return id === optionMatch.componentId && entityTypeId === optionMatch.componentTypeId;
+    //   });
+    //   if (match) {
+    //     console.warn(`Match action ${action.name} to option ${match.name}`, { action, match });
+    //   }
+    //   return !match;
+    // });
 
-    console.warn("noChoiceActions", noChoiceActions);
+    // console.warn("noChoiceActions", noChoiceActions);
 
   }
 

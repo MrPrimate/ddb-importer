@@ -8,6 +8,7 @@ export default class Lineage extends DDBEnricherData {
   }
 
   get override() {
+    if (this.data.name.startsWith("Gnomish ")) return null;
     return {
       data: {
         name: `${this.data.name}`.replace(/ Lineage| Legacy$/i, ""),

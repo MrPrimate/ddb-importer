@@ -700,8 +700,9 @@ const DDBHelper = {
    *
    * @returns {object[]} An array of choice objects, each representing a valid choice option.
    */
-  getChoices: ({ ddb, type, feat, selectionOnly = true, filterByParentChoice = false,
-    parentChoiceId = null } = {},
+  getChoices: (
+    { ddb, type, feat, selectionOnly = true, filterByParentChoice = false,
+      parentChoiceId = null } = {},
   ) => {
     const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
     const featDefinition = feat.definition ? feat.definition : feat;

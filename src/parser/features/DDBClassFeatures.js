@@ -95,7 +95,7 @@ export default class DDBClassFeatures {
   async _getFeatures({ featureDefinition, type, source, filterByLevel = true, flags = {} } = {}) {
     const enricher = new DDBClassFeatureEnricher({
       activityGenerator: DDBFeatureActivity,
-      fallbackEnricher: "Class Feature",
+      fallbackEnricher: "Generic",
     });
     await enricher.init();
     const feature = new DDBFeature({

@@ -101,7 +101,7 @@ export class DDBInfusion {
     this.activityType = this._getActivityType();
     this.enricher = new DDBClassFeatureEnricher({
       activityGenerator: DDBFeatureActivity,
-      fallbackEnricher: "Class Feature",
+      fallbackEnricher: "Generic",
     });
   }
 
