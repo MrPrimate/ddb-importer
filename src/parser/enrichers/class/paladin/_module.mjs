@@ -13,6 +13,7 @@ export { default as PeerlessAthlete } from "./PeerlessAthlete.mjs";
 export { default as RadiantStrikes } from "./RadiantStrikes.mjs";
 export { default as RelentlessAvenger } from "./RelentlessAvenger.mjs";
 export { default as SacredWeapon } from "./SacredWeapon.mjs";
+export { default as SmiteOfProtection } from "./SmiteOfProtection.mjs";
 export { default as SoulOfVengeance } from "./SoulOfVengeance.mjs";
 export { default as UndyingSentinel } from "./UndyingSentinel.mjs";
 export { default as VowOfEnmity } from "./VowOfEnmity.mjs";

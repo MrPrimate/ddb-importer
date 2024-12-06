@@ -103,8 +103,6 @@ export default class DDBEnricherMixin {
   }
 
   get override() {
-    // TODO: Evaluate what from actionns should be stolen, e.g. uses
-
     if (this.loadedEnricher) {
       return this.loadedEnricher.override;
     } else {
@@ -742,10 +740,14 @@ export default class DDBEnricherMixin {
           activityData.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
           activityData.activities[newKey]._id = `${newKey}`;
           const name = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
-          if (activityCount === 1) {
-            activityData.activities[newKey].name = name;
-          } else {
-            activityData.activities[newKey].name = `${name} (${utils.capitalize(activityData.activities[newKey].type)})`;
+          const activityName = activityData.activities[newKey].name;
+          if (!activityName || activityName === "") {
+            // eslint-disable-next-line max-depth
+            if (activityCount === 1) {
+              activityData.activities[newKey].name = name;
+            } else {
+              activityData.activities[newKey].name = `${name} (${utils.capitalize(activityData.activities[newKey].type)})`;
+            }
           }
         }
         activityData.effects.push(...(foundry.utils.deepClone(feature.effects)));
@@ -770,7 +772,7 @@ export default class DDBEnricherMixin {
     if (this.useDefaultAdditionalActivities) {
       logger.debug(`Adding default additional activities for ${this.ddbParser.originalName}`);
       this._addDefaultActionMatchedActivities();
-      logger.debug(`Complete adding default additional activities for ${this.ddbParser.originalName}`,{
+      logger.debug(`Complete adding default additional activities for ${this.ddbParser.originalName}`, {
         this: this,
         data: foundry.utils.deepClone(this.data),
       });
@@ -911,12 +913,12 @@ export default class DDBEnricherMixin {
       };
     });
 
-    console.warn(`Building Features from Actions for ${this.ddbParser.originalName}`, {
-      type,
-      derivedType,
-      actionsToBuild,
-      actions,
-    });
+    // console.warn(`Building Features from Actions for ${this.ddbParser.originalName}`, {
+    //   type,
+    //   derivedType,
+    //   actionsToBuild,
+    //   actions,
+    // });
 
     let i = 1;
     for (const activityHint of actionsToBuild) {

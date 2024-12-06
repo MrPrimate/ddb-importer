@@ -269,6 +269,7 @@ export default class DDBFeatEnricher extends DDBEnricherMixin {
     "Shadowy Dodge": ClassEnrichers.Ranger.ShadowyDodge,
     "Shielding Storm": ClassEnrichers.Barbarian.ShieldingStorm,
     "Slow Fall": ClassEnrichers.Monk.SlowFall,
+    "Smite of Protection": ClassEnrichers.Paladin.SmiteOfProtection,
     "Sneak Attack: Poison (Envenom)": ClassEnrichers.Rogue.SneakAttackPoisonEnvenom,
     "Sneak Attack: Supreme Sneak (Cost: 1d6)": ClassEnrichers.Rogue.SneakAttackSupremeSneak,
     "Sneak Attack": ClassEnrichers.Rogue.SneakAttack,
