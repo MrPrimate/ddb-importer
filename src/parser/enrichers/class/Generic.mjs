@@ -12,9 +12,9 @@ export default class Generic extends DDBEnricherData {
   }
 
   get override() {
-    console.warn(`Generic override for ${this.data.name}`, {
-      this: this,
-    });
+    // console.warn(`Generic override for ${this.data.name}`, {
+    //   this: this,
+    // });
     return null;
   }
 
