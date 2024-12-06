@@ -1,6 +1,7 @@
 export { default as Archdruid } from "./Archdruid.mjs";
 export { default as BlightedShape } from "./BlightedShape.mjs";
 export { default as CircleForms } from "./CircleForms.mjs";
+export { default as CosmicOmen } from "./CosmicOmen.mjs";
 export { default as DefileGround } from "./DefileGround.mjs";
 export { default as DefileGroundMoveCorruption } from "./DefileGroundMoveCorruption.mjs";
 export { default as ElementalFuryPrimalStrike } from "./ElementalFuryPrimalStrike.mjs";

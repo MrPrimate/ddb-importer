@@ -88,6 +88,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherMixin {
     "Combat Inspiration": ClassEnrichers.Bard.CombatInspiration,
     "Combat Superiority": ClassEnrichers.Fighter.CombatSuperiority,
     "Corona of Light": ClassEnrichers.Cleric.CoronaOfLight,
+    "Cosmic Omen": ClassEnrichers.Druid.CosmicOmen,
     "Create Thrall": ClassEnrichers.Warlock.CreateThrall,
     "Cunning Action": ClassEnrichers.Rogue.CunningAction,
     "Cunning Strike": ClassEnrichers.Rogue.CunningStrike,
