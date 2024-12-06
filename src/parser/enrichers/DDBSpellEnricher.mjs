@@ -12,11 +12,6 @@ export default class DDBSpellEnricher extends DDBEnricherMixin {
     });
   }
 
-  load({ ddbParser, document, name = null, notifier = null } = {}) {
-    super.load({ ddbParser, document, name, notifier });
-    this._prepare();
-  }
-
   NAME_HINTS_2014 = {};
 
   NAME_HINTS = {

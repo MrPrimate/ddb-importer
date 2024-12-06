@@ -14,12 +14,6 @@ export default class DDBGenericEnricher extends DDBEnricherMixin {
     });
   }
 
-  load({ ddbParser, document, name = null, fallbackEnricher = null } = {}) {
-    if (fallbackEnricher) this.fallbackEnricher = fallbackEnricher;
-    super.load({ ddbParser, document, name });
-    this._prepare();
-  }
-
   NAME_HINTS_2014 = {
   };
 

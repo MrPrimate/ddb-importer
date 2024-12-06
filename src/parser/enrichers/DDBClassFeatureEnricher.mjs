@@ -13,12 +13,6 @@ export default class DDBFeatEnricher extends DDBEnricherMixin {
     });
   }
 
-  load({ ddbParser, document, name = null, fallbackEnricher = null } = {}) {
-    if (fallbackEnricher) this.fallbackEnricher = fallbackEnricher;
-    super.load({ ddbParser, document, name });
-    this._prepare();
-  }
-
   NAME_HINTS_2014 = {
     "Channel Divinity: Sacred Weapon": "Sacred Weapon",
     "Lay on Hands Pool": "Lay On Hands: Healing Pool",

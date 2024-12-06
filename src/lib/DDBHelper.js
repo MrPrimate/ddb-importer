@@ -899,7 +899,7 @@ const DDBHelper = {
   findClassByFeatureId: (ddb, featureId) => {
     // optional class features need this filter, as they replace existing features
     const featId = DDBHelper.determineActualFeatureId(ddb, featureId);
-    logger.debug(`Finding featureId ${featureId} with featId ${featId}`);
+    logger.verbose(`Finding featureId ${featureId} with featId ${featId}`);
 
     let klass = ddb.character.classes.find((cls) => {
       let classFeatures = cls.classFeatures;
@@ -937,7 +937,7 @@ const DDBHelper = {
       }
     }
     if (klass) {
-      logger.debug(`Class ${klass.definition.name} found for ${featureId} with featId ${featId}`);
+      logger.verbose(`Class ${klass.definition.name} found for ${featureId} with featId ${featId}`);
     } else {
       logger.debug(`Class not found for ${featureId}`);
     }

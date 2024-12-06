@@ -496,7 +496,7 @@ export default class DDBRace {
         && match.name.trim().toLowerCase() == trait.name.trim().toLowerCase();
 
       if (!nameMatch && !featureFlagNameMatch) {
-        logger.debug(`Unable to find ${trait.name} in compendium`, { trait, matchFlags, match });
+        logger.verbose(`Unable to find ${trait.name} in compendium`, { trait, matchFlags, match });
         return false;
       }
 

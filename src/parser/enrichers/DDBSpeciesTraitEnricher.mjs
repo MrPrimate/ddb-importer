@@ -13,15 +13,12 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherMixin {
     });
   }
 
-  load({ ddbParser, document, name = null, fallbackEnricher = null } = {}) {
-    if (fallbackEnricher) this.fallbackEnricher = fallbackEnricher;
-    super.load({ ddbParser, document, name });
-    this._prepare();
-  }
-
   NAME_HINTS = {
     "Halfling Lucky": "Lucky",
     "Powerful Build, Hippo Build": "Hippo Build",
+    "Gnomish Lineage": "Generic",
+    "Gnomish Lineage: Rock Gnome": "Generic",
+    "Gnomish Lineage: Forest Gnome": "Generic",
   };
 
   NAME_HINT_INCLUDES = {

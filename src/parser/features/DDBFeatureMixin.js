@@ -924,6 +924,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     if (DDBFeatureMixin.UTILITY_FEATURES.some((f) => this.originalName.startsWith(f))) return "utility";
     if (this.isForceResourceLinked()) return "utility";
     if (this.getParsedActionType()) return "utility";
+    if (this.isAction) return "utility";
     return null;
   }
 

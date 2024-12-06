@@ -19,22 +19,30 @@ export default class DDBEnricherMixin {
 
   _loadEnricherData() {
     if (!this.ENRICHERS?.[this.hintName]) return null;
+    if (this.hintName === this.fallbackEnricher) {
+      this.usingFallbackEnricher = true;
+    }
     return new this.ENRICHERS[this.hintName]({
       ddbEnricher: this,
     });
   }
 
   _loadFallbackEnricherData() {
-    if (!this.fallbackEnricher) return null;
-    if (!this.FALLBACK_ENRICHERS[this.hintName]) return null;
-    return new this.FALLBACK_ENRICHERS[this.hintName]({
+    if (!this.fallbackEnricher) return;
+    if (!this.FALLBACK_ENRICHERS[this.fallbackEnricher]) return;
+    const loadedEnricher = new this.FALLBACK_ENRICHERS[this.fallbackEnricher]({
       ddbEnricher: this,
     });
+    this.loadedEnricher = loadedEnricher;
+    this.usingFallbackEnricher = true;
   }
 
-  _getEnricherMatchesV2() {
+  _getEnricherMatches() {
     const loadedEnricher = this._loadEnricherData();
-    if (!loadedEnricher) return;
+    if (!loadedEnricher) {
+      this._loadFallbackEnricherData();
+      return;
+    }
     this.loadedEnricher = loadedEnricher;
   }
 
@@ -68,8 +76,10 @@ export default class DDBEnricherMixin {
 
   _prepare() {
     this._getNameHint();
-    this._getEnricherMatchesV2();
-    if (!this.ddbParser.isAction) this._buildActionFeatures();
+    this._getEnricherMatches();
+    if (this.usingFallbackEnricher && !this.ddbParser.isAction) {
+      this._buildDefaultActionFeatures();
+    }
   }
 
   get type() {
@@ -152,19 +162,21 @@ export default class DDBEnricherMixin {
     this.useLookupName = false;
     this.effectType = effectType;
     this.enricherType = enricherType;
+    this.usingFallbackEnricher = false;
     this.fallbackEnricher = fallbackEnricher;
     this.manager = null;
     this.loadedEnricher = null;
     this._originalActivity = null;
     this.notifier = notifier;
     this.hintName = null;
-    this.activityMatchedFeatures = {};
-    this.activityActionFeatures = {};
+    this.defaultActionFeatures = {};
+    this.customActionFeatures = {};
     this.ddbActionType = ddbActionType;
     this.activityNameMatchFeature = null;
   }
 
-  load({ ddbParser, document, name = null, is2014 = null } = {}) {
+  load({ ddbParser, document, name = null, is2014 = null, fallbackEnricher = null } = {}) {
+    if (fallbackEnricher) this.fallbackEnricher = fallbackEnricher;
     this.ddbParser = ddbParser;
     this.document = ddbParser?.data ?? document;
     this.name = ddbParser?.originalName ?? name ?? document.flags?.ddbimporter?.originalName ?? document.name;
@@ -654,12 +666,14 @@ export default class DDBEnricherMixin {
       }
       result.effects.push(...(foundry.utils.deepClone(feature.effects)));
     });
-    this.activityActionFeatures[name] = actionFeatures;
+    this.customActionFeatures[name] = actionFeatures;
     logger.debug(`Additional Activities from Action ${name}`, { result });
     return result;
   }
 
-  _addActivityHintAdditionalActivities(additionalActivityHints, ddbParent) {
+  _addActivityHintAdditionalActivities(ddbParent) {
+    const additionalActivityHints = this.additionalActivities;
+
     if (!additionalActivityHints) return;
     if (!this.activityGenerator) return;
 
@@ -689,10 +703,7 @@ export default class DDBEnricherMixin {
         activityData.effects = result.effects;
       }
 
-      // console.warn("Activities", activityData);
       for (let activity of Object.values(activityData.activities)) {
-        // console.warn("Activity", activity);
-
         if (activityHint.overrides) {
           this.originalActivity = activity;
           activity = this._applyActivityDataOverride(activity, activityHint.overrides);
@@ -707,20 +718,28 @@ export default class DDBEnricherMixin {
     }
   }
 
-  _addActionMatchedAdditionalActivities() {
+  _addDefaultActionMatchedActivities() {
     let i = 0;
-    for (const [name, features] of Object.entries(this.activityMatchedFeatures)) {
+    for (const [name, features] of Object.entries(this.defaultActionFeatures)) {
       let y = 0;
       for (const feature of features) {
-        logger.debug(`Adding additional activities for ${name}`, { feature });
         const activityData = {
           activities: {},
           effects: [],
         };
 
-        const activityCount = Object.keys(feature.system.activities).length;
+        const activityKeys = Object.keys(feature.system.activities);
+        const activityCount = activityKeys.length;
 
-        for (const activityKey of (Object.keys(feature.system.activities))) {
+        logger.debug(`Processing out ${activityCount} default additional activities for ${name}`, {
+          feature,
+          i,
+          y,
+          name,
+          activityKeys,
+        });
+
+        for (const activityKey of activityKeys) {
           let newKey = `${activityKey.slice(0, -3)}Ne${y + i}`;
           while (activityData.activities[newKey] || this.data.system.activities[newKey]) {
             newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
@@ -736,6 +755,10 @@ export default class DDBEnricherMixin {
         }
         activityData.effects.push(...(foundry.utils.deepClone(feature.effects)));
 
+        // console.warn(`Final activity map`,{
+        //   activityData
+        // })
+
         for (const activity of Object.values(activityData.activities)) {
           this.data.system.activities[activity._id] = activity;
           i++;
@@ -749,15 +772,16 @@ export default class DDBEnricherMixin {
   }
 
   addAdditionalActivities(ddbParent) {
-    console.warn(`Adding additional activities for ${this.name}`, {
-      this: this,
-      useDefaultAdditionalActivities: this.useDefaultAdditionalActivities,
-    });
     if (this.useDefaultAdditionalActivities) {
-      this._addActionMatchedAdditionalActivities();
+      logger.debug(`Adding default additional activities for ${this.ddbParser.originalName}`);
+      this._addDefaultActionMatchedActivities();
+      logger.debug(`Complete adding default additional activities for ${this.ddbParser.originalName}`,{
+        this: this,
+        data: foundry.utils.deepClone(this.data),
+      });
     } else {
-      const additionalActivities = this.additionalActivities;
-      this._addActivityHintAdditionalActivities(additionalActivities, ddbParent);
+      logger.debug(`Adding custom additional activities for ${this.ddbParser.originalName}`);
+      this._addActivityHintAdditionalActivities(ddbParent);
     }
   }
 
@@ -820,10 +844,10 @@ export default class DDBEnricherMixin {
         selectionOnly: true,
       });
 
-      console.warn(`CHOICES`, {
-        choices,
-        this: this,
-      });
+      // console.warn(`CHOICES`, {
+      //   choices,
+      //   this: this,
+      // });
 
       const choiceMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action) => {
         const choiceMatch = choices.some((choice) => choice.id === action.componentId);
@@ -835,19 +859,17 @@ export default class DDBEnricherMixin {
       });
 
       results.choices = choiceMatches;
-      // todo get choice matches, e.g. rock gnome lineage stuff
-
     }
 
     results.all = [...nameMatches, ...idMatches, ...optionMatches, ...results.choices];
 
-    console.warn(`Action match results ${name} (${derivedType})`, results);
+    // console.warn(`Action match results ${name} (${derivedType})`, results);
 
     return results;
 
   }
 
-  _buildFeaturesFromAction({ name, type, isAttack = null }) {
+  _buildFeaturesFromAction({ name, type, isAttack = null } = {}) {
     if (!this.ddbParser?.ddbCharacter) return [];
     const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type });
     logger.debug(`Built Actions from Action "${name}" for ${this.ddbParser.originalName}`, { actions });
@@ -873,19 +895,14 @@ export default class DDBEnricherMixin {
 
       return generatedActionFeature;
     });
-    this.activityMatchedFeatures[name] = actionFeatures;
-    logger.debug(`Additional Features from Action ${name}`, { actionFeatures });
 
-    logger.warn(`Features from actions ${this.ddbParser.originalName}`, {
-      this: this,
-      activityMatchedFeatures: this.activityMatchedFeatures,
-    });
+    logger.debug(`Additional Features from Action ${name}`, { actionFeatures });
 
     return actionFeatures;
   }
 
 
-  _buildActionFeatures({ type = null } = {}) {
+  _buildDefaultActionFeatures({ type = null } = {}) {
     const derivedType = type ?? this.ddbActionType ?? this.enricherType;
     if (!derivedType) return;
     const actions = this.getFeatureActionsName({ type: derivedType });
@@ -911,8 +928,17 @@ export default class DDBEnricherMixin {
       const actionActivity = foundry.utils.getProperty(activityHint, "action");
 
       logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
-      this._buildFeaturesFromAction(actionActivity, i);
+      const actionFeatures = this._buildFeaturesFromAction(actionActivity, i);
+      this.defaultActionFeatures[actionActivity.name] = actionFeatures;
+
+      // console.warn(`Features from actions ${this.ddbParser.originalName}`, {
+      //   activityHint,
+      //   this: this,
+      //   activityMatchedFeatures: this.defaultActionFeatures,
+      // });
     }
+
+    logger.debug(`Default Feature Action Build Complete for ${this.ddbParser.originalName}`);
   }
 
   customFunction(options = {}) {

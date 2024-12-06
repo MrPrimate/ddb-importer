@@ -12,11 +12,6 @@ export default class DDBItemEnricher extends DDBEnricherMixin {
     });
   }
 
-  load({ ddbParser, document, name = null } = {}) {
-    super.load({ ddbParser, document, name });
-    this._prepare();
-  }
-
   NAME_HINTS = {
     "Alchemist's Fire (flask)": "Alchemist's Fire",
     "Potion of Greater Healing": "Potion of Healing (Greater)",

@@ -135,17 +135,12 @@ export default class CharacterFeatureFactory {
       activityGenerator: DDBFeatureActivity,
     });
     await enricher.init();
-    const unarmedStrikeAction = new DDBAttackAction({
-      ddbCharacter: this.ddbCharacter,
-      ddbData: this.ddbData,
-      ddbDefinition: strikeMock,
-      rawCharacter: this.rawCharacter,
+    return this.getFeatureFromAction({
+      action: strikeMock,
       enricher,
+      isAttack: true,
     });
-    unarmedStrikeAction.build();
 
-    // console.warn(`unarmedStrikeAction for Unarmed strike`, unarmedStrikeAction);
-    return unarmedStrikeAction.data;
   }
 
   async _generateUnarmedStrikeAction(overrides = {}) {
@@ -195,20 +190,12 @@ export default class CharacterFeatureFactory {
           activityGenerator: DDBFeatureActivity,
         });
         await enricher.init();
-        const ddbAttackAction = new DDBAttackAction({
-          ddbCharacter: this.ddbCharacter,
-          ddbData: this.ddbData,
-          ddbDefinition: action,
-          rawCharacter: this.rawCharacter,
+        return this.getFeatureFromAction({
+          action,
           type: action.actionSource,
           enricher,
+          isAttack: true,
         });
-        ddbAttackAction.build();
-
-        logger.debug(`Building Attack Action ${action.name}`, { ddbAttackAction });
-
-        // console.warn(`ddbAttackAction for ${action.name}`, ddbAttackAction);
-        return ddbAttackAction.data;
       })))
       .filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
 
@@ -293,17 +280,12 @@ export default class CharacterFeatureFactory {
         });
         await enricher.init();
 
-        const ddbAction = new DDBAction({
-          ddbCharacter: this.ddbCharacter,
-          ddbData: this.ddbData,
-          ddbDefinition: action,
-          rawCharacter: this.rawCharacter,
+        return this.getFeatureFromAction({
+          action,
+          type: action.actionSource,
           enricher,
+          isAttack: false,
         });
-        ddbAction.build();
-        logger.debug(`Building Other Action ${action.name}`, { ddbAction });
-
-        return ddbAction.data;
       })))
       .filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
 
@@ -695,7 +677,7 @@ export default class CharacterFeatureFactory {
 
   // helpers
 
-  getFeatureFromAction({ action, type, isAttack = null, manager = null, extraFlags = {} }) {
+  getFeatureFromAction({ action, type, isAttack = null, manager = null, extraFlags = {}, enricher = null }) {
     const isAttackAction = isAttack ?? DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
     const ddbAction = isAttackAction
       ? new DDBAttackAction({
@@ -705,6 +687,7 @@ export default class CharacterFeatureFactory {
         rawCharacter: this.rawCharacter,
         type: type ?? action.actionSource,
         extraFlags,
+        enricher,
       })
       : new DDBAction({
         ddbCharacter: this.ddbCharacter,
@@ -713,8 +696,10 @@ export default class CharacterFeatureFactory {
         rawCharacter: this.rawCharacter,
         type: type ?? action.actionSource,
         extraFlags,
+        enricher,
       });
     if (manager) ddbAction.enricher.manager = manager;
+    logger.debug(`Building Action ${action.name}`, { ddbAction, isAttackAction });
     ddbAction.build();
     return ddbAction.data;
   }
