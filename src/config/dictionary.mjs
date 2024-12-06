@@ -1026,6 +1026,8 @@ const DICTIONARY = {
       KEEP_ACTIONS: [
         "Psychic Blades",
       ],
+      KEEP_ACTIONS_STARTSWITH: [
+      ],
       SKIPPED_ACTIONS: [
         // weapon properties
         "Cleave",

@@ -182,8 +182,8 @@ export default class CharacterFeatureFactory {
     ]
       .flat()
       .filter((action) => action.name && action.name !== ""
-        && !DDBAction.SKIPPED_ACTIONS.some((a) => utils.nameString(action.name) === a)
-        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a)),
+        && (DDBAction.KEEP_ACTIONS.some((a) => utils.nameString(action.name) === a)
+        || DDBAction.KEEP_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))),
       )
       .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter));
 
@@ -263,8 +263,8 @@ export default class CharacterFeatureFactory {
     ]
       .flat()
       .filter((action) => action.name && action.name !== ""
-        && !DDBAction.SKIPPED_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))
-        && !DDBAction.SKIPPED_ACTIONS.some((a) => utils.nameString(action.name) === a),
+        && (DDBAction.KEEP_ACTIONS.some((a) => utils.nameString(action.name) === a)
+        || DDBAction.KEEP_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))),
       )
       .filter((action) => {
         const name = DDBHelper.getName(this.ddbData, action, this.rawCharacter);
@@ -311,11 +311,11 @@ export default class CharacterFeatureFactory {
 
   async processActions() {
     // TODO: Adjust actions to import only explicitly named ones
-    // await this._generateAttackActions();
+    await this._generateAttackActions();
     await this._generateUnarmedStrikeAction();
-    // await this._generateOtherActions();
+    await this._generateOtherActions();
 
-    // this.processed.actions = foundry.utils.duplicate(this.parsed.actions);
+    this.processed.actions = foundry.utils.duplicate(this.parsed.actions);
 
     this.processed.actions.sort().sort((a, b) => {
       if (!Object.values(a.system.activities).some((a) => foundry.utils.hasProperty(a, "activation.type"))) {
@@ -927,14 +927,13 @@ export default class CharacterFeatureFactory {
 
 
   filterActionFeatures() {
-    const actionAndFeature = false;
     // game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
     const alwaysUseFeatureDescription = true;
 
     // eslint-disable-next-line complexity
     this.data.actions = this.processed.actions.map((action) => {
       const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
-      // if (DICTIONARY.parsing.actions.KEEP_ACTIONS.includes(originalActionName)) return action;
+      // if (DDBAction.KEEP_ACTIONS.includes(originalActionName)) return action;
       const featureMatch = this.processed.features.find((feature) => {
         const originalFeatureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
         const featureNamePrefix = originalFeatureName.split(":")[0].trim();
@@ -1051,20 +1050,14 @@ export default class CharacterFeatureFactory {
 
     this.data.features = this.processed.features
       .filter((feature) =>
-        actionAndFeature
-        || DICTIONARY.parsing.actions.KEEP_ACTIONS.includes(foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name)
+        DDBAction.KEEP_ACTIONS.includes(foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name)
         || !this.data.actions.some((action) =>
           ((foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name).trim().toLowerCase() === (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name).trim().toLowerCase()
           || foundry.utils.getProperty(action, "flags.ddbimporter.featureNameMatch") === (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name))
           && foundry.utils.getProperty(action, "flags.ddbimporter.isCustomAction") !== true
           && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type"),
         ),
-      )
-      .map((feature) => {
-        const actionMatch = actionAndFeature && this.data.actions.some((action) => feature.name === action.name);
-        if (actionMatch) feature.effects = [];
-        return feature;
-      });
+      );
 
     const actionsNoFeatures = this.parsed.actions.filter((action) => {
       const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;

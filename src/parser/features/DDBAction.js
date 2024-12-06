@@ -4,6 +4,10 @@ import DDBFeatureMixin from "./DDBFeatureMixin.js";
 
 export default class DDBAction extends DDBFeatureMixin {
 
+  static KEEP_ACTIONS = DICTIONARY.parsing.actions.KEEP_ACTIONS;
+
+  static KEEP_ACTIONS_STARTSWITH = DICTIONARY.parsing.actions.KEEP_ACTIONS_STARTSWITH;
+
   static SKIPPED_ACTIONS = DICTIONARY.parsing.actions.SKIPPED_ACTIONS;
 
   static SKIPPED_ACTIONS_STARTSWITH = DICTIONARY.parsing.actions.SKIPPED_ACTIONS_STARTSWITH;

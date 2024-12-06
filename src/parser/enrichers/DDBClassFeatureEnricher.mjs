@@ -51,6 +51,7 @@ export default class DDBFeatEnricher extends DDBEnricherMixin {
 
   ENRICHERS = {
     None: GenericEnrichers.None,
+    Generic: ClassEnrichers.Generic,
     "Abjure Foes": ClassEnrichers.Paladin.AbjureFoes,
     "Action Surge": ClassEnrichers.Fighter.ActionSurge,
     "Arcane Propulsion Armor Gauntlet": ClassEnrichers.Artificer.ArcanePropulsionArmorGauntlet,
