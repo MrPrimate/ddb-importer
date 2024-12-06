@@ -767,6 +767,7 @@ export default class DDBEnricherMixin {
       name: [],
       id: [],
       options: [],
+      choices: [],
     };
 
     if (!this.ddbParser?.ddbDefinition) return results;
@@ -812,78 +813,33 @@ export default class DDBEnricherMixin {
     results.options = optionMatches;
 
     if (this.ddbParser.ddbFeature) {
-      // const choices = DDBHelper.getChoices({
-      //   ddb: this.ddbParser.ddbData,
-      //   type: derivedType,
-      //   feat: this.ddbParser.ddbFeature,
-      //   selectionOnly: false,
-      // });
+      const choices = DDBHelper.getChoices({
+        ddb: this.ddbParser.ddbData,
+        type: derivedType,
+        feat: this.ddbParser.ddbFeature,
+        selectionOnly: true,
+      });
 
-      // console.warn(`CHOICES`, {
-      //   choices,
-      //   this: this,
-      // });
+      console.warn(`CHOICES`, {
+        choices,
+        this: this,
+      });
 
-      if (this.ddbParser.ddbData.character.choices[derivedType]
-        && Array.isArray(this.ddbParser.ddbData.character.choices[derivedType])
-      ) {
-        // find a choice in the related choices-array
-        const choices = this.ddbParser.ddbData.character.choices[derivedType].filter((characterChoice) =>
-          characterChoice.componentId
-          && characterChoice.componentId === id
-          && characterChoice.componentTypeId === entityTypeId,
-        );
+      const choiceMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action) => {
+        const choiceMatch = choices.some((choice) => choice.id === action.componentId);
 
-        if (choices) {
-          const choiceDefinitions = this.ddbParser.ddbData.character.choices.choiceDefinitions;
-          const validChoices = choices
-            .filter(
-              (choice) => {
-                const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-                const validOption = optionChoice && optionChoice.options.find((option) => option.id === choice.optionValue);
-                return validOption;
-              });
+        return choiceMatch
+          && !nameMatches.some((m) => m.id === action.id)
+          && !idMatches.some((m) => m.id === action.id)
+          && !optionMatches.some((m) => m.id === action.id);
+      });
 
-          const options = validChoices.map((choice) => {
-            const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
-            // console.warn("details", {
-            //   choices,
-            //   choice,
-            //   optionChoice,
-            //   choiceDefinitions,
-            // });
-            let result = optionChoice.options
-              .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
-              .find((option) => option.id === choice.optionValue);
-            result.componentId = choice.componentId;
-            result.componentTypeId = choice.componentTypeId;
-            result.choiceId = choice.id;
-            result.parentChoiceId = choice.parentChoiceId;
-            result.subType = choice.subType;
-            result.type = type;
-            result.wasOption = false;
-            return result;
-          });
-
-          console.warn(`Options`, {
-            id,
-            entityTypeId,
-            derivedType,
-            options,
-            choices,
-            choiceDefinitions,
-            validChoices,
-            this: this,
-          });
-
-        }
-      }
-
+      results.choices = choiceMatches;
       // todo get choice matches, e.g. rock gnome lineage stuff
 
     }
 
-    results.all = [...nameMatches, ...idMatches, ...optionMatches];
+    results.all = [...nameMatches, ...idMatches, ...optionMatches, ...results.choices];
 
     console.warn(`Action match results ${name} (${derivedType})`, results);
 
@@ -920,7 +876,7 @@ export default class DDBEnricherMixin {
     this.activityMatchedFeatures[name] = actionFeatures;
     logger.debug(`Additional Features from Action ${name}`, { actionFeatures });
 
-    logger.warn(`Featurs from actions ${this.ddbParser.originalName}`, {
+    logger.warn(`Features from actions ${this.ddbParser.originalName}`, {
       this: this,
       activityMatchedFeatures: this.activityMatchedFeatures,
     });
