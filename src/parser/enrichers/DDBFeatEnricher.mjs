@@ -93,6 +93,6 @@ export default class DDBFeatEnricher extends DDBEnricherMixin {
   };
 
   FALLBACK_ENRICHERS = {
-    // "Feat": FeatEnrichers.Generic,
+    Generic: FeatEnrichers.Generic,
   };
 }

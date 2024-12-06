@@ -1,5 +1,5 @@
 import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
-import { GenericEnrichers } from "./_module.mjs";
+import { BackgroundEnrichers, GenericEnrichers } from "./_module.mjs";
 
 export default class DDBBackgroundEnricher extends DDBEnricherMixin {
   constructor({ activityGenerator, notifier = null, fallbackEnricher = null } = {}) {
@@ -33,7 +33,7 @@ export default class DDBBackgroundEnricher extends DDBEnricherMixin {
   };
 
   FALLBACK_ENRICHERS = {
-    // "Class Feature": ClassEnrichers.Generic,
+    Generic: BackgroundEnrichers.Generic,
   };
 
 }

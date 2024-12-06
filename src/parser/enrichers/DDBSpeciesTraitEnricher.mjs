@@ -75,7 +75,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherMixin {
   };
 
   FALLBACK_ENRICHERS = {
-    // "Species Trait": SpeciesEnrichers.Generic.Generic,
+    Generic: SpeciesEnrichers.Generic.Generic,
   };
 
 }

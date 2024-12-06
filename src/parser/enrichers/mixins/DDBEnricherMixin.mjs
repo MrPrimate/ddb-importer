@@ -760,7 +760,7 @@ export default class DDBEnricherMixin {
       this._addActionMatchedAdditionalActivities();
     } else {
       const additionalActivities = this.additionalActivities;
-      this._addActionMatchedAdditionalActivities(additionalActivities, ddbParent);
+      this._addActivityHintAdditionalActivities(additionalActivities, ddbParent);
     }
   }
 

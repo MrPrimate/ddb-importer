@@ -31,6 +31,7 @@ const directories = [
   'class/sorcerer',
   'class/warlock',
   'class/shared',
+  'background',
 ];
 
 for (const directory of directories) {

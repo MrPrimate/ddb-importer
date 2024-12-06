@@ -455,10 +455,10 @@ export default class CharacterFeatureFactory {
   }
 
   static GENERIC_ENRICHERS_MAP = {
-    "feat": "Generic Feat",
-    "class": "Class Feature",
-    "race": "Species Feature",
-    "background": "Background Feature",
+    "feat": "Generic",
+    "class": "Generic",
+    "race": "Generic",
+    "background": "Generic",
   };
 
   async getFeaturesFromDefinition(featDefinition, type, flags = {}) {
