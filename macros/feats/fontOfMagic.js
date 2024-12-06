@@ -34,12 +34,11 @@ async function slot_to_points() {
   if (Number(level) > 0) {
     spells[`spell${level}`].value--;
     await actor.update({ system: { spells } });
-    const new_points_value = Math.clamped(spvalue + Number(level), 0, spmax);
-    const points_gained = new_points_value - spvalue;
-    await sorceryPointsItem.update({ "system.uses.value": new_points_value });
+    const new_spent_value = Math.clamp(spspent - Number(level), 0, spmax);
+    await sorceryPointsItem.update({ "system.uses.spent": new_spent_value });
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor }),
-      content: `${actor.name} regained ${points_gained} sorcery points.`
+      content: `${actor.name} regained ${Number(level)} sorcery points.`
     });
   }
 }
@@ -75,7 +74,8 @@ async function points_to_slot() {
   if (Number(level) > 0) {
     spells[`spell${level}`].value++;
     await actor.update({ system: { spells } });
-    await sorceryPointsItem.update({ "system.uses.value": Math.clamped(spvalue - conversion_map[level], 0, spmax) });
+    const new_spent_value = Math.clamp(spspent + conversion_map[level], 0, spmax);
+    await sorceryPointsItem.update({ "system.uses.spent": new_spent_value });
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor }),
       content: `${actor.name} regained a ${CONFIG.DND5E.spellLevels[level]} spell slot.`
@@ -100,7 +100,7 @@ const style = `
   </style>`;
 
 const sorceryPointsItem = actor.items.find((i) => i.name === "Sorcery Points");
-const { value: spvalue, max: spmax } = sorceryPointsItem.system.uses;
+const { value: spvalue, max: spmax, spent: spspent } = sorceryPointsItem.system.uses;
 const spells = foundry.utils.duplicate(actor.system.spells);
 
 // array of spell levels for converting points to slots.
@@ -114,7 +114,7 @@ const spell_levels_with_available_slots = Object.entries(spells).filter(([key, {
   return (value > 0 && max > 0);
 });
 
-const is_missing_points = spvalue < spmax;
+const is_missing_points = spspent > 0;
 const is_missing_slots = valid_levels_with_spent_spell_slots.length > 0;
 
 // has unspent spell slots.

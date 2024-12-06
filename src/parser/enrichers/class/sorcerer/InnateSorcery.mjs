@@ -3,6 +3,10 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class InnateSorcery extends DDBEnricherData {
 
+  get useDefaultAdditionalActivities() {
+    return true;
+  }
+
   get effects() {
     return [
       {

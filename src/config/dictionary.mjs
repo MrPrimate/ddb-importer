@@ -1025,8 +1025,11 @@ const DICTIONARY = {
     actions: {
       KEEP_ACTIONS: [
         "Psychic Blades",
+        "Sorcery Points",
+        "Font of Magic: Sorcery Points",
       ],
       KEEP_ACTIONS_STARTSWITH: [
+        "Metamagic:",
       ],
       SKIPPED_ACTIONS: [
         // weapon properties
@@ -1294,6 +1297,7 @@ const DICTIONARY = {
         "Elven Lineage Spells",
         "Gnomish Lineage Spells",
         "Fiendish Legacy Spells",
+        "Keen Senses",
       ],
       SKIPPED_FEATURES_STARTS_WITH: [
         "Metamagic Options:",

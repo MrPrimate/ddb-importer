@@ -213,6 +213,7 @@ export default class DDBFeatEnricher extends DDBEnricherMixin {
     "Maneuver: Tactical Assessment": ClassEnrichers.Fighter.ManeuverTacticalAssessment,
     "Maneuver: Trip Attack (Str.)": ClassEnrichers.Fighter.ManeuverTripAttack,
     "Mantle of Inspiration": ClassEnrichers.Bard.MantleOfInspiration,
+    "Metamagic Options": ClassEnrichers.Sorcerer.MetamagicOptions,
     "Mindless Rage": ClassEnrichers.Barbarian.MindlessRage,
     "Momentary Stasis": ClassEnrichers.Wizard.MomentaryStasis,
     "Monk's Focus": ClassEnrichers.Monk.MonksFocus,

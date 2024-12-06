@@ -19,9 +19,6 @@ export default class DDBEnricherMixin {
 
   _loadEnricherData() {
     if (!this.ENRICHERS?.[this.hintName]) return null;
-    if (this.hintName === this.fallbackEnricher) {
-      this.usingFallbackEnricher = true;
-    }
     return new this.ENRICHERS[this.hintName]({
       ddbEnricher: this,
     });
@@ -34,7 +31,6 @@ export default class DDBEnricherMixin {
       ddbEnricher: this,
     });
     this.loadedEnricher = loadedEnricher;
-    this.usingFallbackEnricher = true;
   }
 
   _getEnricherMatches() {
@@ -77,7 +73,7 @@ export default class DDBEnricherMixin {
   _prepare() {
     this._getNameHint();
     this._getEnricherMatches();
-    if (this.usingFallbackEnricher && !this.ddbParser.isAction) {
+    if (!this.ddbParser.isAction) {
       this._buildDefaultActionFeatures();
     }
   }
@@ -162,7 +158,6 @@ export default class DDBEnricherMixin {
     this.useLookupName = false;
     this.effectType = effectType;
     this.enricherType = enricherType;
-    this.usingFallbackEnricher = false;
     this.fallbackEnricher = fallbackEnricher;
     this.manager = null;
     this.loadedEnricher = null;
