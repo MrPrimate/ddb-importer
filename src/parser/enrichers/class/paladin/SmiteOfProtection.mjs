@@ -5,7 +5,7 @@ export default class SmiteOfProtection extends DDBEnricherData {
   get effects() {
     return [
       {
-        statuses: ["halfCover"],
+        statuses: ["coverHalf"],
         options: {
           duration: {
             rounds: 1,
