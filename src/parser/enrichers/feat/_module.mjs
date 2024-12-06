@@ -11,6 +11,7 @@ export { default as Durable } from "./Durable.mjs";
 export { default as ElvenAccuracy } from "./ElvenAccuracy.mjs";
 export { default as EnergyRedirection } from "./EnergyRedirection.mjs";
 export { default as EpicBoon } from "./EpicBoon.mjs";
+export { default as Generic } from "./Generic.mjs";
 export { default as Healer } from "./Healer.mjs";
 export { default as InspiringLeader } from "./InspiringLeader.mjs";
 export { default as MageSlayer } from "./MageSlayer.mjs";

@@ -4,7 +4,7 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 export default class Generic extends DDBEnricherData {
 
   get actionType() {
-    return "race";
+    return "background";
   }
 
   get useDefaultAdditionalActivities() {
