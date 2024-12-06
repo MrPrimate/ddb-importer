@@ -2,7 +2,6 @@
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class SmiteOfProtection extends DDBEnricherData {
-
   get effects() {
     return [
       {
