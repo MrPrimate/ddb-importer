@@ -1,6 +1,8 @@
 # Next Up
 
 - Fix Psychic Blades.
+- Magical Secrets added too much to the description field and caused load issues.
+- Feature parsing has been reworked to improve automated action detection, and to ease the addition of new classes. This may lead to some oddities with class and species features, I've tested a wide variety but there are like a bazillion options.
 
 # 6.0.54
 
