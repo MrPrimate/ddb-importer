@@ -33,9 +33,9 @@ async function askForLayOnHandsType(availableHP) {
 }
 
 async function removeHPFromResource(actor, poolDocument, hpToRemove = 5) {
-  const current = foundry.utils.getProperty(poolDocument, "system.uses.value");
-  const value = Number.parseInt(current) - Number.parseInt(hpToRemove);
-  await poolDocument.update({ "system.uses.value": value })
+  const current = foundry.utils.getProperty(poolDocument, "system.uses.spent");
+  const value = Number.parseInt(current) + Number.parseInt(hpToRemove);
+  await poolDocument.update({ "system.uses.spent": value })
 }
 
 async function healingMessage({actor, hpToAdd, itemId}) {
@@ -91,10 +91,17 @@ async function removePoisonMessage(actor, item) {
 }
 
 function getPoolId(actor) {
-  return actor.items.find((d) => {
+  const poolId = actor.items.find((d) => {
     const name = foundry.utils.getProperty(d, "flags.ddbimporter.originalName") ?? d.name;
     return ["Lay on Hands Pool", "Lay On Hands: Healing Pool"].includes(name);
   })?._id;
+  if (poolId) return poolId;
+  const featureId = actor.items.find((d) => {
+    const name = foundry.utils.getProperty(d, "flags.ddbimporter.originalName") ?? d.name;
+    return ["lay on hands"].includes(name.toLowerCase());
+  })?._id;
+  if (featureId) return featureId;
+  return null;
 }
 
 if (scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFunction")) {
