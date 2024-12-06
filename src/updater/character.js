@@ -1213,6 +1213,9 @@ async function updateDDBActionUseStatus(actor, actions) {
 }
 
 async function actionUseStatus(actor, ddbCharacter) {
+  return [];
+  // action use disabled until feature/action parser sync
+  // eslint-disable-next-line no-unreachable
   const syncActionReady = actor.flags.ddbimporter?.syncActionReady;
   if (syncActionReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-action-use")) return [];
 
@@ -1514,7 +1517,8 @@ async function activeUpdateUpdateItem(document, update) {
       logger.debug("Preparing to sync item change to DDB...");
       const action = document.flags.ddbimporter?.action || document.type === "feat";
       const syncEquipment = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-equipment");
-      const syncActionUse = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-action-use");
+      // dynamic actions sync disabled
+      const syncActionUse = false; // game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-action-use");
       const syncHD = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-hitdice");
       const syncSpellsPrepared = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-spells-prepared");
       const isDDBItem = document.flags.ddbimporter?.id;

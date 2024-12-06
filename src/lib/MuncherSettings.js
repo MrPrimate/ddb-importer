@@ -326,8 +326,8 @@ const MuncherSettings = {
       {
         name: "action-use",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-action-use"),
-        description: "Action Uses",
-        enabled: true,
+        description: "Action Uses (Currently unavailable for this version of DDB Importer)",
+        enabled: false,
       },
       {
         name: "currency",
