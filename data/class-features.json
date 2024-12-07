@@ -10337,5 +10337,73 @@
   {
     "name": "Blighted Shape",
     "path": "icons/creatures/slimes/slime-face-hollow-green.webp"
+  },
+  {
+    "name": "Forked Tongue",
+    "path": "icons/creatures/reptiles/lizard-iguana-green.webp"
+  },
+  {
+    "name": "Asmodeus's Blessing",
+    "path": "icons/creatures/unholy/demon-fire-horned-winged-roar.webp"
+  },
+  {
+    "name": "Asmodeus's Interdiction",
+    "path": "icons/creatures/claws/claw-talons-yellow-red.webp"
+  },
+  {
+    "name": "Baleful Interdict",
+    "path": "icons/magic/fire/flame-burning-hand-purple.webp"
+  },
+  {
+    "name": "Blood Price",
+    "path": "icons/skills/wounds/blood-drip-droplet-red.webp"
+  },
+  {
+    "name": "Combat Mastery",
+    "path": "icons/skills/melee/maneuver-greatsword-yellow.webp"
+  },
+  {
+    "name": "Diabolic Contract",
+    "path": "icons/skills/social/diplomacy-writing-letter.webp"
+  },
+  {
+    "name": "Hellish Versatility",
+    "path": "icons/magic/movement/abstract-ribbons-red-orange.webp"
+  },
+  {
+    "name": "Infernal Conduit",
+    "path": "icons/magic/movement/portal-vortex-orange.webp"
+  },
+  {
+    "name": "Infernal Majesty",
+    "path": "icons/equipment/head/crown-gold-red.webp"
+  },
+  {
+    "name": "Interdict Boons",
+    "path": "icons/skills/targeting/crosshair-triple-strike-orange.webp"
+  },
+  {
+    "name": "Interdiction",
+    "path": "icons/commodities/metal/plate-steel-pink.webp"
+  },
+  {
+    "name": "Invoke Hell",
+    "path": "icons/magic/unholy/silhouette-evil-horned-giant.webp"
+  },
+  {
+    "name": "Submit",
+    "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
+  },
+  {
+    "name": "Superior Interdict",
+    "path": "icons/magic/unholy/orb-beam-pink.webp"
+  },
+  {
+    "name": "Terrorizing Force",
+    "path": "icons/magic/unholy/beam-ringed-impact-purple.webp"
+  },
+  {
+    "name": "Vile Transmogrification",
+    "path": "icons/magic/unholy/silhouette-robe-evil-power.webp"
   }
 ]

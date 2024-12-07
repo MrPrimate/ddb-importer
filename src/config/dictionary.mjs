@@ -1326,6 +1326,7 @@ const DICTIONARY = {
         "Defensive Tactics",
         "Innate Sorcery",
         "Magical Secrets",
+        "Infernal Majesty",
       ],
       FORCE_DUPLICATE_OVERWRITE: [
         "Trance of Order",
@@ -1401,6 +1402,7 @@ const DICTIONARY = {
         "The Third Eye",
         "Thieves' Cant",
         "Unbreakable Majesty",
+        "Forked Tongue",
       ],
       NO_CHOICE_SECRET: [
         "Divine Order",
@@ -1461,6 +1463,10 @@ const DICTIONARY = {
         "Slasher",
         "Thieves' Cant",
         "Unbreakable Majesty",
+        "Forked Tongue",
+        "Asmodeus's Blessing",
+        "Interdict Boons",
+        "Terrorizing Force",
       ],
     },
   },
