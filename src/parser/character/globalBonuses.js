@@ -74,6 +74,7 @@ DDBCharacter.prototype.getBonusSpellAttacks = function(type) {
     { fvttType: "attack", ddbSubType: "spell-attacks" },
     { fvttType: "attack", ddbSubType: `${type}-spell-attacks` },
     { fvttType: "attack", ddbSubType: "warlock-spell-attacks" },
+    { fvttType: "attack", ddbSubType: "druid-spell-attacks" },
   ];
 
   return this.getGlobalBonusAttackModifiers(bonusLookups);
@@ -150,6 +151,7 @@ DDBCharacter.prototype._generateBonusSpellDC = function() {
   const bonusLookup = [
     { fvttType: "dc", ddbSubType: "spell-save-dc" },
     { fvttType: "dc", ddbSubType: "warlock-spell-save-dc" },
+    { fvttType: "dc", ddbSubType: "druid-spell-save-dc" },
   ];
 
   const bonus = bonusLookup.map((b) => {

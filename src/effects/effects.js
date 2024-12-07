@@ -102,6 +102,8 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   { type: "bonus", subType: "ranged-spell-attacks" },
   { type: "bonus", subType: "warlock-spell-save-dc" },
   { type: "bonus", subType: "warlock-spell-attacks" },
+  { type: "bonus", subType: "druid-spell-save-dc" },
+  { type: "bonus", subType: "druid-spell-attacks" },
   { type: "bonus", subType: "spell-group-healing" }, // system.bonuses.heal.damage
 
   // hp modifiers
@@ -745,12 +747,30 @@ function addSpellAttackBonuses(modifiers, name) {
     modifiers,
     name,
     "warlock-spell-attacks",
-    "system.bonuses.msak.attack"
+    "system.bonuses.rsak.attack"
   );
   const warlockSpellDCBonus = addAddBonusEffect(
     modifiers,
     name,
     "warlock-spell-save-dc",
+    "system.bonuses.spell.dc"
+  );
+  const druidMeleeSpellAttackBonus = addAddBonusEffect(
+    modifiers,
+    name,
+    "druid-spell-attacks",
+    "system.bonuses.msak.attack"
+  );
+  const druidRangedSpellAttackBonus = addAddBonusEffect(
+    modifiers,
+    name,
+    "druid-spell-attacks",
+    "system.bonuses.rsak.attack"
+  );
+  const druidSpellDCBonus = addAddBonusEffect(
+    modifiers,
+    name,
+    "druid-spell-save-dc",
     "system.bonuses.spell.dc"
   );
   const spellDCBonus = addAddBonusEffect(
@@ -775,6 +795,9 @@ function addSpellAttackBonuses(modifiers, name) {
     ...warlockMeleeSpellAttackBonus,
     ...warlockRangedSpellAttackBonus,
     ...warlockSpellDCBonus,
+    ...druidMeleeSpellAttackBonus,
+    ...druidRangedSpellAttackBonus,
+    ...druidSpellDCBonus,
     ...spellDCBonus,
     ...healingSpellBonus,
   ];
