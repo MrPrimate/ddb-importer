@@ -798,7 +798,7 @@ export default class DDBEnricherMixin {
     const entityTypeId = this.ddbParser.ddbDefinition.entityTypeId;
     const derivedType = type ?? this.ddbActionType ?? this.enricherType;
 
-    if (!this.ddbParser?.ddbData?.character?.actions[derivedType]) return results;
+    if (!this.ddbParser?.ddbData?.character?.actions?.[derivedType]) return results;
 
     const nameMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action) =>
       action.name === name

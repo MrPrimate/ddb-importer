@@ -57,12 +57,16 @@ export default class EffectGenerator {
     this._generateDataStub();
   }
 
+  changeAdded = {
+    bonus: {},
+  };
 
   _addAddBonusChanges(modifiers, type, key) {
     // const bonus = DDBHelper.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
     const bonus = DDBHelper.getValueFromModifiers(modifiers, this.document.name, type, "bonus");
     if (bonus) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`, bonus);
+      this.changeAdded.bonus[key] = true;
       this.effect.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonus}`, 18, key));
     }
   }
@@ -320,9 +324,15 @@ export default class EffectGenerator {
     this._addAddBonusChanges(this.grantedModifiers, "melee-spell-attacks", "system.bonuses.msak.attack");
     this._addAddBonusChanges(this.grantedModifiers, "spell-attacks", "system.bonuses.rsak.attack");
     this._addAddBonusChanges(this.grantedModifiers, "ranged-spell-attacks", "system.bonuses.rsak.attack");
-    this._addAddBonusChanges(this.grantedModifiers, "warlock-spell-attacks", "system.bonuses.msak.attack");
-    this._addAddBonusChanges(this.grantedModifiers, "warlock-spell-attacks", "system.bonuses.msak.attack");
-    this._addAddBonusChanges(this.grantedModifiers, "warlock-spell-save-dc", "system.bonuses.spell.dc");
+    for (const type of ["wizard", "sorcerer", "warlock", "druid", "cleric", "artificer", "ranger"]) {
+      if (!this.changeAdded.bonus["system.bonuses.msak.attack"])
+        this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-attacks`, "system.bonuses.msak.attack");
+      if (!this.changeAdded.bonus["system.bonuses.rsak.attack"])
+        this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-attacks`, "system.bonuses.rsak.attack");
+      if (!this.changeAdded.bonus["system.bonuses.spell.dc"])
+        this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-save-dc`, "system.bonuses.spell.dc");
+    }
+
     this._addAddBonusChanges(this.grantedModifiers, "spell-save-dc", "system.bonuses.spell.dc");
     this._addCustomChange(
       this.grantedModifiers,

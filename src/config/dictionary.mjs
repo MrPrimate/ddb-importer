@@ -1558,6 +1558,8 @@ const DICTIONARY = {
         { type: "bonus", subType: "ranged-spell-attacks" },
         { type: "bonus", subType: "warlock-spell-save-dc" },
         { type: "bonus", subType: "warlock-spell-attacks" },
+        { type: "bonus", subType: "druid-spell-save-dc" },
+        { type: "bonus", subType: "druid-spell-attacks" },
         { type: "bonus", subType: "spell-group-healing" }, // system.bonuses.heal.damage
 
         // hp modifiers
