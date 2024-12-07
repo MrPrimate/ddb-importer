@@ -55,18 +55,18 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: './module.json,./ddb-importer.zip'    # don't forget to rename module zip thing
         tag: ${{ steps.get-version.outputs.release_version }} # Use the version as the tag
-    - name: Create Latest Release
-      id: create_latest_release
-      uses: ncipollo/release-action@v1
-      if: endsWith(github.ref, 'main') # Only update the latest release when pushing to the master branch
-      with:
-        allowUpdates: true
-        name: Latest
-        draft: false
-        prerelease: false
-        token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: './module.json,./ddb-importer.zip'  # don't forget to rename module zip thing
-        tag: latest
+    # - name: Create Latest Release
+    #   id: create_latest_release
+    #   uses: ncipollo/release-action@v1
+    #   if: endsWith(github.ref, 'main') # Only update the latest release when pushing to the master branch
+    #   with:
+    #     allowUpdates: true
+    #     name: Latest
+    #     draft: false
+    #     prerelease: false
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     artifacts: './module.json,./ddb-importer.zip'  # don't forget to rename module zip thing
+    #     tag: latest
     - name: Discord notification
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_HOOK }}
