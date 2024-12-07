@@ -1,6 +1,6 @@
 {
   "name": "ddb-importer",
-  "version": "5.2.38",
+  "version": "5.2.39",
   "author": "MrPrimate",
   "description": "Foundry VTT module for integrating D&D Beyond content",
   "private": true,

@@ -1,3 +1,7 @@
+# 5.2.39
+
+- DDB changed moonsickle bonuses which broke moon sickle effect parsing.
+
 # 5.2.38
 
 - Fix for some helpers breaking formatting on non DDB Journals.
