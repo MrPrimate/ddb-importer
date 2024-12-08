@@ -12,9 +12,7 @@ import { addExtraEffects } from "../parser/features/extraEffects.js";
 import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature.js";
 import { ExternalAutomations } from "./external/_module.mjs";
 import { DDBDescriptions } from "../parser/lib/_module.mjs";
-import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
-import ChangeHelper from "../parser/enrichers/effects/ChangeHelper.mjs";
-import MidiOverTimeEffect from "../parser/enrichers/effects/MidiOverTimeEffect.mjs";
+import { AutoEffects, ChangeHelper, MidiOverTimeEffect } from "../parser/enrichers/effects/_module.mjs";
 
 export default class DDBEffectHelper {
 

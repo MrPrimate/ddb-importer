@@ -332,6 +332,7 @@ export default class DDBActivityFactoryMixin {
   }
 
   _generateAdditionalActivities() {
+    if (!this.enricher.addAutoAdditionalActivities) return;
     if (this.additionalActivities.length === 0) return;
     this.additionalActivities.forEach((activityData, i) => {
       const id = this._generateActivity({

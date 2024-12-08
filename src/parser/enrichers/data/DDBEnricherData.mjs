@@ -277,6 +277,10 @@ export default class DDBEnricherData {
     return false;
   }
 
+  get addAutoAdditionalActivities() {
+    return true;
+  }
+
 
   // eslint-disable-next-line no-unused-vars, no-empty-function
   customFunction(options = {}) {

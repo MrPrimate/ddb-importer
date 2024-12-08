@@ -142,6 +142,14 @@ export default class DDBEnricherMixin {
     }
   }
 
+  get addAutoAdditionalActivities() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.addAutoAdditionalActivities;
+    } else {
+      return true;
+    }
+  }
+
   constructor({
     activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null, fallbackEnricher = null,
     ddbActionType = null,
