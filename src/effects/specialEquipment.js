@@ -6,7 +6,6 @@ import {
 } from "./effects.js";
 // load item effects
 import { cloakOfDisplacementEffect } from "./items/cloakOfDisplacement.js";
-import { javelinOfLightningEffect } from "./items/javelinOfLightning.js";
 import { pearlOfPowerEffect } from "./items/pearlOfPower.js";
 
 
@@ -27,11 +26,6 @@ export async function midiItemEffects(document) {
   switch (name) {
     case "Cloak of Displacement": {
       document = await cloakOfDisplacementEffect(document);
-      break;
-    }
-    case "Javelin of Lightning":
-    case "Tempus Javelin": {
-      document = await javelinOfLightningEffect(document);
       break;
     }
     case "Pearl of Power": {

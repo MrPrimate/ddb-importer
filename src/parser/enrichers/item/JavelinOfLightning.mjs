@@ -77,6 +77,7 @@ export default class JavelinOfLightning extends DDBEnricherData {
         overrides: {
           addActivityConsume: true,
           data: {
+            img: "icons/magic/lightning/bolt-forked-large-blue-yellow.webp",
             range: {
               override: true,
               value: "",
