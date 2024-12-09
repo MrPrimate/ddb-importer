@@ -1,50 +1,10 @@
 import { DICTIONARY } from "../../../config/_module.mjs";
-import { DDBHelper, logger, utils } from "../../../lib/_module.mjs";
-import { DDBDescriptions } from "../../lib/_module.mjs";
+import { logger, utils } from "../../../lib/_module.mjs";
+import { DDBDescriptions, DDBModifiers } from "../../lib/_module.mjs";
 import ChangeHelper from "./ChangeHelper.mjs";
 import MidiEffects from "./MidiEffects.mjs";
 
 export default class AutoEffects {
-
-  static EXCLUDED = DICTIONARY.effects.excludedModifiers;
-
-  static getEffectExcludedModifiers(type, features, ac) {
-    let modifiers = [];
-
-    if (type !== "item") {
-      // features represent core non ac features
-      if (features) {
-        modifiers = modifiers.concat(AutoEffects.EXCLUDED.common, AutoEffects.EXCLUDED.speedMonk);
-        if (!["race"].includes(type)) {
-          modifiers = modifiers.concat(AutoEffects.EXCLUDED.senses, AutoEffects.EXCLUDED.speedSet, AutoEffects.EXCLUDED.speedBonus);
-        }
-      }
-      // here ac represents the more exotic ac effects that set limits and change base
-      modifiers = modifiers.concat(AutoEffects.EXCLUDED.acBonus);
-      if (ac) {
-        modifiers = modifiers.concat(AutoEffects.EXCLUDED.ac);
-      }
-    }
-
-    // items are basically their own thing, all or nuffin
-    if (type === "item") {
-      modifiers = modifiers.concat(
-        AutoEffects.EXCLUDED.senses,
-        AutoEffects.EXCLUDED.common,
-        AutoEffects.EXCLUDED.abilityBonus,
-        AutoEffects.EXCLUDED.languages,
-        AutoEffects.EXCLUDED.proficiencyBonus,
-        AutoEffects.EXCLUDED.speedSet,
-        AutoEffects.EXCLUDED.speedBonus,
-        AutoEffects.EXCLUDED.speedMonk,
-        AutoEffects.EXCLUDED.ac,
-        AutoEffects.EXCLUDED.acBonus,
-      );
-    }
-    return modifiers;
-  }
-
-  static ChangeHelper = ChangeHelper;
 
   static effectModules() {
     if (CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules) {
@@ -248,7 +208,7 @@ export default class AutoEffects {
         }))
       : CONFIG.DDB.damageAdjustments;
 
-    const result = DDBHelper
+    const result = DDBModifiers
       .filterModifiersOld(modifiers, condition, null, restrictions)
       .filter((modifier) => {
         const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
@@ -306,12 +266,12 @@ export default class AutoEffects {
     };
 
     if (parsedStatus.group4) {
-      AutoEffects.ChangeHelper.addStatusEffectChange({ effect, statusName: parsedStatus.group4Condition });
+      ChangeHelper.addStatusEffectChange({ effect, statusName: parsedStatus.group4Condition });
       DDBDescriptions.addSpecialDurationFlagsToEffect(effect, parsedStatus.match);
       if (nameHint) effect.name = `${nameHint}: ${parsedStatus.group4Condition}`;
       else effect.name = `Status: ${parsedStatus.group4Condition}`;
     } else if (parsedStatus.condition === "dead") {
-      AutoEffects.ChangeHelper.addStatusEffectChange({ effect, statusName: "Dead" });
+      ChangeHelper.addStatusEffectChange({ effect, statusName: "Dead" });
     } else {
       logger.debug(`Odd condition ${status.condition} found`, {
         text,

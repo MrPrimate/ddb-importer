@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { DDBHelper } from "../../../../lib/_module.mjs";
+import { DDBDataUtils } from "../../../lib/_module.mjs";
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class PsionicPower extends DDBEnricherData {
@@ -9,7 +9,7 @@ export default class PsionicPower extends DDBEnricherData {
   }
 
   get activity() {
-    const formula = `1@scale.${DDBHelper.classIdentifierName(this.ddbParser.subKlass)}.energy-die.die`;
+    const formula = `1@scale.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass)}.energy-die.die`;
     const result = {
       name: "",
       type: "utility",

@@ -349,82 +349,6 @@ export default class Utils {
     return data;
   }
 
-  static getTemplateLegacy(type) {
-    const templates = game.data.template;
-    for (let entityType in templates) {
-      if (
-        templates[entityType].types
-        && Array.isArray(templates[entityType].types)
-        && templates[entityType].types.includes(type)
-      ) {
-        let obj = Utils.mergeDeep({}, Utils.filterDeprecated(templates[entityType][type]));
-        if (obj.templates) {
-          obj.templates.forEach((tpl) => {
-            obj = Utils.mergeDeep(obj, Utils.filterDeprecated(templates[entityType].templates[tpl]));
-          });
-          delete obj.templates;
-        }
-        // store the result as JSON for easy cloning
-        return JSON.stringify(obj);
-      }
-    }
-    return undefined;
-  }
-
-  // eslint-disable-next-line complexity
-  static getTemplate(type) {
-    switch (type.toLowerCase()) {
-      case "character":
-        return game.dnd5e.dataModels.actor.CharacterData.schema.initial();
-      case "npc":
-        return game.dnd5e.dataModels.actor.NPCData.schema.initial();
-      case "vehicle":
-        return game.dnd5e.dataModels.actor.VehicleData.schema.initial();
-      case "class":
-        return game.dnd5e.dataModels.item.ClassData.schema.initial();
-      case "background":
-        return game.dnd5e.dataModels.item.BackgroundData.schema.initial();
-      case "consumable":
-        return game.dnd5e.dataModels.item.ConsumableData.schema.initial();
-      case "backpack":
-      case "container":
-        return game.dnd5e.dataModels.item.ContainerData.schema.initial();
-      case "equipment":
-      case "armor":
-        return game.dnd5e.dataModels.item.EquipmentData.schema.initial();
-      case "feat":
-        return game.dnd5e.dataModels.item.FeatData.schema.initial();
-      case "loot":
-        return game.dnd5e.dataModels.item.LootData.schema.initial();
-      case "race":
-        return game.dnd5e.dataModels.item.RaceData.schema.initial();
-      case "spell":
-        return game.dnd5e.dataModels.item.SpellData.schema.initial();
-      case "subclass":
-        return game.dnd5e.dataModels.item.SubclassData.schema.initial();
-      case "tool":
-        return game.dnd5e.dataModels.item.ToolData.schema.initial();
-      case "weapon":
-        return game.dnd5e.dataModels.item.WeaponData.schema.initial();
-      case "journalpage":
-      case "classjournalpage":
-        return game.dnd5e.dataModels.journal.ClassJournalPageData.schema.initial();
-      case "spelllistjournalpage":
-        return game.dnd5e.dataModels.journal.SpellListJournalPageData.schema.initial();
-      case "maplocationjournalpage":
-        return game.dnd5e.dataModels.journal.MapLocationJournalPageData.schema.initial();
-      case "subclassjournalpage":
-        return game.dnd5e.dataModels.journal.SubClassJournalPageData.schema.initial();
-      case "rulejournalpage":
-        return game.dnd5e.dataModels.journal.RuleJournalPageData.schema.initial();
-      case "dnd-tashas-cauldron.tattoo":
-      case "tattoo":
-        return CONFIG.Item.dataModels["dnd-tashas-cauldron.tattoo"].schema.initial();
-      default:
-        return undefined;
-    }
-  }
-
   static entityMap() {
     let entityTypes = new Map();
     entityTypes.set("npc", "Actor");
@@ -672,6 +596,18 @@ export default class Utils {
     } else {
       $("#munching-task-notes").text(note);
       $("#ddb-importer-monsters").css("height", "auto");
+    }
+  }
+
+  static stringIntAdder(one, two) {
+    const oneInt = `${one}`.trim().replace(/^[+-]\s*/, "");
+    const twoInt = `${two}`.trim().replace(/^[+-]\s*/, "");
+    if (Number.isInteger(parseInt(oneInt)) && Number.isInteger(parseInt(twoInt))) {
+      const num = parseInt(oneInt) + parseInt(twoInt);
+      return `${num}`;
+    } else {
+      const twoAdjusted = (/^[+-]/).test(`${two}`.trim()) ? two : `+ ${two}`;
+      return `${one} ${twoAdjusted}`;
     }
   }
 

@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../../config/_module.mjs";
-import { DDBHelper } from "../../../lib/_module.mjs";
+import { DDBDataUtils } from "../../lib/_module.mjs";
 import { AutoEffects, ChangeHelper } from "../effects/_module.mjs";
 
 /* eslint-disable class-methods-use-this */
@@ -22,7 +22,7 @@ export default class DDBEnricherData {
   hasClassFeature({ featureName, className = null, subClassName = null } = {}) {
     if (!this.ddbParser?.ddbData) return false;
 
-    return DDBHelper.hasClassFeature({
+    return DDBDataUtils.hasClassFeature({
       ddbData: this.ddbParser.ddbData,
       featureName,
       className,
@@ -52,7 +52,7 @@ export default class DDBEnricherData {
     const spent = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
       a.name === name
     && (matchSubClass === null
-      || DDBHelper.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
+      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
     )?.limitedUse?.numberUsed ?? null;
     return spent;
   }

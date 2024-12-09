@@ -1,6 +1,7 @@
-import { utils, logger, DDBHelper } from "../../../lib/_module.mjs";
+import { utils, logger } from "../../../lib/_module.mjs";
 import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
-import { AutoEffects, EnchantmentEffects, MidiEffects } from "../effects/_module.mjs";
+import { DDBDataUtils, DDBDescriptions } from "../../lib/_module.mjs";
+import { AutoEffects, EnchantmentEffects, MidiEffects, ChangeHelper } from "../effects/_module.mjs";
 
 export default class DDBEnricherMixin {
 
@@ -471,7 +472,7 @@ export default class DDBEnricherMixin {
         }
 
         if (!effectOptions.durationSeconds && !effectOptions.durationRounds) {
-          const duration = DDBHelper.getDuration(this.data.system.description.value, false);
+          const duration = DDBDescriptions.getDuration(this.data.system.description.value, false);
           if (duration.type) {
             foundry.utils.setProperty(effect, "duration.seconds", duration.second);
             foundry.utils.setProperty(effect, "duration.rounds", duration.round);
@@ -485,7 +486,7 @@ export default class DDBEnricherMixin {
       if (effectHint.statuses) {
         for (const status of effectHint.statuses) {
           const splitStatus = status.split(":");
-          AutoEffects.ChangeHelper.addStatusEffectChange({
+          ChangeHelper.addStatusEffectChange({
             effect,
             statusName: splitStatus[0],
             level: splitStatus.length > 1 ? splitStatus[1] : null,
@@ -842,7 +843,7 @@ export default class DDBEnricherMixin {
     results.options = optionMatches;
 
     if (this.ddbParser.ddbFeature) {
-      const choices = DDBHelper.getChoices({
+      const choices = DDBDataUtils.getChoices({
         ddb: this.ddbParser.ddbData,
         type: derivedType,
         feat: this.ddbParser.ddbFeature,

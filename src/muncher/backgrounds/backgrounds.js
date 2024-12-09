@@ -1,5 +1,5 @@
 // import { generateBackground } from "../../parser/character/bio.js";
-import { logger, DDBHelper, DDBItemImporter, utils } from "../../lib/_module.mjs";
+import { logger, DDBItemImporter, utils, DDBSources } from "../../lib/_module.mjs";
 // import { parseTags } from "../../lib/DDBReferenceLinker.js";
 // import DDBFeature from "../../parser/features/DDBFeature.js";
 
@@ -47,7 +47,7 @@ class DDBFeature {
 //     version: CONFIG.DDBI.version,
 //   };
 
-//   result.system.source = DDBHelper.parseSource(data);
+//   result.system.source = DDBSources.parseSource(data);
 //   result.system.description.value = parseTags(result.system.description.value);
 //   result.system.description.value = await generateTable(result.name, result.system.description.value, true, "background");
 
@@ -58,7 +58,7 @@ class DDBFeature {
 async function buildBackground(backgroundData) {
   let featDefinition = generateBackground(backgroundData);
 
-  const source = DDBHelper.parseSource(featDefinition);
+  const source = DDBSources.parseSource(featDefinition);
   const ddbFeature = new DDBFeature({
     ddbData: null,
     ddbDefinition: featDefinition,

@@ -5,7 +5,7 @@ import {
   FileHelper,
   Secrets,
   DDBCampaigns,
-  DDBProxy, DDBHelper,
+  DDBProxy,
   CompendiumHelper,
 } from "../lib/_module.mjs";
 import { DDBMacros } from "../effects/_module.mjs";
@@ -17,6 +17,7 @@ import {
   ProficiencyFinder,
   DDBReferenceLinker,
   FilterModifiers,
+  DDBDataUtils,
 } from "./lib/_module.mjs";
 
 export default class DDBCharacter {
@@ -358,7 +359,7 @@ export default class DDBCharacter {
   }
 
   updateItemId(item) {
-    const itemMatch = DDBHelper.findMatchedDDBItem(item, this.possibleFeatures, this.matchedFeatures);
+    const itemMatch = DDBDataUtils.findMatchedDDBItem(item, this.possibleFeatures, this.matchedFeatures);
     if (itemMatch) {
       item._id = itemMatch._id;
       this.matchedFeatures.push(itemMatch);

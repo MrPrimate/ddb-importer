@@ -1,10 +1,10 @@
-import { utils } from '../../../lib/_module.mjs';
+import { SystemHelpers } from '../../lib/_module.mjs';
 
 export function newComponent(name, type) {
   let feat = {
     name: name,
     type: type,
-    system: utils.getTemplate(type),
+    system: SystemHelpers.getTemplate(type),
     flags: {
       ddbimporter: {
         dndbeyond: {

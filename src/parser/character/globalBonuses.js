@@ -1,5 +1,5 @@
-import { DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
+import { DDBModifiers } from "../lib/_module.mjs";
 
 
 /**
@@ -30,7 +30,7 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(lookupTable) {
   };
 
   lookupTable.forEach((b) => {
-    const lookupResult = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType }), this.raw.character);
+    const lookupResult = DDBModifiers.getModifierSum(DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType }), this.raw.character);
     const lookupMatch = diceFormula.test(lookupResult);
 
     // if a match then a dice string
@@ -134,8 +134,8 @@ DDBCharacter.prototype._generateBonusAbilities = function() {
   ];
 
   bonusLookup.forEach((b) => {
-    const mods = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType });
-    const bonus = DDBHelper.getModifierSum(mods, this.raw.character);
+    const mods = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType });
+    const bonus = DDBModifiers.getModifierSum(mods, this.raw.character);
     if (bonus !== 0 && bonus !== "") result[b.fvttType] = `+ ${bonus}`.trim().replace(/\+\s*\+/, "+");
   });
   this.raw.character.system.bonuses.abilities = result;
@@ -162,7 +162,7 @@ DDBCharacter.prototype._generateBonusSpellDC = function() {
   ];
 
   const bonus = bonusLookup.map((b) => {
-    return DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType }), this.raw.character);
+    return DDBModifiers.getModifierSum(DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType }), this.raw.character);
   })
     .filter((b) => b && b !== 0 && String(b).trim() !== "")
     .reduce((previous, current) => {

@@ -1,6 +1,7 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { utils, DDBHelper } from "../../lib/_module.mjs";
+import { utils } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
+import { DDBModifiers } from "../lib/_module.mjs";
 
 DDBCharacter.prototype._generateAbilitiesOverrides = function _generateAbilitiesOverrides() {
   DICTIONARY.character.abilities.forEach((ability) => {
@@ -50,11 +51,11 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(abilityL
 
   const subType = `${abilityLongName}-score`;
 
-  const classMods = DDBHelper.getChosenClassModifiers(this.source.ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass, useUnfilteredModifiers });
-  const raceMods = DDBHelper.getModifiers(this.source.ddb, "race", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
-  const backgroundMods = DDBHelper.getModifiers(this.source.ddb, "background", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
-  const featMods = DDBHelper.getModifiers(this.source.ddb, "feat", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
-  const activeItemMods = DDBHelper.getActiveItemModifiers(this.source.ddb, includeExcludedEffects);
+  const classMods = DDBModifiers.getChosenClassModifiers(this.source.ddb, { includeExcludedEffects, effectOnly, classId, availableToMulticlass, useUnfilteredModifiers });
+  const raceMods = DDBModifiers.getModifiers(this.source.ddb, "race", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
+  const backgroundMods = DDBModifiers.getModifiers(this.source.ddb, "background", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
+  const featMods = DDBModifiers.getModifiers(this.source.ddb, "feat", includeExcludedEffects, effectOnly, useUnfilteredModifiers);
+  const activeItemMods = DDBModifiers.getActiveItemModifiers(this.source.ddb, includeExcludedEffects);
 
   const modifiers = [
     classMods,
@@ -75,7 +76,7 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(abilityL
     modifiers.push(featMods.filter((mod) => !backgroundFeatIds.includes(mod.componentId)));
   }
 
-  return DDBHelper.filterModifiers(modifiers, type, { subType, restriction });
+  return DDBModifiers.filterModifiers(modifiers, type, { subType, restriction });
 };
 
 /**
@@ -100,7 +101,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
     };
 
     const stat = this.source.ddb.character.stats.find((stat) => stat.id === ability.id).value || 0;
-    const abilityScoreMaxBonus = DDBHelper
+    const abilityScoreMaxBonus = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: "ability-score-maximum", restriction: ["", null], includeExcludedEffects })
       .filter((mod) => mod.statId === ability.id)
       .reduce((prev, cur) => prev + cur.value, 0);
@@ -159,7 +160,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
 
     const proficient = customProficiency
       ? customProficiency
-      : DDBHelper.filterBaseModifiers(this.source.ddb, "proficiency", {
+      : DDBModifiers.filterBaseModifiers(this.source.ddb, "proficiency", {
         subType: `${ability.long}-saving-throws`,
         includeExcludedEffects,
         restriction: null,
@@ -200,16 +201,16 @@ DDBCharacter.prototype._getAbilitiesBonuses = function (includeExcludedEffects =
       },
     };
 
-    const checkBonusModifiers = DDBHelper
+    const checkBonusModifiers = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: `${ability.long}-ability-checks`, includeExcludedEffects });
-    const checkBonus = DDBHelper.getModifierSum(checkBonusModifiers, this.raw.character);
+    const checkBonus = DDBModifiers.getModifierSum(checkBonusModifiers, this.raw.character);
     if (checkBonus && checkBonus !== "") {
       result[ability.value].bonuses.check = `+ ${checkBonus}`;
     }
 
-    const saveBonusModifiers = DDBHelper
+    const saveBonusModifiers = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: `${ability.long}-saving-throws`, includeExcludedEffects });
-    const modifiersSaveBonus = DDBHelper.getModifierSum(saveBonusModifiers, this.raw.character);
+    const modifiersSaveBonus = DDBModifiers.getModifierSum(saveBonusModifiers, this.raw.character);
     const customSaveBonus = this._getCustomSaveBonus(ability);
 
     if (modifiersSaveBonus && modifiersSaveBonus !== "" && parseInt(modifiersSaveBonus)) {

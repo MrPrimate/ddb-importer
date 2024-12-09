@@ -1,8 +1,8 @@
-import { DDBHelper, logger, utils } from "../../../lib/_module.mjs";
+import { logger, utils } from "../../../lib/_module.mjs";
 import AutoEffects from "./AutoEffects.mjs";
 import ChangeHelper from "./ChangeHelper.mjs";
 import MidiEffects from "./MidiEffects.mjs";
-import { ProficiencyFinder } from "../../lib/_module.mjs";
+import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module.mjs";
 import { DICTIONARY } from "../../../config/_module.mjs";
 
 export default class EffectGenerator {
@@ -62,8 +62,8 @@ export default class EffectGenerator {
   };
 
   _addAddBonusChanges(modifiers, type, key) {
-    // const bonus = DDBHelper.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
-    const bonus = DDBHelper.getValueFromModifiers(modifiers, this.document.name, type, "bonus");
+    // const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+    const bonus = DDBModifiers.getValueFromModifiers(modifiers, this.document.name, type, "bonus");
     if (bonus) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`, bonus);
       this.changeAdded.bonus[key] = true;
@@ -72,7 +72,7 @@ export default class EffectGenerator {
   }
 
   _addCustomChange(modifiers, type, key, extra = "") {
-    const bonus = DDBHelper.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+    const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
     if (bonus !== 0) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`);
       this.effect.changes.push(ChangeHelper.customChange(`${bonus}${(extra) ? extra : ""}`, 18, key));
@@ -103,13 +103,13 @@ export default class EffectGenerator {
       this._addAddBonusChanges(customBonuses, type, key);
     }
 
-    const regularModifiers = DDBHelper.filterModifiersOld(regularBonuses, "bonus", type);
+    const regularModifiers = DDBModifiers.filterModifiersOld(regularBonuses, "bonus", type);
 
     if (regularModifiers.length > 0) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`);
       let bonuses = "";
       regularModifiers.forEach((modifier) => {
-        let bonusParse = DDBHelper.extractModifierValue(modifier);
+        let bonusParse = DDBModifiers.extractModifierValue(modifier);
         if (bonuses !== "") bonuses += " + ";
         bonuses += bonusParse;
       });
@@ -161,7 +161,7 @@ export default class EffectGenerator {
     });
 
     // system.traits.di.all
-    const allDamageImmunity = DDBHelper.filterModifiersOld(this.grantedModifiers, "immunity", "all");
+    const allDamageImmunity = DDBModifiers.filterModifiersOld(this.grantedModifiers, "immunity", "all");
     if (allDamageImmunity?.length > 0) {
       this.effect.changes.push(ChangeHelper.unsignedAddChange("all", 1, "system.traits.di.value"));
     }
@@ -169,7 +169,7 @@ export default class EffectGenerator {
 
   _addCriticalHitImmunities() {
     if (!game.modules.get("midi-qol")?.active) return;
-    const result = DDBHelper.filterModifiersOld(this.grantedModifiers, "immunity", "critical-hits");
+    const result = DDBModifiers.filterModifiersOld(this.grantedModifiers, "immunity", "critical-hits");
 
     if (result.length > 0) {
       logger.debug(`Generating critical hit immunity for ${this.document.name}`);
@@ -179,7 +179,7 @@ export default class EffectGenerator {
   }
 
   _addAbilityAdvantageEffect(subType, type) {
-    const bonuses = DDBHelper.filterModifiersOld(this.grantedModifiers, "advantage", subType);
+    const bonuses = DDBModifiers.filterModifiersOld(this.grantedModifiers, "advantage", subType);
 
     if (!game.modules.get("midi-qol")?.active) return;
     if (bonuses.length > 0) {
@@ -278,7 +278,7 @@ export default class EffectGenerator {
   }
 
   _addProficiencyBonus() {
-    const bonus = DDBHelper.filterModifiersOld(this.grantedModifiers, "bonus", "proficiency-bonus").reduce((a, b) => a + b.value, 0);
+    const bonus = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "proficiency-bonus").reduce((a, b) => a + b.value, 0);
     if (bonus) {
       logger.debug(`Generating proficiency bonus for ${this.document.name}`);
       this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 0, "system.attributes.prof"));
@@ -389,8 +389,8 @@ export default class EffectGenerator {
 
   _addHPEffect() {
     // HP per level
-    DDBHelper.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points-per-level").forEach((bonus) => {
-      const cls = DDBHelper.findClassByFeatureId(this.ddb, bonus.componentId);
+    DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points-per-level").forEach((bonus) => {
+      const cls = DDBDataUtils.findClassByFeatureId(this.ddb, bonus.componentId);
       if (cls) {
         logger.debug(`Generating HP Per Level effects for ${this.document.name} for class ${cls.definition.name}`);
         this.effect.changes.push(ChangeHelper.unsignedAddChange(`${bonus.value} * @classes.${cls.definition.name.toLowerCase()}.levels`, 14, "system.attributes.hp.bonuses.overall"));
@@ -400,11 +400,11 @@ export default class EffectGenerator {
       }
     });
 
-    const hpBonusModifiers = DDBHelper.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points");
+    const hpBonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points");
     if (hpBonusModifiers.length > 0 && !this.ddbItem.definition.isConsumable) {
       let hpBonus = "";
       hpBonusModifiers.forEach((modifier) => {
-        let hpParse = DDBHelper.extractModifierValue(modifier);
+        let hpParse = DDBModifiers.extractModifierValue(modifier);
         if (hpBonus !== "") hpBonus += " + ";
         hpBonus += hpParse;
       });
@@ -413,7 +413,7 @@ export default class EffectGenerator {
   }
 
   _addSkillBonusEffect(modifiers, skill) {
-    const bonus = DDBHelper.getValueFromModifiers(modifiers, this.document.name, skill.subType, "bonus");
+    const bonus = DDBModifiers.getValueFromModifiers(modifiers, this.document.name, skill.subType, "bonus");
     if (bonus) {
       logger.debug(`Generating ${skill.subType} skill bonus for ${this.document.name}`, bonus);
       this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.check`));
@@ -430,7 +430,7 @@ export default class EffectGenerator {
       "that rely on smell",
       "While the hood is up, checks made to Hide ",
     ];
-    const advantage = DDBHelper.filterModifiersOld(modifiers, midiEffect, skill.subType, allowedRestrictions);
+    const advantage = DDBModifiers.filterModifiersOld(modifiers, midiEffect, skill.subType, allowedRestrictions);
     if (advantage.length > 0) {
       logger.debug(`Generating ${skill.subType} skill ${midiEffect} for ${this.document.name}`);
       this.effect.changes.push(ChangeHelper.customChange(1, 5, `flags.midi-qol.${midiEffect}.skill.${skill.name}`));
@@ -445,7 +445,7 @@ export default class EffectGenerator {
   }
 
   _addSkillPassiveBonusEffect(modifiers, skill) {
-    const bonus = DDBHelper.getValueFromModifiers(modifiers, this.document.name, `passive-${skill.subType}`, "bonus");
+    const bonus = DDBModifiers.getValueFromModifiers(modifiers, this.document.name, `passive-${skill.subType}`, "bonus");
     if (bonus) {
       logger.debug(`Generating ${skill.subType} skill bonus for ${this.document.name}`, bonus);
       this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.passive`));
@@ -456,8 +456,8 @@ export default class EffectGenerator {
     DICTIONARY.character.skills.forEach((skill) => {
       const newMods = this.grantedModifiers.filter((mod) => {
         if (mod.subType === `passive-${skill.subType}`) {
-          const passiveMods = DDBHelper.filterModifiersOld(this.grantedModifiers, "bonus", `passive-${skill.subType}`);
-          const advantageMods = DDBHelper.filterModifiersOld(this.grantedModifiers, "advantage", skill.subType);
+          const passiveMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", `passive-${skill.subType}`);
+          const advantageMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "advantage", skill.subType);
           if (passiveMods.length > 0 && advantageMods.length > 0) return false;
           else return true;
         } else {
@@ -471,13 +471,13 @@ export default class EffectGenerator {
   }
 
   _addInitiativeBonuses() {
-    const advantage = DDBHelper.filterModifiersOld(this.grantedModifiers, "advantage", "initiative");
+    const advantage = DDBModifiers.filterModifiersOld(this.grantedModifiers, "advantage", "initiative");
     if (advantage.length > 0) {
       logger.debug(`Generating Initiative advantage for ${this.document.name}`);
       this.effect.changes.push(ChangeHelper.unsignedAddChange(1, 20, "flags.dnd5e.initiativeAdv"));
     }
 
-    const advantageBonus = DDBHelper.getValueFromModifiers(this.grantedModifiers, "initiative", "initiative", "bonus");
+    const advantageBonus = DDBModifiers.getValueFromModifiers(this.grantedModifiers, "initiative", "initiative", "bonus");
     // alert feet gets special bonus
     if (advantageBonus && this.document.name !== "Alert") {
       logger.debug(`Generating Initiative bonus for ${this.document.name}`);
@@ -487,7 +487,7 @@ export default class EffectGenerator {
 
   _addAttackRollDisadvantage() {
     if (!game.modules.get("midi-qol")?.active) return;
-    const disadvantage = DDBHelper.filterModifiersOld(this.grantedModifiers, "disadvantage", "attack-rolls-against-you", false);
+    const disadvantage = DDBModifiers.filterModifiersOld(this.grantedModifiers, "disadvantage", "attack-rolls-against-you", false);
     if (disadvantage.length > 0) {
       logger.debug(`Generating disadvantage for ${this.document.name}`);
       this.effect.changes.push(ChangeHelper.customChange(1, 5, "flags.midi-qol.grants.disadvantage.attack.all"));
@@ -504,7 +504,7 @@ export default class EffectGenerator {
       "Against spells",
       "Against spells and magical effects within 10 ft. (or 30 ft. at level 17+) while holding the Holy Avenger",
     ];
-    const advantage = DDBHelper.filterModifiersOld(this.grantedModifiers, "advantage", "saving-throws", restrictions);
+    const advantage = DDBModifiers.filterModifiersOld(this.grantedModifiers, "advantage", "saving-throws", restrictions);
     if (advantage.length > 0) {
       logger.debug(`Generating magical advantage on saving throws for ${this.document.name}`);
       this.effect.changes.push(ChangeHelper.customChange("1", 5, "flags.midi-qol.magicResistance.all"));
@@ -596,11 +596,11 @@ export default class EffectGenerator {
   _addGlobalDamageBonus() {
     // melee restricted attacks
     const meleeRestrictions = ["Melee Weapon Attacks"];
-    const meleeRestrictedMods = DDBHelper.filterModifiersOld(this.grantedModifiers, "damage", null, meleeRestrictions);
+    const meleeRestrictedMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null, meleeRestrictions);
     this._damageBonus("mwak", meleeRestrictedMods);
 
     const rangedRestrictions = ["Ranged Weapon Attacks"];
-    const rangedRestrictionMods = DDBHelper.filterModifiersOld(this.grantedModifiers, "damage", null, rangedRestrictions);
+    const rangedRestrictionMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null, rangedRestrictions);
     this._damageBonus("rwak", rangedRestrictionMods);
 
     const DAMAGE_SUBTYPE_MAP = {
@@ -608,13 +608,13 @@ export default class EffectGenerator {
     };
 
     for (const [subtype, damageTypes] of Object.entries(DAMAGE_SUBTYPE_MAP)) {
-      const subTypeMods = DDBHelper.filterModifiersOld(this.grantedModifiers, "damage", subtype);
+      const subTypeMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", subtype);
       for (const damageType of damageTypes) {
         this._damageBonus(damageType, subTypeMods);
       }
     }
 
-    const allBonusMods = DDBHelper.filterModifiersOld(this.grantedModifiers, "damage", null)
+    const allBonusMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null)
       .filter((mod) => !Object.keys(DAMAGE_SUBTYPE_MAP).includes(mod.subType))
       .filter((mod) => mod.dice || mod.die || mod.value);
     if (allBonusMods.length > 0) {
@@ -625,7 +625,7 @@ export default class EffectGenerator {
   }
 
   _addAttunementSlots() {
-    const bonus = DDBHelper.getValueFromModifiers(this.grantedModifiers, this.document.name, "attunement-slots", "set");
+    const bonus = DDBModifiers.getValueFromModifiers(this.grantedModifiers, this.document.name, "attunement-slots", "set");
     if (bonus) {
       logger.debug(`Generating Attunement bonus for ${this.document.name}`, bonus);
       this.effect.changes.push(ChangeHelper.upgradeChange(bonus, (10 + bonus), "system.attributes.attunement.max"));
@@ -859,8 +859,8 @@ export default class EffectGenerator {
 
 
   _addACBonusChanges(subType, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
-    const bonusModifiers = DDBHelper.filterModifiersOld(this.grantedModifiers, "bonus", subType, restrictions);
-    const bonus = DDBHelper.getValueFromModifiers(bonusModifiers, "bonus");
+    const bonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", subType, restrictions);
+    const bonus = DDBModifiers.getValueFromModifiers(bonusModifiers, "bonus");
     if (bonus) {
       logger.debug(`Generating ${subType} bonus for ${this.document.name}: ${bonus}`);
       this.effect.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonus}`, 18, "system.attributes.ac.bonus"));

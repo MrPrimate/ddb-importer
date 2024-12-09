@@ -1,4 +1,5 @@
-import { logger, DDBHelper } from "../../lib/_module.mjs";
+import { logger } from "../../lib/_module.mjs";
+import { DDBModifiers } from "../lib/_module.mjs";
 
 
 function getInfusionItemMap(ddb, item) {
@@ -47,7 +48,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem) {
     // check to see if we need to fiddle attack modifiers on infused weapons
     // this still needs to be moved to an enchantment effect
     if (foundryItem.type === "weapon") {
-      const intSwap = DDBHelper.filterBaseModifiers(ddb, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0;
+      const intSwap = DDBModifiers.filterBaseModifiers(ddb, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0;
       if (intSwap) {
         const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
         const mockAbility = foundry.utils.getProperty(foundryItem, "flags.ddbimporter.dndbeyond.ability");

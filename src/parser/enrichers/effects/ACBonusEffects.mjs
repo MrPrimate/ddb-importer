@@ -1,4 +1,5 @@
-import { logger, DDBHelper } from "../../../lib/_module.mjs";
+import { logger } from "../../../lib/_module.mjs";
+import { DDBModifiers } from "../../lib/_module.mjs";
 import ChangeHelper from "./ChangeHelper.mjs";
 
 export default class ACBonusEffects {
@@ -27,8 +28,8 @@ export default class ACBonusEffects {
 
   static addAddBonusChanges(modifiers, name, type, key) {
     let changes = [];
-    // const bonus = DDBHelper.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
-    const bonus = DDBHelper.getValueFromModifiers(modifiers, name, type, "bonus");
+    // const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+    const bonus = DDBModifiers.getValueFromModifiers(modifiers, name, type, "bonus");
     if (bonus) {
       logger.debug(`Generating ${type} bonus for ${name}`, bonus);
       changes.push(ChangeHelper.unsignedAddChange(`+ ${bonus}`, 18, key));
@@ -37,7 +38,7 @@ export default class ACBonusEffects {
   }
 
   static addACBonusEffect(modifiers, name, subType, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
-    const bonusModifiers = DDBHelper.filterModifiersOld(modifiers, "bonus", subType, restrictions);
+    const bonusModifiers = DDBModifiers.filterModifiersOld(modifiers, "bonus", subType, restrictions);
     const changes = ACBonusEffects.addAddBonusChanges(bonusModifiers, name, subType, "system.attributes.ac.bonus");
     if (changes.length > 0) logger.debug(`Generating ${subType} bonus for ${name}`);
 

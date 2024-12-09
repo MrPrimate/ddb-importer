@@ -1,11 +1,11 @@
-import { DDBHelper } from "../../lib/_module.mjs";
+import { DDBModifiers } from "../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 
 DDBCharacter.prototype._generateInitiative = function _generateInitiative() {
-  const initMods = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", { subType: "initiative" });
-  // const initiativeBonus = DDBHelper.getModifierSum(initMods, this.raw.character);
+  const initMods = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: "initiative" });
+  // const initiativeBonus = DDBModifiers.getModifierSum(initMods, this.raw.character);
 
-  let initiativeBonus = DDBHelper.getValueFromModifiers(initMods, "initiative", "initiative", "bonus");
+  let initiativeBonus = DDBModifiers.getValueFromModifiers(initMods, "initiative", "initiative", "bonus");
 
   // if (initiativeBonus && this.raw.character.flags.dnd5e.initiativeAlert) {
   //   if (initiativeBonus.includes("+ 5")) {

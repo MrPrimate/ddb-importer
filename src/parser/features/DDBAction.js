@@ -1,5 +1,6 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
+import { utils, logger } from "../../lib/_module.mjs";
+import { DDBDataUtils, DDBModifiers } from "../lib/_module.mjs";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";
 
 export default class DDBAction extends DDBFeatureMixin {
@@ -26,8 +27,8 @@ export default class DDBAction extends DDBFeatureMixin {
 
   displayAsAttack() {
     const customDisplay = this.rawCharacter
-      ? DDBHelper.getCustomValueFromCharacter(this.ddbDefinition, this.rawCharacter, 16)
-      : DDBHelper.getCustomValue(this.ddbDefinition, this.ddbData, 16);
+      ? DDBDataUtils.getCustomValueFromCharacter(this.ddbDefinition, this.rawCharacter, 16)
+      : DDBDataUtils.getCustomValue(this.ddbDefinition, this.ddbData, 16);
     if (typeof customDisplay == "boolean") {
       return customDisplay;
     } else if (foundry.utils.hasProperty(this.ddbDefinition, "displayAsAttack")) {
@@ -77,7 +78,7 @@ export default class DDBAction extends DDBFeatureMixin {
       && meleeOrRangedAction
       ? " + @mod"
       : "";
-    const unarmedDamageBonus = DDBHelper.filterBaseModifiers(this.ddbData, "damage", { subType: "unarmed-attacks" })
+    const unarmedDamageBonus = DDBModifiers.filterBaseModifiers(this.ddbData, "damage", { subType: "unarmed-attacks" })
       .reduce((prev, cur) => prev + cur.value, 0);
 
     const damage = this.ddbDefinition.isMartialArts
@@ -117,7 +118,7 @@ export default class DDBAction extends DDBFeatureMixin {
 
   getBonusDamage() {
     if (this.ddbDefinition.isMartialArts) {
-      return DDBHelper.filterBaseModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
+      return DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
     }
     return "";
   }

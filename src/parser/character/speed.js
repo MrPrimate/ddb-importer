@@ -1,6 +1,6 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
+import { DDBModifiers } from "../lib/_module.mjs";
 
 DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
 
@@ -44,13 +44,13 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
     movementTypes[type] = base;
   }
 
-  const bonusSpeed = DDBHelper
+  const bonusSpeed = DDBModifiers
     .filterBaseModifiers(this.source.ddb, "bonus", { subType: "speed", restriction })
     .reduce((speed, feat) => speed + feat.value, 0);
 
   // speed bonuses
   for (let type in movementTypes) {
-    let innateBonus = DDBHelper
+    let innateBonus = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: `speed-${type}ing`, restriction })
       .reduce((speed, feat) => speed + feat.value, 0);
 
@@ -60,7 +60,7 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
 
   // unarmored movement for barbarians and monks
   if (this.isUnArmored()) {
-    DDBHelper.getChosenClassModifiers(this.source.ddb)
+    DDBModifiers.getChosenClassModifiers(this.source.ddb)
       .filter((modifier) => modifier.type === "bonus" && modifier.subType === "unarmored-movement")
       .forEach((bonusSpeed) => {
         for (let type in movementTypes) {
@@ -73,7 +73,7 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
   for (let type in movementTypes) {
     const innateType = DICTIONARY.character.speeds.find((s) => s.type === type).innate;
     // is there a 'inntate-speed-[type]ing' race/class modifier?
-    let innateSpeeds = DDBHelper
+    let innateSpeeds = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "set", { subType: `innate-speed-${innateType}`, restriction });
     let base = movementTypes[type];
 

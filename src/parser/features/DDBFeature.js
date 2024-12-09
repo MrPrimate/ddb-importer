@@ -1,6 +1,7 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { utils, logger, CompendiumHelper, DDBHelper } from "../../lib/_module.mjs";
+import { utils, logger, CompendiumHelper } from "../../lib/_module.mjs";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
+import { DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";
 
@@ -45,7 +46,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       );
     this._choices = this.noMods
       ? []
-      : DDBHelper.getChoices({
+      : DDBDataUtils.getChoices({
         ddb: this.ddbData,
         type: this.type,
         feat: this.ddbDefinition,
@@ -57,20 +58,20 @@ export default class DDBFeature extends DDBFeatureMixin {
       }, []);
     this._chosen = this.noMods
       ? []
-      : DDBHelper.getChoices({
+      : DDBDataUtils.getChoices({
         ddb: this.ddbData,
         type: this.type,
         feat: this.ddbDefinition,
         selectionOnly: true,
       });
-    this._parentOnlyChoices = DDBHelper.getChoices({
+    this._parentOnlyChoices = DDBDataUtils.getChoices({
       ddb: this.ddbData,
       type: this.type,
       feat: this.ddbDefinition,
       selectionOnly: false,
       filterByParentChoice: true,
     });
-    this._parentOnlyChosen = DDBHelper.getChoices({
+    this._parentOnlyChosen = DDBDataUtils.getChoices({
       ddb: this.ddbData,
       type: this.type,
       feat: this.ddbDefinition,
@@ -94,7 +95,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       name: utils.nameString(this.ddbDefinition.name),
       type: this.documentType,
       effects: [],
-      system: utils.getTemplate(this.documentType),
+      system: SystemHelpers.getTemplate(this.documentType),
       flags: {
         ddbimporter: {
           id: this.ddbDefinition.id,
@@ -139,7 +140,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       || DDBFeature.LEVEL_SCALE_EXCLUSION_USES.includes(this.data.name)
       || DDBFeature.LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH.some((f) => this.originalName.startsWith(f));
 
-    this.scaleValueUsesLink = DDBHelper.getScaleValueLink(this.ddbData, this.ddbFeature, true);
+    this.scaleValueUsesLink = DDBDataUtils.getScaleValueLink(this.ddbData, this.ddbFeature, true);
 
     this.useUsesScaleValueLink = !this.excludedScaleUses
       && this.scaleValueUsesLink
@@ -309,7 +310,7 @@ export default class DDBFeature extends DDBFeatureMixin {
 
     const assignments = {};
     DICTIONARY.character.abilities.forEach((ability) => {
-      const count = DDBHelper.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
+      const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
       if (count > 0) assignments[ability.value] = count;
     });
 
@@ -326,7 +327,7 @@ export default class DDBFeature extends DDBFeatureMixin {
   _generateSkillAdvancements() {
     const mods = this.advancementHelper.noMods
       ? []
-      : DDBHelper.getModifiers(this.ddbData, this.type);
+      : DDBModifiers.getModifiers(this.ddbData, this.type);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
       && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType),
@@ -338,7 +339,7 @@ export default class DDBFeature extends DDBFeatureMixin {
   _generateLanguageAdvancements() {
     const mods = this.advancementHelper.noMods
       ? []
-      : DDBHelper.getModifiers(this.ddbData, this.type);
+      : DDBModifiers.getModifiers(this.ddbData, this.type);
 
     const advancement = this.advancementHelper.getLanguageAdvancement(mods, this.ddbDefinition, 0);
     this._addAdvancement(advancement);
@@ -347,7 +348,7 @@ export default class DDBFeature extends DDBFeatureMixin {
   _generateToolAdvancements() {
     const mods = this.advancementHelper.noMods
       ? []
-      : DDBHelper.getModifiers(this.ddbData, this.type);
+      : DDBModifiers.getModifiers(this.ddbData, this.type);
     const advancement = this.advancementHelper.getToolAdvancement(mods, this.ddbDefinition, 0);
     this._addAdvancement(advancement);
   }
@@ -412,8 +413,6 @@ export default class DDBFeature extends DDBFeatureMixin {
     try {
       this._generateSystemType();
       this._generateSystemSubType();
-
-      // this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
 
       logger.debug(`Found background ${this.ddbDefinition.name}`);
       logger.debug(`Found ${this._choices.map((c) => c.label).join(",")}`);

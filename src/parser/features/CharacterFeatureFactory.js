@@ -1,5 +1,5 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { logger, utils, DDBHelper, DDBCompendiumFolders, DDBItemImporter } from "../../lib/_module.mjs";
+import { logger, utils, DDBCompendiumFolders, DDBItemImporter, DDBSources } from "../../lib/_module.mjs";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";
@@ -13,9 +13,9 @@ import {
   DDBBackgroundEnricher,
 } from "../enrichers/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
-import DDBBasicActivity from "../enrichers/mixins/DDBBasicActivity.mjs";
 import DDBFeature from "./DDBFeature.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
+import { DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
 
 export default class CharacterFeatureFactory {
 
@@ -160,7 +160,7 @@ export default class CharacterFeatureFactory {
     const attackActionsBase = [
       // do class options here have a class id, needed for optional class features
       this.ddbData.character.actions.class
-        .filter((action) => DDBHelper.findClassByFeatureId(this.ddbData, action.componentId))
+        .filter((action) => DDBDataUtils.findClassByFeatureId(this.ddbData, action.componentId))
         .map((t) => {
           t.actionSource = "class";
           return t;
@@ -181,7 +181,7 @@ export default class CharacterFeatureFactory {
         || DDBAction.KEEP_ACTIONS.some((a) => utils.nameString(action.name) === a)
         || DDBAction.KEEP_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))),
       )
-      .filter((action) => DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter));
+      .filter((action) => DDBDataUtils.displayAsAttack(this.ddbData, action, this.rawCharacter));
 
     const attackActions = (await Promise.all(attackActionsBase
       .map(async (action) => {
@@ -216,7 +216,7 @@ export default class CharacterFeatureFactory {
     const feature = this.ddbData.character.actions[type]
       .filter((a) => a.name === action.name)
       .reduce((prev, cur) => {
-        const klass = DDBHelper.findClassByFeatureId(this.ddbData, cur.componentId);
+        const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, cur.componentId);
         const feature = klass.classFeatures.find((f) => f.definition.id === cur.componentId);
         if (feature.definition.requiredLevel > klass.level) return prev;
         return prev.definition.requiredLevel > feature.definition.requiredLevel ? prev : feature;
@@ -228,7 +228,7 @@ export default class CharacterFeatureFactory {
   async _generateOtherActions() {
     // do class options here have a class id, needed for optional class features
     const classActions = this.ddbData.character.actions.class.filter((action) =>
-      DDBHelper.findClassByFeatureId(this.ddbData, action.componentId)
+      DDBDataUtils.findClassByFeatureId(this.ddbData, action.componentId)
       && (!DDBAction.HIGHEST_LEVEL_ONLY_ACTION_MATCH.includes(utils.nameString(action.name))
         || (DDBAction.HIGHEST_LEVEL_ONLY_ACTION_MATCH.includes(utils.nameString(action.name))
         && this._highestLevelActionFeature(action, "class")?.definition?.id === action.componentId)),
@@ -256,8 +256,8 @@ export default class CharacterFeatureFactory {
         || DDBAction.KEEP_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))),
       )
       .filter((action) => {
-        const name = DDBHelper.getName(this.ddbData, action, this.rawCharacter);
-        // const displayAsAttack = DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
+        const name = DDBDataUtils.getName(this.ddbData, action, this.rawCharacter);
+        // const displayAsAttack = DDBDataUtils.displayAsAttack(this.ddbData, action, this.rawCharacter);
         // lets grab other actions and add, make sure we don't get attack based ones that haven't parsed
         const isParsed = this.actionParsed(name);
         // console.warn("isParsed", { action, ddbname: name, isParsed });
@@ -438,7 +438,7 @@ export default class CharacterFeatureFactory {
   }
 
   async getFeaturesFromDefinition(featDefinition, type, flags = {}) {
-    const source = DDBHelper.parseSource(featDefinition.definition ? featDefinition.definition : featDefinition);
+    const source = DDBSources.parseSource(featDefinition.definition ? featDefinition.definition : featDefinition);
     const ddbFeature = new DDBFeature({
       ddbCharacter: this.ddbCharacter,
       ddbData: this.ddbData,
@@ -582,7 +582,7 @@ export default class CharacterFeatureFactory {
       // KNOWN_ISSUE_4_0: fix level scales for activities
       if (scaleKlass) {
         const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
-        const damage = DDBBasicActivity.buildDamagePart({
+        const damage = SystemHelpers.buildDamagePart({
           damageString: `@scale.${identifier}.${featureName}`,
         });
         if (foundry.utils.hasProperty(feature, "system.damage.base")) {
@@ -678,7 +678,7 @@ export default class CharacterFeatureFactory {
   // helpers
 
   getFeatureFromAction({ action, type, isAttack = null, manager = null, extraFlags = {}, enricher = null }) {
-    const isAttackAction = isAttack ?? DDBHelper.displayAsAttack(this.ddbData, action, this.rawCharacter);
+    const isAttackAction = isAttack ?? DDBDataUtils.displayAsAttack(this.ddbData, action, this.rawCharacter);
     const ddbAction = isAttackAction
       ? new DDBAttackAction({
         ddbCharacter: this.ddbCharacter,

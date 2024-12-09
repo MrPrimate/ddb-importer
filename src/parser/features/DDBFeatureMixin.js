@@ -1,9 +1,9 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
+import { utils, logger, DDBSources } from "../../lib/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import { DDBSimpleMacro } from "../../effects/_module.mjs";
 import { DDBGenericEnricher, mixins, Effects, DDBFeatEnricher, DDBSpeciesTraitEnricher, DDBClassFeatureEnricher, DDBBackgroundEnricher } from "../enrichers/_module.mjs";
-import { DDBDescriptions, DDBTable, DDBTemplateStrings } from "../lib/_module.mjs";
+import { DDBDataUtils, DDBDescriptions, DDBModifiers, DDBTable, DDBTemplateStrings, SystemHelpers } from "../lib/_module.mjs";
 
 export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
@@ -66,9 +66,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
-      name: DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter),
+      name: DDBDataUtils.getName(this.ddbData, this.ddbDefinition, this.rawCharacter),
       type: this.documentType,
-      system: utils.getTemplate(this.documentType),
+      system: SystemHelpers.getTemplate(this.documentType),
       effects: [],
       flags: {
         ddbimporter: {
@@ -97,7 +97,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       || DDBFeatureMixin.LEVEL_SCALE_EXCLUSION.includes(this.data.name);
     this.levelScaleInfusion = DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
       || DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
-    this.scaleValueLink = DDBHelper.getScaleValueString(this.ddbData, this.ddbDefinition).value;
+    this.scaleValueLink = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbDefinition).value;
     this.useScaleValueLink = !this.excludedScale
       && this.scaleValueLink
       && this.scaleValueLink !== "{{scalevalue-unknown}}";
@@ -107,12 +107,12 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
 
     if (this._actionType.class) {
-      const klass = DDBHelper.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
+      const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
       this.klass = klass.definition.name;
       foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "class");
       foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
-      const subKlass = DDBHelper.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
+      const subKlass = DDBDataUtils.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
       this.subKlass = subKlass?.definition.name;
       const subClass = foundry.utils.getProperty(subKlass, "subclassDefinition");
       foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass?.name);
@@ -126,8 +126,8 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     }
 
     // scaling details
-    const klassActionComponent = DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.id)
-      ?? DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
+    const klassActionComponent = DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.id)
+      ?? DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
     if (klassActionComponent) {
       foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
@@ -149,19 +149,19 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this._generateSaveFromDescription();
     this._actionType = {
       class: this.ddbData.character.actions.class
-        .filter((ddbAction) => DDBHelper.findClassByFeatureId(this.ddbData, ddbAction.componentId))
+        .filter((ddbAction) => DDBDataUtils.findClassByFeatureId(this.ddbData, ddbAction.componentId))
         .find((ddbAction) => {
-          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
+          const name = DDBDataUtils.getName(this.ddbData, ddbAction, this.rawCharacter);
           return name === this.data.name;
         }),
       race: this.ddbData.character.actions.race
         .some((ddbAction) => {
-          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
+          const name = DDBDataUtils.getName(this.ddbData, ddbAction, this.rawCharacter);
           return name === this.data.name;
         }),
       feat: this.ddbData.character.actions.feat
         .some((ddbAction) => {
-          const name = DDBHelper.getName(this.ddbData, ddbAction, this.rawCharacter);
+          const name = DDBDataUtils.getName(this.ddbData, ddbAction, this.rawCharacter);
           return name === this.data.name;
         }),
     };
@@ -179,7 +179,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   _getActionParent() {
     if (this.ddbDefinition.componentId)
-      return DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
+      return DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
     else
       return null;
   }
@@ -202,7 +202,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
     this.name = utils.nameString(this.ddbDefinition.name);
     this.originalName = this.ddbData
-      ? DDBHelper.getName(this.ddbData, this.ddbDefinition, this.rawCharacter, false)
+      ? DDBDataUtils.getName(this.ddbData, this.ddbDefinition, this.rawCharacter, false)
       : utils.nameString(this.ddbDefinition.name);
     this.type = type;
     this.source = source;
@@ -265,7 +265,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
     const localSource = this.source && utils.isObject(this.source)
       ? this.source
-      : DDBHelper.parseSource(this.ddbDefinition);
+      : DDBSources.parseSource(this.ddbDefinition);
 
     this.data.system.source = localSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
@@ -579,7 +579,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
     if (die || this.useScaleValueLink) {
       if (this.useScaleValueLink) {
-        mixins.DDBBasicActivity.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
+        SystemHelpers.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
       } else if (die.diceString) {
         const profBonus = CONFIG.DDB.levelProficiencyBonuses.find((b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0))?.bonus;
         const replaceProf = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
@@ -589,9 +589,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
           : die.diceString;
         const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
         const damageString = utils.parseDiceString(diceString, mods).diceString;
-        mixins.DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
+        SystemHelpers.parseBasicDamageFormula(damage, damageString);
       } else if (fixedBonus) {
-        mixins.DDBBasicActivity.parseBasicDamageFormula(damage, fixedBonus + bonusString);
+        SystemHelpers.parseBasicDamageFormula(damage, fixedBonus + bonusString);
       }
     }
 
@@ -647,7 +647,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
               : undefined;
 
           if (levelScaleDie?.diceString) {
-            const scaleValueLink = DDBHelper.getScaleValueLink(this.ddbData, feature);
+            const scaleValueLink = DDBDataUtils.getScaleValueLink(this.ddbData, feature);
             const scaleString = scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
               ? scaleValueLink
               : levelScaleDie.diceString;
@@ -670,15 +670,15 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
         : utils.parseDiceString(die, `${bonusString} + @mod`).diceString;
 
       // set the weapon damage
-      mixins.DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
+      SystemHelpers.parseBasicDamageFormula(damage, damageString);
     } else if (actionDie !== null && actionDie !== undefined) {
       // The Lizardfolk jaws have a different base damage, its' detailed in
       // dice so lets capture that for actions if it exists
       const damageString = utils.parseDiceString(actionDie.diceString, `${bonusString} + @mod`).diceString;
-      mixins.DDBBasicActivity.parseBasicDamageFormula(damage, damageString);
+      SystemHelpers.parseBasicDamageFormula(damage, damageString);
     } else {
       // default to basics
-      mixins.DDBBasicActivity.parseBasicDamageFormula(damage, `1${bonusString} + @mod`);
+      SystemHelpers.parseBasicDamageFormula(damage, `1${bonusString} + @mod`);
     }
 
     return damage;
@@ -710,10 +710,10 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     if (this.ddbDefinition.grantedModifiers) return this.ddbDefinition;
     let modifierItem = foundry.utils.duplicate(this.ddbDefinition);
     const modifiers = [
-      DDBHelper.getChosenClassModifiers(this.ddbData, { includeExcludedEffects: true, effectOnly: true }),
-      DDBHelper.getModifiers(this.ddbData, "race", true, true),
-      DDBHelper.getModifiers(this.ddbData, "background", true, true),
-      DDBHelper.getModifiers(this.ddbData, "feat", true, true),
+      DDBModifiers.getChosenClassModifiers(this.ddbData, { includeExcludedEffects: true, effectOnly: true }),
+      DDBModifiers.getModifiers(this.ddbData, "race", true, true),
+      DDBModifiers.getModifiers(this.ddbData, "background", true, true),
+      DDBModifiers.getModifiers(this.ddbData, "feat", true, true),
     ].flat();
 
     if (!modifierItem.definition) modifierItem.definition = {};
@@ -794,7 +794,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
 
   _addCustomValues() {
-    DDBHelper.addCustomValues(this.ddbData, this.data);
+    DDBDataUtils.addCustomValues(this.ddbData, this.data);
   }
 
   // eslint-disable-next-line complexity

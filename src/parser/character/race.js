@@ -1,6 +1,6 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
+import { DDBModifiers } from "../lib/_module.mjs";
 import DDBRace from "../race/DDBRace.js";
 
 DDBCharacter.prototype._generateRace = async function _generateRace(addToCompendium = false) {
@@ -26,7 +26,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace(addToCompend
           assignments: {},
         };
         DICTIONARY.character.abilities.forEach((ability) => {
-          const bonus = DDBHelper
+          const bonus = DDBModifiers
             .filterModifiersOld(this.source.ddb.character.modifiers.race, "bonus", `${ability.long}-score`, [null, ""])
             .filter((mod) => mod.entityId === ability.id)
             .reduce((prev, cur) => prev + cur.value, 0);
@@ -35,7 +35,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace(addToCompend
         break;
       }
       case "Size": {
-        const modSize = DDBHelper.filterModifiersOld(this.source.ddb.character.modifiers.race, "size");
+        const modSize = DDBModifiers.filterModifiersOld(this.source.ddb.character.modifiers.race, "size");
         const size = a.configuration.sizes.length === 1
           ? a.configuration.sizes[0]
           : modSize && modSize.length === 1

@@ -1,8 +1,8 @@
-import { DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
+import { DDBModifiers } from "../lib/_module.mjs";
 
 DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(includeItemEffects = false) {
-  return DDBHelper
+  return DDBModifiers
     .filterBaseModifiers(this.source.ddb, "proficiency", { restriction: null, includeExcludedEffects: includeItemEffects })
     .map((proficiency) => {
       return { name: proficiency.friendlySubtypeName };
@@ -10,7 +10,7 @@ DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(in
 };
 
 DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(includeItemEffects = false) {
-  return DDBHelper
+  return DDBModifiers
     .filterBaseModifiers(this.source.ddb, "weapon-mastery", { restriction: null, includeExcludedEffects: includeItemEffects })
     .map((prof) => {
       const weaponRegex = /(\w+) \(([\w ]+)\)/ig;
@@ -24,7 +24,7 @@ DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(includeIte
 };
 
 DDBCharacter.prototype._generateLanguages = function _generateLanguages() {
-  const modifiers = DDBHelper.filterBaseModifiers(this.source.ddb, "language");
+  const modifiers = DDBModifiers.filterBaseModifiers(this.source.ddb, "language");
   this.raw.character.system.traits.languages = this.proficiencyFinder.getLanguagesFromModifiers(modifiers);
 };
 

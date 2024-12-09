@@ -1,5 +1,5 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
-import { logger, utils, Iconizer, DDBHelper } from "../../lib/_module.mjs";
+import { logger, utils, Iconizer, DDBSources } from "../../lib/_module.mjs";
 import { generateAdventureConfig } from "../adventure.js";
 import AdventureMunch from "./AdventureMunch.js";
 import { PageFinder } from "./PageFinder.js";
@@ -113,7 +113,7 @@ export default class ThirdPartyMunch extends FormApplication {
       });
 
       if (missingBooks.length > 0) {
-        const bookString = missingBooks.map((bookCode) => DDBHelper.getBookName(bookCode)).join(", ");
+        const bookString = missingBooks.map((bookCode) => DDBSources.getBookName(bookCode)).join(", ");
         message += `<p>You need to use Adventure Muncher to load the following books first: ${bookString}</p>`;
       }
 
@@ -248,7 +248,7 @@ export default class ThirdPartyMunch extends FormApplication {
       : [];
     return {
       id: foundry.utils.randomID(),
-      name: DDBHelper.getBookName(scene.flags.ddb.bookCode),
+      name: DDBSources.getBookName(scene.flags.ddb.bookCode),
       description: "",
       system: "dnd5e",
       modules: [],
@@ -425,7 +425,7 @@ export default class ThirdPartyMunch extends FormApplication {
       const mockAdventure = ThirdPartyMunch._generateMockAdventure(scene);
       if (scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens) {
         await this._checkForMissingData(mockAdventure, []);
-        const bookName = DDBHelper.getBookName(scene.flags.ddb.bookCode);
+        const bookName = DDBSources.getBookName(scene.flags.ddb.bookCode);
         const actorFolder = await ThirdPartyMunch._findFolder(bookName, "Actor");
         scene.tokens = scene.flags.ddb.tokens.map((token) => {
           token.flags.actorFolderId = actorFolder.id;
@@ -570,7 +570,7 @@ export default class ThirdPartyMunch extends FormApplication {
       const adventureLabels = [...new Set(this._scenePackage.scenes
         .filter((scene) => scene.flags?.ddb?.bookCode)
         .map((scene) => {
-          return DDBHelper.getBookName(scene.flags.ddb.bookCode);
+          return DDBSources.getBookName(scene.flags.ddb.bookCode);
         }))]
         .map((label) => {
           return ThirdPartyMunch._findFolder(label, "Actor");

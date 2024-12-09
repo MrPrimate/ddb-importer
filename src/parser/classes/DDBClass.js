@@ -1,15 +1,15 @@
 import {
   logger,
   utils,
-  DDBHelper,
   CompendiumHelper,
   DDBCompendiumFolders,
   DDBItemImporter,
+  DDBSources,
 } from '../../lib/_module.mjs';
 import { getSpellCastingAbility } from "../spells/ability.js";
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
 import { SETTINGS, DICTIONARY } from '../../config/_module.mjs';
-import { DDBTemplateStrings } from '../lib/_module.mjs';
+import { DDBDataUtils, DDBModifiers, DDBTemplateStrings, SystemHelpers } from '../lib/_module.mjs';
 
 export default class DDBClass {
 
@@ -217,14 +217,14 @@ export default class DDBClass {
   ];
 
   _generateSource() {
-    const classSource = DDBHelper.parseSource(this.ddbClassDefinition);
+    const classSource = DDBSources.parseSource(this.ddbClassDefinition);
     this.data.system.source = classSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
   }
 
   _fleshOutCommonDataStub() {
     // this.data.system.identifier = utils.referenceNameString(`${this.ddbClassDefinition.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
-    this.data.system.identifier = DDBHelper.classIdentifierName(this.ddbClassDefinition.name);
+    this.data.system.identifier = DDBDataUtils.classIdentifierName(this.ddbClassDefinition.name);
     this._determineClassFeatures();
 
     this._proficiencyFeatureIds = this.classFeatures
@@ -289,7 +289,7 @@ export default class DDBClass {
       _id: foundry.utils.randomID(),
       name: this.ddbClass.definition.name,
       type: "class",
-      system: utils.getTemplate("class"),
+      system: SystemHelpers.getTemplate("class"),
       flags: {
         ddbimporter: {
           class: this.ddbClass.definition.name,
@@ -816,7 +816,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
 
 
     return AdvancementHelper.getSaveAdvancement(mods, availableToMulticlass, level);
@@ -853,13 +853,13 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
       && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType),
     );
     const filterModOptions = { subType: `choose-a-${this.ddbClassDefinition.name.toLowerCase()}-skill` };
-    const skillChooseMods = DDBHelper.filterModifiers(mods, "proficiency", filterModOptions);
+    const skillChooseMods = DDBModifiers.filterModifiers(mods, "proficiency", filterModOptions);
     const skillMods = skillChooseMods.concat(skillExplicitMods);
 
     return this.advancementHelper.getSkillAdvancement(skillMods, feature, availableToMulticlass, i, this.dictionary.multiclassSkill);
@@ -898,7 +898,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
 
     return this.advancementHelper.getLanguageAdvancement(mods, feature, level);
   }
@@ -959,7 +959,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getToolAdvancement(mods, feature, level);
   }
 
@@ -987,7 +987,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getArmorAdvancement(mods, feature, availableToMulticlass, level);
   }
 
@@ -1018,7 +1018,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getWeaponAdvancement(mods, feature, level);
   }
 
@@ -1046,7 +1046,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBHelper.getChosenTypeModifiers(this.ddbData, modFilters);
+    const mods = this.options.noMods ? [] : DDBModifiers.getChosenTypeModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getWeaponMasteryAdvancement(mods, feature, level);
   }
 
@@ -1092,7 +1092,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
 
     return this.advancementHelper.getConditionAdvancement(mods, feature, level);
   }
@@ -1185,11 +1185,11 @@ export default class DDBClass {
         exactLevel: i,
         useUnfilteredModifiers: true,
       };
-      const mods = DDBHelper.getChosenClassModifiers(this.ddbData, modFilters);
+      const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
 
       const assignments = {};
       DICTIONARY.character.abilities.forEach((ability) => {
-        const count = DDBHelper.filterModifiers(mods, "bonus", { subType: `${ability.long}-score` }).length;
+        const count = DDBModifiers.filterModifiers(mods, "bonus", { subType: `${ability.long}-score` }).length;
         if (count > 0) assignments[ability.value] = count;
       });
 

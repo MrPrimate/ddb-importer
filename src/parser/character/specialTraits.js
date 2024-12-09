@@ -1,5 +1,5 @@
-import { DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
+import { DDBModifiers } from "../lib/_module.mjs";
 
 DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() {
   this.raw.character.flags.dnd5e = {
@@ -25,11 +25,11 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() 
 
   // advantage on initiative
   this.raw.character.flags.dnd5e.initiativeAdv
-    = DDBHelper.filterBaseModifiers(this.source.ddb, "advantage", { subType: "initiative" }).length > 0;
+    = DDBModifiers.filterBaseModifiers(this.source.ddb, "advantage", { subType: "initiative" }).length > 0;
 
   // initiative half prof
   this.raw.character.flags.dnd5e.initiativeHalfProf
-    = DDBHelper.filterBaseModifiers(this.source.ddb, "half-proficiency", { subType: "initiative" }).length > 0;
+    = DDBModifiers.filterBaseModifiers(this.source.ddb, "half-proficiency", { subType: "initiative" }).length > 0;
 
   // observant
   // we now just add this to the skill

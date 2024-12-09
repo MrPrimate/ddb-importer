@@ -1,7 +1,7 @@
 import { SETTINGS, DICTIONARY } from "../../config/_module.mjs";
-import { utils, logger, DDBHelper, CompendiumHelper, FileHelper, DDBCompendiumFolders, DDBItemImporter } from "../../lib/_module.mjs";
+import { utils, logger, CompendiumHelper, FileHelper, DDBCompendiumFolders, DDBItemImporter, DDBSources } from "../../lib/_module.mjs";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
-import { DDBReferenceLinker } from "../lib/_module.mjs";
+import { DDBModifiers, DDBReferenceLinker, DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
 
 
 export default class DDBRace {
@@ -40,7 +40,7 @@ export default class DDBRace {
       _id: foundry.utils.randomID(),
       name: "",
       type: "race",
-      system: utils.getTemplate("race"),
+      system: SystemHelpers.getTemplate("race"),
       flags: {
         ddbimporter: {
           type: "race",
@@ -67,7 +67,7 @@ export default class DDBRace {
     if (DDBRace.FORCE_SUBRACE_2024.includes(this.race.baseRaceName)) {
       const lineageTrait = this.race.racialTraits.find((r) => r.definition.name.includes("Lineage") || r.definition.name.includes("Fiendish Legacy"));
       if (!lineageTrait) return null;
-      const choice = DDBHelper.getChoices({ ddb: this.ddbData, type: "race", feat: lineageTrait, selectionOnly: true });
+      const choice = DDBDataUtils.getChoices({ ddb: this.ddbData, type: "race", feat: lineageTrait, selectionOnly: true });
       this.isLineage = true;
       return choice[0];
     }
@@ -141,7 +141,7 @@ export default class DDBRace {
       this.data.flags.ddbimporter['moreDetailsUrl'] = this.race.moreDetailsUrl;
     }
 
-    this.data.system.source = DDBHelper.parseSource(this.race);
+    this.data.system.source = DDBSources.parseSource(this.race);
 
     if (this.race.isSubRace && this.race.baseRaceName) this.data.system.requirements = this.race.baseRaceName;
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
@@ -372,7 +372,7 @@ export default class DDBRace {
 
     const mods = this.advancementHelper.noMods
       ? []
-      : DDBHelper.getModifiers(this.ddbData, "race")
+      : DDBModifiers.getModifiers(this.ddbData, "race")
         .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
@@ -388,7 +388,7 @@ export default class DDBRace {
 
     const mods = this.advancementHelper.noMods
       ? []
-      : DDBHelper.getModifiers(this.ddbData, "race")
+      : DDBModifiers.getModifiers(this.ddbData, "race")
         .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getLanguageAdvancement(mods, trait, 0);
@@ -400,7 +400,7 @@ export default class DDBRace {
 
     const mods = this.advancementHelper.noMods
       ? []
-      : DDBHelper.getModifiers(this.ddbData, "race")
+      : DDBModifiers.getModifiers(this.ddbData, "race")
         .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getToolAdvancement(mods, trait, 0);
@@ -467,7 +467,7 @@ export default class DDBRace {
   #generateConditionAdvancement(trait) {
     const mods = this.advancementHelper.noMods
       ? []
-      : DDBHelper.getModifiers(this.ddbData, "race")
+      : DDBModifiers.getModifiers(this.ddbData, "race")
         .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getConditionAdvancement(mods, trait, 0);
@@ -614,12 +614,12 @@ export default class DDBRace {
       const basicOptions = {
         subType: senseName,
       };
-      DDBHelper.filterModifiers((this.ddbData?.character?.modifiers?.race ?? []), "sense", basicOptions).forEach((sense) => {
+      DDBModifiers.filterModifiers((this.ddbData?.character?.modifiers?.race ?? []), "sense", basicOptions).forEach((sense) => {
         if (Number.isInteger(sense.value) && sense.value > this.data.system.senses[senseName]) {
           this.data.system.senses[senseName] = parseInt(sense.value);
         }
       });
-      DDBHelper.filterModifiers((this.ddbData?.character?.modifiers?.race ?? []), "set-base", basicOptions).forEach((sense) => {
+      DDBModifiers.filterModifiers((this.ddbData?.character?.modifiers?.race ?? []), "set-base", basicOptions).forEach((sense) => {
         if (Number.isInteger(sense.value) && sense.value > this.data.system.senses[senseName]) {
           this.data.system.senses[senseName] = parseInt(sense.value);
         }

@@ -11,7 +11,7 @@ import { spellEffectAdjustment } from "./specialSpells.js";
 import { addExtraEffects } from "../parser/features/extraEffects.js";
 import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature.js";
 import { ExternalAutomations } from "./external/_module.mjs";
-import { DDBDescriptions } from "../parser/lib/_module.mjs";
+import { DDBDescriptions, SystemHelpers } from "../parser/lib/_module.mjs";
 import { AutoEffects, ChangeHelper, MidiOverTimeEffect } from "../parser/enrichers/effects/_module.mjs";
 
 export default class DDBEffectHelper {
@@ -20,13 +20,13 @@ export default class DDBEffectHelper {
 
   static Crosshairs = Crosshairs;
 
-  static generateDAEStatusEffectChange = AutoEffects.ChangeHelper.daeStatusEffectChange;
+  static generateDAEStatusEffectChange = ChangeHelper.daeStatusEffectChange;
 
-  static addStatusEffectChange = AutoEffects.ChangeHelper.addStatusEffectChange;
+  static addStatusEffectChange = ChangeHelper.addStatusEffectChange;
 
-  static generateTokenMagicFXChange = AutoEffects.ChangeHelper.tokenMagicFXChange;
+  static generateTokenMagicFXChange = ChangeHelper.tokenMagicFXChange;
 
-  static generateATLChange = AutoEffects.ChangeHelper.atlChange;
+  static generateATLChange = ChangeHelper.atlChange;
 
   static getMonsterFeatureDamage(damageText, featureDoc = null) {
     const preParsed = foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionInfo.damage");
@@ -122,7 +122,7 @@ export default class DDBEffectHelper {
         data = await spellEffectAdjustment(data, true);
       } else if (data.type === "feat") {
         const mockCharacter = {
-          system: utils.getTemplate("character"),
+          system: SystemHelpers.getTemplate("character"),
           type: "character",
           name: "",
           flags: {

@@ -111,7 +111,7 @@ export function registerApi() {
       DDBEffectHelper,
       DDBEncounterMunch,
       DDBEncounters,
-      DDBHelper: lib.DDBHelper,
+      DDBSources: lib.DDBSources,
       DDBItemImporter: lib.DDBItemImporter,
       DDBMacros,
       DDBMonster,
@@ -126,6 +126,7 @@ export function registerApi() {
       OriginFixer: lib.OriginFixer,
       Crosshairs: lib.Crosshairs,
       Enrichers,
+      ParserLib,
     },
     settings: {
       muncherSettings: lib.MuncherSettings.getMuncherSettings,

@@ -1,6 +1,6 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
+import { DDBModifiers } from "../lib/_module.mjs";
 
 DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false } = {}) {
   let senses = {
@@ -30,7 +30,7 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
   // Base senses
   for (const senseName in senses) {
     const basicOptions = { subType: senseName, includeExcludedEffects: includeEffects };
-    DDBHelper.filterBaseModifiers(this.source.ddb, "set-base", basicOptions).forEach((sense) => {
+    DDBModifiers.filterBaseModifiers(this.source.ddb, "set-base", basicOptions).forEach((sense) => {
       if (Number.isInteger(sense.value) && sense.value > senses[senseName]) {
         senses[senseName] = parseInt(sense.value);
       }
@@ -45,7 +45,7 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
     ],
     includeExcludedEffects: includeEffects,
   };
-  DDBHelper
+  DDBModifiers
     .filterBaseModifiers(this.source.ddb, "set-base", devilsSightFilters)
     .forEach((sense) => {
       if (Number.isInteger(sense.value) && sense.value > senses['darkvision']) {
@@ -60,7 +60,7 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
     restriction: ["", null, "plus 60 feet if wearer already has Darkvision"],
     includeExcludedEffects: includeEffects,
   };
-  DDBHelper
+  DDBModifiers
     .filterBaseModifiers(this.source.ddb, "sense", magicalBonusFilters)
     .forEach((mod) => {
       const hasSense = mod.subType in senses;

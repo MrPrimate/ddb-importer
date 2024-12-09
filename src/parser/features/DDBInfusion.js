@@ -2,9 +2,9 @@ import { DICTIONARY } from "../../config/_module.mjs";
 import {
   utils,
   logger,
-  DDBHelper,
   DDBItemImporter,
   DDBCompendiumFolders,
+  DDBSources,
 } from "../../lib/_module.mjs";
 import {
   mixins as EnricherMixins,
@@ -15,7 +15,7 @@ import { DDBFeatureActivity } from "../activities/_module.mjs";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import { addExtraEffects } from "./extraEffects.js";
-import { DDBTemplateStrings, DDBReferenceLinker } from "../lib/_module.mjs";
+import { DDBTemplateStrings, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
 
 
 export class DDBInfusion {
@@ -30,7 +30,7 @@ export class DDBInfusion {
       _id: utils.namedIDStub(this.name, { postfix: this.nameIdPostfix }),
       name: utils.nameString(`Infusion: ${this.name}`),
       type: this.documentType,
-      system: utils.getTemplate(this.documentType),
+      system: SystemHelpers.getTemplate(this.documentType),
       effects: [],
       flags: {
         ddbimporter: {
@@ -60,7 +60,7 @@ export class DDBInfusion {
       this.requiredLevel = Number.parseInt(requiredLevel);
     }
 
-    this.data.system.source = DDBHelper.parseSource(this.ddbInfusion);
+    this.data.system.source = DDBSources.parseSource(this.ddbInfusion);
     this.data.system.source.rules = "2014";
 
     if (this.requiredLevel && this.requiredLevel > 1) {
@@ -233,7 +233,7 @@ export class DDBInfusion {
           : "";
         actionData.name = `${this.name}${postfix}`;
       }
-      const action = DDBHelper.displayAsAttack(this.ddbData, actionData, this.rawCharacter)
+      const action = DDBDataUtils.displayAsAttack(this.ddbData, actionData, this.rawCharacter)
         ? new DDBAttackAction({
           ddbData: this.ddbData,
           ddbDefinition: actionData,
@@ -458,11 +458,11 @@ export class DDBInfusion {
   }
 
   _getMagicBonusChanges(modifiers) {
-    const filteredModifiers = DDBHelper.filterModifiersOld(modifiers, "bonus", "magic");
-    const magicBonus = DDBHelper.getModifierSum(filteredModifiers, this.rawCharacter);
+    const filteredModifiers = DDBModifiers.filterModifiersOld(modifiers, "bonus", "magic");
+    const magicBonus = DDBModifiers.getModifierSum(filteredModifiers, this.rawCharacter);
 
-    const acFilteredModifiers = DDBHelper.filterModifiersOld(modifiers, "bonus", "armor-class");
-    const acMagicalBonus = DDBHelper.getModifierSum(acFilteredModifiers, this.rawCharacter);
+    const acFilteredModifiers = DDBModifiers.filterModifiersOld(modifiers, "bonus", "armor-class");
+    const acMagicalBonus = DDBModifiers.getModifierSum(acFilteredModifiers, this.rawCharacter);
 
     const changes = [];
     if (magicBonus && magicBonus !== 0 && magicBonus !== "") {

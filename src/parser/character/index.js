@@ -1,12 +1,12 @@
-import { utils } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
+import { SystemHelpers } from "../lib/_module.mjs";
 // import { fixCharacterLevels } from "./filterModifiers.js";
 
 DDBCharacter.prototype._newPCSkeleton = async function _newPCSkeleton() {
   const name = (this.source.ddb.character.name === "") ? "Hero With No Name" : this.source.ddb.character.name;
 
   this.raw.character = {
-    system: utils.getTemplate("character"),
+    system: SystemHelpers.getTemplate("character"),
     type: "character",
     effects: [],
     name: name,

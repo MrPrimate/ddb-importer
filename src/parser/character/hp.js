@@ -1,5 +1,5 @@
-import { DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
+import { DDBDataUtils, DDBModifiers } from "../lib/_module.mjs";
 
 DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   const constitutionHP = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities.con.mod * this.raw.character.flags.ddbimporter.dndbeyond.totalLevels;
@@ -10,12 +10,12 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   const temporaryHitPoints = this.source.ddb.character.temporaryHitPoints || 0;
 
   // get allvalues hit points features
-  const bonusHitPointFeatures = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", { subType: "hit-points-per-level" });
-  const bonusHitPointFeaturesWithEffects = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", { subType: "hit-points-per-level", includeExcludedEffects: true });
+  const bonusHitPointFeatures = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: "hit-points-per-level" });
+  const bonusHitPointFeaturesWithEffects = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: "hit-points-per-level", includeExcludedEffects: true });
 
   // get their
   const bonusHitPointValues = bonusHitPointFeatures.map((bonus) => {
-    const cls = DDBHelper.findClassByFeatureId(this.source.ddb, bonus.componentId);
+    const cls = DDBDataUtils.findClassByFeatureId(this.source.ddb, bonus.componentId);
     if (cls) {
       return cls.level * bonus.value;
     } else {
@@ -24,7 +24,7 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   });
 
   const bonusHitPointValuesWithEffects = bonusHitPointFeaturesWithEffects.map((bonus) => {
-    const cls = DDBHelper.findClassByFeatureId(this.source.ddb, bonus.componentId);
+    const cls = DDBDataUtils.findClassByFeatureId(this.source.ddb, bonus.componentId);
     if (cls) {
       return cls.level * bonus.value;
     } else {
@@ -37,7 +37,7 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   const totalBonusHPWithEffects = bonusHitPointValuesWithEffects.reduce((prev, cur) => prev + cur, 0);
 
   const bonusPerLevelValue = bonusHitPointFeatures.map((bonus) => {
-    const cls = DDBHelper.findClassByFeatureId(this.source.ddb, bonus.componentId);
+    const cls = DDBDataUtils.findClassByFeatureId(this.source.ddb, bonus.componentId);
     // console.warn("cls hp", { bonus, cls});
     if (!cls) {
       return bonus.value;

@@ -1,11 +1,12 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { logger, DDBHelper } from "../../lib/_module.mjs";
+import { logger } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 import { AutoEffects } from "../enrichers/effects/_module.mjs";
+import { DDBModifiers } from "../lib/_module.mjs";
 
 DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill, modifiers = null) {
   if (!modifiers) {
-    modifiers = DDBHelper.getAllModifiers(this.source.ddb, { includeExcludedEffects: true });
+    modifiers = DDBModifiers.getAllModifiers(this.source.ddb, { includeExcludedEffects: true });
   }
 
   const skillMatches = modifiers
@@ -160,11 +161,11 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
     const proficient = customProficient !== undefined ? customProficient : this.getSkillProficiency(skill);
 
     // Skill bonuses
-    const skillModifierBonus = DDBHelper
+    const skillModifierBonus = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: skill.subType })
       .map((skl) => skl.value)
       .reduce((a, b) => a + b, 0) ?? "";
-    const passiveBonus = DDBHelper
+    const passiveBonus = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: `passive-${skill.subType}` })
       .map((skl) => skl.value)
       .reduce((a, b) => a + b, 0) ?? "";

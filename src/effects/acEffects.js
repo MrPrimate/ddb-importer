@@ -1,4 +1,5 @@
-import { logger, DDBHelper } from "../lib/_module.mjs";
+import { logger } from "../lib/_module.mjs";
+import { DDBModifiers } from "../parser/lib/_module.mjs";
 import { addAddBonusChanges } from "./effects.js";
 
 // // ac -
@@ -64,7 +65,7 @@ export function generateFixedACEffect(formula, label, alwaysActive = false, prio
 }
 
 function addACBonusEffect(modifiers, name, subType, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
-  const bonusModifiers = DDBHelper.filterModifiersOld(modifiers, "bonus", subType, restrictions);
+  const bonusModifiers = DDBModifiers.filterModifiersOld(modifiers, "bonus", subType, restrictions);
   const changes = addAddBonusChanges(bonusModifiers, name, subType, "system.attributes.ac.bonus");
   if (changes.length > 0) logger.debug(`Generating ${subType} bonus for ${name}`);
 

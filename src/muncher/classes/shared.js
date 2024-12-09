@@ -3,7 +3,7 @@ import {
   utils,
   FileHelper,
   CompendiumHelper,
-  DDBHelper,
+  DDBSources,
 } from "../../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { DDBTable, DDBReferenceLinker } from "../../parser/lib/_module.mjs";
@@ -95,7 +95,7 @@ async function buildBase(data) {
     result.flags.ddbimporter['moreDetailsUrl'] = data.moreDetailsUrl;
   }
 
-  result.system.source = DDBHelper.parseSource(data);
+  result.system.source = DDBSources.parseSource(data);
 
   return result;
 }

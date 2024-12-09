@@ -1,5 +1,6 @@
 import SETTINGS from "../../config/settings.mjs";
-import { CompendiumHelper, DDBHelper, logger, utils } from "../../lib/_module.mjs";
+import { CompendiumHelper, DDBSources, logger, utils } from "../../lib/_module.mjs";
+import { DDBDataUtils } from "../lib/_module.mjs";
 
 const BASE_CLASS_PAGE = {
   sort: 1,
@@ -66,7 +67,7 @@ export default class SpellListFactory {
       .map((s) => {
         return {
           id: s.id,
-          acronym: DDBHelper.getAdjustedSourceBook(s.name),
+          acronym: DDBSources.getAdjustedSourceBook(s.name),
           label: s.description,
         };
       });
@@ -165,7 +166,7 @@ export default class SpellListFactory {
           id: s.definition.id,
           name: s.definition.name,
           isLegacy: s.definition.isLegacy,
-          sources: DDBHelper.getSourceData(s.definition),
+          sources: DDBSources.getSourceData(s.definition),
           sourceDefinition: s.definition.sources,
           isHomebrew: s.definition.isHomebrew,
         };
@@ -226,7 +227,7 @@ export default class SpellListFactory {
   }
 
   async #getJournalClassPage(journal, className, source) {
-    const classIdentifier = DDBHelper.classIdentifierName(className);
+    const classIdentifier = DDBDataUtils.classIdentifierName(className);
     const page = journal.pages.find((p) => p.system.identifier === classIdentifier);
     if (page) return page;
 

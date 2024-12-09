@@ -1,5 +1,5 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { utils } from "../../lib/_module.mjs";
+import { DDBSources, utils } from "../../lib/_module.mjs";
 import SpellListFactory from "../../parser/spells/SpellListFactory.mjs";
 
 function addLanguages() {
@@ -30,20 +30,6 @@ function addLanguages() {
   });
 }
 
-function addSources() {
-  if (!game.settings.get(SETTINGS.MODULE_ID, "register-source-books")) return;
-
-  const ddbRaw = foundry.utils.getProperty(CONFIG, "DDB.sources");
-  if (!ddbRaw) return;
-
-  const sources = {};
-  for (const source of ddbRaw.filter((s) => s.isReleased && !SETTINGS.NO_SOURCE_MATCH_IDS.includes(s.id))) {
-    sources[source.name.replace("-", " ")] = source.description;
-  }
-  sources["Homebrew"] = "Homebrew";
-  Object.assign(CONFIG.DND5E.sourceBooks, sources);
-}
-
 function addSpellLists() {
   const spellListFactory = new SpellListFactory();
   spellListFactory.registerSpellLists();
@@ -51,6 +37,6 @@ function addSpellLists() {
 
 export default function addDDBConfig() {
   addLanguages();
-  addSources();
+  DDBSources.addSourcesHook();
   addSpellLists();
 }

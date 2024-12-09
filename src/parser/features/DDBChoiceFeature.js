@@ -1,7 +1,8 @@
 import DDBFeature from "./DDBFeature.js";
-import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
+import { utils, logger } from "../../lib/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import DICTIONARY from "../../config/dictionary.mjs";
+import { DDBDataUtils } from "../lib/_module.mjs";
 
 export default class DDBChoiceFeature extends DDBFeature {
 
@@ -23,7 +24,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     this._limitedUse = null;
     this._classOption = null;
 
-    this._classFeatureComponent = DDBHelper.findComponentByComponentId(this.ddbData, this.ddbDefinition.id);
+    this._classFeatureComponent = DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.id);
 
     if (!this._classFeatureComponent) {
       this._classOption = [
@@ -34,7 +35,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         .flat()
         .find((option) => option.definition.id === this.ddbDefinition.componentId);
       if (this._classOption) {
-        this._classFeatureComponent = DDBHelper.findComponentByComponentId(this.ddbData, this._classOption.componentId);
+        this._classFeatureComponent = DDBDataUtils.findComponentByComponentId(this.ddbData, this._classOption.componentId);
       }
     }
 

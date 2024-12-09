@@ -1,9 +1,9 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { DDBHelper } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
+import { DDBModifiers } from "../lib/_module.mjs";
 
 DDBCharacter.prototype._generateSize = function _generateSize() {
-  const sizeMods = DDBHelper.filterModifiersOld(this.source.ddb.character.modifiers.race, "size");
+  const sizeMods = DDBModifiers.filterModifiersOld(this.source.ddb.character.modifiers.race, "size");
   const size = (sizeMods.length > 0)
     ? DICTIONARY.character.actorSizes.find((size) => sizeMods.some((mod) => mod.subType === size.name.toLowerCase()))
     : DICTIONARY.character.actorSizes.find((size) =>

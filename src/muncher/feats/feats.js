@@ -1,8 +1,8 @@
 import {
   logger,
-  DDBHelper,
   DDBItemImporter,
   utils,
+  DDBSources,
 } from "../../lib/_module.mjs";
 import { DDBReferenceLinker } from "../../parser/lib/_module.mjs";
 
@@ -52,7 +52,7 @@ function buildBase(data) {
     result.system.description.value += `<h3>Requirements</h3>\n\n${requirements.join("\n\n")}\n\n`;
   }
 
-  result.system.source = DDBHelper.parseSource(data);
+  result.system.source = DDBSources.parseSource(data);
 
   result.system.description.value = DDBReferenceLinker.parseTags(result.system.description.value);
 

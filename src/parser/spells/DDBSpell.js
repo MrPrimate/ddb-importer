@@ -1,12 +1,12 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { logger, utils, CompendiumHelper, DDBHelper } from "../../lib/_module.mjs";
+import { logger, utils, CompendiumHelper, DDBSources } from "../../lib/_module.mjs";
 import { baseSpellEffect, spellEffectAdjustment } from "../../effects/specialSpells.js";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.mjs";
 import { DDBSpellActivity } from "../activities/_module.mjs";
 import { DDBSpellEnricher, mixins } from "../enrichers/_module.mjs";
 import DDBSummonsManager from "../companions/DDBSummonsManager.mjs";
-import { DDBTable, DDBReferenceLinker } from "../lib/_module.mjs";
-import { AutoEffects } from "../enrichers/effects/_module.mjs";
+import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
+import { ChangeHelper } from "../enrichers/effects/_module.mjs";
 
 export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
@@ -14,7 +14,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.data = {
       _id: utils.namedIDStub(this.name, { prefix: this.namePrefix, postfix: this.namePostfix }),
       type: "spell",
-      system: utils.getTemplate("spell"),
+      system: SystemHelpers.getTemplate("spell"),
       effects: [],
       name: this.name,
       flags: {
@@ -515,7 +515,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     // Improved Illusions - at the time of this implemented, this was not handled
     // automatically by DDB. This may change in the future, and this will need to be removed.
     // if range 10+ then illusion range increases by 60
-    const hasIllusionSavant = DDBHelper.hasClassFeature({
+    const hasIllusionSavant = DDBDataUtils.hasClassFeature({
       ddbData: this.ddbData,
       featureName: "Improved Illusions",
       className: "Wizard",
@@ -778,7 +778,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
         effect._id = foundry.utils.randomID();
 
         // KNOWN_ISSUE_4_0: add duration
-        AutoEffects.ChangeHelper.addStatusEffectChange({ effect, statusName: condition.foundryValue });
+        ChangeHelper.addStatusEffectChange({ effect, statusName: condition.foundryValue });
         this.data.effects.push(effect);
       }
     }
@@ -836,7 +836,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
   getRangeAdjustmentMultiplier() {
     if (!this.ddbParser?.ddbData) return 1;
-    const rangeAdjustmentMods = DDBHelper.filterBaseModifiers(this.ddbParser.ddbData, "bonus", { subType: "spell-attack-range-multiplier" }).filter((modifier) => modifier.isGranted);
+    const rangeAdjustmentMods = DDBModifiers.filterBaseModifiers(this.ddbParser.ddbData, "bonus", { subType: "spell-attack-range-multiplier" }).filter((modifier) => modifier.isGranted);
 
     const multiplier = rangeAdjustmentMods.reduce((current, mod) => {
       if (Number.isInteger(mod.fixedValue) && mod.fixedValue > current) {
@@ -861,7 +861,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   async parse() {
     this.data.system.level = this.ddbDefinition.level;
     this.data.system.school = (this.school) ? this.school.id : null;
-    this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
+    this.data.system.source = DDBSources.parseSource(this.ddbDefinition);
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
     if (this.spellClass) {
@@ -906,7 +906,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     }
 
     if (this.ddbData) {
-      DDBHelper.addCustomValues(this.ddbData, this.data);
+      DDBDataUtils.addCustomValues(this.ddbData, this.data);
     }
 
     this.enricher.addDocumentOverride();

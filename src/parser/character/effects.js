@@ -1,7 +1,8 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { logger, DDBHelper } from "../../lib/_module.mjs";
+import { logger } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 import { AutoEffects } from "../enrichers/effects/_module.mjs";
+import { DDBModifiers } from "../lib/_module.mjs";
 
 DDBCharacter.prototype._generateDeathSaves = function _generateDeathSaves () {
   this.raw.character.system.attributes.death = {
@@ -19,7 +20,7 @@ DDBCharacter.prototype._generateExhaustion = function _generateExhaustion() {
 
 DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getCharacterGenericConditionAffectData(condition, typeId) {
 
-  const modifiers = DDBHelper.filterBaseModifiers(this.source.ddb, condition);
+  const modifiers = DDBModifiers.filterBaseModifiers(this.source.ddb, condition);
   const standardResults = AutoEffects.getGenericConditionAffectData(modifiers, condition, typeId);
 
   const customResults = this.source.ddb.character.customDefenseAdjustments

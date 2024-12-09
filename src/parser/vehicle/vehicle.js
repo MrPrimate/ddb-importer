@@ -1,4 +1,4 @@
-import { logger, DDBHelper, CompendiumHelper } from '../../lib/_module.mjs';
+import { logger, CompendiumHelper, DDBSources } from '../../lib/_module.mjs';
 import { DDBReferenceLinker } from '../lib/_module.mjs';
 
 import { newVehicle } from './templates/vehicle.js';
@@ -104,7 +104,7 @@ async function parseVehicle(ddb, extra = {}) {
   // fuel data
 
   // details
-  vehicle.system.details.source = DDBHelper.parseSource(ddb);
+  vehicle.system.details.source = DDBSources.parseSource(ddb);
   vehicle.system.details.biography.value = DDBReferenceLinker.parseTags(ddb.description);
 
   if (configurations.EAS) {

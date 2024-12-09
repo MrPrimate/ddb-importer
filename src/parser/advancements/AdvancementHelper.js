@@ -1,6 +1,7 @@
 import { DICTIONARY } from '../../config/_module.mjs';
-import { utils, logger, DDBHelper } from '../../lib/_module.mjs';
+import { utils, logger } from '../../lib/_module.mjs';
 import { AutoEffects } from '../enrichers/effects/_module.mjs';
+import { DDBModifiers } from '../lib/_module.mjs';
 
 function htmlToText(html) {
   // keep html brakes and tabs
@@ -284,7 +285,7 @@ export default class AdvancementHelper {
   static getSaveAdvancement(mods, availableToMulticlass, level) {
     const updates = DICTIONARY.character.abilities
       .filter((ability) => {
-        return DDBHelper.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
+        return DDBModifiers.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
       })
       .map((ability) => `saves:${ability.value}`);
 
@@ -388,7 +389,7 @@ export default class AdvancementHelper {
 
 
   getLanguageAdvancement(mods, feature, level) {
-    const languagesMods = DDBHelper.filterModifiers(mods, "language");
+    const languagesMods = DDBModifiers.filterModifiers(mods, "language");
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
@@ -453,7 +454,7 @@ export default class AdvancementHelper {
   }
 
   getToolAdvancement(mods, feature, level) {
-    const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
+    const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const toolMods = proficiencyMods
       .filter((mod) =>
         DICTIONARY.character.proficiencies
@@ -533,7 +534,7 @@ export default class AdvancementHelper {
   }
 
   getArmorAdvancement(mods, feature, availableToMulticlass, level) {
-    const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
+    const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const armorMods = proficiencyMods
       .filter((mod) =>
         DICTIONARY.character.proficiencies
@@ -617,7 +618,7 @@ export default class AdvancementHelper {
   }
 
   getWeaponAdvancement(mods, feature, level) {
-    const proficiencyMods = DDBHelper.filterModifiers(mods, "proficiency");
+    const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const weaponMods = proficiencyMods
       .filter((mod) =>
         DICTIONARY.character.proficiencies
@@ -723,7 +724,7 @@ export default class AdvancementHelper {
   // },
 
   getWeaponMasteryAdvancement(mods, feature, level) {
-    const proficiencyMods = DDBHelper.filterModifiers(mods, "weapon-mastery");
+    const proficiencyMods = DDBModifiers.filterModifiers(mods, "weapon-mastery");
     const weaponMods = proficiencyMods
       .filter((mod) =>
         DICTIONARY.character.proficiencies
@@ -871,7 +872,7 @@ export default class AdvancementHelper {
   getConditionAdvancement(mods, feature, level) {
     const conditionsFromMods = [];
     ["resistance", "immunity", "vulnerability", "immunity"].forEach((condition, i) => {
-      const proficiencyMods = DDBHelper.filterModifiers(mods, condition, { restriction: null });
+      const proficiencyMods = DDBModifiers.filterModifiers(mods, condition, { restriction: null });
       const conditionId = i + 1;
       const conditionData = AutoEffects.getGenericConditionAffectData(proficiencyMods, condition, conditionId, true);
       const conditionValues = new Set(conditionData.map((result) => `${AdvancementHelper.CONDITION_ID_MAPPING[conditionId]}:${result.value}`));

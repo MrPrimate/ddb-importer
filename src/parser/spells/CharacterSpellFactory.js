@@ -1,11 +1,12 @@
 /* eslint-disable no-continue */
-import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
+import { utils, logger } from "../../lib/_module.mjs";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import DDBSpell from "./DDBSpell.js";
 import { SETTINGS } from "../../config/_module.mjs";
+import { DDBDataUtils, DDBModifiers } from "../lib/_module.mjs";
 
 export default class CharacterSpellFactory {
 
@@ -22,7 +23,7 @@ export default class CharacterSpellFactory {
     logger.debug("Character spell lookups", this.lookups);
     this.characterAbilities = this.character.flags.ddbimporter.dndbeyond.effectAbilities;
 
-    this.healingBoost = DDBHelper.filterBaseModifiers(this.ddb, "bonus", { subType: "spell-group-healing" }).reduce((a, b) => a + b.value, 0);
+    this.healingBoost = DDBModifiers.filterBaseModifiers(this.ddb, "bonus", { subType: "spell-group-healing" }).reduce((a, b) => a + b.value, 0);
 
     this.spellCounts = {
 
@@ -159,7 +160,7 @@ export default class CharacterSpellFactory {
       logger.debug("Spell parsing, class info", classInfo);
 
       const cantripBoost
-        = DDBHelper.getChosenClassModifiers(this.ddb).filter(
+        = DDBModifiers.getChosenClassModifiers(this.ddb).filter(
           (mod) =>
             mod.type === "bonus"
             && mod.subType === `${classInfo.definition.name.toLowerCase()}-cantrip-damage`
@@ -211,7 +212,7 @@ export default class CharacterSpellFactory {
       if (!spell.definition) continue;
       // If the spell has an ability attached, use that
       let spellCastingAbility = undefined;
-      const featureId = DDBHelper.determineActualFeatureId(this.ddb, spell.componentId);
+      const featureId = DDBDataUtils.determineActualFeatureId(this.ddb, spell.componentId);
       const classInfo = this.lookups.classFeature.find((clsFeature) => clsFeature.id == featureId);
 
       logger.debug("Class spell parsing, class info", classInfo);
@@ -223,9 +224,9 @@ export default class CharacterSpellFactory {
         logger.warn(`Unable to add ${spell.definition.name}`);
       }
       if (!classInfo) continue;
-      let klass = DDBHelper.getClassFromOptionID(this.ddb, spell.componentId);
+      let klass = DDBDataUtils.getClassFromOptionID(this.ddb, spell.componentId);
 
-      if (!klass) klass = DDBHelper.findClassByFeatureId(this.ddb, spell.componentId);
+      if (!klass) klass = DDBDataUtils.findClassByFeatureId(this.ddb, spell.componentId);
 
       logger.debug("Class spell, class found?", klass);
 

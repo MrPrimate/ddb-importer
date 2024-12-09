@@ -1,10 +1,10 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { utils, logger, DDBHelper, Iconizer, CompendiumHelper } from "../../lib/_module.mjs";
+import { utils, logger, Iconizer, CompendiumHelper, DDBSources } from "../../lib/_module.mjs";
 import { DDBItemActivity } from "../activities/_module.mjs";
 import { DDBItemEnricher, mixins, Effects } from "../enrichers/_module.mjs";
 import MagicItemMaker from "./MagicItemMaker.js";
 import { addRestrictionFlags } from "../../effects/restrictions.js";
-import { DDBTable, DDBReferenceLinker } from "../lib/_module.mjs";
+import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
 
 export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
@@ -112,7 +112,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       && this.ddbDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
 
     this.originalName = utils.nameString(ddbItem.definition.name);
-    this.name = DDBHelper.getName(this.ddbData, ddbItem, this.raw?.character);
+    this.name = DDBDataUtils.getName(this.ddbData, ddbItem, this.raw?.character);
     this.#generateItemFlags();
 
     this.documentType = null;
@@ -241,7 +241,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       name: this.name,
       type: this.documentType,
       effects: [],
-      system: utils.getTemplate(this.documentType),
+      system: SystemHelpers.getTemplate(this.documentType),
       flags: {
         ddbimporter: {
           originalName: this.originalName,
@@ -417,19 +417,19 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       .map((mod) => {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         if (die) {
-          const damage = mixins.DDBBasicActivity.buildDamagePart({
+          const damage = SystemHelpers.buildDamagePart({
             damageString: die.diceString,
             type: typeOverride ?? mod.subType,
           });
           return damage;
         } else if (mod.value) {
-          const damage = mixins.DDBBasicActivity.buildDamagePart({
+          const damage = SystemHelpers.buildDamagePart({
             damageString: mod.value,
             type: typeOverride ?? mod.subType,
           });
           return damage;
         } else if (mod.fixedValue) {
-          const damage = mixins.DDBBasicActivity.buildDamagePart({
+          const damage = SystemHelpers.buildDamagePart({
             damageString: mod.fixedValue,
             type: typeOverride ?? mod.subType,
           });
@@ -445,7 +445,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     // blowguns and other weapons rely on ammunition that provides the damage parts
     if (this.ddbDefinition.damage && this.ddbDefinition.damage.diceString && this.ddbDefinition.damageType) {
       const damageString = utils.parseDiceString(this.ddbDefinition.damage.diceString).diceString;
-      const damage = mixins.DDBBasicActivity.buildDamagePart({
+      const damage = SystemHelpers.buildDamagePart({
         damageString,
         type: this.ddbDefinition.damageType.toLowerCase(),
       });
@@ -518,7 +518,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     // blowguns and other weapons rely on ammunition that provides the damage parts
     if (weaponBehavior.damage && weaponBehavior.damage.diceString && weaponBehavior.damageType) {
       const damageString = utils.parseDiceString(weaponBehavior.damage.diceString).diceString;
-      const damage = mixins.DDBBasicActivity.buildDamagePart({
+      const damage = SystemHelpers.buildDamagePart({
         damageString,
         type: weaponBehavior.damageType.toLowerCase(),
         stripMod: true,
@@ -531,6 +531,21 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   }
 
+  getDamageType() {
+    if (this.ddbDefinition.damageType) {
+      const damageTypeReplace = this.ddbDefinition.grantedModifiers.find((mod) =>
+        mod.type === "replace-damage-type"
+        && (!mod.restriction || mod.restriction === ""),
+      );
+
+      const damageType = damageTypeReplace
+        ? damageTypeReplace.subType.toLowerCase()
+        : this.ddbDefinition.damageType.toLowerCase();
+      return damageType;
+    } else {
+      return undefined;
+    }
+  }
 
   #generateWeaponDamageParts() {
     // we can safely make these assumptions about GWF
@@ -538,7 +553,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     const greatWeaponFighting = this.flags.classFeatures.includes("greatWeaponFighting") ? "r<=2" : "";
     const twoHanded = (this.ddbDefinition.properties ?? []).find((property) => property.name === "Two-Handed");
 
-    const damageType = DDBHelper.getDamageType(this.ddbItem);
+    const damageType = this.getDamageType();
 
     const versatile = (this.ddbDefinition.properties ?? []).find((property) => property.name === "Versatile");
     if (versatile && versatile.notes) {
@@ -553,7 +568,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     const martialArtsDie = this.flags.martialArtsDie;
 
     if (Number.isInteger(this.ddbDefinition.fixedDamage)) {
-      const damage = mixins.DDBBasicActivity.buildDamagePart({
+      const damage = SystemHelpers.buildDamagePart({
         damageString: utils.parseDiceString(this.ddbDefinition.fixedDamage, "", "", fightingStyleDiceMod).diceString,
         stripMod: true,
         type: damageType,
@@ -564,7 +579,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       if (martialArtsDie.diceValue && this.ddbDefinition.damage.diceValue && martialArtsDie.diceValue > this.ddbDefinition.damage.diceValue) {
         diceString = martialArtsDie.diceString;
       }
-      const damage = mixins.DDBBasicActivity.buildDamagePart({
+      const damage = SystemHelpers.buildDamagePart({
         damageString: utils.parseDiceString(diceString, "", "", fightingStyleDiceMod).diceString,
         stripMod: true,
         type: damageType,
@@ -574,7 +589,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     const modsOnWeapon = this.ddbDefinition.grantedModifiers.filter((mod) => mod.type === "damage");
     const unfilteredDamageMods = modsOnWeapon.length === 0
-      ? DDBHelper.getModifiers(this.ddbData, "item")
+      ? DDBModifiers.getModifiers(this.ddbData, "item")
         .filter((mod) => mod.type === "damage" && this.ddbDefinition.id === mod.componentId
           && this.ddbDefinition.entityTypeId === mod.componentTypeId)
       : modsOnWeapon;
@@ -582,8 +597,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     // console.error(`Weapon mods for ${this.name}`, {
     //   unfilteredDamageMods,
     //   modsOnWeapon,
-    //   raw: DDBHelper.getModifiers(this.ddbData, "item"),
-    //   filtered: DDBHelper.getModifiers(this.ddbData, "item")
+    //   raw: DDBModifiers.getModifiers(this.ddbData, "item"),
+    //   filtered: DDBModifiers.getModifiers(this.ddbData, "item")
     //     .filter((mod) => mod.type === "damage" && this.ddbDefinition.id === mod.componentId
     //       && this.ddbDefinition.entityTypeId === mod.componentTypeId),
     // })
@@ -595,7 +610,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         const damagePart = die ? die.diceString : mod.value;
         if (damagePart) {
-          const damage = mixins.DDBBasicActivity.buildDamagePart({
+          const damage = SystemHelpers.buildDamagePart({
             damageString: utils.parseDiceString(damagePart, "", "", fightingStyleDiceMod).diceString,
             stripMod: true,
             type: mod.subType ? mod.subType : "",
@@ -616,7 +631,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
             ? `${mod.value}`
             : undefined;
         if (damagePart) {
-          const damage = mixins.DDBBasicActivity.buildDamagePart({
+          const damage = SystemHelpers.buildDamagePart({
             damageString: damagePart,
             stripMod: true,
             type: mod.subType ? mod.subType : "",
@@ -645,7 +660,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     // add damage modifiers from other sources like improved divine smite
     if (this.flags.damage.parts) {
       this.flags.damage.parts.forEach((part) => {
-        const damage = mixins.DDBBasicActivity.buildDamagePart({
+        const damage = SystemHelpers.buildDamagePart({
           damageString: part[0],
           stripMod: true,
           type: part[1],
@@ -702,8 +717,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         maxDexModifier = null;
         break;
     }
-    const maxDexMods = DDBHelper.filterModifiersOld(this.ddbDefinition.grantedModifiers, "set", "ac-max-dex-modifier");
-    const itemDexMaxAdjustment = DDBHelper.getModifierSum(maxDexMods, this.raw?.character);
+    const maxDexMods = DDBModifiers.filterModifiersOld(this.ddbDefinition.grantedModifiers, "set", "ac-max-dex-modifier");
+    const itemDexMaxAdjustment = DDBModifiers.getModifierSum(maxDexMods, this.raw?.character);
     if (maxDexModifier !== null && Number.isInteger(itemDexMaxAdjustment) && itemDexMaxAdjustment > maxDexModifier) {
       maxDexModifier = itemDexMaxAdjustment;
     }
@@ -1062,12 +1077,12 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   #getMonkFeatures() {
-    const kenseiWeapon = DDBHelper.getChosenClassModifiers(this.ddbData).some((mod) =>
+    const kenseiWeapon = DDBModifiers.getChosenClassModifiers(this.ddbData).some((mod) =>
       mod.friendlySubtypeName === this.ddbDefinition.type
       && mod.type === "kensei",
     );
 
-    const monkWeapon = DDBHelper.getChosenClassModifiers(this.ddbData).some((mod) =>
+    const monkWeapon = DDBModifiers.getChosenClassModifiers(this.ddbData).some((mod) =>
       mod.friendlySubtypeName === this.ddbDefinition.type
       && mod.type == "monk-weapon",
     ) || (this.ddbDefinition.isMonkWeapon && this.isMartialArtists());
@@ -1116,7 +1131,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
    *                  returns [null, null].
    */
   #getExtraDamage(restrictions) {
-    return DDBHelper.filterBaseModifiers(this.ddbData, "damage", { restriction: restrictions }).map((mod) => {
+    return DDBModifiers.filterBaseModifiers(this.ddbData, "damage", { restriction: restrictions }).map((mod) => {
       const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
       if (die) {
         return [die.diceString, mod.subType];
@@ -1143,12 +1158,12 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       classFeatures: this.#getClassFeatures(),
       martialArtsDie: this.#getMartialArtsDie(),
       maxMediumArmorDex: Math.max(
-        ...DDBHelper.filterBaseModifiers(this.ddbData, "set", { subType: "ac-max-dex-armored-modifier", includeExcludedEffects: true }).map((mod) => mod.value),
-        ...DDBHelper.filterModifiersOld(this.ddbDefinition?.grantedModifiers ?? this.ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-armored-modifier", ["", null], true).map((mod) => mod.value),
-        ...DDBHelper.filterModifiersOld(this.ddbDefinition?.grantedModifiers ?? this.ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-modifier", ["", null], true).map((mod) => mod.value),
+        ...DDBModifiers.filterBaseModifiers(this.ddbData, "set", { subType: "ac-max-dex-armored-modifier", includeExcludedEffects: true }).map((mod) => mod.value),
+        ...DDBModifiers.filterModifiersOld(this.ddbDefinition?.grantedModifiers ?? this.ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-armored-modifier", ["", null], true).map((mod) => mod.value),
+        ...DDBModifiers.filterModifiersOld(this.ddbDefinition?.grantedModifiers ?? this.ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-modifier", ["", null], true).map((mod) => mod.value),
         2,
       ),
-      magicItemAttackInt: DDBHelper.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0,
+      magicItemAttackInt: DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0,
     };
 
     if (this.flags.classFeatures.includes("Lifedrinker") && this.is2014) {
@@ -1164,14 +1179,14 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         this.flags.damage.parts = this.flags.damage.parts.concat(extraDamage);
       }
       // do we have great weapon fighting?
-      if (DDBHelper.hasChosenCharacterOption(this.ddbData, "Great Weapon Fighting")) {
+      if (DDBDataUtils.hasChosenCharacterOption(this.ddbData, "Great Weapon Fighting")) {
         this.flags.classFeatures.push("greatWeaponFighting");
       }
       // do we have two weapon fighting style?
-      if (DDBHelper.hasChosenCharacterOption(this.ddbData, "Two-Weapon Fighting")) {
+      if (DDBDataUtils.hasChosenCharacterOption(this.ddbData, "Two-Weapon Fighting")) {
         this.flags.classFeatures.push("Two-Weapon Fighting");
       }
-      if (DDBHelper.getCustomValueFromCharacter(this.ddbItem, this.raw?.character, 18)) {
+      if (DDBDataUtils.getCustomValueFromCharacter(this.ddbItem, this.raw?.character, 18)) {
         this.flags.classFeatures.push("OffHand");
       }
     }
@@ -1657,7 +1672,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           ? utils.parseDiceString(damage.replace("plus", "+"), null).diceString
           : damage.replace("plus", "+");
 
-        const part = mixins.DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
+        const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: false });
 
         // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into a second damage calculation
         // ignore if dmg[1] is and as it likely indicates the whole thing is a save
@@ -1682,7 +1697,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
-      const part = mixins.DDBBasicActivity.buildDamagePart({
+      const part = SystemHelpers.buildDamagePart({
         damageString: utils.parseDiceString(damageValue, null).diceString,
         type: 'healing',
       });
@@ -1935,12 +1950,12 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     const longAbility = DICTIONARY.character.abilities
       .filter((ability) => ab === ability.value)
       .map((ability) => ability.long)[0];
-    const roundUp = DDBHelper.filterBaseModifiers(this.ddbData, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks` });
+    const roundUp = DDBModifiers.filterBaseModifiers(this.ddbData, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks` });
     return Array.isArray(roundUp) && roundUp.length;
   }
 
   #getToolProficiency(toolName, ability) {
-    const mods = DDBHelper.getAllModifiers(this.ddbData, { includeExcludedEffects: true });
+    const mods = DDBModifiers.getAllModifiers(this.ddbData, { includeExcludedEffects: true });
     const modifiers = mods
       .filter((modifier) => modifier.friendlySubtypeName === toolName)
       .map((mod) => mod.type);
@@ -1954,7 +1969,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       : 1;
 
     const halfProficiency
-      = DDBHelper.getChosenClassModifiers(this.ddbData).find(
+      = DDBModifiers.getChosenClassModifiers(this.ddbData).find(
         (modifier) =>
           // Jack of All trades/half-rounded down
           (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
@@ -2675,7 +2690,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     try {
       await this.#prepare();
 
-      this.data.system.source = DDBHelper.parseSource(this.ddbDefinition);
+      this.data.system.source = DDBSources.parseSource(this.ddbDefinition);
       this.data.system.source.rules = this.is2014 ? "2014" : "2024";
       this.data.system.weight = this.#getSingleItemWeight();
 
@@ -2716,7 +2731,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
       // should be one of the last things to do
       await this.#generateDescription();
-      DDBHelper.addCustomValues(this.ddbData, this.data);
+      DDBDataUtils.addCustomValues(this.ddbData, this.data);
       await this.#basicMagicItem();
 
       await this._addEffects();

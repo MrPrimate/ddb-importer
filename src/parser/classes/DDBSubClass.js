@@ -1,5 +1,5 @@
-import { utils, DDBHelper } from '../../lib/_module.mjs';
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
+import { DDBDataUtils, SystemHelpers } from '../lib/_module.mjs';
 import DDBClass from './DDBClass.js';
 
 export default class DDBSubClass extends DDBClass {
@@ -44,7 +44,7 @@ export default class DDBSubClass extends DDBClass {
   _fleshOutCommonDataStub() {
     super._fleshOutCommonDataStub();
     // add parent class identifier
-    this.data.system.classIdentifier = DDBHelper.classIdentifierName(this.ddbClass.definition.name);
+    this.data.system.classIdentifier = DDBDataUtils.classIdentifierName(this.ddbClass.definition.name);
 
   }
 
@@ -53,7 +53,7 @@ export default class DDBSubClass extends DDBClass {
       _id: foundry.utils.randomID(),
       name: this.ddbClass.subclassDefinition.name,
       type: "subclass",
-      system: utils.getTemplate("subclass"),
+      system: SystemHelpers.getTemplate("subclass"),
       flags: {
         ddbimporter: {
           class: this.ddbClass.definition.name,

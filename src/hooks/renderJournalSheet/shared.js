@@ -1,4 +1,4 @@
-import { DDBHelper, FolderHelper } from "../../lib/_module.mjs";
+import { DDBSources, FolderHelper } from "../../lib/_module.mjs";
 
 export function imageToChat(src) {
   const content = `<img class="ddbimporter-chat-image" data-src="${src}" src="${src}">`;
@@ -11,7 +11,7 @@ export function imageToChat(src) {
 async function getJournal(bookCode) {
   const folder = await FolderHelper.getFolder("journal", "", "Player Handouts", "#515fc8", "#515fc8", false);
   const journalName = bookCode
-    ? DDBHelper.getBookName(bookCode)
+    ? DDBSources.getBookName(bookCode)
     : "Handout Pages";
   const existingJournal = game.journal.find((journal) =>
     journal.name === journalName && journal.folder.id === folder.id,

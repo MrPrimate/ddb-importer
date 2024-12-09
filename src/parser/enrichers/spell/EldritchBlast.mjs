@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { DICTIONARY } from "../../../config/_module.mjs";
-import { logger, DDBHelper } from "../../../lib/_module.mjs";
+import { logger } from "../../../lib/_module.mjs";
+import { DDBModifiers } from "../../lib/_module.mjs";
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class EldritchBlast extends DDBEnricherData {
@@ -9,7 +10,7 @@ export default class EldritchBlast extends DDBEnricherData {
     let damage = "";
     let range = 0;
 
-    const eldritchBlastMods = DDBHelper.filterBaseModifiers(this.ddbParser.ddbData, "eldritch-blast").filter((modifier) => modifier.isGranted);
+    const eldritchBlastMods = DDBModifiers.filterBaseModifiers(this.ddbParser.ddbData, "eldritch-blast").filter((modifier) => modifier.isGranted);
 
     eldritchBlastMods.forEach((mod) => {
       switch (mod.subType) {

@@ -1,5 +1,6 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { utils, DDBHelper } from "../../lib/_module.mjs";
+import { utils } from "../../lib/_module.mjs";
+import DDBModifiers from "./DDBModifiers.mjs";
 
 export default class ProficiencyFinder {
 
@@ -13,8 +14,8 @@ export default class ProficiencyFinder {
       .map((ability) => ability.long)[0];
 
     const roundUp = (modifiers)
-      ? DDBHelper.filterModifiersOld(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
-      : DDBHelper.filterBaseModifiers(this.ddb, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks`, includeExcludedEffects: true });
+      ? DDBModifiers.filterModifiersOld(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
+      : DDBModifiers.filterBaseModifiers(this.ddb, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks`, includeExcludedEffects: true });
     return Array.isArray(roundUp) && roundUp.length;
   }
 
@@ -77,7 +78,7 @@ export default class ProficiencyFinder {
       .filter((prof) => prof.type === "Tool");
 
     const mods = this.ddb
-      ? DDBHelper.getAllModifiers(this.ddb, { includeExcludedEffects: true })
+      ? DDBModifiers.getAllModifiers(this.ddb, { includeExcludedEffects: true })
       : [];
 
     const toolExpertise = this.ddb
@@ -98,7 +99,7 @@ export default class ProficiencyFinder {
         const defaultAbility = profMatch?.ability ?? "dex";
 
         const halfProficiency = this.ddb
-          ? DDBHelper.getChosenClassModifiers(this.ddb).find(
+          ? DDBModifiers.getChosenClassModifiers(this.ddb).find(
             (modifier) =>
               // Jack of All trades/half-rounded down
               (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
@@ -281,7 +282,7 @@ export default class ProficiencyFinder {
   getSkillProficiency(skill, modifiers = null) {
     if (!modifiers && !this.ddb) return false;
     if (!modifiers) {
-      modifiers = DDBHelper.getAllModifiers(this.ddb, { includeExcludedEffects: true });
+      modifiers = DDBModifiers.getAllModifiers(this.ddb, { includeExcludedEffects: true });
     }
 
     const skillMatches = modifiers

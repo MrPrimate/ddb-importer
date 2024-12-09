@@ -7,7 +7,6 @@ import {
   PatreonHelper,
   Secrets,
   DDBItemImporter,
-  DDBHelper,
   Iconizer,
 } from "../lib/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
@@ -20,6 +19,7 @@ import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/character/conditions.js";
 import { DDBMacros, ExternalAutomations } from "../effects/_module.mjs";
 import { createInfusedItems } from "../parser/character/infusions.js";
+import { DDBDataUtils } from "../parser/lib/_module.mjs";
 
 export default class DDBCharacterManager extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {
@@ -879,7 +879,7 @@ ${item.system.description.chat}
       let matchedItems = [];
 
       for (let item of items) {
-        let existingItem = DDBHelper.findMatchedDDBItem(item, ownedItems, matchedItems);
+        let existingItem = DDBDataUtils.findMatchedDDBItem(item, ownedItems, matchedItems);
         logger.debug(`Checking ${item.name} for existing match`, existingItem);
 
         if (existingItem) {

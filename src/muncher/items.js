@@ -15,6 +15,7 @@ import { SETTINGS } from "../config/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { DDBMacros, ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
+import { SystemHelpers } from "../parser/lib/_module.mjs";
 
 function getCharacterInventory(items) {
   return items.map((item) => {
@@ -35,7 +36,7 @@ function getCharacterInventory(items) {
 
 async function generateImportItems(items, notifier, itemSpells = []) {
   const mockCharacter = {
-    system: utils.getTemplate("character"),
+    system: SystemHelpers.getTemplate("character"),
     type: "character",
     name: "",
     flags: {

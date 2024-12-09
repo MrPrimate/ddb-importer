@@ -1,6 +1,6 @@
-import { utils, logger, CompendiumHelper, DDBHelper } from "../../lib/_module.mjs";
+import { utils, logger, CompendiumHelper, DDBSources } from "../../lib/_module.mjs";
 import DDBRace from "./DDBRace.js";
-import { DDBReferenceLinker } from "../lib/_module.mjs";
+import { DDBReferenceLinker, SystemHelpers } from "../lib/_module.mjs";
 
 export default class DDBRaceTrait {
 
@@ -9,7 +9,7 @@ export default class DDBRaceTrait {
       _id: foundry.utils.randomID(),
       name: "A Racial Trait",
       type: "feat",
-      system: utils.getTemplate("feat"),
+      system: SystemHelpers.getTemplate("feat"),
       flags: {
         ddbimporter: {
           type: "race",
@@ -58,7 +58,7 @@ export default class DDBRaceTrait {
       this.data.flags.ddbimporter['moreDetailsUrl'] = this.trait.moreDetailsUrl;
     }
 
-    this.data.system.source = DDBHelper.parseSource(this.trait);
+    this.data.system.source = DDBSources.parseSource(this.trait);
 
     if (this.trait.requiredLevel) {
       this.data.system.prerequisite.level = this.trait.requiredLevel;

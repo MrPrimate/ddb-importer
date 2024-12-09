@@ -1,4 +1,4 @@
-import { DDBHelper } from "../../lib/_module.mjs";
+import { DDBSources } from "../../lib/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
 
 DDBMonster.prototype._generateSource = function _generateSource() {
@@ -12,7 +12,7 @@ DDBMonster.prototype._generateSource = function _generateSource() {
     id: ddbSource ? ddbSource.id : 9999999,
   };
 
-  DDBHelper._tweakSourceData(source);
+  DDBSources.tweakSourceData(source);
 
   this.npc.system.details.source = source;
 };

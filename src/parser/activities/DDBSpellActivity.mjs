@@ -1,6 +1,7 @@
 import { DICTIONARY } from "../../config/_module.mjs";
 import { utils, logger } from "../../lib/_module.mjs";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
+import { SystemHelpers } from "../lib/_module.mjs";
 
 
 export default class DDBSpellActivity extends DDBBasicActivity {
@@ -299,7 +300,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     //   },
     // };
 
-    const damage = DDBBasicActivity.buildDamagePart({ damageString, type });
+    const damage = SystemHelpers.buildDamagePart({ damageString, type });
 
     const scaling = this.getScaling({ damageMod });
     damage.scaling.mode = scaling.mode;

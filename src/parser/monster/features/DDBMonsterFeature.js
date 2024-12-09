@@ -2,7 +2,7 @@ import { utils, logger } from "../../../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../../../config/_module.mjs";
 import { DDBMonsterFeatureActivity } from "../../activities/_module.mjs";
 import { DDBMonsterFeatureEnricher, mixins, Effects } from "../../enrichers/_module.mjs";
-import { DDBTable, DDBReferenceLinker, DDBDescriptions } from "../../lib/_module.mjs";
+import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../../lib/_module.mjs";
 
 export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
@@ -29,7 +29,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       _id: foundry.utils.randomID(),
       name: this.name,
       type: this.templateType,
-      system: utils.getTemplate(this.templateType),
+      system: SystemHelpers.getTemplate(this.templateType),
       effects: [],
       flags: {
         ddbimporter: {
@@ -306,7 +306,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         }
         // assumption here is that there is just one field added to versatile. this is going to be rare.
         if (other) {
-          const part = mixins.DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
+          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
 
           if (!thisOther && dmg[1].trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
@@ -330,11 +330,11 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
           // }
           if (!thisVersatile && dmg[1].trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
-            const part = mixins.DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
+            const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
             this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
           }
         } else {
-          const part = mixins.DDBBasicActivity.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
+          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
           this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
         }
       }
@@ -342,7 +342,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
-      const part = mixins.DDBBasicActivity.buildDamagePart({
+      const part = SystemHelpers.buildDamagePart({
         damageString: utils.parseDiceString(damageValue, null).diceString,
         type: 'healing',
       });
@@ -376,7 +376,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     if (this.actionInfo.damageParts.length > 0 && this.templateType === "weapon") {
       this.actionInfo.damage.base = this.actionInfo.damageParts[0].part;
     } else if (this.templateType !== "weapon" && this.actionInfo.damage.versatile.trim() !== "") {
-      const part = mixins.DDBBasicActivity.buildDamagePart({ damageString: this.actionInfo.damage.versatile, stripMod: this.templateType === "weapon" });
+      const part = SystemHelpers.buildDamagePart({ damageString: this.actionInfo.damage.versatile, stripMod: this.templateType === "weapon" });
       this.additionalActivities.push({
         name: `Versatile`,
         options: {

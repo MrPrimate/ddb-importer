@@ -1,4 +1,5 @@
-import { utils, logger, DDBHelper } from "../../lib/_module.mjs";
+import { utils, logger } from "../../lib/_module.mjs";
+import DDBDataUtils from "./DDBDataUtils.mjs";
 import { parseTags } from './DDBReferenceLinker.mjs';
 
 
@@ -33,7 +34,7 @@ function parseMatch(ddb, character, match, feature) {
 
   // scalevalue
   if (result.includes("scalevalue")) {
-    let scaleValue = DDBHelper.getScaleValueString(ddb, feature);
+    let scaleValue = DDBDataUtils.getScaleValueString(ddb, feature);
     // if (scaleValue.value.startsWith("@")) scaleValue.value = `[[${scaleValue.value}]]{${scaleValue.name}}`;
     if (scaleValue && scaleValue.value) {
       result = result.replace("scalevalue", scaleValue.value);
@@ -106,7 +107,7 @@ function parseMatch(ddb, character, match, feature) {
         cls.definition.id == featureDef.classId
         || featureDef.classId === cls.subclassDefinition?.id,
       )
-      : DDBHelper.findClassByFeatureId(ddb, featureDef.componentId);
+      : DDBDataUtils.findClassByFeatureId(ddb, featureDef.componentId);
 
     if (cls) {
       const clsLevel = ` + @classes.${cls.definition.name.toLowerCase().replace(" ", "-")}.levels`;
@@ -114,7 +115,7 @@ function parseMatch(ddb, character, match, feature) {
       linktext = result.replace("classlevel", ` (${cls.definition.name} Level) `);
     } else if (classOption) {
       // still not found a cls? could be an option
-      const optionCls = DDBHelper.findClassByFeatureId(ddb, classOption.componentId);
+      const optionCls = DDBDataUtils.findClassByFeatureId(ddb, classOption.componentId);
       if (optionCls) {
         const clsLevel = ` + @classes.${optionCls.definition.name.toLowerCase().replace(" ", "-")}.levels`;
         result = result.replace("classlevel", clsLevel);
