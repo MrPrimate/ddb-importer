@@ -95,12 +95,10 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     this.isCompanion = foundry.utils.getProperty(this.ddbMonster, "npc.flags.ddbimporter.entityTypeId") === "companion-feature";
 
-    this._loadEnricher();
-
   }
 
-  _loadEnricher() {
-    this.enricher.load({
+  async loadEnricher() {
+    await this.enricher.load({
       ddbParser: this,
       monster: this.ddbMonster.npc,
       name: this.name,
@@ -1147,7 +1145,7 @@ ${this.data.system.description.value}
     }
 
     if (this.enricher.clearAutoEffects) this.data.effects = [];
-    const effects = this.enricher.createEffects();
+    const effects = await this.enricher.createEffects();
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
 
@@ -1189,7 +1187,7 @@ ${this.data.system.description.value}
       this._generateActivity();
       this.#addHealAdditionalActivities();
       this._generateAdditionalActivities();
-      this.enricher.addAdditionalActivities(this);
+      await this.enricher.addAdditionalActivities(this);
       this._generateEffects();
     }
 

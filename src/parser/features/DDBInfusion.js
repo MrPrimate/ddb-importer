@@ -218,7 +218,7 @@ export class DDBInfusion {
     return compendiumFeatures;
   }
 
-  _buildActions() {
+  async _buildActions() {
     // KNOWN_ISSUE_4_0: I suspect (some of?) these actions can be moved to activities now?
     // build actions for this.ddbInfusion.actions
     // for example radiant weapon reaction
@@ -247,7 +247,8 @@ export class DDBInfusion {
           rawCharacter: this.rawCharacter,
           enricher: this.enricher,
         });
-      action.build();
+      await action.loadEnricher();
+      await action.build();
       foundry.utils.setProperty(action.data, "flags.ddbimporter.class", this.originClass);
       foundry.utils.setProperty(action.data, "flags.ddbimporter.infusionFeature", true);
       foundry.utils.setProperty(action.data, "flags.ddbimporter.infusionId", actionData.id);
@@ -527,7 +528,7 @@ export class DDBInfusion {
 
     this._generateEnchantments();
     await this.enricher.init();
-    this._buildActions();
+    await this._buildActions();
     this._specials();
     await this._addActionsToEffects();
 

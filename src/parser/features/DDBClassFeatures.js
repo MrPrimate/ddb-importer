@@ -108,7 +108,8 @@ export default class DDBClassFeatures {
       extraFlags: flags,
       enricher,
     });
-    feature.build();
+    await feature.loadEnricher();
+    await feature.build();
     const allowedByLevel = !filterByLevel || (filterByLevel && feature.hasRequiredLevel);
 
     logger.debug(`DDBClassFeatures._getFeatures generated: ${feature.ddbDefinition.name}`, {

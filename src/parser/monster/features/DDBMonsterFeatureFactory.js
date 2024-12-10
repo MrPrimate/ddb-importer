@@ -628,6 +628,7 @@ export default class DDBMonsterFeatureFactory {
       feature.options["hideDescription"] = this.hideDescription;
       feature.options["updateExisting"] = this.updateExisting;
       const ddbFeature = new DDBMonsterFeature(feature.name, feature.options);
+      await ddbFeature.loadEnricher();
       await ddbFeature.parse();
       this.features[type].push(ddbFeature);
     }

@@ -1198,8 +1198,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
 
   async #prepare() {
-    await this.enricher.init();
-    this._loadEnricher();
+    await this.loadEnricher();
     await this.#generateDataStub();
     this.#generateBaseItem();
     this.#generateActionInfo();
@@ -2679,7 +2678,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     });
     this.data = await addRestrictionFlags(this.data, this.addAutomationEffects);
 
-    const effects = this.enricher.createEffects();
+    const effects = await this.enricher.createEffects();
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
     this._activityEffectLinking();
@@ -2723,7 +2722,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           this._generateActivity({}, this.activityOptions);
         this.#addHealAdditionalActivities();
         this._generateAdditionalActivities();
-        this.enricher.addAdditionalActivities(this);
+        await this.enricher.addAdditionalActivities(this);
       }
 
       this.data.system.attuned = this.ddbItem.isAttuned;

@@ -477,7 +477,7 @@ export default class DDBBasicActivity {
 
   }
 
-  static createActivity({ document, type, name, character, enricher } = {}, options = {}) {
+  static async createActivity({ document, type, name, character, enricher } = {}, options = {}) {
     const activity = new DDBBasicActivity({
       name: name ?? null,
       type,
@@ -488,12 +488,12 @@ export default class DDBBasicActivity {
     activity.build(options);
     enricher?.applyActivityOverride(activity.data);
 
-    const effects = enricher?.createEffects() ?? [];
+    const effects = await enricher?.createEffects() ?? [];
     document.effects.push(...effects);
     enricher?.createDefaultEffects();
     enricher?.addDocumentOverride();
     foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
-    enricher?.addAdditionalActivities(enricher?.ddbParent);
+    await enricher?.addAdditionalActivities(enricher?.ddbParent);
 
     return activity.data._id;
 

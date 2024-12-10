@@ -15,7 +15,7 @@ export default class DDBAttackAction extends DDBAction {
     logger.debug(`Generating Attack Action ${this.ddbDefinition.name}`);
   }
 
-  build() {
+  async build() {
     try {
       if (this.ddbData.isMartialArts) {
         foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", "Martial Arts");
@@ -37,11 +37,11 @@ export default class DDBAttackAction extends DDBAction {
       this._generateSystemSubType();
       if (!this.enricher.documentStub?.stopDefaultActivity)
         this._generateActivity();
-      this.enricher.addAdditionalActivities(this);
+      await this.enricher.addAdditionalActivities(this);
 
       this._generateResourceFlags();
       this.enricher.addDocumentOverride();
-      this._addEffects(undefined, this.type);
+      await this._addEffects(undefined, this.type);
 
       this._addCustomValues();
       this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);

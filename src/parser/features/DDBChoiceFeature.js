@@ -88,7 +88,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       }
       this.originalName = this.data.name;
       foundry.utils.setProperty(this.data, "flags.ddbimporter.originalName", this.originalName);
-      this._loadEnricher();
+      await this.loadEnricher();
       this._generateSystemSubType();
 
       // get description for chris premades
@@ -100,7 +100,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
       if (!this.enricher.documentStub?.stopDefaultActivity)
         this._generateActivity();
-      this.enricher.addAdditionalActivities(this);
+      await this.enricher.addAdditionalActivities(this);
 
       this._generateDescription({ forceFull: false });
 
@@ -120,7 +120,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       this.data._id = foundry.utils.randomID();
 
       this.enricher.addDocumentOverride();
-      this._addEffects(choice, this.type);
+      await this._addEffects(choice, this.type);
       this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
     } catch (err) {

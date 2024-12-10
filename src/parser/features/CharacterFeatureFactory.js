@@ -135,11 +135,12 @@ export default class CharacterFeatureFactory {
       activityGenerator: DDBFeatureActivity,
     });
     await enricher.init();
-    return this.getFeatureFromAction({
+    const feature = await this.getFeatureFromAction({
       action: strikeMock,
       enricher,
       isAttack: true,
     });
+    return feature;
 
   }
 
@@ -190,12 +191,13 @@ export default class CharacterFeatureFactory {
           activityGenerator: DDBFeatureActivity,
         });
         await enricher.init();
-        return this.getFeatureFromAction({
+        const feature = await this.getFeatureFromAction({
           action,
           type: action.actionSource,
           enricher,
           isAttack: true,
         });
+        return feature;
       })))
       .filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
 
@@ -280,12 +282,13 @@ export default class CharacterFeatureFactory {
         });
         await enricher.init();
 
-        return this.getFeatureFromAction({
+        const feature = await this.getFeatureFromAction({
           action,
           type: action.actionSource,
           enricher,
           isAttack: false,
         });
+        return feature;
       })))
       .filter((a) => !foundry.utils.hasProperty(a, "flags.ddbimporter.skip"));
 
@@ -449,7 +452,8 @@ export default class CharacterFeatureFactory {
       extraFlags: flags,
       fallbackEnricher: "Generic",
     });
-    ddbFeature.build();
+    await ddbFeature.loadEnricher();
+    await ddbFeature.build();
     logger.debug(`CharacterFeatureFactory.getFeaturesFromDefinition (type: ${type}): ${ddbFeature.ddbDefinition.name}`, {
       ddbFeature,
       featDefinition,
@@ -677,7 +681,7 @@ export default class CharacterFeatureFactory {
 
   // helpers
 
-  getFeatureFromAction({ action, type, isAttack = null, manager = null, extraFlags = {}, enricher = null }) {
+  async getFeatureFromAction({ action, type, isAttack = null, manager = null, extraFlags = {}, enricher = null }) {
     const isAttackAction = isAttack ?? DDBDataUtils.displayAsAttack(this.ddbData, action, this.rawCharacter);
     const ddbAction = isAttackAction
       ? new DDBAttackAction({
@@ -700,7 +704,8 @@ export default class CharacterFeatureFactory {
       });
     if (manager) ddbAction.enricher.manager = manager;
     logger.debug(`Building Action ${action.name}`, { ddbAction, isAttackAction });
-    ddbAction.build();
+    await ddbAction.loadEnricher();
+    await ddbAction.build();
     return ddbAction.data;
   }
 

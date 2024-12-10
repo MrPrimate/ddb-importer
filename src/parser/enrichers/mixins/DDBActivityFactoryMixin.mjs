@@ -27,8 +27,9 @@ export default class DDBActivityFactoryMixin {
     this.notifier = notifier;
   }
 
-  _loadEnricher() {
-    this.enricher.load({
+  async loadEnricher() {
+    await this.enricher.init();
+    await this.enricher.load({
       ddbParser: this,
     });
   }

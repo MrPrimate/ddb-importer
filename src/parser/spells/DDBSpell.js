@@ -83,7 +83,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   }
 
   async init() {
-    await this.enricher.init();
+    await this.loadEnricher();
     if (this.itemCompendium) {
       await this.itemCompendium.getIndex({
         fields: [
@@ -165,7 +165,6 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
     this.itemCompendium = CompendiumHelper.getCompendiumType("item", false);
     this.enricher = enricher ?? new DDBSpellEnricher({ activityGenerator: DDBSpellActivity, notifier: this.notifier });
-    this._loadEnricher();
     this.isCompanionSpell = SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName);
     this.isCRSummonSpell = SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName);
     this.isSummons = this.isCompanionSpell || this.isCRSummonSpell;
@@ -791,7 +790,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
     if (this.data.effects.length === 0) this.#addConditionEffects();
     if (this.enricher.clearAutoEffects) this.data.effects = [];
-    const effects = this.enricher.createEffects();
+    const effects = await this.enricher.createEffects();
     this.data.effects.push(...effects);
     this.enricher.createDefaultEffects();
     this._activityEffectLinking();
@@ -887,7 +886,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       this.#addHealAdditionalActivities();
     if (!this.enricher.documentStub?.stopSpellAutoAdditionalActivities)
       await this._generateAdditionalActivities();
-    this.enricher.addAdditionalActivities(this);
+    await this.enricher.addAdditionalActivities(this);
 
     // TO DO: activities
     // this.data.system.save = getSave(this.spellData);

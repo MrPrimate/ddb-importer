@@ -276,7 +276,6 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       activityGenerator: DDBFeatureActivity,
       fallbackEnricher: this.fallbackEnricher,
     });
-    this._loadEnricher();
   }
 
   _getClassFeatureDescription(nameMatch = false) {
@@ -770,7 +769,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     return modifierItem;
   }
 
-  _addEffects(choice, type) {
+  async _addEffects(choice, type) {
     // can we apply any auto-generated effects to this feature
     const compendiumItem = this.rawCharacter.flags.ddbimporter.compendium;
     const modifierItem = this._getFeatModifierItem(choice, type);
@@ -785,9 +784,8 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     });
 
     if (this.enricher.clearAutoEffects) this.data.effects = [];
-    const effects = this.enricher.createEffects();
+    const effects = await this.enricher.createEffects();
     this.data.effects.push(...effects);
-
     this.enricher.createDefaultEffects();
     this._activityEffectLinking();
   }

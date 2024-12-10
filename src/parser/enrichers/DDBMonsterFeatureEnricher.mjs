@@ -100,10 +100,10 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherMixin {
     this.monsterHintName = null;
   }
 
-  load({ ddbParser, document, name = null, monster, is2014 = null } = {}) {
+  async load({ ddbParser, document, name = null, monster, is2014 = null } = {}) {
     this.monster = monster;
     this.monsterName = this.monster.name;
-    super.load({ ddbParser, document, name, is2014 });
+    await super.load({ ddbParser, document, name, is2014 });
   }
 
   // name includes for monsters only match against the name

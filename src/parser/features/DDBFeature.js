@@ -148,7 +148,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       && this.scaleValueUsesLink !== "{{scalevalue-unknown}}";
   }
 
-  _buildNatural() {
+  async _buildNatural() {
     const override = {
       name: this.data.name,
       description: this.ddbDefinition.description,
@@ -172,21 +172,22 @@ export default class DDBFeature extends DDBFeatureMixin {
       documentType: "weapon",
     });
     ddbAttackAction.naturalWeapon = true;
-    ddbAttackAction.build();
+    await ddbAttackAction.loadEnricher();
+    await ddbAttackAction.build();
 
     this.data = ddbAttackAction.data;
   }
 
-  _buildBasic() {
+  async _buildBasic() {
     this._generateSystemType();
     this._generateSystemSubType();
     this._generateLimitedUse();
 
     this._generateActivity({ hintsOnly: true });
-    this.enricher.addAdditionalActivities(this);
+    await this.enricher.addAdditionalActivities(this);
 
     this._generateDescription({ forceFull: true });
-    this._addEffects(undefined, this.type);
+    await this._addEffects(undefined, this.type);
 
     this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
@@ -409,7 +410,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     foundry.utils.setProperty(this.data, "flags.ddbimporter.advancementLink", advancementLinkData);
   }
 
-  _buildBackground() {
+  async _buildBackground() {
     try {
       this._generateSystemType();
       this._generateSystemSubType();
@@ -419,17 +420,17 @@ export default class DDBFeature extends DDBFeatureMixin {
 
       this._generateDescription({ forceFull: true });
       this.data.system.description.value += `<h3>Proficiencies</h3><ul>`;
-      this._parentOnlyChoices.forEach((choice) => {
-        this._addEffects(choice, this.type);
+      for (const choice of this._parentOnlyChoices) {
+        await this._addEffects(choice, this.type);
         this.data.system.description.value += `<li>${choice.label}</li>`;
-      });
+      }
+
       this.data.system.description.value += `</ul>`;
       this.data.img = "icons/skills/trades/academics-book-study-purple.webp";
       this.data.name = this.data.name.split("Background: ").pop();
 
       this.enricher.addDocumentOverride();
       this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
-
     } catch (err) {
       logger.warn(
         `Unable to Generate Background Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
@@ -441,12 +442,12 @@ export default class DDBFeature extends DDBFeatureMixin {
 
   static CHOICE_DEFS = DICTIONARY.parsing.choiceFeatures;
 
-  _buildChoiceFeature() {
+  async _buildChoiceFeature() {
     this._generateSystemType();
     this._generateSystemSubType();
 
     this._generateActivity({ hintsOnly: true });
-    this.enricher.addAdditionalActivities(this);
+    await this.enricher.addAdditionalActivities(this);
 
     // this._generateLimitedUse();
     // this._generateRange();
@@ -490,7 +491,7 @@ ${description}`;
         : `<section class="secret">${joinedText}</section>`;
 
     this._generateDescription({ forceFull: chosenOnly, extra: secretText });
-    this._addEffects(undefined, this.type);
+    await this._addEffects(undefined, this.type);
 
     // this._generateFlagHints();
     // this._generateResourceFlags();
@@ -501,19 +502,19 @@ ${description}`;
   }
 
 
-  build() {
+  async build() {
     try {
       if (this.naturalWeapon) {
-        this._buildNatural();
+        await this._buildNatural();
       } else if (this.type === "background") {
         // work around till background parsing support advancements
         this.isChoiceFeature = false;
-        this._buildBackground();
+        await this._buildBackground();
       } else if (this.isChoiceFeature) {
         logger.debug(`${this.name} has multiple choices and you need to pass this instance to DDBChoiceFeature`);
-        this._buildChoiceFeature();
+        await this._buildChoiceFeature();
       } else {
-        this._buildBasic();
+        await this._buildBasic();
       }
     } catch (err) {
       logger.warn(
