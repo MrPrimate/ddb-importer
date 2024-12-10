@@ -1,5 +1,5 @@
 import { baseItemEffect } from "../effects.js";
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 
 export async function pearlOfPowerEffect(document) {
   let effect = baseItemEffect(document, document.name);

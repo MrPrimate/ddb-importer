@@ -1,4 +1,4 @@
-import { DDBSimpleMacro } from "../../effects/_module.mjs";
+import { DDBSimpleMacro } from "../../lib/_module.mjs";
 import MacroActivityData from "./MacroActivityData.js";
 import MacroSheet from "./MacroSheet.js";
 

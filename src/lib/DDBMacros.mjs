@@ -141,12 +141,12 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     return document;
   }
 
-  static generateMacroChange({ macroValues = "", macroType = null, macroName = null, keyPostfix = "", priority = 20 } = {}) {
-    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
-    const macroKey = (useDDBFunctions)
+  static generateMacroChange({ macroValues = "", macroType = null, macroName = null, keyPostfix = "", priority = 20, ddbFunctions = null } = {}) {
+    const useDDBFunctions = ddbFunctions ?? game.settings.get("ddb-importer", "no-item-macros");
+    const macroKey = useDDBFunctions
       ? `macro.execute`
       : "macro.itemMacro";
-    const macroValuePrefix = (useDDBFunctions)
+    const macroValuePrefix = useDDBFunctions
       ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}") `
       : "";
 

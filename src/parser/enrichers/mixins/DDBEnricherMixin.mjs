@@ -1,4 +1,4 @@
-import { utils, logger } from "../../../lib/_module.mjs";
+import { utils, logger, DDBMacros } from "../../../lib/_module.mjs";
 import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module.mjs";
 import { AutoEffects, EnchantmentEffects, MidiEffects, ChangeHelper } from "../effects/_module.mjs";
@@ -148,6 +148,14 @@ export default class DDBEnricherMixin {
       return this.loadedEnricher.addAutoAdditionalActivities;
     } else {
       return true;
+    }
+  }
+
+  get itemMacro() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.itemMacro;
+    } else {
+      return null;
     }
   }
 
@@ -538,9 +546,11 @@ export default class DDBEnricherMixin {
         foundry.utils.setProperty(effect, "flags.ddbimporter.activitiesMatch", effectHint.activitiesMatch);
       }
 
-      // if (effectHint.itemMacro) {
-      //   await
-      // }
+      if (effectHint.macroChanges) {
+        for (const macroChange of effectHint.macroChanges) {
+          effect.changes.push(DDBMacros.generateMacroChange(macroChange));
+        }
+      }
 
       if (effectHint.data) {
         effect = foundry.utils.mergeObject(effect, effectHint.data);
@@ -565,6 +575,12 @@ export default class DDBEnricherMixin {
 
       if (!effectHint.noCreate) effects.push(effect);
     }
+
+    const itemMacro = this.itemMacro;
+    if (itemMacro) {
+      await DDBMacros.setItemMacroFlag(this.data, itemMacro.type, itemMacro.name);
+    }
+
     AutoEffects.forceDocumentEffect(this.data);
 
     return effects;

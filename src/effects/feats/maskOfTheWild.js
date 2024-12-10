@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 
 export async function maskOfTheWildEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "feat", "maskOfTheWild.js");

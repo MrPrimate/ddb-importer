@@ -8,6 +8,7 @@ import {
   Secrets,
   DDBItemImporter,
   Iconizer,
+  DDBMacros,
 } from "../lib/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { updateDDBCharacter } from "../updater/character.js";
@@ -17,7 +18,7 @@ import DDBCookie from "../apps/DDBCookie.js";
 import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/character/conditions.js";
-import { DDBMacros, ExternalAutomations } from "../effects/_module.mjs";
+import { ExternalAutomations } from "../effects/_module.mjs";
 import { createInfusedItems } from "../parser/character/infusions.js";
 import { DDBDataUtils } from "../parser/lib/_module.mjs";
 

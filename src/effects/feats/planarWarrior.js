@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 
 export async function planarWarriorEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "feat", "planarWarrior.js");

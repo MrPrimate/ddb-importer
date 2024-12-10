@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 import { effectModules } from "../effects.js";
 import { baseSpellEffect } from "../specialSpells.js";
 

@@ -12,12 +12,11 @@ import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adve
 import { updateDDBCharacter } from "./updater/character.js";
 import DDBCharacterManager, { importCharacter, importCharacterById } from "./apps/DDBCharacterManager.js";
 import { getFeats } from "./muncher/feats/feats.js";
-import { DDBMacros, External, DDBEffectHelper } from "./effects/_module.mjs";
+import { External, DDBEffectHelper } from "./effects/_module.mjs";
 import { getNPCImage } from "./muncher/importMonster.js";
 import DDBCompanion2014 from "./parser/companions/DDBCompanion2014.mjs";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.mjs";
 import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
-import DDBSimpleMacro from "./effects/DDBSimpleMacro.mjs";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.mjs";
 import * as Enrichers from "./parser/enrichers/_module.mjs";
 import * as ParserLib from "./parser/lib/_module.mjs";
@@ -107,13 +106,13 @@ export function registerApi() {
       DDBCompanionFactory,
       // Companions,
       DDBCompendiumFolders: lib.DDBCompendiumFolders,
-      DDBSimpleMacro,
+      DDBSimpleMacro: lib.DDBSimpleMacro,
       DDBEffectHelper,
       DDBEncounterMunch,
       DDBEncounters,
       DDBSources: lib.DDBSources,
       DDBItemImporter: lib.DDBItemImporter,
-      DDBMacros,
+      DDBMacros: lib.DDBMacros,
       DDBMonster,
       DDBMonsterFactory,
       DDBProxy: lib.DDBProxy,
@@ -174,7 +173,7 @@ export function registerApi() {
     getNPCImage,
     resetCompendiumActorImages,
 
-    generateItemMacroFlag: DDBMacros.generateItemMacroFlag,
+    generateItemMacroFlag: lib.DDBMacros.generateItemMacroFlag,
     EffectHelper: DDBEffectHelper,
     DialogHelper: lib.DialogHelper,
     effects: {
@@ -201,16 +200,16 @@ export function registerApi() {
       selectTargetsWithinX: DDBEffectHelper.selectTargetsWithinX,
       wait: DDBEffectHelper.wait,
     },
-    executeDDBMacro: DDBMacros.executeDDBMacro,
+    executeDDBMacro: lib.DDBMacros.executeDDBMacro,
     // macro tools
     macros: {
-      createMacro: DDBMacros.createMacro,
-      executeMacro: DDBMacros.executeDDBMacro,
-      getMacroFunction: DDBMacros.getMacroFunction,
-      loadMacroFile: DDBMacros.loadMacroFile,
-      macros: DDBMacros.MACROS,
-      getMacro: DDBMacros.getMacro,
-      executeSimpleMacro: DDBSimpleMacro.execute,
+      createMacro: lib.DDBMacros.createMacro,
+      executeMacro: lib.DDBMacros.executeDDBMacro,
+      getMacroFunction: lib.DDBMacros.getMacroFunction,
+      loadMacroFile: lib.DDBMacros.loadMacroFile,
+      macros: lib.DDBMacros.MACROS,
+      getMacro: lib.DDBMacros.getMacro,
+      executeSimpleMacro: lib.DDBSimpleMacro.execute,
     },
     chris: {
       generateEffect: External.ExternalAutomations.applyChrisPremadeEffect,

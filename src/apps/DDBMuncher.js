@@ -7,6 +7,7 @@ import {
   base64Check,
   DDBCompendiumFolders,
   utils,
+  DDBMacros,
 } from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";
@@ -17,7 +18,6 @@ import { parseFrames } from "../muncher/frames.js";
 import { downloadAdventureConfig } from "../muncher/adventure.js";
 import AdventureMunch from "../muncher/adventure/AdventureMunch.js";
 import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
-import { DDBMacros } from "../effects/_module.mjs";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools.js";
 import { parseBackgrounds } from "../muncher/backgrounds.js";
 import { parseTransports } from "../muncher/vehicles.js";

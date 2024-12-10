@@ -1,6 +1,6 @@
 import { baseFeatEffect } from "../specialFeats.js";
 import { addStatusEffectChange } from "../effects.js";
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 import { logger } from "../../lib/_module.mjs";
 import { MidiEffects } from "../../parser/enrichers/effects/_module.mjs";
 

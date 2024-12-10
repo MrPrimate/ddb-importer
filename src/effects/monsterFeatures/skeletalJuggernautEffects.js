@@ -1,6 +1,6 @@
 import { forceItemEffect, addStatusEffectChange } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 
 function avalancheOfBonesEffect(document) {
   foundry.utils.setProperty(document, "system.duration", { value: null, units: "special" });

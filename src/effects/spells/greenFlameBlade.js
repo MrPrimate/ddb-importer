@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 
 export async function greenFlameBladeEffect(document) {
   document.system.damage = { parts: [], versatile: "", value: "" };

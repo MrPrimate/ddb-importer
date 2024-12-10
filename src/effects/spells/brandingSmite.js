@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 import { baseSpellEffect } from "../specialSpells.js";
 
 export async function brandingSmiteEffect(document) {

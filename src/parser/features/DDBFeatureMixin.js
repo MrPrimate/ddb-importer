@@ -1,7 +1,6 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { utils, logger, DDBSources } from "../../lib/_module.mjs";
+import { utils, logger, DDBSources, DDBSimpleMacro } from "../../lib/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
-import { DDBSimpleMacro } from "../../effects/_module.mjs";
 import { DDBGenericEnricher, mixins, Effects, DDBFeatEnricher, DDBSpeciesTraitEnricher, DDBClassFeatureEnricher, DDBBackgroundEnricher } from "../enrichers/_module.mjs";
 import { DDBDataUtils, DDBDescriptions, DDBModifiers, DDBTable, DDBTemplateStrings, SystemHelpers } from "../lib/_module.mjs";
 

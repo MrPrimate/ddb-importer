@@ -1,5 +1,5 @@
 import { AutoEffects } from "../parser/enrichers/effects/_module.mjs";
-import DDBMacros from "./DDBMacros.mjs";
+import { DDBMacros } from "../lib/_module.mjs";
 
 async function woundingWeaponEffect(document) {
   let effect = AutoEffects.ItemEffect(document, document.name);

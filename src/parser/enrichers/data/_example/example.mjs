@@ -136,6 +136,7 @@ export default class Example extends DDBEnricherData {
         midiOnly: true, // only generate this effect if midi qol is installed
         activityMatch: "Attack", // Match to this activity only
         activitiesMatch: ["Save"], // Match to only these activities
+        macroChanges: { macroType: "item", macroName: "cloakOfDisplacement.js" }, // add macro change
       },
     ];
   }
@@ -150,5 +151,15 @@ export default class Example extends DDBEnricherData {
     return true;
   }
 
+  get addAutoAdditionalActivities() {
+    return true;
+  }
+
+  get itemMacro() {
+    return {
+      type: "item",
+      name: "cloakOfDisplacement.js",
+    };
+  }
 
 }

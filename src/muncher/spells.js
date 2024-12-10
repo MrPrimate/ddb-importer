@@ -9,10 +9,11 @@ import {
   DDBProxy,
   Iconizer,
   DDBItemImporter,
+  DDBMacros,
 } from "../lib/_module.mjs";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { SETTINGS } from "../config/_module.mjs";
-import { DDBMacros, ExternalAutomations } from "../effects/_module.mjs";
+import { ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 import SpellListFactory from "../parser/spells/SpellListFactory.mjs";
 

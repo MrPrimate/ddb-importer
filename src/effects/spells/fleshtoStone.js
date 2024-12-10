@@ -1,5 +1,5 @@
 import { baseSpellEffect } from "../specialSpells.js";
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 import { addStatusEffectChange, effectModules } from "../effects.js";
 
 export async function fleshtoStoneEffect(document) {

@@ -10,10 +10,11 @@ import {
   DDBProxy,
   Iconizer,
   DDBItemImporter,
+  DDBMacros,
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
-import { DDBMacros, ExternalAutomations } from "../effects/_module.mjs";
+import { ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 import { SystemHelpers } from "../parser/lib/_module.mjs";
 

@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 import { forceItemEffect } from "../effects.js";
 
 export async function beholderEyeRaysEffect(document, rayNum = 3, range = 120) {

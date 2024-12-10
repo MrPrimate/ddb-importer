@@ -646,7 +646,7 @@ const SETTINGS = {
           hint: "ddb-importer.settings.no-item-macros.hint",
           config: true,
           type: Boolean,
-          default: false,
+          default: true,
         },
         "add-description-to-chat": {
           name: "ddb-importer.settings.add-description-to-chat.name",

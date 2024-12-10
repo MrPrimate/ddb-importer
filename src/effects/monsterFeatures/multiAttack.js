@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 import { baseEffect } from "../effects.js";
 
 export async function multiAttackEffect(document) {

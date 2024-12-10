@@ -231,6 +231,7 @@ export default class DDBEnricherData {
    *     - midiOnly: {boolean} Indicates that the effect is generated only if MIDI-QOL is installed.
    *     - activityMatch: {string} Match to this activity only
    *     - activitiesMatch: {Array} Match to only these activities
+   *     - macroChanges: {Array} Add macro changes using DDBMacros.generateMacroChange
    */
   get effects() {
     return [];
@@ -281,6 +282,10 @@ export default class DDBEnricherData {
     return true;
   }
 
+  // Add item macro using DDBMacros.setItemMacroFlag
+  get itemMacro() {
+    return null;
+  }
 
   // eslint-disable-next-line no-unused-vars, no-empty-function
   customFunction(options = {}) {

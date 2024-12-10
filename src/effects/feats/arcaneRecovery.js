@@ -1,4 +1,4 @@
-import DDBMacros from "../DDBMacros.mjs";
+import { DDBMacros } from "../../lib/_module.mjs";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export async function arcaneRecoveryEffect(document) {
