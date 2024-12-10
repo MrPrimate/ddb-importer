@@ -18,8 +18,12 @@ import { ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 import { SystemHelpers } from "../parser/lib/_module.mjs";
 
-function getCharacterInventory(items) {
+function getCharacterInventory(items, extra = []) {
   return items.map((item) => {
+    const extraItem = extra.find((e) => e.id == item.id);
+    const limitedUse = extraItem
+      ? extraItem.data.limitedUse
+      : null;
     return {
       chargesUsed: 0,
       definitionId: 0,
@@ -31,6 +35,7 @@ function getCharacterInventory(items) {
       isAttuned: false,
       quantity: item.bundleSize ? item.bundleSize : 1,
       definition: item,
+      limitedUse,
     };
   });
 }
@@ -155,6 +160,7 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
           return {
             items: data,
             spells: [],
+            extra: [],
           };
         } else {
           return data;
@@ -164,6 +170,7 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
         return {
           items: data.items,
           spells: data.spells.map((s) => s.data),
+          extra: data.extra,
         };
       })
       .then((data) => {
@@ -175,6 +182,7 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
               item.sources.some((source) => sources.includes(source.sourceId)),
             ),
           spells: data.spells,
+          extra: data.extra,
         };
       })
       .then((data) => {
@@ -183,11 +191,13 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
           return {
             items: data.items.filter((item) => item.isHomebrew),
             spells: data.spells,
+            extra: data.extra,
           };
         } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew")) {
           return {
             items: data.items.filter((item) => !item.isHomebrew),
             spells: data.spells,
+            extra: data.extra,
           };
         } else {
           return data;
@@ -197,6 +207,7 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
         if (ids.length > 0) return {
           items: data.items.filter((item) => ids.includes(item.id)),
           spells: data.spells,
+          extra: data.extra,
         };
         return data;
       })
@@ -205,6 +216,7 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
         return {
           items: data.items.filter((r) => !r.isLegacy),
           spells: data.spells,
+          extra: data.extra,
         };
       })
       .then((data) => resolve(data))
@@ -236,7 +248,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   const sourceFilter = (ids === null || ids.length === 0) && useSourceFilter;
   const raw = await getItemData({ useSourceFilter: sourceFilter, ids });
 
-  const characterInventory = getCharacterInventory(raw.items);
+  const characterInventory = getCharacterInventory(raw.items, raw.extra);
   const results = await generateImportItems(characterInventory, utils.munchNote, raw.spells);
 
   let items = results.items;
