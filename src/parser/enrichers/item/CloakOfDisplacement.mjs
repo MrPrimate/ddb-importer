@@ -17,4 +17,11 @@ export default class CloakOfDisplacement extends DDBEnricherData {
     ];
   }
 
+  get itemMacro() {
+    return {
+      type: "item",
+      name: "cloakOfDisplacement.js",
+    };
+  }
+
 }

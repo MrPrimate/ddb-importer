@@ -6,7 +6,6 @@ import {
   FolderHelper,
 } from "../lib/_module.mjs";
 import { DICTIONARY } from "../config/_module.mjs";
-import { midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { addExtraEffects } from "../parser/features/extraEffects.js";
 import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature.js";
@@ -117,7 +116,8 @@ export default class DDBEffectHelper {
       if (foundry.utils.hasProperty(data, "flags.ActiveAuras")) delete data.flags.ActiveAuras;
 
       if (DICTIONARY.types.inventory.includes(data.type)) {
-        data = await midiItemEffects(data);
+        // these are now done by the enricher
+        // data = await midiItemEffects(data);
       } else if (data.type === "spell") {
         data = await spellEffectAdjustment(data, true);
       } else if (data.type === "feat") {

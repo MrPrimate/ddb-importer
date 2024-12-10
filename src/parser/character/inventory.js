@@ -7,7 +7,6 @@ import DDBItem from "../item/DDBItem.js";
 
 // effects support
 import { parseInfusion } from "./infusions.js";
-import { midiItemEffects } from "../../effects/specialEquipment.js";
 
 // TO DO: revisit to break up item parsing
 // eslint-disable-next-line complexity
@@ -56,9 +55,6 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
         // parse any infusion data for characters
         item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
       }
-
-      // KNOWN_ISSUE_4_0: refactor midi effects
-      if (addAutomationEffects) item = await midiItemEffects(item);
 
       items.push(item);
     }

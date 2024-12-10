@@ -72,6 +72,9 @@ export default class DDBItemEnricher extends DDBEnricherMixin {
     "Warrior's Passkey": ItemEnrichers.WarriorsPasskey,
     "Waterskin": ItemEnrichers.Waterskin,
     "Ring of the Ram": ItemEnrichers.RingOfTheRam,
+    "Spellguard Shield": ItemEnrichers.SpellguardShield,
+    "Potion of Speed": ItemEnrichers.PotionOfSpeed,
+    "Pearl of Power": ItemEnrichers.PearlOfPower,
   };
 
 }

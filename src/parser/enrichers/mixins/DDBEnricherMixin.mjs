@@ -430,12 +430,20 @@ export default class DDBEnricherMixin {
       this.data = AutoEffects.addVision5eStub(this.data);
   }
 
+  get _canApplyMidiEffects() {
+    const addAutomationEffects = this.ddbParser.isCompendiumItem
+      ? game.settings.get("ddb-importer", "munching-policy-add-effects")
+      : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+    return addAutomationEffects;
+  }
+
   // eslint-disable-next-line complexity
   async createEffects() {
     const effectHints = this.effects;
     const effects = [];
     if (!effectHints || effectHints?.length === 0) return effects;
 
+    const applyMidiOnlyEffects = this._canApplyMidiEffects;
     for (const effectHintFunction of effectHints) {
       const effectHint = utils.isFunction(effectHintFunction)
         ? effectHintFunction()
@@ -518,7 +526,7 @@ export default class DDBEnricherMixin {
         effect.changes.push(...effectHint.tokenMagicChanges);
       }
 
-      if (effectHint.midiChanges && AutoEffects.effectModules().midiQolInstalled) {
+      if (effectHint.midiChanges && AutoEffects.effectModules().midiQolInstalled && applyMidiOnlyEffects) {
         effect.changes.push(...effectHint.midiChanges);
       }
 
@@ -530,7 +538,7 @@ export default class DDBEnricherMixin {
         foundry.utils.setProperty(effect, "flags.dae.specialDuration", effectHint.daeSpecialDurations);
       }
 
-      if (effectHint.midiProperties && AutoEffects.effectModules().midiQolInstalled) {
+      if (effectHint.midiProperties && AutoEffects.effectModules().midiQolInstalled && applyMidiOnlyEffects) {
         foundry.utils.setProperty(this.data, "flags.midiProperties", effectHint.midiProperties);
       }
 
@@ -546,7 +554,7 @@ export default class DDBEnricherMixin {
         foundry.utils.setProperty(effect, "flags.ddbimporter.activitiesMatch", effectHint.activitiesMatch);
       }
 
-      if (effectHint.macroChanges) {
+      if (effectHint.macroChanges && applyMidiOnlyEffects) {
         for (const macroChange of effectHint.macroChanges) {
           effect.changes.push(DDBMacros.generateMacroChange(macroChange));
         }
@@ -577,7 +585,7 @@ export default class DDBEnricherMixin {
     }
 
     const itemMacro = this.itemMacro;
-    if (itemMacro) {
+    if (itemMacro && this._canApplyMidiEffects) {
       await DDBMacros.setItemMacroFlag(this.data, itemMacro.type, itemMacro.name);
     }
 
