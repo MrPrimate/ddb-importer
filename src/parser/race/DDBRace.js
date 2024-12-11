@@ -290,7 +290,7 @@ export default class DDBRace {
     if (ddbSizeData.id === 10) {
       advancement.updateSource({ configuration: { sizes: ["med", "sm"] } });
     } else if (ddbSizeData !== 4) {
-      const size = DICTIONARY.character.actorSizes.find((s) => s.id === this.race.sizeId);
+      const size = DICTIONARY.actor.actorSizes.find((s) => s.id === this.race.sizeId);
       advancement.updateSource({ configuration: { sizes: [size.value] } });
     }
 
@@ -327,7 +327,7 @@ export default class DDBRace {
       const fixedRegex = /Your (\w+) score increases by (\d)/i;
       const fixedMatch = trait.description.match(fixedRegex);
       if (fixedMatch) {
-        const ability = DICTIONARY.character.abilities.find((a) => a.long === fixedMatch[1].toLowerCase());
+        const ability = DICTIONARY.actor.abilities.find((a) => a.long === fixedMatch[1].toLowerCase());
         if (ability) {
           update.fixed[ability.value] = parseInt(fixedMatch[2]);
         }
@@ -336,7 +336,7 @@ export default class DDBRace {
       const extraFixedRegex = /and your (\w+) score increases by (\d)/i;
       const extraFixedMatch = trait.description.match(extraFixedRegex);
       if (extraFixedMatch) {
-        const ability = DICTIONARY.character.abilities.find((a) => a.long === extraFixedMatch[1].toLowerCase());
+        const ability = DICTIONARY.actor.abilities.find((a) => a.long === extraFixedMatch[1].toLowerCase());
         if (ability) {
           update.fixed[ability.value] = parseInt(extraFixedMatch[2]);
         }
@@ -376,7 +376,7 @@ export default class DDBRace {
         .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
-      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType),
+      && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
     );
     const advancement = this.advancementHelper.getSkillAdvancement(skillExplicitMods, trait, undefined, 0);
 

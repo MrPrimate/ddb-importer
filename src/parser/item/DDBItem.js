@@ -1047,13 +1047,13 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         (characterValue) =>
           characterValue.value
           && characterValue.valueId == this.ddbItem.id
-          && DICTIONARY.character.characterValuesLookup.some(
+          && DICTIONARY.actor.characterValuesLookup.some(
             (entry) => entry.typeId == characterValue.typeId,
           ),
       )
       .map(
         (characterValue) =>
-          DICTIONARY.character.characterValuesLookup.find(
+          DICTIONARY.actor.characterValuesLookup.find(
             (entry) => entry.typeId == characterValue.typeId,
           ).name,
       );
@@ -1064,7 +1064,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         (option) =>
           warlockFeatures.includes("pactWeapon")
           && option.definition.name
-          && DICTIONARY.character.pactFeatures.includes(option.definition.name),
+          && DICTIONARY.actor.pactFeatures.includes(option.definition.name),
       )
       .map((option) => option.definition.name);
 
@@ -1348,7 +1348,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     } else if (this.ddbDefinition.filterType === "Other Gear"
       && ((this.ddbDefinition.gearTypeId === 1 && this.ddbDefinition.subType === "Tool")
         || (this.ddbDefinition.gearTypeId === 11))) {
-      const toolProficiencies = DICTIONARY.character.proficiencies
+      const toolProficiencies = DICTIONARY.actor.proficiencies
         .filter((prof) => prof.type === "Tool")
         .map((prof) => {
           return prof;
@@ -1946,7 +1946,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   #isHalfToolProficiencyRoundedUp(ab) {
-    const longAbility = DICTIONARY.character.abilities
+    const longAbility = DICTIONARY.actor.abilities
       .filter((ability) => ab === ability.value)
       .map((ability) => ability.long)[0];
     const roundUp = DDBModifiers.filterBaseModifiers(this.ddbData, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks` });
@@ -1997,7 +1997,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       };
     }
 
-    const ammoType = DICTIONARY.character.proficiencies
+    const ammoType = DICTIONARY.actor.proficiencies
       .find((prof) =>
         prof.type === "Ammunition"
         && (
@@ -2094,7 +2094,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   #generateToolSpecifics() {
     this.activityOptions.generateCheck = true;
-    const defaultAbility = DICTIONARY.character.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
+    const defaultAbility = DICTIONARY.actor.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
     this.actionInfo.ability = defaultAbility?.ability ?? "dex";
     this.data.system.proficient = this.ddbData ? this.#getToolProficiency(this.ddbDefinition.name, this.actionInfo.ability) : 0;
     this._generateUses();
@@ -2130,7 +2130,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       };
     }
 
-    const dictionaryWeapon = DICTIONARY.character.proficiencies
+    const dictionaryWeapon = DICTIONARY.actor.proficiencies
       .find((prof) =>
         prof.type === "Weapon" && prof.name.toLowerCase() === this.ddbDefinition.type?.toLowerCase(),
       );

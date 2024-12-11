@@ -2,12 +2,12 @@ import { DICTIONARY } from "../../config/_module.mjs";
 
 // is there a spell casting ability?
 export function hasSpellCastingAbility(spellCastingAbilityId) {
-  return DICTIONARY.character.abilities.some((ability) => ability.id === spellCastingAbilityId);
+  return DICTIONARY.actor.abilities.some((ability) => ability.id === spellCastingAbilityId);
 }
 
 // convert spellcasting ability id to string used by foundry
 export function convertSpellCastingAbilityId(spellCastingAbilityId) {
-  return DICTIONARY.character.abilities.find((ability) => ability.id === spellCastingAbilityId).value;
+  return DICTIONARY.actor.abilities.find((ability) => ability.id === spellCastingAbilityId).value;
 }
 
 // search through classinfo and determine spellcasting ability

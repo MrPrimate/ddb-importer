@@ -25,7 +25,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace(addToCompend
           type: "asi",
           assignments: {},
         };
-        DICTIONARY.character.abilities.forEach((ability) => {
+        DICTIONARY.actor.abilities.forEach((ability) => {
           const bonus = DDBModifiers
             .filterModifiersOld(this.source.ddb.character.modifiers.race, "bonus", `${ability.long}-score`, [null, ""])
             .filter((mod) => mod.entityId === ability.id)
@@ -39,7 +39,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace(addToCompend
         const size = a.configuration.sizes.length === 1
           ? a.configuration.sizes[0]
           : modSize && modSize.length === 1
-            ? DICTIONARY.character.actorSizes.find((s) => modSize.subType === s.name.toLowerCase())?.value ?? `${this.raw.character.system.traits.size}`
+            ? DICTIONARY.actor.actorSizes.find((s) => modSize.subType === s.name.toLowerCase())?.value ?? `${this.raw.character.system.traits.size}`
             : `${this.raw.character.system.traits.size}`;
         a.value = {
           size,

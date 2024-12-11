@@ -410,11 +410,11 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     let calculation = fixedDC
       ? ""
       : (this.ddbDefinition.abilityModifierStatId)
-        ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId).value
+        ? DICTIONARY.actor.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId).value
         : "spellcasting";
 
     let saveAbility = (this.ddbDefinition.saveStatId)
-      ? DICTIONARY.character.abilities.find((stat) => stat.id === this.ddbDefinition.saveStatId).value
+      ? DICTIONARY.actor.abilities.find((stat) => stat.id === this.ddbDefinition.saveStatId).value
       : null;
 
     if (!saveAbility) {

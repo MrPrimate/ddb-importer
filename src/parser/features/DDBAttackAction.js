@@ -1,4 +1,4 @@
-import DICTIONARY from "../../config/dictionary.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
 import { utils, logger } from "../../lib/_module.mjs";
 import DDBAction from "./DDBAction.js";
 

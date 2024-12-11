@@ -21,7 +21,7 @@ DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedRes
       let maxUses = (action.limitedUse.maxUses && action.limitedUse.maxUses !== -1) ? action.limitedUse.maxUses : 0;
 
       if (action.limitedUse.statModifierUsesId) {
-        const ability = DICTIONARY.character.abilities.find(
+        const ability = DICTIONARY.actor.abilities.find(
           (ability) => ability.id === action.limitedUse.statModifierUsesId,
         ).value;
 

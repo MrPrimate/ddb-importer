@@ -287,12 +287,12 @@ export default class DDBCompanion2024 {
     });
 
     const keys = Object.keys(this.npc.system.skills);
-    const validSkills = DICTIONARY.character.skills.map((skill) => skill.name);
+    const validSkills = DICTIONARY.actor.skills.map((skill) => skill.name);
     keys
       .filter((key) => validSkills.includes(key))
       .forEach((key) => {
         let skill = this.npc.system.skills[key];
-        const lookupSkill = DICTIONARY.character.skills.find((s) => s.name == key);
+        const lookupSkill = DICTIONARY.actor.skills.find((s) => s.name == key);
         const skillData = skillsMaps.find((skl) => skl.name == lookupSkill.label);
 
         if (skillData) {

@@ -57,7 +57,7 @@ DDBCharacter.prototype._generateAppearance = function _generateAppearance() {
  */
 DDBCharacter.prototype._generateAlignment = function _generateAlignment() {
   const alignmentID = this.source.ddb.character.alignmentId || 5;
-  const alignment = DICTIONARY.character.alignments.find((alignment) => alignment.id === alignmentID);
+  const alignment = DICTIONARY.actor.alignments.find((alignment) => alignment.id === alignmentID);
   if (alignment) this.raw.character.system.details.alignment = alignment.name;
 };
 

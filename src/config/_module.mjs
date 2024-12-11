@@ -1,2 +1,2 @@
-export { default as SETTINGS } from "./settings.mjs";
-export { default as DICTIONARY } from "./dictionary.mjs";
+export { default as SETTINGS } from "./settings/settings.mjs";
+export { default as DICTIONARY } from "./dictionary/dictionary.mjs";

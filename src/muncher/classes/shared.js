@@ -289,7 +289,7 @@ export async function buildBaseClass(klass) {
   if (klass.canCastSpells) {
     const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name == klass.name);
     const spellCastingAbility = klass.spellCastingAbilityId
-      ? DICTIONARY.character.abilities.find((a) => a.id == klass.spellCastingAbilityId).value
+      ? DICTIONARY.actor.abilities.find((a) => a.id == klass.spellCastingAbilityId).value
       : null;
     if (spellProgression) {
       spellcasting = {
@@ -321,7 +321,7 @@ export async function buildBaseClass(klass) {
   const skillMatch = skillText.match(skillRegex);
 
   if (allMatch) {
-    const skills = DICTIONARY.character.skills.map((skill) => skill.name);
+    const skills = DICTIONARY.actor.skills.map((skill) => skill.name);
     const numberSkills = DICTIONARY.numbers.find((num) => allMatch[1].toLowerCase() === num.natural);
     // eslint-disable-next-line require-atomic-updates
     result.system.skills = {
@@ -331,9 +331,9 @@ export async function buildBaseClass(klass) {
     };
   } else if (skillMatch) {
     const skillNames = skillMatch[2].replace('and', ',').split(',').map((skill) => skill.trim());
-    const skills = skillNames.filter((name) => DICTIONARY.character.skills.some((skill) => skill.label.toLowerCase() === name.toLowerCase()))
+    const skills = skillNames.filter((name) => DICTIONARY.actor.skills.some((skill) => skill.label.toLowerCase() === name.toLowerCase()))
       .map((name) => {
-        const dictSkill = DICTIONARY.character.skills.find((skill) => skill.label.toLowerCase() === name.toLowerCase());
+        const dictSkill = DICTIONARY.actor.skills.find((skill) => skill.label.toLowerCase() === name.toLowerCase());
         return dictSkill.name;
       });
     const numberSkills = DICTIONARY.numbers.find((num) => skillMatch[1].toLowerCase() === num.natural);
@@ -353,9 +353,9 @@ export async function buildBaseClass(klass) {
   if (saveMatch) {
     const saveNames = saveMatch[1].replace('and', ',').split(',').map((ab) => ab.trim());
     const saves = saveNames
-      .filter((name) => DICTIONARY.character.abilities.some((ab) => ab.long.toLowerCase() === name.toLowerCase()))
+      .filter((name) => DICTIONARY.actor.abilities.some((ab) => ab.long.toLowerCase() === name.toLowerCase()))
       .map((name) => {
-        const dictAbility = DICTIONARY.character.abilities.find((ab) => ab.long.toLowerCase() === name.toLowerCase());
+        const dictAbility = DICTIONARY.actor.abilities.find((ab) => ab.long.toLowerCase() === name.toLowerCase());
         return dictAbility.value;
       });
     // eslint-disable-next-line require-atomic-updates

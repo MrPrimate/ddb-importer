@@ -1,4 +1,4 @@
-import SETTINGS from "../config/settings.mjs";
+import { SETTINGS } from "../config/_module.mjs";
 
 export default class DDBSources {
 

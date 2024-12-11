@@ -402,7 +402,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       return;
     }
     if (this.ddbDefinition.requiresSavingThrow && this.ddbDefinition.saveDcAbilityId) {
-      const saveAbility = DICTIONARY.character.abilities
+      const saveAbility = DICTIONARY.actor.abilities
         .find((ability) => ability.id === this.ddbDefinition.saveDcAbilityId)?.value;
       if (this.spellData.overrideSaveDc) {
         this.data.save = {

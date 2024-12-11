@@ -213,7 +213,7 @@ export default class AutoEffects {
       .filter((modifier) => {
         const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
         if (!ddbLookup) return false;
-        return DICTIONARY.character.damageAdjustments.some((adj) =>
+        return DICTIONARY.actor.damageAdjustments.some((adj) =>
           adj.type === typeId
           && ddbLookup.id === adj.id
           && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue")),
@@ -221,7 +221,7 @@ export default class AutoEffects {
       })
       .map((modifier) => {
         const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
-        const entry = DICTIONARY.character.damageAdjustments.find((adj) =>
+        const entry = DICTIONARY.actor.damageAdjustments.find((adj) =>
           adj.type === typeId
           && ddbLookup.id === adj.id,
         );

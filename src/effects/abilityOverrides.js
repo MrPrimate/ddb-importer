@@ -31,7 +31,7 @@ function buildBaseOverrideEffect(label) {
 export function abilityOverrideEffects(overrides) {
   let effects = buildBaseOverrideEffect("Ability Overrides");
 
-  DICTIONARY.character.abilities.forEach((ability) => {
+  DICTIONARY.actor.abilities.forEach((ability) => {
     if (overrides[ability.value] === 0) return;
     effects.changes.push(generateOverrideChange(overrides[ability.value], 50, `system.abilities.${ability.value}.value`));
   });

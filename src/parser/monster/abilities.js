@@ -29,7 +29,7 @@ import DDBMonster from "../DDBMonster.js";
  */
 DDBMonster.prototype._generateAbilities = function _generateAbilities() {
   // go through every ability
-  DICTIONARY.character.abilities.forEach((ability) => {
+  DICTIONARY.actor.abilities.forEach((ability) => {
     const value = this.source.stats.find((stat) => stat.statId === ability.id).value || 0;
     const proficient = this.source.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
     const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;

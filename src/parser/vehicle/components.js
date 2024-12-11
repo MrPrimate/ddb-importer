@@ -130,7 +130,7 @@ function getWeaponProperties(action, weapon) {
 
   if (action.fixedSaveDc) {
     const saveAbility = (action.saveStatId)
-      ? DICTIONARY.character.abilities.find((stat) => stat.id === action.saveStatId).value
+      ? DICTIONARY.actor.abilities.find((stat) => stat.id === action.saveStatId).value
       : getSaveAbility(action.description);
     weapon.system.save = {
       ability: [saveAbility],

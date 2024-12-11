@@ -1,4 +1,4 @@
-import DICTIONARY from "../../config/dictionary.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
 import { logger, Utils } from "../../lib/_module.mjs";
 import DDBDataUtils from "./DDBDataUtils.mjs";
 
@@ -390,7 +390,7 @@ export default class DDBModifiers {
           ? modifier.abilityModifierStatId
           : null;
       if (Number.isInteger(statBonus)) {
-        const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId);
+        const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === modifier.statId);
         modBonus += character.system.abilities[ability.value].mod;
       }
       if (die) {
@@ -435,7 +435,7 @@ export default class DDBModifiers {
         : null;
 
     if (statBonus) {
-      const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId).value;
+      const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === modifier.statId).value;
       modBonus = modBonus === "" ? `@abilities.${ability}.mod` : `${modBonus} + @abilities.${ability}.mod`;
     }
 

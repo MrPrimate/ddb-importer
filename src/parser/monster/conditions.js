@@ -35,7 +35,7 @@ DDBMonster.prototype.getDamageAdjustments = function getDamageAdjustments(type) 
   this.source.damageAdjustments.forEach((adj) => {
     const adjustment = config.find((cadj) => adj === cadj.id);
     if (!adjustment) return;
-    const ddbValue = DICTIONARY.character.damageAdjustments.find((d) => d.id === adjustment.id);
+    const ddbValue = DICTIONARY.actor.damageAdjustments.find((d) => d.id === adjustment.id);
     if (ddbValue?.foundryValues) {
       if (ddbValue.foundryValues.value.length > 0) ddbValue.foundryValues.value.forEach(values.add, values);
       if (ddbValue.foundryValues.bypass.length > 0) ddbValue.foundryValues.bypass.forEach(bypass.add, bypass);

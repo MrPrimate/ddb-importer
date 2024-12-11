@@ -303,7 +303,7 @@ export default class DDBDescriptions {
       result.save = matchResults.save;
       // group 4 condition - .e.g. "DC 18 Strength saving throw or be knocked prone"
       const group4Condition = match.groups.condition
-        ? DICTIONARY.character.damageAdjustments
+        ? DICTIONARY.actor.damageAdjustments
           .filter((type) => type.type === 4)
           .find(
             (type) => type.name.toLowerCase() === match.groups.condition.toLowerCase()

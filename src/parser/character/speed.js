@@ -25,7 +25,7 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
   // build base speeds
   for (let type in movementTypes) {
     // is there a 'inntate-speed-[type]ing' race/class modifier?
-    const innateType = DICTIONARY.character.speeds.find((s) => s.type === type).innate;
+    const innateType = DICTIONARY.actor.speeds.find((s) => s.type === type).innate;
     let innateSpeeds = this.source.ddb.character.modifiers.race.filter(
       (modifier) => modifier.type === "set" && modifier.subType === `innate-speed-${innateType}`,
     );
@@ -71,7 +71,7 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
 
   // new ranger deft explorer sets speeds, leaves value null, use walking
   for (let type in movementTypes) {
-    const innateType = DICTIONARY.character.speeds.find((s) => s.type === type).innate;
+    const innateType = DICTIONARY.actor.speeds.find((s) => s.type === type).innate;
     // is there a 'inntate-speed-[type]ing' race/class modifier?
     let innateSpeeds = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "set", { subType: `innate-speed-${innateType}`, restriction });
@@ -94,7 +94,7 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
   // is there a custom seed over-ride?
   if (this.source.ddb.character.customSpeeds) {
     this.source.ddb.character.customSpeeds.forEach((speed) => {
-      const type = DICTIONARY.character.speeds.find((s) => s.id === speed.movementId).type;
+      const type = DICTIONARY.actor.speeds.find((s) => s.id === speed.movementId).type;
       if (speed.distance) {
         movementTypes[type] = speed.distance;
       }

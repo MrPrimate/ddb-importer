@@ -9,7 +9,7 @@ export default class ProficiencyFinder {
   }
 
   isHalfProficiencyRoundedUp(skill, modifiers = null) {
-    const longAbility = DICTIONARY.character.abilities
+    const longAbility = DICTIONARY.actor.abilities
       .filter((ability) => skill.ability === ability.value)
       .map((ability) => ability.long)[0];
 
@@ -40,7 +40,7 @@ export default class ProficiencyFinder {
     const custom = [];
 
     // lookup the characters's proficiencies in the DICT
-    const allProficiencies = DICTIONARY.character.proficiencies.filter((prof) =>
+    const allProficiencies = DICTIONARY.actor.proficiencies.filter((prof) =>
       prof.type === "Armor" && foundry.utils.hasProperty(prof, "foundryValue"),
     );
 
@@ -74,7 +74,7 @@ export default class ProficiencyFinder {
     const results = {};
 
     // lookup the characters's proficiencies in the DICT
-    const allToolProficiencies = DICTIONARY.character.proficiencies
+    const allToolProficiencies = DICTIONARY.actor.proficiencies
       .filter((prof) => prof.type === "Tool");
 
     const mods = this.ddb
@@ -154,7 +154,7 @@ export default class ProficiencyFinder {
     const masteries = [];
 
     // lookup the characters's proficiencies in the DICT
-    const allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Weapon");
+    const allProficiencies = DICTIONARY.actor.proficiencies.filter((prof) => prof.type === "Weapon");
 
     const processWeaponProficiency = (prof) => {
       if (prof.name === "Simple Weapons") {
@@ -210,7 +210,7 @@ export default class ProficiencyFinder {
 
     // Quick name Match
     if (name) {
-      const dictMatch = DICTIONARY.character.languages.find((lang) => lang.name === name);
+      const dictMatch = DICTIONARY.actor.languages.find((lang) => lang.name === name);
       if (dictMatch) return dictMatch.value;
     }
 

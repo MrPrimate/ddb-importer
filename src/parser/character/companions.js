@@ -1,5 +1,5 @@
 import { logger } from "../../lib/_module.mjs";
-import { SETTINGS } from "../../config/_module.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.mjs";
 
@@ -51,11 +51,11 @@ DDBCharacter.prototype._getCompanionOption = async function(parentFeature, child
 };
 
 DDBCharacter.prototype.generateCompanions = async function() {
-  for (const name of SETTINGS.COMPANIONS.COMPANION_FEATURES) {
+  for (const name of DICTIONARY.companions.COMPANION_FEATURES) {
     await this._getCompanionFeature(name);
   }
   // spells now munched during spell munch
-  for (const [parentFeature, childNames] of Object.entries(SETTINGS.COMPANIONS.COMPANION_OPTIONS)) {
+  for (const [parentFeature, childNames] of Object.entries(DICTIONARY.companions.COMPANION_OPTIONS)) {
     for (const name of childNames) {
       await this._getCompanionOption(parentFeature, name);
     }

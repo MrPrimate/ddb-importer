@@ -184,7 +184,7 @@ export default class EffectGenerator {
     if (!game.modules.get("midi-qol")?.active) return;
     if (bonuses.length > 0) {
       logger.debug(`Generating ${subType} saving throw advantage for ${this.document.name}`);
-      const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
+      const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
       this.effect.changes.push(ChangeHelper.customChange(1, 4, `flags.midi-qol.advantage.ability.${type}.${ability}`));
     }
   }
@@ -196,7 +196,7 @@ export default class EffectGenerator {
     if (bonuses.length > 0) {
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} stat set for ${this.document.name}`);
-        const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
+        const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
         this.effect.changes.push(ChangeHelper.upgradeChange(bonus.value, 3, `system.abilities.${ability}.value`));
       });
     }
@@ -205,7 +205,7 @@ export default class EffectGenerator {
   _addStatChanges() {
     const stats = ["strength", "dexterity", "constitution", "wisdom", "intelligence", "charisma"];
     stats.forEach((stat) => {
-      const ability = DICTIONARY.character.abilities.find((ab) => ab.long === stat);
+      const ability = DICTIONARY.actor.abilities.find((ab) => ab.long === stat);
       this._addStatSetEffect(`${stat}-score`);
       this._addAbilityAdvantageEffect(`${stat}-saving-throws`, "save");
       this._addAbilityAdvantageEffect(`${stat}-ability-checks`, "check");
@@ -222,7 +222,7 @@ export default class EffectGenerator {
     if (bonuses.length > 0) {
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} stat bonus for ${this.document.name}`);
-        const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]);
+        const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0]);
 
         if (game.modules.get("dae")?.active) {
           const bonusString = `min(@abilities.${ability.value}.max, @abilities.${ability.value}.value + ${bonus.value})`;
@@ -293,7 +293,7 @@ export default class EffectGenerator {
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} speed set for ${this.document.name}`);
         const innate = subType.split("-").slice(-1)[0];
-        const speedType = DICTIONARY.character.speeds.find((s) => s.innate === innate).type;
+        const speedType = DICTIONARY.actor.speeds.find((s) => s.innate === innate).type;
         // current assumption if no speed provided, set to walking speed
         const speed = bonus.value ? bonus.value : "@attributes.movement.walk";
         this.effect.changes.push(ChangeHelper.upgradeChange(speed, 5, `system.attributes.movement.${speedType}`));
@@ -343,7 +343,7 @@ export default class EffectGenerator {
   }
 
   _addSkillProficiencies() {
-    DICTIONARY.character.skills.forEach((skill) => {
+    DICTIONARY.actor.skills.forEach((skill) => {
       const prof = this.proficiencyFinder.getSkillProficiency(skill, this.grantedModifiers);
       if (prof != 0) {
         this.effect.changes.push(ChangeHelper.upgradeChange(prof, 9, `system.skills.${skill.name}.value`));
@@ -453,7 +453,7 @@ export default class EffectGenerator {
   }
 
   _addSkillBonuses() {
-    DICTIONARY.character.skills.forEach((skill) => {
+    DICTIONARY.actor.skills.forEach((skill) => {
       const newMods = this.grantedModifiers.filter((mod) => {
         if (mod.subType === `passive-${skill.subType}`) {
           const passiveMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", `passive-${skill.subType}`);
@@ -520,7 +520,7 @@ export default class EffectGenerator {
       logger.debug(`Generating ${subType} speed bonus for ${this.document.name}`);
       if (!speedType) {
         const innate = subType.split("-").slice(-1)[0];
-        speedType = DICTIONARY.character.speeds.find((s) => s.innate === innate).type;
+        speedType = DICTIONARY.actor.speeds.find((s) => s.innate === innate).type;
       }
       const bonusValue = bonuses.reduce((speed, mod) => speed + mod.value, 0);
       if (speedType === "all") {
@@ -796,7 +796,7 @@ export default class EffectGenerator {
     if (this.grantedModifiers.some((mod) => mod.statId !== null && mod.type === "set" && mod.subType === subType)) {
       this.grantedModifiers.filter((mod) => mod.statId !== null && mod.type === "set" && mod.subType === subType)
         .forEach((mod) => {
-          const ability = DICTIONARY.character.abilities.find((ability) => ability.id === mod.statId);
+          const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === mod.statId);
           if (bonuses) {
             bonuses += " ";
           } else {

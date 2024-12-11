@@ -165,8 +165,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
     this.itemCompendium = CompendiumHelper.getCompendiumType("item", false);
     this.enricher = enricher ?? new DDBSpellEnricher({ activityGenerator: DDBSpellActivity, notifier: this.notifier });
-    this.isCompanionSpell = SETTINGS.COMPANIONS.COMPANION_SPELLS.includes(this.originalName);
-    this.isCRSummonSpell = SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName);
+    this.isCompanionSpell = DICTIONARY.companions.COMPANION_SPELLS.includes(this.originalName);
+    this.isCRSummonSpell = DICTIONARY.companions.CR_SUMMONING_SPELLS.includes(this.originalName);
     this.isSummons = this.isCompanionSpell || this.isCRSummonSpell;
     this.generateSummons = this.isGeneric
       || (generateSummons ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions"));
@@ -596,7 +596,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       let maxUses = (limitedUse.maxUses && limitedUse.maxUses !== -1) ? limitedUse.maxUses : "";
 
       if (limitedUse.statModifierUsesId) {
-        const ability = DICTIONARY.character.abilities.find(
+        const ability = DICTIONARY.actor.abilities.find(
           (ability) => ability.id === limitedUse.statModifierUsesId,
         ).value;
 
@@ -760,7 +760,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     if (activityData.type !== "summon") return activity;
     if (this.isCompanionSpell)
       await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData);
-    else if (SETTINGS.COMPANIONS.CR_SUMMONING_SPELLS.includes(this.originalName))
+    else if (DICTIONARY.companions.CR_SUMMONING_SPELLS.includes(this.originalName))
       await this.ddbCompanionFactory.addCRSummoning(activityData);
     return activity;
   }
@@ -769,7 +769,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     if ((this.ddbDefinition.conditions ?? []).length === 0) return;
 
     for (const data of this.ddbDefinition.conditions.filter((c) => c.type === 1)) {
-      const condition = DICTIONARY.character.damageAdjustments
+      const condition = DICTIONARY.actor.damageAdjustments
         .filter((type) => type.type === 4)
         .find((type) => type.id === data.conditionId);
       if (condition) {

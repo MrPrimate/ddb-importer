@@ -1,4 +1,4 @@
-import SETTINGS from "../../config/settings.mjs";
+import { SETTINGS } from "../../config/_module.mjs";
 import { CompendiumHelper, DDBSources, logger, utils } from "../../lib/_module.mjs";
 import { DDBDataUtils } from "../lib/_module.mjs";
 

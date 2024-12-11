@@ -310,7 +310,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     advancement.updateSource({ configuration: { points: 3 }, level: 0, value: { type: "asi" } });
 
     const assignments = {};
-    DICTIONARY.character.abilities.forEach((ability) => {
+    DICTIONARY.actor.abilities.forEach((ability) => {
       const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
       if (count > 0) assignments[ability.value] = count;
     });
@@ -331,7 +331,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       : DDBModifiers.getModifiers(this.ddbData, this.type);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
-      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType),
+      && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
     );
     const advancement = this.advancementHelper.getSkillAdvancement(skillExplicitMods, this.ddbDefinition, undefined, 0);
     this._addAdvancement(advancement);

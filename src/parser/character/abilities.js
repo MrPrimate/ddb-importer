@@ -4,7 +4,7 @@ import DDBCharacter from "../DDBCharacter.js";
 import { DDBModifiers } from "../lib/_module.mjs";
 
 DDBCharacter.prototype._generateAbilitiesOverrides = function _generateAbilitiesOverrides() {
-  DICTIONARY.character.abilities.forEach((ability) => {
+  DICTIONARY.actor.abilities.forEach((ability) => {
     this.abilities.overrides[ability.value]
       = this.source.ddb.character.overrideStats.find((stat) => stat.id === ability.id).value || 0;
   });
@@ -92,7 +92,7 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(abilityL
  */
 DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEffects = false) {
   let result = {};
-  DICTIONARY.character.abilities.forEach((ability) => {
+  DICTIONARY.actor.abilities.forEach((ability) => {
     result[ability.value] = {
       value: 0,
       min: 3,
@@ -191,7 +191,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
 DDBCharacter.prototype._getAbilitiesBonuses = function (includeExcludedEffects = false) {
 
   let result = {};
-  DICTIONARY.character.abilities.forEach((ability) => {
+  DICTIONARY.actor.abilities.forEach((ability) => {
     result[ability.value] = {
       bonuses: {
         check: "",

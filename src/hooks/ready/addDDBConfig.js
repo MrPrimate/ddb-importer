@@ -10,7 +10,7 @@ function addLanguages() {
   const ddbFiltered = [...new Set(ddbRaw
     .map((lang) => utils.nameString(lang.name))
     .filter((lang) =>
-      !DICTIONARY.character.languages.some((l) => l.name === lang)
+      !DICTIONARY.actor.languages.some((l) => l.name === lang)
       && !["All"].includes(lang),
     ))];
 
@@ -22,7 +22,7 @@ function addLanguages() {
   ddbFiltered.forEach((lang) => {
     const stub = utils.normalizeString(lang);
     CONFIG.DND5E.languages.ddb.children[stub] = lang;
-    DICTIONARY.character.languages.push({
+    DICTIONARY.actor.languages.push({
       name: lang,
       value: stub,
       advancement: "ddb",

@@ -436,7 +436,7 @@ export default class DDBClass {
       noMods,
     };
 
-    this.dictionary = DICTIONARY.character.class.find((c) => c.name === this.ddbClassDefinition.name) ?? { multiclassSkill: 0 };
+    this.dictionary = DICTIONARY.actor.class.find((c) => c.name === this.ddbClassDefinition.name) ?? { multiclassSkill: 0 };
 
     this.advancementHelper = new AdvancementHelper({
       ddbData,
@@ -856,7 +856,7 @@ export default class DDBClass {
     const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
-      && DICTIONARY.character.skills.map((s) => s.subType).includes(mod.subType),
+      && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
     );
     const filterModOptions = { subType: `choose-a-${this.ddbClassDefinition.name.toLowerCase()}-skill` };
     const skillChooseMods = DDBModifiers.filterModifiers(mods, "proficiency", filterModOptions);
@@ -1188,7 +1188,7 @@ export default class DDBClass {
       const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
 
       const assignments = {};
-      DICTIONARY.character.abilities.forEach((ability) => {
+      DICTIONARY.actor.abilities.forEach((ability) => {
         const count = DDBModifiers.filterModifiers(mods, "bonus", { subType: `${ability.long}-score` }).length;
         if (count > 0) assignments[ability.value] = count;
       });
@@ -1459,7 +1459,7 @@ export default class DDBClass {
 
   _generatePrimaryAbility() {
     this.data.system.primaryAbility = {
-      value: this.ddbClassDefinition.primaryAbilities.map((a) => DICTIONARY.character.abilities.id === a)?.value,
+      value: this.ddbClassDefinition.primaryAbilities.map((a) => DICTIONARY.actor.abilities.id === a)?.value,
       all: false, // if multiclassing selected does muticlass require all to be 13, or just 1?
     }; // KNOWN_ISSUE_4_0: can i use preq data in ddb for this?
   };

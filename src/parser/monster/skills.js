@@ -28,17 +28,17 @@ import DDBMonster from "../DDBMonster.js";
 // },
 DDBMonster.prototype._generateSkills = function _generateSkills () {
   const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
-  const validSkills = DICTIONARY.character.skills.map((skill) => skill.name);
+  const validSkills = DICTIONARY.actor.skills.map((skill) => skill.name);
 
   const keys = Object.keys(this.npc.system.skills);
   keys
     .filter((key) => validSkills.includes(key))
     .forEach((key) => {
       let skill = this.npc.system.skills[key];
-      const ability = DICTIONARY.character.abilities.find((ab) => ab.value === skill.ability);
+      const ability = DICTIONARY.actor.abilities.find((ab) => ab.value === skill.ability);
       const stat = this.source.stats.find((stat) => stat.statId === ability.id).value || 10;
       const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
-      const lookupSkill = DICTIONARY.character.skills.find((s) => s.name == key);
+      const lookupSkill = DICTIONARY.actor.skills.find((s) => s.name == key);
       const monsterSkill = this.source.skills.find((s) => s.skillId == lookupSkill.valueId);
 
       this.npc.system.skills[key].mod = mod;
@@ -97,15 +97,15 @@ DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML () {
   });
 
   const keys = Object.keys(this.npc.system.skills);
-  const validSkills = DICTIONARY.character.skills.map((skill) => skill.name);
+  const validSkills = DICTIONARY.actor.skills.map((skill) => skill.name);
   keys
     .filter((key) => validSkills.includes(key))
     .forEach((key) => {
       let skill = this.npc.system.skills[key];
-      const ability = DICTIONARY.character.abilities.find((ab) => ab.value === skill.ability);
+      const ability = DICTIONARY.actor.abilities.find((ab) => ab.value === skill.ability);
       const stat = this.source.stats.find((stat) => stat.statId === ability.id).value || 10;
       const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
-      const lookupSkill = DICTIONARY.character.skills.find((s) => s.name == key);
+      const lookupSkill = DICTIONARY.actor.skills.find((s) => s.name == key);
       const monsterSkill = this.source.skills.find((s) => s.skillId == lookupSkill.valueId);
 
       this.npc.system.skills[key].mod = mod;

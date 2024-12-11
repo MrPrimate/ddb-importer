@@ -35,7 +35,7 @@ DDBCharacter.prototype.getCustomSkillProficiency = function getCustomSkillProfic
       (value) => value.typeId === 26 && value.valueId == skill.valueId && value.value,
     );
     if (customProficiency) {
-      return DICTIONARY.character.customSkillProficiencies.find((prof) => prof.value === customProficiency.value)
+      return DICTIONARY.actor.customSkillProficiencies.find((prof) => prof.value === customProficiency.value)
         .proficient;
     }
   }
@@ -50,7 +50,7 @@ DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(sk
       (value) => value.typeId === 27 && value.valueId == skill.valueId,
     );
     if (customAbility) {
-      const ability = DICTIONARY.character.abilities.find((ability) => ability.id == customAbility.value);
+      const ability = DICTIONARY.actor.abilities.find((ability) => ability.id == customAbility.value);
       if (ability)
         mod = ability.value;
     }
@@ -97,7 +97,7 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
   const customSkillData = this.source.ddb.character.customProficiencies
     .filter((prof) => prof.type === 1 && Number.isInteger(prof.statId))
     .map((prof) => {
-      const ability = DICTIONARY.character.abilities.find((ability) => ability.id == prof.statId);
+      const ability = DICTIONARY.actor.abilities.find((ability) => ability.id == prof.statId);
       return {
         ability: ability.value,
         label: prof.name,
@@ -121,7 +121,7 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
       const customSkillMatch = customSkillData.find((customSkill) => customSkill.label === value.label);
       if (customSkillMatch) {
         logger.debug(`Adding custom skill ${value.label}`, { key, value, customSkillMatch });
-        const prof = DICTIONARY.character.customSkillProficiencies.find((proficiency) =>
+        const prof = DICTIONARY.actor.customSkillProficiencies.find((proficiency) =>
           proficiency.value === customSkillMatch.proficiencyLevel,
         ).proficient;
         const miscBonus = customSkillMatch.miscBonus && customSkillMatch.miscBonus !== "" && customSkillMatch.miscBonus !== 0
@@ -155,7 +155,7 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
   const addEffects = game.modules.get("dae")?.active;
 
   if (!addEffects) this.raw.character.flags['skill-customization-5e'] = {};
-  DICTIONARY.character.skills.forEach((skill) => {
+  DICTIONARY.actor.skills.forEach((skill) => {
     const customProficient = this.getCustomSkillProficiency(skill);
     // we use !== undefined because the return value could be 0, which is falsey
     const proficient = customProficient !== undefined ? customProficient : this.getSkillProficiency(skill);

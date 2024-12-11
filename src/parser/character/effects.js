@@ -26,7 +26,7 @@ DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getChar
   const customResults = this.source.ddb.character.customDefenseAdjustments
     .filter((adjustment) => adjustment.type === (typeId === 4 ? 1 : 2))
     .map((adjustment) => {
-      const entry = DICTIONARY.character.damageAdjustments.find((type) =>
+      const entry = DICTIONARY.actor.damageAdjustments.find((type) =>
         type.id === adjustment.adjustmentId
         && type.type === typeId,
       );

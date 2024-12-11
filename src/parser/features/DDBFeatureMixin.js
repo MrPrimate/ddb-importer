@@ -1,4 +1,4 @@
-import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
 import { utils, logger, DDBSources, DDBSimpleMacro } from "../../lib/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import { DDBGenericEnricher, mixins, Effects, DDBFeatEnricher, DDBSpeciesTraitEnricher, DDBClassFeatureEnricher, DDBBackgroundEnricher } from "../enrichers/_module.mjs";
@@ -431,7 +431,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       let maxUses = (this.ddbDefinition.limitedUse.maxUses && this.ddbDefinition.limitedUse.maxUses !== -1) ? this.ddbDefinition.limitedUse.maxUses : 0;
       const statModifierUsesId = foundry.utils.getProperty(this.ddbDefinition, "limitedUse.statModifierUsesId");
       if (statModifierUsesId) {
-        const ability = DICTIONARY.character.abilities.find((ability) => ability.id === statModifierUsesId).value;
+        const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === statModifierUsesId).value;
 
         if (maxUses === 0) {
           maxUses = `@abilities.${ability}.mod`;
@@ -857,14 +857,14 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   _isCompanionFeature() {
-    return SETTINGS.COMPANIONS.COMPANION_FEATURES.includes(this.originalName)
+    return DICTIONARY.companions.COMPANION_FEATURES.includes(this.originalName)
       // only run this on class features
       && this.ddbData.character.classes
         .some((k) => k.classFeatures.some((f) => f.definition.name == this.originalName));
   }
 
   _isCompanionFeatureOption() {
-    for (const [parentFeature, childNames] of Object.entries(SETTINGS.COMPANIONS.COMPANION_OPTIONS)) {
+    for (const [parentFeature, childNames] of Object.entries(DICTIONARY.companions.COMPANION_OPTIONS)) {
       for (const childName of childNames) {
         if (this.originalName === parentFeature
           || this.originalName === `${parentFeature}: ${childName}`) {

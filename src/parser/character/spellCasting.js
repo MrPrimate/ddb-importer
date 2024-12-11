@@ -5,7 +5,7 @@ import DDBCharacter from "../DDBCharacter.js";
 
 // convert spellcasting ability id to string used by foundry
 function convertSpellCastingAbilityId(spellCastingAbilityId) {
-  return DICTIONARY.character.abilities.find((ability) => ability.id === spellCastingAbilityId)?.value;
+  return DICTIONARY.actor.abilities.find((ability) => ability.id === spellCastingAbilityId)?.value;
 };
 
 function getSpellCastingAbility(klass) {

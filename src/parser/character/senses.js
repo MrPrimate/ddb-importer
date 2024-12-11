@@ -18,7 +18,7 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
     this.source.ddb.character.customSenses
       .filter((sense) => sense.distance)
       .forEach((sense) => {
-        const s = DICTIONARY.character.senses.find((s) => s.id === sense.senseId);
+        const s = DICTIONARY.actor.senses.find((s) => s.id === sense.senseId);
         if (s && sense.distance && Number.isInteger(sense.distance)) {
           senses[s.name.toLowerCase()] = parseInt(sense.distance);
         } else {

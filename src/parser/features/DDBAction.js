@@ -94,7 +94,7 @@ export default class DDBAction extends DDBFeatureMixin {
 
   getActionAttackAbility() {
     let defaultAbility = this.ddbDefinition.abilityModifierStatId
-      ? DICTIONARY.character.abilities.find(
+      ? DICTIONARY.actor.abilities.find(
         (stat) => stat.id === this.ddbDefinition.abilityModifierStatId,
       ).value
       : "";

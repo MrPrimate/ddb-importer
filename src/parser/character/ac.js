@@ -124,7 +124,7 @@ function getUnarmoredAC(modifiers, character) {
     // console.log(unarmored);
 
     if (unarmored.statId !== null) {
-      let ability = DICTIONARY.character.abilities.find((ability) => ability.id === unarmored.statId);
+      let ability = DICTIONARY.actor.abilities.find((ability) => ability.id === unarmored.statId);
       unarmoredACValue += characterAbilities[ability.value].mod;
     }
     if (unarmored.value) unarmoredACValue += unarmored.value;

@@ -16,7 +16,7 @@ export default class EldritchBlast extends DDBEnricherData {
       switch (mod.subType) {
         case "bonus-damage": {
           // almost certainly CHA :D
-          const abilityModifierLookup = DICTIONARY.character.abilities.find((ability) => ability.id === mod.statId);
+          const abilityModifierLookup = DICTIONARY.actor.abilities.find((ability) => ability.id === mod.statId);
           if (abilityModifierLookup) {
             if (damage !== "") damage += " + ";
             damage += `@abilities.${abilityModifierLookup.value}.mod`;
