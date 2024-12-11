@@ -52,6 +52,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Arcane Recovery": ClassEnrichers.Wizard.ArcaneRecovery,
     "Arcane Ward": ClassEnrichers.Wizard.ArcaneWard,
     "Archdruid": ClassEnrichers.Druid.Archdruid,
+    "Arms of the Astral Self": ClassEnrichers.Monk.ArmsOfTheAstralSelf,
+    "Arms of the Astral Self (WIS)": ClassEnrichers.Monk.ArmsOfTheAstralSelfWisAttack,
     "Arms of the Astral Self (DEX/STR)": ClassEnrichers.Monk.ArmsOfTheAstralSelfPhysicalAttack,
     "Arms of the Astral Self: Summon": ClassEnrichers.Monk.ArmsOfTheAstralSelfSummon,
     "Aspect of the Wilds": ClassEnrichers.Barbarian.AspectOfTheWilds,

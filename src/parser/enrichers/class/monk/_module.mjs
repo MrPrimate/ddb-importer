@@ -1,5 +1,7 @@
+export { default as ArmsOfTheAstralSelf } from "./ArmsOfTheAstralSelf.mjs";
 export { default as ArmsOfTheAstralSelfPhysicalAttack } from "./ArmsOfTheAstralSelfPhysicalAttack.mjs";
 export { default as ArmsOfTheAstralSelfSummon } from "./ArmsOfTheAstralSelfSummon.mjs";
+export { default as ArmsOfTheAstralSelfWisAttack } from "./ArmsOfTheAstralSelfWisAttack.mjs";
 export { default as DeflectAttack } from "./DeflectAttack.mjs";
 export { default as DeflectAttackRedirectAttack } from "./DeflectAttackRedirectAttack.mjs";
 export { default as DeflectAttacks } from "./DeflectAttacks.mjs";

@@ -186,7 +186,7 @@ export default class CharacterFeatureFactory {
 
     const attackActions = (await Promise.all(attackActionsBase
       .map(async (action) => {
-        const enricherClass = CharacterFeatureFactory.DDB_TYPE_ENRICHERS[action.actionSource];
+        const enricherClass = CharacterFeatureFactory.DDB_TYPE_ENRICHERS[action.actionSource ?? "other"];
         const enricher = new enricherClass({
           activityGenerator: DDBFeatureActivity,
         });
@@ -276,7 +276,7 @@ export default class CharacterFeatureFactory {
       .map(async(action) => {
         logger.debug(`Getting Other Action ${action.name}`);
 
-        const enricherClass = CharacterFeatureFactory.DDB_TYPE_ENRICHERS[action.actionSource];
+        const enricherClass = CharacterFeatureFactory.DDB_TYPE_ENRICHERS[action.actionSource ?? "other"];
         const enricher = new enricherClass({
           activityGenerator: DDBFeatureActivity,
         });
@@ -584,7 +584,7 @@ export default class CharacterFeatureFactory {
           ));
 
       // KNOWN_ISSUE_4_0: fix level scales for activities
-      if (scaleKlass) {
+      if (scaleKlass && !foundry.utils.hasProperty(feature, "flags.ddbimporter.skipScale")) {
         const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
         const damage = SystemHelpers.buildDamagePart({
           damageString: `@scale.${identifier}.${featureName}`,

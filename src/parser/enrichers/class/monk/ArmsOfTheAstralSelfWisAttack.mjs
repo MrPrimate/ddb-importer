@@ -1,8 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class ArmsOfTheAstralSelfPhysicalAttack extends DDBEnricherData {
-
+export default class ArmsOfTheAstralSelfWisAttack extends DDBEnricherData {
   get activity() {
     return {
       noConsumeTargets: true,
@@ -16,5 +15,4 @@ export default class ArmsOfTheAstralSelfPhysicalAttack extends DDBEnricherData {
       },
     };
   }
-
 }

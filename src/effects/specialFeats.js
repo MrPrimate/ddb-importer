@@ -2,7 +2,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
 import { arcaneWardEffect } from "./feats/arcaneWard.js";
-import { auraOfHateEffect } from "./feats/auraOfHate.js";
 import { bardicInspirationEffect } from "./feats/bardicInspiration.js";
 import { bladesongEffect } from "./feats/bladesong.js";
 import { blessedHealerEffect } from "./feats/blessedHealer.js";
@@ -326,10 +325,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
 
   // effects to always apply
   switch (name) {
-    case "Aura of Hate": {
-      document = auraOfHateEffect(document);
-      break;
-    }
     case "Arms of the Astral Self": {
       document = armsOfTheAstralSelfEffect(document);
       break;

@@ -6,7 +6,7 @@ export default class BardicInspiration extends DDBEnricherData {
   get activity() {
     return {
       targetType: "creature",
-      addItemConsumed: true,
+      addItemConsume: true,
       data: {
         roll: {
           prompt: false,
