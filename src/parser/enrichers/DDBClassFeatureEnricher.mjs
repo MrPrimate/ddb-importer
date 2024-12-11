@@ -338,6 +338,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherMixin {
     "Wild Shape": ClassEnrichers.Druid.WildShape,
     "Wrath of the Sea": ClassEnrichers.Druid.WrathOfTheSea,
     "Wrath of the Storm": ClassEnrichers.Cleric.WrathOfTheStorm,
+    "Ancestral Protectors": ClassEnrichers.Barbarian.AncestralProtectors,
   };
 
   FALLBACK_ENRICHERS = {

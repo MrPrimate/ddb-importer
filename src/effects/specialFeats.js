@@ -1,8 +1,6 @@
 import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
-import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
-import { arcaneRecoveryEffect } from "./feats/arcaneRecovery.js";
 import { arcaneWardEffect } from "./feats/arcaneWard.js";
 import { auraOfHateEffect } from "./feats/auraOfHate.js";
 import { bardicInspirationEffect } from "./feats/bardicInspiration.js";
@@ -102,14 +100,6 @@ async function midiFeatureEffects(ddb, character, document) {
   }
 
   switch (name) {
-    case "Arcane Recovery": {
-      document = await arcaneRecoveryEffect(document);
-      break;
-    }
-    case "Ancestral Protectors": {
-      document = await ancestralProtectorsEffect(document);
-      break;
-    }
     case "Arcane Ward": {
       document = await arcaneWardEffect(document);
       break;
