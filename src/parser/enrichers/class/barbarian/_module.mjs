@@ -1,4 +1,5 @@
 export { default as AncestralProtectors } from "./AncestralProtectors.mjs";
+export { default as AspectOfTheBeastBear } from "./AspectOfTheBeastBear.mjs";
 export { default as AspectOfTheWilds } from "./AspectOfTheWilds.mjs";
 export { default as BatteringRoots } from "./BatteringRoots.mjs";
 export { default as BranchesOfTheTree } from "./BranchesOfTheTree.mjs";

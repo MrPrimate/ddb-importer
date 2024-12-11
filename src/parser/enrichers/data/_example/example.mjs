@@ -129,6 +129,7 @@ export default class Example extends DDBEnricherData {
         daeStackable: "noneName", // set stackable dae value
         daeSpecialDurations: [], // adds dae special durations
         midiChanges: [], // adds midi changes
+        daeChanges: [], // adds dae changes
         midiProperties: {}, // adds midi properties to midi flags
         func: function() {}, // run this funciton passing in the activity as the only variable
         descriptionHint: "hint text", // adds enchantment description hint

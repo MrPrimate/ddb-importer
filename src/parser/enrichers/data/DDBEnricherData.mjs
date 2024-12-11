@@ -225,6 +225,7 @@ export default class DDBEnricherData {
    *     - daeSpecialDurations: {Array} adds dae special durations
    *     - midiChanges: {Array} MIDI changes.
    *     - midiProperties: {object} MIDI properties.
+   *     - daeChanges: {Array} DAE changes.
    *     - func: {function} A function executed with the activity as the sole argument.
    *     - descriptionHint: {string} A hint for the enchantment description.
    *     - descriptionSuffix: {string} Text to append to the item description.

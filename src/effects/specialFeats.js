@@ -66,7 +66,6 @@ import { giantStatureEffect } from "./feats/giantStature.js";
 import { demiurgicColossusEffect } from "./feats/demiurgicColossus.js";
 import { greatWeaponMasterEffect } from "./feats/greatWeaponMaster.js";
 import { sneakAttackEffect } from "./feats/sneakAttack.js";
-import { aspectOfTheBeastBearEffect } from "./feats/aspectOfTheBeastBear.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 import { songOfVictoryEffect } from "./feats/songOfVictory.js";
 import { twinklingConstellationsEffect } from "./feats/twinklingConstellations.js";
@@ -102,10 +101,6 @@ async function midiFeatureEffects(ddb, character, document) {
   switch (name) {
     case "Arcane Ward": {
       document = await arcaneWardEffect(document);
-      break;
-    }
-    case "Aspect of the Beast: Bear": {
-      document = await aspectOfTheBeastBearEffect(document);
       break;
     }
     case "Bardic Inspiration": {

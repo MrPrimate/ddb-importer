@@ -530,6 +530,10 @@ export default class DDBEnricherFactoryMixin {
         effect.changes.push(...effectHint.midiChanges);
       }
 
+      if (effectHint.daeChanges && AutoEffects.effectModules().daeInstalled) {
+        effect.changes.push(...effectHint.daeChanges);
+      }
+
       if (effectHint.daeStackable && AutoEffects.effectModules().daeInstalled) {
         foundry.utils.setProperty(effect, "flags.dae.stackable", effectHint.daeStackable);
       }
