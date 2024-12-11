@@ -2514,6 +2514,11 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         activity.img = img;
       }
 
+      this.enricher.customFunction({
+        name: spellLookupName ?? spell.name,
+        activity: activity,
+      });
+
       this.data.system.activities[newId] = activity;
       i++;
     }
@@ -2600,6 +2605,11 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         spell.system.activities[id].save.dc = saveDC;
       }
       spell.system.activities[id].description.chatFlavor = `Cast from ${this.data.name}`;
+
+      spell.system.activities[id] = this.enricher.customFunction({
+        name: spell.name,
+        activity: spell.system.activities[id],
+      });
     });
 
     // console.warn(`Adjusted Spell ${spell.name} as item consumption`, {

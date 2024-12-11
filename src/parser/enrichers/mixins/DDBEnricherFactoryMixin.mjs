@@ -159,14 +159,6 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
-  spellActionAdjustments(name) {
-    if (this.loadedEnricher) {
-      return this.loadedEnricher.spellActionAdjustments(name);
-    } else {
-      return null;
-    }
-  }
-
   constructor({
     activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null, fallbackEnricher = null,
     ddbActionType = null,

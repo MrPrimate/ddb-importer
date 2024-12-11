@@ -75,6 +75,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Spellguard Shield": ItemEnrichers.SpellguardShield,
     "Potion of Speed": ItemEnrichers.PotionOfSpeed,
     "Pearl of Power": ItemEnrichers.PearlOfPower,
+    "Staff of Healing": ItemEnrichers.StaffOfHealing,
   };
 
 }
