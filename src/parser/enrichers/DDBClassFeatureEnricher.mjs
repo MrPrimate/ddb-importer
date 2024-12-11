@@ -340,6 +340,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Wrath of the Storm": ClassEnrichers.Cleric.WrathOfTheStorm,
     "Ancestral Protectors": ClassEnrichers.Barbarian.AncestralProtectors,
     "Aspect of the Beast: Bear": ClassEnrichers.Barbarian.AspectOfTheBeastBear,
+    "Aura of Hate": ClassEnrichers.Paladin.AuraOfHate,
   };
 
   FALLBACK_ENRICHERS = {

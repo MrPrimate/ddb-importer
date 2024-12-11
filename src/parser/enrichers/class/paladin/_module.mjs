@@ -1,4 +1,5 @@
 export { default as AbjureFoes } from "./AbjureFoes.mjs";
+export { default as AuraOfHate } from "./AuraOfHate.mjs";
 export { default as AvengingAngel } from "./AvengingAngel.mjs";
 export { default as ElderChampion } from "./ElderChampion.mjs";
 export { default as EmbodyLegends } from "./EmbodyLegends.mjs";

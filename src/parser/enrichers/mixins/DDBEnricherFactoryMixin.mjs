@@ -450,6 +450,7 @@ export default class DDBEnricherFactoryMixin {
         : effectHintFunction;
       if (!effectHint) continue;
       if (effectHint.midiOnly && !AutoEffects.effectModules().midiQolInstalled) continue;
+      if (effectHint.activeAurasOnly && !AutoEffects.effectModules().activeAurasInstalled) continue;
       let name = effectHint.name ?? this.name;
       let effectOptions = effectHint.options ?? {};
 

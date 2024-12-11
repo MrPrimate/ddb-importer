@@ -230,6 +230,7 @@ export default class DDBEnricherData {
    *     - descriptionHint: {string} A hint for the enchantment description.
    *     - descriptionSuffix: {string} Text to append to the item description.
    *     - midiOnly: {boolean} Indicates that the effect is generated only if MIDI-QOL is installed.
+   *     - activeAurasOnly: {boolean} Indicates that the effect is generated only if ActiveAuras is installed.
    *     - activityMatch: {string} Match to this activity only
    *     - activitiesMatch: {Array} Match to only these activities
    *     - macroChanges: {Array} Add macro changes using DDBMacros.generateMacroChange

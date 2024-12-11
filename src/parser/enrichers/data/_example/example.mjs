@@ -135,6 +135,7 @@ export default class Example extends DDBEnricherData {
         descriptionHint: "hint text", // adds enchantment description hint
         descriptionSuffix: "", // append to item description
         midiOnly: true, // only generate this effect if midi qol is installed
+        activeAurasOnly: true, // only generate this effect if active auras is installed
         activityMatch: "Attack", // Match to this activity only
         activitiesMatch: ["Save"], // Match to only these activities
         macroChanges: { macroType: "item", macroName: "cloakOfDisplacement.js" }, // add macro change
