@@ -292,4 +292,10 @@ export default class DDBEnricherData {
 
   }
 
+  // return a data object to merge with and activity based on the spell name
+  // eslint-disable-next-line no-unused-vars
+  spellActionAdjustments(name) {
+    return null;
+  }
+
 }

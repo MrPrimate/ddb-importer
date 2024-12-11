@@ -1,8 +1,8 @@
-import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
+import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
 import { GenericEnrichers, MonsterEnrichers } from "./_module.mjs";
 import { logger } from "../../lib/_module.mjs";
 
-export default class DDDMonsterFeatureEnricher extends DDBEnricherMixin {
+export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
 
   _loadEnricherData() {
     if (!this.ENRICHERS?.[this.monsterHintName]?.[this.hintName]) return null;

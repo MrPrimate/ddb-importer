@@ -3,7 +3,7 @@ import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module.mjs";
 import { AutoEffects, EnchantmentEffects, MidiEffects, ChangeHelper } from "../effects/_module.mjs";
 
-export default class DDBEnricherMixin {
+export default class DDBEnricherFactoryMixin {
 
   NAME_HINTS_2014 = {};
 
@@ -154,6 +154,14 @@ export default class DDBEnricherMixin {
   get itemMacro() {
     if (this.loadedEnricher) {
       return this.loadedEnricher.itemMacro;
+    } else {
+      return null;
+    }
+  }
+
+  spellActionAdjustments(name) {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.spellActionAdjustments(name);
     } else {
       return null;
     }

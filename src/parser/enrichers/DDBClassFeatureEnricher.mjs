@@ -1,7 +1,7 @@
-import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
+import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
 import { ClassEnrichers, GenericEnrichers } from "./_module.mjs";
 
-export default class DDBClassFeatureEnricher extends DDBEnricherMixin {
+export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null, fallbackEnricher = null } = {}) {
     super({
       activityGenerator,

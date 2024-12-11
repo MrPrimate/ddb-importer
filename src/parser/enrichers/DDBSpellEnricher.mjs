@@ -1,7 +1,7 @@
 import { SpellEnrichers } from "./_module.mjs";
-import DDBEnricherMixin from "./mixins/DDBEnricherMixin.mjs";
+import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
 
-export default class DDBSpellEnricher extends DDBEnricherMixin {
+export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null } = {}) {
     super({
       activityGenerator,
