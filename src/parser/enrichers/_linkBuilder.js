@@ -30,6 +30,7 @@ const directories = [
   'class/rogue',
   'class/sorcerer',
   'class/warlock',
+  'class/wizard',
   'class/shared',
   'background',
 ];
