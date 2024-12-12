@@ -1,7 +1,6 @@
 import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
-import { bladesongEffect } from "./feats/bladesong.js";
 import { blessedHealerEffect } from "./feats/blessedHealer.js";
 import { blessedStrikesEffect } from "./feats/blessedStrikes.js";
 import { cloudRuneEffect } from "./feats/cloudRune.js";
@@ -317,10 +316,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
   switch (name) {
     case "Arms of the Astral Self": {
       document = armsOfTheAstralSelfEffect(document);
-      break;
-    }
-    case "Bladesong": {
-      document = bladesongEffect(document);
       break;
     }
     case "Defensive Duelist": {
