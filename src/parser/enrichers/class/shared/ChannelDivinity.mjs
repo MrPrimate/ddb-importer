@@ -172,4 +172,17 @@ export default class ChannelDivinity extends DDBEnricherData {
     return null;
   }
 
+  get override() {
+    if (this.is2014) return null;
+
+    return {
+      data: {
+        "system.uses.recovery": [
+          { period: "sr", type: 'formula', formula: "1" },
+          { period: "lr", type: 'recoverAll', formula: undefined },
+        ],
+      },
+    };
+  }
+
 }
