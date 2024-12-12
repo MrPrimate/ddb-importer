@@ -151,6 +151,14 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
+  get addToDefaultAdditionalActivities() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.addToDefaultAdditionalActivities;
+    } else {
+      return false;
+    }
+  }
+
   get itemMacro() {
     if (this.loadedEnricher) {
       return this.loadedEnricher.itemMacro;
@@ -830,14 +838,19 @@ export default class DDBEnricherFactoryMixin {
   }
 
   async addAdditionalActivities(ddbParent) {
-    if (this.useDefaultAdditionalActivities) {
+    const useDefaultActivities = this.useDefaultAdditionalActivities;
+    const addToDefaultAdditionalActivities = this.addToDefaultAdditionalActivities;
+
+    if (useDefaultActivities) {
       logger.debug(`Adding default additional activities for ${this.ddbParser.originalName}`);
       this._addDefaultActionMatchedActivities();
       logger.debug(`Complete adding default additional activities for ${this.ddbParser.originalName}`, {
         this: this,
         data: foundry.utils.deepClone(this.data),
       });
-    } else {
+    }
+
+    if (!useDefaultActivities || addToDefaultAdditionalActivities) {
       logger.debug(`Adding custom additional activities for ${this.ddbParser.originalName}`);
       await this._addActivityHintAdditionalActivities(ddbParent);
     }

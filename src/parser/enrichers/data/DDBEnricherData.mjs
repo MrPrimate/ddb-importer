@@ -15,6 +15,10 @@ export default class DDBEnricherData {
     return false;
   }
 
+  get addToDefaultAdditionalActivities() {
+    return false;
+  }
+
   getFeatureActionsName({ type = null } = {}) {
     return this.ddbEnricher.getFeatureActionsName({ type });
   }

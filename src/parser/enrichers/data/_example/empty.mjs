@@ -23,4 +23,14 @@ export default class Empty extends DDBEnricherData {
     return null;
   }
 
+  // keep this if you want to use the default generated actions
+  get useDefaultAdditionalActivities() {
+    return true;
+  }
+
+  // use this if you want to add to default actions
+  get addToDefaultAdditionalActivities() {
+    return true;
+  }
+
 }

@@ -1,31 +1,18 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class RendMind extends DDBEnricherData {
+export default class PsychicVeil extends DDBEnricherData {
 
-  get activity() {
-    if (this.is2014) {
-      return {
-        addItemConsume: true,
-      };
-    } else {
-      return {
-        addItemConsume: true,
-        data: {
-          save: {
-            dc: { formula: "", calculation: "dex" },
-            ability: ["wis"],
-          },
-        },
-      };
-    }
+  get useDefaultAdditionalActivities() {
+    return true;
   }
 
-  get effects() {
-    return [];
+  get addToDefaultAdditionalActivities() {
+    return true;
   }
 
   get additionalActivities() {
+    if (this.isAction) return [];
     return [
       {
         constructor: {
@@ -52,7 +39,7 @@ export default class RendMind extends DDBEnricherData {
               },
               {
                 type: "itemUses",
-                value: "3",
+                value: "1",
                 target: "Psionic Power",
                 scaling: { allowed: false, max: "" },
               },
@@ -62,20 +49,4 @@ export default class RendMind extends DDBEnricherData {
       },
     ];
   }
-
-  get override() {
-    const uses = this._getUsesWithSpent({
-      type: "class",
-      name: "Psychic Blades: Rend Mind",
-      max: "1",
-      period: "lr",
-    });
-
-    return {
-      data: {
-        "system.uses": uses,
-      },
-    };
-  }
-
 }
