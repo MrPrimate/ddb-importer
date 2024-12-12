@@ -9,6 +9,7 @@ export default class DeflectMissiles extends DDBEnricherData {
 
   get activity() {
     return {
+      name: "Reduce Damage",
       targetType: "self",
       type: "heal",
       data: {
@@ -25,6 +26,28 @@ export default class DeflectMissiles extends DDBEnricherData {
           bonus: "@abilities.dex.mod + @classes.monk.levels",
           types: ["healing"],
         }),
+      },
+    };
+  }
+
+  get additionalActivities() {
+    return [
+      {
+        action: { name: "Deflect Missiles Attack", type: "class", rename: ["Deflect Missiles Attack"] },
+        overrides: {
+          addItemConsume: true,
+          itemConsumeTargetName: "Ki",
+        },
+      },
+    ];
+  }
+
+  get override() {
+    return {
+      data: {
+        "flags.ddbimporter": {
+          ignoredConsumptionActivities: ["Reduce Damage"],
+        },
       },
     };
   }

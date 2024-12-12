@@ -1350,8 +1350,8 @@ ${item.system.description.chat}
       // add infusions to actors items
       await createInfusedItems(this.ddbCharacter.source.ddb, this.actor);
 
-      this.showCurrentTask(`Linking resources...`);
-      await this.ddbCharacter.autoLinkResources();
+      this.showCurrentTask(`Consumption linking...`);
+      await this.ddbCharacter.autoLinkConsumption();
 
       if (this.settings.useChrisPremades) {
         this.showCurrentTask(`Applying CPR...`);

@@ -157,6 +157,10 @@ export default class Example extends DDBEnricherData {
     return true;
   }
 
+  get useDefaultAdditionalActivities() {
+    return true;
+  }
+
   get itemMacro() {
     return {
       type: "item",

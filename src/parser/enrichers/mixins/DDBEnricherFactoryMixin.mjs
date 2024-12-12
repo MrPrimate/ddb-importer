@@ -757,6 +757,10 @@ export default class DDBEnricherFactoryMixin {
   }
 
   _addDefaultActionMatchedActivities() {
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities", {
+      enabled: true,
+      data: {},
+    });
     let i = 0;
     for (const [name, features] of Object.entries(this.defaultActionFeatures)) {
       let y = 0;
@@ -764,10 +768,12 @@ export default class DDBEnricherFactoryMixin {
         const activityData = {
           activities: {},
           effects: [],
+          nameData: {},
         };
 
         const activityKeys = Object.keys(feature.system.activities);
         const activityCount = activityKeys.length;
+        const featureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
 
         logger.debug(`Processing out ${activityCount} default additional activities for ${name}`, {
           feature,
@@ -775,6 +781,7 @@ export default class DDBEnricherFactoryMixin {
           y,
           name,
           activityKeys,
+          featureName,
         });
 
         for (const activityKey of activityKeys) {
@@ -784,16 +791,17 @@ export default class DDBEnricherFactoryMixin {
           }
           activityData.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
           activityData.activities[newKey]._id = `${newKey}`;
-          const name = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+
           const activityName = activityData.activities[newKey].name;
           if (!activityName || activityName === "") {
             // eslint-disable-next-line max-depth
             if (activityCount === 1) {
-              activityData.activities[newKey].name = name;
+              activityData.activities[newKey].name = featureName;
             } else {
-              activityData.activities[newKey].name = `${name} (${utils.capitalize(activityData.activities[newKey].type)})`;
+              activityData.activities[newKey].name = `${featureName} (${utils.capitalize(activityData.activities[newKey].type)})`;
             }
           }
+          activityData.nameData[newKey] = Array.from(new Set(featureName, activityData.activities[newKey].name));
         }
         activityData.effects.push(...(foundry.utils.deepClone(feature.effects)));
 
@@ -809,6 +817,14 @@ export default class DDBEnricherFactoryMixin {
           this.data.effects.push(...activityData.effects);
         }
         y++;
+
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities.data", {
+          featureName,
+          activityCount,
+          activityKeys: Object.keys(activityData.activities),
+          nameMap: activityData.nameData,
+        });
+
       }
     }
   }

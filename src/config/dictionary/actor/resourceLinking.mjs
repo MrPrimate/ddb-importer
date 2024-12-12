@@ -2,7 +2,7 @@ export const RESOURCE_LINKS = {
   "Channel Divinity": [
     "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",
     "War God's Blessing", "Guided Strike", "War Priest", "Inspiring Smite", "Peerless Athlete",
-    "Nature's Wrath", "Vow of Enmity",
+    "Nature's Wrath", "Vow of Enmity", "Preserve Life",
     // "Sear Undead",
   ],
   "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:"],
@@ -60,7 +60,7 @@ export const RESOURCE_LINKS = {
     "Ride the Wind", "River of Hungry Flame", "Rush of the Gale Spirits",
     "Shape the Flowing River", "Sweeping Cinder Strike", "Water Whip",
     "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm", "Hand of Ultimate Mercy",
-    "Awakened Astral Self",
+    "Awakened Astral Self", "Deflect Missiles",
   ],
   "Monk's Focus": [
     "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind",
