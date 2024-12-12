@@ -5,6 +5,7 @@ export default class BardicInspiration extends DDBEnricherData {
 
   get activity() {
     return {
+      name: "Inspire",
       targetType: "creature",
       addItemConsume: true,
       data: {
@@ -28,13 +29,75 @@ export default class BardicInspiration extends DDBEnricherData {
   }
 
   get effects() {
+    const diceString = "@scale.bard.bardic-inspiration";
+    const midiChanges = [
+      DDBEnricherData.ChangeHelper.customChange(
+        diceString,
+        20,
+        "flags.midi-qol.optional.bardicInspiration.attack.all",
+      ),
+      DDBEnricherData.ChangeHelper.customChange(
+        diceString,
+        20,
+        "flags.midi-qol.optional.bardicInspiration.save.all",
+      ),
+      DDBEnricherData.ChangeHelper.customChange(
+        diceString,
+        20,
+        "flags.midi-qol.optional.bardicInspiration.check.all",
+      ),
+      DDBEnricherData.ChangeHelper.customChange(
+        diceString,
+        20,
+        "flags.midi-qol.optional.bardicInspiration.skill.all",
+      ),
+      DDBEnricherData.ChangeHelper.customChange(
+        "Bardic Inspiration",
+        20,
+        "flags.midi-qol.optional.bardicInspiration.label",
+      ),
+    ];
+    if (this.hasSubclass("College of Valor")) {
+      midiChanges.push(
+        DDBEnricherData.ChangeHelper.customChange(
+          diceString,
+          20,
+          "flags.midi-qol.optional.bardicInspiration.damage.all",
+        ),
+        DDBEnricherData.ChangeHelper.customChange(
+          diceString,
+          20,
+          "flags.midi-qol.optional.bardicInspiration.ac.all",
+        ),
+      );
+    }
     return [
       {
         options: {
           durationSeconds: 600,
+          transfer: false,
+        },
+        daeStackable: "noneName",
+        midiChanges,
+        data: {
+          "flags": {
+            dae: {
+              specialDuration: [],
+            },
+          },
         },
       },
     ];
+  }
+
+  get override() {
+    return {
+      data: {
+        "mid-qol": {
+          effectActivation: false,
+        },
+      },
+    };
   }
 
 }

@@ -20,7 +20,7 @@ if (args[0].macroPass === "preActiveEffects" && args[0].item?.system.school === 
       _id: hpItem._id,
       system: {
         uses: {
-          value: newHP,
+          spent: hpItem.system.uses.max - newHP,
         }
       }
     }]);
@@ -67,12 +67,13 @@ if (args[0].macroPass === "preActiveEffects" && args[0].item?.system.school === 
         content: `${lastArg.originItem.name} absorbs ${absorbed} of ${damage} points of damage.<br> Hp -> ${newHP}<br>Wardstength -> ${wardStrength - absorbed}`,
         speaker
       });
+      lastArg.updates.system.attributes.hp.spent = absorbed;
       lastArg.updates.system.attributes.hp.value = newHP;
       await lastArg.targetActor.updateEmbeddedDocuments("Item", [{
         _id: hpItem._id,
         system: {
           uses: {
-            value: wardStrength - absorbed,
+            spent: absorbed,
           }
         }
       }]);

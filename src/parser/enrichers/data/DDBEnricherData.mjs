@@ -46,6 +46,14 @@ export default class DDBEnricherData {
     return this.ddbParser.subKlass === name || this.ddbParser.subClass === name;
   }
 
+  hasSubclass(name) {
+    if (!this.ddbParser?.ddbData) return false;
+    return DDBDataUtils.hasSubClass({
+      ddbData: this.ddbParser.ddbData,
+      subClassName: name,
+    });
+  }
+
   hasAction({ name, type } = {}) {
     return this.ddbParser?.ddbData?.character.actions[type].find((a) =>
       a.name === name,

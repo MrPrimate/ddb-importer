@@ -573,6 +573,12 @@ export default class DDBEnricherFactoryMixin {
         }
       }
 
+      if (effectHint.onUseMacroChanges && applyMidiOnlyEffects) {
+        for (const macroChange of effectHint.onUseMacroChanges) {
+          effect.changes.push(DDBMacros.generateOnUseMacroChange(macroChange));
+        }
+      }
+
       if (effectHint.data) {
         effect = foundry.utils.mergeObject(effect, effectHint.data);
       }

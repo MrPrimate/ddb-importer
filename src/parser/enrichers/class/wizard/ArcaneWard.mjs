@@ -137,6 +137,22 @@ export default class ArcaneWard extends DDBEnricherData {
   }
 
   get effects() {
-    return [];
+    return [
+      {
+        name: `Arcane Ward: Spell Detection`,
+        activityMatch: "Create Ward",
+        midiOnly: true,
+        onUseMacroChanges: [
+          { macroPass: "preActiveEffects", macroType: "spell", macroName: "arcaneWard.js", document: this.data },
+        ],
+      },
+    ];
+  }
+
+  get itemMacro() {
+    return {
+      type: "feat",
+      name: "arcaneWard.js",
+    };
   }
 }

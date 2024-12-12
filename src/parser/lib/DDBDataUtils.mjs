@@ -318,6 +318,12 @@ export default class DDBDataUtils {
     return result;
   }
 
+  static hasSubClass({ ddbData, subClassName } = {}) {
+    return ddbData.character.classes.some((klass) =>
+      klass.subclassDefinition?.name === subClassName,
+    );
+  }
+
   /**
    * Retrieves a list of character choices based on the provided parameters.
    *

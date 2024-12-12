@@ -1,8 +1,6 @@
 import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
-import { arcaneWardEffect } from "./feats/arcaneWard.js";
-import { bardicInspirationEffect } from "./feats/bardicInspiration.js";
 import { bladesongEffect } from "./feats/bladesong.js";
 import { blessedHealerEffect } from "./feats/blessedHealer.js";
 import { blessedStrikesEffect } from "./feats/blessedStrikes.js";
@@ -98,14 +96,6 @@ async function midiFeatureEffects(ddb, character, document) {
   }
 
   switch (name) {
-    case "Arcane Ward": {
-      document = await arcaneWardEffect(document);
-      break;
-    }
-    case "Bardic Inspiration": {
-      document = bardicInspirationEffect(document);
-      break;
-    }
     case "Blessed Healer": {
       document = await blessedHealerEffect(document);
       break;
