@@ -1,6 +1,6 @@
 import { ACTOR } from "./actor/actor.mjs";
 import { MONSTERS } from "./actor/monsters.mjs";
-import { RESOURCE_LINKS, RESOURCE_SPELL_LINKS } from "./actor/resourceLinking.mjs";
+import { CONSUMPTION_LINKS, CONSUMPTION_SPELL_LINKS } from "./actor/consumptionLinking.mjs";
 import { COMPENDIUM_FOLDERS } from "./folders/compendiums.mjs";
 import { EQUIPMENT } from "./items/equipment.mjs";
 import { ITEM_GENERICS } from "./items/generics.mjs";
@@ -40,8 +40,8 @@ const DICTIONARY = {
   spell: SPELL,
   monsters: MONSTERS,
   COMPENDIUM_FOLDERS: COMPENDIUM_FOLDERS,
-  RESOURCE_LINKS: RESOURCE_LINKS,
-  RESOURCE_SPELL_LINKS: RESOURCE_SPELL_LINKS,
+  CONSUMPTION_LINKS: CONSUMPTION_LINKS,
+  CONSUMPTION_SPELL_LINKS: CONSUMPTION_SPELL_LINKS,
   parsing: {
     actions: PARSING_ACTIONS,
     attackActions: PARSING_ATTACK_ACTIONS,

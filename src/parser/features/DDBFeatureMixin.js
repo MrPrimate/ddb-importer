@@ -890,7 +890,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   isForceResourceLinked() {
-    for (const linkedFeatures of Object.values(DICTIONARY.RESOURCE_LINKS)) {
+    for (const linkedFeatures of Object.values(DICTIONARY.CONSUMPTION_LINKS)) {
       if (linkedFeatures.some((child) => this.originalName.startsWith(child))) {
         return true;
       }

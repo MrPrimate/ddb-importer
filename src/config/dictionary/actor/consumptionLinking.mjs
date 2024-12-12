@@ -1,4 +1,4 @@
-export const RESOURCE_LINKS = {
+export const CONSUMPTION_LINKS = {
   "Channel Divinity": [
     "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",
     "War God's Blessing", "Guided Strike", "War Priest", "Inspiring Smite", "Peerless Athlete",
@@ -92,7 +92,7 @@ export const RESOURCE_LINKS = {
   "Divine Intervention": ["Greater Divine Intervention"],
 };
 
-export const RESOURCE_SPELL_LINKS = {
+export const CONSUMPTION_SPELL_LINKS = {
   "Ki": [
     { name: "Astral Projection", cost: 8, lookupName: "Empty Body" },
     { name: "Darkness", cost: 2, lookupName: "Shadow Arts" },

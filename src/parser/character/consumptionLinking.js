@@ -11,7 +11,7 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
   const possibleItems = this.currentActor.items.toObject();
   let toUpdate = [];
 
-  for (const [featureName, linkedSpellArray] of Object.entries(DICTIONARY.RESOURCE_SPELL_LINKS)) {
+  for (const [featureName, linkedSpellArray] of Object.entries(DICTIONARY.CONSUMPTION_SPELL_LINKS)) {
     logger.debug(`Resource Spells: Checking ${featureName}`, linkedSpellArray);
     const parent = possibleItems.find((doc) => {
       const name = doc.flags.ddbimporter?.originalName ?? doc.name;
@@ -166,7 +166,7 @@ DDBCharacter.prototype._getAutoLinkActivityDictionaryUpdates = async function _g
   const possibleItems = this.currentActor.items.toObject();
   let toUpdate = [];
 
-  for (const [resourceDocName, consumingDocs] of Object.entries(DICTIONARY.RESOURCE_LINKS)) {
+  for (const [resourceDocName, consumingDocs] of Object.entries(DICTIONARY.CONSUMPTION_LINKS)) {
     logger.debug(`Generic Resource Linking: Checking ${resourceDocName}`, consumingDocs);
     const parent = possibleItems.find((doc) => {
       const name = doc.flags.ddbimporter?.originalName ?? doc.name;
