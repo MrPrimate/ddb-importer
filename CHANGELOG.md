@@ -1,6 +1,6 @@
 # Next Up
 
-- Fix Psychic Blades.
+- A number of improvements to Rogue and Soul Knife parsing.
 - Javelin of Lightning parsing fixes.
 - Fix Channel Divinity recovery for 2024.
 - Some Cleric Parsing fixes.

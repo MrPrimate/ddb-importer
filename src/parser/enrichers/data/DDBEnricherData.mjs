@@ -43,7 +43,7 @@ export default class DDBEnricherData {
   }
 
   isSubclass(name) {
-    return this.ddbParser.subclass === name;
+    return this.ddbParser.subKlass === name || this.ddbParser.subClass === name;
   }
 
   hasAction({ name, type } = {}) {
