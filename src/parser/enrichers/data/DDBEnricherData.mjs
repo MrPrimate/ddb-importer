@@ -246,6 +246,8 @@ export default class DDBEnricherData {
    *     - activityMatch: {string} Match to this activity only
    *     - activitiesMatch: {Array} Match to only these activities
    *     - macroChanges: {Array} Add macro changes using DDBMacros.generateMacroChange
+   *     - targetUpdateMacroChanges:  {Array} onTargetUpdate macro changes
+   *     - onUseMacroChanges: {Array} onUse macro changes
    */
   get effects() {
     return [];

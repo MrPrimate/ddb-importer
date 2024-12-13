@@ -1,16 +1,8 @@
-import { SETTINGS } from "../../config/_module.mjs";
+import DDBEnhancers from "../../DDBEnhancers.mjs";
 
-export default class DDBEnhancers {
+export default class WildShape {
 
-  static addFeatureToEffects(subject, delta, featureName) {
-    const feature = subject.items.find((i) => i.name === featureName);
-    if (feature) {
-      delta.effects.push(...feature.toObject().effects);
-    }
-  }
-
-  static load2024MoonDruidEnhancers() {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "allow-moon-druid-wildshape-enhancer")) return;
+  static registerHooks() {
     Hooks.on("dnd5e.transformActor", (subject, target, delta, options) => {
       const isLegacy = game.settings.get("dnd5e", "rulesVersion") === "legacy";
       if ((options.preset !== "wildshape") || !subject.classes?.druid) return;
@@ -23,9 +15,4 @@ export default class DDBEnhancers {
 
     });
   }
-
-  static loadEnhancers() {
-    DDBEnhancers.load2024MoonDruidEnhancers();
-  }
-
 }

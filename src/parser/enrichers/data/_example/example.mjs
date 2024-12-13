@@ -139,6 +139,8 @@ export default class Example extends DDBEnricherData {
         activityMatch: "Attack", // Match to this activity only
         activitiesMatch: ["Save"], // Match to only these activities
         macroChanges: { macroType: "item", macroName: "cloakOfDisplacement.js" }, // add macro change
+        targetUpdateMacroChanges: [{}], // onTargetUpdate macro changes
+        onUseMacroChanges: [{}], // onUse macro changes
       },
     ];
   }

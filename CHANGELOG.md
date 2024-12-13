@@ -8,6 +8,7 @@
 - Feature parsing has been reworked to improve automated action detection, and to ease the addition of new classes. This may lead to some oddities with class and species features, I've tested a wide variety but there are like a bazillion options.
 - Change to Moonsickle data on DDB broke item effect parsing.
 - Item effect generation and parsing improvements.
+- Arcane Ward automation.
 
 # 6.0.54
 

@@ -111,10 +111,12 @@ export default class ArcaneWard extends DDBEnricherData {
     const descriptionSuffix = `
 <section class="secret" id="secret-ddbArcaneWard">
 <p><strong>Implementation Details</strong></p>
+<p>There is a built in automation for absorbing damage and adding to the ward when spells are cast. To disable this see the DDB Importer documentation.</p>
+<br>
 <p>Uses on this item represent the HP of the Ward.</p>
 <p>The <strong>Create Ward</strong> activity tracks ward creation.</p>
-<p>The <strong>Damage Ward</strong> activity will reduce the Ward's by the damage.</p>
-<p>The <strong>Restore Ward After Casting Spell</strong> activity can be used after you use an Abjuration spell. Use the scaling to match the spell level.</p>
+<p>The <strong>Damage Ward</strong> activity will reduce the Ward by the damage. <i>This is automated.</i></p>
+<p>The <strong>Restore Ward After Casting Spell</strong> activity can be used after you use an Abjuration spell. Use the scaling to match the spell level. <i>This is automated.</i></p>
 <p>The <strong>Expend Spell Slot for Ward</strong> activity will spend a spell slot to top up ward.</p>
 </section>`;
 
@@ -136,23 +138,39 @@ export default class ArcaneWard extends DDBEnricherData {
     };
   }
 
-  get effects() {
-    return [
-      {
-        name: `Arcane Ward: Spell Detection`,
-        activityMatch: "Create Ward",
-        midiOnly: true,
-        onUseMacroChanges: [
-          { macroPass: "preActiveEffects", macroType: "spell", macroName: "arcaneWard.js", document: this.data },
-        ],
-      },
-    ];
-  }
+  // get effects() {
+  //   return [
+  //     {
+  //       name: `Arcane Ward: Spell Detection`,
+  //       options: {
+  //         transfer: true,
+  //       },
+  //       activityMatch: "Create Ward",
+  //       midiOnly: true,
+  //       onUseMacroChanges: [
+  //         {
+  //           macroPass: "postActiveEffects",
+  //           macroType: "feat",
+  //           macroName: "arcaneWard.js",
+  //           document: this.data,
+  //         },
+  //       ],
+  //       targetUpdateMacroChanges: [
+  //         {
+  //           macroPass: "system.attributes.hp.value",
+  //           macroType: "feat",
+  //           macroName: "arcaneWard.js",
+  //           document: this.data,
+  //         },
+  //       ],
+  //     },
+  //   ];
+  // }
 
-  get itemMacro() {
-    return {
-      type: "feat",
-      name: "arcaneWard.js",
-    };
-  }
+  // get itemMacro() {
+  //   return {
+  //     type: "feat",
+  //     name: "arcaneWard.js",
+  //   };
+  // }
 }

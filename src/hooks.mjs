@@ -35,7 +35,7 @@ import { activateUpdateHooks } from "./updater/character.js";
 import { registerCustomEnrichers } from "./hooks/ready/enrichers.js";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.mjs";
 import addActivitiesHooks from "./hooks/macroActivity/loadActivity.js";
-import DDBEnhancers from "./hooks/enhancers/DDBEnhancers.js";
+import { DDBEnhancers } from "./effects/_module.mjs";
 
 // foundry is initializing
 export function init() {
