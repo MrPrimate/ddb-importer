@@ -167,6 +167,14 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
+  get setMidiOnUseMacroFlag() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.setMidiOnUseMacroFlag;
+    } else {
+      return null;
+    }
+  }
+
   constructor({
     activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null, fallbackEnricher = null,
     ddbActionType = null,
@@ -612,6 +620,11 @@ export default class DDBEnricherFactoryMixin {
     const itemMacro = this.itemMacro;
     if (itemMacro && this._canApplyMidiEffects) {
       await DDBMacros.setItemMacroFlag(this.data, itemMacro.type, itemMacro.name);
+    }
+
+    const setMidiOnUseMacroFlag = this.setMidiOnUseMacroFlag;
+    if (setMidiOnUseMacroFlag && this._canApplyMidiEffects) {
+      DDBMacros.setMidiOnUseMacroFlag(this.data, setMidiOnUseMacroFlag.type, setMidiOnUseMacroFlag.name, setMidiOnUseMacroFlag.triggerPoints);
     }
 
     AutoEffects.forceDocumentEffect(this.data);

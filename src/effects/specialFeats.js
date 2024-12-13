@@ -65,7 +65,6 @@ import { sneakAttackEffect } from "./feats/sneakAttack.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 import { songOfVictoryEffect } from "./feats/songOfVictory.js";
 import { twinklingConstellationsEffect } from "./feats/twinklingConstellations.js";
-import { armsOfTheAstralSelfEffect } from "./feats/armsOfTheAstralSelf.js";
 import { ghostWalkEffect } from "./feats/ghostWalk.js";
 import { foeSlayerEffect } from "./feats/foeSlayer.js";
 import { AutoEffects, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
@@ -314,10 +313,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
 
   // effects to always apply
   switch (name) {
-    case "Arms of the Astral Self": {
-      document = armsOfTheAstralSelfEffect(document);
-      break;
-    }
     case "Defensive Duelist": {
       document = defensiveDuelistEffect(document);
       break;

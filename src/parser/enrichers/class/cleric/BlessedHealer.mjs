@@ -32,4 +32,36 @@ export default class BlessedHealer extends DDBEnricherData {
     };
   }
 
+  get effects() {
+    return [
+      {
+        type: "item",
+        midiOnly: true,
+        onUseMacroChanges: [
+          {
+            macroPass: "postActiveEffects",
+            macroType: "feat",
+            macroName: "blessedHealer.js",
+            document: this.data,
+          },
+        ],
+      },
+    ];
+  }
+
+  get itemMacro() {
+    return {
+      type: "feat",
+      name: "blessedHealer.js",
+    };
+  }
+
+  get setMidiOnUseMacroFlag() {
+    return {
+      macroType: "feat",
+      macroName: "blessedHealer.js",
+      triggerPoints: ["postActiveEffects"],
+    };
+  }
+
 }

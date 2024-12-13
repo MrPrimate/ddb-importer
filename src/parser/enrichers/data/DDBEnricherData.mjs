@@ -303,6 +303,10 @@ export default class DDBEnricherData {
     return null;
   }
 
+  get setMidiOnUseMacroFlag() {
+    return null;
+  }
+
   // eslint-disable-next-line no-unused-vars, no-empty-function
   customFunction(options = {}) {
 
