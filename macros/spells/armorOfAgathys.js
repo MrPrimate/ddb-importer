@@ -1,31 +1,34 @@
-if (args.length !== 3 || args[0] !== "onUpdateActor") return;
-const lastArg = args[2];
-const spellLevel = args[1];
-const message = game.messages.contents.findLast((i) =>
-  i.content.includes('<div class="dnd5e chat-card item-card midi-qol-item-card"')
-);
-let workflow = MidiQOL.Workflow.getWorkflow(message.flags["midi-qol"].workflowId);
-const validAttacks = ["mwak", "msak"];
-if (
-  validAttacks.includes(workflow.item?.system?.actionType) &&
-  workflow.hitTargets?.has(lastArg.sourceToken)
-) {
-  const attackerToken = workflow.token;
-  const damageAmount = parseInt(spellLevel) * 5;
-  const damageType = "cold";
-  const messageContent = `Armor of Agathys reactive damage: ${damageAmount} (${damageType})`;
-  await ChatMessage.create({ content: messageContent });
-  console.log(attackerToken);
-  await MidiQOL.applyTokenDamage(
-    [{ type: `${damageType}`, damage: damageAmount }],
-    damageAmount,
-    new Set([attackerToken]),
-    item,
-    new Set(),
-    { forceApply: false }
-  );
+console.warn({args, options, })
+
+if (args[0].macroPass === "isHit") {
+    const reactingActor = options.actor;
+    const reactingToken = options.token;
+
+    const activity = args[0].attackRoll.data.activity;
+    if (activity.attack?.value !== "melee") return;
+
+    if (workflow.token.actor.uuid === workflow.hitTargets.first().actor.uuid) return;
+
+    const effect = reactingActor.effects.find(effect => effect.label === 'Armor of Agathys');
+    if (!effect) return;
+
+    let damage = effect.flags['midi-qol'].castData.castLevel * 5;
+    const target = token;
+    let damageRoll = await new CONFIG.Dice.DamageRoll(`${damage}`).evaluate({ async: true });
+    new MidiQOL.DamageOnlyWorkflow(
+        reactingActor,
+        reactingToken,
+        damageRoll.total,
+        "cold",
+        target ? [target] : [],
+        damageRoll,
+        { itemCardId: workflow.itemCardId, flavor: "Armor of Agathys" }
+    );
 }
-if (lastArg.updates.system.attributes.hp.temp <= 0) {
-  const effectId = lastArg.sourceActor.effects.find((eff) => (eff.name ?? eff.label) === "Armor of Agathys").id;
-  await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: lastArg.actorUuid, effects: [effectId] });
+
+if (args[0].macroPass == "isDamaged") {
+    const effect = options.actor.effects.find(effect => effect.label === 'Armor of Agathys');
+    const tempHP = workflow.hitTargets.first().actor.system.attributes.hp.temp;
+
+    if (tempHP === 0) await MidiQOL.socket().executeAsGM('removeEffects', {'actorUuid': effect.parent.uuid, 'effects': [effect.id]});
 }

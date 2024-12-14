@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class BlessedStrikesDivineStrike extends DDBEnricherData {
+export default class BlessedStrikes extends DDBEnricherData {
   get type() {
     return "damage";
   }
@@ -15,8 +15,8 @@ export default class BlessedStrikesDivineStrike extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.cleric.divine-strike",
-              types: ["radiant", "necrotic"],
+              customFormula: "1d8",
+              types: ["radiant"],
             }),
           ],
         },

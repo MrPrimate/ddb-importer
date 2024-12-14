@@ -1,7 +1,6 @@
 import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
-import { blessedStrikesEffect } from "./feats/blessedStrikes.js";
 import { cloudRuneEffect } from "./feats/cloudRune.js";
 import { crossbowExpertEffect } from "./feats/crossbowExpert.js";
 import { crusherCriticalEffect } from "./feats/crusherCritical.js";
@@ -90,10 +89,6 @@ async function midiFeatureEffects(ddb, character, document) {
   }
 
   switch (name) {
-    case "Blessed Strikes": {
-      document = blessedStrikesEffect(document);
-      break;
-    }
     case "Crusher": {
       document = await crusherEffect(document);
       break;

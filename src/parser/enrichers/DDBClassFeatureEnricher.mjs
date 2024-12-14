@@ -76,6 +76,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Beguiling Twist": ClassEnrichers.Ranger.BeguilingTwist,
     "Bend Luck": ClassEnrichers.Sorcerer.BendLuck,
     "Blessed Healer": ClassEnrichers.Cleric.BlessedHealer,
+    "Blessed Strikes": ClassEnrichers.Cleric.BlessedStrikes,
     "Blessed Strikes: Divine Strike": ClassEnrichers.Cleric.BlessedStrikesDivineStrike,
     "Blessing of the Trickster": ClassEnrichers.Cleric.BlessingOfTheTrickster,
     "Blighted Shape": ClassEnrichers.Druid.BlightedShape,
