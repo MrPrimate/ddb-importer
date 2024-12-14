@@ -347,6 +347,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Psychic Veil": ClassEnrichers.Rogue.PsychicVeil,
     "Reliable Talent": ClassEnrichers.Rogue.ReliableTalent,
     "Bladesong": ClassEnrichers.Wizard.Bladesong,
+    "Pact Magic": ClassEnrichers.Shared.PactMagic,
   };
 
   FALLBACK_ENRICHERS = {

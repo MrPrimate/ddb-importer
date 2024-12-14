@@ -2,6 +2,13 @@
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class JavelinOfLightning extends DDBEnricherData {
+
+  get activity() {
+    return {
+      noConsumeTargets: true,
+    };
+  }
+
   get override() {
     const override = {
       "flags.ddbimporter.retainUseSpent": true,

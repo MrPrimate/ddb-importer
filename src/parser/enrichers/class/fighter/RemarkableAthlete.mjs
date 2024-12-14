@@ -6,6 +6,7 @@ export default class RemarkableAthlete extends DDBEnricherData {
   get effects() {
     return [
       {
+        noCreate: !this.is2014,
         options: {
           transfer: true,
         },

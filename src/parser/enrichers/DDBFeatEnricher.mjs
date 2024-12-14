@@ -53,6 +53,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Tavern Brawler": FeatEnrichers.TavernBrawler,
     "Telekinetic": FeatEnrichers.Telekinetic,
     "War Caster": FeatEnrichers.WarCaster,
+    "Great Weapon Master": FeatEnrichers.GreatWeaponMaster,
   };
 
   FALLBACK_ENRICHERS = {

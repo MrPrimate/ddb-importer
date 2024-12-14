@@ -1,7 +1,6 @@
 import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
-import { blessedHealerEffect } from "./feats/blessedHealer.js";
 import { blessedStrikesEffect } from "./feats/blessedStrikes.js";
 import { cloudRuneEffect } from "./feats/cloudRune.js";
 import { crossbowExpertEffect } from "./feats/crossbowExpert.js";
@@ -15,7 +14,6 @@ import { evasionEffect } from "./feats/evasion.js";
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
 import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { fireRuneEffect } from "./feats/fireRune.js";
-import { fontOfMagicEffect } from "./feats/fontOfMagic.js";
 import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js";
 import { frostRuneEffect } from "./feats/frostRune.js";
 import { giantsMightEffect } from "./feats/giantsMight.js";
@@ -28,7 +26,6 @@ import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
 import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
 import { mindLinkEffect } from "./feats/mindLink.js";
 import { momentaryStasis } from "./feats/momentaryStasis.js";
-import { pactMagicEffect } from "./feats/pactMagic.js";
 import { patientDefenseEffect } from "./feats/patientDefense.js";
 import { piercerCriticalEffect, piercerRerollEffect } from "./feats/piercer.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
@@ -60,7 +57,6 @@ import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
 import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
 import { giantStatureEffect } from "./feats/giantStature.js";
 import { demiurgicColossusEffect } from "./feats/demiurgicColossus.js";
-import { greatWeaponMasterEffect } from "./feats/greatWeaponMaster.js";
 import { sneakAttackEffect } from "./feats/sneakAttack.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 import { songOfVictoryEffect } from "./feats/songOfVictory.js";
@@ -94,17 +90,8 @@ async function midiFeatureEffects(ddb, character, document) {
   }
 
   switch (name) {
-    case "Blessed Healer": {
-      document = await blessedHealerEffect(document);
-      break;
-    }
     case "Blessed Strikes": {
       document = blessedStrikesEffect(document);
-      break;
-    }
-    case "Convert Sorcery Points":
-    case "Font of Magic": {
-      document = await fontOfMagicEffect(document);
       break;
     }
     case "Crusher": {
@@ -338,20 +325,12 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       document = giantStatureEffect(document);
       break;
     }
-    case "Great Weapon Master": {
-      document = greatWeaponMasterEffect(document);
-      break;
-    }
     case "Heavy Armor Master": {
       document = heavyArmorMasterEffect(document);
       break;
     }
     case "Hill Rune": {
       document = hillRuneEffect(document);
-      break;
-    }
-    case "Pact Magic": {
-      document = pactMagicEffect(document);
       break;
     }
     case "Channel Divinity: Sacred Weapon":
