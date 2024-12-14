@@ -25,7 +25,8 @@ export default class DDBEnhancers {
   }
 
   static addFeatEnhancers() {
-    GreatWeaponMaster.registerHooks();
+    if (game.settings.get(SETTINGS.MODULE_ID, "allow-great-weapon-master-enhancer"))
+      GreatWeaponMaster.registerHooks();
   }
 
   static loadEnhancers() {
