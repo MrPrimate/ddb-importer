@@ -29,7 +29,7 @@ export default class ProficiencyFinder {
         && value.value == 3,
     );
     const customProfs = CONFIG.DDB[type.toLowerCase()]
-      .filter((prof) => profCharacterValues.some((value) => value.valueId == prof.id))
+      .filter((prof) => profCharacterValues.some((value) => parseInt(value.valueId) == prof.id))
       .map((prof) => prof.name);
 
     return customProfs;
@@ -89,7 +89,7 @@ export default class ProficiencyFinder {
         : 1
       : 1;
 
-    proficiencyArray.forEach((prof) => {
+    const processToolProficiency = (prof) => {
       const profMatch = allToolProficiencies.find((allProf) => allProf.name === prof.name);
       if (profMatch && profMatch.baseTool) {
         const modifiers = mods
@@ -110,9 +110,9 @@ export default class ProficiencyFinder {
             : 0
           : 0;
 
-        const proficient = modifiers.includes("expertise")
+        const proficient = modifiers.includes("expertise") || prof.customExpertise
           ? 2
-          : modifiers.includes("proficiency")
+          : modifiers.includes("proficiency") || prof.customProficiency
             ? toolExpertise
             : halfProficiency;
 
@@ -124,7 +124,19 @@ export default class ProficiencyFinder {
           },
         };
       }
+    };
+
+    proficiencyArray.forEach((prof) => {
+      processToolProficiency(prof);
     });
+
+    if (this.ddb) {
+      // load custom proficiencies in characterValues
+      const customProfs = this.getCustomProficiencies("Tools");
+      customProfs.forEach((prof) => {
+        processToolProficiency({ name: prof, customProficiency: true });
+      });
+    }
 
     return results;
 

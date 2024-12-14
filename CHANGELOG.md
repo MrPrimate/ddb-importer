@@ -9,6 +9,7 @@
 - Change to Moonsickle data on DDB broke item effect parsing.
 - Item effect generation and parsing improvements.
 - Arcane Ward, and Great Weapon Master automation.
+- Additional tool proficiencies on characters would not import with the proficency level set.
 
 # 6.0.54
 
