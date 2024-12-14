@@ -1,4 +1,4 @@
-const damage = (await new CONFIG.Dice.DamageRoll("2d6[slashing]").evaluate({ async: true })).total;
+const damage = (await new CONFIG.Dice.DamageRoll("2d6[slashing]").evaluate()).total;
 await MidiQOL.applyTokenDamage(
   [
     {

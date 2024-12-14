@@ -104,7 +104,7 @@ if (args[0].tag === "OnUse") {
     const sourceItem = caster.getEmbeddedDocument("Item", itemId);
     // const caster = sourceItem.parent;
     const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
-    const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice}d8[${damageType}]`).evaluate({ async: true });
+    const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice}d8[${damageType}]`).evaluate();
     await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
     const workflowItemData = foundry.utils.duplicate(sourceItem);
     workflowItemData.system.target = { value: 1, units: "", type: "creature" };

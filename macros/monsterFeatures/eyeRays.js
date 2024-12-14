@@ -153,7 +153,7 @@ async function createBaseRay(rayName, { description, saveAbility = "", saveDC = 
 
 async function getRandomRayNumber() {
   const roll = new Roll(`1d${rayChoices.length}`);
-  await roll.evaluate({ async: true });
+  await roll.evaluate();
   return roll.total;
 }
 

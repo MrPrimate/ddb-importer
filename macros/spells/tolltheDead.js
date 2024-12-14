@@ -11,7 +11,7 @@ if (lastArg.failedSaveUuids.length > 0) {
   const damageDiceType = targets[0].actor.system.attributes.hp.max != targets[0].actor.system.attributes.hp.value ? 12 : 8;
   const casterLevel = casterActor.type === "character" ? casterActor.system.details.level : casterActor.system.details.spellLevel;
   const damageDiceNum = Math.floor((casterLevel + 1) / 6) + 1;
-  const damageRoll = await new CONFIG.Dice.DamageRoll(`${damageDiceNum}d${damageDiceType}[${damageType}]`).evaluate({ async: true });
+  const damageRoll = await new CONFIG.Dice.DamageRoll(`${damageDiceNum}d${damageDiceType}[${damageType}]`).evaluate();
   await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
   await new MidiQOL.DamageOnlyWorkflow(
     casterActor,

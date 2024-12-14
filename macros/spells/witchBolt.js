@@ -1,5 +1,5 @@
 async function sustainedDamage({ options, damageType, damageDice, sourceItem, caster }) {
-  const damageRoll = await new CONFIG.Dice.DamageRoll(`${damageDice}[${damageType}]`).evaluate({ async: true });
+  const damageRoll = await new CONFIG.Dice.DamageRoll(`${damageDice}[${damageType}]`).evaluate();
   if (game.dice3d) game.dice3d.showForRoll(damageRoll, game.users.get(options.userId));
 
   // console.warn({ options, damageType, damageDice, sourceItem, caster });

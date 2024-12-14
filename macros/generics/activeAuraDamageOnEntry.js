@@ -49,7 +49,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
     const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [targetToken.document.uuid] });
     await MidiQOL.completeItemUse(entryItem, config, options);
   } else {
-    const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate({ async: true });
+    const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate();
     await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
 
     workflowItemData.name = `${workflowItemData.name}: Turn Entry Damage`;

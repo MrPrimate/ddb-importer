@@ -28,7 +28,7 @@ if (args[0] === "each") {
   //   DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: "Reaction", actor: token.actor });
   // }
 
-  const confusionRoll = await new CONFIG.Dice.DamageRoll("1d10").evaluate({ async: true });
+  const confusionRoll = await new CONFIG.Dice.DamageRoll("1d10").evaluate();
   await MidiQOL.displayDSNForRoll(confusionRoll, "damageRoll");
   const result = confusionRoll.total;
   let content;
@@ -38,7 +38,7 @@ if (args[0] === "each") {
   switch (result) {
     case 1: {
       content = "The creature uses all its movement to move in a random direction. To determine the direction, roll a d8 and assign a direction to each die face. The creature doesn't take an action this turn.";
-      const directionRoll = await new CONFIG.Dice.DamageRoll("1d8").evaluate({ async: true });
+      const directionRoll = await new CONFIG.Dice.DamageRoll("1d8").evaluate();
       await MidiQOL.displayDSNForRoll(directionRoll, "damageRoll");
       directionResult = directionRoll.total;
       directionContent = null;

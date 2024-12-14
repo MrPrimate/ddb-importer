@@ -22,7 +22,7 @@ async function updateActor(kind, targetActor) {
         value: "1",
       }];
       ChatMessage.create({ content: `${targetActor.name} has advantage on Constitution checks` });
-      const amount = await new CONFIG.Dice.DamageRoll("2d6").evaluate({ async: true });
+      const amount = await new CONFIG.Dice.DamageRoll("2d6").evaluate();
       console.warn(amount);
       if (
         !Number.isInteger(targetActor.system.attributes.hp.temp)

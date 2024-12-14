@@ -108,7 +108,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
     scalingDiceArray,
     scalingDiceNumber,
   })
-  const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate({ async: true });
+  const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate();
   await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
   const workflowItemData = foundry.utils.duplicate(item);
   workflowItemData.system.target = { value: 1, units: "", type: "creature" };

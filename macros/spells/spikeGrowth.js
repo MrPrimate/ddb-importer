@@ -40,7 +40,7 @@ async function applySpikeGrowthDamage() {
 
   const caster = item.parent;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
-  const damageRoll = await new CONFIG.Dice.DamageRoll(`2d4[piercing]`).evaluate({ async: true });
+  const damageRoll = await new CONFIG.Dice.DamageRoll(`2d4[piercing]`).evaluate();
   await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
   const workflowItemData = foundry.utils.duplicate(item);
   workflowItemData.system.properties = DDBImporter?.EffectHelper.removeFromProperties(workflowItemData.system.properties, "concentration") ?? [];
