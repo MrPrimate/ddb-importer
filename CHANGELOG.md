@@ -1,13 +1,13 @@
 # Next Up
 
+- BREAKING CHANGE: Feature parsing has been reworked to improve automated action detection, and to ease the addition of new classes. This may lead to some oddities with class and species features, I've tested a wide variety but there are like a bazillion options.
+- Change to Moonsickle data on DDB broke item effect parsing.
 - A number of improvements to Rogue and Soul Knife parsing.
 - Javelin of Lightning parsing fixes.
 - Fix Channel Divinity recovery for 2024 and bonus to Divine Spark.
 - Some Cleric Parsing fixes.
 - Star Druid parsing fixes.
 - Magical Secrets added too much to the description field and caused load issues.
-- Feature parsing has been reworked to improve automated action detection, and to ease the addition of new classes. This may lead to some oddities with class and species features, I've tested a wide variety but there are like a bazillion options.
-- Change to Moonsickle data on DDB broke item effect parsing.
 - Item effect generation and parsing improvements.
 - Adamantine equipment did not get the adamantine property in all circumstances.
 - Arcane Ward, and Great Weapon Master automation.
