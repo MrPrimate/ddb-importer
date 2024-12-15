@@ -183,4 +183,8 @@ export default class Example extends DDBEnricherData {
     };
   }
 
+  get stopDefaultActivity() {
+    return true;
+  }
+
 }

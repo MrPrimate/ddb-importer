@@ -298,6 +298,10 @@ export default class DDBEnricherData {
     return true;
   }
 
+  get stopDefaultActivity() {
+    return false;
+  }
+
   // Add item macro using DDBMacros.setItemMacroFlag
   get itemMacro() {
     return null;

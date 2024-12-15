@@ -149,7 +149,7 @@ export default class DDBAction extends DDBFeatureMixin {
       this._generateDescription();
       this._generateLimitedUse();
       this._generateRange();
-      if (!this.enricher.documentStub?.stopDefaultActivity)
+      if (!this.enricher.stopDefaultActivity)
         this._generateActivity();
       await this.enricher.addAdditionalActivities(this);
       this._generateResourceFlags();

@@ -20,7 +20,6 @@ export default class WarriorsPasskey extends DDBEnricherData {
     return {
       documentType: "weapon",
       parsingType: "weapon",
-      stopDefaultActivity: true,
       replaceDefaultActivity: false,
       systemType: {
         value: "martialM",
@@ -32,6 +31,10 @@ export default class WarriorsPasskey extends DDBEnricherData {
         uuid: "Compendium.dnd5e.items.Item.IPkf0XNowClwXnjQ",
       },
     };
+  }
+
+  get stopDefaultActivity() {
+    return true;
   }
 
 }

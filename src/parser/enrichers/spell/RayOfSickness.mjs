@@ -36,4 +36,9 @@ export default class RayOfSickness extends DDBEnricherData {
     }
   }
 
+  get addAutoAdditionalActivities() {
+    if (this.is2014) return false;
+    return true;
+  }
+
 }

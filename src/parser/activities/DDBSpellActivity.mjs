@@ -339,15 +339,18 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     // damage
     const damages = this.ddbDefinition.modifiers
       .filter((mod) => mod.type === "damage")
-      .filter((mod) => modRestrictionFilterExcludes === null
+      .filter((mod) =>
+        modRestrictionFilterExcludes === null
         || ((
           !mod.restriction
           || mod.restriction === ""
-          || (mod.restriction && !mod.restriction.includes(modRestrictionFilterExcludes)))
-        ),
+          || (mod.restriction && !modRestrictionFilterExcludes.some((exclude) => mod.restriction.toLowerCase().includes(exclude.toLowerCase())))
+        )),
       )
-      .filter((mod) => modRestrictionFilter === null
-        || (mod.restriction && mod.restriction.includes(modRestrictionFilter)));
+      .filter((mod) =>
+        modRestrictionFilter === null
+        || (mod.restriction && modRestrictionFilter.some((exclude) => mod.restriction.toLowerCase().includes(exclude.toLowerCase()))),
+      );
     if (damages.length !== 0) {
       damages.forEach((damageMod) => {
         const restrictionText = damageMod.restriction && damageMod.restriction !== "" ? damageMod.restriction : "";

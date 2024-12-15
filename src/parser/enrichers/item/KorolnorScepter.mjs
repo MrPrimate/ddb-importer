@@ -8,7 +8,6 @@ export default class KorolnorScepter extends DDBEnricherData {
       // scepter can be used as a regular club
       documentType: "weapon",
       parsingType: "weapon",
-      stopDefaultActivity: true,
       replaceDefaultActivity: false,
       systemType: {
         value: "simpleM",
@@ -20,6 +19,10 @@ export default class KorolnorScepter extends DDBEnricherData {
         uuid: "Compendium.dnd5e.items.Item.nfIRTECQIG81CvM4",
       },
     };
+  }
+
+  get stopDefaultActivity() {
+    return true;
   }
 
 }

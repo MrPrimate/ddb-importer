@@ -12,6 +12,7 @@
 - Adamantine equipment did not get the adamantine property in all circumstances.
 - Arcane Ward, and Great Weapon Master automation.
 - Additional tool proficiencies on characters would not import with the proficency level set.
+- Improvements to spells such as Ice Knife where there is an attack and save.
 
 # 6.0.54
 

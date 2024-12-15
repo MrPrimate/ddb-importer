@@ -715,7 +715,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   /** @override */
   _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const itemOptions = foundry.utils.mergeObject({
-      modRestrictionFilterExcludes: this.ddbDefinition.requiresSavingThrow ? "Save" : null,
+      modRestrictionFilterExcludes: this.ddbDefinition.requiresSavingThrow ? ["Save", "saving throw"] : null,
     }, options);
 
     return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
@@ -737,9 +737,18 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
           options: {
             generateDamage: true,
             includeBaseDamage: false,
-            modRestrictionFilter: "Save",
+            modRestrictionFilter: ["Save", "saving throw"],
+            consumptionOverride: {
+              targets: [],
+              spellSlot: false,
+              scaling: {
+                allowed: false,
+                max: "",
+              },
+            },
           },
         });
+        logger.debug(`Generating separate save with attack for ${this.originalName}`, this);
       }
       return "attack";
     } else if (this.ddbDefinition.tags.includes("Damage")) {
@@ -898,12 +907,12 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
     await this.#generateSummons();
 
-    if (!this.enricher.documentStub?.stopDefaultActivity)
+    if (!this.enricher.stopDefaultActivity)
       await this._generateActivity();
 
     if (!this.enricher.activity?.stopHealSpellActivity)
       this.#addHealAdditionalActivities();
-    if (!this.enricher.documentStub?.stopSpellAutoAdditionalActivities)
+    if (this.enricher.addAutoAdditionalActivities)
       await this._generateAdditionalActivities();
     await this.enricher.addAdditionalActivities(this);
 

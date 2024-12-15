@@ -175,6 +175,14 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
+  get stopDefaultActivity() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.stopDefaultActivity;
+    } else {
+      return false;
+    }
+  }
+
   constructor({
     activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null, fallbackEnricher = null,
     ddbActionType = null,

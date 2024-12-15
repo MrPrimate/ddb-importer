@@ -1186,7 +1186,8 @@ ${this.data.system.description.value}
     if (!this.actionCopy) {
       this._generateActivity();
       this.#addHealAdditionalActivities();
-      this._generateAdditionalActivities();
+      if (this.enricher.addAutoAdditionalActivities)
+        this._generateAdditionalActivities();
       await this.enricher.addAdditionalActivities(this);
       this._generateEffects();
     }

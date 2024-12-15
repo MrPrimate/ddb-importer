@@ -2735,10 +2735,11 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
       if (this.documentType !== "container") {
         // containers can't have activities.
-        if (!this.enricher.documentStub?.stopDefaultActivity)
+        if (!this.enricher.stopDefaultActivity)
           this._generateActivity({}, this.activityOptions);
         this.#addHealAdditionalActivities();
-        this._generateAdditionalActivities();
+        if (this.enricher.addAutoAdditionalActivities)
+          this._generateAdditionalActivities();
         await this.enricher.addAdditionalActivities(this);
       }
 
