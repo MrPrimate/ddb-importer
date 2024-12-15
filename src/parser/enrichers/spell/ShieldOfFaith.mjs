@@ -7,7 +7,7 @@ export default class ShieldOfFaith extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.signedAddChange("5", 20, "system.attributes.ac.bonus"),
+          DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.attributes.ac.bonus"),
         ],
         tokenMagicChanges: [
           DDBEnricherData.ChangeHelper.tokenMagicFXChange("bloom"),

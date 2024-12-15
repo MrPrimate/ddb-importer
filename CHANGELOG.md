@@ -14,6 +14,7 @@
 - Additional tool proficiencies on characters would not import with the proficency level set.
 - Improvements to spells such as Ice Knife where there is an attack and save.
 - Divine Smite Spell was incorrectly configured in recent refactor.
+- Shield of Faith granted incorrect bonus.
 
 # 6.0.54
 
