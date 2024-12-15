@@ -231,6 +231,24 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
       this.data.system.advancement.push(aid);
+    } else if (this.data.name.startsWith("Circle of the Stars") && !this.is2014) {
+      const form = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `starry-form`,
+          type: "dice",
+          scale: {
+            3: { number: 1, faces: 8 },
+            10: { number: 2, faces: 8 },
+          },
+        },
+        value: {},
+        title: `Starry Form Dice`,
+        icon: null,
+      };
+      this.data.system.advancement.push(form);
     } else if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soulknife"))
       && !this.is2014
     ) {

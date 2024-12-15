@@ -173,7 +173,7 @@ export default class EffectGenerator {
 
     if (result.length > 0) {
       logger.debug(`Generating critical hit immunity for ${this.document.name}`);
-      const change = ChangeHelper.customChange(1, 1, "flags.midi-qol.fail.critical.all");
+      const change = ChangeHelper.customChange(1, 1, "flags.midi-qol.grants.noCritical.all");
       this.effect.changes.push(change);
     }
   }

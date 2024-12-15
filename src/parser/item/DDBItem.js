@@ -1401,6 +1401,12 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
   }
 
+  #generateExtraProperties() {
+    if (this.originalName.includes("Adamantine")) {
+      this.data.system.properties = utils.addToProperties(this.data.system.properties, "ada");
+    }
+  }
+
   #generateMagicalBonus() {
     this.actionInfo.magicBonus.null = this.#getMagicalBonus();
     this.actionInfo.magicBonus.zero = this.#getMagicalBonus(true);
@@ -2712,6 +2718,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       this.#generateQuantity();
       this.#generatePrice();
       this.#generateMagicalBonus();
+      this.#generateExtraProperties();
 
       if (this.overrides.ddbType)
         foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", this.overrides.ddbType);

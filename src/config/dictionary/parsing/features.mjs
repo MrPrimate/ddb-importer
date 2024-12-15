@@ -78,8 +78,10 @@ export const PARSING_FEATURES = {
     "Innate Sorcery",
     "Magical Secrets",
     "Infernal Majesty",
+    "Starry Form",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
+    "Cosmic Omen",
     "Trance of Order",
   ],
 };

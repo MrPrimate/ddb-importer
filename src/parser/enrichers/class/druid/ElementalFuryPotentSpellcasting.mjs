@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class ElementalFuryPrimalStrike extends DDBEnricherData {
+export default class ElementalFuryPotentSpellcasting extends DDBEnricherData {
   get type() {
     return "damage";
   }
@@ -14,12 +14,22 @@ export default class ElementalFuryPrimalStrike extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.druid.elemental-fury",
+              customFormula: "@ability.wis.mod",
               types: ["cold", "fire", "lighting", "thunder"],
             }),
           ],
         },
       },
+    };
+  }
+
+  get override() {
+    return {
+      descriptionSuffix: `
+<section class="secret" id="secret-ddbElementalFuryPotentSpellcasting">
+<p><strong>Implementation Details</strong></p>
+<p>DDB Importer will automatically adjust cantrip damage on spells when importing a character.</p>
+</section>`,
     };
   }
 }

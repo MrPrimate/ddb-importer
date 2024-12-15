@@ -2,7 +2,6 @@
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class StarryForm extends DDBEnricherData {
-
   get type() {
     return "utility";
   }
@@ -35,7 +34,12 @@ export default class StarryForm extends DDBEnricherData {
               value: "range",
             },
           },
-          damageParts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.stars.starry-form + @mod", type: "radiant" })],
+          damageParts: [
+            DDBEnricherData.basicDamagePart({
+              customFormula: "@scale.stars.starry-form + @mod",
+              type: "radiant",
+            }),
+          ],
           targetOverride: {
             affects: {
               count: "1",
@@ -64,7 +68,10 @@ export default class StarryForm extends DDBEnricherData {
           generateTarget: true,
           generateDamage: false,
           generateHealing: true,
-          healingPart: DDBEnricherData.basicDamagePart({ customFormula: "@scale.stars.starry-form + @mod", type: "healing" }),
+          healingPart: DDBEnricherData.basicDamagePart({
+            customFormula: "@scale.stars.starry-form + @mod",
+            type: "healing",
+          }),
           targetOverride: {
             affects: {
               count: "1",
@@ -113,28 +120,50 @@ export default class StarryForm extends DDBEnricherData {
   }
 
   get effects() {
+    const atlChanges = [
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "20"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "10"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#f3f5e5"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.35"),
+      DDBEnricherData.ChangeHelper.atlChange(
+        "ATL.light.animation",
+        CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        '{"type": ""starlight"", "speed": 5,"intensity": 5}',
+      ),
+    ];
     return [
       {
         activityMatch: "Activate Starry Form",
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '20'),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '10'),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#f3f5e5'),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.35'),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '{"type": ""starlight"", "speed": 5,"intensity": 5}'),
+        name: "Starry Form: Archer",
+        atlChanges,
+      },
+      {
+        activityMatch: "Activate Starry Form",
+        name: "Starry Form: Chalice",
+        atlChanges,
+      },
+      {
+        activityMatch: "Activate Starry Form",
+        name: "Starry Form: Dragon",
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("10", 10, "system.attributes.concentration.roll.min"),
+        ],
+        atlChanges,
+      },
+      {
+        activityMatch: "Activate Starry Form",
+        name: "Twinkling Constellations (Level 10)",
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.fly"),
         ],
       },
       {
-        activityMatch: "Dragon Constitution",
-        changes: [],
-      },
-      {
-        activityMatch: "Dragon Constitution",
-        data: {
-          name: "Dragon Form: Twinkling Constellations",
-        },
+        activityMatch: "Activate Starry Form",
+        name: "Full of Stars (Level 14)",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
         ],
       },
     ];
@@ -143,13 +172,8 @@ export default class StarryForm extends DDBEnricherData {
   get override() {
     return {
       data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": [
-          "Archer Attack",
-          "Chalice Healing",
-          "Dragon Constitution",
-        ],
+        "flags.ddbimporter.ignoredConsumptionActivities": ["Archer Attack", "Chalice Healing", "Dragon Constitution"],
       },
     };
   }
-
 }
