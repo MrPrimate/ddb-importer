@@ -713,6 +713,15 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   }
 
   /** @override */
+  _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const itemOptions = foundry.utils.mergeObject({
+      modRestrictionFilterExcludes: this.ddbDefinition.requiresSavingThrow ? "Save" : null,
+    }, options);
+
+    return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
+  }
+
+  /** @override */
   _getActivitiesType() {
     if (this.isSummons) {
       return "summon";
@@ -722,6 +731,16 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     } else if ((this.ddbDefinition.tags.includes("Damage") && this.ddbDefinition.requiresAttackRoll)
       || this.ddbDefinition.attackType !== null
     ) {
+      if (this.ddbDefinition.requiresSavingThrow) {
+        this.additionalActivities.push({
+          type: "save",
+          options: {
+            generateDamage: true,
+            includeBaseDamage: false,
+            modRestrictionFilter: "Save",
+          },
+        });
+      }
       return "attack";
     } else if (this.ddbDefinition.tags.includes("Damage")) {
       return "damage";

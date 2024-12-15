@@ -320,7 +320,9 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   }
 
 
-  _generateDamage({ damageParts = null, onSave = null, partialDamageParts } = {}) {
+  _generateDamage({ damageParts = null, onSave = null, partialDamageParts, modRestrictionFilter = null,
+    modRestrictionFilterExcludes = null } = {},
+  ) {
 
     if (damageParts) {
       this.data.damage = {
@@ -335,7 +337,17 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     let chatFlavor = [];
 
     // damage
-    const damages = this.ddbDefinition.modifiers.filter((mod) => mod.type === "damage");
+    const damages = this.ddbDefinition.modifiers
+      .filter((mod) => mod.type === "damage")
+      .filter((mod) => modRestrictionFilterExcludes === null
+        || ((
+          !mod.restriction
+          || mod.restriction === ""
+          || (mod.restriction && !mod.restriction.includes(modRestrictionFilterExcludes)))
+        ),
+      )
+      .filter((mod) => modRestrictionFilter === null
+        || (mod.restriction && mod.restriction.includes(modRestrictionFilter)));
     if (damages.length !== 0) {
       damages.forEach((damageMod) => {
         const restrictionText = damageMod.restriction && damageMod.restriction !== "" ? damageMod.restriction : "";
@@ -471,6 +483,8 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     saveOverride = null,
     targetOverride = null,
     usesOverride = null,
+    modRestrictionFilter = null,
+    modRestrictionFilterExcludes = null,
   } = {}) {
 
     if (generateConsumption) this._generateConsumption({
@@ -480,7 +494,13 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       consumeItem,
     });
     if (generateSave) this._generateSave({ saveOverride });
-    if (generateDamage) this._generateDamage({ damageParts, onSave, partialDamageParts });
+    if (generateDamage) this._generateDamage({
+      damageParts,
+      onSave,
+      partialDamageParts,
+      modRestrictionFilter,
+      modRestrictionFilterExcludes,
+    });
 
     if (noSpellslot) {
       foundry.utils.setProperty(this.data, "consumption.spellSlot", false);
