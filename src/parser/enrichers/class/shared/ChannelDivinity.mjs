@@ -9,7 +9,7 @@ export default class ChannelDivinity extends DDBEnricherData {
       name: "Divine Spark (Healing)",
       targetType: "creature",
       data: {
-        healing: DDBEnricherData.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8", types: ["healing"] }),
+        healing: DDBEnricherData.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8 + @abilities.wis.mod", types: ["healing"] }),
         range: {
           value: "30",
           units: "ft",
@@ -58,7 +58,7 @@ export default class ChannelDivinity extends DDBEnricherData {
             dc: { calculation: "wis", formula: "" },
           },
           damageParts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8", types: ["radiant", "necrotic"] }),
+            DDBEnricherData.basicDamagePart({ customFormula: "(ceil(@classes.cleric.levels/6))d8 + @abilities.wis.mod", types: ["radiant", "necrotic"] }),
           ],
           onSave: "half",
           rangeOverride: {
