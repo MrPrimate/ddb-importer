@@ -157,6 +157,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Thieves' Cant",
     "Unbreakable Majesty",
     "Forked Tongue",
+    "Cosmic Omen",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",

@@ -1,4 +1,4 @@
-console.warn({args, options, })
+// console.warn({args, options, })
 
 if (args[0].macroPass === "isHit") {
     const reactingActor = options.actor;
@@ -17,9 +17,11 @@ if (args[0].macroPass === "isHit") {
     const effect = reactingActor.effects.find(effect => effect.name === 'Armor of Agathys');
     if (!effect) return;
 
-    let damage = effect.flags['midi-qol'].castData.castLevel * 5;
+    const castData = effect.flags['midi-qol'].castData;
+    let damage = Math.max(castData.castLevel, castData.baseLevel) * 5;
     const target = token;
     let damageRoll = await new CONFIG.Dice.DamageRoll(`${damage}`).evaluate();
+    await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
     const wf = await new MidiQOL.DamageOnlyWorkflow(
         reactingActor,
         reactingToken,
@@ -27,11 +29,12 @@ if (args[0].macroPass === "isHit") {
         "cold",
         [workflow.token],
         damageRoll,
-        { itemCardId: workflow.itemCardId, flavor: "Armor of Agathys" }
+        {
+          itemCardId: "new",
+          useOther: true,
+          flavor: "Armor of Agathys Damage",
+        }
     );
-    console.warn("end", {
-      wf
-    })
 }
 
 if (args[0].macroPass == "isDamaged") {

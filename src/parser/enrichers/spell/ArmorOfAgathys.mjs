@@ -10,12 +10,13 @@ export default class ArmorOfAgathys extends DDBEnricherData {
     return {
       name: "Cast Spell",
       targetType: "self",
+      targetOverride: true,
       data: {
         healing: DDBEnricherData.basicDamagePart({
           bonus: "5",
           types: ["temphp"],
           scalingMode: "whole",
-          scalingNumber: 5,
+          scalingFormula: 5,
         }),
       },
     };
@@ -56,5 +57,28 @@ export default class ArmorOfAgathys extends DDBEnricherData {
     //   "value": "ItemMacro, isDamaged",
     //   "priority": 20
     // }
+    return [
+      {
+        onUseMacroChanges: [
+          { macroPass: "isHit", macroType: "spell", macroName: "armorOfAgathys.js", document: this.data },
+          { macroPass: "isDamaged", macroType: "spell", macroName: "armorOfAgathys.js", document: this.data },
+        ],
+        data: {
+          flags: {
+            dae: {
+              selfTargetAlways: true,
+            },
+          },
+        },
+      },
+    ];
   }
+
+  get itemMacro() {
+    return {
+      type: "spell",
+      name: "armorOfAgathys.js",
+    };
+  }
+
 }

@@ -10,7 +10,6 @@ import { absorbElementsEffect } from "./spells/absorbElements.js";
 import { acidArrowEffect } from "./spells/acidArrow.js";
 import { aidEffect } from "./spells/aid.js";
 import { alterSelfEffect } from "./spells/alterSelf.js";
-import { armorOfAgathysEffect } from "./spells/armorOfAgathys.js";
 import { auraOfLifeEffect } from "./spells/auraOfLife.js";
 import { banishmentEffect } from "./spells/banishment.js";
 import { beaconofHopeEffect } from "./spells/beaconofHope.js";
@@ -127,10 +126,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Alter Self": {
       document = alterSelfEffect(document);
-      break;
-    }
-    case "Armor of Agathys": {
-      document = await armorOfAgathysEffect(document);
       break;
     }
     case "Aura of Life": {

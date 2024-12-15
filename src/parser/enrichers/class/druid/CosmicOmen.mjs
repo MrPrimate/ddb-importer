@@ -11,12 +11,28 @@ export default class CosmicOmen extends DDBEnricherData {
     return {
       targetType: "creature",
       activationType: "reaction",
+      addItemConsume: true,
       data: {
         roll: {
           prompt: false,
           visible: false,
           formula: "1d6",
           name: "Weal or Woe Roll",
+        },
+      },
+    };
+  }
+
+  get override() {
+    return {
+      data: {
+        "flags.ddbimporter.retainOriginalConsumption": true,
+        system: {
+          uses: {
+            spent: 0,
+            max: "@abilities.wis.mod",
+            reovery: [{ period: "lr", type: 'recoverAll', formula: "" }],
+          },
         },
       },
     };
