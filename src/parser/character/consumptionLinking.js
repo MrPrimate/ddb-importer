@@ -136,13 +136,13 @@ function _findChildUpdates({ consumingDocs, possibleItems, parent } = {}) {
     const children = possibleItems.filter((doc) => {
       const name = doc.flags.ddbimporter?.originalName ?? doc.name;
       const dontReplace = notReplace[consumingDocName]?.includes(name);
-      return name.startsWith(consumingDocName) && !dontReplace;
-    })
-    ?? possibleItems.find((doc) => {
+      if (dontReplace) return false;
+      if (name.startsWith(consumingDocName)) return true;
+
       const additional = foundry.utils.getProperty(doc, "flags.ddbimporter.defaultAdditionalActivities");
       if (!additional?.enabled) return false;
-      const dontReplace = notReplace[consumingDocName]?.includes(additional.featureName);
-      return additional.featureName.startsWith(consumingDocName) && !dontReplace;
+      if (!additional.data.featureName) return false;
+      return additional.data.featureName.startsWith(consumingDocName);
     });
 
     if (children) {

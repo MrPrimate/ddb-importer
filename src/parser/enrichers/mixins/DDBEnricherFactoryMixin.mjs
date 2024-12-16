@@ -850,7 +850,7 @@ export default class DDBEnricherFactoryMixin {
               activityData.activities[newKey].name = `${featureName} (${utils.capitalize(activityData.activities[newKey].type)})`;
             }
           }
-          activityData.nameData[newKey] = Array.from(new Set(featureName, activityData.activities[newKey].name));
+          activityData.nameData[newKey] = Array.from(new Set([featureName, activityData.activities[newKey].name]));
         }
         activityData.effects.push(...(foundry.utils.deepClone(feature.effects)));
 

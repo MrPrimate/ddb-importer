@@ -2,7 +2,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
 import { cloudRuneEffect } from "./feats/cloudRune.js";
-import { dauntingRoarEffect } from "./feats/dauntingRoar.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
 import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
 import { deftStrikeEffect } from "./feats/deftStike.js";
@@ -88,10 +87,6 @@ async function midiFeatureEffects(ddb, character, document) {
   switch (name) {
     case "Cloud Rune": {
       document = cloudRuneEffect(document);
-      break;
-    }
-    case "Daunting Roar": {
-      document = dauntingRoarEffect(document);
       break;
     }
     case "Deflect Missiles": {

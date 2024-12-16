@@ -222,5 +222,6 @@ export const PARSING_CHOICE_FEATURES = {
     "Asmodeus's Blessing",
     "Interdict Boons",
     "Terrorizing Force",
+    "Kensei Weapon",
   ],
 };
