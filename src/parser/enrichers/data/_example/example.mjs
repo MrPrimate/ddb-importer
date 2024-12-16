@@ -141,6 +141,7 @@ export default class Example extends DDBEnricherData {
         macroChanges: { macroType: "item", macroName: "cloakOfDisplacement.js" }, // add macro change
         targetUpdateMacroChanges: [{}], // onTargetUpdate macro changes
         onUseMacroChanges: [{}], // onUse macro changes
+        damageBonusMacroChanges: [{}], // damage bonus macro changes
       },
     ];
   }

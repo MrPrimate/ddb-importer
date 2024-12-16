@@ -2,8 +2,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
 import { cloudRuneEffect } from "./feats/cloudRune.js";
-import { crossbowExpertEffect } from "./feats/crossbowExpert.js";
-import { crusherCriticalEffect } from "./feats/crusherCritical.js";
 import { crusherEffect } from "./feats/crusher.js";
 import { dauntingRoarEffect } from "./feats/dauntingRoar.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
@@ -93,16 +91,8 @@ async function midiFeatureEffects(ddb, character, document) {
       document = await crusherEffect(document);
       break;
     }
-    case "Crusher: Critical": {
-      document = await crusherCriticalEffect(document);
-      break;
-    }
     case "Cloud Rune": {
       document = cloudRuneEffect(document);
-      break;
-    }
-    case "Crossbow Expert": {
-      document = crossbowExpertEffect(document);
       break;
     }
     case "Daunting Roar": {

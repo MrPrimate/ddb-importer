@@ -154,7 +154,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
       key: `${macroKey}${keyPostfix}`,
       value: `${macroValuePrefix}${macroValues}`,
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      priority: priority,
+      priority,
     };
   }
 
@@ -190,7 +190,18 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
       key: "flags.midi-qol.onUseMacroName",
       value: valueContent,
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      priority: priority,
+      priority,
+    };
+  }
+
+  static generateDamageBonusMacroChange({ macroType = null, macroName = null, priority = 20, document = null } = {}) {
+    const value = DDBMacros.generateItemMacroValue({ macroType, macroName, document });
+
+    return {
+      key: "flags.dnd5e.DamageBonusMacro",
+      value,
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      priority,
     };
   }
 
@@ -205,7 +216,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
       key: "flags.dae.onUpdateTarget",
       value: valueContent,
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      priority: priority,
+      priority,
     };
   }
 
@@ -219,7 +230,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
       key: `flags.midi-qol.optional.${optionPostfix}`,
       value: valueContent,
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      priority: priority,
+      priority,
     };
   }
 

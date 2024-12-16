@@ -11,14 +11,6 @@ export default class DDBEnricherData {
 
   static ChangeHelper = ChangeHelper;
 
-  get useDefaultAdditionalActivities() {
-    return false;
-  }
-
-  get addToDefaultAdditionalActivities() {
-    return false;
-  }
-
   getFeatureActionsName({ type = null } = {}) {
     return this.ddbEnricher.getFeatureActionsName({ type });
   }
@@ -248,6 +240,7 @@ export default class DDBEnricherData {
    *     - macroChanges: {Array} Add macro changes using DDBMacros.generateMacroChange
    *     - targetUpdateMacroChanges:  {Array} onTargetUpdate macro changes
    *     - onUseMacroChanges: {Array} onUse macro changes
+   *     - damageBonusMacroChanges: {Array} damage bonus macro changes
    */
   get effects() {
     return [];
@@ -291,6 +284,14 @@ export default class DDBEnricherData {
 
   // a hint to clear any generated auto effects before processing effect hints on the enricher
   get clearAutoEffects() {
+    return false;
+  }
+
+  get useDefaultAdditionalActivities() {
+    return false;
+  }
+
+  get addToDefaultAdditionalActivities() {
     return false;
   }
 

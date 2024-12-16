@@ -1,5 +1,44 @@
 if (args[0].tag !== "DamageBonus" && args[0].hitTargets == 0) return;
-if (!["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) return;
+
+if (args[0].isCritical) {
+  const crushCriticalFeatName = "Crusher";
+  const crusherFeat = args[0].actor.items.find((i) => i.name === crushCriticalFeatName)?.uuid;
+  const criticalEffectName = "Crusher: Critical Advantage";
+  const crusherIcon = "icons/weapons/hammers/hammer-double-stone.webp";
+
+  for (const hitTarget of args[0].hitTargets) {
+    if (!hitTarget.actor._source.effects.some((e) => e.name === criticalEffectName)) {
+      const effect = {
+        label: criticalEffectName,
+        name: criticalEffectName,
+        img: crusherIcon,
+        origin: crusherFeat?.uuid,
+        disabled: false,
+        transfer: false,
+        duration: {
+          rounds: 1,
+          startRound: game.combat ? game.combat.round : 0,
+          startTime: game.time.worldTime,
+        },
+        changes: [
+          {
+            key: "flags.midi-qol.grants.advantage.attack.all",
+            mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+            value: 1,
+            priority: 20,
+          },
+        ],
+      };
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
+      await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: hitTarget.actor.uuid, effects: [effect] });
+    }
+  }
+}
+
+const activity = args[0].attackRoll.data.activity;
+
+// console.warn(activity);
+if (activity.type !== "attack") return;
 
 const damageType = game.i18n.localize("bludgeoning");
 if (args[0].damageDetail.some(i => i.type === damageType).length === 0 && args[0]?.defaultDamageType !== damageType) return;
