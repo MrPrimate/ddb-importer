@@ -261,7 +261,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     if (existingMacro) data._id = existingMacro.id;
     const macro = existingMacro
       ? existingMacro.update(data)
-      : Macro.create(data, { displaySheet: false, temporary: isTemp });
+      : new Macro.implementation(data, { displaySheet: false, temporary: isTemp });
 
     return macro;
 
