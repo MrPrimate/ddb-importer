@@ -16,7 +16,10 @@ export default class Invisibility extends DDBEnricherData {
 
   get effects() {
     const permanent = ["special"].includes(foundry.utils.getProperty(this.data, "flags.monsterMunch.type"));
-    const improvedEffect = ["Superior Invisibility"].includes(this.data.name);
+    const invisRegex = /The ([\w ]+?) is invisible\./ig;
+    const strippedHtml = foundry.utils.getProperty(this, "ddbParser.strippedHtml");
+    const improvedEffect = ["Superior Invisibility"].includes(this.data.name)
+     || invisRegex.test(strippedHtml);
 
     return [
       {

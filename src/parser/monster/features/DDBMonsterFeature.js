@@ -98,6 +98,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   }
 
   async loadEnricher() {
+    await this.enricher.init();
     await this.enricher.load({
       ddbParser: this,
       monster: this.ddbMonster.npc,
@@ -193,8 +194,9 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
   constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription, sort } = {}) {
 
+    const enricher = new DDBMonsterFeatureEnricher({ activityGenerator: DDBMonsterFeatureActivity });
     super({
-      enricher: new DDBMonsterFeatureEnricher({ activityGenerator: DDBMonsterFeatureActivity }),
+      enricher,
       activityGenerator: DDBMonsterFeatureActivity,
     });
 

@@ -619,6 +619,7 @@ export default class DDBMonsterFeatureFactory {
     // some features are duplicated and we parse these first
     for (const feature of this.features[type]) {
       // console.warn({ deep: deepClone(feature), this: this, feature });
+      await feature.loadEnricher();
       await feature.parse();
     }
 
