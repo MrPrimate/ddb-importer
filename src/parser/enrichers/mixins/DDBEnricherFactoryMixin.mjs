@@ -481,6 +481,8 @@ export default class DDBEnricherFactoryMixin {
       let effect;
       if (effectHint.noCreate && this.data.effects.length > 0) {
         effect = this.data.effects[0];
+      } else if (effectHint.noCreate && effects.length > 0) {
+        effect = effects[effects.length - 1];
       } else {
         switch (effectHint.type ?? this.effectType) {
           case "enchant":
@@ -863,6 +865,11 @@ export default class DDBEnricherFactoryMixin {
         if (activityData.effects) {
           this.data.effects.push(...activityData.effects);
         }
+        this.data.effects = this.data.effects.filter((v, i, a) => a.findIndex((t) =>
+          t.name.startsWith("Status:")
+          && t.name === v.name
+          && !t.flags?.ddbimporter?.activitiesMatch
+          && !t.flags?.ddbimporter?.activityMatch) === i);
         y++;
 
         foundry.utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities.data", {

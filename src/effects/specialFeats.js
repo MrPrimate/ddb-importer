@@ -2,7 +2,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
 import { cloudRuneEffect } from "./feats/cloudRune.js";
-import { crusherEffect } from "./feats/crusher.js";
 import { dauntingRoarEffect } from "./feats/dauntingRoar.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
 import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
@@ -87,10 +86,6 @@ async function midiFeatureEffects(ddb, character, document) {
   }
 
   switch (name) {
-    case "Crusher": {
-      document = await crusherEffect(document);
-      break;
-    }
     case "Cloud Rune": {
       document = cloudRuneEffect(document);
       break;

@@ -15,7 +15,8 @@
 - Improvements to spells such as Ice Knife where there is an attack and save.
 - Divine Smite Spell was incorrectly configured in recent refactor.
 - Shield of Faith granted incorrect bonus.
-- Some midi effects transfered to work with this version of DDB Importer.
+- Some midi effects transferred to work with this version of DDB Importer.
+- Improve Invisibility DAE special durations from some monsters such as the Invisible Stalker.
 
 # 6.0.54
 

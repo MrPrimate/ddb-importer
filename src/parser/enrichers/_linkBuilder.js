@@ -14,6 +14,7 @@ const directories = [
   'trait/shifter',
   'trait/dwarf',
   'trait/bugbear',
+  'trait/leonin',
   'generic',
   'feat',
   'spell',
