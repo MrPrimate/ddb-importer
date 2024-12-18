@@ -2,7 +2,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
 import { cloudRuneEffect } from "./feats/cloudRune.js";
-import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
 import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
 import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
@@ -242,10 +241,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
 
   // effects to always apply
   switch (name) {
-    case "Defensive Duelist": {
-      document = defensiveDuelistEffect(document);
-      break;
-    }
     case "Demiurgic Colossus": {
       document = demiurgicColossusEffect(document);
       break;

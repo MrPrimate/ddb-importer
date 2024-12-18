@@ -1,6 +1,9 @@
 export { default as ActionSurge } from "./ActionSurge.mjs";
 export { default as CombatSuperiority } from "./CombatSuperiority.mjs";
 export { default as EldritchStrike } from "./EldritchStrike.mjs";
+export { default as FireRune } from "./FireRune.mjs";
+export { default as FrostRune } from "./FrostRune.mjs";
+export { default as StoneRune } from "./StoneRune.mjs";
 export { default as GiantsMight } from "./GiantsMight.mjs";
 export { default as ImprovedCritical } from "./ImprovedCritical.mjs";
 export { default as ManeuverAmbush } from "./ManeuverAmbush.mjs";

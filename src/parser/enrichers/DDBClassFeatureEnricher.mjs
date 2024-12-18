@@ -352,6 +352,12 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Twinkling Constellations": ClassEnrichers.Druid.TwinklingConstellations,
     "Elemental Fury: Potent Spellcasting": ClassEnrichers.Druid.ElementalFuryPotentSpellcasting,
     "Evasion": ClassEnrichers.Rogue.Evasion,
+    "Fire Rune": ClassEnrichers.Fighter.FireRune,
+    "Frost Rune": ClassEnrichers.Fighter.FrostRune,
+    // "Cloud Rune": ClassEnrichers.Fighter.CloudRune,
+    // "Hill Rune": ClassEnrichers.Fighter.HillRune,
+    "Stone Rune": ClassEnrichers.Fighter.StoneRune,
+    // "Storm Rune": ClassEnrichers.Fighter.StormRune,
   };
 
   FALLBACK_ENRICHERS = {

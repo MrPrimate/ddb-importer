@@ -263,6 +263,25 @@ export default class DDBSubClass extends DDBClass {
           17: { number: 12, faces: 12 },
         });
       };
+    } else if (this.data.name.startsWith("Rune Knight")) {
+      const number = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `rune-uses`,
+          type: "number",
+          scale: {
+            3: { value: 1 },
+            15: { value: 2 },
+          },
+        },
+        value: {},
+        title: `Rune Uses`,
+        icon: null,
+      };
+
+      this.data.system.advancement.push(number);
     }
 
   }

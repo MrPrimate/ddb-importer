@@ -8,6 +8,7 @@ export { default as Charger } from "./Charger.mjs";
 export { default as Chef } from "./Chef.mjs";
 export { default as CrossbowExpert } from "./CrossbowExpert.mjs";
 export { default as Crusher } from "./Crusher.mjs";
+export { default as DefensiveDuelist } from "./DefensiveDuelist.mjs";
 export { default as DualWielder } from "./DualWielder.mjs";
 export { default as Durable } from "./Durable.mjs";
 export { default as ElvenAccuracy } from "./ElvenAccuracy.mjs";
