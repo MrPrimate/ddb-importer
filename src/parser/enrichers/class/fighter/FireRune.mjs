@@ -9,9 +9,10 @@ export default class FireRune extends DDBEnricherData {
 
   get activity() {
     return {
-      name: "Damage",
+      name: "Invoke Rune",
       targetType: "creature",
       activationType: "special",
+      addItemConsumption: true,
       activationCondition: "You hit a creature",
       data: {
         damage: {
@@ -83,6 +84,19 @@ export default class FireRune extends DDBEnricherData {
         ],
       },
     ];
+  }
+
+  get override() {
+    const uses = this._getUsesWithSpent({
+      name: "Fire Rune",
+      type: "class",
+      max: "@scale.rune-knight.rune-uses",
+    });
+    return {
+      data: {
+        "system.uses": uses,
+      },
+    };
   }
 
 }

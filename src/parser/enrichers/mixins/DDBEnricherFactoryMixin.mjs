@@ -482,6 +482,8 @@ export default class DDBEnricherFactoryMixin {
       let effect;
       if (effectHint.noCreate && this.data.effects.length > 0) {
         effect = this.data.effects[0];
+        if (effectHint.name) effect.name = effectHint.name;
+        if (effectOptions.description) effect.description = effectOptions.description;
       } else if (effectHint.noCreate && effects.length > 0) {
         effect = effects[effects.length - 1];
       } else {

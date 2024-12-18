@@ -7,4 +7,8 @@ export default class None extends DDBEnricherData {
     return "none";
   }
 
+  get additionalActivities() {
+    return [];
+  }
+
 }

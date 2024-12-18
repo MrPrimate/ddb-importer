@@ -1,17 +1,13 @@
 import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
-import { cloudRuneEffect } from "./feats/cloudRune.js";
 import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
 import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
-import { fireRuneEffect } from "./feats/fireRune.js";
 import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js";
-import { frostRuneEffect } from "./feats/frostRune.js";
 import { giantsMightEffect } from "./feats/giantsMight.js";
 import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
 import { heavyArmorMasterEffect } from "./feats/heavyArmorMaster.js";
-import { hillRuneEffect } from "./feats/hillRune.js";
 import { indomitableEffect } from "./feats/indomitable.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
 import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
@@ -33,8 +29,6 @@ import { slasherReduceSpeedEffect } from "./feats/slasherReduceSpeed.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
 import { steadyAimEffect } from "./feats/steadyAim.js";
-import { stoneRuneEffect } from "./feats/stoneRune.js";
-import { stormRuneEffect } from "./feats/stormRune.js";
 import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
@@ -76,10 +70,6 @@ async function midiFeatureEffects(ddb, character, document) {
   }
 
   switch (name) {
-    case "Cloud Rune": {
-      document = cloudRuneEffect(document);
-      break;
-    }
     case "Deflect Missiles": {
       document = deflectMissilesEffect(document);
       break;
@@ -245,14 +235,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       document = demiurgicColossusEffect(document);
       break;
     }
-    case "Fire Rune": {
-      document = fireRuneEffect(document);
-      break;
-    }
-    case "Frost Rune": {
-      document = frostRuneEffect(document);
-      break;
-    }
     case "Ghost Walk": {
       document = ghostWalkEffect(document);
       break;
@@ -266,24 +248,12 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       document = heavyArmorMasterEffect(document);
       break;
     }
-    case "Hill Rune": {
-      document = hillRuneEffect(document);
-      break;
-    }
     case "Song of Victory": {
       document = songOfVictoryEffect(document);
       break;
     }
     case "Steady Aim": {
       document = steadyAimEffect(document);
-      break;
-    }
-    case "Stone Rune": {
-      document = stoneRuneEffect(document);
-      break;
-    }
-    case "Storm Rune": {
-      document = stormRuneEffect(document);
       break;
     }
     case "Unarmored Movement": {

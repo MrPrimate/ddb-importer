@@ -354,10 +354,11 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Evasion": ClassEnrichers.Rogue.Evasion,
     "Fire Rune": ClassEnrichers.Fighter.FireRune,
     "Frost Rune": ClassEnrichers.Fighter.FrostRune,
-    // "Cloud Rune": ClassEnrichers.Fighter.CloudRune,
-    // "Hill Rune": ClassEnrichers.Fighter.HillRune,
+    "Cloud Rune": ClassEnrichers.Fighter.CloudRune,
+    "Hill Rune": ClassEnrichers.Fighter.HillRune,
     "Stone Rune": ClassEnrichers.Fighter.StoneRune,
-    // "Storm Rune": ClassEnrichers.Fighter.StormRune,
+    "Storm Rune": ClassEnrichers.Fighter.StormRune,
+    "Rune Carver": GenericEnrichers.None,
   };
 
   FALLBACK_ENRICHERS = {

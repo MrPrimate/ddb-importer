@@ -9,7 +9,7 @@ export default class FrostRune extends DDBEnricherData {
 
   get activity() {
     return {
-      name: "Activate",
+      name: "Invoke Rune",
       activationType: "bonus",
       targetSelf: true,
       data: {
@@ -24,6 +24,7 @@ export default class FrostRune extends DDBEnricherData {
   get effects() {
     return [
       {
+        noCreate: true,
         name: "Frost Rune: Passive Bonuses",
         options: {
           transfer: true,
@@ -31,6 +32,7 @@ export default class FrostRune extends DDBEnricherData {
         },
       },
       {
+        activityMatch: "Invoke Rune",
         name: "Frost Rune",
         options: {
           transfer: false,
@@ -44,6 +46,19 @@ export default class FrostRune extends DDBEnricherData {
         ],
       },
     ];
+  }
+
+  get override() {
+    const uses = this._getUsesWithSpent({
+      name: "Frost Rune",
+      type: "class",
+      max: "@scale.rune-knight.rune-uses",
+    });
+    return {
+      data: {
+        "system.uses": uses,
+      },
+    };
   }
 
 }
