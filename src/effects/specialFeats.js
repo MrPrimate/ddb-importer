@@ -35,10 +35,8 @@ import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
 import { steadyAimEffect } from "./feats/steadyAim.js";
 import { stoneRuneEffect } from "./feats/stoneRune.js";
-import { stonesEnduranceEffect } from "./feats/stonesEndurance.js";
 import { stormRuneEffect } from "./feats/stormRune.js";
 import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
-import { vedalkenDispassionEffect } from "./feats/vedalkenDispassion.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { furyOfTheSmallEffect } from "./feats/furryOfTheSmall.js";
@@ -225,10 +223,6 @@ async function midiFeatureEffects(ddb, character, document) {
     // }
     case "Swiftstride Reaction": {
       document = MidiEffects.forceManualReaction(document);
-      break;
-    }
-    case "Vedalken Dispassion": {
-      document = vedalkenDispassionEffect(document);
       break;
     }
     // no default
