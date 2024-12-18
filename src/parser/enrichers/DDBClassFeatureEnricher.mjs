@@ -351,6 +351,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Pact Magic": ClassEnrichers.Shared.PactMagic,
     "Twinkling Constellations": ClassEnrichers.Druid.TwinklingConstellations,
     "Elemental Fury: Potent Spellcasting": ClassEnrichers.Druid.ElementalFuryPotentSpellcasting,
+    "Evasion": ClassEnrichers.Rogue.Evasion,
   };
 
   FALLBACK_ENRICHERS = {

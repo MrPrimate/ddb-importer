@@ -4,7 +4,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 import { cloudRuneEffect } from "./feats/cloudRune.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
 import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
-import { evasionEffect } from "./feats/evasion.js";
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
 import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { fireRuneEffect } from "./feats/fireRune.js";
@@ -27,10 +26,8 @@ import { potentCantripEffect } from "./feats/potentCantrip.js";
 import { powerfulBuild } from "./feats/powerfulBuild.js";
 import { radiantSoulEffect } from "./feats/radiantSoul.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
-import { sacredWeaponEffect } from "./feats/sacredWeapon.js";
 import { savageAttackerEffect } from "./feats/savageAttacker.js";
 import { sculptSpellsEffect } from "./feats/sculptSpells.js";
-import { sharpShooterEffect } from "./feats/sharpShooter.js";
 import { shiftEffect } from "./feats/shift.js";
 import { slasherCriticalEffect } from "./feats/slasherCritical.js";
 import { slasherReduceSpeedEffect } from "./feats/slasherReduceSpeed.js";
@@ -51,10 +48,8 @@ import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
 import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
 import { giantStatureEffect } from "./feats/giantStature.js";
 import { demiurgicColossusEffect } from "./feats/demiurgicColossus.js";
-import { sneakAttackEffect } from "./feats/sneakAttack.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 import { songOfVictoryEffect } from "./feats/songOfVictory.js";
-import { twinklingConstellationsEffect } from "./feats/twinklingConstellations.js";
 import { ghostWalkEffect } from "./feats/ghostWalk.js";
 import { foeSlayerEffect } from "./feats/foeSlayer.js";
 import { AutoEffects, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
@@ -90,10 +85,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Deflect Missiles": {
       document = deflectMissilesEffect(document);
-      break;
-    }
-    case "Evasion": {
-      document = evasionEffect(document);
       break;
     }
     case "Favored Foe": {
@@ -197,10 +188,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = sculptSpellsEffect(document);
       break;
     }
-    case "Sharpshooter": {
-      document = sharpShooterEffect(document);
-      break;
-    }
     case "Savage Attacker": {
       document = savageAttackerEffect(document);
       break;
@@ -223,10 +210,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Squire of Solamnia: Precise Strike": {
       document = await squireOfSolamniaEffect(document);
-      break;
-    }
-    case "Sneak Attack": {
-      document = await sneakAttackEffect(document);
       break;
     }
     case "Stone's Endurance":
@@ -303,11 +286,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       document = hillRuneEffect(document);
       break;
     }
-    case "Channel Divinity: Sacred Weapon":
-    case "Sacred Weapon": {
-      document = sacredWeaponEffect(document);
-      break;
-    }
     case "Song of Victory": {
       document = songOfVictoryEffect(document);
       break;
@@ -322,10 +300,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
     }
     case "Storm Rune": {
       document = stormRuneEffect(document);
-      break;
-    }
-    case "Twinkling Constellations": {
-      document = twinklingConstellationsEffect(document);
       break;
     }
     case "Unarmored Movement": {

@@ -10,6 +10,7 @@ export default class SneakAttack extends DDBEnricherData {
     return {
       targetType: "creature",
       activationType: "special",
+      noeffect: true,
       noTemplate: true,
       data: {
         "range.units": "spec",
@@ -22,6 +23,35 @@ export default class SneakAttack extends DDBEnricherData {
           ],
         },
       },
+    };
+  }
+
+  get effects() {
+    return [
+      {
+        options: {
+          transfer: true,
+          durationSeconds: null,
+          durationRounds: null,
+        },
+        midiOnly: true,
+        damageBonusMacroChanges: [
+          { macroType: "feat", macroName: "sneakAttack.js", document: this.data },
+        ],
+        data: {
+          duration: {
+            seconds: null,
+            rounds: null,
+          },
+        },
+      },
+    ];
+  }
+
+  get itemMacro() {
+    return {
+      type: "feat",
+      name: "sneakAttack.js",
     };
   }
 }

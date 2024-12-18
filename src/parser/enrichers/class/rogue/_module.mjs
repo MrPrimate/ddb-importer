@@ -3,6 +3,7 @@ export { default as CunningStrike } from "./CunningStrike.mjs";
 export { default as DeathStrike } from "./DeathStrike.mjs";
 export { default as DeviousStrikes } from "./DeviousStrikes.mjs";
 export { default as EnvenomWeapons } from "./EnvenomWeapons.mjs";
+export { default as Evasion } from "./Evasion.mjs";
 export { default as FastHands } from "./FastHands.mjs";
 export { default as PsiBolsteredKnack } from "./PsiBolsteredKnack.mjs";
 export { default as PsychicBlade } from "./PsychicBlade.mjs";

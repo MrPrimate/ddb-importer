@@ -9,6 +9,7 @@ export { default as DeflectAttacks } from "./DeflectAttacks.mjs";
 export { default as DeflectEnergy } from "./DeflectEnergy.mjs";
 export { default as DeflectMissiles } from "./DeflectMissiles.mjs";
 export { default as DeflectMissilesAttack } from "./DeflectMissilesAttack.mjs";
+export { default as DeftStrike } from "./DeftStrike.mjs";
 export { default as DiamondSoul } from "./DiamondSoul.mjs";
 export { default as DisciplinedSurvivor } from "./DisciplinedSurvivor.mjs";
 export { default as ElementalAttunement } from "./ElementalAttunement.mjs";
