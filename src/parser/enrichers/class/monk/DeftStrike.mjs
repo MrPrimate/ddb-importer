@@ -10,7 +10,7 @@ export default class DeftStrike extends DDBEnricherData {
         options: {
           transfer: true,
         },
-        midiOptionalChanges: {
+        midiOptionalChanges: [{
           name: "deftStrike",
           data: {
             label: `${document.name} Additional Damage`,
@@ -19,7 +19,7 @@ export default class DeftStrike extends DDBEnricherData {
             countAlt: "ItemUses.Ki",
             criticalDamage: "1",
           },
-        },
+        }],
       },
     ];
   }

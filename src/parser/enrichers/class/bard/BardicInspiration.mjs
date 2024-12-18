@@ -30,46 +30,20 @@ export default class BardicInspiration extends DDBEnricherData {
 
   get effects() {
     const diceString = "@scale.bard.bardic-inspiration";
-    const midiChanges = [
-      DDBEnricherData.ChangeHelper.customChange(
-        diceString,
-        20,
-        "flags.midi-qol.optional.bardicInspiration.attack.all",
-      ),
-      DDBEnricherData.ChangeHelper.customChange(
-        diceString,
-        20,
-        "flags.midi-qol.optional.bardicInspiration.save.all",
-      ),
-      DDBEnricherData.ChangeHelper.customChange(
-        diceString,
-        20,
-        "flags.midi-qol.optional.bardicInspiration.check.all",
-      ),
-      DDBEnricherData.ChangeHelper.customChange(
-        diceString,
-        20,
-        "flags.midi-qol.optional.bardicInspiration.skill.all",
-      ),
-      DDBEnricherData.ChangeHelper.customChange(
-        "Bardic Inspiration",
-        20,
-        "flags.midi-qol.optional.bardicInspiration.label",
-      ),
-    ];
+    const midiOptionalChange = {
+      name: "bardicInspiration",
+      priortiy: 20,
+      data: {
+        label: "Use Bardic Inspiration?",
+        "attack.all": diceString,
+        "save.all": diceString,
+        "check.all": diceString,
+        "skill.all": diceString,
+      },
+    };
     if (this.hasSubclass("College of Valor")) {
-      midiChanges.push(
-        DDBEnricherData.ChangeHelper.customChange(
-          diceString,
-          20,
-          "flags.midi-qol.optional.bardicInspiration.damage.all",
-        ),
-        DDBEnricherData.ChangeHelper.customChange(
-          diceString,
-          20,
-          "flags.midi-qol.optional.bardicInspiration.ac.all",
-        ),
-      );
+      midiOptionalChange.data["damage.all"] = diceString;
+      midiOptionalChange.data["ac.all"] = diceString;
     }
     return [
       {
@@ -78,7 +52,9 @@ export default class BardicInspiration extends DDBEnricherData {
           transfer: false,
         },
         daeStackable: "noneName",
-        midiChanges,
+        midiOptionalChanges: [
+          midiOptionalChange,
+        ],
         data: {
           "flags": {
             dae: {

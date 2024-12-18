@@ -28,11 +28,17 @@ export default class BlessedStrikes extends DDBEnricherData {
     return [
       {
         midiOnly: true,
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange(`${document.name} Bonus Damage`, 5, "flags.midi-qol.optional.blessedstrikes.label"),
-          DDBEnricherData.ChangeHelper.customChange("each-round", 5, "flags.midi-qol.optional.blessedstrikes.count"),
-          DDBEnricherData.ChangeHelper.customChange("1d8", 5, "flags.midi-qol.optional.blessedstrikes.damage.all"),
-        ],
+        optional: {
+          transfer: true,
+        },
+        midiOptionalChanges: [{
+          name: "divineStrike",
+          data: {
+            label: `Divine Strike Bonus Damage`,
+            count: "each-round",
+            "damage.all": "@scale.cleric.divine-strike",
+          },
+        }],
       },
     ];
   }

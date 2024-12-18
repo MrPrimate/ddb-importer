@@ -11,11 +11,14 @@ export default class LegendaryResistance extends DDBEnricherData {
         },
         name: "Legendary Resistance",
         midiOnly: true,
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("success", 20, "flags.midi-qol.optional.LegRes.save.fail.all"),
-          DDBEnricherData.ChangeHelper.customChange("@resources.legres.value", 20, "flags.midi-qol.optional.LegRes.count"),
-          DDBEnricherData.ChangeHelper.customChange("Use Legendary Resistance to Succeed?", 20, "flags.midi-qol.optional.LegRes.label"),
-        ],
+        midiOptionalChanges: [{
+          name: "LegRes",
+          data: {
+            "save.fail.all": "success",
+            count: "@resources.legres.value",
+            label: "Use Legendary Resistance to Succeed?",
+          },
+        }],
       },
     ];
   }

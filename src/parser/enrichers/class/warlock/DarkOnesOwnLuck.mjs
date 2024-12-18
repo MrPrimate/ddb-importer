@@ -38,38 +38,16 @@ export default class DarkOnesOwnLuck extends DDBEnricherData {
       options: {
         transfer: true,
       },
-      midiChanges: [
-        {
-          key: "flags.midi-qol.optional.darkOnesOwnLuck.check.all",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: "+1d10",
-          priority: 20,
+      midiOptionalChanges: [{
+        name: "darkOnesOwnLuck",
+        data: {
+          label: "Dark One's Own Luck",
+          "check.all": "+1d10",
+          "save.all": "+1d10",
+          "skill.all": "+1d10",
+          count: `ItemUses.${this.data.name}`,
         },
-        {
-          key: "flags.midi-qol.optional.darkOnesOwnLuck.save.all",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: "+1d10",
-          priority: 20,
-        },
-        {
-          key: "flags.midi-qol.optional.darkOnesOwnLuck.label",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: "Dark One's Own Luck",
-          priority: 20,
-        },
-        {
-          key: "flags.midi-qol.optional.darkOnesOwnLuck.count",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: `ItemUses.${document.name}`,
-          priority: 20,
-        },
-        {
-          key: "flags.midi-qol.optional.darkOnesOwnLuck.skill.all",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          value: "+1d10",
-          priority: 20,
-        },
-      ],
+      }],
     }];
   }
 

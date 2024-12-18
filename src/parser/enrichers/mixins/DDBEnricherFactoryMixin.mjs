@@ -613,7 +613,7 @@ export default class DDBEnricherFactoryMixin {
         for (const midiChange of effectHint.midiOptionalChanges) {
           for (const [key, value] of Object.entries(midiChange.data)) {
             effect.changes.push(
-              ChangeHelper.customChange(`flags.midi-qol.optional.${midiChange.name}.${key}`, value),
+              ChangeHelper.customChange(value, midiChange.priority ?? 5, `flags.midi-qol.optional.${midiChange.name}.${key}`),
             );
           }
         }

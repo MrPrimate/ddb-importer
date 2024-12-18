@@ -142,7 +142,7 @@ export default class Example extends DDBEnricherData {
         targetUpdateMacroChanges: [{}], // onTargetUpdate macro changes
         onUseMacroChanges: [{}], // onUse macro changes
         damageBonusMacroChanges: [{}], // damage bonus macro changes
-        midiOptionalChanges: { // midi optional changes
+        midiOptionalChanges: [{ // midi optional changes
           name: "deftStrike",
           data: {
             label: `${document.name} Additional Damage`,
@@ -151,7 +151,7 @@ export default class Example extends DDBEnricherData {
             countAlt: "ItemUses.Ki",
             criticalDamage: "1",
           },
-        },
+        }],
       },
     ];
   }
