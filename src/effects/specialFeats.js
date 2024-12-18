@@ -212,11 +212,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = await squireOfSolamniaEffect(document);
       break;
     }
-    case "Stone's Endurance":
-    case "Stone’s Endurance": {
-      document = stonesEnduranceEffect(document);
-      break;
-    }
     case "Storm Aura: Tundra": {
       document = await stormAuraTundraEffect(document);
       break;

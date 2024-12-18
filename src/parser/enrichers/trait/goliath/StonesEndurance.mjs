@@ -10,6 +10,7 @@ export default class StonesEndurance extends DDBEnricherData {
   get activity() {
     return {
       activationType: "reaction",
+      midiDamageReaction: true,
       data: {
         roll: {
           prompt: false,
@@ -19,6 +20,26 @@ export default class StonesEndurance extends DDBEnricherData {
         },
       },
     };
+  }
+
+  get effects() {
+    return [
+      {
+        midiOnly: true,
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange("[[1d12 + @abilities.con.mod]]", 30, "flags.midi-qol.DR.all"),
+        ],
+        daeSpecialDurations: ["1Reaction"],
+        data: {
+          flags: {
+            dae: {
+              selfTarget: true,
+              selfTargetAlways: true,
+            },
+          },
+        },
+      },
+    ];
   }
 
 }
