@@ -241,6 +241,7 @@ export default class DDBEnricherData {
    *     - targetUpdateMacroChanges:  {Array} onTargetUpdate macro changes
    *     - onUseMacroChanges: {Array} onUse macro changes
    *     - damageBonusMacroChanges: {Array} damage bonus macro changes
+   *     - midiOptionalChanges: {object} object of name and data (key/value) for midi optional changes
    */
   get effects() {
     return [];

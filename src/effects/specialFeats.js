@@ -4,7 +4,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 import { cloudRuneEffect } from "./feats/cloudRune.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
 import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
-import { deftStrikeEffect } from "./feats/deftStike.js";
 import { evasionEffect } from "./feats/evasion.js";
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
 import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
@@ -91,10 +90,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Deflect Missiles": {
       document = deflectMissilesEffect(document);
-      break;
-    }
-    case "Deft Strike": {
-      document = await deftStrikeEffect(document);
       break;
     }
     case "Evasion": {

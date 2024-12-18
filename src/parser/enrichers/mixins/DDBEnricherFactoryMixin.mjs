@@ -609,6 +609,16 @@ export default class DDBEnricherFactoryMixin {
         }
       }
 
+      if (effectHint.midiOptionalChanges && applyMidiOnlyEffects) {
+        for (const midiChange of effectHint.midiOptionalChanges) {
+          for (const [key, value] of Object.entries(midiChange.data)) {
+            effect.changes.push(
+              ChangeHelper.customChange(`flags.midi-qol.optional.${midiChange.name}.${key}`, value),
+            );
+          }
+        }
+      }
+
       if (effectHint.data) {
         effect = foundry.utils.mergeObject(effect, effectHint.data);
       }
