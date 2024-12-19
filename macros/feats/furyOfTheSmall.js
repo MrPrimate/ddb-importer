@@ -4,7 +4,7 @@ const target = workflow.hitTargets.first().actor;
 const isSmaller = DDBImporter?.EffectHelper.isSmaller(actor,target);
 
 if (isSmaller) {
-  return workflow.actor.effects.getName('Fury of the Small').update({ disabled:false });
+  return workflow.actor.effects.getName('Fury of the Small Automation').update({ disabled:false });
 } else {
-  return workflow.actor.effects.getName('Fury of the Small').update({ disabled:true });
+  return workflow.actor.effects.getName('Fury of the Small Automation').update({ disabled:true });
 }

@@ -16,12 +16,9 @@ import { mindLinkEffect } from "./feats/mindLink.js";
 import { momentaryStasis } from "./feats/momentaryStasis.js";
 import { patientDefenseEffect } from "./feats/patientDefense.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
-import { potentCantripEffect } from "./feats/potentCantrip.js";
-import { powerfulBuild } from "./feats/powerfulBuild.js";
 import { radiantSoulEffect } from "./feats/radiantSoul.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
 import { savageAttackerEffect } from "./feats/savageAttacker.js";
-import { sculptSpellsEffect } from "./feats/sculptSpells.js";
 import { shiftEffect } from "./feats/shift.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
@@ -29,7 +26,6 @@ import { steadyAimEffect } from "./feats/steadyAim.js";
 import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
-import { furyOfTheSmallEffect } from "./feats/furryOfTheSmall.js";
 import { intimidatingPresenceEffect } from "./feats/intimidatingPresence.js";
 import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
 import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
@@ -87,10 +83,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = formOfTheBeastReactionEffect(document);
       break;
     }
-    case "Fury of the Small": {
-      document = await furyOfTheSmallEffect(document);
-      break;
-    }
     case "Flurry of Blows": {
       document = await flurryOfBlowsEffect(document);
       break;
@@ -127,17 +119,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = patientDefenseEffect(document);
       break;
     }
-    case "Potent Cantrip": {
-      document = potentCantripEffect(document);
-      break;
-    }
-    case "Equine Build":
-    case "Little Giant":
-    case "Hippo Build":
-    case "Powerful Build": {
-      document = powerfulBuild(document);
-      break;
-    }
     case "Planar Warrior": {
       document = await planarWarriorEffect(document);
       break;
@@ -153,10 +134,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Raging Storm: Tundra": {
       document = await ragingStormTundraEffect(document);
-      break;
-    }
-    case "Sculpt Spells": {
-      document = sculptSpellsEffect(document);
       break;
     }
     case "Savage Attacker": {

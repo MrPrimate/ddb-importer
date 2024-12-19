@@ -360,6 +360,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Storm Rune": ClassEnrichers.Fighter.StormRune,
     "Rune Carver": GenericEnrichers.None,
     "Potent Cantrip": ClassEnrichers.Shared.PotentCantrip,
+    "Sculpt Spells": ClassEnrichers.Wizard.SculptSpells,
   };
 
   FALLBACK_ENRICHERS = {

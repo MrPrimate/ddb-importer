@@ -72,6 +72,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Uncanny Dodge": GenericEnrichers.UncannyDodge,
     "Daunting Roar": SpeciesEnrichers.Leonin.DauntingRoar,
     "Vedalken Dispassion": SpeciesEnrichers.Vedalken.VedalkenDispassion,
+    "Fury of the Small": SpeciesEnrichers.Goblin.FuryOfTheSmall,
   };
 
   FALLBACK_ENRICHERS = {

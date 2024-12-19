@@ -10,3 +10,4 @@ export * as Shifter from "./shifter/_module.mjs";
 export * as Dwarf from "./dwarf/_module.mjs";
 export * as Bugbear from "./bugbear/_module.mjs";
 export * as Leonin from "./leonin/_module.mjs";
+export * as Goblin from "./goblin/_module.mjs";
