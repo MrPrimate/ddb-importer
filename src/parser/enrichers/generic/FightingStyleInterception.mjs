@@ -23,4 +23,23 @@ export default class FightingStyleInterception extends DDBEnricherData {
       },
     };
   }
+
+  get effects() {
+    return [
+      {
+        midiOnly: true,
+        name: "Interception: Automation",
+        options: {
+          transfer: true,
+        },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "flags.midi-qol.DR.mwak"),
+          DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "flags.midi-qol.DR.rwak"),
+          DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "flags.midi-qol.DR.rsak"),
+          DDBEnricherData.ChangeHelper.overrideChange("1d10 + @system.attributes.prof", 20, "flags.midi-qol.DR.msak"),
+        ],
+        daeSpecialDurations: ["isDamaged"],
+      },
+    ];
+  }
 }

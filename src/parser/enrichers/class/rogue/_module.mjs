@@ -5,6 +5,7 @@ export { default as DeviousStrikes } from "./DeviousStrikes.mjs";
 export { default as EnvenomWeapons } from "./EnvenomWeapons.mjs";
 export { default as Evasion } from "./Evasion.mjs";
 export { default as FastHands } from "./FastHands.mjs";
+export { default as GhostWalk } from "./GhostWalk.mjs";
 export { default as PsiBolsteredKnack } from "./PsiBolsteredKnack.mjs";
 export { default as PsychicBlade } from "./PsychicBlade.mjs";
 export { default as PsychicVeil } from "./PsychicVeil.mjs";

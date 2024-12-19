@@ -3,7 +3,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 // effect loads
 import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
-import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js";
 import { giantsMightEffect } from "./feats/giantsMight.js";
 import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
@@ -73,10 +72,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Foe Slayer": {
       document = foeSlayerEffect(document);
-      break;
-    }
-    case "Fighting Style: Interception": {
-      document = fightingStyleInterceptionEffect(document);
       break;
     }
     case "Form of the Beast: Tail (reaction)": {
