@@ -23,8 +23,6 @@ import { runeCarverEffect } from "./feats/runeCarver.js";
 import { savageAttackerEffect } from "./feats/savageAttacker.js";
 import { sculptSpellsEffect } from "./feats/sculptSpells.js";
 import { shiftEffect } from "./feats/shift.js";
-import { slasherCriticalEffect } from "./feats/slasherCritical.js";
-import { slasherReduceSpeedEffect } from "./feats/slasherReduceSpeed.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
 import { steadyAimEffect } from "./feats/steadyAim.js";
@@ -167,14 +165,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Shift": {
       if (ddb && character) document = shiftEffect(ddb, character, document);
-      break;
-    }
-    case "Slasher: Reduce Speed": {
-      document = await slasherReduceSpeedEffect(document);
-      break;
-    }
-    case "Slasher: Critical Hit": {
-      document = await slasherCriticalEffect(document);
       break;
     }
     case "Slayer's Prey": {
