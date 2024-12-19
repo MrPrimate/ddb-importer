@@ -72,6 +72,7 @@ export default class RendMind extends DDBEnricherData {
     });
 
     return {
+      replaceActivityUses: true,
       data: {
         "system.uses": uses,
       },

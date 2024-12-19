@@ -49,4 +49,10 @@ export default class PsychicVeil extends DDBEnricherData {
       },
     ];
   }
+
+  get override() {
+    return {
+      replaceActivityUses: true,
+    };
+  }
 }
