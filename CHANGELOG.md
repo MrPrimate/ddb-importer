@@ -17,6 +17,7 @@
 - Shield of Faith granted incorrect bonus.
 - Some midi effects transferred to work with this version of DDB Importer.
 - Improve Invisibility DAE special durations from some monsters such as the Invisible Stalker.
+- Titel buttons will now show in Tidy Sheet again @callbritton
 
 # 6.0.54
 

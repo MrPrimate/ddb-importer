@@ -98,31 +98,99 @@ function getNPCButton(document) {
   return button;
 }
 
-export function tidySheets() {
-  const api = game.modules.get('tidy5e-sheet-kgar')?.api ?? game.modules.get('tidy5e-sheet')?.api;
-  if (!api) return;
 
-  api.registerCharacterContent(
-    new api.models.HtmlContent({
-      html: `<div class="ddbCharacterName"></div>`,
-      injectParams: {
-        selector: `[data-tidy-sheet-part="name-header-row"]`,
-        position: "afterbegin",
-      },
-      enabled: (data) => {
-        const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
-        const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
-        const titleLink = game.settings.get("ddb-importer", "character-link-title");
-        const onlyTrustedUser = !allowAllSync && trustedUsersOnly && !game.user.isTrusted;
-        return (data.owner || onlyTrustedUser) && !titleLink;
-      },
-      onRender: (params) => {
-        const $ddbCharacterName = $(params.element).find(".ddbCharacterName");
-        const button = getCharacterButton(params.app.document, params.data.actor);
-        $ddbCharacterName.append(button);
-      },
-    }),
-  );
+function handlePCHeaderButton(config, buttons, label = true) {
+  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  buttons.unshift({
+    label: label ? `DDB Importer` : undefined,
+    class: 'ddb-open-url',
+    icon: `fab fa-d-and-d-beyond${whiteTitle}`,
+    onclick: (event) => characterButtonClick(event, config.document, config.actor),
+  });
+}
+
+function handleNPCHeaderButton(config, buttons, label = true) {
+  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  buttons.unshift({
+    label: label ? `DDB Importer` : undefined,
+    class: 'ddb-open-url',
+    icon: `fab fa-d-and-d-beyond${whiteTitle}`,
+    onclick: (event) => npcButtonClick(event, config.document),
+  });
+}
+
+function createActorHeaderButtons(config, buttons, label = true) {
+  const isCharacterSheet = config.actor?.type === "character";
+  const isNpcSheet = config.actor?.type === "npc";
+
+  if (!isCharacterSheet && !isNpcSheet) return;
+
+  if (!game.settings.get("ddb-importer", "character-link-title") && isCharacterSheet) return;
+  if (!game.settings.get("ddb-importer", "monster-link-title") && isNpcSheet) return;
+
+  if (isCharacterSheet) {
+    handlePCHeaderButton(config, buttons, label);
+  } else if (isNpcSheet) {
+    if (!config.object.flags?.monsterMunch?.url) return;
+    handleNPCHeaderButton(config, buttons, label);
+  }
+}
+
+function createOldSheetHeaderButtons(config, buttons) {
+  if (!config.object.isOwner) return;
+  if (!(config.object instanceof Actor)) return;
+
+  const isCharacterSheet = config.constructor.name === "ActorSheet5eCharacter2";
+  const isNpcSheet = config.constructor.name === "ActorSheet5eNPC2";
+
+  if (isCharacterSheet || isNpcSheet) return;
+  createActorHeaderButtons(config, buttons, false);
+}
+
+function createDefault5eButtons(config, buttons) {
+  if (!config.object.isOwner) return;
+  if (!(config.object instanceof Actor)) return;
+
+  const isCharacterSheet = config.constructor.name === "ActorSheet5eCharacter2";
+  const isNpcSheet = config.constructor.name === "ActorSheet5eNPC2";
+
+  if (!isCharacterSheet && !isNpcSheet) {
+    logger.debug(`Unknown Character Sheet`, {
+      config,
+    });
+    return;
+  }
+  createActorHeaderButtons(config, buttons, true);
+}
+
+
+export function tidySheets() {
+  const api = game.modules.get('tidy5e-sheet')?.api;
+  if (!api) return;
+  if (!game.settings.get("ddb-importer", "character-link-title")) {
+    api.registerCharacterContent(
+      new api.models.HtmlContent({
+        html: `<div class="ddbCharacterName"></div>`,
+        injectParams: {
+          selector: `[data-tidy-sheet-part="name-header-row"]`,
+          position: "afterbegin",
+        },
+        enabled: (data) => {
+          const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
+          const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
+          const titleLink = game.settings.get("ddb-importer", "character-link-title");
+          const onlyTrustedUser = !allowAllSync && trustedUsersOnly && !game.user.isTrusted;
+          return (data.owner || onlyTrustedUser) && !titleLink;
+        },
+        onRender: (params) => {
+          const $ddbCharacterName = $(params.element).find(".ddbCharacterName");
+          const button = getCharacterButton(params.app.document, params.data.actor);
+          $ddbCharacterName.append(button);
+        },
+      }),
+    );
+  }
+
 
   // api.registerNpcContent(
   //   new api.models.HtmlContent({
@@ -143,47 +211,6 @@ export function tidySheets() {
   // );
 }
 
-function handlePCHeaderButton(config, buttons) {
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
-  buttons.unshift({
-    label: `DDB Importer`,
-    class: 'ddb-open-url',
-    icon: `fab fa-d-and-d-beyond${whiteTitle}`,
-    onclick: (event) => characterButtonClick(event, config.document, config.actor),
-  });
-}
-
-function handleNPCHeaderButton(config, buttons) {
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
-  buttons.unshift({
-    label: `Open on D&D Beyond`,
-    class: 'ddb-open-url',
-    icon: `fab fa-d-and-d-beyond${whiteTitle}`,
-    onclick: (event) => npcButtonClick(event, config.document),
-  });
-}
-
-function createActorHeaderButtons(config, buttons) {
-
-  if (!config.object.isOwner) return;
-  if (!(config.object instanceof Actor)) return;
-  const isCharacterSheet = config.constructor.name === "ActorSheet5eCharacter2";
-  const isNpcSheet = config.constructor.name === "ActorSheet5eNPC2";
-
-  if (!isCharacterSheet && !isNpcSheet) return;
-
-  if (!game.settings.get("ddb-importer", "character-link-title") && isCharacterSheet) return;
-  if (!game.settings.get("ddb-importer", "monster-link-title") && isNpcSheet) return;
-
-  if (isCharacterSheet) {
-    handlePCHeaderButton(config, buttons);
-  } else if (isNpcSheet) {
-    if (!config.object.flags?.monsterMunch?.url) return;
-    handleNPCHeaderButton(config, buttons);
-  }
-
-}
-
 export default function () {
   /**
    * Character sheets
@@ -202,7 +229,8 @@ export default function () {
   //   : '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
 
   tidySheets();
-  Hooks.on('getActorSheet5eHeaderButtons', createActorHeaderButtons);
+  Hooks.on('getActorSheet5eHeaderButtons', createDefault5eButtons);
+  Hooks.on('getActorSheetHeaderButtons', createOldSheetHeaderButtons);
   pcSheetNames.forEach((sheetName) => {
     Hooks.on("render" + sheetName, (app, html, data) => {
       // only for GMs or the owner of this character
