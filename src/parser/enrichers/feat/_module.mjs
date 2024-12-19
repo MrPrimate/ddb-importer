@@ -20,6 +20,7 @@ export { default as Healer } from "./Healer.mjs";
 export { default as InspiringLeader } from "./InspiringLeader.mjs";
 export { default as MageSlayer } from "./MageSlayer.mjs";
 export { default as Observant } from "./Observant.mjs";
+export { default as Piercer } from "./Piercer.mjs";
 export { default as Poisoner } from "./Poisoner.mjs";
 export { default as PolearmMasterBonusAttack } from "./PolearmMasterBonusAttack.mjs";
 export { default as ReliableTalent } from "./ReliableTalent.mjs";

@@ -15,7 +15,6 @@ import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
 import { mindLinkEffect } from "./feats/mindLink.js";
 import { momentaryStasis } from "./feats/momentaryStasis.js";
 import { patientDefenseEffect } from "./feats/patientDefense.js";
-import { piercerCriticalEffect, piercerRerollEffect } from "./feats/piercer.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
 import { potentCantripEffect } from "./feats/potentCantrip.js";
 import { powerfulBuild } from "./feats/powerfulBuild.js";
@@ -139,19 +138,6 @@ async function midiFeatureEffects(ddb, character, document) {
     case "Hippo Build":
     case "Powerful Build": {
       document = powerfulBuild(document);
-      break;
-    }
-    case "Piercer": {
-      document = await piercerCriticalEffect(document);
-      document = await piercerRerollEffect(document);
-      break;
-    }
-    case "Piercer: Reroll Damage": {
-      document = await piercerRerollEffect(document);
-      break;
-    }
-    case "Piercer: Critical Hit": {
-      document = await piercerCriticalEffect(document);
       break;
     }
     case "Planar Warrior": {

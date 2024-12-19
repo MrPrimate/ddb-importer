@@ -1,4 +1,4 @@
-if (args[0].tag !== "DamageBonus" && args[0].hitTargets == 0) return;
+if (args[0].tag !== "DamageBonus" && args[0].hitTargets.length < 1) return;
 
 if (args[0].isCritical) {
   const crushCriticalFeatName = "Crusher";
@@ -41,7 +41,17 @@ const activity = args[0].attackRoll.data.activity;
 if (activity.type !== "attack") return;
 
 const damageType = game.i18n.localize("bludgeoning");
-if (args[0].damageDetail.some(i => i.type === damageType).length === 0 && args[0]?.defaultDamageType !== damageType) return;
+console.warn({args, damageType,
+
+
+})
+if (!args[0].damageDetail.some(i => i.type === damageType)) {
+  console.warn({
+    damageType,
+
+  })
+  return;
+}
 
 const sourceActor = (await fromUuid(args[0].tokenUuid)).actor;
 

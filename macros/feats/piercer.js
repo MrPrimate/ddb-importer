@@ -1,5 +1,11 @@
-if (!["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) return;
-if (args[0].hitTargets.length < 1 || args[0].item.system.damage.parts[0][1] !== "piercing") return {};
+const activity = args[0].attackRoll.data.activity;
+
+if (activity.type !== "attack") return;
+
+if (args[0].hitTargets.length < 1) return;
+
+const damageType = game.i18n.localize("piercing");
+if (!args[0].damageDetail.some(i => i.type === damageType)) return;
 
 const roll = args[0].damageRoll;
 if (!roll.terms[0].faces) return;
@@ -7,7 +13,7 @@ if (!roll.terms[0].faces) return;
 const dieSize = roll.terms[0].faces;
 
 if (args[0].tag === "DamageBonus" && args[0].isCritical) {
-  return { damageRoll: `1d${dieSize}[piercing]`, flavor: "Critical Piercer Feat extra damage" };
+  return { damageRoll: `1d${dieSize}[piercing]`, flavor: "Piercer Feat: Critical extra damage" };
 }
 
 const lowDice = Math.min(...roll.terms[0].values);
