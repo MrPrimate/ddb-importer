@@ -15,8 +15,8 @@ export default class GhostWalk extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("true", 2, "system.attributes.movement.hover"),
         ],
         midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.grants.disadvantage.attack.all"),")
-        ]
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.grants.disadvantage.attack.all"),
+        ],
       },
     ];
   }

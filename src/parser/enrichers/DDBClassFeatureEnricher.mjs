@@ -361,6 +361,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Rune Carver": GenericEnrichers.None,
     "Potent Cantrip": ClassEnrichers.Shared.PotentCantrip,
     "Sculpt Spells": ClassEnrichers.Wizard.SculptSpells,
+    "Ghost Walk": ClassEnrichers.Rogue.GhostWalk,
+    "Wails from the Grave": ClassEnrichers.Rogue.WailsFromTheGrave,
   };
 
   FALLBACK_ENRICHERS = {

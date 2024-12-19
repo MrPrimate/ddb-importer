@@ -22,4 +22,5 @@ export { default as SupremeSneak } from "./SupremeSneak.mjs";
 export { default as UseMagicDevice } from "./UseMagicDevice.mjs";
 export { default as UseMagicDeviceCharges } from "./UseMagicDeviceCharges.mjs";
 export { default as UseMagicDeviceScroll } from "./UseMagicDeviceScroll.mjs";
+export { default as WailsFromTheGrave } from "./WailsFromTheGrave.mjs";
 
