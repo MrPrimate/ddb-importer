@@ -8,7 +8,7 @@ export default class Evasion extends DDBEnricherData {
       {
         midiOnly: true,
         midiChanges: [
-          DDBEnricherData.ChangeHelper("1", 20, "flags.midi-qol.superSaver.dex"),
+          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.superSaver.dex"),
         ],
       },
     ];
