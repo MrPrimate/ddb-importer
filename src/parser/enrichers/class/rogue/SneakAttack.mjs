@@ -29,6 +29,7 @@ export default class SneakAttack extends DDBEnricherData {
   get effects() {
     return [
       {
+        name: "Sneak Attack Automation",
         options: {
           transfer: true,
           durationSeconds: null,
