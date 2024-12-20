@@ -500,6 +500,12 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       };
     } else if (this.enricher?.activityNameMatchFeature) {
       this.data.system.uses = foundry.utils.deepClone(this.enricher.activityNameMatchFeature.system.uses);
+    } else if (this.enricher?.defaultActionFeatures && Object.keys(this.enricher.defaultActionFeatures).length > 0) {
+      const features = Object.values(this.enricher.defaultActionFeatures).flat();
+      const featureMatch = features.find((feature) => feature.system.uses.max && feature.system.uses.max !== "");
+      if (featureMatch) {
+        this.data.system.uses = foundry.utils.deepClone(featureMatch.system.uses);
+      }
     }
   }
 
