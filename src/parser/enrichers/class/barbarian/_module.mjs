@@ -6,6 +6,7 @@ export { default as BranchesOfTheTree } from "./BranchesOfTheTree.mjs";
 export { default as BrutalCritical } from "./BrutalCritical.mjs";
 export { default as BrutalStrike } from "./BrutalStrike.mjs";
 export { default as DemiurgicColossus } from "./DemiurgicColossus.mjs";
+export { default as ElementalCleaver } from "./ElementalCleaver.mjs";
 export { default as FormOfTheBeast } from "./FormOfTheBeast.mjs";
 export { default as FormOfTheBeastWeapons } from "./FormOfTheBeastWeapons.mjs";
 export { default as Frenzy } from "./Frenzy.mjs";
