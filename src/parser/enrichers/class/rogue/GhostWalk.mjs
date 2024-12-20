@@ -3,10 +3,17 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class GhostWalk extends DDBEnricherData {
 
+  get activity() {
+    return {
+      name: "Activate",
+    };
+  }
+
   get effects() {
     return [
       {
         name: "Spectral Form",
+        activityMatch: "Activate",
         options: {
           durationSeconds: 600,
         },
@@ -21,8 +28,57 @@ export default class GhostWalk extends DDBEnricherData {
     ];
   }
 
-  get useDefaultAdditionalActivities() {
-    return true;
+  get additionalActivities() {
+    if (this.isAction) return [];
+    return [
+      {
+        constructor: {
+          name: "Spend Soul Trinket to Restore Use",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: true,
+          generateTarget: true,
+          generateActivation: true,
+          generateUtility: true,
+          activationOverride: {
+            type: "none",
+            value: null,
+            condition: "",
+          },
+          consumptionOverride: {
+            targets: [
+              {
+                type: "itemUses",
+                target: "",
+                value: -1,
+                scaling: { mode: "", formula: "" },
+              },
+              {
+                type: "itemUses",
+                value: "1",
+                target: "Tokens of the Departed",
+                scaling: { allowed: false, max: "" },
+              },
+            ],
+          },
+        },
+      },
+    ];
+  }
+
+  // get useDefaultAdditionalActivities() {
+  //   return true;
+  // }
+
+  // get addToDefaultAdditionalActivities() {
+  //   return true;
+  // }
+
+  get override() {
+    return {
+      replaceActivityUses: true,
+    };
   }
 
 }
