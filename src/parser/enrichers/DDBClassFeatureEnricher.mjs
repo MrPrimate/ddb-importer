@@ -363,6 +363,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Sculpt Spells": ClassEnrichers.Wizard.SculptSpells,
     "Ghost Walk": ClassEnrichers.Rogue.GhostWalk,
     "Wails from the Grave": ClassEnrichers.Rogue.WailsFromTheGrave,
+    "Tokens of the Departed": ClassEnrichers.Rogue.TokensOfTheDeparted,
+    "Tokens of the Departed: Sneak Attack": ClassEnrichers.Rogue.WailsFromTheGrave,
   };
 
   FALLBACK_ENRICHERS = {

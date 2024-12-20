@@ -19,6 +19,7 @@ export { default as SoulBlades } from "./SoulBlades.mjs";
 export { default as SoulBladesHomingStrikes } from "./SoulBladesHomingStrikes.mjs";
 export { default as SoulBladesPsychicTeleportation } from "./SoulBladesPsychicTeleportation.mjs";
 export { default as SupremeSneak } from "./SupremeSneak.mjs";
+export { default as TokensOfTheDeparted } from "./TokensOfTheDeparted.mjs";
 export { default as UseMagicDevice } from "./UseMagicDevice.mjs";
 export { default as UseMagicDeviceCharges } from "./UseMagicDeviceCharges.mjs";
 export { default as UseMagicDeviceScroll } from "./UseMagicDeviceScroll.mjs";

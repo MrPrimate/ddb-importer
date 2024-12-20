@@ -33,7 +33,6 @@ import { giantStatureEffect } from "./feats/giantStature.js";
 import { demiurgicColossusEffect } from "./feats/demiurgicColossus.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 import { songOfVictoryEffect } from "./feats/songOfVictory.js";
-import { ghostWalkEffect } from "./feats/ghostWalk.js";
 import { foeSlayerEffect } from "./feats/foeSlayer.js";
 import { AutoEffects, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
 
@@ -181,10 +180,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
   switch (name) {
     case "Demiurgic Colossus": {
       document = demiurgicColossusEffect(document);
-      break;
-    }
-    case "Ghost Walk": {
-      document = ghostWalkEffect(document);
       break;
     }
     case "Giant Stature":
