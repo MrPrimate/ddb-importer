@@ -7,6 +7,7 @@ export { default as DreadfulStrike } from "./DreadfulStrike.mjs";
 export { default as DreadfulStrikeMassFear } from "./DreadfulStrikeMassFear.mjs";
 export { default as DreadfulStrikeSuddenStrike } from "./DreadfulStrikeSuddenStrike.mjs";
 export { default as DreadfulStrikes } from "./DreadfulStrikes.mjs";
+export { default as FoeSlayer } from "./FoeSlayer.mjs";
 export { default as HuntersPrey } from "./HuntersPrey.mjs";
 export { default as PrimalCompanion } from "./PrimalCompanion.mjs";
 export { default as PrimalCompanionRestoreBeast } from "./PrimalCompanionRestoreBeast.mjs";
