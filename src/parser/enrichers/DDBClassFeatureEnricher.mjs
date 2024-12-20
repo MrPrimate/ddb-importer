@@ -37,9 +37,6 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     // "War God's Blessing": "Channel Divinity: War God's Blessing",
     "Telekinetic Adept: Psi-Powered Leap": "Psionic Power: Psi-Powered Leap",
     "Telekinetic Adept: Telekinetic Thrust": "Psionic Power: Telekinetic Thrust",
-    "Form of the Beast: Tail": "Form of the Beast",
-    "Form of the Beast: Claw": "Form of the Beast",
-    "Form of the Beast: Bite": "Form of the Beast",
     "Cloak of Shadows": "Channel Divinity: Cloak of Shadows",
   };
 
@@ -157,6 +154,10 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Font of Magic: Sorcery Points": ClassEnrichers.Sorcerer.FontOfMagicSorceryPoints,
     "Font of Magic": ClassEnrichers.Sorcerer.FontOfMagic,
     "Form of the Beast": ClassEnrichers.Barbarian.FormOfTheBeast,
+    "Form of the Beast: Tail": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
+    "Form of the Beast: Tail (reaction)": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
+    "Form of the Beast: Claw": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
+    "Form of the Beast: Bite": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
     "Frenzy": ClassEnrichers.Barbarian.Frenzy,
     "Full of Stars": ClassEnrichers.Druid.FullOfStars,
     "Genie's Vessel: Genie's Wrath (Dao)": ClassEnrichers.Warlock.GeniesVessel,
@@ -365,6 +366,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Wails from the Grave": ClassEnrichers.Rogue.WailsFromTheGrave,
     "Tokens of the Departed": ClassEnrichers.Rogue.TokensOfTheDeparted,
     "Tokens of the Departed: Sneak Attack": ClassEnrichers.Rogue.WailsFromTheGrave,
+    "Foe Slayer": ClassEnrichers.Ranger.FoeSlayer,
   };
 
   FALLBACK_ENRICHERS = {

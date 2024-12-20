@@ -42,8 +42,29 @@ export default class DeflectMissiles extends DDBEnricherData {
     ];
   }
 
+  get effects() {
+    return [
+      {
+        midiOnly: true,
+        name: "Deflect Missiles Automation",
+        options: {
+          transfer: true,
+        },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            "[[1d10 + @abilities.dex.mod + @classes.monk.levels]]",
+            20,
+            "flags.midi-qol.DR.rwak",
+          ),
+        ],
+        daeSpecialDurations: ["isDamaged"],
+      },
+    ];
+  }
+
   get override() {
     return {
+      midiDamageReaction: true,
       data: {
         "flags.ddbimporter": {
           ignoredConsumptionActivities: ["Reduce Damage"],

@@ -1,9 +1,7 @@
 import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
-import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
-import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js";
 import { giantsMightEffect } from "./feats/giantsMight.js";
 import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
 import { heavyArmorMasterEffect } from "./feats/heavyArmorMaster.js";
@@ -33,7 +31,6 @@ import { giantStatureEffect } from "./feats/giantStature.js";
 import { demiurgicColossusEffect } from "./feats/demiurgicColossus.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 import { songOfVictoryEffect } from "./feats/songOfVictory.js";
-import { foeSlayerEffect } from "./feats/foeSlayer.js";
 import { AutoEffects, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
 
 
@@ -61,20 +58,8 @@ async function midiFeatureEffects(ddb, character, document) {
   }
 
   switch (name) {
-    case "Deflect Missiles": {
-      document = deflectMissilesEffect(document);
-      break;
-    }
     case "Favored Foe": {
       document = await favoredFoeEffect(document);
-      break;
-    }
-    case "Foe Slayer": {
-      document = foeSlayerEffect(document);
-      break;
-    }
-    case "Form of the Beast: Tail (reaction)": {
-      document = formOfTheBeastReactionEffect(document);
       break;
     }
     case "Flurry of Blows": {
