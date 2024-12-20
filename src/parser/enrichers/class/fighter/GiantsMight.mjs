@@ -38,7 +38,7 @@ export default class GiantsMight extends DDBEnricherData {
             value: 1,
             condition: "",
           },
-          damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6 })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, types: DDBEnricherData.allDamageTypes() })],
         },
       },
     ];
@@ -57,6 +57,21 @@ export default class GiantsMight extends DDBEnricherData {
         ],
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("lg", 25, "system.traits.size"),
+        ],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
+          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.check.str"),
+        ],
+        midiOptionalChanges: [
+          {
+            name: "giantsMight",
+            data: {
+              label: "Giant's Might Bonus Damage",
+              count: "turn",
+              "damage.all": "1d6",
+              criticalDamage: "1",
+            },
+          },
         ],
       },
     ];

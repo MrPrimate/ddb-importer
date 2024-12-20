@@ -2,7 +2,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
-import { giantsMightEffect } from "./feats/giantsMight.js";
 import { hadozeDodgeEffect } from "./feats/hadozeeDodge.js";
 import { heavyArmorMasterEffect } from "./feats/heavyArmorMaster.js";
 import { indomitableEffect } from "./feats/indomitable.js";
@@ -64,10 +63,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Flurry of Blows": {
       document = await flurryOfBlowsEffect(document);
-      break;
-    }
-    case "Giant's Might": {
-      document = giantsMightEffect(document);
       break;
     }
     case "Glide (Reaction)": {
