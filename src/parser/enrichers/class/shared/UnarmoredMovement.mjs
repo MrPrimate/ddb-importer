@@ -1,13 +1,17 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
+import AutoEffects from "../../effects/AutoEffects.mjs";
 
 export default class UnarmoredMovement extends DDBEnricherData {
 
   get effects() {
-    const value = this.ddbParser.ddbData?.character?.modifiers && this.is2024
-      ? this.ddbParser.ddbData.character.modifiers.class.filter((mod) => mod.isGranted
-        && mod.friendlySubtypeName === "Unarmored Movement").reduce((acc, mod) => acc + mod.value, 0)
-      : 10;
+    const value = AutoEffects.effectModules().daeInstalled && this.isClass("Monk")
+      ? "@scale.monk.unarmored-movement.value"
+      : this.ddbParser.ddbData?.character?.modifiers && this.is2024
+        ? this.ddbParser.ddbData.character.modifiers.class.filter((mod) => mod.isGranted
+          && mod.friendlySubtypeName === "Unarmored Movement").reduce((acc, mod) => acc + mod.value, 0)
+        : 10;
+
     return [{
       noCreate: true,
       changesOverwrite: true,

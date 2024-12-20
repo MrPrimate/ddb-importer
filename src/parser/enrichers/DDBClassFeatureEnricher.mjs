@@ -367,6 +367,11 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Tokens of the Departed": ClassEnrichers.Rogue.TokensOfTheDeparted,
     "Tokens of the Departed: Sneak Attack": ClassEnrichers.Rogue.WailsFromTheGrave,
     "Foe Slayer": ClassEnrichers.Ranger.FoeSlayer,
+    "Steady Aim": ClassEnrichers.Rogue.SteadyAim,
+    "Demiurgic Colossus": ClassEnrichers.Barbarian.DemiurgicColossus,
+    "Giant's Havoc": ClassEnrichers.Barbarian.GiantsHavoc,
+    "Giant's Havoc: Giant Stature": ClassEnrichers.Barbarian.GiantsHavocGiantStature,
+    "Giant's Havoc: Crushing Throw": ClassEnrichers.Barbarian.GiantsHavocCrushingThrow,
   };
 
   FALLBACK_ENRICHERS = {

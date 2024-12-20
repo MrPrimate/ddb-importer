@@ -17,16 +17,12 @@ import { savageAttackerEffect } from "./feats/savageAttacker.js";
 import { shiftEffect } from "./feats/shift.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
-import { steadyAimEffect } from "./feats/steadyAim.js";
-import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { intimidatingPresenceEffect } from "./feats/intimidatingPresence.js";
 import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
 import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
 import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
-import { giantStatureEffect } from "./feats/giantStature.js";
-import { demiurgicColossusEffect } from "./feats/demiurgicColossus.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 import { songOfVictoryEffect } from "./feats/songOfVictory.js";
 import { AutoEffects, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
@@ -149,29 +145,12 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
 
   // effects to always apply
   switch (name) {
-    case "Demiurgic Colossus": {
-      document = demiurgicColossusEffect(document);
-      break;
-    }
-    case "Giant Stature":
-    case "Giant's Havoc: Giant Stature": {
-      document = giantStatureEffect(document);
-      break;
-    }
     case "Heavy Armor Master": {
       document = heavyArmorMasterEffect(document);
       break;
     }
     case "Song of Victory": {
       document = songOfVictoryEffect(document);
-      break;
-    }
-    case "Steady Aim": {
-      document = steadyAimEffect(document);
-      break;
-    }
-    case "Unarmored Movement": {
-      document = unarmoredMovementEffect(document);
       break;
     }
     case "Vigilant Blessing": {
