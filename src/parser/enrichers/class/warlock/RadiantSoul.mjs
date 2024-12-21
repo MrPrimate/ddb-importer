@@ -22,4 +22,34 @@ export default class RadiantSoul extends DDBEnricherData {
     };
   }
 
+  get effects() {
+    return [
+      {
+        name: "Radiant Soul Automation",
+        options: {
+          transfer: true,
+          durationSeconds: null,
+          durationRounds: null,
+        },
+        midiOnly: true,
+        damageBonusMacroChanges: [
+          { macroType: "feat", macroName: "radiantSoul.js", document: this.data },
+        ],
+        data: {
+          duration: {
+            seconds: null,
+            rounds: null,
+          },
+        },
+      },
+    ];
+  }
+
+  get itemMacro() {
+    return {
+      type: "feat",
+      name: "radiantSoul.js",
+    };
+  }
+
 }

@@ -38,4 +38,19 @@ export default class MantleOfInspiration extends DDBEnricherData {
     };
   }
 
+  get setMidiOnUseMacroFlag() {
+    return {
+      macroType: "feat",
+      macroName: "mantleOfInspiration.js",
+      triggerPoints: ["preTargeting"],
+    };
+  }
+
+  get itemMacro() {
+    return {
+      type: "feat",
+      name: "mantleOfInspiration.js",
+    };
+  }
+
 }

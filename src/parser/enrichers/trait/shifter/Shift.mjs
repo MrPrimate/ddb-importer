@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class Shifting extends DDBEnricherData {
+export default class Shift extends DDBEnricherData {
 
   get addAutoAdditionalActivities() {
     return true;

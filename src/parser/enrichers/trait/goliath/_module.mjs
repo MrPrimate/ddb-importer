@@ -1,4 +1,4 @@
-export { default as CloudJaunt } from "./CloudJaunt.mjs";
+export { default as CloudsJaunt } from "./CloudsJaunt.mjs";
 export { default as FiresBurn } from "./FiresBurn.mjs";
 export { default as FrostsChill } from "./FrostsChill.mjs";
 export { default as HillsTumble } from "./HillsTumble.mjs";

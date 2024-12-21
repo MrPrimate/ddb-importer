@@ -9,6 +9,7 @@ export { default as DreadfulStrikeSuddenStrike } from "./DreadfulStrikeSuddenStr
 export { default as DreadfulStrikes } from "./DreadfulStrikes.mjs";
 export { default as FoeSlayer } from "./FoeSlayer.mjs";
 export { default as HuntersPrey } from "./HuntersPrey.mjs";
+export { default as PlanarWarrior } from "./PlanarWarrior.mjs";
 export { default as PrimalCompanion } from "./PrimalCompanion.mjs";
 export { default as PrimalCompanionRestoreBeast } from "./PrimalCompanionRestoreBeast.mjs";
 export { default as PrimalCompanionSummon } from "./PrimalCompanionSummon.mjs";

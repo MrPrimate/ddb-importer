@@ -225,5 +225,6 @@ export const PARSING_CHOICE_FEATURES = {
     "Kensei Weapon",
     "Whispers of the Dead",
     "Shifting",
+    "Celestial Revelation",
   ],
 };

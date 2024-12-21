@@ -3,11 +3,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 // effect loads
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
-import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
-import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
-import { patientDefenseEffect } from "./feats/patientDefense.js";
-import { planarWarriorEffect } from "./feats/planarWarrior.js";
-import { radiantSoulEffect } from "./feats/radiantSoul.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
@@ -50,27 +45,11 @@ async function midiFeatureEffects(ddb, character, document) {
       document = await flurryOfBlowsEffect(document);
       break;
     }
-    case "Mantle of Inspiration": {
-      document = await mantleOfInspirationEffect(document);
-      break;
-    }
-    case "Mask of the Wild": {
-      document = await maskOfTheWildEffect(document);
-      break;
-    }
-    case "Patient Defense": {
-      document = patientDefenseEffect(document);
-      break;
-    }
-    case "Planar Warrior": {
-      document = await planarWarriorEffect(document);
-      break;
-    }
-    case "Celestial Revelation (Radiant Soul)":
-    case "Radiant Soul": {
-      document = await radiantSoulEffect(document);
-      break;
-    }
+    // macro needs rewriting
+    // case "Planar Warrior": {
+    //   document = await planarWarriorEffect(document);
+    //   break;
+    // }
     case "Raging Storm: Sea": {
       document = await ragingStormSeaEffect(document);
       break;

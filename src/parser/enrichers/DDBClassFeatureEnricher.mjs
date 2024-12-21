@@ -81,7 +81,6 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Brutal Critical": ClassEnrichers.Barbarian.BrutalCritical,
     "Brutal Strike": ClassEnrichers.Barbarian.BrutalStrike,
     "Celestial Resilience": ClassEnrichers.Warlock.CelestialResilience,
-    "Celestial Revelation (Radiant Soul)": GenericEnrichers.CelestialRevelationRadiantSoul,
     "Channel Divinity: Cloak of Shadows": ClassEnrichers.Cleric.ChannelDivinityCloakOfShadows,
     "Channel Divinity: Preserve Life": ClassEnrichers.Cleric.ChannelDivinityPreserveLife,
     "Channel Divinity: Radiance of the Dawn": ClassEnrichers.Cleric.ChannelDivinityRadianceOfTheDawn,

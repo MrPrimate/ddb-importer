@@ -1,1 +1,0 @@
-actor.rollSkill(`ste`);

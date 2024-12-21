@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class CloudJaunt extends DDBEnricherData {
+export default class CloudsJaunt extends DDBEnricherData {
 
   get type() {
     return "utility";
