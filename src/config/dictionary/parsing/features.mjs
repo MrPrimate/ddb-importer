@@ -224,5 +224,6 @@ export const PARSING_CHOICE_FEATURES = {
     "Terrorizing Force",
     "Kensei Weapon",
     "Whispers of the Dead",
+    "Shifting",
   ],
 };

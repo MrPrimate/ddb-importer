@@ -12,14 +12,6 @@ export function addEncounterMuncher (app, html) {
   const tiers = PatreonHelper.calculateAccessMatrix(tier);
   const enabled = game.settings.get("ddb-importer", "encounter-muncher-enabled");
 
-  console.warn({
-    enabled,
-    tiers,
-    tier,
-    app,
-    html,
-  })
-
   if (!enabled || !tiers.supporter) return;
   const button = document.createElement("button");
   button.type = "button";

@@ -9,7 +9,6 @@ import { patientDefenseEffect } from "./feats/patientDefense.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
 import { radiantSoulEffect } from "./feats/radiantSoul.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
-import { shiftEffect } from "./feats/shift.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
 import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
@@ -78,10 +77,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Raging Storm: Tundra": {
       document = await ragingStormTundraEffect(document);
-      break;
-    }
-    case "Shift": {
-      if (ddb && character) document = shiftEffect(ddb, character, document);
       break;
     }
     case "Slayer's Prey": {

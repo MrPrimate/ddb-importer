@@ -17,7 +17,7 @@ export default class Absorption extends DDBEnricherData {
         name: `Absorption: ${match[1]}`,
         midiOnly: true,
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange(value, 20, `flags.midi-qol.absorption.${match[1]}`),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(value, 20, `system.traits.da.${match[1]}`),
         ],
         img: "icons/svg/downgrade.svg",
       },
