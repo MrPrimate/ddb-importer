@@ -17,6 +17,7 @@ export { default as EpicBoon } from "./EpicBoon.mjs";
 export { default as Generic } from "./Generic.mjs";
 export { default as GreatWeaponMaster } from "./GreatWeaponMaster.mjs";
 export { default as Healer } from "./Healer.mjs";
+export { default as HeavyArmorMaster } from "./HeavyArmorMaster.mjs";
 export { default as InspiringLeader } from "./InspiringLeader.mjs";
 export { default as MageSlayer } from "./MageSlayer.mjs";
 export { default as Observant } from "./Observant.mjs";

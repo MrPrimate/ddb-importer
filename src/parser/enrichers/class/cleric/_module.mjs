@@ -18,6 +18,8 @@ export { default as ImprovedShadowStep } from "./ImprovedShadowStep.mjs";
 export { default as ImprovedWardingFlare } from "./ImprovedWardingFlare.mjs";
 export { default as InvokeDuplicity } from "./InvokeDuplicity.mjs";
 export { default as SearUndead } from "./SearUndead.mjs";
+export { default as VigilantBlessing } from "./StepsOfNight.mjs";
+export { default as VigilantBlessing } from "./VigilantBlessing.mjs";
 export { default as WarGodsBlessing } from "./WarGodsBlessing.mjs";
 export { default as WarPriest } from "./WarPriest.mjs";
 export { default as WrathOfTheStorm } from "./WrathOfTheStorm.mjs";

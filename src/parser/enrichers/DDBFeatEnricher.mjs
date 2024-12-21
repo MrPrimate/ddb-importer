@@ -59,6 +59,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Sharpshooter": FeatEnrichers.Sharpshooter,
     "Defensive Duelist": FeatEnrichers.DefensiveDuelist,
     "Piercer": FeatEnrichers.Piercer,
+    "Heavy Armor Master": FeatEnrichers.HeavyArmorMaster,
   };
 
   FALLBACK_ENRICHERS = {

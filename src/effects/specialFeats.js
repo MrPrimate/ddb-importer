@@ -2,7 +2,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
-import { heavyArmorMasterEffect } from "./feats/heavyArmorMaster.js";
 import { indomitableEffect } from "./feats/indomitable.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
 import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
@@ -17,14 +16,12 @@ import { savageAttackerEffect } from "./feats/savageAttacker.js";
 import { shiftEffect } from "./feats/shift.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
-import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { intimidatingPresenceEffect } from "./feats/intimidatingPresence.js";
 import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
 import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
 import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
-import { songOfVictoryEffect } from "./feats/songOfVictory.js";
 import { AutoEffects, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
 
 
@@ -145,18 +142,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
 
   // effects to always apply
   switch (name) {
-    case "Heavy Armor Master": {
-      document = heavyArmorMasterEffect(document);
-      break;
-    }
-    case "Song of Victory": {
-      document = songOfVictoryEffect(document);
-      break;
-    }
-    case "Vigilant Blessing": {
-      document = vigilantBlessingEffect(document);
-      break;
-    }
     case "Visage of the Astral Self": {
       document = visageOfTheAstralSelfEffect(document);
       break;
@@ -172,10 +157,6 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
       }
       case "Momentary Stasis": {
         document = momentaryStasis(document);
-        break;
-      }
-      case "Vigilant Blessing": {
-        document = vigilantBlessingEffect(document);
         break;
       }
       // no default

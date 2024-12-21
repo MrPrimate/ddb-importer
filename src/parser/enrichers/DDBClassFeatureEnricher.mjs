@@ -373,6 +373,9 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Giant's Havoc: Giant Stature": ClassEnrichers.Barbarian.GiantsHavocGiantStature,
     "Giant's Havoc: Crushing Throw": ClassEnrichers.Barbarian.GiantsHavocCrushingThrow,
     "Elemental Cleaver": ClassEnrichers.Barbarian.ElementalCleaver,
+    "Song of Victory": ClassEnrichers.Wizard.SongOfVictory,
+    "Vigilant Blessing": ClassEnrichers.Cleric.VigilantBlessing,
+    "Steps of Night": ClassEnrichers.Cleric.StepsOfNight,
   };
 
   FALLBACK_ENRICHERS = {
