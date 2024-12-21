@@ -5,34 +5,41 @@ import { Secrets } from "../../lib/_module.mjs";
 import { isValidKey } from "../../apps/DDBKeyChange.js";
 
 export function addMuncher(app, html) {
-  if (app.options.id == "compendium" && game.user.isGM) {
-    let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher'><i class='fas fa-pastafarianism'></i> DDB Muncher</button></div>");
+  if (app.options.id !== "compendium" || !game.user.isGM) return;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.classList.add("ddb-muncher");
+  button.innerHTML = `
+    <i class="fas fa-pastafarianism" inert></i>
+    DDB Muncher
+  `;
 
-    button.click(async () => {
-      ui.notifications.info("Checking your DDB details - this might take a few seconds!");
-      const setupComplete = DDBSetup.isSetupComplete();
+  button.addEventListener("click", async (_event) => {
+    ui.notifications.info("Checking your DDB details - this might take a few seconds!");
+    const setupComplete = DDBSetup.isSetupComplete();
 
-      if (setupComplete) {
-        const cobaltStatus = await Secrets.checkCobalt();
-        if (cobaltStatus.success) {
-          let validKey = await isValidKey();
-          if (validKey) {
-            new DDBMuncher().render(true);
-          }
-        } else {
-          new DDBCookie().render(true);
+    if (setupComplete) {
+      const cobaltStatus = await Secrets.checkCobalt();
+      if (cobaltStatus.success) {
+        let validKey = await isValidKey();
+        if (validKey) {
+          new DDBMuncher().render(true);
         }
       } else {
-        game.settings.set("ddb-importer", "settings-call-muncher", true);
-        new DDBSetup().render(true);
+        new DDBCookie().render(true);
       }
-    });
-
-    const top = game.settings.get("ddb-importer", "show-munch-top");
-    if (top) {
-      $(html).find(".directory-header").append(button);
     } else {
-      $(html).find(".directory-footer").append(button);
+      game.settings.set("ddb-importer", "settings-call-muncher", true);
+      new DDBSetup().render(true);
     }
+  });
+
+  const top = game.settings.get("ddb-importer", "show-munch-top");
+  if (top) {
+    const headerActions = html.querySelector(".header-actions");
+    headerActions.append(button);
+  } else {
+    const headerActions = html.querySelector(".footer-actions");
+    headerActions.append(button);
   }
 }

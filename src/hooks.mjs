@@ -56,11 +56,9 @@ export async function onceReady() {
   await registerGameSettings();
 
   // check for valid compendiums
-  checkCompendiums().then(() => {
-    DDBSummonsManager.generateFixedSummons();
-  });
-
+  await checkCompendiums();
   DDBEnhancers.loadEnhancers();
+  await DDBSummonsManager.generateFixedSummons();
 
   // notifications
   Notifications.registerNotifications();
@@ -84,10 +82,14 @@ export function onReady() {
   setupSockets();
 }
 
-export function renderSidebarTab(app, html) {
-  addEncounterMuncher(app, html);
+export function renderCompendiumTab(app, [html], _data) {
   addMuncher(app, html);
 }
+
+export function renderScenesTab(app, [html], _data) {
+  addEncounterMuncher(app, html);
+}
+
 
 export function renderItemSheet(sheet, html) {
   linkTables("item", html);

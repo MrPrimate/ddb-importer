@@ -2,9 +2,10 @@ import {
   init,
   onReady,
   onceReady,
-  renderSidebarTab,
   renderItemSheet,
   renderJournalSheet,
+  renderScenesTab,
+  renderCompendiumTab,
 } from "./hooks.mjs";
 import extendSceneNavigationContext from "./hooks/navigationContext/extendSceneNavigationContext.js";
 
@@ -12,7 +13,8 @@ import extendSceneNavigationContext from "./hooks/navigationContext/extendSceneN
 Hooks.once("init", init);
 Hooks.once("ready", onceReady);
 Hooks.on("ready", onReady);
-Hooks.on("renderSidebarTab", renderSidebarTab);
+Hooks.on("renderSceneDirectory", renderScenesTab);
+Hooks.on("renderCompendiumDirectory", renderCompendiumTab);
 Hooks.on("renderJournalPageSheet", renderJournalSheet);
 Hooks.on("renderItemSheet", renderItemSheet);
 Hooks.on("getSceneNavigationContext", extendSceneNavigationContext);
