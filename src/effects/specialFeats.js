@@ -9,7 +9,6 @@ import { patientDefenseEffect } from "./feats/patientDefense.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
 import { radiantSoulEffect } from "./feats/radiantSoul.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
-import { savageAttackerEffect } from "./feats/savageAttacker.js";
 import { shiftEffect } from "./feats/shift.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
