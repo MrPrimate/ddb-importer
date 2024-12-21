@@ -226,5 +226,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Whispers of the Dead",
     "Shifting",
     "Celestial Revelation",
+    "Raging Storm",
+    "Storm Soul",
   ],
 };
