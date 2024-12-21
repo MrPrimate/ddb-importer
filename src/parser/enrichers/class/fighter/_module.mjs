@@ -7,6 +7,7 @@ export { default as FrostRune } from "./FrostRune.mjs";
 export { default as GiantsMight } from "./GiantsMight.mjs";
 export { default as HillRune } from "./HillRune.mjs";
 export { default as ImprovedCritical } from "./ImprovedCritical.mjs";
+export { default as Indomitable } from "./Indomitable.mjs";
 export { default as ManeuverAmbush } from "./ManeuverAmbush.mjs";
 export { default as ManeuverBaitAndSwitch } from "./ManeuverBaitAndSwitch.mjs";
 export { default as ManeuverBrace } from "./ManeuverBrace.mjs";

@@ -2,12 +2,9 @@ import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
-import { indomitableEffect } from "./feats/indomitable.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
 import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
 import { maskOfTheWildEffect } from "./feats/maskOfTheWild.js";
-import { mindLinkEffect } from "./feats/mindLink.js";
-import { momentaryStasis } from "./feats/momentaryStasis.js";
 import { patientDefenseEffect } from "./feats/patientDefense.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
 import { radiantSoulEffect } from "./feats/radiantSoul.js";
@@ -16,8 +13,6 @@ import { savageAttackerEffect } from "./feats/savageAttacker.js";
 import { shiftEffect } from "./feats/shift.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
-import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
-import { intimidatingPresenceEffect } from "./feats/intimidatingPresence.js";
 import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
 import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
 import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
@@ -57,14 +52,6 @@ async function midiFeatureEffects(ddb, character, document) {
       document = await flurryOfBlowsEffect(document);
       break;
     }
-    case "Indomitable": {
-      document = indomitableEffect(document);
-      break;
-    }
-    case "Intimidating Presence": {
-      document = intimidatingPresenceEffect(document);
-      break;
-    }
     case "Mantle of Inspiration": {
       document = await mantleOfInspirationEffect(document);
       break;
@@ -92,10 +79,6 @@ async function midiFeatureEffects(ddb, character, document) {
     }
     case "Raging Storm: Tundra": {
       document = await ragingStormTundraEffect(document);
-      break;
-    }
-    case "Savage Attacker": {
-      document = savageAttackerEffect(document);
       break;
     }
     case "Shift": {
@@ -135,37 +118,8 @@ export async function featureEffectAdjustment(ddb, character, document, midiEffe
   if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
   if (!document.effects) document.effects = [];
 
-  const name = document.flags.ddbimporter?.originalName ?? document.name;
-
   // check that we can gen effects
   const deps = AutoEffects.effectModules();
-
-  // effects to always apply
-  switch (name) {
-    case "Visage of the Astral Self": {
-      document = visageOfTheAstralSelfEffect(document);
-      break;
-    }
-    // no default
-  }
-
-  if (deps.daeInstalled) {
-    switch (name) {
-      case "Mind Link Response": {
-        document = mindLinkEffect(document);
-        break;
-      }
-      case "Momentary Stasis": {
-        document = momentaryStasis(document);
-        break;
-      }
-      // no default
-    }
-  }
-
-  if (!deps.hasCore || !midiEffects) {
-    return AutoEffects.forceDocumentEffect(document);
-  }
 
   if (deps.midiQolInstalled && midiEffects) {
     document = await midiFeatureEffects(ddb, character, document);

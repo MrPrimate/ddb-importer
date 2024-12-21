@@ -6,9 +6,9 @@ export default class IntimidatingPresence extends DDBEnricherData {
   get activity() {
     return {
       // type: "save",
+      name: "Save",
       targetType: "creature",
       data: {
-        name: "Save",
         save: {
           ability: ["wis"],
           dc: {
@@ -73,13 +73,37 @@ export default class IntimidatingPresence extends DDBEnricherData {
   get override() {
     return {
       data: {
-        "flags.ddbimporter": {
-          ignoredConsumptionActivities: ["Save"],
-          retainOriginalConsumption: true,
-          retainChildUses: true,
+        flags: {
+          ddbimporter: {
+            ignoredConsumptionActivities: ["Save"],
+            retainOriginalConsumption: true,
+            retainChildUses: true,
+          },
+          "midi-qol": {
+            effectActivation: true,
+            effectCondition: "!target.effects.some((e)=> e.name?.toLowerCase().includes('blind') || e.name?.toLowerCase().includes('deaf'))",
+          },
         },
       },
     };
+  }
+
+  get effects() {
+    return [
+      {
+        activityMatch: "Save",
+        noCreate: true,
+        midiOnly: true,
+        name: "Intimidating Presence: Frightened",
+        data: {
+          duration: {
+            seconds: 12,
+            turns: 2,
+          },
+        },
+        daeSpecialDurations: ["turnEndSource"],
+      },
+    ];
   }
 
 }

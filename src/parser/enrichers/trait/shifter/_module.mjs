@@ -1,3 +1,4 @@
+export { default as Shift } from "./Shift.mjs";
 export { default as Shifting } from "./Shifting.mjs";
 export { default as ShiftingBeasthide } from "./ShiftingBeasthide.mjs";
 export { default as ShiftingLongtooth } from "./ShiftingLongtooth.mjs";

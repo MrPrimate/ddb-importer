@@ -376,6 +376,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Song of Victory": ClassEnrichers.Wizard.SongOfVictory,
     "Vigilant Blessing": ClassEnrichers.Cleric.VigilantBlessing,
     "Steps of Night": ClassEnrichers.Cleric.StepsOfNight,
+    "Visage of the Astral Self": ClassEnrichers.Monk.VisageOfTheAstralSelf,
+    "Indomitable": ClassEnrichers.Fighter.Indomitable,
   };
 
   FALLBACK_ENRICHERS = {

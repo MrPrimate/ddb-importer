@@ -16,7 +16,8 @@ export default class MomentaryStasis extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("0", 90, "system.attributes.movement.swim"),
           DDBEnricherData.ChangeHelper.overrideChange("0", 90, "system.attributes.movement.climb"),
         ],
-        statuses: ["incapacitated"],
+        statuses: ["Incapacitated"],
+        daeSpecialDurations: ["isDamaged", "turnEndSource"],
       },
     ];
   }

@@ -36,5 +36,6 @@ export { default as StunningStrike } from "./StunningStrike.mjs";
 export { default as SuperiorDefense } from "./SuperiorDefense.mjs";
 export { default as TongueOfTheSunAndMoon } from "./TongueOfTheSunAndMoon.mjs";
 export { default as UncannyMetabolism } from "./UncannyMetabolism.mjs";
+export { default as VisageOfTheAstralSelf } from "./VisageOfTheAstralSelf.mjs";
 export { default as WholenessOfBody } from "./WholenessOfBody.mjs";
 

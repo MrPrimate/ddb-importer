@@ -58,6 +58,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Powerful Build": SpeciesEnrichers.Generic.PowerfulBuild,
     "Reckless Attack": GenericEnrichers.RecklessAttack,
     "Savage Attacks": SpeciesEnrichers.HalfOrc.SavageAttacks,
+    "Shift": SpeciesEnrichers.Shifter.Shift,
     "Shifting: Beasthide": SpeciesEnrichers.Shifter.ShiftingBeasthide,
     "Shifting: Longtooth": SpeciesEnrichers.Shifter.ShiftingLongtooth,
     "Shifting: Swiftstride": SpeciesEnrichers.Shifter.ShiftingSwiftstride,
