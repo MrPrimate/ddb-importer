@@ -1,3 +1,7 @@
+# 5.2.40
+
+- Fox for Griffon Saddlebag items breaking import.
+
 # 5.2.39
 
 - DDB changed moonsickle bonuses which broke moon sickle effect parsing.

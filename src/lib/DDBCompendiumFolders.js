@@ -528,7 +528,7 @@ export class DDBCompendiumFolders {
       case "container": {
         const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
         if (ddbType) {
-          result.name = this.containerFolders[ddbType].name;
+          result.name = ddbType;
           result.flagTag = `container/${result.name}`;
         }
         break;
