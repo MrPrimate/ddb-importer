@@ -38,4 +38,42 @@ export default class RagingStormSea extends DDBEnricherData {
     };
   }
 
+  get effects() {
+    return [
+      {
+        name: "Prone",
+        statuses: ["Prone"],
+      },
+      {
+        name: "Raging Seas Storm Automation",
+        midiOnly: true,
+        options: {
+          transfer: true,
+        },
+        optionalMacroChanges: [
+          { optionPostfix: "ragingSea.damage.mwak", macroType: "feat", macroName: "ragingStormSea.js", document: this.data },
+          { optionPostfix: "ragingSea.damage.msak", macroType: "feat", macroName: "ragingStormSea.js", document: this.data },
+          { optionPostfix: "ragingSea.damage.rwak", macroType: "feat", macroName: "ragingStormSea.js", document: this.data },
+          { optionPostfix: "ragingSea.damage.rsak", macroType: "feat", macroName: "ragingStormSea.js", document: this.data },
+        ],
+        midiOptionalChanges: [
+          {
+            name: "ragingSea",
+            data: {
+              count: "reaction",
+              label: "Use your reaction to induce a save to apply prone?",
+            },
+          },
+        ],
+      },
+    ];
+  }
+
+  get itemMacro() {
+    return {
+      type: "feat",
+      name: "ragingStormSea.js",
+    };
+  }
+
 }

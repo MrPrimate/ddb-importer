@@ -152,6 +152,14 @@ export default class Example extends DDBEnricherData {
             criticalDamage: "1",
           },
         }],
+        optionalMacroChanges: [// optional macro changes for midi optional macros.
+          {
+            optionPostfix: "ragingSea.damage.mwak",
+            macroType: "feat",
+            macroName: "ragingStormSea.js",
+            document: this.data,
+          },
+        ],
       },
     ];
   }

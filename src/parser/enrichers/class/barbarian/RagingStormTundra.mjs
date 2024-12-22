@@ -46,7 +46,26 @@ export default class RagingStormTundra extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("0", 60, "system.attributes.movement.fly"),
         ],
       },
+      {
+        type: "item",
+        midiOnly: true,
+        onUseMacroChanges: [
+          {
+            macroPass: "postActiveEffects",
+            macroType: "feat",
+            macroName: "ragingStormTundra.js",
+            document: this.data,
+          },
+        ],
+      },
     ];
+  }
+
+  get itemMacro() {
+    return {
+      type: "feat",
+      name: "ragingStormTundra.js",
+    };
   }
 
 }

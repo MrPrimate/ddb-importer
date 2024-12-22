@@ -6,8 +6,6 @@ import { maneuversEffect } from "./feats/maneuvers.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
-import { ragingStormSeaEffect } from "./feats/ragingStormSea.js";
-import { ragingStormTundraEffect } from "./feats/ragingStormTundra.js";
 import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 import { AutoEffects, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
@@ -50,14 +48,6 @@ async function midiFeatureEffects(ddb, character, document) {
     //   document = await planarWarriorEffect(document);
     //   break;
     // }
-    case "Raging Storm: Sea": {
-      document = await ragingStormSeaEffect(document);
-      break;
-    }
-    case "Raging Storm: Tundra": {
-      document = await ragingStormTundraEffect(document);
-      break;
-    }
     case "Slayer's Prey": {
       document = await slayersPreyEffect(document);
       break;
