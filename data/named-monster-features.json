@@ -523,5 +523,50 @@
     "name": "Whirlwind",
     "monster": "Dust Devil",
     "path": "icons/magic/air/wind-tornado-cyclone-red-orange.webp"
+  },
+  {
+    "name": "Essence of Rage",
+    "monster": "Strangled Vengeful Spirit",
+    "path": "icons/creatures/abilities/mouth-teeth-human.webp"
+  },
+  {
+    "name": "Asphyxiation",
+    "monster": "Strangled Vengeful Spirit",
+    "path": "icons/skills/wounds/injury-face-impact-orange.webp"
+  },
+  {
+    "name": "Angry Defiance",
+    "monster": "Strangled Vengeful Spirit",
+    "path": "icons/creatures/magical/spirit-undead-ghost-purple.webp"
+  },
+  {
+    "name": "Essence of Rage",
+    "monster": "Beheaded Vengeful Spirit",
+    "path": "icons/creatures/abilities/mouth-teeth-human.webp"
+  },
+  {
+    "name": "Decapitation",
+    "monster": "Beheaded Vengeful Spirit",
+    "path": "icons/skills/wounds/injury-pain-body-orange.webp"
+  },
+  {
+    "name": "Angry Defiance",
+    "monster": "Beheaded Vengeful Spirit",
+    "path": "icons/creatures/magical/spirit-undead-ghost-purple.webp"
+  },
+  {
+    "name": "Essence of Rage",
+    "monster": "Immolated Vengeful Spirit",
+    "path": "icons/creatures/abilities/mouth-teeth-human.webp"
+  },
+  {
+    "name": "Conflagration",
+    "monster": "Immolated Vengeful Spirit",
+    "path": "icons/magic/fire/flame-burning-skeleton-explosion.webp"
+  },
+  {
+    "name": "Angry Defiance",
+    "monster": "Immolated Vengeful Spirit",
+    "path": "icons/creatures/magical/spirit-undead-ghost-purple.webp"
   }
 ]
