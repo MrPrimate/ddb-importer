@@ -2,30 +2,24 @@
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 import Maneuver from "./Maneuver.mjs";
 
-export default class ManeuverLungingAttack extends Maneuver {
+export default class ManeuverGrapplingStrike extends Maneuver {
 
   get type() {
     return "utility";
   }
 
-  get additionalActivities() {
-    return [
-      this.extraDamageActivity(),
-    ];
-  }
-
   get effects() {
     return [
       {
-        name: "Lunging Attack Bonus Damage",
-        daeSpecialDurations: ["1Attack"],
+        name: "Grappling Strike Bonus",
+        daeSpecialDurations: ["isSkill.ath"],
         data: {
           duration: {
             turns: 1,
           },
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.ath.bonuses.check"),
         ],
       },
     ];

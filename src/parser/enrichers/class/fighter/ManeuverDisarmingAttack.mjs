@@ -1,31 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import Maneuver from "./Maneuver.mjs";
-import DDBEnricherData from "../../data/DDBEnricherData.mjs";
-
 export default class ManeuverDisarmingAttack extends Maneuver {
-
-  get type() {
-    return "damage";
-  }
-
-  get activity() {
-    return {
-      activationType: "special",
-      addItemConsume: true,
-      type: "damage",
-      data: {
-        damage: {
-          onSave: "none",
-          parts: [
-            DDBEnricherData.basicDamagePart({
-              customFormula: this.diceString,
-              types: DDBEnricherData.allDamageTypes(),
-            }),
-          ],
-        },
-      },
-    };
-  }
 
   get additionalActivities() {
     return [

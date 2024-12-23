@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 import Maneuver from "./Maneuver.mjs";
 
 export default class ManeuverParry extends Maneuver {
@@ -22,6 +23,13 @@ export default class ManeuverParry extends Maneuver {
 
   get effects() {
     return [
+      {
+        midiOnly: true,
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "flags.midi-qol.DR.all"),
+        ],
+        daeSpecialDurations: ["isDamaged"],
+      },
       // Future Enhancement: Add a macro that rolls dice and applies dr effect
       // {
       //   changes: [

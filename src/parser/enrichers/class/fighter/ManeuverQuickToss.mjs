@@ -10,23 +10,6 @@ export default class ManeuverQuickToss extends Maneuver {
       : "damage";
   }
 
-  get activity() {
-    return {
-      data: {
-        damage: {
-          onSave: "none",
-          parts: [
-            DDBEnricherData.basicDamagePart({
-              customFormula: this.diceString,
-              types: DDBEnricherData.allDamageTypes(),
-            }),
-          ],
-        },
-      },
-    };
-  }
-
-
   get effects() {
     return [
       {

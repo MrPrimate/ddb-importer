@@ -4,6 +4,18 @@ import Maneuver from "./Maneuver.mjs";
 
 export default class ManeuverEvasiveFootwork extends Maneuver {
 
+  get type() {
+    return "utility";
+  }
+
+  get activity() {
+    return {
+      targetType: "self",
+      addItemConsumed: true,
+      activationType: "special",
+    };
+  }
+
   get effects() {
     return [
       {

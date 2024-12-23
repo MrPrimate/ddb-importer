@@ -1,32 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import Maneuver from "./Maneuver.mjs";
-import DDBEnricherData from "../../data/DDBEnricherData.mjs";
-
 
 export default class ManeuverTripAttack extends Maneuver {
-
-  get type() {
-    return "damage";
-  }
-
-  get activity() {
-    return {
-      targetType: "creature",
-      addItemConsume: true,
-      activationType: "special",
-      data: {
-        damage: {
-          onSave: "none",
-          parts: [
-            DDBEnricherData.basicDamagePart({
-              customFormula: this.diceString,
-              types: DDBEnricherData.allDamageTypes(),
-            }),
-          ],
-        },
-      },
-    };
-  }
 
   get additionalActivities() {
     return [
@@ -68,6 +43,7 @@ export default class ManeuverTripAttack extends Maneuver {
     return [
       {
         name: "Tripped",
+        activityMatch: "Save vs Trip",
         statuses: ["Prone"],
       },
     ];

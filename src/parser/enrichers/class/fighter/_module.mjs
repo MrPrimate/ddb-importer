@@ -19,8 +19,8 @@ export { default as ManeuverDistractingStrike } from "./ManeuverDistractingStrik
 export { default as ManeuverEvasiveFootwork } from "./ManeuverEvasiveFootwork.mjs";
 export { default as ManeuverFeintingAttack } from "./ManeuverFeintingAttack.mjs";
 export { default as ManeuverGoadingAttack } from "./ManeuverGoadingAttack.mjs";
+export { default as ManeuverGrapplingStrike } from "./ManeuverGrapplingStrike.mjs";
 export { default as ManeuverLungingAttack } from "./ManeuverLungingAttack.mjs";
-export { default as ManeuverLungingDash } from "./ManeuverLungingDash.mjs";
 export { default as ManeuverManeuveringAttack } from "./ManeuverManeuveringAttack.mjs";
 export { default as ManeuverMenacingAttack } from "./ManeuverMenacingAttack.mjs";
 export { default as ManeuverParry } from "./ManeuverParry.mjs";

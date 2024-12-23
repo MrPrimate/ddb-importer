@@ -2,7 +2,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 
 // effect loads
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
-import { maneuversEffect } from "./feats/maneuvers.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 import { AutoEffects } from "../parser/enrichers/effects/_module.mjs";
@@ -22,11 +21,6 @@ async function midiFeatureEffects(ddb, character, document) {
   const name = document.flags.ddbimporter?.originalName ?? document.name;
 
   document = applyDefaultMidiFlags(document);
-
-  if (name.startsWith("Maneuvers: ") && ddb && character) {
-    document = await maneuversEffect(ddb, character, document);
-    return document;
-  }
 
   switch (name) {
     case "Favored Foe": {

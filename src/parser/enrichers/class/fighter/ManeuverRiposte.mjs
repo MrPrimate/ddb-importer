@@ -5,25 +5,7 @@ import Maneuver from "./Maneuver.mjs";
 
 export default class ManeuverRiposte extends Maneuver {
   get type() {
-    return DDBEnricherData.AutoEffects.effectModules().midiQolInstalled
-      ? "utility"
-      : "damage";
-  }
-
-  get activity() {
-    return {
-      data: {
-        damage: {
-          onSave: "none",
-          parts: [
-            DDBEnricherData.basicDamagePart({
-              customFormula: this.diceString,
-              types: DDBEnricherData.allDamageTypes(),
-            }),
-          ],
-        },
-      },
-    };
+    return "utility";
   }
 
   get override() {
@@ -35,10 +17,15 @@ export default class ManeuverRiposte extends Maneuver {
     };
   }
 
+  get additionalActivities() {
+    return [
+      this.extraDamageActivity(),
+    ];
+  }
+
   get effects() {
     return [
       {
-        midiOnly: true,
         daeSpecialDurations: ["1Attack:mwak"],
         data: {
           duration: {

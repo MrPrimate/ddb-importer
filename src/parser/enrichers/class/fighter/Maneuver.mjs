@@ -73,4 +73,27 @@ export default class Maneuver extends DDBEnricherData {
     };
   }
 
+  get type() {
+    return "damage";
+  }
+
+  get activity() {
+    return {
+      targetType: "creature",
+      addItemConsume: true,
+      activationType: "special",
+      data: {
+        damage: {
+          onSave: "none",
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              customFormula: this.diceString,
+              types: DDBEnricherData.allDamageTypes(),
+            }),
+          ],
+        },
+      },
+    };
+  }
+
 }
