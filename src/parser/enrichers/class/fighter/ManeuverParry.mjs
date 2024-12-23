@@ -20,14 +20,6 @@ export default class ManeuverParry extends Maneuver {
     };
   }
 
-  get override() {
-    return {
-      data: {
-        name: "Maneuver: Parry",
-      },
-    };
-  }
-
   get effects() {
     return [
       // Future Enhancement: Add a macro that rolls dice and applies dr effect

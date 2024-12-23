@@ -5,7 +5,9 @@ import Maneuver from "./Maneuver.mjs";
 
 export default class ManeuverRiposte extends Maneuver {
   get type() {
-    return "damage";
+    return DDBEnricherData.AutoEffects.effectModules().midiQolInstalled
+      ? "utility"
+      : "damage";
   }
 
   get activity() {
@@ -16,10 +18,38 @@ export default class ManeuverRiposte extends Maneuver {
           parts: [
             DDBEnricherData.basicDamagePart({
               customFormula: this.diceString,
+              types: DDBEnricherData.allDamageTypes(),
             }),
           ],
         },
       },
     };
   }
+
+  get override() {
+    return {
+      midiManualReaction: true,
+      data: {
+        name: this.data.name.replace("Maneuver Options:", "Maneuver:").replace("Maneuvers:", "Maneuver: "),
+      },
+    };
+  }
+
+  get effects() {
+    return [
+      {
+        midiOnly: true,
+        daeSpecialDurations: ["1Attack:mwak"],
+        data: {
+          duration: {
+            turns: 2,
+          },
+        },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.mwak.damage"),
+        ],
+      },
+    ];
+  }
+
 }

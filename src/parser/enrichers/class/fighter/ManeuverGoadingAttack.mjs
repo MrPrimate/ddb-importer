@@ -24,12 +24,4 @@ export default class ManeuverGoadingAttack extends Maneuver {
     };
   }
 
-  get override() {
-    return {
-      data: {
-        name: "Maneuver: Goading Attack",
-      },
-    };
-  }
-
 }

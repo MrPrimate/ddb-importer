@@ -24,12 +24,4 @@ export default class ManeuverMenacingAttack extends Maneuver {
     };
   }
 
-  get override() {
-    return {
-      data: {
-        name: "Maneuver: Menacing Attack",
-      },
-    };
-  }
-
 }

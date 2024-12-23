@@ -4,7 +4,9 @@ import Maneuver from "./Maneuver.mjs";
 
 export default class ManeuverSweepingAttack extends Maneuver {
   get type() {
-    return "damage";
+    return DDBEnricherData.AutoEffects.effectModules().midiQolInstalled
+      ? "utility"
+      : "damage";
   }
 
   get activity() {
@@ -15,11 +17,28 @@ export default class ManeuverSweepingAttack extends Maneuver {
           parts: [
             DDBEnricherData.basicDamagePart({
               customFormula: this.diceString,
-              types: ["bludgeoning", "piercing", "slashing"],
+              types: DDBEnricherData.allDamageTypes(),
             }),
           ],
         },
       },
     };
+  }
+
+  get effects() {
+    return [
+      {
+        midiOnly: true,
+        daeSpecialDurations: ["1Attack:mwak"],
+        data: {
+          duration: {
+            turns: 1,
+          },
+        },
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.mwak.damage"),
+        ],
+      },
+    ];
   }
 }

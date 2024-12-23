@@ -2,16 +2,16 @@
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 import Maneuver from "./Maneuver.mjs";
 
-export default class ManeuverBrace extends Maneuver {
 
+export default class ManeuverFeintingAttack extends Maneuver {
   get type() {
     return "utility";
   }
 
   get activity() {
     return {
-      name: "Brace",
-      activationType: "reaction",
+      name: "Feint",
+      activationType: "bonus",
       addItemConsume: true,
     };
   }
@@ -23,36 +23,27 @@ export default class ManeuverBrace extends Maneuver {
   }
 
 
-  get override() {
-    return {
-      midiManualReaction: true,
-      data: {
-        name: this.data.name.replace("Maneuver Options:", "Maneuver:").replace("Maneuvers:", "Maneuver: "),
-        "flags.ddbimporter": {
-          ignoredConsumptionActivities: this.ignoredConsumptionActivities,
-        },
-      },
-    };
-  }
-
   get effects() {
     return [
       {
-        name: "Brace: Extra Damage Automation",
+        name: "Feinting Attack: Extra Damage",
+        activityMatch: "Feint",
         midiOnly: true,
-        activityMatch: "Brace",
-        daeSpecialDurations: ["1Attack:mwak"],
+        daeSpecialDurations: ["1Attack"],
         data: {
           duration: {
-            turns: 2,
+            turns: 1,
           },
         },
         midiChanges: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+        ],
+        changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.rwak.damage"),
         ],
       },
     ];
   }
-
 
 }

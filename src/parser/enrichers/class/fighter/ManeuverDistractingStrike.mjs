@@ -9,16 +9,32 @@ export default class ManeuverDistractingStrike extends Maneuver {
 
   get activity() {
     return {
+      targetType: "creature",
+      addItemConsume: true,
+      activationType: "special",
       data: {
         damage: {
           onSave: "none",
           parts: [
             DDBEnricherData.basicDamagePart({
               customFormula: this.diceString,
+              types: DDBEnricherData.allDamageTypes(),
             }),
           ],
         },
       },
     };
+  }
+
+  get effects() {
+    return [
+      {
+        name: "Distracting Strike",
+        daeSpecialDurations: ["isAttacked", "turnStartSource"],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+        ],
+      },
+    ];
   }
 }

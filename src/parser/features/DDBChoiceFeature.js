@@ -1,6 +1,5 @@
 import DDBFeature from "./DDBFeature.js";
 import { utils, logger } from "../../lib/_module.mjs";
-import { DDBFeatureActivity } from "../activities/_module.mjs";
 import { DICTIONARY } from "../../config/_module.mjs";
 import { DDBDataUtils } from "../lib/_module.mjs";
 
@@ -173,12 +172,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       feature: ddbFeature,
       allFeatures,
     });
-    const enricherClass = ddbFeature.DDB_TYPE_ENRICHERS[ddbFeature.type];
-    const enricher = new enricherClass({
-      activityGenerator: DDBFeatureActivity,
-      fallbackEnricher: ddbFeature.fallbackEnricher,
-    });
-    await enricher.init();
+
     const extraFlags = {};
 
     for (const flag of DDBChoiceFeature._copyFlags) {
@@ -193,7 +187,6 @@ export default class DDBChoiceFeature extends DDBFeature {
         ddbDefinition: foundry.utils.deepClone(ddbFeature.ddbDefinition),
         type: ddbFeature.type,
         rawCharacter: ddbFeature.rawCharacter,
-        enricher,
         extraFlags,
       });
       await choiceFeature.build(choice);

@@ -2,8 +2,8 @@
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 import Maneuver from "./Maneuver.mjs";
 
-export default class ManeuverLungingAttack extends Maneuver {
 
+export default class ManeuverQuickToss extends Maneuver {
   get type() {
     return DDBEnricherData.AutoEffects.effectModules().midiQolInstalled
       ? "utility"
@@ -26,6 +26,7 @@ export default class ManeuverLungingAttack extends Maneuver {
     };
   }
 
+
   get effects() {
     return [
       {
@@ -38,6 +39,7 @@ export default class ManeuverLungingAttack extends Maneuver {
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.rwak.damage"),
         ],
       },
     ];

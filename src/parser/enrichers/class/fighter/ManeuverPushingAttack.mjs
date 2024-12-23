@@ -24,12 +24,4 @@ export default class ManeuverPushingAttack extends Maneuver {
     };
   }
 
-  get override() {
-    return {
-      data: {
-        name: "Maneuver: Pushing Attack",
-      },
-    };
-  }
-
 }

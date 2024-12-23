@@ -36,7 +36,7 @@ export const PARSING_FEATURES = {
     "Core Warlock Traits",
     "Core Wizard Traits",
     "Weapon Mastery",
-    "Maneuver Options",
+    // "Maneuver Options",
     // "Lay On Hands", // 2024
     // "Lay on Hands", // 2014
     "Epic Boon: Choose an Epic Boon feat",
@@ -228,5 +228,6 @@ export const PARSING_CHOICE_FEATURES = {
     "Celestial Revelation",
     "Raging Storm",
     "Storm Soul",
+    "Maneuver Options",
   ],
 };

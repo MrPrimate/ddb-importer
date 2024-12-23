@@ -16,6 +16,7 @@ export default class ManeuverLungingDash extends Maneuver {
           parts: [
             DDBEnricherData.basicDamagePart({
               customFormula: this.diceString,
+              types: DDBEnricherData.allDamageTypes(),
             }),
           ],
         },

@@ -1,35 +1,80 @@
 /* eslint-disable class-methods-use-this */
 import Maneuver from "./Maneuver.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
+
 
 export default class ManeuverTripAttack extends Maneuver {
 
   get type() {
-    return "save";
+    return "damage";
   }
 
   get activity() {
     return {
+      targetType: "creature",
+      addItemConsume: true,
+      activationType: "special",
       data: {
         damage: {
-          onSave: "full",
-        },
-        save: {
-          ability: ["str"],
-          dc: {
-            calculation: "",
-            formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
-          },
+          onSave: "none",
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              customFormula: this.diceString,
+              types: DDBEnricherData.allDamageTypes(),
+            }),
+          ],
         },
       },
     };
   }
 
-  get override() {
-    return {
-      data: {
-        name: "Maneuver: Trip Attack",
+  get additionalActivities() {
+    return [
+      {
+        constructor: {
+          name: "Save vs Trip",
+          type: "save",
+        },
+        build: {
+          generateTarget: true,
+          generateRange: true,
+          generateConsumption: false,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+        },
+        overrides: {
+          data: {
+            damage: {
+              onSave: "none",
+            },
+            save: {
+              ability: ["str"],
+              dc: {
+                calculation: "",
+                formula: "8 + @prof + max(@abilities.dex.mod, @abilities.str.mod)",
+              },
+            },
+          },
+        },
       },
-    };
+    ];
+  }
+
+  get effects() {
+    return [
+      {
+        name: "Tripped",
+        statuses: ["Prone"],
+      },
+    ];
+  }
+
+  get ignoredConsumptionActivities() {
+    return ["Save vs Trip"];
   }
 
 }

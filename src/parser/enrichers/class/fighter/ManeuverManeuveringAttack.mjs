@@ -15,6 +15,7 @@ export default class ManeuverManeuveringAttack extends Maneuver {
           parts: [
             DDBEnricherData.basicDamagePart({
               customFormula: this.diceString,
+              types: DDBEnricherData.allDamageTypes(),
             }),
           ],
         },
@@ -22,15 +23,4 @@ export default class ManeuverManeuveringAttack extends Maneuver {
     };
   }
 
-  get effects() {
-    return [];
-  }
-
-  get additionalActivities() {
-    return [];
-  }
-
-  get override() {
-    return null;
-  }
 }

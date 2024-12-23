@@ -2,42 +2,41 @@
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 import Maneuver from "./Maneuver.mjs";
 
-export default class ManeuverLungingAttack extends Maneuver {
+export default class ManeuverCommandersStrike extends Maneuver {
 
   get type() {
-    return DDBEnricherData.AutoEffects.effectModules().midiQolInstalled
-      ? "utility"
-      : "damage";
+    return "utility";
   }
 
   get activity() {
     return {
-      data: {
-        damage: {
-          onSave: "none",
-          parts: [
-            DDBEnricherData.basicDamagePart({
-              customFormula: this.diceString,
-              types: DDBEnricherData.allDamageTypes(),
-            }),
-          ],
-        },
-      },
+      name: "Commander's Strike",
+      targetType: "ally",
+      activationType: "special",
+      addItemConsume: true,
     };
+  }
+
+  get additionalActivities() {
+    return [
+      this.extraDamageActivity(),
+    ];
   }
 
   get effects() {
     return [
       {
         midiOnly: true,
+        activityMatch: "Commander's Strike",
         daeSpecialDurations: ["1Attack"],
         data: {
           duration: {
-            turns: 1,
+            turns: 2,
           },
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.rwak.damage"),
         ],
       },
     ];
