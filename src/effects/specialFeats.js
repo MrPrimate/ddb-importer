@@ -5,10 +5,8 @@ import { favoredFoeEffect } from "./feats/favoredFoe.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
-import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
-import { stormAuraTundraEffect } from "./feats/stormAuraTundra.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
-import { AutoEffects, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
+import { AutoEffects } from "../parser/enrichers/effects/_module.mjs";
 
 
 export function baseFeatEffect(document, label,
@@ -50,25 +48,6 @@ async function midiFeatureEffects(ddb, character, document) {
     // }
     case "Slayer's Prey": {
       document = await slayersPreyEffect(document);
-      break;
-    }
-    case "Squire of Solamnia: Precise Strike": {
-      document = await squireOfSolamniaEffect(document);
-      break;
-    }
-    case "Storm Aura: Tundra": {
-      document = await stormAuraTundraEffect(document);
-      break;
-    }
-    // case "Storm Soul: Desert":
-    // case "Storm Soul: Sea":
-    // case "Storm Soul: Tundra":
-    // case "Storm Soul": {
-    //   if (ddb) document = await stormSoulEffect(ddb, document);
-    //   break;
-    // }
-    case "Swiftstride Reaction": {
-      document = MidiEffects.forceManualReaction(document);
       break;
     }
     // no default

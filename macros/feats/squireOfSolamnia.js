@@ -1,10 +1,10 @@
 /* Squire of Solamnia: Precise Strike based on a macro by @Wheels#2393 */
 async function refundUse(sourceActor, effectItem) {
-  if (effectItem.system.uses?.value < effectItem.system.uses?.max) {
-    const newValue = effectItem.system.uses.value + 1;
+  if (effectItem.system.uses?.spent > 0) {
+    const newSpent = effectItem.system.uses.spent - 1;
     const updateData = {
       _id: effectItem._id,
-      system: { uses: { value: newValue }}
+      system: { uses: { spent: newSpent }}
     };
     await sourceActor.updateEmbeddedDocuments("Item", [updateData]);
 

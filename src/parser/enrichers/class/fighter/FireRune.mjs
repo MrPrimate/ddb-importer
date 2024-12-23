@@ -12,7 +12,7 @@ export default class FireRune extends DDBEnricherData {
       name: "Invoke Rune",
       targetType: "creature",
       activationType: "special",
-      addItemConsumption: true,
+      addItemConsume: true,
       activationCondition: "You hit a creature",
       data: {
         damage: {

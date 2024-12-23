@@ -61,6 +61,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Piercer": FeatEnrichers.Piercer,
     "Heavy Armor Master": FeatEnrichers.HeavyArmorMaster,
     "Savage Attacker": FeatEnrichers.SavageAttacker,
+    "Squire of Solamnia: Precise Strike": FeatEnrichers.SquireOfSolamniaPreciseStrike,
   };
 
   FALLBACK_ENRICHERS = {

@@ -29,4 +29,27 @@ export default class StormAuraTundra extends DDBEnricherData {
       },
     };
   }
+
+  get effects() {
+    return [
+      {
+        midiOnly: true,
+        onUseMacroChanges: [
+          {
+            macroPass: "postActiveEffects",
+            macroType: "feat",
+            macroName: "stormAuraTundra.js",
+            document: this.data,
+          },
+        ],
+      },
+    ];
+  }
+
+  get itemMacro() {
+    return {
+      type: "feat",
+      name: "stormAuraTundra.js",
+    };
+  }
 }
