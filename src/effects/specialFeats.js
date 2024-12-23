@@ -3,7 +3,6 @@ import { applyDefaultMidiFlags } from "./effects.js";
 // effect loads
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
-import { runeCarverEffect } from "./feats/runeCarver.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { flurryOfBlowsEffect } from "./feats/flurryOfBlows.js";
 import { AutoEffects } from "../parser/enrichers/effects/_module.mjs";
@@ -26,9 +25,6 @@ async function midiFeatureEffects(ddb, character, document) {
 
   if (name.startsWith("Maneuvers: ") && ddb && character) {
     document = await maneuversEffect(ddb, character, document);
-    return document;
-  } else if (name.startsWith("Rune Carver: ")) {
-    document = await runeCarverEffect(document);
     return document;
   }
 

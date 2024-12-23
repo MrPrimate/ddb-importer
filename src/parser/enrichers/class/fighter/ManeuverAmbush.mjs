@@ -1,13 +1,14 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
+import Maneuver from "./Maneuver.mjs";
 
-export default class ManeuverAmbush extends DDBEnricherData {
+export default class ManeuverAmbush extends Maneuver {
 
   get effects() {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.attributes.init.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.attributes.init.bonus"),
         ],
       },
     ];

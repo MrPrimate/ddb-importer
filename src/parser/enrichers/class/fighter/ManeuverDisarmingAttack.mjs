@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherData from "../../data/DDBEnricherData.mjs";
+import Maneuver from "./Maneuver.mjs";
 
-export default class ManeuverDisarmingAttack extends DDBEnricherData {
+export default class ManeuverDisarmingAttack extends Maneuver {
 
   get type() {
     return "save";

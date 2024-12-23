@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
+import Maneuver from "./Maneuver.mjs";
 
-export default class ManeuverTacticalAssessment extends DDBEnricherData {
+export default class ManeuverTacticalAssessment extends Maneuver {
 
   get type() {
     return "check";
@@ -29,9 +30,9 @@ export default class ManeuverTacticalAssessment extends DDBEnricherData {
       {
         name: "Tactical Assessment Bonus",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.his.bonuses.check"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.inv.bonuses.check"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.battle-master.combat-superiority-die", 20, "system.skills.ins.bonuses.check"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.his.bonuses.check"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.inv.bonuses.check"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.skills.ins.bonuses.check"),
         ],
       },
     ];

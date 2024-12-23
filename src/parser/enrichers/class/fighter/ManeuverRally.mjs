@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
+import Maneuver from "./Maneuver.mjs";
 
-export default class ManeuverRally extends DDBEnricherData {
+export default class ManeuverRally extends Maneuver {
   get type() {
     return "heal";
   }
@@ -10,10 +11,18 @@ export default class ManeuverRally extends DDBEnricherData {
     return {
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.battle-master.combat-superiority-die",
+          customFormula: this.diceString,
           types: ["temphp"],
         }),
       },
     };
   }
+
+  // get effects() {
+  //   return [
+  //     {
+
+  //     },
+  //   ];
+  // }
 }

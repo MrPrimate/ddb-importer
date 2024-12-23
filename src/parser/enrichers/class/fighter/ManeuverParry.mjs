@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherData from "../../data/DDBEnricherData.mjs";
+import Maneuver from "./Maneuver.mjs";
 
-export default class ManeuverParry extends DDBEnricherData {
+export default class ManeuverParry extends Maneuver {
 
   get type() {
     return "utility";
@@ -13,7 +13,7 @@ export default class ManeuverParry extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.battle-master.combat-superiority-die",
+          formula: this.diceString,
           name: "Reduce Damage Roll",
         },
       },
