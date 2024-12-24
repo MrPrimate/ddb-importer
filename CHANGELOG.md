@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.55
 
 - BREAKING CHANGE: Feature parsing has been reworked to improve automated action detection, and to ease the addition of new classes. This may lead to some oddities with class and species features, I've tested a wide variety but there are like a bazillion options.
 - Change to Moonsickle data on DDB broke item effect parsing.
@@ -17,8 +17,9 @@
 - Shield of Faith granted incorrect bonus.
 - Some midi effects transferred to work with this version of DDB Importer.
 - Improve Invisibility DAE special durations from some monsters such as the Invisible Stalker.
-- Titel buttons will now show in Tidy Sheet again @callbritton
+- Title buttons will now show in Tidy Sheet again @callbritton
 - Rogue (Phantom) parsing corrections.
+- Most auto generated midi-qol features or classes, feats and racial traits are now reimplemented (Favoure Foe, Planar Warrior and Slayers Prey are not yet implemented). Spells and a handful of monster features to follow.
 
 # 6.0.54
 
