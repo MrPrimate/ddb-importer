@@ -178,10 +178,10 @@ export function registerApi() {
     DialogHelper: lib.DialogHelper,
     effects: {
       helpers: DDBEffectHelper,
-      ChrisPremadesHelper: External.ChrisPremadesHelper,
-      addChrisEffectsToActorDocuments: External.ExternalAutomations.addChrisEffectsToActorDocuments,
-      addDDBIEffectsToActorDocuments: DDBEffectHelper.addDDBIEffectsToActorDocuments,
-      addDDBIEffectToDocument: DDBEffectHelper.addDDBIEffectToDocument,
+      // ChrisPremadesHelper: External.ChrisPremadesHelper,
+      // addChrisEffectsToActorDocuments: External.ExternalAutomations.addChrisEffectsToActorDocuments,
+      // addDDBIEffectsToActorDocuments: DDBEffectHelper.addDDBIEffectsToActorDocuments,
+      // addDDBIEffectToDocument: DDBEffectHelper.addDDBIEffectToDocument,
       // these are now in DDBEffectHelper, wrapped here for historical reasons
       addSaveAdvantageToTarget: DDBEffectHelper.addSaveAdvantageToTarget,
       attachSequencerFileToTemplate: DDBEffectHelper.attachSequencerFileToTemplate,
@@ -211,11 +211,11 @@ export function registerApi() {
       getMacro: lib.DDBMacros.getMacro,
       executeSimpleMacro: lib.DDBSimpleMacro.execute,
     },
-    chris: {
-      generateEffect: External.ExternalAutomations.applyChrisPremadeEffect,
-      generateEffects: External.ExternalAutomations.applyChrisPremadeEffects,
-      adjustActor: External.ExternalAutomations.addChrisEffectsToActorDocuments,
-    },
+    // chris: {
+    //   generateEffect: External.ExternalAutomations.applyChrisPremadeEffect,
+    //   generateEffects: External.ExternalAutomations.applyChrisPremadeEffects,
+    //   adjustActor: External.ExternalAutomations.addChrisEffectsToActorDocuments,
+    // },
     debug: {
       start: debugStart,
       stop: debugStop,

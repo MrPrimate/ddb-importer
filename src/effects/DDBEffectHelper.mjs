@@ -7,10 +7,9 @@ import {
 } from "../lib/_module.mjs";
 import { DICTIONARY } from "../config/_module.mjs";
 import { spellEffectAdjustment } from "./specialSpells.js";
-import { addExtraEffects } from "../parser/features/extraEffects.js";
 import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature.js";
 import { ExternalAutomations } from "./external/_module.mjs";
-import { DDBDescriptions, SystemHelpers } from "../parser/lib/_module.mjs";
+import { DDBDescriptions } from "../parser/lib/_module.mjs";
 import { AutoEffects, ChangeHelper, MidiOverTimeEffect } from "../parser/enrichers/effects/_module.mjs";
 
 export default class DDBEffectHelper {
@@ -121,25 +120,26 @@ export default class DDBEffectHelper {
       } else if (data.type === "spell") {
         data = await spellEffectAdjustment(data, true);
       } else if (data.type === "feat") {
-        const mockCharacter = {
-          system: SystemHelpers.getTemplate("character"),
-          type: "character",
-          name: "",
-          flags: {
-            ddbimporter: {
-              compendium: true,
-              dndbeyond: {
-                effectAbilities: [],
-                totalLevels: 0,
-                proficiencies: [],
-                proficienciesIncludingEffects: [],
-                characterValues: [],
-              },
-            },
-          },
-        };
+        // const mockCharacter = {
+        //   system: SystemHelpers.getTemplate("character"),
+        //   type: "character",
+        //   name: "",
+        //   flags: {
+        //     ddbimporter: {
+        //       compendium: true,
+        //       dndbeyond: {
+        //         effectAbilities: [],
+        //         totalLevels: 0,
+        //         proficiencies: [],
+        //         proficienciesIncludingEffects: [],
+        //         characterValues: [],
+        //       },
+        //     },
+        //   },
+        // };
 
-        data = (await addExtraEffects(null, [data], mockCharacter))[0];
+        // these are now done by the enricher
+        // data = (await addExtraEffects(null, [data], mockCharacter))[0];
       }
 
       if (useChrisPremades) data = (await ExternalAutomations.applyChrisPremadeEffects({ documents: [data], force: true, isMonster }))[0];
