@@ -28,9 +28,9 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
 
   // now parse all items
   const isCompendiumItem = foundry.utils.getProperty(this.raw.character, "flags.ddbimporter.compendium") ?? false;
-  const addAutomationEffects = (isCompendiumItem)
-    ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-    : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+  // const addAutomationEffects = (isCompendiumItem)
+  //   ? game.settings.get("ddb-importer", "munching-policy-add-effects")
+  //   : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
 
   const spellCompendium = CompendiumHelper.getCompendiumType("spells", false);
   await DDBItem.prepareSpellCompendiumIndex();
