@@ -8,6 +8,14 @@ export default class ManeuverLungingAttack extends Maneuver {
     return "utility";
   }
 
+  get activity() {
+    return {
+      name: "Lunge",
+      activationType: "special",
+      addItemConsume: true,
+    };
+  }
+
   get additionalActivities() {
     return [
       this.extraDamageActivity(),

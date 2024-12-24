@@ -13,6 +13,9 @@ export default class ManeuverRiposte extends Maneuver {
       midiManualReaction: true,
       data: {
         name: this.data.name.replace("Maneuver Options:", "Maneuver:").replace("Maneuvers:", "Maneuver: "),
+        "flags.ddbimporter": {
+          ignoredConsumptionActivities: this.ignoredConsumptionActivities,
+        },
       },
     };
   }

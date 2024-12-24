@@ -216,6 +216,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Lucky": GenericEnrichers.Lucky,
     "Lunar Form": ClassEnrichers.Druid.LunarForm,
     "Magical Cunning": ClassEnrichers.Warlock.MagicalCunning,
+    "Maneuver Options": GenericEnrichers.None,
     "Maneuver Options: Ambush": ClassEnrichers.Fighter.ManeuverAmbush,
     "Maneuver Options: Bait and Switch": ClassEnrichers.Fighter.ManeuverBaitAndSwitch,
     "Maneuver Options: Brace": ClassEnrichers.Fighter.ManeuverBrace,

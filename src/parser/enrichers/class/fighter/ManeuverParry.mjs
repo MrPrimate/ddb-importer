@@ -10,6 +10,8 @@ export default class ManeuverParry extends Maneuver {
 
   get activity() {
     return {
+      activationType: "reaction",
+      targetType: "self",
       data: {
         roll: {
           prompt: false,

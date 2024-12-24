@@ -1206,8 +1206,6 @@ ${item.system.description.chat}
       updatePolicyLanguages: game.settings.get("ddb-importer", "character-update-policy-languages"),
       updatePolicyImage: game.settings.get("ddb-importer", "character-update-policy-image"),
       activeEffectCopy: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
-      // daeEffectCopy: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy"),
-      // addItemEffects: game.settings.get("ddb-importer", "character-update-policy-add-item-effects"),
       addCharacterEffects: game.settings.get("ddb-importer", "character-update-policy-add-character-effects"),
       ignoreNonDDBItems: game.settings.get("ddb-importer", "character-update-policy-ignore-non-ddb-items"),
       useExistingCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-existing"),
