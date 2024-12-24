@@ -1,5 +1,4 @@
-import { forceItemEffect, addStatusEffectChange } from "../effects.js";
-import { baseFeatEffect } from "../specialFeats.js";
+import { forceItemEffect, addStatusEffectChange, baseFeatEffect } from "../effects.js";
 import { DDBMacros } from "../../lib/_module.mjs";
 
 function avalancheOfBonesEffect(document) {

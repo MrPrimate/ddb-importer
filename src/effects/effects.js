@@ -23,6 +23,15 @@ export function baseItemEffect(foundryItem, name,
   });
 }
 
+export function baseFeatEffect(document, label,
+  { transfer = false, disabled = false, description = null, durationSeconds = null,
+    durationRounds = null, durationTurns = null } = {},
+) {
+  return AutoEffects.BaseEffect(document, label, {
+    transfer, disabled, description, durationSeconds, durationRounds, durationTurns,
+  });
+}
+
 export function getMidiCEOnFlags(midiFlags = {}) {
   return MidiEffects.getMidiCEOnFlags(midiFlags);
 }

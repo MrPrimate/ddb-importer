@@ -14,7 +14,6 @@ import {
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
-import { addExtraEffects } from "./extraEffects.js";
 import { DDBTemplateStrings, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
 
 
@@ -508,11 +507,6 @@ export class DDBInfusion {
         if (this.data.effects.length === 0) this._generateEnchantmentStubEffect();
       }
     }
-  }
-
-  async _addExtraEffects() {
-    this.data = await addExtraEffects(this.ddbData, [this.data], this.rawCharacter)[0];
-    this.actions = await addExtraEffects(this.ddbData, this.actions, this.rawCharacter);
   }
 
   // _generateSummons() {

@@ -1,4 +1,4 @@
-import { baseFeatEffect } from "../specialFeats.js";
+import { baseFeatEffect } from "../effects.js";
 import { DDBMacros } from "../../lib/_module.mjs";
 
 // this one is a bit different, the macro is triggered by midi-qol and applies effects to the actor

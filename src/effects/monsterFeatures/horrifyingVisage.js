@@ -1,5 +1,4 @@
-import { addStatusEffectChange } from "../effects.js";
-import { baseFeatEffect } from "../specialFeats.js";
+import { addStatusEffectChange, baseFeatEffect } from "../effects.js";
 
 export function horrifyingVisageEffect(document) {
   foundry.utils.setProperty(document, "system.duration", { value: 1, units: "minute" });

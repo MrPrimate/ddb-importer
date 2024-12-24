@@ -4,7 +4,6 @@ import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";
 import DDBClassFeatures from "./DDBClassFeatures.js";
-import { addExtraEffects } from "./extraEffects.js";
 import {
   DDBGenericEnricher,
   DDBClassFeatureEnricher,
@@ -329,7 +328,6 @@ export default class CharacterFeatureFactory {
       await DDBFeatureMixin.finalFixes(action);
     }
 
-    this.processed.actions = await addExtraEffects(this.ddbData, this.processed.actions, this.rawCharacter);
     this.updateIds("actions");
   }
 
@@ -672,7 +670,7 @@ export default class CharacterFeatureFactory {
       await DDBFeatureMixin.finalFixes(feature);
     }
     this.fixAcEffects();
-    this.processed.features = await addExtraEffects(this.ddbData, this.parsed.features, this.rawCharacter);
+    this.processed.features = foundry.utils.deepClone(this.parsed.features);
 
     this.updateIds("features");
 
