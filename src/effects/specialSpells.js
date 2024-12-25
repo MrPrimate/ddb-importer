@@ -14,7 +14,6 @@ import { auraOfLifeEffect } from "./spells/auraOfLife.js";
 import { banishmentEffect } from "./spells/banishment.js";
 import { beaconofHopeEffect } from "./spells/beaconofHope.js";
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
-import { blurEffect } from "./spells/blur.js";
 import { boomingBladeEffect } from "./spells/boomingBlade.js";
 import { brandingSmiteEffect } from "./spells/brandingSmite.js";
 import { callLightningEffect } from "./spells/callLightning.js";
@@ -143,10 +142,6 @@ async function midiEffectAdjustment(document) {
     case "Evard's Black Tentacles":
     case "Black Tentacles": {
       document = await blackTentaclesEffect(document);
-      break;
-    }
-    case "Blur": {
-      document = blurEffect(document);
       break;
     }
     case "Booming Blade": {
