@@ -133,6 +133,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Feather Fall": SpellEnrichers.FeatherFall,
     "Storm Sphere": SpellEnrichers.StormSphere,
     "Banishing Smite": SpellEnrichers.BanishingSmite,
+    "Beacon of Hope": SpellEnrichers.BeaconOfHope,
   };
 
 }

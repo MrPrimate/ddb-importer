@@ -7,7 +7,6 @@ import {
 
 // spell effects load start
 import { absorbElementsEffect } from "./spells/absorbElements.js";
-import { acidArrowEffect } from "./spells/acidArrow.js";
 import { aidEffect } from "./spells/aid.js";
 import { alterSelfEffect } from "./spells/alterSelf.js";
 import { auraOfLifeEffect } from "./spells/auraOfLife.js";
@@ -118,25 +117,12 @@ async function midiEffectAdjustment(document) {
       document = await aidEffect(document);
       break;
     }
-    case "Melf's Acid Arrow":
-    case "Acid Arrow": {
-      document = acidArrowEffect(document);
-      break;
-    }
-    case "Alter Self": {
-      document = alterSelfEffect(document);
-      break;
-    }
     case "Aura of Life": {
       document = await auraOfLifeEffect(document);
       break;
     }
     case "Banishment": {
       document = await banishmentEffect(document);
-      break;
-    }
-    case "Beacon of Hope": {
-      document = beaconofHopeEffect(document);
       break;
     }
     case "Evard's Black Tentacles":
