@@ -158,10 +158,6 @@ async function midiEffectAdjustment(document) {
       document = await commandEffect(document);
       break;
     }
-    case "Comprehend Languages": {
-      document = comprehendLanguagesEffect(document);
-      break;
-    }
     case "Contagion": {
       document = await contagionEffect(document);
       break;
@@ -172,10 +168,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Confusion": {
       document = await confusionEffect(document);
-      break;
-    }
-    case "Crown of Madness": {
-      document = crownofMadnessEffect(document);
       break;
     }
     case "Crown of Stars": {
@@ -204,10 +196,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Ensnaring Strike": {
       document = await ensnaringStrikeEffect(document);
-      break;
-    }
-    case "Entangle": {
-      document = entangleEffect(document);
       break;
     }
     case "Eyebite": {
