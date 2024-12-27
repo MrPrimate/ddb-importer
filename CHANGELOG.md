@@ -1,3 +1,8 @@
+# 6.0.56
+
+- A number of small transfers of midi-qol spell effects.
+- A fix for some characters failing to import, most noteable some Warlock invocations would hang.
+
 # 6.0.55
 
 - BREAKING CHANGE: Feature parsing has been reworked to improve automated action detection, and to ease the addition of new classes. This may lead to some oddities with class and species features, I've tested a wide variety but there are like a bazillion options.
