@@ -138,6 +138,9 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Comprehend Languages": SpellEnrichers.ComprehendLanguages,
     "Crown of Madness": SpellEnrichers.CrownOfMadness,
     "Entangle": SpellEnrichers.Entangle,
+    "Frostbite": SpellEnrichers.Frostbite,
+    "Guidance": SpellEnrichers.Guidance,
+    "Guiding Bolt": SpellEnrichers.GuidingBolt,
   };
 
 }

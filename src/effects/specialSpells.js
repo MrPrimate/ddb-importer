@@ -8,10 +8,8 @@ import {
 // spell effects load start
 import { absorbElementsEffect } from "./spells/absorbElements.js";
 import { aidEffect } from "./spells/aid.js";
-import { alterSelfEffect } from "./spells/alterSelf.js";
 import { auraOfLifeEffect } from "./spells/auraOfLife.js";
 import { banishmentEffect } from "./spells/banishment.js";
-import { beaconofHopeEffect } from "./spells/beaconofHope.js";
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
 import { boomingBladeEffect } from "./spells/boomingBlade.js";
 import { brandingSmiteEffect } from "./spells/brandingSmite.js";
@@ -21,27 +19,21 @@ import { chromaticOrbEffect } from "./spells/chromaticOrb.js";
 import { cloudkillEffect } from "./spells/cloudkill.js";
 import { colorSprayEffect } from "./spells/colorSpray.js";
 import { commandEffect } from "./spells/command.js";
-import { comprehendLanguagesEffect } from "./spells/comprehendLanguages.js";
 import { confusionEffect } from "./spells/confusion.js";
 import { contagionEffect } from "./spells/contagion.js";
 import { createBonfireEffect } from "./spells/createBonfire.js";
-import { crownofMadnessEffect } from "./spells/crownofMadness.js";
 import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { darkvisionEffect } from "./spells/darkvision.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
 import { enlargeReduceEffect } from "./spells/enlargeReduce.js";
 import { ensnaringStrikeEffect } from "./spells/ensnaringStrike.js";
-import { entangleEffect } from "./spells/entangle.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
 import { fireShieldEffect } from "./spells/fireShield.js";
 import { flameBladeEffect } from "./spells/flameBlade.js";
 import { fleshtoStoneEffect } from "./spells/fleshtoStone.js";
-import { frostbiteEffect } from "./spells/frostbite.js";
 import { greaseEffect } from "./spells/grease.js";
 import { greenFlameBladeEffect } from "./spells/greenFlameBlade.js";
-import { guidanceEffect } from "./spells/guidance.js";
-import { guidingBoltEffect } from "./spells/guidingBolt.js";
 import { hailOfThornsEffect } from "./spells/hailOfThorns.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
 import { heroismEffect } from "./spells/heroism.js";
@@ -214,24 +206,12 @@ async function midiEffectAdjustment(document) {
       document = await fleshtoStoneEffect(document);
       break;
     }
-    case "Frostbite": {
-      document = frostbiteEffect(document);
-      break;
-    }
     case "Grease": {
       document = await greaseEffect(document);
       break;
     }
     case "Green-Flame Blade": {
       document = await greenFlameBladeEffect(document);
-      break;
-    }
-    case "Guidance": {
-      document = guidanceEffect(document);
-      break;
-    }
-    case "Guiding Bolt": {
-      document = guidingBoltEffect(document);
       break;
     }
     case "Hail of Thorns": {
