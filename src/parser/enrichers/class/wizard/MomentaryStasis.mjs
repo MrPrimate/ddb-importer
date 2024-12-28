@@ -10,7 +10,7 @@ export default class MomentaryStasis extends DDBEnricherData {
           durationRounds: 1,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("*0", 90, "system.attributes.movement.all"),
+          DDBEnricherData.ChangeHelper.customChange("*0", 90, "system.attributes.movement.all"),
           DDBEnricherData.ChangeHelper.overrideChange("0", 90, "system.attributes.movement.walk"),
           DDBEnricherData.ChangeHelper.overrideChange("0", 90, "system.attributes.movement.fly"),
           DDBEnricherData.ChangeHelper.overrideChange("0", 90, "system.attributes.movement.swim"),

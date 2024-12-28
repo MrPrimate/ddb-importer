@@ -53,9 +53,13 @@ export default class HolyAura extends DDBEnricherData {
         noCreate: true,
         name: "Holy Aura: Blinded",
         activityMatch: "Save vs Blinded",
+        daeSpecialDurations: ["turnEnd"],
       },
       {
         name: "Holy Aura (Aura)",
+        options: {
+          durationSeconds: 60,
+        },
         activityMatch: "Cast",
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(

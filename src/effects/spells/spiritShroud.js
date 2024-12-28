@@ -16,7 +16,7 @@ export async function spiritShroudEffect(document) {
     {
       key: "system.attributes.movement.all",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: "-10",
+      value: "- 10",
       priority: "15",
     });
   effect.flags["ActiveAuras"] = {
