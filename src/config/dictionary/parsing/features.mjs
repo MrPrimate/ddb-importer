@@ -228,6 +228,6 @@ export const PARSING_CHOICE_FEATURES = {
     "Celestial Revelation",
     "Raging Storm",
     "Storm Soul",
-    "Maneuver Options",
+    // "Maneuver Options",
   ],
 };
