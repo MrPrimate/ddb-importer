@@ -10,6 +10,7 @@ export { default as BloodFuryTattoo } from "./BloodFuryTattoo.mjs";
 export { default as BootsOfSpeed } from "./BootsOfSpeed.mjs";
 export { default as BracersOfArchery } from "./BracersOfArchery.mjs";
 export { default as BullseyeLantern } from "./BullseyeLantern.mjs";
+export { default as Candle } from "./Candle.mjs";
 export { default as CircletOfBlasting } from "./CircletOfBlasting.mjs";
 export { default as CloakOfDisplacement } from "./CloakOfDisplacement.mjs";
 export { default as ConcussionGrenade } from "./ConcussionGrenade.mjs";
