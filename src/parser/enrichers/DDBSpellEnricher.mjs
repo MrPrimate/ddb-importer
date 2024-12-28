@@ -145,6 +145,10 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Hold Person": SpellEnrichers.HoldThing,
     "Holy Aura": SpellEnrichers.HolyAura,
     "Longstrider": SpellEnrichers.Longstrider,
+    "Polymorph": SpellEnrichers.Polymorph,
+    "Psychic Scream": SpellEnrichers.PsychicScream,
+    "Ray of Frost": SpellEnrichers.RayOfFrost,
+    "Regenerate": SpellEnrichers.Regenerate,
   };
 
 }

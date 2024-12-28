@@ -44,15 +44,9 @@ import { iceKnifeEffect } from "./spells/iceKnife.js";
 import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
 import { insectPlagueEffect } from "./spells/insectPlague.js";
 import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
-import { longstriderEffect } from "./spells/longstrider.js";
 import { mistyStepEffect } from "./spells/mistyStep.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
-import { polymorphEffect } from "./spells/polymorph.js";
-import { psychicScreamEffect } from "./spells/psychicScream.js";
-import { rayofEnfeeblementEffect } from "./spells/rayofEnfeeblement.js";
-import { rayofFrostEffect } from "./spells/rayofFrost.js";
-import { regenerateEffect } from "./spells/regenerate.js";
 import { resilientSphereEffect } from "./spells/resilientSphere.js";
 import { resistanceEffect } from "./spells/resistance.js";
 import { silenceEffect } from "./spells/silence.js";
@@ -253,10 +247,6 @@ async function midiEffectAdjustment(document) {
       document = await irresistibleDanceEffect(document);
       break;
     }
-    case "Longstrider": {
-      document = longstriderEffect(document);
-      break;
-    }
     case "Misty Step": {
       if (!deps.autoAnimationsInstalled) {
         document = await mistyStepEffect(document);
@@ -269,26 +259,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Phantasmal Killer": {
       document = await phantasmalKillerEffect(document);
-      break;
-    }
-    case "Polymorph": {
-      document = polymorphEffect(document);
-      break;
-    }
-    case "Psychic Scream": {
-      document = psychicScreamEffect(document);
-      break;
-    }
-    case "Ray of Enfeeblement": {
-      document = await rayofEnfeeblementEffect(document);
-      break;
-    }
-    case "Ray of Frost": {
-      document = rayofFrostEffect(document);
-      break;
-    }
-    case "Regenerate": {
-      document = regenerateEffect(document);
       break;
     }
     case "Otiluke's Resilient Sphere":
