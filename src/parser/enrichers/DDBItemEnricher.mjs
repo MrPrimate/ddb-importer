@@ -76,6 +76,13 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Potion of Speed": ItemEnrichers.PotionOfSpeed,
     "Pearl of Power": ItemEnrichers.PearlOfPower,
     "Staff of Healing": ItemEnrichers.StaffOfHealing,
+    "Torch": ItemEnrichers.Torch,
+    "Lantern, Bullseye": ItemEnrichers.BullseyeLantern,
+    "Bullseye Lantern": ItemEnrichers.BullseyeLantern,
+    "Lantern, Hooded": ItemEnrichers.HoodedLantern,
+    "Hooded Lantern": ItemEnrichers.HoodedLantern,
+    "Lamp": ItemEnrichers.Lamp,
+    "Candle": ItemEnrichers.Candle,
   };
 
 }
