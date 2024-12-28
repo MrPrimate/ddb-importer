@@ -58,6 +58,8 @@ export { default as HeatMetal } from "./HeatMetal.mjs";
 export { default as HeroesFeast } from "./HeroesFeast.mjs";
 export { default as Heroism } from "./Heroism.mjs";
 export { default as Hex } from "./Hex.mjs";
+export { default as HoldThing } from "./HoldThing.mjs";
+export { default as HolyAura } from "./HolyAura.mjs";
 export { default as HungerOfHadar } from "./HungerOfHadar.mjs";
 export { default as HuntersMark } from "./HuntersMark.mjs";
 export { default as Invisibility } from "./Invisibility.mjs";

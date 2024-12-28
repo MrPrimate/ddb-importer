@@ -141,6 +141,9 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Frostbite": SpellEnrichers.Frostbite,
     "Guidance": SpellEnrichers.Guidance,
     "Guiding Bolt": SpellEnrichers.GuidingBolt,
+    "Hold Monster": SpellEnrichers.HoldThing,
+    "Hold Person": SpellEnrichers.HoldThing,
+    "Holy Aura": SpellEnrichers.HolyAura,
   };
 
 }

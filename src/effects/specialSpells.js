@@ -39,9 +39,6 @@ import { heroesFeastEffect } from "./spells/heroesFeast.js";
 import { heroismEffect } from "./spells/heroism.js";
 import { hexEffect } from "./spells/hex.js";
 import { hideousLaughterEffect } from "./spells/hideousLaughter.js";
-import { holdMonsterEffect } from "./spells/holdMonster.js";
-import { holdPersonEffect } from "./spells/holdPerson.js";
-import { holyAuraEffect } from "./spells/holyAura.js";
 import { huntersMarkEffect } from "./spells/huntersMark.js";
 import { iceKnifeEffect } from "./spells/iceKnife.js";
 import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
@@ -228,18 +225,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Hex": {
       document = await hexEffect(document);
-      break;
-    }
-    case "Hold Monster": {
-      document = holdMonsterEffect(document);
-      break;
-    }
-    case "Hold Person": {
-      document = holdPersonEffect(document);
-      break;
-    }
-    case "Holy Aura": {
-      document = holyAuraEffect(document);
       break;
     }
     case "Tasha's Hideous Laughter":
