@@ -15,6 +15,7 @@ export default class DeflectAttacks extends DDBEnricherData {
       data: {
         "flags.ddbimporter": {
           ignoredConsumptionActivities: ["Reduce Damage"],
+          skipScale: true,
         },
       },
     };

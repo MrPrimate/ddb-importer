@@ -3,7 +3,10 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class FlurryOfBlowsAdditional extends DDBEnricherData {
   get type() {
-    return "utility";
+    if (this.ddbParser.originalName === "Flurry of Blows: Addle") {
+      return "utility";
+    }
+    return null;
   }
 
   get activity() {
@@ -25,8 +28,21 @@ export default class FlurryOfBlowsAdditional extends DDBEnricherData {
     if (this.ddbParser.originalName === "Flurry of Blows: Topple") {
       return [
         {
-          name: "Prone",
+          name: "Toppled: Prone",
+          activityMatch: "Topple",
           statuses: ["Prone"],
+        },
+      ];
+    } else if (this.ddbParser.originalName === "Flurry of Blows: Addle") {
+      return [
+        {
+          name: "Addled",
+          activityMatch: "Addle",
+          options: {
+            durationTurns: 1,
+            description: "Target cannot make opportunity attacks",
+          },
+          daeSpecialDurations: ["turnStart"],
         },
       ];
     }

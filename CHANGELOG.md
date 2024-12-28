@@ -1,3 +1,8 @@
+# 6.0.57
+
+- Unarmed Strike stopped generating damage.
+- A number of fixes for parsing Monks Focus abilities.
+
 # 6.0.56
 
 - A number of small transfers of midi-qol spell effects.

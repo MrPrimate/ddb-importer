@@ -21,11 +21,19 @@ export default class DeflectAttackRedirectAttack extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "2@scale.monk.martial-arts.die + @abilities.dex.mod",
+              customFormula: "@scale.monk.deflect-attacks + @abilities.dex.mod",
               types: ["bludgeoning", "piercing", "slashing"],
             }),
           ],
         },
+      },
+    };
+  }
+
+  get override() {
+    return {
+      data: {
+        "flags.ddbimporter.skipScale": true,
       },
     };
   }

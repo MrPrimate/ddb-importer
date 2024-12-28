@@ -11,23 +11,14 @@ export default class MonksFocus extends DDBEnricherData {
     return [
       { action: { name: "Flurry of Blows", type: "class", rename: ["Flurry of Blows"] }, overrides: { addItemConsume: true } },
       { action: { name: "Patient Defense", type: "class" } },
-      { action: { name: "Step of the Wind", type: "class", rename: ["Step of the Wind"] }, overrides: { addItemConsume: true } },
-    ];
-  }
-
-  get effects() {
-    return [
-      {
-        name: "Disengage",
-        activityMatch: "Step of the Wind",
-      },
+      { action: { name: "Step of the Wind", type: "class" } },
     ];
   }
 
   get override() {
     return {
       data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": ["Patient Defense: Disengage"],
+        "flags.ddbimporter.ignoredConsumptionActivities": ["Patient Defense: Disengage", "Step of the Wind: Dash"],
         "system.uses": this._getUsesWithSpent({
           type: "class",
           name: "Focus Points",

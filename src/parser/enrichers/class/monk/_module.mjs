@@ -31,6 +31,7 @@ export { default as PhysiciansTouch } from "./PhysiciansTouch.mjs";
 export { default as QuickenedHealing } from "./QuickenedHealing.mjs";
 export { default as ShadowArts } from "./ShadowArts.mjs";
 export { default as SlowFall } from "./SlowFall.mjs";
+export { default as StepOfTheWind } from "./StepOfTheWind.mjs";
 export { default as StrideOfTheElements } from "./StrideOfTheElements.mjs";
 export { default as StunningStrike } from "./StunningStrike.mjs";
 export { default as SuperiorDefense } from "./SuperiorDefense.mjs";

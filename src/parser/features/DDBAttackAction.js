@@ -35,6 +35,9 @@ export default class DDBAttackAction extends DDBAction {
       this._generateProperties();
       this._generateSystemType(this.type);
       this._generateSystemSubType();
+      if (this.documentType === "weapon") {
+        this._generateDamage();
+      }
       if (!this.enricher.stopDefaultActivity)
         this._generateActivity();
       await this.enricher.addAdditionalActivities(this);

@@ -24,6 +24,12 @@ export default class UncannyMetabolism extends DDBEnricherData {
           },
         },
       ],
+      data: {
+        healing: DDBEnricherData.basicDamagePart({
+          customFormula: "@scale.monk.uncanny-metabolism.die + @classes.monk.levels",
+          type: "healing",
+        }),
+      },
     };
   }
 

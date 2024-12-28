@@ -3,13 +3,16 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class PatientDefense extends DDBEnricherData {
 
+  get type() {
+    return "utility";
+  }
+
   get activity() {
-    const result = {
+    return {
       name: this.is2014 ? "Patient Defense: Dodge" : "Patient Defense: Disengage",
       targetType: "self",
-      type: "utility",
+      noConsumeTargets: this.is2024,
     };
-    return result;
   }
 
   get additionalActivities() {
@@ -63,5 +66,13 @@ export default class PatientDefense extends DDBEnricherData {
         },
       ];
     }
+  }
+
+  get override() {
+    return {
+      data: {
+        "flags.ddbimporter.ignoredConsumptionActivities": ["Patient Defense: Disengage"],
+      },
+    };
   }
 }
