@@ -30,6 +30,7 @@ export default class DDBClass {
   static NO_ADVANCEMENT_2024 = [];
 
   static NOT_ADVANCEMENT_FOR_FEATURE = [
+    "Bardic Inspiration",
   ];
 
   static PROFICIENCY_FEATURES = [
@@ -1461,7 +1462,27 @@ export default class DDBClass {
         advancement.title = "Rages";
         advancement.configuration.identifier = "rages";
       };
+    } else if (this.data.name === "Bard") {
+      const bardicInspiration = {
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "bardic-inspiration",
+          type: "dice",
+          scale: {
+            1: { number: 1, faces: 6 },
+            5: { number: 1, faces: 8 },
+            10: { number: 1, faces: 10 },
+            15: { number: 1, faces: 12 },
+          },
+        },
+        value: {},
+        title: "Bardic Inspiration",
+        icon: null,
+      };
+      this.data.system.advancement.push(bardicInspiration);
     }
+
   }
 
   _generatePrimaryAbility() {

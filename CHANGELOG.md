@@ -2,6 +2,7 @@
 
 - Unarmed Strike stopped generating damage.
 - A number of fixes for parsing Monks Focus abilities.
+- Bardic Inspiration Scale advancement was not always generating correctly for 2024 Bards.
 
 # 6.0.56
 
