@@ -23,7 +23,7 @@ export default class ManeuverMenacingAttack extends Maneuver {
         overrides: {
           data: {
             damage: {
-              onSave: "none",
+              onSave: "full",
             },
             save: {
               ability: ["wis"],

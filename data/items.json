@@ -1,5 +1,9 @@
 [
   {
+    "name": "Iron Spikes",
+    "path": "icons/tools/fasteners/nails-steel-brown.webp"
+  },
+  {
     "name": "Abacus",
     "path": "icons/commodities/currency/coins-engraved-hole-gold.webp"
   },

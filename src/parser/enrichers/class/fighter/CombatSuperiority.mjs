@@ -8,7 +8,7 @@ export default class CombatSuperiority extends DDBEnricherData {
       type: "class",
       name: "Superiority Dice",
       max: "@scale.battle-master.combat-superiority-uses",
-      period: "lr",
+      period: "sr",
     });
     return {
       data: {
