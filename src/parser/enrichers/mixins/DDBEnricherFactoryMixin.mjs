@@ -1064,14 +1064,17 @@ export default class DDBEnricherFactoryMixin {
       const actionActivity = foundry.utils.getProperty(activityHint, "action");
 
       logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
-      const actionFeatures = await this._buildFeaturesFromAction(actionActivity, i);
+      const actionFeatures = await this._buildFeaturesFromAction(actionActivity);
       this.defaultActionFeatures[actionActivity.name] = actionFeatures;
 
       // console.warn(`Features from actions ${this.ddbParser.originalName}`, {
+      //   actionFeatures,
       //   activityHint,
       //   this: this,
       //   activityMatchedFeatures: this.defaultActionFeatures,
+      //   i,
       // });
+      i++;
     }
 
     logger.debug(`Default Feature Action Build Complete for ${this.ddbParser.originalName}`);

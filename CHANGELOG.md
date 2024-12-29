@@ -1,3 +1,10 @@
+# Next Up
+
+- Fix for choice features such as Dragonborn breath weapon missing uses.
+- Sorcerer Dragonwings did not import uses.
+- A number of small transfers of midi-qol spell effects.
+- Hand of Harm/Healing parsing fixes.
+
 # 6.0.57
 
 - Unarmed Strike stopped generating damage.

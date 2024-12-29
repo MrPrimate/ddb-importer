@@ -56,7 +56,18 @@ export default class DragonWings extends DDBEnricherData {
   }
 
   get override() {
+    const uses = this._getUsesWithSpent({
+      type: "class",
+      name: "Dragon Wings",
+      max: "1",
+      period: "lr",
+    });
     return {
+      data: {
+        system: {
+          uses,
+        },
+      },
       replaceActivityUses: true,
     };
   }

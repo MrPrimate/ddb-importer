@@ -482,6 +482,13 @@ DDBMonster.prototype._addSpellHints = function() {
       this.spellList.material = false;
       break;
     }
+    case "Black Abishai": {
+      this.spellList.atwill = ["Darkness"];
+      this.spellList.material = false;
+      this.spellList.concentration = false;
+      this.spellcasting.spellcasting = "wis";
+      break;
+    }
     // case "Priest of Osybus (Deathly)": {
     //   this.spellList.innate = [{ name: "Circle of Death", type: "charge", value: 1, recharge: "5" }];
     //   break;

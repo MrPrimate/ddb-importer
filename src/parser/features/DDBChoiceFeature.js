@@ -101,6 +101,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         this._generateActivity();
       await this.enricher.addAdditionalActivities(this);
 
+      this._generateLimitedUse();
       this._generateDescription({ forceFull: false });
 
       this.data.flags.ddbimporter.dndbeyond.choice = {
@@ -188,6 +189,9 @@ export default class DDBChoiceFeature extends DDBFeature {
         type: ddbFeature.type,
         rawCharacter: ddbFeature.rawCharacter,
         extraFlags,
+        ddbCharacter: ddbFeature.ddbCharacter,
+        documentType: ddbFeature.documentType,
+        fallbackEnricher: ddbFeature.fallbackEnricher,
       });
       await choiceFeature.build(choice);
       logger.debug(`DDBChoiceFeature.buildChoiceFeatures: ${choiceFeature.ddbDefinition.name}`, {
@@ -209,6 +213,9 @@ export default class DDBChoiceFeature extends DDBFeature {
         }
         if (ddbFeature.data.effects.length === 0) {
           ddbFeature.data.effects = choiceFeature.data.effects;
+        }
+        if (["", null, undefined].includes(ddbFeature.data.system.uses?.max)) {
+          ddbFeature.data.system.uses = choiceFeature.data.system.uses;
         }
       } else {
         features.push(choiceFeature.data);
