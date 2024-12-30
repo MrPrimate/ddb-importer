@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.58
 
 - Fix for choice features such as Dragonborn breath weapon missing uses.
 - Sorcerer Dragonwings did not import uses.
