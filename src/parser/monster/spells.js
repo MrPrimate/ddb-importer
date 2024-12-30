@@ -295,12 +295,20 @@ DDBMonster.prototype._generateSpells = function() {
       this._generateSpellAttackBonus(spellText);
     }
 
-    const noMaterialSearch = new RegExp(/no material component|no component/);
+    const noMaterialSearch = new RegExp(/no material component|no component|no spell components/);
     const noMaterialMatch = noMaterialSearch.test(trimmedText);
 
     if (noMaterialMatch) {
       this.spellList.material = false;
     }
+
+    const noConcentrationSearch = new RegExp(/no concentration|no material components or concentration|no spell components or concentration/);
+    const noConcentrationMatch = noConcentrationSearch.test(trimmedText);
+
+    if (noConcentrationMatch) {
+      this.spellList.concentration = false;
+    }
+
 
     // lets see if the spell block is innate
     if (innateSpellcastingMatch) {
@@ -412,6 +420,14 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
     spell.system.properties = utils.removeFromProperties(spell.system.properties, "material");
   }
 
+  if (!spellList.concentration) {
+    spell.system.properties = utils.removeFromProperties(spell.system.properties, "concentration");
+  }
+
+  if (spellList.overrideData) {
+    spell = foundry.utils.mergeObject(spell, spellList.overrideData);
+  }
+
 };
 
 // temporary spell hints
@@ -487,6 +503,13 @@ DDBMonster.prototype._addSpellHints = function() {
       this.spellList.material = false;
       this.spellList.concentration = false;
       this.spellcasting.spellcasting = "wis";
+      this.spellList.overrideData = {
+        system: {
+          range: {
+            value: 120,
+          },
+        },
+      };
       break;
     }
     // case "Priest of Osybus (Deathly)": {
