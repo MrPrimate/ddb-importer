@@ -46,6 +46,7 @@ export { default as StinkBomb } from "./StinkBomb.mjs";
 export { default as Torch } from "./Torch.mjs";
 export { default as WandOfFireballs } from "./WandOfFireballs.mjs";
 export { default as WandOfMagicMissiles } from "./WandOfMagicMissiles.mjs";
+export { default as WandOfOrcus } from "./WandOfOrcus.mjs";
 export { default as WarriorsPasskey } from "./WarriorsPasskey.mjs";
 export { default as Waterskin } from "./Waterskin.mjs";
 

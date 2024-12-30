@@ -1,3 +1,8 @@
+# Next Up
+
+- Some item parsing fixes.
+- Characters with Tremorsense would not import if Vision5e module was enabled.
+
 # 6.0.58
 
 - Fix for choice features such as Dragonborn breath weapon missing uses.

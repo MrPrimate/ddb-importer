@@ -83,6 +83,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Wand of Magic Missiles": ItemEnrichers.WandOfMagicMissiles,
     "Warrior's Passkey": ItemEnrichers.WarriorsPasskey,
     "Waterskin": ItemEnrichers.Waterskin,
+    "Wand of Orcus": ItemEnrichers.WandOfOrcus,
   };
 
 }

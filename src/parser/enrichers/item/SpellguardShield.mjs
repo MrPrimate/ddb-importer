@@ -8,8 +8,8 @@ export default class SpellguardShield extends DDBEnricherData {
       {
         noCreate: true,
         midiChanges: [
-          DDBEnricherData.ChangeHelper.generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.msak"),
-          DDBEnricherData.ChangeHelper.generateCustomChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.rsak"),
+          DDBEnricherData.ChangeHelper.customChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.msak"),
+          DDBEnricherData.ChangeHelper.customChange(1, 20, "flags.midi-qol.grants.disadvantage.attack.rsak"),
         ],
       },
     ];
