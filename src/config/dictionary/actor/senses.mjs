@@ -10,9 +10,11 @@ export const SENSES = {
   senseMapVision5e: {
     blindsight: "blindsight",
     darkvision: "darkvision",
-    tremorsense: "tremorsense",
+    // tremorsense: "tremorsense",
     truesight: "truesight",
     unknown: "basic",
+    devilsSight: "devilsSight",
+    etherealness: "etherealness",
   },
   senseMap: () => {
     if (game.modules.get("vision-5e")?.active) return SENSES.senseMapVision5e;
