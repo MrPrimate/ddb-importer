@@ -19,6 +19,7 @@ export { default as EmpoweredStrikes } from "./EmpoweredStrikes.mjs";
 export { default as EmptyBody } from "./EmptyBody.mjs";
 export { default as FleetStep } from "./FleetStep.mjs";
 export { default as FlurryOfBlowsAdditional } from "./FlurryOfBlowsAdditional.mjs";
+export { default as FlurryOfHealingAndHarm } from "./FlurryOfHealingAndHarm.mjs";
 export { default as HandOfHarm } from "./HandOfHarm.mjs";
 export { default as HandOfHealing } from "./HandOfHealing.mjs";
 export { default as HeightenedFocus } from "./HeightenedFocus.mjs";

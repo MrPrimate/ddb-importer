@@ -157,6 +157,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Flurry of Blows: Addle": ClassEnrichers.Monk.FlurryOfBlowsAdditional,
     "Flurry of Blows: Push": ClassEnrichers.Monk.FlurryOfBlowsAdditional,
     "Flurry of Blows: Topple": ClassEnrichers.Monk.FlurryOfBlowsAdditional,
+    "Flurry of Healing and Harm": ClassEnrichers.Monk.FlurryOfHealingAndHarm,
     "Foe Slayer": ClassEnrichers.Ranger.FoeSlayer,
     "Font of Magic: Sorcery Points": ClassEnrichers.Sorcerer.FontOfMagicSorceryPoints,
     "Font of Magic": ClassEnrichers.Sorcerer.FontOfMagic,
@@ -216,7 +217,6 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Lucky": GenericEnrichers.Lucky,
     "Lunar Form": ClassEnrichers.Druid.LunarForm,
     "Magical Cunning": ClassEnrichers.Warlock.MagicalCunning,
-    "Maneuver Options": GenericEnrichers.None,
     "Maneuver Options: Ambush": ClassEnrichers.Fighter.ManeuverAmbush,
     "Maneuver Options: Bait and Switch": ClassEnrichers.Fighter.ManeuverBaitAndSwitch,
     "Maneuver Options: Brace": ClassEnrichers.Fighter.ManeuverBrace,
@@ -247,6 +247,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Maneuver Options: Tactical Assessment": ClassEnrichers.Fighter.ManeuverTacticalAssessment,
     "Maneuver Options: Trip Attack (Str.)": ClassEnrichers.Fighter.ManeuverTripAttack,
     "Maneuver Options: Trip Attack": ClassEnrichers.Fighter.ManeuverTripAttack,
+    "Maneuver Options": GenericEnrichers.None,
     "Maneuvers: Ambush": ClassEnrichers.Fighter.ManeuverAmbush,
     "Maneuvers: Bait and Switch": ClassEnrichers.Fighter.ManeuverBaitAndSwitch,
     "Maneuvers: Brace": ClassEnrichers.Fighter.ManeuverBrace,
@@ -358,6 +359,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Starry Form": ClassEnrichers.Druid.StarryForm,
     "Steady Aim": ClassEnrichers.Rogue.SteadyAim,
     "Steel Defender": ClassEnrichers.Artificer.SteelDefender,
+    "Step of the Wind": ClassEnrichers.Monk.StepOfTheWind,
     "Steps of Night": ClassEnrichers.Cleric.StepsOfNight,
     "Steps of the Fey": ClassEnrichers.Warlock.StepsOfTheFey,
     "Stone Rune": ClassEnrichers.Fighter.StoneRune,
@@ -420,7 +422,6 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Wild Shape": ClassEnrichers.Druid.WildShape,
     "Wrath of the Sea": ClassEnrichers.Druid.WrathOfTheSea,
     "Wrath of the Storm": ClassEnrichers.Cleric.WrathOfTheStorm,
-    "Step of the Wind": ClassEnrichers.Monk.StepOfTheWind,
   };
 
   FALLBACK_ENRICHERS = {

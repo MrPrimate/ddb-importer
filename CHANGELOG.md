@@ -4,6 +4,8 @@
 - Sorcerer Dragonwings did not import uses.
 - A number of small transfers of midi-qol spell effects.
 - Hand of Harm/Healing parsing fixes.
+- Black Abishai was missing darkness spell.
+- Improved no concentration detection for monsters with innate sp ells.
 
 # 6.0.57
 
