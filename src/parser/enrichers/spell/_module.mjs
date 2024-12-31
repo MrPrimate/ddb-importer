@@ -86,6 +86,8 @@ export { default as RayOfEnfeeblement } from "./RayOfEnfeeblement.mjs";
 export { default as RayOfFrost } from "./RayOfFrost.mjs";
 export { default as RayOfSickness } from "./RayOfSickness.mjs";
 export { default as Regenerate } from "./Regenerate.mjs";
+export { default as ResilientSphere } from "./ResilientSphere.mjs";
+export { default as Resistance } from "./Resistance.mjs";
 export { default as ScorchingRay } from "./ScorchingRay.mjs";
 export { default as SearingSmite } from "./SearingSmite.mjs";
 export { default as ShadowBlade } from "./ShadowBlade.mjs";

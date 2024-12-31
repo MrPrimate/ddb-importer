@@ -47,8 +47,6 @@ import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
 import { mistyStepEffect } from "./spells/mistyStep.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
-import { resilientSphereEffect } from "./spells/resilientSphere.js";
-import { resistanceEffect } from "./spells/resistance.js";
 import { silenceEffect } from "./spells/silence.js";
 import { sleepEffect } from "./spells/sleep.js";
 import { spikeGrowthEffect } from "./spells/spikeGrowth.js";
@@ -259,15 +257,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Phantasmal Killer": {
       document = await phantasmalKillerEffect(document);
-      break;
-    }
-    case "Otiluke's Resilient Sphere":
-    case "Resilient Sphere": {
-      document = resilientSphereEffect(document);
-      break;
-    }
-    case "Resistance": {
-      document = resistanceEffect(document);
       break;
     }
     case "Silence": {

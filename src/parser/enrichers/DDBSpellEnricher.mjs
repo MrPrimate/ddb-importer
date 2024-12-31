@@ -19,6 +19,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Melf's Acid Arrow": "Acid Arrow",
     "Mordenkainen's Sword": "Arcane Sword",
     "Evard's Black Tentacles": "Black Tentacles",
+    "Otiluke's Resilient Sphere": "Resilient Sphere",
   };
 
   ENRICHERS = {
@@ -149,6 +150,8 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Warding Bond": SpellEnrichers.WardingBond,
     "Wind Wall": SpellEnrichers.WindWall,
     "Witch Bolt": SpellEnrichers.WitchBolt,
+    "Resilient Sphere": SpellEnrichers.ResilientSphere,
+    "Resistance": SpellEnrichers.Resistance,
   };
 
 }
