@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.59
 
 - Some item parsing fixes.
 - Characters with Tremorsense would not import if Vision5e module was enabled.
