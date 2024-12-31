@@ -2,6 +2,7 @@
 
 - Some item parsing fixes.
 - Characters with Tremorsense would not import if Vision5e module was enabled.
+- Paladin AUras did not generate AA auras.
 
 # 6.0.58
 
