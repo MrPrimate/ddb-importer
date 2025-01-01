@@ -1,24 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class Thunderclap extends DDBEnricherData {
-
-  get overrides() {
-    return {
-      data: {
-        "system.range": {
-          units: "spec",
-        },
-        "system.target": {
-          template: {
-            size: "15",
-            type: "cube",
-          },
-        },
-      },
-    };
-  }
-
+export default class SwordBurst extends DDBEnricherData {
   get override() {
     return {
       data: {

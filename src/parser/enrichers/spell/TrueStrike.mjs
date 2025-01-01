@@ -25,7 +25,11 @@ export default class TrueStrike extends DDBEnricherData {
 
   get effects() {
     if (this.is2014) {
-      return [];
+      return [{
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+        ],
+      }];
     } else {
       return [
         { type: "Melee", img: "icons/skills/melee/strike-sword-slashing-red.webp" },

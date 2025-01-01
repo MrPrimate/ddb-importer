@@ -54,12 +54,8 @@ import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
 import { spiritShroudEffect } from "./spells/spiritShroud.js";
 import { spiritualWeaponEffect } from "./spells/spiritualWeapon.js";
 import { stormSphereEffect } from "./spells/stormSphere.js";
-import { swordBurstEffect } from "./spells/swordburst.js";
-import { thunderclapEffect } from "./spells/thunderclap.js";
 import { thunderousSmiteEffect } from "./spells/thunderousSmite.js";
 import { tolltheDeadEffect } from "./spells/tolltheDead.js";
-import { trueStrikeEffect } from "./spells/trueStrike.js";
-import { viciousMockeryEffect } from "./spells/viciousMockery.js";
 import { vitriolicSphereEffect } from "./spells/vitriolicSphere.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
 import { webEffect } from "./spells/web.js";
@@ -287,28 +283,12 @@ async function midiEffectAdjustment(document) {
       document = await stormSphereEffect(document);
       break;
     }
-    case "Sword Burst": {
-      document = swordBurstEffect(document);
-      break;
-    }
-    case "Thunderclap": {
-      document = thunderclapEffect(document);
-      break;
-    }
     case "Thunderous Smite": {
       document = await thunderousSmiteEffect(document);
       break;
     }
     case "Toll the Dead": {
       document = await tolltheDeadEffect(document);
-      break;
-    }
-    case "True Strike": {
-      document = trueStrikeEffect(document);
-      break;
-    }
-    case "Vicious Mockery": {
-      document = viciousMockeryEffect(document);
       break;
     }
     case "Vitriolic Sphere": {
