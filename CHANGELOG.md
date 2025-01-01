@@ -1,3 +1,7 @@
+# Next Up
+
+- Adventures could not be imported or exported to the Adventure Compendium.
+
 # 6.0.59
 
 - Some item parsing fixes.

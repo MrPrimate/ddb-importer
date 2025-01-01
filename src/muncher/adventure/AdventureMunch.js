@@ -1088,7 +1088,6 @@ export default class AdventureMunch extends FormApplication {
       macros: [],
       cards: [],
       playlists: [],
-
       flags: {
         ddbimporter: {
           isDDBAdventure: true,
@@ -1104,36 +1103,48 @@ export default class AdventureMunch extends FormApplication {
     return data;
   }
 
+  async _getCompendiumAdventure(adventureData) {
+    const existingAdventure = this._pack.index.find((i) => i.name === adventureData.name);
+    if (existingAdventure) {
+      return existingAdventure;
+    }
+    await Adventure.createDocuments([{
+      name: adventureData.name,
+      description: adventureData.description,
+      img: adventureData.img,
+    }], {
+      pack: this._pack.metadata.id,
+      keepId: true,
+      keepEmbeddedIds: true,
+    });
+    const newAdventure = this._pack.index.find((i) => i.name === adventureData.name);
+    return newAdventure;
+  }
+
 
   async _importAdventureCompendium(adventureData) {
     try {
-      const pack = CompendiumHelper.getCompendiumType("adventure");
-      const existingAdventure = pack.index.find((i) => i.name === adventureData.name);
+      this._pack = CompendiumHelper.getCompendiumType("adventure");
+      const existingAdventure = await this._getCompendiumAdventure(adventureData);
+
+      // console.warn("Adventure!", {
+      //   pack: this._pack,
+      //   adventureData: foundry.utils.deepClone(adventureData),
+      //   temp: this.temporary,
+      //   this: this,
+      //   thisAdventure: this.adventure,
+      //   existingAdventure,
+      // });
 
       let adventure;
       if (existingAdventure) {
-        logger.debug("Deleting existing adventure", existingAdventure._id);
-        adventureData._id = existingAdventure._id;
-        const loadedAdventure = await pack.getDocument(existingAdventure._id);
+        const loadedAdventure = await this._pack.getDocument(existingAdventure._id);
+        // eslint-disable-next-line require-atomic-updates
+        adventureData._id = loadedAdventure._id;
         adventure = await loadedAdventure.update(adventureData, { diff: false, recursive: false });
         ui.notifications.info(game.i18n.format("ADVENTURE.UpdateSuccess", { name: adventureData.name }));
-      } else {
-        adventure = await Adventure.createDocuments([adventureData], {
-          pack: pack.metadata.id,
-          keepId: true,
-          keepEmbeddedIds: true,
-        });
-        ui.notifications.info(game.i18n.format("ADVENTURE.CreateSuccess", { name: adventureData.name }));
-
       }
 
-      // console.warn("Adventure!", {
-      //   pack,
-      //   item: adventureData,
-      //   adventure,
-      //   temp: this.temporary,
-      //   thisAdventure: this.adventure,
-      // });
       return adventure;
     } catch (err) {
       logger.error("error building adventure", { err, this: this });

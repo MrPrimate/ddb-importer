@@ -1,7 +1,7 @@
 import { SETTINGS } from "../config/_module.mjs";
 
 
-export class DDBAdventureImporter extends Adventure {
+export class DDBAdventureImporter extends AdventureImporter {
 
   constructor(adventure, options) {
     super(adventure, options);
