@@ -58,8 +58,8 @@ export default class BlessedHealer extends DDBEnricherData {
 
   get setMidiOnUseMacroFlag() {
     return {
-      macroType: "feat",
-      macroName: "blessedHealer.js",
+      type: "feat",
+      name: "blessedHealer.js",
       triggerPoints: ["postActiveEffects"],
     };
   }

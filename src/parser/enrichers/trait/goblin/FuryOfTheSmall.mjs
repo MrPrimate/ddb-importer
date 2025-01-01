@@ -79,8 +79,8 @@ export default class FuryOfTheSmall extends DDBEnricherData {
 
   get setMidiOnUseMacroFlag() {
     return {
-      macroType: "feat",
-      macroName: "furyOfTheSmall.js",
+      type: "feat",
+      name: "furyOfTheSmall.js",
       triggerPoints: ["preDamageRoll"],
     };
   }

@@ -22,8 +22,8 @@ export default class PlanarWarrior extends DDBEnricherData {
 
   // get setMidiOnUseMacroFlag() {
   //   return {
-  //     macroType: "feat",
-  //     macroName: "planarWarrior.js",
+  //     type: "feat",
+  //     name: "planarWarrior.js",
   //     triggerPoints: ["preTargeting"],
   //   };
   // }

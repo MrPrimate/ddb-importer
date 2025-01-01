@@ -59,7 +59,6 @@ import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { vitriolicSphereEffect } from "./spells/vitriolicSphere.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
 import { webEffect } from "./spells/web.js";
-import { witchBoltEffect } from "./spells/witchBolt.js";
 import { zephyrStrikeEffect } from "./spells/zephyrStrike.js";
 
 
@@ -301,10 +300,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Web": {
       document = await webEffect(document);
-      break;
-    }
-    case "Witch Bolt": {
-      document = await witchBoltEffect(document);
       break;
     }
     case "Zephyr Strike": {

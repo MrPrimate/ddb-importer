@@ -82,12 +82,8 @@ if (args[0].macroPass === "postActiveEffects") {
   const sourceItem = await fromUuid(lastArg.origin);
   const caster = sourceItem.parent;
   const options = DAE.getFlag(caster, "witchBoltSpell");
-  // console.warn("on each", {
-  //   options,
-  //   sourceItem,
-  //   lastArg,
-  //   caster,
-  // })
+  const is2014 = sourceItem.flags.ddbimporter?.is2014 ?? false;
+
   const isInRange = await DDBImporter?.EffectHelper.checkTargetInRange(options);
   if (isInRange) {
     const userIds = Object.entries(caster.ownership).filter((k) => k[1] === CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER).map((k) => k[0]);
@@ -103,7 +99,7 @@ if (args[0].macroPass === "postActiveEffects") {
           { label: "No, end concentration", value: false }
         ],
         title: "Witch Bolt",
-        content: "<p>Use action to sustain Witch Bolt?</p>"
+        content: `<p>Use ${is2014 ? "" : "bonus "}action to sustain Witch Bolt?</p>`
       },
       'column');
     // console.warn("result", result);

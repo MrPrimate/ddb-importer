@@ -196,8 +196,8 @@ export default class Example extends DDBEnricherData {
   // set midi on use macro flag
   get setMidiOnUseMacroFlag() {
     return {
-      macroType: "item",
-      macroName: "cloakOfDisplacement.js",
+      type: "item",
+      name: "cloakOfDisplacement.js",
       triggerPoints: [],
     };
   }

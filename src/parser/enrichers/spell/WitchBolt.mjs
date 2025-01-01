@@ -5,6 +5,7 @@ export default class WitchBolt extends DDBEnricherData {
 
   get activity() {
     return {
+      name: "Cast",
       splitDamage: true,
     };
   }
@@ -51,7 +52,24 @@ export default class WitchBolt extends DDBEnricherData {
   }
 
   get effects() {
-    return [{}];
+    return [{
+      activityMatch: "Cast",
+    }];
+  }
+
+  get itemMacro() {
+    return {
+      type: "spell",
+      name: "witchBolt.js",
+    };
+  }
+
+  get setMidiOnUseMacroFlag() {
+    return {
+      type: "spell",
+      name: "witchBolt.js",
+      triggerPoints: ["postActiveEffects"],
+    };
   }
 
 }
