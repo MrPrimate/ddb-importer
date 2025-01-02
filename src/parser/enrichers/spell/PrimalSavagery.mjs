@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class PrimalSavagery extends DDBEnricherData {
 
-  get overrides() {
+  get override() {
     return {
       data: {
         "system.range": {

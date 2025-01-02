@@ -154,6 +154,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Resistance": SpellEnrichers.Resistance,
     "Sword Burst": SpellEnrichers.SwordBurst,
     "Vicious Mockery": SpellEnrichers.ViciousMockery,
+    "Web": SpellEnrichers.Web,
   };
 
 }

@@ -233,7 +233,6 @@ export default class DDBEnricherData {
    *     - func: {function} A function executed with the activity as the sole argument.
    *     - descriptionHint: {string} A hint for the enchantment description.
    *     - descriptionSuffix: {string} Text to append to the item description.
-   *     - midiOnly: {boolean} Indicates that the effect is generated only if MIDI-QOL is installed.
    *     - activeAurasOnly: {boolean} Indicates that the effect is generated only if ActiveAuras is installed.
    *     - activityMatch: {string} Match to this activity only
    *     - activitiesMatch: {Array} Match to only these activities
@@ -243,7 +242,15 @@ export default class DDBEnricherData {
    *     - damageBonusMacroChanges: {Array} damage bonus macro changes
    *     - midiOptionalChanges: {Array} object of name and data (key/value) for midi optional changes
    *     - optionalMacroChanges: {Array} optional macro changes for midi optional macros.
-  */
+   *     - daeOnly: {boolean} only add effect if dae is active
+   *     - atlOnly: {boolean} only add effect if atl is active
+   *     - midiOnly: {boolean} only add effect if MIDI-QOL is installed.
+   *     - activeAurasOnly: {boolean} only add effect if ActiveAuras is installed.
+   *     - daeNever: {boolean} never add effect if dae is active
+   *     - atlNever: {boolean} never add effect if atl is active
+   *     - midiNever: {boolean} never add effect if MIDI-QOL is installed.
+   *     - activeAurasNever: {boolean} never add effect if ActiveAuras is installed.
+   */
   get effects() {
     return [];
   }

@@ -134,8 +134,14 @@ export default class Example extends DDBEnricherData {
         func: function() {}, // run this funciton passing in the activity as the only variable
         descriptionHint: "hint text", // adds enchantment description hint
         descriptionSuffix: "", // append to item description
-        midiOnly: true, // only generate this effect if midi qol is installed
-        activeAurasOnly: true, // only generate this effect if active auras is installed
+        daeOnly: true, // only add effect if dae is active
+        atlOnly: true, // only add effect if atl is active
+        midiOnly: true, // only add effect if MIDI-QOL is installed.
+        activeAurasOnly: true, // only add effect if ActiveAuras is installed.
+        daeNever: true, // never add effect if dae is active
+        atlNever: true, // never add effect if atl is active
+        midiNever: true, // never add effect if MIDI-QOL is installed.
+        activeAurasNever: true, // never add effect if ActiveAuras is installed.
         activityMatch: "Attack", // Match to this activity only
         activitiesMatch: ["Save"], // Match to only these activities
         macroChanges: { macroType: "item", macroName: "cloakOfDisplacement.js" }, // add macro change

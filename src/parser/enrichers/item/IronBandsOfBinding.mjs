@@ -22,7 +22,7 @@ export default class IronBandsOfBinding extends DDBEnricherData {
     };
   }
 
-  get overrides() {
+  get override() {
     return {
       data: {
         "system.uses": {
