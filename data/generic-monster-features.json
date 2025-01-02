@@ -9446,5 +9446,17 @@
   {
     "name": "Soothing Word",
     "path": "icons/magic/life/heart-cross-purple-orange.webp"
+  },
+  {
+    "name": "Dessicating Slam",
+    "path": "icons/skills/melee/unarmed-punch-fist-blue.webp"
+  },
+  {
+    "name": "Guardian's Curse",
+    "path": "icons/magic/death/skull-energy-light-white.webp"
+  },
+  {
+    "name": "Mummy Dust",
+    "path": "icons/magic/acid/projectile-bolts-salvo-green.webp"
   }
 ]
