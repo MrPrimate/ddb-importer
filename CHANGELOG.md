@@ -1,6 +1,8 @@
-# Next Up
+# 6.0.60
 
 - Adventures could not be imported or exported to the Adventure Compendium.
+- Some spell automations.
+- Tattoos would not import on characters if official Tasha's module was enabled.
 
 # 6.0.59
 
