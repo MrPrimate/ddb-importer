@@ -1,3 +1,7 @@
+# 6.0.61
+
+- Rage did not always import on 2024 barbarians.
+
 # 6.0.60
 
 - Adventures could not be imported or exported to the Adventure Compendium.

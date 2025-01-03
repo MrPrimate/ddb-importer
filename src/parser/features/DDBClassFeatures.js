@@ -15,7 +15,7 @@ export default class DDBClassFeatures {
   ];
 
   static EXCLUDED_FEATURES_2024 = [
-    "Rage",
+    // "Rage",
   ];
 
   deriveFeatures() {
