@@ -23,10 +23,8 @@ import { confusionEffect } from "./spells/confusion.js";
 import { contagionEffect } from "./spells/contagion.js";
 import { createBonfireEffect } from "./spells/createBonfire.js";
 import { crownofStarsEffect } from "./spells/crownofStars.js";
-import { darkvisionEffect } from "./spells/darkvision.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
-import { enlargeReduceEffect } from "./spells/enlargeReduce.js";
 import { ensnaringStrikeEffect } from "./spells/ensnaringStrike.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
 import { fireShieldEffect } from "./spells/fireShield.js";
@@ -154,20 +152,12 @@ async function midiEffectAdjustment(document) {
       document = await createBonfireEffect(document);
       break;
     }
-    case "Darkvision": {
-      document = await darkvisionEffect(document);
-      break;
-    }
     case "Divine Word": {
       document = await divineWordEffect(document);
       break;
     }
     case "Enhance Ability": {
       document = await enhanceAbilityEffect(document);
-      break;
-    }
-    case "Enlarge/Reduce": {
-      document = await enlargeReduceEffect(document);
       break;
     }
     case "Ensnaring Strike": {
