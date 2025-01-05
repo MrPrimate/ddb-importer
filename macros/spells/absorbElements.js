@@ -5,18 +5,18 @@ const targetActor = args[0].tokenUuid
 
 async function updateEffects(html) {
   const element = html.find("#element").val();
-  const effect = targetActor.effects.find((i) => (i.name ?? i.label) === `${itemName} - Extra Damage`);
-  const changes = foundry.utils.duplicate(effect.changes);
+  const damageEffect = targetActor.effects.find((i) => (i.name ?? i.label) === `${itemName}: Extra Damage`);
+  const changes = foundry.utils.duplicate(damageEffect.changes);
   changes[0].value += `[${element}]`;
   changes[1].value += `[${element}]`;
-  await effect.update({ changes });
-  const resistanceEffect = targetActor.effects.find((i) => (i.name ?? i.label) === `${itemName} - Resistance`);
+  await damageEffect.update({ changes });
+  const resistanceEffect = targetActor.effects.find((i) => (i.name ?? i.label) === `${itemName}: Resistance`);
   const resistanceChanges = foundry.utils.duplicate(resistanceEffect.changes);
   resistanceChanges[0].value = element;
   await resistanceEffect.update({ changes: resistanceChanges });
 }
 
-await new Promise(resolve => {
+await new Promise((resolve) => {
   let isButtonClose = false;
   new Dialog({
     title: "Choose a damage type",

@@ -6,10 +6,6 @@ import {
 } from "./effects.js";
 
 // spell effects load start
-import { absorbElementsEffect } from "./spells/absorbElements.js";
-import { aidEffect } from "./spells/aid.js";
-import { auraOfLifeEffect } from "./spells/auraOfLife.js";
-import { banishmentEffect } from "./spells/banishment.js";
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
 import { boomingBladeEffect } from "./spells/boomingBlade.js";
 import { brandingSmiteEffect } from "./spells/brandingSmite.js";
@@ -57,7 +53,6 @@ import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { vitriolicSphereEffect } from "./spells/vitriolicSphere.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
 import { webEffect } from "./spells/web.js";
-import { zephyrStrikeEffect } from "./spells/zephyrStrike.js";
 
 
 export function baseSpellEffect(document, label,
@@ -83,22 +78,6 @@ async function midiEffectAdjustment(document) {
 
   logger.debug(`Adding effects to ${name}`);
   switch (name) {
-    case "Absorb Elements": {
-      document = await absorbElementsEffect(document);
-      break;
-    }
-    case "Aid": {
-      document = await aidEffect(document);
-      break;
-    }
-    case "Aura of Life": {
-      document = await auraOfLifeEffect(document);
-      break;
-    }
-    case "Banishment": {
-      document = await banishmentEffect(document);
-      break;
-    }
     case "Evard's Black Tentacles":
     case "Black Tentacles": {
       document = await blackTentaclesEffect(document);
@@ -290,10 +269,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Web": {
       document = await webEffect(document);
-      break;
-    }
-    case "Zephyr Strike": {
-      document = await zephyrStrikeEffect(document);
       break;
     }
     // no default

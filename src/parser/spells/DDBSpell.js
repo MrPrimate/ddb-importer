@@ -830,12 +830,14 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       : foundry.utils.deepClone(this.healingParts);
     for (const part of healingParts) {
       this.additionalActivities.push({
+        name: "Healing",
         type: "heal",
         options: {
           generateDamage: false,
           includeBaseDamage: false,
           generateHealing: true,
           healingPart: part,
+          noSpellslot: this.activityType !== "heal",
         },
       });
     }

@@ -618,7 +618,7 @@ export default class DDBEnricherFactoryMixin {
       }
 
       if (effectHint.optionalMacroChanges && applyMidiOnlyEffects) {
-        for (const macroChange of effectHint.damageBonusMacroChanges) {
+        for (const macroChange of effectHint.optionalMacroChanges) {
           effect.changes.push(DDBMacros.generateOptionalMacroChange(macroChange));
         }
       }
