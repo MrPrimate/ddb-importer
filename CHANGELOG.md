@@ -1,3 +1,7 @@
+# 6.0.62
+
+- When using CPR beta, allow application of CPR effects on character import.
+
 # 6.0.61
 
 - Rage did not always import on 2024 barbarians.
