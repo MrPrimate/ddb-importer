@@ -101,13 +101,13 @@ async function attackNearby(originToken, ignoreIds) {
   const potentialTargets = await MidiQOL.findNearby(null, originToken, 5).filter((tok) => !ignoreIds.includes(tok.actor?.id));
   if (potentialTargets.length === 0) return;
   const sourceItem = await fromUuid(lastArg.efData.flags.origin);
-  const caster = sourceItem.parent;
+  const caster = sourceItem.actor;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
 
   const userId = DAE.getFlag(caster, "greenFlameBladeUserId") ?? game.userId;
 
   console.warn({
-    caster, itemData: lastArg.itemData, sourceItem, userId: game.userId
+    caster, itemData: lastArg.itemData, sourceItem, userId: game.userId,
   });
 
   // const userId = foundry.utils.getProperty(sourceItem, "flags.userId") ?? game.userId;
@@ -125,30 +125,29 @@ async function attackNearby(originToken, ignoreIds) {
       value: false,
     }],
     {
-      title: 'Green Flame Blade: Choose a secondary target to attack',
+      title: 'Green Flame Blade: Choose a secondary target to damage',
       options: {
         width: 450,
         height: "auto",
       },
       checkedText: true,
-    }
+    },
   );
 
   if (foundry.utils.hasProperty(result, "results") && result.results.length > 0) {
     const selectedId = result.results[0];
     const targetToken = canvas.tokens.get(selectedId);
     const sourceItem = await fromUuid(lastArg.efData.flags.origin);
-    const mod = caster.system.abilities[sourceItem.abilityMod].mod;
+
+    const mod = caster.system.abilities[sourceItem.ability].mod;
     const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate();
     await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
-    const workflowItemData = foundry.utils.duplicate(sourceItem);
+    const workflowItemData = sourceItem.parent.parent.toObject();
     workflowItemData.effects = [];
     foundry.utils.setProperty(workflowItemData, "flags.midi-qol", {});
-    workflowItemData.system.target = { value: 1, units: "", type: "creature" };
-    workflowItemData.system.range = { value: 5, long: null, units: "ft", };
+    workflowItemData.system.range = { value: 5, long: null, units: "ft" };
     delete workflowItemData._id;
     workflowItemData.name = "Green Flame Blade: Secondary Damage";
-
     await new MidiQOL.DamageOnlyWorkflow(
       caster,
       casterToken,
@@ -161,7 +160,7 @@ async function attackNearby(originToken, ignoreIds) {
         itemCardId: "new",
         itemData: workflowItemData,
         isCritical: false,
-      }
+      },
     );
     sequencerEffect(targetToken, originToken);
   }
@@ -171,7 +170,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
   const chosenWeapon = DAE.getFlag(caster, "greenFlameBladeChoice");
   const filteredWeapons = caster.items.filter((i) =>
     i.type === "weapon" && i.system.equipped
-    && i.system.activation.type === "action" && i.system.actionType == "mwak"
+    && i.system.activation.type === "action" && i.system.actionType == "mwak",
   );
   const weaponContent = filteredWeapons
     .map((w) => {
@@ -197,10 +196,12 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const weaponCopy = foundry.utils.duplicate(weaponItem);
           delete weaponCopy._id;
           if (cantripDice > 0) {
-            weaponCopy.system.damage.parts[0][0] += ` + ${cantripDice - 1}d8[${damageType}]`;
+            weaponCopy.system.damage.base.bonus += ` + ${cantripDice - 1}d8[${damageType}]`;
           }
           weaponCopy.name = weaponItem.name + " [Green Flame Blade]";
+          const effectId = foundry.utils.randomID();
           weaponCopy.effects.push({
+            _id: effectId,
             changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "greenFlameBlade.js", document: { name: weaponCopy.name } })],
             disabled: false,
             // duration: { turns: 0 },
@@ -224,6 +225,12 @@ function weaponAttack(caster, sourceItemData, origin, target) {
               ? foundry.utils.mergeObject(foundry.utils.getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)
               : autoAnimationsAdjustments;
             foundry.utils.setProperty(weaponCopy, "flags.autoanimations", autoanimations);
+          }
+          for (const [key, activity] of Object.entries(weaponCopy.system.activities)) {
+            if (activity.type === "attack") {
+              activity.effects.push({ _id: effectId });
+              weaponCopy.system.activities[key] = activity;
+            }
           }
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           attackItem.prepareData();

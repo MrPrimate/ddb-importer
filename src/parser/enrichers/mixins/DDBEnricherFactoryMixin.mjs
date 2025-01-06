@@ -465,9 +465,22 @@ export default class DDBEnricherFactoryMixin {
   async createEffects() {
     const effectHints = this.effects;
     const effects = [];
-    if (!effectHints || effectHints?.length === 0) return effects;
 
     const applyMidiOnlyEffects = this._canApplyMidiEffects;
+
+    // always set item macros and on use macro flags
+    const itemMacro = this.itemMacro;
+    if (itemMacro && applyMidiOnlyEffects) {
+      await DDBMacros.setItemMacroFlag(this.data, itemMacro.type, itemMacro.name);
+    }
+
+    const setMidiOnUseMacroFlag = this.setMidiOnUseMacroFlag;
+    if (setMidiOnUseMacroFlag && applyMidiOnlyEffects) {
+      DDBMacros.setMidiOnUseMacroFlag(this.data, setMidiOnUseMacroFlag.type, setMidiOnUseMacroFlag.name, setMidiOnUseMacroFlag.triggerPoints);
+    }
+
+    if (!effectHints || effectHints?.length === 0) return effects;
+
     for (const effectHintFunction of effectHints) {
       const effectHint = utils.isFunction(effectHintFunction)
         ? effectHintFunction()
@@ -655,16 +668,6 @@ export default class DDBEnricherFactoryMixin {
       }
 
       if (!effectHint.noCreate) effects.push(effect);
-    }
-
-    const itemMacro = this.itemMacro;
-    if (itemMacro && this._canApplyMidiEffects) {
-      await DDBMacros.setItemMacroFlag(this.data, itemMacro.type, itemMacro.name);
-    }
-
-    const setMidiOnUseMacroFlag = this.setMidiOnUseMacroFlag;
-    if (setMidiOnUseMacroFlag && this._canApplyMidiEffects) {
-      DDBMacros.setMidiOnUseMacroFlag(this.data, setMidiOnUseMacroFlag.type, setMidiOnUseMacroFlag.name, setMidiOnUseMacroFlag.triggerPoints);
     }
 
     AutoEffects.forceDocumentEffect(this.data);

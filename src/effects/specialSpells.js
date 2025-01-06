@@ -26,7 +26,6 @@ import { fireShieldEffect } from "./spells/fireShield.js";
 import { flameBladeEffect } from "./spells/flameBlade.js";
 import { fleshtoStoneEffect } from "./spells/fleshtoStone.js";
 import { greaseEffect } from "./spells/grease.js";
-import { greenFlameBladeEffect } from "./spells/greenFlameBlade.js";
 import { hailOfThornsEffect } from "./spells/hailOfThorns.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
 import { heroismEffect } from "./spells/heroism.js";
@@ -156,10 +155,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Grease": {
       document = await greaseEffect(document);
-      break;
-    }
-    case "Green-Flame Blade": {
-      document = await greenFlameBladeEffect(document);
       break;
     }
     case "Hail of Thorns": {

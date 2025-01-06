@@ -1,6 +1,7 @@
 # 6.0.62
 
 - When using CPR beta, allow application of CPR effects on character import.
+- Green Flame Blade and Booming Blade midi-auomations for v4.
 
 # 6.0.61
 
