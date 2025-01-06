@@ -536,7 +536,7 @@ export default class Utils {
   // matchedProperties = { "system.activation.type": "bonus" }
   static matchProperties(document, matchedProperties = {}) {
     for (const [key, value] of Object.entries(matchedProperties)) {
-      if (foundry.Utils.getProperty(document, key) !== value) {
+      if (foundry.utils.getProperty(document, key) !== value) {
         return false;
       }
     }

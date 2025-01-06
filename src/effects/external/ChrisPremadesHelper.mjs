@@ -38,9 +38,14 @@ export default class ChrisPremadesHelper {
     "system.activation",
     "system.ability",
     "system.critical",
-    "system.formula",
-    "system.actionType",
+    "system.ammunition",
+    "system.mastery",
     "system.scaling",
+    "system.activities",
+    "system.uses",
+    "system.properties",
+    "system.enchant",
+    "flags.chris-premades",
   ];
 
   static CP_COMPENDIUM_TYPES = [
@@ -62,7 +67,7 @@ export default class ChrisPremadesHelper {
   static async getChrisCompendiumIndex(compendiumName, matchedProperties = {}) {
     const gamePack = CompendiumHelper.getCompendium(compendiumName);
     const index = await gamePack.getIndex({
-      fields: ["name", "type", "flags.cf", "folder"].concat(Object.keys(matchedProperties)),
+      fields: ["name", "type", "flags.cf", "folder", "system.source.rules"].concat(Object.keys(matchedProperties)),
     });
     return index;
   }
@@ -151,8 +156,15 @@ export default class ChrisPremadesHelper {
     }
 
     const packIndex = await gamePack.getIndex({
-      fields: ['name', 'type', 'folder'].concat(Object.keys(matchedProperties)),
+      fields: ['name', 'type', 'folder', "system.source.rules"].concat(Object.keys(matchedProperties)),
     });
+
+    // console.warn("packIndex", {
+    //   packIndex,
+    //   key,
+    //   name, matchedProperties,
+    //   gamePack,
+    // });
 
     const match = packIndex.find((item) =>
       item.name === name
@@ -207,7 +219,6 @@ export default class ChrisPremadesHelper {
       }
 
       logger.debug(`CP Effect (From Name): Attempting to fetch ${documentName} from ${c.packName} with folderID ${folderId}`);
-      // const chrisDoc = await ChrisPremadesHelper.getDocumentFromCompendium(c.packName, documentName, true, folderId, matchedProperties);
       const match = c.index.find((doc) =>
         doc.name === documentName
         && (!folderId || (folderId && doc.folder === folderId))
@@ -270,7 +281,7 @@ export default class ChrisPremadesHelper {
       }
 
       logger.debug(`CP Effect (find replacement): Attempting to fetch ${this.original.name} from ${c.packName} with folderID ${folderId}`);
-      const chrisDoc = await ChrisPremadesHelper.getDocumentFromCompendium(c.packName, this.chrisName, this.ignoreNotFound, folderId, this.matchedProperties);
+      const chrisDoc = await ChrisPremadesHelper.getDocumentFromCompendium(c.packName, this.chrisName, this.ignoreNotFound, folderId, this.matchProperties);
       if (!chrisDoc) continue;
       const chrisType = ChrisPremadesHelper.getTypeMatch(chrisDoc, this.isMonster);
 
@@ -281,6 +292,9 @@ export default class ChrisPremadesHelper {
         truthy: this.type === chrisType,
       });
       if (this.type === chrisType || folderId) {
+        if (!chrisDoc.flags["chris-premades"].info.rules) {
+          chrisDoc.flags["chris-premades"].info.rules = this.original.system.source.rules === "2014" ? "legacy" : "";
+        }
         this.chrisDoc = chrisDoc;
         return chrisDoc;
       }
@@ -389,7 +403,16 @@ ${chat}
       return document;
     }
 
-    const chrisHelper = new ChrisPremadesHelper(document, { type, chrisNameOverride, folderName, ignoreNotFound: true, isMonster });
+    const chrisHelper = new ChrisPremadesHelper(document, {
+      type,
+      chrisNameOverride,
+      folderName,
+      ignoreNotFound: true,
+      isMonster,
+      matchedProperties: {
+        "system.source.rules": document.system.source.rules,
+      },
+    });
     const chrisDoc = await chrisHelper.findReplacement();
     if (!chrisDoc) {
       return document;
@@ -405,7 +428,16 @@ ${chat}
       return document;
     }
 
-    const chrisHelper = new ChrisPremadesHelper(document, { type, chrisNameOverride, folderName, ignoreNotFound: true, isMonster });
+    const chrisHelper = new ChrisPremadesHelper(document, {
+      type,
+      chrisNameOverride,
+      folderName,
+      ignoreNotFound: true,
+      isMonster,
+      matchedProperties: {
+        "system.source.rules": document.system.source.rules,
+      },
+    });
     const chrisDoc = await chrisHelper.findReplacement();
     if (!chrisDoc) {
       return document;
