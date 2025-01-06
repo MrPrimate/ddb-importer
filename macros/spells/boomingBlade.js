@@ -45,10 +45,12 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const weaponCopy = foundry.utils.duplicate(weaponItem);
           delete weaponCopy._id;
           if (cantripDice > 0) {
-            weaponCopy.system.damage.parts[0][0] += ` + ${cantripDice - 1}d8[${damageType}]`;
+            weaponCopy.system.damage.base.bonus += ` + ${cantripDice - 1}d8[${damageType}]`;
           }
           weaponCopy.name = weaponItem.name + " [Booming Blade]";
+          const effectId = foundry.utils.randomID();
           weaponCopy.effects.push({
+            _id: effectId,
             changes: [DDBImporter.lib.DDBMacros.generateMacroChange({ macroType: "spell", macroName: "boomingBlade.js", document: { name: weaponCopy.name } })],
             disabled: false,
             duration: { rounds: 1 },
@@ -61,9 +63,16 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           if (foundry.utils.hasProperty(sourceItemData, "flags.itemacro")) foundry.utils.setProperty(weaponCopy, "flags.itemacro", foundry.utils.duplicate(sourceItemData.flags.itemacro));
           if (foundry.utils.hasProperty(sourceItemData, "flags.dae.macro")) foundry.utils.setProperty(weaponCopy, "flags.dae.macro", foundry.utils.duplicate(sourceItemData.flags.dae.macro));
           foundry.utils.setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
+          for (const [key, activity] of Object.entries(weaponCopy.system.activities)) {
+            if (activity.type === "attack") {
+              activity.effects.push({ _id: effectId });
+              weaponCopy.system.activities[key] = activity;
+            }
+          }
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           attackItem.prepareData();
           attackItem.prepareFinalAttributes();
+
           // console.warn(attackItem);
           const workflowOptions = {
             // autoFastForward: "on",
@@ -123,7 +132,7 @@ if (args[0].tag === "OnUse") {
         itemCardId: "new",
         itemData: workflowItemData,
         isCritical: false,
-      }
+      },
     );
     sequencerEffect(targetToken, sequencerFile, sequencerScale);
   }

@@ -10,14 +10,15 @@ export default class BoomingBlade extends DDBEnricherData {
   get activity() {
     return {
       name: "Cast Spell: Automation",
-      targetType: "self",
+      targetType: "creature",
       overrideTemplate: true,
       overrideRange: true,
       noTemplate: true,
       data: {
         range: {
           override: true,
-          units: "self",
+          units: "ft",
+          value: "5",
         },
       },
     };
