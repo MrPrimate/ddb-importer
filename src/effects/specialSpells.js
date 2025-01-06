@@ -7,7 +7,6 @@ import {
 
 // spell effects load start
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
-import { boomingBladeEffect } from "./spells/boomingBlade.js";
 import { brandingSmiteEffect } from "./spells/brandingSmite.js";
 import { callLightningEffect } from "./spells/callLightning.js";
 import { chillTouchEffect } from "./spells/chillTouch.js";
@@ -81,10 +80,6 @@ async function midiEffectAdjustment(document) {
     case "Evard's Black Tentacles":
     case "Black Tentacles": {
       document = await blackTentaclesEffect(document);
-      break;
-    }
-    case "Booming Blade": {
-      document = await boomingBladeEffect(document);
       break;
     }
     case "Branding Smite": {
