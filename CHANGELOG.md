@@ -1,6 +1,6 @@
 # Next Up
 
-- Ice Knife, Fire Shield, and Heroism Midi automations for v4.
+- Ice Knife, Fire Shield, Flesh to Stone and Heroism Midi automations for v4.
 
 # 6.0.62
 

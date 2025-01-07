@@ -3,10 +3,10 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const activity = await fromUuid(lastArg.activity);
 
-console.warn("Called", {
-  lastArg,
-  targetActor,
-})
+// console.warn("Called", {
+//   lastArg,
+//   targetActor,
+// })
 
 if (args[0] === "on") {
   await DAE.setFlag(targetActor, "fleshToStoneSpell", {

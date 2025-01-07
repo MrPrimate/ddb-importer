@@ -23,7 +23,6 @@ import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
 import { ensnaringStrikeEffect } from "./spells/ensnaringStrike.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
 import { flameBladeEffect } from "./spells/flameBlade.js";
-import { fleshtoStoneEffect } from "./spells/fleshtoStone.js";
 import { greaseEffect } from "./spells/grease.js";
 import { hailOfThornsEffect } from "./spells/hailOfThorns.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
@@ -140,10 +139,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Flame Blade": {
       document = await flameBladeEffect(document);
-      break;
-    }
-    case "Flesh to Stone": {
-      document = await fleshtoStoneEffect(document);
       break;
     }
     case "Grease": {
