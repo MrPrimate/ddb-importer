@@ -42,4 +42,19 @@ export default class Hex extends DDBEnricherData {
     ];
   }
 
+  get setMidiOnUseMacroFlag() {
+    return {
+      name: "hex.js",
+      type: "spell",
+      triggerPoints: ["postActiveEffects"],
+    };
+  }
+
+  get itemMacro() {
+    return {
+      name: "hex.js",
+      type: "spell",
+    };
+  }
+
 }

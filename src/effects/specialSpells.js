@@ -26,7 +26,6 @@ import { flameBladeEffect } from "./spells/flameBlade.js";
 import { greaseEffect } from "./spells/grease.js";
 import { hailOfThornsEffect } from "./spells/hailOfThorns.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
-import { hexEffect } from "./spells/hex.js";
 import { hideousLaughterEffect } from "./spells/hideousLaughter.js";
 import { huntersMarkEffect } from "./spells/huntersMark.js";
 import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
@@ -151,10 +150,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Heroes' Feast": {
       document = await heroesFeastEffect(document);
-      break;
-    }
-    case "Hex": {
-      document = await hexEffect(document);
       break;
     }
     case "Tasha's Hideous Laughter":
