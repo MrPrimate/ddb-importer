@@ -315,7 +315,7 @@ export default class DDBEnricherFactoryMixin {
       });
     }
 
-    if (overrideData.removeSpellSlotConsume) {
+    if (overrideData.removeSpellSlotConsume || overrideData.noSpellslot) {
       foundry.utils.setProperty(activity, "consumption.spellSlot", false);
     }
 

@@ -1,8 +1,12 @@
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.system.save;
+const activity = await fromUuid(lastArg.activity);
+
+console.warn("Called", {
+  lastArg,
+  targetActor,
+})
 
 if (args[0] === "on") {
   await DAE.setFlag(targetActor, "fleshToStoneSpell", {
@@ -13,22 +17,29 @@ if (args[0] === "on") {
 }
 
 async function checkPetrification(flag) {
-  const flavor = `${CONFIG.DND5E.abilities[saveData.ability].label} DC${saveData.dc} ${DAEItem?.name || ""}`;
-  const saveRoll = await targetActor.rollAbilitySave(saveData.ability, { flavor, fastForward: true });
+  const flavor = `${CONFIG.DND5E.abilities[activity.save.ability.first()].label} DC${activity.save.dc.value} ${activity.item?.name || ""}`;
 
-  if (saveRoll.total < saveData.dc) {
+  const speaker = ChatMessage.getSpeaker({ targetActor, scene: canvas.scene, token: token.document });
+  const saveRoll = (await targetActor.rollSavingThrow({
+    ability: activity.save.ability.first(),
+    target: activity.save.dc.value,
+  }, {}, { data: { speaker, flavor } }))[0];
+
+  // console.warn("saveRoll", saveRoll);
+
+  if (saveRoll.total < activity.save.dc.value) {
     flag.failures += 1;
     await DAE.setFlag(targetActor, "fleshToStoneSpell", flag);
 
     if (flag.failures === 3) {
-      ChatMessage.create({ content: `Flesh To Stone on ${targetActor.name} is complete` });
+      ChatMessage.create({ content: `Flesh To Stone on ${targetActor.name} is complete and the target is petrified` });
       if (!DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Petrified", targetActor)) {
         DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: "Petrified", actor: targetActor });
       }
     } else {
       console.log(`Flesh To Stone failures increments to ${flag.failures} and ${flag.successes}`);
     }
-  } else if (saveRoll.total >= saveData.dc) {
+  } else if (saveRoll.total >= activity.save.dc.value) {
     flag.successes += 1;
     await DAE.setFlag(targetActor, "fleshToStoneSpell", flag);
 
