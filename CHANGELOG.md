@@ -1,6 +1,10 @@
+# 5.2.41
+
+- Allow more classes to parse, such as Illriger. It won't parse well though. You have been warned.
+
 # 5.2.40
 
-- Fox for Griffon Saddlebag items breaking import.
+- Fix for Griffon Saddlebag items breaking import.
 
 # 5.2.39
 

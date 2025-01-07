@@ -333,7 +333,7 @@ export default class DDBClass {
       noMods,
     };
 
-    this.dictionary = DICTIONARY.character.class.find((c) => c.name === this.ddbClassDefinition.name);
+    this.dictionary = DICTIONARY.character.class.find((c) => c.name === this.ddbClassDefinition.name) ?? { multiclassSkill: 0 };
 
     this.advancementHelper = new AdvancementHelper({
       ddbData,
