@@ -22,7 +22,6 @@ import { divineWordEffect } from "./spells/divineWord.js";
 import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
 import { ensnaringStrikeEffect } from "./spells/ensnaringStrike.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
-import { fireShieldEffect } from "./spells/fireShield.js";
 import { flameBladeEffect } from "./spells/flameBlade.js";
 import { fleshtoStoneEffect } from "./spells/fleshtoStone.js";
 import { greaseEffect } from "./spells/grease.js";
@@ -138,10 +137,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Eyebite": {
       document = await eyebiteEffect(document);
-      break;
-    }
-    case "Fire Shield": {
-      document = await fireShieldEffect(document);
       break;
     }
     case "Flame Blade": {
