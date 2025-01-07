@@ -157,6 +157,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Enlarge/Reduce": SpellEnrichers.EnlargeReduce,
     "Zephyr Strike": SpellEnrichers.ZephyrStrike,
     "Banishment": SpellEnrichers.Banishment,
+    "Ice Knife": SpellEnrichers.IceKnife,
     // Needs work
     // "Web": SpellEnrichers.Web,
   };

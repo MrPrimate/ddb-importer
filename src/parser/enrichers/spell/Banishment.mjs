@@ -22,7 +22,7 @@ export default class Banishment extends DDBEnricherData {
           generateConsumption: false,
           generateActivation: true,
           generateDDBMacro: true,
-          noSpellSlot: true,
+          noSpellslot: true,
           ddbMacroOverride: {
             name: "Banish!",
             function: "ddb.spell.banishment",

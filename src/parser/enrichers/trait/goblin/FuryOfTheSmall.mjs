@@ -5,7 +5,8 @@ export default class FuryOfTheSmall extends DDBEnricherData {
 
 
   get useProfDamage() {
-    return this.ddbParser.ddbDefinition.description.includes("once per turn");
+    const description = this.ddbParser.ddbDefinition.description ?? this.ddbParser.ddbDefinition.snippet ?? "";
+    return description.toLowerCase().includes("once per turn");
   }
 
   get type() {

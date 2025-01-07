@@ -32,7 +32,6 @@ import { heroismEffect } from "./spells/heroism.js";
 import { hexEffect } from "./spells/hex.js";
 import { hideousLaughterEffect } from "./spells/hideousLaughter.js";
 import { huntersMarkEffect } from "./spells/huntersMark.js";
-import { iceKnifeEffect } from "./spells/iceKnife.js";
 import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
 import { insectPlagueEffect } from "./spells/insectPlague.js";
 import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
@@ -180,10 +179,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Hunter's Mark": {
       document = await huntersMarkEffect(document);
-      break;
-    }
-    case "Ice Knife": {
-      document = await iceKnifeEffect(document);
       break;
     }
     case "Incendiary Cloud": {

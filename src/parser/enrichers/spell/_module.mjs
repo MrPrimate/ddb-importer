@@ -64,6 +64,7 @@ export { default as HoldThing } from "./HoldThing.mjs";
 export { default as HolyAura } from "./HolyAura.mjs";
 export { default as HungerOfHadar } from "./HungerOfHadar.mjs";
 export { default as HuntersMark } from "./HuntersMark.mjs";
+export { default as IceKnife } from "./IceKnife.mjs";
 export { default as Invisibility } from "./Invisibility.mjs";
 export { default as JallarzisStormOfRadiance } from "./JallarzisStormOfRadiance.mjs";
 export { default as Light } from "./Light.mjs";
