@@ -46,6 +46,7 @@ export { default as FalseLife } from "./FalseLife.mjs";
 export { default as FeatherFall } from "./FeatherFall.mjs";
 export { default as Feeblemind } from "./Feeblemind.mjs";
 export { default as FireShield } from "./FireShield.mjs";
+export { default as FlameBlade } from "./FlameBlade.mjs";
 export { default as FlamingSphere } from "./FlamingSphere.mjs";
 export { default as FleshToStone } from "./FleshToStone.mjs";
 export { default as Fly } from "./Fly.mjs";

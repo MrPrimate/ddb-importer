@@ -159,6 +159,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Banishment": SpellEnrichers.Banishment,
     "Ice Knife": SpellEnrichers.IceKnife,
     "Flesh to Stone": SpellEnrichers.FleshToStone,
+    "Flame Blade": SpellEnrichers.FlameBlade,
     // Needs work
     // "Web": SpellEnrichers.Web,
   };

@@ -1,6 +1,7 @@
 # Next Up
 
 - Hex, Ice Knife, Fire Shield, Flesh to Stone and Heroism Midi automations for v4.
+- Various spell fixes.
 
 # 6.0.62
 
