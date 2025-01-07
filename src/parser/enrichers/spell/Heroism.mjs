@@ -39,9 +39,14 @@ export default class Heroism extends DDBEnricherData {
     ];
   }
 
+  get clearAutoEffects() {
+    return true;
+  }
+
   get effects() {
     return [
       {
+        activityMatch: "Cast",
         options: {
           description: "Gain temp hp at the start of your turn",
         },
@@ -49,7 +54,29 @@ export default class Heroism extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("frightened", 20, "system.traits.ci.value"),
         ],
       },
+      {
+        noCreate: true,
+        midiOnly: true,
+        name: "Heroism (Automation)",
+        macroChange: [
+          { macroType: "spell", macroName: "heroism.js" },
+        ],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.customChange(
+            `turn=start,damageRoll=@attributes.spellmod,damageType=temphp,label=${this.data.name} Renewal,fastForwardDamage=true`,
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
+      },
     ];
+  }
+
+  get itemMacro() {
+    return {
+      type: "spell",
+      name: "heroism.js",
+    };
   }
 
 }

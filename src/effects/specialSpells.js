@@ -27,7 +27,6 @@ import { fleshtoStoneEffect } from "./spells/fleshtoStone.js";
 import { greaseEffect } from "./spells/grease.js";
 import { hailOfThornsEffect } from "./spells/hailOfThorns.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
-import { heroismEffect } from "./spells/heroism.js";
 import { hexEffect } from "./spells/hex.js";
 import { hideousLaughterEffect } from "./spells/hideousLaughter.js";
 import { huntersMarkEffect } from "./spells/huntersMark.js";
@@ -153,10 +152,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Hail of Thorns": {
       document = await hailOfThornsEffect(document);
-      break;
-    }
-    case "Heroism": {
-      document = await heroismEffect(document);
       break;
     }
     case "Heroes' Feast": {
