@@ -125,7 +125,10 @@ function getItemData(sourceFilter) {
       .then((data) => {
         const genericsFilteredData = data.data
           .filter((item) => item.canBeAddedToInventory || useGenerics)
-          .filter((item) => !item.sources.some((s) => [145, 148].includes(s.sourceId)));
+          .filter((item) =>
+            !item.sources.some((s) => [145, 148].includes(s.sourceId))
+            || item.sources.some((s) => s.sourceId < 140)
+          );
         if (sources.length == 0 || !sourceFilter) return genericsFilteredData;
         return genericsFilteredData.filter((item) =>
           item.sources
