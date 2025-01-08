@@ -96,7 +96,7 @@ export default class CelestialRevelation extends DDBEnricherData {
         options: {
           durationSeconds: 6,
         },
-        daeSpecialDuration: ["turnEndSource"],
+        daeSpecialDurations: ["turnEndSource"],
       },
     ];
   }

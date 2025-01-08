@@ -39,17 +39,11 @@ const activity = args[0].attackRoll.data.activity;
 
 // console.warn(activity);
 if (activity.type !== "attack") return;
+if (activity.attack?.type?.classification !== "weapon") return;
 
 const damageType = game.i18n.localize("bludgeoning");
-console.warn({args, damageType,
 
-
-})
 if (!args[0].damageDetail.some(i => i.type === damageType)) {
-  console.warn({
-    damageType,
-
-  })
   return;
 }
 

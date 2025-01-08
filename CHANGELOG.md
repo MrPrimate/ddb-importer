@@ -1,7 +1,7 @@
 # Next Up
 
-- Hex, Ice Knife, Fire Shield, Flesh to Stone and Heroism Midi automations for v4.
-- Various spell fixes.
+- Hex, Ice Knife, Fire Shield, Flesh to Stone, Sneak Attack, Thunderous Smite, Spirit Shroud, Branding Smite and Heroism Midi automations for v4.
+- Numerous spell fixes and tweaks.
 - Psychic Blade Bonus attack did not include damage mod.
 
 # 6.0.62

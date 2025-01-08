@@ -151,9 +151,9 @@ function isValidTarget(workflow) {
   }
 
   // only weapon attacks
-  if (!["mwak", "rwak"].includes(workflow.item?.system.actionType)) {
-    return false;
-  }
+  const activity = args[0].attackRoll.data.activity;
+  if (activity.type !== "attack") return false;
+  if (activity.attack?.type?.classification !== "weapon") return false;
 
   const targetUuid = workflow.hitTargets.first().document.uuid;
   // only on the marked target
@@ -173,7 +173,7 @@ function isValidTarget(workflow) {
  * @param {*} workflow the midi-qol workflow.
  */
 function replaceItemDamage(workflow) {
-  // Change temporarely the damage type of the item, but make a temporary copy before applying changes
+  // Change temporarily the damage type of the item, but make a temporary copy before applying changes
   // and keep the original values in a flag
   const item = workflow.item;
   if (item.system.damage?.parts?.length > 0 && !foundry.utils.getProperty(workflow, "planarWarrior.origDmg")) {

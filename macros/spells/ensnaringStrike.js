@@ -13,125 +13,6 @@
 //       - Options:
 //         - Persistent: (checked)
 
-if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
-  args[0].workflow.item.system['target']['type'] = "self";
-  return;
-}
-
-const DEFAULT_ITEM_NAME = "Ensnaring Strike";
-
-/**
- * Returns a temporary spell item data for the Ensnaring Strike effect.
- *
- * @param {Actor5e} sourceActor the actor that casted the origin spell item.
- * @param {Item5e} originItem the origin spell item that was cast.
- * @param {ActiveEffect5e} originEffect the effect from the origin spell item that was cast.
- * @returns temporary spell item data for Ensnaring Strike effect.
- */
-function getTempSpellData(sourceActor, originItem, originEffect) {
-  const level = foundry.utils.getProperty(originEffect, "flags.midi-qol.castData.castLevel") ?? 1;
-  const nbDice = level;
-
-  // Get restrained condition id
-  const conEffect = MidiQOL.getConcentrationEffect(sourceActor, originItem);
-
-  const effect = {
-    changes: [
-      {
-        key: "flags.midi-qol.OverTime",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: `turn=start,damageRoll=${nbDice}d6,damageType=piercing,label=${originItem.name}: Effect,actionSave=roll,rollType=check,saveAbility=str,saveDC=@attributes.spelldc,killAnim=true`,
-        priority: 20,
-      },
-    ],
-    origin: originItem.uuid,
-    disabled: false,
-    transfer: false,
-    img: originItem.img,
-    name: originItem.name,
-    duration: DDBImporter?.EffectHelper.getRemainingDuration(conEffect.duration),
-  }
-
-  DDBImporter.EffectHelper.addStatusEffectChange(effect, "Restrained");
-
-  // Temporary spell data for the ensnaring effect.
-  // Note: we keep same id as origin spell to make sure that the AEs have the same origin
-  // as the origin spell (for concentration handling)
-  return {
-    _id: originItem.id,
-    type: "spell",
-    name: `${originItem.name}`,
-    img: originItem.img,
-    system: {
-      level: level,
-      actionType: "save",
-      save: { ability: "str" },
-      preparation: { mode: "atwill" },
-      target: { type: "creature", value: 1 },
-    },
-    effects: [
-      effect,
-    ],
-  };
-}
-
-if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
-  const macroData = args[0];
-
-  if (workflow.options?.skipOnUse) {
-    // Skip onUse when temporary effect item is used (this is a custom option that is passed to completeItemUse)
-    return;
-  }
-
-  if (workflow.hitTargets.size < 1) {
-    // No target hit
-    return;
-  }
-  if (!["mwak", "rwak"].includes(rolledItem?.system?.actionType)) {
-    // Not a weapon attack
-    return;
-  }
-
-  const originEffect = actor.effects.find((ef) =>
-    ef.getFlag("midi-qol", "castData.itemUuid") === macroItem.uuid
-  );
-  if (!originEffect) {
-    console.error(`${DEFAULT_ITEM_NAME}: spell active effect was not found.`);
-    return;
-  }
-
-  // Temporary spell data for the ensnaring effect
-  const spellData = getTempSpellData(actor, macroItem, originEffect);
-  const spell = new Item.implementation(spellData, {
-    parent: actor,
-    temporary: true,
-  });
-
-  // If AA has a special custom effect for the restrained condition, use it instead of standard one
-  if (game.modules.get("autoanimations")?.active) {
-    DDBImporter?.EffectHelper.configureCustomAAForCondition("restrained", macroData, macroItem.name, spell.uuid);
-  }
-  // Check if target is large or larger and give it advantage on next save
-  const targetActor = workflow.hitTargets.first().actor;
-  if (getActorSizeValue(targetActor) >= getSizeValue("lg")) {
-    await DDBImporter?.EffectHelper.addSaveAdvantageToTarget(targetActor, macroItem, "str", " (Large Creature)");
-  }
-
-  const conEffect = MidiQOL.getConcentrationEffect(actor, macroItem);
-  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [macroData.hitTargetUuids[0]] });
-  options.skipOnUse = true;
-  foundry.utils.setProperty(options,"flags.dnd5e.use.concentrationId", conEffect?.id);
-  const spellEffectWorkflow = await MidiQOL.completeItemUse(spell, config, options);
-
-  if (spellEffectWorkflow.hitTargets.size > 0 && spellEffectWorkflow.failedSaves.size > 0) {
-    // At least one target has an effect, we can remove the original effect from the caster
-    await originEffect.delete();
-  } else {
-    // Remove concentration and the effect causing it since the effect has been used
-    conEffect?.delete();
-  }
-}
-
 /**
 * Returns the numeric value of the specified actor's size.
 *
@@ -151,3 +32,118 @@ function getActorSizeValue(actor) {
 function getSizeValue(size) {
   return Object.keys(CONFIG.DND5E.actorSizes).indexOf(size ?? "med");
 }
+
+
+/**
+ * Returns a temporary spell item data for the Ensnaring Strike effect.
+ *
+ * @param {Item5e} originItem the origin spell item that was cast.
+* @returns temporary spell item data for Ensnaring Strike effect.
+ */
+// function getTempSpellData(sourceActor, originItem, originEffect) {
+function getTempSpellData(originItem) {
+  // Temporary spell data for the ensnaring effect.
+  // Note: we keep same id as origin spell to make sure that the AEs have the same origin
+  // as the origin spell (for concentration handling)
+
+  const newData = originItem.toObject();
+
+  const newActivities = {};
+  for (const [key, activity] of Object.entries(newData.system.activities)) {
+    if (activity.type === "save") {
+      // activity.effects.push({ _id: effectId });
+      newActivities[key] = activity;
+    }
+  }
+
+  return {
+    _id: originItem.id,
+    type: "spell",
+    name: `${originItem.name}`,
+    img: originItem.img,
+    system: {
+      level: originItem.system.level,
+      preparation: { mode: "atwill" },
+      activities: newActivities,
+      target: originItem.system.target,
+    },
+    effects: areaSpellData.effects.filter((ef) => ef.name.includes("Restrained")),
+  };
+}
+
+if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
+  const macroData = args[0];
+
+  if (workflow.options?.skipOnUse) {
+    // Skip onUse when temporary effect item is used (this is a custom option that is passed to completeItemUse)
+    return;
+  }
+
+  if (workflow.hitTargets.size < 1) {
+    // No target hit
+    return;
+  }
+
+  const activity = args[0].attackRoll?.data.activity;
+  if (activity?.type !== "attack") return;
+  if (activity.attack?.type?.classification !== "weapon") return;
+
+  const ensnaringStrikeDoc = actor.items.find((i) => (i.flags.ddbimporter?.originalName ?? i.name) === "Ensnaring Strike");
+
+  console.warn("Ensnaring Strike", {
+    args,
+    actor,
+    workflow,
+    ensnaringStrikeDoc,
+  })
+
+  const originEffect = actor.effects.find((ef) =>
+    ensnaringStrikeDoc.uuid === foundry.utils.getProperty(ef, "flags.midi-qol.castData.itemUuid")
+  );
+  if (!originEffect) {
+    console.error(`Ensnaring Strike: spell active effect was not found.`);
+    return;
+  }
+
+  console.warn("Ensnaring Strike", {
+    args,
+    macroData,
+    macroItem,
+    actor,
+    workflow,
+    ensnaringStrikeDoc,
+    originEffect,
+  })
+
+  // Temporary spell data for the ensnaring effect
+  const spellData = getTempSpellData(ensnaringStrikeDoc);
+  const spell = new Item.implementation(spellData, {
+    parent: actor,
+    temporary: true,
+  });
+
+  // If AA has a special custom effect for the restrained condition, use it instead of standard one
+  if (game.modules.get("autoanimations")?.active) {
+    DDBImporter?.EffectHelper.configureCustomAAForCondition("restrained", macroData, ensnaringStrikeDoc.name, spell.uuid);
+  }
+  // Check if target is large or larger and give it advantage on next save
+  const targetActor = workflow.hitTargets.first().actor;
+  if (getActorSizeValue(targetActor) >= getSizeValue("lg")) {
+    await DDBImporter?.EffectHelper.addSaveAdvantageToTarget(targetActor, ensnaringStrikeDoc, "str", " (Large Creature)");
+  }
+
+  const conEffect = MidiQOL.getConcentrationEffect(actor, ensnaringStrikeDoc);
+  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [macroData.hitTargetUuids[0]] });
+  options.skipOnUse = true;
+  foundry.utils.setProperty(options,"flags.dnd5e.use.concentrationId", conEffect?.id);
+  const spellEffectWorkflow = await MidiQOL.completeItemUse(spell, config, options);
+
+  if (spellEffectWorkflow.hitTargets.size > 0 && spellEffectWorkflow.failedSaves.size > 0) {
+    // At least one target has an effect, we can remove the original effect from the caster
+    await originEffect.delete();
+  } else {
+    // Remove concentration and the effect causing it since the effect has been used
+    conEffect?.delete();
+  }
+}
+

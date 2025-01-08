@@ -1,17 +1,18 @@
 try {
-  if (!["mwak", "rwak"].includes(args[0].item.system.actionType)) return {};
+  const activity = args[0].attackRoll.data.activity;
+  if (activity.type !== "attack") return;
+  if (activity.attack?.type?.classification !== "weapon") return;
   if (args[0].hitTargetUuids.length === 0) return {}; // did not hit anyone
   for (let tokenUuid of args[0].hitTargetUuids) {
     const target = await fromUuid(tokenUuid);
     const targetActor = target.actor;
     if (!targetActor) continue;
     // remove the invisible condition
-    const effect = targetActor?.effects.find((ef) => (ef.name ?? ef.label) === game.i18n.localize("midi-qol.invisible"));
+    const effect = targetActor?.effects.find((ef) => ef.name === game.i18n.localize("midi-qol.invisible"));
     if (effect)
       await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: targetActor.uuid, effects: [effect.id] });
     // create the dim light effect on the target
     let bsEffect = new ActiveEffect({
-      label: "Branding Smite",
       name: "Branding Smite",
       img: "icons/magic/fire/dagger-rune-enchant-flame-strong-purple.webp",
       changes: [

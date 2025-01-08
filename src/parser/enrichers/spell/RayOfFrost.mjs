@@ -14,7 +14,7 @@ export default class RayOfFrost extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("-10", 20, "system.attributes.movement.walk"),
         ],
-        daeSpecialDuration: ["turnStartSource"],
+        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

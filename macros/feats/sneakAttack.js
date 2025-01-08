@@ -1,8 +1,11 @@
 // Based on MidiQoL Macro
 
 try {
-    if (!["mwak","rwak"].includes(args[0].itemData.system.actionType)) return {}; // weapon attack
-    if (args[0].itemData.system.actionType === "mwak" && !args[0].itemData.system.properties?.includes("fin"))
+    const activity = args[0].attackRoll.data.activity;
+    if (activity.type !== "attack") return;
+    if (activity.attack?.type?.classification !== "weapon") return;
+
+    if (activity.attack.type.value === "melee" && !args[0].itemData.system.properties?.includes("fin"))
       return {}; // ranged or finesse
     if (args[0].hitTargets.length < 1) return {};
     token = canvas.tokens.get(args[0].tokenId);

@@ -13,14 +13,13 @@ if (lastArg.targets.length > 0) {
   if (foundry.utils.hasProperty(areaSpellData, "flags.itemacro")) delete areaSpellData.flags.itemacro;
   if (foundry.utils.hasProperty(areaSpellData, "flags.dae.macro")) delete areaSpellData.flags.dae.macro;
   areaSpellData.name = "Ice Knife: Explosion";
-  const newActivites = {};
-  console.warn({areaSpellData, lastArg, ents: Object.entries(areaSpellData.system.activities) })
+  const newActivities = {};
   for (const [key, activity] of Object.entries(areaSpellData.system.activities)) {
     if (activity.type === "save") {
-      newActivites[key] = activity;
+      newActivities[key] = activity;
     }
   }
-  areaSpellData.system.activities = newActivites;
+  areaSpellData.system.activities = newActivities;
 
   foundry.utils.setProperty(areaSpellData, "flags.midiProperties.magicdam", true);
   foundry.utils.setProperty(areaSpellData, "flags.midiProperties.saveDamage", "nodam");

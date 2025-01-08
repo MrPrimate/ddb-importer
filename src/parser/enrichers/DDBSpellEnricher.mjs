@@ -161,6 +161,8 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Flesh to Stone": SpellEnrichers.FleshToStone,
     "Flame Blade": SpellEnrichers.FlameBlade,
     "Thunderous Smite": SpellEnrichers.ThunderousSmite,
+    "Branding Smite": SpellEnrichers.BrandingSmite,
+    "Ensnaring Strike": SpellEnrichers.EnsnaringStrike,
     // Needs work
     // "Web": SpellEnrichers.Web,
   };

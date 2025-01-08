@@ -7,7 +7,6 @@ import {
 
 // spell effects load start
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
-import { brandingSmiteEffect } from "./spells/brandingSmite.js";
 import { callLightningEffect } from "./spells/callLightning.js";
 import { chillTouchEffect } from "./spells/chillTouch.js";
 import { chromaticOrbEffect } from "./spells/chromaticOrb.js";
@@ -20,7 +19,6 @@ import { createBonfireEffect } from "./spells/createBonfire.js";
 import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
-import { ensnaringStrikeEffect } from "./spells/ensnaringStrike.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
 import { greaseEffect } from "./spells/grease.js";
 import { hailOfThornsEffect } from "./spells/hailOfThorns.js";
@@ -37,7 +35,6 @@ import { silenceEffect } from "./spells/silence.js";
 import { sleepEffect } from "./spells/sleep.js";
 import { spikeGrowthEffect } from "./spells/spikeGrowth.js";
 import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
-import { spiritShroudEffect } from "./spells/spiritShroud.js";
 import { spiritualWeaponEffect } from "./spells/spiritualWeapon.js";
 import { stormSphereEffect } from "./spells/stormSphere.js";
 // import { tolltheDeadEffect } from "./spells/tolltheDead.js";
@@ -72,10 +69,6 @@ async function midiEffectAdjustment(document) {
     case "Evard's Black Tentacles":
     case "Black Tentacles": {
       document = await blackTentaclesEffect(document);
-      break;
-    }
-    case "Branding Smite": {
-      document = await brandingSmiteEffect(document);
       break;
     }
     case "Call Lightning": {
@@ -124,10 +117,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Enhance Ability": {
       document = await enhanceAbilityEffect(document);
-      break;
-    }
-    case "Ensnaring Strike": {
-      document = await ensnaringStrikeEffect(document);
       break;
     }
     case "Eyebite": {
@@ -196,10 +185,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Spirit Guardians": {
       document = await spiritGuardiansEffect(document);
-      break;
-    }
-    case "Spirit Shroud": {
-      document = await spiritShroudEffect(document);
       break;
     }
     case "Spiritual Weapon": {
