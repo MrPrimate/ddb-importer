@@ -39,10 +39,10 @@ export default class Shillelagh extends DDBEnricherData {
       }];
     } else {
       return [
-        { level: 1, denomination: 8 },
-        { level: 5, denomination: 10 },
-        { level: 11, denomination: 12 },
-        { level: 17, number: 2, denomination: 6 },
+        { level: 1, denomination: 8, min: null, max: 4 },
+        { level: 5, denomination: 10, min: 5, max: 10 },
+        { level: 11, denomination: 12, min: 11, max: 16 },
+        { level: 17, number: 2, denomination: 6, min: 17, max: null },
       ].map((data) => {
         const changes = [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [${name}]`, 20, "name"),
@@ -56,9 +56,15 @@ export default class Shillelagh extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("max(@abilities.str.mod, @attributes.spellmod)", 50, "system.damage.base.bonus"),
         ];
         return {
-          name: `${name} - Level ${data.level} (${data.number ?? 1}d${data.denomination})`,
+          name: `${name} (${data.number ?? 1}d${data.denomination})`,
           type: "enchant",
           changes,
+          data: {
+            "flags.ddbimporter.effectIdLevel": {
+              min: data.min,
+              max: data.max,
+            },
+          },
         };
       });
     }
