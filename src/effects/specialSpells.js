@@ -40,8 +40,7 @@ import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
 import { spiritShroudEffect } from "./spells/spiritShroud.js";
 import { spiritualWeaponEffect } from "./spells/spiritualWeapon.js";
 import { stormSphereEffect } from "./spells/stormSphere.js";
-import { thunderousSmiteEffect } from "./spells/thunderousSmite.js";
-import { tolltheDeadEffect } from "./spells/tolltheDead.js";
+// import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { vitriolicSphereEffect } from "./spells/vitriolicSphere.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
 import { webEffect } from "./spells/web.js";
@@ -209,14 +208,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Storm Sphere": {
       document = await stormSphereEffect(document);
-      break;
-    }
-    case "Thunderous Smite": {
-      document = await thunderousSmiteEffect(document);
-      break;
-    }
-    case "Toll the Dead": {
-      document = await tolltheDeadEffect(document);
       break;
     }
     case "Vitriolic Sphere": {

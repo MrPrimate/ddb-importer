@@ -17,7 +17,7 @@ export default class Aid extends DDBEnricherData {
         daeNever: true,
         activityMatch: "Cast",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${5 * (level - 1)}`, 20, "system.attributes.hp.bonuses.overall"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${5 * (level - 1)}`, 20, "system.attributes.hp.tempmax"),
         ],
       };
     });
@@ -27,7 +27,7 @@ export default class Aid extends DDBEnricherData {
         name: "Aid: Max HP Bonus",
         daeOnly: true,
         daeChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("5 * (@spellLevel - 1)", 20, "system.attributes.hp.bonuses.overall"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("5 * (@spellLevel - 1)", 20, "system.attributes.hp.tempmax"),
         ],
         macroChanges: [
           { macroValues: "@spellLevel", macroType: "spell", macroName: "aid.js", priority: 0 },

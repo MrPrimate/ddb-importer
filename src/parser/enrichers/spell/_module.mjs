@@ -117,6 +117,7 @@ export { default as TashasBubblingCauldron } from "./TashasBubblingCauldron.mjs"
 export { default as TashasCausticBrew } from "./TashasCausticBrew.mjs";
 export { default as ThunderStep } from "./ThunderStep.mjs";
 export { default as Thunderclap } from "./Thunderclap.mjs";
+export { default as ThunderousSmite } from "./ThunderousSmite.mjs";
 export { default as TidalWave } from "./TidalWave.mjs";
 export { default as TollTheDead } from "./TollTheDead.mjs";
 export { default as TrueStrike } from "./TrueStrike.mjs";

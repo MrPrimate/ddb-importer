@@ -4,7 +4,9 @@ if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
 }
 
 try {
-  if (!["mwak"].includes(args[0].item.system.actionType)) return {};
+  const activity = args[0].attackRoll.data.activity;
+  if (activity.type !== "attack") return;
+  if (activity.attack?.type?.value !== "melee") return;
   if (args[0].hitTargetUuids.length === 0) return {}; // did not hit anyone
   for (let tokenUuid of args[0].hitTargetUuids) {
     const target = await fromUuid(tokenUuid);
