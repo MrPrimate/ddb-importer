@@ -2,6 +2,7 @@
 
 - Hex, Ice Knife, Fire Shield, Flesh to Stone and Heroism Midi automations for v4.
 - Various spell fixes.
+- Psychic Blade Bonus attack did not include damage mod.
 
 # 6.0.62
 

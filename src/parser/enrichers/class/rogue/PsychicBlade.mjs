@@ -30,7 +30,7 @@ export default class PsychicBlade extends DDBEnricherData {
               number: 1,
               denomination: 4,
               type: "psychic",
-              Bonus: "@mod",
+              bonus: "@mod",
             }),
           ],
           activationOverride: {
