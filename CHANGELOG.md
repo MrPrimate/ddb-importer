@@ -1,3 +1,7 @@
+# 5.2.42
+
+- Due to changes on DDB many magic items were no longer seperate items between the 2014/2024 versions. This update will allow things like Goggles of Night to be imported again.
+
 # 5.2.41
 
 - Allow more classes to parse, such as Illriger. It won't parse well though. You have been warned.
