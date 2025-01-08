@@ -41,7 +41,7 @@ export default class BrandingSmite extends DDBEnricherData {
           activityMatch: "Cast (Automation)",
           midiOnly: true,
           midiChanges: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("@item.level", 20, "flags.midi-qol.brandingSmite.dc"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("@item.level", 20, "flags.midi-qol.brandingSmite.level"),
           ],
           damageBonusMacroChanges: [
             { macroType: "spell", macroName: "brandingSmite.js", document: this.data },

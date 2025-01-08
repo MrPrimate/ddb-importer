@@ -74,6 +74,9 @@ export default class EnsnaringStrike extends DDBEnricherData {
           name: `${this.data.name} (Automation)`,
           activityMatch: "Cast (Automation)",
           midiOnly: true,
+          midiChanges: [
+            DDBEnricherData.ChangeHelper.unsignedAddChange("@spellLevel", 20, "flags.midi-qol.ensnaringStrike.level"),
+          ],
           onUseMacroChanges: [
             { macroPass: "postActiveEffects", macroType: "spell", macroName: "ensnaringStrike.js", document: this.data },
           ],

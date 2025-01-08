@@ -40,7 +40,6 @@ function getSizeValue(size) {
  * @param {Item5e} originItem the origin spell item that was cast.
 * @returns temporary spell item data for Ensnaring Strike effect.
  */
-// function getTempSpellData(sourceActor, originItem, originEffect) {
 function getTempSpellData(originItem) {
   // Temporary spell data for the ensnaring effect.
   // Note: we keep same id as origin spell to make sure that the AEs have the same origin
@@ -62,12 +61,12 @@ function getTempSpellData(originItem) {
     name: `${originItem.name}`,
     img: originItem.img,
     system: {
-      level: originItem.system.level,
+      level: 1,
       preparation: { mode: "atwill" },
       activities: newActivities,
       target: originItem.system.target,
     },
-    effects: areaSpellData.effects.filter((ef) => ef.name.includes("Restrained")),
+    effects: newData.effects.filter((ef) => ef.name.includes("Restrained")),
   };
 }
 
@@ -122,6 +121,13 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     temporary: true,
   });
 
+  const castLevel = actor.flags["midi-qol"].ensnaringStrike.level;
+
+  console.warn("Ensnaring Strike", {
+    spellData,
+    spell,
+  })
+
   // If AA has a special custom effect for the restrained condition, use it instead of standard one
   if (game.modules.get("autoanimations")?.active) {
     DDBImporter?.EffectHelper.configureCustomAAForCondition("restrained", macroData, ensnaringStrikeDoc.name, spell.uuid);
@@ -133,7 +139,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   }
 
   const conEffect = MidiQOL.getConcentrationEffect(actor, ensnaringStrikeDoc);
-  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [macroData.hitTargetUuids[0]] });
+  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [macroData.hitTargetUuids[0]], castLevel });
   options.skipOnUse = true;
   foundry.utils.setProperty(options,"flags.dnd5e.use.concentrationId", conEffect?.id);
   const spellEffectWorkflow = await MidiQOL.completeItemUse(spell, config, options);
