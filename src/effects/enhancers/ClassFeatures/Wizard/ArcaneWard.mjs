@@ -84,34 +84,33 @@ export default class ArcaneWard {
       && ["Abjurer", "School of Abjuration"].includes(actor.classes.wizard.subclass.name);
   }
 
-  static registerHooks() {
-    Hooks.on("preUpdateActor", async (subject, update, _options, _user) => {
-      if (!ArcaneWard.isAbjurer(subject)) return true;
-      if (update.system?.attributes?.hp?.value !== undefined) {
-        const arcaneWardEnhancer = ArcaneWard.getEnricher({ actor: subject });
-        await arcaneWardEnhancer.applyDamage(update);
-      }
-      return true;
-    });
-    Hooks.on("dnd5e.activityConsumption", async (activity, usageConfig, messageConfig, _updates) => {
-      // only care about spells
-      if (messageConfig.data?.flags?.dnd5e?.item?.type !== "spell") return true;
-      // only spells that use spell slots
-      if (!usageConfig.consume?.spellSlot) return true;
-      const spellLevel = messageConfig.data?.flags?.dnd5e?.use?.spellLevel;
-      if (spellLevel === undefined) return true;
-      const spell = activity.parent;
-      if (!spell) return true;
-      if (spell.school !== "abj" || spell.level === 0) return true;
-      // only abjurers have this
-      const subject = activity.actor;
-      if (!ArcaneWard.isAbjurer(subject)) return true;
-
+  static async preUpdateActorHook(subject, update, _options, _user) {
+    if (!ArcaneWard.isAbjurer(subject)) return true;
+    if (update.system?.attributes?.hp?.value !== undefined) {
       const arcaneWardEnhancer = ArcaneWard.getEnricher({ actor: subject });
-      await arcaneWardEnhancer.addWard({ spellLevel });
+      await arcaneWardEnhancer.applyDamage(update);
+    }
+    return true;
+  }
 
-      return true;
-    });
+  static async dnd5eActivityConsumptionHook(activity, usageConfig, messageConfig, _updates) {
+    // only care about spells
+    if (messageConfig.data?.flags?.dnd5e?.item?.type !== "spell") return true;
+    // only spells that use spell slots
+    if (!usageConfig.consume?.spellSlot) return true;
+    const spellLevel = messageConfig.data?.flags?.dnd5e?.use?.spellLevel;
+    if (spellLevel === undefined) return true;
+    const spell = activity.parent;
+    if (!spell) return true;
+    if (spell.school !== "abj" || spell.level === 0) return true;
+    // only abjurers have this
+    const subject = activity.actor;
+    if (!ArcaneWard.isAbjurer(subject)) return true;
+
+    const arcaneWardEnhancer = ArcaneWard.getEnricher({ actor: subject });
+    await arcaneWardEnhancer.addWard({ spellLevel });
+
+    return true;
   }
 
 }
