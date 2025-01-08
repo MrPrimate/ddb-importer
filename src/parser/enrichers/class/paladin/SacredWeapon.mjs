@@ -67,12 +67,7 @@ export default class SacredWeapon extends DDBEnricherData {
           },
           descriptionSuffix: `<br><p>[[/ddbifunc functionName="sacredWeaponLight" functionType="feat"]]{Toggle Sacred Weapon Light}</div></p>`,
           changes: [
-            {
-              key: "attack.bonus",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: "@abilities.cha.mod",
-              priority: 20,
-            },
+            DDBEnricherData.ChangeHelper.overrideChange("@abilities.cha.mod", 20, "attack.bonus"),
           ],
           options: {
             name: "Sacred Weapon",
