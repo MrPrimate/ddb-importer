@@ -7,7 +7,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     logger.debug(`Generating DDBMonsterFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.actor.name}`);
   }
 
-  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null } = {}) {
     super({
       type,
       name,
@@ -16,6 +16,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       nameIdPrefix,
       nameIdPostfix,
       actor: ddbParent.ddbMonster.npc,
+      id,
     });
 
     this.actionInfo = ddbParent.actionInfo;

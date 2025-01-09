@@ -14,16 +14,34 @@ export default class DDBBasicActivity {
     });
 
     this.data = rawStub.toObject();
-    this.data._id = utils.namedIDStub(this.name ?? this.foundryFeature?.name ?? this.type, {
-      prefix: this.nameIdPrefix,
-      postfix: this.nameIdPostfix,
-    });
+    if (!this.id) {
+      this.id = utils.namedIDStub(this.name ?? this.foundryFeature?.name ?? this.type, {
+        prefix: this.nameIdPrefix,
+        postfix: this.nameIdPostfix,
+      });
+    }
+
+    this.data._id = this.id;
+
+    // midi defaults
+    this.data.midiProperties = {
+      ignoreTraits: [],
+      triggeredActivityId: "none",
+      triggeredActivityConditionText: "",
+      triggeredActivityTargets: "targets",
+      triggeredActivityRollAs: "self",
+      forceDialog: false,
+      confirmTargets: "default",
+      automationOnly: false,
+      identifier: "",
+    };
+    this.data.otherActivityId = "none"; // auto is clear
   }
 
 
   constructor({
     type, name, foundryFeature = null, actor = null, ddbParent = null,
-    nameIdPrefix = null, nameIdPostfix = null,
+    nameIdPrefix = null, nameIdPostfix = null, id = null,
   } = {}) {
 
     this.type = type.toLowerCase();
@@ -38,6 +56,7 @@ export default class DDBBasicActivity {
 
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
+    this.id = id;
 
     this._init();
     this._generateDataStub();

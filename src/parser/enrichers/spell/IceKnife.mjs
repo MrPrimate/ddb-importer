@@ -2,7 +2,6 @@
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class IceKnife extends DDBEnricherData {
-
   get type() {
     return "attack";
   }
@@ -13,6 +12,14 @@ export default class IceKnife extends DDBEnricherData {
       targetType: "creature",
       overrideTemplate: true,
       noTemplate: true,
+      data: {
+        midiProperties: {
+          triggeredActivityId: "addSaveVsBlasDam",
+          triggeredActivityTargets: "retarget",
+          triggeredActivityRollAs: "self",
+          triggeredActivityConditionText: "true",
+        },
+      },
     };
   }
 
@@ -22,6 +29,7 @@ export default class IceKnife extends DDBEnricherData {
         constructor: {
           name: "Save vs Blast Damage",
           type: "save",
+          id: "addSaveVsBlasDam",
         },
         build: {
           generateSave: true,
@@ -35,32 +43,35 @@ export default class IceKnife extends DDBEnricherData {
               denomination: 6,
               types: ["cold"],
               scalingMode: "whole",
-              scalingFormula: "1d6",
+              scalingNumber: "1",
             }),
           ],
         },
         overrides: {
           activationType: "special",
           overrideActivation: true,
+          data: {
+            midiProperties: {
+              confirmTargets: "always",
+            },
+          },
         },
       },
     ];
   }
 
+  // get itemMacro() {
+  //   return {
+  //     type: "spell",
+  //     name: "iceKnife.js",
+  //   };
+  // }
 
-  get itemMacro() {
-    return {
-      type: "spell",
-      name: "iceKnife.js",
-    };
-  }
-
-  get setMidiOnUseMacroFlag() {
-    return {
-      type: "spell",
-      name: "iceKnife.js",
-      triggerPoints: ["postActiveEffects"],
-    };
-  }
-
+  // get setMidiOnUseMacroFlag() {
+  //   return {
+  //     type: "spell",
+  //     name: "iceKnife.js",
+  //     triggerPoints: ["postActiveEffects"],
+  //   };
+  // }
 }

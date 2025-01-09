@@ -9,7 +9,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     logger.debug(`Generating DDBFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
 
-  constructor({ type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+  constructor({ type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null } = {}) {
     super({
       type,
       name,
@@ -17,6 +17,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       foundryFeature: ddbParent.data,
       nameIdPrefix,
       nameIdPostfix,
+      id,
     });
 
     this.ddbDefinition = this.ddbParent.ddbDefinition;

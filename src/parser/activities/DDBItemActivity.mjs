@@ -9,7 +9,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
   }
 
 
-  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null } = {}) {
+  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null } = {}) {
     super({
       type,
       name,
@@ -17,6 +17,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
       foundryFeature: ddbParent.data,
       nameIdPrefix,
       nameIdPostfix,
+      id,
     });
 
     this.actionInfo = ddbParent.actionInfo;

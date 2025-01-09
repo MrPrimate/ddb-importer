@@ -1127,7 +1127,7 @@ export default class DDBEffectHelper {
 
   static syntheticItemWorkflowOptions({
     targets = undefined, showFullCard = false, useSpellSlot = false, castLevel = false, consume = false,
-    configureDialog = false, targetConfirmation = undefined,
+    configureDialog = false, targetConfirmation = undefined, slotLevel = false,
   } = {}) {
     return [
       {
@@ -1139,7 +1139,7 @@ export default class DDBEffectHelper {
         consumeUsage: consume,
         consumeSpellSlot: useSpellSlot,
         consumeSpellLevel: castLevel,
-        slotLevel: castLevel,
+        slotLevel,
       },
       {
         targetUuids: targets,

@@ -40,7 +40,7 @@ function getSizeValue(size) {
  * @param {Item5e} originItem the origin spell item that was cast.
 * @returns temporary spell item data for Ensnaring Strike effect.
  */
-function getTempSpellData(originItem) {
+function getTempSpellData(originItem, spellLevel) {
   // Temporary spell data for the ensnaring effect.
   // Note: we keep same id as origin spell to make sure that the AEs have the same origin
   // as the origin spell (for concentration handling)
@@ -66,7 +66,14 @@ function getTempSpellData(originItem) {
       activities: newActivities,
       target: originItem.system.target,
     },
-    effects: newData.effects.filter((ef) => ef.name.includes("Restrained")),
+    effects: newData.effects.filter((ef) => ef.name.includes("Restrained")).map((ef) => {
+      ef.changes.forEach((c) => {
+        c.value = c.value
+          .replace("(0)", spellLevel)
+          .replace("(@spellLevel)", spellLevel);
+      });
+      return ef;
+    }),
   };
 }
 
@@ -104,6 +111,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     return;
   }
 
+  const castLevel = actor.flags["midi-qol"].ensnaringStrike.level;
+
   console.warn("Ensnaring Strike", {
     args,
     macroData,
@@ -115,17 +124,16 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   })
 
   // Temporary spell data for the ensnaring effect
-  const spellData = getTempSpellData(ensnaringStrikeDoc);
+  const spellData = getTempSpellData(ensnaringStrikeDoc, castLevel);
   const spell = new Item.implementation(spellData, {
     parent: actor,
     temporary: true,
   });
 
-  const castLevel = actor.flags["midi-qol"].ensnaringStrike.level;
-
   console.warn("Ensnaring Strike", {
     spellData,
     spell,
+    castLevel,
   })
 
   // If AA has a special custom effect for the restrained condition, use it instead of standard one
@@ -139,7 +147,10 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   }
 
   const conEffect = MidiQOL.getConcentrationEffect(actor, ensnaringStrikeDoc);
-  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: [macroData.hitTargetUuids[0]], castLevel });
+  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({
+    targets: [macroData.hitTargetUuids[0]],
+    slotLevel: castLevel,
+  });
   options.skipOnUse = true;
   foundry.utils.setProperty(options,"flags.dnd5e.use.concentrationId", conEffect?.id);
   const spellEffectWorkflow = await MidiQOL.completeItemUse(spell, config, options);

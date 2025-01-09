@@ -12,7 +12,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
   constructor({
     type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null, spellEffects = null,
-    cantripBoost = null, healingBoost = null,
+    cantripBoost = null, healingBoost = null, id = null,
   } = {}) {
 
     super({
@@ -22,6 +22,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       foundryFeature: ddbParent.data,
       nameIdPrefix,
       nameIdPostfix,
+      id,
     });
 
     this.spellData = ddbParent.spellData;

@@ -40,6 +40,7 @@ export { default as DivineSmite } from "./DivineSmite.mjs";
 export { default as DragonsBreath } from "./DragonsBreath.mjs";
 export { default as EldritchBlast } from "./EldritchBlast.mjs";
 export { default as ElementalWeapon } from "./ElementalWeapon.mjs";
+export { default as EnhanceAbility } from "./EnhanceAbility.mjs";
 export { default as EnlargeReduce } from "./EnlargeReduce.mjs";
 export { default as EnsnaringStrike } from "./EnsnaringStrike.mjs";
 export { default as Entangle } from "./Entangle.mjs";
