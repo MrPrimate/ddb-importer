@@ -26,7 +26,6 @@ import { huntersMarkEffect } from "./spells/huntersMark.js";
 import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
 import { insectPlagueEffect } from "./spells/insectPlague.js";
 import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
-import { mistyStepEffect } from "./spells/mistyStep.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
 import { silenceEffect } from "./spells/silence.js";
@@ -145,12 +144,6 @@ async function midiEffectAdjustment(document) {
     case "Otto's Irresistible Dance":
     case "Irresistible Dance": {
       document = await irresistibleDanceEffect(document);
-      break;
-    }
-    case "Misty Step": {
-      if (!deps.autoAnimationsInstalled) {
-        document = await mistyStepEffect(document);
-      }
       break;
     }
     case "Moonbeam": {

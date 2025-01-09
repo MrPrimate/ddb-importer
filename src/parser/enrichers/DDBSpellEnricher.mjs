@@ -163,6 +163,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Thunderous Smite": SpellEnrichers.ThunderousSmite,
     "Branding Smite": SpellEnrichers.BrandingSmite,
     "Ensnaring Strike": SpellEnrichers.EnsnaringStrike,
+    "Misty Step": SpellEnrichers.MistyStep,
     "Enhance Ability": SpellEnrichers.EnhanceAbility,
     "Hail of Thorns": SpellEnrichers.HailOfThorns,
     // Needs work
