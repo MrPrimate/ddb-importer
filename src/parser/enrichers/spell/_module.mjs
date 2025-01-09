@@ -60,6 +60,7 @@ export { default as GreenFlameBlade } from "./GreenFlameBlade.mjs";
 export { default as Guidance } from "./Guidance.mjs";
 export { default as GuidingBolt } from "./GuidingBolt.mjs";
 export { default as GustOfWind } from "./GustOfWind.mjs";
+export { default as HailOfThorns } from "./HailOfThorns.mjs";
 export { default as Haste } from "./Haste.mjs";
 export { default as HeatMetal } from "./HeatMetal.mjs";
 export { default as HeroesFeast } from "./HeroesFeast.mjs";

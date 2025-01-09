@@ -56,7 +56,7 @@ function getTempSpellData(originItem, spellLevel) {
   }
 
   return {
-    _id: originItem.id,
+    // _id: originItem.id,
     type: "spell",
     name: `${originItem.name}`,
     img: originItem.img,

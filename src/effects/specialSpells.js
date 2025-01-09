@@ -18,10 +18,8 @@ import { contagionEffect } from "./spells/contagion.js";
 import { createBonfireEffect } from "./spells/createBonfire.js";
 import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { divineWordEffect } from "./spells/divineWord.js";
-import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
 import { greaseEffect } from "./spells/grease.js";
-import { hailOfThornsEffect } from "./spells/hailOfThorns.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
 import { hideousLaughterEffect } from "./spells/hideousLaughter.js";
 import { huntersMarkEffect } from "./spells/huntersMark.js";
@@ -115,20 +113,12 @@ async function midiEffectAdjustment(document) {
       document = await divineWordEffect(document);
       break;
     }
-    case "Enhance Ability": {
-      document = await enhanceAbilityEffect(document);
-      break;
-    }
     case "Eyebite": {
       document = await eyebiteEffect(document);
       break;
     }
     case "Grease": {
       document = await greaseEffect(document);
-      break;
-    }
-    case "Hail of Thorns": {
-      document = await hailOfThornsEffect(document);
       break;
     }
     case "Heroes' Feast": {
