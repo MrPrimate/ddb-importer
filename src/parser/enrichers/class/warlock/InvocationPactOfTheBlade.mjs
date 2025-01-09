@@ -27,7 +27,7 @@ export default class InvocationPactOfTheBlade extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("necrotic", 20, "system.damage.base.types"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("psychic", 20, "system.damage.base.types"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "system.damage.base.types"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("true", 20, "system.proficient"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "system.proficient"),
           DDBEnricherData.ChangeHelper.overrideChange("cha", 20, "system.ability"),
         ],
       },
