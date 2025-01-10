@@ -72,6 +72,7 @@ export { default as HungerOfHadar } from "./HungerOfHadar.mjs";
 export { default as HuntersMark } from "./HuntersMark.mjs";
 export { default as IceKnife } from "./IceKnife.mjs";
 export { default as Invisibility } from "./Invisibility.mjs";
+export { default as IrresistibleDance } from "./IrresistibleDance.mjs";
 export { default as JallarzisStormOfRadiance } from "./JallarzisStormOfRadiance.mjs";
 export { default as Light } from "./Light.mjs";
 export { default as Longstrider } from "./Longstrider.mjs";

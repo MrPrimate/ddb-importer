@@ -20,6 +20,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Mordenkainen's Sword": "Arcane Sword",
     "Evard's Black Tentacles": "Black Tentacles",
     "Otiluke's Resilient Sphere": "Resilient Sphere",
+    "Otto's Irresistible Dance": "Irresistible Dance",
   };
 
   ENRICHERS = {
@@ -166,6 +167,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Misty Step": SpellEnrichers.MistyStep,
     "Enhance Ability": SpellEnrichers.EnhanceAbility,
     "Hail of Thorns": SpellEnrichers.HailOfThorns,
+    "Irresistible Dance": SpellEnrichers.IrresistibleDance,
     // Needs work
     // "Web": SpellEnrichers.Web,
   };

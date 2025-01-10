@@ -9,7 +9,6 @@ import {
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
 import { callLightningEffect } from "./spells/callLightning.js";
 import { chillTouchEffect } from "./spells/chillTouch.js";
-import { chromaticOrbEffect } from "./spells/chromaticOrb.js";
 import { cloudkillEffect } from "./spells/cloudkill.js";
 import { colorSprayEffect } from "./spells/colorSpray.js";
 import { commandEffect } from "./spells/command.js";
@@ -32,7 +31,6 @@ import { silenceEffect } from "./spells/silence.js";
 import { sleepEffect } from "./spells/sleep.js";
 import { spikeGrowthEffect } from "./spells/spikeGrowth.js";
 import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
-import { spiritualWeaponEffect } from "./spells/spiritualWeapon.js";
 import { stormSphereEffect } from "./spells/stormSphere.js";
 // import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { vitriolicSphereEffect } from "./spells/vitriolicSphere.js";
@@ -70,10 +68,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Call Lightning": {
       document = await callLightningEffect(document);
-      break;
-    }
-    case "Chromatic Orb": {
-      document = await chromaticOrbEffect(document);
       break;
     }
     case "Cloudkill": {
@@ -141,11 +135,6 @@ async function midiEffectAdjustment(document) {
       document = await insectPlagueEffect(document);
       break;
     }
-    case "Otto's Irresistible Dance":
-    case "Irresistible Dance": {
-      document = await irresistibleDanceEffect(document);
-      break;
-    }
     case "Moonbeam": {
       document = await moonbeamEffect(document);
       break;
@@ -168,10 +157,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Spirit Guardians": {
       document = await spiritGuardiansEffect(document);
-      break;
-    }
-    case "Spiritual Weapon": {
-      document = await spiritualWeaponEffect(document);
       break;
     }
     case "Storm Sphere": {
