@@ -151,9 +151,11 @@ function isValidTarget(workflow) {
   }
 
   // only weapon attacks
-  const activity = args[0].attackRoll.data.activity;
-  if (activity.type !== "attack") return false;
-  if (activity.attack?.type?.classification !== "weapon") return false;
+
+  const activity = args[0].workflow.activity;
+
+  // console.warn(activity);
+  if (!DDBEffectHelper.isAttack({ activity, classification: "weapon" })) return false;
 
   const targetUuid = workflow.hitTargets.first().document.uuid;
   // only on the marked target

@@ -372,7 +372,7 @@ export default class DDBEnricherFactoryMixin {
       activity.target.prompt = false;
     }
 
-    if (overrideData.overrideTemplate)
+    if (overrideData.overrideTemplate || overrideData.overrideTarget)
       foundry.utils.setProperty(activity, "target.override", true);
 
     if (overrideData.overrideRange)

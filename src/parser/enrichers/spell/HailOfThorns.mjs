@@ -11,6 +11,10 @@ export default class HailOfThorns extends DDBEnricherData {
       return {
         name: "Cast",
         noTemplate: true,
+        overrideTarget: true,
+        overrideRange: true,
+        rangeSelf: true,
+        targetType: "self",
       };
     }
     return null;
@@ -77,9 +81,9 @@ export default class HailOfThorns extends DDBEnricherData {
     return [
       {
         name: "Hail of Thorns",
-        // onUseMacroChanges: [
-        //   { macroPass: "postActiveEffects", macroType: "spell", macroName: "hailOfThorns.js", document: this.data },
-        // ],
+        onUseMacroChanges: [
+          { macroPass: "postActiveEffects", macroType: "spell", macroName: "hailOfThorns.js", document: this.data },
+        ],
         data: {
           flags: {
             dae: {
@@ -92,17 +96,17 @@ export default class HailOfThorns extends DDBEnricherData {
     ];
   }
 
-  // get itemMacro() {
-  //   return {
-  //     type: "spell",
-  //     name: "iceKnife.js",
-  //   };
-  // }
+  get itemMacro() {
+    return {
+      type: "spell",
+      name: "hailOfThorns.js",
+    };
+  }
 
   // get setMidiOnUseMacroFlag() {
   //   return {
   //     type: "spell",
-  //     name: "iceKnife.js",
+  //     name: "hailOfThorns.js",
   //     triggerPoints: ["postActiveEffects"],
   //   };
   // }

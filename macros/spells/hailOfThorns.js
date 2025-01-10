@@ -3,7 +3,7 @@
 // Default name of the item
 const DEFAULT_ITEM_NAME = "Hail of Thorns";
 // Set to false to remove debug logging
-const debug = false;
+const debug = true;
 
 const dependencies = ["dae", "times-up", "midi-qol"];
 if (!DDBImporter?.EffectHelper.requirementsSatisfied(DEFAULT_ITEM_NAME, dependencies)) {
@@ -14,20 +14,40 @@ if (debug) {
   console.error(DEFAULT_ITEM_NAME, arguments);
 }
 
+if (args[0].tag !== "OnUse") return;
+
+// due to calling functions macroItem no longer returns the item the macro change was on.
+const originDoc = actor.items.find((i) =>
+  (i.flags.ddbimporter?.originalName ?? i.name) === DEFAULT_ITEM_NAME
+  && i.system.source.rules === "2014",
+);
+
 if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
+
   const macroData = args[0];
 
   if (macroData.hitTargets.length < 1) {
     // No target hit
     return;
   }
-  const rangedWeaponAttack = DDBImporter?.EffectHelper.isRangedWeaponAttack(macroData);
+
+  const activity = macroData.workflow.activity;
+  const rangedWeaponAttack = DDBImporter?.EffectHelper.isRangedWeaponAttack({
+    activity,
+    macroData,
+    sourceToken: canvas.tokens?.get(macroData.tokenId),
+    targetToken: macroData.hitTargets[0].object,
+  });
   if (!rangedWeaponAttack) {
     // Not a ranged weapon attack
+    console.info(`Not a ranged weapon attack, ${DEFAULT_ITEM_NAME} skipped.`);
     return;
   }
 
-  const originEffect = actor.effects.find((ef) => ef.getFlag("midi-qol", "castData.itemUuid") === macroItem.uuid);
+  const originEffect = actor.effects.find((ef) =>
+    originDoc.uuid === foundry.utils.getProperty(ef, "flags.midi-qol.castData.itemUuid"),
+  );
+
   if (!originEffect) {
     console.error(`${DEFAULT_ITEM_NAME}: spell active effect was not found.`);
     return;
@@ -38,24 +58,27 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   // Temporary spell data for the burst effect
   const areaSpellData = {
     type: "spell",
-    name: `${macroItem.name}: Burst`,
-    img: macroItem.img,
-    system: {
-      level: level,
-      activation: { type: "none" },
-      target: { value: 5, units: "ft", type: "radius", prompt: false },
-      chatFlavor: `[${nbDice}d10 - piercing] Target of the attack and each creature within 5 feet of it`,
-      damage: { parts: [[`${nbDice}d10[piercing]`, "piercing"]], versatile: "" },
-      actionType: "save",
-      save: { ability: "dex" },
-      preparation: { mode: "atwill" },
-      duration: { units: "inst" },
-    },
+    name: `${originDoc.name}: Burst`,
+    img: originDoc.img,
+    system: originDoc.toObject().system,
   };
+
+  areaSpellData.system.level = level;
+  areaSpellData.system.preparation = { mode: "atwill" };
+
+  const newActivities = {};
+  for (const [key, activity] of Object.entries(areaSpellData.system.activities)) {
+    if (activity.type === "save") {
+      activity.damage.parts[0].number = nbDice;
+      newActivities[key] = activity;
+    }
+  }
+  areaSpellData.system.activities = newActivities;
+
   foundry.utils.setProperty(
     areaSpellData,
     "flags.midi-qol.onUseMacroName",
-    DDBImporter.lib.DDBMacros.generateMidiOnUseMacroFlagValue("spell", "hailOfThorns.js", ["preItemRoll", "prePreambleComplete", "preActiveEffects"], macroItem.uuid)
+    DDBImporter.lib.DDBMacros.generateMidiOnUseMacroFlagValue("spell", "hailOfThorns.js", ["preItemRoll", "prePreambleComplete", "preActiveEffects"], originDoc.uuid)
   );
 
   if (game.modules.get("walledtemplates")?.active) {
@@ -72,11 +95,13 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
 
   const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({
     targets: [macroData.hitTargetUuids[0]],
+    castLevel: level,
+    slotLevel: level,
   });
   await MidiQOL.completeItemUse(areaSpell, config, options);
 
   // Remove concentration and the effect causing it since the effect has been used
-  const effect = MidiQOL.getConcentrationEffect(actor, macroItem);
+  const effect = MidiQOL.getConcentrationEffect(actor, originDoc);
   await effect?.delete();
 } else if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
 
@@ -90,7 +115,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   templateOptions.x = targetToken.center?.x ?? 0;
   templateOptions.y = targetToken.center?.y ?? 0;
 
-  foundry.utils.setProperty(templateOptions, "flags.dnd5e.origin", macroItem.uuid);
+  foundry.utils.setProperty(templateOptions, "flags.dnd5e.origin", originDoc.uuid);
 
   // Prompt for template is false, which disables template placement, auto creation
   // and placement is done in dnd5e.useItem hook instead.
@@ -110,7 +135,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   return true;
 } else if (args[0].tag === "OnUse" && args[0].macroPass === "prePreambleComplete") {
   // Add template to concentration to be auto deleted
-  await MidiQOL.addConcentrationDependent(macroItem.actor, workflow.template, macroItem);
+  await MidiQOL.addConcentrationDependent(originDoc.actor, workflow.template, originDoc);
 } else if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   // Note: update workflow to prevent adding effect to delete template, already handled by concentration
   workflow.template = undefined;

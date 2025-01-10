@@ -35,11 +35,10 @@ if (args[0].isCritical) {
   }
 }
 
-const activity = args[0].attackRoll.data.activity;
+const activity = args[0].workflow.activity;
 
 // console.warn(activity);
-if (activity.type !== "attack") return;
-if (activity.attack?.type?.classification !== "weapon") return;
+if (!DDBEffectHelper.isAttack({ activity, classification: "weapon" })) return;
 
 const damageType = game.i18n.localize("bludgeoning");
 

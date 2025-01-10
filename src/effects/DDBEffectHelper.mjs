@@ -676,11 +676,11 @@ export default class DDBEffectHelper {
     return distance;
   }
 
-  static getDistance(token1, token2, wallsBlocking = false) {
+  static getDistance(token1, token2, wallsBlock = false, includeCover = false) {
     if (game.modules.get("midi-qol")?.active) {
-      return MidiQOL.computeDistance(token1, token2, wallsBlocking);
+      return MidiQOL.computeDistance(token1, token2, { wallsBlock, includeCover });
     } else {
-      return DDBEffectHelper.getSimpleDistance(token1, token2, wallsBlocking);
+      return DDBEffectHelper.getSimpleDistance(token1, token2, wallsBlock);
     }
   }
 
@@ -817,29 +817,55 @@ export default class DDBEffectHelper {
     return newDuration;
   }
 
+  static isAttack({
+    activity, classification = null, type = null, orHasProperties = [], andHasProperties = [],
+  } = {}) {
+    if (activity.type !== "attack") return false;
+    if (classification && activity.attack?.type?.classification !== classification) return false;
+    if (andHasProperties.length > 0 && !andHasProperties.every((p) => activity.parent.properties.has(p))) return false;
+    const orHas = orHasProperties.some((p) => activity.parent.properties.has(p));
+    if ((type && activity.attack?.type?.value !== type)
+      || (orHas.length > 0 && !orHas)) return false;
+
+    return true;
+  }
 
   /**
-   * Returns true if the attack is a ranged weapon attack that hit. It also supports melee weapons
+   * Returns true if the attack is a ranged weapon attack. It also supports melee weapons
    * with the thrown property.
-   * @param {*} macroData the midi-qol macro data.
+   * @param {object} params
+   * @param {Activity} params.activity used
+   * @param {Token} params.sourceToken
+   * @param {Token} params.targetToken
    * @returns {boolean} true if the attack is a ranged weapon attack that hit
    */
-  static isRangedWeaponAttack(macroData) {
-    if (macroData.hitTargets.length < 1) {
-      return false;
-    }
-    if (macroData.item?.system.actionType === "rwak") {
-      return true;
-    }
-    if (macroData.item?.system.actionType !== "mwak" || !macroData.item?.system.properties?.thr) {
-      return false;
-    }
+  static isRangedWeaponAttack({ activity, sourceToken, targetToken } = {}) {
+    if (!DDBEffectHelper.isAttack({
+      activity,
+      type: "ranged",
+      orHasProperties: ["thr"],
+      classification: "weapon",
+    })) return false;
 
-    const sourceToken = canvas.tokens?.get(macroData.tokenId);
-    const targetToken = macroData.hitTargets[0].object;
-    const distance = MidiQOL.computeDistance(sourceToken, targetToken, true);
+    const distance = DDBEffectHelper.getDistance(sourceToken, targetToken, true);
     const meleeDistance = 5; // Would it be possible to have creatures with reach and thrown weapon?
     return distance >= 0 && distance > meleeDistance;
+  }
+
+  /**
+   * Returns true if the attack is a melee weapon attack.
+   * @param {object} params
+   * @param {Activity} params.activity used
+   * @returns {boolean} true if the attack is a ranged weapon attack that hit
+   */
+  static isMeleeWeaponAttack({ activity } = {}) {
+    if (!DDBEffectHelper.isAttack({
+      activity,
+      type: "melee",
+      classification: "weapon",
+    })) return false;
+
+    return true;
   }
 
   /**
@@ -850,10 +876,30 @@ export default class DDBEffectHelper {
    * @returns {boolean} true if a is smaller than b, false otherwise
    */
   static isSmaller (a, b) {
-    const sizeA = DICTIONARY.SIZES.find((s) => s.value === a.system.traits.size)?.size;
-    const sizeB = DICTIONARY.SIZES.find((s) => s.value === b.system.traits.size)?.size;
+    const sizeA = DICTIONARY.sizes.find((s) => s.value === a.system.traits.size)?.size;
+    const sizeB = DICTIONARY.sizes.find((s) => s.value === b.system.traits.size)?.size;
     return sizeA < sizeB;
   }
+
+  /**
+   * Gets actor size value.
+   * @param {Actor5e} actor actor for which to get the size value.
+   * @returns {number} the numeric value of the specified actor's size.
+   */
+  static getActorSizeValue(actor) {
+    return DDBEffectHelper.getSizeValue(actor?.system?.traits?.size ?? "med");
+  }
+
+  /**
+   * Returns the numeric value of the specified size.
+   *
+   * @param {string} size  the size name for which to get the size value.
+   * @returns {number} the numeric value of the specified size.
+   */
+  static getSizeValue(size) {
+    return Object.keys(CONFIG.DND5E.actorSizes).indexOf(size ?? "med");
+  }
+
 
   /**
    * Checks if all specified module dependencies are installed and active.

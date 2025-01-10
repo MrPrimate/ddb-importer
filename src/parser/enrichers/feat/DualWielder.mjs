@@ -6,6 +6,7 @@ export default class DualWielder extends DDBEnricherData {
   get effects() {
     return [
       {
+        noCreate: true,
         options: {
           transfer: true,
         },

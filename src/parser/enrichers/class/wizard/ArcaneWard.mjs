@@ -137,40 +137,4 @@ export default class ArcaneWard extends DDBEnricherData {
       },
     };
   }
-
-  // get effects() {
-  //   return [
-  //     {
-  //       name: `Arcane Ward: Spell Detection`,
-  //       options: {
-  //         transfer: true,
-  //       },
-  //       activityMatch: "Create Ward",
-  //       midiOnly: true,
-  //       onUseMacroChanges: [
-  //         {
-  //           macroPass: "postActiveEffects",
-  //           macroType: "feat",
-  //           macroName: "arcaneWard.js",
-  //           document: this.data,
-  //         },
-  //       ],
-  //       targetUpdateMacroChanges: [
-  //         {
-  //           macroPass: "system.attributes.hp.value",
-  //           macroType: "feat",
-  //           macroName: "arcaneWard.js",
-  //           document: this.data,
-  //         },
-  //       ],
-  //     },
-  //   ];
-  // }
-
-  // get itemMacro() {
-  //   return {
-  //     type: "feat",
-  //     name: "arcaneWard.js",
-  //   };
-  // }
 }
