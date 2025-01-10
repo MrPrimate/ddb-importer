@@ -24,7 +24,6 @@ import { hideousLaughterEffect } from "./spells/hideousLaughter.js";
 import { huntersMarkEffect } from "./spells/huntersMark.js";
 import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
 import { insectPlagueEffect } from "./spells/insectPlague.js";
-import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
 import { silenceEffect } from "./spells/silence.js";
