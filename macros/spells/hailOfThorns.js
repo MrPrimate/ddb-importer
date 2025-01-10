@@ -22,7 +22,8 @@ const originDoc = actor.items.find((i) =>
   && i.system.source.rules === "2014",
 );
 
-if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
+if (args[0].macroPass === "postActiveEffects") {
+  if (debug) console.warn("postActiveEffects")
 
   const macroData = args[0];
 
@@ -103,14 +104,15 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   // Remove concentration and the effect causing it since the effect has been used
   const effect = MidiQOL.getConcentrationEffect(actor, originDoc);
   await effect?.delete();
-} else if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
+} else if (args[0].macroPass === "preItemRoll") {
+  if (debug) console.warn("preItemRoll")
 
   const targetToken = workflow.targets.first();
   const gs = canvas?.dimensions?.distance ?? 5;
   const templateOptions = {};
-  let targetData = rolledItem.system.target ?? { value: 0 };
+  let targetData = rolledItem.system.target?.template ?? { size: 0 };
   const { width, height } = targetToken.document;
-  templateOptions.distance = Number(targetData.value) + (Math.max(width, height, 0) / 2) * gs;
+  templateOptions.distance = Number(targetData.size) + (Math.max(width, height, 0) / 2) * gs;
 
   templateOptions.x = targetToken.center?.x ?? 0;
   templateOptions.y = targetToken.center?.y ?? 0;
@@ -131,12 +133,10 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
       console.error(`${DEFAULT_ITEM_NAME} | Error could not create template`, templateData);
       return;
     }
+    await MidiQOL.addConcentrationDependent(originDoc.actor, measuredTemplateDoc, originDoc);
   });
   return true;
-} else if (args[0].tag === "OnUse" && args[0].macroPass === "prePreambleComplete") {
-  // Add template to concentration to be auto deleted
-  await MidiQOL.addConcentrationDependent(originDoc.actor, workflow.template, originDoc);
-} else if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
+} else if (args[0].macroPass === "preActiveEffects") {
   // Note: update workflow to prevent adding effect to delete template, already handled by concentration
   workflow.template = undefined;
   workflow.templateUuid = undefined;
