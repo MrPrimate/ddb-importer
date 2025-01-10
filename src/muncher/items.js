@@ -125,10 +125,25 @@ function getItemData(sourceFilter) {
       .then((data) => {
         const genericsFilteredData = data.data
           .filter((item) => item.canBeAddedToInventory || useGenerics)
-          .filter((item) =>
-            !item.sources.some((s) => [145, 148].includes(s.sourceId))
-            || item.sources.some((s) => s.sourceId < 140)
-          );
+          .map((item) => {
+            item.sources = item.sources.map((s) => {
+              const source = CONFIG.DDB.sources.find((ddbS) => s.sourceId === ddbS.id);
+              s.sourceCategoryId = source?.sourceCategoryId ?? 0;
+              return s;
+            });
+            return item;
+          })
+          .filter((item) => {
+            // also used for 2014/2024 item
+            if (item.isLegacy) return true;
+            const is2014CoreRules = item.sources.some((s) => [26].includes(s.sourceCategoryId));
+            if (is2014CoreRules) return true;
+            // base item
+            if (item.id === item.baseItemId) return true;
+            const is2024 = item.sources.some((s) => [24].includes(s.sourceCategoryId));
+            if (is2024) return false;
+            return true;
+          });
         if (sources.length == 0 || !sourceFilter) return genericsFilteredData;
         return genericsFilteredData.filter((item) =>
           item.sources

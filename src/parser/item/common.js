@@ -1,5 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import { parseDamageRolls, parseTags } from "../../lib/DDBReferenceLinker.js";
+import utils from "../../lib/utils.js";
 
 export function getDescription(data, document) {
   const chatSnippet = data.definition.snippet ? data.definition.snippet : "";
@@ -11,8 +12,15 @@ export function getDescription(data, document) {
 
   const valueDamageText = parseDamageRolls({ text: data.definition.description, document, actor: null });
   const chatDamageText = chatAdd ? parseDamageRolls({ text: chatSnippet, document, actor: null }) : "";
+
+  const valueDescription = parseTags(attunementText + valueDamageText);
+
+  const doc = utils.htmlToDoc(valueDescription);
+  const masteryContainer = doc.body.querySelector('.mastery-container');
+  if (masteryContainer) masteryContainer.remove();
+
   return {
-    value: parseTags(attunementText + valueDamageText),
+    value: doc.body.innerHTML,
     chat: chatAdd ? parseTags(chatDamageText) : "",
   };
 }
