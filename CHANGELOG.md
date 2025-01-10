@@ -1,3 +1,8 @@
+# 5.2.43
+
+- Some "base" weapons and armors have not been downloadable since 2024 PHB was released. They now are, but they will use the 2024 description.
+- 5.2.42 could use some 2024 versions rather than 2014 version or a few magic items, depending on various race conditions.
+
 # 5.2.42
 
 - Due to changes on DDB many magic items were no longer seperate items between the 2014/2024 versions. This update will allow things like Goggles of Night to be imported again.
