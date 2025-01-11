@@ -34,17 +34,16 @@ export default class ExternalAutomations {
     await this.actor.update(activeUpdateData);
   }
 
-  static async applyChrisPremadeEffect({ document, type, isMonster = false, folderName = null, chrisNameOverride = null } = {}) {
+  static async applyChrisPremadeEffect({ document, type, monsterName = null, chrisNameOverride = null } = {}) {
     return ChrisPremadesHelper.findAndUpdate({
       document,
       type,
-      folderName,
       chrisNameOverride,
-      isMonster,
+      monsterName,
     });
   }
 
-  static async applyChrisPremadeEffects({ documents, compendiumItem = false, force = false, isMonster = false, folderName = null } = {}) {
+  static async applyChrisPremadeEffects({ documents, compendiumItem = false, force = false, monsterName = null } = {}) {
     if (!game.modules.get("chris-premades")?.active) {
       logger.debug("Chris Premades not active");
       return documents;
@@ -60,18 +59,21 @@ export default class ExternalAutomations {
 
     for (let doc of documents) {
       if (["class", "subclass", "background"].includes(doc.type)) continue;
-      const type = ChrisPremadesHelper.getTypeMatch(doc, isMonster);
-      logger.debug(`Evaluating ${doc.name} of type ${type} for Chris's Premade application.`, { type, folderName, isMonster });
+      const type = ChrisPremadesHelper.getTypeMatch(doc, monsterName !== null);
+      logger.debug(`Evaluating ${doc.name} of type ${type} for Chris's Premade application.`, { type, monsterName });
 
       doc = await ChrisPremadesHelper.findAndUpdate({
         document: doc,
         type,
-        folderName,
-        isMonster,
+        monsterName,
       });
-      if (isMonster && !["monsterfeature"].includes(type) && !foundry.utils.getProperty(doc, "flags.ddbimporter.effectsApplied") === true) {
+      if (monsterName && !["monsterfeature"].includes(type) && !foundry.utils.getProperty(doc, "flags.ddbimporter.effectsApplied") === true) {
         logger.debug(`No Chris' Premade found for ${doc.name} with type "${type}", checking for monster feature.`);
-        doc = await ChrisPremadesHelper.findAndUpdate({ document: doc, type: "monsterfeature", folderName, isMonster });
+        doc = await ChrisPremadesHelper.findAndUpdate({
+          document: doc,
+          type: "monsterfeature",
+          monsterName,
+        });
       }
     }
 
@@ -90,13 +92,12 @@ export default class ExternalAutomations {
     logger.info("Starting to update actor documents with Chris Premades effects");
     let documents = actor.getEmbeddedCollection("Item").toObject();
     const isMonster = actor.type === "npc";
-    const folderName = isMonster ? actor.name : null;
+    const monsterName = isMonster ? actor.name : null;
     const data = (await ExternalAutomations.applyChrisPremadeEffects({
       documents,
       compendiumItem: false,
       force: true,
-      folderName,
-      isMonster,
+      monsterName,
     }))
       .filter((d) =>
         foundry.utils.getProperty(d, "flags.ddbimporter.chrisEffectsApplied") === true
@@ -105,7 +106,7 @@ export default class ExternalAutomations {
     const dataIds = data.map((d) => d._id);
     logger.debug("Chris premades generation complete, beginning replace", {
       isMonster,
-      folderName,
+      monsterName,
       data,
       dataIds,
       actor,
@@ -116,9 +117,9 @@ export default class ExternalAutomations {
     logger.debug("Creating chris premade items", data);
     await actor.createEmbeddedDocuments("Item", data, { keepId: true });
     logger.debug("Delete and recreate complete, beginning restricted item replacer");
-    await ChrisPremadesHelper.restrictedItemReplacer(actor, folderName);
+    await ChrisPremadesHelper.restrictedItemReplacer(actor, monsterName);
     logger.debug("Restricted item replacer complete, beginning Replacement of Redundant Chris Documents");
-    await ChrisPremadesHelper.addAndReplaceRedundantChrisDocuments(actor);
+    await ChrisPremadesHelper.addAndReplaceRedundantChrisDocuments(actor, monsterName);
     logger.info("Effect replacement complete");
     await externalAutomations.enableDynamicUpdates();
     return data.map((d) => d.name);

@@ -3,10 +3,7 @@
 
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import {
-  utils,
   logger,
-  FolderHelper,
-  CompendiumHelper,
 } from "../../lib/_module.mjs";
 
 
@@ -47,61 +44,6 @@ export default class ChrisPremadesHelper {
     "system.enchant",
     "flags.chris-premades",
   ];
-
-  static CP_COMPENDIUM_TYPES = [
-    { type: "spell", system: "spell" },
-    { type: "feat", system: "feature" },
-    { type: "feat", system: "trait" },
-    { type: "feat", system: "feat" },
-    { type: "equipment", system: "inventory" },
-    { type: "weapon", system: "weapon" },
-    { type: "consumable", system: "consumable" },
-    { type: "tool", system: "tool" },
-    { type: "loot", system: "loot" },
-    // { type: "container", system: "container" },
-    { type: "equipment", system: "container" },
-    { type: "equipment", system: "backback" },
-    { type: "equipment", system: "equipment" },
-  ];
-
-  static async getChrisCompendiumIndex(compendiumName, matchedProperties = {}) {
-    const gamePack = CompendiumHelper.getCompendium(compendiumName);
-    const index = await gamePack.getIndex({
-      fields: ["name", "type", "flags.cf", "folder", "system.source.rules"].concat(Object.keys(matchedProperties)),
-    });
-    return index;
-  }
-
-  static async getChrisCompendiums(type, isMonster = false, matchedProperties = {}) {
-    if (chrisPremades.helpers.getSearchCompendiums) {
-      const baseType = ChrisPremadesHelper.CP_COMPENDIUM_TYPES.find((t) => t.system === type)?.type ?? type;
-      const compendiums = (
-        isMonster
-          ? (chrisPremades.helpers.getMonsterFeatureSearchCompendiums
-            ? chrisPremades.helpers.getMonsterFeatureSearchCompendiums()
-            : ['chris-premades.CPR Monster Features'])
-          : []
-      ).concat(await chrisPremades.helpers.getSearchCompendiums(baseType));
-      const results = (await Promise.all(compendiums
-        .filter((c) => game.packs.get(c))
-        .map(async (c) => {
-          const index = await ChrisPremadesHelper.getChrisCompendiumIndex(c, matchedProperties);
-          // console.warn(`Matched`, {
-          //   type, baseType, compendiums, index, c
-          // });
-          const result = {
-            index: index.filter((i) => i.type === baseType),
-            packName: c,
-            compendium: game.packs.get(c),
-          };
-          return result;
-        }))).filter((r) => r.index.length > 0);
-      // console.warn("Results", results);
-      return results;
-    } else {
-      return [];
-    }
-  }
 
   static getOriginalName(document, trimOption = false) {
     const flagName = document.flags.ddbimporter?.originalName ?? document.name;
@@ -147,162 +89,98 @@ export default class ChrisPremadesHelper {
     return doc.type;
   }
 
-  // matchedProperties = { "system.activation.type": "bonus" }
-  static async getDocumentFromCompendium(key, name, ignoreNotFound, folderId, matchedProperties = {}) {
-    const gamePack = game.packs.get(key);
-    if (!gamePack) {
-      ui.notifications.warn('Invalid compendium specified!');
-      return false;
-    }
 
-    const packIndex = await gamePack.getIndex({
-      fields: ['name', 'type', 'folder', "system.source.rules"].concat(Object.keys(matchedProperties)),
-    });
-
-    // console.warn("packIndex", {
-    //   packIndex,
-    //   key,
-    //   name, matchedProperties,
-    //   gamePack,
-    // });
-
-    const match = packIndex.find((item) =>
-      item.name === name
-      && (!folderId || (folderId && item.folder === folderId))
-      && (Object.keys(matchedProperties).length === 0 || utils.matchProperties(item, matchedProperties)),
-    );
-
-    logger.debug(`Looking for ${name} in ${key} with properties`, {
-      key,
-      name, ignoreNotFound,
-      folderId,
-      matchedProperties,
-      match,
-      packIndex,
-    });
-
-    if (match) {
-      return (await gamePack.getDocument(match._id))?.toObject();
-    } else {
-      if (!ignoreNotFound) {
-        ui.notifications.warn(`Item not found in compendium ${key} with name ${name}! Check spelling?`);
-        logger.warn(`Item not found in compendium ${key} with name ${name}! Check spelling?`, { key, name, folderId, matchedProperties });
-      }
-      return undefined;
-    }
-  }
-
-  static async getDocumentFromName(documentName, type,
-    { folderName = null, isMonster = false, matchedProperties = {} } = {},
+  static async getDocumentFromName({
+    documentName, documentType,
+    rules = '2014', monsterName = null, actorType = 'character', featType = null,
+  } = {},
   ) {
 
-    const compendiums = await ChrisPremadesHelper.getChrisCompendiums(type, isMonster);
-    if (compendiums.length === 0) {
-      logger.warn(`No compendium found for Chris's Premade effect for ${type} and ${documentName}, with type ${type}!`);
-      return undefined;
-    }
+    const itemData = await chrisPremades.integration.ddbi(documentName, {
+      rules,
+      actorType,
+      itemType: documentType, // "spell",
+      monsterName,
+      featType,
+    });
+    if (itemData) return itemData;
 
-    // console.warn("here", { this: this });
-
-    // const allowFolders = ["weapon", "feat"].includes(this.original.type);
-
-    for (const c of compendiums) {
-      const folderId = isMonster // && allowFolders
-        ? await FolderHelper.getCompendiumFolderId((folderName ?? documentName), c.packName)
-        : undefined;
-
-      // expected to find feature in a folder, but we could not
-      // if (allowFolders && folderName && folderId === undefined) {
-      if (folderName && folderId === undefined) {
-        logger.debug(`No folder found for ${folderName} and ${documentName}, checking compendium name ${c.packName}`);
-        continue;
-      }
-
-      logger.debug(`CP Effect (From Name): Attempting to fetch ${documentName} from ${c.packName} with folderID ${folderId}`);
-      const match = c.index.find((doc) =>
-        doc.name === documentName
-        && (!folderId || (folderId && doc.folder === folderId))
-        && (Object.keys(matchedProperties).length === 0 || utils.matchProperties(doc, matchedProperties)),
-      );
-
-      if (!match) continue;
-      return match;
-    }
-
-    logger.debug(`No CP Effect found for ${documentName} from all matched compendiums with folderName ${folderName}`);
+    logger.debug(`No CP Effect found for ${documentName} from Chris API`, {
+      documentName,
+      documentType,
+      rules,
+      actorType,
+      monsterName,
+      featType,
+    });
     return undefined;
   }
 
 
   constructor(document,
-    { chrisNameOverride = null, isMonster = false, folderName = null, ignoreNotFound = true, type = null,
-      matchedProperties = {} } = {},
+    { chrisNameOverride = null, monsterName = null, ignoreNotFound = true, type = null,
+      rules = null, documentType = null, featType = null } = {},
   ) {
     this.original = foundry.utils.deepClone(document);
     this.document = document;
     this.chrisNameOverride = chrisNameOverride;
-    this.isMonster = isMonster;
-    this.folderName = folderName;
+    this.isMonster = monsterName !== null;
+    this.monsterName = monsterName;
     this.ignoreNotFound = ignoreNotFound;
-    this.type = type ?? ChrisPremadesHelper.getTypeMatch(document, isMonster);
-    this.matchProperties = matchedProperties;
+    this.type = type ?? ChrisPremadesHelper.getTypeMatch(document, this.isMonster);
     this.ddbName = ChrisPremadesHelper.getOriginalName(document);
     this.chrisName = chrisNameOverride ?? CONFIG.chrisPremades?.renamedItems[this.ddbName] ?? this.ddbName;
     this.chrisDoc = null;
     this.appendChrisDescription = game.settings.get(SETTINGS.MODULE_ID, "append-chris-premade-effect-description");
+    this.rules = rules ?? document.system.source.rules ?? "2014";
+    this.featType = featType ?? document.system.type?.value;
+    this.documentType = documentType ?? this.document.type;
+  }
+
+  async getDocumentFromChrisAPI() {
+    const options = {
+      rules: this.rules,
+      actorType: this.isMonster ? 'npc' : 'character',
+      itemType: this.documentType, // "spell",
+      monsterName: this.isMonster ? this.monsterName : null,
+      featType: this.featType, // 'race',
+    };
+    logger.debug("getDocumentFromChrisAPI", {
+      chrisName: this.chrisName,
+      options,
+    });
+    const itemData = await chrisPremades.integration.ddbi(this.chrisName, options);
+    return itemData;
   }
 
   async findReplacement() {
-    const compendiums = await ChrisPremadesHelper.getChrisCompendiums(this.original.type, this.isMonster);
-    logger.debug("Compendiums found", {
-      compendiums,
-      this: this,
-      type: this.original.type,
-      isMonster: this.isMonster,
+    const chrisDoc = await this.getDocumentFromChrisAPI();
+    if (!chrisDoc) return undefined;
+    const chrisType = ChrisPremadesHelper.getTypeMatch(chrisDoc, this.isMonster);
+
+    logger.debug("Found", {
+      thisType: this.type,
+      chrisType,
+      chrisDoc,
+      truthy: this.type === chrisType,
     });
-    if (compendiums.length === 0) {
-      logger.warn(`No compendium found for Chris's Premade effect for "${this.original.name}" with original type ${this.original.type} and with type object type ${this.type}!`, {
+    if (this.type === chrisType) {
+      if (!chrisDoc.flags["chris-premades"].info.rules) {
+        chrisDoc.flags["chris-premades"].info.rules = this.original.system.source.rules === "2014" ? "legacy" : "";
+      }
+      this.chrisDoc = chrisDoc;
+      return chrisDoc;
+    } else {
+      logger.error(`Expected type ${this.type} but got ${chrisType} from Chris's Premades API. Original item: ${this.original.name}`, {
         this: this,
-      });
-      return undefined;
-    }
-
-    const allowFolders = ["weapon", "feat"].includes(this.original.type) && this.isMonster;
-
-    for (const c of compendiums) {
-      const folderId = allowFolders
-        ? await FolderHelper.getCompendiumFolderId((this.folderName ?? this.chrisName), c.packName)
-        : undefined;
-
-      // expected to find feature in a folder, but we could not
-      if (allowFolders && folderId === undefined) {
-        logger.debug(`Needed folder, but none found for ${this.folderName} and ${this.original.name}, using compendium name ${c.packName}`);
-        continue;
-      }
-
-      logger.debug(`CP Effect (find replacement): Attempting to fetch ${this.original.name} from ${c.packName} with folderID ${folderId}`);
-      const chrisDoc = await ChrisPremadesHelper.getDocumentFromCompendium(c.packName, this.chrisName, this.ignoreNotFound, folderId, this.matchProperties);
-      if (!chrisDoc) continue;
-      const chrisType = ChrisPremadesHelper.getTypeMatch(chrisDoc, this.isMonster);
-
-      logger.debug("Found", {
-        thisType: this.type,
-        chrisType,
         chrisDoc,
-        truthy: this.type === chrisType,
+        chrisType,
       });
-      if (this.type === chrisType || folderId) {
-        if (!chrisDoc.flags["chris-premades"].info.rules) {
-          chrisDoc.flags["chris-premades"].info.rules = this.original.system.source.rules === "2014" ? "legacy" : "";
-        }
-        this.chrisDoc = chrisDoc;
-        return chrisDoc;
-      }
-      logger.debug(`Skipping CP Effect found for ${this.original.name} from ${c.packName} with folderName ${this.folderName} as type mismatch`);
     }
 
-    logger.debug(`No CP Effect found for ${this.original.name} from all matched compendiums with folderName ${this.folderName}`);
+    logger.debug(`No CP Effect found for ${this.original.name} from CPR API`);
     return undefined;
+
   }
 
   static appendDescription(source, target) {
@@ -396,7 +274,7 @@ ${chat}
 
   }
 
-  static async find({ document, type, isMonster = false, folderName = null, chrisNameOverride = null } = {}) {
+  static async findAndUpdate({ document, type, monsterName = null, chrisNameOverride = null } = {}) {
     if (!game.modules.get("chris-premades")?.active) return document;
     if (foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true) {
       logger.info(`${document.name} set to ignore Chris's Premade effect application`);
@@ -406,39 +284,19 @@ ${chat}
     const chrisHelper = new ChrisPremadesHelper(document, {
       type,
       chrisNameOverride,
-      folderName,
       ignoreNotFound: true,
-      isMonster,
-      matchedProperties: {
-        "system.source.rules": document.system.source.rules,
-      },
+      monsterName,
+      rules: document.system.source.rules,
     });
     const chrisDoc = await chrisHelper.findReplacement();
-    if (!chrisDoc) {
-      return document;
-    }
 
-    return chrisDoc.document;
-  }
-
-  static async findAndUpdate({ document, type, isMonster = false, folderName = null, chrisNameOverride = null } = {}) {
-    if (!game.modules.get("chris-premades")?.active) return document;
-    if (foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true) {
-      logger.info(`${document.name} set to ignore Chris's Premade effect application`);
-      return document;
-    }
-
-    const chrisHelper = new ChrisPremadesHelper(document, {
+    logger.verbose(`Find and update result: ${document.name} => ${chrisDoc?.name ?? "NO MATCH"}`, {
+      document,
+      chrisDoc,
       type,
+      chrisHelper,
       chrisNameOverride,
-      folderName,
-      ignoreNotFound: true,
-      isMonster,
-      matchedProperties: {
-        "system.source.rules": document.system.source.rules,
-      },
     });
-    const chrisDoc = await chrisHelper.findReplacement();
     if (!chrisDoc) {
       return document;
     }
@@ -449,7 +307,7 @@ ${chat}
   }
 
   // eslint-disable-next-line no-unused-vars
-  static async addAndReplaceRedundantChrisDocuments(actor, _folderName = null) {
+  static async addAndReplaceRedundantChrisDocuments(actor, monsterName = null) {
     if (!game.modules.get("chris-premades")?.active) return;
     logger.debug("Beginning additions and removals of extra effects.");
     const documents = actor.getEmbeddedCollection("Item").toObject();
@@ -479,7 +337,13 @@ ${chat}
 
         for (const newItemName of newItemNames) {
           logger.debug(`Adding new item ${newItemName}`);
-          const chrisDoc = await ChrisPremadesHelper.getDocumentFromName(newItemName, doc.type);
+          const chrisDoc = await ChrisPremadesHelper.getDocumentFromName({
+            documentName: newItemName,
+            documentType: doc.type,
+            rules: doc.system.source.rules,
+            actorType: monsterName !== null ? "npc" : "character",
+            monsterName,
+          });
           if (!chrisDoc) {
             logger.error(`DDB Importer expected to find an item in Chris's Premades for ${newItemName} but did not`, {
               ddbName,
@@ -522,7 +386,7 @@ ${chat}
 
 
   // eslint-disable-next-line complexity
-  static async restrictedItemReplacer(actor, folderName = null) {
+  static async restrictedItemReplacer(actor, monsterName = null) {
     if (!game.modules.get("chris-premades")?.active) return;
     logger.debug("Beginning additions and removals of restricted effects.");
 
@@ -586,7 +450,7 @@ ${chat}
         logger.debug(`Replacing item data for ${ddbName}, using restricted data from ${restrictedItem.key}`);
         const updateDocument = await ChrisPremadesHelper.findAndUpdate({
           document: foundry.utils.duplicate(doc),
-          folderName,
+          monsterName,
           chrisNameOverride: restrictedItem.replacedItemName,
         });
         if (updateDocument) {
@@ -603,7 +467,13 @@ ${chat}
         if (docAdd) {
           for (const newItemName of restrictedItem.additionalItems) {
             logger.debug(`Adding new item ${newItemName}`);
-            const chrisDoc = await ChrisPremadesHelper.getDocumentFromName(newItemName, docAdd.type);
+            const chrisDoc = await ChrisPremadesHelper.getDocumentFromName({
+              documentName: newItemName,
+              documentType: docAdd.type,
+              rules: docAdd.system.source.rules,
+              actorType: monsterName !== null ? "npc" : "character",
+              monsterName,
+            });
 
             // eslint-disable-next-line max-depth
             if (!chrisDoc) {

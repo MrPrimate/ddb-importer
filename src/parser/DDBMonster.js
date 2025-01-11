@@ -265,7 +265,7 @@ export default class DDBMonster {
         await ExternalAutomations.applyChrisPremadeEffect({
           document: item,
           type: "monsterfeature",
-          folderName: this.npc.name,
+          monsterName: this.npc.name,
           isMonster: true,
         });
       }

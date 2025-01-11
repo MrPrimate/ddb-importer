@@ -6,9 +6,7 @@ import {
   FolderHelper,
 } from "../lib/_module.mjs";
 import { DICTIONARY } from "../config/_module.mjs";
-import { spellEffectAdjustment } from "./specialSpells.js";
 import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature.js";
-import { ExternalAutomations } from "./external/_module.mjs";
 import { DDBDescriptions } from "../parser/lib/_module.mjs";
 import { AutoEffects, ChangeHelper, MidiOverTimeEffect } from "../parser/enrichers/effects/_module.mjs";
 
@@ -82,107 +80,6 @@ export default class DDBEffectHelper {
 
   static wait(ms) {
     utils.wait(ms);
-  }
-
-  /**
-   * Generates and applies DDBI effects to a document.
-   *
-   * @param {Document} document The document to apply effects to.
-   * @param {object} options Options for effect generation.
-   * @param {boolean} options.useChrisPremades Whether to use Chris premade effects. Default is false.
-   * @param {boolean} options.isMonster Whether the document is a monster. Default is false.
-   * @returns {Promise<void>} A promise that resolves when the effects have been applied.
-   */
-  static async addDDBIEffectToDocument(document, { useChrisPremades = false, isMonster = false } = {}) {
-    if (foundry.utils.getProperty(document, "flags.ddbimporter.effectsApplied") === true
-      || foundry.utils.getProperty(document, "flags.ddbimporter.chrisEffectsApplied") === true
-    ) {
-      logger.warn(`Skipping effect generation for ${document.name} as DDB Importer or Chris effect is already present.`);
-      return;
-    }
-    const startingSpellPolicy = game.settings.get("ddb-importer", "munching-policy-add-spell-effects");
-    const startingAddPolicy = game.settings.get("ddb-importer", "munching-policy-add-effects");
-    try {
-      game.settings.set("ddb-importer", "munching-policy-add-spell-effects", true);
-      game.settings.set("ddb-importer", "munching-policy-add-effects", true);
-
-      let data = document.toObject();
-      // remove old effects
-      data.effects = [];
-      if (foundry.utils.hasProperty(data, "flags.dae")) delete data.flags.dae;
-      if (foundry.utils.hasProperty(data, "flags.itemacro")) delete data.flags.itemacro;
-      if (foundry.utils.hasProperty(data, "flags.midi-qol")) delete data.flags["midi-qol"];
-      if (foundry.utils.hasProperty(data, "flags.ActiveAuras")) delete data.flags.ActiveAuras;
-
-      if (DICTIONARY.types.inventory.includes(data.type)) {
-        // these are now done by the enricher
-        // data = await midiItemEffects(data);
-      } else if (data.type === "spell") {
-        data = await spellEffectAdjustment(data, true);
-      } else if (data.type === "feat") {
-        // const mockCharacter = {
-        //   system: SystemHelpers.getTemplate("character"),
-        //   type: "character",
-        //   name: "",
-        //   flags: {
-        //     ddbimporter: {
-        //       compendium: true,
-        //       dndbeyond: {
-        //         effectAbilities: [],
-        //         totalLevels: 0,
-        //         proficiencies: [],
-        //         proficienciesIncludingEffects: [],
-        //         characterValues: [],
-        //       },
-        //     },
-        //   },
-        // };
-
-        // these are now done by the enricher
-        // data = (await addExtraEffects(null, [data], mockCharacter))[0];
-      }
-
-      if (useChrisPremades) data = (await ExternalAutomations.applyChrisPremadeEffects({ documents: [data], force: true, isMonster }))[0];
-
-
-      data = AutoEffects.addVision5eStub(data);
-
-      if (foundry.utils.getProperty(data, "flags.ddbimporter.effectsApplied") === true
-        || foundry.utils.getProperty(data, "flags.ddbimporter.chrisEffectsApplied") === true
-      ) {
-        logger.debug("New effects generated, removing existing effects");
-        await document.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-        logger.debug(`Removal complete, adding effects to item ${document.name}`);
-
-        logger.info(`Updating actor document ${document.name} with`, {
-          data: foundry.utils.duplicate(data),
-        });
-        await document.update(data);
-      } else {
-        logger.info(`No effects applied to document ${document.name}`);
-      }
-    } finally {
-      game.settings.set("ddb-importer", "munching-policy-add-spell-effects", startingSpellPolicy);
-      game.settings.set("ddb-importer", "munching-policy-add-effects", startingAddPolicy);
-    }
-  }
-
-  /**
-   * Adds DDBI effects to actor documents.
-   *
-   * @param {object} actor The actor object.
-   * @param {object} options The options object.
-   * @param {boolean} options.useChrisPremades Whether to use Chris premades.
-   * @returns {Promise<void>} A promise that resolves when the effects are added.
-   */
-  static async addDDBIEffectsToActorDocuments(actor, { useChrisPremades = false } = {}) {
-    logger.info("Starting to add effects to actor items");
-    const isMonster = actor.type === "npc";
-    for (const doc of actor.items) {
-      logger.debug(`Processing ${doc.name}`);
-      await DDBEffectHelper.addDDBIEffectToDocument(doc, { useChrisPremades, isMonster });
-    }
-    logger.info("Effect addition complete");
   }
 
   /**
