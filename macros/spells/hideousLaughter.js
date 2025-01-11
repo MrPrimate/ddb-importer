@@ -2,19 +2,18 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
+const activity = await fromUuid(lastArg.activity);
+
 const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.system.save;
-const saveDC = (saveData.dc === null || saveData.dc === "") && saveData.scaling === "spell"
-  ? (await fromUuid(lastArg.efData.origin)).parent.getRollData().attributes.spelldc
-  : saveData.dc;
+const saveDC = activity.save.dc.value;
 const dcString = saveDC && saveDC !== "" ? `DC${saveDC} ` : "";
 const flavor = `${CONFIG.DND5E.abilities["wis"].label} DC${dcString}${DAEItem?.name || ""}`;
 
 
 async function cleanUp() {
   // cleanup conditions
-  const hasProne = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Prone", targetActor);
-  if (hasProne) DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Prone", actor: targetActor });
+  // const hasProne = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Prone", targetActor);
+  // if (hasProne) DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Prone", actor: targetActor });
   const hasIncapacitated = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Incapacitated", targetActor);
   if (hasIncapacitated) DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Incapacitated", actor: targetActor });
   // remove hook
@@ -34,14 +33,14 @@ async function onDamageHook(hookActor, update) {
   const newHP = foundry.utils.getProperty(update, "system.attributes.hp.value");
   const hpChange = oldHP - newHP;
   if (hpChange > 0 && typeof hpChange === "number") {
-    console.warn("hookActor", hookActor);
     const saveActor = game.actors.get(hookActor.id);
-    const saveRoll = await saveActor.rollAbilitySave(saveData.ability, {
-      flavor,
-      fastForward: true,
-      advantage: true,
-    });
-    if (saveRoll.total >= saveData.dc) {
+    const speaker = ChatMessage.getSpeaker({ targetActor: saveActor, scene: canvas.scene, token: token.document });
+    const saveRoll = (await targetActor.rollSavingThrow({
+      ability: activity.save.ability.first(),
+      target: activity.save.dc.value,
+    }, {}, { data: { speaker, flavor } }))[0];
+
+    if (saveRoll.total >= saveDC) {
       await cleanUp();
     }
   }
@@ -58,11 +57,4 @@ if (args[0] === "on") {
 
 if (args[0] === "off") {
   await cleanUp();
-}
-
-if (args[0] === "each") {
-  const saveRoll = await targetActor.rollAbilitySave(saveData.ability, { flavor });
-  if (saveRoll.total >= saveData.dc) {
-    await cleanUp();
-  }
 }

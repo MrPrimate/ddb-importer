@@ -7,7 +7,6 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const activity = await fromUuid(lastArg.activity);
 
 const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.system.save;
 const saveDC = activity.save.dc.value;
 
 if (args[0] === "each") {
@@ -17,7 +16,7 @@ if (args[0] === "each") {
       one: {
         label: "Yes",
         callback: async () => {
-          const flavor = `${CONFIG.DND5E.abilities[saveData.ability].label} DC${saveDC} ${DAEItem?.name || ""}`;
+          const flavor = `${CONFIG.DND5E.abilities[activity.save.ability.first()].label} DC${saveDC} ${DAEItem?.name || ""}`;
 
           const speaker = ChatMessage.getSpeaker({ targetActor, scene: canvas.scene, token: token.document });
           const saveRoll = (await targetActor.rollSavingThrow({

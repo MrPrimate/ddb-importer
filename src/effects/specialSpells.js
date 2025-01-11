@@ -14,13 +14,12 @@ import { colorSprayEffect } from "./spells/colorSpray.js";
 import { commandEffect } from "./spells/command.js";
 import { confusionEffect } from "./spells/confusion.js";
 import { contagionEffect } from "./spells/contagion.js";
-import { createBonfireEffect } from "./spells/createBonfire.js";
+// import { createBonfireEffect } from "./spells/createBonfire.js";
 import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
 import { greaseEffect } from "./spells/grease.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
-import { hideousLaughterEffect } from "./spells/hideousLaughter.js";
 import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
 import { insectPlagueEffect } from "./spells/insectPlague.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
@@ -96,10 +95,10 @@ async function midiEffectAdjustment(document) {
       document = await crownofStarsEffect(document);
       break;
     }
-    case "Create Bonfire": {
-      document = await createBonfireEffect(document);
-      break;
-    }
+    // case "Create Bonfire": {
+    //   document = await createBonfireEffect(document);
+    //   break;
+    // }
     case "Divine Word": {
       document = await divineWordEffect(document);
       break;
@@ -114,11 +113,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Heroes' Feast": {
       document = await heroesFeastEffect(document);
-      break;
-    }
-    case "Tasha's Hideous Laughter":
-    case "Hideous Laughter": {
-      document = await hideousLaughterEffect(document);
       break;
     }
     case "Incendiary Cloud": {

@@ -21,6 +21,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Evard's Black Tentacles": "Black Tentacles",
     "Otiluke's Resilient Sphere": "Resilient Sphere",
     "Otto's Irresistible Dance": "Irresistible Dance",
+    "Tasha's Hideous Laughter": "Hideous Laughter",
   };
 
   ENRICHERS = {
@@ -168,8 +169,10 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Enhance Ability": SpellEnrichers.EnhanceAbility,
     "Hail of Thorns": SpellEnrichers.HailOfThorns,
     "Irresistible Dance": SpellEnrichers.IrresistibleDance,
+    "Hideous Laughter": SpellEnrichers.HideousLaughter,
     // Needs work
     // "Web": SpellEnrichers.Web,
+    // "Create Bonfire": SpellEnrichers.CreateBonfire,
   };
 
 }
