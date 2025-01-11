@@ -404,7 +404,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   #generateActionInfo() {
     this.actionInfo.duration = this.#getActivityDuration();
     this.actionInfo.range = this.#getActivityRange();
-    this.actionInfo.activation = this.#generateActivityActivation();
+    this.#generateActivityActivation();
     this.#generateSave();
     this.#fixedAttackCheck();
   }
@@ -2915,7 +2915,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     if (this.actionInfo.save) return "save";
     if (this.actionInfo.isFlat) return "attack";
     if (this.damageParts.length > 0) return "damage";
-    if (this.actionInfo.activation?.type === "special" && (!this.data.uses.max || this.data.uses.max === "")) {
+    if (this.actionInfo.activation?.type === "special" && (!this.data.uses?.max || this.data.uses.max === "")) {
       return undefined;
     }
     if (this.actionInfo.activation?.type

@@ -70,7 +70,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   }
 
   const activity = args[0].workflow.activity;
-  if (!DDBEffectHelper.isAttack({ activity, classification: "weapon" })) return;
+  if (!DDBImporter.EffectHelper.isAttack({ activity, classification: "weapon" })) return;
 
   const ensnaringStrikeDoc = actor.items.find((i) =>
     (i.flags.ddbimporter?.originalName ?? i.name) === "Ensnaring Strike"

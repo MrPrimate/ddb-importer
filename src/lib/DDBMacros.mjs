@@ -220,6 +220,21 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     };
   }
 
+  static generateSourceUpdateMacroChange({ macroPass, macroType = null, macroName = null, priority = 20, document, macroParams = "" } = {}) {
+    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
+    const valueStub = useDDBFunctions
+      ? DDBMacros.generateItemMacroValue({ macroType, macroName, document })
+      : `${document.name}`;
+    const valueContent = `${valueStub},${macroPass} ${macroParams}`.trim();
+
+    return {
+      key: "flags.dae.onUpdateSource",
+      value: valueContent,
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      priority,
+    };
+  }
+
   static generateOptionalMacroChange({ optionPostfix, macroPass = null, macroType = null, macroName = null, priority = 20, document = null, macroParams = "" } = {}) {
     const valueStub = DDBMacros.generateItemMacroValue({ macroType, macroName, document });
     const valueContent = macroPass

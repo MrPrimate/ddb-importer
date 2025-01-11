@@ -5,7 +5,7 @@ if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
 
 try {
   const activity = args[0].workflow.activity;
-  if (!DDBEffectHelper.isMeleeWeaponAttack({ activity })) return;
+  if (!DDBImporter.EffectHelper.isMeleeWeaponAttack({ activity })) return;
 
   if (args[0].hitTargetUuids.length === 0) return {}; // did not hit anyone
   for (let tokenUuid of args[0].hitTargetUuids) {

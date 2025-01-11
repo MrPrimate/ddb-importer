@@ -513,12 +513,6 @@ export default class DDBEffectHelper {
     return 1 + Math.floor((level + 1) / 6);
   }
 
-
-  // eslint-disable-next-line no-unused-vars
-  static getConcentrationEffect(actor, _name = null) {
-    return actor?.effects.find((ef) => foundry.utils.getProperty(ef, "flags.midi-qol.isConcentration"));
-  }
-
   /**
    * This is a simple reworking of midi-qols measureDistances function, for use where midi-qol is not available
    * Measure distances for given segments with optional grid spaces.
@@ -1198,6 +1192,20 @@ export default class DDBEffectHelper {
         },
       },
     ];
+  }
+
+  static getConcentrationNames(rolledDocumentName = "") {
+    return Array.from(new Set([
+      `${game.i18n.localize("midi-qol.Concentrating")}: ${rolledDocumentName}`,
+      game.i18n.localize("midi-qol.Concentrating"),
+      `Concentrating: ${rolledDocumentName}`,
+      `Concentrating`,
+    ]));
+  }
+
+  static getConcentrationEffect(actor, documentName = "") {
+    const concentrationEffectNames = DDBEffectHelper.getConcentrationNames(documentName);
+    return actor.effects.find((ef) => concentrationEffectNames.some((c) => ef.name.startsWith(c)));
   }
 
   static overTimeDamage({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc } = {}) {

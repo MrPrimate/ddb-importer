@@ -1,7 +1,7 @@
 # Next Up
 
 - Misty Step DDB Simple Macro.
-- Hex, Ice Knife, Fire Shield, Flesh to Stone, Sneak Attack, Thunderous Smite, Spirit Shroud, Branding Smite and Heroism Midi automations for v4.
+- Hunter's Mark, Hex, Ice Knife, Fire Shield, Flesh to Stone, Sneak Attack, Thunderous Smite, Spirit Shroud, Branding Smite and Heroism Midi automations for v4.
 - Numerous spell fixes and tweaks.
 - Psychic Blade Bonus attack did not include damage mod.
 

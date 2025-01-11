@@ -1,6 +1,6 @@
 try {
   const activity = args[0].workflow.activity;
-  if (!DDBEffectHelper.isAttack({ activity, classification: "weapon" })) return;
+  if (!DDBImporter.EffectHelper.isAttack({ activity, classification: "weapon" })) return;
 
   if (args[0].hitTargetUuids.length === 0) return {}; // did not hit anyone
   for (let tokenUuid of args[0].hitTargetUuids) {

@@ -37,6 +37,10 @@ export default class ChangeHelper {
     };
   }
 
+  static addChange(value, priority, key) {
+    ChangeHelper.unsignedAddChange(value, priority, key);
+  }
+
   static customChange(value, priority, key) {
     return {
       key,
@@ -51,12 +55,7 @@ export default class ChangeHelper {
       || (!Number.isInteger(value) && !value.trim().startsWith("+") && !value.trim().startsWith("-")) // not an int and does not start with + or -
       ? `+${value}`
       : value;
-    return {
-      key,
-      value: bonusValue,
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      priority,
-    };
+    return ChangeHelper.customChange(bonusValue, priority, key);
   }
 
   static upgradeChange(value, priority, key) {

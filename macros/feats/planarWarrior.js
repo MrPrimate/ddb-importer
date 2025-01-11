@@ -155,7 +155,7 @@ function isValidTarget(workflow) {
   const activity = args[0].workflow.activity;
 
   // console.warn(activity);
-  if (!DDBEffectHelper.isAttack({ activity, classification: "weapon" })) return false;
+  if (!DDBImporter.EffectHelper.isAttack({ activity, classification: "weapon" })) return false;
 
   const targetUuid = workflow.hitTargets.first().document.uuid;
   // only on the marked target

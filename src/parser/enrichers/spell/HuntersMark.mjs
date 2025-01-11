@@ -4,7 +4,7 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 export default class HuntersMark extends DDBEnricherData {
 
   get type() {
-    return "utility"; // activity type - if type is none, activity hit will be generally undefined
+    return "utility";
   }
 
   get activity() {
@@ -42,13 +42,68 @@ export default class HuntersMark extends DDBEnricherData {
           damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination, types: damageTypes, scalingFormula: "" })],
         },
       },
+      {
+        duplicate: true,
+        overrides: {
+          name: "Move Hunter's Mark",
+          noConsumeTargets: true,
+          removeSpellSlotConsume: true,
+          data: {
+
+          },
+        },
+      },
     ];
   }
 
   get effects() {
-    return [{
-      name: "Hunter's Mark",
-    }];
+    return [
+      {
+        name: "Hunter's Mark: Marked",
+        daeChanges: [
+          // DDBMacros.generateSourceUpdateMacroChange({
+          //   macroType: "spell",
+          //   macroName: "huntersMark.js",
+          //   document: this.data,
+          // }),
+          DDBEnricherData.ChangeHelper.customChange("Hunter's Mark", 20, "flags.dae.onUpdateSource"),
+        ],
+        options: {
+          durationSeconds: 3600,
+        },
+      },
+      {
+        daeOnly: true,
+        name: "Hunter's Mark (Automation)",
+        damageBonusMacroChanges: [
+          { macroType: "spell", macroName: "huntersMark.js", document },
+        ],
+        daeChanges: this.is2014
+          ? []
+          : [
+            DDBEnricherData.ChangeHelper.unsignedAddChange("force", 20, "flags.dae.huntersMark.damageType"),
+          ],
+        options: {
+          transfer: true,
+          // durationSeconds: 3600,
+        },
+      },
+    ];
+  }
+
+  get setMidiOnUseMacroFlag() {
+    return {
+      type: "spell",
+      name: "huntersMark.js",
+      triggerPoints: ["preItemRoll"],
+    };
+  }
+
+  get itemMacro() {
+    return {
+      type: "spell",
+      name: "huntersMark.js",
+    };
   }
 
 
