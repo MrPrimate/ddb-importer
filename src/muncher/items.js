@@ -141,7 +141,11 @@ function getItemData(sourceFilter) {
             // base item
             if (item.id === item.baseItemId) return true;
             const is2024 = item.sources.some((s) => [24].includes(s.sourceCategoryId));
-            if (is2024) return false;
+            if (is2024) {
+              const alsoOther = !item.sources.every((s) => [24].includes(s.sourceCategoryId));
+              if (alsoOther) return true;
+              return false;
+            }
             return true;
           });
         if (sources.length == 0 || !sourceFilter) return genericsFilteredData;

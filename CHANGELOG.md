@@ -1,3 +1,7 @@
+# 5.2.44
+
+- Items published in 2024 that were in books that were not the 2014 core rules did not import.
+
 # 5.2.43
 
 - Some "base" weapons and armors have not been downloadable since 2024 PHB was released. They now are, but they will use the 2024 description.
