@@ -1,6 +1,6 @@
 # 5.2.44
 
-- Items published in 2024 that were in books that were not the 2014 core rules did not import.
+- Items published in 2024, but identical to previous versions, that were in books that were not the 2014 core rules did not import. e.g. Clothes of Mending.
 
 # 5.2.43
 
