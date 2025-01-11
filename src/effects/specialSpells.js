@@ -21,7 +21,6 @@ import { eyebiteEffect } from "./spells/eyebite.js";
 import { greaseEffect } from "./spells/grease.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
 import { hideousLaughterEffect } from "./spells/hideousLaughter.js";
-import { huntersMarkEffect } from "./spells/huntersMark.js";
 import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
 import { insectPlagueEffect } from "./spells/insectPlague.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
@@ -120,10 +119,6 @@ async function midiEffectAdjustment(document) {
     case "Tasha's Hideous Laughter":
     case "Hideous Laughter": {
       document = await hideousLaughterEffect(document);
-      break;
-    }
-    case "Hunter's Mark": {
-      document = await huntersMarkEffect(document);
       break;
     }
     case "Incendiary Cloud": {
