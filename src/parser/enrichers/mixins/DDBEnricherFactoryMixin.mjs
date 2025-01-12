@@ -319,6 +319,10 @@ export default class DDBEnricherFactoryMixin {
       foundry.utils.setProperty(activity, "consumption.spellSlot", false);
     }
 
+    if (overrideData.targetSelf) {
+      foundry.utils.setProperty(activity, "target.affects.type", "self");
+    }
+
     if (overrideData.targetType) {
       if (activity.target?.affects)
         foundry.utils.setProperty(activity, "target.affects.type", overrideData.targetType);
@@ -455,9 +459,7 @@ export default class DDBEnricherFactoryMixin {
   }
 
   get _canApplyMidiEffects() {
-    const addAutomationEffects = this.ddbParser.isCompendiumItem
-      ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-      : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+    const addAutomationEffects = this.loadedEnricher?.useMidiAutomations ?? false;
     return addAutomationEffects;
   }
 
@@ -489,7 +491,7 @@ export default class DDBEnricherFactoryMixin {
       if (effectHint.daeNever && AutoEffects.effectModules().daeInstalled) continue;
       if (effectHint.daeOnly && !AutoEffects.effectModules().daeInstalled) continue;
       if (effectHint.midiNever && AutoEffects.effectModules().midiQolInstalled) continue;
-      if (effectHint.midiOnly && !AutoEffects.effectModules().midiQolInstalled) continue;
+      if (effectHint.midiOnly && !applyMidiOnlyEffects) continue;
       if (effectHint.activeAurasNever && AutoEffects.effectModules().activeAurasInstalled) continue;
       if (effectHint.activeAurasOnly && !AutoEffects.effectModules().activeAurasInstalled) continue;
       if (effectHint.atlNever && AutoEffects.effectModules().atlInstalled) continue;
@@ -574,7 +576,7 @@ export default class DDBEnricherFactoryMixin {
         effect.changes.push(...effectHint.tokenMagicChanges);
       }
 
-      if (effectHint.midiChanges && AutoEffects.effectModules().midiQolInstalled && applyMidiOnlyEffects) {
+      if (effectHint.midiChanges && applyMidiOnlyEffects) {
         effect.changes.push(...effectHint.midiChanges);
       }
 
@@ -590,7 +592,7 @@ export default class DDBEnricherFactoryMixin {
         foundry.utils.setProperty(effect, "flags.dae.specialDuration", effectHint.daeSpecialDurations);
       }
 
-      if (effectHint.midiProperties && AutoEffects.effectModules().midiQolInstalled && applyMidiOnlyEffects) {
+      if (effectHint.midiProperties && applyMidiOnlyEffects) {
         foundry.utils.setProperty(this.data, "flags.midiProperties", effectHint.midiProperties);
       }
 

@@ -369,7 +369,7 @@ export default class DDBClass {
     }
   }
 
-  constructor(ddbData, classId, { noMods = false, addToCompendium = null } = {}) {
+  constructor(ddbData, classId, { isGeneric = false, addToCompendium = null } = {}) {
     this._indexFilter = {
       features: {
         fields: [
@@ -434,7 +434,7 @@ export default class DDBClass {
     this._generateDataStub();
 
     this.options = {
-      noMods,
+      isGeneric,
     };
 
     this.dictionary = DICTIONARY.actor.class.find((c) => c.name === this.ddbClassDefinition.name) ?? { multiclassSkill: 0 };
@@ -442,7 +442,7 @@ export default class DDBClass {
     this.advancementHelper = new AdvancementHelper({
       ddbData,
       type: "class",
-      noMods: this.options.noMods,
+      noMods: this.options.isGeneric,
     });
 
     this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
@@ -832,7 +832,7 @@ export default class DDBClass {
   }
 
   _generateSaveAdvancements() {
-    if (this.options.noMods) {
+    if (this.options.isGeneric) {
       this._generateHTMLSaveAdvancement();
       return;
     }
@@ -861,7 +861,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
       && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
@@ -906,7 +906,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
 
     return this.advancementHelper.getLanguageAdvancement(mods, feature, level);
   }
@@ -967,7 +967,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getToolAdvancement(mods, feature, level);
   }
 
@@ -995,7 +995,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getArmorAdvancement(mods, feature, availableToMulticlass, level);
   }
 
@@ -1026,7 +1026,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getWeaponAdvancement(mods, feature, level);
   }
 
@@ -1054,7 +1054,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBModifiers.getChosenTypeModifiers(this.ddbData, modFilters);
+    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenTypeModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getWeaponMasteryAdvancement(mods, feature, level);
   }
 
@@ -1100,7 +1100,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.noMods ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
 
     return this.advancementHelper.getConditionAdvancement(mods, feature, level);
   }

@@ -20,7 +20,7 @@ export default class DDBCompanion2024 {
 
     this.useItemAC = false; // game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
     this.legacyName = false; // game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-    this.addMonsterEffects = true; // game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
+    this.addMonsterEffects = false; // game.settings.get("ddb-importer", "munching-policy-add-monster-midi-effects");
     this.removeSplitCreatureActions = true;
     this.removeCreatureOnlyNames = true;
     this.addChrisPremades = true;

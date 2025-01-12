@@ -45,7 +45,7 @@ export default class RagingStormSea extends DDBEnricherData {
         statuses: ["Prone"],
       },
       {
-        name: "Raging Seas Storm Automation",
+        name: "Raging Seas Storm (Automation)",
         midiOnly: true,
         options: {
           transfer: true,

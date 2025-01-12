@@ -68,7 +68,7 @@ export default class DDBMonsterFactory {
 
     this.useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
     this.legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-    this.addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
+    this.addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-midi-effects");
     this.addChrisPremades = game.settings.get("ddb-importer", "munching-policy-use-chris-premades");
 
 

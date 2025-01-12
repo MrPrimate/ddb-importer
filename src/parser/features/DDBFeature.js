@@ -34,7 +34,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     this.documentType = DDBFeature.DOC_TYPE[this.type];
     this.tagType = this.type;
     logger.debug(`Init Feature ${this.ddbDefinition.name}`);
-    this._class = this.noMods
+    this._class = this.isGeneric
       ? null
       : this.ddbData.character.classes.find((klass) =>
         (this.ddbDefinition.classId
@@ -44,7 +44,7 @@ export default class DDBFeature extends DDBFeatureMixin {
             || (this.ddbDefinition.subclassName && klass.subclassDefinition?.name === this.ddbDefinition.subclassName))
         ),
       );
-    this._choices = this.noMods
+    this._choices = this.isGeneric
       ? []
       : DDBDataUtils.getChoices({
         ddb: this.ddbData,
@@ -56,7 +56,7 @@ export default class DDBFeature extends DDBFeatureMixin {
         if (!p.some((e) => e.id === c.id)) p.push(c);
         return p;
       }, []);
-    this._chosen = this.noMods
+    this._chosen = this.isGeneric
       ? []
       : DDBDataUtils.getChoices({
         ddb: this.ddbData,
@@ -85,7 +85,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     this.advancementHelper = new AdvancementHelper({
       ddbData: this.ddbData,
       type: this.type,
-      noMods: this.noMods,
+      noMods: this.isGeneric,
     });
   }
 

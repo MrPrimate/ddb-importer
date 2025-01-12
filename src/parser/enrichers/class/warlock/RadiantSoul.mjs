@@ -25,7 +25,7 @@ export default class RadiantSoul extends DDBEnricherData {
   get effects() {
     return [
       {
-        name: "Radiant Soul Automation",
+        name: "Radiant Soul (Automation)",
         options: {
           transfer: true,
           durationSeconds: null,

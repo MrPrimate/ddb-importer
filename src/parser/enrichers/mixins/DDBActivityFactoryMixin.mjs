@@ -19,12 +19,16 @@ export default class DDBActivityFactoryMixin {
 
   notifier = null;
 
+  useMidiAutomations = false;
 
-  constructor({ enricher = null, activityGenerator, documentType = null, notifier = null } = {}) {
+  constructor({
+    enricher = null, activityGenerator, documentType = null, notifier = null, useMidiAutomations = false,
+  } = {}) {
     this.enricher = enricher;
     this.activityGenerator = activityGenerator;
     this.documentType = documentType;
     this.notifier = notifier;
+    this.useMidiAutomations = useMidiAutomations;
   }
 
   async loadEnricher() {

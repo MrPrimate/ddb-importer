@@ -198,6 +198,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     super({
       enricher,
       activityGenerator: DDBMonsterFeatureActivity,
+      useMidiAutomations: ddbMonster.addMonsterEffects,
     });
 
     this.name = name.trim();

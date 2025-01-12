@@ -5,7 +5,7 @@ import Maneuver from "./Maneuver.mjs";
 
 export default class ManeuverQuickToss extends Maneuver {
   get type() {
-    return DDBEnricherData.AutoEffects.effectModules().midiQolInstalled
+    return this.useMidiAutomations
       ? "utility"
       : "damage";
   }

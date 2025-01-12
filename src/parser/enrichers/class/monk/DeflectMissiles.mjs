@@ -46,7 +46,7 @@ export default class DeflectMissiles extends DDBEnricherData {
     return [
       {
         midiOnly: true,
-        name: "Deflect Missiles Automation",
+        name: "Deflect Missiles (Automation)",
         options: {
           transfer: true,
         },

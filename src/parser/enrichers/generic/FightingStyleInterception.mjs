@@ -28,7 +28,7 @@ export default class FightingStyleInterception extends DDBEnricherData {
     return [
       {
         midiOnly: true,
-        name: "Interception: Automation",
+        name: "Interception (Automation)",
         options: {
           transfer: true,
         },

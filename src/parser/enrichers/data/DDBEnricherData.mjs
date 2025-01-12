@@ -123,6 +123,11 @@ export default class DDBEnricherData {
       : ChangeHelper.customChange;
   }
 
+  get useMidiAutomations() {
+    if (!DDBEnricherData.AutoEffects.effectModules().midiQolInstalled) return false;
+    return this.ddbParser.useMidiAutomations ?? false;
+  }
+
   constructor({ ddbEnricher }) {
     this.ddbEnricher = ddbEnricher;
     this.ddbParser = ddbEnricher.ddbParser;

@@ -69,7 +69,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     return [
       {
         midiOnly: true,
-        name: "Tokens of the Departed Automation",
+        name: "Tokens of the Departed (Automation)",
         options: {
           description: "You have advantage on death saving throws and Constitution saving throws.",
           transfer: true,

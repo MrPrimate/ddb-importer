@@ -78,6 +78,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Unarmed Strike": GenericEnrichers.UnarmedStrike,
     "Uncanny Dodge": GenericEnrichers.UncannyDodge,
     "Vedalken Dispassion": SpeciesEnrichers.Vedalken.VedalkenDispassion,
+    "Adrenaline Rush": SpeciesEnrichers.Orc.AdrenalineRush,
   };
 
   FALLBACK_ENRICHERS = {

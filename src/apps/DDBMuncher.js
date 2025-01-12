@@ -269,7 +269,7 @@ export default class DDBMuncher extends Application {
   static async parseSpells() {
     try {
       logger.info("Munching spells!");
-      if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects")) {
+      if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects")) {
         await DDBMacros.createWorldMacros("spells");
       }
       await DDBReferenceLinker.importCacheLoad();

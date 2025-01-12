@@ -5,7 +5,7 @@ export default class PotentCantrip extends DDBEnricherData {
   get effect() {
     return [
       {
-        name: "Potent Cantrip Automation",
+        name: "Potent Cantrip (Automation)",
         midiOnly: true,
         options: {
           transfer: true,

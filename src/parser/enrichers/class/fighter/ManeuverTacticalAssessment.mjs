@@ -5,11 +5,11 @@ import Maneuver from "./Maneuver.mjs";
 export default class ManeuverTacticalAssessment extends Maneuver {
 
   get type() {
-    return DDBEnricherData.AutoEffects.effectModules().midiQolInstalled ? "utility" : "check";
+    return this.useMidiAutomations ? "utility" : "check";
   }
 
   get activity() {
-    return DDBEnricherData.AutoEffects.effectModules().midiQolInstalled
+    return this.useMidiAutomations
       ? {
         targetType: "self",
         activationType: "special",

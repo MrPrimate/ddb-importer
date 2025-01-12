@@ -12,3 +12,7 @@ export * as Bugbear from "./bugbear/_module.mjs";
 export * as Leonin from "./leonin/_module.mjs";
 export * as Goblin from "./goblin/_module.mjs";
 export * as Hadozee from "./hadozee/_module.mjs";
+export * as Orc from "./orc/_module.mjs";
+export * as Human from "./human/_module.mjs";
+export * as Tiefling from "./tiefling/_module.mjs";
+export * as Gnome from "./gnome/_module.mjs";

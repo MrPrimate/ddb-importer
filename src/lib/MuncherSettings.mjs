@@ -12,16 +12,10 @@ import { SystemHelpers } from "../parser/lib/_module.mjs";
 const MuncherSettings = {
 
   disableCharacterActiveEffectSettings: (html) => {
+    $(html).find("#character-import-policy-add-midi-effects").prop("checked", false);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects", false);
     $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
-    $(html).find("#character-import-policy-add-spell-effects").prop("checked", false);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects", false);
-    $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
-    $(html).find("#character-import-policy-add-item-effects").prop("checked", false);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects", false);
-    $(html).find("#character-import-policy-add-character-effects").prop("checked", false);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects", false);
     $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
     $(html).find("#character-update-policy-use-chris-premades").prop("checked", false);
@@ -31,14 +25,10 @@ const MuncherSettings = {
   setRecommendedCharacterActiveEffectSettings: (html) => {
     $(html).find("#character-import-policy-dae-effect-copy").prop("checked", !SystemHelpers.effectModules().hasCore);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", !SystemHelpers.effectModules().hasCore);
-    $(html).find("#character-import-policy-add-spell-effects").prop("checked", SystemHelpers.effectModules().hasCore);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects", SystemHelpers.effectModules().hasCore);
+    $(html).find("#character-import-policy-add-midi-effects").prop("checked", SystemHelpers.effectModules().hasCore);
+    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects", SystemHelpers.effectModules().hasCore);
     $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
-    $(html).find("#character-import-policy-add-item-effects").prop("checked", true);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects", true);
-    $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects", true);
     $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
     $(html).find("#character-update-policy-use-chris-premades").prop("checked", !SystemHelpers.effectModules().chrisInstalled);
@@ -128,12 +118,10 @@ const MuncherSettings = {
 
     const effectModulesAvailable = SystemHelpers.effectModules();
     const chrisInstalled = effectModulesAvailable.chrisInstalled;
-    const generateSpellEffects = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects");
-    if (generateSpellEffects && !effectModulesAvailable.hasCore) {
-      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects", false);
+    const generateMidiEffects = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects");
+    if (generateMidiEffects && !effectModulesAvailable.hasCore) {
+      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects", false);
     }
-
-    const spellEffectText = `These are highly automated and required the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, and Times Up${MuncherSettings.getInstalledIcon("timesUp")}. Optional, but recommended automation modules: Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}.`;
 
     const installedModulesText = `
 <p>Some Active Effects do not require any external modules, many of these will be created regardless of what settings are checked here, some will need these options checked.</p>
@@ -285,24 +273,10 @@ const MuncherSettings = {
 
     const effectImportConfig = [
       {
-        name: "add-character-effects",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-character-effects"),
-        title: "Generate Automation Effects for Character Features/Racial Traits/Feats/Backgrounds",
-        description: null,
-        enabled: true,
-      },
-      {
-        name: "add-item-effects",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects"),
-        title: "Generate Automation Effects for Equipment",
-        description: null,
-        enabled: true,
-      },
-      {
-        name: "add-spell-effects",
-        isChecked: generateSpellEffects && effectModulesAvailable.hasCore,
-        title: "Generate Automation Effects for Spells",
-        description: spellEffectText,
+        name: "add-midi-effects",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects"),
+        title: "Generate MidiQOL Automation Effects?",
+        description: `Generates high degree of automation Effects for MidiQOL? <br> <i>This is not recommended for new users to Foundry.</i><br> Requires MidiQOL ${MuncherSettings.getInstalledIcon("midiQolInstalled")} module.<br>These will replace any effects created by DDB Importer.`,
         enabled: effectModulesAvailable.hasCore,
       },
       {
@@ -481,15 +455,16 @@ const MuncherSettings = {
     const compendiumFolderMonsterStyles = MuncherSettings.getCompendiumFolderLookups("monster");
     const compendiumFolderSpellStyles = MuncherSettings.getCompendiumFolderLookups("spell");
     const compendiumFolderItemStyles = MuncherSettings.getCompendiumFolderLookups("item");
-    const spellEffectText = `Create Automation Effects for spells?<br>
-These effects automate a lot of common spells, but do require the use of a number of external modules, including "Midi-QOL", which potentially introduces a much higher level of automation and complexity above the base Foundry system.<br>
+    const automationText = `Create MidiQoL Automation Effects for spells?<br>
+<i>This is not recommended for new Foundry users.</i><br>
+This applies some automation to the items, but do require the use of a number of external modules, including "Midi-QOL", which potentially introduces a much higher level of automation and complexity above the base Foundry system.<br>
 These require the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, and Times Up${MuncherSettings.getInstalledIcon("timesUp")} as a minimum.<br>
-Effects can also be created to use Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}.
+Effects can also be created to use Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")} and Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}.
 `;
 
-    const generateSpellEffects = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects");
-    if (generateSpellEffects && !effectModulesAvailable.hasCore) {
-      game.settings.set(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects", false);
+    const generateMidiEffects = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects");
+    if (generateMidiEffects && !effectModulesAvailable.hasCore) {
+      game.settings.set(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects", false);
     }
 
     const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
@@ -517,10 +492,10 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         enabled: true,
       },
       {
-        name: "add-effects",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-effects"),
-        description: "Add Automation effects to equipment?",
-        enabled: true,
+        name: "add-midi-effects",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects"),
+        description: automationText,
+        enabled: effectModulesAvailable.hasCore,
       },
       {
         name: "item-homebrew",
@@ -544,9 +519,9 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         enabled: true,
       },
       {
-        name: "add-spell-effects",
-        isChecked: generateSpellEffects && effectModulesAvailable.hasCore,
-        description: spellEffectText,
+        name: "add-midi-effects",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects"),
+        description: automationText,
         enabled: effectModulesAvailable.hasCore,
       },
       {
@@ -645,8 +620,8 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         enabled: true,
       },
       {
-        name: "add-monster-effects",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-monster-effects"),
+        name: "add-monster-midi-effects",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-monster-midi-effects"),
         description: `Generate Automation Effects that use Midi-QOL on monster attacks/features? <br>These are for a highly automated game, and are things such as managing abilities with conditions that have saves every round, or attacks which apply conditions such as frightened or prone.<br>Requires DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}.`,
         enabled: effectModulesAvailable.hasMonster,
       },

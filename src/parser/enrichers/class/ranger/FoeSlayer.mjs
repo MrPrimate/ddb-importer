@@ -5,7 +5,7 @@ export default class FoeSlayer extends DDBEnricherData {
 
   get effects() {
     return [{
-      name: "Foe Slayer Automation",
+      name: "Foe Slayer (Automation)",
       options: {
         transer: true,
       },

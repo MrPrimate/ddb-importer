@@ -81,7 +81,7 @@ export default class DDBRace {
     return baseName;
   }
 
-  constructor(ddbData, race, compendiumRacialTraits, noMods = false) {
+  constructor(ddbData, race, compendiumRacialTraits, isGeneric = false) {
     this.ddbData = ddbData;
     this.race = race;
     this.is2014 = this.race.isLegacy
@@ -154,12 +154,12 @@ export default class DDBRace {
 
     this.abilityAdvancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
 
-    this.noMods = noMods || ddbData === null;
+    this.isGeneric = isGeneric || ddbData === null;
 
     this.advancementHelper = new AdvancementHelper({
       ddbData: this.ddbData,
       type: "race",
-      noMods: this.noMods,
+      noMods: this.isGeneric,
     });
 
     this.featLink = {
@@ -606,7 +606,7 @@ export default class DDBRace {
   }
 
   #generateSenses() {
-    if (this.noMods) {
+    if (this.isGeneric) {
       this.#generateHTMLSenses();
       return;
     }

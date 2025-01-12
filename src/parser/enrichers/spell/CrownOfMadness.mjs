@@ -6,7 +6,7 @@ export default class CrownOfMadness extends DDBEnricherData {
   get effects() {
     return [
       {
-        name: "Crown of Madness Automation",
+        name: "Crown of Madness (Automation)",
         midiOnly: true,
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(

@@ -65,7 +65,7 @@ async function buildBackground(backgroundData) {
     rawCharacter: null,
     type: "background",
     source,
-    noMods: true,
+    isGeneric: true,
   });
 
   ddbFeature.build();

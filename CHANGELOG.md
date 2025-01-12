@@ -5,6 +5,8 @@
 - Numerous spell fixes and tweaks.
 - Psychic Blade Bonus attack did not include damage mod.
 - Support for new Beta CPR API for improved matching.
+- Adrenaline Rush did not target self. @livid.paragon
+- MidiQol Automations now only apply based on if the automation setting is chosen, rather than if MidiQol is installed.
 
 # 6.0.62
 

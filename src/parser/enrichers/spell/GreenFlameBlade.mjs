@@ -4,12 +4,12 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 export default class GreenFlameBlade extends DDBEnricherData {
 
   get type() {
-    return DDBEnricherData.AutoEffects.effectModules().midiQolInstalled ? "utility" : "none";
+    return this.useMidiAutomations ? "utility" : "none";
   }
 
   get activity() {
     return {
-      name: "Cast Spell: Automation",
+      name: "Cast Spell (Automation)",
       targetType: "creature",
       overrideTemplate: true,
       overrideRange: true,

@@ -7,7 +7,7 @@ export default class SculptSpells extends DDBEnricherData {
     return [
       {
         midiOnly: true,
-        name: "Sculpt Spells Automation",
+        name: "Sculpt Spells (Automation)",
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.sculptSpell"),
         ],

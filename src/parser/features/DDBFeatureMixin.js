@@ -184,13 +184,19 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   constructor({
-    ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, noMods = false, activityType = null,
+    ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, isGeneric = false, activityType = null,
     extraFlags = {}, enricher = null, ddbCharacter = null, fallbackEnricher = null,
   } = {}) {
+
+    const addEffects = isGeneric
+      ? game.settings.get("ddb-importer", "munching-policy-add-midi-effects")
+      : game.settings.get("ddb-importer", "character-update-policy-add-midi-effects");
+
     super({
       enricher,
       activityGenerator: DDBFeatureActivity,
       documentType,
+      useMidiAutomations: addEffects,
     });
 
     this.ddbCharacter = ddbCharacter;
@@ -216,7 +222,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this.tagType = "other";
     this.activities = [];
     this.data = {};
-    this.noMods = noMods;
+    this.isGeneric = isGeneric;
     this._init();
     this.snippet = "";
     this.description = "";

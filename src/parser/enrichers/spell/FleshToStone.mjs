@@ -28,7 +28,7 @@ export default class FleshToStone extends DDBEnricherData {
   }
 
   get clearAutoEffects() {
-    return DDBEnricherData.AutoEffects.effectModules().midiQolInstalled;
+    return this.useMidiAutomations;
   }
 
 

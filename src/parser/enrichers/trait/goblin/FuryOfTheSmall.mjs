@@ -55,7 +55,7 @@ export default class FuryOfTheSmall extends DDBEnricherData {
         options: {
           transfer: true,
         },
-        name: "Fury of the Small Automation",
+        name: "Fury of the Small (Automation)",
         midiOptionalChanges,
         data: {
           duration: {

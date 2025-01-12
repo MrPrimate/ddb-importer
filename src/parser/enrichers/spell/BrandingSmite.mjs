@@ -4,7 +4,7 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 export default class BrandingSmite extends DDBEnricherData {
 
   get additionalActivities() {
-    return this.is2014 && DDBEnricherData.AutoEffects.effectModules().midiQolInstalled
+    return this.is2014 && this.useMidiAutomations
       ? [
         {
           constructor: {
@@ -29,12 +29,12 @@ export default class BrandingSmite extends DDBEnricherData {
   }
 
   get clearAutoEffects() {
-    return this.is2014 && DDBEnricherData.AutoEffects.effectModules().midiQolInstalled;
+    return this.is2014 && this.useMidiAutomations;
   }
 
 
   get effects() {
-    return this.is2014 && DDBEnricherData.AutoEffects.effectModules().midiQolInstalled
+    return this.is2014 && this.useMidiAutomations
       ? [
         {
           name: `${this.data.name} (Automation)`,

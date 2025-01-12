@@ -86,11 +86,16 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   // eslint-disable-next-line complexity
   constructor({ characterManager, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null } = {}) {
+    const addEffects = isCompendium
+      ? game.settings.get("ddb-importer", "munching-policy-add-midi-effects")
+      : game.settings.get("ddb-importer", "character-update-policy-add-midi-effects");
+
     super({
       enricher,
       activityGenerator: DDBItemActivity,
       documentType: "item",
       notifier,
+      useMidiAutomations: addEffects,
     });
 
     this.notifier = notifier;
@@ -163,8 +168,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     };
 
     this.addAutomationEffects = this.isCompendiumItem
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-effects")
-      : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects");
+      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects")
+      : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects");
 
     this.updateExisting = this.isCompendiumItem
       ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")

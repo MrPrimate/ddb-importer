@@ -212,7 +212,7 @@ const SETTINGS = {
         config: false,
         type: Array,
         default: [],
-      }
+      },
     },
     // ready settings
     READY: {
@@ -479,17 +479,7 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-add-character-effects": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-add-item-effects": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-add-spell-effects": {
+          "character-update-policy-add-midi-effects": {
             scope: "player",
             type: Boolean,
             default: false,
@@ -624,17 +614,7 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-dae-effect-copy": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "character-update-policy-active-effect-copy": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-active-effect-character-copy": {
             scope: "player",
             type: Boolean,
             default: false,
@@ -901,64 +881,42 @@ const SETTINGS = {
             default: true,
           },
           "munching-policy-use-srd-icons": {
-            name: "ddb-importer.settings.munching-policy-use-srd-icons.name",
-            hint: "ddb-importer.settings.munching-policy-use-srd-icons.hint",
             type: Boolean,
             default: false,
           },
           "munching-policy-use-inbuilt-icons": {
-            name: "ddb-importer.settings.munching-policy-use-inbuilt-icons.name",
-            hint: "ddb-importer.settings.munching-policy-use-inbuilt-icons.hint",
             type: Boolean,
             default: true,
           },
           "munching-policy-use-ddb-item-icons": {
-            name: "ddb-importer.settings.munching-policy-use-ddb-item-icons.name",
-            hint: "ddb-importer.settings.munching-policy-use-ddb-item-icons.hint",
             type: Boolean,
             default: true,
           },
           "munching-policy-use-ddb-spell-icons": {
-            name: "ddb-importer.settings.munching-policy-use-ddb-spell-icons.name",
-            hint: "ddb-importer.settings.munching-policy-use-ddb-spell-icons.hint",
             type: Boolean,
             default: true,
           },
           "munching-policy-use-ddb-generic-item-icons": {
-            name: "ddb-importer.settings.munching-policy-use-ddb-generic-item-icons.name",
-            hint: "ddb-importer.settings.munching-policy-use-ddb-generic-item-icons.hint",
             type: Boolean,
             default: true,
           },
           "munching-policy-use-full-token-image": {
-            name: "ddb-importer.settings.munching-policy-use-full-token-image.name",
-            hint: "ddb-importer.settings.munching-policy-use-full-token-image.hint",
             type: Boolean,
             default: false,
           },
           "munching-policy-use-token-avatar-image": {
-            name: "ddb-importer.settings.munching-policy-use-token-avatar-image.name",
-            hint: "ddb-importer.settings.munching-policy-use-token-avatar-image.hint",
             type: Boolean,
             default: false,
           },
           "munching-policy-remote-images": {
-            name: "ddb-importer.settings.munching-policy-remote-images.name",
-            hint: "ddb-importer.settings.munching-policy-remote-images.hint",
             type: Boolean,
             default: true,
           },
-          "munching-policy-add-effects": {
-            name: "ddb-importer.settings.munching-policy-add-effects.name",
-            hint: "ddb-importer.settings.munching-policy-add-effects.hint",
+          "munching-policy-add-midi-effects": {
             type: Boolean,
             default: true,
           },
-          "munching-policy-add-spell-effects": {
-            type: Boolean,
-            default: false,
-          },
-          "munching-policy-add-monster-effects": {
+          "munching-policy-add-monster-midi-effects": {
             type: Boolean,
             default: false,
           },

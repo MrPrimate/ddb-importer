@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class EnsnaringStrike extends DDBEnricherData {
   get type() {
-    return this.is2014 && DDBEnricherData.AutoEffects.effectModules().midiQolInstalled ? "utility" : "none";
+    return this.is2014 && this.useMidiAutomations ? "utility" : "none";
   }
 
   get activity() {
@@ -33,7 +33,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
         overrides: {
           targetType: "creature",
           activationType: "special",
-          noSpellslot: DDBEnricherData.AutoEffects.effectModules().midiQolInstalled,
+          noSpellslot: this.useMidiAutomations,
         },
       },
       {

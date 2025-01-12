@@ -66,7 +66,7 @@ export default class Slasher extends DDBEnricherData {
         },
       },
       {
-        name: "Slasher Automation",
+        name: "Slasher (Automation)",
         midiOnly: true,
         options: {
           transfer: true,

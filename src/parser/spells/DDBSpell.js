@@ -102,11 +102,17 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
     generateSummons = null, notifier = null, healingBoost = null, cantripBoost = null,
   } = {}) {
+
+    const generic = isGeneric ?? foundry.utils.getProperty(spellData, "flags.ddbimporter.generic");
+    const addEffects = generic
+      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects")
+      : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects");
     super({
       enricher,
       activityGenerator: DDBSpellActivity,
       documentType: "spell",
       notifier,
+      useMidiAutomations: addEffects,
     });
 
     this.notifier = notifier;
@@ -126,10 +132,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.additionalActivities = [];
     this.healingParts = [];
 
-    this.isGeneric = isGeneric ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.generic");
-    this.addSpellEffects = this.isGeneric
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects")
-      : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects");
+    this.isGeneric = generic;
+    this.addSpellEffects = addEffects;
 
     this.legacyPostfix = this.isGeneric
       ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-legacy-postfix")
