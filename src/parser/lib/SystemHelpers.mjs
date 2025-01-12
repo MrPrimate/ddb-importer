@@ -13,7 +13,7 @@ export default class SystemHelpers {
     const tokenMagicInstalled = game.modules.get("tokenmagic")?.active ?? false;
     const autoAnimationsInstalled = game.modules.get("autoanimations")?.active ?? false;
     const chrisInstalled = (game.modules.get("chris-premades")?.active
-      && foundry.utils.isNewerVersion(game.modules.get("chris-premades").version, "1.1.6")
+      && foundry.utils.isNewerVersion(game.modules.get("chris-premades").version, "1.1.10")
     ) ?? false;
     const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
 
