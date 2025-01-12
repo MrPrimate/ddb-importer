@@ -170,6 +170,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Hail of Thorns": SpellEnrichers.HailOfThorns,
     "Irresistible Dance": SpellEnrichers.IrresistibleDance,
     "Hideous Laughter": SpellEnrichers.HideousLaughter,
+    "Silence": SpellEnrichers.Silence,
     // Needs work
     // "Web": SpellEnrichers.Web,
     // "Create Bonfire": SpellEnrichers.CreateBonfire,

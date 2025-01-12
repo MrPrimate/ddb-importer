@@ -108,6 +108,7 @@ export { default as Shield } from "./Shield.mjs";
 export { default as ShieldOfFaith } from "./ShieldOfFaith.mjs";
 export { default as Shillelagh } from "./Shillelagh.mjs";
 export { default as ShiningSmite } from "./ShiningSmite.mjs";
+export { default as Silence } from "./Silence.mjs";
 export { default as Sleep } from "./Sleep.mjs";
 export { default as Slow } from "./Slow.mjs";
 export { default as SorcerousBurst } from "./SorcerousBurst.mjs";

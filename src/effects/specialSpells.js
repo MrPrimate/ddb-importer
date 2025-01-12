@@ -24,7 +24,6 @@ import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
 import { insectPlagueEffect } from "./spells/insectPlague.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
-import { silenceEffect } from "./spells/silence.js";
 import { sleepEffect } from "./spells/sleep.js";
 import { spikeGrowthEffect } from "./spells/spikeGrowth.js";
 import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
@@ -129,10 +128,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Phantasmal Killer": {
       document = await phantasmalKillerEffect(document);
-      break;
-    }
-    case "Silence": {
-      document = await silenceEffect(document);
       break;
     }
     case "Sleep": {

@@ -700,10 +700,7 @@ export default class Iconizer {
     }
 
     // update any generated effects
-    const addEffects = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-effects");
-    if (addEffects) {
-      items = Iconizer.addItemEffectIcons(items);
-    }
+    items = Iconizer.addItemEffectIcons(items);
 
     return items;
   }
