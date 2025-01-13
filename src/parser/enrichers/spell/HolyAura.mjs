@@ -82,7 +82,7 @@ export default class HolyAura extends DDBEnricherData {
         data: {
           flags: {
             dae: {
-              stackable: "noneName",
+              stackable: "noneNameOnly",
               selfTarget: true,
               selfTargetAlways: true,
             },

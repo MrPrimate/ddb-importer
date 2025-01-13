@@ -18,7 +18,7 @@ export function quasitEffects(npc) {
 
       foundry.utils.setProperty(effect, "duration.seconds", 60);
       foundry.utils.setProperty(effect, "duration.rounds", 10);
-      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
+      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
 
       item.effects.push(effect);
       foundry.utils.setProperty(item, "flags.midiProperties.fulldam", true);

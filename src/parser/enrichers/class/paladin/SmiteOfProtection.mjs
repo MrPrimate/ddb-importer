@@ -13,7 +13,7 @@ export default class SmiteOfProtection extends DDBEnricherData {
         },
         data: {
           flags: {
-            "dae.stackable": "noneName",
+            "dae.stackable": "noneNameOnly",
             ActiveAuras: {
               aura: "Allies",
               radius: `@scale.paladin.${this.data.name.toLowerCase().replaceAll(" ", "-")}`,

@@ -88,6 +88,7 @@ export class DDBInfusion {
     this.tagType = "infusion";
     this.data = {};
     this.actions = [];
+    this.actionsToAddToCompendium = [];
     this.grantedItems = [];
     this.isGeneric = isGeneric;
     this.idNames = [];
@@ -261,7 +262,22 @@ export class DDBInfusion {
 
   async _addActionsToEffects() {
     if (this.actions.length === 0) return;
-    const cItems = await this.addInfusionsToCompendium(this.actions);
+
+    for (const actionItem of this.actions) {
+      const ids = Object.keys(actionItem.system.activities).map((i) => i);
+      if (this.activity.data.effects?.length > 0) {
+        this.activity.data.effects[0].riders.activity.push(ids);
+      } else {
+        this.actionsToAddToCompendium.push(actionItem);
+      }
+      for (const id of ids) {
+        this.data.system.activities[id] = actionItem.system.activities[id];
+        this.data.effects.push(...actionItem.effects);
+      }
+    }
+
+    if (this.actionsToAddToCompendium.length === 0) return;
+    const cItems = await this.addInfusionsToCompendium(this.actionsToAddToCompendium);
     if (cItems.length === 0) return;
 
     const descriptions = this.ddbInfusion.actions.map((i) => `[[/item ${i.name}]]`);
@@ -275,7 +291,7 @@ export class DDBInfusion {
       e.changes.push({
         key: "system.description.value",
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        value: `<hr> <br><h2>Infusion Actions</h2><p> ${descriptions.join(", ")} </p>`,
+        value: `<hr><h2>Infusion Actions</h2><p> ${descriptions.join(", ")} </p>`,
       });
     });
   }
@@ -386,7 +402,7 @@ export class DDBInfusion {
     effect.changes.push({
       key: "system.description.value",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: `<hr> <br> ${description}`,
+      value: `<hr> <h5>Infusion Details</h5>${description}`,
     });
   }
 

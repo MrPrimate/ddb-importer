@@ -126,7 +126,7 @@ export default class Example extends DDBEnricherData {
         statuses: [], // add status effects
         atlChanges: [], // adds atl changes if atl active
         tokenMagicChanges: [], // adds token magic changes
-        daeStackable: "noneName", // set stackable dae value
+        daeStackable: "noneNameOnly", // set stackable dae value
         daeSpecialDurations: [], // adds dae special durations
         midiChanges: [], // adds midi changes
         daeChanges: [], // adds dae changes

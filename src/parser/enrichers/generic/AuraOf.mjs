@@ -10,7 +10,7 @@ export default class AuraOf extends DDBEnricherData {
         noCreate: true,
         data: {
           flags: {
-            "dae.stackable": "noneName",
+            "dae.stackable": "noneNameOnly",
             ActiveAuras: {
               aura: "Allies",
               radius: `@scale.paladin.${this.data.name.toLowerCase().replaceAll(" ", "-")}`,

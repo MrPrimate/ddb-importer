@@ -9,6 +9,7 @@ export class DDBInfusionFactory {
     this.rawCharacter = ddbCharacter.raw.character;
 
     this.processed = {
+      activityActions: [],
       actions: [],
       infusions: [],
     };
@@ -52,7 +53,8 @@ export class DDBInfusionFactory {
         this: this,
       });
       this.processed.infusions.push(ddbInfusion.data);
-      this.processed.actions.push(...ddbInfusion.actions);
+      this.processed.actions.push(...ddbInfusion.actionsToAddToCompendium);
+      this.processed.activityActions.push(...ddbInfusion.actions);
     }
     this.updateIds("infusions");
     this.updateIds("actions");

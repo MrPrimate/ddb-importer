@@ -24,7 +24,7 @@ export function giantSpiderEffects(npc) {
 
       foundry.utils.setProperty(effect, "duration.seconds", 60);
       foundry.utils.setProperty(effect, "duration.rounds", 10);
-      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
+      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
 
       item.effects.push(effect);
       item = forceItemEffect(item);

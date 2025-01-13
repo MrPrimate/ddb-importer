@@ -7,6 +7,7 @@
 - Support for new Beta CPR API for improved matching.
 - Adrenaline Rush did not target self. @livid.paragon
 - MidiQol Automations now only apply based on if the automation setting is chosen, rather than if MidiQol is installed.
+- Infusions, and some generated enchant activities will now create activities on enchanted items rather than creating seperate items. For example Ring of Spell-Refueling grants activity to run the refueling macro, and Sacred Weapon will add a light toggle macro if ATL is not in use.
 
 # 6.0.62
 

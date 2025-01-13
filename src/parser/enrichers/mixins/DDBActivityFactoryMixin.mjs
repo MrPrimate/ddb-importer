@@ -303,7 +303,6 @@ export default class DDBActivityFactoryMixin {
     );
 
     if (this.usesOnActivity || this.enricher.usesOnActivity) {
-      console.warn(this);
       options.usesOverride = foundry.utils.deepClone(this.data.system.uses);
       options.usesOverride.override = true;
       options.generateUses = true;

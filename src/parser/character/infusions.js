@@ -109,6 +109,10 @@ export async function createInfusedItems(ddb, actor) {
         const applied = await ActiveEffect.create(effectData, {
           parent: item,
           keepOrigin: true,
+          dnd5e: {
+            enchantmentProfile: effectData._id,
+            activityId: activity._id,
+          },
         });
         logger.debug(`Applied infusion effect from ${infusionFeature.name} to ${item.name}`, {
           effect: effectData,

@@ -1345,11 +1345,11 @@ ${item.system.description.chat}
         await this.actor.update({ system: { favorites } });
       }
 
-      // add infusions to actors items
-      await createInfusedItems(this.ddbCharacter.source.ddb, this.actor);
-
       this.showCurrentTask(`Consumption linking...`);
       await this.ddbCharacter.autoLinkConsumption();
+
+      // add infusions to actors items
+      await createInfusedItems(this.ddbCharacter.source.ddb, this.actor);
 
       if (this.settings.useChrisPremades) {
         this.showCurrentTask(`Applying CPR...`);

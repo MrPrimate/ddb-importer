@@ -65,7 +65,7 @@ export default class AutoEffects {
       flags: {
         dae: {
           transfer,
-          stackable: "noneName",
+          stackable: "noneNameOnly",
           // armorEffect: true
         },
         ddbimporter: {

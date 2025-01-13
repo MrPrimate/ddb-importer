@@ -11,7 +11,7 @@ export async function strahdZombieEffects(npc) {
         DDBMacros.generateOnUseMacroChange({ macroPass: "isDamaged", macroType: "monsterFeature", macroName: "loathsomeLimbs.js" }),
       );
       effect.transfer = true;
-      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
+      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
       await DDBMacros.setItemMacroFlag(item, "monsterFeature", "loathsomeLimbs.js");
 
       item.effects.push(effect);

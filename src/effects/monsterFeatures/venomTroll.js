@@ -19,7 +19,7 @@ export async function venomTrollEffects(npc) {
 
       foundry.utils.setProperty(effect, "duration.seconds", 60);
       foundry.utils.setProperty(effect, "duration.rounds", 10);
-      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
+      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
 
       await DDBMacros.setItemMacroFlag(item, "monsterFeature", "venomSpray.js");
       DDBMacros.setMidiOnUseMacroFlag(item, "monsterFeature", "venomSpray.js", ["postActiveEffects"]);
@@ -31,7 +31,7 @@ export async function venomTrollEffects(npc) {
         DDBMacros.generateOnUseMacroChange({ macroPass: "isDamaged", macroType: "monsterFeature", macroName: "venomSpray.js" }),
       );
       effect.transfer = true;
-      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneName");
+      foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
 
       await DDBMacros.setItemMacroFlag(item, "monsterFeature", "poisonSplash.js");
 
