@@ -36,11 +36,15 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     // "material"
     // "itemUses"
 
+    const consumptionType = this.ddbParent.usesOnActivity
+      ? "activityUses"
+      : "itemUses";
+
     if (this.actionInfo.consumptionTargets?.length > 0) {
       targets = this.actionInfo.consumptionTargets;
     } else if (this.actionInfo.consumptionValue) {
       targets.push({
-        type: "itemUses",
+        type: consumptionType,
         target: "",
         value: this.actionInfo.consumptionValue,
         scaling: {

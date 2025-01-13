@@ -113,6 +113,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       documentType: "spell",
       notifier,
       useMidiAutomations: addEffects,
+      usesOnActivity: false,
     });
 
     this.notifier = notifier;
@@ -942,6 +943,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       DDBDataUtils.addCustomValues(this.ddbData, this.data);
     }
 
+    this.cleanup();
     this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }

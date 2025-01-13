@@ -119,6 +119,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
       this.data._id = foundry.utils.randomID();
 
+      this.cleanup();
       this.enricher.addDocumentOverride();
       await this._addEffects(choice, this.type);
       this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);

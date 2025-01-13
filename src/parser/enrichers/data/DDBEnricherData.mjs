@@ -295,6 +295,10 @@ export default class DDBEnricherData {
     return null;
   }
 
+  get usesOnActivity() {
+    return false;
+  }
+
   // a hint to clear any generated auto effects before processing effect hints on the enricher
   get clearAutoEffects() {
     return false;

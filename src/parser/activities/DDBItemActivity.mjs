@@ -38,6 +38,10 @@ export default class DDBItemActivity extends DDBBasicActivity {
     // "material"
     // "itemUses"
 
+    const consumptionType = this.ddbParent.usesOnActivity
+      ? "activityUses"
+      : "itemUses";
+
     if (consumeActivity) {
       targets.push({
         type: "activityUses",
@@ -52,7 +56,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
       targets = this.actionInfo.consumptionTargets;
     } else if (this.actionInfo.consumptionValue) {
       targets.push({
-        type: "itemUses",
+        type: consumptionType,
         target: "",
         value: this.actionInfo.consumptionValue,
         scaling: {
@@ -62,7 +66,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
       });
     } else if (![0, null, undefined].includes(this.ddbParent.data.system.uses?.max)) {
       targets.push({
-        type: "itemUses",
+        type: consumptionType,
         target: "",
         value: 1,
         scaling: {

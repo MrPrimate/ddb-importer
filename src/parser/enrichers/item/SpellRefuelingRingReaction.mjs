@@ -11,7 +11,7 @@ export default class SpellRefuelingRingReaction extends DDBEnricherData {
     return {
       name: "Use Spell-Refueling Ring",
       activationType: "action",
-      addItemConsume: true,
+      addActivityConsume: true,
       data: {
         macro: {
           name: "Activate Macro",

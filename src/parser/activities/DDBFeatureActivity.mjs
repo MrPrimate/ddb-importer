@@ -102,9 +102,13 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     const match = kiPointRegex.exec(description)
       ?? sorceryPoint.exec(description);
 
+    const consumptionType = this.ddbParent.usesOnActivity
+      ? "activityUses"
+      : "itemUses";
+
     if (match) {
       targets.push({
-        type: "itemUses",
+        type: consumptionType,
         target: "", // adjusted later
         value: match[1],
         scaling: {
@@ -114,7 +118,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       });
     } else if (this.ddbParent.resourceCharges !== null) {
       targets.push({
-        type: "itemUses",
+        type: consumptionType,
         target: "", // adjusted later
         value: this.ddbParent.resourceCharges ?? 1,
         scaling: {
@@ -124,7 +128,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       });
     } else if (this.ddbParent.data.system.uses.max) {
       targets.push({
-        type: "itemUses",
+        type: consumptionType,
         target: "", // adjusted later
         value: 1,
         scaling: {

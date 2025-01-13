@@ -185,7 +185,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   constructor({
     ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, isGeneric = false, activityType = null,
-    extraFlags = {}, enricher = null, ddbCharacter = null, fallbackEnricher = null,
+    extraFlags = {}, enricher = null, ddbCharacter = null, fallbackEnricher = null, usesOnActivity = false,
   } = {}) {
 
     const addEffects = isGeneric
@@ -197,6 +197,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       activityGenerator: DDBFeatureActivity,
       documentType,
       useMidiAutomations: addEffects,
+      usesOnActivity,
     });
 
     this.ddbCharacter = ddbCharacter;

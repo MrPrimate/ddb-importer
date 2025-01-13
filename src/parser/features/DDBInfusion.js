@@ -239,12 +239,14 @@ export class DDBInfusion {
           rawCharacter: this.rawCharacter,
           type: actionData.actionSource,
           enricher: this.enricher,
+          usesOnActivity: true,
         })
         : new DDBAction({
           ddbData: this.ddbData,
           ddbDefinition: actionData,
           rawCharacter: this.rawCharacter,
           enricher: this.enricher,
+          usesOnActivity: true,
         });
       await action.loadEnricher();
       await action.build();
@@ -402,6 +404,7 @@ export class DDBInfusion {
           max: null,
         },
         riders: {
+          activity: [],
           effect: [],
           item: [],
         },

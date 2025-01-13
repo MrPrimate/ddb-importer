@@ -154,6 +154,7 @@ export default class DDBAction extends DDBFeatureMixin {
       await this.enricher.addAdditionalActivities(this);
       this._generateResourceFlags();
 
+      this.cleanup();
       this.enricher.addDocumentOverride();
       await this._addEffects(undefined, this.type);
       this._addCustomValues();

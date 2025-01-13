@@ -127,6 +127,13 @@ export default class DDBEnricherFactoryMixin {
     return true;
   }
 
+  get usesOnActivity() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.usesOnActivity;
+    }
+    return false;
+  }
+
   get documentStub() {
     if (this.loadedEnricher) {
       return this.loadedEnricher.documentStub;

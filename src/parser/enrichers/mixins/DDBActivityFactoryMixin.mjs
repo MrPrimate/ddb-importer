@@ -21,14 +21,20 @@ export default class DDBActivityFactoryMixin {
 
   useMidiAutomations = false;
 
+  usesOnActivity = false;
+
+  data = null;
+
   constructor({
     enricher = null, activityGenerator, documentType = null, notifier = null, useMidiAutomations = false,
+    usesOnActivity = false,
   } = {}) {
     this.enricher = enricher;
     this.activityGenerator = activityGenerator;
     this.documentType = documentType;
     this.notifier = notifier;
     this.useMidiAutomations = useMidiAutomations;
+    this.usesOnActivity = usesOnActivity;
   }
 
   async loadEnricher() {
@@ -36,6 +42,16 @@ export default class DDBActivityFactoryMixin {
     await this.enricher.load({
       ddbParser: this,
     });
+  }
+
+  cleanup() {
+    if (this.usesOnActivity) {
+      foundry.utils.setProperty(this.data, "system.uses", {
+        spent: null,
+        max: null,
+        recovery: [],
+      });
+    }
   }
 
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
@@ -285,6 +301,13 @@ export default class DDBActivityFactoryMixin {
       foundry.utils.deepClone(optionsOverride),
       foundry.utils.deepClone(activityOptions),
     );
+
+    if (this.usesOnActivity || this.enricher.usesOnActivity) {
+      console.warn(this);
+      options.usesOverride = foundry.utils.deepClone(this.data.system.uses);
+      options.usesOverride.override = true;
+      options.generateUses = true;
+    }
 
     const activity = this.getActivity({
       typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type,
