@@ -38,7 +38,7 @@ export default class ChangeHelper {
   }
 
   static addChange(value, priority, key) {
-    ChangeHelper.unsignedAddChange(value, priority, key);
+    return ChangeHelper.unsignedAddChange(value, priority, key);
   }
 
   static customChange(value, priority, key) {

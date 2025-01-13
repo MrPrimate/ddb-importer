@@ -287,12 +287,6 @@ export class DDBInfusion {
       case "Radiant Weapon": {
         break;
       }
-      // case "Spell-Refueling Ring": {
-      //   const macroText = `<br><p>[[/ddbifunc functionName="spellRefuelingRing" functionType="item"]]{Spell Refueling Macro}</div></p>`;
-      //   this.data.system.description.value += macroText;
-      //   if (this.data.system.description.chat !== "") this.data.system.description.chat += macroText;
-      //   break;
-      // }
       // no default
     }
 
@@ -302,12 +296,6 @@ export class DDBInfusion {
       switch (name) {
         case "Radiant Weapon (Reaction)": {
           action = Effects.AutoEffects.addSimpleConditionEffect(action, "Blinded", { transfer: false });
-          break;
-        }
-        case "Spell-Refueling Ring (Reaction)": {
-          const macroText = `<br><p>[[/ddbifunc functionName="spellRefuelingRing" functionType="item"]]{Spell Refueling Macro}</div></p>`;
-          action.system.description.value += macroText;
-          if (action.system.description.chat !== "") this.data.system.description.chat += macroText;
           break;
         }
         // no default
@@ -382,6 +370,7 @@ export class DDBInfusion {
         max: null,
       },
       riders: {
+        activity: [],
         effect: [],
         item: [],
       },

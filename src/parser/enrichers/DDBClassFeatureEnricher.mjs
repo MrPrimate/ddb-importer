@@ -1,5 +1,5 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
-import { ClassEnrichers, GenericEnrichers } from "./_module.mjs";
+import { ClassEnrichers, GenericEnrichers, ItemEnrichers } from "./_module.mjs";
 
 export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null, fallbackEnricher = null } = {}) {
@@ -422,6 +422,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Wild Shape": ClassEnrichers.Druid.WildShape,
     "Wrath of the Sea": ClassEnrichers.Druid.WrathOfTheSea,
     "Wrath of the Storm": ClassEnrichers.Cleric.WrathOfTheStorm,
+    "Spell-Refueling Ring (Reaction)": ItemEnrichers.SpellRefuelingRingReaction,
   };
 
   FALLBACK_ENRICHERS = {

@@ -373,9 +373,13 @@ export default class DDBActivityFactoryMixin {
           const effectId = effect._id ?? foundry.utils.randomID();
           effect._id = effectId;
           const level = foundry.utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null };
+          const activityRiders = foundry.utils.getProperty(effect, "flags.ddbimporter.activityRiders") ?? [];
+          const effectRiders = foundry.utils.getProperty(effect, "flags.ddbimporter.effectRiders") ?? [];
+          const itemRiders = foundry.utils.getProperty(effect, "flags.ddbimporter.itemRiders") ?? [];
           const riders = {
-            effect: [],
-            item: [],
+            activity: activityRiders,
+            effect: effectRiders,
+            item: itemRiders,
           };
           activity.effects.push({ _id: effectId, level, riders });
         }

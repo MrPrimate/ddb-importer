@@ -7,30 +7,8 @@ import DDBMacros from "./DDBMacros.mjs";
 export default class DDBSimpleMacro {
 
   static MACROS = {
-    "feat": {
-      "lay-on-hands": {
-        name: "layOnHands",
-        label: "Lay On Hands Macro",
-      },
-      "lay-on-hands-pool": {
-        name: "layOnHands",
-        label: "Lay On Hands Macro",
-      },
-      "arcane-recovery": {
-        name: "arcaneRecovery",
-        label: "Arcane Recovery Macro",
-      },
-      "font-of-magic": {
-        name: "fontOfMagic",
-        label: "Font of Magic Macro",
-      },
-      "convert-sorcery-points": {
-        name: "fontOfMagic",
-        label: "Font of Magic Macro",
-      },
-    },
     "item": {
-      "spell-refuleing-ring": {
+      "spell-refueling-ring": {
         name: "spellRefuelingRing",
         label: "Spell Refueling Macro",
       },

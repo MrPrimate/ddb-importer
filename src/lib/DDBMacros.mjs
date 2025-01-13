@@ -23,38 +23,38 @@ export default class DDBMacros {
       // },
     },
     ACTIVE_AURAS: {
-      AA_ONLY: {
-        name: "Active Aura Only (Generic)",
-        type: "generic",
-        file: "activeAuraOnly.js",
-        isGM: false,
-        img: null,
-        world: true,
-      },
-      AA_ON_ENTRY: {
-        name: "Active Aura Damage and Condition On Entry (Generic)",
-        type: "generic",
-        file: "activeAuraDamageAndConditionOnEntry.js",
-        isGM: false,
-        img: null,
-        world: true,
-      },
-      AA_CONDITION_ON_ENTRY: {
-        name: "Active Aura Condition On Entry (Generic)",
-        type: "generic",
-        file: "activeAuraConditionOnEntry.js",
-        isGM: false,
-        img: null,
-        world: true,
-      },
-      AA_DAMAGE_ON_ENTRY: {
-        name: "Active Aura Damage On Entry (Generic)",
-        type: "generic",
-        file: "activeAuraDamageOnEntry.js",
-        isGM: false,
-        img: null,
-        world: true,
-      },
+    //   AA_ONLY: {
+    //     name: "Active Aura Only (Generic)",
+    //     type: "generic",
+    //     file: "activeAuraOnly.js",
+    //     isGM: false,
+    //     img: null,
+    //     world: true,
+    //   },
+    //   AA_ON_ENTRY: {
+    //     name: "Active Aura Damage and Condition On Entry (Generic)",
+    //     type: "generic",
+    //     file: "activeAuraDamageAndConditionOnEntry.js",
+    //     isGM: false,
+    //     img: null,
+    //     world: true,
+    //   },
+    //   AA_CONDITION_ON_ENTRY: {
+    //     name: "Active Aura Condition On Entry (Generic)",
+    //     type: "generic",
+    //     file: "activeAuraConditionOnEntry.js",
+    //     isGM: false,
+    //     img: null,
+    //     world: true,
+    //   },
+    //   AA_DAMAGE_ON_ENTRY: {
+    //     name: "Active Aura Damage On Entry (Generic)",
+    //     type: "generic",
+    //     file: "activeAuraDamageOnEntry.js",
+    //     isGM: false,
+    //     img: null,
+    //     world: true,
+    //   },
     },
   };
 
@@ -283,7 +283,9 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
   }
 
   static async createWorldMacros() {
-    if (game.user.isGM) {
+    const disabled = true;
+    const createMacros = game.settings.get("ddb-importer", "character-update-policy-add-midi-effects");
+    if (game.user.isGM && !disabled && createMacros) {
       await DDBMacros.checkMacroFolder();
 
       const worldMacros = [].concat(

@@ -7,7 +7,6 @@ import {
   DDBCampaigns,
   DDBProxy,
   CompendiumHelper,
-  DDBMacros,
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import CharacterClassFactory from "./classes/CharacterClassFactory.js";
@@ -242,7 +241,6 @@ export default class DDBCharacter {
       await this.itemCompendium.getIndex();
       await this.spellCompendium.getIndex();
 
-      if (game.settings.get("ddb-importer", "character-update-policy-add-midi-effects")) await DDBMacros.createWorldMacros();
       logger.debug("Starting core character parse", { thisDDB: this.source.ddb });
       await this._generateCharacter();
       if (this.selectResources) {

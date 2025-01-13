@@ -18,7 +18,15 @@ export default class CelestialRevelationInnerRadiance extends DDBEnricherData {
 
   get override() {
     return {
-      descriptionSuffix: `<br><p>[[/ddbifunc functionName="innerRadiance" functionType="feat"]]{Toggle Inner Radiance Light}</div></p>`,
+      ddbMacroDescription: true,
+    };
+  }
+
+  get ddbMacroDescriptionData() {
+    return {
+      name: "innerRadiance",
+      label: "Toggle Inner Radiance Light", // optional
+      type: "feat",
     };
   }
 

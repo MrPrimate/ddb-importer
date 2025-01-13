@@ -133,7 +133,6 @@ export default class Example extends DDBEnricherData {
         midiProperties: {}, // adds midi properties to midi flags
         func: function() {}, // run this funciton passing in the activity as the only variable
         descriptionHint: "hint text", // adds enchantment description hint
-        descriptionSuffix: "", // append to item description
         daeOnly: true, // only add effect if dae is active
         atlOnly: true, // only add effect if atl is active
         midiOnly: true, // only add effect if MIDI-QOL is installed.

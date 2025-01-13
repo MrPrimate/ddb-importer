@@ -7,7 +7,6 @@ import {
   base64Check,
   DDBCompendiumFolders,
   utils,
-  DDBMacros,
 } from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";
@@ -22,7 +21,6 @@ import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tool
 import { parseBackgrounds } from "../muncher/backgrounds.js";
 import { parseTransports } from "../muncher/vehicles.js";
 import DDBSources from "./DDBSources.js";
-import { SETTINGS } from "../config/_module.mjs";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import { updateItemPrices } from "../muncher/prices.js";
 import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
@@ -269,9 +267,6 @@ export default class DDBMuncher extends Application {
   static async parseSpells() {
     try {
       logger.info("Munching spells!");
-      if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects")) {
-        await DDBMacros.createWorldMacros("spells");
-      }
       await DDBReferenceLinker.importCacheLoad();
       await parseSpells();
       await DDBMuncher.cleanupCompendiumFolders("spells");

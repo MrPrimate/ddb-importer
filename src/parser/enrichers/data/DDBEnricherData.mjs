@@ -237,7 +237,6 @@ export default class DDBEnricherData {
    *     - daeChanges: {Array} DAE changes.
    *     - func: {function} A function executed with the activity as the sole argument.
    *     - descriptionHint: {string} A hint for the enchantment description.
-   *     - descriptionSuffix: {string} Text to append to the item description.
    *     - activeAurasOnly: {boolean} Indicates that the effect is generated only if ActiveAuras is installed.
    *     - activityMatch: {string} Match to this activity only
    *     - activitiesMatch: {Array} Match to only these activities
@@ -329,6 +328,16 @@ export default class DDBEnricherData {
   // eslint-disable-next-line no-unused-vars, no-empty-function
   customFunction(options = {}) {
 
+  }
+
+  // return {
+  //   name: "fontOfMagic",
+  //   label: "Font of Magic Macro",
+  //   type: "spell",
+  //   parameters: "",
+  // };
+  get ddbMacroDescriptionData() {
+    return null;
   }
 
 }

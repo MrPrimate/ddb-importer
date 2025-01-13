@@ -203,7 +203,6 @@ export function registerApi() {
       executeMacro: lib.DDBMacros.executeDDBMacro,
       getMacroFunction: lib.DDBMacros.getMacroFunction,
       loadMacroFile: lib.DDBMacros.loadMacroFile,
-      macros: lib.DDBMacros.MACROS,
       getMacro: lib.DDBMacros.getMacro,
       executeSimpleMacro: lib.DDBSimpleMacro.execute,
     },

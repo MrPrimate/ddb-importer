@@ -15,14 +15,14 @@ export async function greaseEffect(document) {
     {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: `turn=end,label=${document.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true,macro=${DDBMacros.MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.name}`,
+      value: `turn=end,label=${document.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true,macro=${"activeAuraConditionOnEntry.js".name}`,
       priority: "20",
     },
   );
 
-  await DDBMacros.setItemMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file);
-  DDBMacros.setMidiOnUseMacroFlag(document, "generic", DDBMacros.MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file, ["preActiveEffects"]);
-  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@item.level @attributes.spelldc", macroType: "generic", macroName: DDBMacros.MACROS.ACTIVE_AURAS.AA_CONDITION_ON_ENTRY.file }));
+  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraConditionOnEntry.js".file);
+  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraConditionOnEntry.js".file, ["preActiveEffects"]);
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@item.level @attributes.spelldc", macroType: "generic", macroName: "activeAuraConditionOnEntry.js".file }));
 
   effect.flags["ActiveAuras"] = {
     isAura: true,

@@ -37,8 +37,8 @@ if (isApplied && isApplied.enabled) {
           speed: currentLight.animation.speed,
           intensity: currentLight.animation.intensity,
         },
-      }
-    }
+      },
+    },
   };
 
   await token.update(data);

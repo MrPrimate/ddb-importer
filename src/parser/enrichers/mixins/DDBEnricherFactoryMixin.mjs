@@ -183,6 +183,34 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
+  get ddbMacroDescriptionData() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.ddbMacroDescriptionData;
+    } else {
+      return null;
+    }
+  }
+
+  get ddbMacroDescription() {
+    const data = this.ddbMacroDescriptionData;
+    if (!data) return "";
+
+    //   name: "fontOfMagic",
+    //   label: "Font of Magic Macro", // optional
+    //   type: "spell",
+    //   parameters: "", // optional
+    // };
+
+    const parameters = data.parameters
+      ? ` functionParams="${data.parameters}`
+      : "";
+    const label = data.label
+      ? `{${data.label}}`
+      : "";
+
+    return `<hr><div class="ddb-macros-container"><p>[[/ddbifunc functionName="${data.name}" functionType="${data.type}"${parameters}]]${label}</div></p></div>`;
+  }
+
   constructor({
     activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null, fallbackEnricher = null,
     ddbActionType = null,
@@ -664,11 +692,6 @@ export default class DDBEnricherFactoryMixin {
   </section>`;
       }
 
-      if (effectHint.descriptionSuffix) {
-        this.data.system.description.value += effectHint.descriptionSuffix;
-        if (this.data.system.description.chat !== "") this.data.system.description.chat += effectHint.descriptionSuffix;
-      }
-
       if (!effectHint.noCreate) effects.push(effect);
     }
 
@@ -720,6 +743,12 @@ export default class DDBEnricherFactoryMixin {
     if (override.descriptionSuffix) {
       this.data.system.description.value += override.descriptionSuffix;
       if (this.data.system.description.chat !== "") this.data.system.description.chat += override.descriptionSuffix;
+    }
+
+    if (override.ddbMacroDescription) {
+      const description = this.ddbMacroDescription;
+      this.data.system.description.value += description;
+      if (this.data.system.description.chat !== "") this.data.system.description.chat += description;
     }
 
     if (override?.func) {

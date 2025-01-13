@@ -17,12 +17,14 @@ export default class EnchantmentEffects {
   static addMagicalBonus({ effect, nameAddition = null, bonus = null, bonusMode = "OVERRIDE",
     makeMagical = true } = {},
   ) {
-    const name = nameAddition ?? `(${effect.name})`;
+    const name = nameAddition
+      ? `, ${nameAddition}`
+      : ` (${effect.name})`;
     effect.changes.push(
       {
         key: "name",
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        value: `{}, ${name}`,
+        value: `{}${name}`,
         priority: 20,
       },
     );

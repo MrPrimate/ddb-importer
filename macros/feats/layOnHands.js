@@ -81,7 +81,6 @@ async function removePoisonMessage(actor, item) {
 
   const copyData = foundry.utils.duplicate(item);
   delete copyData._id;
-  // const macroText = `Use the following macro to remove automatically [[/ddbifunc functionName="layOnHands" functionType="feat" functionParams="{removePoison: true}"]]`
   copyData.system.description.value = `${names} no longer &Reference[poisoned].`;
   copyData.system.description.chat = `${names} no longer &Reference[poisoned].`;
   const chatItem = new CONFIG.Item.documentClass(copyData, { parent: actor });
