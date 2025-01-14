@@ -1142,4 +1142,42 @@ export default class DDBEffectHelper {
     return DDBDescriptions.parseStatusCondition({ text, nameHint });
   }
 
+  static documentWithFilteredActivities({
+    uuid = null, document = null, activityIds = [], types = [], clearEffectFlags = false,
+    clearEffects = false, newId = true, removeProperties = [], addProperties = [],
+    setToAtWill = false, renameDocument = null,
+  } = {}) {
+    if (!uuid && !document) throw new Error("Must specify either uuid or document !");
+    const base = document ?? fromUuidSync(uuid);
+    if (!base) return null;
+    const newDocument = document.toObject();
+    if (newId) newDocument._id = foundry.utils.randomID();
+    if (activityIds.length > 0)
+      newDocument.system.activities = base.system.activities.filter((a) => activityIds.includes(a._id));
+    if (types.length > 0)
+      newDocument.system.activities = base.system.activities.filter((a) => types.includes(a.type));
+    if (clearEffectFlags) {
+      foundry.utils.setProperty(newDocument, "flags.itemacro", {});
+      foundry.utils.setProperty(newDocument, "flags.midi-qol", {});
+      foundry.utils.setProperty(newDocument, "flags.midiProperties", {});
+      foundry.utils.setProperty(newDocument, "flags.dae", {});
+    }
+    if (clearEffects) {
+      foundry.utils.setProperty(newDocument, "effects", []);
+    }
+    for (const prop of removeProperties) {
+      newDocument.system.properties = utils.removeFromProperties(newDocument.system.properties, prop);
+    }
+    for (const prop of addProperties) {
+      newDocument.system.properties = utils.addToProperties(newDocument.system.properties, prop);
+    }
+    if (setToAtWill) {
+      foundry.utils.setProperty(newDocument, "system.preparation.mode", "atwill");
+    }
+    if (renameDocument) {
+      newDocument.name = renameDocument;
+    }
+    return newDocument;
+  }
+
 }

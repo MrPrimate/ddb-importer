@@ -49,6 +49,7 @@ async function attemptRemoval(targetToken, condition, item) {
 }
 
 async function applyCondition(condition, targetToken, item, itemLevel) {
+  // DDBImporter.EffectHelper.documentWithFilteredActivities
   if (!DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor)) {
     const caster = item.parent;
     const workflowItemData = foundry.utils.duplicate(item);
