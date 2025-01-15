@@ -13,61 +13,19 @@ console.warn("ARGS", {
   lastArg,
 })
 
-async function attemptRemoval(targetToken, condition, item) {
-  if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor)) {
-    new Dialog({
-      title: `Use action to attempt to remove ${condition}?`,
-      buttons: {
-        one: {
-          label: "Yes",
-          callback: async () => {
-            const caster = item.parent;
-            const saveDc = caster.system.attributes.spelldc;
-            const removalCheck = item.flags.ddbimporter.effect.removalCheck;
-            const removalSave = item.flags.ddbimporter.effect.removalSave;
-            const ability = removalCheck ? removalCheck : removalSave;
-            const type = removalCheck ? "check" : "save";
-            const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability].label} ${type} vs DC${saveDc}`;
-            const rollResult = removalCheck
-              ? (await targetToken.actor.rollAbilityTest(ability, { flavor })).total
-              : (await targetToken.actor.rollAbilitySave(ability, { flavor })).total;
-
-            if (rollResult >= saveDc) {
-              await DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: condition, actor: targetToken.actor });
-            } else {
-              if (rollResult < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the ${type} for ${item.name}, still has the ${condition} condition.` });
-            }
-          },
-        },
-        two: {
-          label: "No",
-          callback: () => {},
-        },
-      },
-    }).render(true);
-  }
-}
-
 async function applyCondition(condition, targetToken, item, itemLevel) {
-  // DDBImporter.EffectHelper.documentWithFilteredActivities
+  //
   if (!DDBImporter.EffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor)) {
-    const caster = item.parent;
-    const workflowItemData = foundry.utils.duplicate(item);
-    workflowItemData.system.target = { value: 1, units: "", type: "creature" };
-    workflowItemData.system.save.ability = item.flags.ddbimporter.effect.save;
-    workflowItemData.system.properties = DDBImporter.EffectHelper.removeFromProperties(workflowItemData.system.properties, "concentration");
-    workflowItemData.system.level = itemLevel;
-    workflowItemData.system.duration = { value: null, units: "inst" };
-    workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
-    workflowItemData.system.uses = { value: null, max: "", per: null, recovery: "", autoDestroy: false };
-    workflowItemData.system.consume = { "type": "", "target": null, "amount": null };
-    workflowItemData.system.preparation.mode = "atwill";
-    foundry.utils.setProperty(workflowItemData, "flags.itemacro", {});
-    foundry.utils.setProperty(workflowItemData, "flags.midi-qol", {});
-    foundry.utils.setProperty(workflowItemData, "flags.dae", {});
-    foundry.utils.setProperty(workflowItemData, "effects", []);
-    delete workflowItemData._id;
-    workflowItemData.name = `${workflowItemData.name}: ${item.name} Condition save`;
+
+    const activityIds = foundry.utils.getProperty(item, "flags.ddbimporter.effect.activityIds");
+    const workflowItemData = DDBImporter.EffectHelper.documentWithFilteredActivities({
+      document: item,
+      activityIds,
+      parent: item.parent,
+      clearEffectFlags: true,
+      level: itemLevel,
+      renameDocument: `${item.name}: ${condition} save`,
+    });
 
     const saveTargets = [...game.user?.targets].map((t )=> t.id);
     game.user.updateTokenTargets([targetToken.id]);
@@ -77,7 +35,8 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
 
     game.user.updateTokenTargets(saveTargets);
     const failedSaves = [...result.failedSaves];
-    if (failedSaves.length > 0) {
+    const statusOnWorkflow = workflowItemData.effects.some((e) => e.statuses.some((s) => s.name.toLowerCase() === condition));
+    if (failedSaves.length > 0 && !statusOnWorkflow) {
       await DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: condition, actor: failedSaves[0].document });
     }
 
@@ -174,7 +133,9 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const currentTokenCombatTurn = game.combat.current.tokenId === lastArg.tokenId;
   if (currentTokenCombatTurn && allowVsRemoveCondition && effectApplied) {
     console.log(`Removing ${targetTokenTracker.condition}`);
-    await attemptRemoval(target, targetTokenTracker.condition, item);
+    await DDBImporter.EffectHelper.attemptConditionRemovalDialog(target, targetTokenTracker.condition, {
+      document: item
+    });
   }
 } else if (args[0] == "off") {
   const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");

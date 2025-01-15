@@ -1149,21 +1149,22 @@ export default class DDBEffectHelper {
   }
 
   static documentWithFilteredActivities({
-    uuid = null, document = null, parent = null, activityIds = [], types = [], clearEffectFlags = false,
-    clearEffects = false, newId = true, removeProperties = [], addProperties = [],
+    uuid = null, document = null, parent = null, activityIds = [], activityTypes = [], clearEffectFlags = false,
+    clearEffects = false, filterEffects = true, newId = false, clearId = true, removeProperties = [],
     setToAtWill = false, renameDocument = null, setTargetTo = "creature", clearTargetTemplate = true,
     overrideTarget = true, overrideDuration = true, durationUnits = "inst", durationValue = null,
-    level = null,
+    level = null, clearUses = true, addProperties = [],
   } = {}) {
     if (!uuid && !document) throw new Error("Must specify either uuid or document !");
     const base = document ?? fromUuidSync(uuid);
     if (!base) return null;
     const newDocumentData = document.toObject();
+    if (clearId) delete newDocumentData._id;
     if (newId) newDocumentData._id = foundry.utils.randomID();
     if (activityIds.length > 0)
-      newDocumentData.system.activities = base.system.activities.filter((a) => activityIds.includes(a._id));
-    if (types.length > 0)
-      newDocumentData.system.activities = base.system.activities.filter((a) => types.includes(a.type));
+      newDocumentData.system.activities = newDocumentData.system.activities.filter((a) => activityIds.includes(a._id));
+    if (activityTypes.length > 0)
+      newDocumentData.system.activities = newDocumentData.system.activities.filter((a) => activityTypes.includes(a.type));
 
     newDocumentData.system.activities = newDocumentData.system.activities.map((a) => {
       if (a.consumption) a.consumption.targets = [];
@@ -1200,7 +1201,12 @@ export default class DDBEffectHelper {
       foundry.utils.setProperty(newDocumentData, "flags.midiProperties", {});
       foundry.utils.setProperty(newDocumentData, "flags.dae", {});
     }
-    if (clearEffects) {
+    if (filterEffects) {
+      const allowedIds = Object.values(newDocumentData.system.activities).map((a) => {
+        return (a.effects ?? []).map((e) => e._id);
+      }).flat();
+      newDocumentData.effects = newDocumentData.effects.filter((e) => allowedIds.includes(e._id));
+    } else if (clearEffects) {
       foundry.utils.setProperty(newDocumentData, "effects", []);
     }
     for (const prop of removeProperties) {
@@ -1215,11 +1221,14 @@ export default class DDBEffectHelper {
     if (renameDocument) {
       newDocumentData.name = renameDocument;
     }
-    foundry.utils.setProperty(newDocumentData, "system.uses", {
-      spent: null,
-      max: null,
-      recovery: [],
-    });
+    if (clearUses) {
+      foundry.utils.setProperty(newDocumentData, "system.uses", {
+        spent: null,
+        max: null,
+        recovery: [],
+      });
+    }
+
     if (level) newDocumentData.system.level = level;
 
     const newDocument = new CONFIG.Item.documentClass(newDocumentData, { parent });
@@ -1299,7 +1308,7 @@ export default class DDBEffectHelper {
     return rollResult;
   }
 
-  static async attemptConditionRemoval(targetToken, condition, {
+  static async attemptConditionRemovalDialog(targetToken, condition, {
     document = {},
     activity = null,
     type = null, // can be save or check, if null, will check flags

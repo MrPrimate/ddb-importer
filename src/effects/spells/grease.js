@@ -55,6 +55,7 @@ export async function greaseEffect(document) {
     condition: "Prone",
     save: document.system.save.ability,
     sequencerFile: "jb2a.grease.dark_green.loop",
+    activityIds: [""]
   };
   foundry.utils.setProperty(document, "flags.ddbimporter.effect", aaMacroFlags);
   foundry.utils.setProperty(effect, "flags.ddbimporter.effect", aaMacroFlags);
