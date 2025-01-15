@@ -2640,7 +2640,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     if (this.isPerSpell) {
       this.data.system.uses = {
-        spent: 0,
+        spent: null,
         recovery: [
         ],
         max: null,
