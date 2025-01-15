@@ -1265,6 +1265,7 @@ export default class DDBEffectHelper {
   }
 
 
+  // eslint-disable-next-line complexity
   static async _conditionRemovalMidiRoll(targetToken, condition, {
     document = {},
     activity = null,
@@ -1274,11 +1275,13 @@ export default class DDBEffectHelper {
   } = {}) {
     const name = document?.name ?? "";
     const caster = document.parent;
-    const derivedSaveDc = saveDC ?? activity?.save?.dc?.value ?? caster?.system.attributes.spelldc;
+    const derivedActivity = activity
+      ?? Object.values(foundry.utils.getProperty(document, "system.activities") ?? {}).find((a) => a.type === "save");
+    const derivedSaveDc = saveDC ?? derivedActivity?.save?.dc?.value ?? caster?.system.attributes.spelldc;
     if (!derivedSaveDc) throw new Error("No save DC specified, and no default spelldc found on document parent actor!");
     const removalCheck = foundry.utils.getProperty(document, "flags.ddbimporter.effect.removalCheck");
     const removalSave = foundry.utils.getProperty(document, "flags.ddbimporter.effect.removalSave");
-    const derivedAbility = ability ?? (removalCheck ? removalCheck : removalSave) ?? activity?.save?.ability.first();
+    const derivedAbility = ability ?? (removalCheck ? removalCheck : removalSave) ?? derivedActivity?.save?.ability.first();
     if (!derivedAbility) throw new Error("No ability specified, and no default removal ability found in document flags!");
     const derivedType = type ?? (removalCheck ? "check" : removalSave ? "save" : null);
     if (!derivedType) throw new Error("No type specified, and no default removal type found in document flags!");
