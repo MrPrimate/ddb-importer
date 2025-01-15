@@ -886,6 +886,8 @@ export default class DDBEffectHelper {
       logger.error("No actor passed to remove condition");
       return;
     }
+
+    actor = (actor.document ?? actor);
     const condition = CONFIG.statusEffects.find((se) => se.name.toLowerCase() === conditionName.toLowerCase());
 
     if (!condition) {
@@ -893,8 +895,12 @@ export default class DDBEffectHelper {
       return;
     }
 
-    logger.debug(`removing ${condition.name}`, { condition });
-    const existing = actor.document?.effects?.get(game.dnd5e.utils.staticID(`dnd5e${condition.id}`));
+    logger.debug(`Removing ${condition.name}`, { condition });
+    const existing = (condition._id
+      ? actor.effects?.get(condition._id)
+      : null)
+      ?? actor.effects?.get(game.dnd5e.utils.staticID(`dnd5e${condition.id}`));
+    logger.debug("Existing condition found", { condition, existing });
     if (existing) await existing.delete();
     if (condition.id === "exhaustion") {
       logger.debug("Reducing exhaustion", level);
@@ -1143,41 +1149,204 @@ export default class DDBEffectHelper {
   }
 
   static documentWithFilteredActivities({
-    uuid = null, document = null, activityIds = [], types = [], clearEffectFlags = false,
+    uuid = null, document = null, parent = null, activityIds = [], types = [], clearEffectFlags = false,
     clearEffects = false, newId = true, removeProperties = [], addProperties = [],
-    setToAtWill = false, renameDocument = null,
+    setToAtWill = false, renameDocument = null, setTargetTo = "creature", clearTargetTemplate = true,
+    overrideTarget = true, overrideDuration = true, durationUnits = "inst", durationValue = null,
+    level = null,
   } = {}) {
     if (!uuid && !document) throw new Error("Must specify either uuid or document !");
     const base = document ?? fromUuidSync(uuid);
     if (!base) return null;
-    const newDocument = document.toObject();
-    if (newId) newDocument._id = foundry.utils.randomID();
+    const newDocumentData = document.toObject();
+    if (newId) newDocumentData._id = foundry.utils.randomID();
     if (activityIds.length > 0)
-      newDocument.system.activities = base.system.activities.filter((a) => activityIds.includes(a._id));
+      newDocumentData.system.activities = base.system.activities.filter((a) => activityIds.includes(a._id));
     if (types.length > 0)
-      newDocument.system.activities = base.system.activities.filter((a) => types.includes(a.type));
+      newDocumentData.system.activities = base.system.activities.filter((a) => types.includes(a.type));
+
+    newDocumentData.system.activities = newDocumentData.system.activities.map((a) => {
+      if (a.consumption) a.consumption.targets = [];
+      if (overrideTarget) a.target.override = true;
+      if (setTargetTo) {
+        foundry.utils.setProperty(a, "target.affects.type", {
+          count: "1",
+          type: setTargetTo,
+          choice: false,
+          special: "",
+        });
+      }
+      if (clearTargetTemplate) {
+        foundry.utils.setProperty(a, "target.template", {
+          count: "",
+          contiguous: false,
+          type: "",
+          size: "",
+          width: "",
+          height: "",
+          units: "ft",
+        });
+      }
+      if (overrideDuration) a.duration.override = true;
+      if (durationUnits) {
+        a.duration.units = durationUnits;
+        a.duration.value = durationValue;
+      }
+      return a;
+    });
     if (clearEffectFlags) {
-      foundry.utils.setProperty(newDocument, "flags.itemacro", {});
-      foundry.utils.setProperty(newDocument, "flags.midi-qol", {});
-      foundry.utils.setProperty(newDocument, "flags.midiProperties", {});
-      foundry.utils.setProperty(newDocument, "flags.dae", {});
+      foundry.utils.setProperty(newDocumentData, "flags.itemacro", {});
+      foundry.utils.setProperty(newDocumentData, "flags.midi-qol", {});
+      foundry.utils.setProperty(newDocumentData, "flags.midiProperties", {});
+      foundry.utils.setProperty(newDocumentData, "flags.dae", {});
     }
     if (clearEffects) {
-      foundry.utils.setProperty(newDocument, "effects", []);
+      foundry.utils.setProperty(newDocumentData, "effects", []);
     }
     for (const prop of removeProperties) {
-      newDocument.system.properties = utils.removeFromProperties(newDocument.system.properties, prop);
+      newDocumentData.system.properties = utils.removeFromProperties(newDocumentData.system.properties, prop);
     }
     for (const prop of addProperties) {
-      newDocument.system.properties = utils.addToProperties(newDocument.system.properties, prop);
+      newDocumentData.system.properties = utils.addToProperties(newDocumentData.system.properties, prop);
     }
     if (setToAtWill) {
-      foundry.utils.setProperty(newDocument, "system.preparation.mode", "atwill");
+      foundry.utils.setProperty(newDocumentData, "system.preparation.mode", "atwill");
     }
     if (renameDocument) {
-      newDocument.name = renameDocument;
+      newDocumentData.name = renameDocument;
     }
+    foundry.utils.setProperty(newDocumentData, "system.uses", {
+      spent: null,
+      max: null,
+      recovery: [],
+    });
+    if (level) newDocumentData.system.level = level;
+
+    const newDocument = new CONFIG.Item.documentClass(newDocumentData, { parent });
     return newDocument;
+  }
+
+  static async rollMidiItemUse(document, workflowBuilderOptions = {}, {
+    targetIds = [], applyFailureConditions = [],
+  } = {}) {
+    const saveTargets = game.user?.targets
+      ? [...game.user.targets].map((t) => t.id)
+      : [];
+    if (targetIds.length > 0) game.user.updateTokenTargets(targetIds);
+
+    const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions(workflowBuilderOptions);
+    const result = await MidiQOL.completeItemUse(document, config, options);
+
+    if (targetIds.length > 0) game.user.updateTokenTargets(saveTargets);
+
+    const conditionResults = [];
+    if (applyFailureConditions.length > 0) {
+      for (const failedSave of result.failedSaves) {
+        for (const condition of applyFailureConditions) {
+          conditionResults.push(DDBEffectHelper.adjustCondition({
+            add: true,
+            conditionName: condition,
+            actor: failedSave.document,
+          }));
+        }
+      }
+    }
+    await Promise.all(conditionResults);
+
+  }
+
+
+  static async _conditionRemovalMidiRoll(targetToken, condition, {
+    document = {},
+    activity = null,
+    type = null, // can be save or check, if null, will check flags
+    ability = null, // e.g. wis, if null, will check flags
+    saveDC = null, // if null, will use activity if present, otherwise spelldc
+  } = {}) {
+    const name = document?.name ?? "";
+    const caster = document.parent;
+    const derivedSaveDc = saveDC ?? activity?.save?.dc?.value ?? caster?.system.attributes.spelldc;
+    if (!derivedSaveDc) throw new Error("No save DC specified, and no default spelldc found on document parent actor!");
+    const removalCheck = foundry.utils.getProperty(document, "flags.ddbimporter.effect.removalCheck");
+    const removalSave = foundry.utils.getProperty(document, "flags.ddbimporter.effect.removalSave");
+    const derivedAbility = ability ?? (removalCheck ? removalCheck : removalSave) ?? activity?.save?.ability.first();
+    if (!derivedAbility) throw new Error("No ability specified, and no default removal ability found in document flags!");
+    const derivedType = type ?? (removalCheck ? "check" : removalSave ? "save" : null);
+    if (!derivedType) throw new Error("No type specified, and no default removal type found in document flags!");
+    const viaNameStub = name ? ` (via ${name})` : "";
+    const flavor = `${condition}${viaNameStub} : ${CONFIG.DND5E.abilities[derivedAbility].label} ${derivedType} vs DC${derivedSaveDc}`;
+    const speaker = ChatMessage.getSpeaker({
+      targetActor: targetToken.actor,
+      scene: canvas.scene,
+      token: targetToken?.document ?? targetToken,
+    });
+
+    const rollResult = derivedType === "check"
+      ? (await targetToken.actor.rollAbilityTest(derivedAbility, { speaker, flavor })).total
+      : (await targetToken.actor.rollSavingThrow({
+        ability: derivedAbility,
+        target: derivedSaveDc,
+      }, {}, { data: { speaker, flavor } }))[0].total;
+
+    if (rollResult >= derivedSaveDc) {
+      await DDBEffectHelper.adjustCondition({ remove: true, conditionName: condition, actor: targetToken.actor });
+    } else if (rollResult < derivedSaveDc) {
+      const nameStub = name ? ` for ${name}` : "";
+      ChatMessage.create({
+        content: `${targetToken.name} fails the ${derivedType}${nameStub}, and still has the ${condition} condition.`,
+      });
+    }
+    return rollResult;
+  }
+
+  static async attemptConditionRemoval(targetToken, condition, {
+    document = {},
+    activity = null,
+    type = null, // can be save or check, if null, will check flags
+    ability = null, // e.g. wis, if null, will check flags
+    saveDC = null, // if null, will use activity if present, otherwise spelldc
+    ask = true,
+    checkConditionExists = true,
+  } = {}) {
+    if (!DDBEffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor)
+      && checkConditionExists)
+      return;
+
+    if (ask) {
+      new Dialog({
+        title: `Use action to attempt to remove ${condition}?`,
+        buttons: {
+          one: {
+            label: "Yes",
+            callback: async () => {
+              DDBEffectHelper._conditionRemovalMidiRoll(targetToken, condition, {
+                document,
+                activity,
+                type,
+                ability,
+                saveDC,
+              });
+            },
+          },
+          two: {
+            label: "No",
+            callback: () => {
+              ChatMessage.create({
+                content: `${targetToken.name} retains the ${condition} condition.`,
+              });
+            },
+          },
+        },
+      }).render(true);
+    } else {
+      DDBEffectHelper._conditionRemovalMidiRoll(targetToken, condition, {
+        document,
+        activity,
+        type,
+        ability,
+        saveDC,
+      });
+    }
   }
 
 }
