@@ -28,7 +28,7 @@ export default class Grease extends DDBEnricherData {
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            `turn=end,label=${this.data.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true,macro=function.DDBImporter.lib.DDBMacros.macroFunction.generic("activeAuraConditionOnEntry.js")`,
+            `applyCondition=!statuses.has('prone'),turn=end,label=${this.data.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true,macro=function.DDBImporter.lib.DDBMacros.macroFunction.generic("activeAuraConditionOnEntry.js")`,
             20,
             "flags.midi-qol.OverTime",
           ),

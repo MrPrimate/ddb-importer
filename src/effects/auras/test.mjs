@@ -1,19 +1,27 @@
+/* eslint-disable no-console */
 // { speaker, actor, token, character, item, rolledItem, macroItem, args, scope, workflow }
 
-export default async function test(arg1, arg2, arg3) {
+export default async function test({
+  speaker, actor, token, character, item, rolledItem, macroItem,
+  args, scope, workflow,
+} = {}) {
 
   console.warn("TEST", {
-    arg1,
-    arg2,
-    arg3,
-    // args,
-    arguments,
+    speaker,
+    actor,
+    token,
+    character,
+    item,
+    rolledItem,
+    macroItem,
+    args,
     scope,
+    workflow,
   });
 
-  let variables = ""
-  for (var name in this)
-      variables += name + "\n";
+  let variables = "";
+  // eslint-disable-next-line no-invalid-this
+  for (var name in this) variables += name + "\n";
 
   console.warn("VARIABLES", variables);
 }
