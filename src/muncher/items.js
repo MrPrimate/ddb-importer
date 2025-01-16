@@ -251,7 +251,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   const sourceFilter = (ids === null || ids.length === 0) && useSourceFilter;
   const raw = await getItemData({ useSourceFilter: sourceFilter, ids });
 
-  await game.settings.set(SETTINGS.MODULE_ID, "generic-items", Array.from(CONFIG.DDBI.GENERIC_EQUIPMENT))
+  await game.settings.set(SETTINGS.MODULE_ID, "generic-items", Array.from(CONFIG.DDBI.GENERIC_EQUIPMENT));
 
   const characterInventory = getCharacterInventory(raw.items, raw.extra);
   const results = await generateImportItems(characterInventory, utils.munchNote, raw.spells);
