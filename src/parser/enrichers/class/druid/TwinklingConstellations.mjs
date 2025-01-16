@@ -11,7 +11,7 @@ export default class TwinklingConstellations extends DDBEnricherData {
       noTemplate: true,
       targetType: "self",
       noConsumeTargets: true,
-      noeffects: true,
+      noeffect: true,
       activationType: "special",
       activationCondition: "Start of each turn",
     };

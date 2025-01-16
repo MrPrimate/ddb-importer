@@ -5,7 +5,7 @@ export async function blackTentaclesEffect(document) {
   document.effects = [];
 
   let effect = baseSpellEffect(document, document.name);
-  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraDamageAndConditionOnEntry.js".file);
+  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraDamageAndConditionOnEntry.js");
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",
@@ -23,8 +23,8 @@ export async function blackTentaclesEffect(document) {
   };
   foundry.utils.setProperty(effect, "duration.seconds", 60);
   foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "generic", macroName: "activeAuraDamageAndConditionOnEntry.js".file }));
-  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraDamageAndConditionOnEntry.js".file, ["preActiveEffects"]);
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "generic", macroName: "activeAuraDamageAndConditionOnEntry.js" }));
+  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraDamageAndConditionOnEntry.js", ["preActiveEffects"]);
 
   const aaMacroFlags = {
     applyStart: true,

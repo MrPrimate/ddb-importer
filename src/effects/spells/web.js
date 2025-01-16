@@ -10,10 +10,10 @@ export async function webEffect(document) {
 
   document.effects = [];
   // if we have active auras use a more advanced macro
-  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraConditionOnEntry.js".file);
+  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraConditionOnEntry.js");
 
   let effect = baseSpellEffect(document, document.name);
-  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@item.level @attributes.spelldc", macroType: "generic", macroName: "activeAuraConditionOnEntry.js".file }));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@item.level @attributes.spelldc", macroType: "generic", macroName: "activeAuraConditionOnEntry.js" }));
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",
@@ -31,7 +31,7 @@ export async function webEffect(document) {
   };
   foundry.utils.setProperty(effect, "duration.seconds", 3600);
   foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraConditionOnEntry.js".file, ["preActiveEffects"]);
+  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraConditionOnEntry.js", ["preActiveEffects"]);
 
   foundry.utils.setProperty(document, "flags.ddbimporter.effect", {
     applyStart: true,

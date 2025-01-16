@@ -6,7 +6,7 @@ export async function createBonfireEffect(document) {
   // we require active auras for this effect
   if (!effectModules().activeAurasInstalled) return document;
 
-  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraDamageOnEntry.js".file);
+  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraDamageOnEntry.js");
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
@@ -35,8 +35,8 @@ export async function createBonfireEffect(document) {
   };
   foundry.utils.setProperty(effect, "duration.seconds", 60);
   foundry.utils.setProperty(effect, "duration.rounds", 10);
-  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "generic", macroName: "activeAuraDamageOnEntry.js".file }));
-  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraDamageOnEntry.js".file, ["preActiveEffects"]);
+  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "generic", macroName: "activeAuraDamageOnEntry.js" }));
+  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraDamageOnEntry.js", ["preActiveEffects"]);
 
   document.effects.push(effect);
 

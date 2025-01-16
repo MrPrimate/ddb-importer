@@ -20,9 +20,9 @@ export async function greaseEffect(document) {
     },
   );
 
-  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraConditionOnEntry.js".file);
-  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraConditionOnEntry.js".file, ["preActiveEffects"]);
-  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@item.level @attributes.spelldc", macroType: "generic", macroName: "activeAuraConditionOnEntry.js".file }));
+  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraConditionOnEntry.js");
+  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraConditionOnEntry.js", ["preActiveEffects"]);
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@item.level @attributes.spelldc", macroType: "generic", macroName: "activeAuraConditionOnEntry.js" }));
 
   effect.flags["ActiveAuras"] = {
     isAura: true,

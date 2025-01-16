@@ -11,7 +11,12 @@ const lastArg = args[args.length - 1];
 console.warn("ARGS", {
   args,
   lastArg,
+  arguments,
+  scope,
 })
+
+const combatRound = game.combat?.round ?? 0;
+const combatTurn = game.combat?.turn ?? 0;
 
 async function applyCondition(condition, targetToken, item, itemLevel) {
   //
@@ -45,16 +50,16 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
 }
 
 if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
-  const safeName = lastArg.itemData.name.replace(/\s|'|\.|’/g, "_");
+  const item = await fromUuid(lastArg.itemUuid);
+  const safeName = item.name.replace(/\s|'|\.|’/g, "_");
   const dataTracker = {
     randomId: foundry.utils.randomID(),
     targetUuids: lastArg.targetUuids,
-    startRound: game.combat.round,
-    startTurn: game.combat.turn,
+    startRound: combatRound,
+    startTurn: combatTurn,
     spellLevel: lastArg.spellLevel,
   };
 
-  const item = await fromUuid(lastArg.itemUuid);
   // await item.update(dataTracker);
   await DAE.unsetFlag(item.actor, `${safeName}Tracker`);
   await DAE.setFlag(item.actor, `${safeName}Tracker`, dataTracker);
@@ -76,6 +81,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     };
   }
 
+  console.warn("Applyin Aura");
   return await game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
 
 } else if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
@@ -89,8 +95,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     };
   }
 } else if (args[0] == "on" || args[0] == "each") {
-  const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const item = await fromUuid(lastArg.efData.origin);
+  const safeName = item.name.replace(/\s|'|\.|’/g, "_");
   // sometimes the round info has not updated, so we pause a bit
   if (args[0] == "each") await DDBImporter?.EffectHelper.wait(500);
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
@@ -102,14 +108,14 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     ? targetTokenTrackerFlag
     : {
       randomId: targetItemTracker.randomId,
-      round: game.combat.round,
-      turn: game.combat.turn,
+      startRound: combatRound,
+      startTurn: combatTurn,
       hasLeft: false,
       condition: item.flags.ddbimporter.effect.condition,
     };
 
-  const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
-  const isLaterTurn = game.combat.round > targetTokenTracker.round || game.combat.turn > targetTokenTracker.turn;
+  const castTurn = targetItemTracker.startRound === combatRound && targetItemTracker.startTurn === combatTurn;
+  const isLaterTurn = combatRound > targetTokenTracker.round || combatTurn > targetTokenTracker.turn;
   const everyEntry = foundry.utils.hasProperty(item, "flags.ddbimporter.effect.everyEntry")
     ? item.flags.ddbimporter.effect.everyEntry
     : false;
@@ -138,14 +144,15 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     });
   }
 } else if (args[0] == "off") {
-  const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
+  const item = await fromUuid(lastArg.efData.origin);
+  const safeName = item.name.replace(/\s|'|\.|’/g, "_");
   const targetToken = await fromUuid(lastArg.tokenUuid);
   console.warn("off args", {
     targetToken,
     tokenUuid: lastArg.tokenUuid,
   })
   const targetTokenTracker = await DAE.getFlag(targetToken.actor, `${safeName}Tracker`);
-  console.warn("targetTokenTracker", targetTokenTracker);
+  console.warn("targetTokenTracker", {targetTokenTracker});
   const removeOnOff = foundry.utils.hasProperty(lastArg, "efData.flags.ddbimporter.effect.removeOnOff")
     ? lastArg.efData.flags.ddbimporter.effect.removeOnOff
     : true;
@@ -159,8 +166,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   if (targetTokenTracker) {
     targetTokenTracker.hasLeft = true;
-    targetTokenTracker.turn = game.combat.turn;
-    targetTokenTracker.round = game.combat.round;
+    targetTokenTracker.turn = combatTurn;
+    targetTokenTracker.round = combatRound;
     await DAE.setFlag(targetToken.actor, `${safeName}Tracker`, targetTokenTracker);
   }
 }

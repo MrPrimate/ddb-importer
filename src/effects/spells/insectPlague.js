@@ -6,7 +6,7 @@ export async function insectPlagueEffect(document) {
   // we require active auras for this effect
   if (!effectModules().activeAurasInstalled) return document;
 
-  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraDamageOnEntry.js".file);
+  await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraDamageOnEntry.js");
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
@@ -18,7 +18,7 @@ export async function insectPlagueEffect(document) {
       priority: "20",
     },
   );
-  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@item.level", macroType: "generic", macroName: "activeAuraDamageOnEntry.js".file }));
+  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@item.level", macroType: "generic", macroName: "activeAuraDamageOnEntry.js" }));
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",
@@ -36,7 +36,7 @@ export async function insectPlagueEffect(document) {
   };
   foundry.utils.setProperty(effect, "duration.seconds", 600);
   // foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraDamageOnEntry.js".file, ["preActiveEffects"]);
+  DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraDamageOnEntry.js", ["preActiveEffects"]);
   foundry.utils.setProperty(document, "flags.ddbimporter.effect", {
     dice: document.system.damage.parts[0][0],
     damageType: document.system.damage.parts[0][1],

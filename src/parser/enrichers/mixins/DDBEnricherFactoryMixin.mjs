@@ -285,6 +285,7 @@ export default class DDBEnricherFactoryMixin {
   // eslint-disable-next-line complexity
   _applyActivityDataOverride(activity, overrideData) {
     if (overrideData.name) activity.name = overrideData.name;
+    if (overrideData.id) activity._id = overrideData.id;
 
     if (overrideData.parent) {
       for (const parent of overrideData.parent) {

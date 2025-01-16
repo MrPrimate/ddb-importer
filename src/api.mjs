@@ -12,7 +12,7 @@ import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adve
 import { updateDDBCharacter } from "./updater/character.js";
 import DDBCharacterManager, { importCharacter, importCharacterById } from "./apps/DDBCharacterManager.js";
 import { getFeats } from "./muncher/feats/feats.js";
-import { External, DDBEffectHelper } from "./effects/_module.mjs";
+import { External, DDBEffectHelper, AuraAutomations } from "./effects/_module.mjs";
 import { getNPCImage } from "./muncher/importMonster.js";
 import DDBCompanion2014 from "./parser/companions/DDBCompanion2014.mjs";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.mjs";
@@ -195,6 +195,7 @@ export function registerApi() {
       requirementsSatisfied: DDBEffectHelper.requirementsSatisfied,
       selectTargetsWithinX: DDBEffectHelper.selectTargetsWithinX,
       wait: DDBEffectHelper.wait,
+      AuraAutomations,
     },
     executeDDBMacro: lib.DDBMacros.executeDDBMacro,
     // macro tools
