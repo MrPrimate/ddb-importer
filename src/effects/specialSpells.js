@@ -18,7 +18,6 @@ import { contagionEffect } from "./spells/contagion.js";
 import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
-import { greaseEffect } from "./spells/grease.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
 import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
 import { insectPlagueEffect } from "./spells/insectPlague.js";
@@ -104,10 +103,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Eyebite": {
       document = await eyebiteEffect(document);
-      break;
-    }
-    case "Grease": {
-      document = await greaseEffect(document);
       break;
     }
     case "Heroes' Feast": {
