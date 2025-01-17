@@ -1,4 +1,4 @@
-import logger from "../../../lib/Logger.mjs";
+import { logger } from "../../../lib/_module.mjs";
 import DDBDescriptions from "../../lib/DDBDescriptions.mjs";
 import AutoEffects from "./AutoEffects.mjs";
 import ChangeHelper from "./ChangeHelper.mjs";

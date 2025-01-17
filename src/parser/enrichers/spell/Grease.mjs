@@ -24,11 +24,11 @@ export default class Grease extends DDBEnricherData {
           durationSeconds: 60,
         },
         macroChanges: [
-          { macroValues: "@item.level @attributes.spelldc", macroType: "generic", macroName: "activeAuraConditionOnEntry.js" },
+          { macroValues: "@item.level @attributes.spelldc", functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry" },
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            `applyCondition=!statuses.has('prone'),turn=end,label=${this.data.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true,macro=function.DDBImporter.lib.DDBMacros.macroFunction.generic("activeAuraConditionOnEntry.js")`,
+            `applyCondition=!statuses.has('prone'),turn=end,label=${this.data.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true,macro=function.DDBImporter.effects.AuraAutomations.ConditionOnEntry`,
             20,
             "flags.midi-qol.OverTime",
           ),
@@ -78,16 +78,8 @@ export default class Grease extends DDBEnricherData {
 
   get setMidiOnUseMacroFlag() {
     return {
-      type: "generic",
-      name: "activeAuraConditionOnEntry.js",
+      functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry",
       triggerPoints: ["preActiveEffects"],
-    };
-  }
-
-  get itemMacro() {
-    return {
-      type: "generic",
-      name: "activeAuraConditionOnEntry.js",
     };
   }
 

@@ -543,7 +543,7 @@ export default class AdventureMunch extends FormApplication {
     return tokenData.toObject();
   }
 
-  async _getSceneTokensV11(scene, tokens) {
+  async _getSceneTokens(scene, tokens) {
     const tokenResults = [];
     const deadTokens = [];
 
@@ -1197,7 +1197,7 @@ export default class AdventureMunch extends FormApplication {
       data.tokens = [];
       const scene = await Scene.create(data, options);
       logger.debug(`Created Scene ${data.name}`, scene);
-      const tokenUpdates = await this._getSceneTokensV11(scene, tokens);
+      const tokenUpdates = await this._getSceneTokens(scene, tokens);
       logger.debug(`Token Updates for ${data.name}`, tokenUpdates);
       const sceneTokens = await scene.createEmbeddedDocuments("Token", tokenUpdates, { keepId: false });
       logger.debug(`Token update response for ${data.name}`, sceneTokens);

@@ -141,21 +141,39 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     return document;
   }
 
-  static generateMacroChange({ macroValues = "", macroType = null, macroName = null, keyPostfix = "", priority = 20, ddbFunctions = null } = {}) {
+  static generateMacroChange({
+    macroValues = "", macroType = null, macroName = null, keyPostfix = "", priority = 20, ddbFunctions = null,
+    functionCall = null, functionParams = "",
+  } = {}) {
     const useDDBFunctions = ddbFunctions ?? game.settings.get("ddb-importer", "no-item-macros");
-    const macroKey = useDDBFunctions
+    const macroKey = (useDDBFunctions || functionCall)
       ? `macro.execute`
       : "macro.itemMacro";
-    const macroValuePrefix = useDDBFunctions
-      ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}") `
-      : "";
+    const macroValuePrefix = functionCall
+      ? `function.${functionCall} `
+      : useDDBFunctions
+        ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}") `
+        : "";
 
     return {
       key: `${macroKey}${keyPostfix}`,
-      value: `${macroValuePrefix}${macroValues}`,
+      value: `${macroValuePrefix}${macroValues}${functionParams}`,
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       priority,
     };
+  }
+
+  static generateMidiOnUseMacroFlagValueV2({
+    macroType, macroName, triggerPoints = [], macroUuid = null, functionCall = null,
+  } = {}) {
+    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
+    const docMacroName = (macroUuid && !useDDBFunctions) ? `.${macroUuid}` : "";
+    const valueContent = functionCall
+      ? `function.${functionCall}`
+      : useDDBFunctions
+        ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")`
+        : `ItemMacro${docMacroName}`;
+    return triggerPoints.map((t) => `[${t}]${valueContent}`).join(",");
   }
 
   static generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints = [], macroUuid = null) {
@@ -167,24 +185,37 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     return triggerPoints.map((t) => `[${t}]${valueContent}`).join(",");
   }
 
+  static setMidiOnUseMacroFlagV2({
+    document, macroType = null, macroName = null, triggerPoints = [], functionCall = null,
+  } = {}) {
+    const value = DDBMacros.generateMidiOnUseMacroFlagValueV2({ macroType, macroName, triggerPoints, functionCall });
+    foundry.utils.setProperty(document, "flags.midi-qol.onUseMacroName", value);
+  }
+
   static setMidiOnUseMacroFlag(document, macroType, macroName, triggerPoints = []) {
     const value = DDBMacros.generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints);
     foundry.utils.setProperty(document, "flags.midi-qol.onUseMacroName", value);
   }
 
-  static generateItemMacroValue({ macroType = null, macroName = null, document = null } = {}) {
+  static generateItemMacroValue({
+    macroType = null, macroName = null, document = null, functionCall = null,
+  } = {}) {
     const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
     const docMacroName = (document && !useDDBFunctions) ? `.${document.name}` : "";
-    const valueContent = (useDDBFunctions)
-      ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")`.trim()
-      : `ItemMacro${docMacroName}`.trim();
+    const valueContent = functionCall
+      ? `function.${functionCall}`
+      : useDDBFunctions
+        ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")`.trim()
+        : `ItemMacro${docMacroName}`.trim();
     return valueContent;
   }
 
-
-  static generateOnUseMacroChange({ macroPass, macroType = null, macroName = null, priority = 20, document = null, macroParams = "" } = {}) {
-    const valueStub = DDBMacros.generateItemMacroValue({ macroType, macroName, document });
-    const valueContent = `${valueStub},${macroPass} ${macroParams}`.trim();
+  static generateOnUseMacroChange({
+    macroPass, macroType = null, macroName = null, priority = 20, document = null, macroParams = "",
+    functionCall = null, functionParams = "",
+  } = {}) {
+    const valueStub = DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall });
+    const valueContent = `${valueStub},${macroPass} ${macroParams}${functionParams}`.trim();
 
     return {
       key: "flags.midi-qol.onUseMacroName",
@@ -194,8 +225,10 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     };
   }
 
-  static generateDamageBonusMacroChange({ macroType = null, macroName = null, priority = 20, document = null } = {}) {
-    const value = DDBMacros.generateItemMacroValue({ macroType, macroName, document });
+  static generateDamageBonusMacroChange({
+    macroType = null, macroName = null, priority = 20, document = null, functionCall = null,
+  } = {}) {
+    const value = DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall });
 
     return {
       key: "flags.dnd5e.DamageBonusMacro",
@@ -205,12 +238,15 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     };
   }
 
-  static generateTargetUpdateMacroChange({ macroPass, macroType = null, macroName = null, priority = 20, document, macroParams = "" } = {}) {
+  static generateTargetUpdateMacroChange({
+    macroPass, macroType = null, macroName = null, priority = 20, document, macroParams = "",
+    functionCall = null, functionParams = "",
+  } = {}) {
     const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
-    const valueStub = useDDBFunctions
-      ? DDBMacros.generateItemMacroValue({ macroType, macroName, document })
+    const valueStub = useDDBFunctions || functionCall
+      ? DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall })
       : `${document.name}, ItemMacro`;
-    const valueContent = `${valueStub},${macroPass} ${macroParams}`.trim();
+    const valueContent = `${valueStub},${macroPass} ${macroParams}${functionParams}`.trim();
 
     return {
       key: "flags.dae.onUpdateTarget",
@@ -220,12 +256,15 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     };
   }
 
-  static generateSourceUpdateMacroChange({ macroPass, macroType = null, macroName = null, priority = 20, document, macroParams = "" } = {}) {
+  static generateSourceUpdateMacroChange({
+    macroPass, macroType = null, macroName = null, priority = 20, document, macroParams = "",
+    functionCall = null, functionParams = "",
+  } = {}) {
     const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
-    const valueStub = useDDBFunctions
-      ? DDBMacros.generateItemMacroValue({ macroType, macroName, document })
-      : `${document.name}`;
-    const valueContent = `${valueStub},${macroPass} ${macroParams}`.trim();
+    const valueStub = useDDBFunctions || functionCall
+      ? DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall })
+      : `${document.name}, ItemMacro`;
+    const valueContent = `${valueStub},${macroPass} ${macroParams}${functionParams}`.trim();
 
     return {
       key: "flags.dae.onUpdateSource",
@@ -235,11 +274,14 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     };
   }
 
-  static generateOptionalMacroChange({ optionPostfix, macroPass = null, macroType = null, macroName = null, priority = 20, document = null, macroParams = "" } = {}) {
-    const valueStub = DDBMacros.generateItemMacroValue({ macroType, macroName, document });
+  static generateOptionalMacroChange({
+    optionPostfix, macroPass = null, macroType = null, macroName = null, priority = 20, document = null,
+    macroParams = "", functionCall = null, functionParams = "",
+  } = {}) {
+    const valueStub = DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall });
     const valueContent = macroPass
-      ? `${valueStub},${macroPass} ${macroParams}`.trim()
-      : `${valueStub} ${macroParams}`.trim();
+      ? `${valueStub},${macroPass} ${macroParams}${functionParams}`.trim()
+      : `${valueStub} ${macroParams}${functionParams}`.trim();
 
     return {
       key: `flags.midi-qol.optional.${optionPostfix}`,

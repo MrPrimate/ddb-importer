@@ -514,7 +514,13 @@ export default class DDBEnricherFactoryMixin {
 
     const setMidiOnUseMacroFlag = this.setMidiOnUseMacroFlag;
     if (setMidiOnUseMacroFlag && applyMidiOnlyEffects) {
-      DDBMacros.setMidiOnUseMacroFlag(this.data, setMidiOnUseMacroFlag.type, setMidiOnUseMacroFlag.name, setMidiOnUseMacroFlag.triggerPoints);
+      DDBMacros.setMidiOnUseMacroFlagV2({
+        document: this.data,
+        macroType: setMidiOnUseMacroFlag.macroType ?? setMidiOnUseMacroFlag.type,
+        macroName: setMidiOnUseMacroFlag.macroName ?? setMidiOnUseMacroFlag.name,
+        triggerPoints: setMidiOnUseMacroFlag.triggerPoints,
+        functionCall: setMidiOnUseMacroFlag.functionCall,
+      });
     }
 
     if (!effectHints || effectHints?.length === 0) return effects;
