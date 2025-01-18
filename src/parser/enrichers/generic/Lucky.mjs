@@ -22,7 +22,7 @@ export default class Lucky extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       type: "feat",
       name: "Luck Points",
-      max: this.is2014 ? 3 : "@prof",
+      max: this.is2014 ? "3" : "@prof",
       period: "lr",
     });
     return {
