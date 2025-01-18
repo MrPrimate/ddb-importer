@@ -46,7 +46,6 @@ export default async function damageOnEntry({
     await checkAuraAndUseActivity({
       originDocument: item,
       tokenUuid: lastArg.tokenUuid,
-      spellLevel: args[1],
       activityIds: flags.activityIds ?? [],
       nameSuffix: flags.nameSuffix,
     });

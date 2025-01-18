@@ -172,6 +172,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Hideous Laughter": SpellEnrichers.HideousLaughter,
     "Silence": SpellEnrichers.Silence,
     "Grease": SpellEnrichers.Grease,
+    "Create Bonfire": SpellEnrichers.CreateBonfire,
     // Needs work
     // "Web": SpellEnrichers.Web,
     // "Create Bonfire": SpellEnrichers.CreateBonfire,

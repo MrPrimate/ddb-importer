@@ -1148,6 +1148,27 @@ export default class DDBEffectHelper {
     return DDBDescriptions.parseStatusCondition({ text, nameHint });
   }
 
+  static filerActivitiesByIds(activities, ids) {
+    const newActivities = {};
+    if (ids.length > 0) {
+      for (const [key, activity] of Object.entries(activities)) {
+        if (ids.includes(activity._id)) newActivities[key] = activity;
+      }
+    }
+    return newActivities;
+  }
+
+  static filterActivitiesByTypes(activities, types) {
+    const newActivities = {};
+    if (types.length > 0) {
+      for (const [key, activity] of Object.entries(activities)) {
+        if (types.includes(activity.type)) newActivities[key] = activity;
+      }
+    }
+    return newActivities;
+  }
+
+  // eslint-disable-next-line complexity
   static documentWithFilteredActivities({
     uuid = null, document = null, parent = null, activityIds = [], activityTypes = [], clearEffectFlags = false,
     clearEffects = false, filterEffects = true, newId = false, clearId = true, removeProperties = ["concentration"],
@@ -1162,11 +1183,13 @@ export default class DDBEffectHelper {
     if (clearId) delete newDocumentData._id;
     if (newId) newDocumentData._id = foundry.utils.randomID();
     if (activityIds.length > 0)
-      newDocumentData.system.activities = newDocumentData.system.activities.filter((a) => activityIds.includes(a._id));
+      newDocumentData.system.activities = DDBEffectHelper.filerActivitiesByIds(newDocumentData.system.activities, activityIds);
     if (activityTypes.length > 0)
-      newDocumentData.system.activities = newDocumentData.system.activities.filter((a) => activityTypes.includes(a.type));
+      newDocumentData.system.activities = DDBEffectHelper.filterActivitiesByTypes(newDocumentData.system.activities, activityTypes);
 
-    newDocumentData.system.activities = newDocumentData.system.activities.map((a) => {
+    for (const key of Object.keys(newDocumentData.system.activities)) {
+      const a = newDocumentData.system.activities[key];
+
       if (a.consumption) a.consumption.targets = [];
       if (overrideTarget) a.target.override = true;
       if (setTargetTo) {
@@ -1193,8 +1216,9 @@ export default class DDBEffectHelper {
         a.duration.units = durationUnits;
         a.duration.value = durationValue;
       }
-      return a;
-    });
+      newDocumentData.system.activities[key] = a;
+    }
+
     if (clearEffectFlags) {
       foundry.utils.setProperty(newDocumentData, "flags.itemacro", {});
       foundry.utils.setProperty(newDocumentData, "flags.midi-qol", {});

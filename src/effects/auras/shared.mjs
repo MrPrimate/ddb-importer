@@ -6,7 +6,7 @@ function getSafeName(name) {
   return name.replace(/\s|'|\.|’/g, "_");
 }
 
-// flags.ddbimporter.effect used
+// flags.ddbimporter.effect used to determine how the aura behaves
 // const effectData = {
 //   activityIds: [], // activity ids to retain on duplicated item
 //   sequencerFile: "fun.webp", // sequencer file to apply for animation
@@ -22,7 +22,9 @@ function getSafeName(name) {
 //   nameSuffix: ": Damage" // append to rolled save/damage name
 // };
 
-// const targetTokenTracker = {
+// a tracker is created on the origin document/aura document to track the aura
+// and a tracker is created on each token to have an aura processed on it to track various states
+// const tracker = {
 //   targetUuids: [],
 //   randomId: "16digits",
 //   startRound: 0,
@@ -70,7 +72,7 @@ async function generateDataTracker({
 async function rollDocumentActivityMidiQol({
   targetToken,
   originDocument,
-  level,
+  level = null,
   activityIds = [],
   nameSuffix = "",
 } = {}) {
@@ -130,7 +132,6 @@ async function applyConditionVsSave({
 export async function checkAuraAndUseActivity({
   originDocument,
   tokenUuid,
-  spellLevel = null,
   activityIds = [],
   nameSuffix = "",
 } = {}) {
@@ -143,12 +144,12 @@ export async function checkAuraAndUseActivity({
   const targetedThisCombat = targetTokenTrackerFlag && targetItemTracker.randomId === targetTokenTrackerFlag.randomId;
   const targetTokenTracker = targetedThisCombat
     ? targetTokenTrackerFlag
-    : {
+    : createDataTracker({
+      targetUuids: targetItemTracker.targetUuids ?? [tokenUuid],
       randomId: targetItemTracker.randomId,
-      round: game.combat.round,
-      turn: game.combat.turn,
       hasLeft: false,
-    };
+      spellLevel: targetItemTracker.spellLevel,
+    });
 
   const castTurn = targetItemTracker.startRound === game.combat.round
     && targetItemTracker.startTurn === game.combat.turn;
@@ -168,7 +169,7 @@ export async function checkAuraAndUseActivity({
     await rollDocumentActivityMidiQol({
       targetToken: target,
       originDocument,
-      level: spellLevel,
+      level: targetTokenTracker.spellLevel,
       activityIds,
       nameSuffix,
     });
@@ -183,7 +184,6 @@ export async function checkAuraAndApplyCondition({
   condition = null,
   everyEntry = false,
   allowVsRemoveCondition = false,
-  spellLevel = null,
   activityIds = [],
   nameSuffix = "",
 } = {}) {
@@ -209,7 +209,7 @@ export async function checkAuraAndApplyCondition({
       targetUuids: targetItemTracker.targetUuids ?? [tokenUuid],
       randomId: targetItemTracker.randomId,
       hasLeft: false,
-      spellLevel,
+      spellLevel: targetItemTracker.spellLevel,
     }, { condition });
 
   const castTurn = targetItemTracker.startRound === combatRound
@@ -226,11 +226,13 @@ export async function checkAuraAndApplyCondition({
   if (castTurn && originalTarget) {
     logger.debug(`Token ${target.name} is part of the original target for ${originDocument.name}`);
   } else if (everyEntry || !targetedThisCombat || (targetedThisCombat && isLaterTurn)) {
-    logger.debug(`Token ${target.name} is targeted for immediate save vs condition with ${originDocument.name}, using the following factors`, { originalTarget, castTurn, targetedThisCombat, targetTokenTracker, isLaterTurn });
+    logger.debug(`Token ${target.name} is targeted for immediate save vs condition with ${originDocument.name}, using the following factors`, {
+      originalTarget, castTurn, targetedThisCombat, targetTokenTracker, isLaterTurn, target,
+    });
     targetTokenTracker.hasLeft = false;
     await applyConditionVsSave({
       condition,
-      target,
+      targetToken: target,
       item: originDocument,
       spellLevel: targetItemTracker.spellLevel,
       activityIds,
@@ -318,16 +320,16 @@ export async function applyAuraToTemplate(returnArgs, {
 
   if (isCantrip) {
     const cantripDice = DDBEffectHelper.getCantripDice(originDocument.actor);
-    returnArgs.spellLevel = cantripDice;
-    let newEffects = returnArgs.item.effects.map((effect) => {
+    returnArgs[0].spellLevel = cantripDice;
+    let newEffects = returnArgs[0].item.effects.map((effect) => {
       effect.changes = effect.changes.map((change) => {
         change.value = change.value.replaceAll("@cantripDice", cantripDice);
         return change;
       });
       return effect;
     });
-    returnArgs.item.effects = foundry.utils.duplicate(newEffects);
-    returnArgs.itemData.effects = foundry.utils.duplicate(newEffects);
+    returnArgs[0].item.effects = foundry.utils.duplicate(newEffects);
+    returnArgs[0].itemData.effects = foundry.utils.duplicate(newEffects);
   }
 
   if (applyImmediate) {

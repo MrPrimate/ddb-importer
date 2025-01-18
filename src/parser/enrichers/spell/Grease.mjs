@@ -24,7 +24,7 @@ export default class Grease extends DDBEnricherData {
           durationSeconds: 60,
         },
         macroChanges: [
-          { macroValues: "@item.level @attributes.spelldc", functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry" },
+          { functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry" },
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(

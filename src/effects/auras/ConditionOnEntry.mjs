@@ -60,7 +60,6 @@ export default async function conditionOnEntry({
       tokenUuid: lastArg.tokenUuid,
       everyEntry: flags.everyEntry ?? false,
       allowVsRemoveCondition: flags.allowVsRemoveCondition ?? false,
-      spellLevel: args[1],
       activityIds: flags.activityIds ?? [],
       condition: flags.condition,
       nameSuffix: flags.nameSuffix,
