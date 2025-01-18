@@ -2,7 +2,7 @@ import { logger } from "../../lib/_module.mjs";
 import DDBEffectHelper from "../DDBEffectHelper.mjs";
 
 
-export function getSafeName(name) {
+function getSafeName(name) {
   return name.replace(/\s|'|\.|’/g, "_");
 }
 
@@ -19,6 +19,7 @@ export function getSafeName(name) {
 //   removalCheck: false, // an ability check is used for removal
 //   removalSave: false, // an ability save is used for removal
 //   isCantrip: false, // will attempt to replace @cantripDice used in any effect change with actors cantrip dice number
+//   nameSuffix: ": Damage" // append to rolled save/damage name
 // };
 
 // const targetTokenTracker = {
@@ -48,7 +49,7 @@ function createDataTracker({
   return dataTracker;
 }
 
-export async function generateDataTracker({
+async function generateDataTracker({
   targetUuids,
   spellLevel,
   originDocument,
@@ -66,23 +67,46 @@ export async function generateDataTracker({
   return dataTracker;
 }
 
+async function rollDocumentActivityMidiQol({
+  targetToken,
+  originDocument,
+  level,
+  activityIds = [],
+  nameSuffix = "",
+} = {}) {
+
+  const workflowItemData = DDBEffectHelper.documentWithFilteredActivities({
+    document: originDocument,
+    activityIds,
+    parent: originDocument.parent,
+    clearEffectFlags: true,
+    level,
+    renameDocument: `${originDocument.name}${nameSuffix}`,
+  });
+
+  const entryItem = new CONFIG.Item.documentClass(workflowItemData, { parent: originDocument.parent });
+  await DDBEffectHelper.rollMidiItemUse(entryItem, { targets: [targetToken.document.uuid] });
+}
+
 async function applyConditionVsSave({
   condition,
   targetToken,
   item,
   itemLevel,
   activityIds,
+  nameSuffix = "",
 }) {
   logger.debug(`Running ${item.name}, applyConditionVsSave`);
   if (DDBEffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor)) return true;
 
+  const resolvedNameSuffix = nameSuffix === `: ${condition} save` ? "" : nameSuffix;
   const workflowItemData = DDBEffectHelper.documentWithFilteredActivities({
     document: item,
     activityIds,
     parent: item.parent,
     clearEffectFlags: true,
     level: itemLevel,
-    renameDocument: `${item.name}: ${condition} save`,
+    renameDocument: `${item.name}${resolvedNameSuffix}`,
   });
 
   const saveTargets = [...(game.user?.targets ?? [])].map((t) => t.id);
@@ -103,6 +127,55 @@ async function applyConditionVsSave({
   return result;
 }
 
+export async function checkAuraAndUseActivity({
+  originDocument,
+  tokenUuid,
+  spellLevel = null,
+  activityIds = [],
+  nameSuffix = "",
+} = {}) {
+  const safeName = getSafeName(originDocument.name);
+  const targetItemTracker = DAE.getFlag(originDocument.parent, `${safeName}Tracker`);
+  const originalTarget = targetItemTracker.targetUuids.includes(tokenUuid);
+  const tokenId = tokenUuid.split(".").pop();
+  const target = canvas.tokens.get(tokenId);
+  const targetTokenTrackerFlag = DAE.getFlag(target.actor, `${safeName}Tracker`);
+  const targetedThisCombat = targetTokenTrackerFlag && targetItemTracker.randomId === targetTokenTrackerFlag.randomId;
+  const targetTokenTracker = targetedThisCombat
+    ? targetTokenTrackerFlag
+    : {
+      randomId: targetItemTracker.randomId,
+      round: game.combat.round,
+      turn: game.combat.turn,
+      hasLeft: false,
+    };
+
+  const castTurn = targetItemTracker.startRound === game.combat.round
+    && targetItemTracker.startTurn === game.combat.turn;
+  const isLaterTurn = game.combat.round > targetTokenTracker.round
+    || game.combat.turn > targetTokenTracker.turn;
+
+  // if:
+  // not cast turn, and not part of the original target
+  // AND one of the following
+  // not original template and have not yet had this effect applied this combat OR
+  // has been targeted this combat, left and re-entered effect, and is a later turn
+  if (castTurn && originalTarget) {
+    logger.debug(`Token ${target.name} is part of the original target for ${originDocument.name}`);
+  } else if (!targetedThisCombat || (targetedThisCombat && targetTokenTracker.hasLeft && isLaterTurn)) {
+    logger.debug(`Token ${target.name} is targeted for immediate damage with ${originDocument.name}, using the following factors`, { originalTarget, castTurn, targetedThisCombat, targetTokenTracker, isLaterTurn });
+    targetTokenTracker.hasLeft = false;
+    await rollDocumentActivityMidiQol({
+      targetToken: target,
+      originDocument,
+      level: spellLevel,
+      activityIds,
+      nameSuffix,
+    });
+  }
+  await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
+}
+
 export async function checkAuraAndApplyCondition({
   originDocument,
   wait = false,
@@ -112,6 +185,7 @@ export async function checkAuraAndApplyCondition({
   allowVsRemoveCondition = false,
   spellLevel = null,
   activityIds = [],
+  nameSuffix = "",
 } = {}) {
   logger.debug(`Running ${originDocument.name}, checkAuraAndApplyCondition`);
 
@@ -138,8 +212,10 @@ export async function checkAuraAndApplyCondition({
       spellLevel,
     }, { condition });
 
-  const castTurn = targetItemTracker.startRound === combatRound && targetItemTracker.startTurn === combatTurn;
-  const isLaterTurn = combatRound > targetTokenTracker.round || combatTurn > targetTokenTracker.turn;
+  const castTurn = targetItemTracker.startRound === combatRound
+    && targetItemTracker.startTurn === combatTurn;
+  const isLaterTurn = combatRound > targetTokenTracker.round
+    || combatTurn > targetTokenTracker.turn;
 
   // if:
   // not cast turn, and not part of the original target
@@ -158,6 +234,7 @@ export async function checkAuraAndApplyCondition({
       item: originDocument,
       spellLevel: targetItemTracker.spellLevel,
       activityIds,
+      nameSuffix,
     });
   }
   await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
@@ -182,9 +259,11 @@ export async function removeAuraFromToken({
   logger.debug(`Running ${originDocument.name}, removeAuraFromToken`);
   const safeName = getSafeName(originDocument.name);
   const targetToken = await fromUuid(tokenUuid);
-  logger.verbose("off args", {
+  logger.verbose("removeAuraFromToken args", {
     targetToken,
     tokenUuid,
+    effectOrigin,
+    originDocument,
   });
   const targetTokenTracker = await DAE.getFlag(targetToken.actor, `${safeName}Tracker`);
   logger.debug("targetTokenTracker", { targetTokenTracker });
