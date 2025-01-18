@@ -260,6 +260,7 @@ DDBMonster.prototype._generateSpells = function() {
     edgeCases: [], // map { name: "", type: "", edge: "" }
     material: true,
     innateMatch: false,
+    concentration: true,
   };
 
   // some monsters have poor spell formating, reported and might be able to remove in future

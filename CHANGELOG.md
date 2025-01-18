@@ -1,3 +1,7 @@
+# Next Up
+
+- Monsters parsed in 6.0.x might have concentration removed from spells added.
+
 # 6.0.63
 
 - Misty Step DDB Simple Macro.
