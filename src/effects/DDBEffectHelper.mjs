@@ -1150,7 +1150,7 @@ export default class DDBEffectHelper {
 
   static documentWithFilteredActivities({
     uuid = null, document = null, parent = null, activityIds = [], activityTypes = [], clearEffectFlags = false,
-    clearEffects = false, filterEffects = true, newId = false, clearId = true, removeProperties = [],
+    clearEffects = false, filterEffects = true, newId = false, clearId = true, removeProperties = ["concentration"],
     setToAtWill = false, renameDocument = null, setTargetTo = "creature", clearTargetTemplate = true,
     overrideTarget = true, overrideDuration = true, durationUnits = "inst", durationValue = null,
     level = null, clearUses = true, addProperties = [],
