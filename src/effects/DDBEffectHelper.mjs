@@ -78,8 +78,8 @@ export default class DDBEffectHelper {
     utils.removeFromProperties(properties, value);
   }
 
-  static wait(ms) {
-    utils.wait(ms);
+  static async wait(ms) {
+    return utils.wait(ms);
   }
 
   /**

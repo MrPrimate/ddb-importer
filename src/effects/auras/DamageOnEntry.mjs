@@ -3,6 +3,7 @@ import DDBEffectHelper from "../DDBEffectHelper.mjs";
 import {
   applyAuraToTemplate,
   checkAuraAndApplyCondition,
+  getSafeName,
   removeAuraFromToken,
 } from "./shared.mjs";
 
@@ -75,6 +76,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
 export default async function damageOnEntry({
   // eslint-disable-next-line no-unused-vars
   speaker, actor, token, character, item, rolledItem, macroItem,
+  // eslint-disable-next-line no-unused-vars
   args, scope, workflow,
 } = {}) {
 
@@ -84,7 +86,7 @@ export default async function damageOnEntry({
 
 
   if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
-    const safeName = lastArg.itemData.name.replace(/\s|'|\.|’/g, "_");
+    const safeName =  getSafeName(item.name);
     const dataTracker = {
       randomId: foundry.utils.randomID(),
       targetUuids: lastArg.targetUuids,
@@ -93,7 +95,6 @@ export default async function damageOnEntry({
       spellLevel: lastArg.spellLevel,
     };
 
-    const item = await fromUuid(lastArg.itemUuid);
     await DAE.unsetFlag(item.actor, `${safeName}Tracker`);
     await DAE.setFlag(item.actor, `${safeName}Tracker`, dataTracker);
 

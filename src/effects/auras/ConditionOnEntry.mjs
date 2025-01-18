@@ -48,10 +48,9 @@ export default async function conditionOnEntry({
   });
 
   if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
-    const item = await fromUuid(workflow.itemUuid);
     const flags = foundry.utils.getProperty(item, "flags.ddbimporter.effect") ?? {};
     const templateApplication = await applyAuraToTemplate(args, {
-      item,
+      originDocument: item,
       condition: flags.condition,
       targetUuids: Array.from(workflow.targets.map((t) => t.document.uuid)),
       sequencerFile: flags.sequencerFile,
@@ -64,7 +63,6 @@ export default async function conditionOnEntry({
     return templateApplication;
   } else if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     // if using postActiveEffects midi call check saves and apply
-    const item = await fromUuid(workflow.itemUuid);
     const flags = foundry.utils.getProperty(item, "flags.ddbimporter.effect") ?? {};
     if (flags.applyImmediate && flags.condition) {
       for (const token of lastArg.failedSaves) {
@@ -79,10 +77,9 @@ export default async function conditionOnEntry({
       };
     }
   } else if (args[0] == "on" || args[0] == "each") {
-    const item = await fromUuid(lastArg.efData.origin);
     const flags = foundry.utils.getProperty(item, "flags.ddbimporter.effect") ?? {};
     await checkAuraAndApplyCondition({
-      item,
+      originDocument: item,
       wait: args[0] == "each",
       tokenUuid: lastArg.tokenUuid,
       everyEntry: flags.everyEntry ?? false,
@@ -93,7 +90,7 @@ export default async function conditionOnEntry({
     });
   } else if (args[0] == "off") {
     await removeAuraFromToken({
-      itemOrigin: lastArg.efData.origin,
+      effectOrigin: lastArg.efData.origin,
       tokenUuid: lastArg.tokenUuid,
       removeOnOff: foundry.utils.getProperty(item, "flags.ddbimporter.effect.removeOnOff") ?? true,
     });
