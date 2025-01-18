@@ -9,17 +9,14 @@ import {
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
 import { callLightningEffect } from "./spells/callLightning.js";
 import { chillTouchEffect } from "./spells/chillTouch.js";
-import { cloudkillEffect } from "./spells/cloudkill.js";
 import { colorSprayEffect } from "./spells/colorSpray.js";
 import { commandEffect } from "./spells/command.js";
 import { confusionEffect } from "./spells/confusion.js";
 import { contagionEffect } from "./spells/contagion.js";
-// import { createBonfireEffect } from "./spells/createBonfire.js";
 import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
-import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
 import { insectPlagueEffect } from "./spells/insectPlague.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
@@ -65,10 +62,6 @@ async function midiEffectAdjustment(document) {
       document = await callLightningEffect(document);
       break;
     }
-    case "Cloudkill": {
-      document = await cloudkillEffect(document);
-      break;
-    }
     case "Color Spray": {
       document = await colorSprayEffect(document);
       break;
@@ -93,10 +86,6 @@ async function midiEffectAdjustment(document) {
       document = await crownofStarsEffect(document);
       break;
     }
-    // case "Create Bonfire": {
-    //   document = await createBonfireEffect(document);
-    //   break;
-    // }
     case "Divine Word": {
       document = await divineWordEffect(document);
       break;
@@ -107,10 +96,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Heroes' Feast": {
       document = await heroesFeastEffect(document);
-      break;
-    }
-    case "Incendiary Cloud": {
-      document = await incendiaryCloudEffect(document);
       break;
     }
     case "Insect Plague": {

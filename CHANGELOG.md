@@ -1,7 +1,7 @@
 # Next Up
 
 - Monsters parsed in 6.0.x might have concentration removed from spells added.
-- Midi/ActiveAuras spell automation fixes and improvements for Grease, and Create Bonfire.
+- Midi/ActiveAuras spell automation fixes and improvements for Grease, Incendiary Cloud, Cloudkill, and Create Bonfire.
 
 # 6.0.63
 

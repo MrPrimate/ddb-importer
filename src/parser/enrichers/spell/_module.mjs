@@ -26,6 +26,7 @@ export { default as Catapult } from "./Catapult.mjs";
 export { default as ChaosBolt } from "./ChaosBolt.mjs";
 export { default as ChillTouch } from "./ChillTouch.mjs";
 export { default as ChromaticOrb } from "./ChromaticOrb.mjs";
+export { default as Cloudkill } from "./Cloudkill.mjs";
 export { default as ColorSpray } from "./ColorSpray.mjs";
 export { default as Command } from "./Command.mjs";
 export { default as ComprehendLanguages } from "./ComprehendLanguages.mjs";
