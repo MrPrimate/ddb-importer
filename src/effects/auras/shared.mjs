@@ -18,6 +18,7 @@ export function getSafeName(name) {
 //   applyImmediate: false, // apply effect immediately based on failed saves of rolled item
 //   removalCheck: false, // an ability check is used for removal
 //   removalSave: false, // an ability save is used for removal
+//   isCantrip: false, // will attempt to replace @cantripDice used in any effect change with actors cantrip dice number
 // };
 
 // const targetTokenTracker = {
@@ -221,6 +222,7 @@ export async function applyAuraToTemplate(returnArgs, {
   templateUuid,
   spellLevel,
   failedSaveTokens = [],
+  isCantrip = false,
 } = {}) {
   logger.debug(`Running ${originDocument.name}, applyAuraToTemplate`);
   await generateDataTracker({
@@ -233,6 +235,20 @@ export async function applyAuraToTemplate(returnArgs, {
   if (sequencerFile) {
     const scale = sequencerScale ?? 1;
     await DDBEffectHelper.attachSequencerFileToTemplate(templateUuid, sequencerFile, originDocument.uuid, scale);
+  }
+
+  if (isCantrip) {
+    const cantripDice = DDBEffectHelper.getCantripDice(originDocument.actor);
+    returnArgs.spellLevel = cantripDice;
+    let newEffects = returnArgs.item.effects.map((effect) => {
+      effect.changes = effect.changes.map((change) => {
+        change.value = change.value.replaceAll("@cantripDice", cantripDice);
+        return change;
+      });
+      return effect;
+    });
+    returnArgs.item.effects = foundry.utils.duplicate(newEffects);
+    returnArgs.itemData.effects = foundry.utils.duplicate(newEffects);
   }
 
   if (applyImmediate) {

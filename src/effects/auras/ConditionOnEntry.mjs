@@ -18,6 +18,7 @@ import {
 //   applyImmediate: false, // apply effect immediately based on failed saves of rolled item
 //   removalCheck: false, // an ability check is used for removal
 //   removalSave: false, // an ability save is used for removal
+//   isCantrip: false, // will attempt to replace @cantripDice used in any effect change with actors cantrip dice number
 // };
 
 // const targetTokenTracker = {
@@ -96,5 +97,5 @@ export default async function conditionOnEntry({
     });
   }
 
-  return true;
+  return args;
 }

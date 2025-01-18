@@ -23,13 +23,13 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
     ? 0
     : itemLevel - item.system.level;
   const upscaledDamage = isCantrip
-    ? `${DDBImporter?.EffectHelper.getCantripDice(caster)}d${scalingDiceArray[1]}[${damageType}]`
+    ? `${DDBEffectHelper.getCantripDice(caster)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
 
   const workflowItemData = foundry.utils.duplicate(item);
   workflowItemData.system.target = { value: 1, units: "", type: "creature" };
   workflowItemData.system.save.ability = saveAbility;
-  workflowItemData.system.properties = DDBImporter?.EffectHelper.removeFromProperties(workflowItemData.system.properties, "concentration") ?? [];
+  workflowItemData.system.properties = DDBEffectHelper.removeFromProperties(workflowItemData.system.properties, "concentration") ?? [];
   workflowItemData.system.level = itemLevel;
   workflowItemData.system.duration = { value: null, units: "inst" };
   workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
@@ -86,45 +86,20 @@ export default async function damageOnEntry({
 
 
   if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
-    const safeName =  getSafeName(item.name);
-    const dataTracker = {
-      randomId: foundry.utils.randomID(),
-      targetUuids: lastArg.targetUuids,
-      startRound: game.combat.round,
-      startTurn: game.combat.turn,
-      spellLevel: lastArg.spellLevel,
-    };
-
-    await DAE.unsetFlag(item.actor, `${safeName}Tracker`);
-    await DAE.setFlag(item.actor, `${safeName}Tracker`, dataTracker);
-
-    const ddbEffectFlags = lastArg.item.flags.ddbimporter?.effect;
-
-    if (ddbEffectFlags) {
-      const sequencerFile = ddbEffectFlags.sequencerFile;
-      if (sequencerFile) {
-        const scale = ddbEffectFlags.sequencerScale ?? 1;
-        await DDBImporter?.EffectHelper.attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid, scale);
-      }
-      if (ddbEffectFlags.isCantrip) {
-        const cantripDice = DDBImporter?.EffectHelper.getCantripDice(lastArg.actor);
-        args[0].spellLevel = cantripDice;
-        ddbEffectFlags.cantripDice = cantripDice;
-        let newEffects = args[0].item.effects.map((effect) => {
-          effect.changes = effect.changes.map((change) => {
-            change.value = change.value.replace("@cantripDice", cantripDice)
-            return change;
-          });
-          return effect;
-        });
-        args[0].item.effects = foundry.utils.duplicate(newEffects);
-        args[0].itemData.effects = foundry.utils.duplicate(newEffects);
-      }
-      const template = await fromUuid(lastArg.templateUuid);
-      await template.update({"flags.effect": ddbEffectFlags});
-    }
-
-    return await game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
+    const flags = foundry.utils.getProperty(item, "flags.ddbimporter.effect") ?? {};
+    const templateApplication = await applyAuraToTemplate(args, {
+      originDocument: item,
+      condition: flags.condition,
+      targetUuids: Array.from(workflow.targets.map((t) => t.document.uuid)),
+      sequencerFile: flags.sequencerFile,
+      sequencerScale: flags.sequencerScale,
+      applyImmediate: flags.applyImmediate,
+      templateUuid: workflow.templateUuid,
+      spellLevel: workflow.spellLevel,
+      failedSaveTokens: workflow.failedSaves,
+      isCantrip: flags.isCantrip,
+    });
+    return templateApplication;
 
   } else if (args[0] == "on") {
     const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
@@ -171,4 +146,6 @@ export default async function damageOnEntry({
       await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
     }
   }
+
+  return args;
 }
