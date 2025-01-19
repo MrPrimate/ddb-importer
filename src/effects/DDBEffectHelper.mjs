@@ -1274,7 +1274,7 @@ export default class DDBEffectHelper {
     if (level) newDocumentData.system.level = level;
 
     logger.verbose("New document data", newDocumentData);
-    console.warn("New document data", newDocumentData);
+    // console.warn("New document data", newDocumentData);
 
     const newDocument = new CONFIG.Item.documentClass(newDocumentData, { parent });
     return newDocument;
