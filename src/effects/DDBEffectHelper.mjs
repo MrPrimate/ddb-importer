@@ -922,12 +922,16 @@ export default class DDBEffectHelper {
       return;
     }
 
+    const existing = actor.effects.get(condition.id);
+    if (existing) return;
+
     logger.debug(`adding ${condition.name}`, { condition });
+
     const effect = await ActiveEffect.implementation.fromStatusEffect(condition.id);
     if (condition.level) effect.updateSource({ [`flags.dnd5e.${condition.id}Level`]: condition.level });
     effect.updateSource({ origin });
-    const effectData = effect.toObject();
-    await actor.createEmbeddedDocuments("ActiveEffect", [effectData], { keepId: true });
+    ActiveEffect.implementation.create(effect, { parent: actor, keepId: true });
+
     if (condition.foundry === "exhaustion") {
       logger.debug("Updating actor exhaustion", level);
       await actor.update({ "system.attributes.exhaustion": level ?? 1 });

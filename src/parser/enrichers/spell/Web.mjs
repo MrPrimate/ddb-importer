@@ -19,7 +19,7 @@ export default class Web extends DDBEnricherData {
             effect: {
               applyStart: true,
               applyEntry: true,
-              applyImmediate: false,
+              applyImmediate: true,
               everyEntry: false,
               allowVsRemoveCondition: true,
               removalCheck: "str", // in 2024 this can be athletcis
