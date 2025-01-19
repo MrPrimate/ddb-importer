@@ -177,6 +177,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Wind Wall": SpellEnrichers.WindWall,
     "Witch Bolt": SpellEnrichers.WitchBolt,
     "Zephyr Strike": SpellEnrichers.ZephyrStrike,
+    "Blindness/Deafness": SpellEnrichers.BlindnessDeafness,
   };
 
 }

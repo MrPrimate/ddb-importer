@@ -17,6 +17,7 @@ export { default as Barkskin } from "./Barkskin.mjs";
 export { default as BeaconOfHope } from "./BeaconOfHope.mjs";
 export { default as BladeWard } from "./BladeWard.mjs";
 export { default as Bless } from "./Bless.mjs";
+export { default as BlindnessDeafness } from "./BlindnessDeafness.mjs";
 export { default as Blur } from "./Blur.mjs";
 export { default as BonesOfTheEarth } from "./BonesOfTheEarth.mjs";
 export { default as BoomingBlade } from "./BoomingBlade.mjs";

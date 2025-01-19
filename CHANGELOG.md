@@ -2,6 +2,7 @@
 
 - Fixes to Active-Auras condition application.
 - Spell Effects: Insect Plague and Web.
+- Blindness/Deafness improvements.
 
 # 6.0.64
 
