@@ -122,7 +122,6 @@ async function applyConditionVsSave({
     e.statuses.some((s) => s.name.toLowerCase() === condition),
   );
   if (failedSaves.length > 0 && !statusOnWorkflow) {
-    console.warn("Failed saves", failedSaves);
     await DDBEffectHelper.adjustCondition({
       add: true,
       conditionName: condition,
