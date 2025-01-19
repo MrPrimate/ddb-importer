@@ -1,3 +1,8 @@
+# Next Up
+
+- Fixes to Active-Auras condition application.
+- Spell Effects: Insect Plague and Web.
+
 # 6.0.64
 
 - Monsters parsed in 6.0.x might have concentration removed from spells added.
