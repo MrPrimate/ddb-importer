@@ -1,10 +1,10 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class IncendiaryCloud extends DDBEnricherData {
+export default class InsectPlague extends DDBEnricherData {
   get activity() {
     return {
-      id: "ddbIncCloSpellSa",
+      id: "ddbInsPlaSpellSa",
       noeffect: this.useMidiAutomations,
     };
   }
@@ -31,15 +31,15 @@ export default class IncendiaryCloud extends DDBEnricherData {
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            `label=${this.data.name} Turn End,turn=end, saveAbility=dex, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=fire, killAnim=true`,
+            `label=${this.data.name} Turn End,turn=end, saveAbility=con, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d10, damageType=piercing, killAnim=true`,
             20,
             "flags.midi-qol.OverTime",
           ),
         ],
         data: {
           duration: {
-            seconds: 60,
-            rounds: 10,
+            seconds: 600,
+            rounds: 100,
           },
           flags: {
             ActiveAuras: {
@@ -67,8 +67,8 @@ export default class IncendiaryCloud extends DDBEnricherData {
           ddbimporter: {
             effect: {
               saveOnEntry: true,
-              sequencerFile: "jb2a.fumes.fire.orange",
-              activityIds: ["ddbIncCloSpellSa"],
+              sequencerFile: "jb2a.butterflies.many.orange",
+              activityIds: ["ddbInsPlaSpellSa"],
             },
           },
         },

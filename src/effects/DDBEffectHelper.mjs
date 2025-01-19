@@ -1174,7 +1174,8 @@ export default class DDBEffectHelper {
     clearEffects = false, filterEffects = true, newId = false, clearId = true, removeProperties = ["concentration"],
     setToAtWill = false, renameDocument = null, setTargetTo = "creature", clearTargetTemplate = true,
     overrideTarget = true, overrideDuration = true, durationUnits = "inst", durationValue = null,
-    level = null, clearUses = true, addProperties = [],
+    level = null, clearUses = true, addProperties = [], noSpellSlot = true, clearTargets = true,
+    clearActiveAuraEffects = true,
   } = {}) {
     if (!uuid && !document) throw new Error("Must specify either uuid or document !");
     const base = document ?? fromUuidSync(uuid);
@@ -1186,6 +1187,16 @@ export default class DDBEffectHelper {
       newDocumentData.system.activities = DDBEffectHelper.filerActivitiesByIds(newDocumentData.system.activities, activityIds);
     if (activityTypes.length > 0)
       newDocumentData.system.activities = DDBEffectHelper.filterActivitiesByTypes(newDocumentData.system.activities, activityTypes);
+
+    if (clearActiveAuraEffects) {
+      newDocumentData.effects = newDocumentData.effects.filter((e) =>
+        !foundry.utils.getProperty(e.flags, "ActiveAura.isAura"),
+      );
+    }
+
+    if (clearEffects) {
+      foundry.utils.setProperty(newDocumentData, "effects", []);
+    }
 
     for (const key of Object.keys(newDocumentData.system.activities)) {
       const a = newDocumentData.system.activities[key];
@@ -1216,6 +1227,14 @@ export default class DDBEffectHelper {
         a.duration.units = durationUnits;
         a.duration.value = durationValue;
       }
+
+      if (clearTargets) foundry.utils.setProperty(a, "consumption.targets", []);
+      if (noSpellSlot) foundry.utils.setProperty(a, "consumption.spellSlot", false);
+
+      if (clearEffects) foundry.utils.setProperty(a, "effects", []);
+
+      a.effects = a.effects.filter((e) => newDocumentData.effects.some((f) => f._id === e._id));
+
       newDocumentData.system.activities[key] = a;
     }
 
@@ -1225,13 +1244,12 @@ export default class DDBEffectHelper {
       foundry.utils.setProperty(newDocumentData, "flags.midiProperties", {});
       foundry.utils.setProperty(newDocumentData, "flags.dae", {});
     }
+
     if (filterEffects) {
       const allowedIds = Object.values(newDocumentData.system.activities).map((a) => {
         return (a.effects ?? []).map((e) => e._id);
       }).flat();
       newDocumentData.effects = newDocumentData.effects.filter((e) => allowedIds.includes(e._id));
-    } else if (clearEffects) {
-      foundry.utils.setProperty(newDocumentData, "effects", []);
     }
     for (const prop of removeProperties) {
       newDocumentData.system.properties = utils.removeFromProperties(newDocumentData.system.properties, prop);
@@ -1254,6 +1272,9 @@ export default class DDBEffectHelper {
     }
 
     if (level) newDocumentData.system.level = level;
+
+    logger.verbose("New document data", newDocumentData);
+    console.warn("New document data", newDocumentData);
 
     const newDocument = new CONFIG.Item.documentClass(newDocumentData, { parent });
     return newDocument;

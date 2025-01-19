@@ -17,7 +17,6 @@ import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
-import { insectPlagueEffect } from "./spells/insectPlague.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
 import { sleepEffect } from "./spells/sleep.js";
@@ -27,7 +26,6 @@ import { stormSphereEffect } from "./spells/stormSphere.js";
 // import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { vitriolicSphereEffect } from "./spells/vitriolicSphere.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
-import { webEffect } from "./spells/web.js";
 
 
 export function baseSpellEffect(document, label,
@@ -98,10 +96,6 @@ async function midiEffectAdjustment(document) {
       document = await heroesFeastEffect(document);
       break;
     }
-    case "Insect Plague": {
-      document = await insectPlagueEffect(document);
-      break;
-    }
     case "Moonbeam": {
       document = await moonbeamEffect(document);
       break;
@@ -132,10 +126,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Warding Bond": {
       document = await wardingBondEffect(document);
-      break;
-    }
-    case "Web": {
-      document = await webEffect(document);
       break;
     }
     // no default

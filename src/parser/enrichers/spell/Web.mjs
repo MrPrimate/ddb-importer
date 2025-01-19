@@ -3,6 +3,14 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class Web extends DDBEnricherData {
 
+  get activity() {
+    return {
+      id: "ddbWebSpellSave1",
+      noeffect: this.useMidiAutomations,
+    };
+  }
+
+
   get override() {
     return {
       data: {
@@ -19,7 +27,8 @@ export default class Web extends DDBEnricherData {
               saveRemoves: false,
               condition: "Restrained",
               save: "dex",
-              // sequencerFile: "jb2a.web.02",
+              sequencerFile: "jb2a.web.02",
+              activityIds: ["ddbWebSpellSave1"],
             },
           },
         },
@@ -48,9 +57,7 @@ export default class Web extends DDBEnricherData {
         midiOnly: true,
         macroChanges: [
           {
-            macroValues: "@item.level @attributes.spelldc",
-            macroType: "generic",
-            macroName: "activeAuraConditionOnEntry.js",
+            functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry",
           },
         ],
         data: {
@@ -78,10 +85,11 @@ export default class Web extends DDBEnricherData {
     ];
   }
 
-  get itemMacro() {
+
+  get setMidiOnUseMacroFlag() {
     return {
-      name: "activeAuraConditionOnEntry.js",
-      type: "generic",
+      functionCall: "DDBImporter.effects.AuraAutomations.ConditionOnEntry",
+      triggerPoints: ["preActiveEffects"],
     };
   }
 
