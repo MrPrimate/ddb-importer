@@ -3,6 +3,7 @@
 - Fixes to Active-Auras condition application.
 - Spell Effects: Insect Plague and Web.
 - Blindness/Deafness improvements.
+- Fix an error when some containers would try to generate activities. @.asmodeus
 
 # 6.0.64
 

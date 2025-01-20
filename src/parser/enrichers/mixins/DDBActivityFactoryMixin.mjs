@@ -376,37 +376,37 @@ export default class DDBActivityFactoryMixin {
     });
   }
 
+
+  // eslint-disable-next-line complexity
   _activityEffectLinking() {
-    if (this.data.effects.length > 0) {
-      for (const activityId of Object.keys(this.data.system.activities)) {
-        const activity = this.data.system.activities[activityId];
-        if (!activity.effects || activity.effects.length !== 0) continue;
-        if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
-        const ignoreTransfer = foundry.utils.getProperty(activity, "flags.ddbimporter.ignoreTransfer") ?? false;
-        for (const effect of this.data.effects) {
-          if (effect.transfer && !ignoreTransfer) continue;
-          if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
-          const activityNamesRequired = foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")
-            ? foundry.utils.getProperty(effect, "flags.ddbimporter.activitiesMatch")
-            : foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
-              ? [foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch")]
-              : [];
-          if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name)) continue;
-          const effectId = effect._id ?? foundry.utils.randomID();
-          effect._id = effectId;
-          const level = foundry.utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null };
-          const activityRiders = foundry.utils.getProperty(effect, "flags.ddbimporter.activityRiders") ?? [];
-          const effectRiders = foundry.utils.getProperty(effect, "flags.ddbimporter.effectRiders") ?? [];
-          const itemRiders = foundry.utils.getProperty(effect, "flags.ddbimporter.itemRiders") ?? [];
-          const riders = {
-            activity: activityRiders,
-            effect: effectRiders,
-            item: itemRiders,
-          };
-          activity.effects.push({ _id: effectId, level, riders });
-        }
-        this.data.system.activities[activityId] = activity;
+    if (this.data.effects.length === 0) return;
+    if (!this.data.system.activities) return;
+    for (const activityId of Object.keys(this.data.system.activities)) {
+      const activity = this.data.system.activities[activityId];
+      if (!activity.effects || activity.effects.length !== 0) continue;
+      if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
+      const ignoreTransfer = foundry.utils.getProperty(activity, "flags.ddbimporter.ignoreTransfer") ?? false;
+      for (const effect of this.data.effects) {
+        if (effect.transfer && !ignoreTransfer) continue;
+        if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
+        const activityNamesRequired = foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")
+          ? foundry.utils.getProperty(effect, "flags.ddbimporter.activitiesMatch")
+          : foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
+            ? [foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch")]
+            : [];
+        if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name)) continue;
+        if (!effect._id) effect._id = foundry.utils.randomID();
+        activity.effects.push({
+          _id: effect._id,
+          level: foundry.utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null },
+          riders: {
+            activity: foundry.utils.getProperty(effect, "flags.ddbimporter.activityRiders") ?? [],
+            effect: foundry.utils.getProperty(effect, "flags.ddbimporter.effectRiders") ?? [],
+            item: foundry.utils.getProperty(effect, "flags.ddbimporter.itemRiders") ?? [],
+          },
+        });
       }
+      this.data.system.activities[activityId] = activity;
     }
   }
 }
