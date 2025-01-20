@@ -35,6 +35,7 @@ export { default as ControlWeather } from "./ControlWeather.mjs";
 export { default as Counterspell } from "./Counterspell.mjs";
 export { default as CreateBonfire } from "./CreateBonfire.mjs";
 export { default as CrownOfMadness } from "./CrownOfMadness.mjs";
+export { default as CrownOfStars } from "./CrownOfStars.mjs";
 export { default as DancingLights } from "./DancingLights.mjs";
 export { default as Darkness } from "./Darkness.mjs";
 export { default as Darkvision } from "./Darkvision.mjs";

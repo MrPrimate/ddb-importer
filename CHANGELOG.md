@@ -1,8 +1,8 @@
 # Next Up
 
 - Fixes to Active-Auras condition application.
-- Spell Effects: Insect Plague and Web.
-- Blindness/Deafness improvements.
+- Spell Effects: Insect Plague, Crown of Stars, and Web.
+- Blindness/Deafness, and Crown of Stars improvements.
 - Fix an error when some containers would try to generate activities. @.asmodeus
 
 # 6.0.64

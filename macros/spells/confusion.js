@@ -6,7 +6,7 @@ if (args[0] === "each") {
       (change) =>
         change.key === "system.attributes.movement.all" &&
         change.mode === CONST.ACTIVE_EFFECT_MODES.CUSTOM &&
-        change.value === 0
+        change.value === 0,
     );
 
     if (changeIndex !== -1) {

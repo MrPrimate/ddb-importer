@@ -13,7 +13,6 @@ import { colorSprayEffect } from "./spells/colorSpray.js";
 import { commandEffect } from "./spells/command.js";
 import { confusionEffect } from "./spells/confusion.js";
 import { contagionEffect } from "./spells/contagion.js";
-import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
@@ -78,10 +77,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Confusion": {
       document = await confusionEffect(document);
-      break;
-    }
-    case "Crown of Stars": {
-      document = await crownofStarsEffect(document);
       break;
     }
     case "Divine Word": {
