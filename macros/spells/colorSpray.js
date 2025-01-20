@@ -1,7 +1,8 @@
 // based on @ccjmk and @crymic macro for sleep.
 // Midi-qol "On Use"
 
-const blindHp = await args[0].damageTotal;
+
+const blindHp = scope.workflow.utilityRoll[0]._total;
 const immuneConditions = [game.i18n.localize("Blinded"), game.i18n.localize("Unconscious")];
 console.log(`Color Spray Spell => Available HP Pool [${blindHp}] points`);
 const targets = await args[0].targets
@@ -34,7 +35,7 @@ for (let target of targets) {
 
   } else {
     console.log(`Color Spray Results => Target: ${target.name} | HP: ${targetHpValue} | HP Pool: ${remainingBlindHp - targetHpValue} | Status: Not enough HP remaining`);
-    blindTarget.push(`<div class="midi-qol-flex-container"><div>misses</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${targetImg}" width="30" height="30" style="border:0px"></div></div>`);
+    blindTarget.push(`<div class="midi-qol-flex-container"><div>Unaffected</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${targetImg}" width="30" height="30" style="border:0px"></div></div>`);
   }
 }
 await DDBImporter?.EffectHelper.wait(500);

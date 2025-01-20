@@ -28,7 +28,6 @@ export default class Confusion extends DDBEnricherData {
     ];
   }
 
-
   get itemMacro() {
     return {
       name: "confusion.js",

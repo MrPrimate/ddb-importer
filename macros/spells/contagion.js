@@ -224,6 +224,11 @@ async function contagionSave() {
 }
 
 if (args[0] === "on") {
+  console.warn({
+    args,
+    scope,
+    DAEItem,
+  });
   const saveData = DAEItem.system.save;
   if (saveData.scaling === "spell") {
     const rollData = actor.getRollData();

@@ -28,4 +28,25 @@ export default class ColorSpray extends DDBEnricherData {
     }
   }
 
+  get setMidiOnUseMacroFlag() {
+    if (this.is2014) {
+      return {
+        name: "colorSpray.js",
+        type: "spell",
+        triggerPoints: ["preActiveEffects"],
+      };
+    }
+    return null;
+  }
+
+  get itemMacro() {
+    if (this.is2014) {
+      return {
+        name: "colorSpray.js",
+        type: "spell",
+      };
+    }
+    return null;
+  }
+
 }
