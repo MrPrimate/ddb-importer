@@ -1,8 +1,42 @@
-if (args[0] === "each") {
-  const findEffect = token.actor.effects.find((effect) => effect.name === "Confusion");
+async function getDirection(total, denomination) {
+  if (denomination === "4") {
+    switch (total) {
+      case 1:
+        return "North";
+      case 2:
+        return "East";
+      case 3:
+        return "South";
+      case 4:
+        return "West";
+    }
+  } else if (denomination === "8") {
+    switch (total) {
+      case 1:
+        return "North";
+      case 2:
+        return "Northeast";
+      case 3:
+        return "East";
+      case 4:
+        return "Southeast";
+      case 5:
+        return "South";
+      case 6:
+        return "Southwest";
+      case 7:
+        return "West";
+      case 8:
+        return "Northwest";
+    }
+  }
 
-  if (findEffect) {
-    const changeIndex = findEffect.changes.findIndex(
+  return "Unknown";
+}
+
+if (args[0] === "each") {
+  if (scope.effect) {
+    const changeIndex = scope.effect.changes.findIndex(
       (change) =>
         change.key === "system.attributes.movement.all" &&
         change.mode === CONST.ACTIVE_EFFECT_MODES.CUSTOM &&
@@ -10,11 +44,11 @@ if (args[0] === "each") {
     );
 
     if (changeIndex !== -1) {
-      findEffect.changes.splice(changeIndex, 1);
+      scope.effect.changes.splice(changeIndex, 1);
 
       await MidiQOL.socket().executeAsGM("updateEffects", {
         actorUuid: token.actor.uuid,
-        updates: [{ _id: findEffect.id, changes: findEffect.changes }],
+        updates: [{ _id: scope.effect._id, changes: scope.effect.changes }],
       });
     } else {
       console.log("Specified change not found in the Confusion effect.");
@@ -41,33 +75,7 @@ if (args[0] === "each") {
       const directionRoll = await new CONFIG.Dice.DamageRoll("1d8").evaluate();
       await MidiQOL.displayDSNForRoll(directionRoll, "damageRoll");
       directionResult = directionRoll.total;
-      directionContent = null;
-      switch (directionResult) {
-        case 1:
-          directionContent = "North";
-          break;
-        case 2:
-          directionContent = "South";
-          break;
-        case 3:
-          directionContent = "East";
-          break;
-        case 4:
-          directionContent = "West";
-          break;
-        case 5:
-          directionContent = "Northwest";
-          break;
-        case 6:
-          directionContent = "Northeast";
-          break;
-        case 7:
-          directionContent = "Southwest";
-          break;
-        case 8:
-          directionContent = "Southeast";
-          break;
-      }
+      directionContent = await getDirection(directionResult, scope.macroActivity.parent.source.rules === "2014" ? 8 : 4);
       break;
     }
     case 2:
@@ -76,9 +84,8 @@ if (args[0] === "each") {
     case 5:
     case 6: {
       content = "The creature doesn't move or take actions this turn.";
-      const findEffect = token.actor.effects.find((effect) => effect.name === "Confusion");
-      if (findEffect)
-        findEffect.changes.push({
+      if (scope.effect)
+        scope.effect.changes.push({
           key: "system.attributes.movement.all",
           mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
           value: 0,
@@ -86,7 +93,7 @@ if (args[0] === "each") {
         });
       await MidiQOL.socket().executeAsGM("updateEffects", {
         actorUuid: token.actor.uuid,
-        updates: [{ _id: findEffect.id, changes: findEffect.changes }],
+        updates: [{ _id: scope.effect._id, changes: scope.effect.changes }],
       });
       break;
     }
@@ -145,30 +152,4 @@ if (args[0] === "each") {
       content: `Movement roll for ${token.actor.name} is ${directionResult}: ${token.actor.name} must move ${directionContent} using all (${token.actor.system.attributes.movement.walk} feet) of their movement.`,
     });
   if (result === 7 || result === 8) ChatMessage.create({ content: selectedTokenMessage });
-}
-
-if (args[0] === "off") {
-  const findEffect = token.actor.effects.find((effect) => effect.name === "Confusion");
-
-  if (findEffect) {
-    const changeIndex = findEffect.changes.findIndex(
-      (change) =>
-        change.key === "system.attributes.movement.all" &&
-        change.mode === CONST.ACTIVE_EFFECT_MODES.CUSTOM &&
-        change.value === 0
-    );
-
-    if (changeIndex !== -1) {
-      findEffect.changes.splice(changeIndex, 1);
-
-      await MidiQOL.socket().executeAsGM("updateEffects", {
-        actorUuid: token.actor.uuid,
-        updates: [{ _id: findEffect.id, changes: findEffect.changes }],
-      });
-    } else {
-      console.log("Specified change not found in the Confusion effect.");
-    }
-  } else {
-    console.log("Confusion effect not found on the actor.");
-  }
 }

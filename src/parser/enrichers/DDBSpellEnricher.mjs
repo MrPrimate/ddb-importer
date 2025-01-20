@@ -179,6 +179,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Zephyr Strike": SpellEnrichers.ZephyrStrike,
     "Blindness/Deafness": SpellEnrichers.BlindnessDeafness,
     "Crown of Stars": SpellEnrichers.CrownOfStars,
+    "Confusion": SpellEnrichers.Confusion,
   };
 
 }

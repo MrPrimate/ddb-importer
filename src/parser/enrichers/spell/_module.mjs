@@ -31,6 +31,7 @@ export { default as Cloudkill } from "./Cloudkill.mjs";
 export { default as ColorSpray } from "./ColorSpray.mjs";
 export { default as Command } from "./Command.mjs";
 export { default as ComprehendLanguages } from "./ComprehendLanguages.mjs";
+export { default as Confusion } from "./Confusion.mjs";
 export { default as ControlWeather } from "./ControlWeather.mjs";
 export { default as Counterspell } from "./Counterspell.mjs";
 export { default as CreateBonfire } from "./CreateBonfire.mjs";

@@ -11,7 +11,6 @@ import { callLightningEffect } from "./spells/callLightning.js";
 import { chillTouchEffect } from "./spells/chillTouch.js";
 import { colorSprayEffect } from "./spells/colorSpray.js";
 import { commandEffect } from "./spells/command.js";
-import { confusionEffect } from "./spells/confusion.js";
 import { contagionEffect } from "./spells/contagion.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
@@ -73,10 +72,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Chill Touch": {
       document = await chillTouchEffect(document);
-      break;
-    }
-    case "Confusion": {
-      document = await confusionEffect(document);
       break;
     }
     case "Divine Word": {

@@ -21,7 +21,6 @@ for (let target of targets) {
     blindTarget.push(`<div class="midi-qol-flex-container"><div>Blinded</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${targetImg}" width="30" height="30" style="border:0px"></div></div>`);
     const gameRound = game.combat ? game.combat.round : 0;
     const effectData = {
-      label: "Color Spray: Blinded",
       name: "Color Spray: Blinded",
       img: args[0].itemData.img,
       origin: args[0].uuid,
