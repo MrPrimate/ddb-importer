@@ -2,8 +2,6 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-const DAEItem = lastArg.efData.flags.dae.itemData;
-
 console.warn("2024", {
   item,
   scope,
@@ -14,13 +12,9 @@ console.warn("2024", {
  * Generates the GM client dialog for selecting final Effect, updates target effect with name, icon and new DAE effects.
  */
 async function applyContagion() {
-  if (DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Poisoned", targetActor))
-    DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Poisoned", actor: targetActor });
-
-
   const buttons = {};
 
-  for (const [key, data] of Object.entries(CONFIG.DND5e.abilities)) {
+  for (const [key, data] of Object.entries(CONFIG.DND5E.abilities)) {
     buttons[key] = {
       label: data.label,
       callback: async () => {
@@ -34,17 +28,17 @@ async function applyContagion() {
             },
           ],
           img: data.icon,
-          name: data.label,
-          _id: lastArg.effectId,
+          name: `${item.name}: ${data.label}`,
+          origin: scope.effect.origin,
         };
-        targetActor.updateEmbeddedDocuments("ActiveEffect", [effect]);
+        targetActor.createEmbeddedDocuments("ActiveEffect", [effect]);
       },
     };
   }
 
   new Dialog({
     title: "Contagion options",
-    content: "<p>Select the effect</p>",
+    content: "<p>Select the ability</p>",
     buttons,
   }).render(true);
 }
@@ -57,10 +51,21 @@ async function contagionSave() {
   const flavor = `${CONFIG.DND5E.abilities["con"].label} DC${flag.saveDC} ${item?.name || ""}`;
   const saveRoll = await targetActor.rollAbilitySave("con", { flavor });
 
+  // todo: adjust count for success and failures
+  // don't delete effect
+
+  if (saveRoll.total > flag.saveDC) {
+    flag.success += 1;
+  } else {
+    flag.failures += 1;
+  }
+  DAE.setFlag(targetActor, "ContagionSpell", flag);
+  console.log(`Contagion counters are ${flag.success} successes and ${flag.failures} failures`);
+
+
   if (saveRoll.total < flag.saveDC) {
     if (flag.count === 2) {
       ChatMessage.create({ content: `Contagion on ${targetActor.name} is complete` });
-      applyContagion();
     } else {
       const contagionCount = flag.count + 1;
       DAE.setFlag(targetActor, "ContagionSpell", { count: contagionCount });
@@ -72,18 +77,16 @@ async function contagionSave() {
 }
 
 if (args[0] === "on") {
-  console.warn({
-    args,
-    scope,
-    DAEItem,
-  });
-  const saveData = DAEItem.system.save;
-  if (saveData.scaling === "spell") {
-    const rollData = actor.getRollData();
-    saveData.dc = rollData.attributes.spelldc;
-  }
   // Save the hook data for later access.
-  DAE.setFlag(targetActor, "ContagionSpell", { count: 0, saveDC: saveData.dc });
+  DAE.setFlag(targetActor, "ContagionSpell", { success: 0, failures: 0, saveDC: scope.macroActivity.save.dc.value });
+  applyContagion();
+}
+
+if (args[0].tag == "OnUse") {
+  console.warn({
+    workflow,
+    scope,
+  });
 }
 
 if (args[0] === "off") {

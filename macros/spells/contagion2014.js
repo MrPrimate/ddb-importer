@@ -224,18 +224,8 @@ async function contagionSave() {
 }
 
 if (args[0] === "on") {
-  console.warn({
-    args,
-    scope,
-    DAEItem,
-  });
-  const saveData = DAEItem.system.save;
-  if (saveData.scaling === "spell") {
-    const rollData = actor.getRollData();
-    saveData.dc = rollData.attributes.spelldc;
-  }
   // Save the hook data for later access.
-  DAE.setFlag(targetActor, "ContagionSpell", { count: 0, saveDC: saveData.dc });
+  DAE.setFlag(targetActor, "ContagionSpell", { count: 0, saveDC: scope.macroActivity.save.dc.value });
 }
 
 if (args[0] === "off") {
