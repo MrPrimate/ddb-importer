@@ -16,7 +16,7 @@ async function applyContagion() {
     content: "<p>Select the effect</p>",
     buttons: {
       one: {
-        blinding: "Blinding Sickness",
+        label: "Blinding Sickness",
         callback: async () => {
           let data = {
             changes: [
