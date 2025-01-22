@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.65
 
 - Fixes to Active-Auras condition application.
 - Spell Effects: Insect Plague, Crown of Stars, Confusion, Color Spray, Contagion, Command and Web.
