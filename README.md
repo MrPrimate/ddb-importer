@@ -65,7 +65,7 @@ I'd strongly recommend installing:
 - [Vision/Detection Modes 5e](https://foundryvtt.com/packages/vision-5e) - Adds some key missing vision and detection modes for 5e.
 
 
-To learn more about automation visit the [docs](http://localhost:3000/docs/ddb-importer/character#automation).
+To learn more about automation visit the [docs](http://docs.ddb.mrprimate.co.uk/docs/ddb-importer/character#automation).
 
 # FAQ
 
