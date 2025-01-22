@@ -4,19 +4,21 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 export default class Contagion extends DDBEnricherData {
 
   get activity() {
-    console.warn("Contagion activity not implemented", {
-      this: this,
-    });
     return {
-      name: this.ddbEnricher.originalActivity.type === "save" ? "Save" : "Cast",
+      id: this.ddbEnricher?._originalActivity?.type === "save" ? "ddbContagionSave" : "ddbContagionCast",
+      name: this.ddbEnricher?._originalActivity?.type === "save" ? "Save" : "Cast",
     };
+  }
+
+  get clearAutoEffects() {
+    return this.useMidiAutomations && this.is2014;
   }
 
   get effects() {
     return [
       {
-        activityMatch: "Cast",
-        noCreate: true,
+        activityMatch: this.is2014 ? "Cast" : "Save",
+        noCreate: !this.clearAutoEffects,
         name: this.useMidiAutomations ? "Contagion" : "Contagion: Poisoned",
         macroChanges: [
           { macroType: "spell", macroName: this.is2014 ? "contagion2014.js" : "contagion2024.js" },

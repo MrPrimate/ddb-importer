@@ -1,12 +1,11 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { logger, utils, CompendiumHelper, DDBSources } from "../../lib/_module.mjs";
-import { baseSpellEffect, spellEffectAdjustment } from "../../effects/specialSpells.js";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.mjs";
 import { DDBSpellActivity } from "../activities/_module.mjs";
 import { DDBSpellEnricher, mixins } from "../enrichers/_module.mjs";
 import DDBSummonsManager from "../companions/DDBSummonsManager.mjs";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
-import { ChangeHelper } from "../enrichers/effects/_module.mjs";
+import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module.mjs";
 
 export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
@@ -807,7 +806,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
         .filter((type) => type.type === 4)
         .find((type) => type.id === data.conditionId);
       if (condition) {
-        let effect = baseSpellEffect(this.data, `${this.data.name}: ${condition.name}`);
+        let effect = AutoEffects.SpellEffect(this.data, `${this.data.name}: ${condition.name}`);
         effect._id = foundry.utils.randomID();
 
         // KNOWN_ISSUE_4_0: add duration
@@ -818,10 +817,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   }
 
   async _applyEffects() {
-    // KNOWN_ISSUE_4_0: once spell effects adjusted
-    await spellEffectAdjustment(this.data, this.addSpellEffects);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
-
     if (this.data.effects.length === 0) this.#addConditionEffects();
     if (this.enricher.clearAutoEffects) this.data.effects = [];
     const effects = await this.enricher.createEffects();

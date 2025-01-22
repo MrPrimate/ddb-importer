@@ -9,8 +9,6 @@ import {
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
 import { callLightningEffect } from "./spells/callLightning.js";
 import { chillTouchEffect } from "./spells/chillTouch.js";
-import { commandEffect } from "./spells/command.js";
-import { contagionEffect } from "./spells/contagion.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
@@ -55,14 +53,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Call Lightning": {
       document = await callLightningEffect(document);
-      break;
-    }
-    case "Command": {
-      document = await commandEffect(document);
-      break;
-    }
-    case "Contagion": {
-      document = await contagionEffect(document);
       break;
     }
     case "Chill Touch": {

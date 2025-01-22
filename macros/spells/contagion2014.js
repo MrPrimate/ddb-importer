@@ -4,6 +4,15 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 const DAEItem = lastArg.efData.flags.dae.itemData;
 
+console.warn("2014", {
+  scope,
+  args,
+  item,
+  actor,
+  targetActor,
+  DAEItem,
+});
+
 /**
  * Generates the GM client dialog for selecting final Effect, updates target effect with name, icon and new DAE effects.
  */
@@ -225,18 +234,13 @@ async function contagionSave() {
   const flavor = `${CONFIG.DND5E.abilities["con"].label} DC${flag.saveDC} ${DAEItem?.name || ""}`;
   const saveRoll = await targetActor.rollAbilitySave("con", { flavor });
 
-  if (saveRoll.total < flag.saveDC) {
-    if (flag.count === 2) {
-      ChatMessage.create({ content: `Contagion on ${targetActor.name} is complete` });
-      applyContagion();
-    } else {
-      const contagionCount = flag.count + 1;
-      DAE.setFlag(targetActor, "ContagionSpell", { count: contagionCount });
-      console.log(`Contagion increased to ${contagionCount}`);
-    }
-  } else if (saveRoll.total >= flag.saveDC) {
-    targetActor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
+  if (saveRoll.total >= flag.saveDC) {
+    flag.success += 1;
+  } else {
+    flag.failure += 1;
   }
+  DAE.setFlag(targetActor, "ContagionSpell", flag);
+  console.log(`Contagion counters are ${flag.success} successes and ${flag.failure} failures`);
 
   if (flag.failure >= 3) {
     ChatMessage.create({ content: `3 ${item.name} save failures on ${targetActor.name}, preparing sicknes...` });
@@ -254,7 +258,7 @@ if (args[0] === "on") {
   DAE.setFlag(targetActor, "ContagionSpell", {
     success: 0,
     failure: 0,
-    saveDC: scope.macroActivity.save.dc.value,
+    saveDC: scope.macroItem.system.activities.get("ddbContagionSave").save.dc.value,
   });
 }
 

@@ -2,14 +2,6 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-console.warn("2024", {
-  item,
-  scope,
-  args,
-  actor,
-  targetActor,
-});
-
 /**
  * Generates dialog for selecting final Effect, updates target effect with name, icon and new DAE effects.
  */
@@ -97,7 +89,6 @@ if (args[0] === "on") {
 
 if (args[0].tag == "OnUse") {
   for (const targetToken of workflow.targets) {
-    console.warn({ targetToken });
     DAE.setFlag(targetToken.actor, "ContagionSpell", { success: 0, failure: 0, saveDC: scope.macroActivity.save.dc.value });
     applyContagion(targetToken.actor);
   }

@@ -304,9 +304,8 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
       command: content,
       folder: macroFolder ? macroFolder.id : undefined,
       flags: {
-        "advanced-macros": {
-          runAsGM: isGM,
-          runForSpecificUser: "",
+        "ddb-importer": {
+          macro: true,
         },
       },
       ownership: {
