@@ -4,8 +4,11 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 export default class Contagion extends DDBEnricherData {
 
   get activity() {
+    console.warn("Contagion activity not implemented", {
+      this: this,
+    });
     return {
-      name: "Cast",
+      name: this.ddbEnricher.originalActivity.type === "save" ? "Save" : "Cast",
     };
   }
 
@@ -18,6 +21,9 @@ export default class Contagion extends DDBEnricherData {
         macroChanges: [
           { macroType: "spell", macroName: this.is2014 ? "contagion2014.js" : "contagion2024.js" },
         ],
+        options: {
+          durationSeconds: 604800,
+        },
         data: {
           flags: {
             dae: {
@@ -49,12 +55,12 @@ export default class Contagion extends DDBEnricherData {
   //   };
   // }
 
-  // get setMidiOnUseMacroFlag() {
-  //   if (this.is2014) return null;
-  //   return {
-  //     name: "contagion2024.js",
-  //     type: "spell",
-  //     triggerPoints: ["postActiveEffects"],
-  //   };
-  // }
+  get setMidiOnUseMacroFlag() {
+    if (this.is2014) return null;
+    return {
+      name: "contagion2024.js",
+      type: "spell",
+      triggerPoints: ["postActiveEffects"],
+    };
+  }
 }

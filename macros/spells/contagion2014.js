@@ -38,7 +38,10 @@ async function applyContagion() {
             name: "Blinding Sickness",
             _id: lastArg.effectId,
           };
-          targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
+          await MidiQOL.socket().executeAsGM("updateEffects", {
+            actorUuid: targetActor.uuid,
+            updates: [data],
+          });
         },
       },
       filth: {
@@ -75,7 +78,10 @@ async function applyContagion() {
             name: "Filth Fever",
             _id: lastArg.effectId,
           };
-          targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
+          await MidiQOL.socket().executeAsGM("updateEffects", {
+            actorUuid: targetActor.uuid,
+            updates: [data],
+          });
         },
       },
       flesh: {
@@ -101,7 +107,10 @@ async function applyContagion() {
             name: "Flesh Rot",
             _id: lastArg.effectId,
           };
-          targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
+          await MidiQOL.socket().executeAsGM("updateEffects", {
+            actorUuid: targetActor.uuid,
+            updates: [data],
+          });
         },
       },
       mindfire: {
@@ -127,7 +136,10 @@ async function applyContagion() {
             name: "Mindfire",
             _id: lastArg.effectId,
           };
-          targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
+          await MidiQOL.socket().executeAsGM("updateEffects", {
+            actorUuid: targetActor.uuid,
+            updates: [data],
+          });
         },
       },
       seizure: {
@@ -165,7 +177,10 @@ async function applyContagion() {
             name: "Seizure",
             _id: lastArg.effectId,
           };
-          targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
+          await MidiQOL.socket().executeAsGM("updateEffects", {
+            actorUuid: targetActor.uuid,
+            updates: [data],
+          });
         },
       },
       slimy: {
@@ -189,9 +204,12 @@ async function applyContagion() {
             img: "icons/magic/unholy/projectile-helix-blood-red.webp",
             label: "Slimy Doom",
             name: "Slimy Doom",
-            _id: lastArg.effecId,
+            _id: lastArg.effectId,
           };
-          targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
+          await MidiQOL.socket().executeAsGM("updateEffects", {
+            actorUuid: targetActor.uuid,
+            updates: [data],
+          });
         },
       },
     },
@@ -201,8 +219,6 @@ async function applyContagion() {
 /**
  * Execute contagion effects, update flag counts or remove effect
  *
- * @param {Actor5e} combatant Current combatant to test against
- * @param {Number} save Target DC for save
  */
 async function contagionSave() {
   const flag = DAE.getFlag(targetActor, "ContagionSpell");
@@ -221,11 +237,25 @@ async function contagionSave() {
   } else if (saveRoll.total >= flag.saveDC) {
     targetActor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
   }
+
+  if (flag.failure >= 3) {
+    ChatMessage.create({ content: `3 ${item.name} save failures on ${targetActor.name}, preparing sicknes...` });
+    applyContagion();
+  } else if (flag.success >= 3) {
+    ChatMessage.create({ content: `3 ${item.name} save successes on ${targetActor.name}, the spell ends.` });
+    targetActor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
+  } else {
+    ChatMessage.create({ content: `${targetActor.name} saves for ${item.name}: ${flag.failure} failures, ${flag.success} successes.` });
+  }
 }
 
 if (args[0] === "on") {
   // Save the hook data for later access.
-  DAE.setFlag(targetActor, "ContagionSpell", { count: 0, saveDC: scope.macroActivity.save.dc.value });
+  DAE.setFlag(targetActor, "ContagionSpell", {
+    success: 0,
+    failure: 0,
+    saveDC: scope.macroActivity.save.dc.value,
+  });
 }
 
 if (args[0] === "off") {
@@ -234,6 +264,5 @@ if (args[0] === "off") {
 }
 
 if (args[0] === "each") {
-  let contagion = lastArg.efData;
-  if ((contagion.name ?? contagion.label) === "Contagion") contagionSave();
+  contagionSave();
 }

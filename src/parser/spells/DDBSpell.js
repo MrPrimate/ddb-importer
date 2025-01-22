@@ -738,6 +738,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     ) {
       if (this.ddbDefinition.requiresSavingThrow) {
         this.additionalActivities.push({
+          name: "Save",
           type: "save",
           options: {
             generateDamage: true,
