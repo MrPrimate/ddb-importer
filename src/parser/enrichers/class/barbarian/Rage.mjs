@@ -6,6 +6,7 @@ export default class Rage extends DDBEnricherData {
   get activity() {
     return {
       targetType: "self",
+      addItemConsume: true,
       data: {
         "range.units": "self",
         duration: this.is2014

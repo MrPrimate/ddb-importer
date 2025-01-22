@@ -4,6 +4,7 @@
 - Spell Effects: Insect Plague, Crown of Stars, Confusion, Color Spray, Contagion, Command and Web.
 - Blindness/Deafness, and Crown of Stars improvements.
 - Fix an error when some containers would try to generate activities. @.asmodeus
+- Rage adjustments for DDB Changes.
 
 # 6.0.64
 
