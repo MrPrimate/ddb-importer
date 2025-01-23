@@ -157,6 +157,8 @@ export function setupSockets() {
   socket.register("addCondition", DDBImporter.lib.DDBEffectHelper.addCondition);
   socket.register("removeCondition", DDBImporter.lib.DDBEffectHelper.removeCondition);
   socket.register("deleteEffectsByUuid", DDBImporter.lib.DDBEffectHelper.deleteEffectsByUuid);
+  socket.register("createEffects", DDBImporter.lib.DDBEffectHelper.createEffects);
+  socket.register("updateEffects", DDBImporter.lib.DDBEffectHelper.updateEffects);
   socket.register("setFlag", DDBImporter.lib.DDBEffectHelper._setFlag);
   socket.register("unsetFlag", DDBImporter.lib.DDBEffectHelper._unsetFlag);
 

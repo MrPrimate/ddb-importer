@@ -19,7 +19,6 @@ import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
 import { stormSphereEffect } from "./spells/stormSphere.js";
 // import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { vitriolicSphereEffect } from "./spells/vitriolicSphere.js";
-import { wardingBondEffect } from "./spells/wardingBond.js";
 
 
 export function baseSpellEffect(document, label,
@@ -92,10 +91,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Vitriolic Sphere": {
       document = await vitriolicSphereEffect(document);
-      break;
-    }
-    case "Warding Bond": {
-      document = await wardingBondEffect(document);
       break;
     }
     // no default

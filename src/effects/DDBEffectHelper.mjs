@@ -1420,13 +1420,26 @@ export default class DDBEffectHelper {
   static async deleteEffectsByUuid({ effectsToDelete = [] } = {}) {
     for (let effectUuid of effectsToDelete) {
       const effect = await fromUuid(effectUuid);
-      if (effect !== undefined && !DDBEffectHelper.isEffectExpired(effect)) {
+      if (effect && !DDBEffectHelper.isEffectExpired(effect)) {
         if (effect.transfer)
           await effect.update({ disabled: true });
         else
           await effect.delete();
       }
     }
+  }
+
+  static async createEffects({ actorUuid, effects = [], options } = {}) {
+    const actor = DDBEffectHelper.fromActorUuid(actorUuid);
+    for (let effect of effects) { // override default foundry behaviour of blank being transfer
+      if (effect.transfer === undefined) effect.transfer = false;
+    }
+    return actor?.createEmbeddedDocuments("ActiveEffect", effects, options);
+  }
+
+  static async updateEffects({ actorUuid, updates = [] } = {}) {
+    const actor = DDBEffectHelper.fromActorUuid(actorUuid);
+    return actor?.updateEmbeddedDocuments("ActiveEffect", updates);
   }
 
   static FLAG_NAME = "ddbihelpers";

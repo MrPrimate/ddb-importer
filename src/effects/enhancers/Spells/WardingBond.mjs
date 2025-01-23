@@ -1,11 +1,14 @@
+import DDBEffectHelper from "../../DDBEffectHelper.mjs";
+
 export default class WardingBond {
 
   static async applyCasterAtZeroHP({
-    targetUuid, actor, itemUuid,
+    targetUuid, actor, originUuid,
   } = {}) {
     const targetActor = await fromUuid(targetUuid);
-    const effectsToDelete = actor.effects.filter((e) => e.origin === itemUuid).map((t) => t.uuid)
-      .concat(targetActor.effects.filter((e) => e.origin === itemUuid).map((t) => t.uuid));
+    const effectsToDelete = actor.effects.filter((e) => e.origin === originUuid).map((t) => t.uuid)
+      .concat(targetActor.effects.filter((e) => e.origin === originUuid).map((t) => t.uuid));
+
     await globalThis.DDBImporter.socket.executeAsGM("deleteEffectsByUuid", {
       effectsToDelete,
     });
@@ -24,12 +27,10 @@ export default class WardingBond {
 
   // eslint-disable-next-line complexity
   static async preUpdateActorHook(subject, update, options, _user) {
-    console.warn("preUpdateActor", { subject, update, hpInUpdate: !(update.system?.attributes?.hp ?? false), options, _user });
     if (!(update.system?.attributes?.hp ?? false)) return true;
-    const targetFlag = DDBImporter.EffectHelper.getFlag(subject, "WardingBondIds");
-    const casterFlag = DDBImporter.EffectHelper.getFlag(subject, "WardingBondTargets");
+    const targetFlag = DDBEffectHelper.getFlag(subject, "WardingBondIds");
+    const casterFlag = DDBEffectHelper.getFlag(subject, "WardingBondTargets");
 
-    console.warn({ targetFlag, casterFlag });
     if (!targetFlag && !casterFlag) return true;
     if (targetFlag && targetFlag.targetID !== subject.id) {
       if (!casterFlag || casterFlag.casterID !== subject.id) return true;
@@ -43,14 +44,12 @@ export default class WardingBond {
       + foundry.utils.getProperty(update, "system.attributes.hp.temp") ?? 0;
     const hpChange = oldHP - newHP;
 
-    console.warn({ oldHP, newHP, hpChange, bool: casterFlag && subject.id === casterFlag.casterID && newHP <= 0 });
-
     // damage applied to caster, evaluate if warding bond remains in effect
     if (casterFlag && subject.id === casterFlag.casterID && newHP <= 0) {
       await WardingBond.applyCasterAtZeroHP({
         targetUuid: casterFlag.targetUuid,
         actor: subject,
-        itemUuid: casterFlag.itemUuid,
+        originUuid: casterFlag.originUuid,
       });
 
       return true;
