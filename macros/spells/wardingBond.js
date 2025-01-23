@@ -13,7 +13,7 @@ async function wardingBondCasterEffect(caster, targetActor, spell) {
     origin: spell.uuid,
     img: spell.img,
   };
-  console.warn("wardingBondCasterEffect", { caster, targetActor, spell, effectData });
+  // console.warn("wardingBondCasterEffect", { caster, targetActor, spell, effectData });
   const effects = await caster.createEmbeddedDocuments("ActiveEffect", [effectData]);
   return effects;
 }
@@ -69,7 +69,7 @@ async function checkForExistingBond({ targetActor, casterActor } = {}) {
     if (target) {
       const targetEffects = target.effects.filter((e) => e.origin === casterFlag.originUuid);
 
-      console.warn("checkForExistingBond", { target, targetEffects });
+      // console.warn("checkForExistingBond", { target, targetEffects });
 
       await globalThis.DDBImporter.socket.executeAsGM("deleteEffectsByUuid", {
         effectsToDelete: targetEffects.map((e) => e.uuid),
