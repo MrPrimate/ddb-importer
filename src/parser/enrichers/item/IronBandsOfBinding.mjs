@@ -26,7 +26,7 @@ export default class IronBandsOfBinding extends DDBEnricherData {
     return {
       data: {
         "system.uses": {
-          spent: 0,
+          spent: null,
           max: "1",
           recovery: [{
             period: "day",

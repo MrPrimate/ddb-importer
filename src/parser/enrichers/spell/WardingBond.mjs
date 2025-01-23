@@ -13,7 +13,17 @@ export default class WardingBond extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.signedAddChange("1", 20, "system.attributes.ac.bonus"),
         DDBEnricherData.ChangeHelper.signedAddChange("1", 20, "system.bonuses.abilities.save"),
       ],
+      macroChanges: [
+        { macroType: "spell", macroName: "wardingBond.js" },
+      ],
     }];
+  }
+
+  get itemMacro() {
+    return {
+      type: "spell",
+      name: "wardingBond.js",
+    };
   }
 
 }

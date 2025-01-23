@@ -108,7 +108,7 @@ export default class WarBond extends DDBEnricherData {
           retainUseSpent: true,
         },
         "system.uses": {
-          spent: 0,
+          spent: null,
           max: "2",
         },
       },

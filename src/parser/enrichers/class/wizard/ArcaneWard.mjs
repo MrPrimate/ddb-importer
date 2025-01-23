@@ -19,7 +19,7 @@ export default class ArcaneWard extends DDBEnricherData {
         img: "systems/dnd5e/icons/svg/activity/save.svg",
         uses: {
           override: true,
-          spent: 0,
+          spent: null,
           max: "1",
           recovery: [{ period: "lr", type: "recoverAll" }],
         },

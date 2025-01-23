@@ -156,6 +156,9 @@ export function setupSockets() {
   socket.register("ddbSimpleMacro", DDBImporter.lib.DDBSimpleMacro.execute);
   socket.register("addCondition", DDBImporter.lib.DDBEffectHelper.addCondition);
   socket.register("removeCondition", DDBImporter.lib.DDBEffectHelper.removeCondition);
+  socket.register("deleteEffectsByUuid", DDBImporter.lib.DDBEffectHelper.deleteEffectsByUuid);
+  socket.register("setFlag", DDBImporter.lib.DDBEffectHelper._setFlag);
+  socket.register("unsetFlag", DDBImporter.lib.DDBEffectHelper._unsetFlag);
 
   globalThis.DDBImporter.socket = socket;
 }

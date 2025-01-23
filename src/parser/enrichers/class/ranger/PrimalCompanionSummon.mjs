@@ -12,7 +12,7 @@ export default class PrimalCompanionSummon extends DDBEnricherData {
       addActivityConsume: true,
       data: {
         uses: {
-          spent: 0,
+          spent: null,
           max: "1",
           override: true,
           recovery: [

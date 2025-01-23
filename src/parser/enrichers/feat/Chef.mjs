@@ -91,7 +91,7 @@ export default class Chef extends DDBEnricherData {
         },
         system: {
           uses: {
-            spent: "0",
+            spent: null,
             max: "@prof",
             recovery: [
               { period: "lr", type: "recoverAll", formula: undefined },

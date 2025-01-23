@@ -7,7 +7,7 @@ export default class HypnoticGaze extends DDBEnricherData {
     return {
       data: {
         "system.uses": {
-          value: null,
+          spent: null,
           max: "",
           recovery: [],
         },

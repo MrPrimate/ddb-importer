@@ -34,7 +34,7 @@ export default class NeedlerPistol extends DDBEnricherData {
       "flags.ddbimporter.retainUseSpent": true,
       data: {
         "system.uses": {
-          spent: 0,
+          spent: null,
           max: "10",
           recovery: [],
           autoDestroy: false,

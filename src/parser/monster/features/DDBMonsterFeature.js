@@ -1118,9 +1118,6 @@ ${this.data.system.description.value}
   }
 
   async _generateEffects() {
-    // await spellEffectAdjustment(this.data, this.addSpellEffects);
-    // foundry.utils.setProperty(this.data, "flags.ddbimporter.effectsApplied", true);
-
     // if (this.data.effects.length === 0) this.#addConditionEffects();
 
     const flags = {

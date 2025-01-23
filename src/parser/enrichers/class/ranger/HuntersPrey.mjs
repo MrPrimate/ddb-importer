@@ -39,7 +39,7 @@ export default class HuntersPrey extends DDBEnricherData {
       data: {
         "flags.ddbimporter.retainOriginalConsumption": true,
         "system.uses": {
-          value: "0",
+          spent: null,
           max: "1",
           recovery: [
             { period: "sr", type: 'recoverAll', formula: undefined },

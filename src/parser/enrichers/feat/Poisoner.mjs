@@ -192,7 +192,7 @@ export default class Poisoner extends DDBEnricherData {
     return {
       data: {
         "system.uses": {
-          spent: 0,
+          spent: null,
           max: "20",
         },
         "flags.ddbimporter": {

@@ -1,3 +1,7 @@
+# Next Up
+
+- MidiQoL Automation: Heroes Feast, Warding Bond.
+
 # 6.0.65
 
 - Fixes to Active-Auras condition application.

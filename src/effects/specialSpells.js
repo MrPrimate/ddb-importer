@@ -11,7 +11,6 @@ import { callLightningEffect } from "./spells/callLightning.js";
 import { chillTouchEffect } from "./spells/chillTouch.js";
 import { divineWordEffect } from "./spells/divineWord.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
-import { heroesFeastEffect } from "./spells/heroesFeast.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
 import { sleepEffect } from "./spells/sleep.js";
@@ -65,10 +64,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Eyebite": {
       document = await eyebiteEffect(document);
-      break;
-    }
-    case "Heroes' Feast": {
-      document = await heroesFeastEffect(document);
       break;
     }
     case "Moonbeam": {

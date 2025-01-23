@@ -29,7 +29,7 @@ export default class CosmicOmen extends DDBEnricherData {
         "flags.ddbimporter.retainOriginalConsumption": true,
         system: {
           uses: {
-            spent: 0,
+            spent: null,
             max: "@abilities.wis.mod",
             reovery: [{ period: "lr", type: 'recoverAll', formula: "" }],
           },

@@ -84,7 +84,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
       data: {
         "system.uses": {
           max: "@attributes.spellmod",
-          spent: "0",
+          spent: null,
         },
       },
     };

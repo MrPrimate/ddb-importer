@@ -1,29 +1,47 @@
-const lastArg = args[args.length - 1];
-const tokenOrActor = await fromUuid(lastArg.actorUuid);
-const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+console.warn("midi", {
+  scope,
+  item,
+  args
+})
 
-const amount = args[1];
+if (scope.rolledActivity?.type !== "heal") return;
 
-async function updateHP(max, current) {
-  return targetActor.update({ "system.attributes.hp.max": max, "system.attributes.hp.value": current });
+if (workflow.targets.size === 0) {
+  logger.warn("No targets found");
+  ui.notifications.warn(`Please Target up to 12 creatures!`);
+  item.update({ "system.uses.spent": item.system.uses.spent + extraSpent });
+  return;
 }
 
-// Update HP and Max HP to roll formula, save result as flag
-if (args[0] === "on") {
-  const hpMax = targetActor.system.attributes.hp.max;
-  const hp = targetActor.system.attributes.hp.value;
-  await updateHP(hpMax + amount, hp + amount);
-  ChatMessage.create({ content: `${targetActor.name} gains ${amount} Max HP` });
-  await DAE.setFlag(targetActor, "heroesFeastSpell", amount);
+await DDBImporter.EffectHelper.wait(500);
+
+for (const damageData of scope.workflow.damageList) {
+  const targetActor = await fromUuid(damageData.actorUuid);
+  const originalEffect = targetActor.effects.find((a) => a.origin === item.uuid);
+
+  const effect = {
+    _id: originalEffect._id,
+    changes: originalEffect.changes.map((c) => {
+      if (c.key !== "system.attributes.hp.tempmax") return c;
+      c.value = damageData.totalDamage;
+      return c;
+    }),
+  };
+  await MidiQOL.socket().executeAsGM("updateEffects", {
+    actorUuid: damageData.actorUuid,
+    updates: [effect],
+  });
+
+  const currHP = targetActor.system.attributes.hp.value;
+
+  await MidiQOL.socket().executeAsGM("updateActor", {
+    actorUuid: damageData.actorUuid,
+    actorData: { "system.attributes.hp.value": currHP + damageData.totalDamage + damageData.hpDamage },
+  });
+
 }
 
-// Remove Max Hp and reduce HP to max if needed
-if (args[0] === "off") {
-  const amountOff = await DAE.getFlag(targetActor, "heroesFeastSpell");
-  const hpMax = targetActor.system.attributes.hp.max;
-  const newHpMax = hpMax - amountOff;
-  const hp = targetActor.system.attributes.hp.value > newHpMax ? newHpMax : targetActor.system.attributes.hp.value;
-  await updateHP(newHpMax, hp);
-  ChatMessage.create({ content: targetActor.name + "'s Max HP returns to normal" });
-  DAE.unsetFlag(targetActor, "heroesFeastSpell");
-}
+// if (workflow.targets.size > 1) {
+//   const extraSpent = workflow.targets.size - 1;
+//   item.update({ "system.uses.spent": item.system.uses.spent + extraSpent });
+// }

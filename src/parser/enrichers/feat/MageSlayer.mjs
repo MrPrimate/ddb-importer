@@ -18,7 +18,7 @@ export default class MageSlayer extends DDBEnricherData {
           retainResourceConsumption: true,
         },
         "system.uses": {
-          spent: 0,
+          spent: null,
           max: "1",
           recovery: [{ period: "sr", type: 'recoverAll' }],
         },

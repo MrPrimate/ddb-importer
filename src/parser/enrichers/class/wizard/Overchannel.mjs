@@ -15,7 +15,7 @@ export default class Overchannel extends DDBEnricherData {
       data: {
         uses: {
           override: true,
-          spent: 0,
+          spent: null,
           max: "1",
           recovery: [{ period: "lr", type: "recoverAll" }],
         },
@@ -43,7 +43,7 @@ export default class Overchannel extends DDBEnricherData {
           data: {
             uses: {
               override: true,
-              spent: 0,
+              spent: null,
               max: "20",
               recovery: [{ period: "lr", type: "recoverAll" }],
             },

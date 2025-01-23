@@ -104,7 +104,7 @@ export default class CrownOfStars extends DDBEnricherData {
           uses: {
             spent: "11",
             max: "11",
-            recovery: [],
+            recovery: [{ period: "sr", type: "loseAll", formula: "" }],
           },
         },
       },

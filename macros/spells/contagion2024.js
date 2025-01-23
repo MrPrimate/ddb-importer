@@ -81,12 +81,6 @@ async function contagionSave(targetActor) {
   }
 }
 
-if (args[0] === "on") {
-  // Save the hook data for later access.
-  // DAE.setFlag(targetActor, "ContagionSpell", { success: 0, failure: 0, saveDC: scope.macroActivity.save.dc.value });
-  // applyContagion();
-}
-
 if (args[0].tag == "OnUse") {
   for (const targetToken of workflow.targets) {
     DAE.setFlag(targetToken.actor, "ContagionSpell", { success: 0, failure: 0, saveDC: scope.macroActivity.save.dc.value });

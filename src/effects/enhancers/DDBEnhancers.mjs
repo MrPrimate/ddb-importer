@@ -1,7 +1,8 @@
 import { SETTINGS } from "../../config/_module.mjs";
 import WildShape from "./ClassFeatures/Druid/Wildshape.mjs";
-import GreatWeaponMaster from "./ClassFeatures/Feats/GreatWeaponMaster.mjs";
+import GreatWeaponMaster from "./Feats/GreatWeaponMaster.mjs";
 import ArcaneWard from "./ClassFeatures/Wizard/ArcaneWard.mjs";
+import WardingBond from "./Spells/WardingBond.mjs";
 
 // DDB Enhancers adds built in light touch automation effects
 
@@ -29,9 +30,12 @@ export default class DDBEnhancers {
   }
 
   static _preUpdateActorHooks() {
-    if (game.settings.get(SETTINGS.MODULE_ID, "allow-arcane-ward-enhancer"))
+    const arcaneWardHook = game.settings.get(SETTINGS.MODULE_ID, "allow-arcane-ward-enhancer");
+    const wardingBondHook = game.settings.get(SETTINGS.MODULE_ID, "allow-warding-bond-enhancer");
+    if (arcaneWardHook)
       Hooks.on("preUpdateActor", async (subject, update, options, user) => {
-        await ArcaneWard.preUpdateActorHook(subject, update, options, user);
+        if (arcaneWardHook) await ArcaneWard.preUpdateActorHook(subject, update, options, user);
+        if (wardingBondHook) await WardingBond.preUpdateActorHook(subject, update, options, user);
       });
   }
 

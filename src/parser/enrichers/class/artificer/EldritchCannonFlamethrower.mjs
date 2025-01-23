@@ -30,7 +30,7 @@ export default class EldritchCannonFlamethrower extends DDBEnricherData {
   get override() {
     return {
       data: {
-        "system.uses": { value: null, max: "" },
+        "system.uses": { spent: null, max: "" },
       },
     };
   }

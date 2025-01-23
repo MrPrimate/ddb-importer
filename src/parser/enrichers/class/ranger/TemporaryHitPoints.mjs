@@ -18,7 +18,7 @@ export default class TemporaryHitPoints extends DDBEnricherData {
         healing: DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, bonus: "max(1, @abilities.wis.mod)", types: ["temphp"] }),
         uses: {
           override: true,
-          spent: 0,
+          spent: null,
           max: "max(1, @abilities.wis.mod)",
           recovery: [
             { period: "lr", type: 'recoverAll', formula: undefined },

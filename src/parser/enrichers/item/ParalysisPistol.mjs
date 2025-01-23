@@ -48,7 +48,7 @@ export default class ParalysisPistol extends DDBEnricherData {
       data: {
         "flags.ddbimporter.retainUseSpent": true,
         "system.uses": {
-          spent: 0,
+          spent: null,
           max: "6",
           recovery: [],
           autoDestroy: false,

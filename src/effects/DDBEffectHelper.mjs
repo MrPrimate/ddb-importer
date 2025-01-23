@@ -1410,4 +1410,121 @@ export default class DDBEffectHelper {
     }
   }
 
+  static isEffectExpired(effect) {
+    if (game.modules.get("times-up")?.active && globalThis.TimesUp.isEffectExpired) {
+      return globalThis.TimesUp.isEffectExpired(effect);
+    }
+    return effect.duration.remaining <= 0;
+  }
+
+  static async deleteEffectsByUuid({ effectsToDelete = [] } = {}) {
+    for (let effectUuid of effectsToDelete) {
+      const effect = await fromUuid(effectUuid);
+      if (effect !== undefined && !DDBEffectHelper.isEffectExpired(effect)) {
+        if (effect.transfer)
+          await effect.update({ disabled: true });
+        else
+          await effect.delete();
+      }
+    }
+  }
+
+  static FLAG_NAME = "ddbihelpers";
+
+  static getFlag(entity, flagId) {
+    let theActor = null;
+    if (!entity) return logger.error(`ddbeffecthelper getFlag: actor not defined`);
+    if (typeof entity === "string") {
+      theActor = canvas.tokens?.get(entity)?.actor;
+      if (!theActor) theActor = game.actors?.get(entity);
+      if (!theActor) {
+        const actor = fromUuidSync(entity);
+        theActor = actor.actor ?? actor;
+      }
+    } else if (entity instanceof Actor) {
+      theActor = entity;
+    } else {
+      theActor = entity.actor;
+    }
+
+    if (!theActor) return logger.error(`ddbeffecthelper getFlag: actor not defined`);
+    const flag = foundry.utils.getProperty(theActor, `flags.${DDBEffectHelper.FLAG_NAME}.${flagId}`);
+    logger.verbose("ddbeffecthelper get flag ", {
+      entity,
+      theActor,
+      flag,
+    });
+    return flag;
+  }
+
+  static async _setFlag({ actorUuid, actorId, flagId, value } = {}) {
+    const actor = actorUuid
+      ? await DDBEffectHelper.fromActorUuid(actorUuid)
+      : await game.actors?.get(actorId);
+    if (!actor) return logger.error(`_setFlag: actor not discovered, please provide actorUuid or actorId`);
+
+    const flags = {
+      [DDBEffectHelper.FLAG_NAME]: {
+        [flagId]: value,
+      },
+    };
+
+    logger.verbose("ddbeffecthelper set flag ", {
+      actor,
+      flags,
+    });
+
+    return actor.update({
+      flags: {
+        [DDBEffectHelper.FLAG_NAME]: {
+          [flagId]: value,
+        },
+      },
+    });
+  }
+
+  static async _unsetFlag({ actorUuid, flagId } = {}) {
+    const actor = await DDBEffectHelper.fromActorUuid(actorUuid);
+    if (!actor) return logger.error(`_unsetFlag: actor not defined`);
+    const head = flagId.split(".");
+    const tail = `-=${head.pop()}`;
+    const key = ["flags", DDBEffectHelper.FLAG_NAME, ...head, tail].join(".");
+    return actor.update({ [key]: null });
+  }
+
+  static async setFlag(targetActor, flagId, value) {
+    if (typeof targetActor === "string" && (targetActor.startsWith("Scene") || targetActor.startsWith("Actor"))) {
+      return globalThis.DDBImporter.socket.executeAsGM("setFlag", { actorUuid: targetActor, flagId, value });
+    } else if (typeof targetActor === "string") {
+      return globalThis.DDBImporter.socket.executeAsGM("setFlag", { actorId: targetActor, flagId, value });
+    }
+    let actor = null;
+    if (targetActor instanceof Token) actor = targetActor.actor;
+    if (targetActor instanceof Actor) actor = targetActor;
+    if (!actor) return logger.error(`setFlag: actor not defined`);
+    return globalThis.DDBImporter.socket.executeAsGM("setFlag", {
+      actorId: actor.id,
+      actorUuid: actor.uuid,
+      flagId,
+      value,
+    });
+  }
+
+  static async unsetFlag(targetActor, flagId) {
+    if (typeof targetActor === "string" && (targetActor.startsWith("Scene") || targetActor.startsWith("Actor"))) {
+      return globalThis.DDBImporter.socket.executeAsGM("unsetFlag", { actorUuid: targetActor, flagId });
+    } else if (typeof targetActor === "string") {
+      return globalThis.DDBImporter.socket.executeAsGM("unsetFlag", { actorId: targetActor, flagId });
+    }
+    let actor = null;
+    if (targetActor instanceof Token) actor = targetActor.actor;
+    if (targetActor instanceof Actor) actor = targetActor;
+    if (!actor) return logger.error(`dae.setFlag: actor not defined`);
+    return globalThis.DDBImporter.socket.executeAsGM("unsetFlag", {
+      actorId: actor.id,
+      actorUuid: actor.uuid,
+      flagId,
+    });
+  }
+
 }

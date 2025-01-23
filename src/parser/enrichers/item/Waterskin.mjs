@@ -19,7 +19,7 @@ export default class Waterskin extends DDBEnricherData {
     return {
       data: {
         "system.uses": {
-          spent: 0,
+          spent: null,
           max: "4",
           recovery: [],
           autoDestroy: false,
