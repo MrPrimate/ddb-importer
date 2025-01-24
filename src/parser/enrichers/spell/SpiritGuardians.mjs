@@ -8,7 +8,28 @@ export default class SpiritGuardians extends DDBEnricherData {
 
   get activity() {
     return {
-      name: "Place Template",
+      name: "Cast",
+    };
+  }
+
+  get override() {
+    return {
+      data: {
+        system: {
+          target: {
+            template: {
+              type: "radius",
+            },
+          },
+        },
+        midiProperties: {
+          triggeredActivityId: "none",
+          triggeredActivityTargets: "targets",
+          triggeredActivityRollAs: "self",
+          forceDialog: false,
+          confirmTargets: "never",
+        },
+      },
     };
   }
 
@@ -52,4 +73,63 @@ export default class SpiritGuardians extends DDBEnricherData {
       },
     ];
   }
+
+  get effects() {
+    return [
+      {
+        name: "Spirit Guardians",
+      },
+      {
+        activityMatch: "Cast",
+        noCreate: true,
+        activeAurasOnly: true,
+        changes: [
+          DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
+        ],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.overrideChange(
+            `${this.is2012 ? "" : `applyCondition=!flags.ddbihelpers.SpiritGuardiansCalled`},turn=${this.is2014 ? 'start' : 'end'},label=Spirit Guardians (${this.is2014 ? 'Start' : 'End'} of Turn),damageRoll=(@spellLevel)d8,damageType=radiant,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=wis,saveDamage=halfdamage,killAnim=true`,
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
+        // macroChanges: [
+        //   {
+        //     macroValues: "@token @spellLevel @attributes.spelldc",
+        //     macroType: "spell",
+        //     macroName: this.is2014 ? "spiritGuardians2014.js" : "spiritGuardians2024.js",
+        //   },
+        // ],
+        data: {
+          flags: {
+            dae: {
+              macroRepeat: "startEveryTurn",
+              selfTarget: true,
+              selfTargetAlways: true,
+            },
+            ActiveAuras: {
+              isAura: true,
+              aura: "Enemy",
+              radius: 15,
+              alignment: "",
+              type: "",
+              ignoreSelf: true,
+              height: false,
+              hidden: false,
+              hostile: false,
+              onlyOnce: false,
+              displayTemp: true,
+            },
+          },
+        },
+      },
+    ];
+  }
+
+  // get itemMacro() {
+  //   return {
+  //     type: "spell",
+  //     name: this.is2014 ? "spiritGuardians2014.js" : "spiritGuardians2024.js",
+  //   };
+  // }
 }
