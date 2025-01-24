@@ -102,6 +102,13 @@ export default class ArmorModel extends DDBEnricherData {
           id: "ddbInfiltratLigh",
           targetType: "creature",
           data: {
+            attack: {
+              ability: "",
+              bonus: "max(@abilities.dex.mod, @abilities.int.mod)",
+              type: {
+                value: "ranged",
+              },
+            },
             img: "icons/magic/lightning/projectile-orb-blue.webp",
             range: {
               value: 90,
@@ -113,6 +120,7 @@ export default class ArmorModel extends DDBEnricherData {
                 DDBEnricherData.basicDamagePart({
                   number: 1,
                   denomination: 6,
+                  bonus: "max(@abilities.str.mod, @abilities.int.mod)",
                   type: "lightning",
                 }),
               ],
@@ -177,6 +185,10 @@ export default class ArmorModel extends DDBEnricherData {
           id: "ddbThunderGauntl",
           targetType: "creature",
           data: {
+            attack: {
+              ability: "",
+              bonus: "max(@abilities.str.mod, @abilities.int.mod)",
+            },
             img: "icons/magic/lightning/bolt-forked-large-blue.webp",
             range: {
               value: 5,
@@ -188,6 +200,7 @@ export default class ArmorModel extends DDBEnricherData {
                 DDBEnricherData.basicDamagePart({
                   number: 1,
                   denomination: 8,
+                  bonus: "max(@abilities.str.mod, @abilities.int.mod)",
                   type: "thunder",
                 }),
               ],
@@ -286,8 +299,8 @@ export default class ArmorModel extends DDBEnricherData {
             data: {
               label: "Use Lightning Launcher extra damage?",
               count: "turn",
-              "damage.all": "1d8[lightning]",
-              activation: `@workflow.activity.name == "Infiltrator: Lightning Launcher"`,
+              "damage.all": "1d6[lightning]",
+              activation: `"@workflow.activity.name" == "Infiltrator: Lightning Launcher"`,
             },
           },
         ],
