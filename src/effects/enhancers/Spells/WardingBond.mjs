@@ -25,6 +25,29 @@ export default class WardingBond {
     });
   }
 
+  static async checkEffects({ targetActor, casterActor, originUuid } = {}) {
+    const targetEffect = targetActor.effects.find((e) => e.origin === originUuid);
+    const casterEffect = casterActor.effects.find((e) => e.origin === originUuid);
+
+    if (targetEffect && casterEffect) return true;
+
+    if (targetEffect) {
+      await globalThis.DDBImporter.socket.executeAsGM("deleteEffectsByUuid", {
+        effectsToDelete: [targetEffect.uuid],
+      });
+    }
+
+    if (casterEffect) {
+      await globalThis.DDBImporter.socket.executeAsGM("deleteEffectsByUuid", {
+        effectsToDelete: [casterEffect.uuid],
+      });
+    }
+
+    await DDBEffectHelper.unsetFlag(targetActor, "WardingBondIds");
+    await DDBEffectHelper.unsetFlag(casterActor, "WardingBondTargets");
+    return false;
+  }
+
   // eslint-disable-next-line complexity
   static async preUpdateActorHook(subject, update, options, _user) {
     if (!(update.system?.attributes?.hp ?? false)) return true;
@@ -46,6 +69,9 @@ export default class WardingBond {
 
     // damage applied to caster, evaluate if warding bond remains in effect
     if (casterFlag && subject.id === casterFlag.casterID && newHP <= 0) {
+      const targetActor = await fromUuid(casterFlag.targetUuid);
+      const matchingEffects = this.checkEffects({ targetActor, casterActor: subject, originUuid: casterFlag.originUuid });
+      if (!matchingEffects) return true;
       await WardingBond.applyCasterAtZeroHP({
         targetUuid: casterFlag.targetUuid,
         actor: subject,
@@ -57,6 +83,9 @@ export default class WardingBond {
 
     // damage applied to target, roll against caster
     if (targetFlag && Number.isInteger(hpChange) && hpChange > 0) {
+      const casterActor = await fromUuid(targetFlag.casterUuid);
+      const matchingEffects = this.checkEffects({ targetActor: subject, casterActor, originUuid: targetFlag.originUuid });
+      if (!matchingEffects) return true;
       await WardingBond.applyDamageToTarget({
         damage: hpChange,
         actor: subject,
