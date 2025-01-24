@@ -1,11 +1,33 @@
 /* eslint-disable class-methods-use-this */
-import DDBEnricherData from "../data/DDBEnricherData.mjs";
+import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class DivineSmite extends DDBEnricherData {
+  get type() {
+    return this.is2014 ? "damage" : null;
+  }
+
   get activity() {
+    if (this.is2024) return null;
     return {
+      targetType: "creature",
+      activationType: "special",
+      addConsumptionScalingMax: "5",
       data: {
         useConditionText: `!["fiend", "undead"].includes(raceOrType)`,
+        consumption: {
+          targets: [
+            {
+              type: "spellSlots",
+              value: "1",
+              target: "1",
+              scaling: {
+                mode: "level",
+                formula: "",
+              },
+            },
+          ],
+          spellSlot: true,
+        },
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
@@ -22,6 +44,7 @@ export default class DivineSmite extends DDBEnricherData {
   }
 
   get additionalActivities() {
+    if (this.is2024) return [];
     return [
       {
         duplicate: true,

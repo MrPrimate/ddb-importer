@@ -118,6 +118,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Disciplined Survivor": ClassEnrichers.Monk.DisciplinedSurvivor,
     "Divine Intervention": ClassEnrichers.Cleric.DivineIntervention,
     "Divine Order: Thaumaturge": ClassEnrichers.Cleric.DivineOrderThaumaturge,
+    "Divine Smite": ClassEnrichers.Paladin.DivineSmite,
     "Draconic Resilience": ClassEnrichers.Sorcerer.DraconicResilience,
     "Dragon Wings": ClassEnrichers.Sorcerer.DragonWings,
     "Drake Companion": ClassEnrichers.Ranger.DrakeCompanion,
