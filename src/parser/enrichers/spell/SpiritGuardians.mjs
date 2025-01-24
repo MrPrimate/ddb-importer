@@ -9,6 +9,15 @@ export default class SpiritGuardians extends DDBEnricherData {
   get activity() {
     return {
       name: "Cast",
+      data: {
+        midiProperties: {
+          triggeredActivityId: "none",
+          triggeredActivityTargets: "targets",
+          triggeredActivityRollAs: "self",
+          forceDialog: false,
+          confirmTargets: "never",
+        },
+      },
     };
   }
 
@@ -22,12 +31,8 @@ export default class SpiritGuardians extends DDBEnricherData {
             },
           },
         },
-        midiProperties: {
-          triggeredActivityId: "none",
-          triggeredActivityTargets: "targets",
-          triggeredActivityRollAs: "self",
-          forceDialog: false,
-          confirmTargets: "never",
+        "midi-qol": {
+          autoTarget: "none",
         },
       },
     };
@@ -43,6 +48,8 @@ export default class SpiritGuardians extends DDBEnricherData {
         build: {
           generateDamage: true,
           generateSave: true,
+          generateDuration: true,
+          noSpellSlot: true,
           onSave: "half",
           damageParts: [
             DDBEnricherData.basicDamagePart({
@@ -93,13 +100,14 @@ export default class SpiritGuardians extends DDBEnricherData {
             "flags.midi-qol.OverTime",
           ),
         ],
-        // macroChanges: [
-        //   {
-        //     macroValues: "@token @spellLevel @attributes.spelldc",
-        //     macroType: "spell",
-        //     macroName: this.is2014 ? "spiritGuardians2014.js" : "spiritGuardians2024.js",
-        //   },
-        // ],
+        macroChanges: [
+          {
+            // @token
+            macroValues: "@spellLevel",
+            macroType: "spell",
+            macroName: this.is2014 ? "spiritGuardians2014.js" : "spiritGuardians2024.js",
+          },
+        ],
         data: {
           flags: {
             dae: {
@@ -126,10 +134,10 @@ export default class SpiritGuardians extends DDBEnricherData {
     ];
   }
 
-  // get itemMacro() {
-  //   return {
-  //     type: "spell",
-  //     name: this.is2014 ? "spiritGuardians2014.js" : "spiritGuardians2024.js",
-  //   };
-  // }
+  get itemMacro() {
+    return {
+      type: "spell",
+      name: this.is2014 ? "spiritGuardians2014.js" : "spiritGuardians2024.js",
+    };
+  }
 }

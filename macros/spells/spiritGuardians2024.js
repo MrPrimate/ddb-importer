@@ -10,11 +10,10 @@ console.warn({
 });
 
 // macro will run on the caster, we want to ignore this
-if (scope.effect.parent.uuid === actor.uuid) {
+if (scope.macroActivity.item.actor.uuid === actor.uuid) {
   console.debug(`Ignoring Spirit Guardians macro call for ${actor.name} as they are the caster`);
   return;
 }
-
 
 async function setCombatFlag(actor) {
   await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansTurn", {
@@ -28,12 +27,22 @@ if (args[0] === "on") {
   console.warn("on", { args, lastArg, scope, item });
   const turnFlag =  DDBImporter.EffectHelper.getFlag(actor, "SpiritGuardiansTurn") ?? {};
 
+  console.warn({ turnFlag, combat: game.combat,
+    bool: turnFlag
+    && turnFlag.id === game.combat?.id
+    && turnFlag.turn === game.combat?.current?.turn
+    && turnFlag.round === game.combat?.current?.round,
+    idMatch: turnFlag.id === game.combat?.id,
+    turnMatch: turnFlag.turn === game.combat?.current?.turn,
+    roundMatch: turnFlag.round === game.combat?.current?.round,
+   });
   if (turnFlag
     && turnFlag.id === game.combat?.id
     && turnFlag.turn === game.combat?.current?.turn
     && turnFlag.round === game.combat?.current?.round
   ) {
     console.log(`${actor.name} has taken the Spirit Guardians damage already this turn`);
+    return;
   }
 
   // set flag for turn check
@@ -42,6 +51,22 @@ if (args[0] === "on") {
   await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", true);
 
   console.warn(`Running Spirit Guardians turn damage for entry on ${actor.name}`);
+
+  // const originDocument = await fromUuid(lastArg.origin);
+  const workflowItemData = DDBImporter.EffectHelper.documentWithFilteredActivities({
+    document: scope.macroActivity.item,
+    activityTypes: ["save"],
+    parent: scope.macroActivity.item.actor,
+    clearEffectFlags: true,
+    level: scope.effect.flags["midi-qol"].castData.castLevel,
+    renameDocument: `${scope.macroActivity.item.name}: Save vs Damage`,
+  });
+
+  await DDBImporter.EffectHelper.rollMidiItemUse(workflowItemData, {
+    targets: [token.document.uuid],
+  });
+
+
   // const sourceItem = await fromUuid(lastArg.origin);
   // const tokenOrActor = await fromUuid(lastArg.actorUuid);
   // const theActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
