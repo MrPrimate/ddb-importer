@@ -1,3 +1,4 @@
+import { SETTINGS } from "../config/_module.mjs";
 import { logger, FileHelper } from "../lib/_module.mjs";
 
 
@@ -98,7 +99,7 @@ export default class DDBMacros {
   }
 
   static async loadMacroFile(type, fileName, forceLoad = false, forceDDB = false) {
-    const embedMacros = game.settings.get("ddb-importer", "embed-macros");
+    const embedMacros = game.settings.get(SETTINGS.MODULE_ID, "embed-macros");
     logger.debug(`Getting macro for ${type} ${fileName}`);
     const fileExists = forceLoad || (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge)
       ? true
@@ -111,7 +112,7 @@ export default class DDBMacros {
       data = await response.text();
     } else if (fileExists && (!embedMacros || forceDDB)) {
       data = `// Execute DDB Importer dynamic macro
-return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${fileName}", scope);
+return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}", "${fileName}", scope);
 `;
     } else if (!fileExists) {
       data = "// Unable to load the macro file";
@@ -133,7 +134,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
   }
 
   static async setItemMacroFlag(document, macroType, macroName) {
-    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
+    const useDDBFunctions = game.settings.get(SETTINGS.MODULE_ID, "no-item-macros");
     if (!useDDBFunctions) {
       const itemMacroText = await DDBMacros.loadMacroFile(macroType, macroName);
       document = DDBMacros.generateItemMacroFlag(document, itemMacroText);
@@ -145,7 +146,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     macroValues = "", macroType = null, macroName = null, keyPostfix = "", priority = 20, ddbFunctions = null,
     functionCall = null, functionParams = "",
   } = {}) {
-    const useDDBFunctions = ddbFunctions ?? game.settings.get("ddb-importer", "no-item-macros");
+    const useDDBFunctions = ddbFunctions ?? game.settings.get(SETTINGS.MODULE_ID, "no-item-macros");
     const macroKey = (useDDBFunctions || functionCall)
       ? `macro.execute`
       : "macro.itemMacro";
@@ -166,7 +167,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
   static generateMidiOnUseMacroFlagValueV2({
     macroType, macroName, triggerPoints = [], macroUuid = null, functionCall = null,
   } = {}) {
-    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
+    const useDDBFunctions = game.settings.get(SETTINGS.MODULE_ID, "no-item-macros");
     const docMacroName = (macroUuid && !useDDBFunctions) ? `.${macroUuid}` : "";
     const valueContent = functionCall
       ? `function.${functionCall}`
@@ -177,7 +178,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
   }
 
   static generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints = [], macroUuid = null) {
-    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
+    const useDDBFunctions = game.settings.get(SETTINGS.MODULE_ID, "no-item-macros");
     const docMacroName = (macroUuid && !useDDBFunctions) ? `.${macroUuid}` : "";
     const valueContent = (useDDBFunctions)
       ? `function.DDBImporter.lib.DDBMacros.macroFunction.${macroType}("${macroName}")`
@@ -200,7 +201,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
   static generateItemMacroValue({
     macroType = null, macroName = null, document = null, functionCall = null,
   } = {}) {
-    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
+    const useDDBFunctions = game.settings.get(SETTINGS.MODULE_ID, "no-item-macros");
     const docMacroName = (document && !useDDBFunctions) ? `.${document.name}` : "";
     const valueContent = functionCall
       ? `function.${functionCall}`
@@ -242,7 +243,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     macroPass, macroType = null, macroName = null, priority = 20, document, macroParams = "",
     functionCall = null, functionParams = "",
   } = {}) {
-    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
+    const useDDBFunctions = game.settings.get(SETTINGS.MODULE_ID, "no-item-macros");
     const valueStub = useDDBFunctions || functionCall
       ? DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall })
       : `${document.name}, ItemMacro`;
@@ -260,7 +261,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
     macroPass, macroType = null, macroName = null, priority = 20, document, macroParams = "",
     functionCall = null, functionParams = "",
   } = {}) {
-    const useDDBFunctions = game.settings.get("ddb-importer", "no-item-macros");
+    const useDDBFunctions = game.settings.get(SETTINGS.MODULE_ID, "no-item-macros");
     const valueStub = useDDBFunctions || functionCall
       ? DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall })
       : `${document.name}, ItemMacro`;
@@ -304,7 +305,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
       command: content,
       folder: macroFolder ? macroFolder.id : undefined,
       flags: {
-        "ddb-importer": {
+        [`${SETTINGS.MODULE_ID}`]: {
           macro: true,
         },
       },
@@ -325,7 +326,7 @@ return game.modules.get("ddb-importer")?.api.macros.executeMacro("${type}", "${f
 
   static async createWorldMacros() {
     const disabled = true;
-    const createMacros = game.settings.get("ddb-importer", "character-update-policy-add-midi-effects");
+    const createMacros = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects");
     if (game.user.isGM && !disabled && createMacros) {
       await DDBMacros.checkMacroFolder();
 

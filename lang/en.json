@@ -115,7 +115,7 @@
         "hint": "Embed macros into items? If not selected, item macro will call DDB Importer to generate and run the appropriate macro on the fly. Advantages: don't need to remunch spells to get macro, less data stored in world. Disadvantages: harder to debug, need to be running DDB Importer."
       },
       "no-item-macros": {
-        "name": "[Experimental] Remove macros from items?",
+        "name": "Remove macros from items?",
         "hint": "If selected will call DDB Functions for Midi-QOL and DAE to run macros, supersedes embed macros option."
       },
       "show-image-to-players.name": "Show the show image to players button?",

@@ -509,7 +509,9 @@ export default class DDBEnricherFactoryMixin {
     // always set item macros and on use macro flags
     const itemMacro = this.itemMacro;
     if (itemMacro && applyMidiOnlyEffects) {
-      await DDBMacros.setItemMacroFlag(this.data, itemMacro.type, itemMacro.name);
+      const type = itemMacro.type ?? itemMacro.macroType;
+      const name = itemMacro.name ?? itemMacro.macroName;
+      await DDBMacros.setItemMacroFlag(this.data, type, name);
     }
 
     const setMidiOnUseMacroFlag = this.setMidiOnUseMacroFlag;
