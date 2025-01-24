@@ -4,6 +4,7 @@
 - DDB Importer Macro automation: Warding Bond.
 - Divine Smite used d6 damage, and corrections for 2014 feature.
 - Problem with Hideous Laughter if using embedded macros option.
+- Artificer Armorer improvements for Armor Selection (it's an enchantment now).
 
 # 6.0.65
 
