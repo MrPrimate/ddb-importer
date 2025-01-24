@@ -3,6 +3,7 @@
 - MidiQoL Automation: Heroes Feast, Warding Bond.
 - DDB Importer Macro automation: Warding Bond.
 - Divine Smite used d6 damage, and corrections for 2014 feature.
+- Problem with Hideous Laughter if using embedded macros option.
 
 # 6.0.65
 
