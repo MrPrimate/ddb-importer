@@ -159,6 +159,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Unbreakable Majesty",
     "Forked Tongue",
     "Cosmic Omen",
+    "Armor Model",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -176,6 +177,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Hunter's Prey",
     "Defensive Tactics",
     "Elven Lineage",
+    "Armor Model",
   ],
   USE_ALL_CHOICES: [
   ],

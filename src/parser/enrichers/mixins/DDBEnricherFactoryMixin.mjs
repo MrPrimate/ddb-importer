@@ -421,8 +421,8 @@ export default class DDBEnricherFactoryMixin {
     if (overrideData.activationType) {
       activity.activation = {
         type: overrideData.activationType,
-        value: activity.activation?.value ?? overrideData.activationValue ?? 1,
-        condition: activity.activation?.condition ?? "",
+        value: overrideData.activationValue ?? activity.activation?.value ?? 1,
+        condition: overrideData.activationCondition ?? activity.activation?.condition ?? "",
       };
     } else if (overrideData.activationValue) {
       foundry.utils.setProperty(activity, "activation.value", overrideData.activationValue);
@@ -939,11 +939,16 @@ export default class DDBEnricherFactoryMixin {
         if (activityData.effects) {
           this.data.effects.push(...activityData.effects);
         }
-        this.data.effects = this.data.effects.filter((v, i, a) => a.findIndex((t) =>
-          t.name.startsWith("Status:")
-          && t.name === v.name
-          && !t.flags?.ddbimporter?.activitiesMatch
-          && !t.flags?.ddbimporter?.activityMatch) === i);
+        this.data.effects = this.data.effects.filter((v, i, a) => {
+          if (v.name.startsWith("Status:")) {
+            return a.findIndex((t) =>
+              t.name.startsWith("Status:")
+              && t.name === v.name
+              && !t.flags?.ddbimporter?.activitiesMatch
+              && !t.flags?.ddbimporter?.activityMatch) === i;
+          }
+          return true;
+        });
         y++;
 
         foundry.utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities.data", {

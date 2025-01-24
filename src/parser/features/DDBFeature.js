@@ -488,8 +488,8 @@ ${description}`;
       ? ""
       : DDBFeature.CHOICE_DEFS.NO_CHOICE_BUILD.includes(this.originalName)
         || DDBFeature.CHOICE_DEFS.NO_CHOICE_SECRET.includes(this.originalName)
-        ? joinedText
-        : `<section class="secret">${joinedText}</section>`;
+        ? `<hr>${joinedText}`
+        : `<hr><section class="secret">${joinedText}</section>`;
 
     this._generateDescription({ forceFull: chosenOnly, extra: secretText });
     await this._addEffects(undefined, this.type);

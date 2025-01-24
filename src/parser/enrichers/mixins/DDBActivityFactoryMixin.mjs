@@ -380,7 +380,7 @@ export default class DDBActivityFactoryMixin {
   // eslint-disable-next-line complexity
   _activityEffectLinking() {
     if (this.data.effects.length === 0) return;
-    if (!this.data.system.activities) return;
+    if (!foundry.utils.hasProperty(this.data, "system.activities")) return;
     for (const activityId of Object.keys(this.data.system.activities)) {
       const activity = this.data.system.activities[activityId];
       if (!activity.effects || activity.effects.length !== 0) continue;
@@ -408,5 +408,26 @@ export default class DDBActivityFactoryMixin {
       }
       this.data.system.activities[activityId] = activity;
     }
+
+    // Track changes to rider activities & effects and store in item flags
+    const riders = { activity: new Set(), effect: new Set() };
+    for (const activityId of Object.keys(this.data.system.activities)) {
+      const activity = this.data.system.activities[activityId];
+      if (activity.type !== "enchant") continue;
+      for (const e of activity.effects) {
+        e.riders.activity.forEach((activity) => {
+          riders.activity.add(activity);
+        });
+        e.riders.effect.forEach((effect) => {
+          riders.effect.add(effect);
+        });
+      }
+    }
+
+    foundry.utils.setProperty(this.data, "flags.dnd5e.riders", {
+      activity: Array.from(riders.activity),
+      effect: Array.from(riders.effect),
+    });
+
   }
 }
