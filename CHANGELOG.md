@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.66
 
 - MidiQoL Automation: Heroes Feast, Warding Bond.
 - DDB Importer Macro automation: Warding Bond.
