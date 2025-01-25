@@ -15,7 +15,6 @@ import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
 import { sleepEffect } from "./spells/sleep.js";
 import { spikeGrowthEffect } from "./spells/spikeGrowth.js";
-import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
 import { stormSphereEffect } from "./spells/stormSphere.js";
 // import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { vitriolicSphereEffect } from "./spells/vitriolicSphere.js";
@@ -79,10 +78,6 @@ async function midiEffectAdjustment(document) {
     }
     case "Spike Growth": {
       document = await spikeGrowthEffect(document);
-      break;
-    }
-    case "Spirit Guardians": {
-      document = await spiritGuardiansEffect(document);
       break;
     }
     case "Storm Sphere": {
