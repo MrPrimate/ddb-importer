@@ -1,13 +1,13 @@
 const lastArg = args[args.length - 1];
 
-console.warn({
-  args,
-  scope,
-  item,
-  lastArg,
-  token,
-  actor,
-});
+// console.warn({
+//   args,
+//   scope,
+//   item,
+//   lastArg,
+//   token,
+//   actor,
+// });
 
 // macro will run on the caster, we want to ignore this
 if (scope.macroActivity.item.actor.uuid === actor.uuid) {
@@ -114,12 +114,13 @@ if (args[0] === "on") {
 
 }
 
-if (args[0] === "each") {
-  console.warn("Each", { args, lastArg, scope, item });
-  // creatures turn set flags to take end of turn damage
+// at start of each turn, reset flags
+if (args[0] === "each" && lastArg.turn === "startTurn") {
   await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", false);
 }
 
-if (args[0] === "end") {
+// runs at end of turn after overTime effect. add flags to mark urn damage taken
+if (args[0] === "each" && lastArg.turn === "endTurn") {
+  await setCombatFlag(actor);
   await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", true);
 }
