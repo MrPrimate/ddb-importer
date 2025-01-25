@@ -94,7 +94,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
     label: `Marked by ${sourceItemName}`,
     name: `Marked by ${sourceItemName}`,
   };
-  await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [targetEffectData] });
+  await DDBImporter.socket.executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [targetEffectData] });
 } else if (args[0].tag === "OnUse" && args[0].macroPass === "preDamageApplication") {
   const macroData = args[0];
   let token = canvas.tokens.get(macroData.tokenId);
@@ -183,7 +183,7 @@ async function handlePreDamageByMarkedTarget(macroData) {
     for (let targetUuid of notSourceTargetUuids) {
       const target = await fromUuid(targetUuid);
       const targetActor = target.actor;
-      await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [targetEffectData] });
+      await DDBImporter.socket.executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [targetEffectData] });
     }
   }
 

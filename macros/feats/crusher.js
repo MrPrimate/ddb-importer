@@ -30,7 +30,7 @@ if (args[0].isCritical) {
         ],
       };
       foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnStartSource"]);
-      await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: hitTarget.actor.uuid, effects: [effect] });
+      await DDBImporter.socket.executeAsGM("createEffects", { actorUuid: hitTarget.actor.uuid, effects: [effect] });
     }
   }
 }

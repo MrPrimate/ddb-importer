@@ -27,7 +27,7 @@ try {
     });
     // 60 seconds is wrong - should look for the branding smite effect and use the remaining duration - but hey
 
-    await MidiQOL.socket().executeAsGM("createEffects", {
+    await DDBImporter.socket.executeAsGM("createEffects", {
       actorUuid: targetActor.uuid,
       effects: [bsEffect.toObject()],
     });

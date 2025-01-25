@@ -31,7 +31,7 @@ for (let target of targets) {
       statuses: ["blinded"],
     };
 
-    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: findTarget.actor.uuid, effects: [effectData] });
+    await DDBImporter.socket.executeAsGM("createEffects", { actorUuid: findTarget.actor.uuid, effects: [effectData] });
 
   } else {
     console.log(`Color Spray Results => Target: ${target.name} | HP: ${targetHpValue} | HP Pool: ${remainingBlindHp - targetHpValue} | Status: Not enough HP remaining`);

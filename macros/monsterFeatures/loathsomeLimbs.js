@@ -40,5 +40,5 @@ if (['slashing', 'bludgeoning'].some((dt) => {
     statuses: [stacked.name, ...stacked.statuses],
     origin: item.uuid,
   };
-  await MidiQOL.socket().executeAsGM('createEffects', { actorUuid: workflow.targets.first().actor.uuid, effects: [effectData] });
+  await DDBImporter.socket.executeAsGM("createEffects", { actorUuid: workflow.targets.first().actor.uuid, effects: [effectData] });
 }

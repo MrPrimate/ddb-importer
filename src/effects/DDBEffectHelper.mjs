@@ -1178,8 +1178,8 @@ export default class DDBEffectHelper {
     clearEffects = false, filterEffects = true, newId = false, clearId = true, removeProperties = ["concentration"],
     setToAtWill = false, renameDocument = null, setTargetTo = "creature", clearTargetTemplate = true,
     overrideTarget = true, overrideDuration = true, durationUnits = "inst", durationValue = null,
-    level = null, clearUses = true, addProperties = [], noSpellSlot = true, clearTargets = true,
-    clearActiveAuraEffects = true,
+    level = null, clearUses = true, addProperties = [], noSpellslot = true, clearTargets = true,
+    clearActiveAuraEffects = true, killAnimations = false, filterActivityDamageTypes = [], returnDataOnly = false,
   } = {}) {
     if (!uuid && !document) throw new Error("Must specify either uuid or document !");
     const base = document ?? fromUuidSync(uuid);
@@ -1233,7 +1233,16 @@ export default class DDBEffectHelper {
       }
 
       if (clearTargets) foundry.utils.setProperty(a, "consumption.targets", []);
-      if (noSpellSlot) foundry.utils.setProperty(a, "consumption.spellSlot", false);
+      if (noSpellslot) foundry.utils.setProperty(a, "consumption.spellSlot", false);
+
+      if (filterActivityDamageTypes.length > 0) {
+        a.damage.parts = a.damage.parts.filter((part) =>
+          part.types.some((partType) => filterActivityDamageTypes.includes(partType)),
+        ).map((part) => {
+          part.types = part.types.filter((partType) => filterActivityDamageTypes.includes(partType));
+          return part;
+        });
+      }
 
       if (clearEffects) foundry.utils.setProperty(a, "effects", []);
 
@@ -1277,8 +1286,12 @@ export default class DDBEffectHelper {
 
     if (level) newDocumentData.system.level = level;
 
+    if (killAnimations) foundry.utils.setProperty(newDocumentData, "flags.autoanimations.killAnim", true);
+
     logger.verbose("New document data", newDocumentData);
     // console.warn("New document data", newDocumentData);
+
+    if (returnDataOnly) return newDocumentData;
 
     const newDocument = new CONFIG.Item.documentClass(newDocumentData, { parent });
     return newDocument;

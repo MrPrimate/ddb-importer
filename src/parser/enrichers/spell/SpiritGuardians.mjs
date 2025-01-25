@@ -49,7 +49,10 @@ export default class SpiritGuardians extends DDBEnricherData {
           generateDamage: true,
           generateSave: true,
           generateDuration: true,
-          noSpellSlot: true,
+          generateActivation: true,
+          generateTarget: true,
+          generateRange: true,
+          noSpellslot: true,
           onSave: "half",
           damageParts: [
             DDBEnricherData.basicDamagePart({
@@ -61,11 +64,22 @@ export default class SpiritGuardians extends DDBEnricherData {
             }),
           ],
           noeffect: true,
-          activationOverride: { type: "", condition: "Enters or ends turn in emanation (1 turn only)" },
-          durationOverride: { units: "inst", concentration: false },
+          activationOverride: {
+            type: "",
+            condition: "Enters or ends turn in emanation (1 turn only)",
+          },
+          durationOverride: {
+            units: "inst",
+            concentration: false,
+          },
+          rangeOverride: {
+            value: "15",
+            units: "ft",
+          },
           targetOverride: {
             template: {},
             affects: {
+              count: "1",
               type: "creature",
             },
           },
@@ -77,11 +91,38 @@ export default class SpiritGuardians extends DDBEnricherData {
             },
           },
         },
+        overrides: {
+          flags: {
+            midiProperties: {
+              triggeredActivityId: "none",
+              triggeredActivityTargets: "targets",
+              forceDialog: false,
+              confirmTargets: "never",
+            },
+          },
+        },
       },
     ];
   }
 
   get effects() {
+    const overtimeOptions = [
+      `label=Spirit Guardians (${this.is2014 ? 'Start' : 'End'} of Turn)`,
+      `turn=${this.is2014 ? 'start' : 'end'}`,
+      "damageRoll=(@spellLevel)d8",
+      "damageType=radiant",
+      "saveRemove=false",
+      "saveDC=@attributes.spelldc",
+      "saveAbility=wis",
+      "saveDamage=halfdamage",
+      "killAnim=true",
+    ];
+    if (this.is2024) {
+      overtimeOptions.push(
+        "applyCondition=!flags.ddbihelpers.SpiritGuardiansCalled",
+        "macroToCall=function",
+      );
+    }
     return [
       {
         name: "Spirit Guardians",
@@ -95,7 +136,7 @@ export default class SpiritGuardians extends DDBEnricherData {
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.overrideChange(
-            `${this.is2012 ? "" : `applyCondition=!flags.ddbihelpers.SpiritGuardiansCalled`},turn=${this.is2014 ? 'start' : 'end'},label=Spirit Guardians (${this.is2014 ? 'Start' : 'End'} of Turn),damageRoll=(@spellLevel)d8,damageType=radiant,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=wis,saveDamage=halfdamage,killAnim=true`,
+            overtimeOptions.join(","),
             20,
             "flags.midi-qol.OverTime",
           ),
@@ -111,7 +152,7 @@ export default class SpiritGuardians extends DDBEnricherData {
         data: {
           flags: {
             dae: {
-              macroRepeat: "startEveryTurn",
+              macroRepeat: "startEndEveryTurn",
               selfTarget: true,
               selfTargetAlways: true,
             },

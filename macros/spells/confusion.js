@@ -46,7 +46,7 @@ if (args[0] === "each") {
     if (changeIndex !== -1) {
       scope.effect.changes.splice(changeIndex, 1);
 
-      await MidiQOL.socket().executeAsGM("updateEffects", {
+      await DDBImporter.socket.executeAsGM("updateEffects", {
         actorUuid: token.actor.uuid,
         updates: [{ _id: scope.effect._id, changes: scope.effect.changes }],
       });
@@ -91,7 +91,7 @@ if (args[0] === "each") {
           value: 0,
           priority: 20,
         });
-      await MidiQOL.socket().executeAsGM("updateEffects", {
+      await DDBImporter.socket.executeAsGM("updateEffects", {
         actorUuid: token.actor.uuid,
         updates: [{ _id: scope.effect._id, changes: scope.effect.changes }],
       });

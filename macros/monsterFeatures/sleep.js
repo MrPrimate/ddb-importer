@@ -19,6 +19,6 @@ for (const target of lastArg.targets) {
     statuses: ["unconscious"],
   };
 
-  await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.actor.uuid, effects: [effectData] });
+  await DDBImporter.socket.executeAsGM("createEffects", { actorUuid: target.actor.uuid, effects: [effectData] });
 
 }

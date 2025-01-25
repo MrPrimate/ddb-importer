@@ -38,7 +38,7 @@ for (let target of targets) {
       statuses: ["unconscious"],
     };
 
-    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: findTarget.actor.uuid, effects: [effectData] });
+    await DDBImporter.socket.executeAsGM("createEffects", { actorUuid: findTarget.actor.uuid, effects: [effectData] });
   } else {
     console.log(`Sleep Results => Target: ${target.name} | HP: ${targetHpValue} | HP Pool: ${remainingSleepHp - targetHpValue} | Status: Missed`);
     sleepTarget.push(`<div class="midi-qol-flex-container"><div>misses</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${targetImg}" width="30" height="30" style="border:0px"></div></div>`);

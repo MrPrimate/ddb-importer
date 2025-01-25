@@ -47,7 +47,7 @@ async function applyContagion() {
             name: "Blinding Sickness",
             _id: lastArg.effectId,
           };
-          await MidiQOL.socket().executeAsGM("updateEffects", {
+          await DDBImporter.socket.executeAsGM("updateEffects", {
             actorUuid: targetActor.uuid,
             updates: [data],
           });
@@ -87,7 +87,7 @@ async function applyContagion() {
             name: "Filth Fever",
             _id: lastArg.effectId,
           };
-          await MidiQOL.socket().executeAsGM("updateEffects", {
+          await DDBImporter.socket.executeAsGM("updateEffects", {
             actorUuid: targetActor.uuid,
             updates: [data],
           });
@@ -116,7 +116,7 @@ async function applyContagion() {
             name: "Flesh Rot",
             _id: lastArg.effectId,
           };
-          await MidiQOL.socket().executeAsGM("updateEffects", {
+          await DDBImporter.socket.executeAsGM("updateEffects", {
             actorUuid: targetActor.uuid,
             updates: [data],
           });
@@ -145,7 +145,7 @@ async function applyContagion() {
             name: "Mindfire",
             _id: lastArg.effectId,
           };
-          await MidiQOL.socket().executeAsGM("updateEffects", {
+          await DDBImporter.socket.executeAsGM("updateEffects", {
             actorUuid: targetActor.uuid,
             updates: [data],
           });
@@ -186,7 +186,7 @@ async function applyContagion() {
             name: "Seizure",
             _id: lastArg.effectId,
           };
-          await MidiQOL.socket().executeAsGM("updateEffects", {
+          await DDBImporter.socket.executeAsGM("updateEffects", {
             actorUuid: targetActor.uuid,
             updates: [data],
           });
@@ -215,7 +215,7 @@ async function applyContagion() {
             name: "Slimy Doom",
             _id: lastArg.effectId,
           };
-          await MidiQOL.socket().executeAsGM("updateEffects", {
+          await DDBImporter.socket.executeAsGM("updateEffects", {
             actorUuid: targetActor.uuid,
             updates: [data],
           });

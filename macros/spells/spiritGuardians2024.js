@@ -11,7 +11,7 @@ console.warn({
 
 // macro will run on the caster, we want to ignore this
 if (scope.macroActivity.item.actor.uuid === actor.uuid) {
-  console.debug(`Ignoring Spirit Guardians macro call for ${actor.name} as they are the caster`);
+  console.debug(`Ignoring ${item.name} macro call for ${actor.name} as they are the caster`);
   return;
 }
 
@@ -23,19 +23,50 @@ async function setCombatFlag(actor) {
   });
 }
 
+async function addOvertimeEffect(name = "Spirit Guardians", actorUuid, damageType = "radiant") {
+
+  const overtimeOptions = [
+    `label=${name} (End of Turn)`,
+    `turn=end`,
+    "damageRoll=(@spellLevel)d8",
+    `damageType=${damageType}`,
+    "saveRemove=false",
+    "saveDC=@attributes.spelldc",
+    "saveAbility=wis",
+    "saveDamage=halfdamage",
+    "killAnim=true",
+  ];
+
+  await DDBImporter.socket.executeAsGM("updateEffects", {
+    actorUuid,
+    updates: [
+      { _id: scope.effect._id,
+        changes: [
+          {
+            key: "flags.midi-qol.overtime",
+            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+            priority: 20,
+            value: overtimeOptions.join(","),
+          }
+        ],
+      },
+    ],
+  });
+}
+
 if (args[0] === "on") {
   console.warn("on", { args, lastArg, scope, item });
   const turnFlag =  DDBImporter.EffectHelper.getFlag(actor, "SpiritGuardiansTurn") ?? {};
 
-  console.warn({ turnFlag, combat: game.combat,
-    bool: turnFlag
-    && turnFlag.id === game.combat?.id
-    && turnFlag.turn === game.combat?.current?.turn
-    && turnFlag.round === game.combat?.current?.round,
-    idMatch: turnFlag.id === game.combat?.id,
-    turnMatch: turnFlag.turn === game.combat?.current?.turn,
-    roundMatch: turnFlag.round === game.combat?.current?.round,
-   });
+  // console.warn({ turnFlag, combat: game.combat,
+  //   bool: turnFlag
+  //   && turnFlag.id === game.combat?.id
+  //   && turnFlag.turn === game.combat?.current?.turn
+  //   && turnFlag.round === game.combat?.current?.round,
+  //   idMatch: turnFlag.id === game.combat?.id,
+  //   turnMatch: turnFlag.turn === game.combat?.current?.turn,
+  //   roundMatch: turnFlag.round === game.combat?.current?.round,
+  //  });
   if (turnFlag
     && turnFlag.id === game.combat?.id
     && turnFlag.turn === game.combat?.current?.turn
@@ -50,7 +81,18 @@ if (args[0] === "on") {
   // set flag to prevent end of turn roll
   await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", true);
 
-  console.warn(`Running Spirit Guardians turn damage for entry on ${actor.name}`);
+  console.warn(`Running ${scope.macroActivity.item.name} turn damage for entry on ${actor.name}`);
+
+  const alignment = foundry.utils.getProperty(scope, "macroActivity.actor.system.details.alignment")?.toLowerCase();
+
+  const damageTypes = [];
+  if (alignment.includes("evil")) {
+    damageTypes.push("necrotic");
+  } else if (alignment) {
+    damageTypes.push("radiant");
+  }
+
+  await addOvertimeEffect(scope.macroActivity.item.name,actor.uuid, damageTypes.length > 0 ? damageTypes[0] : "radiant");
 
   // const originDocument = await fromUuid(lastArg.origin);
   const workflowItemData = DDBImporter.EffectHelper.documentWithFilteredActivities({
@@ -60,54 +102,16 @@ if (args[0] === "on") {
     clearEffectFlags: true,
     level: scope.effect.flags["midi-qol"].castData.castLevel,
     renameDocument: `${scope.macroActivity.item.name}: Save vs Damage`,
+    killAnimations: true,
+    filterActivityDamageTypes: damageTypes,
   });
+
+
 
   await DDBImporter.EffectHelper.rollMidiItemUse(workflowItemData, {
     targets: [token.document.uuid],
   });
 
-
-  // const sourceItem = await fromUuid(lastArg.origin);
-  // const tokenOrActor = await fromUuid(lastArg.actorUuid);
-  // const theActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-  // const DAEItem = lastArg.efData.flags.dae.itemData;
-  // const damageType = foundry.utils.getProperty(DAEItem, "flags.ddbimporter.damageType") || "radiant";
-
-  // const itemData = foundry.utils.mergeObject(
-  //   sourceItem.toObject(),
-  //   {
-  //     type: "weapon",
-  //     effects: [],
-  //     flags: {
-  //       "midi-qol": {
-  //         noProvokeReaction: true, // no reactions triggered
-  //         onUseMacroName: null, //
-  //       },
-  //     },
-  //     system: {
-  //       equipped: true,
-  //       actionType: "save",
-  //       save: { dc: Number.parseInt(args[3]), ability: "wis", scaling: "flat" },
-  //       damage: { parts: [[`${args[2]}d8`, damageType]] },
-  //       "target.type": "self",
-  //       properties: [],
-  //       duration: { units: "inst", value: undefined },
-  //       type: {
-  //         value: "improv",
-  //       },
-  //     },
-  //   },
-  //   { overwrite: true, inplace: true, inPlace: true, insertKeys: true, insertValues: true },
-  // );
-  // itemData.system.target.type = "self";
-  // foundry.utils.setProperty(itemData.flags, "autoanimations.killAnim", true);
-  // const item = new CONFIG.Item.documentClass(itemData, { parent: theActor });
-  // item.prepareData();
-  // item.prepareFinalAttributes();
-  // const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions();
-  // await MidiQOL.completeItemUse(item, config, options);
-
-  // DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", true);
 }
 
 if (args[0] === "each") {
@@ -116,7 +120,6 @@ if (args[0] === "each") {
   await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", false);
 }
 
-
-if (args[0] === "off") {
-  // DDBImporter.EffectHelper.unsetFlag(actor, "SpiritGuardiansCalled");
+if (args[0] === "end") {
+  await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", true);
 }

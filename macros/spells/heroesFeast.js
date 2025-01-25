@@ -27,7 +27,7 @@ for (const damageData of scope.workflow.damageList) {
       return c;
     }),
   };
-  await MidiQOL.socket().executeAsGM("updateEffects", {
+  await DDBImporter.socket.executeAsGM("updateEffects", {
     actorUuid: damageData.actorUuid,
     updates: [effect],
   });

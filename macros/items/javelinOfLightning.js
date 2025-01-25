@@ -85,7 +85,7 @@ if (args[0].macroPass === "postActiveEffects") {
       seconds: 1,
     },
   };
-  await await MidiQOL.socket().executeAsGM("createEffects", {
+  await await DDBImporter.socket.executeAsGM("createEffects", {
     actorUuid: sourceToken.actor.uuid,
     effects: [boltEffectData],
   });

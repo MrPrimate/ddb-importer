@@ -23,4 +23,4 @@ const effectData = {
 
 ChatMessage.create({ content: `${lastArg.actor.name} gains 30ft of movement until the end of their turn` });
 
-await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: lastArg.actorUuid, effects: [effectData] });
+await DDBImporter.socket.executeAsGM("createEffects", { actorUuid: lastArg.actorUuid, effects: [effectData] });

@@ -26,7 +26,7 @@ async function applyContagion(targetActor) {
           name: `${originalEffect.name}: ${data.label}`,
           _id: originalEffect._id,
         };
-        await MidiQOL.socket().executeAsGM("updateEffects", {
+        await DDBImporter.socket.executeAsGM("updateEffects", {
           actorUuid: targetActor.uuid,
           updates: [effect],
         });
@@ -47,7 +47,7 @@ async function removeMacro(targetActor) {
     changes: originalEffect.changes.filter((c) => !c.key.startsWith("macro")),
     _id: originalEffect._id,
   };
-  await MidiQOL.socket().executeAsGM("updateEffects", {
+  await DDBImporter.socket.executeAsGM("updateEffects", {
     actorUuid: targetActor.uuid,
     updates: [effect],
   });
