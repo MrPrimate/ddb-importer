@@ -1,3 +1,8 @@
+# Next Up
+
+- Fix some scaling issues with midi generated effects
+- Midi Automation: Spirit Guardians.
+
 # 6.0.66
 
 - MidiQoL Automation: Heroes Feast, Warding Bond.

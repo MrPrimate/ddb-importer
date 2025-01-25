@@ -87,6 +87,7 @@ async function rollDocumentActivityMidiQol({
 
   await DDBEffectHelper.rollMidiItemUse(workflowItemData, {
     targets: [targetToken.document.uuid],
+    slotLevel: level,
     scaling: (level ?? 0) - originDocument.system.level,
   });
 }
@@ -114,6 +115,7 @@ async function applyConditionVsSave({
   const saveTargets = [...(game.user?.targets ?? [])].map((t) => t.id);
   game.user.updateTokenTargets([targetToken.id]);
   const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions({
+    slotLevel: itemLevel,
     scaling: (itemLevel ?? 0) - item.system.level,
   });
   const result = await MidiQOL.completeItemUse(workflowItemData, config, options);

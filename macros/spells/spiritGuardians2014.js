@@ -1,17 +1,17 @@
 const lastArg = args[args.length - 1];
 
-console.warn({
-  args,
-  scope,
-  item,
-  lastArg,
-  token,
-  actor,
-});
+// console.warn({
+//   args,
+//   scope,
+//   item,
+//   lastArg,
+//   token,
+//   actor,
+// });
 
 // macro will run on the caster, we want to ignore this
 if (scope.macroActivity.item.actor.uuid === actor.uuid) {
-  console.debug(`Ignoring ${item.name} macro call for ${actor.name} as they are the caster`);
+  console.debug(`Ignoring ${scope.macroActivity.item.name} macro call for ${actor.name} as they are the caster`);
   return;
 }
 
@@ -73,7 +73,7 @@ if (args[0] === "on") {
   // set flag to prevent end of turn roll
   await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", true);
 
-  console.warn(`Running ${scope.macroActivity.item.name} turn damage for entry on ${actor.name}`);
+  // console.warn(`Running ${scope.macroActivity.item.name} turn damage for entry on ${actor.name}`);
 
   const alignment = foundry.utils.getProperty(scope, "macroActivity.actor.system.details.alignment")?.toLowerCase();
 
@@ -101,15 +101,15 @@ if (args[0] === "on") {
 
   await DDBImporter.EffectHelper.rollMidiItemUse(workflowItemData, {
     targets: [token.document.uuid],
-    // slotLevel: scope.effect.flags["midi-qol"].castData.castLevel,
-    scaling: scope.effect.flags["midi-qol"].castData.baseLevel - scope.effect.flags["midi-qol"].castData.castLevel,
+    slotLevel: scope.effect.flags["midi-qol"].castData.castLevel,
+    scaling: scope.effect.flags["midi-qol"].castData.castLevel - scope.effect.flags["midi-qol"].castData.baseLevel,
   });
 
 }
 
 // runs at start of turn after overTime effect. add flags to mark turn damage taken
 if (args[0] === "each" && lastArg.turn === "startTurn") {
-  console.warn("Each startTurn", { args, lastArg, scope, item });
+  // console.warn("Each startTurn", { args, lastArg, scope, item });
   // creatures take damage at begining of turn
   // set flag to prevent damage if moving in and out of aura
   await setCombatFlag(actor);
@@ -117,6 +117,6 @@ if (args[0] === "each" && lastArg.turn === "startTurn") {
 }
 
 if (args[0] === "each" && lastArg.turn === "endTurn") {
-  console.warn("Each endTurn", { args, lastArg, scope, item });
+  // console.warn("Each endTurn", { args, lastArg, scope, item });
   await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", false);
 }

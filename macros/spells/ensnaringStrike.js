@@ -116,6 +116,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   const conEffect = MidiQOL.getConcentrationEffect(actor, ensnaringStrikeDoc);
   const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({
     targets: [macroData.hitTargetUuids[0]],
+    slotLevel: castLevel,
     scaling: castLevel - 1,
   });
   options.skipOnUse = true;

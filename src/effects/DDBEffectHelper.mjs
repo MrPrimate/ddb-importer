@@ -1089,7 +1089,7 @@ export default class DDBEffectHelper {
         //   begin: true,
         //   end: true,
         // },
-        // showFullCard,
+        showFullCard,
         createWorkflow: true,
         consume: {
           action: false,
@@ -1321,6 +1321,9 @@ export default class DDBEffectHelper {
     if (targetIds.length > 0) game.user.updateTokenTargets(targetIds);
 
     const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions(workflowBuilderOptions);
+
+    logger.debug("Rolling item use", { document, config, options });
+
     const result = await MidiQOL.completeItemUse(document, config, options);
 
     if (targetIds.length > 0) game.user.updateTokenTargets(saveTargets);

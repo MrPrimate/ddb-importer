@@ -42,6 +42,7 @@ if (lastArg.targets.length > 0) {
 
   const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({
     targets: aoeTargets,
+    slotLevel: lastArg.spellLevel,
     scaling: lastArg.spellLevel - areaSpell.system.level,
   });
   await MidiQOL.completeItemUse(areaSpell, config, options);

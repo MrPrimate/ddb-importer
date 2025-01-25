@@ -55,7 +55,7 @@ async function addOvertimeEffect(name = "Spirit Guardians", actorUuid, damageTyp
 }
 
 if (args[0] === "on") {
-  console.warn("on", { args, lastArg, scope, item });
+  // console.warn("on", { args, lastArg, scope, item });
   const turnFlag =  DDBImporter.EffectHelper.getFlag(actor, "SpiritGuardiansTurn") ?? {};
 
   if (turnFlag
@@ -72,7 +72,7 @@ if (args[0] === "on") {
   // set flag to prevent end of turn roll
   await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", true);
 
-  console.warn(`Running ${scope.macroActivity.item.name} turn damage for entry on ${actor.name}`);
+  // console.warn(`Running ${scope.macroActivity.item.name} turn damage for entry on ${actor.name}`);
 
   const alignment = foundry.utils.getProperty(scope, "macroActivity.actor.system.details.alignment")?.toLowerCase();
 
@@ -101,7 +101,7 @@ if (args[0] === "on") {
   await DDBImporter.EffectHelper.rollMidiItemUse(workflowItemData, {
     targets: [token.document.uuid],
     slotLevel: scope.effect.flags["midi-qol"].castData.castLevel,
-    scaling: scope.effect.flags["midi-qol"].castData.baseLevel - scope.effect.flags["midi-qol"].castData.castLevel,
+    scaling: scope.effect.flags["midi-qol"].castData.castLevel - scope.effect.flags["midi-qol"].castData.baseLevel,
   });
 
 }
