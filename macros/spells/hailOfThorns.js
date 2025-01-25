@@ -64,7 +64,6 @@ if (args[0].macroPass === "postActiveEffects") {
     system: originDoc.toObject().system,
   };
 
-  areaSpellData.system.level = level;
   areaSpellData.system.preparation = { mode: "atwill" };
 
   const newActivities = {};
@@ -96,8 +95,7 @@ if (args[0].macroPass === "postActiveEffects") {
 
   const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({
     targets: [macroData.hitTargetUuids[0]],
-    castLevel: level,
-    slotLevel: level,
+    // scaling: areaSpell.system.level - level,
   });
   await MidiQOL.completeItemUse(areaSpell, config, options);
 

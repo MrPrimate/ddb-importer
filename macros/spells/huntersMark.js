@@ -43,7 +43,6 @@ try {
       if (hookItem.parent.parent.uuid !== item.uuid) return;
       options.configureDialog = false;
       options.configure = false;
-      config.consumeSpellLevel = false;
       config.consume.spellSlot = false;
       Hooks.off("dnd5e.preUseActivity", useHookId);
     });

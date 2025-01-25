@@ -11,6 +11,7 @@ export default class SpiritGuardians extends DDBEnricherData {
       name: "Cast",
       data: {
         midiProperties: {
+          autoTargetAction: "none",
           triggeredActivityId: "none",
           triggeredActivityTargets: "targets",
           triggeredActivityRollAs: "self",
@@ -94,6 +95,7 @@ export default class SpiritGuardians extends DDBEnricherData {
         overrides: {
           flags: {
             midiProperties: {
+              autoTargetAction: "none",
               triggeredActivityId: "none",
               triggeredActivityTargets: "targets",
               forceDialog: false,

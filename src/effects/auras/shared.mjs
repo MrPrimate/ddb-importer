@@ -72,7 +72,7 @@ async function generateDataTracker({
 async function rollDocumentActivityMidiQol({
   targetToken,
   originDocument,
-  level = null,
+  level = 0,
   activityIds = [],
   nameSuffix = "",
 } = {}) {
@@ -82,11 +82,13 @@ async function rollDocumentActivityMidiQol({
     activityIds,
     parent: originDocument.parent,
     clearEffectFlags: true,
-    level,
     renameDocument: `${originDocument.name}${nameSuffix}`,
   });
 
-  await DDBEffectHelper.rollMidiItemUse(workflowItemData, { targets: [targetToken.document.uuid] });
+  await DDBEffectHelper.rollMidiItemUse(workflowItemData, {
+    targets: [targetToken.document.uuid],
+    scaling: (level ?? 0) - originDocument.system.level,
+  });
 }
 
 async function applyConditionVsSave({
@@ -106,13 +108,14 @@ async function applyConditionVsSave({
     activityIds,
     parent: item.parent,
     clearEffectFlags: true,
-    level: itemLevel,
     renameDocument: `${item.name}${resolvedNameSuffix}`,
   });
 
   const saveTargets = [...(game.user?.targets ?? [])].map((t) => t.id);
   game.user.updateTokenTargets([targetToken.id]);
-  const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions();
+  const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions({
+    scaling: (itemLevel ?? 0) - item.system.level,
+  });
   const result = await MidiQOL.completeItemUse(workflowItemData, config, options);
 
   // console.warn("APPLY CONDITION VS SAVE RESULT", {result, workflowItemData});

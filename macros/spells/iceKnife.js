@@ -2,7 +2,7 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const casterActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-console.warn(lastArg)
+// console.warn(lastArg)
 
 if (lastArg.targets.length > 0) {
   let areaSpellData = foundry.utils.duplicate(lastArg.item);
@@ -40,7 +40,10 @@ if (lastArg.targets.length > 0) {
     .concat(target)
     .map((t) => t.document.uuid);
 
-  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({ targets: aoeTargets, castLevel: lastArg.spellLevel });
+  const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({
+    targets: aoeTargets,
+    scaling: lastArg.spellLevel - areaSpell.system.level,
+  });
   await MidiQOL.completeItemUse(areaSpell, config, options);
 } else {
   ui.notifications.error("Ice Knife: No target selected: unable to automate burst effect.");

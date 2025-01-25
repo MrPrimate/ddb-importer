@@ -94,15 +94,6 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
 
   const castLevel = actor.flags["midi-qol"].ensnaringStrike.level;
 
-  // console.warn("Ensnaring Strike", {
-  //   args,
-  //   macroData,
-  //   macroItem,
-  //   actor,
-  //   workflow,
-  //   ensnaringStrikeDoc,
-  //   originEffect,
-  // })
 
   // Temporary spell data for the ensnaring effect
   const spellData = getTempSpellData(ensnaringStrikeDoc, castLevel);
@@ -111,11 +102,6 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
     temporary: true,
   });
 
-  // console.warn("Ensnaring Strike", {
-  //   spellData,
-  //   spell,
-  //   castLevel,
-  // })
 
   // If AA has a special custom effect for the restrained condition, use it instead of standard one
   if (game.modules.get("autoanimations")?.active) {
@@ -130,7 +116,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   const conEffect = MidiQOL.getConcentrationEffect(actor, ensnaringStrikeDoc);
   const [config, options] = DDBImporter.EffectHelper.syntheticItemWorkflowOptions({
     targets: [macroData.hitTargetUuids[0]],
-    slotLevel: castLevel,
+    scaling: castLevel - 1,
   });
   options.skipOnUse = true;
 

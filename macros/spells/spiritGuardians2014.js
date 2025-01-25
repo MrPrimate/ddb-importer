@@ -41,14 +41,14 @@ async function addOvertimeEffect(name = "Spirit Guardians", actorUuid, damageTyp
     actorUuid,
     updates: [
       { _id: scope.effect._id,
-        changes: [
+        changes: scope.effect.changes.concat([
           {
             key: "flags.midi-qol.overtime",
             mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
             priority: 20,
             value: overtimeOptions.join(","),
           }
-        ],
+        ]),
       },
     ],
   });
@@ -59,15 +59,6 @@ if (args[0] === "on") {
   console.warn("on", { args, lastArg, scope, item });
   const turnFlag =  DDBImporter.EffectHelper.getFlag(actor, "SpiritGuardiansTurn") ?? {};
 
-  // console.warn({ turnFlag, combat: game.combat,
-  //   bool: turnFlag
-  //   && turnFlag.id === game.combat?.id
-  //   && turnFlag.turn === game.combat?.current?.turn
-  //   && turnFlag.round === game.combat?.current?.round,
-  //   idMatch: turnFlag.id === game.combat?.id,
-  //   turnMatch: turnFlag.turn === game.combat?.current?.turn,
-  //   roundMatch: turnFlag.round === game.combat?.current?.round,
-  //  });
   if (turnFlag
     && turnFlag.id === game.combat?.id
     && turnFlag.turn === game.combat?.current?.turn
@@ -101,7 +92,6 @@ if (args[0] === "on") {
     activityTypes: ["save"],
     parent: scope.macroActivity.item.actor,
     clearEffectFlags: true,
-    level: scope.effect.flags["midi-qol"].castData.castLevel,
     renameDocument: `${scope.macroActivity.item.name}: Save vs Damage`,
     killAnimations: true,
     filterActivityDamageTypes: damageTypes,
@@ -111,12 +101,15 @@ if (args[0] === "on") {
 
   await DDBImporter.EffectHelper.rollMidiItemUse(workflowItemData, {
     targets: [token.document.uuid],
+    // slotLevel: scope.effect.flags["midi-qol"].castData.castLevel,
+    scaling: scope.effect.flags["midi-qol"].castData.baseLevel - scope.effect.flags["midi-qol"].castData.castLevel,
   });
 
 }
 
-if (args[0] === "each" && lastArg.turn === "") {
-  console.warn("Each", { args, lastArg, scope, item });
+// runs at start of turn after overTime effect. add flags to mark turn damage taken
+if (args[0] === "each" && lastArg.turn === "startTurn") {
+  console.warn("Each startTurn", { args, lastArg, scope, item });
   // creatures take damage at begining of turn
   // set flag to prevent damage if moving in and out of aura
   await setCombatFlag(actor);
@@ -124,5 +117,6 @@ if (args[0] === "each" && lastArg.turn === "") {
 }
 
 if (args[0] === "each" && lastArg.turn === "endTurn") {
+  console.warn("Each endTurn", { args, lastArg, scope, item });
   await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", false);
 }

@@ -1073,24 +1073,39 @@ export default class DDBEffectHelper {
   }
 
   static syntheticItemWorkflowOptions({
-    targets = undefined, showFullCard = false, useSpellSlot = false, castLevel = false, consume = false,
-    configureDialog = false, targetConfirmation = undefined, slotLevel = false,
+    targets = undefined, showFullCard = false, scaling = false,
+    configureDialog = false, targetConfirmation = undefined, slotLevel = undefined,
+    createMeasuredTemplate = undefined, consumeResource = false, consumeSpellSlot = false,
   } = {}) {
     return [
+      // https://github.com/foundryvtt/dnd5e/blob/e0fca22b86ebd41086ba726e489132ce0a323243/module/documents/activity/mixin.mjs#L139
       {
-        showFullCard,
+        create: createMeasuredTemplate
+          ? {
+            createMeasuredTemplate: true,
+          }
+          : false,
+        // concentration: {
+        //   begin: true,
+        //   end: true,
+        // },
+        // showFullCard,
         createWorkflow: true,
-        consumeResource: consume,
-        consumeRecharge: consume,
-        consumeQuantity: consume,
-        consumeUsage: consume,
-        consumeSpellSlot: useSpellSlot,
-        consumeSpellLevel: castLevel,
-        slotLevel,
+        consume: {
+          action: false,
+          resource: consumeResource,
+          spellSlot: consumeSpellSlot,
+        },
+        spell: {
+          slot: slotLevel,
+        },
+        scaling,
       },
       {
         targetUuids: targets,
         configureDialog,
+        configure: configureDialog,
+        options: {},
         workflowOptions: {
           autoRollDamage: 'always',
           autoFastDamage: true,
