@@ -85,6 +85,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Waterskin": ItemEnrichers.Waterskin,
     "Wand of Orcus": ItemEnrichers.WandOfOrcus,
     "Spell-Refueling Ring (Reaction)": ItemEnrichers.SpellRefuelingRingReaction,
+    "Potion of Invulnerability": ItemEnrichers.PotionOfInvulnerability,
   };
 
 }

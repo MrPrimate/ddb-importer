@@ -37,6 +37,7 @@ export { default as PotionOfHealing } from "./PotionOfHealing.mjs";
 export { default as PotionOfHealingGreater } from "./PotionOfHealingGreater.mjs";
 export { default as PotionOfHealingSuperior } from "./PotionOfHealingSuperior.mjs";
 export { default as PotionOfHealingSupreme } from "./PotionOfHealingSupreme.mjs";
+export { default as PotionOfInvulnerability } from "./PotionOfInvulnerability.mjs";
 export { default as PotionOfSpeed } from "./PotionOfSpeed.mjs";
 export { default as RingOfTheRam } from "./RingOfTheRam.mjs";
 export { default as SpellRefuelingRingReaction } from "./SpellRefuelingRingReaction.mjs";
