@@ -72,18 +72,4 @@ export default class IceKnife extends DDBEnricherData {
     ];
   }
 
-  // get itemMacro() {
-  //   return {
-  //     type: "spell",
-  //     name: "iceKnife.js",
-  //   };
-  // }
-
-  // get setMidiOnUseMacroFlag() {
-  //   return {
-  //     type: "spell",
-  //     name: "iceKnife.js",
-  //     triggerPoints: ["postActiveEffects"],
-  //   };
-  // }
 }
