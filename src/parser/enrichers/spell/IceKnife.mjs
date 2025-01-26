@@ -36,6 +36,7 @@ export default class IceKnife extends DDBEnricherData {
           generateDamage: true,
           generateConsumption: false,
           generateActivation: true,
+          generateTargets: true,
           noSpellslot: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({
@@ -50,9 +51,20 @@ export default class IceKnife extends DDBEnricherData {
         overrides: {
           activationType: "special",
           overrideActivation: true,
+          overrideTarget: true,
           data: {
             midiProperties: {
               confirmTargets: "always",
+            },
+            target: {
+              affects: {
+                type: "creature",
+              },
+              template: {
+                type: "radius",
+                size: "5",
+                units: "ft",
+              },
             },
           },
         },

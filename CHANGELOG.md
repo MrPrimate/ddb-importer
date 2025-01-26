@@ -1,7 +1,7 @@
 # Next Up
 
 - Fix some scaling issues with midi generated effects
-- Midi Automation: Spirit Guardians.
+- Midi Automation: Spirit Guardians. Ice Knife corrections and simplification.
 
 # 6.0.66
 
