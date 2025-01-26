@@ -841,10 +841,11 @@ const SETTINGS = {
             config: true,
             type: String,
             choices: {
+              TYPE_SOURCE: "Source Book -> Item Type",
               TYPE: "Item Type",
               RARITY: "Rarity",
             },
-            default: "TYPE",
+            default: "TYPE_SOURCE",
           },
         },
         ADVENTURE: {

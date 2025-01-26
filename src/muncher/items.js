@@ -11,6 +11,7 @@ import {
   Iconizer,
   DDBItemImporter,
   DDBMacros,
+  DDBCompendiumFolders,
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
@@ -238,8 +239,6 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   await FileHelper.generateCurrentFiles(uploadDirectory);
   logger.info("Check complete, getting ItemData.");
 
-  await DDBMuncher.generateCompendiumFolders("items");
-
   if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
     // eslint-disable-next-line require-atomic-updates
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
@@ -280,6 +279,16 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : itemHandler.documents;
   itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: filteredItems, compendiumItem: true });
+
+  const compendiumFolders = new DDBCompendiumFolders("item");
+  if (compendiumFolders.compendiumFolderTypeItem === "TYPE_SOURCE") {
+    await compendiumFolders.loadCompendium("item");
+    for (const item of itemHandler.documents) {
+      await compendiumFolders.createItemTypeSourceFolder(item);
+    }
+  } else {
+    await DDBMuncher.generateCompendiumFolders("items");
+  }
 
   const finalCount = itemHandler.documents.length;
   utils.munchNote(`Preparing to import ${finalCount} items!`, true);
