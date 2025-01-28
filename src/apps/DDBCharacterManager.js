@@ -656,12 +656,6 @@ export default class DDBCharacterManager extends FormApplication {
   }
 
   async enrichCharacterItems(items) {
-    const useInbuiltIcons = game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons");
-    const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
-    const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
-    const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
-    const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
-    const ddbGenericItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-generic-item-icons");
 
     await Iconizer.preFetchDDBIconImages();
 
@@ -670,40 +664,24 @@ export default class DDBCharacterManager extends FormApplication {
       this.showCurrentTask("Copying existing data flags");
       await this.copySupportedCharacterItemFlags(items);
 
-      if (ddbItemIcons) {
-        this.showCurrentTask("Fetching DDB Inventory Images");
-        items = await Iconizer.getDDBEquipmentIcons(items);
-      }
-
-      if (useInbuiltIcons) {
-        this.showCurrentTask("Adding Inbuilt Icons");
-        items = await Iconizer.getDDBHintImages("class", items);
-        items = await Iconizer.getDDBHintImages("subclass", items);
-        items = await Iconizer.copyInbuiltIcons(items);
-      }
-
-      if (useSRDCompendiumIcons && !useSRDCompendiumItems) {
-        this.showCurrentTask("Adding SRD Icons");
-        items = await Iconizer.copySRDIcons(items);
-      }
-
-      if (ddbSpellIcons) {
-        this.showCurrentTask("Fetching DDB Spell School Images");
-        items = await Iconizer.getDDBSpellSchoolIcons(items);
-      }
-
-      if (ddbGenericItemIcons) {
-        this.showCurrentTask("Fetching DDB Generic Item Images");
-        items = await Iconizer.getDDBGenericItemIcons(items);
-      }
-
       if (this.settings.activeEffectCopy) {
         this.showCurrentTask("Copying Item Active Effects");
         items = await this.copyCharacterItemEffects(items);
       }
 
-      items = await Iconizer.addItemEffectIcons(items);
-      items = await Iconizer.retainExistingIcons(items);
+      const iconizerSettings = {
+        ddbItem: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-item-icons"),
+        inBuilt: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-inbuilt-icons"),
+        srdIcons: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-srd-icons"),
+        ddbSpell: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-spell-icons"),
+        ddbGenericItem: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-generic-item-icons"),
+      };
+
+      items = await Iconizer.updateIcons({
+        settings: iconizerSettings,
+        documents: items,
+        srdIconUpdate: !game.settings.get("ddb-importer", "character-update-policy-use-srd"),
+      });
     }
 
     items = items.map((item) => {

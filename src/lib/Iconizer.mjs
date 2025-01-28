@@ -211,12 +211,15 @@ export default class Iconizer {
       ddbItem: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-item-icons"),
       inBuilt: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-inbuilt-icons"),
       srdIcons: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons"),
-      ddbSpellIcons: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-spell-icons"),
-      ddbGenericItemIcons: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-generic-item-icons"),
+      ddbSpell: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-spell-icons"),
+      ddbGenericItem: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-generic-item-icons"),
     };
   }
 
-  constructor({ notifier = null, settings = {} } = {}) {
+  constructor({
+    notifier = null, settings = {}, documents = [],
+    srdIconUpdate = true, isMonster = false, monsterName = "",
+  } = {}) {
     this.notifier = notifier;
     if (!notifier) {
       this.notifier = (note, nameField = false, monsterNote = false) => {
@@ -224,6 +227,72 @@ export default class Iconizer {
       };
     }
     this.settings = foundry.utils.mergeObject(Iconizer.SETTINGS(), settings);
+    this.documents = documents;
+    this.isMonster = isMonster;
+    this.monsterName = monsterName;
+    this.srdIconUpdate = srdIconUpdate;
+  }
+
+  async _addDDBEquipmentIcons() {
+    const targetDocs = this.documents.filter((item) => DICTIONARY.types.inventory.includes(item.type));
+    const itemImages = await Iconizer.getDDBItemImages(targetDocs, true);
+
+    this.documents = await Promise.all(this.documents.map((item) => {
+      // logger.debug(item.name);
+      // logger.debug(item.flags.ddbimporter.dndbeyond);
+      if (DICTIONARY.types.inventory.includes(item.type)) {
+        if (!item.img || item.img == "" || item.img == CONST.DEFAULT_TOKEN) {
+          const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
+          if (imageMatch && imageMatch.img) {
+            item.img = imageMatch.img;
+            foundry.utils.setProperty(item, "flags.ddbimporter.keepIcon", true);
+          }
+          if (imageMatch && imageMatch.large) {
+            item.flags.ddbimporter.dndbeyond['pictureUrl'] = imageMatch.large;
+          }
+        }
+      }
+      return item;
+    }));
+  }
+
+  async processDocuments() {
+
+    // this will use ddb item icons as a fall back
+    if (this.settings.ddbItem) {
+      logger.debug("DDB Equipment Icon Match");
+      await this._addDDBEquipmentIcons();
+    }
+
+    if (this.settings.inBuilt) {
+      await this._addDDBHintImages("class");
+      await this._addDDBHintImages("subclass");
+      logger.debug(`Inbuilt icon matching (Monster? ${this.isMonster ? this.monsterName : this.isMonster})`);
+      await this._copyInbuiltIcons();
+    }
+
+    // check for SRD icons
+    // eslint-disable-next-line require-atomic-updates
+    if (this.settings.srd && this.srdIconUpdate) {
+      logger.debug("SRD Icon Matching");
+      await this._copySRDIcons();
+    }
+
+    // this will use ddb spell school icons as a fall back
+    if (this.settings.ddbSpell) {
+      logger.debug("DDB Spell School Icon Match");
+      await this._addDDBSpellSchoolIcons();
+    }
+
+    // this will use ddb generic icons as a fall back
+    if (this.settings.ddbGenericItem) {
+      logger.debug("DDB Generic Item Icon Match");
+      await this._addDDBGenericItemIcons();
+    }
+
+    // update any generated effects
+    this._addItemEffectIcons();
+    this._retainExistingIcons();
   }
 
   static async generateIcon(adventure, title) {
@@ -260,40 +329,37 @@ export default class Iconizer {
     return iconPath;
   }
 
-  static async copyInbuiltIcons(items, monster = false, monsterName = "") {
+  async _copyInbuiltIcons() {
     // get unique array of item types to be matching
-    const itemTypes = items.map((item) => item.type).filter((item, i, ar) => ar.indexOf(item) === i);
+    const itemTypes = this.documents.map((item) => item.type).filter((item, i, ar) => ar.indexOf(item) === i);
 
-    if (monster) itemTypes.push("monster");
+    if (this.isMonster) itemTypes.push("monster");
     await loadIconMaps(itemTypes);
 
-    return new Promise((resolve) => {
-      const iconItems = items.map((item) => {
-        if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") !== true) {
-          // logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
-          // if we have a monster lets check the monster dict first
-          if (monster && !["spell"].includes(item.type)) {
-            const monsterPath = getIconPath(item, "monster", monsterName);
-            if (monsterPath) {
-              item.img = monsterPath;
-              return item;
-            }
-          }
-          const pathMatched = getIconPath(item, item.type);
-          if (pathMatched) {
-            item.img = pathMatched;
-            if (item.effects) {
-              item.effects.forEach((effect) => {
-                if (!effect.img || effect.img === "") {
-                  effect.img = pathMatched;
-                }
-              });
-            }
+    this.documents = this.documents.map((item) => {
+      if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") !== true) {
+        // logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
+        // if we have a monster lets check the monster dict first
+        if (this.isMonster && !["spell"].includes(item.type)) {
+          const monsterPath = getIconPath(item, "monster", this.monsterName);
+          if (monsterPath) {
+            item.img = monsterPath;
+            return item;
           }
         }
-        return item;
-      });
-      resolve(iconItems);
+        const pathMatched = getIconPath(item, item.type);
+        if (pathMatched) {
+          item.img = pathMatched;
+          if (item.effects) {
+            item.effects.forEach((effect) => {
+              if (!effect.img || effect.img === "") {
+                effect.img = pathMatched;
+              }
+            });
+          }
+        }
+      }
+      return item;
     });
   }
 
@@ -355,6 +421,10 @@ export default class Iconizer {
     return CONFIG.DDBI.SRD_LOAD.iconMap;
   }
 
+  async _copySRDIcons(srdImageLibrary = null, nameMatchList = []) {
+    this.documents = await Iconizer.copySRDIcons(this.documents, srdImageLibrary, nameMatchList);
+  }
+
   static async copySRDIcons(items, srdImageLibrary = null, nameMatchList = []) {
     // eslint-disable-next-line require-atomic-updates
     if (!srdImageLibrary) srdImageLibrary = await Iconizer.getSRDImageLibrary();
@@ -376,16 +446,13 @@ export default class Iconizer {
     return srdItems;
   }
 
-  static async retainExistingIcons(items) {
-    return new Promise((resolve) => {
-      const newItems = items.map((item) => {
-        if (item.flags.ddbimporter?.ignoreIcon) {
-          logger.debug(`Retaining icon for ${item.name} to ${item.flags.ddbimporter.matchedImg}`);
-          item.img = item.flags.ddbimporter.matchedImg;
-        }
-        return item;
-      });
-      resolve(newItems);
+  _retainExistingIcons() {
+    this.documents.map((item) => {
+      if (item.flags.ddbimporter?.ignoreIcon) {
+        logger.debug(`Retaining icon for ${item.name} to ${item.flags.ddbimporter.matchedImg}`);
+        item.img = item.flags.ddbimporter.matchedImg;
+      }
+      return item;
     });
   }
 
@@ -438,8 +505,8 @@ export default class Iconizer {
     return Promise.all(itemMap);
   }
 
-  static async getDDBHintImages(type, items) {
-    utils.munchNote(`Fetching DDB Hint Images for ${type}`);
+  async _addDDBHintImages(type) {
+    this.notifier(`Fetching DDB Hint Images for ${type}`);
     // const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
     // const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -447,7 +514,7 @@ export default class Iconizer {
 
     const imageNamePrefix = useDeepPaths ? "" : type;
 
-    for (const item of items) {
+    for (const item of this.documents) {
       // eslint-disable-next-line no-continue
       if (item.type !== type || item.img) continue;
       const ddbImg = foundry.utils.getProperty(item, "flags.ddbimporter.ddbImg");
@@ -468,9 +535,8 @@ export default class Iconizer {
       if (img) item.img = img;
     }
 
-    utils.munchNote("");
+    this.notifier("");
 
-    return items;
   }
 
   static async getDDBGenericItemImages() {
@@ -516,11 +582,11 @@ export default class Iconizer {
     return Promise.all(itemMap);
   }
 
-  static async getDDBGenericItemIcons(items) {
+  async _addDDBGenericItemIcons() {
     const genericItems = await Iconizer.getDDBGenericItemImages();
     const genericLoots = await Iconizer.getDDBGenericLootImages();
 
-    let updatedItems = items.map((item) => {
+    this.documents = this.documents.map((item) => {
       // logger.debug(item.name);
       // logger.debug(item.flags.ddbimporter.dndbeyond.filterType);
       const excludedItems = ["spell", "feat", "class"];
@@ -540,7 +606,6 @@ export default class Iconizer {
       }
       return item;
     });
-    return Promise.all(updatedItems);
   }
 
   static async getDDBSchoolSpellImages() {
@@ -565,10 +630,10 @@ export default class Iconizer {
     return Promise.all(schoolMap);
   }
 
-  static async getDDBSpellSchoolIcons(items) {
+  async _addDDBSpellSchoolIcons() {
     const schools = await Iconizer.getDDBSchoolSpellImages();
 
-    let updatedItems = items.map((item) => {
+    this.documents = this.documents.map((item) => {
       // logger.debug(item.name);
       // logger.debug(item.flags.ddbimporter.dndbeyond);
       if (item.type == "spell") {
@@ -579,62 +644,8 @@ export default class Iconizer {
       }
       return item;
     });
-    return Promise.all(updatedItems);
   }
 
-  static async getDDBEquipmentIcons(items) {
-    const itemImages = await Iconizer.getDDBItemImages(items.filter((item) => DICTIONARY.types.inventory.includes(item.type)), true);
-
-    let updatedItems = items.map((item) => {
-      // logger.debug(item.name);
-      // logger.debug(item.flags.ddbimporter.dndbeyond);
-      if (DICTIONARY.types.inventory.includes(item.type)) {
-        if (!item.img || item.img == "" || item.img == CONST.DEFAULT_TOKEN) {
-          const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
-          if (imageMatch && imageMatch.img) {
-            item.img = imageMatch.img;
-            foundry.utils.setProperty(item, "flags.ddbimporter.keepIcon", true);
-          }
-          if (imageMatch && imageMatch.large) {
-            item.flags.ddbimporter.dndbeyond['pictureUrl'] = imageMatch.large;
-          }
-        }
-      }
-      return item;
-    });
-    return Promise.all(updatedItems);
-  }
-
-  static async updateMagicItemImages(items) {
-    const useSRDCompendiumIcons = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-srd-icons");
-    const ddbSpellIcons = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-spell-icons");
-    const inbuiltIcons = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-inbuilt-icons");
-    const ddbItemIcons = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-item-icons");
-
-    // if we still have items to add, add them
-    if (items.length > 0) {
-      if (ddbItemIcons) {
-        logger.debug("Magic items: adding equipment icons");
-        items = await Iconizer.getDDBEquipmentIcons(items);
-      }
-
-      if (inbuiltIcons) {
-        logger.debug("Magic items: adding inbuilt icons");
-        items = await Iconizer.copyInbuiltIcons(items);
-      }
-
-      if (useSRDCompendiumIcons) {
-        logger.debug("Magic items: adding srd compendium icons");
-        items = await Iconizer.copySRDIcons(items);
-      }
-
-      if (ddbSpellIcons) {
-        logger.debug("Magic items: adding ddb spell school icons");
-        items = await Iconizer.getDDBSpellSchoolIcons(items);
-      }
-    }
-    return items;
-  }
 
   static async preFetchDDBIconImages() {
     await Iconizer.getDDBGenericItemImages();
@@ -643,9 +654,9 @@ export default class Iconizer {
   }
 
 
-  static addItemEffectIcons(items) {
+  _addItemEffectIcons() {
     logger.debug("Adding Icons to effects");
-    items.forEach((item) => {
+    this.documents.forEach((item) => {
       if (item.effects && (item.img && (item.img !== "" || item.img !== CONST.DEFAULT_TOKEN))) {
         item.effects.forEach((effect) => {
           if (!effect.img || effect.img === "" || effect.img === CONST.DEFAULT_TOKEN) {
@@ -654,7 +665,6 @@ export default class Iconizer {
         });
       }
     });
-    return items;
   }
 
   static addActorEffectIcons(actor) {
@@ -673,50 +683,13 @@ export default class Iconizer {
   }
 
   static async updateIcons({
-    documents = [], srdIconUpdate = true, monster = false, monsterName = "", notifier = null,
+    documents = [], srdIconUpdate = true, monster = false, monsterName = "", notifier = null, settings = {},
+    preFetch = false,
   } = {}) {
-    // this will use ddb item icons as a fall back
-    const ddbItemIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-item-icons");
-    if (ddbItemIcons) {
-      logger.debug("DDB Equipment Icon Match");
-      documents = await Iconizer.getDDBEquipmentIcons(documents);
-    }
-
-    const inBuiltIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-inbuilt-icons");
-    if (inBuiltIcons) {
-      documents = await Iconizer.getDDBHintImages("class", documents);
-      documents = await Iconizer.getDDBHintImages("subclass", documents);
-      logger.debug(`Inbuilt icon matching (Monster? ${monster ? monsterName : monster})`);
-      documents = await Iconizer.copyInbuiltIcons(documents, monster, monsterName);
-    }
-
-    // check for SRD icons
-    const srdIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons");
-    // eslint-disable-next-line require-atomic-updates
-    if (srdIcons && srdIconUpdate) {
-      logger.debug("SRD Icon Matching");
-      documents = await Iconizer.copySRDIcons(documents);
-    }
-
-    // this will use ddb spell school icons as a fall back
-    const ddbSpellIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-spell-icons");
-    if (ddbSpellIcons) {
-      logger.debug("DDB Spell School Icon Match");
-      documents = await Iconizer.getDDBSpellSchoolIcons(documents);
-    }
-
-    // this will use ddb generic icons as a fall back
-    const ddbGenericItemIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-generic-item-icons");
-    if (ddbGenericItemIcons) {
-      logger.debug("DDB Generic Item Icon Match");
-      documents = await Iconizer.getDDBGenericItemIcons(documents);
-    }
-
-    // update any generated effects
-    documents = Iconizer.addItemEffectIcons(documents);
-
-    return documents;
+    if (preFetch) await Iconizer.preFetchDDBIconImages();
+    const iconzier = new Iconizer({ notifier, documents, srdIconUpdate, isMonster: monster, monsterName, settings });
+    await iconzier.processDocuments();
+    return iconzier.documents;
   }
-
 
 }
