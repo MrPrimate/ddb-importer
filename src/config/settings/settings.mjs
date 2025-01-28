@@ -841,11 +841,11 @@ const SETTINGS = {
             config: true,
             type: String,
             choices: {
-              TYPE_SOURCE: "Source Book -> Item Type",
+              SOURCE_CATEGORY_TYPE: "Source Category -> Item Type",
               TYPE: "Item Type",
               RARITY: "Rarity",
             },
-            default: "TYPE_SOURCE",
+            default: "SOURCE_CATEGORY_TYPE",
           },
         },
         ADVENTURE: {
@@ -1173,7 +1173,7 @@ const SETTINGS = {
           type: Boolean,
           default: true,
         },
-        "allow-note-generation": {
+        "allow-dev-generation": {
           type: Boolean,
           default: false,
         },

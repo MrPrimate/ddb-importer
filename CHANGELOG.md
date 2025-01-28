@@ -4,8 +4,8 @@
 - Midi Automation: Spirit Guardians. Ice Knife corrections and simplification.
 - Potion of Invulnerability effect.
 - New Compendium Folder options (set as defaults):
-For Items: Source Book -> Type
-For Spells: Source Book -> Level
+For Items: Source Category -> Type
+For Spells: Source Category -> Level
 
 # 6.0.66
 

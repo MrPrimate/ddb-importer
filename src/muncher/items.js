@@ -1,5 +1,3 @@
-// Main module class
-import DDBMuncher from "../apps/DDBMuncher.js";
 import {
   utils,
   logger,
@@ -229,11 +227,12 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
 }
 
 
-export async function parseItems({ useSourceFilter = true, ids = [], deleteBeforeUpdate = null } = {}) {
+export async function parseItems({ useSourceFilter = true, ids = [], deleteBeforeUpdate = null, notifier = null } = {}) {
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   // const magicItemsInstalled = !!game.modules.get("magicitems");
   const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
 
+  const resolvedNotifier = (notifier ?? utils.munchNote);
   // to speed up file checking we pregenerate existing files now.
   logger.info("Checking for existing files...");
   await FileHelper.generateCurrentFiles(uploadDirectory);
@@ -244,7 +243,9 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
   }
 
-  utils.munchNote("Downloading item data..");
+  resolvedNotifier("Downloading item data..");
+
+  await DDBCompendiumFolders.generateCompendiumFolders("items", resolvedNotifier);
 
   // disable source filter if ids provided
   const sourceFilter = (ids === null || ids.length === 0) && useSourceFilter;
@@ -253,7 +254,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   await game.settings.set(SETTINGS.MODULE_ID, "generic-items", Array.from(CONFIG.DDBI.GENERIC_EQUIPMENT));
 
   const characterInventory = getCharacterInventory(raw.items, raw.extra);
-  const results = await generateImportItems(characterInventory, utils.munchNote, raw.spells);
+  const results = await generateImportItems(characterInventory, resolvedNotifier, raw.spells);
 
   let items = results.items;
   // console.warn("spell imports", {
@@ -262,14 +263,14 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   //   characterInventory,
   // });
 
-  utils.munchNote("Parsing item data..");
+  resolvedNotifier("Parsing item data..");
 
   await Iconizer.preFetchDDBIconImages();
 
   const itemHandler = new DDBItemImporter("items", items, {
     deleteBeforeUpdate,
     matchFlags: ["is2014", "is2024"],
-    notifier: utils.munchNote,
+    notifier: resolvedNotifier,
   });
   await itemHandler.init();
   await itemHandler.srdFiddling();
@@ -280,25 +281,17 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
     : itemHandler.documents;
   itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: filteredItems, compendiumItem: true });
 
-  const compendiumFolders = new DDBCompendiumFolders("item");
-  if (compendiumFolders.compendiumFolderTypeItem === "TYPE_SOURCE") {
-    await compendiumFolders.loadCompendium("item");
-    for (const item of itemHandler.documents) {
-      await compendiumFolders.createItemTypeSourceFolder(item);
-    }
-  } else {
-    await DDBMuncher.generateCompendiumFolders("items");
-  }
-
   const finalCount = itemHandler.documents.length;
-  utils.munchNote(`Preparing to import ${finalCount} items!`, true);
+  resolvedNotifier(`Preparing to import ${finalCount} items!`, true);
   logger.time("Item Import Time");
 
   const updateResults = await itemHandler.updateCompendium(updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
+  await DDBCompendiumFolders.cleanupCompendiumFolders("items", resolvedNotifier);
+
   logger.debug("Final Item Import Data", { finalItems: itemHandler.documents, updateResults, updatePromiseResults });
-  utils.munchNote("");
+  resolvedNotifier("");
   logger.timeEnd("Item Import Time");
   return updateResults;
 }

@@ -21,6 +21,14 @@ export default class DDBSources {
     }
   }
 
+  static getDDBSourceBook(sourceBook) {
+    if (["SRD 5.1"].includes(sourceBook)) {
+      return "BR";
+    } else {
+      return sourceBook.replace(" ", "-");
+    }
+  }
+
   static tweakSourceData(source) {
     source.book = DDBSources.getAdjustedSourceBook(source.book);
     if (source.book === "BR") {
@@ -45,6 +53,7 @@ export default class DDBSources {
    * @param {obj} definition item definition
    * @returns {Array} an array of sourcebook objects
    */
+  // eslint-disable-next-line complexity
   static getSourceData(definition) {
     const results = [];
     if (definition.sources?.length > 0) {
@@ -67,6 +76,7 @@ export default class DDBSources {
           license: "",
           custom: "",
           id: ddbSource ? ddbSource.id : 9999999,
+          categoryId: ddbSource ? ddbSource.sourceCategoryId : 9999999,
         };
         DDBSources.tweakSourceData(source);
         results.push(source);
@@ -80,6 +90,7 @@ export default class DDBSources {
           license: "",
           custom: "",
           id: ddbSource ? ddbSource.id : 9999999,
+          categoryId: ddbSource ? ddbSource.sourceCategoryId : 9999999,
         };
 
         DDBSources.tweakSourceData(source);
@@ -93,6 +104,7 @@ export default class DDBSources {
         license: "",
         custom: "",
         id: ddbSource ? ddbSource.id : 9999999,
+        categoryId: ddbSource ? ddbSource.sourceCategoryId : 9999999,
       };
       DDBSources.tweakSourceData(source);
       results.push(source);

@@ -893,6 +893,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.data.system.level = this.ddbDefinition.level;
     this.data.system.school = (this.school) ? this.school.id : null;
     this.data.system.source = DDBSources.parseSource(this.ddbDefinition);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.sourceId", this.data.system.source.id);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.sourceCategoryId", this.data.system.source.categoryIdid);
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
     if (this.spellClass) {

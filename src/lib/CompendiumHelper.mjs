@@ -456,7 +456,6 @@ const CompendiumHelper = {
     return newFolder;
   },
 
-
 };
 
 export default CompendiumHelper;

@@ -24,7 +24,7 @@ function getTableButton() {
 
 function buildNotes(html, data) {
   if (!game.user.isGM) return;
-  const allow = game.settings.get("ddb-importer", "allow-note-generation");
+  const allow = game.settings.get("ddb-importer", "allow-dev-generation");
   if (!allow) return;
 
   // mark all headers

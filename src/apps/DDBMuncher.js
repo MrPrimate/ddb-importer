@@ -237,11 +237,10 @@ export default class DDBMuncher extends Application {
   static async parseCritters() {
     try {
       logger.info("Munching monsters!");
-      // await DDBMuncher.generateCompendiumFolders("monsters");
       await DDBReferenceLinker.importCacheLoad();
       const monsterFactory = new DDBMonsterFactory({ munchNote: DDBMuncher.munchNote });
       const result = await monsterFactory.processIntoCompendium();
-      await DDBMuncher.cleanupCompendiumFolders("monsters");
+      await DDBCompendiumFolders.cleanupCompendiumFolders("monsters", DDBMuncher);
       DDBMuncher.munchNote(`Finished importing ${result} monsters!`, true);
       DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
@@ -269,7 +268,6 @@ export default class DDBMuncher extends Application {
       logger.info("Munching spells!");
       await DDBReferenceLinker.importCacheLoad();
       await parseSpells();
-      await DDBMuncher.cleanupCompendiumFolders("spells");
       DDBMuncher.munchNote(`Finished importing spells!`, true);
       DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
@@ -279,28 +277,12 @@ export default class DDBMuncher extends Application {
     }
   }
 
-  static async cleanupCompendiumFolders(type) {
-    const compendiumFolders = new DDBCompendiumFolders(type);
-    DDBMuncher.munchNote(`Cleaning compendium folders...`, true);
-    await compendiumFolders.loadCompendium(type);
-    await compendiumFolders.removeUnusedFolders();
-    DDBMuncher.munchNote(`Cleaning compendium folders complete`, true);
-  }
-
-  static async generateCompendiumFolders(type) {
-    const compendiumFolders = new DDBCompendiumFolders(type);
-    DDBMuncher.munchNote(`Checking compendium folders..`, true);
-    await compendiumFolders.loadCompendium(type);
-    DDBMuncher.munchNote("", true);
-  }
 
   static async parseItems() {
     try {
       logger.info("Munching items!");
-      // await DDBMuncher.generateCompendiumFolders("items");
       await DDBReferenceLinker.importCacheLoad();
-      await parseItems();
-      await DDBMuncher.cleanupCompendiumFolders("items");
+      await parseItems({ notifier: DDBMuncher.munchNote });
       DDBMuncher.munchNote(`Finished importing items!`, true);
       DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
@@ -408,6 +390,7 @@ export default class DDBMuncher extends Application {
     const compendiumFolders = new DDBCompendiumFolders(type);
     await compendiumFolders.loadCompendium(type);
     await compendiumFolders.migrateExistingCompendium();
+    await compendiumFolders.removeUnusedFolders();
     DDBMuncher.munchNote(`Migrating complete.`, true);
     DDBMuncher.enableButtons();
   }
