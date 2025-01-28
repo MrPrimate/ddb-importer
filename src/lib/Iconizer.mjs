@@ -206,13 +206,24 @@ function unPad(match, p1) {
 
 export default class Iconizer {
 
-  constructor({ notifier = null } = {}) {
+  static SETTINGS() {
+    return {
+      ddbItem: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-item-icons"),
+      inBuilt: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-inbuilt-icons"),
+      srdIcons: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons"),
+      ddbSpellIcons: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-spell-icons"),
+      ddbGenericItemIcons: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-generic-item-icons"),
+    };
+  }
+
+  constructor({ notifier = null, settings = {} } = {}) {
     this.notifier = notifier;
     if (!notifier) {
       this.notifier = (note, nameField = false, monsterNote = false) => {
         logger.info(note, { nameField, monsterNote });
       };
     }
+    this.settings = foundry.utils.mergeObject(Iconizer.SETTINGS(), settings);
   }
 
   static async generateIcon(adventure, title) {
@@ -661,20 +672,22 @@ export default class Iconizer {
     return actor;
   }
 
-  static async updateIcons(items, srdIconUpdate = true, monster = false, monsterName = "") {
+  static async updateIcons({
+    documents = [], srdIconUpdate = true, monster = false, monsterName = "", notifier = null,
+  } = {}) {
     // this will use ddb item icons as a fall back
     const ddbItemIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-item-icons");
     if (ddbItemIcons) {
       logger.debug("DDB Equipment Icon Match");
-      items = await Iconizer.getDDBEquipmentIcons(items);
+      documents = await Iconizer.getDDBEquipmentIcons(documents);
     }
 
     const inBuiltIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-inbuilt-icons");
     if (inBuiltIcons) {
-      items = await Iconizer.getDDBHintImages("class", items);
-      items = await Iconizer.getDDBHintImages("subclass", items);
+      documents = await Iconizer.getDDBHintImages("class", documents);
+      documents = await Iconizer.getDDBHintImages("subclass", documents);
       logger.debug(`Inbuilt icon matching (Monster? ${monster ? monsterName : monster})`);
-      items = await Iconizer.copyInbuiltIcons(items, monster, monsterName);
+      documents = await Iconizer.copyInbuiltIcons(documents, monster, monsterName);
     }
 
     // check for SRD icons
@@ -682,27 +695,27 @@ export default class Iconizer {
     // eslint-disable-next-line require-atomic-updates
     if (srdIcons && srdIconUpdate) {
       logger.debug("SRD Icon Matching");
-      items = await Iconizer.copySRDIcons(items);
+      documents = await Iconizer.copySRDIcons(documents);
     }
 
     // this will use ddb spell school icons as a fall back
     const ddbSpellIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-spell-icons");
     if (ddbSpellIcons) {
       logger.debug("DDB Spell School Icon Match");
-      items = await Iconizer.getDDBSpellSchoolIcons(items);
+      documents = await Iconizer.getDDBSpellSchoolIcons(documents);
     }
 
     // this will use ddb generic icons as a fall back
     const ddbGenericItemIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-generic-item-icons");
     if (ddbGenericItemIcons) {
       logger.debug("DDB Generic Item Icon Match");
-      items = await Iconizer.getDDBGenericItemIcons(items);
+      documents = await Iconizer.getDDBGenericItemIcons(documents);
     }
 
     // update any generated effects
-    items = Iconizer.addItemEffectIcons(items);
+    documents = Iconizer.addItemEffectIcons(documents);
 
-    return items;
+    return documents;
   }
 
 

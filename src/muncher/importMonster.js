@@ -337,7 +337,12 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
 
   logger.debug("Importing Icons");
   // eslint-disable-next-line require-atomic-updates
-  data.items = await Iconizer.updateIcons(data.items, false, true, data.name);
+  data.items = await Iconizer.updateIcons({
+    documents: data.items,
+    srdIconUpdate: false,
+    monster: true,
+    monsterName: data.name,
+  });
   data = Iconizer.addActorEffectIcons(data);
   // if (!["monster", "summons"].includes(type)) data = await linkResourcesConsumption(data);
 

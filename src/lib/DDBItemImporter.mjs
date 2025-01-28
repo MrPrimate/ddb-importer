@@ -30,6 +30,7 @@ export default class DDBItemImporter {
     this.results = [];
 
     this.deleteBeforeUpdate = deleteBeforeUpdate ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-delete-during-update");
+    this.deleteAllBeforeUpdate = foundry.utils.getProperty(CONFIG, "DDBI.DEV.deleteAllBeforeUpdate") ?? false;
     this.notifier = notifier;
 
     if (!notifier) {
@@ -350,7 +351,7 @@ export default class DDBItemImporter {
     if (!game.user.isGM) return [];
     logger.debug(`Getting compendium for update of ${this.type} documents (checking ${this.documents.length} docs)`);
 
-    if (this.compendium.metadata.type === "Item" && this.deleteBeforeUpdate) {
+    if (this.deleteAllBeforeUpdate) {
       await Item.deleteDocuments([], { pack: this.compendium.metadata.id, deleteAll: true });
     }
 
@@ -506,7 +507,10 @@ ${item.system.description.chat}
   }
 
   async iconAdditions() {
-    this.documents = await Iconizer.updateIcons(this.documents);
+    this.documents = await Iconizer.updateIcons({
+      documents: this.documents,
+      notifier: this.notifier,
+    });
   }
 
   static async buildHandler(type, documents, updateBool,

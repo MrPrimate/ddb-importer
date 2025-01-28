@@ -41,6 +41,7 @@ foundry.utils.setProperty(CONFIG, "DDBI", {
     enabled: false,
     clippy: {},
     tableInUse: false,
+    deleteAllBeforeUpdate: false,
   },
   EFFECT_CONFIG: {
     MODULES: {

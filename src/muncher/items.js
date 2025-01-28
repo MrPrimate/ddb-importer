@@ -243,9 +243,9 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
   }
 
-  resolvedNotifier("Downloading item data..");
-
   await DDBCompendiumFolders.generateCompendiumFolders("items", resolvedNotifier);
+
+  resolvedNotifier("Downloading item data..");
 
   // disable source filter if ids provided
   const sourceFilter = (ids === null || ids.length === 0) && useSourceFilter;
@@ -274,7 +274,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   });
   await itemHandler.init();
   await itemHandler.srdFiddling();
-  utils.munchNote(`Imps are creating iconographs for ${itemHandler.documents.length} possible items (this can take a while)`, true);
+  resolvedNotifier(`Imps are creating iconographs for ${itemHandler.documents.length} possible items (this can take a while)`, true);
   await itemHandler.iconAdditions();
   const filteredItems = (ids !== null && ids.length > 0)
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
