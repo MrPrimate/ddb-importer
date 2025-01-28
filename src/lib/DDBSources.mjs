@@ -147,6 +147,20 @@ export default class DDBSources {
     }
     sources["Homebrew"] = "Homebrew";
     Object.assign(CONFIG.DND5E.sourceBooks, sources);
+    CONFIG.DDB.sources.push({
+      "id": 9999999,
+      "name": "Homebrew",
+      "description": "Homebrew",
+      "sourceCategoryId": 9999999,
+      "isReleased": true,
+      "avatarURL": "",
+      "sourceURL": "my-collection",
+    });
+    CONFIG.DDB.sourceCategories.push({
+      id: 9999999,
+      name: "Homebrew",
+      description: "Homebrew",
+    });
   }
 
 }

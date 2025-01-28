@@ -11,16 +11,7 @@ export const COMPENDIUM_FOLDERS = {
     "8th Level",
     "9th Level",
   ],
-  RARITY: [
-    "Common",
-    "Uncommon",
-    "Rare",
-    "Very Rare",
-    "Legendary",
-    "Artifact",
-    "Varies",
-    "Unknown",
-  ],
+  RARITY: ["Common", "Uncommon", "Rare", "Very Rare", "Legendary", "Artifact", "Varies", "Unknown"],
   TYPE_FOLDERS: {
     subFolders: {
       equipment: {
@@ -179,6 +170,116 @@ export const COMPENDIUM_FOLDERS = {
       unknown: {
         folderName: "Unknown",
       },
+    },
+  },
+  SOURCE_CATEGORY_FOLDERS: {
+    1: {
+      folderName: "Expanded Rules",
+      color: "b3474d",
+    },
+    2: {
+      folderName: "Critical Role",
+      color: "bc52ae",
+    },
+    3: {
+      folderName: "Playtest",
+      color: "",
+    },
+    6: {
+      folderName: "D&D Beyond",
+      color: "",
+    },
+    7: {
+      folderName: "Magic: The Gathering",
+      color: "",
+    },
+    8: {
+      folderName: "Eberron",
+      color: "aa8a31",
+    },
+    9: {
+      folderName: "Archived",
+      color: "",
+    },
+    10: {
+      folderName: "Rick and Morty",
+      color: "6fe83b",
+    },
+    11: {
+      folderName: "Runeterra",
+      color: "436642",
+    },
+    12: {
+      folderName: "Noncore D&D",
+      color: "6edd99",
+    },
+    13: {
+      folderName: "Adventurers League",
+      color: "77411d",
+    },
+    14: {
+      folderName: "Dragonlance",
+      color: "",
+    },
+    15: {
+      folderName: "Minecraft",
+      color: "634112",
+    },
+    16: {
+      folderName: "Misc. Content",
+      color: "",
+    },
+    17: {
+      folderName: "Planescape",
+      color: "6216d4",
+    },
+    18: {
+      folderName: "Grim Hollow",
+      color: "291834",
+    },
+    19: {
+      folderName: "Drakkenheim",
+      color: "604285",
+    },
+    20: {
+      folderName: "Humblewood",
+      color: "2f4b34",
+    },
+    21: {
+      folderName: "Kobold Press",
+      color: "131781",
+    },
+    22: {
+      folderName: "MCDM",
+      color: "9e9ea9",
+    },
+    23: {
+      folderName: "Legacy",
+      color: "a46a6d",
+    },
+    24: {
+      folderName: "Core Rules",
+      color: "6f0006",
+    },
+    25: {
+      folderName: "Free League",
+      color: "306460",
+    },
+    26: {
+      folderName: "2014 Core Rules",
+      color: "a21017",
+    },
+    27: {
+      folderName: "The Griffon's Saddlebag",
+      color: "00cc18",
+    },
+    28: {
+      folderName: "Internal",
+      color: "",
+    },
+    9999999: {
+      folderName: "Homebrew",
+      color: "",
     },
   },
 };

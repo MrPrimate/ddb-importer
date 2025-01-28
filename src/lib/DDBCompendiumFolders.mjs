@@ -57,7 +57,7 @@ export class DDBCompendiumFolders {
     if (!noCreate) await this.createCompendiumFolders();
   }
 
-  _createCompendiumFolderData({ name, parentId = null, color = "#6f0006", folderId = null, flagTag = "" } = {}) {
+  _createCompendiumFolderData({ name, parentId = null, color = "", folderId = null, flagTag = "" } = {}) {
     return {
       pack: this.compendium,
       name,
@@ -69,7 +69,7 @@ export class DDBCompendiumFolders {
     };
   }
 
-  async createCompendiumFolder({ name, parentId = null, color = "#6f0006", folderId = null, flagTag = "" } = {}) {
+  async createCompendiumFolder({ name, parentId, color, folderId, flagTag } = {}) {
     const data = this._createCompendiumFolderData({ name, parentId, color, folderId, flagTag });
     const folder = await CompendiumHelper.createFolder(data);
     return folder;
@@ -160,7 +160,7 @@ export class DDBCompendiumFolders {
     };
   }
 
-  async _createSourceFolder(name, flagTag) {
+  async _createSourceFolder(name, flagTag, color = "") {
     logger.debug(`Checking for Source Parent folder '${name}'`);
     const existingFolder = this.getFolder(name, flagTag);
 
@@ -169,6 +169,7 @@ export class DDBCompendiumFolders {
     const newFolder = await this.createCompendiumFolder({
       name: name,
       flagTag: flagTag,
+      color,
     });
     this.validFolderIds.push(newFolder._id);
     return newFolder;
@@ -245,7 +246,7 @@ export class DDBCompendiumFolders {
 
       if (!data.subFolders) continue;
       for (const [subKey, subData] of Object.entries(data.subFolders)) {
-        logger.debug(`Checking for sub folder '${subData.folderName}' with key '${subKey}'`);
+        logger.debug(`Checking for ${categoryFolderKey}, ${flagTag} sub folder '${subData.folderName}' with key '${subKey}'`);
 
         const subFlagTag = `${flagTag}/${subKey}`;
         if (flagList && !flagList.has(subFlagTag)) continue;
@@ -288,7 +289,7 @@ export class DDBCompendiumFolders {
     }
   }
 
-  async createItemTypeFoldersWithSourceCategories() {
+  async createItemTypeFoldersWithSourceCategories(restrict = false) {
     const index = await this.compendium.getIndex({ fields: this.#getIndexFields() });
     // const sources = new Set(index.filter((s) => s.system?.source.book).map((s) => s.system.source.book));
 
@@ -296,22 +297,24 @@ export class DDBCompendiumFolders {
     const categories = new Set();
     const flagList = new Set();
 
-    for (const i of index) {
-      const d = DDBCompendiumFolders.getItemFolderNameForTypeSourceCategory(i, "item");
-      flagList.add(d.flagTag);
-      sources.add(d.result.bookCode);
-      categories.add(d.result.categoryId);
+    if (restrict) {
+      for (const i of index) {
+        const d = DDBCompendiumFolders.getItemFolderNameForTypeSourceCategory(i, "item");
+        flagList.add(d.flagTag);
+        sources.add(d.result.bookCode);
+        categories.add(d.result.categoryId);
+      }
     }
 
     const sourceFoldersData = DDBCompendiumFolders.getAllSourceCategoryFolders("item")
-      .filter((f) => categories.has(f.categoryId));
+      .filter((f) => !restrict || categories.has(f.categoryId));
 
     for (const data of sourceFoldersData) {
-      const sourceFolder = await this._createSourceFolder(data.name, data.flagTag);
+      const sourceFolder = await this._createSourceFolder(data.name, data.flagTag, data.color);
       await this.createItemTypeCompendiumFolders({
         categoryFolderKey: data.categoryId,
         categoryFolderId: sourceFolder._id,
-        flagList,
+        flagList: restrict ? flagList : null,
       });
     }
   }
@@ -684,7 +687,8 @@ export class DDBCompendiumFolders {
       const isContainer = foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.isContainer") === true;
       if (isContainer) {
         parsed.name = DICTIONARY.COMPENDIUM_FOLDERS.TYPE_FOLDERS.subFolders["container"].subFolders[ddbTypeId].folderName;
-        parsed.suffix = utils.idString(parsed.name).toLowerCase();
+        // parsed.suffix = utils.idString(parsed.name).toLowerCase();
+        parsed.suffix = ddbTypeId;
         parsed.type = "container";
         parsed.parentFolderName = DICTIONARY.COMPENDIUM_FOLDERS.TYPE_FOLDERS.subFolders["container"].folderName;
       }
@@ -947,6 +951,7 @@ export class DDBCompendiumFolders {
       bookCode,
       categoryId,
       categoryName: null,
+      color: "",
     };
 
     const suffix = flagSuffix && flagSuffix.trim() !== ""
@@ -967,6 +972,7 @@ export class DDBCompendiumFolders {
     const categoryName = categoryData?.name;
 
     if (categoryName) {
+      result.color = DICTIONARY.COMPENDIUM_FOLDERS.SOURCE_CATEGORY_FOLDERS[resolvedCategoryId]?.color ?? "";
       result.name = nameSuffix === "" ? categoryName : nameSuffix;
       result.flagTag = `${type}/${resolvedCategoryId}${suffix}`;
       result.parent = true;
@@ -1087,45 +1093,45 @@ export class DDBCompendiumFolders {
   }
 
   // eslint-disable-next-line complexity
-  getCompendiumFolderName(document) {
-    let name;
+  getCompendiumFolderData(document) {
+    let data;
     switch (this.type) {
       case "background":
       case "backgrounds": {
-        name = DDBCompendiumFolders.getBackgroundFolderName(document);
+        data = DDBCompendiumFolders.getBackgroundFolderName(document);
         break;
       }
       case "feat":
       case "feats": {
-        name = DDBCompendiumFolders.getFeatFolderName(document);
+        data = DDBCompendiumFolders.getFeatFolderName(document);
         break;
       }
       case "trait":
       case "traits": {
-        name = this.getRaceTraitFolderName(document);
+        data = this.getRaceTraitFolderName(document);
         break;
       }
       case "species":
       case "race":
       case "races": {
-        name = this.getRaceFolderName(document);
+        data = this.getRaceFolderName(document);
         break;
       }
       case "feature":
       case "features": {
-        name = this.getClassFeatureFolderName(document);
+        data = this.getClassFeatureFolderName(document);
         break;
       }
       case "class":
       case "classes":
       case "subclass":
       case "subclasses": {
-        name = this.getClassFolderName(document);
+        data = this.getClassFolderName(document);
         break;
       }
       case "summon":
       case "summons": {
-        name = this.getSummonFolderName(document);
+        data = this.getSummonFolderName(document);
         break;
       }
       case "monsters":
@@ -1137,11 +1143,11 @@ export class DDBCompendiumFolders {
               ? document.system?.details?.type?.value
               : "Unknown";
             const ddbType = CONFIG.DDB.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
-            if (ddbType) name = ddbType.name;
+            if (ddbType) data = ddbType.name;
             break;
           }
           case "ALPHA": {
-            name = document.name
+            data = document.name
               .replace(/[^a-z]/gi, "")
               .charAt(0)
               .toUpperCase();
@@ -1150,7 +1156,7 @@ export class DDBCompendiumFolders {
           case "CR": {
             if (document.system.details.cr !== undefined || document.system.details.cr !== "") {
               const paddedCR = String(document.system.details.cr).padStart(2, "0");
-              name = `CR ${paddedCR}`;
+              data = `CR ${paddedCR}`;
             }
           }
           // no default
@@ -1163,14 +1169,14 @@ export class DDBCompendiumFolders {
           case "SCHOOL": {
             const school = document.system?.school;
             if (school) {
-              name = utils.capitalize(DICTIONARY.spell.schools.find((sch) => school == sch.id).name);
+              data = utils.capitalize(DICTIONARY.spell.schools.find((sch) => school == sch.id).name);
             }
             break;
           }
           case "LEVEL": {
             const levelFolder = DICTIONARY.COMPENDIUM_FOLDERS.SPELL_LEVEL[document.system?.level];
             if (levelFolder) {
-              name = levelFolder;
+              data = levelFolder;
             }
             break;
           }
@@ -1182,7 +1188,7 @@ export class DDBCompendiumFolders {
       case "item":
       case "items": {
         try {
-          name = this.getItemCompendiumFolderName(document);
+          data = this.getItemCompendiumFolderName(document);
         } catch (e) {
           logger.error("Error in getItemCompendiumFolderName", { error: e, document });
           throw e;
@@ -1190,19 +1196,19 @@ export class DDBCompendiumFolders {
       }
       // no default
     }
-    return name;
+    return data;
   }
 
   getFolder(folderName, flagTag = "") {
     const folder = this.compendium.folders.find((f) =>
-      f.name == folderName
+      f.name === folderName
       && f.flags?.ddbimporter?.flagTag === flagTag,
     );
     return folder;
   }
 
   getFolderId(document) {
-    const folderName = this.getCompendiumFolderName(document);
+    const folderName = this.getCompendiumFolderData(document);
     if (folderName) {
       const folder = this.getFolder((folderName.name ?? folderName), (folderName.flagTag ?? ""));
       if (folder) return folder._id;
@@ -1213,7 +1219,7 @@ export class DDBCompendiumFolders {
   async addToCompendiumFolder(document) {
     logger.debug(`Checking ${document.name} in ${this.packName}`);
 
-    const folderName = this.getCompendiumFolderName(document);
+    const folderName = this.getCompendiumFolderData(document);
     if (folderName) {
       const folder = this.compendium.folders.find((f) => f.name == (folderName.name ?? folderName));
       if (folder) {
@@ -1342,11 +1348,21 @@ export class DDBCompendiumFolders {
   }
 
   // eslint-disable-next-line complexity
-  async migrateExistingCompendium() {
-    if (!this.compendium) return undefined;
+  async migrateExistingCompendium(deleteExisting = false) {
+    if (!this.compendium) {
+      this.loadCompendium(this.type, true);
+    }
 
-    const foldersToRemove = this.compendium.folders.filter((f) => !this.validFolderIds.includes(f._id));
-    await Folder.deleteDocuments(foldersToRemove.map((f) => f._id), { pack: this.packName });
+    if (deleteExisting) {
+      const foldersToRemove = this.compendium.folders.filter((f) => !this.validFolderIds.includes(f._id)).map((f) => f._id);
+      logger.debug("Deleting folders", foldersToRemove);
+      const chunkSize = 100;
+      for (let i = 0; i < foldersToRemove.length; i += chunkSize) {
+        const chunk = foldersToRemove.slice(i, i + chunkSize);
+        logger.debug("Deleting chunk folders", chunk);
+        await Folder.deleteDocuments(chunk, { pack: this.packName });
+      }
+    }
 
     logger.debug("Remaining Compendium Folders", this.compendium.folders);
 
@@ -1371,15 +1387,26 @@ export class DDBCompendiumFolders {
       case "monsters":
       case "npc":
       case "monster": {
-        await Actor.updateDocuments(results, { pack: this.packName });
+        const chunkSize = 250;
+        for (let i = 0; i < results.length; i += chunkSize) {
+          const chunk = results.slice(i, i + chunkSize);
+          logger.debug("Updating chunk actors", chunk);
+          await Actor.updateDocuments(chunk, { pack: this.packName });
+        }
         break;
       }
       default: {
-        await Item.updateDocuments(results, { pack: this.packName });
+        const chunkSize = 250;
+        for (let i = 0; i < results.length; i += chunkSize) {
+          const chunk = results.slice(i, i + chunkSize);
+          logger.debug("Updating chunk items", chunk);
+          await Item.updateDocuments(chunk, { pack: this.packName });
+        }
         break;
       }
     }
 
+    await this.removeUnusedFolders();
 
     return this.compendium.folders;
   }
@@ -1390,19 +1417,27 @@ export class DDBCompendiumFolders {
         .filter((c) => c.contents.length === 0 && c.children.length === 0)
         .map((f) => f.id);
       logger.debug("Deleting compendium folders", folderIds);
-      await Folder.deleteDocuments(folderIds, { pack: this.packName });
+      const chunkSize = 100;
+      for (let i = 0; i < folderIds.length; i += chunkSize) {
+        const chunk = folderIds.slice(i, i + chunkSize);
+        logger.debug("Deleting compendium chunk folders", chunk);
+        await Folder.deleteDocuments(chunk, { pack: this.packName });
+      }
     }
   }
 
   static async cleanupCompendiumFolders(type, notifier = null) {
+    logger.info(`Cleaning ${type} compendium folders...`);
     const compendiumFolders = new DDBCompendiumFolders(type);
     if (notifier) notifier(`Cleaning compendium folders...`, true);
     await compendiumFolders.loadCompendium(type, true);
+    await compendiumFolders.compendium.getIndex({ fields: compendiumFolders.#getIndexFields() });
     await compendiumFolders.removeUnusedFolders();
     if (notifier) notifier(`Cleaning compendium folders complete`, true);
   }
 
   static async generateCompendiumFolders(type, notifier = null) {
+    logger.info(`Migrating ${type} compendium`);
     const compendiumFolders = new DDBCompendiumFolders(type);
     if (notifier) notifier(`Checking compendium folders..`, true);
     await compendiumFolders.loadCompendium(type);
