@@ -8,6 +8,8 @@ For Monsters: Source Category -> Type
 For Items: Source Category -> Type
 For Spells: Source Category -> Level
 - Planar Warrior Midi Automation from the ever amazing @elwin1410
+- Darkvision 2024 effect fixes.
+
 
 # 6.0.66
 
