@@ -238,7 +238,7 @@ export default class DDBMuncher extends Application {
     try {
       logger.info("Munching monsters!");
       await DDBReferenceLinker.importCacheLoad();
-      const monsterFactory = new DDBMonsterFactory({ munchNote: DDBMuncher.munchNote });
+      const monsterFactory = new DDBMonsterFactory({ notifier: DDBMuncher.munchNote });
       const result = await monsterFactory.processIntoCompendium();
       await DDBCompendiumFolders.cleanupCompendiumFolders("monsters", DDBMuncher.munchNote);
       DDBMuncher.munchNote(`Finished importing ${result} monsters!`, true);
