@@ -1571,4 +1571,47 @@ export default class DDBEffectHelper {
     });
   }
 
+  /**
+   * Replaces the current workflow activity damage types with NEW_DAMAGE_TYPE.
+   *
+   * @param {MidiQOL.Workflow} currentWorkflow The current midi-qol workflow.
+   * @param {Array} damageTypes array of damage types to replace with
+   */
+  static replaceActivityDamageMidi(currentWorkflow, damageTypes = []) {
+    // Change temporarely the damage types of the activity, but make a temporary copy before applying changes
+    // and keep the original values in a flag
+    const currentActivity = currentWorkflow.activity;
+    if (
+      currentActivity?.damage?.parts?.length
+      && !foundry.utils.getProperty(currentWorkflow, "planarWarrior.origActivityDmgParts")
+    ) {
+      const origParts = currentActivity.damage.parts;
+      // Set in memory and recompute activity derived data
+      foundry.utils.setProperty(currentWorkflow, "planarWarrior.origActivityDmgParts", origParts);
+      const parts = foundry.utils.deepClone(currentActivity.damage.parts);
+      parts.forEach((d) => (d.types = new Set(damageTypes)));
+      currentActivity.damage.parts = parts;
+      currentActivity.prepareData();
+    }
+  }
+
+  /**
+   * Reverts the temporary workflow activity damage changes with the original values.
+   *
+   * @param {MidiQOL.Workflow} currentWorkflow The current midi-qol workflow.
+   */
+  static revertActivityDamageMidi(currentWorkflow) {
+    // Revert activity to original damage
+    const origParts = foundry.utils.getProperty(currentWorkflow, "planarWarrior.origActivityDmgParts");
+    if (!origParts || !currentWorkflow.activity?.damage?.parts) {
+      return;
+    }
+
+    // Set in memory and recompute activity derived data
+    currentWorkflow.activity.damage.parts = origParts;
+    currentWorkflow.activity.prepareData();
+    foundry.utils.setProperty(currentWorkflow, "planarWarrior.origActivityDmgParts", null);
+  }
+
+
 }
