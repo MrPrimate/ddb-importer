@@ -46,6 +46,13 @@ const CR_SUMMONING_SPELLS_2014 = [
   "Find Familiar",
 ];
 
+const CR_SUMMONING_SPELLS_2024 = [
+  "Summon Greater Demon",
+  "Infernal Calling",
+  "Summon Lesser Demons",
+  "Find Familiar",
+];
+
 const CR_SUMMONING_FEATURES = [
   "Wild Companion",
 ];
@@ -55,6 +62,7 @@ export const COMPANIONS = {
   COMPANION_FEATURES,
   COMPANION_SPELLS,
   COMPANION_OPTIONS,
-  CR_SUMMONING_SPELLS_2014: CR_SUMMONING_SPELLS_2014,
+  CR_SUMMONING_SPELLS_2014,
+  CR_SUMMONING_SPELLS_2024,
   CR_SUMMONING_FEATURES,
 };
