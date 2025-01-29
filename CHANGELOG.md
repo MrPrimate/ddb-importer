@@ -4,8 +4,10 @@
 - Midi Automation: Spirit Guardians. Ice Knife corrections and simplification.
 - Potion of Invulnerability effect.
 - New Compendium Folder options (set as defaults):
+For Monsters: Source Category -> Type
 For Items: Source Category -> Type
 For Spells: Source Category -> Level
+- Planar Warrior Midi Automation from the ever amazing @elwin1410
 
 # 6.0.66
 

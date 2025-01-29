@@ -3,6 +3,8 @@ import { logger, utils, CompendiumHelper, DDBSources } from "./_module.mjs";
 
 export class DDBCompendiumFolders {
 
+  static DDB_COLOR = "#6f0006";
+
   static SCHEMA_SUPPORT = {
     "feature": 1,
     "class": 1,
@@ -75,11 +77,53 @@ export class DDBCompendiumFolders {
     return folder;
   }
 
-  async createCreatureTypeFolders() {
+  async createCreatureTypeFolders({ categoryFolderKey = undefined, categoryFolderId = undefined } = {}) {
     for (const monsterType of CONFIG.DDB.monsterTypes) {
-      const folder = this.getFolder(monsterType.name)
-        ?? (await this.createCompendiumFolder({ name: monsterType.name, color: "#6f0006" }));
+      const flagTag = categoryFolderId
+        ? DDBCompendiumFolders.getSourceCategoryFolderName({
+          categoryId: categoryFolderKey,
+          type: "monster",
+        }).flagTag
+        : "";
+      const folder = this.getFolder(monsterType.name, flagTag)
+        ?? (await this.createCompendiumFolder({
+          name: monsterType.name,
+          color: categoryFolderId ? "" : DDBCompendiumFolders.DDB_COLOR,
+          flagTag,
+          parentId: categoryFolderId,
+        }));
       this.validFolderIds.push(folder._id);
+    }
+  }
+
+  static getCreatureTypeFolderNameForTypeSourceCategory(document) {
+    const creatureType = document.system?.details?.type?.value
+      ? document.system?.details?.type?.value
+      : "Unknown";
+    const ddbType = CONFIG.DDB.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
+
+    const result = DDBCompendiumFolders.getSourceCategoryFolderNameFromDocument({
+      type: "monster",
+      document,
+      nameSuffix: ddbType ? ddbType.name : "Unknown",
+    });
+    return {
+      result,
+      name: result.name,
+      flagTag: result.flagTag,
+    };
+  }
+
+  async createCreatureTypeFoldersWithSourceCategories() {
+    const sourceFoldersData = DDBCompendiumFolders.getAllSourceCategoryFolders("monster");
+
+    for (const data of sourceFoldersData) {
+      const sourceFolder = await this._createSourceFolder(data.name, data.flagTag, data.color);
+
+      await this.createCreatureTypeFolders({
+        categoryFolderKey: data.categoryId,
+        categoryFolderId: sourceFolder._id,
+      });
     }
   }
 
@@ -87,17 +131,56 @@ export class DDBCompendiumFolders {
     for (let i = 9; ++i < 36;) {
       const folderName = i.toString(36).toUpperCase();
       const folder = this.getFolder(folderName)
-        ?? (await this.createCompendiumFolder({ name: folderName, color: "#6f0006" }));
+        ?? (await this.createCompendiumFolder({ name: folderName, color: DDBCompendiumFolders.DDB_COLOR }));
       this.validFolderIds.push(folder._id);
     }
   }
 
-  async createChallengeRatingFolders() {
+  async createChallengeRatingFolders({ categoryFolderKey = undefined, categoryFolderId = undefined } = {}) {
     for (const cr of CONFIG.DDB.challengeRatings) {
       const paddedCR = String(cr.value).padStart(2, "0");
-      const folder = this.getFolder(`CR ${paddedCR}`)
-        ?? (await this.createCompendiumFolder({ name: `CR ${paddedCR}`, color: "#6f0006" }));
+      const flagTag = categoryFolderId
+        ? DDBCompendiumFolders.getSourceCategoryFolderName({
+          categoryId: categoryFolderKey,
+          type: "monster",
+        }).flagTag
+        : "";
+      const folder = this.getFolder(`CR ${paddedCR}`, flagTag)
+        ?? (await this.createCompendiumFolder({
+          name: `CR ${paddedCR}`,
+          color: categoryFolderId ? "" : DDBCompendiumFolders.DDB_COLOR,
+          flagTag,
+          parentId: categoryFolderId,
+        }));
       this.validFolderIds.push(folder._id);
+    }
+  }
+
+  static getChallengeRatingFolderNameForTypeSourceCategory(document) {
+    const paddedCR = String(document.system.details.cr ?? "0").padStart(2, "0");
+
+    const result = DDBCompendiumFolders.getSourceCategoryFolderNameFromDocument({
+      type: "monster",
+      document,
+      nameSuffix: `CR ${paddedCR}`,
+    });
+    return {
+      result,
+      name: result.name,
+      flagTag: result.flagTag,
+    };
+  }
+
+  async createChallengeRatingFoldersWithSourceCategories() {
+    const sourceFoldersData = DDBCompendiumFolders.getAllSourceCategoryFolders("monster");
+
+    for (const data of sourceFoldersData) {
+      const sourceFolder = await this._createSourceFolder(data.name, data.flagTag, data.color);
+
+      await this.createChallengeRatingFolders({
+        categoryFolderKey: data.categoryId,
+        categoryFolderId: sourceFolder._id,
+      });
     }
   }
 
@@ -579,6 +662,12 @@ export class DDBCompendiumFolders {
             await this.createChallengeRatingFolders();
             break;
           }
+          case "SOURCE_CATEGORY_TYPE":
+            await this.createCreatureTypeFoldersWithSourceCategories();
+            break;
+          case "SOURCE_CATEGORY_CR":
+            await this.createChallengeRatingFoldersWithSourceCategories();
+            break;
           // no default
         }
         break;
@@ -1185,7 +1274,14 @@ export class DDBCompendiumFolders {
               ? document.system?.details?.type?.value
               : "Unknown";
             const ddbType = CONFIG.DDB.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
-            if (ddbType) data = ddbType.name;
+            if (ddbType) data = {
+              name: ddbType.name,
+              flagTag: "",
+            };
+            break;
+          }
+          case "SOURCE_CATEGORY_TYPE": {
+            data = DDBCompendiumFolders.getCreatureTypeFolderNameForTypeSourceCategory(document);
             break;
           }
           case "ALPHA": {
@@ -1198,8 +1294,16 @@ export class DDBCompendiumFolders {
           case "CR": {
             if (document.system.details.cr !== undefined || document.system.details.cr !== "") {
               const paddedCR = String(document.system.details.cr).padStart(2, "0");
-              data = `CR ${paddedCR}`;
+              data = {
+                name: `CR ${paddedCR}`,
+                flagTag: "",
+              };
             }
+            break;
+          }
+          case "SOURCE_CATEGORY_CR": {
+            data = DDBCompendiumFolders.getChallengeRatingFolderNameForTypeSourceCategory(document);
+            break;
           }
           // no default
         }

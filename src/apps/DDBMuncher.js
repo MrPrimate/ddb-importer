@@ -182,7 +182,7 @@ export default class DDBMuncher extends Application {
     // compendium style migrations
     html.find("#compendium-folder-style-monster").on("change", async () => {
       const style = html.find("#compendium-folder-style-monster");
-      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "TYPE";
+      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "SOURCE_CATEGORY_TYPE";
       game.settings.set("ddb-importer", "munching-selection-compendium-folders-monster", importStyle);
     });
     html.find("#compendium-folder-style-spell").on("change", async () => {

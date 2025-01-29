@@ -818,11 +818,13 @@ const SETTINGS = {
             config: true,
             type: String,
             choices: {
+              SOURCE_CATEGORY_TYPE: "Source Category -> Creature type, e.g. Undead",
+              SOURCE_CATEGORY_CR: "Source Category -> Challenge Rating",
               TYPE: "Creature type, e.g. Undead",
               CR: "Challenge Rating",
               ALPHA: "Alphabetical",
             },
-            default: "TYPE",
+            default: "SOURCE_CATEGORY_TYPE",
           },
           "munching-selection-compendium-folders-spell": {
             name: "ddb-importer.settings.munching-selection-compendium-folders-spell.name",
