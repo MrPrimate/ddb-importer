@@ -1507,7 +1507,7 @@ export class DDBCompendiumFolders {
     if (deleteExisting) {
       const foldersToRemove = this.compendium.folders.filter((f) => !this.validFolderIds.includes(f._id)).map((f) => f._id);
       logger.debug("Deleting folders", foldersToRemove);
-      const chunkSize = 100;
+      const chunkSize = 20;
       for (let i = 0; i < foldersToRemove.length; i += chunkSize) {
         const chunk = foldersToRemove.slice(i, i + chunkSize);
         logger.debug("Deleting chunk folders", chunk);
@@ -1579,7 +1579,7 @@ export class DDBCompendiumFolders {
         .filter((c) => c.contents.length === 0 && c.children.length === 0)
         .map((f) => f.id);
       logger.debug("Deleting compendium folders", folderIds);
-      const chunkSize = 100;
+      const chunkSize = 20;
       for (let i = 0; i < folderIds.length; i += chunkSize) {
         const chunk = folderIds.slice(i, i + chunkSize);
         logger.debug("Deleting compendium chunk folders", chunk);

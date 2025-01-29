@@ -219,7 +219,7 @@ export default class DDBItemImporter {
       const compendiumFolders = new DDBCompendiumFolders(this.type, {
         noCreateClassFolders: true,
       });
-      await compendiumFolders.loadCompendium(this.type);
+      await compendiumFolders.loadCompendium(this.type, true);
       const results = await compendiumFolders.addCompendiumFolderIds(documents);
       return results;
     } else {
